@@ -150,13 +150,16 @@ export async function getMetricsSummary() {
 }
 
 export async function getDailySpendTrend(days = 30) {
+	const daysNum = typeof days === 'string' ? parseInt(days, 10) : days;
+	const startDate = new Date();
+	startDate.setDate(startDate.getDate() - daysNum);
 	const result = await db
 		.select({
 			date: sql`DATE(${spendLogs.startTime})`,
 			spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
 		})
 		.from(spendLogs)
-		.where(gte(spendLogs.startTime, sql`NOW() - INTERVAL '${days} days'`))
+		.where(gte(spendLogs.startTime, startDate))
 		.groupBy(sql`DATE(${spendLogs.startTime})`)
 		.orderBy(asc(sql`DATE(${spendLogs.startTime})`));
 	return result;
@@ -183,13 +186,11 @@ export async function getPerformanceMetrics() {
 	const result = await db
 		.select({
 			total_requests: sql`COUNT(*)`.mapWith(Number),
-			avg_duration_ms: sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000`.mapWith(Number),
+			avg_duration_ms: sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(Number),
 			success_rate: sql`SUM(CASE WHEN ${spendLogs.status} = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100`,
 		})
 		.from(spendLogs)
-		.where(
-			and(gte(spendLogs.startTime, thirtyDaysAgo), sql`${spendLogs.endTime} IS NOT NULL`)
-		);
+		.where(sql`${spendLogs.startTime} >= NOW() - INTERVAL '30 days' AND ${spendLogs.endTime} IS NOT NULL`);
 	return result[0] || { total_requests: 0, avg_duration_ms: 0, success_rate: 0 };
 }
 
@@ -245,14 +246,20 @@ export async function getCostEfficiencyByModel() {
 }
 
 export async function getModelRequestDistribution() {
+	const totalResult = await db
+		.select({ count: sql`COUNT(*)`.mapWith(Number) })
+		.from(spendLogs)
+		.where(sql`${spendLogs.startTime} >= NOW() - INTERVAL '30 days'`);
+	const totalCount = totalResult[0]?.count || 1;
+
 	const result = await db
 		.select({
 			model: spendLogs.model,
 			request_count: sql`COUNT(*)`.mapWith(Number),
-			percentage: sql`(COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*)::float FROM ${spendLogs} WHERE ${spendLogs.startTime} >= ${thirtyDaysAgo}), 0))::numeric(10,2)`,
+			percentage: sql`(COUNT(*) * 100.0 / ${totalCount})::numeric(10,2)`,
 		})
 		.from(spendLogs)
-		.where(gte(spendLogs.startTime, thirtyDaysAgo))
+		.where(sql`${spendLogs.startTime} >= NOW() - INTERVAL '30 days'`)
 		.groupBy(spendLogs.model)
 		.orderBy(desc(sql`COUNT(*)`))
 		.limit(15);
@@ -260,6 +267,9 @@ export async function getModelRequestDistribution() {
 }
 
 export async function getDailyTokenTrend(days = 30) {
+	const daysNum = typeof days === 'string' ? parseInt(days, 10) : days;
+	const startDate = new Date();
+	startDate.setDate(startDate.getDate() - daysNum);
 	const result = await db
 		.select({
 			date: sql`DATE(${spendLogs.startTime})`,
@@ -268,7 +278,7 @@ export async function getDailyTokenTrend(days = 30) {
 			total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
 		})
 		.from(spendLogs)
-		.where(gte(spendLogs.startTime, sql`NOW() - INTERVAL '${days} days'`))
+		.where(gte(spendLogs.startTime, startDate))
 		.groupBy(sql`DATE(${spendLogs.startTime})`)
 		.orderBy(asc(sql`DATE(${spendLogs.startTime})`));
 	return result;
@@ -312,9 +322,7 @@ export async function getModelStatistics() {
 			unique_api_keys: sql`COUNT(DISTINCT ${spendLogs.apiKey})`.mapWith(Number),
 		})
 		.from(spendLogs)
-		.where(
-			and(gte(spendLogs.startTime, thirtyDaysAgo), sql`${spendLogs.endTime} IS NOT NULL`)
-		)
+		.where(sql`${spendLogs.startTime} >= NOW() - INTERVAL '30 days' AND ${spendLogs.endTime} IS NOT NULL`)
 		.groupBy(spendLogs.model)
 		.orderBy(desc(sql`SUM(${spendLogs.spend})`))
 		.limit(50);
