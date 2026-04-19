@@ -22,7 +22,7 @@ import {
   deleteModel,
   mergeModels,
   deleteModelLogs,
-} from './db-server.js';
+  } from './db-server.js';
 
 const app = express();
 app.use(express.json());
@@ -249,6 +249,8 @@ app.delete('/models/logs/:model', async (req, res) => {
     res.status(500).json({ error: String(error) });
   }
 });
+
+
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

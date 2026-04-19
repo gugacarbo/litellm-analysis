@@ -385,3 +385,4 @@ export async function mergeModels(sourceModel: string, targetModel: string) {
 export async function deleteModelLogs(modelName: string) {
 	await db.delete(spendLogs).where(eq(spendLogs.model, modelName));
 }
+
