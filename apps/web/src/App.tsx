@@ -6,6 +6,7 @@ import { ErrorsPage } from './pages/errors';
 import { LogsPage } from './pages/logs';
 import { ModelDetailPage } from './pages/model-detail';
 import { ModelStatsPage } from './pages/model-stats';
+import { ModelsPage } from './pages/models';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/errors" element={<ErrorsPage />} />
               <Route path="/model/:modelName" element={<ModelDetailPage />} />
               <Route path="/model-stats" element={<ModelStatsPage />} />
+              <Route path="/models" element={<ModelsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

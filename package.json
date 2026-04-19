@@ -10,7 +10,7 @@
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.0",
+    "@biomejs/biome": "^2.4.11",
     "turbo": "^2.8.17",
     "typescript": "5.9.3"
   },

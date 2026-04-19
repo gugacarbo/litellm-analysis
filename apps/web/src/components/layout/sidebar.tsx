@@ -1,5 +1,5 @@
 import { Card, CardContent } from '../../components/card';
-import { Activity, AlertCircle, BarChart3, FileText } from 'lucide-react';
+import { Activity, AlertCircle, BarChart3, FileText, Settings } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/model-stats', icon: BarChart3, label: 'Model Stats' },
   { to: '/logs', icon: FileText, label: 'Spend Logs' },
   { to: '/errors', icon: AlertCircle, label: 'Errors' },
+  { to: '/models', icon: Settings, label: 'Models' },
 ];
 
 export function Sidebar() {

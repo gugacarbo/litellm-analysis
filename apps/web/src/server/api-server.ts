@@ -4,8 +4,8 @@ import {
   getErrorLogs,
   getMetricsSummary,
   getModelDetails,
-  getSpendByKey,
   getSpendByModel,
+  getSpendByKey,
   getSpendByUser,
   getSpendLogs,
   getTokenDistribution,
@@ -16,6 +16,12 @@ import {
   getModelRequestDistribution,
   getDailyTokenTrend,
   getModelStatistics,
+  getAllModels,
+  createModel,
+  updateModel,
+  deleteModel,
+  mergeModels,
+  deleteModelLogs,
 } from './db-server.js';
 
 const app = express();
@@ -171,6 +177,74 @@ app.get('/analytics/model-stats', async (_req, res) => {
   try {
     const data = await getModelStatistics();
     res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.get('/models', async (_req, res) => {
+  try {
+    const data = await getAllModels();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.post('/models', async (req, res) => {
+  try {
+    const { modelName, litellmParams } = req.body;
+    if (!modelName) {
+      res.status(400).json({ error: 'modelName is required' });
+      return;
+    }
+    await createModel({ modelName, litellmParams: litellmParams || {} });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.put('/models/:name', async (req, res) => {
+  try {
+    const { name } = req.params;
+    const { litellmParams } = req.body;
+    await updateModel(name, { litellmParams: litellmParams || {} });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.delete('/models/:name', async (req, res) => {
+  try {
+    const { name } = req.params;
+    await deleteModel(name);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.post('/models/merge', async (req, res) => {
+  try {
+    const { sourceModel, targetModel } = req.body;
+    if (!sourceModel || !targetModel) {
+      res.status(400).json({ error: 'sourceModel and targetModel are required' });
+      return;
+    }
+    await mergeModels(sourceModel, targetModel);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.delete('/models/logs/:model', async (req, res) => {
+  try {
+    const { model } = req.params;
+    await deleteModelLogs(model);
+    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: String(error) });
   }

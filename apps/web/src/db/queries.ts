@@ -328,3 +328,60 @@ export async function getModelStatistics() {
 		.limit(50);
 	return result;
 }
+
+export async function getAllModels() {
+	const result = await db
+		.select({
+			modelName: proxyModelTable.modelName,
+			litellmParams: proxyModelTable.litellmParams,
+		})
+		.from(proxyModelTable)
+		.orderBy(asc(proxyModelTable.modelName));
+	return result;
+}
+
+export async function getModelByName(modelName: string) {
+	const result = await db
+		.select({
+			modelName: proxyModelTable.modelName,
+			litellmParams: proxyModelTable.litellmParams,
+		})
+		.from(proxyModelTable)
+		.where(eq(proxyModelTable.modelName, modelName))
+		.limit(1);
+	return result[0] || null;
+}
+
+export async function createModel(model: { modelName: string; litellmParams: Record<string, unknown> }) {
+	await db.insert(proxyModelTable).values({
+		modelName: model.modelName,
+		litellmParams: model.litellmParams,
+	});
+}
+
+export async function updateModel(
+	modelName: string,
+	updates: { litellmParams?: Record<string, unknown> }
+) {
+	await db
+		.update(proxyModelTable)
+		.set(updates)
+		.where(eq(proxyModelTable.modelName, modelName));
+}
+
+export async function deleteModel(modelName: string) {
+	await db
+		.delete(proxyModelTable)
+		.where(eq(proxyModelTable.modelName, modelName));
+}
+
+export async function mergeModels(sourceModel: string, targetModel: string) {
+	await db
+		.update(spendLogs)
+		.set({ model: targetModel })
+		.where(eq(spendLogs.model, sourceModel));
+}
+
+export async function deleteModelLogs(modelName: string) {
+	await db.delete(spendLogs).where(eq(spendLogs.model, modelName));
+}
