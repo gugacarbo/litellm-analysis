@@ -4,14 +4,13 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "turbo dev dev:server --parallel",
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
+    "@biomejs/biome": "^1.9.0",
     "turbo": "^2.8.17",
     "typescript": "5.9.3"
   },

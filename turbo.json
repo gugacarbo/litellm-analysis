@@ -8,10 +8,14 @@
       "outputs": ["dist/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^lint"],
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", "biome.json"]
     },
     "format": {
-      "dependsOn": ["^format"]
+      "dependsOn": ["^format"],
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", "biome.json"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
@@ -19,6 +23,16 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "dev:server": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:all": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": [],
+      "inputs": ["$TURBO_DEFAULT$"]
     }
   }
 }
