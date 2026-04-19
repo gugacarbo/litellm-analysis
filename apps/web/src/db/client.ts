@@ -1,0 +1,17 @@
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as schema from './schema';
+
+const pool = new Pool({
+	host: process.env.VITE_DB_HOST || 'localhost',
+	port: parseInt(process.env.VITE_DB_PORT || '5432', 10),
+	database: process.env.VITE_DB_NAME || 'litellm',
+	user: process.env.VITE_DB_USER || 'llmproxy',
+	password: process.env.VITE_DB_PASSWORD || 'dbpassword9090',
+	max: 10,
+	idleTimeoutMillis: 30000,
+});
+
+export const db = drizzle(pool, { schema });
+
+export { schema };
