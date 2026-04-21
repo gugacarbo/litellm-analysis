@@ -23,16 +23,6 @@
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "dev:server": {
-      "cache": false,
-      "persistent": true
-    },
-    "dev:all": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": [],
-      "inputs": ["$TURBO_DEFAULT$"]
     }
   }
 }

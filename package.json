@@ -4,15 +4,15 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev dev:server --parallel",
+    "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.11",
-    "turbo": "^2.8.17",
-    "typescript": "5.9.3"
+    "@biomejs/biome": "^2.4.12",
+    "turbo": "^2.9.6",
+    "typescript": "6.0.3"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {

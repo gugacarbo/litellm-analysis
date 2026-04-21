@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/api-server.ts",
+    "build": "tsc",
+    "lint": "biome lint",
+    "format": "biome check --write",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/api-server.js"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "express": "^4.21.0",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
+    "@types/express": "^5.0.0",
+    "@types/node": "^25.1.0",
+    "@types/pg": "^8.20.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3"
+  }
+}

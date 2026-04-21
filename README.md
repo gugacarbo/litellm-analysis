@@ -15,15 +15,15 @@ Dashboard de analytics para monitoramento de uso e custos de APIs LLM via [LiteL
 
 ## Stack
 
-| Camada       | Tecnologia                                    |
-|--------------|----------------------------------------------|
-| Frontend     | React 19, Vite 7, React Router 7             |
-| UI           | shadcn/ui, Radix UI, Tailwind CSS 4           |
-| Gráficos    | Recharts                                      |
-| Backend      | Express.js                                    |
-| ORM          | Drizzle ORM                                   |
-| Database     | PostgreSQL                                    |
-| Monorepo     | Turborepo, pnpm                               |
+| Camada   | Tecnologia                          |
+| -------- | ----------------------------------- |
+| Frontend | React 19, Vite 7, React Router 7    |
+| UI       | shadcn/ui, Radix UI, Tailwind CSS 4 |
+| Gráficos | Recharts                            |
+| Backend  | Express.js                          |
+| ORM      | Drizzle ORM                         |
+| Database | PostgreSQL                          |
+| Monorepo | Turborepo, pnpm                     |
 
 ## Estrutura do Projeto
 
@@ -55,40 +55,40 @@ lite-llm-analytics/
 ### LiteLLM_SpendLogs
 Registro de todas as requisições aos modelos LLM.
 
-| Campo            | Tipo      | Descrição                    |
-|------------------|-----------|------------------------------|
-| request_id       | varchar   | ID único da requisição (PK)  |
-| model            | varchar   | Nome do modelo utilizado      |
-| user             | varchar   | Usuário que fez a requisição  |
-| total_tokens     | integer   | Total de tokens utilizados    |
-| prompt_tokens    | integer   | Tokens de input               |
-| completion_tokens| integer   | Tokens de output              |
-| spend            | real      | Custo da requisição           |
-| startTime        | timestamp | Início da requisição          |
-| endTime          | timestamp | Fim da requisição             |
-| apiKey           | varchar   | Chave API utilizada           |
-| status           | varchar   | Status (success/pending/etc)  |
+| Campo             | Tipo      | Descrição                    |
+| ----------------- | --------- | ---------------------------- |
+| request_id        | varchar   | ID único da requisição (PK)  |
+| model             | varchar   | Nome do modelo utilizado     |
+| user              | varchar   | Usuário que fez a requisição |
+| total_tokens      | integer   | Total de tokens utilizados   |
+| prompt_tokens     | integer   | Tokens de input              |
+| completion_tokens | integer   | Tokens de output             |
+| spend             | real      | Custo da requisição          |
+| startTime         | timestamp | Início da requisição         |
+| endTime           | timestamp | Fim da requisição            |
+| apiKey            | varchar   | Chave API utilizada          |
+| status            | varchar   | Status (success/pending/etc) |
 
 ### LiteLLM_ProxyModelTable
 Configuração de modelos e seus preços.
 
-| Campo           | Tipo   | Descrição                 |
-|-----------------|--------|---------------------------|
-| model_name      | varchar| Nome do modelo (PK)       |
-| litellm_params  | jsonb  | Parâmetros LiteLLM        |
+| Campo          | Tipo    | Descrição           |
+| -------------- | ------- | ------------------- |
+| model_name     | varchar | Nome do modelo (PK) |
+| litellm_params | jsonb   | Parâmetros LiteLLM  |
 
 ### LiteLLM_ErrorLogs
 Registro de erros ocorridos.
 
-| Campo              | Tipo      | Descrição                    |
-|--------------------|-----------|------------------------------|
-| request_id         | varchar   | ID da requisição (PK)        |
-| exception_type     | varchar   | Tipo da exceção              |
-| litellm_model_name | varchar   | Modelo que originou o erro   |
-| request_kwargs     | jsonb     | Parâmetros da requisição     |
-| exception_string   | text      | Mensagem do erro             |
-| startTime          | timestamp | Quando ocorreu               |
-| status_code        | integer   | Código HTTP do erro          |
+| Campo              | Tipo      | Descrição                  |
+| ------------------ | --------- | -------------------------- |
+| request_id         | varchar   | ID da requisição (PK)      |
+| exception_type     | varchar   | Tipo da exceção            |
+| litellm_model_name | varchar   | Modelo que originou o erro |
+| request_kwargs     | jsonb     | Parâmetros da requisição   |
+| exception_string   | text      | Mensagem do erro           |
+| startTime          | timestamp | Quando ocorreu             |
+| status_code        | integer   | Código HTTP do erro        |
 
 ## API Endpoints
 
@@ -169,23 +169,23 @@ pnpm start
 
 ## Scripts Disponíveis
 
-| Comando           | Descrição                          |
-|-------------------|------------------------------------|
-| `pnpm dev`        | Inicia desenvolvimento             |
-| `pnpm build`      | Build para produção                |
-| `pnpm lint`       | Executa linter (Biome)             |
-| `pnpm format`     | Formata código                     |
-| `pnpm typecheck`  | Verificação de tipos TypeScript    |
+| Comando          | Descrição                       |
+| ---------------- | ------------------------------- |
+| `pnpm dev`       | Inicia desenvolvimento          |
+| `pnpm build`     | Build para produção             |
+| `pnpm lint`      | Executa linter (Biome)          |
+| `pnpm format`    | Formata código                  |
+| `pnpm typecheck` | Verificação de tipos TypeScript |
 
 ## Páginas
 
-| Rota             | Descrição                                      |
-|------------------|------------------------------------------------|
-| `/`              | Dashboard principal com métricas e gráficos     |
-| `/model-stats`   | Estatísticas detalhadas por modelo             |
-| `/logs`          | Logs de spend com filtros e paginação          |
-| `/errors`        | Lista de erros com classificação               |
-| `/models`        | Gerenciamento de modelos e preços              |
+| Rota           | Descrição                                   |
+| -------------- | ------------------------------------------- |
+| `/`            | Dashboard principal com métricas e gráficos |
+| `/model-stats` | Estatísticas detalhadas por modelo          |
+| `/logs`        | Logs de spend com filtros e paginação       |
+| `/errors`      | Lista de erros com classificação            |
+| `/models`      | Gerenciamento de modelos e preços           |
 
 ## License
 
