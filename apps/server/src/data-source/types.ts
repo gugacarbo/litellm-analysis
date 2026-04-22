@@ -140,8 +140,8 @@ export interface ModelStatistics {
 }
 
 export interface ModelInfo {
-	model_name: string;
-	litellm_params: Record<string, unknown> | null;
+	modelName: string;
+	litellmParams: Record<string, unknown> | null;
 }
 
 export type ModelEntry = ModelInfo;

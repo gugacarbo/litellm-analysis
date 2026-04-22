@@ -520,8 +520,8 @@ export class ApiDataSource implements AnalyticsDataSource {
 		}
 
 		return response.data.map((model) => ({
-			model_name: model.id,
-			litellm_params: null,
+			modelName: model.id,
+			litellmParams: null,
 		}));
 	}
 

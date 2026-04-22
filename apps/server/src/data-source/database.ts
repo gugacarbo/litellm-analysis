@@ -234,8 +234,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
 	async getModels(): Promise<ModelEntry[]> {
 		const result = await getAllModels();
 		return result.map((item) => ({
-			model_name: item.modelName,
-			litellm_params: item.litellmParams as Record<string, unknown> | null,
+			modelName: item.modelName,
+			litellmParams: item.litellmParams as Record<string, unknown> | null,
 		}));
 	}
 

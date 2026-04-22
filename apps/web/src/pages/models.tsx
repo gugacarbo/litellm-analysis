@@ -16,7 +16,6 @@ import {
   TableRow,
 } from '../components/table';
 import { Input } from '../components/input';
-import { Textarea } from '../components/textarea';
 import { Skeleton } from '../components/skeleton';
 import {
   Dialog,
@@ -50,12 +49,19 @@ function getApiBase(params: Record<string, unknown>): string {
   return (params?.api_base as string) || '-';
 }
 
+function formatCost(value: unknown): string {
+  if (value === null || value === undefined) return '-';
+  const num = Number(value);
+  if (Number.isNaN(num)) return '-';
+  return `$${(num * 1_000_000).toFixed(2)}/Mi`;
+}
+
 function getInputCost(params: Record<string, unknown>): string {
-  return (params?.input_cost_per_token as string) || '-';
+  return formatCost(params?.input_cost_per_token);
 }
 
 function getOutputCost(params: Record<string, unknown>): string {
-  return (params?.output_cost_per_token as string) || '-';
+  return formatCost(params?.output_cost_per_token);
 }
 
 export function ModelsPage() {
@@ -70,7 +76,10 @@ export function ModelsPage() {
 
   const [formData, setFormData] = useState({
     modelName: '',
-    litellmParams: '{\n  "api_base": "",\n  "input_cost_per_token": 0,\n  "output_cost_per_token": 0\n}',
+    apiBase: '',
+    inputCostPerToken: '',
+    outputCostPerToken: '',
+    extraParams: {} as Record<string, string>,
   });
 
   const loadModels = useCallback(async () => {
@@ -90,11 +99,16 @@ useEffect(() => {
     loadModels();
   }, [loadModels]);
 
+  const FIXED_KEYS = ['api_base', 'input_cost_per_token', 'output_cost_per_token'];
+
   function handleOpenCreate() {
     setEditingModel(null);
     setFormData({
       modelName: '',
-      litellmParams: '{\n  "api_base": "",\n  "input_cost_per_token": 0,\n  "output_cost_per_token": 0\n}',
+      apiBase: '',
+      inputCostPerToken: '',
+      outputCostPerToken: '',
+      extraParams: {},
     });
     setFormError(null);
     setDialogOpen(true);
@@ -102,9 +116,21 @@ useEffect(() => {
 
   function handleOpenEdit(model: ModelConfig) {
     setEditingModel(model);
+    const params = model.litellmParams || {};
+    const extraParams: Record<string, string> = {};
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (!FIXED_KEYS.includes(key)) {
+        extraParams[key] = String(value ?? '');
+      }
+    });
+
     setFormData({
       modelName: model.modelName,
-      litellmParams: JSON.stringify(model.litellmParams || {}, null, 2),
+      apiBase: (params.api_base as string) || '',
+      inputCostPerToken: params.input_cost_per_token?.toString() || '',
+      outputCostPerToken: params.output_cost_per_token?.toString() || '',
+      extraParams,
     });
     setFormError(null);
     setDialogOpen(true);
@@ -115,20 +141,47 @@ useEffect(() => {
     setFormError(null);
 
     try {
-      let params: Record<string, unknown>;
-      try {
-        params = JSON.parse(formData.litellmParams);
-      } catch {
-        setFormError('Invalid JSON format');
-        setFormLoading(false);
-        return;
-      }
-
       if (!formData.modelName.trim()) {
         setFormError('Model name is required');
         setFormLoading(false);
         return;
       }
+
+      const inputCost = formData.inputCostPerToken
+        ? parseFloat(formData.inputCostPerToken)
+        : 0;
+      const outputCost = formData.outputCostPerToken
+        ? parseFloat(formData.outputCostPerToken)
+        : 0;
+
+      if (formData.inputCostPerToken && Number.isNaN(inputCost)) {
+        setFormError('Input cost must be a valid number');
+        setFormLoading(false);
+        return;
+      }
+      if (formData.outputCostPerToken && Number.isNaN(outputCost)) {
+        setFormError('Output cost must be a valid number');
+        setFormLoading(false);
+        return;
+      }
+
+      const params: Record<string, unknown> = {};
+      if (formData.apiBase.trim()) {
+        params.api_base = formData.apiBase.trim();
+      }
+      if (inputCost > 0) {
+        params.input_cost_per_token = inputCost;
+      }
+      if (outputCost > 0) {
+        params.output_cost_per_token = outputCost;
+      }
+
+      Object.entries(formData.extraParams).forEach(([key, value]) => {
+        if (value.trim()) {
+          const num = parseFloat(value);
+          params[key] = !Number.isNaN(num) ? num : value.trim();
+        }
+      });
 
       if (editingModel) {
         await updateModel(editingModel.modelName, params);
@@ -158,6 +211,28 @@ useEffect(() => {
     } catch (e) {
       setError(String(e));
     }
+  }
+
+  function addExtraParam() {
+    setFormData((prev) => ({
+      ...prev,
+      extraParams: { ...prev.extraParams, [crypto.randomUUID()]: '' },
+    }));
+  }
+
+  function removeExtraParam(key: string) {
+    setFormData((prev) => {
+      const next = { ...prev.extraParams };
+      delete next[key];
+      return { ...prev, extraParams: next };
+    });
+  }
+
+  function updateExtraParam(key: string, value: string) {
+    setFormData((prev) => ({
+      ...prev,
+      extraParams: { ...prev.extraParams, [key]: value },
+    }));
   }
 
   return (
@@ -199,22 +274,97 @@ useEffect(() => {
                 />
               </div>
               <div className="grid gap-2">
-                <label htmlFor="litellm-params" className="text-sm font-medium">
-                  LiteLLM Parameters (JSON)
-                </label>
-                <Textarea
-                  id="litellm-params"
-                  value={formData.litellmParams}
+                <label htmlFor="api-base" className="text-sm font-medium">API Base URL</label>
+                <Input
+                  id="api-base"
+                  value={formData.apiBase}
                   onChange={(e) =>
-                    setFormData({ ...formData, litellmParams: e.target.value })
+                    setFormData({ ...formData, apiBase: e.target.value })
                   }
-                  placeholder='{"api_base": "", "input_cost_per_token": 0}'
-                  className="font-mono text-sm min-h-[200px]"
+                  placeholder="https://api.openai.com/v1"
                 />
-                {formError && (
-                  <p className="text-sm text-destructive">{formError}</p>
-                )}
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <label htmlFor="input-cost" className="text-sm font-medium">
+                    Input Cost
+                    <span className="text-muted-foreground font-normal ml-1">($/token)</span>
+                  </label>
+                  <Input
+                    id="input-cost"
+                    type="number"
+                    step="0.000001"
+                    min="0"
+                    value={formData.inputCostPerToken}
+                    onChange={(e) =>
+                      setFormData({ ...formData, inputCostPerToken: e.target.value })
+                    }
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="output-cost" className="text-sm font-medium">
+                    Output Cost
+                    <span className="text-muted-foreground font-normal ml-1">($/token)</span>
+                  </label>
+                  <Input
+                    id="output-cost"
+                    type="number"
+                    step="0.000001"
+                    min="0"
+                    value={formData.outputCostPerToken}
+                    onChange={(e) =>
+                      setFormData({ ...formData, outputCostPerToken: e.target.value })
+                    }
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              {Object.keys(formData.extraParams).length > 0 && (
+                <div className="grid gap-3">
+                  <span className="text-sm font-medium">Additional Parameters</span>
+                  {Object.entries(formData.extraParams).map(([key, value]) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <Input
+                        value={key}
+                        disabled
+                        className="bg-muted font-mono text-sm"
+                        placeholder="param_name"
+                      />
+                      <Input
+                        value={value}
+                        onChange={(e) => updateExtraParam(key, e.target.value)}
+                        className="font-mono text-sm"
+                        placeholder="value"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => removeExtraParam(key)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addExtraParam}
+                className="w-fit"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Parameter
+              </Button>
+
+              {formError && (
+                <p className="text-sm text-destructive">{formError}</p>
+              )}
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
@@ -255,8 +405,8 @@ useEffect(() => {
                 <TableRow>
                   <TableHead>Model Name</TableHead>
                   <TableHead>API Base</TableHead>
-                  <TableHead className="text-right">Input Cost</TableHead>
-                  <TableHead className="text-right">Output Cost</TableHead>
+                  <TableHead className="text-right">Input ($/Mi)</TableHead>
+                  <TableHead className="text-right">Output ($/Mi)</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
