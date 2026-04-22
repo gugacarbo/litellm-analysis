@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/api-server.ts",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "lint": "biome lint",
     "format": "biome check --write",

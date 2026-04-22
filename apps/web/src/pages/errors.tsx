@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { FeatureGate } from '../components/feature-gate';
 import {
   Card,
   CardContent,
@@ -60,6 +61,14 @@ function getErrorTypeColor(type: string): string {
 }
 
 export function ErrorsPage() {
+  return (
+    <FeatureGate capability="errorLogs">
+      <ErrorsContent />
+    </FeatureGate>
+  );
+}
+
+function ErrorsContent() {
   const [errors, setErrors] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

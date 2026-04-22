@@ -1,21 +1,36 @@
 import { Card, CardContent } from '../../components/card';
 import { Activity, AlertCircle, BarChart3, FileText, Settings } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { useServerMode } from '../../hooks/use-server-mode';
+import { Badge } from '../../components/badge';
 
-const navItems = [
-  { to: '/', icon: Activity, label: 'Dashboard' },
-  { to: '/model-stats', icon: BarChart3, label: 'Model Stats' },
-  { to: '/logs', icon: FileText, label: 'Spend Logs' },
-  { to: '/errors', icon: AlertCircle, label: 'Errors' },
-  { to: '/models', icon: Settings, label: 'Models' },
-];
+
 
 export function Sidebar() {
+  const { mode, capabilities, isLoading } = useServerMode();
+  
+  const navItems = [
+    { to: '/', icon: Activity, label: 'Dashboard' },
+    { to: '/model-stats', icon: BarChart3, label: 'Model Stats' },
+    { to: '/logs', icon: FileText, label: 'Spend Logs' },
+    ...(capabilities.errorLogs ? [{ to: '/errors', icon: AlertCircle, label: 'Errors' }] : []),
+    { to: '/models', icon: Settings, label: 'Models' },
+  ];
+
   return (
     <aside className="w-64 min-h-screen border-l bg-muted/10 p-4">
       <Card>
         <CardContent className="p-4">
-          <h2 className="font-bold text-lg mb-4">LiteLLM Stats</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-bold text-lg">LiteLLM Stats</h2>
+            {!isLoading ? (
+              <Badge variant={mode === 'database' ? 'default' : 'secondary'}>
+                {mode === 'database' ? '🟢 Full Access' : '🟡 API Mode'}
+              </Badge>
+            ) : (
+              <Badge variant="outline">Loading...</Badge>
+            )}
+          </div>
           <nav className="space-y-1">
             {navItems.map(({ to, icon: Icon, label }) => (
               <NavLink

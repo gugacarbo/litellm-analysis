@@ -14,24 +14,24 @@ import {
   TableHeader,
   TableRow,
 } from '../components/table';
+import { useDashboardData } from '../hooks/use-dashboard-data';
 import {
   Area,
   AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
+  Legend,
   Line,
   LineChart,
   Pie,
   PieChart,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-  Cell,
-  ResponsiveContainer,
-  Legend,
 } from 'recharts';
-import { useDashboardData } from '../hooks/use-dashboard-data';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
 
