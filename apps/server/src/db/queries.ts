@@ -1,3 +1,4 @@
+import { sortAliasesByDefinitionOrder } from '../services/alias-generator.js';
 import { and, asc, desc, eq, gte, type SQL, sql } from 'drizzle-orm';
 import { db } from './client';
 import { errorLogs, proxyModelTable, spendLogs } from './schema';
@@ -623,7 +624,7 @@ export async function updateRouterSettings(
       existingAliases[key] = value;
     }
   }
-  merged.model_group_alias = existingAliases;
+  merged.model_group_alias = sortAliasesByDefinitionOrder(existingAliases);
 
   await db.execute(
     sql`INSERT INTO "LiteLLM_Config" (param_name, param_value) VALUES ('router_settings', ${JSON.stringify(merged)})

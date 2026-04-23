@@ -16,6 +16,8 @@ export function mapModelToFormData(model: ModelConfig): ModelFormData {
     apiBase: (params.api_base as string) || '',
     inputCostPerToken: params.input_cost_per_token?.toString() || '',
     outputCostPerToken: params.output_cost_per_token?.toString() || '',
+    contextWindowSize: params.context_window_size?.toString() || '',
+    maxTokens: params.max_tokens?.toString() || '',
     extraParams,
   };
 }
@@ -42,6 +44,20 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
     return { params: {}, error: 'Output cost must be a valid number' };
   }
 
+  const contextWindow = formData.contextWindowSize
+    ? parseInt(formData.contextWindowSize, 10)
+    : 0;
+  const maxTokens = formData.maxTokens
+    ? parseInt(formData.maxTokens, 10)
+    : 0;
+
+  if (formData.contextWindowSize && Number.isNaN(contextWindow)) {
+    return { params: {}, error: 'Context window must be a valid number' };
+  }
+  if (formData.maxTokens && Number.isNaN(maxTokens)) {
+    return { params: {}, error: 'Max tokens must be a valid number' };
+  }
+
   const params: Record<string, unknown> = {};
   if (formData.apiBase.trim()) {
     params.api_base = formData.apiBase.trim();
@@ -51,6 +67,12 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
   }
   if (outputCost > 0) {
     params.output_cost_per_token = outputCost;
+  }
+  if (contextWindow > 0) {
+    params.context_window_size = contextWindow;
+  }
+  if (maxTokens > 0) {
+    params.max_tokens = maxTokens;
   }
 
   Object.entries(formData.extraParams).forEach(([key, value]) => {

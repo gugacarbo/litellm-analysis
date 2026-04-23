@@ -1,0 +1,59 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const writeFileMock = vi.hoisted(() => vi.fn());
+
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+  return {
+    ...actual,
+    promises: {
+      ...actual.promises,
+      writeFile: writeFileMock,
+    },
+  };
+});
+
+import { writeVscodeModelsFile } from '../config-file';
+
+describe('writeVscodeModelsFile', () => {
+  afterEach(() => {
+    writeFileMock.mockReset();
+  });
+
+  it('writes only the real LiteLLM models it receives', async () => {
+    await writeVscodeModelsFile([
+      {
+        modelName: 'openai/gpt-4.1',
+        litellmParams: {
+          model_name: 'openai/gpt-4.1',
+          context_window_size: 128000,
+          max_tokens: 4096,
+        },
+      },
+      {
+        modelName: 'anthropic/claude-3-7-sonnet',
+        litellmParams: null,
+      },
+    ]);
+
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+
+    const [, writtenContent] = writeFileMock.mock.calls[0] as [
+      string,
+      string,
+      string,
+    ];
+    const parsed = JSON.parse(writtenContent) as {
+      'oaicopilot.models': Array<{ id: string; displayName: string }>;
+    };
+
+    expect(parsed['oaicopilot.models']).toHaveLength(2);
+    expect(parsed['oaicopilot.models'].map((model) => model.id)).toEqual([
+      'openai/gpt-4.1',
+      'anthropic/claude-3-7-sonnet',
+    ]);
+    expect(
+      parsed['oaicopilot.models'].some((model) => model.id.includes('/gpt-5.')),
+    ).toBe(false);
+  });
+});

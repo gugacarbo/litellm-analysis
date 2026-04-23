@@ -16,9 +16,9 @@
       "displayName": "GLM 5",
       "baseUrl": "http://localhost:4000",
       "apiMode": "openai",
-      "context_length": 80000,
+      "context_length": 200000,
       "limit": {
-        "output": 32768
+        "output": 128000
       },
       "family": "z.ai"
     },
@@ -30,7 +30,7 @@
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 32768
+        "output": 128000
       },
       "family": "z.ai"
     },
@@ -42,7 +42,7 @@
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 32768
+        "output": 128000
       },
       "family": "z.ai"
     },
@@ -52,9 +52,9 @@
       "displayName": "Kimi K2.5",
       "baseUrl": "http://localhost:4000",
       "apiMode": "openai",
-      "context_length": 260000,
+      "context_length": 256000,
       "limit": {
-        "output": 32768
+        "output": 64000
       }
     },
     {
@@ -63,9 +63,9 @@
       "displayName": "MiniMax M2.7",
       "baseUrl": "http://localhost:4000",
       "apiMode": "openai",
-      "context_length": 204000,
+      "context_length": 204800,
       "limit": {
-        "output": 32768
+        "output": 128000
       }
     },
     {
@@ -74,9 +74,9 @@
       "displayName": "Qwen 3.5+",
       "baseUrl": "http://localhost:4000",
       "apiMode": "openai",
-      "context_length": 800000,
+      "context_length": 1000000,
       "limit": {
-        "output": 32768
+        "output": 64000
       }
     },
     {
@@ -85,438 +85,9 @@
       "displayName": "Qwen 3 Coder+",
       "baseUrl": "http://localhost:4000",
       "apiMode": "openai",
-      "context_length": 800000,
+      "context_length": 1000000,
       "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "sisyphus/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Sisyphus Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "sisyphus/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Sisyphus Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "sisyphus/gpt-5.2",
-      "owned_by": "atplus",
-      "displayName": "Sisyphus Model 3",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "oracle/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Oracle Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "oracle/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Oracle Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "hephaestus/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Hephaestus Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "hephaestus/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Hephaestus Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "atlas/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Atlas Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "atlas/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Atlas Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "sisyphus-junior/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Sisyphus Junior Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "sisyphus-junior/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Sisyphus Junior Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "librarian/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Librarian Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "librarian/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Librarian Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "momus/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Momus Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "momus/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Momus Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "prometheus/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Prometheus Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "prometheus/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Prometheus Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "explore/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Explore Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "explore/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Explore Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "multimodal-looker/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Multimodal Looker Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "multimodal-looker/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Multimodal Looker Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "metis/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Metis Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "metis/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Metis Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "visual-engineering/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Visual Engineering Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "visual-engineering/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Visual Engineering Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "ultrabrain/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Ultrabrain Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "ultrabrain/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Ultrabrain Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "deep/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Deep Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "deep/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Deep Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "artistry/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Artistry Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "artistry/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Artistry Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "quick/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Quick Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "quick/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Quick Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "unspecified-low/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Unspecified Low Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "unspecified-low/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Unspecified Low Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "unspecified-high/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Unspecified High Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "unspecified-high/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Unspecified High Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "writing/gpt-5.4",
-      "owned_by": "atplus",
-      "displayName": "Writing Model",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "writing/gpt-5.3",
-      "owned_by": "atplus",
-      "displayName": "Writing Model 2",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
+        "output": 64000
       }
     }
   ]

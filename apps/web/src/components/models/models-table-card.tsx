@@ -4,6 +4,8 @@ import {
   getApiBase,
   getInputCost,
   getOutputCost,
+  getContextWindow,
+  getMaxOutput,
 } from '../../pages/models/models-utils';
 import {
   AlertDialog,
@@ -75,6 +77,8 @@ export function ModelsTableCard({
               <TableRow>
                 <TableHead>Model Name</TableHead>
                 <TableHead>API Base</TableHead>
+                <TableHead className="text-right">Context</TableHead>
+                <TableHead className="text-right">Max Output</TableHead>
                 <TableHead className="text-right">Input ($/Mi)</TableHead>
                 <TableHead className="text-right">Output ($/Mi)</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -88,6 +92,12 @@ export function ModelsTableCard({
                   </TableCell>
                   <TableCell className="font-mono text-sm">
                     {getApiBase(model.litellmParams)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {getContextWindow(model.litellmParams)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {getMaxOutput(model.litellmParams)}
                   </TableCell>
                   <TableCell className="text-right">
                     {getInputCost(model.litellmParams)}

@@ -145,6 +145,55 @@ export function ModelFormDialog({
             </div>
           </div>
 
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <label htmlFor="context-window" className="text-sm font-medium">
+                Context Window
+                <span className="text-muted-foreground font-normal ml-1">
+                  (tokens)
+                </span>
+              </label>
+              <Input
+                id="context-window"
+                type="number"
+                step="1"
+                min="0"
+                value={formData.contextWindowSize}
+                onChange={(e) =>
+                  onFormDataChange({
+                    ...formData,
+                    contextWindowSize: e.target.value,
+                  })
+                }
+                placeholder="e.g., 200000"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label htmlFor="max-tokens" className="text-sm font-medium">
+                Max Output
+                <span className="text-muted-foreground font-normal ml-1">
+                  (tokens)
+                </span>
+              </label>
+              <Input
+                id="max-tokens"
+                type="number"
+                step="1"
+                min="0"
+                value={formData.maxTokens}
+                onChange={(e) =>
+                  onFormDataChange({
+                    ...formData,
+                    maxTokens: e.target.value,
+                  })
+                }
+                placeholder="e.g., 128000"
+              />
+            </div>
+          </div>
+
           {Object.keys(formData.extraParams).length > 0 && (
             <div className="grid gap-3">
               <span className="text-sm font-medium">Additional Parameters</span>

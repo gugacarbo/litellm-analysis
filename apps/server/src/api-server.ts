@@ -507,7 +507,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         ? await dataSource.getModels()
         : [];
       await writeProvidersFile(config, models);
-      await writeVscodeModelsFile(config, models);
+      await writeVscodeModelsFile(models);
 
       if (syncAliases && dataSource.capabilities.agentRouting) {
         const { generateLitellmAliases, replaceAliasesForAgent } = await import(
@@ -633,7 +633,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         ? await dataSource.getModels()
         : [];
       await writeProvidersFile(config, models);
-      await writeVscodeModelsFile(config, models);
+      await writeVscodeModelsFile(models);
 
       if (
         dataSource.capabilities.agentRouting &&

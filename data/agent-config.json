@@ -4,10 +4,11 @@
       "model": "sisyphus/gpt-5.4",
       "fallback_models": [
         "sisyphus/gpt-5.3",
-        "sisyphus/gpt-5.2"
+        "sisyphus/gpt-5.2",
+        "sisyphus/gpt-5.1"
       ],
       "disable": false,
-      "description": "Coordenador principal — distribui tarefas e mantém o fluxo da sessão",
+      "description": "Agente Orquestrador",
       "mode": "all",
       "color": "#C83232"
     },
@@ -18,7 +19,8 @@
       ],
       "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
       "mode": "subagent",
-      "color": "#8B5904"
+      "color": "#048B5E",
+      "disable": false
     },
     "hephaestus": {
       "model": "hephaestus/gpt-5.4",
@@ -61,7 +63,9 @@
         "prometheus/gpt-5.3"
       ],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
-      "mode": "subagent"
+      "mode": "subagent",
+      "disable": false,
+      "color": "#90A300"
     },
     "explore": {
       "model": "explore/gpt-5.4",

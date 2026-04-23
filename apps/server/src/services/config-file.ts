@@ -338,43 +338,43 @@ const MODEL_SPECS: Record<
     owned_by?: string;
   }
 > = {
-  'minimax-m2.7-highspeed': {
-    context_length: 204000,
-    output: 32768,
-    displayName: 'MiniMax M2.7',
-  },
-  'qwen3-coder-plus': {
-    context_length: 800000,
-    output: 32768,
-    displayName: 'Qwen 3 Coder+',
-  },
-  'qwen3.5-plus': {
-    context_length: 800000,
-    output: 32768,
-    displayName: 'Qwen 3.5+',
-  },
-  'kimi-k2.5': {
-    context_length: 260000,
-    output: 32768,
-    displayName: 'Kimi K2.5',
-  },
   'glm-5': {
-    context_length: 80000,
-    output: 32768,
+    context_length: 200000,
+    output: 128000,
     family: 'z.ai',
     displayName: 'GLM 5',
   },
   'glm-5-turbo': {
     context_length: 200000,
-    output: 32768,
+    output: 128000,
     family: 'z.ai',
     displayName: 'GLM 5 Turbo',
   },
   'glm-5.1': {
     context_length: 200000,
-    output: 32768,
+    output: 128000,
     family: 'z.ai',
     displayName: 'GLM 5.1',
+  },
+  'kimi-k2.5': {
+    context_length: 256000,
+    output: 64000,
+    displayName: 'Kimi K2.5',
+  },
+  'minimax-m2.7-highspeed': {
+    context_length: 204800,
+    output: 128000,
+    displayName: 'MiniMax M2.7',
+  },
+  'qwen3.5-plus': {
+    context_length: 1000000,
+    output: 64000,
+    displayName: 'Qwen 3.5+',
+  },
+  'qwen3-coder-plus': {
+    context_length: 1000000,
+    output: 64000,
+    displayName: 'Qwen 3 Coder+',
   },
 };
 
@@ -385,10 +385,7 @@ function humanize(str: string): string {
     .join(' ');
 }
 
-function buildVscodeModelsArray(
-  models: ModelEntry[],
-  config: AgentConfigFile,
-): VscodeModelEntry[] {
+function buildVscodeModelsArray(models: ModelEntry[]): VscodeModelEntry[] {
   const result: VscodeModelEntry[] = [];
   const baseUrl = process.env.LITELLM_BASE_URL || 'http://localhost:4000';
 
@@ -418,61 +415,14 @@ function buildVscodeModelsArray(
     result.push(entry);
   }
 
-  // Agent models
-  for (const [key, agent] of Object.entries(config.agents || {})) {
-    if (Object.keys(agent).length === 0) continue;
-
-    const fallbackCount = (agent.fallback_models || []).filter((f) =>
-      f?.startsWith(`${key}/`),
-    ).length;
-    const totalSlots = 1 + Math.min(fallbackCount, MAX_FALLBACKS);
-
-    for (let i = 0; i < totalSlots; i++) {
-      const modelName = MODEL_NAMES[i];
-      result.push({
-        id: `${key}/${modelName}`,
-        owned_by: 'atplus',
-        displayName: `${humanize(key)} Model${i > 0 ? ` ${i + 1}` : ''}`,
-        baseUrl,
-        apiMode: 'openai',
-        context_length: 200000,
-        limit: { output: 32768 },
-      });
-    }
-  }
-
-  // Category models
-  for (const [key, category] of Object.entries(config.categories || {})) {
-    if (Object.keys(category).length === 0) continue;
-
-    const fallbackCount = (category.fallback_models || []).filter((f) =>
-      f?.startsWith(`${key}/`),
-    ).length;
-    const totalSlots = 1 + Math.min(fallbackCount, MAX_FALLBACKS);
-
-    for (let i = 0; i < totalSlots; i++) {
-      const modelName = MODEL_NAMES[i];
-      result.push({
-        id: `${key}/${modelName}`,
-        owned_by: 'atplus',
-        displayName: `${humanize(key)} Model${i > 0 ? ` ${i + 1}` : ''}`,
-        baseUrl,
-        apiMode: 'openai',
-        context_length: 200000,
-        limit: { output: 32768 },
-      });
-    }
-  }
-
   return result;
 }
 
 export async function writeVscodeModelsFile(
-  config: AgentConfigFile,
   models?: ModelEntry[],
 ): Promise<void> {
   const modelsList = models || [];
-  const vscodeModels = buildVscodeModelsArray(modelsList, config);
+  const vscodeModels = buildVscodeModelsArray(modelsList);
 
   const output: Record<string, unknown> = {
     'oaicopilot.commitLanguage': 'Portuguese (Brazil)',
