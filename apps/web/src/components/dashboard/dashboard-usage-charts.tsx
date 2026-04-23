@@ -43,6 +43,7 @@ const COLORS = [
 
 type DashboardUsageChartsProps = {
   loading: boolean;
+  rangeLabel: string;
   tokenDistribution: TokenDistributionItem[];
   dailyTrend: DailyTrendItem[];
   modelDistribution: ModelDistributionItem[];
@@ -51,6 +52,7 @@ type DashboardUsageChartsProps = {
 
 export function DashboardUsageCharts({
   loading,
+  rangeLabel,
   tokenDistribution,
   dailyTrend,
   modelDistribution,
@@ -61,7 +63,7 @@ export function DashboardUsageCharts({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Token Distribution by Model (30d)</CardTitle>
+            <CardTitle>Token Distribution by Model ({rangeLabel})</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -90,12 +92,14 @@ export function DashboardUsageCharts({
                     name="Input Tokens"
                     fill="#3b82f6"
                     stackId="a"
+                    maxBarSize={30}
                   />
                   <Bar
                     dataKey="completion_tokens"
                     name="Output Tokens"
                     fill="#10b981"
                     stackId="a"
+                    maxBarSize={30}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -105,7 +109,7 @@ export function DashboardUsageCharts({
 
         <Card>
           <CardHeader>
-            <CardTitle>Daily Spend Trend (30d)</CardTitle>
+            <CardTitle>Daily Spend Trend ({rangeLabel})</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -137,7 +141,7 @@ export function DashboardUsageCharts({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Model Usage Distribution (30d)</CardTitle>
+            <CardTitle>Model Usage Distribution ({rangeLabel})</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -152,8 +156,8 @@ export function DashboardUsageCharts({
                     cx="50%"
                     cy="50%"
                     outerRadius={100}
-                    label={({ name, percent }) =>
-                      `${name}: ${((percent ?? 0) * 100).toFixed(1)}%`
+                    label={({ name, payload }) =>
+                      `${name}: ${Number(payload?.percentage ?? 0).toFixed(1)}%`
                     }
                     labelLine={false}
                   >
@@ -164,7 +168,13 @@ export function DashboardUsageCharts({
                       />
                     ))}
                   </Pie>
-                  <Tooltip content={<ChartTooltipContent />} />
+                  <Tooltip
+                    content={<ChartTooltipContent />}
+                    formatter={(value, _name, item) => {
+                      const percentage = Number(item.payload?.percentage ?? 0);
+                      return `${formatNumber(Number(value))} (${percentage.toFixed(1)}%)`;
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -173,7 +183,7 @@ export function DashboardUsageCharts({
 
         <Card>
           <CardHeader>
-            <CardTitle>Hourly Usage Pattern (7d)</CardTitle>
+            <CardTitle>Hourly Usage Pattern ({rangeLabel})</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -192,17 +202,42 @@ export function DashboardUsageCharts({
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="hour" tickFormatter={(v) => `${v}:00`} />
-                  <YAxis tickFormatter={formatNumber} />
+                  <YAxis
+                    yAxisId="left"
+                    tickFormatter={formatNumber}
+                    allowDecimals={false}
+                  />
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    tickFormatter={(v) => formatCurrency(Number(v))}
+                  />
                   <Tooltip
                     content={<ChartTooltipContent />}
-                    formatter={(v) => formatNumber(Number(v))}
+                    formatter={(v, key) =>
+                      String(key).toLowerCase().includes('spend')
+                        ? formatCurrency(Number(v))
+                        : formatNumber(Number(v))
+                    }
                   />
+                  <Legend />
                   <Area
                     type="monotone"
                     dataKey="requests"
+                    name="Requests"
+                    yAxisId="left"
                     stroke="#8b5cf6"
                     fill="#8b5cf6"
                     fillOpacity={0.3}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="spend"
+                    name="Spend"
+                    yAxisId="right"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    dot={false}
                   />
                 </AreaChart>
               </ResponsiveContainer>

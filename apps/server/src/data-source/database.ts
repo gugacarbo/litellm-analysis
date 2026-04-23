@@ -111,8 +111,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     this.capabilities = capabilities;
   }
 
-  async getMetricsSummary(): Promise<MetricsSummary> {
-    const result = await getMetricsSummary();
+  async getMetricsSummary(days = 30): Promise<MetricsSummary> {
+    const result = await getMetricsSummary(days);
     return {
       total_spend: result.totalSpend,
       total_tokens: result.totalTokens,
@@ -121,7 +121,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     };
   }
 
-  async getDailySpendTrend(days: number): Promise<DailySpendTrend[]> {
+  async getDailySpendTrend(days = 30): Promise<DailySpendTrend[]> {
     const result = await getDailySpendTrend(days);
     return result.map((item) => ({
       date: String(item.date),
@@ -129,25 +129,26 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     }));
   }
 
-  async getSpendByModel(): Promise<SpendByModel[]> {
-    const result = await getSpendByModel();
+  async getSpendByModel(days = 30): Promise<SpendByModel[]> {
+    const result = await getSpendByModel(days);
     return result.map((item) => ({
       model: item.model,
       total_spend: Number(item.total_spend),
     }));
   }
 
-  async getSpendByUser(): Promise<SpendByUser[]> {
-    const result = await getSpendByUser();
+  async getSpendByUser(days = 30): Promise<SpendByUser[]> {
+    const result = await getSpendByUser(days);
     return result.map((item) => ({
       user: item.user,
       total_spend: Number(item.total_spend),
       total_tokens: Number(item.total_tokens || 0),
+      request_count: Number(item.request_count || 0),
     }));
   }
 
-  async getSpendByKey(): Promise<SpendByKey[]> {
-    const result = await getSpendByKey();
+  async getSpendByKey(days = 30): Promise<SpendByKey[]> {
+    const result = await getSpendByKey(days);
     return result.map((item) => ({
       key: item.key,
       total_spend: Number(item.total_spend),
@@ -205,8 +206,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     };
   }
 
-  async getTokenDistribution(): Promise<TokenDistribution[]> {
-    const result = await getTokenDistribution();
+  async getTokenDistribution(days = 30): Promise<TokenDistribution[]> {
+    const result = await getTokenDistribution(days);
     return result.map((item) => ({
       model: item.model,
       prompt_tokens: Number(item.prompt_tokens),
@@ -216,8 +217,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     }));
   }
 
-  async getPerformanceMetrics(): Promise<PerformanceMetrics> {
-    const result = await getPerformanceMetrics();
+  async getPerformanceMetrics(days = 30): Promise<PerformanceMetrics> {
+    const result = await getPerformanceMetrics(days);
     return {
       total_requests: Number(result.total_requests),
       avg_duration_ms: Number(result.avg_duration_ms || 0),
@@ -225,8 +226,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     };
   }
 
-  async getHourlyUsagePatterns(): Promise<HourlyUsagePattern[]> {
-    const result = await getHourlyUsagePatterns();
+  async getHourlyUsagePatterns(days = 7): Promise<HourlyUsagePattern[]> {
+    const result = await getHourlyUsagePatterns(days);
     return result.map((item) => ({
       hour: Number(item.hour),
       request_count: Number(item.request_count),
@@ -235,8 +236,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     }));
   }
 
-  async getApiKeyStats(): Promise<ApiKeyStats[]> {
-    const result = await getApiKeyDetailedStats();
+  async getApiKeyStats(days = 30): Promise<ApiKeyStats[]> {
+    const result = await getApiKeyDetailedStats(days);
     return result.map((item) => ({
       key: item.key,
       request_count: Number(item.request_count),
@@ -250,8 +251,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     }));
   }
 
-  async getCostEfficiency(): Promise<CostEfficiency[]> {
-    const result = await getCostEfficiencyByModel();
+  async getCostEfficiency(days = 30): Promise<CostEfficiency[]> {
+    const result = await getCostEfficiencyByModel(days);
     return result.map((item) => ({
       model: item.model,
       total_spend: Number(item.total_spend),
@@ -261,8 +262,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     }));
   }
 
-  async getModelDistribution(): Promise<ModelRequestDistribution[]> {
-    const result = await getModelRequestDistribution();
+  async getModelDistribution(days = 30): Promise<ModelRequestDistribution[]> {
+    const result = await getModelRequestDistribution(days);
     return result.map((item) => ({
       model: item.model,
       request_count: Number(item.request_count),
@@ -270,7 +271,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     }));
   }
 
-  async getDailyTokenTrend(days: number): Promise<DailyTokenTrend[]> {
+  async getDailyTokenTrend(days = 30): Promise<DailyTokenTrend[]> {
     const result = await getDailyTokenTrend(days);
     return result.map((item) => ({
       date: String(item.date),
@@ -280,8 +281,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     }));
   }
 
-  async getModelStatistics(): Promise<ModelStatistics[]> {
-    const result = await getModelStatistics();
+  async getModelStatistics(days = 30): Promise<ModelStatistics[]> {
+    const result = await getModelStatistics(days);
     return result.map((item) => ({
       model: item.model,
       request_count: Number(item.request_count),
@@ -326,12 +327,12 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     }));
   }
 
-  async getErrorLogs(limit: number): Promise<ErrorLogEntry[]> {
-    const result = await getErrorLogs(limit);
+  async getErrorLogs(limit: number, days = 30): Promise<ErrorLogEntry[]> {
+    const result = await getErrorLogs(limit, days);
     return result.map((item) => ({
       id: item.id,
-      error_type: item.error_type || '',
-      model: item.model || '',
+      error_type: String(item.error_type ?? ''),
+      model: String(item.model ?? ''),
       user: String(item.user ?? ''),
       error_message: String(item.error_message ?? ''),
       timestamp: item.timestamp ? new Date(item.timestamp).toISOString() : '',

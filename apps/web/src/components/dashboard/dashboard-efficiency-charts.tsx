@@ -5,6 +5,7 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
+  Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -24,12 +25,14 @@ import { Skeleton } from '../skeleton';
 
 type DashboardEfficiencyChartsProps = {
   loading: boolean;
+  rangeLabel: string;
   costEfficiency: CostEfficiencyItem[];
   dailyTokenTrend: DailyTokenTrendItem[];
 };
 
 export function DashboardEfficiencyCharts({
   loading,
+  rangeLabel,
   costEfficiency,
   dailyTokenTrend,
 }: DashboardEfficiencyChartsProps) {
@@ -37,7 +40,9 @@ export function DashboardEfficiencyCharts({
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Cost Efficiency by Model ($/1K tokens)</CardTitle>
+          <CardTitle>
+            Cost Efficiency by Model ($/1K tokens, {rangeLabel})
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -69,7 +74,7 @@ export function DashboardEfficiencyCharts({
 
       <Card>
         <CardHeader>
-          <CardTitle>Token Trend (Input vs Output)</CardTitle>
+          <CardTitle>Token Trend ({rangeLabel})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -100,6 +105,14 @@ export function DashboardEfficiencyCharts({
                   stackId="1"
                   stroke="#10b981"
                   fill="#10b981"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="total_tokens"
+                  name="Total"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  dot={false}
                 />
               </AreaChart>
             </ResponsiveContainer>

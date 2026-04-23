@@ -5,7 +5,8 @@
       "fallback_models": [
         "sisyphus/gpt-5.3",
         "sisyphus/gpt-5.2",
-        "sisyphus/gpt-5.1"
+        "sisyphus/gpt-5.1",
+        "sisyphus/gpt-5.0"
       ],
       "disable": false,
       "description": "Coordenador principal — distribui tarefas e mantém o fluxo da sessão",

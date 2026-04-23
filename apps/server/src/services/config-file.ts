@@ -330,15 +330,52 @@ interface VscodeModelEntry {
  */
 const MODEL_SPECS: Record<
   string,
-  { context_length: number; output: number; family?: string; displayName?: string; owned_by?: string }
+  {
+    context_length: number;
+    output: number;
+    family?: string;
+    displayName?: string;
+    owned_by?: string;
+  }
 > = {
-  'minimax-m2.7-highspeed': { context_length: 204000, output: 32768, displayName: 'MiniMax M2.7' },
-  'qwen3-coder-plus':       { context_length: 800000, output: 32768, displayName: 'Qwen 3 Coder+' },
-  'qwen3.5-plus':           { context_length: 800000, output: 32768, displayName: 'Qwen 3.5+' },
-  'kimi-k2.5':              { context_length: 260000, output: 32768, displayName: 'Kimi K2.5' },
-  'glm-5':                  { context_length: 80000,  output: 32768, family: 'z.ai', displayName: 'GLM 5' },
-  'glm-5-turbo':            { context_length: 200000, output: 32768, family: 'z.ai', displayName: 'GLM 5 Turbo' },
-  'glm-5.1':                { context_length: 200000, output: 32768, family: 'z.ai', displayName: 'GLM 5.1' },
+  'minimax-m2.7-highspeed': {
+    context_length: 204000,
+    output: 32768,
+    displayName: 'MiniMax M2.7',
+  },
+  'qwen3-coder-plus': {
+    context_length: 800000,
+    output: 32768,
+    displayName: 'Qwen 3 Coder+',
+  },
+  'qwen3.5-plus': {
+    context_length: 800000,
+    output: 32768,
+    displayName: 'Qwen 3.5+',
+  },
+  'kimi-k2.5': {
+    context_length: 260000,
+    output: 32768,
+    displayName: 'Kimi K2.5',
+  },
+  'glm-5': {
+    context_length: 80000,
+    output: 32768,
+    family: 'z.ai',
+    displayName: 'GLM 5',
+  },
+  'glm-5-turbo': {
+    context_length: 200000,
+    output: 32768,
+    family: 'z.ai',
+    displayName: 'GLM 5 Turbo',
+  },
+  'glm-5.1': {
+    context_length: 200000,
+    output: 32768,
+    family: 'z.ai',
+    displayName: 'GLM 5.1',
+  },
 };
 
 function humanize(str: string): string {

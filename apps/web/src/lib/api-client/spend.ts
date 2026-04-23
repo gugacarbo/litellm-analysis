@@ -1,10 +1,18 @@
 import type { PaginationMetadata, SpendLog } from '../../types/analytics';
 import { fetchApi } from './core';
 
-export async function getSpendByModel(): Promise<
-  { model: string; total_spend: number }[]
-> {
-  return fetchApi('/spend/model');
+function withDays(endpoint: string, days?: number): string {
+  if (days === undefined) {
+    return endpoint;
+  }
+  const separator = endpoint.includes('?') ? '&' : '?';
+  return `${endpoint}${separator}days=${days}`;
+}
+
+export async function getSpendByModel(
+  days?: number,
+): Promise<{ model: string; total_spend: number }[]> {
+  return fetchApi(withDays('/spend/model', days));
 }
 
 export async function getSpendLogs(params: {
@@ -44,16 +52,21 @@ export async function getSpendLogsCount(params: {
   return response.count;
 }
 
-export async function getSpendByUser(): Promise<
-  { user: string; total_spend: number; total_tokens: number }[]
+export async function getSpendByUser(days?: number): Promise<
+  {
+    user: string;
+    total_spend: number;
+    total_tokens: number;
+    request_count: number;
+  }[]
 > {
-  return fetchApi('/spend/user');
+  return fetchApi(withDays('/spend/user', days));
 }
 
-export async function getSpendByKey(): Promise<
-  { key: string; total_spend: number; total_tokens: number }[]
-> {
-  return fetchApi('/spend/key');
+export async function getSpendByKey(
+  days?: number,
+): Promise<{ key: string; total_spend: number; total_tokens: number }[]> {
+  return fetchApi(withDays('/spend/key', days));
 }
 
 export async function getDailySpendTrend(

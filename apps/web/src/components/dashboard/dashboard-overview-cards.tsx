@@ -8,12 +8,14 @@ import {
   formatDuration,
   formatNumber,
   formatPercent,
+  safeDivide,
 } from '../../pages/dashboard/dashboard-utils';
 import { Card, CardContent, CardHeader, CardTitle } from '../card';
 import { Skeleton } from '../skeleton';
 
 type DashboardOverviewCardsProps = {
   loading: boolean;
+  rangeLabel: string;
   metrics: DashboardMetrics | null;
   performance: PerformanceMetrics | null;
   tokenDistribution: TokenDistributionItem[];
@@ -21,17 +23,24 @@ type DashboardOverviewCardsProps = {
 
 export function DashboardOverviewCards({
   loading,
+  rangeLabel,
   metrics,
   performance,
   tokenDistribution,
 }: DashboardOverviewCardsProps) {
+  const totalRequests = Number(performance?.total_requests ?? 0);
+  const totalTokens = Number(metrics?.totalTokens ?? 0);
+  const totalSpend = Number(metrics?.totalSpend ?? 0);
+  const avgTokensPerRequest = safeDivide(totalTokens, totalRequests);
+  const avgCostPerRequest = safeDivide(totalSpend, totalRequests);
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-gradient-to-b from-background to-blue-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Spend (30d)
+              Total Spend ({rangeLabel})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -45,10 +54,10 @@ export function DashboardOverviewCards({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-b from-background to-emerald-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Tokens (30d)
+              Total Tokens ({rangeLabel})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -62,7 +71,7 @@ export function DashboardOverviewCards({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-b from-background to-violet-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Active Models</CardTitle>
           </CardHeader>
@@ -75,9 +84,11 @@ export function DashboardOverviewCards({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-b from-background to-rose-500/5">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Errors (30d)</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Errors ({rangeLabel})
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -90,10 +101,10 @@ export function DashboardOverviewCards({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border-border/70">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Requests
+              Total Requests ({rangeLabel})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -107,7 +118,7 @@ export function DashboardOverviewCards({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/70">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Avg Latency</CardTitle>
           </CardHeader>
@@ -122,7 +133,7 @@ export function DashboardOverviewCards({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/70">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
           </CardHeader>
@@ -145,7 +156,7 @@ export function DashboardOverviewCards({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/70">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
               Avg Tokens/Request
@@ -156,12 +167,43 @@ export function DashboardOverviewCards({
               <Skeleton className="h-8 w-16" />
             ) : (
               <p className="text-2xl font-bold">
-                {formatNumber(
-                  tokenDistribution.reduce(
-                    (sum, m) => sum + m.avg_tokens_per_request,
-                    0,
-                  ) / (tokenDistribution.length || 1),
-                )}
+                {formatNumber(avgTokensPerRequest)}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="border-dashed border-border/70">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              Avg Cost / Request
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <p className="text-2xl font-bold">
+                {formatCurrency(avgCostPerRequest)}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-dashed border-border/70">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              Tracked Models
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <p className="text-2xl font-bold">
+                {formatNumber(tokenDistribution.length)}
               </p>
             )}
           </CardContent>

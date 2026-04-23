@@ -1,18 +1,68 @@
-import { and, asc, desc, eq, gte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, type SQL, sql } from 'drizzle-orm';
 import { db } from './client';
 import { errorLogs, proxyModelTable, spendLogs } from './schema';
 
-const thirtyDaysAgo = sql`NOW() - INTERVAL '30 days'`;
-const sevenDaysAgo = sql`NOW() - INTERVAL '7 days'`;
+function normalizeDays(days: number | string | undefined, fallback: number) {
+  const parsed = typeof days === 'string' ? Number.parseInt(days, 10) : days;
+  if (typeof parsed !== 'number' || Number.isNaN(parsed) || parsed < 0) {
+    return fallback;
+  }
+  return parsed;
+}
 
-export async function getSpendByModel() {
+function getWindowStart(days: number): Date | null {
+  if (days <= 0) {
+    return null;
+  }
+
+  const now = new Date();
+
+  if (days === 1) {
+    now.setHours(0, 0, 0, 0);
+    return now;
+  }
+
+  now.setDate(now.getDate() - days);
+  return now;
+}
+
+function getSpendLogsTimeCondition(days: number): SQL | undefined {
+  const windowStart = getWindowStart(days);
+  return windowStart ? gte(spendLogs.startTime, windowStart) : undefined;
+}
+
+function getFailedSpendLogsCondition(): SQL {
+  return sql`LOWER(COALESCE(${spendLogs.status}, '')) != 'success'`;
+}
+
+function combineConditions(
+  conditions: Array<SQL | undefined>,
+): SQL | undefined {
+  const validConditions = conditions.filter(
+    (condition): condition is SQL => condition !== undefined,
+  );
+
+  if (validConditions.length === 0) {
+    return undefined;
+  }
+
+  if (validConditions.length === 1) {
+    return validConditions[0];
+  }
+
+  return and(...validConditions);
+}
+
+export async function getSpendByModel(days = 30) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
+
   const result = await db
     .select({
       model: spendLogs.model,
       total_spend: sql<number>`SUM(${spendLogs.spend})`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, thirtyDaysAgo))
+    .where(whereClause)
     .groupBy(spendLogs.model)
     .orderBy(desc(sql`SUM(${spendLogs.spend})`))
     .limit(20);
@@ -27,7 +77,7 @@ export async function getSpendLogs(params: {
   limit?: number;
   offset?: number;
 }) {
-  const conditions = [];
+  const conditions: SQL[] = [];
 
   if (params.model) {
     conditions.push(eq(spendLogs.model, params.model));
@@ -49,7 +99,7 @@ export async function getSpendLogs(params: {
   const limit = params.limit || 50;
   const offset = params.offset || 0;
 
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+  const whereClause = combineConditions(conditions);
 
   const result = await db
     .select({
@@ -79,7 +129,7 @@ export async function getSpendLogsCount(params: {
   startDate?: string;
   endDate?: string;
 }): Promise<number> {
-  const conditions = [];
+  const conditions: SQL[] = [];
 
   if (params.model) {
     conditions.push(eq(spendLogs.model, params.model));
@@ -98,7 +148,7 @@ export async function getSpendLogsCount(params: {
     );
   }
 
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+  const whereClause = combineConditions(conditions);
 
   const result = await db
     .select({ count: sql`COUNT(*)`.mapWith(Number) })
@@ -107,22 +157,27 @@ export async function getSpendLogsCount(params: {
   return result[0]?.count || 0;
 }
 
-export async function getSpendByUser() {
+export async function getSpendByUser(days = 30) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
+
   const result = await db
     .select({
       user: spendLogs.user,
       total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
       total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+      request_count: sql`COUNT(*)`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, thirtyDaysAgo))
+    .where(whereClause)
     .groupBy(spendLogs.user)
     .orderBy(desc(sql`SUM(${spendLogs.spend})`))
     .limit(20);
   return result;
 }
 
-export async function getSpendByKey() {
+export async function getSpendByKey(days = 30) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
+
   const result = await db
     .select({
       key: spendLogs.apiKey,
@@ -130,7 +185,7 @@ export async function getSpendByKey() {
       total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, thirtyDaysAgo))
+    .where(whereClause)
     .groupBy(spendLogs.apiKey)
     .orderBy(desc(sql`SUM(${spendLogs.spend})`))
     .limit(20);
@@ -148,65 +203,118 @@ export async function getModelDetails() {
   return result;
 }
 
-export async function getErrorLogs(limit = 50) {
-  const result = await db
-    .select({
-      id: errorLogs.requestId,
-      error_type: errorLogs.exceptionType,
-      model: errorLogs.litellmModelName,
-      user: sql`${errorLogs.requestKwargs}->>'user'`,
-      error_message: sql`COALESCE(${errorLogs.exceptionString}, 'Unknown error')`,
-      timestamp: errorLogs.startTime,
-      status_code: errorLogs.statusCode,
-    })
-    .from(errorLogs)
-    .orderBy(desc(errorLogs.startTime))
-    .limit(limit);
-  return result;
-}
-
-export async function getMetricsSummary() {
-  const [spend, users, errors, models] = await Promise.all([
-    getSpendByModel(),
-    getSpendByUser(),
-    getErrorLogs(0),
-    db
-      .select({ count: sql<number>`COUNT(DISTINCT ${spendLogs.model})` })
-      .from(spendLogs)
-      .where(gte(spendLogs.startTime, thirtyDaysAgo)),
+export async function getErrorLogs(limit = 50, days = 30) {
+  const normalizedDays = normalizeDays(days, 30);
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizedDays),
+    getFailedSpendLogsCondition(),
   ]);
 
-  const totalSpend = spend.reduce((sum, m) => sum + Number(m.total_spend), 0);
-  const totalTokens = users.reduce(
-    (sum, u) => sum + Number(u.total_tokens || 0),
-    0,
-  );
+  try {
+    return await db
+      .select({
+        id: spendLogs.requestId,
+        error_type:
+          sql<string>`COALESCE(${errorLogs.exceptionType}, ${spendLogs.status}, 'error')`.mapWith(
+            String,
+          ),
+        model: spendLogs.model,
+        user: spendLogs.user,
+        error_message:
+          sql<string>`COALESCE(${errorLogs.exceptionString}, 'Request failed')`.mapWith(
+            String,
+          ),
+        timestamp: spendLogs.startTime,
+        status_code: sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(
+          Number,
+        ),
+      })
+      .from(spendLogs)
+      .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))
+      .where(whereClause)
+      .orderBy(desc(spendLogs.startTime))
+      .limit(limit);
+  } catch {
+    return db
+      .select({
+        id: spendLogs.requestId,
+        error_type:
+          sql<string>`COALESCE(NULLIF(BTRIM(${spendLogs.status}), ''), 'error')`.mapWith(
+            String,
+          ),
+        model: spendLogs.model,
+        user: spendLogs.user,
+        error_message: sql<string>`'Request failed'`.mapWith(String),
+        timestamp: spendLogs.startTime,
+        status_code: sql<number>`500`.mapWith(Number),
+      })
+      .from(spendLogs)
+      .where(whereClause)
+      .orderBy(desc(spendLogs.startTime))
+      .limit(limit);
+  }
+}
+
+export async function getMetricsSummary(days = 30) {
+  const normalizedDays = normalizeDays(days, 30);
+  const spendLogsTimeCondition = getSpendLogsTimeCondition(normalizedDays);
+
+  const [spendSummary, errorSummary] = await Promise.all([
+    db
+      .select({
+        totalSpend: sql<number>`COALESCE(SUM(${spendLogs.spend}), 0)`.mapWith(
+          Number,
+        ),
+        totalTokens:
+          sql<number>`COALESCE(SUM(${spendLogs.totalTokens}), 0)`.mapWith(
+            Number,
+          ),
+        activeModels: sql<number>`COUNT(DISTINCT ${spendLogs.model})`.mapWith(
+          Number,
+        ),
+      })
+      .from(spendLogs)
+      .where(spendLogsTimeCondition),
+    db
+      .select({
+        errorCount: sql<number>`COUNT(*)`.mapWith(Number),
+      })
+      .from(spendLogs)
+      .where(
+        combineConditions([
+          spendLogsTimeCondition,
+          getFailedSpendLogsCondition(),
+        ]),
+      ),
+  ]);
+
+  const summary = spendSummary[0];
+  const errors = errorSummary[0];
 
   return {
-    totalSpend,
-    totalTokens,
-    activeModels: models[0]?.count || 0,
-    errorCount: errors.length,
+    totalSpend: Number(summary?.totalSpend ?? 0),
+    totalTokens: Number(summary?.totalTokens ?? 0),
+    activeModels: Number(summary?.activeModels ?? 0),
+    errorCount: Number(errors?.errorCount ?? 0),
   };
 }
 
 export async function getDailySpendTrend(days = 30) {
-  const daysNum = typeof days === 'string' ? parseInt(days, 10) : days;
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - daysNum);
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
   const result = await db
     .select({
       date: sql`DATE(${spendLogs.startTime})`,
       spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, startDate))
+    .where(whereClause)
     .groupBy(sql`DATE(${spendLogs.startTime})`)
     .orderBy(asc(sql`DATE(${spendLogs.startTime})`));
   return result;
 }
 
-export async function getTokenDistribution() {
+export async function getTokenDistribution(days = 30) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
   const result = await db
     .select({
       model: spendLogs.model,
@@ -220,7 +328,7 @@ export async function getTokenDistribution() {
       input_output_ratio: sql`CASE WHEN SUM(${spendLogs.completionTokens}) > 0 THEN SUM(${spendLogs.promptTokens})::float / SUM(${spendLogs.completionTokens}) ELSE 0 END`,
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, thirtyDaysAgo))
+    .where(whereClause)
     .groupBy(spendLogs.model)
     .orderBy(
       desc(
@@ -231,7 +339,13 @@ export async function getTokenDistribution() {
   return result;
 }
 
-export async function getPerformanceMetrics() {
+export async function getPerformanceMetrics(days = 30) {
+  const normalizedDays = normalizeDays(days, 30);
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizedDays),
+    sql`${spendLogs.endTime} IS NOT NULL`,
+  ]);
+
   const result = await db
     .select({
       total_requests: sql`COUNT(*)`.mapWith(Number),
@@ -242,15 +356,14 @@ export async function getPerformanceMetrics() {
       success_rate: sql`SUM(CASE WHEN ${spendLogs.status} = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100`,
     })
     .from(spendLogs)
-    .where(
-      sql`${spendLogs.startTime} >= NOW() - INTERVAL '30 days' AND ${spendLogs.endTime} IS NOT NULL`,
-    );
+    .where(whereClause);
   return (
     result[0] || { total_requests: 0, avg_duration_ms: 0, success_rate: 0 }
   );
 }
 
-export async function getHourlyUsagePatterns() {
+export async function getHourlyUsagePatterns(days = 7) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 7));
   const result = await db
     .select({
       hour: sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`,
@@ -259,13 +372,14 @@ export async function getHourlyUsagePatterns() {
       total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, sevenDaysAgo))
+    .where(whereClause)
     .groupBy(sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`)
     .orderBy(asc(sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`));
   return result;
 }
 
-export async function getApiKeyDetailedStats() {
+export async function getApiKeyDetailedStats(days = 30) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
   const result = await db
     .select({
       key: spendLogs.apiKey,
@@ -279,14 +393,15 @@ export async function getApiKeyDetailedStats() {
       last_used: sql`MAX(${spendLogs.startTime})`,
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, thirtyDaysAgo))
+    .where(whereClause)
     .groupBy(spendLogs.apiKey)
     .orderBy(desc(sql`SUM(${spendLogs.spend})`))
     .limit(20);
   return result;
 }
 
-export async function getCostEfficiencyByModel() {
+export async function getCostEfficiencyByModel(days = 30) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
   const result = await db
     .select({
       model: spendLogs.model,
@@ -296,18 +411,19 @@ export async function getCostEfficiencyByModel() {
       request_count: sql`COUNT(*)`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, thirtyDaysAgo))
+    .where(whereClause)
     .groupBy(spendLogs.model)
     .orderBy(desc(sql`SUM(${spendLogs.spend})`))
     .limit(20);
   return result;
 }
 
-export async function getModelRequestDistribution() {
+export async function getModelRequestDistribution(days = 30) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
   const totalResult = await db
     .select({ count: sql`COUNT(*)`.mapWith(Number) })
     .from(spendLogs)
-    .where(sql`${spendLogs.startTime} >= NOW() - INTERVAL '30 days'`);
+    .where(whereClause);
   const totalCount = totalResult[0]?.count || 1;
 
   const result = await db
@@ -317,7 +433,7 @@ export async function getModelRequestDistribution() {
       percentage: sql`(COUNT(*) * 100.0 / ${totalCount})::numeric(10,2)`,
     })
     .from(spendLogs)
-    .where(sql`${spendLogs.startTime} >= NOW() - INTERVAL '30 days'`)
+    .where(whereClause)
     .groupBy(spendLogs.model)
     .orderBy(desc(sql`COUNT(*)`))
     .limit(15);
@@ -325,9 +441,7 @@ export async function getModelRequestDistribution() {
 }
 
 export async function getDailyTokenTrend(days = 30) {
-  const daysNum = typeof days === 'string' ? parseInt(days, 10) : days;
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - daysNum);
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
   const result = await db
     .select({
       date: sql`DATE(${spendLogs.startTime})`,
@@ -338,27 +452,34 @@ export async function getDailyTokenTrend(days = 30) {
       total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, startDate))
+    .where(whereClause)
     .groupBy(sql`DATE(${spendLogs.startTime})`)
     .orderBy(asc(sql`DATE(${spendLogs.startTime})`));
   return result;
 }
 
-export async function getTopModelsByRequests(limit = 10) {
+export async function getTopModelsByRequests(limit = 10, days = 30) {
+  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
   const result = await db
     .select({
       model: spendLogs.model,
       request_count: sql`COUNT(*)`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(gte(spendLogs.startTime, thirtyDaysAgo))
+    .where(whereClause)
     .groupBy(spendLogs.model)
     .orderBy(desc(sql`COUNT(*)`))
     .limit(limit);
   return result;
 }
 
-export async function getModelStatistics() {
+export async function getModelStatistics(days = 30) {
+  const normalizedDays = normalizeDays(days, 30);
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizedDays),
+    sql`${spendLogs.endTime} IS NOT NULL`,
+  ]);
+
   const result = await db
     .select({
       model: spendLogs.model,
@@ -398,9 +519,7 @@ export async function getModelStatistics() {
       unique_api_keys: sql`COUNT(DISTINCT ${spendLogs.apiKey})`.mapWith(Number),
     })
     .from(spendLogs)
-    .where(
-      sql`${spendLogs.startTime} >= NOW() - INTERVAL '30 days' AND ${spendLogs.endTime} IS NOT NULL`,
-    )
+    .where(whereClause)
     .groupBy(spendLogs.model)
     .orderBy(desc(sql`SUM(${spendLogs.spend})`))
     .limit(50);
@@ -464,6 +583,13 @@ export async function mergeModels(sourceModel: string, targetModel: string) {
 }
 
 export async function deleteModelLogs(modelName: string) {
+  if (modelName.trim() === '') {
+    await db
+      .delete(spendLogs)
+      .where(sql`NULLIF(BTRIM(${spendLogs.model}), '') IS NULL`);
+    return;
+  }
+
   await db.delete(spendLogs).where(eq(spendLogs.model, modelName));
 }
 

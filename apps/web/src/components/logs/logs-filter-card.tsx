@@ -1,6 +1,14 @@
+import { AlertCircle } from 'lucide-react';
 import { Button } from '../button';
-import { Card } from '../card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../card';
 import { Input } from '../input';
+import { Label } from '../label';
 import {
   Select,
   SelectContent,
@@ -25,6 +33,8 @@ type LogsFilterCardProps = {
   onClear: () => void;
 };
 
+const ALL_MODELS_VALUE = '__all_models__';
+
 export function LogsFilterCard({
   models,
   values,
@@ -34,61 +44,94 @@ export function LogsFilterCard({
   onClear,
 }: LogsFilterCardProps) {
   return (
-    <Card className="p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-        <Select
-          value={values.model}
-          onValueChange={(model) => onValuesChange({ ...values, model })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Model" />
-          </SelectTrigger>
-          <SelectContent>
-            {models.map((model) => (
-              <SelectItem key={model} value={model}>
-                {model}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <Card>
+      <CardHeader className="border-b">
+        <CardTitle>Filters</CardTitle>
+        <CardDescription>
+          Filter by model, user, and date range.
+        </CardDescription>
+      </CardHeader>
 
-        <Input
-          placeholder="User"
-          value={values.user}
-          onChange={(e) => onValuesChange({ ...values, user: e.target.value })}
-        />
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="space-y-2">
+            <Label htmlFor="logs-model-filter">Model</Label>
+            <Select
+              value={values.model || ALL_MODELS_VALUE}
+              onValueChange={(model) =>
+                onValuesChange({
+                  ...values,
+                  model: model === ALL_MODELS_VALUE ? '' : model,
+                })
+              }
+            >
+              <SelectTrigger id="logs-model-filter">
+                <SelectValue placeholder="All models" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_MODELS_VALUE}>All models</SelectItem>
+                {models.map((model) => (
+                  <SelectItem key={model} value={model}>
+                    {model}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        <Input
-          type="date"
-          placeholder="Start Date"
-          value={values.startDate}
-          onChange={(e) =>
-            onValuesChange({ ...values, startDate: e.target.value })
-          }
-        />
+          <div className="space-y-2">
+            <Label htmlFor="logs-user-filter">User</Label>
+            <Input
+              id="logs-user-filter"
+              placeholder="User id"
+              value={values.user}
+              onChange={(event) =>
+                onValuesChange({ ...values, user: event.target.value })
+              }
+            />
+          </div>
 
-        <Input
-          type="date"
-          placeholder="End Date"
-          value={values.endDate}
-          onChange={(e) =>
-            onValuesChange({ ...values, endDate: e.target.value })
-          }
-        />
+          <div className="space-y-2">
+            <Label htmlFor="logs-start-date-filter">Start date</Label>
+            <Input
+              id="logs-start-date-filter"
+              type="date"
+              value={values.startDate}
+              onChange={(event) =>
+                onValuesChange({ ...values, startDate: event.target.value })
+              }
+            />
+          </div>
 
-        <div className="flex gap-2">
-          <Button onClick={onApply}>Apply</Button>
-          <Button variant="outline" onClick={onClear}>
-            Clear
-          </Button>
+          <div className="space-y-2">
+            <Label htmlFor="logs-end-date-filter">End date</Label>
+            <Input
+              id="logs-end-date-filter"
+              type="date"
+              value={values.endDate}
+              onChange={(event) =>
+                onValuesChange({ ...values, endDate: event.target.value })
+              }
+            />
+          </div>
+
+          <div className="flex items-end gap-2">
+            <Button className="flex-1" onClick={onApply}>
+              Apply
+            </Button>
+            <Button className="flex-1" variant="outline" onClick={onClear}>
+              Clear
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          Error: {error}
-        </div>
-      )}
+        {error && (
+          <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }

@@ -1,7 +1,6 @@
 import type {
   ApiKeyStatItem,
   SpendByUserItem,
-  TokenDistributionItem,
 } from '../../pages/dashboard/dashboard-types';
 import {
   formatCurrency,
@@ -21,22 +20,22 @@ import {
 
 type DashboardTopEntitiesProps = {
   loading: boolean;
+  rangeLabel: string;
   apiKeyStats: ApiKeyStatItem[];
   spendByUser: SpendByUserItem[];
-  tokenDistribution: TokenDistributionItem[];
 };
 
 export function DashboardTopEntities({
   loading,
+  rangeLabel,
   apiKeyStats,
   spendByUser,
-  tokenDistribution,
 }: DashboardTopEntitiesProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Top API Keys (30d)</CardTitle>
+          <CardTitle>Top API Keys ({rangeLabel})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -70,10 +69,10 @@ export function DashboardTopEntities({
                       </TableCell>
                     </TableRow>
                   ))
-                : apiKeyStats.slice(0, 10).map((k, i) => (
-                    <TableRow key={i}>
+                : apiKeyStats.slice(0, 10).map((k) => (
+                    <TableRow key={k.key}>
                       <TableCell className="font-mono text-xs">
-                        {k.key.slice(0, 12)}...
+                        {(k.key || 'N/A').slice(0, 12)}...
                       </TableCell>
                       <TableCell className="text-right">
                         {formatNumber(k.request_count)}
@@ -104,7 +103,7 @@ export function DashboardTopEntities({
 
       <Card>
         <CardHeader>
-          <CardTitle>Top Users (30d)</CardTitle>
+          <CardTitle>Top Users ({rangeLabel})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -146,12 +145,7 @@ export function DashboardTopEntities({
                         {formatNumber(u.total_tokens)}
                       </TableCell>
                       <TableCell className="text-right">
-                        {formatNumber(
-                          tokenDistribution.reduce(
-                            (sum, m) => sum + (m.avg_tokens_per_request || 0),
-                            0,
-                          ),
-                        )}
+                        {formatNumber(u.request_count)}
                       </TableCell>
                     </TableRow>
                   ))}

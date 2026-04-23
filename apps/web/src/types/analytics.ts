@@ -69,6 +69,7 @@ export interface UserSpend {
   user: string;
   total_spend: number;
   total_tokens: number;
+  request_count: number;
 }
 
 export interface KeySpend {

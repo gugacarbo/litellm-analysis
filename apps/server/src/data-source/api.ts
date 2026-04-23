@@ -50,6 +50,37 @@ const API_CAPABILITIES: AnalyticsCapabilities = {
   agentConfigFile: false,
 };
 
+const DEFAULT_DASHBOARD_DAYS = 30;
+const DEFAULT_HOURLY_DAYS = 7;
+const MAX_LOGS_FETCH = 5000;
+
+function normalizeDays(days: number | undefined, fallback: number): number {
+  if (typeof days !== 'number' || Number.isNaN(days) || days < 0) {
+    return fallback;
+  }
+  return days;
+}
+
+function getWindowStart(days: number): Date | null {
+  if (days <= 0) {
+    return null;
+  }
+
+  const now = new Date();
+
+  if (days === 1) {
+    now.setHours(0, 0, 0, 0);
+    return now;
+  }
+
+  now.setDate(now.getDate() - days);
+  return now;
+}
+
+function getDayKey(timestamp: string): string {
+  return timestamp.split('T')[0];
+}
+
 export class ApiDataSource implements AnalyticsDataSource {
   private apiUrl: string;
   private apiKey: string;
@@ -83,131 +114,172 @@ export class ApiDataSource implements AnalyticsDataSource {
     return response.json() as Promise<T>;
   }
 
-  async getMetricsSummary(): Promise<MetricsSummary> {
-    const dailyMetrics =
-      await this.fetchWithAuth<DailyMetricsResponse[]>('/daily_metrics');
-
-    if (
-      !dailyMetrics ||
-      !Array.isArray(dailyMetrics) ||
-      dailyMetrics.length === 0
-    ) {
-      return {
-        total_spend: 0,
-        total_tokens: 0,
-        active_models: 0,
-        error_count: 0,
-      };
+  private isWithinWindow(startTime: string | undefined, days: number): boolean {
+    if (!startTime) {
+      return false;
     }
 
-    const total_spend = dailyMetrics.reduce(
-      (sum, day) => sum + (day.daily_spend || 0),
-      0,
+    const timestamp = new Date(startTime);
+    if (Number.isNaN(timestamp.getTime())) {
+      return false;
+    }
+
+    const windowStart = getWindowStart(days);
+    if (!windowStart) {
+      return true;
+    }
+
+    return timestamp >= windowStart;
+  }
+
+  private async getFilteredLogs(days: number): Promise<SpendLogResponse[]> {
+    const logs = await this.fetchWithAuth<SpendLogResponse[]>(
+      `/spend/logs?limit=${MAX_LOGS_FETCH}`,
     );
 
+    if (!logs || !Array.isArray(logs)) {
+      return [];
+    }
+
+    return logs.filter((log) => this.isWithinWindow(log.startTime, days));
+  }
+
+  async getMetricsSummary(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<MetricsSummary> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
+
     const modelSet = new Set<string>();
-    dailyMetrics.forEach((day) => {
-      if (day.spend_per_model) {
-        for (const model of Object.keys(day.spend_per_model)) {
-          modelSet.add(model);
-        }
-      }
+    let totalSpend = 0;
+    let totalTokens = 0;
+
+    logs.forEach((log) => {
+      modelSet.add(log.model);
+      totalSpend += Number(log.spend || log.total_spend || 0);
+      totalTokens += Number(log.total_tokens || 0);
     });
 
     return {
-      total_spend,
-      total_tokens: 0,
+      total_spend: totalSpend,
+      total_tokens: totalTokens,
       active_models: modelSet.size,
       error_count: 0,
     };
   }
 
-  async getDailySpendTrend(days: number): Promise<DailySpendTrend[]> {
-    const dailyMetrics =
-      await this.fetchWithAuth<DailyMetricsResponse[]>('/daily_metrics');
+  async getDailySpendTrend(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<DailySpendTrend[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
-    if (!dailyMetrics || !Array.isArray(dailyMetrics)) {
-      return [];
-    }
+    const dailySpend = new Map<string, number>();
 
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
+    logs
+      .filter((log): log is SpendLogResponse & { startTime: string } =>
+        Boolean(log.startTime),
+      )
+      .forEach((log) => {
+        const date = getDayKey(log.startTime);
+        const current = dailySpend.get(date) || 0;
+        dailySpend.set(
+          date,
+          current + Number(log.spend || log.total_spend || 0),
+        );
+      });
 
-    return dailyMetrics
-      .filter((day) => new Date(day.day) >= cutoff)
-      .map((day) => ({
-        date: day.day.split('T')[0],
-        spend: day.daily_spend || 0,
-      }))
+    return Array.from(dailySpend.entries())
+      .map(([date, spend]) => ({ date, spend }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
 
-  async getSpendByModel(): Promise<SpendByModel[]> {
-    const report = await this.fetchWithAuth<GlobalSpendReport[]>(
-      '/global/spend/report?group_by=model',
-    );
+  async getSpendByModel(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<SpendByModel[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
-    if (!report || !Array.isArray(report)) {
-      return [];
-    }
-
-    const modelMap = new Map<string, number>();
-    report.forEach((item) => {
-      if (item.model_details) {
-        item.model_details.forEach(
-          (detail: { model: string; total_cost: number }) => {
-            const current = modelMap.get(detail.model) || 0;
-            modelMap.set(detail.model, current + (detail.total_cost || 0));
-          },
-        );
-      } else if (item.metadata) {
-        item.metadata.forEach((detail: { model: string; spend: number }) => {
-          const current = modelMap.get(detail.model) || 0;
-          modelMap.set(detail.model, current + (detail.spend || 0));
-        });
-      }
+    const modelSpend = new Map<string, number>();
+    logs.forEach((log) => {
+      const current = modelSpend.get(log.model) || 0;
+      modelSpend.set(
+        log.model,
+        current + Number(log.spend || log.total_spend || 0),
+      );
     });
 
-    return Array.from(modelMap.entries()).map(([model, total_spend]) => ({
-      model,
-      total_spend,
-    }));
+    return Array.from(modelSpend.entries())
+      .map(([model, total_spend]) => ({ model, total_spend }))
+      .sort((a, b) => b.total_spend - a.total_spend)
+      .slice(0, 20);
   }
 
-  async getSpendByUser(): Promise<SpendByUser[]> {
-    const report = await this.fetchWithAuth<GlobalSpendReport[]>(
-      '/global/spend/report?group_by=user',
-    );
+  async getSpendByUser(days = DEFAULT_DASHBOARD_DAYS): Promise<SpendByUser[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
-    if (!report || !Array.isArray(report)) {
-      return [];
-    }
+    const users = new Map<
+      string,
+      { total_spend: number; total_tokens: number; request_count: number }
+    >();
 
-    return report.map((item) => ({
-      user: item.user_id || null,
-      total_spend: Number(item.total_cost || item.total_spend || 0),
-      total_tokens:
-        Number(item.total_input_tokens || 0) +
-        Number(item.total_output_tokens || 0),
-    }));
+    logs.forEach((log) => {
+      const user = log.user ?? 'Anonymous';
+      const existing = users.get(user) || {
+        total_spend: 0,
+        total_tokens: 0,
+        request_count: 0,
+      };
+
+      existing.total_spend += Number(log.spend || log.total_spend || 0);
+      existing.total_tokens += Number(log.total_tokens || 0);
+      existing.request_count += 1;
+
+      users.set(user, existing);
+    });
+
+    return Array.from(users.entries())
+      .map(([user, stats]) => ({
+        user,
+        total_spend: stats.total_spend,
+        total_tokens: stats.total_tokens,
+        request_count: stats.request_count,
+      }))
+      .sort((a, b) => b.total_spend - a.total_spend)
+      .slice(0, 20);
   }
 
-  async getSpendByKey(): Promise<SpendByKey[]> {
-    const report = await this.fetchWithAuth<GlobalSpendReport[]>(
-      '/global/spend/report?group_by=api_key',
-    );
+  async getSpendByKey(days = DEFAULT_DASHBOARD_DAYS): Promise<SpendByKey[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
-    if (!report || !Array.isArray(report)) {
-      return [];
-    }
+    const keys = new Map<
+      string,
+      { total_spend: number; total_tokens: number }
+    >();
 
-    return report.map((item) => ({
-      key: item.api_key || null,
-      total_spend: Number(item.total_cost || item.total_spend || 0),
-      total_tokens:
-        Number(item.total_input_tokens || 0) +
-        Number(item.total_output_tokens || 0),
-    }));
+    logs.forEach((log) => {
+      const key = log.api_key ?? 'Unknown';
+      const existing = keys.get(key) || {
+        total_spend: 0,
+        total_tokens: 0,
+      };
+
+      existing.total_spend += Number(log.spend || log.total_spend || 0);
+      existing.total_tokens += Number(log.total_tokens || 0);
+
+      keys.set(key, existing);
+    });
+
+    return Array.from(keys.entries())
+      .map(([key, stats]) => ({
+        key,
+        total_spend: stats.total_spend,
+        total_tokens: stats.total_tokens,
+      }))
+      .sort((a, b) => b.total_spend - a.total_spend)
+      .slice(0, 20);
   }
 
   async getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse> {
@@ -265,14 +337,11 @@ export class ApiDataSource implements AnalyticsDataSource {
     return 0;
   }
 
-  async getTokenDistribution(): Promise<TokenDistribution[]> {
-    const logs = await this.fetchWithAuth<SpendLogResponse[]>(
-      '/spend/logs?limit=1000',
-    );
-
-    if (!logs || !Array.isArray(logs)) {
-      return [];
-    }
+  async getTokenDistribution(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<TokenDistribution[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
     const modelData = new Map<
       string,
@@ -292,25 +361,34 @@ export class ApiDataSource implements AnalyticsDataSource {
       }
     });
 
-    return Array.from(modelData.entries()).map(([model, data]) => {
-      const total = data.prompt + data.completion;
-      return {
-        model,
-        prompt_tokens: data.prompt,
-        completion_tokens: data.completion,
-        avg_tokens_per_request: data.count > 0 ? total / data.count : 0,
-        input_output_ratio:
-          data.completion > 0 ? data.prompt / data.completion : 0,
-      };
-    });
+    return Array.from(modelData.entries())
+      .map(([model, data]) => {
+        const total = data.prompt + data.completion;
+        return {
+          model,
+          prompt_tokens: data.prompt,
+          completion_tokens: data.completion,
+          avg_tokens_per_request: data.count > 0 ? total / data.count : 0,
+          input_output_ratio:
+            data.completion > 0 ? data.prompt / data.completion : 0,
+        };
+      })
+      .sort(
+        (a, b) =>
+          b.prompt_tokens +
+          b.completion_tokens -
+          (a.prompt_tokens + a.completion_tokens),
+      )
+      .slice(0, 20);
   }
 
-  async getPerformanceMetrics(): Promise<PerformanceMetrics> {
-    const logs = await this.fetchWithAuth<SpendLogResponse[]>(
-      '/spend/logs?limit=1000',
-    );
+  async getPerformanceMetrics(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<PerformanceMetrics> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
-    if (!logs || !Array.isArray(logs) || logs.length === 0) {
+    if (logs.length === 0) {
       return {
         total_requests: 0,
         avg_duration_ms: 0,
@@ -322,133 +400,172 @@ export class ApiDataSource implements AnalyticsDataSource {
     const successful = logs.filter((log) => log.status === 'success').length;
 
     let totalDuration = 0;
-    let count = 0;
+    let durationCount = 0;
     logs.forEach((log) => {
       if (log.startTime && log.endTime) {
         const start = new Date(log.startTime).getTime();
         const end = new Date(log.endTime).getTime();
         if (end > start) {
           totalDuration += end - start;
-          count++;
+          durationCount++;
         }
       }
     });
 
     return {
       total_requests,
-      avg_duration_ms: count > 0 ? totalDuration / count : 0,
-      success_rate: total_requests > 0 ? successful / total_requests : 0,
+      avg_duration_ms: durationCount > 0 ? totalDuration / durationCount : 0,
+      success_rate:
+        total_requests > 0 ? (successful / total_requests) * 100 : 0,
     };
   }
 
-  async getHourlyUsagePatterns(): Promise<HourlyUsagePattern[]> {
-    const logs = await this.fetchWithAuth<SpendLogResponse[]>(
-      '/spend/logs?limit=1000',
-    );
-
-    if (!logs || !Array.isArray(logs)) {
-      return [];
-    }
+  async getHourlyUsagePatterns(
+    days = DEFAULT_HOURLY_DAYS,
+  ): Promise<HourlyUsagePattern[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_HOURLY_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
     const hourlyData = new Map<
       number,
-      { count: number; spend: number; tokens: number }
+      { request_count: number; total_spend: number; total_tokens: number }
     >();
 
-    for (let i = 0; i < 24; i++) {
-      hourlyData.set(i, { count: 0, spend: 0, tokens: 0 });
+    for (let hour = 0; hour < 24; hour++) {
+      hourlyData.set(hour, {
+        request_count: 0,
+        total_spend: 0,
+        total_tokens: 0,
+      });
     }
 
     logs.forEach((log) => {
-      if (log.startTime) {
-        const hour = new Date(log.startTime).getHours();
-        const data = hourlyData.get(hour);
-        if (data) {
-          data.count++;
-          data.spend += Number(log.spend || 0);
-          data.tokens += Number(log.total_tokens || 0);
-        }
+      if (!log.startTime) {
+        return;
       }
+
+      const hour = new Date(log.startTime).getHours();
+      const data = hourlyData.get(hour);
+      if (!data) {
+        return;
+      }
+
+      data.request_count += 1;
+      data.total_spend += Number(log.spend || log.total_spend || 0);
+      data.total_tokens += Number(log.total_tokens || 0);
     });
 
     return Array.from(hourlyData.entries()).map(([hour, data]) => ({
       hour,
-      request_count: data.count,
-      total_spend: data.spend,
-      total_tokens: data.tokens,
+      request_count: data.request_count,
+      total_spend: data.total_spend,
+      total_tokens: data.total_tokens,
     }));
   }
 
-  async getApiKeyStats(): Promise<ApiKeyStats[]> {
-    const report = await this.fetchWithAuth<GlobalSpendReport[]>(
-      '/global/spend/report?group_by=api_key',
-    );
+  async getApiKeyStats(days = DEFAULT_DASHBOARD_DAYS): Promise<ApiKeyStats[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
-    if (!report || !Array.isArray(report)) {
-      return [];
-    }
+    const keyStats = new Map<
+      string,
+      {
+        request_count: number;
+        total_spend: number;
+        total_tokens: number;
+        successful: number;
+        last_used: string;
+      }
+    >();
 
-    return report.map((item) => {
-      const total_tokens =
-        Number(item.total_input_tokens || 0) +
-        Number(item.total_output_tokens || 0);
-      const request_count = item.request_count || item.metadata?.length || 0;
-      return {
-        key: item.api_key || null,
-        request_count: Number(request_count),
-        total_spend: Number(item.total_cost || item.total_spend || 0),
-        total_tokens,
-        avg_tokens_per_request:
-          request_count > 0 ? total_tokens / request_count : 0,
-        success_rate: 1,
-        last_used: new Date().toISOString(),
+    logs.forEach((log) => {
+      const key = log.api_key ?? 'Unknown';
+      const existing = keyStats.get(key) || {
+        request_count: 0,
+        total_spend: 0,
+        total_tokens: 0,
+        successful: 0,
+        last_used: '',
       };
+
+      existing.request_count += 1;
+      existing.total_spend += Number(log.spend || log.total_spend || 0);
+      existing.total_tokens += Number(log.total_tokens || 0);
+      existing.successful += log.status === 'success' ? 1 : 0;
+
+      if (log.startTime && log.startTime > existing.last_used) {
+        existing.last_used = log.startTime;
+      }
+
+      keyStats.set(key, existing);
     });
+
+    return Array.from(keyStats.entries())
+      .map(([key, stats]) => ({
+        key,
+        request_count: stats.request_count,
+        total_spend: stats.total_spend,
+        total_tokens: stats.total_tokens,
+        avg_tokens_per_request:
+          stats.request_count > 0
+            ? stats.total_tokens / stats.request_count
+            : 0,
+        success_rate:
+          stats.request_count > 0
+            ? (stats.successful / stats.request_count) * 100
+            : 0,
+        last_used: stats.last_used
+          ? new Date(stats.last_used).toISOString()
+          : '',
+      }))
+      .sort((a, b) => b.total_spend - a.total_spend)
+      .slice(0, 20);
   }
 
-  async getCostEfficiency(): Promise<CostEfficiency[]> {
-    const logs = await this.fetchWithAuth<SpendLogResponse[]>(
-      '/spend/logs?limit=1000',
-    );
-
-    if (!logs || !Array.isArray(logs)) {
-      return [];
-    }
+  async getCostEfficiency(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<CostEfficiency[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
     const modelData = new Map<
       string,
-      { spend: number; tokens: number; count: number }
+      { spend: number; tokens: number; request_count: number }
     >();
 
     logs.forEach((log) => {
       const model = log.model;
       if (!modelData.has(model)) {
-        modelData.set(model, { spend: 0, tokens: 0, count: 0 });
+        modelData.set(model, { spend: 0, tokens: 0, request_count: 0 });
       }
       const data = modelData.get(model);
       if (data) {
-        data.spend += Number(log.spend || 0);
+        data.spend += Number(log.spend || log.total_spend || 0);
         data.tokens += Number(log.total_tokens || 0);
-        data.count++;
+        data.request_count += 1;
       }
     });
 
-    return Array.from(modelData.entries()).map(([model, data]) => ({
-      model,
-      total_spend: data.spend,
-      total_tokens: data.tokens,
-      cost_per_1k_tokens:
-        data.tokens > 0 ? (data.spend / data.tokens) * 1000 : 0,
-      request_count: data.count,
-    }));
+    return Array.from(modelData.entries())
+      .map(([model, data]) => ({
+        model,
+        total_spend: data.spend,
+        total_tokens: data.tokens,
+        cost_per_1k_tokens:
+          data.tokens > 0 ? (data.spend / data.tokens) * 1000 : 0,
+        request_count: data.request_count,
+      }))
+      .sort((a, b) => b.total_spend - a.total_spend)
+      .slice(0, 20);
   }
 
-  async getModelDistribution(): Promise<ModelRequestDistribution[]> {
-    const logs = await this.fetchWithAuth<SpendLogResponse[]>(
-      '/spend/logs?limit=1000',
-    );
+  async getModelDistribution(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<ModelRequestDistribution[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
-    if (!logs || !Array.isArray(logs) || logs.length === 0) {
+    if (logs.length === 0) {
       return [];
     }
 
@@ -459,34 +576,30 @@ export class ApiDataSource implements AnalyticsDataSource {
     });
 
     const total = logs.length;
-    return Array.from(modelCounts.entries()).map(([model, count]) => ({
-      model,
-      request_count: count,
-      percentage: total > 0 ? (count / total) * 100 : 0,
-    }));
+    return Array.from(modelCounts.entries())
+      .map(([model, request_count]) => ({
+        model,
+        request_count,
+        percentage: total > 0 ? (request_count / total) * 100 : 0,
+      }))
+      .sort((a, b) => b.request_count - a.request_count)
+      .slice(0, 15);
   }
 
-  async getDailyTokenTrend(days: number): Promise<DailyTokenTrend[]> {
-    const logs = await this.fetchWithAuth<SpendLogResponse[]>(
-      '/spend/logs?limit=1000',
-    );
-
-    if (!logs || !Array.isArray(logs)) {
-      return [];
-    }
-
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
+  async getDailyTokenTrend(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<DailyTokenTrend[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
     const dailyData = new Map<string, { prompt: number; completion: number }>();
 
     logs
-      .filter((log): log is typeof log & { startTime: string } =>
+      .filter((log): log is SpendLogResponse & { startTime: string } =>
         Boolean(log.startTime),
       )
-      .filter((log) => new Date(log.startTime) >= cutoff)
       .forEach((log) => {
-        const date = log.startTime.split('T')[0];
+        const date = getDayKey(log.startTime);
         if (!dailyData.has(date)) {
           dailyData.set(date, { prompt: 0, completion: 0 });
         }
@@ -507,14 +620,11 @@ export class ApiDataSource implements AnalyticsDataSource {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
 
-  async getModelStatistics(): Promise<ModelStatistics[]> {
-    const logs = await this.fetchWithAuth<SpendLogResponse[]>(
-      '/spend/logs?limit=1000',
-    );
-
-    if (!logs || !Array.isArray(logs)) {
-      return [];
-    }
+  async getModelStatistics(
+    days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<ModelStatistics[]> {
+    const normalizedDays = normalizeDays(days, DEFAULT_DASHBOARD_DAYS);
+    const logs = await this.getFilteredLogs(normalizedDays);
 
     const modelData = new Map<
       string,
@@ -522,7 +632,7 @@ export class ApiDataSource implements AnalyticsDataSource {
         spend: number;
         prompt: number;
         completion: number;
-        count: number;
+        request_count: number;
         latencies: number[];
         successes: number;
         errors: number;
@@ -539,7 +649,7 @@ export class ApiDataSource implements AnalyticsDataSource {
           spend: 0,
           prompt: 0,
           completion: 0,
-          count: 0,
+          request_count: 0,
           latencies: [],
           successes: 0,
           errors: 0,
@@ -548,53 +658,60 @@ export class ApiDataSource implements AnalyticsDataSource {
           times: [],
         });
       }
+
       const data = modelData.get(model);
-      if (data) {
-        data.spend += Number(log.spend || 0);
-        data.prompt += Number(log.prompt_tokens || 0);
-        data.completion += Number(log.completion_tokens || 0);
-        data.count++;
+      if (!data) {
+        return;
+      }
 
-        if (log.user) data.userSet.add(log.user);
-        if (log.api_key) data.keySet.add(log.api_key);
-        if (log.startTime) data.times.push(new Date(log.startTime).getTime());
+      data.spend += Number(log.spend || log.total_spend || 0);
+      data.prompt += Number(log.prompt_tokens || 0);
+      data.completion += Number(log.completion_tokens || 0);
+      data.request_count += 1;
 
-        if (log.startTime && log.endTime) {
-          const start = new Date(log.startTime).getTime();
-          const end = new Date(log.endTime).getTime();
-          if (end > start) {
-            data.latencies.push(end - start);
-          }
+      if (log.user) data.userSet.add(log.user);
+      if (log.api_key) data.keySet.add(log.api_key);
+      if (log.startTime) data.times.push(new Date(log.startTime).getTime());
+
+      if (log.startTime && log.endTime) {
+        const start = new Date(log.startTime).getTime();
+        const end = new Date(log.endTime).getTime();
+        if (end > start) {
+          data.latencies.push(end - start);
         }
+      }
 
-        if (log.status === 'success') {
-          data.successes++;
-        } else {
-          data.errors++;
-        }
+      if (log.status === 'success') {
+        data.successes++;
+      } else {
+        data.errors++;
       }
     });
 
     return Array.from(modelData.entries()).map(([model, data]) => {
       const total_tokens = data.prompt + data.completion;
       const sortedLatencies = [...data.latencies].sort((a, b) => a - b);
+      const sortedTimes = [...data.times].sort((a, b) => a - b);
       const avgLatency =
         data.latencies.length > 0
-          ? data.latencies.reduce((a, b) => a + b, 0) / data.latencies.length
+          ? data.latencies.reduce((acc, value) => acc + value, 0) /
+            data.latencies.length
           : 0;
-
-      const sortedTimes = [...data.times].sort((a, b) => a - b);
 
       return {
         model,
-        request_count: data.count,
+        request_count: data.request_count,
         total_spend: data.spend,
         total_tokens,
         prompt_tokens: data.prompt,
         completion_tokens: data.completion,
-        avg_tokens_per_request: data.count > 0 ? total_tokens / data.count : 0,
+        avg_tokens_per_request:
+          data.request_count > 0 ? total_tokens / data.request_count : 0,
         avg_latency_ms: avgLatency,
-        success_rate: data.count > 0 ? data.successes / data.count : 0,
+        success_rate:
+          data.request_count > 0
+            ? (data.successes / data.request_count) * 100
+            : 0,
         error_count: data.errors,
         avg_input_cost: 0,
         avg_output_cost: 0,
@@ -633,7 +750,10 @@ export class ApiDataSource implements AnalyticsDataSource {
     return [];
   }
 
-  async getErrorLogs(_limit: number): Promise<ErrorLogEntry[]> {
+  async getErrorLogs(
+    _limit: number,
+    _days = DEFAULT_DASHBOARD_DAYS,
+  ): Promise<ErrorLogEntry[]> {
     return [];
   }
 
@@ -643,18 +763,22 @@ export class ApiDataSource implements AnalyticsDataSource {
   }): Promise<void> {
     throw new Error('Creating models is not supported in API-only mode');
   }
+
   async updateModel(
     _name: string,
     _updates: { litellmParams?: Record<string, unknown>; modelName?: string },
   ): Promise<void> {
     throw new Error('Updating models is not supported in API-only mode');
   }
+
   async deleteModel(_name: string): Promise<void> {
     throw new Error('Deleting models is not supported in API-only mode');
   }
+
   async mergeModels(_source: string, _target: string): Promise<void> {
     throw new Error('Merging models is not supported in API-only mode');
   }
+
   async deleteModelLogs(_model: string): Promise<void> {
     throw new Error('Deleting model logs is not supported in API-only mode');
   }
@@ -700,35 +824,6 @@ export class ApiDataSource implements AnalyticsDataSource {
   async deleteCategoryConfig(_categoryKey: string): Promise<void> {
     throw new Error('Config file updates are not supported in API-only mode');
   }
-}
-
-interface DailyMetricsResponse {
-  daily_spend: number;
-  day: string;
-  spend_per_model?: Record<string, number>;
-  spend_per_api_key?: Record<string, number>;
-}
-
-interface GlobalSpendReport {
-  api_key?: string;
-  total_cost?: number;
-  total_spend?: number;
-  total_input_tokens?: number;
-  total_output_tokens?: number;
-  model_details?: Array<{
-    model: string;
-    total_cost: number;
-    total_input_tokens: number;
-    total_output_tokens: number;
-  }>;
-  metadata?: Array<{
-    model: string;
-    spend: number;
-    total_tokens: number;
-    api_key: string;
-  }>;
-  user_id?: string;
-  request_count?: number;
 }
 
 interface SpendLogResponse {

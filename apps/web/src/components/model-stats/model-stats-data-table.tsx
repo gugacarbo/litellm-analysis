@@ -96,13 +96,18 @@ export function ModelStatsDataTable({
                     </TableRow>
                   ))
                 : data.map((m, i) => {
+                    const modelName =
+                      typeof m.model === 'string' ? m.model : '';
                     const percentOfTotal =
                       totalSpend > 0
                         ? (Number(m.total_spend) / totalSpend) * 100
                         : 0;
+                    const modelLabel = modelName.trim()
+                      ? modelName
+                      : '(no model)';
 
                     return (
-                      <TableRow key={`${m.model}-${i}`}>
+                      <TableRow key={`${modelName}-${i}`}>
                         {columns
                           .filter((c) => visibleColumns.includes(c.key))
                           .map((col) => {
@@ -112,7 +117,7 @@ export function ModelStatsDataTable({
                               case 'model':
                                 value = (
                                   <span className="font-medium font-mono text-xs whitespace-nowrap">
-                                    {m.model}
+                                    {modelLabel}
                                   </span>
                                 );
                                 break;
@@ -207,10 +212,10 @@ export function ModelStatsDataTable({
                                     <Button
                                       variant="destructive"
                                       size="sm"
-                                      disabled={deleting === m.model}
-                                      onClick={() => onDeleteClick(m.model)}
+                                      disabled={deleting === modelName}
+                                      onClick={() => onDeleteClick(modelName)}
                                     >
-                                      {deleting === m.model ? '...' : '×'}
+                                      {deleting === modelName ? '...' : '×'}
                                     </Button>
                                   </FeatureGate>
                                 );

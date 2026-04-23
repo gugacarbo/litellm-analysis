@@ -93,6 +93,12 @@ describe('Write endpoint guards', () => {
     expect(res.status).toBe(403);
   });
 
+  it('DELETE /models/logs?model= returns 403 in limited mode', async () => {
+    const app = await getServer(LIMITED_CAPABILITIES);
+    const res = await request(app).delete('/models/logs?model=');
+    expect(res.status).toBe(403);
+  });
+
   it('PUT /models/:name returns 200 in limited mode (update allowed)', async () => {
     const app = await getServer(LIMITED_CAPABILITIES);
     const res = await request(app)
@@ -105,5 +111,22 @@ describe('Write endpoint guards', () => {
     const app = await getServer(DATABASE_CAPABILITIES);
     const res = await request(app).post('/models').send({ modelName: 'test' });
     expect(res.status).toBe(201);
+  });
+
+  it('DELETE /models/logs?model= forwards empty model in full mode', async () => {
+    const { createApiServer } = await import('../api-server');
+    const mockDs = createMockDataSource(DATABASE_CAPABILITIES);
+    const app = createApiServer(mockDs);
+
+    const res = await request(app).delete('/models/logs?model=');
+
+    expect(res.status).toBe(200);
+    expect(mockDs.deleteModelLogs).toHaveBeenCalledWith('');
+  });
+
+  it('DELETE /models/logs without query model returns 400 in full mode', async () => {
+    const app = await getServer(DATABASE_CAPABILITIES);
+    const res = await request(app).delete('/models/logs');
+    expect(res.status).toBe(400);
   });
 });

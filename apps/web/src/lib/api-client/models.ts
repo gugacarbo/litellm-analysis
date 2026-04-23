@@ -43,7 +43,7 @@ export async function deleteModel(
 export async function deleteModelLogs(
   modelName: string,
 ): Promise<{ success: boolean }> {
-  return fetchApi(`/models/logs/${encodeURIComponent(modelName)}`, {
+  return fetchApi(`/models/logs?model=${encodeURIComponent(modelName)}`, {
     method: 'DELETE',
   });
 }

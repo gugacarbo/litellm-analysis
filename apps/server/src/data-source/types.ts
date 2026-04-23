@@ -9,6 +9,7 @@ export interface SpendByUser {
   user: string | null;
   total_spend: number;
   total_tokens: number;
+  request_count: number;
 }
 
 export interface SpendByKey {

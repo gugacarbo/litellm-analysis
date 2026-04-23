@@ -23,12 +23,15 @@ export function LogsPaginationControls({
   onPageChange,
   onPageSizeChange,
 }: LogsPaginationControlsProps) {
+  const hasEntries = pagination.total > 0;
+  const startEntry = hasEntries ? (page - 1) * pageSize + 1 : 0;
+  const endEntry = hasEntries ? Math.min(page * pageSize, pagination.total) : 0;
+  const totalPages = pagination.total_pages || 1;
+
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-4">
       <div className="text-sm text-muted-foreground">
-        Showing {(page - 1) * pageSize + 1}-
-        {Math.min(page * pageSize, pagination.total)} of {pagination.total}{' '}
-        entries
+        Showing {startEntry}-{endEntry} of {pagination.total} entries
       </div>
 
       <div className="flex items-center gap-2">
@@ -42,14 +45,14 @@ export function LogsPaginationControls({
         </Button>
 
         <span className="text-sm px-2">
-          Page {page} of {pagination.total_pages || 1}
+          Page {page} of {totalPages}
         </span>
 
         <Button
           variant="outline"
           size="sm"
           onClick={() => onPageChange(page + 1)}
-          disabled={page >= (pagination.total_pages || 1)}
+          disabled={page >= totalPages}
         >
           Next
         </Button>

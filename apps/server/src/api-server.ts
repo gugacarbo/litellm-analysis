@@ -1,5 +1,18 @@
 import express, { type Application } from 'express';
 import type { AnalyticsDataSource } from './data-source/types.js';
+import type { AgentConfig, CategoryConfig } from './services/config-file.js';
+
+function parseDays(rawValue: unknown, fallback: number): number {
+  if (typeof rawValue !== 'string') {
+    return fallback;
+  }
+
+  const parsed = Number.parseInt(rawValue, 10);
+  if (Number.isNaN(parsed) || parsed < 0) {
+    return fallback;
+  }
+  return parsed;
+}
 
 export function createApiServer(dataSource: AnalyticsDataSource): Application {
   const app = express();
@@ -21,9 +34,10 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     });
   });
 
-  app.get('/spend/model', async (_req, res) => {
+  app.get('/spend/model', async (req, res) => {
     try {
-      const data = await dataSource.getSpendByModel();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getSpendByModel(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -62,18 +76,20 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
   });
 
-  app.get('/spend/user', async (_req, res) => {
+  app.get('/spend/user', async (req, res) => {
     try {
-      const data = await dataSource.getSpendByUser();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getSpendByUser(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  app.get('/spend/key', async (_req, res) => {
+  app.get('/spend/key', async (req, res) => {
     try {
-      const data = await dataSource.getSpendByKey();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getSpendByKey(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -92,16 +108,18 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const limit = req.query.limit
         ? parseInt(req.query.limit as string, 10)
         : 50;
-      const data = await dataSource.getErrorLogs(limit);
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getErrorLogs(limit, days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  app.get('/metrics', async (_req, res) => {
+  app.get('/metrics', async (req, res) => {
     try {
-      const data = await dataSource.getMetricsSummary();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getMetricsSummary(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -110,7 +128,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.get('/spend/trend', async (req, res) => {
     try {
-      const days = req.query.days ? parseInt(req.query.days as string, 10) : 30;
+      const days = parseDays(req.query.days, 30);
       const data = await dataSource.getDailySpendTrend(days);
       res.json(data);
     } catch (error) {
@@ -118,54 +136,60 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
   });
 
-  app.get('/analytics/tokens', async (_req, res) => {
+  app.get('/analytics/tokens', async (req, res) => {
     try {
-      const data = await dataSource.getTokenDistribution();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getTokenDistribution(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  app.get('/analytics/performance', async (_req, res) => {
+  app.get('/analytics/performance', async (req, res) => {
     try {
-      const data = await dataSource.getPerformanceMetrics();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getPerformanceMetrics(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  app.get('/analytics/temporal', async (_req, res) => {
+  app.get('/analytics/temporal', async (req, res) => {
     try {
-      const data = await dataSource.getHourlyUsagePatterns();
+      const days = parseDays(req.query.days, 7);
+      const data = await dataSource.getHourlyUsagePatterns(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  app.get('/analytics/keys', async (_req, res) => {
+  app.get('/analytics/keys', async (req, res) => {
     try {
-      const data = await dataSource.getApiKeyStats();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getApiKeyStats(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  app.get('/analytics/cost-efficiency', async (_req, res) => {
+  app.get('/analytics/cost-efficiency', async (req, res) => {
     try {
-      const data = await dataSource.getCostEfficiency();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getCostEfficiency(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  app.get('/analytics/model-distribution', async (_req, res) => {
+  app.get('/analytics/model-distribution', async (req, res) => {
     try {
-      const data = await dataSource.getModelDistribution();
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getModelDistribution(days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -174,7 +198,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.get('/analytics/token-trend', async (req, res) => {
     try {
-      const days = req.query.days ? parseInt(req.query.days as string, 10) : 30;
+      const days = parseDays(req.query.days, 30);
       const data = await dataSource.getDailyTokenTrend(days);
       res.json(data);
     } catch (error) {
@@ -252,20 +276,6 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
   });
 
-  app.delete('/models/:name', async (req, res) => {
-    if (!dataSource.capabilities.deleteModel) {
-      res.status(403).json({ error: 'Operation not allowed in limited mode' });
-      return;
-    }
-    try {
-      const { name } = req.params;
-      await dataSource.deleteModel(name);
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: String(error) });
-    }
-  });
-
   app.post('/models/merge', async (req, res) => {
     if (!dataSource.capabilities.mergeModels) {
       res.status(403).json({ error: 'Operation not allowed in limited mode' });
@@ -286,14 +296,47 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
   });
 
-  app.delete('/models/logs/:model', async (req, res) => {
+  const handleDeleteModelLogs = async (
+    model: string,
+    res: express.Response,
+  ) => {
     if (!dataSource.capabilities.deleteModelLogs) {
       res.status(403).json({ error: 'Operation not allowed in limited mode' });
       return;
     }
     try {
-      const { model } = req.params;
       await dataSource.deleteModelLogs(model);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  };
+
+  app.delete('/models/logs', async (req, res) => {
+    const { model } = req.query;
+    if (Array.isArray(model)) {
+      res.status(400).json({ error: 'model must be a single query value' });
+      return;
+    }
+    if (typeof model !== 'string') {
+      res.status(400).json({ error: 'model query parameter is required' });
+      return;
+    }
+    await handleDeleteModelLogs(model, res);
+  });
+
+  app.delete('/models/logs/:model', async (req, res) => {
+    await handleDeleteModelLogs(req.params.model, res);
+  });
+
+  app.delete('/models/:name', async (req, res) => {
+    if (!dataSource.capabilities.deleteModel) {
+      res.status(403).json({ error: 'Operation not allowed in limited mode' });
+      return;
+    }
+    try {
+      const { name } = req.params;
+      await dataSource.deleteModel(name);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -479,8 +522,8 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     try {
       const { agents: rawAgents, categories: rawCategories } = req.body;
 
-      const agentsToSave: Record<string, unknown> = {};
-      const categoriesToSave: Record<string, unknown> = {};
+      const agentsToSave: Record<string, AgentConfig> = {};
+      const categoriesToSave: Record<string, CategoryConfig> = {};
 
       const allNewAliases: Record<string, string> = {};
 
@@ -501,7 +544,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             fallback_models: actualFallbacks.map(
               (_: string, i: number) => `${key}/gpt-5.${3 - i}`,
             ),
-          };
+          } as AgentConfig;
 
           const aliases = generateLitellmAliases(
             key,
@@ -529,7 +572,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             fallback_models: actualFallbacks.map(
               (_: string, i: number) => `${key}/gpt-5.${3 - i}`,
             ),
-          };
+          } as CategoryConfig;
 
           const aliases = generateLitellmAliases(
             key,
@@ -540,8 +583,12 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         }
       }
 
-      const { writeFullConfig, readConfigFile, writeProvidersFile, writeVscodeModelsFile } =
-        await import('./services/config-file.js');
+      const {
+        writeFullConfig,
+        readConfigFile,
+        writeProvidersFile,
+        writeVscodeModelsFile,
+      } = await import('./services/config-file.js');
       await writeFullConfig({
         agents: agentsToSave,
         categories: categoriesToSave,

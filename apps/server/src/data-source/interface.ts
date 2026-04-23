@@ -23,24 +23,24 @@ import type {
 export interface AnalyticsDataSource {
   capabilities: AnalyticsCapabilities;
 
-  getMetricsSummary(): Promise<MetricsSummary>;
-  getDailySpendTrend(days: number): Promise<DailySpendTrend[]>;
-  getSpendByModel(): Promise<SpendByModel[]>;
-  getSpendByUser(): Promise<SpendByUser[]>;
-  getSpendByKey(): Promise<SpendByKey[]>;
+  getMetricsSummary(days?: number): Promise<MetricsSummary>;
+  getDailySpendTrend(days?: number): Promise<DailySpendTrend[]>;
+  getSpendByModel(days?: number): Promise<SpendByModel[]>;
+  getSpendByUser(days?: number): Promise<SpendByUser[]>;
+  getSpendByKey(days?: number): Promise<SpendByKey[]>;
   getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse>;
   getSpendLogsCount(filters: SpendLogsFilters): Promise<number>;
-  getTokenDistribution(): Promise<TokenDistribution[]>;
-  getPerformanceMetrics(): Promise<PerformanceMetrics>;
-  getHourlyUsagePatterns(): Promise<HourlyUsagePattern[]>;
-  getApiKeyStats(): Promise<ApiKeyStats[]>;
-  getCostEfficiency(): Promise<CostEfficiency[]>;
-  getModelDistribution(): Promise<ModelRequestDistribution[]>;
-  getDailyTokenTrend(days: number): Promise<DailyTokenTrend[]>;
-  getModelStatistics(): Promise<ModelStatistics[]>;
+  getTokenDistribution(days?: number): Promise<TokenDistribution[]>;
+  getPerformanceMetrics(days?: number): Promise<PerformanceMetrics>;
+  getHourlyUsagePatterns(days?: number): Promise<HourlyUsagePattern[]>;
+  getApiKeyStats(days?: number): Promise<ApiKeyStats[]>;
+  getCostEfficiency(days?: number): Promise<CostEfficiency[]>;
+  getModelDistribution(days?: number): Promise<ModelRequestDistribution[]>;
+  getDailyTokenTrend(days?: number): Promise<DailyTokenTrend[]>;
+  getModelStatistics(days?: number): Promise<ModelStatistics[]>;
   getModels(): Promise<ModelEntry[]>;
   getModelDetails(): Promise<ModelDetail[]>;
-  getErrorLogs(limit: number): Promise<ErrorLogEntry[]>;
+  getErrorLogs(limit: number, days?: number): Promise<ErrorLogEntry[]>;
   createModel(model: {
     modelName: string;
     litellmParams: Record<string, unknown>;

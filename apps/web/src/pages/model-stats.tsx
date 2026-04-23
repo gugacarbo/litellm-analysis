@@ -24,6 +24,9 @@ import {
 } from './model-stats/model-stats-types';
 
 export function ModelStatsPage() {
+  const isUndefinedModel = (value: string | null | undefined): boolean =>
+    !value || value.trim() === '';
+
   const [data, setData] = useState<ModelStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,15 +85,22 @@ export function ModelStatsPage() {
 
   const handleDelete = async () => {
     const modelName = deleting;
-    if (!modelName) return;
+    if (modelName === null) return;
+    const modelLabel = modelName.trim() ? modelName : '(no model)';
 
     setDeleteDialogOpen(false);
     setDeleting(modelName);
 
     try {
       await deleteModelLogs(modelName);
-      setData(data.filter((m) => m.model !== modelName));
-      toast.success(`Deleted logs for model "${modelName}"`);
+      setData(
+        data.filter((m) =>
+          modelName.trim() === ''
+            ? !isUndefinedModel(m.model)
+            : m.model !== modelName,
+        ),
+      );
+      toast.success(`Deleted logs for model "${modelLabel}"`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to delete');
     } finally {
@@ -130,9 +140,10 @@ export function ModelStatsPage() {
     }
   };
 
-  const filteredData = data.filter((m) =>
-    m.model.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredData = data.filter((m) => {
+    const modelName = m.model ?? '';
+    return modelName.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const sortedData = [...filteredData].sort((a, b) => {
     const aVal = a[sortField];

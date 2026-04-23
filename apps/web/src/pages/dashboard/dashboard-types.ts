@@ -1,3 +1,12 @@
+export type DashboardDateRangeKey = 'today' | '7d' | '30d' | '60d' | 'all';
+
+export type DashboardDateRangeOption = {
+  key: DashboardDateRangeKey;
+  label: string;
+  days: number;
+  description: string;
+};
+
 export type DashboardMetrics = {
   totalSpend: number;
   totalTokens: number;
@@ -66,4 +75,12 @@ export type SpendByUserItem = {
   user: string;
   total_spend: number;
   total_tokens: number;
+  request_count: number;
+};
+
+export type DashboardInsight = {
+  title: string;
+  value: string;
+  detail: string;
+  tone: 'neutral' | 'positive' | 'warning';
 };
