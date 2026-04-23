@@ -13,7 +13,7 @@ import {
 } from '../../lib/api-client';
 import { queryKeys } from '../../lib/query-keys';
 import { EMPTY_MODEL_FORM_DATA, type ModelFormData } from './model-form-data';
-import { getCustomAliases } from './models-alias-utils';
+import { getAllAliasesSorted } from './models-alias-utils';
 import {
   mapModelToFormData,
   validateAndBuildModelParams,
@@ -160,7 +160,7 @@ export function useModelsPage() {
   }
 
   const customAliases = useMemo(
-    () => getCustomAliases(aliasesQuery.data),
+    () => getAllAliasesSorted(aliasesQuery.data),
     [aliasesQuery.data],
   );
 
