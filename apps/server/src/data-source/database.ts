@@ -47,7 +47,7 @@ import {
 	deleteModelLogs as deleteModelLogsQuery,
 } from '../db/queries';
 
-const DATABASE_CAPABILITIES: AnalyticsCapabilities = {
+export const DATABASE_CAPABILITIES: AnalyticsCapabilities = {
 	spendByModel: true,
 	spendByUser: true,
 	spendByKey: true,

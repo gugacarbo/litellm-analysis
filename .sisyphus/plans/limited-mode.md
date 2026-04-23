@@ -858,7 +858,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(guards): add limited mode 403 guards to write endpoints`
   - Files: `apps/server/src/api-server.ts`
 
-- [ ] 12. Atualizar ServerModeProvider para lidar com 'limited' mode
+- [x] 12. Atualizar ServerModeProvider para lidar com 'limited' mode
 
   **What to do**:
   - Em `apps/web/src/hooks/use-server-mode.tsx`: verificar que o provider lida corretamente com mode='limited'
@@ -910,7 +910,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(ui): update ServerModeProvider for limited mode`
   - Files: `apps/web/src/hooks/use-server-mode.tsx`, `apps/web/src/components/layout/sidebar.tsx`
 
-- [ ] 13. Adicionar UI gates ao ModelsPage (esconder create/delete)
+- [x] 13. Adicionar UI gates ao ModelsPage (esconder create/delete)
 
   **What to do**:
   - Em `apps/web/src/pages/models.tsx`:
@@ -982,7 +982,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(ui): add capability gates to ModelsPage create/delete buttons`
   - Files: `apps/web/src/pages/models.tsx`
 
-- [ ] 14. Adicionar UI gates ao ModelStatsPage (esconder merge/delete logs)
+- [x] 14. Adicionar UI gates ao ModelStatsPage (esconder merge/delete logs)
 
   **What to do**:
   - Em `apps/web/src/pages/model-stats.tsx`:
@@ -1035,7 +1035,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(ui): add capability gates to ModelStatsPage merge/delete actions`
   - Files: `apps/web/src/pages/model-stats.tsx`
 
-- [ ] 15. Adaptar edit dialog para limited mode (habilitar model_name)
+- [x] 15. Adaptar edit dialog para limited mode (habilitar model_name)
 
   **What to do**:
   - Em `apps/web/src/pages/models.tsx`:
@@ -1095,7 +1095,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(ui): enable model_name editing in limited mode`
   - Files: `apps/web/src/pages/models.tsx`
 
-- [ ] 16. Atualizar sidebar badge para mostrar "Limited" mode
+- [x] 16. Atualizar sidebar badge para mostrar "Limited" mode
 
   **What to do**:
   - Em `apps/web/src/components/layout/sidebar.tsx`:
