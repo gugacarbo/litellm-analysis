@@ -42,6 +42,11 @@ const API_CAPABILITIES: AnalyticsCapabilities = {
 	detailedLatency: false,
 	logMerge: false,
 	filterOptions: false,
+	createModel: false,
+	updateModel: false,
+	deleteModel: false,
+	mergeModels: false,
+	deleteModelLogs: false,
 };
 
 interface LiteLLMResponse<T> {
@@ -539,6 +544,22 @@ export class ApiDataSource implements AnalyticsDataSource {
 
 	async getErrorLogs(_limit: number): Promise<ErrorLogEntry[]> {
 		return [];
+	}
+
+	async createModel(_model: { modelName: string; litellmParams: Record<string, unknown> }): Promise<void> {
+		throw new Error('Creating models is not supported in API-only mode');
+	}
+	async updateModel(_name: string, _updates: { litellmParams?: Record<string, unknown>; modelName?: string }): Promise<void> {
+		throw new Error('Updating models is not supported in API-only mode');
+	}
+	async deleteModel(_name: string): Promise<void> {
+		throw new Error('Deleting models is not supported in API-only mode');
+	}
+	async mergeModels(_source: string, _target: string): Promise<void> {
+		throw new Error('Merging models is not supported in API-only mode');
+	}
+	async deleteModelLogs(_model: string): Promise<void> {
+		throw new Error('Deleting model logs is not supported in API-only mode');
 	}
 }
 

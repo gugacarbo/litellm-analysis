@@ -228,7 +228,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `chore: setup vitest test infrastructure`
   - Files: `package.json`, `apps/server/package.json`, `apps/web/package.json`, `vitest.config.ts`, `apps/server/vitest.config.ts`, `apps/web/vitest.config.ts`
 
-- [ ] 1. Estender DataSourceMode + AnalyticsCapabilities types
+- [x] 1. Estender DataSourceMode + AnalyticsCapabilities types
 
   **What to do**:
   - Em `apps/server/src/data-source/types.ts`: adicionar `'limited'` ao union `DataSourceMode`
@@ -282,7 +282,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(types): extend DataSourceMode with limited and add write capabilities`
   - Files: `apps/server/src/data-source/types.ts`, `apps/web/src/types/analytics.ts`
 
-- [ ] 2. Implementar ACCESS_MODE env var em detectMode()
+- [x] 2. Implementar ACCESS_MODE env var em detectMode()
 
   **What to do**:
   - Em `apps/server/src/data-source/index.ts`: modificar `detectMode()` para verificar `ACCESS_MODE` primeiro
@@ -347,7 +347,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(mode): add ACCESS_MODE env var support with precedence over auto-detect`
   - Files: `apps/server/src/data-source/index.ts`
 
-- [ ] 3. Criar LIMITED_CAPABILITIES + atualizar /mode endpoint
+- [x] 3. Criar LIMITED_CAPABILITIES + atualizar /mode endpoint
 
   **What to do**:
   - Em `apps/server/src/data-source/database.ts` ou novo arquivo: criar `LIMITED_CAPABILITIES` object
@@ -409,7 +409,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(mode): add LIMITED_CAPABILITIES and update /mode endpoint`
   - Files: `apps/server/src/data-source/database.ts` (ou novo arquivo), `apps/server/src/data-source/index.ts`, `apps/server/src/api-server.ts`, `apps/server/src/data-source/interface.ts`
 
-- [ ] 4. Atualizar frontend types (ServerMode, AnalyticsCapabilities)
+- [x] 4. Atualizar frontend types (ServerMode, AnalyticsCapabilities)
 
   **What to do**:
   - Em `apps/web/src/types/analytics.ts`: garantir que ServerMode inclui 'limited'
@@ -457,7 +457,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(types): update frontend types for limited mode`
   - Files: `apps/web/src/types/analytics.ts`
 
-- [ ] 5. Adicionar capability flags de write ao DATABASE_CAPABILITIES e API_CAPABILITIES
+- [x] 5. Adicionar capability flags de write ao DATABASE_CAPABILITIES e API_CAPABILITIES
 
   **What to do**:
   - Em `apps/server/src/data-source/database.ts`: adicionar createModel=true, updateModel=true, deleteModel=true, mergeModels=true, deleteModelLogs=true ao DATABASE_CAPABILITIES

@@ -9,3 +9,18 @@
 - Web vitest config uses `globals: true` to allow `describe`/`it`/`expect` without imports (though tests import explicitly)
 - Turbo test task configured with `dependsOn: ["^build"]` and `inputs: ["$TURBO_DEFAULT$", "vitest.config.ts"]`
 - Root vitest.config.ts has `passWithNoTests: true` since root has no tests itself
+
+## Task 3: LIMITED_CAPABILITIES + /mode endpoint
+
+### Key Decisions
+- LIMITED_CAPABILITIES: all 19 read caps = true, 5 write caps: createModel=false, updateModel=true, deleteModel=false, mergeModels=false, deleteModelLogs=false
+- DatabaseDataSource constructor now accepts optional `capabilities` param (defaults to DATABASE_CAPABILITIES)
+- /mode endpoint detection: errorLogs && createModel → database; errorLogs && !createModel → limited; !errorLogs → api-only
+- createDataSource() handles 'limited' case by passing LIMITED_CAPABILITIES to DatabaseDataSource constructor
+
+### Files Modified
+- apps/server/src/data-source/database.ts: Added LIMITED_CAPABILITIES export, made constructor accept capabilities param
+- apps/server/src/data-source/index.ts: Added 'limited' case in switch, exported LIMITED_CAPABILITIES
+- apps/server/src/api-server.ts: Updated /mode endpoint to detect 'limited' mode
+
+### LSP: All 3 files clean, zero errors

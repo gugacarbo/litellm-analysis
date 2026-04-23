@@ -1,4 +1,4 @@
-export type ServerMode = 'database' | 'api-only';
+export type ServerMode = 'database' | 'api-only' | 'limited';
 
 export interface ServerModeConfig {
   mode: ServerMode;
@@ -31,6 +31,11 @@ export interface AnalyticsCapabilities {
   detailedLatency: boolean;
   logMerge: boolean;
   filterOptions: boolean;
+  createModel: boolean;
+  updateModel: boolean;
+  deleteModel: boolean;
+  mergeModels: boolean;
+  deleteModelLogs: boolean;
 }
 
 export interface SpendByModel {

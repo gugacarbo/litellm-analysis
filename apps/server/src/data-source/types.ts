@@ -202,9 +202,14 @@ export interface AnalyticsCapabilities {
 	detailedLatency: boolean;
 	logMerge: boolean;
 	filterOptions: boolean;
+	createModel: boolean;
+	updateModel: boolean;
+	deleteModel: boolean;
+	mergeModels: boolean;
+	deleteModelLogs: boolean;
 }
 
-export type DataSourceMode = 'database' | 'api-only';
+export type DataSourceMode = 'database' | 'api-only' | 'limited';
 
 export interface DataSourceConfig {
 	mode?: DataSourceMode;

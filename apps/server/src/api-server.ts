@@ -6,10 +6,18 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
   app.use(express.json());
 
   app.get('/mode', (_req, res) => {
-    const mode = dataSource.capabilities.errorLogs ? 'database' : 'api-only';
+    const { capabilities } = dataSource;
+    let mode: string;
+    if (capabilities.errorLogs && capabilities.createModel) {
+      mode = 'database';
+    } else if (capabilities.errorLogs && !capabilities.createModel) {
+      mode = 'limited';
+    } else {
+      mode = 'api-only';
+    }
     res.json({
       mode,
-      capabilities: dataSource.capabilities,
+      capabilities,
     });
   });
 
@@ -194,6 +202,89 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     try {
       const data = await dataSource.getModelDetails();
       res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.post('/models', async (req, res) => {
+    if (!dataSource.capabilities.createModel) {
+      res.status(403).json({ error: 'Operation not allowed in limited mode' });
+      return;
+    }
+    try {
+      const { modelName, litellmParams } = req.body;
+      await dataSource.createModel({ modelName, litellmParams: litellmParams ?? {} });
+      res.status(201).json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.put('/models/:name', async (req, res) => {
+    if (!dataSource.capabilities.updateModel) {
+      res.status(403).json({ error: 'Operation not allowed in limited mode' });
+      return;
+    }
+    try {
+      const { name } = req.params;
+      const { litellmParams, modelName } = req.body;
+      const updates: { litellmParams?: Record<string, unknown>; modelName?: string } = {};
+      if (litellmParams !== undefined) updates.litellmParams = litellmParams;
+      if (modelName !== undefined) updates.modelName = modelName;
+      await dataSource.updateModel(name, updates);
+      res.json({ success: true });
+    } catch (error) {
+      const msg = String(error);
+      if (msg.includes('not found') || msg.includes('No row')) {
+        res.status(404).json({ error: 'Model not found' });
+        return;
+      }
+      res.status(500).json({ error: msg });
+    }
+  });
+
+  app.delete('/models/:name', async (req, res) => {
+    if (!dataSource.capabilities.deleteModel) {
+      res.status(403).json({ error: 'Operation not allowed in limited mode' });
+      return;
+    }
+    try {
+      const { name } = req.params;
+      await dataSource.deleteModel(name);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.post('/models/merge', async (req, res) => {
+    if (!dataSource.capabilities.mergeModels) {
+      res.status(403).json({ error: 'Operation not allowed in limited mode' });
+      return;
+    }
+    const { sourceModel, targetModel } = req.body;
+    if (!sourceModel || !targetModel) {
+      res.status(400).json({ error: 'sourceModel and targetModel are required' });
+      return;
+    }
+    try {
+      await dataSource.mergeModels(sourceModel, targetModel);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.delete('/models/logs/:model', async (req, res) => {
+    if (!dataSource.capabilities.deleteModelLogs) {
+      res.status(403).json({ error: 'Operation not allowed in limited mode' });
+      return;
+    }
+    try {
+      const { model } = req.params;
+      await dataSource.deleteModelLogs(model);
+      res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

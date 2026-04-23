@@ -42,4 +42,9 @@ export interface AnalyticsDataSource {
 	getModels(): Promise<ModelEntry[]>;
 	getModelDetails(): Promise<ModelDetail[]>;
 	getErrorLogs(limit: number): Promise<ErrorLogEntry[]>;
+	createModel(model: { modelName: string; litellmParams: Record<string, unknown> }): Promise<void>;
+	updateModel(modelName: string, updates: { litellmParams?: Record<string, unknown>; modelName?: string }): Promise<void>;
+	deleteModel(modelName: string): Promise<void>;
+	mergeModels(sourceModel: string, targetModel: string): Promise<void>;
+	deleteModelLogs(modelName: string): Promise<void>;
 }

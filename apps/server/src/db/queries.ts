@@ -391,7 +391,7 @@ export async function createModel(model: { modelName: string; litellmParams: Rec
 
 export async function updateModel(
 	modelName: string,
-	updates: { litellmParams?: Record<string, unknown> }
+	updates: { litellmParams?: Record<string, unknown>; modelName?: string }
 ) {
 	await db
 		.update(proxyModelTable)

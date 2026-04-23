@@ -40,6 +40,11 @@ import {
 	getAllModels,
 	getModelDetails,
 	getErrorLogs,
+	createModel as createModelQuery,
+	updateModel as updateModelQuery,
+	deleteModel as deleteModelQuery,
+	mergeModels as mergeModelsQuery,
+	deleteModelLogs as deleteModelLogsQuery,
 } from '../db/queries';
 
 const DATABASE_CAPABILITIES: AnalyticsCapabilities = {
@@ -62,10 +67,46 @@ const DATABASE_CAPABILITIES: AnalyticsCapabilities = {
 	detailedLatency: true,
 	logMerge: true,
 	filterOptions: true,
+	createModel: true,
+	updateModel: true,
+	deleteModel: true,
+	mergeModels: true,
+	deleteModelLogs: true,
+};
+
+export const LIMITED_CAPABILITIES: AnalyticsCapabilities = {
+	spendByModel: true,
+	spendByUser: true,
+	spendByKey: true,
+	spendLogs: true,
+	metricsSummary: true,
+	dailySpendTrend: true,
+	tokenDistribution: true,
+	performanceMetrics: true,
+	hourlyUsagePatterns: true,
+	apiKeyStats: true,
+	costEfficiency: true,
+	modelDistribution: true,
+	dailyTokenTrend: true,
+	modelStatistics: true,
+	models: true,
+	errorLogs: true,
+	detailedLatency: true,
+	logMerge: true,
+	filterOptions: true,
+	createModel: false,
+	updateModel: true,
+	deleteModel: false,
+	mergeModels: false,
+	deleteModelLogs: false,
 };
 
 export class DatabaseDataSource implements AnalyticsDataSource {
-	capabilities = DATABASE_CAPABILITIES;
+	capabilities: AnalyticsCapabilities;
+
+	constructor(capabilities: AnalyticsCapabilities = DATABASE_CAPABILITIES) {
+		this.capabilities = capabilities;
+	}
 
 	async getMetricsSummary(): Promise<MetricsSummary> {
 		const result = await getMetricsSummary();
@@ -287,5 +328,28 @@ export class DatabaseDataSource implements AnalyticsDataSource {
 			timestamp: item.timestamp ? new Date(item.timestamp).toISOString() : '',
 			status_code: item.status_code || 0,
 		}));
+	}
+
+	async createModel(model: { modelName: string; litellmParams: Record<string, unknown> }): Promise<void> {
+		await createModelQuery(model);
+	}
+
+	async updateModel(
+		modelName: string,
+		updates: { litellmParams?: Record<string, unknown>; modelName?: string }
+	): Promise<void> {
+		await updateModelQuery(modelName, updates);
+	}
+
+	async deleteModel(modelName: string): Promise<void> {
+		await deleteModelQuery(modelName);
+	}
+
+	async mergeModels(sourceModel: string, targetModel: string): Promise<void> {
+		await mergeModelsQuery(sourceModel, targetModel);
+	}
+
+	async deleteModelLogs(modelName: string): Promise<void> {
+		await deleteModelLogsQuery(modelName);
 	}
 }
