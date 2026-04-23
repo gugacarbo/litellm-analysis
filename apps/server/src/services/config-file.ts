@@ -7,6 +7,7 @@ const PROJECT_ROOT = path.resolve(__dirname, '../../../..');
 const CONFIG_DIR = path.join(PROJECT_ROOT, 'data');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'agent-config.json');
 const PROVIDERS_FILE = path.join(CONFIG_DIR, 'opencode-providers.json');
+const VSODE_MODELS_FILE = path.join(CONFIG_DIR, 'vscode-models.json');
 
 export interface AgentConfig {
   model?: string;
@@ -181,7 +182,7 @@ function buildLiteLLMProviderConfig(
 
     const modelConfig: LiteLLMModelConfig = {
       id: modelId,
-      name: modelId,
+      name: capitalize(modelId),
     };
 
     if (params.context_window_size || params.max_tokens) {
@@ -221,24 +222,33 @@ function buildLiteLLMProviderConfig(
   };
 }
 
-function createAgentModelEntry(
-  providerKey: string,
-  index: number,
-): LiteLLMModelConfig {
-  const modelAlias = 'gpt-5.4';
-  const displayName =
-    index === 0
-      ? `${capitalize(providerKey)} Model`
-      : `${capitalize(providerKey)} Model ${index + 1}`;
+const MODEL_NAMES = ['gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+const MAX_FALLBACKS = 3;
 
-  return {
-    id: modelAlias,
-    name: displayName,
-    limit: {
-      output: 50000,
-      context: 200000,
-    },
-  };
+function buildAgentModels(
+  providerKey: string,
+  fallbackCount: number,
+): Record<string, LiteLLMModelConfig> {
+  const models: Record<string, LiteLLMModelConfig> = {};
+  const totalSlots = 1 + Math.min(fallbackCount, MAX_FALLBACKS);
+
+  for (let i = 0; i < totalSlots; i++) {
+    const modelName = MODEL_NAMES[i];
+    const displayName =
+      i === 0
+        ? `${capitalize(providerKey)} Model`
+        : `${capitalize(providerKey)} Model ${i + 1}`;
+    models[modelName] = {
+      id: `${providerKey}/${modelName}`,
+      name: displayName,
+      limit: {
+        output: 50000,
+        context: 200000,
+      },
+    };
+  }
+
+  return models;
 }
 
 function capitalize(str: string): string {
@@ -261,52 +271,189 @@ export async function writeProvidersFile(
   for (const [key, agent] of Object.entries(config.agents || {})) {
     if (Object.keys(agent).length === 0) continue;
 
+    const fallbackCount = (agent.fallback_models || []).filter((f) =>
+      f?.startsWith(`${key}/`),
+    ).length;
+
     providers.provider[key] = {
       npm: '@ai-sdk/openai-compatible',
-      models: {
-        'gpt-5.4': createAgentModelEntry(key, 0),
+      options: {
+        baseURL: process.env.LITELLM_BASE_URL || 'http://localhost:4000/v1',
+        apiKey: process.env.LITELLM_API_KEY || 'sk-123456789',
       },
+      models: buildAgentModels(key, fallbackCount),
     };
-
-    const fallbackCount = (agent.fallback_models || []).filter((f) =>
-      f?.includes(`/gpt-5.4`),
-    ).length;
-    for (let i = 0; i < fallbackCount; i++) {
-      providers.provider[`${key}_fallback_${i + 1}`] = {
-        npm: '@ai-sdk/openai-compatible',
-        models: {
-          'gpt-5.4': createAgentModelEntry(key, i + 1),
-        },
-      };
-    }
   }
 
   for (const [key, category] of Object.entries(config.categories || {})) {
     if (Object.keys(category).length === 0) continue;
 
+    const fallbackCount = (category.fallback_models || []).filter((f) =>
+      f?.startsWith(`${key}/`),
+    ).length;
+
     providers.provider[key] = {
       npm: '@ai-sdk/openai-compatible',
-      models: {
-        'gpt-5.4': createAgentModelEntry(key, 0),
+      options: {
+        baseURL: process.env.LITELLM_BASE_URL || 'http://localhost:4000/v1',
+        apiKey: process.env.LITELLM_API_KEY || 'sk-123456789',
       },
+      models: buildAgentModels(key, fallbackCount),
     };
-
-    const fallbackCount = (category.fallback_models || []).filter((f) =>
-      f?.includes(`/gpt-5.4`),
-    ).length;
-    for (let i = 0; i < fallbackCount; i++) {
-      providers.provider[`${key}_fallback_${i + 1}`] = {
-        npm: '@ai-sdk/openai-compatible',
-        models: {
-          'gpt-5.4': createAgentModelEntry(key, i + 1),
-        },
-      };
-    }
   }
 
   await fs.promises.writeFile(
     PROVIDERS_FILE,
     JSON.stringify(providers, null, 2),
+    'utf-8',
+  );
+}
+
+// ── vscode-models.json ──
+
+interface VscodeModelEntry {
+  id: string;
+  owned_by: string;
+  displayName: string;
+  baseUrl: string;
+  apiMode: string;
+  context_length: number;
+  limit: {
+    output: number;
+  };
+  family?: string;
+}
+
+/**
+ * Known model specs — context_length and max_output from upstream providers.
+ * Falls back to these when litellmParams has no context_window_size / max_tokens.
+ */
+const MODEL_SPECS: Record<
+  string,
+  { context_length: number; output: number; family?: string; displayName?: string; owned_by?: string }
+> = {
+  'minimax-m2.7-highspeed': { context_length: 204000, output: 8192, displayName: 'MiniMax M2.7' },
+  'qwen3-coder-plus':       { context_length: 800000, output: 8192, displayName: 'Qwen 3 Coder+' },
+  'qwen3.5-plus':           { context_length: 800000, output: 8192, displayName: 'Qwen 3.5+' },
+  'kimi-k2.5':              { context_length: 260000, output: 8192, displayName: 'Kimi K2.5' },
+  'glm-5':                  { context_length: 80000,  output: 8192, family: 'z.ai', displayName: 'GLM 5' },
+  'glm-5-turbo':            { context_length: 200000, output: 8192, family: 'z.ai', displayName: 'GLM 5 Turbo' },
+  'glm-5.1':                { context_length: 200000, output: 8192, family: 'z.ai', displayName: 'GLM 5.1' },
+};
+
+function humanize(str: string): string {
+  return str
+    .split(/[-_.]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function buildVscodeModelsArray(
+  models: ModelEntry[],
+  config: AgentConfigFile,
+): VscodeModelEntry[] {
+  const result: VscodeModelEntry[] = [];
+  const baseUrl = process.env.LITELLM_BASE_URL || 'http://localhost:4000';
+
+  // Database models (litellm provider models)
+  for (const model of models) {
+    const params = model.litellmParams || {};
+    const modelId = extractModelId(model.modelName, params);
+    const spec = MODEL_SPECS[modelId];
+
+    const entry: VscodeModelEntry = {
+      id: modelId,
+      owned_by: spec?.owned_by ?? 'atplus',
+      displayName: spec?.displayName ?? humanize(modelId),
+      baseUrl,
+      apiMode: 'openai',
+      context_length: params.context_window_size
+        ? Number(params.context_window_size)
+        : (spec?.context_length ?? 200000),
+      limit: {
+        output: params.max_tokens
+          ? Number(params.max_tokens)
+          : (spec?.output ?? 8192),
+      },
+      ...(spec?.family ? { family: spec.family } : {}),
+    };
+
+    result.push(entry);
+  }
+
+  // Agent models
+  for (const [key, agent] of Object.entries(config.agents || {})) {
+    if (Object.keys(agent).length === 0) continue;
+
+    const fallbackCount = (agent.fallback_models || []).filter((f) =>
+      f?.startsWith(`${key}/`),
+    ).length;
+    const totalSlots = 1 + Math.min(fallbackCount, MAX_FALLBACKS);
+
+    for (let i = 0; i < totalSlots; i++) {
+      const modelName = MODEL_NAMES[i];
+      result.push({
+        id: `${key}/${modelName}`,
+        owned_by: 'atplus',
+        displayName: `${humanize(key)} Model${i > 0 ? ` ${i + 1}` : ''}`,
+        baseUrl,
+        apiMode: 'openai',
+        context_length: 200000,
+        limit: { output: 8192 },
+      });
+    }
+  }
+
+  // Category models
+  for (const [key, category] of Object.entries(config.categories || {})) {
+    if (Object.keys(category).length === 0) continue;
+
+    const fallbackCount = (category.fallback_models || []).filter((f) =>
+      f?.startsWith(`${key}/`),
+    ).length;
+    const totalSlots = 1 + Math.min(fallbackCount, MAX_FALLBACKS);
+
+    for (let i = 0; i < totalSlots; i++) {
+      const modelName = MODEL_NAMES[i];
+      result.push({
+        id: `${key}/${modelName}`,
+        owned_by: 'atplus',
+        displayName: `${humanize(key)} Model${i > 0 ? ` ${i + 1}` : ''}`,
+        baseUrl,
+        apiMode: 'openai',
+        context_length: 200000,
+        limit: { output: 8192 },
+      });
+    }
+  }
+
+  return result;
+}
+
+export async function writeVscodeModelsFile(
+  config: AgentConfigFile,
+  models?: ModelEntry[],
+): Promise<void> {
+  const modelsList = models || [];
+  const vscodeModels = buildVscodeModelsArray(modelsList, config);
+
+  const output: Record<string, unknown> = {
+    'oaicopilot.commitLanguage': 'Portuguese (Brazil)',
+    'oaicopilot.baseUrl': '',
+    'oaicopilot.delay': 0,
+    'oaicopilot.readFileLines': 0,
+    'oaicopilot.retry': {
+      enabled: true,
+      max_attempts: 3,
+      interval_ms: 2000,
+      status_codes: [],
+    },
+    'oaicopilot.models': vscodeModels,
+  };
+
+  await fs.promises.writeFile(
+    VSODE_MODELS_FILE,
+    JSON.stringify(output, null, 2),
     'utf-8',
   );
 }

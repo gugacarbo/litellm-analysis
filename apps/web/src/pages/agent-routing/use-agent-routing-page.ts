@@ -9,7 +9,7 @@ function resolveModelName(
   aliases: Record<string, string>,
 ): string {
   if (!model) return '';
-  if (model.startsWith('litellm/') && aliases[model]) {
+  if (aliases[model]) {
     return aliases[model];
   }
   return model;

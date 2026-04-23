@@ -5,6 +5,9 @@ function stripLitellmPrefix(model: string): string {
   return model;
 }
 
+/** Model names for primary and fallback slots (max 4 total: 1 primary + 3 fallbacks). */
+const MODEL_NAMES = ['gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+
 export function generateLitellmAliases(
   key: string,
   model: string,
@@ -13,20 +16,23 @@ export function generateLitellmAliases(
   const aliases: Record<string, string> = {};
 
   if (model) {
-    aliases[`${key}/gpt-5.4`] = stripLitellmPrefix(model);
+    aliases[`${key}/${MODEL_NAMES[0]}`] = stripLitellmPrefix(model);
   }
 
   if (fallback_models && fallback_models.length > 0) {
-    fallback_models.forEach((fm, index) => {
-      aliases[`${key}_fallback_${index + 1}/gpt-5.4`] = stripLitellmPrefix(fm);
-    });
+    const maxFallbacks = Math.min(fallback_models.length, 3);
+    for (let i = 0; i < maxFallbacks; i++) {
+      aliases[`${key}/${MODEL_NAMES[i + 1]}`] = stripLitellmPrefix(
+        fallback_models[i],
+      );
+    }
   }
 
   return aliases;
 }
 
 export function generateAliasCleanupPattern(key: string): RegExp {
-  return new RegExp(`^${key}/gpt-5.4$`);
+  return new RegExp(`^${key}/`);
 }
 
 /**

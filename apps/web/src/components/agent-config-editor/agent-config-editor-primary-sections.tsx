@@ -1,4 +1,6 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useCallback } from 'react';
+import { normalizeHexColor } from '../../lib/utils';
 import type { AgentConfig } from '../../types/agent-routing';
 import { Button } from '../button';
 import {
@@ -37,6 +39,15 @@ export function AgentConfigEditorPrimarySections({
   onToggleSection,
   onUpdateConfig,
 }: AgentConfigEditorPrimarySectionsProps) {
+  const handleColorChange = useCallback(
+    (value: string) => {
+      const normalized = normalizeHexColor(value);
+      if (normalized) {
+        onUpdateConfig('color', normalized);
+      }
+    },
+    [onUpdateConfig],
+  );
   return (
     <>
       <Collapsible
@@ -92,20 +103,20 @@ export function AgentConfigEditorPrimarySections({
 
             <div className="space-y-2">
               <Label htmlFor="color">Color</Label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                <input
+                  type="color"
+                  value={config.color || '#000000'}
+                  onChange={(e) => handleColorChange(e.target.value)}
+                  className="h-10 w-10 rounded-md border border-border cursor-pointer"
+                />
                 <Input
                   id="color"
                   value={config.color || ''}
-                  onChange={(e) => onUpdateConfig('color', e.target.value)}
+                  onChange={(e) => handleColorChange(e.target.value)}
                   placeholder="#RRGGBB"
                   className="flex-1"
                 />
-                {config.color ? (
-                  <div
-                    className="w-6 h-6 rounded border border-border shadow-sm"
-                    style={{ backgroundColor: config.color }}
-                  />
-                ) : null}
               </div>
             </div>
 

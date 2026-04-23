@@ -3,12 +3,14 @@
     "sisyphus": {
       "model": "sisyphus/gpt-5.4",
       "fallback_models": [
-        "sisyphus_fallback_1/gpt-5.4"
+        "sisyphus/gpt-5.3",
+        "sisyphus/gpt-5.2",
+        "sisyphus/gpt-5.1"
       ],
       "disable": false,
       "description": "Coordenador principal — distribui tarefas e mantém o fluxo da sessão",
-      "mode": "subagent",
-      "color": "#00fffdd"
+      "mode": "all",
+      "color": "#C83232"
     }
   },
   "categories": {}

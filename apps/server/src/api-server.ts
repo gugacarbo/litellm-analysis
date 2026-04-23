@@ -419,11 +419,14 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const actualModel = rawConfig.model || '';
       const actualFallbacks: string[] = rawConfig.fallback_models || [];
 
+      const FALLBACK_MODEL_NAMES = ['gpt-5.3', 'gpt-5.2', 'gpt-5.1'];
+
       const configToSave = {
         ...rawConfig,
         model: actualModel ? `${key}/gpt-5.4` : '',
         fallback_models: actualFallbacks.map(
-          (_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`,
+          (_: string, i: number) =>
+            `${key}/${FALLBACK_MODEL_NAMES[i] || `gpt-5.${3 - i}`}`,
         ),
       };
 
@@ -432,6 +435,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         updateCategoryInConfig,
         readConfigFile,
         writeProvidersFile,
+        writeVscodeModelsFile,
       } = await import('./services/config-file.js');
 
       if (type === 'agent') {
@@ -445,6 +449,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         ? await dataSource.getModels()
         : [];
       await writeProvidersFile(config, models);
+      await writeVscodeModelsFile(config, models);
 
       if (syncAliases && dataSource.capabilities.agentRouting) {
         const { generateLitellmAliases, replaceAliasesForAgent } = await import(
@@ -494,7 +499,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             ...rawCfg,
             model: actualModel ? `${key}/gpt-5.4` : '',
             fallback_models: actualFallbacks.map(
-              (_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`,
+              (_: string, i: number) => `${key}/gpt-5.${3 - i}`,
             ),
           };
 
@@ -522,7 +527,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             ...rawCfg,
             model: actualModel ? `${key}/gpt-5.4` : '',
             fallback_models: actualFallbacks.map(
-              (_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`,
+              (_: string, i: number) => `${key}/gpt-5.${3 - i}`,
             ),
           };
 
@@ -535,7 +540,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         }
       }
 
-      const { writeFullConfig, readConfigFile, writeProvidersFile } =
+      const { writeFullConfig, readConfigFile, writeProvidersFile, writeVscodeModelsFile } =
         await import('./services/config-file.js');
       await writeFullConfig({
         agents: agentsToSave,
@@ -547,6 +552,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         ? await dataSource.getModels()
         : [];
       await writeProvidersFile(config, models);
+      await writeVscodeModelsFile(config, models);
 
       if (
         dataSource.capabilities.agentRouting &&
@@ -568,10 +574,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         for (const key of allKeys) {
           const keyAliases: Record<string, string> = {};
           for (const [aliasKey, aliasValue] of Object.entries(allNewAliases)) {
-            if (
-              aliasKey === `${key}/gpt-5.4` ||
-              aliasKey.startsWith(`${key}_fallback_`)
-            ) {
+            if (aliasKey.startsWith(`${key}/gpt-5.`)) {
               keyAliases[aliasKey] = aliasValue;
             }
           }
