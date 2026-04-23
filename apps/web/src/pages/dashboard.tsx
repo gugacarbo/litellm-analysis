@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '../components/card';
+import { ChartTooltipContent } from '../components/chart-tooltip';
 import { Skeleton } from '../components/skeleton';
 import {
   Table,
@@ -249,7 +250,7 @@ export function DashboardPage() {
                     width={120}
                     tick={{ fontSize: 11 }}
                   />
-                  <Tooltip formatter={(v) => formatNumber(Number(v))} />
+                  <Tooltip content={<ChartTooltipContent />} formatter={(v) => formatNumber(Number(v))} />
                   <Legend />
                   <Bar dataKey="prompt_tokens" name="Input Tokens" fill="#3b82f6" stackId="a" />
                   <Bar dataKey="completion_tokens" name="Output Tokens" fill="#10b981" stackId="a" />
@@ -272,7 +273,7 @@ export function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tickFormatter={formatDate} />
                   <YAxis tickFormatter={(v) => `$${v}`} />
-                  <Tooltip formatter={(v) => formatCurrency(Number(v))} />
+                  <Tooltip content={<ChartTooltipContent />} formatter={(v) => formatCurrency(Number(v))} />
                   <Line
                     type="monotone"
                     dataKey="spend"
@@ -312,7 +313,7 @@ export function DashboardPage() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip content={<ChartTooltipContent />} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -339,7 +340,7 @@ export function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="hour" tickFormatter={(v) => `${v}:00`} />
                   <YAxis tickFormatter={formatNumber} />
-                  <Tooltip formatter={(v) => formatNumber(Number(v))} />
+                  <Tooltip content={<ChartTooltipContent />} formatter={(v) => formatNumber(Number(v))} />
                   <Area
                     type="monotone"
                     dataKey="requests"
@@ -376,7 +377,7 @@ export function DashboardPage() {
                     width={120}
                     tick={{ fontSize: 11 }}
                   />
-                  <Tooltip formatter={(v) => `$${Number(v).toFixed(4)}`} />
+                  <Tooltip content={<ChartTooltipContent />} formatter={(v) => `$${Number(v).toFixed(4)}`} />
                   <Bar dataKey="cost_per_1k_tokens" fill="#f59e0b" />
                 </BarChart>
               </ResponsiveContainer>
@@ -397,7 +398,7 @@ export function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tickFormatter={formatDate} />
                   <YAxis tickFormatter={formatNumber} />
-                  <Tooltip formatter={(v) => formatNumber(Number(v))} />
+                  <Tooltip content={<ChartTooltipContent />} formatter={(v) => formatNumber(Number(v))} />
                   <Legend />
                   <Area
                     type="monotone"
