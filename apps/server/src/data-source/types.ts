@@ -168,6 +168,11 @@ export interface PaginationMetadata {
 	total_pages: number;
 }
 
+export interface SpendLogsResponse {
+	logs: SpendLogEntry[];
+	pagination: PaginationMetadata;
+}
+
 export interface FilterOptions {
 	models: string[];
 	users: string[];

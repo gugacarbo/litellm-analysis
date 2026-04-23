@@ -7,6 +7,7 @@ import type {
 	SpendByKey,
 	SpendLogsFilters,
 	SpendLogEntry,
+	SpendLogsResponse,
 	TokenDistribution,
 	PerformanceMetrics,
 	HourlyUsagePattern,
@@ -28,7 +29,8 @@ export interface AnalyticsDataSource {
 	getSpendByModel(): Promise<SpendByModel[]>;
 	getSpendByUser(): Promise<SpendByUser[]>;
 	getSpendByKey(): Promise<SpendByKey[]>;
-	getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogEntry[]>;
+	getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse>;
+	getSpendLogsCount(filters: SpendLogsFilters): Promise<number>;
 	getTokenDistribution(): Promise<TokenDistribution[]>;
 	getPerformanceMetrics(): Promise<PerformanceMetrics>;
 	getHourlyUsagePatterns(): Promise<HourlyUsagePattern[]>;

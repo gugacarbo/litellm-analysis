@@ -38,6 +38,13 @@ export interface SpendByModel {
   total_spend: number;
 }
 
+export interface PaginationMetadata {
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
 export interface SpendLog {
   request_id: string;
   model: string;
