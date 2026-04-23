@@ -1,8 +1,6 @@
 import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from 'lucide-react';
-import { formatDateTime } from '../../lib/spend-log-utils';
 import { cn } from '../../lib/utils';
 import type { ErrorLog, PaginationMetadata } from '../../types/analytics';
-import { Badge } from '../badge';
 import { Button } from '../button';
 import {
   Card,
@@ -31,51 +29,15 @@ import {
   TableHeader,
   TableRow,
 } from '../table';
+import { renderErrorCell } from './errors-table-cell';
+import {
+  ACTIONS_COLUMN,
+  ERROR_COLUMNS,
+  type ErrorColumnKey,
+  type TableColumn,
+} from './errors-table-columns';
 
-export type ErrorColumnKey =
-  | 'time'
-  | 'status'
-  | 'type'
-  | 'model'
-  | 'user'
-  | 'message'
-  | 'requestId';
-
-type ErrorColumn = {
-  key: ErrorColumnKey;
-  label: string;
-  align?: 'right';
-  defaultVisible?: boolean;
-};
-
-type TableColumn =
-  | ErrorColumn
-  | {
-      key: 'actions';
-      label: '';
-      align?: 'right';
-    };
-
-const ERROR_COLUMNS: ErrorColumn[] = [
-  { key: 'time', label: 'Time' },
-  { key: 'status', label: 'Status' },
-  { key: 'type', label: 'Type' },
-  { key: 'model', label: 'Model' },
-  { key: 'user', label: 'User' },
-  { key: 'message', label: 'Message' },
-  { key: 'requestId', label: 'Request ID', defaultVisible: false },
-];
-
-const ACTIONS_COLUMN: TableColumn = {
-  key: 'actions',
-  label: '',
-  align: 'right',
-};
-
-export const DEFAULT_VISIBLE_ERROR_COLUMNS: ErrorColumnKey[] =
-  ERROR_COLUMNS.filter((column) => column.defaultVisible !== false).map(
-    (column) => column.key,
-  );
+export { DEFAULT_VISIBLE_ERROR_COLUMNS } from './errors-table-columns';
 
 type ErrorsTableProps = {
   errors: ErrorLog[];
@@ -93,36 +55,6 @@ type ErrorsTableProps = {
   onPageChange: (newPage: number) => void;
   onPageSizeChange: (newPageSize: string) => void;
 };
-
-function getStatusBadgeClass(statusCode: number): string {
-  if (statusCode >= 500) {
-    return 'bg-red-500/15 text-red-700 border-red-500/30';
-  }
-
-  if (statusCode >= 400) {
-    return 'bg-amber-500/15 text-amber-700 border-amber-500/30';
-  }
-
-  return 'bg-muted text-muted-foreground';
-}
-
-function getErrorTypeBadgeClass(type: string): string {
-  const normalizedType = type.toLowerCase();
-
-  if (normalizedType.includes('rate')) {
-    return 'bg-sky-500/15 text-sky-700 border-sky-500/30';
-  }
-
-  if (normalizedType.includes('timeout')) {
-    return 'bg-yellow-500/15 text-yellow-700 border-yellow-500/30';
-  }
-
-  if (normalizedType.includes('auth') || normalizedType.includes('key')) {
-    return 'bg-red-500/15 text-red-700 border-red-500/30';
-  }
-
-  return 'bg-muted text-muted-foreground';
-}
 
 export function ErrorsTable({
   errors,
@@ -149,76 +81,6 @@ export function ErrorsTable({
   ];
 
   const hasAnyErrors = pagination.total > 0;
-
-  const renderCell = (errorLog: ErrorLog, columnKey: TableColumn['key']) => {
-    const statusCode = errorLog.status_code || 0;
-    const errorType = errorLog.error_type || 'Error';
-    const message = errorLog.error_message || '-';
-
-    switch (columnKey) {
-      case 'time':
-        return (
-          <span className="text-xs whitespace-nowrap text-muted-foreground">
-            {errorLog.timestamp ? formatDateTime(errorLog.timestamp) : '-'}
-          </span>
-        );
-      case 'status':
-        return (
-          <Badge
-            variant="secondary"
-            className={getStatusBadgeClass(statusCode)}
-          >
-            {statusCode || 'N/A'}
-          </Badge>
-        );
-      case 'type':
-        return (
-          <Badge
-            variant="secondary"
-            className={getErrorTypeBadgeClass(errorType)}
-          >
-            {errorType}
-          </Badge>
-        );
-      case 'model':
-        return (
-          <span className="font-mono text-xs font-medium break-all">
-            {errorLog.model || '-'}
-          </span>
-        );
-      case 'user':
-        return (
-          <span className="text-sm text-muted-foreground break-all">
-            {errorLog.user || '-'}
-          </span>
-        );
-      case 'message':
-        return (
-          <span
-            className="inline-block max-w-xl text-sm text-muted-foreground"
-            title={message}
-          >
-            {message.length > 96 ? `${message.slice(0, 96)}...` : message}
-          </span>
-        );
-      case 'requestId':
-        return (
-          <span className="font-mono text-xs text-muted-foreground break-all">
-            {errorLog.id}
-          </span>
-        );
-      case 'actions':
-        return (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onSelectError(errorLog)}
-          >
-            Open
-          </Button>
-        );
-    }
-  };
 
   return (
     <Card>
@@ -348,7 +210,11 @@ export function ErrorsTable({
                         key={`${errorLog.id}-${column.key}`}
                         className={column.align === 'right' ? 'text-right' : ''}
                       >
-                        {renderCell(errorLog, column.key)}
+                        {renderErrorCell({
+                          errorLog,
+                          columnKey: column.key,
+                          onSelectError,
+                        })}
                       </TableCell>
                     ))}
                   </TableRow>

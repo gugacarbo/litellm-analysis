@@ -1,14 +1,6 @@
 import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from 'lucide-react';
-import {
-  calculateTokensPerSecond,
-  formatCurrency,
-  formatDateTime,
-  formatDuration,
-  formatNumber,
-} from '../../lib/spend-log-utils';
 import { cn } from '../../lib/utils';
 import type { PaginationMetadata, SpendLog } from '../../types/analytics';
-import { Badge } from '../badge';
 import { Button } from '../button';
 import {
   Card,
@@ -37,64 +29,15 @@ import {
   TableRow,
 } from '../table';
 import { LogsPaginationControls } from './logs-pagination-controls';
+import { renderLogCell } from './logs-table-cell';
+import {
+  ACTIONS_COLUMN,
+  LOG_COLUMNS,
+  type LogColumnKey,
+  type TableColumn,
+} from './logs-table-columns';
 
-export type LogColumnKey =
-  | 'time'
-  | 'model'
-  | 'user'
-  | 'promptTokens'
-  | 'completionTokens'
-  | 'totalTokens'
-  | 'duration'
-  | 'tokensPerSecond'
-  | 'spend'
-  | 'status'
-  | 'requestId';
-
-type LogColumn = {
-  key: LogColumnKey;
-  label: string;
-  align?: 'right';
-  defaultVisible?: boolean;
-};
-
-type TableColumn = LogColumn | { key: 'actions'; label: ''; align?: 'right' };
-
-const LOG_COLUMNS: LogColumn[] = [
-  { key: 'time', label: 'Time' },
-  { key: 'model', label: 'Model' },
-  { key: 'user', label: 'User' },
-  {
-    key: 'promptTokens',
-    label: 'Prompt Tokens',
-    align: 'right',
-  },
-  {
-    key: 'completionTokens',
-    label: 'Completion Tokens',
-    align: 'right',
-  },
-  { key: 'totalTokens', label: 'Total Tokens', align: 'right' },
-  { key: 'duration', label: 'Duration (ms)', align: 'right' },
-  { key: 'tokensPerSecond', label: 'Tokens/s', align: 'right' },
-  { key: 'spend', label: 'Spend', align: 'right' },
-  { key: 'status', label: 'Status' },
-  {
-    key: 'requestId',
-    label: 'Request ID',
-    defaultVisible: false,
-  },
-];
-
-const ACTIONS_COLUMN: TableColumn = {
-  key: 'actions',
-  label: '',
-  align: 'right',
-};
-
-export const DEFAULT_VISIBLE_LOG_COLUMNS: LogColumnKey[] = LOG_COLUMNS.filter(
-  (column) => column.defaultVisible !== false,
-).map((column) => column.key);
+export { DEFAULT_VISIBLE_LOG_COLUMNS } from './logs-table-columns';
 
 type LogsTableProps = {
   logs: SpendLog[];
@@ -138,76 +81,6 @@ export function LogsTable({
   ];
 
   const hasAnyLogs = pagination.total > 0;
-
-  const renderCell = (log: SpendLog, columnKey: TableColumn['key']) => {
-    const durationMs =
-      new Date(log.end_time).getTime() - new Date(log.start_time).getTime();
-    const isSuccess = log.status === '200' || log.status === 'success';
-
-    switch (columnKey) {
-      case 'time':
-        return (
-          <span className="text-xs whitespace-nowrap text-muted-foreground">
-            {formatDateTime(log.start_time)}
-          </span>
-        );
-      case 'model':
-        return (
-          <span className="font-mono text-xs font-medium break-all">
-            {log.model}
-          </span>
-        );
-      case 'user':
-        return (
-          <span className="text-sm text-muted-foreground">
-            {log.user || '-'}
-          </span>
-        );
-      case 'promptTokens':
-        return formatNumber(log.prompt_tokens);
-      case 'completionTokens':
-        return formatNumber(log.completion_tokens);
-      case 'totalTokens':
-        return (
-          <span className="font-medium">{formatNumber(log.total_tokens)}</span>
-        );
-      case 'duration':
-        return formatDuration(durationMs);
-      case 'tokensPerSecond':
-        return calculateTokensPerSecond(
-          log.completion_tokens,
-          log.start_time,
-          log.end_time,
-        );
-      case 'spend':
-        return <span className="font-medium">{formatCurrency(log.spend)}</span>;
-      case 'status':
-        return (
-          <Badge
-            variant={isSuccess ? 'secondary' : 'destructive'}
-            className={
-              isSuccess
-                ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
-                : ''
-            }
-          >
-            {log.status}
-          </Badge>
-        );
-      case 'requestId':
-        return (
-          <span className="font-mono text-xs text-muted-foreground break-all">
-            {log.request_id}
-          </span>
-        );
-      case 'actions':
-        return (
-          <Button variant="ghost" size="sm" onClick={() => onSelectLog(log)}>
-            Open
-          </Button>
-        );
-    }
-  };
 
   return (
     <Card>
@@ -336,7 +209,11 @@ export function LogsTable({
                         key={`${log.request_id}-${column.key}`}
                         className={column.align === 'right' ? 'text-right' : ''}
                       >
-                        {renderCell(log, column.key)}
+                        {renderLogCell({
+                          log,
+                          columnKey: column.key,
+                          onSelectLog,
+                        })}
                       </TableCell>
                     ))}
                   </TableRow>

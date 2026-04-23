@@ -88,18 +88,452 @@
             "output": 32768,
             "context": 200000
           }
-        },
-        "gpt-5.2": {
-          "id": "sisyphus/gpt-5.2",
-          "name": "Sisyphus Model 3",
+        }
+      }
+    },
+    "oracle": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "oracle/gpt-5.4",
+          "name": "Oracle Model",
           "limit": {
             "output": 32768,
             "context": 200000
           }
         },
-        "gpt-5.1": {
-          "id": "sisyphus/gpt-5.1",
-          "name": "Sisyphus Model 4",
+        "gpt-5.3": {
+          "id": "oracle/gpt-5.3",
+          "name": "Oracle Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "hephaestus": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "hephaestus/gpt-5.4",
+          "name": "Hephaestus Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "hephaestus/gpt-5.3",
+          "name": "Hephaestus Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "atlas": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "atlas/gpt-5.4",
+          "name": "Atlas Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "atlas/gpt-5.3",
+          "name": "Atlas Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "sisyphus-junior": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "sisyphus-junior/gpt-5.4",
+          "name": "Sisyphus Junior Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "sisyphus-junior/gpt-5.3",
+          "name": "Sisyphus Junior Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "librarian": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "librarian/gpt-5.4",
+          "name": "Librarian Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "librarian/gpt-5.3",
+          "name": "Librarian Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "momus": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "momus/gpt-5.4",
+          "name": "Momus Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "momus/gpt-5.3",
+          "name": "Momus Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "prometheus": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "prometheus/gpt-5.4",
+          "name": "Prometheus Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "prometheus/gpt-5.3",
+          "name": "Prometheus Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "explore": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "explore/gpt-5.4",
+          "name": "Explore Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "explore/gpt-5.3",
+          "name": "Explore Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "multimodal-looker": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "multimodal-looker/gpt-5.4",
+          "name": "Multimodal Looker Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "multimodal-looker/gpt-5.3",
+          "name": "Multimodal Looker Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "metis": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "metis/gpt-5.4",
+          "name": "Metis Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "metis/gpt-5.3",
+          "name": "Metis Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "visual-engineering": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "visual-engineering/gpt-5.4",
+          "name": "Visual Engineering Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "visual-engineering/gpt-5.3",
+          "name": "Visual Engineering Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "ultrabrain": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "ultrabrain/gpt-5.4",
+          "name": "Ultrabrain Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "ultrabrain/gpt-5.3",
+          "name": "Ultrabrain Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "deep": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "deep/gpt-5.4",
+          "name": "Deep Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "deep/gpt-5.3",
+          "name": "Deep Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "artistry": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "artistry/gpt-5.4",
+          "name": "Artistry Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "artistry/gpt-5.3",
+          "name": "Artistry Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "quick": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "quick/gpt-5.4",
+          "name": "Quick Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "quick/gpt-5.3",
+          "name": "Quick Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "unspecified-low": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "unspecified-low/gpt-5.4",
+          "name": "Unspecified Low Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "unspecified-low/gpt-5.3",
+          "name": "Unspecified Low Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "unspecified-high": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "unspecified-high/gpt-5.4",
+          "name": "Unspecified High Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "unspecified-high/gpt-5.3",
+          "name": "Unspecified High Model 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "writing": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "gpt-5.4": {
+          "id": "writing/gpt-5.4",
+          "name": "Writing Model",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "writing/gpt-5.3",
+          "name": "Writing Model 2",
           "limit": {
             "output": 32768,
             "context": 200000

@@ -3,16 +3,145 @@
     "sisyphus": {
       "model": "sisyphus/gpt-5.4",
       "fallback_models": [
-        "sisyphus/gpt-5.3",
-        "sisyphus/gpt-5.2",
-        "sisyphus/gpt-5.1",
-        "sisyphus/gpt-5.0"
+        "sisyphus/gpt-5.3"
       ],
-      "disable": false,
       "description": "Coordenador principal — distribui tarefas e mantém o fluxo da sessão",
       "mode": "all",
       "color": "#C83232"
+    },
+    "oracle": {
+      "model": "oracle/gpt-5.4",
+      "fallback_models": [
+        "oracle/gpt-5.3"
+      ],
+      "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
+      "mode": "subagent",
+      "color": "#8B5904"
+    },
+    "hephaestus": {
+      "model": "hephaestus/gpt-5.4",
+      "fallback_models": [
+        "hephaestus/gpt-5.3"
+      ],
+      "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
+    },
+    "atlas": {
+      "model": "atlas/gpt-5.4",
+      "fallback_models": [
+        "atlas/gpt-5.3"
+      ],
+      "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes."
+    },
+    "sisyphus-junior": {
+      "model": "sisyphus-junior/gpt-5.4",
+      "fallback_models": [
+        "sisyphus-junior/gpt-5.3"
+      ],
+      "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo."
+    },
+    "librarian": {
+      "model": "librarian/gpt-5.4",
+      "fallback_models": [
+        "librarian/gpt-5.3"
+      ],
+      "description": "Agente de documentação, curadoria de conhecimento e organização de referências."
+    },
+    "momus": {
+      "model": "momus/gpt-5.4",
+      "fallback_models": [
+        "momus/gpt-5.3"
+      ],
+      "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
+    },
+    "prometheus": {
+      "model": "prometheus/gpt-5.4",
+      "fallback_models": [
+        "prometheus/gpt-5.3"
+      ],
+      "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
+      "mode": "subagent"
+    },
+    "explore": {
+      "model": "explore/gpt-5.4",
+      "fallback_models": [
+        "explore/gpt-5.3"
+      ],
+      "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
+      "mode": "subagent"
+    },
+    "multimodal-looker": {
+      "model": "multimodal-looker/gpt-5.4",
+      "fallback_models": [
+        "multimodal-looker/gpt-5.3"
+      ],
+      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
+      "mode": "subagent"
+    },
+    "metis": {
+      "model": "metis/gpt-5.4",
+      "fallback_models": [
+        "metis/gpt-5.3"
+      ],
+      "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
+      "mode": "subagent"
     }
   },
-  "categories": {}
+  "categories": {
+    "visual-engineering": {
+      "model": "visual-engineering/gpt-5.4",
+      "fallback_models": [
+        "visual-engineering/gpt-5.3"
+      ],
+      "description": "Frontend, UI/UX, design, estilização e animação."
+    },
+    "ultrabrain": {
+      "model": "ultrabrain/gpt-5.4",
+      "fallback_models": [
+        "ultrabrain/gpt-5.3"
+      ],
+      "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
+    },
+    "deep": {
+      "model": "deep/gpt-5.4",
+      "fallback_models": [
+        "deep/gpt-5.3"
+      ],
+      "description": "Resolução autônoma de problemas orientada a objetivos."
+    },
+    "artistry": {
+      "model": "artistry/gpt-5.4",
+      "fallback_models": [
+        "artistry/gpt-5.3"
+      ],
+      "description": "Resolução de problemas complexos com abordagens não convencionais."
+    },
+    "quick": {
+      "model": "quick/gpt-5.4",
+      "fallback_models": [
+        "quick/gpt-5.3"
+      ],
+      "description": "Tarefas triviais — mudanças em arquivo único."
+    },
+    "unspecified-low": {
+      "model": "unspecified-low/gpt-5.4",
+      "fallback_models": [
+        "unspecified-low/gpt-5.3"
+      ],
+      "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
+    },
+    "unspecified-high": {
+      "model": "unspecified-high/gpt-5.4",
+      "fallback_models": [
+        "unspecified-high/gpt-5.3"
+      ],
+      "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
+    },
+    "writing": {
+      "model": "writing/gpt-5.4",
+      "fallback_models": [
+        "writing/gpt-5.3"
+      ],
+      "description": "Documentação, prosa e escrita técnica."
+    }
+  }
 }
