@@ -1,32 +1,32 @@
 function stripLitellmPrefix(model: string): string {
-	if (model.startsWith('litellm/')) {
-		return model.slice(8);
-	}
-	return model;
+  if (model.startsWith('litellm/')) {
+    return model.slice(8);
+  }
+  return model;
 }
 
 export function generateLitellmAliases(
-	key: string,
-	model: string,
-	fallback_models?: string[],
+  key: string,
+  model: string,
+  fallback_models?: string[],
 ): Record<string, string> {
-	const aliases: Record<string, string> = {};
+  const aliases: Record<string, string> = {};
 
-	if (model) {
-		aliases[`${key}/gpt-5.4`] = stripLitellmPrefix(model);
-	}
+  if (model) {
+    aliases[`${key}/gpt-5.4`] = stripLitellmPrefix(model);
+  }
 
-	if (fallback_models && fallback_models.length > 0) {
-		fallback_models.forEach((fm, index) => {
-			aliases[`${key}_fallback_${index + 1}/gpt-5.4`] = stripLitellmPrefix(fm);
-		});
-	}
+  if (fallback_models && fallback_models.length > 0) {
+    fallback_models.forEach((fm, index) => {
+      aliases[`${key}_fallback_${index + 1}/gpt-5.4`] = stripLitellmPrefix(fm);
+    });
+  }
 
-	return aliases;
+  return aliases;
 }
 
 export function generateAliasCleanupPattern(key: string): RegExp {
-	return new RegExp(`^${key}/gpt-5.4$`);
+  return new RegExp(`^${key}/gpt-5.4$`);
 }
 
 /**
@@ -38,11 +38,11 @@ export function generateAliasCleanupPattern(key: string): RegExp {
  * @returns Array of alias keys that belong to this agent/category
  */
 export function getExistingAliasesForAgent(
-	key: string,
-	existingAliases: Record<string, string>,
+  key: string,
+  existingAliases: Record<string, string>,
 ): string[] {
-	const pattern = generateAliasCleanupPattern(key);
-	return Object.keys(existingAliases).filter((alias) => pattern.test(alias));
+  const pattern = generateAliasCleanupPattern(key);
+  return Object.keys(existingAliases).filter((alias) => pattern.test(alias));
 }
 
 /**
@@ -54,22 +54,22 @@ export function getExistingAliasesForAgent(
  * @returns Updated alias map with old entries for this key removed and new ones added
  */
 export function replaceAliasesForAgent(
-	existingAliases: Record<string, string>,
-	key: string,
-	newAliases: Record<string, string>,
+  existingAliases: Record<string, string>,
+  key: string,
+  newAliases: Record<string, string>,
 ): Record<string, string> {
-	const cleaned = { ...existingAliases };
+  const cleaned = { ...existingAliases };
 
-	// Remove old aliases for this key
-	const oldKeys = getExistingAliasesForAgent(key, cleaned);
-	for (const k of oldKeys) {
-		delete cleaned[k];
-	}
+  // Remove old aliases for this key
+  const oldKeys = getExistingAliasesForAgent(key, cleaned);
+  for (const k of oldKeys) {
+    delete cleaned[k];
+  }
 
-	// Merge new aliases
-	for (const [k, v] of Object.entries(newAliases)) {
-		cleaned[k] = v;
-	}
+  // Merge new aliases
+  for (const [k, v] of Object.entries(newAliases)) {
+    cleaned[k] = v;
+  }
 
-	return cleaned;
+  return cleaned;
 }

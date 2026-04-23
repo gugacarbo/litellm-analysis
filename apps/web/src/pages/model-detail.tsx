@@ -1,10 +1,6 @@
+import { useParams } from 'react-router-dom';
 import { Badge } from '../components/badge';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '../components/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/card';
 import { Skeleton } from '../components/skeleton';
 import {
   Table,
@@ -14,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from '../components/table';
-import { useParams } from 'react-router-dom';
 import { useDashboardData } from '../hooks/use-dashboard-data';
 
 function formatCurrency(value: number): string {

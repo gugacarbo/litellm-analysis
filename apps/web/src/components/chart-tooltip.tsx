@@ -28,9 +28,7 @@ export function ChartTooltipContent({
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-muted-foreground">
-              {entry.name}:
-            </span>
+            <span className="text-muted-foreground">{entry.name}:</span>
             <span className="font-medium text-foreground">
               {formatter(entry.value as number)}
             </span>

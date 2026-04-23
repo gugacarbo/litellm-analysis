@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AnalyticsCapabilities } from '../../types/analytics';
 
 // vi.mock is hoisted by vitest — the import below MUST come after the mock definitions
@@ -109,7 +109,9 @@ describe('ModelStatsPage UI gates (limited mode)', () => {
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    const mergeButton = screen.queryByRole('button', { name: /^merge models$/i });
+    const mergeButton = screen.queryByRole('button', {
+      name: /^merge models$/i,
+    });
     expect(mergeButton).toBeInTheDocument();
     expect(mergeButton).toBeDisabled();
   });

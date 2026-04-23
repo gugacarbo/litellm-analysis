@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AnalyticsCapabilities } from '../../types/analytics';
 
 // vi.mock is hoisted by vitest — the import below MUST come after the mock definitions
@@ -44,11 +44,19 @@ vi.mock('../../lib/api-client', () => ({
   getAllModels: vi.fn().mockResolvedValue([
     {
       modelName: 'gpt-4',
-      litellmParams: { api_base: 'https://api.openai.com/v1', input_cost_per_token: 0.00003, output_cost_per_token: 0.00006 },
+      litellmParams: {
+        api_base: 'https://api.openai.com/v1',
+        input_cost_per_token: 0.00003,
+        output_cost_per_token: 0.00006,
+      },
     },
     {
       modelName: 'claude-3-opus',
-      litellmParams: { api_base: 'https://api.anthropic.com', input_cost_per_token: 0.000015, output_cost_per_token: 0.000075 },
+      litellmParams: {
+        api_base: 'https://api.anthropic.com',
+        input_cost_per_token: 0.000015,
+        output_cost_per_token: 0.000075,
+      },
     },
   ]),
   createModel: vi.fn().mockResolvedValue(undefined),
@@ -72,7 +80,9 @@ describe('ModelsPage UI gates (limited mode)', () => {
     const modelNames = await screen.findAllByText(/gpt-4|claude-3-opus/);
     expect(modelNames.length).toBeGreaterThan(0);
 
-    expect(screen.queryByRole('button', { name: /add model/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /add model/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('should hide delete buttons when deleteModel=false', async () => {
@@ -89,9 +99,9 @@ describe('ModelsPage UI gates (limited mode)', () => {
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    const editButtons = screen.getAllByRole('button', { name: '' }).filter(
-      (btn) => btn.querySelector('svg.lucide-pencil')
-    );
+    const editButtons = screen
+      .getAllByRole('button', { name: '' })
+      .filter((btn) => btn.querySelector('svg.lucide-pencil'));
     expect(editButtons.length).toBe(2);
   });
 });

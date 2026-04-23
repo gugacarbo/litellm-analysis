@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { CategoryConfig } from '../types/agent-routing';
 import { Button } from './button';
+import { CategoryConfigEditorAdvancedSection } from './category-config-editor/category-config-editor-advanced-section';
+import { CategoryConfigEditorExecutionSection } from './category-config-editor/category-config-editor-execution-section';
+import { CategoryConfigEditorPrimarySections } from './category-config-editor/category-config-editor-primary-sections';
 import {
   Dialog,
   DialogContent,
@@ -11,9 +15,6 @@ import {
   DialogTitle,
 } from './dialog';
 import { Separator } from './separator';
-import type { CategoryConfig } from '../types/agent-routing';
-import { CategoryConfigEditorExecutionSection } from './category-config-editor/category-config-editor-execution-section';
-import { CategoryConfigEditorPrimarySections } from './category-config-editor/category-config-editor-primary-sections';
 
 interface CategoryConfigEditorProps {
   open: boolean;
@@ -26,7 +27,9 @@ interface CategoryConfigEditorProps {
   error?: string | null;
 }
 
-function normalizeCategoryConfig(initialConfig: CategoryConfig = {}): CategoryConfig {
+function normalizeCategoryConfig(
+  initialConfig: CategoryConfig = {},
+): CategoryConfig {
   return {
     model: initialConfig.model || '',
     fallback_models: initialConfig.fallback_models || [],
@@ -59,7 +62,9 @@ export function CategoryConfigEditor({
   const [config, setConfig] = useState<CategoryConfig>(() =>
     normalizeCategoryConfig(initialConfig),
   );
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     basic: true,
     model: false,
     advanced: false,
@@ -89,7 +94,9 @@ export function CategoryConfigEditor({
     }));
   };
 
-  const updateThinkingConfig = <K extends keyof NonNullable<CategoryConfig['thinking']>>(
+  const updateThinkingConfig = <
+    K extends keyof NonNullable<CategoryConfig['thinking']>,
+  >(
     field: K,
     value: NonNullable<CategoryConfig['thinking']>[K],
   ) => {
@@ -167,6 +174,15 @@ export function CategoryConfigEditor({
             expandedSections={expandedSections}
             onToggleSection={toggleSection}
             onUpdateConfig={updateConfig}
+          />
+
+          <Separator />
+
+          <CategoryConfigEditorAdvancedSection
+            config={config}
+            expanded={expandedSections.advanced}
+            onToggle={() => toggleSection('advanced')}
+            onUpdateConfig={updateConfig}
             onUpdateThinkingConfig={updateThinkingConfig}
           />
 
@@ -190,11 +206,23 @@ export function CategoryConfigEditor({
         <DialogFooter>
           {resetConfirm ? (
             <>
-              <span className="text-sm text-muted-foreground me-2">Remove configuration for this category?</span>
-              <Button variant="outline" size="sm" onClick={() => setResetConfirm(false)} disabled={resetting}>
+              <span className="text-sm text-muted-foreground me-2">
+                Remove configuration for this category?
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setResetConfirm(false)}
+                disabled={resetting}
+              >
                 Cancel
               </Button>
-              <Button variant="destructive" size="sm" onClick={handleReset} disabled={resetting}>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleReset}
+                disabled={resetting}
+              >
                 {resetting ? (
                   <>
                     <RefreshCw className="h-4 w-4 animate-spin me-1" />
@@ -210,7 +238,11 @@ export function CategoryConfigEditor({
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button variant="ghost" className="text-muted-foreground" onClick={() => setResetConfirm(true)}>
+              <Button
+                variant="ghost"
+                className="text-muted-foreground"
+                onClick={() => setResetConfirm(true)}
+              >
                 Reset to default
               </Button>
               <Button onClick={handleSave} disabled={saving}>

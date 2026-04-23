@@ -2,11 +2,7 @@
   "agents": {
     "sisyphus": {
       "model": "sisyphus/gpt-5.4",
-      "fallback_models": [
-        "sisyphus_fallback_1/gpt-5.4"
-      ],
-      "temperature": 0.2,
-      "disable": false,
+      "fallback_models": ["sisyphus_fallback_1/gpt-5.4"],
       "description": "Coordenador principal — distribui tarefas e mantém o fluxo da sessão",
       "mode": "subagent",
       "color": "#00fffdd"

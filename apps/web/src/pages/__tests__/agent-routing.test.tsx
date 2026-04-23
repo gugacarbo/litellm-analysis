@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AnalyticsCapabilities } from '../../types/analytics';
 
 const mockCapabilities: AnalyticsCapabilities = {
@@ -48,12 +48,12 @@ vi.mock('../../lib/api-client', () => ({
   getAllModels: vi.fn(),
 }));
 
-import { AgentRoutingPage } from '../agent-routing';
 import {
   getAgentRoutingConfig,
-  updateAgentRoutingConfig,
   getAllModels,
+  updateAgentRoutingConfig,
 } from '../../lib/api-client';
+import { AgentRoutingPage } from '../agent-routing';
 
 describe('AgentRoutingPage', () => {
   const mockRoutingConfig = {
@@ -62,10 +62,22 @@ describe('AgentRoutingPage', () => {
   };
 
   const mockModels = [
-    { modelName: 'qwen3.5-plus', litellmParams: { api_base: 'https://api.openai.com' } },
-    { modelName: 'gpt-3.5-turbo', litellmParams: { api_base: 'https://api.openai.com' } },
-    { modelName: 'kimi-k2.5', litellmParams: { api_base: 'https://api.anthropic.com' } },
-    { modelName: 'glm-5', litellmParams: { api_base: 'https://api.anthropic.com' } },
+    {
+      modelName: 'qwen3.5-plus',
+      litellmParams: { api_base: 'https://api.openai.com' },
+    },
+    {
+      modelName: 'gpt-3.5-turbo',
+      litellmParams: { api_base: 'https://api.openai.com' },
+    },
+    {
+      modelName: 'kimi-k2.5',
+      litellmParams: { api_base: 'https://api.anthropic.com' },
+    },
+    {
+      modelName: 'glm-5',
+      litellmParams: { api_base: 'https://api.anthropic.com' },
+    },
   ];
 
   beforeEach(() => {
@@ -161,7 +173,9 @@ describe('AgentRoutingPage', () => {
         expect(screen.getByText(/Categories \(8\)/)).toBeInTheDocument();
       });
 
-      const toggleButton = screen.getByText(/Categories \(8\)/).closest('button');
+      const toggleButton = screen
+        .getByText(/Categories \(8\)/)
+        .closest('button');
       if (toggleButton) {
         await userEvent.click(toggleButton);
       }
@@ -181,9 +195,9 @@ describe('AgentRoutingPage', () => {
       render(<AgentRoutingPage />);
 
       await waitFor(() => {
-        const editButtons = screen.getAllByRole('button', { name: '' }).filter(
-          (btn) => btn.querySelector('svg.lucide-pencil'),
-        );
+        const editButtons = screen
+          .getAllByRole('button', { name: '' })
+          .filter((btn) => btn.querySelector('svg.lucide-pencil'));
         expect(editButtons.length).toBe(11);
       });
     });
@@ -200,9 +214,9 @@ describe('AgentRoutingPage', () => {
         expect(screen.getByText('Sisyphus')).toBeInTheDocument();
       });
 
-      const editButtons = screen.getAllByRole('button', { name: '' }).filter(
-        (btn) => btn.querySelector('svg.lucide-pencil'),
-      );
+      const editButtons = screen
+        .getAllByRole('button', { name: '' })
+        .filter((btn) => btn.querySelector('svg.lucide-pencil'));
 
       await userEvent.click(editButtons[0]);
 
@@ -223,9 +237,9 @@ describe('AgentRoutingPage', () => {
         expect(screen.getByText('Sisyphus')).toBeInTheDocument();
       });
 
-      const editButtons = screen.getAllByRole('button', { name: '' }).filter(
-        (btn) => btn.querySelector('svg.lucide-pencil'),
-      );
+      const editButtons = screen
+        .getAllByRole('button', { name: '' })
+        .filter((btn) => btn.querySelector('svg.lucide-pencil'));
       await userEvent.click(editButtons[0]);
 
       await waitFor(() => {
@@ -252,9 +266,9 @@ describe('AgentRoutingPage', () => {
         expect(screen.getByText('Sisyphus')).toBeInTheDocument();
       });
 
-      const editButtons = screen.getAllByRole('button', { name: '' }).filter(
-        (btn) => btn.querySelector('svg.lucide-pencil'),
-      );
+      const editButtons = screen
+        .getAllByRole('button', { name: '' })
+        .filter((btn) => btn.querySelector('svg.lucide-pencil'));
       await userEvent.click(editButtons[0]);
 
       await waitFor(() => {
@@ -281,9 +295,9 @@ describe('AgentRoutingPage', () => {
         expect(screen.getByText('Sisyphus')).toBeInTheDocument();
       });
 
-      const editButtons = screen.getAllByRole('button', { name: '' }).filter(
-        (btn) => btn.querySelector('svg.lucide-pencil'),
-      );
+      const editButtons = screen
+        .getAllByRole('button', { name: '' })
+        .filter((btn) => btn.querySelector('svg.lucide-pencil'));
       await userEvent.click(editButtons[0]);
 
       await waitFor(() => {
@@ -345,9 +359,13 @@ describe('AgentRoutingPage', () => {
       render(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole('tab', { name: 'Agents & Categories' })).toBeInTheDocument();
+        expect(
+          screen.getByRole('tab', { name: 'Agents & Categories' }),
+        ).toBeInTheDocument();
       });
-      expect(screen.getByRole('tab', { name: 'Custom Aliases' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('tab', { name: 'Custom Aliases' }),
+      ).toBeInTheDocument();
     });
   });
 });

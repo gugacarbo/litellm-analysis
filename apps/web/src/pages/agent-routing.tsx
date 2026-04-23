@@ -9,7 +9,10 @@ import { Button } from '../components/button';
 import { CategoryConfigEditor } from '../components/category-config-editor';
 import { FeatureGate } from '../components/feature-gate';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/tabs';
-import { AGENT_DEFINITIONS, CATEGORY_DEFINITIONS } from '../types/agent-routing';
+import {
+  AGENT_DEFINITIONS,
+  CATEGORY_DEFINITIONS,
+} from '../types/agent-routing';
 import { useAgentRoutingPageState } from './agent-routing/use-agent-routing-page';
 
 export function AgentRoutingPage() {
@@ -28,8 +31,11 @@ export function AgentRoutingPage() {
           </p>
         </div>
 
-        <FeatureGate capability="agentConfigFile">
-          <Button onClick={state.handleSaveAll} disabled={state.saving || state.loading}>
+        <FeatureGate capability="agentRouting">
+          <Button
+            onClick={state.handleSaveAll}
+            disabled={state.saving || state.loading}
+          >
             {state.saving ? (
               <>
                 <RefreshCw className="h-4 w-4 animate-spin me-2" />
@@ -54,7 +60,6 @@ export function AgentRoutingPage() {
         <TabsContent value="agents">
           <AgentRoutingAgentsTab
             loading={state.loading}
-            error={state.error}
             saving={state.saving}
             categoriesVisible={state.categoriesVisible}
             agents={AGENT_DEFINITIONS}
@@ -89,6 +94,7 @@ export function AgentRoutingPage() {
         agentKey={state.editingAgentKey}
         initialConfig={state.resolvedAgentConfigs[state.editingAgentKey]}
         onSave={state.handleSaveAgentConfig}
+        onReset={() => state.handleDeleteAgentConfig(state.editingAgentKey)}
         saving={state.saving}
         error={state.error}
       />
@@ -99,6 +105,9 @@ export function AgentRoutingPage() {
         categoryKey={state.editingCategoryKey}
         initialConfig={state.resolvedCategoryConfigs[state.editingCategoryKey]}
         onSave={state.handleSaveCategoryConfig}
+        onReset={() =>
+          state.handleDeleteCategoryConfig(state.editingCategoryKey)
+        }
         saving={state.saving}
         error={state.error}
       />

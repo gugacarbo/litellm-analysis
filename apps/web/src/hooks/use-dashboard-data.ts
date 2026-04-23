@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+  getApiKeyDetailedStats,
+  getCostEfficiencyByModel,
   getDailySpendTrend,
+  getDailyTokenTrend,
   getErrorLogs,
+  getHourlyUsagePatterns,
   getMetricsSummary,
   getModelDetails,
+  getModelRequestDistribution,
+  getPerformanceMetrics,
   getSpendByModel,
   getSpendByUser,
   getSpendLogs,
   getTokenDistribution,
-  getPerformanceMetrics,
-  getHourlyUsagePatterns,
-  getApiKeyDetailedStats,
-  getCostEfficiencyByModel,
-  getModelRequestDistribution,
-  getDailyTokenTrend,
 } from '../lib/api-client';
 
 export function useDashboardData() {
@@ -38,7 +38,13 @@ export function useDashboardData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tokenDistribution, setTokenDistribution] = useState<
-    { model: string; prompt_tokens: number; completion_tokens: number; avg_tokens_per_request: number; input_output_ratio: number }[]
+    {
+      model: string;
+      prompt_tokens: number;
+      completion_tokens: number;
+      avg_tokens_per_request: number;
+      input_output_ratio: number;
+    }[]
   >([]);
   const [performance, setPerformance] = useState<{
     total_requests: number;
@@ -46,19 +52,43 @@ export function useDashboardData() {
     success_rate: number;
   } | null>(null);
   const [hourlyPatterns, setHourlyPatterns] = useState<
-    { hour: number; request_count: number; total_spend: number; total_tokens: number }[]
+    {
+      hour: number;
+      request_count: number;
+      total_spend: number;
+      total_tokens: number;
+    }[]
   >([]);
   const [apiKeyStats, setApiKeyStats] = useState<
-    { key: string; request_count: number; total_spend: number; total_tokens: number; avg_tokens_per_request: number; success_rate: number; last_used: string }[]
+    {
+      key: string;
+      request_count: number;
+      total_spend: number;
+      total_tokens: number;
+      avg_tokens_per_request: number;
+      success_rate: number;
+      last_used: string;
+    }[]
   >([]);
   const [costEfficiency, setCostEfficiency] = useState<
-    { model: string; total_spend: number; total_tokens: number; cost_per_1k_tokens: number; request_count: number }[]
+    {
+      model: string;
+      total_spend: number;
+      total_tokens: number;
+      cost_per_1k_tokens: number;
+      request_count: number;
+    }[]
   >([]);
   const [modelDistribution, setModelDistribution] = useState<
     { model: string; request_count: number; percentage: number }[]
   >([]);
   const [dailyTokenTrend, setDailyTokenTrend] = useState<
-    { date: string; prompt_tokens: number; completion_tokens: number; total_tokens: number }[]
+    {
+      date: string;
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+    }[]
   >([]);
 
   const fetchData = useCallback(async () => {

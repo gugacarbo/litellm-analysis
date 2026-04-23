@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { AgentConfig } from '../types/agent-routing';
+import { AgentConfigEditorAdvancedSections } from './agent-config-editor/agent-config-editor-advanced-sections';
+import { AgentConfigEditorPrimarySections } from './agent-config-editor/agent-config-editor-primary-sections';
 import { Button } from './button';
 import {
   Dialog,
@@ -11,9 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from './dialog';
-import type { AgentConfig } from '../types/agent-routing';
-import { AgentConfigEditorAdvancedSections } from './agent-config-editor/agent-config-editor-advanced-sections';
-import { AgentConfigEditorPrimarySections } from './agent-config-editor/agent-config-editor-primary-sections';
 
 interface AgentConfigEditorProps {
   open: boolean;
@@ -61,7 +61,9 @@ export function AgentConfigEditor({
   const [config, setConfig] = useState<AgentConfig>(() =>
     normalizeAgentConfig(initialConfig),
   );
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     basic: true,
     model: false,
     prompts: false,
@@ -197,11 +199,23 @@ export function AgentConfigEditor({
         <DialogFooter>
           {resetConfirm ? (
             <>
-              <span className="text-sm text-muted-foreground me-2">Remove configuration for this agent?</span>
-              <Button variant="outline" size="sm" onClick={() => setResetConfirm(false)} disabled={resetting}>
+              <span className="text-sm text-muted-foreground me-2">
+                Remove configuration for this agent?
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setResetConfirm(false)}
+                disabled={resetting}
+              >
                 Cancel
               </Button>
-              <Button variant="destructive" size="sm" onClick={handleReset} disabled={resetting}>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleReset}
+                disabled={resetting}
+              >
                 {resetting ? (
                   <>
                     <RefreshCw className="h-4 w-4 animate-spin me-1" />
@@ -217,7 +231,11 @@ export function AgentConfigEditor({
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button variant="ghost" className="text-muted-foreground" onClick={() => setResetConfirm(true)}>
+              <Button
+                variant="ghost"
+                className="text-muted-foreground"
+                onClick={() => setResetConfirm(true)}
+              >
                 Reset to default
               </Button>
               <Button onClick={handleSave} disabled={saving}>

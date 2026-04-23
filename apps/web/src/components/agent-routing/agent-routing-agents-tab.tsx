@@ -1,27 +1,12 @@
-import {
-  ChevronDown,
-  ChevronUp,
-  Database,
-  FolderOpen,
-  Palette,
-  Zap,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, Database, Zap } from 'lucide-react';
 import type {
   AgentDefinition,
   CategoryDefinition,
 } from '../../types/agent-routing';
 import { Button } from '../button';
 import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { FeatureGate } from '../feature-gate';
-import { Skeleton } from '../skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../table';
+import { AgentsTable } from './agents-table';
+import { CategoriesTable } from './categories-table';
 
 type ConfigInfo = {
   model: string;
@@ -30,9 +15,8 @@ type ConfigInfo = {
   fallbackCount: number;
 };
 
-type AgentRoutingAgentsTabProps = {
+type Props = {
   loading: boolean;
-  error: string | null;
   saving: boolean;
   categoriesVisible: boolean;
   agents: AgentDefinition[];
@@ -48,7 +32,6 @@ type AgentRoutingAgentsTabProps = {
 
 export function AgentRoutingAgentsTab({
   loading,
-  error,
   saving,
   categoriesVisible,
   agents,
@@ -60,7 +43,7 @@ export function AgentRoutingAgentsTab({
   onDeleteCategoryConfig,
   getAgentConfigInfo,
   getCategoryConfigInfo,
-}: AgentRoutingAgentsTabProps) {
+}: Props) {
   return (
     <div className="space-y-4 mt-4">
       <Card>
@@ -71,93 +54,14 @@ export function AgentRoutingAgentsTab({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {error && <div className="p-4 text-destructive">Error: {error}</div>}
-
-          {loading ? (
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Agent</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Configuration</TableHead>
-                  <TableHead className="w-25">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {agents.map((agent) => {
-                  const configInfo = getAgentConfigInfo(agent.key);
-                  return (
-                    <TableRow key={agent.key}>
-                      <TableCell className="font-medium flex items-center gap-2">
-                        <span>{agent.icon}</span>
-                        <span>{agent.name}</span>
-                        {configInfo?.color ? (
-                          <div
-                            className="w-4 h-4 rounded-full border border-border shadow-sm mr-1"
-                            style={{ backgroundColor: configInfo.color }}
-                          />
-                        ) : null}
-                        {configInfo?.fallbackCount ? (
-                          <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
-                            +{configInfo.fallbackCount} fallbacks
-                          </span>
-                        ) : null}
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-xs truncate">
-                          {configInfo?.description || agent.description}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {configInfo ? (
-                          <div className="text-sm">
-                            <div className="font-medium">
-                              {configInfo.model}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full bg-muted text-xs text-muted-foreground">
-                            Unconfigured
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <FeatureGate capability="agentRouting">
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => onOpenAgentConfig(agent.key)}
-                              title="Edit agent configuration"
-                            >
-                              <Palette className="h-4 w-4" />
-                            </Button>
-                            {configInfo ? (
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                onClick={() => onDeleteAgentConfig(agent.key)}
-                                title="Reset to default"
-                                disabled={saving}
-                              >
-                                <FolderOpen className="h-4 w-4" />
-                              </Button>
-                            ) : null}
-                          </div>
-                        </FeatureGate>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
+          <AgentsTable
+            loading={loading}
+            saving={saving}
+            agents={agents}
+            getAgentConfigInfo={getAgentConfigInfo}
+            onOpenAgentConfig={onOpenAgentConfig}
+            onDeleteAgentConfig={onDeleteAgentConfig}
+          />
         </CardContent>
       </Card>
 
@@ -182,88 +86,14 @@ export function AgentRoutingAgentsTab({
 
         {categoriesVisible ? (
           <CardContent>
-            {loading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Configuration</TableHead>
-                    <TableHead className="w-25">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {categories.map((category) => {
-                    const configInfo = getCategoryConfigInfo(category.key);
-                    return (
-                      <TableRow key={category.key}>
-                        <TableCell className="font-medium">
-                          {category.name}
-                        </TableCell>
-                        <TableCell>
-                          <div className="max-w-xs truncate">
-                            {configInfo?.description || category.description}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {configInfo ? (
-                            <div className="text-sm">
-                              <div className="font-medium">
-                                {configInfo.model}
-                              </div>
-                              {configInfo.fallbackCount ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
-                                  +{configInfo.fallbackCount} fallbacks
-                                </span>
-                              ) : null}
-                            </div>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full bg-muted text-xs text-muted-foreground">
-                              Unconfigured
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <FeatureGate capability="agentRouting">
-                            <div className="flex items-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                onClick={() =>
-                                  onOpenCategoryConfig(category.key)
-                                }
-                                title="Edit category configuration"
-                              >
-                                <Palette className="h-4 w-4" />
-                              </Button>
-                              {configInfo ? (
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  onClick={() =>
-                                    onDeleteCategoryConfig(category.key)
-                                  }
-                                  title="Reset to default"
-                                  disabled={saving}
-                                >
-                                  <FolderOpen className="h-4 w-4" />
-                                </Button>
-                              ) : null}
-                            </div>
-                          </FeatureGate>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            )}
+            <CategoriesTable
+              loading={loading}
+              saving={saving}
+              categories={categories}
+              getCategoryConfigInfo={getCategoryConfigInfo}
+              onOpenCategoryConfig={onOpenCategoryConfig}
+              onDeleteCategoryConfig={onDeleteCategoryConfig}
+            />
           </CardContent>
         ) : null}
       </Card>

@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Badge } from '../components/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/card';
 import { FeatureGate } from '../components/feature-gate';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '../components/card';
 import { Skeleton } from '../components/skeleton';
 import {
   Table,
@@ -15,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from '../components/table';
-import { Badge } from '../components/badge';
 
 interface ErrorLog {
   id: string;
@@ -113,7 +108,9 @@ function ErrorsContent() {
             <CardTitle className="text-sm font-medium">Total Errors</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? <Skeleton className="h-8 w-12" /> : (
+            {loading ? (
+              <Skeleton className="h-8 w-12" />
+            ) : (
               <p className="text-2xl font-bold">{errors.length}</p>
             )}
           </CardContent>
@@ -123,9 +120,11 @@ function ErrorsContent() {
             <CardTitle className="text-sm font-medium">5xx Errors</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? <Skeleton className="h-8 w-12" /> : (
+            {loading ? (
+              <Skeleton className="h-8 w-12" />
+            ) : (
               <p className="text-2xl font-bold text-red-600">
-                {errors.filter(e => e.status_code >= 500).length}
+                {errors.filter((e) => e.status_code >= 500).length}
               </p>
             )}
           </CardContent>
@@ -135,9 +134,15 @@ function ErrorsContent() {
             <CardTitle className="text-sm font-medium">4xx Errors</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? <Skeleton className="h-8 w-12" /> : (
+            {loading ? (
+              <Skeleton className="h-8 w-12" />
+            ) : (
               <p className="text-2xl font-bold text-orange-600">
-                {errors.filter(e => e.status_code >= 400 && e.status_code < 500).length}
+                {
+                  errors.filter(
+                    (e) => e.status_code >= 400 && e.status_code < 500,
+                  ).length
+                }
               </p>
             )}
           </CardContent>
@@ -147,9 +152,11 @@ function ErrorsContent() {
             <CardTitle className="text-sm font-medium">Unique Models</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? <Skeleton className="h-8 w-12" /> : (
+            {loading ? (
+              <Skeleton className="h-8 w-12" />
+            ) : (
               <p className="text-2xl font-bold">
-                {new Set(errors.map(e => e.model)).size}
+                {new Set(errors.map((e) => e.model)).size}
               </p>
             )}
           </CardContent>
@@ -176,17 +183,32 @@ function ErrorsContent() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-12" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-12" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-48" />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : errors.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-muted-foreground"
+                  >
                     No errors found
                   </TableCell>
                 </TableRow>
@@ -197,21 +219,27 @@ function ErrorsContent() {
                       {formatDateTime(err.timestamp || '')}
                     </TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(err.status_code)}`}>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(err.status_code)}`}
+                      >
                         {err.status_code || 'N/A'}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded text-xs ${getErrorTypeColor(err.error_type)}`}>
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${getErrorTypeColor(err.error_type)}`}
+                      >
                         {err.error_type || 'Error'}
                       </span>
                     </TableCell>
-                    <TableCell className="text-sm">{err.model || '-'}</TableCell>
+                    <TableCell className="text-sm">
+                      {err.model || '-'}
+                    </TableCell>
                     <TableCell className="text-sm">{err.user || '-'}</TableCell>
                     <TableCell className="max-w-md text-sm">
                       <span title={err.error_message}>
-                        {err.error_message?.length > 80 
-                          ? err.error_message.slice(0, 80) + '...' 
+                        {err.error_message?.length > 80
+                          ? `${err.error_message.slice(0, 80)}...`
                           : err.error_message || '-'}
                       </span>
                     </TableCell>

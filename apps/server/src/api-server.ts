@@ -89,7 +89,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
 
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+      const limit = req.query.limit
+        ? parseInt(req.query.limit as string, 10)
+        : 50;
       const data = await dataSource.getErrorLogs(limit);
       res.json(data);
     } catch (error) {
@@ -214,7 +216,10 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
     try {
       const { modelName, litellmParams } = req.body;
-      await dataSource.createModel({ modelName, litellmParams: litellmParams ?? {} });
+      await dataSource.createModel({
+        modelName,
+        litellmParams: litellmParams ?? {},
+      });
       res.status(201).json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -229,7 +234,10 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     try {
       const { name } = req.params;
       const { litellmParams, modelName } = req.body;
-      const updates: { litellmParams?: Record<string, unknown>; modelName?: string } = {};
+      const updates: {
+        litellmParams?: Record<string, unknown>;
+        modelName?: string;
+      } = {};
       if (litellmParams !== undefined) updates.litellmParams = litellmParams;
       if (modelName !== undefined) updates.modelName = modelName;
       await dataSource.updateModel(name, updates);
@@ -265,7 +273,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
     const { sourceModel, targetModel } = req.body;
     if (!sourceModel || !targetModel) {
-      res.status(400).json({ error: 'sourceModel and targetModel are required' });
+      res
+        .status(400)
+        .json({ error: 'sourceModel and targetModel are required' });
       return;
     }
     try {
@@ -292,7 +302,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.get('/agent-routing', async (_req, res) => {
     if (!dataSource.capabilities.agentRouting) {
-      res.status(501).json({ error: 'Agent routing is not available in the current mode' });
+      res
+        .status(501)
+        .json({ error: 'Agent routing is not available in the current mode' });
       return;
     }
     try {
@@ -300,7 +312,10 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       res.json(data ?? {});
     } catch (error) {
       const errorMsg = String(error).toLowerCase();
-      if (errorMsg.includes('does not exist') || errorMsg.includes('relation')) {
+      if (
+        errorMsg.includes('does not exist') ||
+        errorMsg.includes('relation')
+      ) {
         res.json({});
         return;
       }
@@ -310,24 +325,34 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.put('/agent-routing', async (req, res) => {
     if (!dataSource.capabilities.agentRouting) {
-      res.status(501).json({ error: 'Agent routing updates are not available in the current mode' });
+      res.status(501).json({
+        error: 'Agent routing updates are not available in the current mode',
+      });
       return;
     }
     try {
       const { model_group_alias } = req.body;
 
-      if (!model_group_alias || typeof model_group_alias !== 'object' || Array.isArray(model_group_alias)) {
+      if (
+        !model_group_alias ||
+        typeof model_group_alias !== 'object' ||
+        Array.isArray(model_group_alias)
+      ) {
         res.status(400).json({ error: 'model_group_alias object is required' });
         return;
       }
 
       for (const [model, alias] of Object.entries(model_group_alias)) {
         if (typeof model !== 'string') {
-          res.status(400).json({ error: 'model_group_alias keys must be strings' });
+          res
+            .status(400)
+            .json({ error: 'model_group_alias keys must be strings' });
           return;
         }
         if (typeof alias !== 'string') {
-          res.status(400).json({ error: 'model_group_alias values must be strings' });
+          res
+            .status(400)
+            .json({ error: 'model_group_alias values must be strings' });
           return;
         }
       }
@@ -364,7 +389,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       } else if (isCategory) {
         res.json({ type: 'category', key, config: config.categories[key] });
       } else {
-        res.status(404).json({ error: `No agent or category found with key "${key}"` });
+        res
+          .status(404)
+          .json({ error: `No agent or category found with key "${key}"` });
       }
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -380,7 +407,11 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         res.status(400).json({ error: 'type must be "agent" or "category"' });
         return;
       }
-      if (!rawConfig || typeof rawConfig !== 'object' || Array.isArray(rawConfig)) {
+      if (
+        !rawConfig ||
+        typeof rawConfig !== 'object' ||
+        Array.isArray(rawConfig)
+      ) {
         res.status(400).json({ error: 'config object is required' });
         return;
       }
@@ -391,10 +422,17 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const configToSave = {
         ...rawConfig,
         model: actualModel ? `${key}/gpt-5.4` : '',
-        fallback_models: actualFallbacks.map((_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`),
+        fallback_models: actualFallbacks.map(
+          (_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`,
+        ),
       };
 
-      const { updateAgentInConfig, updateCategoryInConfig } = await import('./services/config-file.js');
+      const {
+        updateAgentInConfig,
+        updateCategoryInConfig,
+        readConfigFile,
+        writeProvidersFile,
+      } = await import('./services/config-file.js');
 
       if (type === 'agent') {
         await updateAgentInConfig(key, configToSave);
@@ -402,14 +440,26 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         await updateCategoryInConfig(key, configToSave);
       }
 
+      const config = await readConfigFile();
+      const models = dataSource.capabilities.models
+        ? await dataSource.getModels()
+        : [];
+      await writeProvidersFile(config, models);
+
       if (syncAliases && dataSource.capabilities.agentRouting) {
-        const { generateLitellmAliases, replaceAliasesForAgent } = await import('./services/alias-generator.js');
+        const { generateLitellmAliases, replaceAliasesForAgent } = await import(
+          './services/alias-generator.js'
+        );
         const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
         const existingRouting = await getAgentRoutingConfig();
         const existingAliases = existingRouting?.model_group_alias
           ? (existingRouting.model_group_alias as Record<string, string>)
           : {};
-        const newAliases = generateLitellmAliases(key, actualModel, actualFallbacks);
+        const newAliases = generateLitellmAliases(
+          key,
+          actualModel,
+          actualFallbacks,
+        );
         const merged = replaceAliasesForAgent(existingAliases, key, newAliases);
         await updateAgentRoutingConfig(merged);
       }
@@ -424,50 +474,87 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     try {
       const { agents: rawAgents, categories: rawCategories } = req.body;
 
-      const agentsToSave: Record<string, any> = {};
-      const categoriesToSave: Record<string, any> = {};
+      const agentsToSave: Record<string, unknown> = {};
+      const categoriesToSave: Record<string, unknown> = {};
 
       const allNewAliases: Record<string, string> = {};
 
       if (rawAgents && typeof rawAgents === 'object') {
-        const { generateLitellmAliases } = await import('./services/alias-generator.js');
-        for (const [key, rawCfg] of Object.entries(rawAgents as Record<string, any>)) {
-          const actualModel = rawCfg.model || '';
-          const actualFallbacks: string[] = rawCfg.fallback_models || [];
+        const { generateLitellmAliases } = await import(
+          './services/alias-generator.js'
+        );
+        for (const [key, rawCfg] of Object.entries(
+          rawAgents as Record<string, Record<string, unknown>>,
+        )) {
+          const actualModel = (rawCfg.model as string) || '';
+          const actualFallbacks: string[] =
+            (rawCfg.fallback_models as string[]) || [];
 
           agentsToSave[key] = {
             ...rawCfg,
             model: actualModel ? `${key}/gpt-5.4` : '',
-            fallback_models: actualFallbacks.map((_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`),
+            fallback_models: actualFallbacks.map(
+              (_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`,
+            ),
           };
 
-          const aliases = generateLitellmAliases(key, actualModel, actualFallbacks);
+          const aliases = generateLitellmAliases(
+            key,
+            actualModel,
+            actualFallbacks,
+          );
           Object.assign(allNewAliases, aliases);
         }
       }
 
       if (rawCategories && typeof rawCategories === 'object') {
-        const { generateLitellmAliases } = await import('./services/alias-generator.js');
-        for (const [key, rawCfg] of Object.entries(rawCategories as Record<string, any>)) {
-          const actualModel = rawCfg.model || '';
-          const actualFallbacks: string[] = rawCfg.fallback_models || [];
+        const { generateLitellmAliases } = await import(
+          './services/alias-generator.js'
+        );
+        for (const [key, rawCfg] of Object.entries(
+          rawCategories as Record<string, Record<string, unknown>>,
+        )) {
+          const actualModel = (rawCfg.model as string) || '';
+          const actualFallbacks: string[] =
+            (rawCfg.fallback_models as string[]) || [];
 
           categoriesToSave[key] = {
             ...rawCfg,
             model: actualModel ? `${key}/gpt-5.4` : '',
-            fallback_models: actualFallbacks.map((_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`),
+            fallback_models: actualFallbacks.map(
+              (_: string, i: number) => `${key}_fallback_${i + 1}/gpt-5.4`,
+            ),
           };
 
-          const aliases = generateLitellmAliases(key, actualModel, actualFallbacks);
+          const aliases = generateLitellmAliases(
+            key,
+            actualModel,
+            actualFallbacks,
+          );
           Object.assign(allNewAliases, aliases);
         }
       }
 
-      const { writeFullConfig } = await import('./services/config-file.js');
-      await writeFullConfig({ agents: agentsToSave, categories: categoriesToSave });
+      const { writeFullConfig, readConfigFile, writeProvidersFile } =
+        await import('./services/config-file.js');
+      await writeFullConfig({
+        agents: agentsToSave,
+        categories: categoriesToSave,
+      });
 
-      if (dataSource.capabilities.agentRouting && Object.keys(allNewAliases).length > 0) {
-        const { replaceAliasesForAgent } = await import('./services/alias-generator.js');
+      const config = await readConfigFile();
+      const models = dataSource.capabilities.models
+        ? await dataSource.getModels()
+        : [];
+      await writeProvidersFile(config, models);
+
+      if (
+        dataSource.capabilities.agentRouting &&
+        Object.keys(allNewAliases).length > 0
+      ) {
+        const { replaceAliasesForAgent } = await import(
+          './services/alias-generator.js'
+        );
         const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
         const existingRouting = await getAgentRoutingConfig();
         let existingAliases = existingRouting?.model_group_alias
@@ -481,11 +568,18 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         for (const key of allKeys) {
           const keyAliases: Record<string, string> = {};
           for (const [aliasKey, aliasValue] of Object.entries(allNewAliases)) {
-            if (aliasKey === `${key}/gpt-5.4` || aliasKey.startsWith(`${key}_fallback_`)) {
+            if (
+              aliasKey === `${key}/gpt-5.4` ||
+              aliasKey.startsWith(`${key}_fallback_`)
+            ) {
               keyAliases[aliasKey] = aliasValue;
             }
           }
-          existingAliases = replaceAliasesForAgent(existingAliases, key, keyAliases);
+          existingAliases = replaceAliasesForAgent(
+            existingAliases,
+            key,
+            keyAliases,
+          );
         }
 
         await updateAgentRoutingConfig(existingAliases);
@@ -502,7 +596,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const key = req.params.key;
       const { type } = req.query;
 
-      const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import('./services/config-file.js');
+      const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(
+        './services/config-file.js'
+      );
 
       if (type === 'category') {
         await deleteCategoryFromConfig(key);
@@ -511,7 +607,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       }
 
       if (dataSource.capabilities.agentRouting) {
-        const { getExistingAliasesForAgent } = await import('./services/alias-generator.js');
+        const { getExistingAliasesForAgent } = await import(
+          './services/alias-generator.js'
+        );
         const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
         const existingRouting = await getAgentRoutingConfig();
         const existingAliases = existingRouting?.model_group_alias

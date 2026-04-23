@@ -96,9 +96,7 @@ export async function getModelRequestDistribution(): Promise<
   return fetchApi('/analytics/model-distribution');
 }
 
-export async function getDailyTokenTrend(
-  days = 30,
-): Promise<
+export async function getDailyTokenTrend(days = 30): Promise<
   {
     date: string;
     prompt_tokens: number;

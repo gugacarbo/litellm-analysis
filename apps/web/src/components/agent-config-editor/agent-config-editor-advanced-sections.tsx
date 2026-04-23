@@ -1,24 +1,9 @@
-import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import type { AgentConfig } from '../../types/agent-routing';
-import { Badge } from '../badge';
-import { Button } from '../button';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '../collapsible';
-import { Input } from '../input';
-import { Label } from '../label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../select';
 import { Separator } from '../separator';
+import { AgentConfigEditorExecutionSection } from './agent-config-editor-execution-section';
+import { AgentConfigEditorPermissionsSection } from './agent-config-editor-permissions-section';
 
-type AgentConfigEditorAdvancedSectionsProps = {
+type Props = {
   config: AgentConfig;
   expandedSections: Record<string, boolean>;
   newSkill: string;
@@ -55,296 +40,33 @@ export function AgentConfigEditorAdvancedSections({
   onAddTool,
   onRemoveTool,
   onUpdateToolValue,
-}: AgentConfigEditorAdvancedSectionsProps) {
+}: Props) {
   return (
     <>
       <Separator />
-      <Collapsible
-        open={expandedSections.execution}
-        onOpenChange={() => onToggleSection('execution')}
-      >
-        <div className="flex items-center gap-2">
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 hover:bg-transparent"
-            >
-              {expandedSections.execution ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <h3 className="font-semibold">Execution Settings</h3>
-        </div>
-        <CollapsibleContent className="mt-2 space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Skills</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={newSkill}
-                  onChange={(e) => onNewSkillChange(e.target.value)}
-                  placeholder="Add skill"
-                  className="h-8 w-40"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onAddSkill}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-            {config.skills && config.skills.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {config.skills.map((skill, index) => (
-                  <Badge
-                    key={`${skill}-${index}`}
-                    variant="secondary"
-                    className="flex items-center gap-1"
-                  >
-                    {skill}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-4 w-4 p-0 ml-1"
-                      onClick={() => onRemoveSkill(index)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No skills configured
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Tools</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={newToolKey}
-                  onChange={(e) => onNewToolKeyChange(e.target.value)}
-                  placeholder="Key"
-                  className="h-8 w-32"
-                />
-                <Select
-                  value={newToolValue.toString()}
-                  onValueChange={(value) =>
-                    onNewToolValueChange(value === 'true')
-                  }
-                >
-                  <SelectTrigger className="h-8 w-24">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="true">Enabled</SelectItem>
-                    <SelectItem value="false">Disabled</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onAddTool}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-            {config.tools && Object.keys(config.tools).length > 0 ? (
-              <div className="space-y-2">
-                {Object.entries(config.tools).map(([key, value]) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <Badge variant="secondary" className="px-2 py-1">
-                      {key}
-                    </Badge>
-                    <Select
-                      value={value.toString()}
-                      onValueChange={(v) =>
-                        onUpdateToolValue(key, v === 'true')
-                      }
-                    >
-                      <SelectTrigger className="h-8 w-24">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Enabled</SelectItem>
-                        <SelectItem value="false">Disabled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onRemoveTool(key)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No tools configured
-              </p>
-            )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      <AgentConfigEditorExecutionSection
+        config={config}
+        expanded={expandedSections.execution}
+        onToggle={() => onToggleSection('execution')}
+        newSkill={newSkill}
+        newToolKey={newToolKey}
+        newToolValue={newToolValue}
+        onNewSkillChange={onNewSkillChange}
+        onNewToolKeyChange={onNewToolKeyChange}
+        onNewToolValueChange={onNewToolValueChange}
+        onAddSkill={onAddSkill}
+        onRemoveSkill={onRemoveSkill}
+        onAddTool={onAddTool}
+        onRemoveTool={onRemoveTool}
+        onUpdateToolValue={onUpdateToolValue}
+      />
       <Separator />
-      <Collapsible
-        open={expandedSections.permissions}
-        onOpenChange={() => onToggleSection('permissions')}
-      >
-        <div className="flex items-center gap-2">
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 hover:bg-transparent"
-            >
-              {expandedSections.permissions ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <h3 className="font-semibold">Permissions</h3>
-        </div>
-        <CollapsibleContent className="mt-2 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="perm-edit">Edit</Label>
-              <Select
-                value={config.permission?.edit || 'ask'}
-                onValueChange={(value: 'ask' | 'allow' | 'deny') =>
-                  onUpdateConfig('permission', {
-                    ...config.permission,
-                    edit: value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ask">Ask</SelectItem>
-                  <SelectItem value="allow">Allow</SelectItem>
-                  <SelectItem value="deny">Deny</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="perm-bash">Bash</Label>
-              <Select
-                value={
-                  config.permission?.bash
-                    ? typeof config.permission.bash === 'string'
-                      ? config.permission.bash
-                      : 'ask'
-                    : 'ask'
-                }
-                onValueChange={(value: 'ask' | 'allow' | 'deny') =>
-                  onUpdateConfig('permission', {
-                    ...config.permission,
-                    bash: value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ask">Ask</SelectItem>
-                  <SelectItem value="allow">Allow</SelectItem>
-                  <SelectItem value="deny">Deny</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="perm-webfetch">Webfetch</Label>
-              <Select
-                value={config.permission?.webfetch || 'ask'}
-                onValueChange={(value: 'ask' | 'allow' | 'deny') =>
-                  onUpdateConfig('permission', {
-                    ...config.permission,
-                    webfetch: value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ask">Ask</SelectItem>
-                  <SelectItem value="allow">Allow</SelectItem>
-                  <SelectItem value="deny">Deny</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="perm-doom_loop">Doom Loop</Label>
-              <Select
-                value={config.permission?.doom_loop || 'ask'}
-                onValueChange={(value: 'ask' | 'allow' | 'deny') =>
-                  onUpdateConfig('permission', {
-                    ...config.permission,
-                    doom_loop: value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ask">Ask</SelectItem>
-                  <SelectItem value="allow">Allow</SelectItem>
-                  <SelectItem value="deny">Deny</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="perm-external_directory">
-                External Directory
-              </Label>
-              <Select
-                value={config.permission?.external_directory || 'ask'}
-                onValueChange={(value: 'ask' | 'allow' | 'deny') =>
-                  onUpdateConfig('permission', {
-                    ...config.permission,
-                    external_directory: value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ask">Ask</SelectItem>
-                  <SelectItem value="allow">Allow</SelectItem>
-                  <SelectItem value="deny">Deny</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      <AgentConfigEditorPermissionsSection
+        config={config}
+        expanded={expandedSections.permissions}
+        onToggle={() => onToggleSection('permissions')}
+        onUpdateConfig={onUpdateConfig}
+      />
     </>
   );
 }

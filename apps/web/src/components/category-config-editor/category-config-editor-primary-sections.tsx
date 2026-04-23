@@ -9,17 +9,10 @@ import {
 import { Input } from '../input';
 import { Label } from '../label';
 import { ModelFallbackSelector } from '../model-fallback-selector';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../select';
 import { Separator } from '../separator';
 import { Textarea } from '../textarea';
 
-type CategoryConfigEditorPrimarySectionsProps = {
+type Props = {
   categoryKey: string;
   config: CategoryConfig;
   expandedSections: Record<string, boolean>;
@@ -27,12 +20,6 @@ type CategoryConfigEditorPrimarySectionsProps = {
   onUpdateConfig: (
     field: keyof CategoryConfig,
     value: CategoryConfig[keyof CategoryConfig],
-  ) => void;
-  onUpdateThinkingConfig: (
-    field: keyof NonNullable<CategoryConfig['thinking']>,
-    value: NonNullable<CategoryConfig['thinking']>[keyof NonNullable<
-      CategoryConfig['thinking']
-    >],
   ) => void;
 };
 
@@ -42,8 +29,7 @@ export function CategoryConfigEditorPrimarySections({
   expandedSections,
   onToggleSection,
   onUpdateConfig,
-  onUpdateThinkingConfig,
-}: CategoryConfigEditorPrimarySectionsProps) {
+}: Props) {
   return (
     <>
       <Collapsible
@@ -190,107 +176,6 @@ export function CategoryConfigEditorPrimarySections({
                 value={config.variant || ''}
                 onChange={(e) => onUpdateConfig('variant', e.target.value)}
                 placeholder="Enter variant"
-              />
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Separator />
-
-      <Collapsible
-        open={expandedSections.advanced}
-        onOpenChange={() => onToggleSection('advanced')}
-      >
-        <div className="flex items-center gap-2">
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 hover:bg-transparent"
-            >
-              {expandedSections.advanced ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <h3 className="font-semibold">Advanced Settings</h3>
-        </div>
-        <CollapsibleContent className="mt-2 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="reasoningEffort">Reasoning Effort</Label>
-              <Select
-                value={config.reasoningEffort || ''}
-                onValueChange={(value: 'low' | 'medium' | 'high' | 'xhigh') =>
-                  onUpdateConfig('reasoningEffort', value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select effort" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="xhigh">Extra High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="textVerbosity">Text Verbosity</Label>
-              <Select
-                value={config.textVerbosity || ''}
-                onValueChange={(value: 'low' | 'medium' | 'high') =>
-                  onUpdateConfig('textVerbosity', value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select verbosity" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="thinking-type">Thinking</Label>
-              <Select
-                value={config.thinking?.type || 'enabled'}
-                onValueChange={(value: 'enabled' | 'disabled') =>
-                  onUpdateThinkingConfig('type', value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="enabled">Enabled</SelectItem>
-                  <SelectItem value="disabled">Disabled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="budgetTokens">Budget Tokens</Label>
-              <Input
-                id="budgetTokens"
-                type="number"
-                min="0"
-                value={config.thinking?.budgetTokens ?? ''}
-                onChange={(e) =>
-                  onUpdateThinkingConfig(
-                    'budgetTokens',
-                    e.target.value ? parseInt(e.target.value, 10) : undefined,
-                  )
-                }
-                placeholder="Token budget"
               />
             </div>
           </div>

@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
-import { Button } from './button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
-import { Badge } from './badge';
-import { Input } from './input';
+import { useEffect, useState } from 'react';
 import type { ModelConfig } from '../lib/api-client';
+import { Badge } from './badge';
+import { Button } from './button';
+import { Input } from './input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './select';
 
 const NONE_VALUE = '__none__';
 
@@ -28,19 +34,21 @@ export function ModelFallbackSelector({
   const [availableModels, setAvailableModels] = useState<ModelConfig[]>([]);
   const [useCustomModel, setUseCustomModel] = useState(false);
   const [customModelName, setCustomModelName] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadModels() {
       try {
-        const models = await import('../lib/api-client').then(m => m.getAllModels());
+        const models = await import('../lib/api-client').then((m) =>
+          m.getAllModels(),
+        );
         setAvailableModels(models);
       } catch {
       } finally {
         setLoading(false);
       }
     }
-    
+
     loadModels();
   }, []);
 
@@ -89,7 +97,7 @@ export function ModelFallbackSelector({
 
   const getSelectValue = (modelValue: string) => {
     if (!modelValue) return NONE_VALUE;
-    const isKnown = availableModels.some(m => m.modelName === modelValue);
+    const isKnown = availableModels.some((m) => m.modelName === modelValue);
     return isKnown ? modelValue : '__custom__';
   };
 
@@ -127,16 +135,29 @@ export function ModelFallbackSelector({
                   if (e.key === 'Enter') handleCustomModelConfirm();
                 }}
               />
-              <Button type="button" variant="outline" size="sm" onClick={handleCustomModelConfirm}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCustomModelConfirm}
+              >
                 Apply
               </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={clearPrimaryModel}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={clearPrimaryModel}
+              >
                 <X className="h-3 w-3" />
               </Button>
             </div>
           ) : (
             <div className="flex items-center gap-2 flex-1">
-              <Select value={getSelectValue(primaryModel)} onValueChange={handlePrimarySelect}>
+              <Select
+                value={getSelectValue(primaryModel)}
+                onValueChange={handlePrimarySelect}
+              >
                 <SelectTrigger className="flex-1">
                   <SelectValue placeholder="Select primary model" />
                 </SelectTrigger>
@@ -151,7 +172,12 @@ export function ModelFallbackSelector({
                 </SelectContent>
               </Select>
               {primaryModel && (
-                <Button type="button" variant="ghost" size="sm" onClick={clearPrimaryModel}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearPrimaryModel}
+                >
                   <X className="h-3 w-3" />
                 </Button>
               )}
@@ -159,26 +185,38 @@ export function ModelFallbackSelector({
           )}
         </div>
         {primaryModel && !useCustomModel && (
-          <p className="text-xs text-muted-foreground">Current: {primaryModel}</p>
+          <p className="text-xs text-muted-foreground">
+            Current: {primaryModel}
+          </p>
         )}
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium">Fallback Models</label>
-          <Button type="button" variant="outline" size="sm" onClick={addFallbackModel}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addFallbackModel}
+          >
             <Plus className="h-3 w-3" />
             Add Fallback
           </Button>
         </div>
-        
+
         {fallbackModels.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No fallback models configured</p>
+          <p className="text-sm text-muted-foreground">
+            No fallback models configured
+          </p>
         ) : (
           <div className="space-y-2">
             {fallbackModels.map((model, index) => (
               <div key={index} className="flex items-center gap-2">
-                <Select value={getFallbackSelectValue(model)} onValueChange={(value) => updateFallbackModel(index, value)}>
+                <Select
+                  value={getFallbackSelectValue(model)}
+                  onValueChange={(value) => updateFallbackModel(index, value)}
+                >
                   <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Select fallback model" />
                   </SelectTrigger>

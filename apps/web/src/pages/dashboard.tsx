@@ -1,9 +1,9 @@
 import { Badge } from '../components/badge';
+import { Card, CardContent } from '../components/card';
 import { DashboardEfficiencyCharts } from '../components/dashboard/dashboard-efficiency-charts';
 import { DashboardOverviewCards } from '../components/dashboard/dashboard-overview-cards';
 import { DashboardTopEntities } from '../components/dashboard/dashboard-top-entities';
 import { DashboardUsageCharts } from '../components/dashboard/dashboard-usage-charts';
-import { Card, CardContent } from '../components/card';
 import { useDashboardData } from '../hooks/use-dashboard-data';
 
 export function DashboardPage() {

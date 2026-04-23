@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import type { AnalyticsCapabilities } from '../types/analytics';
 import { useServerMode } from '../hooks/use-server-mode';
+import type { AnalyticsCapabilities } from '../types/analytics';
 import { UnavailableFeature } from './unavailable-feature';
 
 interface FeatureGateProps {
@@ -9,7 +9,11 @@ interface FeatureGateProps {
   fallback?: ReactNode;
 }
 
-export function FeatureGate({ capability, children, fallback }: FeatureGateProps) {
+export function FeatureGate({
+  capability,
+  children,
+  fallback,
+}: FeatureGateProps) {
   const { capabilities } = useServerMode();
 
   if (capabilities[capability]) {

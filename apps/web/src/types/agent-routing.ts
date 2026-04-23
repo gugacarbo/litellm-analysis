@@ -70,13 +70,15 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
   {
     key: 'sisyphus',
     name: 'Sisyphus',
-    description: 'Coordenador principal — distribui tarefas e mantém o fluxo da sessão',
+    description:
+      'Coordenador principal — distribui tarefas e mantém o fluxo da sessão',
     icon: '🔄',
   },
   {
     key: 'oracle',
     name: 'Oracle',
-    description: 'Consultor de arquitetura — avalia decisões, trade-offs e caminhos',
+    description:
+      'Consultor de arquitetura — avalia decisões, trade-offs e caminhos',
     icon: '🔮',
   },
   {

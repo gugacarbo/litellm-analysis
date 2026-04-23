@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getAllModels } from '../lib/api-client';
 import type { ModelConfig } from '../types/analytics';
 import {
@@ -32,7 +32,10 @@ export function ModelSelector({
   const [models, setModels] = useState<ModelConfig[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const id = useMemo(() => `model-selector-${Math.random().toString(36).substr(2, 9)}`, []);
+  const id = useMemo(
+    () => `model-selector-${Math.random().toString(36).substr(2, 9)}`,
+    [],
+  );
 
   useEffect(() => {
     async function fetchModels() {
@@ -53,7 +56,7 @@ export function ModelSelector({
   }, []);
 
   const selectedModel = useMemo(() => {
-    return models.find(model => model.modelName === value);
+    return models.find((model) => model.modelName === value);
   }, [models, value]);
 
   useEffect(() => {
@@ -65,13 +68,16 @@ export function ModelSelector({
   return (
     <div className={className}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium mb-2 text-foreground">
+        <label
+          htmlFor={id}
+          className="block text-sm font-medium mb-2 text-foreground"
+        >
           {label}
         </label>
       )}
-      <Select 
-        value={value} 
-        onValueChange={onChange} 
+      <Select
+        value={value}
+        onValueChange={onChange}
         disabled={disabled || isLoading}
       >
         <SelectTrigger id={id} className="w-full">
@@ -95,10 +101,7 @@ export function ModelSelector({
             <>
               {label && <SelectLabel>{label}</SelectLabel>}
               {models.map((model) => (
-                <SelectItem 
-                  key={model.modelName} 
-                  value={model.modelName}
-                >
+                <SelectItem key={model.modelName} value={model.modelName}>
                   {model.modelName}
                 </SelectItem>
               ))}
@@ -106,11 +109,7 @@ export function ModelSelector({
           )}
         </SelectContent>
       </Select>
-      {error && (
-        <p className="mt-1 text-sm text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
     </div>
   );
 }

@@ -1,6 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import type { AnalyticsCapabilities, ServerMode } from '../types/analytics';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { fetchServerMode } from '../lib/server-mode';
+import type { AnalyticsCapabilities, ServerMode } from '../types/analytics';
 
 interface ServerModeState {
   mode: ServerMode;
@@ -12,7 +18,11 @@ interface ServerModeState {
 
 const ServerModeContext = createContext<ServerModeState | null>(null);
 
-export function ServerModeProvider({ children }: { children: React.ReactNode }) {
+export function ServerModeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [state, setState] = useState<{
     mode: ServerMode | null;
     capabilities: AnalyticsCapabilities | null;
@@ -29,10 +39,20 @@ export function ServerModeProvider({ children }: { children: React.ReactNode }) 
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
     fetchServerMode()
       .then((data) => {
-        setState({ mode: data.mode, capabilities: data.capabilities, isLoading: false, error: null });
+        setState({
+          mode: data.mode,
+          capabilities: data.capabilities,
+          isLoading: false,
+          error: null,
+        });
       })
       .catch((err) => {
-        setState({ mode: null, capabilities: null, isLoading: false, error: err instanceof Error ? err : new Error(String(err)) });
+        setState({
+          mode: null,
+          capabilities: null,
+          isLoading: false,
+          error: err instanceof Error ? err : new Error(String(err)),
+        });
       });
   }, []);
 
@@ -42,14 +62,30 @@ export function ServerModeProvider({ children }: { children: React.ReactNode }) 
 
   if (!state.mode || !state.capabilities) {
     return (
-      <ServerModeContext.Provider value={{ mode: 'api-only', capabilities: {} as AnalyticsCapabilities, isLoading: state.isLoading, error: state.error, refetch: load }}>
+      <ServerModeContext.Provider
+        value={{
+          mode: 'api-only',
+          capabilities: {} as AnalyticsCapabilities,
+          isLoading: state.isLoading,
+          error: state.error,
+          refetch: load,
+        }}
+      >
         {children}
       </ServerModeContext.Provider>
     );
   }
 
   return (
-    <ServerModeContext.Provider value={{ mode: state.mode, capabilities: state.capabilities, isLoading: state.isLoading, error: state.error, refetch: load }}>
+    <ServerModeContext.Provider
+      value={{
+        mode: state.mode,
+        capabilities: state.capabilities,
+        isLoading: state.isLoading,
+        error: state.error,
+        refetch: load,
+      }}
+    >
       {children}
     </ServerModeContext.Provider>
   );

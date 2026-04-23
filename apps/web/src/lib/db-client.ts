@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 
 const pool = new Pool({
   host: import.meta.env.VITE_DB_HOST || 'localhost',
-  port: parseInt(import.meta.env.VITE_DB_PORT || '5432'),
+  port: parseInt(import.meta.env.VITE_DB_PORT || '5432', 10),
   database: import.meta.env.VITE_DB_NAME || 'litellm',
   user: import.meta.env.VITE_DB_USER || 'llmproxy',
   password: import.meta.env.VITE_DB_PASSWORD || 'dbpassword9090',
