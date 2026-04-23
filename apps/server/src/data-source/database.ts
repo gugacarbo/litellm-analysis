@@ -7,7 +7,6 @@ import type {
 	SpendByUser,
 	SpendByKey,
 	SpendLogsFilters,
-	SpendLogEntry,
 	SpendLogsResponse,
 	TokenDistribution,
 	PerformanceMetrics,

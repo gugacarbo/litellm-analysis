@@ -9,7 +9,7 @@ export function detectMode(): DataSourceMode {
 		if (accessMode === 'full') return 'database';
 		if (accessMode === 'api-only') return 'api-only';
 		if (accessMode === 'limited') {
-			if (Boolean(process.env.DB_HOST)) return 'database';
+			if (process.env.DB_HOST) return 'database';
 			console.warn(
 				'[data-source] ACCESS_MODE=limited but DB_HOST is not set. Falling back to api-only mode.',
 			);

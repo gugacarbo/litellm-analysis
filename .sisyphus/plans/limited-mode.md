@@ -1146,7 +1146,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(ui): add Limited mode badge to sidebar`
   - Files: `apps/web/src/components/layout/sidebar.tsx`
 
-- [ ] 17. Testar detectMode() com combinações de ACCESS_MODE
+- [x] 17. Testar detectMode() com combinações de ACCESS_MODE
 
   **What to do** (TDD - RED-GREEN-REFACTOR):
   - RED: Criar arquivo de teste para detectMode()
@@ -1200,7 +1200,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `test(mode): add TDD tests for detectMode with ACCESS_MODE`
   - Files: `apps/server/src/data-source/__tests__/detectMode.test.ts` (ou similar)
 
-- [ ] 18. Testar LIMITED_CAPABILITIES
+- [x] 18. Testar LIMITED_CAPABILITIES
 
   **What to do** (TDD):
   - RED: Criar teste para LIMITED_CAPABILITIES
@@ -1253,7 +1253,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `test(capabilities): add TDD tests for LIMITED_CAPABILITIES`
   - Files: `apps/server/src/data-source/__tests__/capabilities.test.ts`
 
-- [ ] 19. Testar endpoints de escrita retornam 403 em limited mode
+- [x] 19. Testar endpoints de escrita retornam 403 em limited mode
 
   **What to do** (TDD):
   - RED: Criar testes de integração para endpoints de escrita
@@ -1304,7 +1304,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `test(api): add TDD tests for write endpoint guards in limited mode`
   - Files: `apps/server/src/api-server/__tests__/write-guards.test.ts`
 
-- [ ] 20. Testar PUT /models/:name funciona em limited mode
+- [x] 20. Testar PUT /models/:name funciona em limited mode
 
   **What to do** (TDD):
   - RED: Criar teste para update em limited mode
@@ -1352,7 +1352,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `test(api): add TDD test for update endpoint in limited mode`
   - Files: `apps/server/src/api-server/__tests__/update-limited.test.ts`
 
-- [ ] 21. Testar UI gates renderizam corretamente
+- [x] 21. Testar UI gates renderizam corretamente
 
   **What to do** (TDD):
   - RED: Criar testes de componente para UI gates

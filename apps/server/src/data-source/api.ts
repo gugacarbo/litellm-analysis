@@ -7,7 +7,6 @@ import type {
 	SpendByUser,
 	SpendByKey,
 	SpendLogsFilters,
-	SpendLogEntry,
 	SpendLogsResponse,
 	TokenDistribution,
 	PerformanceMetrics,
@@ -48,12 +47,6 @@ const API_CAPABILITIES: AnalyticsCapabilities = {
 	mergeModels: false,
 	deleteModelLogs: false,
 };
-
-interface LiteLLMResponse<T> {
-	success: boolean;
-	data?: T;
-	error?: string;
-}
 
 export class ApiDataSource implements AnalyticsDataSource {
 	private apiUrl: string;
@@ -103,7 +96,9 @@ export class ApiDataSource implements AnalyticsDataSource {
 		const modelSet = new Set<string>();
 		dailyMetrics.forEach(day => {
 			if (day.spend_per_model) {
-				Object.keys(day.spend_per_model).forEach(model => modelSet.add(model));
+				for (const model of Object.keys(day.spend_per_model)) {
+					modelSet.add(model);
+				}
 			}
 		});
 
@@ -241,10 +236,12 @@ export class ApiDataSource implements AnalyticsDataSource {
 			if (!modelData.has(model)) {
 				modelData.set(model, { prompt: 0, completion: 0, count: 0 });
 			}
-			const data = modelData.get(model)!;
-			data.prompt += Number(log.prompt_tokens || 0);
-			data.completion += Number(log.completion_tokens || 0);
-			data.count += 1;
+			const data = modelData.get(model);
+			if (data) {
+				data.prompt += Number(log.prompt_tokens || 0);
+				data.completion += Number(log.completion_tokens || 0);
+				data.count += 1;
+			}
 		});
 
 		return Array.from(modelData.entries()).map(([model, data]) => {
@@ -309,10 +306,12 @@ export class ApiDataSource implements AnalyticsDataSource {
 		logs.forEach(log => {
 			if (log.startTime) {
 				const hour = new Date(log.startTime).getHours();
-				const data = hourlyData.get(hour)!;
-				data.count++;
-				data.spend += Number(log.spend || 0);
-				data.tokens += Number(log.total_tokens || 0);
+				const data = hourlyData.get(hour);
+				if (data) {
+					data.count++;
+					data.spend += Number(log.spend || 0);
+					data.tokens += Number(log.total_tokens || 0);
+				}
 			}
 		});
 
@@ -360,10 +359,12 @@ export class ApiDataSource implements AnalyticsDataSource {
 			if (!modelData.has(model)) {
 				modelData.set(model, { spend: 0, tokens: 0, count: 0 });
 			}
-			const data = modelData.get(model)!;
-			data.spend += Number(log.spend || 0);
-			data.tokens += Number(log.total_tokens || 0);
-			data.count++;
+			const data = modelData.get(model);
+			if (data) {
+				data.spend += Number(log.spend || 0);
+				data.tokens += Number(log.total_tokens || 0);
+				data.count++;
+			}
 		});
 
 		return Array.from(modelData.entries()).map(([model, data]) => ({
@@ -416,9 +417,11 @@ export class ApiDataSource implements AnalyticsDataSource {
 				if (!dailyData.has(date)) {
 					dailyData.set(date, { prompt: 0, completion: 0 });
 				}
-				const data = dailyData.get(date)!;
-				data.prompt += Number(log.prompt_tokens || 0);
-				data.completion += Number(log.completion_tokens || 0);
+				const data = dailyData.get(date);
+				if (data) {
+					data.prompt += Number(log.prompt_tokens || 0);
+					data.completion += Number(log.completion_tokens || 0);
+				}
 			});
 
 		return Array.from(dailyData.entries())
@@ -467,28 +470,30 @@ export class ApiDataSource implements AnalyticsDataSource {
 					times: [],
 				});
 			}
-			const data = modelData.get(model)!;
-			data.spend += Number(log.spend || 0);
-			data.prompt += Number(log.prompt_tokens || 0);
-			data.completion += Number(log.completion_tokens || 0);
-			data.count++;
+			const data = modelData.get(model);
+			if (data) {
+				data.spend += Number(log.spend || 0);
+				data.prompt += Number(log.prompt_tokens || 0);
+				data.completion += Number(log.completion_tokens || 0);
+				data.count++;
 
-			if (log.user) data.userSet.add(log.user);
-			if (log.api_key) data.keySet.add(log.api_key);
-			if (log.startTime) data.times.push(new Date(log.startTime).getTime());
+				if (log.user) data.userSet.add(log.user);
+				if (log.api_key) data.keySet.add(log.api_key);
+				if (log.startTime) data.times.push(new Date(log.startTime).getTime());
 
-			if (log.startTime && log.endTime) {
-				const start = new Date(log.startTime).getTime();
-				const end = new Date(log.endTime).getTime();
-				if (end > start) {
-					data.latencies.push(end - start);
+				if (log.startTime && log.endTime) {
+					const start = new Date(log.startTime).getTime();
+					const end = new Date(log.endTime).getTime();
+					if (end > start) {
+						data.latencies.push(end - start);
+					}
 				}
-			}
 
-			if (log.status === 'success') {
-				data.successes++;
-			} else {
-				data.errors++;
+				if (log.status === 'success') {
+					data.successes++;
+				} else {
+					data.errors++;
+				}
 			}
 		});
 
@@ -528,7 +533,7 @@ export class ApiDataSource implements AnalyticsDataSource {
 	async getModels(): Promise<ModelEntry[]> {
 		const response = await this.fetchWithAuth<ModelsResponse>('/v1/models');
 
-		if (!response || !response.data || !Array.isArray(response.data)) {
+		if (!response?.data || !Array.isArray(response.data)) {
 			return [];
 		}
 
