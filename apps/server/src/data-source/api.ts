@@ -8,6 +8,7 @@ import type {
 	SpendByKey,
 	SpendLogsFilters,
 	SpendLogEntry,
+	SpendLogsResponse,
 	TokenDistribution,
 	PerformanceMetrics,
 	HourlyUsagePattern,
@@ -184,7 +185,7 @@ export class ApiDataSource implements AnalyticsDataSource {
 		}));
 	}
 
-	async getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogEntry[]> {
+	async getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse> {
 		const params = new URLSearchParams();
 		if (filters.model) params.append('model', filters.model);
 		if (filters.user) params.append('user', filters.user);
@@ -196,22 +197,29 @@ export class ApiDataSource implements AnalyticsDataSource {
 		const logs = await this.fetchWithAuth<SpendLogResponse[]>(`/spend/logs?${params.toString()}`);
 
 		if (!logs || !Array.isArray(logs)) {
-			return [];
+			return { logs: [], pagination: { total: 0, page: 1, page_size: filters.limit || 100, total_pages: 0 } };
 		}
 
-		return logs.map(log => ({
-			request_id: log.request_id,
-			model: log.model,
-			user: log.user || null,
-			total_tokens: log.total_tokens !== null ? Number(log.total_tokens) : null,
-			prompt_tokens: log.prompt_tokens !== null ? Number(log.prompt_tokens) : null,
-			completion_tokens: log.completion_tokens !== null ? Number(log.completion_tokens) : null,
-			spend: Number(log.spend || log.total_spend || 0),
-			start_time: log.startTime ? new Date(log.startTime).toISOString() : '',
-			end_time: log.endTime ? new Date(log.endTime).toISOString() : null,
-			api_key: log.api_key || null,
-			status: log.status || 'unknown',
-		}));
+		return {
+			logs: logs.map(log => ({
+				request_id: log.request_id,
+				model: log.model,
+				user: log.user || null,
+				total_tokens: log.total_tokens !== null ? Number(log.total_tokens) : null,
+				prompt_tokens: log.prompt_tokens !== null ? Number(log.prompt_tokens) : null,
+				completion_tokens: log.completion_tokens !== null ? Number(log.completion_tokens) : null,
+				spend: Number(log.spend || log.total_spend || 0),
+				start_time: log.startTime ? new Date(log.startTime).toISOString() : '',
+				end_time: log.endTime ? new Date(log.endTime).toISOString() : null,
+				api_key: log.api_key || null,
+				status: log.status || 'unknown',
+			})),
+			pagination: { total: 0, page: 1, page_size: filters.limit || 100, total_pages: 0 },
+		};
+	}
+
+	async getSpendLogsCount(_filters: SpendLogsFilters): Promise<number> {
+		return 0;
 	}
 
 	async getTokenDistribution(): Promise<TokenDistribution[]> {

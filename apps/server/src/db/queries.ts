@@ -69,6 +69,36 @@ export async function getSpendLogs(params: {
 	return result;
 }
 
+export async function getSpendLogsCount(params: {
+	model?: string;
+	user?: string;
+	startDate?: string;
+	endDate?: string;
+}): Promise<number> {
+	const conditions = [];
+
+	if (params.model) {
+		conditions.push(eq(spendLogs.model, params.model));
+	}
+	if (params.user) {
+		conditions.push(eq(spendLogs.user, params.user));
+	}
+	if (params.startDate) {
+		conditions.push(gte(spendLogs.startTime, sql`${params.startDate}::timestamp`));
+	}
+	if (params.endDate) {
+		conditions.push(sql`${spendLogs.startTime} <= ${params.endDate}::timestamp`);
+	}
+
+	const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+	const result = await db
+		.select({ count: sql`COUNT(*)`.mapWith(Number) })
+		.from(spendLogs)
+		.where(whereClause);
+	return result[0]?.count || 0;
+}
+
 export async function getSpendByUser() {
 	const result = await db
 		.select({

@@ -8,6 +8,7 @@ import type {
 	SpendByKey,
 	SpendLogsFilters,
 	SpendLogEntry,
+	SpendLogsResponse,
 	TokenDistribution,
 	PerformanceMetrics,
 	HourlyUsagePattern,
@@ -27,6 +28,7 @@ import {
 	getSpendByUser,
 	getSpendByKey,
 	getSpendLogs,
+	getSpendLogsCount,
 	getTokenDistribution,
 	getPerformanceMetrics,
 	getHourlyUsagePatterns,
@@ -109,16 +111,32 @@ export class DatabaseDataSource implements AnalyticsDataSource {
 		}));
 	}
 
-	async getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogEntry[]> {
-		const result = await getSpendLogs({
+	async getSpendLogsCount(filters: SpendLogsFilters): Promise<number> {
+		return getSpendLogsCount({
 			model: filters.model,
 			user: filters.user,
 			startDate: filters.startDate,
 			endDate: filters.endDate,
-			limit: filters.limit,
-			offset: filters.offset,
 		});
-		return result.map((item) => ({
+	}
+
+	async getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse> {
+		const limit = filters.limit ?? 50;
+		const offset = filters.offset ?? 0;
+
+		const [result, total] = await Promise.all([
+			getSpendLogs({
+				model: filters.model,
+				user: filters.user,
+				startDate: filters.startDate,
+				endDate: filters.endDate,
+				limit,
+				offset,
+			}),
+			this.getSpendLogsCount(filters),
+		]);
+
+		const logs = result.map((item) => ({
 			request_id: item.request_id,
 			model: item.model,
 			user: item.user,
@@ -131,6 +149,16 @@ export class DatabaseDataSource implements AnalyticsDataSource {
 			api_key: item.api_key,
 			status: item.status,
 		}));
+
+		return {
+			logs,
+			pagination: {
+				total,
+				page: Math.floor(offset / limit) + 1,
+				page_size: limit,
+				total_pages: total === 0 ? 0 : Math.ceil(total / limit),
+			},
+		};
 	}
 
 	async getTokenDistribution(): Promise<TokenDistribution[]> {

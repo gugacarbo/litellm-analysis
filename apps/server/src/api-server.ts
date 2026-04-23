@@ -22,6 +22,21 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
   });
 
+  app.get('/spend/logs/count', async (req, res) => {
+    try {
+      const { model, user, startDate, endDate } = req.query;
+      const count = await dataSource.getSpendLogsCount({
+        model: model as string,
+        user: user as string,
+        startDate: startDate as string,
+        endDate: endDate as string,
+      });
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
   app.get('/spend/logs', async (req, res) => {
     try {
       const { model, user, startDate, endDate, limit, offset } = req.query;
