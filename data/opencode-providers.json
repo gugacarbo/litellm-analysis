@@ -77,7 +77,7 @@
           "id": "sisyphus/gpt-5.4",
           "name": "Sisyphus Model",
           "limit": {
-            "output": 50000,
+            "output": 32768,
             "context": 200000
           }
         },
@@ -85,7 +85,7 @@
           "id": "sisyphus/gpt-5.3",
           "name": "Sisyphus Model 2",
           "limit": {
-            "output": 50000,
+            "output": 32768,
             "context": 200000
           }
         },
@@ -93,7 +93,7 @@
           "id": "sisyphus/gpt-5.2",
           "name": "Sisyphus Model 3",
           "limit": {
-            "output": 50000,
+            "output": 32768,
             "context": 200000
           }
         },
@@ -101,7 +101,7 @@
           "id": "sisyphus/gpt-5.1",
           "name": "Sisyphus Model 4",
           "limit": {
-            "output": 50000,
+            "output": 32768,
             "context": 200000
           }
         }

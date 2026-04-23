@@ -28,10 +28,16 @@ export function useAgentRoutingDerived(
   resolvedAgentConfigs: Record<string, AgentConfig>,
   resolvedCategoryConfigs: Record<string, CategoryConfig>,
 ) {
-  const customAliases = useMemo(
-    () => Object.entries(aliases).filter(([key]) => !KNOWN_KEYS.has(key)),
-    [aliases],
-  );
+  const customAliases = useMemo(() => {
+    const knownPrefixes = [
+      ...AGENT_DEFINITIONS.map((a) => `${a.key}/`),
+      ...CATEGORY_DEFINITIONS.map((c) => `${c.key}/`),
+    ];
+    return Object.entries(aliases).filter(([key]) => {
+      if (KNOWN_KEYS.has(key)) return false;
+      return !knownPrefixes.some((prefix) => key.startsWith(prefix));
+    });
+  }, [aliases]);
 
   const getAgentConfigInfo = useCallback(
     (key: string): ConfigInfo | null => {

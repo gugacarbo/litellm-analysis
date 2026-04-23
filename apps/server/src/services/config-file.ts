@@ -242,7 +242,7 @@ function buildAgentModels(
       id: `${providerKey}/${modelName}`,
       name: displayName,
       limit: {
-        output: 50000,
+        output: 32768,
         context: 200000,
       },
     };
@@ -332,13 +332,13 @@ const MODEL_SPECS: Record<
   string,
   { context_length: number; output: number; family?: string; displayName?: string; owned_by?: string }
 > = {
-  'minimax-m2.7-highspeed': { context_length: 204000, output: 8192, displayName: 'MiniMax M2.7' },
-  'qwen3-coder-plus':       { context_length: 800000, output: 8192, displayName: 'Qwen 3 Coder+' },
-  'qwen3.5-plus':           { context_length: 800000, output: 8192, displayName: 'Qwen 3.5+' },
-  'kimi-k2.5':              { context_length: 260000, output: 8192, displayName: 'Kimi K2.5' },
-  'glm-5':                  { context_length: 80000,  output: 8192, family: 'z.ai', displayName: 'GLM 5' },
-  'glm-5-turbo':            { context_length: 200000, output: 8192, family: 'z.ai', displayName: 'GLM 5 Turbo' },
-  'glm-5.1':                { context_length: 200000, output: 8192, family: 'z.ai', displayName: 'GLM 5.1' },
+  'minimax-m2.7-highspeed': { context_length: 204000, output: 32768, displayName: 'MiniMax M2.7' },
+  'qwen3-coder-plus':       { context_length: 800000, output: 32768, displayName: 'Qwen 3 Coder+' },
+  'qwen3.5-plus':           { context_length: 800000, output: 32768, displayName: 'Qwen 3.5+' },
+  'kimi-k2.5':              { context_length: 260000, output: 32768, displayName: 'Kimi K2.5' },
+  'glm-5':                  { context_length: 80000,  output: 32768, family: 'z.ai', displayName: 'GLM 5' },
+  'glm-5-turbo':            { context_length: 200000, output: 32768, family: 'z.ai', displayName: 'GLM 5 Turbo' },
+  'glm-5.1':                { context_length: 200000, output: 32768, family: 'z.ai', displayName: 'GLM 5.1' },
 };
 
 function humanize(str: string): string {
@@ -373,7 +373,7 @@ function buildVscodeModelsArray(
       limit: {
         output: params.max_tokens
           ? Number(params.max_tokens)
-          : (spec?.output ?? 8192),
+          : (spec?.output ?? 32768),
       },
       ...(spec?.family ? { family: spec.family } : {}),
     };
@@ -399,7 +399,7 @@ function buildVscodeModelsArray(
         baseUrl,
         apiMode: 'openai',
         context_length: 200000,
-        limit: { output: 8192 },
+        limit: { output: 32768 },
       });
     }
   }
@@ -422,7 +422,7 @@ function buildVscodeModelsArray(
         baseUrl,
         apiMode: 'openai',
         context_length: 200000,
-        limit: { output: 8192 },
+        limit: { output: 32768 },
       });
     }
   }

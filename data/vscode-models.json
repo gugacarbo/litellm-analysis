@@ -18,7 +18,7 @@
       "apiMode": "openai",
       "context_length": 80000,
       "limit": {
-        "output": 8192
+        "output": 32768
       },
       "family": "z.ai"
     },
@@ -30,7 +30,7 @@
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 8192
+        "output": 32768
       },
       "family": "z.ai"
     },
@@ -42,7 +42,7 @@
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 8192
+        "output": 32768
       },
       "family": "z.ai"
     },
@@ -54,7 +54,7 @@
       "apiMode": "openai",
       "context_length": 260000,
       "limit": {
-        "output": 8192
+        "output": 32768
       }
     },
     {
@@ -65,7 +65,7 @@
       "apiMode": "openai",
       "context_length": 204000,
       "limit": {
-        "output": 8192
+        "output": 32768
       }
     },
     {
@@ -76,7 +76,7 @@
       "apiMode": "openai",
       "context_length": 800000,
       "limit": {
-        "output": 8192
+        "output": 32768
       }
     },
     {
@@ -87,7 +87,7 @@
       "apiMode": "openai",
       "context_length": 800000,
       "limit": {
-        "output": 8192
+        "output": 32768
       }
     },
     {
@@ -98,7 +98,7 @@
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 8192
+        "output": 32768
       }
     },
     {
@@ -109,7 +109,7 @@
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 8192
+        "output": 32768
       }
     },
     {
@@ -120,7 +120,7 @@
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 8192
+        "output": 32768
       }
     },
     {
@@ -131,7 +131,7 @@
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 8192
+        "output": 32768
       }
     }
   ]
