@@ -208,6 +208,7 @@ export interface AnalyticsCapabilities {
 	mergeModels: boolean;
 	deleteModelLogs: boolean;
 	agentRouting: boolean;
+	agentConfigFile: boolean;
 }
 
 export type DataSourceMode = 'database' | 'api-only' | 'limited';

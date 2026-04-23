@@ -72,6 +72,7 @@ export const DATABASE_CAPABILITIES: AnalyticsCapabilities = {
 	mergeModels: true,
 	deleteModelLogs: true,
 	agentRouting: true,
+	agentConfigFile: true,
 };
 
 export const LIMITED_CAPABILITIES: AnalyticsCapabilities = {
@@ -100,6 +101,7 @@ export const LIMITED_CAPABILITIES: AnalyticsCapabilities = {
 	mergeModels: false,
 	deleteModelLogs: false,
 	agentRouting: false,
+	agentConfigFile: false,
 };
 
 export class DatabaseDataSource implements AnalyticsDataSource {
@@ -362,5 +364,37 @@ export class DatabaseDataSource implements AnalyticsDataSource {
 	async updateAgentRoutingConfig(modelGroupAlias: Record<string, string>): Promise<void> {
 		const { updateRouterSettings } = await import('../db/queries');
 		await updateRouterSettings(modelGroupAlias);
+	}
+
+	async getAgentConfigs(): Promise<Record<string, unknown>> {
+		const { readConfigFile } = await import('../services/config-file.js');
+		const config = await readConfigFile();
+		return config.agents || {};
+	}
+
+	async getCategoryConfigs(): Promise<Record<string, unknown>> {
+		const { readConfigFile } = await import('../services/config-file.js');
+		const config = await readConfigFile();
+		return config.categories || {};
+	}
+
+	async updateAgentConfig(agentKey: string, config: Record<string, unknown>): Promise<void> {
+		const { updateAgentInConfig } = await import('../services/config-file.js');
+		await updateAgentInConfig(agentKey, config as any);
+	}
+
+	async updateCategoryConfig(categoryKey: string, config: Record<string, unknown>): Promise<void> {
+		const { updateCategoryInConfig } = await import('../services/config-file.js');
+		await updateCategoryInConfig(categoryKey, config as any);
+	}
+
+	async deleteAgentConfig(agentKey: string): Promise<void> {
+		const { deleteAgentFromConfig } = await import('../services/config-file.js');
+		await deleteAgentFromConfig(agentKey);
+	}
+
+	async deleteCategoryConfig(categoryKey: string): Promise<void> {
+		const { deleteCategoryFromConfig } = await import('../services/config-file.js');
+		await deleteCategoryFromConfig(categoryKey);
 	}
 }

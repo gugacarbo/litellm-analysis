@@ -1,4 +1,5 @@
 import type { SpendLog, PaginationMetadata } from '../types/analytics';
+import type { AgentConfig, CategoryConfig } from '../types/agent-routing';
 
 const API_BASE = '/api';
 
@@ -286,11 +287,11 @@ export type AgentRoutingAPIResponse = {
 };
 
 export async function getAgentRoutingConfig(): Promise<AgentRoutingAPIResponse> {
-  const data = await fetchApi<AgentRoutingAPIResponse>('/agent-routing');
+  const data = await fetchApi<any>('/agent-routing');
   if ('model_group_alias' in data) {
     return data.model_group_alias as AgentRoutingAPIResponse;
   }
-  return data;
+  return data as AgentRoutingAPIResponse;
 }
 
 export async function updateAgentRoutingConfig(modelGroupAlias: AgentRoutingAPIResponse): Promise<{ success: boolean }> {
@@ -300,5 +301,69 @@ export async function updateAgentRoutingConfig(modelGroupAlias: AgentRoutingAPIR
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ model_group_alias: modelGroupAlias }),
+  });
+}
+
+export type AgentConfigResponse = {
+  type: 'agent' | 'category';
+  key: string;
+  config: AgentConfig;
+};
+
+export type CategoryConfigResponse = {
+  type: 'category';
+  key: string;
+  config: CategoryConfig;
+};
+
+// Agent Configuration API
+export type AgentConfigType = 'agent' | 'category';
+
+export async function getAgentConfig(): Promise<{
+  agents: Record<string, AgentConfig>;
+  categories: Record<string, CategoryConfig>;
+}> {
+  return fetchApi('/agent-config');
+}
+
+export async function getAgentConfigByKey(key: string): Promise<{
+  type: AgentConfigType;
+  key: string;
+  config: AgentConfig | CategoryConfig;
+}> {
+  return fetchApi(`/agent-config/${key}`);
+}
+
+export async function updateAgentConfig(
+  key: string, 
+  type: AgentConfigType, 
+  config: AgentConfig | CategoryConfig,
+  syncAliases: boolean = true
+): Promise<{ success: boolean }> {
+  return fetchApi(`/agent-config/${key}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ type, config, syncAliases }),
+  });
+}
+
+export async function deleteAgentConfig(
+  key: string,
+  type: AgentConfigType
+): Promise<{ success: boolean }> {
+  return fetchApi(`/agent-config/${key}?type=${type}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function saveAllAgentConfigs(
+  agents: Record<string, AgentConfig>,
+  categories: Record<string, CategoryConfig>
+): Promise<{ success: boolean }> {
+  return fetchApi('/agent-config', {
+    method: 'PUT',
+    body: JSON.stringify({ agents, categories }),
   });
 }

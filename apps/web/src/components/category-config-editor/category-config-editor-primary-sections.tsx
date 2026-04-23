@@ -1,0 +1,301 @@
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import type { CategoryConfig } from '../../types/agent-routing';
+import { Button } from '../button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '../collapsible';
+import { Input } from '../input';
+import { Label } from '../label';
+import { ModelFallbackSelector } from '../model-fallback-selector';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../select';
+import { Separator } from '../separator';
+import { Textarea } from '../textarea';
+
+type CategoryConfigEditorPrimarySectionsProps = {
+  categoryKey: string;
+  config: CategoryConfig;
+  expandedSections: Record<string, boolean>;
+  onToggleSection: (section: string) => void;
+  onUpdateConfig: (
+    field: keyof CategoryConfig,
+    value: CategoryConfig[keyof CategoryConfig],
+  ) => void;
+  onUpdateThinkingConfig: (
+    field: keyof NonNullable<CategoryConfig['thinking']>,
+    value: NonNullable<CategoryConfig['thinking']>[keyof NonNullable<
+      CategoryConfig['thinking']
+    >],
+  ) => void;
+};
+
+export function CategoryConfigEditorPrimarySections({
+  categoryKey,
+  config,
+  expandedSections,
+  onToggleSection,
+  onUpdateConfig,
+  onUpdateThinkingConfig,
+}: CategoryConfigEditorPrimarySectionsProps) {
+  return (
+    <>
+      <Collapsible
+        open={expandedSections.basic}
+        onOpenChange={() => onToggleSection('basic')}
+      >
+        <div className="flex items-center gap-2">
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 hover:bg-transparent"
+            >
+              {expandedSections.basic ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <h3 className="font-semibold">Basic Information</h3>
+        </div>
+        <CollapsibleContent className="mt-2 space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 pt-2">
+              <input
+                type="checkbox"
+                checked={!!config.is_unstable_agent}
+                onChange={(e) =>
+                  onUpdateConfig('is_unstable_agent', e.target.checked)
+                }
+                className="h-4 w-4"
+              />
+              <Label>Is Unstable Agent</Label>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={config.description || ''}
+              onChange={(e) => onUpdateConfig('description', e.target.value)}
+              placeholder="Enter description"
+              rows={3}
+            />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Separator />
+
+      <Collapsible
+        open={expandedSections.model}
+        onOpenChange={() => onToggleSection('model')}
+      >
+        <div className="flex items-center gap-2">
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 hover:bg-transparent"
+            >
+              {expandedSections.model ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <h3 className="font-semibold">Model Configuration</h3>
+        </div>
+        <CollapsibleContent className="mt-2 space-y-4">
+          <ModelFallbackSelector
+            primaryModel={config.model || ''}
+            fallbackModels={config.fallback_models || []}
+            onPrimaryModelChange={(model) => onUpdateConfig('model', model)}
+            onFallbackModelsChange={(models) =>
+              onUpdateConfig('fallback_models', models)
+            }
+            agentKey={categoryKey}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="temperature">Temperature</Label>
+              <Input
+                id="temperature"
+                type="number"
+                min="0"
+                max="2"
+                step="0.1"
+                value={config.temperature ?? ''}
+                onChange={(e) =>
+                  onUpdateConfig(
+                    'temperature',
+                    e.target.value ? parseFloat(e.target.value) : undefined,
+                  )
+                }
+                placeholder="0.0 - 2.0"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="top_p">Top P</Label>
+              <Input
+                id="top_p"
+                type="number"
+                min="0"
+                max="1"
+                step="0.01"
+                value={config.top_p ?? ''}
+                onChange={(e) =>
+                  onUpdateConfig(
+                    'top_p',
+                    e.target.value ? parseFloat(e.target.value) : undefined,
+                  )
+                }
+                placeholder="0.0 - 1.0"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maxTokens">Max Tokens</Label>
+              <Input
+                id="maxTokens"
+                type="number"
+                min="0"
+                value={config.maxTokens ?? ''}
+                onChange={(e) =>
+                  onUpdateConfig(
+                    'maxTokens',
+                    e.target.value ? parseInt(e.target.value, 10) : undefined,
+                  )
+                }
+                placeholder="Max tokens"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="variant">Variant</Label>
+              <Input
+                id="variant"
+                value={config.variant || ''}
+                onChange={(e) => onUpdateConfig('variant', e.target.value)}
+                placeholder="Enter variant"
+              />
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Separator />
+
+      <Collapsible
+        open={expandedSections.advanced}
+        onOpenChange={() => onToggleSection('advanced')}
+      >
+        <div className="flex items-center gap-2">
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 hover:bg-transparent"
+            >
+              {expandedSections.advanced ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <h3 className="font-semibold">Advanced Settings</h3>
+        </div>
+        <CollapsibleContent className="mt-2 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="reasoningEffort">Reasoning Effort</Label>
+              <Select
+                value={config.reasoningEffort || ''}
+                onValueChange={(value: 'low' | 'medium' | 'high' | 'xhigh') =>
+                  onUpdateConfig('reasoningEffort', value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select effort" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="xhigh">Extra High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="textVerbosity">Text Verbosity</Label>
+              <Select
+                value={config.textVerbosity || ''}
+                onValueChange={(value: 'low' | 'medium' | 'high') =>
+                  onUpdateConfig('textVerbosity', value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select verbosity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="thinking-type">Thinking</Label>
+              <Select
+                value={config.thinking?.type || 'enabled'}
+                onValueChange={(value: 'enabled' | 'disabled') =>
+                  onUpdateThinkingConfig('type', value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="enabled">Enabled</SelectItem>
+                  <SelectItem value="disabled">Disabled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="budgetTokens">Budget Tokens</Label>
+              <Input
+                id="budgetTokens"
+                type="number"
+                min="0"
+                value={config.thinking?.budgetTokens ?? ''}
+                onChange={(e) =>
+                  onUpdateThinkingConfig(
+                    'budgetTokens',
+                    e.target.value ? parseInt(e.target.value, 10) : undefined,
+                  )
+                }
+                placeholder="Token budget"
+              />
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </>
+  );
+}

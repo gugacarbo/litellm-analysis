@@ -20,6 +20,7 @@ import type {
 	ErrorLogEntry,
 	ModelDetail,
 } from './types';
+import type { AgentConfig, CategoryConfig, AgentConfigFile } from '../services/config-file';
 
 const API_CAPABILITIES: AnalyticsCapabilities = {
 	spendByModel: true,
@@ -47,6 +48,7 @@ const API_CAPABILITIES: AnalyticsCapabilities = {
 	mergeModels: false,
 	deleteModelLogs: false,
 	agentRouting: false,
+	agentConfigFile: false,
 };
 
 export class ApiDataSource implements AnalyticsDataSource {
@@ -574,6 +576,30 @@ export class ApiDataSource implements AnalyticsDataSource {
 
 	async updateAgentRoutingConfig(_config: Record<string, unknown>): Promise<void> {
 		throw new Error('Agent routing config updates are not supported in API-only mode');
+	}
+
+	async getAgentConfigs(): Promise<Record<string, unknown>> {
+		throw new Error('Config file access is not supported in API-only mode');
+	}
+
+	async getCategoryConfigs(): Promise<Record<string, unknown>> {
+		throw new Error('Config file access is not supported in API-only mode');
+	}
+
+	async updateAgentConfig(_agentKey: string, _config: Record<string, unknown>): Promise<void> {
+		throw new Error('Config file updates are not supported in API-only mode');
+	}
+
+	async updateCategoryConfig(_categoryKey: string, _config: Record<string, unknown>): Promise<void> {
+		throw new Error('Config file updates are not supported in API-only mode');
+	}
+
+	async deleteAgentConfig(_agentKey: string): Promise<void> {
+		throw new Error('Config file updates are not supported in API-only mode');
+	}
+
+	async deleteCategoryConfig(_categoryKey: string): Promise<void> {
+		throw new Error('Config file updates are not supported in API-only mode');
 	}
 }
 

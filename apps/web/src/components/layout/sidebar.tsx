@@ -1,32 +1,52 @@
-import { Card, CardContent } from '../../components/card';
-import { Activity, AlertCircle, BarChart3, FileText, GitBranch, Settings } from 'lucide-react';
+import {
+  Activity,
+  AlertCircle,
+  BarChart3,
+  FileText,
+  GitBranch,
+  Settings,
+} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { useServerMode } from '../../hooks/use-server-mode';
 import { Badge } from '../../components/badge';
-
-
+import { Card, CardContent } from '../../components/card';
+import { useServerMode } from '../../hooks/use-server-mode';
 
 export function Sidebar() {
   const { mode, capabilities, isLoading } = useServerMode();
-  
+
   const navItems = [
     { to: '/', icon: Activity, label: 'Dashboard' },
     { to: '/model-stats', icon: BarChart3, label: 'Model Stats' },
     { to: '/logs', icon: FileText, label: 'Spend Logs' },
-    ...(capabilities.errorLogs ? [{ to: '/errors', icon: AlertCircle, label: 'Errors' }] : []),
+    ...(capabilities.errorLogs
+      ? [{ to: '/errors', icon: AlertCircle, label: 'Errors' }]
+      : []),
     { to: '/models', icon: Settings, label: 'Models' },
-    ...(capabilities.agentRouting ? [{ to: '/agent-routing', icon: GitBranch, label: 'Agent Routing' }] : []),
+    ...(capabilities.agentRouting
+      ? [{ to: '/agent-routing', icon: GitBranch, label: 'Agent Routing' }]
+      : []),
   ];
 
   return (
     <aside className="w-64 min-h-screen border-l bg-muted/10 p-4">
       <Card>
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center mb-4">
+        <CardContent className="px-3 py-0 gap-4 flex flex-col">
+          <div className="flex gap-1 flex-col">
             <h2 className="font-bold text-lg">LiteLLM Stats</h2>
             {!isLoading ? (
-              <Badge className={mode === 'limited' ? 'bg-amber-500/15 text-amber-600 border-amber-500/30' : ''} variant={mode === 'database' ? 'default' : 'secondary'}>
-                {mode === 'database' ? '🟢 Full Access' : mode === 'limited' ? '🟠 Limited' : '🟡 API Mode'}
+              <Badge
+                className={
+                  mode === 'limited'
+                    ? 'bg-amber-500/15 text-amber-600 border-amber-500/30'
+                    : ''
+                }
+                variant={mode === 'database' ? 'default' : 'secondary'}
+              >
+                {mode === 'database'
+                  ? '🟢 Full Access'
+                  : mode === 'limited'
+                    ? '🟠 Limited'
+                    : '🟡 API Mode'}
               </Badge>
             ) : (
               <Badge variant="outline">Loading...</Badge>

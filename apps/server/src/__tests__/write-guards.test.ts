@@ -31,6 +31,12 @@ function createMockDataSource(capabilities: AnalyticsCapabilities): AnalyticsDat
     deleteModelLogs: vi.fn().mockResolvedValue(undefined),
     getAgentRoutingConfig: vi.fn().mockResolvedValue({}),
     updateAgentRoutingConfig: vi.fn().mockResolvedValue(undefined),
+    getAgentConfigs: vi.fn().mockResolvedValue({}),
+    getCategoryConfigs: vi.fn().mockResolvedValue({}),
+    updateAgentConfig: vi.fn().mockResolvedValue(undefined),
+    updateCategoryConfig: vi.fn().mockResolvedValue(undefined),
+    deleteAgentConfig: vi.fn().mockResolvedValue(undefined),
+    deleteCategoryConfig: vi.fn().mockResolvedValue(undefined),
   };
 }
 

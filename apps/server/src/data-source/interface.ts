@@ -48,4 +48,10 @@ export interface AnalyticsDataSource {
 	deleteModelLogs(modelName: string): Promise<void>;
 	getAgentRoutingConfig(): Promise<Record<string, unknown> | null>;
 	updateAgentRoutingConfig(config: Record<string, unknown>): Promise<void>;
+	getAgentConfigs(): Promise<Record<string, unknown>>;
+	getCategoryConfigs(): Promise<Record<string, unknown>>;
+	updateAgentConfig(agentKey: string, config: Record<string, unknown>): Promise<void>;
+	updateCategoryConfig(categoryKey: string, config: Record<string, unknown>): Promise<void>;
+	deleteAgentConfig(agentKey: string): Promise<void>;
+	deleteCategoryConfig(categoryKey: string): Promise<void>;
 }

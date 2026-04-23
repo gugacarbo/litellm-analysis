@@ -1,14 +1,14 @@
-import { TooltipProvider } from './components/tooltip';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Sidebar } from './components/layout/sidebar';
+import { TooltipProvider } from './components/tooltip';
+import { ServerModeProvider } from './hooks/use-server-mode';
+import { AgentRoutingPage } from './pages/agent-routing';
 import { DashboardPage } from './pages/dashboard';
 import { ErrorsPage } from './pages/errors';
 import { LogsPage } from './pages/logs';
 import { ModelDetailPage } from './pages/model-detail';
 import { ModelStatsPage } from './pages/model-stats';
 import { ModelsPage } from './pages/models';
-import { AgentRoutingPage } from './pages/agent-routing';
-import { ServerModeProvider } from './hooks/use-server-mode';
 
 function App() {
   return (
