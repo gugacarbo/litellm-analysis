@@ -1,51 +1,97 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Settings } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { AgentRoutingAliasDialog } from '../components/agent-routing/agent-routing-alias-dialog';
+import { AgentRoutingAliasesTab } from '../components/agent-routing/agent-routing-aliases-tab';
 import { ModelFormDialog } from '../components/models/model-form-dialog';
 import { ModelsTableCard } from '../components/models/models-table-card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/tabs';
 import { useServerMode } from '../hooks/use-server-mode';
 import {
+  type AgentRoutingAPIResponse,
   createModel,
   deleteModel,
+  getAgentRoutingConfig,
   getAllModels,
   type ModelConfig,
+  updateAgentRoutingConfig,
   updateModel,
 } from '../lib/api-client';
+import { queryKeys } from '../lib/query-keys';
+import {
+  AGENT_DEFINITIONS,
+  CATEGORY_DEFINITIONS,
+} from '../types/agent-routing';
 import {
   EMPTY_MODEL_FORM_DATA,
   FIXED_KEYS,
   type ModelFormData,
 } from './models/model-form-data';
 
+const KNOWN_ALIAS_KEYS = new Set([
+  ...AGENT_DEFINITIONS.map((a) => a.key),
+  ...CATEGORY_DEFINITIONS.map((c) => c.key),
+]);
+
+const KNOWN_ALIAS_PREFIXES = [
+  ...AGENT_DEFINITIONS.map((a) => `${a.key}/`),
+  ...CATEGORY_DEFINITIONS.map((c) => `${c.key}/`),
+];
+
 export function ModelsPage() {
-  const [models, setModels] = useState<ModelConfig[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { mode, capabilities } = useServerMode();
+
+  const modelsQuery = useQuery({
+    queryKey: queryKeys.models,
+    queryFn: getAllModels,
+  });
+
+  const aliasesQuery = useQuery({
+    queryKey: queryKeys.agentRoutingAliases,
+    queryFn: getAgentRoutingConfig,
+    enabled: capabilities.agentRouting,
+  });
+
+  const createModelMutation = useMutation({
+    mutationFn: (model: ModelConfig) => createModel(model),
+  });
+
+  const updateModelMutation = useMutation({
+    mutationFn: (params: {
+      modelName: string;
+      litellmParams: Record<string, unknown>;
+      newName?: string;
+    }) => updateModel(params.modelName, params.litellmParams, params.newName),
+  });
+
+  const deleteModelMutation = useMutation({
+    mutationFn: (modelName: string) => deleteModel(modelName),
+  });
+
+  const updateAgentRoutingMutation = useMutation({
+    mutationFn: (modelGroupAlias: AgentRoutingAPIResponse) =>
+      updateAgentRoutingConfig(modelGroupAlias),
+  });
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingModel, setEditingModel] = useState<ModelConfig | null>(null);
   const [deleteModelName, setDeleteModelName] = useState<string | null>(null);
-  const { mode } = useServerMode();
-  const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [aliasMutationError, setAliasMutationError] = useState<string | null>(
+    null,
+  );
+  const [aliasDialogOpen, setAliasDialogOpen] = useState(false);
+  const [aliasDialogMode, setAliasDialogMode] = useState<'add' | 'edit'>('add');
+  const [aliasDialogKey, setAliasDialogKey] = useState('');
+  const [aliasDialogValue, setAliasDialogValue] = useState('');
   const [formData, setFormData] = useState<ModelFormData>(
     EMPTY_MODEL_FORM_DATA,
   );
 
-  const loadModels = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await getAllModels();
-      setModels(data);
-      setError(null);
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadModels();
-  }, [loadModels]);
+  const formLoading =
+    createModelMutation.isPending || updateModelMutation.isPending;
 
   function handleOpenCreate() {
     setEditingModel(null);
@@ -77,13 +123,12 @@ export function ModelsPage() {
   }
 
   async function handleSubmit() {
-    setFormLoading(true);
     setFormError(null);
+    setMutationError(null);
 
     try {
       if (!formData.modelName.trim()) {
         setFormError('Model name is required');
-        setFormLoading(false);
         return;
       }
 
@@ -96,12 +141,10 @@ export function ModelsPage() {
 
       if (formData.inputCostPerToken && Number.isNaN(inputCost)) {
         setFormError('Input cost must be a valid number');
-        setFormLoading(false);
         return;
       }
       if (formData.outputCostPerToken && Number.isNaN(outputCost)) {
         setFormError('Output cost must be a valid number');
-        setFormLoading(false);
         return;
       }
 
@@ -128,20 +171,23 @@ export function ModelsPage() {
           mode === 'limited' && formData.modelName !== editingModel.modelName
             ? formData.modelName
             : undefined;
-        await updateModel(editingModel.modelName, params, newName);
+
+        await updateModelMutation.mutateAsync({
+          modelName: editingModel.modelName,
+          litellmParams: params,
+          newName,
+        });
       } else {
-        await createModel({
+        await createModelMutation.mutateAsync({
           modelName: formData.modelName.trim(),
           litellmParams: params,
         });
       }
 
+      await queryClient.invalidateQueries({ queryKey: queryKeys.models });
       setDialogOpen(false);
-      await loadModels();
     } catch (e) {
       setFormError(String(e));
-    } finally {
-      setFormLoading(false);
     }
   }
 
@@ -149,11 +195,12 @@ export function ModelsPage() {
     if (!deleteModelName) return;
 
     try {
-      await deleteModel(deleteModelName);
+      setMutationError(null);
+      await deleteModelMutation.mutateAsync(deleteModelName);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.models });
       setDeleteModelName(null);
-      await loadModels();
     } catch (e) {
-      setError(String(e));
+      setMutationError(String(e));
     }
   }
 
@@ -179,6 +226,83 @@ export function ModelsPage() {
     }));
   }
 
+  const customAliases = useMemo(() => {
+    if (!aliasesQuery.data) return [];
+
+    return Object.entries(aliasesQuery.data).filter(([key]) => {
+      if (KNOWN_ALIAS_KEYS.has(key)) return false;
+      return !KNOWN_ALIAS_PREFIXES.some((prefix) => key.startsWith(prefix));
+    });
+  }, [aliasesQuery.data]);
+
+  function openAddAlias() {
+    setAliasDialogMode('add');
+    setAliasDialogKey('');
+    setAliasDialogValue('');
+    setAliasMutationError(null);
+    setAliasDialogOpen(true);
+  }
+
+  function openEditAlias(key: string, value: string) {
+    setAliasDialogMode('edit');
+    setAliasDialogKey(key);
+    setAliasDialogValue(value);
+    setAliasMutationError(null);
+    setAliasDialogOpen(true);
+  }
+
+  async function handleAliasSave() {
+    const key = aliasDialogKey.trim();
+    const value = aliasDialogValue.trim();
+    if (!key || !value) return;
+
+    try {
+      setAliasMutationError(null);
+      await updateAgentRoutingMutation.mutateAsync({ [key]: value });
+
+      queryClient.setQueryData<AgentRoutingAPIResponse>(
+        queryKeys.agentRoutingAliases,
+        (previous) => ({ ...(previous ?? {}), [key]: value }),
+      );
+
+      setAliasDialogOpen(false);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
+    } catch (e) {
+      setAliasMutationError(String(e));
+    }
+  }
+
+  async function handleAliasDelete(key: string) {
+    try {
+      setAliasMutationError(null);
+      await updateAgentRoutingMutation.mutateAsync({ [key]: '' });
+
+      queryClient.setQueryData<AgentRoutingAPIResponse>(
+        queryKeys.agentRoutingAliases,
+        (previous) => {
+          if (!previous) return previous;
+
+          const next = { ...previous };
+          delete next[key];
+          return next;
+        },
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
+    } catch (e) {
+      setAliasMutationError(String(e));
+    }
+  }
+
+  const aliasesLoading = aliasesQuery.isPending && !aliasesQuery.data;
+  const aliasesError =
+    aliasMutationError ||
+    (aliasesQuery.error instanceof Error ? aliasesQuery.error.message : null);
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -203,14 +327,54 @@ export function ModelsPage() {
         />
       </div>
 
-      <ModelsTableCard
-        models={models}
-        loading={loading}
-        error={error}
-        deleteModelName={deleteModelName}
-        onDeleteModelNameChange={setDeleteModelName}
-        onOpenEdit={handleOpenEdit}
-        onDelete={handleDelete}
+      <Tabs defaultValue="models">
+        <TabsList>
+          <TabsTrigger value="models">Models</TabsTrigger>
+          {capabilities.agentRouting ? (
+            <TabsTrigger value="aliases">Custom Aliases</TabsTrigger>
+          ) : null}
+        </TabsList>
+
+        <TabsContent value="models" className="mt-4">
+          <ModelsTableCard
+            models={modelsQuery.data ?? []}
+            loading={modelsQuery.isPending && !modelsQuery.data}
+            error={
+              mutationError ||
+              (modelsQuery.error ? String(modelsQuery.error) : null)
+            }
+            deleteModelName={deleteModelName}
+            onDeleteModelNameChange={setDeleteModelName}
+            onOpenEdit={handleOpenEdit}
+            onDelete={handleDelete}
+          />
+        </TabsContent>
+
+        {capabilities.agentRouting ? (
+          <TabsContent value="aliases" className="mt-4">
+            <AgentRoutingAliasesTab
+              loading={aliasesLoading}
+              saving={updateAgentRoutingMutation.isPending}
+              error={aliasesError}
+              customAliases={customAliases}
+              onOpenAddAlias={openAddAlias}
+              onOpenEditAlias={openEditAlias}
+              onDeleteAlias={handleAliasDelete}
+            />
+          </TabsContent>
+        ) : null}
+      </Tabs>
+
+      <AgentRoutingAliasDialog
+        open={aliasDialogOpen}
+        mode={aliasDialogMode}
+        saving={updateAgentRoutingMutation.isPending}
+        aliasKey={aliasDialogKey}
+        aliasValue={aliasDialogValue}
+        onOpenChange={setAliasDialogOpen}
+        onAliasKeyChange={setAliasDialogKey}
+        onAliasValueChange={setAliasDialogValue}
+        onSave={handleAliasSave}
       />
     </div>
   );

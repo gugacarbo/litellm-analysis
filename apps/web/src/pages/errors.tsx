@@ -1,255 +1,365 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '../components/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/card';
+import { ErrorDetailDialog } from '../components/errors/error-detail-dialog';
+import {
+  ErrorsFilterCard,
+  type ErrorsFilterValues,
+} from '../components/errors/errors-filter-card';
+import {
+  DEFAULT_VISIBLE_ERROR_COLUMNS,
+  type ErrorColumnKey,
+  ErrorsTable,
+} from '../components/errors/errors-table';
 import { FeatureGate } from '../components/feature-gate';
 import { Skeleton } from '../components/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../components/table';
+import { UnavailableFeature } from '../components/unavailable-feature';
+import { useErrors } from '../hooks/use-errors';
+import { useServerMode } from '../hooks/use-server-mode';
+import { getAllModels } from '../lib/api-client';
+import { queryKeys } from '../lib/query-keys';
+import type { ErrorLog, PaginationMetadata } from '../types/analytics';
 
-interface ErrorLog {
-  id: string;
-  error_type: string;
-  model: string;
-  user: string;
-  error_message: string;
-  timestamp: string;
-  status_code: number;
+const AUTO_REFETCH_INTERVAL_MS = 5000;
+
+type ErrorFilters = {
+  model?: string;
+  user?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
+function parseStartDate(value: string): number | null {
+  const timestamp = new Date(`${value}T00:00:00`).getTime();
+  return Number.isNaN(timestamp) ? null : timestamp;
 }
 
-const API_BASE = '/api';
-
-async function fetchErrorLogs(limit = 100): Promise<ErrorLog[]> {
-  const response = await fetch(`${API_BASE}/errors?limit=${limit}`);
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
-  }
-  return response.json();
+function parseEndDate(value: string): number | null {
+  const timestamp = new Date(`${value}T23:59:59.999`).getTime();
+  return Number.isNaN(timestamp) ? null : timestamp;
 }
 
-function formatDateTime(date: string | Date): string {
-  return new Date(date).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+function applyFilters(errors: ErrorLog[], filters: ErrorFilters): ErrorLog[] {
+  const normalizedUserFilter = filters.user?.trim().toLowerCase();
+  const startDate = filters.startDate
+    ? parseStartDate(filters.startDate)
+    : null;
+  const endDate = filters.endDate ? parseEndDate(filters.endDate) : null;
+
+  return errors.filter((errorLog) => {
+    if (filters.model && errorLog.model !== filters.model) {
+      return false;
+    }
+
+    if (normalizedUserFilter) {
+      const normalizedUser = (errorLog.user || '').toLowerCase();
+      if (!normalizedUser.includes(normalizedUserFilter)) {
+        return false;
+      }
+    }
+
+    if (startDate !== null || endDate !== null) {
+      const errorTime = new Date(errorLog.timestamp).getTime();
+      if (Number.isNaN(errorTime)) {
+        return false;
+      }
+
+      if (startDate !== null && errorTime < startDate) {
+        return false;
+      }
+
+      if (endDate !== null && errorTime > endDate) {
+        return false;
+      }
+    }
+
+    return true;
   });
-}
-
-function getStatusColor(code: number): string {
-  if (code >= 500) return 'bg-red-100 text-red-800';
-  if (code >= 400) return 'bg-orange-100 text-orange-800';
-  return 'bg-yellow-100 text-yellow-800';
-}
-
-function getErrorTypeColor(type: string): string {
-  const t = type?.toLowerCase() || '';
-  if (t.includes('rate')) return 'bg-purple-100 text-purple-800';
-  if (t.includes('timeout')) return 'bg-yellow-100 text-yellow-800';
-  if (t.includes('auth') || t.includes('key')) return 'bg-red-100 text-red-800';
-  return 'bg-gray-100 text-gray-800';
 }
 
 export function ErrorsPage() {
   return (
-    <FeatureGate capability="errorLogs">
+    <FeatureGate
+      capability="errorLogs"
+      fallback={<UnavailableFeature capability="errorLogs" />}
+    >
       <ErrorsContent />
     </FeatureGate>
   );
 }
 
 function ErrorsContent() {
-  const [errors, setErrors] = useState<ErrorLog[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { errors, loading, refreshing, error, refetch } = useErrors();
+  const { mode } = useServerMode();
+
+  const modelsQuery = useQuery({
+    queryKey: queryKeys.models,
+    queryFn: getAllModels,
+  });
+
+  const models = useMemo(
+    () => (modelsQuery.data ?? []).map((config) => config.modelName),
+    [modelsQuery.data],
+  );
+
+  const [selectedError, setSelectedError] = useState<ErrorLog | null>(null);
+  const [autoRefetchEnabled, setAutoRefetchEnabled] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [filters, setFilters] = useState<ErrorFilters>({});
+  const [visibleColumns, setVisibleColumns] = useState<ErrorColumnKey[]>(
+    DEFAULT_VISIBLE_ERROR_COLUMNS,
+  );
+  const [filterValues, setFilterValues] = useState<ErrorsFilterValues>({
+    model: '',
+    user: '',
+    startDate: '',
+    endDate: '',
+  });
 
   useEffect(() => {
-    async function fetchErrors() {
-      try {
-        const data = await fetchErrorLogs(100);
-        setErrors(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch errors');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchErrors();
-  }, []);
+    if (!autoRefetchEnabled) return;
 
-  if (error) {
-    return (
-      <div className="p-6">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-red-500">Error: {error}</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+    const interval = window.setInterval(() => {
+      void refetch({ background: true });
+    }, AUTO_REFETCH_INTERVAL_MS);
+
+    return () => window.clearInterval(interval);
+  }, [autoRefetchEnabled, refetch]);
+
+  const filteredErrors = useMemo(
+    () => applyFilters(errors, filters),
+    [errors, filters],
+  );
+
+  const pagination = useMemo<PaginationMetadata>(
+    () => ({
+      total: filteredErrors.length,
+      page,
+      page_size: pageSize,
+      total_pages: Math.ceil(filteredErrors.length / pageSize),
+    }),
+    [filteredErrors.length, page, pageSize],
+  );
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredErrors.length / pageSize));
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [filteredErrors.length, page, pageSize]);
+
+  const paginatedErrors = useMemo(() => {
+    const offset = (page - 1) * pageSize;
+    return filteredErrors.slice(offset, offset + pageSize);
+  }, [filteredErrors, page, pageSize]);
+
+  const totals = useMemo(() => {
+    return {
+      total: filteredErrors.length,
+      serverErrors: filteredErrors.filter((entry) => entry.status_code >= 500)
+        .length,
+      clientErrors: filteredErrors.filter(
+        (entry) => entry.status_code >= 400 && entry.status_code < 500,
+      ).length,
+      uniqueModels: new Set(filteredErrors.map((entry) => entry.model)).size,
+    };
+  }, [filteredErrors]);
+
+  const activeFiltersCount = useMemo(
+    () => Object.values(filters).filter(Boolean).length,
+    [filters],
+  );
+
+  const modeLabel =
+    mode === 'database'
+      ? 'Database Mode'
+      : mode === 'api-only'
+        ? 'API-Only Mode'
+        : 'Limited Mode';
+
+  const modeBadgeClass =
+    mode === 'database'
+      ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30'
+      : mode === 'limited'
+        ? 'bg-amber-500/15 text-amber-700 border-amber-500/30'
+        : 'bg-yellow-500/15 text-yellow-700 border-yellow-500/30';
+
+  const handleApplyFilters = () => {
+    setFilters({
+      model: filterValues.model || undefined,
+      user: filterValues.user || undefined,
+      startDate: filterValues.startDate || undefined,
+      endDate: filterValues.endDate || undefined,
+    });
+    setPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setFilterValues({
+      model: '',
+      user: '',
+      startDate: '',
+      endDate: '',
+    });
+    setFilters({});
+    setPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const totalPages = pagination.total_pages || 1;
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
+  const handlePageSizeChange = (newPageSize: string) => {
+    const parsedPageSize = Number(newPageSize);
+    if (Number.isNaN(parsedPageSize)) return;
+
+    setPageSize(parsedPageSize);
+    setPage(1);
+  };
+
+  const handleToggleColumn = (column: ErrorColumnKey) => {
+    setVisibleColumns((currentColumns) => {
+      if (currentColumns.includes(column)) {
+        if (currentColumns.length === 1) return currentColumns;
+        return currentColumns.filter((key) => key !== column);
+      }
+      return [...currentColumns, column];
+    });
+  };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Error Logs</h1>
-        <Badge variant="outline">{errors.length} errors</Badge>
-      </div>
+    <>
+      <div className="p-6 space-y-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold">Error Logs</h1>
+            <p className="text-sm text-muted-foreground">
+              Failed requests and exception diagnostics.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className={modeBadgeClass}>
+              {modeLabel}
+            </Badge>
+            <Badge variant="outline">
+              {pagination.total.toLocaleString('en-US')} errors
+            </Badge>
+            <Badge variant="outline">
+              {activeFiltersCount > 0
+                ? `${activeFiltersCount} active filters`
+                : 'No active filters'}
+            </Badge>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Errors</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-12" />
-            ) : (
-              <p className="text-2xl font-bold">{errors.length}</p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">5xx Errors</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-12" />
-            ) : (
-              <p className="text-2xl font-bold text-red-600">
-                {errors.filter((e) => e.status_code >= 500).length}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">4xx Errors</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-12" />
-            ) : (
-              <p className="text-2xl font-bold text-orange-600">
-                {
-                  errors.filter(
-                    (e) => e.status_code >= 400 && e.status_code < 500,
-                  ).length
-                }
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Unique Models</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-12" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {new Set(errors.map((e) => e.model)).size}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        <ErrorsFilterCard
+          models={models}
+          values={filterValues}
+          error={
+            error ||
+            (modelsQuery.error instanceof Error
+              ? modelsQuery.error.message
+              : null)
+          }
+          onValuesChange={setFilterValues}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Errors</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Time</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Model</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Message</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Errors
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell>
-                      <Skeleton className="h-4 w-24" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-12" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-20" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-20" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-16" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-48" />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : errors.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center text-muted-foreground"
-                  >
-                    No errors found
-                  </TableCell>
-                </TableRow>
+                <Skeleton className="h-8 w-12" />
               ) : (
-                errors.map((err) => (
-                  <TableRow key={err.id}>
-                    <TableCell className="text-sm whitespace-nowrap">
-                      {formatDateTime(err.timestamp || '')}
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(err.status_code)}`}
-                      >
-                        {err.status_code || 'N/A'}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded text-xs ${getErrorTypeColor(err.error_type)}`}
-                      >
-                        {err.error_type || 'Error'}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {err.model || '-'}
-                    </TableCell>
-                    <TableCell className="text-sm">{err.user || '-'}</TableCell>
-                    <TableCell className="max-w-md text-sm">
-                      <span title={err.error_message}>
-                        {err.error_message?.length > 80
-                          ? `${err.error_message.slice(0, 80)}...`
-                          : err.error_message || '-'}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))
+                <p className="text-2xl font-bold">{totals.total}</p>
               )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">5xx Errors</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-8 w-12" />
+              ) : (
+                <p className="text-2xl font-bold text-red-600">
+                  {totals.serverErrors}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">4xx Errors</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-8 w-12" />
+              ) : (
+                <p className="text-2xl font-bold text-amber-600">
+                  {totals.clientErrors}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">
+                Unique Models
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-8 w-12" />
+              ) : (
+                <p className="text-2xl font-bold">{totals.uniqueModels}</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <ErrorsTable
+          errors={paginatedErrors}
+          loading={loading}
+          refreshing={refreshing}
+          page={page}
+          pageSize={pageSize}
+          pagination={pagination}
+          visibleColumns={visibleColumns}
+          autoRefetchEnabled={autoRefetchEnabled}
+          onSelectError={setSelectedError}
+          onToggleColumn={handleToggleColumn}
+          onAutoRefetchChange={setAutoRefetchEnabled}
+          onRefetch={() => {
+            void refetch({ background: true });
+          }}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      </div>
+
+      <ErrorDetailDialog
+        errorLog={selectedError}
+        open={selectedError !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedError(null);
+        }}
+      />
+    </>
   );
 }

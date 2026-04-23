@@ -56,7 +56,7 @@ export function DashboardPage() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold">LiteLLM Dashboard</h1>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
             Usage, cost, reliability, and model behavior for the selected
             period.

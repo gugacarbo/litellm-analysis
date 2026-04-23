@@ -62,6 +62,7 @@ export function LogsPaginationControls({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="10">10/page</SelectItem>
             <SelectItem value="25">25/page</SelectItem>
             <SelectItem value="50">50/page</SelectItem>
             <SelectItem value="100">100/page</SelectItem>

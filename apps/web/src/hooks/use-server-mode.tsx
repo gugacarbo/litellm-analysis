@@ -1,11 +1,7 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { createContext, useCallback, useContext } from 'react';
 import { fetchServerMode } from '../lib/server-mode';
+import { queryKeys } from '../lib/query-keys';
 import type { AnalyticsCapabilities, ServerMode } from '../types/analytics';
 
 interface ServerModeState {
@@ -23,67 +19,31 @@ export function ServerModeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [state, setState] = useState<{
-    mode: ServerMode | null;
-    capabilities: AnalyticsCapabilities | null;
-    isLoading: boolean;
-    error: Error | null;
-  }>({
-    mode: null,
-    capabilities: null,
-    isLoading: true,
-    error: null,
+  const serverModeQuery = useQuery({
+    queryKey: queryKeys.serverMode,
+    queryFn: fetchServerMode,
+    staleTime: 60_000,
   });
 
-  const load = useCallback(() => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
-    fetchServerMode()
-      .then((data) => {
-        setState({
-          mode: data.mode,
-          capabilities: data.capabilities,
-          isLoading: false,
-          error: null,
-        });
-      })
-      .catch((err) => {
-        setState({
-          mode: null,
-          capabilities: null,
-          isLoading: false,
-          error: err instanceof Error ? err : new Error(String(err)),
-        });
-      });
-  }, []);
+  const refetch = useCallback(() => {
+    void serverModeQuery.refetch();
+  }, [serverModeQuery]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  if (!state.mode || !state.capabilities) {
-    return (
-      <ServerModeContext.Provider
-        value={{
-          mode: 'api-only',
-          capabilities: {} as AnalyticsCapabilities,
-          isLoading: state.isLoading,
-          error: state.error,
-          refetch: load,
-        }}
-      >
-        {children}
-      </ServerModeContext.Provider>
-    );
-  }
+  const mode = serverModeQuery.data?.mode ?? 'api-only';
+  const capabilities =
+    serverModeQuery.data?.capabilities ?? ({} as AnalyticsCapabilities);
 
   return (
     <ServerModeContext.Provider
       value={{
-        mode: state.mode,
-        capabilities: state.capabilities,
-        isLoading: state.isLoading,
-        error: state.error,
-        refetch: load,
+        mode,
+        capabilities,
+        isLoading: serverModeQuery.isPending && !serverModeQuery.data,
+        error:
+          serverModeQuery.error instanceof Error
+            ? serverModeQuery.error
+            : null,
+        refetch,
       }}
     >
       {children}

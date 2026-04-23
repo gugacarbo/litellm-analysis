@@ -1,5 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { getAgentConfig, getAgentRoutingConfig } from '../../lib/api-client';
+import { queryKeys } from '../../lib/query-keys';
 import type {
   AgentConfig,
   AgentRoutingConfig,
@@ -14,29 +16,30 @@ export function useAgentRoutingState() {
   const [categoryConfigs, setCategoryConfigs] = useState<
     Record<string, CategoryConfig>
   >({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const agentRoutingQuery = useQuery({
+    queryKey: queryKeys.agentRoutingData,
+    queryFn: async () => {
+      const [routingConfig, configData] = await Promise.all([
+        getAgentRoutingConfig(),
+        getAgentConfig(),
+      ]);
+
+      return {
+        aliases: routingConfig,
+        agentConfigs: configData.agents || {},
+        categoryConfigs: configData.categories || {},
+      };
+    },
+  });
 
   useEffect(() => {
-    async function load() {
-      try {
-        setLoading(true);
-        const [routingConfig, configData] = await Promise.all([
-          getAgentRoutingConfig(),
-          getAgentConfig(),
-        ]);
-        setAliases(routingConfig);
-        setAgentConfigs(configData.agents || {});
-        setCategoryConfigs(configData.categories || {});
-      } catch (e) {
-        setError(String(e));
-      } finally {
-        setLoading(false);
-      }
-    }
+    if (!agentRoutingQuery.data) return;
 
-    load();
-  }, []);
+    setAliases(agentRoutingQuery.data.aliases);
+    setAgentConfigs(agentRoutingQuery.data.agentConfigs);
+    setCategoryConfigs(agentRoutingQuery.data.categoryConfigs);
+  }, [agentRoutingQuery.data]);
 
   return {
     aliases,
@@ -45,7 +48,10 @@ export function useAgentRoutingState() {
     setAgentConfigs,
     categoryConfigs,
     setCategoryConfigs,
-    loading,
-    error,
+    loading: agentRoutingQuery.isPending && !agentRoutingQuery.data,
+    error:
+      agentRoutingQuery.error instanceof Error
+        ? agentRoutingQuery.error.message
+        : null,
   };
 }

@@ -1,6 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderWithQueryClient } from '../../__tests__/react-query-test-utils';
 import type { AnalyticsCapabilities } from '../../types/analytics';
 
 const mockCapabilities: AnalyticsCapabilities = {
@@ -92,7 +93,7 @@ describe('ModelStatsPage', () => {
   });
 
   it('deletes stats rows with empty model name', async () => {
-    render(<ModelStatsPage />);
+    renderWithQueryClient(<ModelStatsPage />);
 
     await screen.findByText('(no model)');
 

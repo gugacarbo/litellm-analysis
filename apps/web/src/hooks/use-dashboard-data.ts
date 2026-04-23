@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 import {
   getApiKeyDetailedStats,
   getCostEfficiencyByModel,
@@ -12,18 +13,13 @@ import {
   getSpendByUser,
   getTokenDistribution,
 } from '../lib/api-client';
+import { queryKeys } from '../lib/query-keys';
 import type {
   ApiKeyStatItem,
-  CostEfficiencyItem,
-  DailyTokenTrendItem,
-  DailyTrendItem,
   DashboardInsight,
   DashboardMetrics,
-  HourlyPatternItem,
-  ModelDistributionItem,
   PerformanceMetrics,
   SpendByUserItem,
-  TokenDistributionItem,
 } from '../pages/dashboard/dashboard-types';
 import {
   formatCurrency,
@@ -104,136 +100,154 @@ function getToneByDelta(value: number): DashboardInsight['tone'] {
 export function useDashboardData(options: DashboardDataOptions = {}) {
   const days = options.days ?? DEFAULT_DAYS;
 
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [spendByModel, setSpendByModel] = useState<
-    { model: string; total_spend: number }[]
-  >([]);
-  const [spendByUser, setSpendByUser] = useState<SpendByUserItem[]>([]);
-  const [dailyTrend, setDailyTrend] = useState<DailyTrendItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [tokenDistribution, setTokenDistribution] = useState<
-    TokenDistributionItem[]
-  >([]);
-  const [performance, setPerformance] = useState<PerformanceMetrics | null>(
-    null,
+  const metricsQuery = useQuery({
+    queryKey: queryKeys.dashboardMetrics(days),
+    queryFn: () => getMetricsSummary(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const spendByModelQuery = useQuery({
+    queryKey: queryKeys.dashboardSpendByModel(days),
+    queryFn: () => getSpendByModel(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const spendByUserQuery = useQuery({
+    queryKey: queryKeys.dashboardSpendByUser(days),
+    queryFn: () => getSpendByUser(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const dailyTrendQuery = useQuery({
+    queryKey: queryKeys.dashboardDailySpendTrend(days),
+    queryFn: () => getDailySpendTrend(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const tokenDistributionQuery = useQuery({
+    queryKey: queryKeys.dashboardTokenDistribution(days),
+    queryFn: () => getTokenDistribution(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const performanceQuery = useQuery({
+    queryKey: queryKeys.dashboardPerformance(days),
+    queryFn: () => getPerformanceMetrics(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const hourlyPatternsQuery = useQuery({
+    queryKey: queryKeys.dashboardHourlyPatterns(days),
+    queryFn: () => getHourlyUsagePatterns(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const apiKeyStatsQuery = useQuery({
+    queryKey: queryKeys.dashboardApiKeyStats(days),
+    queryFn: () => getApiKeyDetailedStats(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const costEfficiencyQuery = useQuery({
+    queryKey: queryKeys.dashboardCostEfficiency(days),
+    queryFn: () => getCostEfficiencyByModel(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const modelDistributionQuery = useQuery({
+    queryKey: queryKeys.dashboardModelDistribution(days),
+    queryFn: () => getModelRequestDistribution(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const dailyTokenTrendQuery = useQuery({
+    queryKey: queryKeys.dashboardDailyTokenTrend(days),
+    queryFn: () => getDailyTokenTrend(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+
+  const dashboardQueries = [
+    metricsQuery,
+    spendByModelQuery,
+    spendByUserQuery,
+    dailyTrendQuery,
+    tokenDistributionQuery,
+    performanceQuery,
+    hourlyPatternsQuery,
+    apiKeyStatsQuery,
+    costEfficiencyQuery,
+    modelDistributionQuery,
+    dailyTokenTrendQuery,
+  ];
+
+  const metrics =
+    metricsQuery.data === undefined
+      ? null
+      : normalizeMetrics(metricsQuery.data as RawMetrics);
+  const spendByModel = spendByModelQuery.data ?? [];
+  const spendByUser = normalizeSpendByUser(spendByUserQuery.data ?? []);
+  const dailyTrend = dailyTrendQuery.data ?? [];
+  const tokenDistribution = tokenDistributionQuery.data ?? [];
+  const performance =
+    performanceQuery.data === undefined
+      ? null
+      : normalizePerformance(performanceQuery.data);
+  const hourlyPatterns = hourlyPatternsQuery.data ?? [];
+  const apiKeyStats = normalizeApiKeyStats(apiKeyStatsQuery.data ?? []);
+  const costEfficiency = costEfficiencyQuery.data ?? [];
+  const modelDistribution = modelDistributionQuery.data ?? [];
+  const dailyTokenTrend = dailyTokenTrendQuery.data ?? [];
+
+  const successfulCount = dashboardQueries.filter(
+    (query) => query.data !== undefined,
+  ).length;
+  const firstError = dashboardQueries.find(
+    (query) => query.error instanceof Error,
+  )?.error;
+
+  const loading = successfulCount === 0 && dashboardQueries.some((q) => q.isPending);
+  const refreshing = !loading && dashboardQueries.some((q) => q.isFetching);
+
+  const latestUpdateTimestamp = Math.max(
+    ...dashboardQueries
+      .filter((query) => query.data !== undefined)
+      .map((query) => query.dataUpdatedAt),
+    0,
   );
-  const [hourlyPatterns, setHourlyPatterns] = useState<HourlyPatternItem[]>([]);
-  const [apiKeyStats, setApiKeyStats] = useState<ApiKeyStatItem[]>([]);
-  const [costEfficiency, setCostEfficiency] = useState<CostEfficiencyItem[]>(
-    [],
-  );
-  const [modelDistribution, setModelDistribution] = useState<
-    ModelDistributionItem[]
-  >([]);
-  const [dailyTokenTrend, setDailyTokenTrend] = useState<DailyTokenTrendItem[]>(
-    [],
-  );
-  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
-  const fetchData = useCallback(
-    async (options?: { background?: boolean }) => {
-      const background = options?.background ?? false;
+  const lastUpdatedAt =
+    latestUpdateTimestamp > 0 ? new Date(latestUpdateTimestamp) : null;
 
-      try {
-        if (background) {
-          setRefreshing(true);
-        } else {
-          setLoading(true);
-        }
-
-        const results = await Promise.allSettled([
-          getMetricsSummary(days),
-          getSpendByModel(days),
-          getSpendByUser(days),
-          getDailySpendTrend(days),
-          getTokenDistribution(days),
-          getPerformanceMetrics(days),
-          getHourlyUsagePatterns(days),
-          getApiKeyDetailedStats(days),
-          getCostEfficiencyByModel(days),
-          getModelRequestDistribution(days),
-          getDailyTokenTrend(days),
-        ]);
-
-        const [
-          metricsResult,
-          spendByModelResult,
-          spendByUserResult,
-          dailyTrendResult,
-          tokenDistributionResult,
-          performanceResult,
-          hourlyPatternsResult,
-          apiKeyStatsResult,
-          costEfficiencyResult,
-          modelDistributionResult,
-          dailyTokenTrendResult,
-        ] = results;
-
-        if (metricsResult.status === 'fulfilled') {
-          setMetrics(normalizeMetrics(metricsResult.value));
-        }
-        if (spendByModelResult.status === 'fulfilled') {
-          setSpendByModel(spendByModelResult.value);
-        }
-        if (spendByUserResult.status === 'fulfilled') {
-          setSpendByUser(normalizeSpendByUser(spendByUserResult.value));
-        }
-        if (dailyTrendResult.status === 'fulfilled') {
-          setDailyTrend(dailyTrendResult.value);
-        }
-        if (tokenDistributionResult.status === 'fulfilled') {
-          setTokenDistribution(tokenDistributionResult.value);
-        }
-        if (performanceResult.status === 'fulfilled') {
-          setPerformance(normalizePerformance(performanceResult.value));
-        }
-        if (hourlyPatternsResult.status === 'fulfilled') {
-          setHourlyPatterns(hourlyPatternsResult.value);
-        }
-        if (apiKeyStatsResult.status === 'fulfilled') {
-          setApiKeyStats(normalizeApiKeyStats(apiKeyStatsResult.value));
-        }
-        if (costEfficiencyResult.status === 'fulfilled') {
-          setCostEfficiency(costEfficiencyResult.value);
-        }
-        if (modelDistributionResult.status === 'fulfilled') {
-          setModelDistribution(modelDistributionResult.value);
-        }
-        if (dailyTokenTrendResult.status === 'fulfilled') {
-          setDailyTokenTrend(dailyTokenTrendResult.value);
-        }
-
-        const successfulCount = results.filter(
-          (result) => result.status === 'fulfilled',
-        ).length;
-
-        if (successfulCount === 0) {
-          setError('Failed to fetch dashboard data');
-        } else {
-          setError(null);
-          setLastUpdatedAt(new Date());
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch data');
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
+  const refetch = useCallback(
+    async (_options?: { background?: boolean }) => {
+      await Promise.all([
+        metricsQuery.refetch(),
+        spendByModelQuery.refetch(),
+        spendByUserQuery.refetch(),
+        dailyTrendQuery.refetch(),
+        tokenDistributionQuery.refetch(),
+        performanceQuery.refetch(),
+        hourlyPatternsQuery.refetch(),
+        apiKeyStatsQuery.refetch(),
+        costEfficiencyQuery.refetch(),
+        modelDistributionQuery.refetch(),
+        dailyTokenTrendQuery.refetch(),
+      ]);
     },
-    [days],
+    [
+      metricsQuery,
+      spendByModelQuery,
+      spendByUserQuery,
+      dailyTrendQuery,
+      tokenDistributionQuery,
+      performanceQuery,
+      hourlyPatternsQuery,
+      apiKeyStatsQuery,
+      costEfficiencyQuery,
+      modelDistributionQuery,
+      dailyTokenTrendQuery,
+    ],
   );
-
-  useEffect(() => {
-    void fetchData();
-
-    const interval = window.setInterval(() => {
-      void fetchData({ background: true });
-    }, AUTO_REFRESH_MS);
-
-    return () => window.clearInterval(interval);
-  }, [fetchData]);
 
   const insights = useMemo<DashboardInsight[]>(() => {
     const totalSpend = metrics?.totalSpend ?? 0;
@@ -317,8 +331,12 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
     dailyTrend,
     loading,
     refreshing,
-    error,
-    refetch: fetchData,
+    error:
+      successfulCount === 0
+        ? firstError instanceof Error
+          ? firstError.message
+          : 'Failed to fetch dashboard data'
+        : null,
     tokenDistribution,
     performance,
     hourlyPatterns,
@@ -328,5 +346,6 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
     dailyTokenTrend,
     lastUpdatedAt,
     insights,
+    refetch,
   };
 }

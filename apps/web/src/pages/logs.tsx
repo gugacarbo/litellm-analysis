@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '../components/badge';
 import { FeatureGate } from '../components/feature-gate';
@@ -15,6 +16,7 @@ import { UnavailableFeature } from '../components/unavailable-feature';
 import { useLogs } from '../hooks/use-logs';
 import { useServerMode } from '../hooks/use-server-mode';
 import { getAllModels } from '../lib/api-client';
+import { queryKeys } from '../lib/query-keys';
 import type { SpendLog } from '../types/analytics';
 
 const AUTO_REFETCH_INTERVAL_MS = 5000;
@@ -36,7 +38,16 @@ export function LogsPage() {
   } = useLogs();
   const { mode } = useServerMode();
 
-  const [models, setModels] = useState<string[]>([]);
+  const modelsQuery = useQuery({
+    queryKey: queryKeys.models,
+    queryFn: getAllModels,
+  });
+
+  const models = useMemo(
+    () => (modelsQuery.data ?? []).map((config) => config.modelName),
+    [modelsQuery.data],
+  );
+
   const [selectedLog, setSelectedLog] = useState<SpendLog | null>(null);
   const [autoRefetchEnabled, setAutoRefetchEnabled] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<LogColumnKey[]>(
@@ -48,19 +59,6 @@ export function LogsPage() {
     startDate: filters.startDate || '',
     endDate: filters.endDate || '',
   });
-
-  useEffect(() => {
-    async function fetchModels() {
-      try {
-        const modelConfigs = await getAllModels();
-        setModels(modelConfigs.map((config) => config.modelName));
-      } catch (err) {
-        console.error('Failed to fetch models:', err);
-      }
-    }
-
-    fetchModels();
-  }, []);
 
   useEffect(() => {
     if (!autoRefetchEnabled) return;
@@ -168,7 +166,12 @@ export function LogsPage() {
         <LogsFilterCard
           models={models}
           values={filterValues}
-          error={error}
+          error={
+            error ||
+            (modelsQuery.error instanceof Error
+              ? modelsQuery.error.message
+              : null)
+          }
           onValuesChange={setFilterValues}
           onApply={handleApplyFilters}
           onClear={handleClearFilters}

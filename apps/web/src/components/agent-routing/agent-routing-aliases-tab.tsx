@@ -15,6 +15,7 @@ import {
 type AgentRoutingAliasesTabProps = {
   loading: boolean;
   saving: boolean;
+  error?: string | null;
   customAliases: Array<[string, string]>;
   onOpenAddAlias: () => void;
   onOpenEditAlias: (key: string, value: string) => void;
@@ -24,6 +25,7 @@ type AgentRoutingAliasesTabProps = {
 export function AgentRoutingAliasesTab({
   loading,
   saving,
+  error = null,
   customAliases,
   onOpenAddAlias,
   onOpenEditAlias,
@@ -46,6 +48,8 @@ export function AgentRoutingAliasesTab({
         </CardHeader>
 
         <CardContent>
+          {error && <div className="p-4 text-destructive">Error: {error}</div>}
+
           {loading ? (
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (

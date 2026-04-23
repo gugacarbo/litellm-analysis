@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo } from 'react';
 import { getAllModels } from '../lib/api-client';
+import { queryKeys } from '../lib/query-keys';
 import type { ModelConfig } from '../types/analytics';
 import {
   Select,
@@ -29,31 +31,19 @@ export function ModelSelector({
   className,
   label,
 }: ModelSelectorProps) {
-  const [models, setModels] = useState<ModelConfig[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const modelsQuery = useQuery({
+    queryKey: queryKeys.models,
+    queryFn: getAllModels,
+  });
+
+  const models = (modelsQuery.data ?? []) as ModelConfig[];
+  const isLoading = modelsQuery.isPending && !modelsQuery.data;
+  const error = modelsQuery.error instanceof Error ? 'Failed to load models' : null;
+
   const id = useMemo(
     () => `model-selector-${Math.random().toString(36).substr(2, 9)}`,
     [],
   );
-
-  useEffect(() => {
-    async function fetchModels() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const fetchedModels = await getAllModels();
-        setModels(fetchedModels);
-      } catch (err) {
-        console.error('Failed to fetch models:', err);
-        setError('Failed to load models');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchModels();
-  }, []);
 
   const selectedModel = useMemo(() => {
     return models.find((model) => model.modelName === value);

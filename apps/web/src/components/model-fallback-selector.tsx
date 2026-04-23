@@ -1,8 +1,10 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { Plus, Trash2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import type { ModelConfig } from '../lib/api-client';
+import { useState } from 'react';
+import { getAllModels, type ModelConfig } from '../lib/api-client';
+import { queryKeys } from '../lib/query-keys';
 import { Badge } from './badge';
 import { Button } from './button';
 import { Input } from './input';
@@ -31,26 +33,15 @@ export function ModelFallbackSelector({
   onFallbackModelsChange,
   agentKey,
 }: ModelFallbackSelectorProps) {
-  const [availableModels, setAvailableModels] = useState<ModelConfig[]>([]);
+  const modelsQuery = useQuery({
+    queryKey: queryKeys.models,
+    queryFn: getAllModels,
+  });
+
+  const availableModels = (modelsQuery.data ?? []) as ModelConfig[];
+
   const [useCustomModel, setUseCustomModel] = useState(false);
   const [customModelName, setCustomModelName] = useState('');
-  const [_loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadModels() {
-      try {
-        const models = await import('../lib/api-client').then((m) =>
-          m.getAllModels(),
-        );
-        setAvailableModels(models);
-      } catch {
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadModels();
-  }, []);
 
   const addFallbackModel = () => {
     onFallbackModelsChange([...fallbackModels, '']);

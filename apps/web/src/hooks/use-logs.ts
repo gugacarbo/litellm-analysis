@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
 import { getSpendLogs } from '../lib/api-client';
+import { queryKeys } from '../lib/query-keys';
 import type { PaginationMetadata, SpendLog } from '../types/analytics';
 
 export type LogFilters = {
@@ -13,72 +15,53 @@ type RefetchOptions = {
   background?: boolean;
 };
 
+const DEFAULT_PAGINATION: PaginationMetadata = {
+  total: 0,
+  page: 1,
+  page_size: 25,
+  total_pages: 0,
+};
+
 export function useLogs() {
-  const [logs, setLogs] = useState<SpendLog[]>([]);
-  const [pagination, setPagination] = useState<PaginationMetadata>({
-    total: 0,
-    page: 1,
-    page_size: 25,
-    total_pages: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [filters, setFilters] = useState<LogFilters>({});
 
-  const fetchLogs = useCallback(
-    async (options: RefetchOptions = {}) => {
-      const background = options.background ?? false;
-
-      try {
-        if (background) {
-          setRefreshing(true);
-        } else {
-          setLoading(true);
-        }
-
-        const offset = (page - 1) * pageSize;
-        const data = await getSpendLogs({
-          model: filters.model,
-          user: filters.user,
-          startDate: filters.startDate,
-          endDate: filters.endDate,
-          limit: pageSize,
-          offset,
-        });
-        setLogs(data.logs);
-        setPagination(data.pagination);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch logs');
-      } finally {
-        if (background) {
-          setRefreshing(false);
-        } else {
-          setLoading(false);
-        }
-      }
+  const logsQuery = useQuery({
+    queryKey: queryKeys.spendLogs({
+      page,
+      pageSize,
+      model: filters.model,
+      user: filters.user,
+      startDate: filters.startDate,
+      endDate: filters.endDate,
+    }),
+    queryFn: () => {
+      const offset = (page - 1) * pageSize;
+      return getSpendLogs({
+        model: filters.model,
+        user: filters.user,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        limit: pageSize,
+        offset,
+      });
     },
-    [page, pageSize, filters],
-  );
+  });
 
-  useEffect(() => {
-    void fetchLogs();
-  }, [fetchLogs]);
+  const loading = logsQuery.isPending && !logsQuery.data;
 
   const refetch = useCallback(
-    (options: RefetchOptions = {}) => fetchLogs(options),
-    [fetchLogs],
+    (_options: RefetchOptions = {}) => logsQuery.refetch(),
+    [logsQuery],
   );
 
   return {
-    logs,
-    pagination,
+    logs: (logsQuery.data?.logs ?? []) as SpendLog[],
+    pagination: logsQuery.data?.pagination ?? DEFAULT_PAGINATION,
     loading,
-    refreshing,
-    error,
+    refreshing: logsQuery.isFetching && !loading,
+    error: logsQuery.error instanceof Error ? logsQuery.error.message : null,
     page,
     pageSize,
     filters,

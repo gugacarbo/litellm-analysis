@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderWithQueryClient } from '../../__tests__/react-query-test-utils';
 import type { AnalyticsCapabilities } from '../../types/analytics';
 
 // vi.mock is hoisted by vitest — the import below MUST come after the mock definitions
@@ -28,6 +29,7 @@ const mockCapabilities: AnalyticsCapabilities = {
   deleteModel: false,
   mergeModels: false,
   deleteModelLogs: false,
+  agentRouting: false,
 };
 
 vi.mock('../../hooks/use-server-mode', () => ({
@@ -65,6 +67,8 @@ vi.mock('../../lib/api-client', () => ({
   getModelStatistics: vi.fn().mockResolvedValue([]),
   deleteModelLogs: vi.fn().mockResolvedValue(undefined),
   mergeModels: vi.fn().mockResolvedValue(undefined),
+  getAgentRoutingConfig: vi.fn().mockResolvedValue({}),
+  updateAgentRoutingConfig: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 import { ModelsPage } from '../models';
@@ -75,7 +79,7 @@ describe('ModelsPage UI gates (limited mode)', () => {
   });
 
   it('should hide create button when createModel=false', async () => {
-    render(<ModelsPage />);
+    renderWithQueryClient(<ModelsPage />);
 
     const modelNames = await screen.findAllByText(/gpt-4|claude-3-opus/);
     expect(modelNames.length).toBeGreaterThan(0);
@@ -86,7 +90,7 @@ describe('ModelsPage UI gates (limited mode)', () => {
   });
 
   it('should hide delete buttons when deleteModel=false', async () => {
-    render(<ModelsPage />);
+    renderWithQueryClient(<ModelsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
@@ -95,7 +99,7 @@ describe('ModelsPage UI gates (limited mode)', () => {
   });
 
   it('should show edit button when updateModel=true', async () => {
-    render(<ModelsPage />);
+    renderWithQueryClient(<ModelsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 

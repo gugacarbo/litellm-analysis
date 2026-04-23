@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderWithQueryClient } from '../../__tests__/react-query-test-utils';
 import type { AnalyticsCapabilities } from '../../types/analytics';
 
 // vi.mock is hoisted by vitest — the import below MUST come after the mock definitions
@@ -105,7 +106,7 @@ describe('ModelStatsPage UI gates (limited mode)', () => {
   });
 
   it('should hide merge section when mergeModels=false', async () => {
-    render(<ModelStatsPage />);
+    renderWithQueryClient(<ModelStatsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
@@ -117,7 +118,7 @@ describe('ModelStatsPage UI gates (limited mode)', () => {
   });
 
   it('should hide delete logs buttons when deleteModelLogs=false', async () => {
-    render(<ModelStatsPage />);
+    renderWithQueryClient(<ModelStatsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 

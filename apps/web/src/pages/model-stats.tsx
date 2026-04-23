@@ -1,4 +1,9 @@
-import { useEffect, useState } from 'react';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent } from '../components/card';
 import { FeatureGate } from '../components/feature-gate';
@@ -15,6 +20,7 @@ import {
   getModelStatistics,
   mergeModels,
 } from '../lib/api-client';
+import { queryKeys } from '../lib/query-keys';
 import {
   type ColumnKey,
   MODEL_STATS_COLUMNS,
@@ -24,12 +30,25 @@ import {
 } from './model-stats/model-stats-types';
 
 export function ModelStatsPage() {
+  const queryClient = useQueryClient();
   const isUndefinedModel = (value: string | null | undefined): boolean =>
     !value || value.trim() === '';
 
-  const [data, setData] = useState<ModelStats[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const modelStatsQuery = useQuery({
+    queryKey: queryKeys.modelStatistics,
+    queryFn: getModelStatistics,
+    refetchInterval: 30_000,
+  });
+
+  const deleteModelLogsMutation = useMutation({
+    mutationFn: (modelName: string) => deleteModelLogs(modelName),
+  });
+
+  const mergeModelsMutation = useMutation({
+    mutationFn: (params: { sourceModel: string; targetModel: string }) =>
+      mergeModels(params.sourceModel, params.targetModel),
+  });
+
   const [sortField, setSortField] = useState<SortField>('total_spend');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,23 +63,12 @@ export function ModelStatsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const result = await getModelStatistics();
-        setData(result);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch data');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const data = modelStatsQuery.data ?? [];
+  const loading = modelStatsQuery.isPending && !modelStatsQuery.data;
+  const error =
+    modelStatsQuery.error instanceof Error
+      ? modelStatsQuery.error.message
+      : null;
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -92,14 +100,20 @@ export function ModelStatsPage() {
     setDeleting(modelName);
 
     try {
-      await deleteModelLogs(modelName);
-      setData(
-        data.filter((m) =>
-          modelName.trim() === ''
-            ? !isUndefinedModel(m.model)
-            : m.model !== modelName,
-        ),
+      await deleteModelLogsMutation.mutateAsync(modelName);
+
+      queryClient.setQueryData<ModelStats[]>(
+        queryKeys.modelStatistics,
+        (previous) => {
+          const current = previous ?? [];
+          return current.filter((m) =>
+            modelName.trim() === ''
+              ? !isUndefinedModel(m.model)
+              : m.model !== modelName,
+          );
+        },
       );
+
       toast.success(`Deleted logs for model "${modelLabel}"`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to delete');
@@ -126,9 +140,10 @@ export function ModelStatsPage() {
     setMerging(true);
 
     try {
-      await mergeModels(sourceModel, targetModel);
-      const result = await getModelStatistics();
-      setData(result);
+      await mergeModelsMutation.mutateAsync({ sourceModel, targetModel });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.modelStatistics,
+      });
       setMergeMode(false);
       setSourceModel('');
       setTargetModel('');

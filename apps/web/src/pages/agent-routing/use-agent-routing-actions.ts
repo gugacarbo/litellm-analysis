@@ -1,3 +1,7 @@
+import {
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import {
   deleteAgentConfig,
@@ -5,6 +9,7 @@ import {
   updateAgentConfig,
   updateAgentRoutingConfig,
 } from '../../lib/api-client';
+import { queryKeys } from '../../lib/query-keys';
 import type {
   AgentConfig,
   AgentRoutingConfig,
@@ -37,7 +42,33 @@ export function useAgentRoutingActions(
   categoryConfigs: Record<string, CategoryConfig>,
   setCategoryConfigs: SetCategoryConfigs,
 ) {
-  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
+
+  const updateAgentConfigMutation = useMutation({
+    mutationFn: (params: {
+      key: string;
+      type: 'agent' | 'category';
+      config: AgentConfig | CategoryConfig;
+    }) => updateAgentConfig(params.key, params.type, params.config, true),
+  });
+
+  const deleteAgentConfigMutation = useMutation({
+    mutationFn: (params: { key: string; type: 'agent' | 'category' }) =>
+      deleteAgentConfig(params.key, params.type),
+  });
+
+  const saveAllConfigsMutation = useMutation({
+    mutationFn: (params: {
+      agents: Record<string, AgentConfig>;
+      categories: Record<string, CategoryConfig>;
+    }) => saveAllAgentConfigs(params.agents, params.categories),
+  });
+
+  const updateAgentRoutingMutation = useMutation({
+    mutationFn: (modelGroupAlias: AgentRoutingConfig) =>
+      updateAgentRoutingConfig(modelGroupAlias),
+  });
+
   const [agentConfigDialogOpen, setAgentConfigDialogOpen] = useState(false);
   const [categoryConfigDialogOpen, setCategoryConfigDialogOpen] =
     useState(false);
@@ -48,79 +79,101 @@ export function useAgentRoutingActions(
   const [aliasDialogKey, setAliasDialogKey] = useState('');
   const [aliasDialogValue, setAliasDialogValue] = useState('');
 
+  const saving =
+    updateAgentConfigMutation.isPending ||
+    deleteAgentConfigMutation.isPending ||
+    saveAllConfigsMutation.isPending ||
+    updateAgentRoutingMutation.isPending;
+
   const handleSaveAgentConfig = useCallback(
     async (config: AgentConfig) => {
-      setSaving(true);
-      try {
-        await updateAgentConfig(editingAgentKey, 'agent', config, true);
-        setAgentConfigs((prev) => ({ ...prev, [editingAgentKey]: config }));
-        setAgentConfigDialogOpen(false);
-      } finally {
-        setSaving(false);
-      }
+      await updateAgentConfigMutation.mutateAsync({
+        key: editingAgentKey,
+        type: 'agent',
+        config,
+      });
+
+      setAgentConfigs((prev) => ({ ...prev, [editingAgentKey]: config }));
+      setAgentConfigDialogOpen(false);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
     },
-    [editingAgentKey, setAgentConfigs],
+    [editingAgentKey, queryClient, setAgentConfigs, updateAgentConfigMutation],
   );
 
   const handleSaveCategoryConfig = useCallback(
     async (config: CategoryConfig) => {
-      setSaving(true);
-      try {
-        await updateAgentConfig(editingCategoryKey, 'category', config, true);
-        setCategoryConfigs((prev) => ({
-          ...prev,
-          [editingCategoryKey]: config,
-        }));
-        setCategoryConfigDialogOpen(false);
-      } finally {
-        setSaving(false);
-      }
+      await updateAgentConfigMutation.mutateAsync({
+        key: editingCategoryKey,
+        type: 'category',
+        config,
+      });
+
+      setCategoryConfigs((prev) => ({
+        ...prev,
+        [editingCategoryKey]: config,
+      }));
+      setCategoryConfigDialogOpen(false);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
     },
-    [editingCategoryKey, setCategoryConfigs],
+    [
+      editingCategoryKey,
+      queryClient,
+      setCategoryConfigs,
+      updateAgentConfigMutation,
+    ],
   );
 
   const handleDeleteAgentConfig = useCallback(
     async (key: string) => {
-      setSaving(true);
-      try {
-        await deleteAgentConfig(key, 'agent');
-        setAgentConfigs((prev) => {
-          const next = { ...prev };
-          delete next[key];
-          return next;
-        });
-      } finally {
-        setSaving(false);
-      }
+      await deleteAgentConfigMutation.mutateAsync({ key, type: 'agent' });
+
+      setAgentConfigs((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
     },
-    [setAgentConfigs],
+    [deleteAgentConfigMutation, queryClient, setAgentConfigs],
   );
 
   const handleDeleteCategoryConfig = useCallback(
     async (key: string) => {
-      setSaving(true);
-      try {
-        await deleteAgentConfig(key, 'category');
-        setCategoryConfigs((prev) => {
-          const next = { ...prev };
-          delete next[key];
-          return next;
-        });
-      } finally {
-        setSaving(false);
-      }
+      await deleteAgentConfigMutation.mutateAsync({
+        key,
+        type: 'category',
+      });
+
+      setCategoryConfigs((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
     },
-    [setCategoryConfigs],
+    [deleteAgentConfigMutation, queryClient, setCategoryConfigs],
   );
 
   const handleSaveAll = useCallback(async () => {
-    setSaving(true);
-    try {
-      await saveAllAgentConfigs(agentConfigs, categoryConfigs);
-    } finally {
-      setSaving(false);
-    }
-  }, [agentConfigs, categoryConfigs]);
+    await saveAllConfigsMutation.mutateAsync({
+      agents: agentConfigs,
+      categories: categoryConfigs,
+    });
+
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.agentRoutingData,
+    });
+  }, [agentConfigs, categoryConfigs, queryClient, saveAllConfigsMutation]);
 
   const openAgentConfig = useCallback((key: string) => {
     setEditingAgentKey(key);
@@ -151,31 +204,36 @@ export function useAgentRoutingActions(
     const value = aliasDialogValue.trim();
     if (!key || !value) return;
 
-    setSaving(true);
-    try {
-      await updateAgentRoutingConfig({ [key]: value });
-      setAliases((prev) => ({ ...prev, [key]: value }));
-      setAliasDialogOpen(false);
-    } finally {
-      setSaving(false);
-    }
-  }, [aliasDialogKey, aliasDialogValue, setAliases]);
+    await updateAgentRoutingMutation.mutateAsync({ [key]: value });
+
+    setAliases((prev) => ({ ...prev, [key]: value }));
+    setAliasDialogOpen(false);
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.agentRoutingData,
+    });
+  }, [
+    aliasDialogKey,
+    aliasDialogValue,
+    queryClient,
+    setAliases,
+    updateAgentRoutingMutation,
+  ]);
 
   const handleAliasDelete = useCallback(
     async (key: string) => {
-      setSaving(true);
-      try {
-        await updateAgentRoutingConfig({ [key]: '' });
-        setAliases((prev) => {
-          const next = { ...prev };
-          delete next[key];
-          return next;
-        });
-      } finally {
-        setSaving(false);
-      }
+      await updateAgentRoutingMutation.mutateAsync({ [key]: '' });
+
+      setAliases((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
     },
-    [setAliases],
+    [queryClient, setAliases, updateAgentRoutingMutation],
   );
 
   return {

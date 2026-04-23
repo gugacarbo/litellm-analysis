@@ -11,38 +11,39 @@ import {
   SelectValue,
 } from '../select';
 
-export type LogsFilterValues = {
+export type ErrorsFilterValues = {
   model: string;
   user: string;
   startDate: string;
   endDate: string;
 };
 
-type LogsFilterCardProps = {
+type ErrorsFilterCardProps = {
   models: string[];
-  values: LogsFilterValues;
+  values: ErrorsFilterValues;
   error: string | null;
-  onValuesChange: (values: LogsFilterValues) => void;
+  onValuesChange: (values: ErrorsFilterValues) => void;
   onApply: () => void;
   onClear: () => void;
 };
 
 const ALL_MODELS_VALUE = '__all_models__';
 
-export function LogsFilterCard({
+export function ErrorsFilterCard({
   models,
   values,
   error,
   onValuesChange,
   onApply,
   onClear,
-}: LogsFilterCardProps) {
+}: ErrorsFilterCardProps) {
   return (
     <Card>
+
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
           <div className="space-y-2">
-            <Label htmlFor="logs-model-filter">Model</Label>
+            <Label htmlFor="errors-model-filter">Model</Label>
             <Select
               value={values.model || ALL_MODELS_VALUE}
               onValueChange={(model) =>
@@ -52,7 +53,7 @@ export function LogsFilterCard({
                 })
               }
             >
-              <SelectTrigger id="logs-model-filter">
+              <SelectTrigger id="errors-model-filter">
                 <SelectValue placeholder="All models" />
               </SelectTrigger>
               <SelectContent>
@@ -67,9 +68,9 @@ export function LogsFilterCard({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="logs-user-filter">User</Label>
+            <Label htmlFor="errors-user-filter">User</Label>
             <Input
-              id="logs-user-filter"
+              id="errors-user-filter"
               placeholder="User id"
               value={values.user}
               onChange={(event) =>
@@ -79,21 +80,24 @@ export function LogsFilterCard({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="logs-start-date-filter">Start date</Label>
+            <Label htmlFor="errors-start-date-filter">Start date</Label>
             <Input
-              id="logs-start-date-filter"
+              id="errors-start-date-filter"
               type="date"
               value={values.startDate}
               onChange={(event) =>
-                onValuesChange({ ...values, startDate: event.target.value })
+                onValuesChange({
+                  ...values,
+                  startDate: event.target.value,
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="logs-end-date-filter">End date</Label>
+            <Label htmlFor="errors-end-date-filter">End date</Label>
             <Input
-              id="logs-end-date-filter"
+              id="errors-end-date-filter"
               type="date"
               value={values.endDate}
               onChange={(event) =>
