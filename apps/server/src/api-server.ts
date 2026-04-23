@@ -459,8 +459,23 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         return;
       }
 
-      const actualModel = rawConfig.model || '';
-      const actualFallbacks: string[] = rawConfig.fallback_models || [];
+      let existingAliases: Record<string, string> = {};
+      if (dataSource.capabilities.agentRouting) {
+        const existingRouting = await dataSource.getAgentRoutingConfig();
+        existingAliases = existingRouting?.model_group_alias
+          ? (existingRouting.model_group_alias as Record<string, string>)
+          : {};
+      }
+
+      const { resolveConfiguredModels } = await import(
+        './services/alias-generator.js'
+      );
+      const { actualModel, actualFallbacks } = resolveConfiguredModels(
+        key,
+        String(rawConfig.model || ''),
+        (rawConfig.fallback_models as string[] | undefined) || [],
+        existingAliases,
+      );
 
       const FALLBACK_MODEL_NAMES = ['gpt-5.3', 'gpt-5.2', 'gpt-5.1'];
 
@@ -498,11 +513,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         const { generateLitellmAliases, replaceAliasesForAgent } = await import(
           './services/alias-generator.js'
         );
-        const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
-        const existingRouting = await getAgentRoutingConfig();
-        const existingAliases = existingRouting?.model_group_alias
-          ? (existingRouting.model_group_alias as Record<string, string>)
-          : {};
+        const { updateAgentRoutingConfig } = dataSource;
         const newAliases = generateLitellmAliases(
           key,
           actualModel,
@@ -526,17 +537,30 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const categoriesToSave: Record<string, CategoryConfig> = {};
 
       const allNewAliases: Record<string, string> = {};
+      let existingAliases: Record<string, string> = {};
+      if (dataSource.capabilities.agentRouting) {
+        const existingRouting = await dataSource.getAgentRoutingConfig();
+        existingAliases = existingRouting?.model_group_alias
+          ? (existingRouting.model_group_alias as Record<string, string>)
+          : {};
+      }
+
+      const {
+        generateLitellmAliases,
+        replaceAliasesForAgent,
+        resolveConfiguredModels,
+      } = await import('./services/alias-generator.js');
 
       if (rawAgents && typeof rawAgents === 'object') {
-        const { generateLitellmAliases } = await import(
-          './services/alias-generator.js'
-        );
         for (const [key, rawCfg] of Object.entries(
           rawAgents as Record<string, Record<string, unknown>>,
         )) {
-          const actualModel = (rawCfg.model as string) || '';
-          const actualFallbacks: string[] =
-            (rawCfg.fallback_models as string[]) || [];
+          const { actualModel, actualFallbacks } = resolveConfiguredModels(
+            key,
+            String(rawCfg.model || ''),
+            (rawCfg.fallback_models as string[] | undefined) || [],
+            existingAliases,
+          );
 
           agentsToSave[key] = {
             ...rawCfg,
@@ -552,19 +576,24 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             actualFallbacks,
           );
           Object.assign(allNewAliases, aliases);
+          existingAliases = replaceAliasesForAgent(
+            existingAliases,
+            key,
+            aliases,
+          );
         }
       }
 
       if (rawCategories && typeof rawCategories === 'object') {
-        const { generateLitellmAliases } = await import(
-          './services/alias-generator.js'
-        );
         for (const [key, rawCfg] of Object.entries(
           rawCategories as Record<string, Record<string, unknown>>,
         )) {
-          const actualModel = (rawCfg.model as string) || '';
-          const actualFallbacks: string[] =
-            (rawCfg.fallback_models as string[]) || [];
+          const { actualModel, actualFallbacks } = resolveConfiguredModels(
+            key,
+            String(rawCfg.model || ''),
+            (rawCfg.fallback_models as string[] | undefined) || [],
+            existingAliases,
+          );
 
           categoriesToSave[key] = {
             ...rawCfg,
@@ -580,6 +609,11 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             actualFallbacks,
           );
           Object.assign(allNewAliases, aliases);
+          existingAliases = replaceAliasesForAgent(
+            existingAliases,
+            key,
+            aliases,
+          );
         }
       }
 
@@ -610,7 +644,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         );
         const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
         const existingRouting = await getAgentRoutingConfig();
-        let existingAliases = existingRouting?.model_group_alias
+        let aliasesToPersist = existingRouting?.model_group_alias
           ? (existingRouting.model_group_alias as Record<string, string>)
           : {};
 
@@ -625,14 +659,14 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
               keyAliases[aliasKey] = aliasValue;
             }
           }
-          existingAliases = replaceAliasesForAgent(
-            existingAliases,
+          aliasesToPersist = replaceAliasesForAgent(
+            aliasesToPersist,
             key,
             keyAliases,
           );
         }
 
-        await updateAgentRoutingConfig(existingAliases);
+        await updateAgentRoutingConfig(aliasesToPersist);
       }
 
       res.json({ success: true });

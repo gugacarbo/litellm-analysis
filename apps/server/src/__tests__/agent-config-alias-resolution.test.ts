@@ -1,0 +1,133 @@
+import request from 'supertest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { DATABASE_CAPABILITIES } from '../data-source/database';
+import type {
+  AnalyticsCapabilities,
+  AnalyticsDataSource,
+} from '../data-source/types';
+
+const mockUpdateAgentInConfig = vi.fn();
+const mockReadConfigFile = vi.fn();
+const mockWriteProvidersFile = vi.fn();
+const mockWriteVscodeModelsFile = vi.fn();
+
+vi.mock('../services/config-file.js', () => ({
+  updateAgentInConfig: (...args: unknown[]) => mockUpdateAgentInConfig(...args),
+  updateCategoryInConfig: vi.fn(),
+  readConfigFile: (...args: unknown[]) => mockReadConfigFile(...args),
+  writeProvidersFile: (...args: unknown[]) => mockWriteProvidersFile(...args),
+  writeVscodeModelsFile: (...args: unknown[]) =>
+    mockWriteVscodeModelsFile(...args),
+  writeFullConfig: vi.fn(),
+  deleteAgentFromConfig: vi.fn(),
+  deleteCategoryFromConfig: vi.fn(),
+}));
+
+function createMockDataSource(
+  capabilities: AnalyticsCapabilities,
+): AnalyticsDataSource {
+  return {
+    capabilities,
+    getMetricsSummary: vi.fn().mockResolvedValue({
+      total_spend: 0,
+      total_tokens: 0,
+      active_models: 0,
+      error_count: 0,
+    }),
+    getDailySpendTrend: vi.fn().mockResolvedValue([]),
+    getSpendByModel: vi.fn().mockResolvedValue([]),
+    getSpendByUser: vi.fn().mockResolvedValue([]),
+    getSpendByKey: vi.fn().mockResolvedValue([]),
+    getSpendLogsCount: vi.fn().mockResolvedValue(0),
+    getSpendLogs: vi.fn().mockResolvedValue({
+      logs: [],
+      pagination: { total: 0, page: 1, page_size: 50, total_pages: 0 },
+    }),
+    getTokenDistribution: vi.fn().mockResolvedValue([]),
+    getPerformanceMetrics: vi.fn().mockResolvedValue({
+      total_requests: 0,
+      avg_duration_ms: 0,
+      success_rate: 0,
+    }),
+    getHourlyUsagePatterns: vi.fn().mockResolvedValue([]),
+    getApiKeyStats: vi.fn().mockResolvedValue([]),
+    getCostEfficiency: vi.fn().mockResolvedValue([]),
+    getModelDistribution: vi.fn().mockResolvedValue([]),
+    getDailyTokenTrend: vi.fn().mockResolvedValue([]),
+    getModelStatistics: vi.fn().mockResolvedValue([]),
+    getModels: vi.fn().mockResolvedValue([]),
+    getModelDetails: vi.fn().mockResolvedValue([]),
+    getErrorLogs: vi.fn().mockResolvedValue([]),
+    createModel: vi.fn().mockResolvedValue(undefined),
+    updateModel: vi.fn().mockResolvedValue(undefined),
+    deleteModel: vi.fn().mockResolvedValue(undefined),
+    mergeModels: vi.fn().mockResolvedValue(undefined),
+    deleteModelLogs: vi.fn().mockResolvedValue(undefined),
+    getAgentRoutingConfig: vi.fn().mockResolvedValue({
+      model_group_alias: {
+        'sisyphus/gpt-5.4': 'openai/gpt-4.1',
+        'sisyphus/gpt-5.3': 'anthropic/claude-3-7-sonnet',
+        'oracle/gpt-5.4': 'openai/o3-mini',
+      },
+    }),
+    updateAgentRoutingConfig: vi.fn().mockResolvedValue(undefined),
+    getAgentConfigs: vi.fn().mockResolvedValue({}),
+    getCategoryConfigs: vi.fn().mockResolvedValue({}),
+    updateAgentConfig: vi.fn().mockResolvedValue(undefined),
+    updateCategoryConfig: vi.fn().mockResolvedValue(undefined),
+    deleteAgentConfig: vi.fn().mockResolvedValue(undefined),
+    deleteCategoryConfig: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
+async function getServer(capabilities: AnalyticsCapabilities) {
+  const { createApiServer } = await import('../api-server');
+  const mockDs = createMockDataSource(capabilities);
+  return { app: createApiServer(mockDs), dataSource: mockDs };
+}
+
+describe('PUT /agent-config/:key alias resolution', () => {
+  beforeEach(() => {
+    mockUpdateAgentInConfig.mockReset();
+    mockReadConfigFile.mockReset();
+    mockWriteProvidersFile.mockReset();
+    mockWriteVscodeModelsFile.mockReset();
+
+    mockReadConfigFile.mockResolvedValue({ agents: {}, categories: {} });
+    mockWriteProvidersFile.mockResolvedValue(undefined);
+    mockWriteVscodeModelsFile.mockResolvedValue(undefined);
+  });
+
+  it('resolves logical gpt aliases to real LiteLLM models before persisting aliases', async () => {
+    const { app, dataSource } = await getServer(DATABASE_CAPABILITIES);
+
+    const res = await request(app)
+      .put('/agent-config/sisyphus')
+      .send({
+        type: 'agent',
+        syncAliases: true,
+        config: {
+          model: 'sisyphus/gpt-5.4',
+          fallback_models: ['sisyphus/gpt-5.3'],
+          description: 'updated',
+        },
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true });
+
+    expect(mockUpdateAgentInConfig).toHaveBeenCalledWith(
+      'sisyphus',
+      expect.objectContaining({
+        model: 'sisyphus/gpt-5.4',
+        fallback_models: ['sisyphus/gpt-5.3'],
+      }),
+    );
+
+    expect(dataSource.updateAgentRoutingConfig).toHaveBeenCalledWith({
+      'sisyphus/gpt-5.4': 'openai/gpt-4.1',
+      'sisyphus/gpt-5.3': 'anthropic/claude-3-7-sonnet',
+      'oracle/gpt-5.4': 'openai/o3-mini',
+    });
+  });
+});

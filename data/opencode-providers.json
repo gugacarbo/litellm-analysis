@@ -88,6 +88,14 @@
             "output": 32768,
             "context": 200000
           }
+        },
+        "gpt-5.2": {
+          "id": "sisyphus/gpt-5.2",
+          "name": "Sisyphus Model 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
         }
       }
     },

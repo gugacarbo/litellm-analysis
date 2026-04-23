@@ -113,6 +113,17 @@
       }
     },
     {
+      "id": "sisyphus/gpt-5.2",
+      "owned_by": "atplus",
+      "displayName": "Sisyphus Model 3",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 200000,
+      "limit": {
+        "output": 32768
+      }
+    },
+    {
       "id": "oracle/gpt-5.4",
       "owned_by": "atplus",
       "displayName": "Oracle Model",

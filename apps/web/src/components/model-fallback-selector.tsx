@@ -100,11 +100,11 @@ export function ModelFallbackSelector({
   const getPreviewAliases = () => {
     const aliases = [];
     if (primaryModel) {
-      aliases.push(`litellm/${agentKey} → ${primaryModel}`);
+      aliases.push(`${agentKey}/gpt-5.4 -> ${primaryModel}`);
     }
     fallbackModels.forEach((model, idx) => {
       if (model) {
-        aliases.push(`litellm/${agentKey}_fallback_${idx + 1} → ${model}`);
+        aliases.push(`${agentKey}/gpt-5.${3 - idx} -> ${model}`);
       }
     });
     return aliases;

@@ -79,3 +79,43 @@ export function replaceAliasesForAgent(
 
   return cleaned;
 }
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function isLogicalModelForKey(key: string, model: string): boolean {
+  const pattern = new RegExp(`^${escapeRegExp(key)}/gpt-5\\.[1-4]$`);
+  return pattern.test(model);
+}
+
+function resolveModelValue(
+  key: string,
+  value: string,
+  existingAliases: Record<string, string>,
+): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  if (isLogicalModelForKey(key, trimmed)) {
+    return existingAliases[trimmed] ?? '';
+  }
+
+  return trimmed;
+}
+
+export function resolveConfiguredModels(
+  key: string,
+  model: string,
+  fallbackModels: string[] | undefined,
+  existingAliases: Record<string, string>,
+): { actualModel: string; actualFallbacks: string[] } {
+  const actualModel = resolveModelValue(key, model, existingAliases);
+  const actualFallbacks = (fallbackModels || [])
+    .map((fallback) => resolveModelValue(key, fallback, existingAliases))
+    .filter((fallback) => Boolean(fallback));
+
+  return { actualModel, actualFallbacks };
+}
