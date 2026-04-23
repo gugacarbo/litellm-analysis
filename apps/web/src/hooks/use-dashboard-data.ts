@@ -99,7 +99,7 @@ export function useDashboardData() {
       setSpendByModel(modelData);
       setSpendByUser(userData);
       setDailyTrend(trendData);
-      setLogs(logsData);
+      setLogs(logsData.logs);
       setModels(modelDetails);
       setErrors(errorData);
       setTokenDistribution(tokenDistData);

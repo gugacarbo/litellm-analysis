@@ -1,3 +1,5 @@
+import type { SpendLog, PaginationMetadata } from '../types/analytics';
+
 const API_BASE = '/api';
 
 export type ApiError = {
@@ -55,21 +57,7 @@ export async function getSpendLogs(params: {
   endDate?: string;
   limit?: number;
   offset?: number;
-}): Promise<
-  {
-    request_id: string;
-    model: string;
-    user: string;
-    total_tokens: number;
-    prompt_tokens: number;
-    completion_tokens: number;
-    spend: number;
-    start_time: string;
-    end_time: string;
-    api_key: string;
-    status: string;
-  }[]
-> {
+}): Promise<{ logs: SpendLog[]; pagination: PaginationMetadata }> {
   const searchParams = new URLSearchParams();
   if (params.model) searchParams.set('model', params.model);
   if (params.user) searchParams.set('user', params.user);
@@ -79,6 +67,22 @@ export async function getSpendLogs(params: {
   if (params.offset) searchParams.set('offset', String(params.offset));
 
   return fetchApi(`/spend/logs?${searchParams}`);
+}
+
+export async function getSpendLogsCount(params: {
+  model?: string;
+  user?: string;
+  startDate?: string;
+  endDate?: string;
+}): Promise<number> {
+  const searchParams = new URLSearchParams();
+  if (params.model) searchParams.set('model', params.model);
+  if (params.user) searchParams.set('user', params.user);
+  if (params.startDate) searchParams.set('startDate', params.startDate);
+  if (params.endDate) searchParams.set('endDate', params.endDate);
+
+  const response = await fetchApi<{ count: number }>(`/spend/logs/count?${searchParams}`);
+  return response.count;
 }
 
 export async function getSpendByUser(): Promise<
