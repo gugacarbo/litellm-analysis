@@ -131,6 +131,7 @@ function sanitizeConfig(config: AgentConfigFile): AgentConfigFile {
 
 interface LiteLLMModelConfig {
   id: string;
+  name?: string;
   limit?: {
     output?: number;
     context?: number;
@@ -142,20 +143,18 @@ interface LiteLLMModelConfig {
   };
 }
 
+interface OpenCodeProviderEntry {
+  name?: string;
+  npm: string;
+  options?: {
+    baseURL: string;
+    apiKey: string;
+  };
+  models?: Record<string, LiteLLMModelConfig>;
+}
+
 interface OpenCodeProviders {
-  provider: Record<
-    string,
-    | { npm: string }
-    | {
-        name: string;
-        npm: string;
-        options: {
-          baseURL: string;
-          apiKey: string;
-        };
-        models: Record<string, LiteLLMModelConfig>;
-      }
-  >;
+  provider: Record<string, OpenCodeProviderEntry>;
 }
 
 function extractModelId(
@@ -182,6 +181,7 @@ function buildLiteLLMProviderConfig(
 
     const modelConfig: LiteLLMModelConfig = {
       id: modelId,
+      name: modelId,
     };
 
     if (params.context_window_size || params.max_tokens) {
@@ -221,6 +221,33 @@ function buildLiteLLMProviderConfig(
   };
 }
 
+function createAgentModelEntry(
+  providerKey: string,
+  index: number,
+): LiteLLMModelConfig {
+  const modelAlias = 'gpt-5.4';
+  const displayName =
+    index === 0
+      ? `${capitalize(providerKey)} Model`
+      : `${capitalize(providerKey)} Model ${index + 1}`;
+
+  return {
+    id: modelAlias,
+    name: displayName,
+    limit: {
+      output: 50000,
+      context: 200000,
+    },
+  };
+}
+
+function capitalize(str: string): string {
+  return str
+    .split(/[_-]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 export async function writeProvidersFile(
   config: AgentConfigFile,
   models?: ModelEntry[],
@@ -233,7 +260,13 @@ export async function writeProvidersFile(
 
   for (const [key, agent] of Object.entries(config.agents || {})) {
     if (Object.keys(agent).length === 0) continue;
-    providers.provider[key] = { npm: '@ai-sdk/openai-compatible' };
+
+    providers.provider[key] = {
+      npm: '@ai-sdk/openai-compatible',
+      models: {
+        'gpt-5.4': createAgentModelEntry(key, 0),
+      },
+    };
 
     const fallbackCount = (agent.fallback_models || []).filter((f) =>
       f?.includes(`/gpt-5.4`),
@@ -241,13 +274,22 @@ export async function writeProvidersFile(
     for (let i = 0; i < fallbackCount; i++) {
       providers.provider[`${key}_fallback_${i + 1}`] = {
         npm: '@ai-sdk/openai-compatible',
+        models: {
+          'gpt-5.4': createAgentModelEntry(key, i + 1),
+        },
       };
     }
   }
 
   for (const [key, category] of Object.entries(config.categories || {})) {
     if (Object.keys(category).length === 0) continue;
-    providers.provider[key] = { npm: '@ai-sdk/openai-compatible' };
+
+    providers.provider[key] = {
+      npm: '@ai-sdk/openai-compatible',
+      models: {
+        'gpt-5.4': createAgentModelEntry(key, 0),
+      },
+    };
 
     const fallbackCount = (category.fallback_models || []).filter((f) =>
       f?.includes(`/gpt-5.4`),
@@ -255,6 +297,9 @@ export async function writeProvidersFile(
     for (let i = 0; i < fallbackCount; i++) {
       providers.provider[`${key}_fallback_${i + 1}`] = {
         npm: '@ai-sdk/openai-compatible',
+        models: {
+          'gpt-5.4': createAgentModelEntry(key, i + 1),
+        },
       };
     }
   }
