@@ -47,6 +47,14 @@ export const errorLogs = pgTable('LiteLLM_ErrorLogs', {
 export type ErrorLog = typeof errorLogs.$inferSelect;
 export type NewErrorLog = typeof errorLogs.$inferInsert;
 
+/**
+ * LiteLLM_Config - General configuration key-value store
+ */
+export const liteLLMConfig = pgTable('LiteLLM_Config', {
+	paramName: varchar('param_name', { length: 255 }).primaryKey(),
+	paramValue: jsonb('param_value'),
+});
+
 // Type aliases for queries
 export interface SpendByModelResult {
 	model: string;

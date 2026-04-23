@@ -46,6 +46,7 @@ const API_CAPABILITIES: AnalyticsCapabilities = {
 	deleteModel: false,
 	mergeModels: false,
 	deleteModelLogs: false,
+	agentRouting: false,
 };
 
 export class ApiDataSource implements AnalyticsDataSource {
@@ -565,6 +566,14 @@ export class ApiDataSource implements AnalyticsDataSource {
 	}
 	async deleteModelLogs(_model: string): Promise<void> {
 		throw new Error('Deleting model logs is not supported in API-only mode');
+	}
+
+	async getAgentRoutingConfig(): Promise<Record<string, unknown> | null> {
+		throw new Error('Agent routing config is not supported in API-only mode');
+	}
+
+	async updateAgentRoutingConfig(_config: Record<string, unknown>): Promise<void> {
+		throw new Error('Agent routing config updates are not supported in API-only mode');
 	}
 }
 

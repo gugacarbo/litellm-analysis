@@ -280,3 +280,25 @@ export async function mergeModels(
     body: JSON.stringify({ sourceModel, targetModel }),
   });
 }
+
+export type AgentRoutingAPIResponse = {
+  [model: string]: string;
+};
+
+export async function getAgentRoutingConfig(): Promise<AgentRoutingAPIResponse> {
+  const data = await fetchApi<AgentRoutingAPIResponse>('/agent-routing');
+  if ('model_group_alias' in data) {
+    return data.model_group_alias as AgentRoutingAPIResponse;
+  }
+  return data;
+}
+
+export async function updateAgentRoutingConfig(modelGroupAlias: AgentRoutingAPIResponse): Promise<{ success: boolean }> {
+  return fetchApi('/agent-routing', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ model_group_alias: modelGroupAlias }),
+  });
+}

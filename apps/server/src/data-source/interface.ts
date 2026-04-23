@@ -46,4 +46,6 @@ export interface AnalyticsDataSource {
 	deleteModel(modelName: string): Promise<void>;
 	mergeModels(sourceModel: string, targetModel: string): Promise<void>;
 	deleteModelLogs(modelName: string): Promise<void>;
+	getAgentRoutingConfig(): Promise<Record<string, unknown> | null>;
+	updateAgentRoutingConfig(config: Record<string, unknown>): Promise<void>;
 }

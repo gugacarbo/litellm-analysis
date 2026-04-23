@@ -416,3 +416,26 @@ export async function deleteModelLogs(modelName: string) {
 	await db.delete(spendLogs).where(eq(spendLogs.model, modelName));
 }
 
+export async function getRouterSettings(): Promise<Record<string, unknown> | null> {
+	const result = await db.execute(
+		sql`SELECT param_value FROM "LiteLLM_Config" WHERE param_name = 'router_settings' LIMIT 1`
+	);
+	const row = result.rows[0] as { param_value: unknown } | undefined;
+	return row?.param_value ? (row.param_value as Record<string, unknown>) : null;
+}
+
+export async function updateRouterSettings(modelGroupAlias: Record<string, string>): Promise<void> {
+	const existing = await getRouterSettings();
+	const merged: Record<string, unknown> = existing ? { ...existing } : {};
+	merged.model_group_alias = {
+		...(typeof merged.model_group_alias === 'object' && merged.model_group_alias !== null
+			? (merged.model_group_alias as Record<string, string>)
+			: {}),
+		...modelGroupAlias,
+	};
+	await db.execute(
+		sql`INSERT INTO "LiteLLM_Config" (param_name, param_value) VALUES ('router_settings', ${JSON.stringify(merged)})
+			ON CONFLICT (param_name) DO UPDATE SET param_value = EXCLUDED.param_value`
+	);
+}
+

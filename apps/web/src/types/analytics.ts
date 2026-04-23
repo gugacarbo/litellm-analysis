@@ -36,6 +36,7 @@ export interface AnalyticsCapabilities {
   deleteModel: boolean;
   mergeModels: boolean;
   deleteModelLogs: boolean;
+  agentRouting: boolean;
 }
 
 export interface SpendByModel {

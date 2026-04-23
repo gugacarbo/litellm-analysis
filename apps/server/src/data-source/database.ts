@@ -71,6 +71,7 @@ export const DATABASE_CAPABILITIES: AnalyticsCapabilities = {
 	deleteModel: true,
 	mergeModels: true,
 	deleteModelLogs: true,
+	agentRouting: true,
 };
 
 export const LIMITED_CAPABILITIES: AnalyticsCapabilities = {
@@ -98,6 +99,7 @@ export const LIMITED_CAPABILITIES: AnalyticsCapabilities = {
 	deleteModel: false,
 	mergeModels: false,
 	deleteModelLogs: false,
+	agentRouting: false,
 };
 
 export class DatabaseDataSource implements AnalyticsDataSource {
@@ -350,5 +352,15 @@ export class DatabaseDataSource implements AnalyticsDataSource {
 
 	async deleteModelLogs(modelName: string): Promise<void> {
 		await deleteModelLogsQuery(modelName);
+	}
+
+	async getAgentRoutingConfig(): Promise<Record<string, unknown> | null> {
+		const { getRouterSettings } = await import('../db/queries');
+		return getRouterSettings();
+	}
+
+	async updateAgentRoutingConfig(modelGroupAlias: Record<string, string>): Promise<void> {
+		const { updateRouterSettings } = await import('../db/queries');
+		await updateRouterSettings(modelGroupAlias);
 	}
 }

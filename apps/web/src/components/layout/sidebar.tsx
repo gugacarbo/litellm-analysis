@@ -1,5 +1,5 @@
 import { Card, CardContent } from '../../components/card';
-import { Activity, AlertCircle, BarChart3, FileText, Settings } from 'lucide-react';
+import { Activity, AlertCircle, BarChart3, FileText, GitBranch, Settings } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useServerMode } from '../../hooks/use-server-mode';
 import { Badge } from '../../components/badge';
@@ -15,6 +15,7 @@ export function Sidebar() {
     { to: '/logs', icon: FileText, label: 'Spend Logs' },
     ...(capabilities.errorLogs ? [{ to: '/errors', icon: AlertCircle, label: 'Errors' }] : []),
     { to: '/models', icon: Settings, label: 'Models' },
+    ...(capabilities.agentRouting ? [{ to: '/agent-routing', icon: GitBranch, label: 'Agent Routing' }] : []),
   ];
 
   return (
