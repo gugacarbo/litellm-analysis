@@ -244,11 +244,12 @@ export async function createModel(model: ModelConfig): Promise<{ success: boolea
 
 export async function updateModel(
   modelName: string,
-  litellmParams: Record<string, unknown>
+  litellmParams: Record<string, unknown>,
+  newName?: string
 ): Promise<{ success: boolean }> {
   return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
     method: 'PUT',
-    body: JSON.stringify({ litellmParams }),
+    body: JSON.stringify({ litellmParams, ...(newName ? { modelName: newName } : {}) }),
   });
 }
 

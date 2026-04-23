@@ -505,7 +505,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(capabilities): add write capability flags to DATABASE and API capabilities`
   - Files: `apps/server/src/data-source/database.ts`, `apps/server/src/data-source/api.ts`
 
-- [ ] 6. Implementar POST /models endpoint (create)
+- [x] 6. Implementar POST /models endpoint (create)
 
   **What to do**:
   - Em `apps/server/src/api-server.ts`: adicionar `app.post('/models', ...)` endpoint
@@ -573,7 +573,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(api): add POST /models endpoint for model creation`
   - Files: `apps/server/src/api-server.ts`
 
-- [ ] 7. Implementar PUT /models/:name endpoint (update)
+- [x] 7. Implementar PUT /models/:name endpoint (update)
 
   **What to do**:
   - Em `apps/server/src/db/queries.ts`: modificar `updateModel()` para aceitar `modelName` nos updates (opcional)
@@ -630,7 +630,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(api): add PUT /models/:name endpoint for model updates`
   - Files: `apps/server/src/api-server.ts`
 
-- [ ] 8. Implementar DELETE /models/:name endpoint (delete)
+- [x] 8. Implementar DELETE /models/:name endpoint (delete)
 
   **What to do**:
   - Em `apps/server/src/api-server.ts`: adicionar `app.delete('/models/:name', ...)` endpoint
@@ -683,7 +683,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(api): add DELETE /models/:name endpoint`
   - Files: `apps/server/src/api-server.ts`
 
-- [ ] 9. Implementar POST /models/merge endpoint
+- [x] 9. Implementar POST /models/merge endpoint
 
   **What to do**:
   - Em `apps/server/src/api-server.ts`: adicionar `app.post('/models/merge', ...)` endpoint
@@ -734,7 +734,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(api): add POST /models/merge endpoint`
   - Files: `apps/server/src/api-server.ts`
 
-- [ ] 10. Implementar DELETE /models/logs/:model endpoint
+- [x] 10. Implementar DELETE /models/logs/:model endpoint
 
   **What to do**:
   - Em `apps/server/src/api-server.ts`: adicionar `app.delete('/models/logs/:model', ...)` endpoint
@@ -784,7 +784,7 @@ Max Concurrent: 6 (Wave 2)
   - Message: `feat(api): add DELETE /models/logs/:model endpoint`
   - Files: `apps/server/src/api-server.ts`
 
-- [ ] 11. Adicionar guards de limited mode nos endpoints de escrita
+- [x] 11. Adicionar guards de limited mode nos endpoints de escrita
 
   **What to do**:
   - Em `apps/server/src/api-server.ts`: adicionar middleware ou guards inline nos endpoints POST/PUT/DELETE

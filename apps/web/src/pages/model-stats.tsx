@@ -39,6 +39,8 @@ import {
 import { getModelStatistics, deleteModelLogs, mergeModels } from '../lib/api-client';
 import { Toaster } from '../components/sonner';
 import { ChevronDownIcon } from 'lucide-react';
+import { useServerMode } from '../hooks/use-server-mode';
+import { FeatureGate } from '../components/feature-gate';
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -306,51 +308,58 @@ export function ModelStatsPage() {
           <h1 className="text-3xl font-bold">Model Statistics</h1>
           <div className="flex items-center gap-2">
             <Badge variant="outline">30-day period</Badge>
-            <Button size="sm" variant="outline" onClick={() => setMergeMode(!mergeMode)}>
-              {mergeMode ? 'Cancel' : 'Merge Models'}
-            </Button>
+            <FeatureGate 
+              capability="mergeModels"
+              fallback={<Button size="sm" variant="outline" disabled title="Feature not available in limited mode">Merge Models</Button>}
+            >
+              <Button size="sm" variant="outline" onClick={() => setMergeMode(!mergeMode)}>
+                {mergeMode ? 'Cancel' : 'Merge Models'}
+              </Button>
+            </FeatureGate>
           </div>
         </div>
 
-        {mergeMode && (
-          <Card>
-            <CardContent className="pt-4 flex items-center gap-2 flex-wrap">
-              <Select value={sourceModel} onValueChange={setSourceModel}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Source model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {data.filter(m => m.model).map((m) => (
-                    <SelectItem key={m.model} value={m.model} disabled={m.model === targetModel}>
-                      {m.model}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span>→</span>
-              <Select value={targetModel} onValueChange={setTargetModel}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Target model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {data.filter(m => m.model).map((m) => (
-                    <SelectItem key={m.model} value={m.model} disabled={m.model === sourceModel}>
-                      {m.model}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                size="sm"
-                variant="default"
-                disabled={merging || !sourceModel || !targetModel}
-                onClick={handleMerge}
-              >
-                {merging ? 'Merging...' : 'Merge'}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        <FeatureGate capability="mergeModels">
+          {mergeMode && (
+            <Card>
+              <CardContent className="pt-4 flex items-center gap-2 flex-wrap">
+                <Select value={sourceModel} onValueChange={setSourceModel}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Source model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {data.filter(m => m.model).map((m) => (
+                      <SelectItem key={m.model} value={m.model} disabled={m.model === targetModel}>
+                        {m.model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span>→</span>
+                <Select value={targetModel} onValueChange={setTargetModel}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Target model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {data.filter(m => m.model).map((m) => (
+                      <SelectItem key={m.model} value={m.model} disabled={m.model === sourceModel}>
+                        {m.model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  size="sm"
+                  variant="default"
+                  disabled={merging || !sourceModel || !targetModel}
+                  onClick={handleMerge}
+                >
+                  {merging ? 'Merging...' : 'Merge'}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </FeatureGate>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
@@ -543,14 +552,19 @@ export function ModelStatsPage() {
                                   return formatDate(m.last_seen);
                                 case 'actions':
                                   return (
-                                    <Button
-                                      variant="destructive"
-                                      size="sm"
-                                      disabled={deleting === m.model}
-                                      onClick={() => openDeleteDialog(m.model)}
+                                    <FeatureGate 
+                                      capability="deleteModelLogs"
+                                      fallback={<Button variant="secondary" size="sm" disabled title="Feature not available in limited mode">—</Button>}
                                     >
-                                      {deleting === m.model ? '...' : '×'}
-                                    </Button>
+                                      <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        disabled={deleting === m.model}
+                                        onClick={() => openDeleteDialog(m.model)}
+                                      >
+                                        {deleting === m.model ? '...' : '×'}
+                                      </Button>
+                                    </FeatureGate>
                                   );
                                 default:
                                   return null;

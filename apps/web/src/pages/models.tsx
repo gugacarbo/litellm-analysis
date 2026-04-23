@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Pencil, Trash2, Settings, Database } from 'lucide-react';
 import { Button } from '../components/button';
+import { FeatureGate } from '../components/feature-gate';
+import { useServerMode } from '../hooks/use-server-mode';
 import {
   Card,
   CardContent,
@@ -71,6 +73,7 @@ export function ModelsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingModel, setEditingModel] = useState<ModelConfig | null>(null);
   const [deleteModelName, setDeleteModelName] = useState<string | null>(null);
+  const { mode } = useServerMode();
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -184,7 +187,8 @@ useEffect(() => {
       });
 
       if (editingModel) {
-        await updateModel(editingModel.modelName, params);
+        const newName = mode === 'limited' && formData.modelName !== editingModel.modelName ? formData.modelName : undefined;
+        await updateModel(editingModel.modelName, params, newName);
       } else {
         await createModel({
           modelName: formData.modelName.trim(),
@@ -244,10 +248,12 @@ useEffect(() => {
         </h1>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={handleOpenCreate}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Model
-            </Button>
+            <FeatureGate capability="createModel">
+              <Button onClick={handleOpenCreate}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Model
+              </Button>
+            </FeatureGate>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
@@ -270,7 +276,7 @@ useEffect(() => {
                     setFormData({ ...formData, modelName: e.target.value })
                   }
                   placeholder="e.g., gpt-4, claude-3-opus"
-                  disabled={!!editingModel}
+                  disabled={editingModel && mode !== 'limited'}
                 />
               </div>
               <div className="grid gap-2">
@@ -434,47 +440,49 @@ useEffect(() => {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => setDeleteModelName(model.modelName)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Delete Model
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete{' '}
-                                <span className="font-semibold">
-                                  {deleteModelName}
-                                </span>
-                                ? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel
-                                onClick={() => setDeleteModelName(null)}
+                        <FeatureGate capability="deleteModel">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() => setDeleteModelName(model.modelName)}
                               >
-                                Cancel
-                              </AlertDialogCancel>
-                              <AlertDialogAction asChild>
-                                <Button 
-                                  variant="destructive" 
-                                  size="sm"
-                                  onClick={handleDelete}
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Delete Model
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete{' '}
+                                  <span className="font-semibold">
+                                    {deleteModelName}
+                                  </span>
+                                  ? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel
+                                  onClick={() => setDeleteModelName(null)}
                                 >
-                                  Delete
-                                </Button>
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                                  Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction asChild>
+                                  <Button 
+                                    variant="destructive" 
+                                    size="sm"
+                                    onClick={handleDelete}
+                                  >
+                                    Delete
+                                  </Button>
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </FeatureGate>
                       </div>
                     </TableCell>
                   </TableRow>

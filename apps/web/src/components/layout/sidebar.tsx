@@ -24,8 +24,8 @@ export function Sidebar() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-bold text-lg">LiteLLM Stats</h2>
             {!isLoading ? (
-              <Badge variant={mode === 'database' ? 'default' : 'secondary'}>
-                {mode === 'database' ? '🟢 Full Access' : '🟡 API Mode'}
+              <Badge className={mode === 'limited' ? 'bg-amber-500/15 text-amber-600 border-amber-500/30' : ''} variant={mode === 'database' ? 'default' : 'secondary'}>
+                {mode === 'database' ? '🟢 Full Access' : mode === 'limited' ? '🟠 Limited' : '🟡 API Mode'}
               </Badge>
             ) : (
               <Badge variant="outline">Loading...</Badge>
