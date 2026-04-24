@@ -1,1 +1,1 @@
-export { ApiDataSource } from '@lite-llm/analytics-data-source';
+export { ApiDataSource } from '@lite-llm/analytics/data-source';

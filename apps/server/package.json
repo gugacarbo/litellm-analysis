@@ -14,9 +14,7 @@
   },
   "dependencies": {
     "@lite-llm/alias-router": "workspace:*",
-    "@lite-llm/analytics-data-source": "workspace:*",
-    "@lite-llm/analytics-queries": "workspace:*",
-    "@lite-llm/analytics-types": "workspace:*",
+    "@lite-llm/analytics": "workspace:*",
     "@lite-llm/config-generator": "workspace:*",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",

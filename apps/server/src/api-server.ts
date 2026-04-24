@@ -1,5 +1,9 @@
+import type {
+  AgentConfig,
+  AnalyticsDataSource,
+  CategoryConfig,
+} from '@lite-llm/analytics/types';
 import express, { type Application } from 'express';
-import type { AnalyticsDataSource, AgentConfig, CategoryConfig } from '@lite-llm/analytics-types';
 
 function parseDays(rawValue: unknown, fallback: number): number {
   if (typeof rawValue !== 'string') {
@@ -476,15 +480,12 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         existingAliases,
       );
 
-      const FALLBACK_MODEL_NAMES = ['gpt-5.3', 'gpt-5.2', 'gpt-5.1'];
-
+      // Save actual (real) model names to db.json - the agentsToOutputConfigs function
+      // will transform them back to aliases when generating output config files
       const configToSave = {
         ...rawConfig,
-        model: actualModel ? `${key}/gpt-5.4` : '',
-        fallback_models: actualFallbacks.map(
-          (_: string, i: number) =>
-            `${key}/${FALLBACK_MODEL_NAMES[i] || `gpt-5.${3 - i}`}`,
-        ),
+        model: actualModel,
+        fallback_models: actualFallbacks,
       };
 
       const {
@@ -561,12 +562,11 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             existingAliases,
           );
 
+          // Save actual (real) model names to db.json
           agentsToSave[key] = {
             ...rawCfg,
-            model: actualModel ? `${key}/gpt-5.4` : '',
-            fallback_models: actualFallbacks.map(
-              (_: string, i: number) => `${key}/gpt-5.${3 - i}`,
-            ),
+            model: actualModel,
+            fallback_models: actualFallbacks,
           } as AgentConfig;
 
           const aliases = generateLitellmAliases(
@@ -594,12 +594,11 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             existingAliases,
           );
 
+          // Save actual (real) model names to db.json
           categoriesToSave[key] = {
             ...rawCfg,
-            model: actualModel ? `${key}/gpt-5.4` : '',
-            fallback_models: actualFallbacks.map(
-              (_: string, i: number) => `${key}/gpt-5.${3 - i}`,
-            ),
+            model: actualModel,
+            fallback_models: actualFallbacks,
           } as CategoryConfig;
 
           const aliases = generateLitellmAliases(

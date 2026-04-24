@@ -1,1 +1,1 @@
-export type * from '@lite-llm/analytics-types';
+export type * from '@lite-llm/analytics/types';

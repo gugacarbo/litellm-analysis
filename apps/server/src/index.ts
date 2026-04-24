@@ -1,6 +1,6 @@
 import 'dotenv/config';
+import { createDataSource } from '@lite-llm/analytics/data-source';
 import { createApiServer } from './api-server.js';
-import { createDataSource } from '@lite-llm/analytics-data-source';
 
 const dataSource = createDataSource();
 const app = createApiServer(dataSource);
