@@ -1,4 +1,4 @@
-import { Palette, RefreshCw } from 'lucide-react';
+import { Palette } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import type { AgentDefinition } from '../../types/agent-routing';
 import { Badge } from '../badge';
@@ -15,20 +15,16 @@ type ConfigInfo = {
 
 type AgentsTableProps = {
   loading: boolean;
-  saving: boolean;
   agents: AgentDefinition[];
   getAgentConfigInfo: (key: string) => ConfigInfo | null;
   onOpenAgentConfig: (key: string) => void;
-  onDeleteAgentConfig: (key: string) => void;
 };
 
 export function AgentsTable({
   loading,
-  saving,
   agents,
   getAgentConfigInfo,
   onOpenAgentConfig,
-  onDeleteAgentConfig,
 }: AgentsTableProps) {
   if (loading) {
     return (
@@ -193,7 +189,7 @@ export function AgentsTable({
               </div>
 
               <FeatureGate capability="agentRouting">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center">
                   <Button
                     variant="ghost"
                     size="icon-sm"
@@ -202,18 +198,6 @@ export function AgentsTable({
                   >
                     <Palette className="h-4 w-4" />
                   </Button>
-                  {configInfo ? (
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => onDeleteAgentConfig(agent.key)}
-                      title="Reset to default"
-                      disabled={saving}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                      <span className="sr-only">Reset</span>
-                    </Button>
-                  ) : null}
                 </div>
               </FeatureGate>
             </div>

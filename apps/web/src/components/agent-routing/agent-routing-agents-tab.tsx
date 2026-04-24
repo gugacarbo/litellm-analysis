@@ -19,19 +19,15 @@ type ConfigInfo = {
 
 type Props = {
   loading: boolean;
-  saving: boolean;
   agents: AgentDefinition[];
   onOpenAgentConfig: (key: string) => void;
-  onDeleteAgentConfig: (key: string) => void;
   getAgentConfigInfo: (key: string) => ConfigInfo | null;
 };
 
 export function AgentRoutingAgentsTab({
   loading,
-  saving,
   agents,
   onOpenAgentConfig,
-  onDeleteAgentConfig,
   getAgentConfigInfo,
 }: Props) {
   const configuredAgentsCount = agents.filter((agent) => {
@@ -60,11 +56,9 @@ export function AgentRoutingAgentsTab({
         <CardContent>
           <AgentsTable
             loading={loading}
-            saving={saving}
             agents={agents}
             getAgentConfigInfo={getAgentConfigInfo}
             onOpenAgentConfig={onOpenAgentConfig}
-            onDeleteAgentConfig={onDeleteAgentConfig}
           />
         </CardContent>
       </Card>

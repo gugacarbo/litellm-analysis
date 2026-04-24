@@ -27,7 +27,6 @@ interface AgentConfigEditorProps {
   agentKey: string;
   initialConfig?: AgentConfig;
   onSave: (config: AgentConfig) => Promise<void>;
-  onReset: () => Promise<void>;
   saving?: boolean;
   error?: string | null;
 }
@@ -65,12 +64,9 @@ export function AgentConfigEditor({
   agentKey,
   initialConfig = {},
   onSave,
-  onReset,
   saving = false,
   error,
 }: AgentConfigEditorProps) {
-  const [resetConfirm, setResetConfirm] = useState(false);
-  const [resetting, setResetting] = useState(false);
   const [activeTab, setActiveTab] = useState<AgentEditorTab>('overview');
   const [config, setConfig] = useState<AgentConfig>(() =>
     normalizeAgentConfig(initialConfig),
@@ -92,7 +88,6 @@ export function AgentConfigEditor({
   useEffect(() => {
     if (!open) return;
     setActiveTab('overview');
-    setResetConfirm(false);
   }, [open]);
 
   const updateConfig = <K extends keyof AgentConfig>(
@@ -142,17 +137,6 @@ export function AgentConfigEditor({
 
   const handleSave = async () => {
     await onSave(config);
-  };
-
-  const handleReset = async () => {
-    setResetting(true);
-    try {
-      await onReset();
-      onOpenChange(false);
-    } finally {
-      setResetting(false);
-      setResetConfirm(false);
-    }
   };
 
   return (
@@ -245,59 +229,19 @@ export function AgentConfigEditor({
         </Tabs>
 
         <DialogFooter>
-          {resetConfirm ? (
-            <>
-              <span className="text-sm text-muted-foreground me-2">
-                Remove configuration for this agent?
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setResetConfirm(false)}
-                disabled={resetting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleReset}
-                disabled={resetting}
-              >
-                {resetting ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 animate-spin me-1" />
-                    Resetting...
-                  </>
-                ) : (
-                  'Confirm Reset'
-                )}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-muted-foreground"
-                onClick={() => setResetConfirm(true)}
-              >
-                Reset to default
-              </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 animate-spin me-2" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Configuration'
-                )}
-              </Button>
-            </>
-          )}
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin me-2" />
+                Saving...
+              </>
+            ) : (
+              'Save Configuration'
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

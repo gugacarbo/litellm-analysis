@@ -59,10 +59,8 @@ export function AgentRoutingPage() {
         <TabsContent value="agents" className="mt-4">
           <AgentRoutingAgentsTab
             loading={state.loading}
-            saving={state.saving}
             agents={AGENT_DEFINITIONS}
             onOpenAgentConfig={state.openAgentConfig}
-            onDeleteAgentConfig={state.handleDeleteAgentConfig}
             getAgentConfigInfo={state.getAgentConfigInfo}
           />
         </TabsContent>
@@ -85,7 +83,6 @@ export function AgentRoutingPage() {
         agentKey={state.editingAgentKey}
         initialConfig={state.resolvedAgentConfigs[state.editingAgentKey]}
         onSave={state.handleSaveAgentConfig}
-        onReset={() => state.handleDeleteAgentConfig(state.editingAgentKey)}
         saving={state.saving}
         error={state.error}
       />
