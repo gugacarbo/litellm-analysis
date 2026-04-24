@@ -116,11 +116,13 @@ describe('PUT /agent-config/:key alias resolution', () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ success: true });
 
+    // With the new design, db.json stores real model names (not aliases)
+    // so the resolved real model names are saved
     expect(mockUpdateAgentInConfig).toHaveBeenCalledWith(
       'sisyphus',
       expect.objectContaining({
-        model: 'sisyphus/gpt-5.4',
-        fallback_models: ['sisyphus/gpt-5.3'],
+        model: 'openai/gpt-4.1',
+        fallback_models: ['anthropic/claude-3-7-sonnet'],
       }),
     );
 
