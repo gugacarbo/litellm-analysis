@@ -83,10 +83,7 @@
   "agents": {
     "sisyphus": {
       "model": "minimax-m2.7-highspeed",
-      "fallbackModels": [
-        "glm-5-1",
-        "minimax-m2.7-highspeed"
-      ],
+      "fallbackModels": ["glm-5-1", "minimax-m2.7-highspeed"],
       "description": "Agente Orquestrador",
       "color": "#C83232",
       "disable": false,
@@ -96,10 +93,7 @@
     },
     "oracle": {
       "model": "kimi-k2-5",
-      "fallbackModels": [
-        "glm-5-1",
-        "kimi-k2-5"
-      ],
+      "fallbackModels": ["glm-5-1", "kimi-k2-5"],
       "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
       "color": "#048B5E",
       "disable": false,
@@ -109,16 +103,12 @@
     },
     "hephaestus": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
     },
     "atlas": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
       "color": "#F0FF1A",
       "disable": false,
@@ -128,9 +118,7 @@
     },
     "sisyphus-junior": {
       "model": "",
-      "fallbackModels": [
-        "kimi-k2.5"
-      ],
+      "fallbackModels": ["kimi-k2.5"],
       "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
       "color": "#5A00C7",
       "disable": false,
@@ -140,9 +128,7 @@
     },
     "librarian": {
       "model": "",
-      "fallbackModels": [
-        "kimi-k2.5"
-      ],
+      "fallbackModels": ["kimi-k2.5"],
       "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
       "color": "#945E00",
       "disable": false,
@@ -152,17 +138,12 @@
     },
     "momus": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
     },
     "prometheus": {
       "model": "glm-5-1",
-      "fallbackModels": [
-        "qwen3-coder-plus",
-        "glm-5-1"
-      ],
+      "fallbackModels": ["qwen3-coder-plus", "glm-5-1"],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
       "color": "#90A300",
       "disable": false,
@@ -172,10 +153,7 @@
     },
     "explore": {
       "model": "qwen3-coder-plus",
-      "fallbackModels": [
-        "glm-5-turbo",
-        "qwen3-coder-plus"
-      ],
+      "fallbackModels": ["glm-5-turbo", "qwen3-coder-plus"],
       "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
       "color": "#04B9AD",
       "disable": false,
@@ -185,11 +163,7 @@
     },
     "multimodal-looker": {
       "model": "glm-5-1",
-      "fallbackModels": [
-        "qwen3-5-plus",
-        "glm-5-1",
-        "qwen3-coder-plus"
-      ],
+      "fallbackModels": ["qwen3-5-plus", "glm-5-1", "qwen3-coder-plus"],
       "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
       "disable": false,
       "tools": {},
@@ -198,9 +172,7 @@
     },
     "metis": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
       "color": "#0FE000",
       "disable": false
@@ -209,58 +181,42 @@
   "categories": {
     "visual-engineering": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
     "artistry": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
       "model": "",
-      "fallbackModels": [
-        "kimi-k2.5"
-      ],
+      "fallbackModels": ["kimi-k2.5"],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
       "model": "",
-      "fallbackModels": [
-        "kimi-k2.5"
-      ],
+      "fallbackModels": ["kimi-k2.5"],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
       "model": "",
-      "fallbackModels": [
-        "glm-5"
-      ],
+      "fallbackModels": ["glm-5"],
       "description": "Documentação, prosa e escrita técnica."
     }
   },
