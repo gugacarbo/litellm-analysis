@@ -18,6 +18,14 @@ export function formatDateTime(date: string | Date): string {
   });
 }
 
+export function formatTime(date: string | Date): string {
+  return new Date(date).toLocaleString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
 export function formatFullDateTime(date: string | Date): string {
   return new Date(date).toLocaleString('en-US', {
     year: 'numeric',
