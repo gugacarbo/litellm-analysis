@@ -2,6 +2,8 @@ export function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4,
   }).format(value);
 }
 
@@ -22,6 +24,7 @@ export function formatTime(date: string | Date): string {
   return new Date(date).toLocaleString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
+    second: '2-digit',
     hour12: false,
   });
 }

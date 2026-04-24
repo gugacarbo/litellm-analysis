@@ -74,6 +74,7 @@ export interface SpendLogEntry {
   prompt_tokens: number | null;
   completion_tokens: number | null;
   spend: number;
+  time_to_first_token_ms: number | null;
   start_time: string;
   end_time: string | null;
   api_key: string | null;

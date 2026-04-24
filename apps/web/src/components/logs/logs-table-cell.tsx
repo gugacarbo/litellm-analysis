@@ -46,6 +46,10 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
       );
     case 'duration':
       return formatDuration(durationMs);
+    case 'timeToFirstToken':
+      return log.time_to_first_token_ms === null
+        ? '-'
+        : formatNumber(Math.round(log.time_to_first_token_ms));
     case 'tokensPerSecond':
       return calculateTokensPerSecond(
         log.completion_tokens,

@@ -102,6 +102,10 @@ export async function getSpendLogs(params: {
   const offset = params.offset || 0;
 
   const whereClause = combineConditions(conditions);
+  const completionStartTime = sql<string | null>`COALESCE(
+    to_jsonb(${spendLogs}) ->> 'completionStartTime',
+    to_jsonb(${spendLogs}) ->> 'completion_start_time'
+  )`;
 
   const result = await db
     .select({
@@ -112,6 +116,15 @@ export async function getSpendLogs(params: {
       prompt_tokens: spendLogs.promptTokens,
       completion_tokens: spendLogs.completionTokens,
       spend: sql`${spendLogs.spend}`.mapWith(Number),
+      time_to_first_token_ms: sql<number | null>`CASE
+        WHEN ${completionStartTime} IS NULL THEN NULL
+        WHEN ${completionStartTime} !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}' THEN NULL
+        ELSE
+          EXTRACT(
+            EPOCH
+            FROM ((${completionStartTime})::timestamptz - ${spendLogs.startTime})
+          ) * 1000
+      END`,
       startTime: spendLogs.startTime,
       endTime: spendLogs.endTime,
       api_key: spendLogs.apiKey,

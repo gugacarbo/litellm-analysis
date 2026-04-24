@@ -3,8 +3,15 @@ import type {
   AgentDefinition,
   CategoryDefinition,
 } from '../../types/agent-routing';
+import { Badge } from '../badge';
 import { Button } from '../button';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../card';
 import { AgentsTable } from './agents-table';
 import { CategoriesTable } from './categories-table';
 
@@ -44,14 +51,33 @@ export function AgentRoutingAgentsTab({
   getAgentConfigInfo,
   getCategoryConfigInfo,
 }: Props) {
+  const configuredAgentsCount = agents.filter((agent) => {
+    const config = getAgentConfigInfo(agent.key);
+    return Boolean(config && config.model !== 'Unassigned');
+  }).length;
+
+  const configuredCategoriesCount = categories.filter((category) => {
+    const config = getCategoryConfigInfo(category.key);
+    return Boolean(config && config.model !== 'Unassigned');
+  }).length;
+
   return (
     <div className="space-y-4 mt-4">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5" />
-            Agents
-          </CardTitle>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5" />
+              Agents
+            </CardTitle>
+            <Badge variant="outline">
+              {configuredAgentsCount}/{agents.length} configured
+            </Badge>
+          </div>
+          <CardDescription>
+            Focused view of the configured primary models and their assigned
+            agents.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <AgentsTable
@@ -69,13 +95,18 @@ export function AgentRoutingAgentsTab({
         <CardHeader>
           <Button
             variant="ghost"
-            className="flex items-center justify-between w-full p-0 h-auto"
+            className="h-auto w-full justify-between p-0"
             onClick={onToggleCategories}
           >
-            <CardTitle className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <Database className="h-5 w-5" />
-              Categories ({categories.length})
-            </CardTitle>
+              <div className="text-start">
+                <CardTitle>Categories ({categories.length})</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {configuredCategoriesCount}/{categories.length} configured
+                </p>
+              </div>
+            </div>
             {categoriesVisible ? (
               <ChevronUp className="h-5 w-5" />
             ) : (

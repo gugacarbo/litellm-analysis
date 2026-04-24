@@ -53,6 +53,50 @@ function getDayKey(timestamp: string): string {
   return timestamp.split('T')[0];
 }
 
+function parseNullableNumber(value: unknown): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const parsed = typeof value === 'number' ? value : Number(value);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
+function parseTimeToFirstTokenMs(log: SpendLogResponse): number | null {
+  const numericCandidates = [
+    log.time_to_first_token_ms,
+    log.ttft_ms,
+    log.ttft,
+    log.time_to_first_token,
+  ];
+
+  for (const candidate of numericCandidates) {
+    const parsed = parseNullableNumber(candidate);
+    if (parsed !== null) {
+      return parsed;
+    }
+  }
+
+  const completionStartTime =
+    log.completionStartTime ?? log.completion_start_time;
+  if (!completionStartTime || !log.startTime) {
+    return null;
+  }
+
+  const start = new Date(log.startTime).getTime();
+  const completionStart = new Date(completionStartTime).getTime();
+  if (Number.isNaN(start) || Number.isNaN(completionStart)) {
+    return null;
+  }
+
+  const ttftMs = completionStart - start;
+  return ttftMs >= 0 ? ttftMs : null;
+}
+
 export class ApiDataSource implements AnalyticsDataSource {
   private apiUrl: string;
   private apiKey: string;
@@ -291,6 +335,7 @@ export class ApiDataSource implements AnalyticsDataSource {
         completion_tokens:
           log.completion_tokens !== null ? Number(log.completion_tokens) : null,
         spend: Number(log.spend || log.total_spend || 0),
+        time_to_first_token_ms: parseTimeToFirstTokenMs(log),
         start_time: log.startTime ? new Date(log.startTime).toISOString() : '',
         end_time: log.endTime ? new Date(log.endTime).toISOString() : null,
         api_key: log.api_key || null,
@@ -807,7 +852,13 @@ interface SpendLogResponse {
   completion_tokens?: number | null;
   spend?: number;
   total_spend?: number;
+  time_to_first_token_ms?: number | null;
+  time_to_first_token?: number | null;
+  ttft_ms?: number | null;
+  ttft?: number | null;
   startTime?: string;
+  completionStartTime?: string | null;
+  completion_start_time?: string | null;
   endTime?: string | null;
   api_key?: string | null;
   status?: string;

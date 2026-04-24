@@ -88,11 +88,11 @@ export function LogsTable({
   onPageSizeChange,
 }: LogsTableProps) {
   const isFetching = loading || refreshing;
-  const isRefetching = refreshing && !loading;
 
   const tableColumns: TableColumn[] = [
     ...LOG_COLUMNS.filter((column) => visibleColumns.includes(column.key)),
   ];
+  const showGroupExpanderColumn = groupByModel;
 
   const hasAnyLogs = pagination.total > 0;
 
@@ -175,7 +175,7 @@ export function LogsTable({
                 htmlFor="logs-auto-refetch"
                 className="text-xs text-muted-foreground"
               >
-                Auto refetch 5s
+                Auto refetch 15s
               </Label>
             </div>
 
@@ -191,7 +191,7 @@ export function LogsTable({
                   isFetching ? 'animate-spin' : '',
                 )}
               />
-              {isRefetching ? 'Refetching...' : 'Refresh'}
+              Refresh
             </Button>
 
             <DropdownMenu>
@@ -229,6 +229,9 @@ export function LogsTable({
           <Table>
             <TableHeader>
               <TableRow>
+                {showGroupExpanderColumn ? (
+                  <TableHead className="w-10" aria-label="Expand group" />
+                ) : null}
                 {tableColumns.map((column) => (
                   <TableHead
                     key={column.key}
@@ -243,6 +246,11 @@ export function LogsTable({
               {loading && logs.length === 0 ? (
                 Array.from({ length: 10 }).map((_, rowIndex) => (
                   <TableRow key={rowIndex}>
+                    {showGroupExpanderColumn ? (
+                      <TableCell className="w-10">
+                        <Skeleton className="h-4 w-4" />
+                      </TableCell>
+                    ) : null}
                     {tableColumns.map((column) => (
                       <TableCell
                         key={`${rowIndex}-${column.key}`}
@@ -262,7 +270,10 @@ export function LogsTable({
               ) : logs.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={tableColumns.length}
+                    colSpan={
+                      tableColumns.length +
+                      (showGroupExpanderColumn ? 1 : 0)
+                    }
                     className="py-8 text-center text-muted-foreground"
                   >
                     No logs found
@@ -296,6 +307,46 @@ export function LogsTable({
                     const end = new Date(log.end_time).getTime();
                     return sum + (end - start);
                   }, 0);
+                  const tokensPerSecondValues = groupLogs
+                    .map((log) => {
+                      const start = new Date(log.start_time).getTime();
+                      const end = new Date(log.end_time).getTime();
+                      const durationMs = end - start;
+                      if (durationMs <= 0 || !log.completion_tokens) {
+                        return null;
+                      }
+                      return log.completion_tokens / (durationMs / 1000);
+                    })
+                    .filter((value): value is number => value !== null);
+                  const averageTokensPerSecond =
+                    tokensPerSecondValues.length > 0
+                      ? tokensPerSecondValues.reduce(
+                          (sum, value) => sum + value,
+                          0,
+                        ) / tokensPerSecondValues.length
+                      : null;
+                  const timeToFirstTokenValues = groupLogs
+                    .map((log) => log.time_to_first_token_ms)
+                    .filter(
+                      (value): value is number =>
+                        value !== null && !Number.isNaN(value),
+                    );
+                  const averageTimeToFirstTokenMs =
+                    timeToFirstTokenValues.length > 0
+                      ? timeToFirstTokenValues.reduce(
+                          (sum, value) => sum + value,
+                          0,
+                        ) / timeToFirstTokenValues.length
+                      : null;
+                  const successCount = groupLogs.filter(
+                    (log) => log.status === '200' || log.status === 'success',
+                  ).length;
+                  const groupStatus =
+                    successCount === groupLogs.length
+                      ? 'success'
+                      : successCount === 0
+                        ? 'error'
+                        : 'partial';
 
                   // Helper to render a summary cell for group rows
                   const renderGroupSummaryCell = (column: TableColumn) => {
@@ -379,11 +430,39 @@ export function LogsTable({
                       );
                     }
 
-                    // Tokens/s - not meaningful for aggregated data
+                    if (column.key === 'timeToFirstToken') {
+                      return (
+                        <span
+                          className={cn(
+                            'text-right',
+                            averageTimeToFirstTokenMs === null
+                              ? 'text-muted-foreground'
+                              : '',
+                          )}
+                        >
+                          {averageTimeToFirstTokenMs === null
+                            ? '-'
+                            : formatNumber(
+                                Math.round(averageTimeToFirstTokenMs),
+                              )}
+                        </span>
+                      );
+                    }
+
+                    // Tokens/s - show average across valid group entries
                     if (column.key === 'tokensPerSecond') {
                       return (
-                        <span className="text-right text-muted-foreground">
-                          —
+                        <span
+                          className={cn(
+                            'text-right',
+                            averageTokensPerSecond === null
+                              ? 'text-muted-foreground'
+                              : '',
+                          )}
+                        >
+                          {averageTokensPerSecond === null
+                            ? '-'
+                            : `${averageTokensPerSecond.toFixed(1)}/s`}
                         </span>
                       );
                     }
@@ -399,7 +478,22 @@ export function LogsTable({
 
                     // Status - show "—" for aggregated row
                     if (column.key === 'status') {
-                      return <span className="text-muted-foreground">—</span>;
+                      return (
+                        <Badge
+                          variant={
+                            groupStatus === 'error' ? 'destructive' : 'secondary'
+                          }
+                          className={
+                            groupStatus === 'success'
+                              ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
+                              : groupStatus === 'partial'
+                                ? 'bg-amber-500/15 text-amber-700 border-amber-500/30'
+                                : ''
+                          }
+                        >
+                          {groupStatus}
+                        </Badge>
+                      );
                     }
 
                     return null;
@@ -442,6 +536,9 @@ export function LogsTable({
                             className="cursor-pointer hover:bg-muted/50"
                             onClick={() => onSelectLog(log)}
                           >
+                            {showGroupExpanderColumn ? (
+                              <TableCell className="w-10" />
+                            ) : null}
                             {tableColumns.map((column) => (
                               <TableCell
                                 key={`${log.request_id}-${column.key}`}

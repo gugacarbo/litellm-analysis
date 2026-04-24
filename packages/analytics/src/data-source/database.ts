@@ -56,6 +56,19 @@ import { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES } from './types.js';
 
 export { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES };
 
+function toNullableNumber(value: unknown): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const parsed = typeof value === 'number' ? value : Number(value);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
 export class DatabaseDataSource implements AnalyticsDataSource {
   capabilities: AnalyticsCapabilities;
 
@@ -141,6 +154,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       prompt_tokens: item.prompt_tokens,
       completion_tokens: item.completion_tokens,
       spend: Number(item.spend),
+      time_to_first_token_ms: toNullableNumber(item.time_to_first_token_ms),
       start_time: item.startTime ? new Date(item.startTime).toISOString() : '',
       end_time: item.endTime ? new Date(item.endTime).toISOString() : null,
       api_key: item.api_key,

@@ -19,7 +19,7 @@ import { getAllModels } from '../lib/api-client';
 import { queryKeys } from '../lib/query-keys';
 import type { SpendLog } from '../types/analytics';
 
-const AUTO_REFETCH_INTERVAL_MS = 5000;
+const AUTO_REFETCH_INTERVAL_MS = 15000;
 
 export function LogsPage() {
   const {
@@ -49,7 +49,7 @@ export function LogsPage() {
   );
 
   const [selectedLog, setSelectedLog] = useState<SpendLog | null>(null);
-  const [autoRefetchEnabled, setAutoRefetchEnabled] = useState(false);
+  const [autoRefetchEnabled, setAutoRefetchEnabled] = useState(true);
   const [visibleColumns, setVisibleColumns] = useState<LogColumnKey[]>(
     DEFAULT_VISIBLE_LOG_COLUMNS,
   );

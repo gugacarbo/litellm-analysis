@@ -13,6 +13,7 @@ export interface SpendLog {
   prompt_tokens: number;
   completion_tokens: number;
   spend: number;
+  time_to_first_token_ms: number | null;
   start_time: string;
   end_time: string;
   api_key: string;

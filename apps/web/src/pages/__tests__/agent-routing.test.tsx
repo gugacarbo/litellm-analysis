@@ -149,10 +149,10 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('qwen3.5-plus')).toBeInTheDocument();
+        expect(screen.getAllByText('qwen3.5-plus').length).toBeGreaterThan(0);
       });
 
-      expect(screen.getByText('kimi-k2.5')).toBeInTheDocument();
+      expect(screen.getAllByText('kimi-k2.5').length).toBeGreaterThan(0);
     });
 
     it('deve mostrar "Unassigned" para agentes sem modelo configurado', async () => {

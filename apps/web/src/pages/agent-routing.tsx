@@ -24,7 +24,7 @@ export function AgentRoutingPage() {
             Agent Routing
           </h1>
           <p className="text-muted-foreground mt-1">
-            Configure which models are assigned to each agent and category
+            Visual overview of configured models across agents and categories
           </p>
         </div>
 
