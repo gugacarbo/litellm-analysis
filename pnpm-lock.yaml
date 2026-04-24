@@ -29,15 +29,9 @@ importers:
       '@lite-llm/alias-router':
         specifier: workspace:*
         version: link:../../packages/alias-router
-      '@lite-llm/analytics-data-source':
+      '@lite-llm/analytics':
         specifier: workspace:*
-        version: link:../../packages/analytics-data-source
-      '@lite-llm/analytics-queries':
-        specifier: workspace:*
-        version: link:../../packages/analytics-queries
-      '@lite-llm/analytics-types':
-        specifier: workspace:*
-        version: link:../../packages/analytics-types
+        version: link:../../packages/analytics
       '@lite-llm/config-generator':
         specifier: workspace:*
         version: link:../../packages/config-generator
@@ -188,36 +182,17 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
-  packages/analytics-data-source:
+  packages/analytics:
     dependencies:
       '@lite-llm/alias-router':
         specifier: workspace:*
         version: link:../alias-router
-      '@lite-llm/analytics-queries':
-        specifier: workspace:*
-        version: link:../analytics-queries
-      '@lite-llm/analytics-types':
-        specifier: workspace:*
-        version: link:../analytics-types
       '@lite-llm/config-generator':
         specifier: workspace:*
         version: link:../config-generator
-    devDependencies:
-      '@types/node':
-        specifier: ^22.10.0
-        version: 22.19.17
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
-
-  packages/analytics-queries:
-    dependencies:
-      '@lite-llm/alias-router':
+      '@litellm/shared':
         specifier: workspace:*
-        version: link:../alias-router
-      '@lite-llm/analytics-types':
-        specifier: workspace:*
-        version: link:../analytics-types
+        version: link:../shared
       drizzle-orm:
         specifier: ^0.38.0
         version: 0.38.4(@types/pg@8.20.0)(@types/react@19.2.14)(pg@8.20.0)(react@19.2.4)
@@ -235,17 +210,11 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
-  packages/analytics-types:
-    devDependencies:
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
-
   packages/config-generator:
     dependencies:
-      '@lite-llm/analytics-types':
+      '@litellm/shared':
         specifier: workspace:*
-        version: link:../analytics-types
+        version: link:../shared
     devDependencies:
       '@types/node':
         specifier: ^22.10.0
@@ -254,7 +223,11 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
-  packages/shared: {}
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
 packages:
 
