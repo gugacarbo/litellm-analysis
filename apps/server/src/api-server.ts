@@ -412,6 +412,71 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   // ── Agent Config (local JSON file) ──
 
+  app.get('/agent-config/global-fallback', async (_req, res) => {
+    try {
+      const { readDb } = await import('@lite-llm/config-generator');
+      const db = await readDb();
+      res.json({ globalFallbackModel: db.globalFallbackModel || 'gpt-5.1' });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.put('/agent-config/global-fallback', async (req, res) => {
+    try {
+      const { globalFallbackModel } = req.body as { globalFallbackModel?: string };
+      const { readDb, writeDb, syncOutputConfigFile } = await import('@lite-llm/config-generator');
+      const db = await readDb();
+      const newGlobalFallback = globalFallbackModel || 'gpt-5.1';
+      db.globalFallbackModel = newGlobalFallback;
+      await writeDb(db);
+      await syncOutputConfigFile();
+
+      if (dataSource.capabilities.agentRouting) {
+        const { generateLitellmAliases, replaceAliasesForAgent } = await import(
+          '@lite-llm/alias-router'
+        );
+        const { updateAgentRoutingConfig, getAgentRoutingConfig } = dataSource;
+        const existingRouting = await getAgentRoutingConfig();
+        const existingAliases = existingRouting?.model_group_alias
+          ? (existingRouting.model_group_alias as Record<string, string>)
+          : {};
+
+        for (const [key, agent] of Object.entries(db.agents)) {
+          const actualModel = agent.model || '';
+          const actualFallbacks = agent.fallbackModels || [];
+          const newAliases = generateLitellmAliases(
+            key,
+            actualModel,
+            actualFallbacks,
+            newGlobalFallback,
+          );
+          existingAliases[key] = actualModel;
+          for (let i = 0; i < Math.min(actualFallbacks.length, 3); i++) {
+            existingAliases[`${key}/gpt-5.${4 - i}`] = actualFallbacks[i];
+          }
+          existingAliases[`${key}/gpt-5.1`] = newGlobalFallback;
+        }
+
+        for (const [key, category] of Object.entries(db.categories)) {
+          const actualModel = category.model || '';
+          const actualFallbacks = category.fallbackModels || [];
+          existingAliases[key] = actualModel;
+          for (let i = 0; i < Math.min(actualFallbacks.length, 3); i++) {
+            existingAliases[`${key}/gpt-5.${4 - i}`] = actualFallbacks[i];
+          }
+          existingAliases[`${key}/gpt-5.1`] = newGlobalFallback;
+        }
+
+        await updateAgentRoutingConfig(existingAliases);
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
   app.get('/agent-config', async (_req, res) => {
     try {
       const { readConfigFile } = await import('@lite-llm/config-generator');
@@ -424,9 +489,13 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.get('/agent-config/:key', async (req, res) => {
     try {
+      const key = req.params.key;
+      if (key === 'global-fallback') {
+        res.status(404).json({ error: 'Use /agent-config/global-fallback for global fallback' });
+        return;
+      }
       const { readConfigFile } = await import('@lite-llm/config-generator');
       const config = await readConfigFile();
-      const key = req.params.key;
       const isAgent = key in (config.agents || {});
       const isCategory = key in (config.categories || {});
 
@@ -447,6 +516,10 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
   app.put('/agent-config/:key', async (req, res) => {
     try {
       const key = req.params.key;
+      if (key === 'global-fallback') {
+        res.status(404).json({ error: 'Use PUT /agent-config/global-fallback for global fallback' });
+        return;
+      }
       const { type, config: rawConfig, syncAliases } = req.body;
 
       if (!type || !['agent', 'category'].includes(type)) {
@@ -494,6 +567,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         readConfigFile,
         writeProvidersFile,
         writeVscodeModelsFile,
+        syncOutputConfigFile,
       } = await import('@lite-llm/config-generator');
 
       if (type === 'agent') {
@@ -508,16 +582,20 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         : [];
       await writeProvidersFile(config, models);
       await writeVscodeModelsFile(models);
+      await syncOutputConfigFile();
 
       if (syncAliases && dataSource.capabilities.agentRouting) {
         const { generateLitellmAliases, replaceAliasesForAgent } = await import(
           '@lite-llm/alias-router'
         );
         const { updateAgentRoutingConfig } = dataSource;
+        const { readDb } = await import('@lite-llm/config-generator');
+        const db = await readDb();
         const newAliases = generateLitellmAliases(
           key,
           actualModel,
           actualFallbacks,
+          db.globalFallbackModel,
         );
         const merged = replaceAliasesForAgent(existingAliases, key, newAliases);
         await updateAgentRoutingConfig(merged);
@@ -620,6 +698,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         readConfigFile,
         writeProvidersFile,
         writeVscodeModelsFile,
+        syncOutputConfigFile,
       } = await import('@lite-llm/config-generator');
       await writeFullConfig({
         agents: agentsToSave,
@@ -632,6 +711,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         : [];
       await writeProvidersFile(config, models);
       await writeVscodeModelsFile(models);
+      await syncOutputConfigFile();
 
       if (
         dataSource.capabilities.agentRouting &&
@@ -676,6 +756,10 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
   app.delete('/agent-config/:key', async (req, res) => {
     try {
       const key = req.params.key;
+      if (key === 'global-fallback') {
+        res.status(404).json({ error: 'Global fallback cannot be deleted' });
+        return;
+      }
       const { type } = req.query;
 
       const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(

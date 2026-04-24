@@ -63,3 +63,17 @@ export async function saveAllAgentConfigs(
     body: JSON.stringify({ agents, categories }),
   });
 }
+
+export async function getGlobalFallbackModel(): Promise<{ globalFallbackModel: string }> {
+  return fetchApi('/agent-config/global-fallback');
+}
+
+export async function updateGlobalFallbackModel(
+  globalFallbackModel: string,
+): Promise<{ success: boolean }> {
+  return fetchApi('/agent-config/global-fallback', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ globalFallbackModel }),
+  });
+}

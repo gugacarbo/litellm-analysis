@@ -82,231 +82,187 @@
   },
   "agents": {
     "sisyphus": {
-      "model": "qwen3.5-plus",
+      "model": "minimax-m2.7-highspeed",
       "fallbackModels": [
-        "glm-5.1",
+        "glm-5-1",
         "minimax-m2.7-highspeed"
       ],
-      "disable": false,
       "description": "Agente Orquestrador",
       "color": "#C83232",
-      "variant": "",
-      "category": "",
-      "skills": [],
-      "prompt": "",
-      "prompt_append": "",
+      "disable": false,
       "tools": {},
       "mode": "subagent",
       "permission": {}
     },
     "oracle": {
-      "model": "glm-5.1",
+      "model": "kimi-k2-5",
       "fallbackModels": [
-        "qwen3.5-plus",
-        "kimi-k2.5"
+        "glm-5-1",
+        "kimi-k2-5"
       ],
       "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
       "color": "#048B5E",
       "disable": false,
-      "variant": "",
-      "category": "",
-      "skills": [],
-      "prompt": "",
-      "prompt_append": "",
       "tools": {},
       "mode": "subagent",
       "permission": {}
     },
     "hephaestus": {
-      "model": "qwen3-coder-plus",
+      "model": "",
       "fallbackModels": [
-        "kimi-k2.5"
+        "glm-5"
       ],
       "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
     },
     "atlas": {
-      "model": "qwen3.5-plus",
+      "model": "",
       "fallbackModels": [
-        "glm-5.1",
-        "kimi-k2.5"
+        "glm-5"
       ],
       "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
-      "disable": false,
       "color": "#F0FF1A",
-      "variant": "",
-      "category": "",
-      "skills": [],
-      "prompt": "",
-      "prompt_append": "",
+      "disable": false,
       "tools": {},
       "mode": "subagent",
       "permission": {}
     },
     "sisyphus-junior": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "",
       "fallbackModels": [
-        "glm-5-turbo",
-        "kimi-k2.5",
-        "qwen3.5-plus"
+        "kimi-k2.5"
       ],
       "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
-      "disable": false,
       "color": "#5A00C7",
-      "variant": "",
-      "category": "",
-      "skills": [],
-      "prompt": "",
-      "prompt_append": "",
+      "disable": false,
       "tools": {},
       "mode": "subagent",
       "permission": {}
     },
     "librarian": {
-      "model": "glm-5-turbo",
+      "model": "",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
         "kimi-k2.5"
       ],
       "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
-      "disable": false,
       "color": "#945E00",
-      "variant": "",
-      "category": "",
-      "skills": [],
-      "prompt": "",
-      "prompt_append": "",
+      "disable": false,
       "tools": {},
       "mode": "subagent",
       "permission": {}
     },
     "momus": {
-      "model": "qwen3.5-plus",
+      "model": "",
       "fallbackModels": [
-        "kimi-k2.5"
+        "glm-5"
       ],
       "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
     },
     "prometheus": {
-      "model": "qwen3.5-plus",
+      "model": "glm-5-1",
       "fallbackModels": [
-        "glm-5.1",
-        "kimi-k2.5"
+        "qwen3-coder-plus",
+        "glm-5-1"
       ],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
-      "disable": false,
       "color": "#90A300",
-      "variant": "",
-      "category": "",
-      "skills": [],
-      "prompt": "",
-      "prompt_append": "",
+      "disable": false,
       "tools": {},
       "mode": "subagent",
       "permission": {}
     },
     "explore": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "qwen3-coder-plus",
       "fallbackModels": [
         "glm-5-turbo",
-        "qwen3.5-plus"
+        "qwen3-coder-plus"
       ],
       "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
-      "disable": false,
       "color": "#04B9AD",
-      "variant": "",
-      "category": "",
-      "skills": [],
-      "prompt": "",
-      "prompt_append": "",
+      "disable": false,
       "tools": {},
       "mode": "subagent",
       "permission": {}
     },
     "multimodal-looker": {
-      "model": "qwen3.5-plus",
+      "model": "glm-5-1",
       "fallbackModels": [
-        "kimi-k2.5",
-        "qwen3.5-plus",
-        "glm-5.1"
+        "qwen3-5-plus",
+        "glm-5-1",
+        "qwen3-coder-plus"
       ],
       "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
-      "color": "",
       "disable": false,
-      "variant": "",
-      "category": "",
-      "skills": [],
-      "prompt": "",
-      "prompt_append": "",
       "tools": {},
       "mode": "subagent",
       "permission": {}
     },
     "metis": {
-      "model": "qwen3.5-plus",
+      "model": "",
       "fallbackModels": [
-        "kimi-k2.5"
+        "glm-5"
       ],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
-      "disable": false,
-      "color": "#0FE000"
+      "color": "#0FE000",
+      "disable": false
     }
   },
   "categories": {
     "visual-engineering": {
-      "model": "qwen3-coder-plus",
+      "model": "",
       "fallbackModels": [
-        "qwen3.5-plus"
+        "glm-5"
       ],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "model": "qwen3.5-plus",
+      "model": "",
       "fallbackModels": [
-        "kimi-k2.5"
+        "glm-5"
       ],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
-      "model": "kimi-k2.5",
+      "model": "",
       "fallbackModels": [
-        "qwen3.5-plus"
+        "glm-5"
       ],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
     "artistry": {
-      "model": "qwen3.5-plus",
+      "model": "",
       "fallbackModels": [
-        "kimi-k2.5"
+        "glm-5"
       ],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
-      "model": "qwen3.5-plus",
+      "model": "",
       "fallbackModels": [
         "kimi-k2.5"
       ],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "",
       "fallbackModels": [
-        "glm-5"
+        "kimi-k2.5"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
-      "model": "kimi-k2.5",
+      "model": "",
       "fallbackModels": [
-        "qwen3.5-plus"
+        "glm-5"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
-      "model": "qwen3.5-plus",
+      "model": "",
       "fallbackModels": [
-        "kimi-k2.5"
+        "glm-5"
       ],
       "description": "Documentação, prosa e escrita técnica."
     }
-  }
+  },
+  "globalFallbackModel": "minimax-m2.7-highspeed"
 }

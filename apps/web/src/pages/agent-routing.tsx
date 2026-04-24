@@ -7,6 +7,7 @@ import { AgentRoutingCategoriesTab } from '../components/agent-routing/agent-rou
 import { Button } from '../components/button';
 import { CategoryConfigEditor } from '../components/category-config-editor';
 import { FeatureGate } from '../components/feature-gate';
+import { GlobalFallbackSelector } from '../components/global-fallback-selector';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/tabs';
 import {
   AGENT_DEFINITIONS,
@@ -49,6 +50,13 @@ export function AgentRoutingPage() {
           </Button>
         </FeatureGate>
       </div>
+
+      <FeatureGate capability="agentRouting">
+        <GlobalFallbackSelector
+          value={state.globalFallbackModel}
+          onValueChange={state.handleSaveGlobalFallback}
+        />
+      </FeatureGate>
 
       <Tabs defaultValue="agents">
         <TabsList>

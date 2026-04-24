@@ -45,6 +45,7 @@ export interface CategoryConfig {
 
 export interface OhMyOpenAgentConfig {
   $schema?: string;
+  globalFallbackModel?: string;
   agents: Record<string, AgentConfig>;
   categories: Record<string, CategoryConfig>;
   git_master?: {

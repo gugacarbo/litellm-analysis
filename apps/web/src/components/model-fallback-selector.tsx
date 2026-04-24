@@ -100,11 +100,11 @@ export function ModelFallbackSelector({
   const getPreviewAliases = () => {
     const aliases = [];
     if (primaryModel) {
-      aliases.push(`${agentKey}/gpt-5.4 -> ${primaryModel}`);
+      aliases.push(`${agentKey}/gpt-5.5 -> ${primaryModel}`);
     }
     fallbackModels.forEach((model, idx) => {
       if (model) {
-        aliases.push(`${agentKey}/gpt-5.${3 - idx} -> ${model}`);
+        aliases.push(`${agentKey}/gpt-5.${4 - idx} -> ${model}`);
       }
     });
     return aliases;
@@ -184,12 +184,16 @@ export function ModelFallbackSelector({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">Fallback Models</label>
+          <label className="text-sm font-medium">
+            Fallback Models
+            <span className="text-muted-foreground text-xs ms-1">(max 3, global fallback gpt-5.1 is always last)</span>
+          </label>
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={addFallbackModel}
+            disabled={fallbackModels.length >= 3}
           >
             <Plus className="h-3 w-3" />
             Add Fallback

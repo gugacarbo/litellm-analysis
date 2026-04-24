@@ -5,13 +5,14 @@ function stripLitellmPrefix(model: string): string {
   return model;
 }
 
-/** Model names for primary and fallback slots (max 4 total: 1 primary + 3 fallbacks). */
-const MODEL_NAMES = ['gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+/** Model names for primary, fallback slots, and global fallback (max 5 total: 1 primary + 3 fallbacks + 1 global). */
+const MODEL_NAMES = ['gpt-5.5', 'gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
 
 export function generateLitellmAliases(
   key: string,
   model: string,
   fallback_models?: string[],
+  globalFallbackModel?: string,
 ): Record<string, string> {
   const aliases: Record<string, string> = {};
 
@@ -26,6 +27,11 @@ export function generateLitellmAliases(
         fallback_models[i],
       );
     }
+  }
+
+  // Global fallback model: appended after all agent-specific fallbacks (always gpt-5.1)
+  if (globalFallbackModel) {
+    aliases[`${key}/${MODEL_NAMES[4]}`] = stripLitellmPrefix(globalFallbackModel);
   }
 
   return aliases;
@@ -85,7 +91,7 @@ function escapeRegExp(value: string): string {
 }
 
 function isLogicalModelForKey(key: string, model: string): boolean {
-  const pattern = new RegExp(`^${escapeRegExp(key)}/gpt-5\\.[1-4]$`);
+  const pattern = new RegExp(`^${escapeRegExp(key)}/gpt-5\\.[1-5]$`);
   return pattern.test(model);
 }
 

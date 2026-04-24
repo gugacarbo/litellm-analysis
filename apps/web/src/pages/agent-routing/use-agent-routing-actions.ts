@@ -8,6 +8,7 @@ import {
   saveAllAgentConfigs,
   updateAgentConfig,
   updateAgentRoutingConfig,
+  updateGlobalFallbackModel,
 } from '../../lib/api-client';
 import { queryKeys } from '../../lib/query-keys';
 import type {
@@ -33,6 +34,7 @@ type SetCategoryConfigs = (
         prev: Record<string, CategoryConfig>,
       ) => Record<string, CategoryConfig>),
 ) => void;
+type SetGlobalFallbackModel = (model: string | ((prev: string) => string)) => void;
 
 export function useAgentRoutingActions(
   _aliases: Record<string, string>,
@@ -41,6 +43,8 @@ export function useAgentRoutingActions(
   setAgentConfigs: SetAgentConfigs,
   categoryConfigs: Record<string, CategoryConfig>,
   setCategoryConfigs: SetCategoryConfigs,
+  _globalFallbackModel: string,
+  setGlobalFallbackModel: SetGlobalFallbackModel,
 ) {
   const queryClient = useQueryClient();
 
@@ -67,6 +71,10 @@ export function useAgentRoutingActions(
   const updateAgentRoutingMutation = useMutation({
     mutationFn: (modelGroupAlias: AgentRoutingConfig) =>
       updateAgentRoutingConfig(modelGroupAlias),
+  });
+
+  const updateGlobalFallbackMutation = useMutation({
+    mutationFn: (model: string) => updateGlobalFallbackModel(model),
   });
 
   const [agentConfigDialogOpen, setAgentConfigDialogOpen] = useState(false);
@@ -175,6 +183,17 @@ export function useAgentRoutingActions(
     });
   }, [agentConfigs, categoryConfigs, queryClient, saveAllConfigsMutation]);
 
+  const handleSaveGlobalFallback = useCallback(
+    async (model: string) => {
+      await updateGlobalFallbackMutation.mutateAsync(model);
+      setGlobalFallbackModel(model);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
+    },
+    [queryClient, setGlobalFallbackModel, updateGlobalFallbackMutation],
+  );
+
   const openAgentConfig = useCallback((key: string) => {
     setEditingAgentKey(key);
     setAgentConfigDialogOpen(true);
@@ -256,6 +275,7 @@ export function useAgentRoutingActions(
     handleDeleteAgentConfig,
     handleDeleteCategoryConfig,
     handleSaveAll,
+    handleSaveGlobalFallback,
     openAgentConfig,
     openCategoryConfig,
     openAddAlias,

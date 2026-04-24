@@ -2,6 +2,31 @@ import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
 import type { Application } from 'express';
 
 export function registerAgentConfigRoutes(app: Application, dataSource: AnalyticsDataSource) {
+  // ── Global Fallback Model ──
+
+  app.get('/agent-config/global-fallback', async (_req, res) => {
+    try {
+      const { readDb } = await import('@lite-llm/config-generator');
+      const db = await readDb();
+      res.json({ globalFallbackModel: db.globalFallbackModel || 'gpt-5' });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.put('/agent-config/global-fallback', async (req, res) => {
+    try {
+      const { globalFallbackModel } = req.body as { globalFallbackModel?: string };
+      const { readDb, writeDb } = await import('@lite-llm/config-generator');
+      const db = await readDb();
+      db.globalFallbackModel = globalFallbackModel || 'gpt-5';
+      await writeDb(db);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
   // ── Agent Config (local JSON file) ──
 
   app.get('/agent-config', async (_req, res) => {
@@ -16,9 +41,13 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
 
   app.get('/agent-config/:key', async (req, res) => {
     try {
+      const key = req.params.key;
+      if (key === 'global-fallback') {
+        res.status(404).json({ error: 'Use /agent-config/global-fallback for global fallback' });
+        return;
+      }
       const { readConfigFile } = await import('@lite-llm/config-generator');
       const config = await readConfigFile();
-      const key = req.params.key;
       const isAgent = key in (config.agents || {});
       const isCategory = key in (config.categories || {});
 
@@ -39,6 +68,10 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
   app.put('/agent-config/:key', async (req, res) => {
     try {
       const key = req.params.key;
+      if (key === 'global-fallback') {
+        res.status(404).json({ error: 'Use PUT /agent-config/global-fallback for global fallback' });
+        return;
+      }
       const { type, config: rawConfig, syncAliases } = req.body;
 
       if (!type || !['agent', 'category'].includes(type)) {
@@ -268,6 +301,10 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
   app.delete('/agent-config/:key', async (req, res) => {
     try {
       const key = req.params.key;
+      if (key === 'global-fallback') {
+        res.status(404).json({ error: 'Global fallback cannot be deleted' });
+        return;
+      }
       const { type } = req.query;
 
       const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(

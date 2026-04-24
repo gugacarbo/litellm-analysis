@@ -82,6 +82,7 @@ export interface DbConfig {
   models: Record<string, DbModelSpec>;
   agents: Record<string, DbAgentEntry>;
   categories: Record<string, DbCategoryEntry>;
+  globalFallbackModel?: string;
 }
 
 // ── Database read/write ──
@@ -111,7 +112,7 @@ export async function readDb(): Promise<DbConfig> {
   }
 }
 
-async function writeDb(config: DbConfig): Promise<void> {
+export async function writeDb(config: DbConfig): Promise<void> {
   await ensureDir();
   const tmpPath = `${DB_FILE}.tmp`;
   await fs.promises.writeFile(
@@ -129,13 +130,15 @@ export async function readConfigFile(): Promise<AgentConfigFile> {
   return {
     agents: agentsToOutputConfigs(db.agents),
     categories: categoriesToOutputConfigs(db.categories),
+    ...(db.globalFallbackModel ? { globalFallbackModel: db.globalFallbackModel } : {}),
   };
 }
 
-const MODEL_NAMES = ['gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+const MODEL_NAMES = ['gpt-5.5', 'gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
 
 function agentsToOutputConfigs(
   agents: Record<string, DbAgentEntry>,
+  globalFallbackModel?: string,
 ): Record<string, AgentConfig> {
   const result: Record<string, AgentConfig> = {};
   for (const [key, entry] of Object.entries(agents)) {
@@ -146,10 +149,18 @@ function agentsToOutputConfigs(
     if (entry.model) {
       output.model = `${key}/${MODEL_NAMES[0]}`;
     }
-    if (entry.fallbackModels?.length) {
-      output.fallback_models = entry.fallbackModels.map(
-        (_, i) => `${key}/${MODEL_NAMES[i + 1]}`,
-      );
+    const fallbackCount = Math.min(entry.fallbackModels?.length ?? 0, 3);
+    const agentFallbacks = entry.fallbackModels?.slice(0, 3).map(
+      (_, i) => `${key}/${MODEL_NAMES[i + 1]}`,
+    ) ?? [];
+
+    // Add global fallback as last slot (gpt-5.1) if available
+    if (globalFallbackModel) {
+      agentFallbacks.push(`${key}/${MODEL_NAMES[4]}`);
+    }
+
+    if (agentFallbacks.length > 0) {
+      output.fallback_models = agentFallbacks;
     }
     if (entry.description) output.description = entry.description;
     if (entry.color) output.color = entry.color;
@@ -171,6 +182,7 @@ function agentsToOutputConfigs(
 
 function categoriesToOutputConfigs(
   categories: Record<string, DbCategoryEntry>,
+  globalFallbackModel?: string,
 ): Record<string, CategoryConfig> {
   const result: Record<string, CategoryConfig> = {};
   for (const [key, entry] of Object.entries(categories)) {
@@ -181,10 +193,18 @@ function categoriesToOutputConfigs(
     if (entry.model) {
       output.model = `${key}/${MODEL_NAMES[0]}`;
     }
-    if (entry.fallbackModels?.length) {
-      output.fallback_models = entry.fallbackModels.map(
-        (_, i) => `${key}/${MODEL_NAMES[i + 1]}`,
-      );
+    const fallbackCount = Math.min(entry.fallbackModels?.length ?? 0, 3);
+    const categoryFallbacks = entry.fallbackModels?.slice(0, 3).map(
+      (_, i) => `${key}/${MODEL_NAMES[i + 1]}`,
+    ) ?? [];
+
+    // Add global fallback as last slot (gpt-5.1) if available
+    if (globalFallbackModel) {
+      categoryFallbacks.push(`${key}/${MODEL_NAMES[4]}`);
+    }
+
+    if (categoryFallbacks.length > 0) {
+      output.fallback_models = categoryFallbacks;
     }
     if (entry.description) output.description = entry.description;
     if (entry.variant) output.variant = entry.variant;
@@ -672,8 +692,10 @@ async function writeOutputConfigFile(config: AgentConfigFile): Promise<void> {
 export async function syncOutputConfigFile(): Promise<void> {
   const db = await readDb();
   const legacy = {
-    agents: agentsToOutputConfigs(db.agents),
-    categories: categoriesToOutputConfigs(db.categories),
+    $schema: 'https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json',
+    ...(db.globalFallbackModel ? { globalFallbackModel: db.globalFallbackModel } : {}),
+    agents: agentsToOutputConfigs(db.agents, db.globalFallbackModel),
+    categories: categoriesToOutputConfigs(db.categories, db.globalFallbackModel),
   };
   await writeOutputConfigFile(legacy);
 }

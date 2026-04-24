@@ -15,10 +15,17 @@ vi.mock('@lite-llm/config-generator', () => ({
   updateAgentInConfig: (...args: unknown[]) => mockUpdateAgentInConfig(...args),
   updateCategoryInConfig: vi.fn(),
   readConfigFile: (...args: unknown[]) => mockReadConfigFile(...args),
+  readDb: vi.fn().mockResolvedValue({
+    agents: {},
+    categories: {},
+    globalFallbackModel: 'gpt-5.1',
+  }),
+  writeDb: vi.fn(),
   writeProvidersFile: (...args: unknown[]) => mockWriteProvidersFile(...args),
   writeVscodeModelsFile: (...args: unknown[]) =>
     mockWriteVscodeModelsFile(...args),
   writeFullConfig: vi.fn(),
+  syncOutputConfigFile: vi.fn().mockResolvedValue(undefined),
   deleteAgentFromConfig: vi.fn(),
   deleteCategoryFromConfig: vi.fn(),
 }));
@@ -65,8 +72,8 @@ function createMockDataSource(
     deleteModelLogs: vi.fn().mockResolvedValue(undefined),
     getAgentRoutingConfig: vi.fn().mockResolvedValue({
       model_group_alias: {
-        'sisyphus/gpt-5.4': 'openai/gpt-4.1',
-        'sisyphus/gpt-5.3': 'anthropic/claude-3-7-sonnet',
+        'sisyphus/gpt-5.5': 'openai/gpt-4.1',
+        'sisyphus/gpt-5.4': 'anthropic/claude-3-7-sonnet',
         'oracle/gpt-5.4': 'openai/o3-mini',
       },
     }),
@@ -107,8 +114,8 @@ describe('PUT /agent-config/:key alias resolution', () => {
         type: 'agent',
         syncAliases: true,
         config: {
-          model: 'sisyphus/gpt-5.4',
-          fallback_models: ['sisyphus/gpt-5.3'],
+          model: 'sisyphus/gpt-5.5',
+          fallback_models: ['sisyphus/gpt-5.4'],
           description: 'updated',
         },
       });
@@ -127,8 +134,9 @@ describe('PUT /agent-config/:key alias resolution', () => {
     );
 
     expect(dataSource.updateAgentRoutingConfig).toHaveBeenCalledWith({
-      'sisyphus/gpt-5.4': 'openai/gpt-4.1',
-      'sisyphus/gpt-5.3': 'anthropic/claude-3-7-sonnet',
+      'sisyphus/gpt-5.5': 'openai/gpt-4.1',
+      'sisyphus/gpt-5.4': 'anthropic/claude-3-7-sonnet',
+      'sisyphus/gpt-5.1': 'gpt-5.1',
       'oracle/gpt-5.4': 'openai/o3-mini',
     });
   });

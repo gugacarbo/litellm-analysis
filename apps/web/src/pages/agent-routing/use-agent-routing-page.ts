@@ -23,6 +23,8 @@ export function useAgentRoutingPageState() {
     setAgentConfigs,
     categoryConfigs,
     setCategoryConfigs,
+    globalFallbackModel,
+    setGlobalFallbackModel,
     loading,
     error,
   } = useAgentRoutingState();
@@ -77,6 +79,7 @@ export function useAgentRoutingPageState() {
     handleSaveCategoryConfig,
     handleDeleteCategoryConfig,
     handleSaveAll,
+    handleSaveGlobalFallback,
     openAgentConfig,
     openCategoryConfig,
     openAddAlias,
@@ -90,6 +93,8 @@ export function useAgentRoutingPageState() {
     setAgentConfigs,
     categoryConfigs,
     setCategoryConfigs,
+    globalFallbackModel,
+    setGlobalFallbackModel,
   );
 
   const { customAliases, getAgentConfigInfo, getCategoryConfigInfo } =
@@ -116,6 +121,7 @@ export function useAgentRoutingPageState() {
     editingCategoryKey,
     resolvedAgentConfigs,
     resolvedCategoryConfigs,
+    globalFallbackModel,
     setAliasDialogOpen,
     setAliasDialogKey,
     setAliasDialogValue,
@@ -126,6 +132,7 @@ export function useAgentRoutingPageState() {
     handleDeleteAgentConfig,
     handleSaveCategoryConfig,
     handleDeleteCategoryConfig,
+    handleSaveGlobalFallback,
     openAgentConfig,
     openCategoryConfig,
     openAddAlias,

@@ -48,12 +48,14 @@ vi.mock('../../lib/api-client', () => ({
   updateAgentRoutingConfig: vi.fn(),
   updateAgentConfig: vi.fn(),
   getAllModels: vi.fn(),
+  getGlobalFallbackModel: vi.fn(),
 }));
 
 import {
   getAgentConfig,
   getAgentRoutingConfig,
   getAllModels,
+  getGlobalFallbackModel,
   updateAgentConfig,
 } from '../../lib/api-client';
 import { AgentRoutingPage } from '../agent-routing';
@@ -88,6 +90,9 @@ describe('AgentRoutingPage', () => {
     vi.mocked(getAgentConfig).mockResolvedValue({
       agents: {},
       categories: {},
+    });
+    vi.mocked(getGlobalFallbackModel).mockResolvedValue({
+      globalFallbackModel: 'gpt-5.1',
     });
   });
 
