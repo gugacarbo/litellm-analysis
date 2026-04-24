@@ -6,7 +6,10 @@ import type { CategoryConfig } from '../types/agent-routing';
 import { Button } from './button';
 import { CategoryConfigEditorAdvancedSection } from './category-config-editor/category-config-editor-advanced-section';
 import { CategoryConfigEditorExecutionSection } from './category-config-editor/category-config-editor-execution-section';
-import { CategoryConfigEditorPrimarySections } from './category-config-editor/category-config-editor-primary-sections';
+import {
+  CategoryConfigEditorBasicSection,
+  CategoryConfigEditorModelSection,
+} from './category-config-editor/category-config-editor-primary-sections';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from './dialog';
-import { Separator } from './separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 
 interface CategoryConfigEditorProps {
   open: boolean;
@@ -26,6 +29,8 @@ interface CategoryConfigEditorProps {
   saving?: boolean;
   error?: string | null;
 }
+
+type CategoryEditorTab = 'overview' | 'model' | 'advanced' | 'execution';
 
 function normalizeCategoryConfig(
   initialConfig: CategoryConfig = {},
@@ -59,18 +64,10 @@ export function CategoryConfigEditor({
 }: CategoryConfigEditorProps) {
   const [resetConfirm, setResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [activeTab, setActiveTab] = useState<CategoryEditorTab>('overview');
   const [config, setConfig] = useState<CategoryConfig>(() =>
     normalizeCategoryConfig(initialConfig),
   );
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({
-    basic: true,
-    model: false,
-    advanced: false,
-    execution: false,
-    meta: false,
-  });
   const [newToolKey, setNewToolKey] = useState('');
   const [newToolValue, setNewToolValue] = useState(true);
 
@@ -83,6 +80,12 @@ export function CategoryConfigEditor({
       return prev;
     });
   }, [initialConfig]);
+
+  useEffect(() => {
+    if (!open) return;
+    setActiveTab('overview');
+    setResetConfirm(false);
+  }, [open]);
 
   const updateConfig = <K extends keyof CategoryConfig>(
     field: K,
@@ -132,13 +135,6 @@ export function CategoryConfigEditor({
     });
   };
 
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
   const handleSave = async () => {
     await onSave(config);
   };
@@ -167,41 +163,66 @@ export function CategoryConfigEditor({
           </div>
         )}
 
-        <div className="grid gap-6 py-4">
-          <CategoryConfigEditorPrimarySections
-            categoryKey={categoryKey}
-            config={config}
-            expandedSections={expandedSections}
-            onToggleSection={toggleSection}
-            onUpdateConfig={updateConfig}
-          />
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as CategoryEditorTab)}
+          className="py-4"
+        >
+          <TabsList
+            variant="line"
+            className="h-auto w-full flex-wrap justify-start rounded-xl bg-muted/35 p-1"
+          >
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="model">Model</TabsTrigger>
+            <TabsTrigger value="advanced">Advanced</TabsTrigger>
+            <TabsTrigger value="execution">Execution</TabsTrigger>
+          </TabsList>
 
-          <Separator />
+          <TabsContent value="overview" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <CategoryConfigEditorBasicSection
+                config={config}
+                onUpdateConfig={updateConfig}
+              />
+            </div>
+          </TabsContent>
 
-          <CategoryConfigEditorAdvancedSection
-            config={config}
-            expanded={expandedSections.advanced}
-            onToggle={() => toggleSection('advanced')}
-            onUpdateConfig={updateConfig}
-            onUpdateThinkingConfig={updateThinkingConfig}
-          />
+          <TabsContent value="model" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <CategoryConfigEditorModelSection
+                categoryKey={categoryKey}
+                config={config}
+                onUpdateConfig={updateConfig}
+              />
+            </div>
+          </TabsContent>
 
-          <Separator />
+          <TabsContent value="advanced" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <CategoryConfigEditorAdvancedSection
+                config={config}
+                onUpdateConfig={updateConfig}
+                onUpdateThinkingConfig={updateThinkingConfig}
+              />
+            </div>
+          </TabsContent>
 
-          <CategoryConfigEditorExecutionSection
-            config={config}
-            expandedSections={expandedSections}
-            newToolKey={newToolKey}
-            newToolValue={newToolValue}
-            onToggleSection={toggleSection}
-            onUpdateConfig={updateConfig}
-            onNewToolKeyChange={setNewToolKey}
-            onNewToolValueChange={setNewToolValue}
-            onAddTool={addTool}
-            onRemoveTool={removeTool}
-            onUpdateToolValue={updateToolValue}
-          />
-        </div>
+          <TabsContent value="execution" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <CategoryConfigEditorExecutionSection
+                config={config}
+                newToolKey={newToolKey}
+                newToolValue={newToolValue}
+                onUpdateConfig={updateConfig}
+                onNewToolKeyChange={setNewToolKey}
+                onNewToolValueChange={setNewToolValue}
+                onAddTool={addTool}
+                onRemoveTool={removeTool}
+                onUpdateToolValue={updateToolValue}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <DialogFooter>
           {resetConfirm ? (

@@ -3,9 +3,11 @@
 import { Database, RefreshCw, Settings } from 'lucide-react';
 import { AgentConfigEditor } from '../components/agent-config-editor';
 import { AgentRoutingAgentsTab } from '../components/agent-routing/agent-routing-agents-tab';
+import { AgentRoutingCategoriesTab } from '../components/agent-routing/agent-routing-categories-tab';
 import { Button } from '../components/button';
 import { CategoryConfigEditor } from '../components/category-config-editor';
 import { FeatureGate } from '../components/feature-gate';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/tabs';
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,
@@ -48,20 +50,34 @@ export function AgentRoutingPage() {
         </FeatureGate>
       </div>
 
-      <AgentRoutingAgentsTab
-        loading={state.loading}
-        saving={state.saving}
-        categoriesVisible={state.categoriesVisible}
-        agents={AGENT_DEFINITIONS}
-        categories={CATEGORY_DEFINITIONS}
-        onToggleCategories={() => state.setCategoriesVisible((prev) => !prev)}
-        onOpenAgentConfig={state.openAgentConfig}
-        onDeleteAgentConfig={state.handleDeleteAgentConfig}
-        onOpenCategoryConfig={state.openCategoryConfig}
-        onDeleteCategoryConfig={state.handleDeleteCategoryConfig}
-        getAgentConfigInfo={state.getAgentConfigInfo}
-        getCategoryConfigInfo={state.getCategoryConfigInfo}
-      />
+      <Tabs defaultValue="agents">
+        <TabsList>
+          <TabsTrigger value="agents">Agents</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="agents" className="mt-4">
+          <AgentRoutingAgentsTab
+            loading={state.loading}
+            saving={state.saving}
+            agents={AGENT_DEFINITIONS}
+            onOpenAgentConfig={state.openAgentConfig}
+            onDeleteAgentConfig={state.handleDeleteAgentConfig}
+            getAgentConfigInfo={state.getAgentConfigInfo}
+          />
+        </TabsContent>
+
+        <TabsContent value="categories" className="mt-4">
+          <AgentRoutingCategoriesTab
+            loading={state.loading}
+            saving={state.saving}
+            categories={CATEGORY_DEFINITIONS}
+            onOpenCategoryConfig={state.openCategoryConfig}
+            onDeleteCategoryConfig={state.handleDeleteCategoryConfig}
+            getCategoryConfigInfo={state.getCategoryConfigInfo}
+          />
+        </TabsContent>
+      </Tabs>
 
       <AgentConfigEditor
         open={state.agentConfigDialogOpen}

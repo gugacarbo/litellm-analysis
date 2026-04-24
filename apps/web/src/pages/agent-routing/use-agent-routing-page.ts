@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { AgentConfig, CategoryConfig } from '../../types/agent-routing';
 import { useAgentRoutingActions } from './use-agent-routing-actions';
 import { useAgentRoutingDerived } from './use-agent-routing-derived';
@@ -26,8 +26,6 @@ export function useAgentRoutingPageState() {
     loading,
     error,
   } = useAgentRoutingState();
-
-  const [categoriesVisible, setCategoriesVisible] = useState(false);
 
   const resolvedAgentConfigs = useMemo<Record<string, AgentConfig>>(() => {
     const result: Record<string, AgentConfig> = {};
@@ -107,7 +105,6 @@ export function useAgentRoutingPageState() {
     loading,
     saving,
     error,
-    categoriesVisible,
     customAliases,
     aliasDialogOpen,
     aliasDialogMode,
@@ -119,7 +116,6 @@ export function useAgentRoutingPageState() {
     editingCategoryKey,
     resolvedAgentConfigs,
     resolvedCategoryConfigs,
-    setCategoriesVisible,
     setAliasDialogOpen,
     setAliasDialogKey,
     setAliasDialogValue,

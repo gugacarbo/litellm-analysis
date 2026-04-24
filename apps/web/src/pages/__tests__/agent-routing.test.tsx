@@ -170,33 +170,32 @@ describe('AgentRoutingPage', () => {
       });
     });
 
-    it('deve renderizar seção de categorias colapsável', async () => {
+    it('deve renderizar aba de categorias', async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce({});
       vi.mocked(getAllModels).mockResolvedValueOnce(mockModels);
 
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Categories \(8\)/)).toBeInTheDocument();
+        expect(
+          screen.getByRole('tab', { name: 'Categories' }),
+        ).toBeInTheDocument();
       });
     });
 
-    it('deve expandir categorias ao clicar no botão', async () => {
+    it('deve exibir categorias ao clicar na aba', async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce({});
       vi.mocked(getAllModels).mockResolvedValueOnce(mockModels);
 
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Categories \(8\)/)).toBeInTheDocument();
+        expect(
+          screen.getByRole('tab', { name: 'Categories' }),
+        ).toBeInTheDocument();
       });
 
-      const toggleButton = screen
-        .getByText(/Categories \(8\)/)
-        .closest('button');
-      if (toggleButton) {
-        await userEvent.click(toggleButton);
-      }
+      await userEvent.click(screen.getByRole('tab', { name: 'Categories' }));
 
       await waitFor(() => {
         expect(screen.getByText('Visual Engineering')).toBeInTheDocument();
@@ -354,15 +353,12 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Categories \(8\)/)).toBeInTheDocument();
+        expect(
+          screen.getByRole('tab', { name: 'Categories' }),
+        ).toBeInTheDocument();
       });
 
-      const toggleButton = screen
-        .getByText(/Categories \(8\)/)
-        .closest('button');
-      if (toggleButton) {
-        await userEvent.click(toggleButton);
-      }
+      await userEvent.click(screen.getByRole('tab', { name: 'Categories' }));
 
       await waitFor(() => {
         expect(screen.getByText('Visual Engineering')).toBeInTheDocument();

@@ -3,8 +3,13 @@
 import { RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { AgentConfig } from '../types/agent-routing';
-import { AgentConfigEditorAdvancedSections } from './agent-config-editor/agent-config-editor-advanced-sections';
-import { AgentConfigEditorPrimarySections } from './agent-config-editor/agent-config-editor-primary-sections';
+import { AgentConfigEditorExecutionSection } from './agent-config-editor/agent-config-editor-execution-section';
+import { AgentConfigEditorPermissionsSection } from './agent-config-editor/agent-config-editor-permissions-section';
+import {
+  AgentConfigEditorBasicSection,
+  AgentConfigEditorModelSection,
+  AgentConfigEditorPromptsSection,
+} from './agent-config-editor/agent-config-editor-primary-sections';
 import { Button } from './button';
 import {
   Dialog,
@@ -14,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from './dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 
 interface AgentConfigEditorProps {
   open: boolean;
@@ -25,6 +31,13 @@ interface AgentConfigEditorProps {
   saving?: boolean;
   error?: string | null;
 }
+
+type AgentEditorTab =
+  | 'overview'
+  | 'model'
+  | 'prompts'
+  | 'execution'
+  | 'permissions';
 
 function normalizeAgentConfig(initialConfig: AgentConfig = {}): AgentConfig {
   return {
@@ -58,19 +71,10 @@ export function AgentConfigEditor({
 }: AgentConfigEditorProps) {
   const [resetConfirm, setResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [activeTab, setActiveTab] = useState<AgentEditorTab>('overview');
   const [config, setConfig] = useState<AgentConfig>(() =>
     normalizeAgentConfig(initialConfig),
   );
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({
-    basic: true,
-    model: false,
-    prompts: false,
-    execution: false,
-    meta: false,
-    permissions: false,
-  });
   const [newSkill, setNewSkill] = useState('');
   const [newToolKey, setNewToolKey] = useState('');
   const [newToolValue, setNewToolValue] = useState(true);
@@ -84,6 +88,12 @@ export function AgentConfigEditor({
       return prev;
     });
   }, [initialConfig]);
+
+  useEffect(() => {
+    if (!open) return;
+    setActiveTab('overview');
+    setResetConfirm(false);
+  }, [open]);
 
   const updateConfig = <K extends keyof AgentConfig>(
     field: K,
@@ -130,13 +140,6 @@ export function AgentConfigEditor({
     });
   };
 
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
   const handleSave = async () => {
     await onSave(config);
   };
@@ -168,33 +171,78 @@ export function AgentConfigEditor({
           </div>
         )}
 
-        <div className="grid gap-6 py-4">
-          <AgentConfigEditorPrimarySections
-            agentKey={agentKey}
-            config={config}
-            expandedSections={expandedSections}
-            onToggleSection={toggleSection}
-            onUpdateConfig={updateConfig}
-          />
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as AgentEditorTab)}
+          className="py-4"
+        >
+          <TabsList
+            variant="line"
+            className="h-auto w-full flex-wrap justify-start rounded-xl bg-muted/35 p-1"
+          >
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="model">Model</TabsTrigger>
+            <TabsTrigger value="prompts">Prompts</TabsTrigger>
+            <TabsTrigger value="execution">Execution</TabsTrigger>
+            <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          </TabsList>
 
-          <AgentConfigEditorAdvancedSections
-            config={config}
-            expandedSections={expandedSections}
-            newSkill={newSkill}
-            newToolKey={newToolKey}
-            newToolValue={newToolValue}
-            onToggleSection={toggleSection}
-            onUpdateConfig={updateConfig}
-            onNewSkillChange={setNewSkill}
-            onNewToolKeyChange={setNewToolKey}
-            onNewToolValueChange={setNewToolValue}
-            onAddSkill={addSkill}
-            onRemoveSkill={removeSkill}
-            onAddTool={addTool}
-            onRemoveTool={removeTool}
-            onUpdateToolValue={updateToolValue}
-          />
-        </div>
+          <TabsContent value="overview" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <AgentConfigEditorBasicSection
+                config={config}
+                onUpdateConfig={updateConfig}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="model" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <AgentConfigEditorModelSection
+                agentKey={agentKey}
+                config={config}
+                onUpdateConfig={updateConfig}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="prompts" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <AgentConfigEditorPromptsSection
+                config={config}
+                onUpdateConfig={updateConfig}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="execution" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <AgentConfigEditorExecutionSection
+                config={config}
+                newSkill={newSkill}
+                newToolKey={newToolKey}
+                newToolValue={newToolValue}
+                onNewSkillChange={setNewSkill}
+                onNewToolKeyChange={setNewToolKey}
+                onNewToolValueChange={setNewToolValue}
+                onAddSkill={addSkill}
+                onRemoveSkill={removeSkill}
+                onAddTool={addTool}
+                onRemoveTool={removeTool}
+                onUpdateToolValue={updateToolValue}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="permissions" className="mt-4">
+            <div className="rounded-xl border bg-card p-4">
+              <AgentConfigEditorPermissionsSection
+                config={config}
+                onUpdateConfig={updateConfig}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <DialogFooter>
           {resetConfirm ? (

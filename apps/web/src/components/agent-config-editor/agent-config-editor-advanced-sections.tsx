@@ -5,11 +5,9 @@ import { AgentConfigEditorPermissionsSection } from './agent-config-editor-permi
 
 type Props = {
   config: AgentConfig;
-  expandedSections: Record<string, boolean>;
   newSkill: string;
   newToolKey: string;
   newToolValue: boolean;
-  onToggleSection: (section: string) => void;
   onUpdateConfig: (
     field: keyof AgentConfig,
     value: AgentConfig[keyof AgentConfig],
@@ -26,11 +24,9 @@ type Props = {
 
 export function AgentConfigEditorAdvancedSections({
   config,
-  expandedSections,
   newSkill,
   newToolKey,
   newToolValue,
-  onToggleSection,
   onUpdateConfig,
   onNewSkillChange,
   onNewToolKeyChange,
@@ -46,8 +42,6 @@ export function AgentConfigEditorAdvancedSections({
       <Separator />
       <AgentConfigEditorExecutionSection
         config={config}
-        expanded={expandedSections.execution}
-        onToggle={() => onToggleSection('execution')}
         newSkill={newSkill}
         newToolKey={newToolKey}
         newToolValue={newToolValue}
@@ -63,8 +57,6 @@ export function AgentConfigEditorAdvancedSections({
       <Separator />
       <AgentConfigEditorPermissionsSection
         config={config}
-        expanded={expandedSections.permissions}
-        onToggle={() => onToggleSection('permissions')}
         onUpdateConfig={onUpdateConfig}
       />
     </>
