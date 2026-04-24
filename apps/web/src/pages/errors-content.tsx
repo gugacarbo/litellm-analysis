@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
+import type { ErrorColumnKey } from '@/components/errors/errors-table-columns';
 import { Badge } from '../components/badge';
 import { ErrorDetailDialog } from '../components/errors/error-detail-dialog';
 import {
@@ -9,7 +10,6 @@ import {
 import { ErrorsSummaryCards } from '../components/errors/errors-summary-cards';
 import {
   DEFAULT_VISIBLE_ERROR_COLUMNS,
-  type ErrorColumnKey,
   ErrorsTable,
 } from '../components/errors/errors-table';
 import { useErrors } from '../hooks/use-errors';

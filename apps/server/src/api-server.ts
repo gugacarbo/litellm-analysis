@@ -1,6 +1,5 @@
 import express, { type Application } from 'express';
-import type { AnalyticsDataSource } from './data-source/types.js';
-import type { AgentConfig, CategoryConfig } from './services/config-file.js';
+import type { AnalyticsDataSource, AgentConfig, CategoryConfig } from '@lite-llm/analytics-types';
 
 function parseDays(rawValue: unknown, fallback: number): number {
   if (typeof rawValue !== 'string') {
@@ -411,7 +410,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.get('/agent-config', async (_req, res) => {
     try {
-      const { readConfigFile } = await import('./services/config-file.js');
+      const { readConfigFile } = await import('@lite-llm/config-generator');
       const config = await readConfigFile();
       res.json(config);
     } catch (error) {
@@ -421,7 +420,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.get('/agent-config/:key', async (req, res) => {
     try {
-      const { readConfigFile } = await import('./services/config-file.js');
+      const { readConfigFile } = await import('@lite-llm/config-generator');
       const config = await readConfigFile();
       const key = req.params.key;
       const isAgent = key in (config.agents || {});
@@ -468,7 +467,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       }
 
       const { resolveConfiguredModels } = await import(
-        './services/alias-generator.js'
+        '@lite-llm/alias-router'
       );
       const { actualModel, actualFallbacks } = resolveConfiguredModels(
         key,
@@ -494,7 +493,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         readConfigFile,
         writeProvidersFile,
         writeVscodeModelsFile,
-      } = await import('./services/config-file.js');
+      } = await import('@lite-llm/config-generator');
 
       if (type === 'agent') {
         await updateAgentInConfig(key, configToSave);
@@ -511,7 +510,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
       if (syncAliases && dataSource.capabilities.agentRouting) {
         const { generateLitellmAliases, replaceAliasesForAgent } = await import(
-          './services/alias-generator.js'
+          '@lite-llm/alias-router'
         );
         const { updateAgentRoutingConfig } = dataSource;
         const newAliases = generateLitellmAliases(
@@ -549,7 +548,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         generateLitellmAliases,
         replaceAliasesForAgent,
         resolveConfiguredModels,
-      } = await import('./services/alias-generator.js');
+      } = await import('@lite-llm/alias-router');
 
       if (rawAgents && typeof rawAgents === 'object') {
         for (const [key, rawCfg] of Object.entries(
@@ -622,7 +621,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         readConfigFile,
         writeProvidersFile,
         writeVscodeModelsFile,
-      } = await import('./services/config-file.js');
+      } = await import('@lite-llm/config-generator');
       await writeFullConfig({
         agents: agentsToSave,
         categories: categoriesToSave,
@@ -640,7 +639,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         Object.keys(allNewAliases).length > 0
       ) {
         const { replaceAliasesForAgent } = await import(
-          './services/alias-generator.js'
+          '@lite-llm/alias-router'
         );
         const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
         const existingRouting = await getAgentRoutingConfig();
@@ -681,7 +680,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const { type } = req.query;
 
       const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(
-        './services/config-file.js'
+        '@lite-llm/config-generator'
       );
 
       if (type === 'category') {
@@ -692,7 +691,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
       if (dataSource.capabilities.agentRouting) {
         const { getExistingAliasesForAgent } = await import(
-          './services/alias-generator.js'
+          '@lite-llm/alias-router'
         );
         const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
         const existingRouting = await getAgentRoutingConfig();

@@ -1,1 +1,1 @@
-export * from './db/queries';
+export * from '@lite-llm/analytics-queries';

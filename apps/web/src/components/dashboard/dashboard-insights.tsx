@@ -21,6 +21,33 @@ export function DashboardInsights({
   loading,
   insights,
 }: DashboardInsightsProps) {
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold">Analysis Highlights</h2>
+          <p className="text-sm text-muted-foreground">
+            Derived signals from usage, cost, and performance data.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={`skeleton-${index}`}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-32" />
+              </CardHeader>
+              <CardContent className="space-y-1">
+                <Skeleton className="h-7 w-24" />
+                <Skeleton className="h-3 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div className="space-y-1">
@@ -30,34 +57,19 @@ export function DashboardInsights({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {(loading ? Array.from({ length: 6 }) : insights).map((item, index) => (
-          <Card key={loading ? `skeleton-${index}` : item.title}>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {insights.map((item) => (
+          <Card key={item.title}>
             <CardHeader className="pb-2">
-              {loading ? (
-                <Skeleton className="h-4 w-32" />
-              ) : (
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {item.title}
-                </CardTitle>
-              )}
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {item.title}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-1">
-              {loading ? (
-                <>
-                  <Skeleton className="h-7 w-24" />
-                  <Skeleton className="h-3 w-full" />
-                </>
-              ) : (
-                <>
-                  <p
-                    className={`text-2xl font-bold ${getToneClass(item.tone)}`}
-                  >
-                    {item.value}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{item.detail}</p>
-                </>
-              )}
+              <p className={`text-2xl font-bold ${getToneClass(item.tone)}`}>
+                {item.value}
+              </p>
+              <p className="text-xs text-muted-foreground">{item.detail}</p>
             </CardContent>
           </Card>
         ))}

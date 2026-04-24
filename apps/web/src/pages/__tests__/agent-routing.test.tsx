@@ -29,7 +29,6 @@ const mockCapabilities: AnalyticsCapabilities = {
   deleteModel: true,
   mergeModels: true,
   deleteModelLogs: true,
-  databaseAccess: true,
   agentRouting: true,
 };
 
@@ -207,7 +206,7 @@ describe('AgentRoutingPage', () => {
   });
 
   describe('Feature Gate', () => {
-    it('deve mostrar botões de editar quando databaseAccess=true', async () => {
+    it('deve mostrar botões de editar quando agentRouting=true', async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
         agents: {},

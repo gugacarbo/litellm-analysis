@@ -9,9 +9,9 @@ import {
 } from '../components/logs/logs-filter-card';
 import {
   DEFAULT_VISIBLE_LOG_COLUMNS,
-  type LogColumnKey,
   LogsTable,
 } from '../components/logs/logs-table';
+import type { LogColumnKey } from '../components/logs/logs-table-columns';
 import { UnavailableFeature } from '../components/unavailable-feature';
 import { useLogs } from '../hooks/use-logs';
 import { useServerMode } from '../hooks/use-server-mode';

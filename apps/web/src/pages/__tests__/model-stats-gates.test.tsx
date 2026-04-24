@@ -29,6 +29,7 @@ const mockCapabilities: AnalyticsCapabilities = {
   deleteModel: false,
   mergeModels: false,
   deleteModelLogs: false,
+  agentRouting: false,
 };
 
 vi.mock('../../hooks/use-server-mode', () => ({

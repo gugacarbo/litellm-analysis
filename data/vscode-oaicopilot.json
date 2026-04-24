@@ -23,16 +23,15 @@
       "family": "z.ai"
     },
     {
-      "id": "glm-5.1",
+      "id": "glm-5-1",
       "owned_by": "atplus",
-      "displayName": "GLM 5.1",
+      "displayName": "Glm 5 1",
       "baseUrl": "http://localhost:4000",
       "apiMode": "openai",
       "context_length": 200000,
       "limit": {
-        "output": 128000
-      },
-      "family": "z.ai"
+        "output": 32768
+      }
     },
     {
       "id": "glm-5-turbo",
@@ -47,14 +46,14 @@
       "family": "z.ai"
     },
     {
-      "id": "kimi-k2.5",
+      "id": "kimi-k2-5",
       "owned_by": "atplus",
-      "displayName": "Kimi K2.5",
+      "displayName": "Kimi K2 5",
       "baseUrl": "http://localhost:4000",
       "apiMode": "openai",
-      "context_length": 256000,
+      "context_length": 200000,
       "limit": {
-        "output": 64000
+        "output": 32768
       }
     },
     {
@@ -69,14 +68,14 @@
       }
     },
     {
-      "id": "qwen3.5-plus",
+      "id": "qwen3-5-plus",
       "owned_by": "atplus",
-      "displayName": "Qwen 3.5+",
+      "displayName": "Qwen3 5 Plus",
       "baseUrl": "http://localhost:4000",
       "apiMode": "openai",
-      "context_length": 1000000,
+      "context_length": 200000,
       "limit": {
-        "output": 64000
+        "output": 32768
       }
     },
     {

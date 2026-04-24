@@ -1,6 +1,13 @@
-import type { TooltipProps } from 'recharts';
+type ChartTooltipEntry = {
+  color?: string;
+  name?: string | number;
+  value?: number | string;
+};
 
-interface ChartTooltipContentProps extends TooltipProps<number, string> {
+interface ChartTooltipContentProps {
+  active?: boolean;
+  payload?: ChartTooltipEntry[];
+  label?: string | number;
   formatter?: (value: number) => string;
   labelFormatter?: (label: string) => string;
 }
