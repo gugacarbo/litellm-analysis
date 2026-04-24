@@ -1,0 +1,161 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e8]:
+          - link "Portal NTVB" [ref=e10] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e11]
+          - heading "Portal NTVB" [level=1] [ref=e12]:
+            - link "Portal NTVB" [ref=e13] [cursor=pointer]:
+              - /url: https://ntvb.com.br
+        - generic [ref=e14]:
+          - navigation "Header" [ref=e16]:
+            - list [ref=e21]:
+              - listitem [ref=e22]:
+                - link "Início" [ref=e23] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e24]:
+                - link "Notícias" [ref=e25] [cursor=pointer]:
+                  - /url: /categoria/noticias/
+                - button "Notícias submenu" [ref=e26] [cursor=pointer]:
+                  - img [ref=e27]
+              - listitem [ref=e29]:
+                - link "Televisão" [ref=e30] [cursor=pointer]:
+                  - /url: /categoria/televisao
+                - button "Televisão submenu" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+              - listitem [ref=e34]:
+                - link "Emissoras" [ref=e35] [cursor=pointer]:
+                  - /url: /categoria/emissoras-de-tv
+                - button "Emissoras submenu" [ref=e36] [cursor=pointer]:
+                  - img [ref=e37]
+              - listitem [ref=e39]:
+                - link "Opinião" [ref=e40] [cursor=pointer]:
+                  - /url: /categoria/opiniao
+              - listitem [ref=e41]:
+                - link "Resenha" [ref=e42] [cursor=pointer]:
+                  - /url: /categoria/resenha
+              - listitem [ref=e43]:
+                - link "Contato" [ref=e44] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+                - button "Contato submenu" [ref=e45] [cursor=pointer]:
+                  - img [ref=e46]
+          - navigation "Parceiros" [ref=e49]:
+            - list [ref=e54]:
+              - listitem [ref=e55]:
+                - generic [ref=e56]: Nossos Parceiros
+                - button "Nossos Parceiros submenu" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+    - main [ref=e60]:
+      - list [ref=e62]:
+        - listitem [ref=e63]:
+          - figure [ref=e64]:
+            - link "Rádio Bandeirantes assume nova frequência" [ref=e65] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/radio-bandeirantes-assume-nova-frequencia/
+              - img "Rádio Bandeirantes assume nova frequência" [ref=e66]
+          - heading "Rádio Bandeirantes assume nova frequência" [level=2] [ref=e67]:
+            - link "Rádio Bandeirantes assume nova frequência" [ref=e68] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/radio-bandeirantes-assume-nova-frequencia/
+          - paragraph [ref=e70]: A Rádio Bandeirantes São Paulo assume em breve uma nova frequência no dial, mais precisamente em 107,3 após muito tempo na sua posição atual. Os 90,9 devem se identificar agora como VIP FM. O movimento no mercado do meio rádio coloca um fim na Eldorado FM, controlada pelo grupo que responde também pelas publicações de…
+          - time [ref=e72]:
+            - link "23 de abril de 2026" [ref=e73] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/radio-bandeirantes-assume-nova-frequencia/
+        - listitem [ref=e75]:
+          - figure [ref=e76]:
+            - link "“Cinema Em Casa” muda de horário no SBT" [ref=e77] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/cinema-em-casa-muda-de-horario-no-sbt/
+              - img "“Cinema Em Casa” muda de horário no SBT" [ref=e78]
+          - heading "“Cinema Em Casa” muda de horário no SBT" [level=2] [ref=e79]:
+            - link "“Cinema Em Casa” muda de horário no SBT" [ref=e80] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/cinema-em-casa-muda-de-horario-no-sbt/
+          - paragraph [ref=e82]: O fim se semana se transforma em palco para uma nova briga entre as emissoras desafiantes de mercado, isso porque a sessão de filmes “Cinema Em Casa” entra em novo horário e pretende brigar com o consolidado “Cine Aventura” na faixa vespertina do dia em que há menos investimentos na televisão. A estreia da nova…
+          - time [ref=e84]:
+            - link "23 de abril de 2026" [ref=e85] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/cinema-em-casa-muda-de-horario-no-sbt/
+        - listitem [ref=e87]:
+          - figure [ref=e88]:
+            - link "“Bom Dia Brasil” ganha um banho de loja" [ref=e89] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/bom-dia-brasil-ganha-um-banho-de-loja/
+              - img "“Bom Dia Brasil” ganha um banho de loja" [ref=e90]
+          - heading "“Bom Dia Brasil” ganha um banho de loja" [level=2] [ref=e91]:
+            - link "“Bom Dia Brasil” ganha um banho de loja" [ref=e92] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/bom-dia-brasil-ganha-um-banho-de-loja/
+          - paragraph [ref=e94]: O maior telejornal matutino do país ganha um banho de loja e aparece renovado a partir da próxima segunda-feira (27), com o fim do espaço provisório que ocupava na sede carioca do canal líder de audiência. A nova fase do “Bom Dia Brasil” tem as análises políticas de Andreia Sadi, o mesmo tempo no ar…
+          - time [ref=e96]:
+            - link "23 de abril de 2026" [ref=e97] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/bom-dia-brasil-ganha-um-banho-de-loja/
+        - listitem [ref=e99]:
+          - figure [ref=e100]:
+            - link "Manchete usa estratégia para subir" [ref=e101] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/manchete-usa-estrategia-para-subir/
+              - img "Manchete usa estratégia para subir" [ref=e102]
+          - heading "Manchete usa estratégia para subir" [level=2] [ref=e103]:
+            - link "Manchete usa estratégia para subir" [ref=e104] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/manchete-usa-estrategia-para-subir/
+          - paragraph [ref=e106]: A Rádio Manchete Rio de Janeiro (96,1) usa uma estratégia comum para se aproximar da líder em audiência no segmento popular no dial fluminense, pelo menos é o que demonstra o seu desenho de grade. O movimento de conseguir um espaço próximo ao da Super Rádio Tupi (96,5) também evidencia essa estratégia, que se bem…
+          - time [ref=e108]:
+            - link "23 de abril de 2026" [ref=e109] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/manchete-usa-estrategia-para-subir/
+        - listitem [ref=e111]:
+          - figure [ref=e112]:
+            - link "“Brasil do Povo” não sai do lugar" [ref=e113] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/brasil-do-povo-nao-sai-do-lugar/
+              - img "“Brasil do Povo” não sai do lugar" [ref=e114]
+          - heading "“Brasil do Povo” não sai do lugar" [level=2] [ref=e115]:
+            - link "“Brasil do Povo” não sai do lugar" [ref=e116] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/brasil-do-povo-nao-sai-do-lugar/
+          - paragraph [ref=e118]: O telejornal popular “Brasil do Povo” nunca foi um enorme sucesso na faixa nobre da RedeTV! e consegue manter seu desempenho, mesmo com a troca de comando na atração que abre o espaço mais valorizado de uma emissora. A atração tem um relacionamento sério com os baixos índices, desde a estreia. O movimento da rede…
+          - time [ref=e120]:
+            - link "23 de abril de 2026" [ref=e121] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/23/brasil-do-povo-nao-sai-do-lugar/
+        - listitem [ref=e123]:
+          - figure [ref=e124]:
+            - link "G Magazine volta a circular no Brasil" [ref=e125] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/22/g-magazine-volta-a-circular-no-brasil/
+              - img "G Magazine volta a circular no Brasil" [ref=e126]
+          - heading "G Magazine volta a circular no Brasil" [level=2] [ref=e127]:
+            - link "G Magazine volta a circular no Brasil" [ref=e128] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/22/g-magazine-volta-a-circular-no-brasil/
+          - paragraph [ref=e130]: A revista voltada ao público homossexual G Magazine tem seu retorno confirmado para o mês de maio e promete voltar com nudez frontal dos modelos que participarem das edições dessa nova fase da publicação. O periódico também deve ter ereções nas fotos dos ensaios, como promete uma das pessoas responsáveis por esse retorno. A revista…
+          - time [ref=e132]:
+            - link "22 de abril de 2026" [ref=e133] [cursor=pointer]:
+              - /url: https://ntvb.com.br/2026/04/22/g-magazine-volta-a-circular-no-brasil/
+    - contentinfo [ref=e136]:
+      - generic [ref=e137]:
+        - generic [ref=e138]:
+          - link "Portal NTVB" [ref=e140] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e141]
+          - navigation "Menu Rodapé" [ref=e143]:
+            - list [ref=e144]:
+              - listitem [ref=e145]:
+                - link "Início" [ref=e146] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e147]:
+                - link "Contato" [ref=e148] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+              - listitem [ref=e149]:
+                - link "Política de Privacidade" [ref=e150] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/politica-de-privacidade/
+              - listitem [ref=e151]:
+                - link "Termos de Uso" [ref=e152] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/termos-de-uso/
+              - listitem [ref=e153]:
+                - link "Sobre Nós" [ref=e154] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/sobre-nos/
+          - paragraph [ref=e155]:
+            - strong [ref=e156]: Portal NTVB
+        - list [ref=e157]:
+          - listitem [ref=e158]:
+            - link "Facebook" [ref=e159] [cursor=pointer]:
+              - /url: https://www.facebook.com/PortalNTVB
+              - img [ref=e160]
+              - generic [ref=e162]: Facebook
+          - listitem [ref=e163]:
+            - link "Twitter" [ref=e164] [cursor=pointer]:
+              - /url: https://x.com/ntvb_portal
+              - img [ref=e165]
+              - generic [ref=e167]: Twitter

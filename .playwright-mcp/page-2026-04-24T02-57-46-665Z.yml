@@ -1,0 +1,203 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e8]:
+          - link "Portal NTVB" [ref=e10] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e11]
+          - heading "Portal NTVB" [level=1] [ref=e12]:
+            - link "Portal NTVB" [ref=e13] [cursor=pointer]:
+              - /url: https://ntvb.com.br
+        - generic [ref=e14]:
+          - navigation "Header" [ref=e16]:
+            - list [ref=e21]:
+              - listitem [ref=e22]:
+                - link "Início" [ref=e23] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e24]:
+                - link "Notícias" [ref=e25] [cursor=pointer]:
+                  - /url: /categoria/noticias/
+                - button "Notícias submenu" [ref=e26] [cursor=pointer]:
+                  - img [ref=e27]
+              - listitem [ref=e29]:
+                - link "Televisão" [ref=e30] [cursor=pointer]:
+                  - /url: /categoria/televisao
+                - button "Televisão submenu" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+              - listitem [ref=e34]:
+                - link "Emissoras" [ref=e35] [cursor=pointer]:
+                  - /url: /categoria/emissoras-de-tv
+                - button "Emissoras submenu" [ref=e36] [cursor=pointer]:
+                  - img [ref=e37]
+              - listitem [ref=e39]:
+                - link "Opinião" [ref=e40] [cursor=pointer]:
+                  - /url: /categoria/opiniao
+              - listitem [ref=e41]:
+                - link "Resenha" [ref=e42] [cursor=pointer]:
+                  - /url: /categoria/resenha
+              - listitem [ref=e43]:
+                - link "Contato" [ref=e44] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+                - button "Contato submenu" [ref=e45] [cursor=pointer]:
+                  - img [ref=e46]
+          - navigation "Parceiros" [ref=e49]:
+            - list [ref=e54]:
+              - listitem [ref=e55]:
+                - generic [ref=e56]: Nossos Parceiros
+                - button "Nossos Parceiros submenu" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+    - main [ref=e60]:
+      - heading "Sobre Nós" [level=1] [ref=e62]
+      - generic [ref=e63]:
+        - paragraph [ref=e64]:
+          - 'img "Portal NTVB televisão rádio: Sobre Nós e nossa equipe editorial especializada em televisão e rádio brasileiro" [ref=e65]'
+        - paragraph [ref=e66]:
+          - text: Para conhecer mais sobre nós, veja também a nossa
+          - link "página de Termos de Uso" [ref=e67] [cursor=pointer]:
+            - /url: /termos-de-uso/
+          - text: ", a"
+          - link "Política de Privacidade" [ref=e68] [cursor=pointer]:
+            - /url: /politica-de-privacidade/
+          - text: e a página do
+          - link "Gustavo Dill" [ref=e69] [cursor=pointer]:
+            - /url: /gustavo-dill-jornalista/
+          - text: .
+        - heading "Sobre Nós no Portal NTVB" [level=3] [ref=e70]
+        - paragraph [ref=e71]:
+          - text: O
+          - strong [ref=e72]: Portal NTVB
+          - text: é uma publicação digital independente especializada em cobertura jornalística do mercado de
+          - strong [ref=e73]: televisão
+          - text: ","
+          - strong [ref=e74]: rádio
+          - text: e entretenimento brasileiro. Além disso, o projeto nasceu em 2024 da necessidade de oferecer análises mais completas sobre audiência, bastidores e movimentações estratégicas das principais emissoras do país.
+        - paragraph [ref=e75]: Nossa equipe editorial é formada por profissionais com experiência em comunicação e jornalismo de entretenimento, comprometidos em investigar, contextualizar e explicar as notícias que impactam o dia a dia dos telespectadores e ouvintes brasileiros. Dessa forma, cada pauta busca unir agilidade, contexto e responsabilidade editorial.
+        - heading "Sobre Nós e o Que Fazemos Diferente no Portal NTVB" [level=3] [ref=e76]
+        - heading "Análise de audiência de televisão e rádio" [level=4] [ref=e77]
+        - paragraph [ref=e78]:
+          - text: Além disso, acompanhamos diariamente os índices de audiência das principais emissoras de
+          - strong [ref=e79]: televisão
+          - text: e
+          - strong [ref=e80]: rádio
+          - text: (IBOPE/Kantar), explicando tendências, comparações históricas e o que os números realmente significam para o mercado.
+        - heading "Bastidor verificado com foco em televisão e rádio" [level=4] [ref=e81]
+        - paragraph [ref=e82]: Por outro lado, trazemos informações dos bastidores da TV e do rádio obtidas por meio de fontes próprias e apuração jornalística, sempre com responsabilidade editorial e checagem de fatos. Quando publicamos análises, buscamos ligar cada informação ao contexto do mercado de mídia brasileira.
+        - heading "Contextualização do mercado de televisão e rádio" [level=4] [ref=e83]
+        - paragraph [ref=e84]: Portanto, não apenas noticiamos o que acontece — explicamos o porquê. Movimentações de apresentadores, mudanças de grade e fusões de emissoras são analisadas dentro do cenário econômico e histórico do entretenimento brasileiro. Assim, isso ajuda o leitor a entender a relevância de cada pauta publicada no portal.
+        - paragraph [ref=e85]:
+          - img "Portal NTVB com foco em análise de audiência e bastidores da televisão brasileira" [ref=e86]
+        - heading "Sobre Nós e Nossos Princípios Editoriais" [level=3] [ref=e87]
+        - list [ref=e88]:
+          - listitem [ref=e89]:
+            - strong [ref=e90]: Veracidade
+            - text: ": Antes de publicar, checamos informações com cuidado"
+          - listitem [ref=e91]:
+            - strong [ref=e92]: Transparência
+            - text: ": Além disso, distinguimos claramente entre notícia, análise e opinião"
+          - listitem [ref=e93]:
+            - strong [ref=e94]: Responsabilidade
+            - text: ": Por isso, respeitamos a privacidade de profissionais e empresas do setor"
+          - listitem [ref=e95]:
+            - strong [ref=e96]: Independência
+            - text: ": Dessa forma, mantemos editorial independente de anunciantes e patrocinadores"
+        - heading "Equipe do Portal NTVB" [level=3] [ref=e97]
+        - heading "Gustavo Dill — Editor e Fundador" [level=4] [ref=e98]
+        - paragraph [ref=e99]:
+          - text: Jornalista especializado em cobertura de mídia e entretenimento, Gustavo Dill é o editor fundador do
+          - strong [ref=e100]: Portal NTVB
+          - text: ", focado em"
+          - strong [ref=e101]: televisão
+          - text: e
+          - strong [ref=e102]: rádio
+          - text: brasileiro. Além disso,
+          - link "conheça a página completa de Gustavo Dill" [ref=e103] [cursor=pointer]:
+            - /url: /gustavo-dill-jornalista/
+          - text: e veja também os
+          - link "conteúdos de televisão" [ref=e104] [cursor=pointer]:
+            - /url: /category/televisao/
+          - text: e as
+          - link "notícias de rádio" [ref=e105] [cursor=pointer]:
+            - /url: /category/radio/
+          - text: .
+        - paragraph [ref=e106]:
+          - img "Gustavo Dill, jornalista fundador do Portal NTVB especializado em televisão e rádio" [ref=e107]
+        - paragraph [ref=e108]:
+          - text: Se você quer acompanhar a linha editorial do site, confira também nossos textos sobre
+          - link "audiência na televisão" [ref=e109] [cursor=pointer]:
+            - /url: /category/televisao/audiencia/
+          - text: e
+          - link "bastidores do rádio" [ref=e110] [cursor=pointer]:
+            - /url: /category/radio/bastidores/
+          - text: ", quando estiverem disponíveis no portal."
+        - heading "Contato" [level=3] [ref=e111]
+        - list [ref=e112]:
+          - listitem [ref=e113]:
+            - text: "Email:"
+            - link "contato@ntvb.com.br" [ref=e114] [cursor=pointer]:
+              - /url: mailto:contato@ntvb.com.br
+          - listitem [ref=e115]:
+            - text: "Twitter:"
+            - link "@ntvb_portal" [ref=e116] [cursor=pointer]:
+              - /url: https://twitter.com/ntvb_portal
+          - listitem [ref=e117]:
+            - text: "Facebook:"
+            - link "PortalNTVB" [ref=e118] [cursor=pointer]:
+              - /url: https://facebook.com/PortalNTVB
+        - separator [ref=e119]
+        - paragraph [ref=e120]:
+          - strong [ref=e121]: "Veja também:"
+        - list [ref=e122]:
+          - listitem [ref=e123]:
+            - link "Termos de Uso do Portal NTVB" [ref=e124] [cursor=pointer]:
+              - /url: /termos-de-uso/
+          - listitem [ref=e125]:
+            - link "Política de Privacidade" [ref=e126] [cursor=pointer]:
+              - /url: /politica-de-privacidade/
+          - listitem [ref=e127]:
+            - link "Últimas notícias de Televisão" [ref=e128] [cursor=pointer]:
+              - /url: /category/televisao/
+          - listitem [ref=e129]:
+            - link "Últimas notícias de Rádio" [ref=e130] [cursor=pointer]:
+              - /url: /category/radio/
+        - separator [ref=e131]
+        - paragraph [ref=e132]:
+          - emphasis [ref=e133]: "Última atualização: 23 de abril de 2026"
+    - contentinfo [ref=e134]:
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - link "Portal NTVB" [ref=e138] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e139]
+          - navigation "Menu Rodapé" [ref=e141]:
+            - list [ref=e142]:
+              - listitem [ref=e143]:
+                - link "Início" [ref=e144] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e145]:
+                - link "Contato" [ref=e146] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+              - listitem [ref=e147]:
+                - link "Política de Privacidade" [ref=e148] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/politica-de-privacidade/
+              - listitem [ref=e149]:
+                - link "Termos de Uso" [ref=e150] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/termos-de-uso/
+              - listitem [ref=e151]:
+                - link "Sobre Nós" [ref=e152] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/sobre-nos/
+          - paragraph [ref=e153]:
+            - strong [ref=e154]: Portal NTVB
+        - list [ref=e155]:
+          - listitem [ref=e156]:
+            - link "Facebook" [ref=e157] [cursor=pointer]:
+              - /url: https://www.facebook.com/PortalNTVB
+              - img [ref=e158]
+              - generic [ref=e160]: Facebook
+          - listitem [ref=e161]:
+            - link "Twitter" [ref=e162] [cursor=pointer]:
+              - /url: https://x.com/ntvb_portal
+              - img [ref=e163]
+              - generic [ref=e165]: Twitter

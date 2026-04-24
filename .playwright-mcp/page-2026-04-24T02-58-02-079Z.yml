@@ -1,0 +1,144 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e8]:
+          - link "Portal NTVB" [ref=e10] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e11]
+          - heading "Portal NTVB" [level=1] [ref=e12]:
+            - link "Portal NTVB" [ref=e13] [cursor=pointer]:
+              - /url: https://ntvb.com.br
+        - generic [ref=e14]:
+          - navigation "Header" [ref=e16]:
+            - list [ref=e21]:
+              - listitem [ref=e22]:
+                - link "Início" [ref=e23] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e24]:
+                - link "Notícias" [ref=e25] [cursor=pointer]:
+                  - /url: /categoria/noticias/
+                - button "Notícias submenu" [ref=e26] [cursor=pointer]:
+                  - img [ref=e27]
+              - listitem [ref=e29]:
+                - link "Televisão" [ref=e30] [cursor=pointer]:
+                  - /url: /categoria/televisao
+                - button "Televisão submenu" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+              - listitem [ref=e34]:
+                - link "Emissoras" [ref=e35] [cursor=pointer]:
+                  - /url: /categoria/emissoras-de-tv
+                - button "Emissoras submenu" [ref=e36] [cursor=pointer]:
+                  - img [ref=e37]
+              - listitem [ref=e39]:
+                - link "Opinião" [ref=e40] [cursor=pointer]:
+                  - /url: /categoria/opiniao
+              - listitem [ref=e41]:
+                - link "Resenha" [ref=e42] [cursor=pointer]:
+                  - /url: /categoria/resenha
+              - listitem [ref=e43]:
+                - link "Contato" [ref=e44] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+                - button "Contato submenu" [ref=e45] [cursor=pointer]:
+                  - img [ref=e46]
+          - navigation "Parceiros" [ref=e49]:
+            - list [ref=e54]:
+              - listitem [ref=e55]:
+                - generic [ref=e56]: Nossos Parceiros
+                - button "Nossos Parceiros submenu" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+    - main [ref=e60]:
+      - heading "Contato" [level=1] [ref=e62]
+      - generic [ref=e63]:
+        - paragraph [ref=e64]:
+          - img "Página de contato do Portal NTVB" [ref=e65]
+        - paragraph [ref=e66]:
+          - text: Se você deseja falar com a redação do
+          - strong [ref=e67]: Portal NTVB
+          - text: ", este é o canal oficial para enviar sugestões, correções, pedidos de pauta, parcerias e mensagens gerais. O"
+          - strong [ref=e68]: contato Portal NTVB
+          - text: foi criado para aproximar leitores, fontes e anunciantes da equipe editorial, garantindo uma comunicação direta, clara e organizada.
+        - paragraph [ref=e69]: Também usamos este espaço para receber alertas sobre erros de informação, solicitações de atualização e comentários relacionados às pautas publicadas. Sempre que possível, priorizamos mensagens que ajudem a melhorar a qualidade editorial do portal e a manter o conteúdo mais útil para quem acompanha televisão, rádio, cinema e música.
+        - 'heading "Contato Portal NTVB: canais oficiais" [level=3] [ref=e70]'
+        - heading "Como entrar em contato com o Portal NTVB" [level=4] [ref=e71]
+        - list [ref=e72]:
+          - listitem [ref=e73]:
+            - strong [ref=e74]: Email da redação
+            - text: ":"
+            - link "contato@ntvb.com.br" [ref=e75] [cursor=pointer]:
+              - /url: mailto:contato@ntvb.com.br
+          - listitem [ref=e76]:
+            - strong [ref=e77]: Twitter / X
+            - text: ":"
+            - link "@ntvb_portal" [ref=e78] [cursor=pointer]:
+              - /url: https://twitter.com/ntvb_portal
+          - listitem [ref=e79]:
+            - strong [ref=e80]: Facebook
+            - text: ":"
+            - link "PortalNTVB" [ref=e81] [cursor=pointer]:
+              - /url: https://facebook.com/PortalNTVB
+        - heading "Assuntos que você pode enviar ao Portal NTVB" [level=4] [ref=e82]
+        - list [ref=e83]:
+          - listitem [ref=e84]: Correções de informações publicadas no site
+          - listitem [ref=e85]: Sugestões de pauta sobre televisão, rádio, cinema e música
+          - listitem [ref=e86]: Pedidos de parceria, publicidade ou divulgação institucional
+          - listitem [ref=e87]: Dúvidas sobre direitos autorais, uso de conteúdo e referências editoriais
+          - listitem [ref=e88]: Solicitações relacionadas à Política de Privacidade ou aos Termos de Uso
+        - paragraph [ref=e89]: Quando a mensagem estiver relacionada a uma pauta específica, inclua o título do artigo, a data de publicação e o máximo de contexto possível. Isso ajuda o contato Portal NTVB a chegar mais rápido ao responsável pela apuração e reduz o tempo de resposta da redação.
+        - heading "Antes de enviar sua mensagem ao Portal NTVB" [level=4] [ref=e90]
+        - paragraph [ref=e91]:
+          - text: Se o seu assunto estiver relacionado às regras de uso do portal ou ao tratamento de dados pessoais, consulte também a
+          - link "página de Termos de Uso" [ref=e92] [cursor=pointer]:
+            - /url: /termos-de-uso/
+          - text: e a
+          - link "Política de Privacidade" [ref=e93] [cursor=pointer]:
+            - /url: /politica-de-privacidade/
+          - text: . Para conhecer melhor quem somos, veja ainda a
+          - link "página Sobre Nós" [ref=e94] [cursor=pointer]:
+            - /url: /sobre-nos/
+          - text: .
+        - paragraph [ref=e95]: O contato Portal NTVB também é útil para quem deseja sugerir melhorias na navegação, relatar links quebrados ou indicar temas que merecem cobertura futura. Quanto mais objetiva for a mensagem, mais fácil será encaminhá-la para a área correta.
+        - heading "Atendimento da redação do Portal NTVB" [level=4] [ref=e96]
+        - paragraph [ref=e97]: Nosso objetivo é responder com agilidade sempre que possível, mas o prazo pode variar conforme o volume de mensagens recebidas. Pedidos de correção e contato editorial têm prioridade de análise, porque impactam diretamente a confiabilidade e a atualização do conteúdo publicado.
+        - paragraph [ref=e98]: Se você acompanha o portal com frequência, use esta página sempre que precisar falar com a equipe do contato Portal NTVB de forma institucional. Assim, preservamos um histórico organizado de solicitações e mantemos um canal claro para leitores, parceiros e fontes.
+        - separator [ref=e99]
+        - paragraph [ref=e100]:
+          - emphasis [ref=e101]: Portal NTVB – contato institucional e editorial.
+    - contentinfo [ref=e102]:
+      - generic [ref=e103]:
+        - generic [ref=e104]:
+          - link "Portal NTVB" [ref=e106] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e107]
+          - navigation "Menu Rodapé" [ref=e109]:
+            - list [ref=e110]:
+              - listitem [ref=e111]:
+                - link "Início" [ref=e112] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e113]:
+                - link "Contato" [ref=e114] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+              - listitem [ref=e115]:
+                - link "Política de Privacidade" [ref=e116] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/politica-de-privacidade/
+              - listitem [ref=e117]:
+                - link "Termos de Uso" [ref=e118] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/termos-de-uso/
+              - listitem [ref=e119]:
+                - link "Sobre Nós" [ref=e120] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/sobre-nos/
+          - paragraph [ref=e121]:
+            - strong [ref=e122]: Portal NTVB
+        - list [ref=e123]:
+          - listitem [ref=e124]:
+            - link "Facebook" [ref=e125] [cursor=pointer]:
+              - /url: https://www.facebook.com/PortalNTVB
+              - img [ref=e126]
+              - generic [ref=e128]: Facebook
+          - listitem [ref=e129]:
+            - link "Twitter" [ref=e130] [cursor=pointer]:
+              - /url: https://x.com/ntvb_portal
+              - img [ref=e131]
+              - generic [ref=e133]: Twitter

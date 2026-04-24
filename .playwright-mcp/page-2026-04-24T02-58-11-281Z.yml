@@ -1,0 +1,205 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e8]:
+          - link "Portal NTVB" [ref=e10] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e11]
+          - heading "Portal NTVB" [level=1] [ref=e12]:
+            - link "Portal NTVB" [ref=e13] [cursor=pointer]:
+              - /url: https://ntvb.com.br
+        - generic [ref=e14]:
+          - navigation "Header" [ref=e16]:
+            - list [ref=e21]:
+              - listitem [ref=e22]:
+                - link "Início" [ref=e23] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e24]:
+                - link "Notícias" [ref=e25] [cursor=pointer]:
+                  - /url: /categoria/noticias/
+                - button "Notícias submenu" [ref=e26] [cursor=pointer]:
+                  - img [ref=e27]
+              - listitem [ref=e29]:
+                - link "Televisão" [ref=e30] [cursor=pointer]:
+                  - /url: /categoria/televisao
+                - button "Televisão submenu" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+              - listitem [ref=e34]:
+                - link "Emissoras" [ref=e35] [cursor=pointer]:
+                  - /url: /categoria/emissoras-de-tv
+                - button "Emissoras submenu" [ref=e36] [cursor=pointer]:
+                  - img [ref=e37]
+              - listitem [ref=e39]:
+                - link "Opinião" [ref=e40] [cursor=pointer]:
+                  - /url: /categoria/opiniao
+              - listitem [ref=e41]:
+                - link "Resenha" [ref=e42] [cursor=pointer]:
+                  - /url: /categoria/resenha
+              - listitem [ref=e43]:
+                - link "Contato" [ref=e44] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+                - button "Contato submenu" [ref=e45] [cursor=pointer]:
+                  - img [ref=e46]
+          - navigation "Parceiros" [ref=e49]:
+            - list [ref=e54]:
+              - listitem [ref=e55]:
+                - generic [ref=e56]: Nossos Parceiros
+                - button "Nossos Parceiros submenu" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+    - main [ref=e60]:
+      - heading "Política de Privacidade" [level=1] [ref=e62]
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - img "Portal NTVB - Política de Privacidade" [ref=e66]
+          - paragraph
+          - paragraph [ref=e67]:
+            - strong [ref=e68]: Política de Privacidade
+          - paragraph [ref=e69]:
+            - strong [ref=e70]: "Última atualização:"
+            - text: 23 de abril de 2026
+          - paragraph
+        - paragraph [ref=e71]: "Política de Privacidade do Portal NTVB: nesta página, você entende de forma objetiva como tratamos seus dados, cookies, comentários e preferências de navegação. O Portal NTVB respeita a sua privacidade e atua com transparência e responsabilidade em todo o processo."
+        - paragraph [ref=e72]:
+          - text: Para complementar esta página, consulte também a nossa
+          - link "página de Termos de Uso" [ref=e73] [cursor=pointer]:
+            - /url: /termos-de-uso/
+          - text: ", a"
+          - link "página Sobre Nós" [ref=e74] [cursor=pointer]:
+            - /url: /sobre-nos/
+          - text: e a
+          - link "página de Contato" [ref=e75] [cursor=pointer]:
+            - /url: /contato/
+          - text: .
+        - paragraph [ref=e76]:
+          - text: Como referência externa, também vale consultar a
+          - link "Lei Geral de Proteção de Dados (LGPD)" [ref=e77] [cursor=pointer]:
+            - /url: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm
+          - text: e as
+          - link "diretrizes de cookies do Google" [ref=e78] [cursor=pointer]:
+            - /url: https://policies.google.com/technologies/cookies?hl=pt-BR
+          - text: .
+        - generic [ref=e79]:
+          - strong [ref=e80]: "Atalhos rápidos:"
+          - paragraph
+          - list [ref=e81]:
+            - listitem [ref=e82]:
+              - link "Dados coletados" [ref=e83] [cursor=pointer]:
+                - /url: "#dados-coletados"
+            - listitem [ref=e84]:
+              - link "Cookies e tecnologias" [ref=e85] [cursor=pointer]:
+                - /url: "#cookies"
+            - listitem [ref=e86]:
+              - link "Como usamos os dados" [ref=e87] [cursor=pointer]:
+                - /url: "#uso-dados"
+            - listitem [ref=e88]:
+              - link "Compartilhamento com terceiros" [ref=e89] [cursor=pointer]:
+                - /url: "#compartilhamento"
+            - listitem [ref=e90]:
+              - link "Seus direitos" [ref=e91] [cursor=pointer]:
+                - /url: "#direitos"
+            - listitem [ref=e92]:
+              - link "Contato" [ref=e93] [cursor=pointer]:
+                - /url: "#contato-privacidade"
+        - 'heading "1. Política de privacidade: dados que podemos coletar" [level=3] [ref=e94]'
+        - paragraph [ref=e95]: O Portal NTVB pode coletar dados fornecidos diretamente por você e informações geradas automaticamente durante o uso do site.
+        - list [ref=e96]:
+          - listitem [ref=e97]: Nome, e-mail e informações enviadas em formulários de contato ou cadastro.
+          - listitem [ref=e98]: Conteúdos e respostas enviados em pesquisas, comentários e solicitações de atendimento.
+          - listitem [ref=e99]: Dados técnicos como endereço IP, tipo de navegador, sistema operacional, idioma, localização aproximada e páginas acessadas.
+        - 'heading "2. Política de privacidade: comentários e interações" [level=3] [ref=e100]'
+        - paragraph [ref=e101]: Se o Portal NTVB permitir comentários ou interações públicas, podemos coletar os dados enviados no formulário, além do endereço IP e do agente de navegação do visitante para ajudar na detecção de spam e abuso.
+        - paragraph [ref=e102]: Se você usa o serviço de autenticação de terceiros para comentar, a plataforma escolhida pode receber informações adicionais conforme a própria política de privacidade dela.
+        - 'heading "3. Política de privacidade: cookies e tecnologias semelhantes" [level=3] [ref=e103]'
+        - paragraph [ref=e104]: Usamos cookies, web beacons e recursos parecidos para entender melhor como o site é utilizado, melhorar a navegação e personalizar conteúdos e anúncios. Você pode desativar cookies nas configurações do seu navegador, mas isso pode afetar algumas funcionalidades do portal.
+        - 'heading "4. Política de privacidade: formulários de contato e cadastro" [level=3] [ref=e105]'
+        - paragraph [ref=e106]: Quando você envia uma mensagem por formulário, assina uma newsletter ou realiza cadastro, usamos as informações informadas apenas para responder sua solicitação, gerenciar o relacionamento com o usuário e, quando houver consentimento, enviar comunicações relevantes.
+        - 'heading "5. Política de privacidade: como usamos os dados" [level=3] [ref=e107]'
+        - paragraph [ref=e108]: As informações coletadas podem ser usadas para operar, manter e melhorar o Portal NTVB, além de viabilizar comunicações institucionais, análises de audiência, segurança da plataforma e oferta de conteúdos mais relevantes ao leitor.
+        - list [ref=e109]:
+          - listitem [ref=e110]: Personalizar conteúdos, serviços e recomendações.
+          - listitem [ref=e111]: Entender melhor o comportamento de navegação e o desempenho das páginas.
+          - listitem [ref=e112]: Enviar comunicações importantes, como avisos de serviço e mensagens administrativas.
+          - listitem [ref=e113]: Atender dúvidas, solicitações e pedidos de atualização de dados.
+        - 'heading "6. Política de privacidade: conteúdo incorporado de outros sites" [level=3] [ref=e114]'
+        - paragraph [ref=e115]: Artigos do Portal NTVB podem incluir vídeos, imagens, posts ou outros conteúdos incorporados de terceiros. O conteúdo incorporado de outros sites se comporta da mesma forma como se o visitante estivesse acessando diretamente o site de origem.
+        - paragraph [ref=e116]: Esses sites podem coletar dados sobre você, usar cookies, incorporar rastreamento adicional de terceiros e monitorar sua interação com o conteúdo incorporado, especialmente se você tiver conta e estiver logado no serviço de origem.
+        - 'heading "7. Política de privacidade: compartilhamento com terceiros" [level=3] [ref=e117]'
+        - paragraph [ref=e118]: Suas informações podem ser compartilhadas apenas quando necessário para a operação do site, cumprimento de obrigações legais ou prestação de serviços por parceiros contratados, sempre observando limites de confidencialidade e finalidade.
+        - list [ref=e119]:
+          - listitem [ref=e120]: Prestadores de serviços de tecnologia, comunicação, análise e suporte.
+          - listitem [ref=e121]: Parceiros de publicidade e mensuração, quando aplicável.
+          - listitem [ref=e122]: Autoridades competentes, em caso de exigência legal ou ordem judicial.
+          - listitem [ref=e123]: Empresas relacionadas, quando necessário para administração do negócio.
+        - heading "8. Informações de parceiros terceiros" [level=3] [ref=e124]
+        - paragraph [ref=e125]: Podemos receber informações de plataformas de terceiros, como Google e redes sociais, quando você interage com nossos conteúdos por meio desses serviços. O tratamento desses dados também pode seguir as regras e configurações de privacidade das próprias plataformas.
+        - heading "9. Publicidade e e-mails" [level=3] [ref=e126]
+        - paragraph [ref=e127]: Quando você se cadastra ou preenche formulários no Portal NTVB, pode aceitar o recebimento de novidades, comunicados e conteúdos promocionais. Você pode cancelar esse envio a qualquer momento por meio do link de descadastro disponível nas mensagens enviadas.
+        - heading "10. Armazenamento e segurança" [level=3] [ref=e128]
+        - paragraph [ref=e129]: Os dados coletados podem ser armazenados em servidores próprios ou de parceiros contratados, no Brasil ou no exterior. Adotamos medidas razoáveis de segurança para proteger as informações contra acesso não autorizado, perda, alteração ou divulgação indevida.
+        - heading "11. Seus direitos" [level=3] [ref=e130]
+        - paragraph [ref=e131]: Você pode solicitar a correção, atualização, acesso, exclusão ou portabilidade dos seus dados, quando aplicável, bem como revogar o consentimento concedido anteriormente. Sempre que possível, atenderemos os pedidos dentro de um prazo razoável e conforme a legislação aplicável.
+        - heading "12. Retenção de dados" [level=3] [ref=e132]
+        - paragraph [ref=e133]: Mesmo após uma solicitação de exclusão, o Portal NTVB poderá manter determinados registros pelo tempo necessário para cumprir obrigações legais, regulatórias ou para resguardo de direitos, conforme a legislação brasileira vigente.
+        - heading "13. Alterações nesta Política" [level=3] [ref=e134]
+        - paragraph [ref=e135]: Esta Política de Privacidade pode ser atualizada a qualquer momento para refletir mudanças legais, técnicas ou operacionais. A versão mais recente sempre estará disponível nesta página.
+        - heading "14. Contato" [level=3] [ref=e136]
+        - paragraph [ref=e137]:
+          - text: Se você tiver dúvidas sobre esta Política de Privacidade, entre em contato com a redação do Portal NTVB pelo e-mail
+          - link "contato@ntvb.com.br" [ref=e138] [cursor=pointer]:
+            - /url: mailto:contato@ntvb.com.br
+          - text: ou acesse a nossa
+          - link "página de Contato" [ref=e139] [cursor=pointer]:
+            - /url: /contato/
+          - text: .
+        - separator [ref=e140]
+        - paragraph [ref=e141]:
+          - strong [ref=e142]: "Veja também:"
+        - list [ref=e143]:
+          - listitem [ref=e144]:
+            - link "Termos de Uso do Portal NTVB" [ref=e145] [cursor=pointer]:
+              - /url: /termos-de-uso/
+          - listitem [ref=e146]:
+            - link "Sobre Nós" [ref=e147] [cursor=pointer]:
+              - /url: /sobre-nos/
+          - listitem [ref=e148]:
+            - link "Contato" [ref=e149] [cursor=pointer]:
+              - /url: /contato/
+    - contentinfo [ref=e150]:
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - link "Portal NTVB" [ref=e154] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e155]
+          - navigation "Menu Rodapé" [ref=e157]:
+            - list [ref=e158]:
+              - listitem [ref=e159]:
+                - link "Início" [ref=e160] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e161]:
+                - link "Contato" [ref=e162] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+              - listitem [ref=e163]:
+                - link "Política de Privacidade" [ref=e164] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/politica-de-privacidade/
+              - listitem [ref=e165]:
+                - link "Termos de Uso" [ref=e166] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/termos-de-uso/
+              - listitem [ref=e167]:
+                - link "Sobre Nós" [ref=e168] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/sobre-nos/
+          - paragraph [ref=e169]:
+            - strong [ref=e170]: Portal NTVB
+        - list [ref=e171]:
+          - listitem [ref=e172]:
+            - link "Facebook" [ref=e173] [cursor=pointer]:
+              - /url: https://www.facebook.com/PortalNTVB
+              - img [ref=e174]
+              - generic [ref=e176]: Facebook
+          - listitem [ref=e177]:
+            - link "Twitter" [ref=e178] [cursor=pointer]:
+              - /url: https://x.com/ntvb_portal
+              - img [ref=e179]
+              - generic [ref=e181]: Twitter

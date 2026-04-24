@@ -1,0 +1,157 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e8]:
+          - link "Portal NTVB" [ref=e10] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e11]
+          - heading "Portal NTVB" [level=1] [ref=e12]:
+            - link "Portal NTVB" [ref=e13] [cursor=pointer]:
+              - /url: https://ntvb.com.br
+        - generic [ref=e14]:
+          - navigation "Header" [ref=e16]:
+            - list [ref=e21]:
+              - listitem [ref=e22]:
+                - link "Início" [ref=e23] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e24]:
+                - link "Notícias" [ref=e25] [cursor=pointer]:
+                  - /url: /categoria/noticias/
+                - button "Notícias submenu" [ref=e26] [cursor=pointer]:
+                  - img [ref=e27]
+              - listitem [ref=e29]:
+                - link "Televisão" [ref=e30] [cursor=pointer]:
+                  - /url: /categoria/televisao
+                - button "Televisão submenu" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+              - listitem [ref=e34]:
+                - link "Emissoras" [ref=e35] [cursor=pointer]:
+                  - /url: /categoria/emissoras-de-tv
+                - button "Emissoras submenu" [ref=e36] [cursor=pointer]:
+                  - img [ref=e37]
+              - listitem [ref=e39]:
+                - link "Opinião" [ref=e40] [cursor=pointer]:
+                  - /url: /categoria/opiniao
+              - listitem [ref=e41]:
+                - link "Resenha" [ref=e42] [cursor=pointer]:
+                  - /url: /categoria/resenha
+              - listitem [ref=e43]:
+                - link "Contato" [ref=e44] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+                - button "Contato submenu" [ref=e45] [cursor=pointer]:
+                  - img [ref=e46]
+          - navigation "Parceiros" [ref=e49]:
+            - list [ref=e54]:
+              - listitem [ref=e55]:
+                - generic [ref=e56]: Nossos Parceiros
+                - button "Nossos Parceiros submenu" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+    - main [ref=e60]:
+      - generic [ref=e64]:
+        - generic [ref=e67]:
+          - heading "Televisão aberta perde público em um ano" [level=1] [ref=e69]
+          - generic [ref=e70]:
+            - time [ref=e72]: 5 de maio de 2023
+            - paragraph [ref=e73]: "|"
+            - paragraph [ref=e76]: Gustavo Dill
+            - paragraph [ref=e77]: "|"
+            - time [ref=e79]: 17:02:27
+        - generic [ref=e80]:
+          - paragraph [ref=e81]:
+            - strong [ref=e82]: A televisão aberta sofre com uma queda de rendimento entre seus principais canais, no recorte de janeiro a abril de 2023, e quem mais perdeu público foi a Record TV. O projeto do telepastor Edir Macedo registra uma queda de 16,2% na principal praça do país.
+          - paragraph [ref=e83]: Ainda assim, o canal com sede na Barra Funda se manteve na vice liderança ao fechar esse recorte de 119 dias com 4,82 pontos de média, conforme os dados consolidados da Kantar Ibope Media na Grande São Paulo.
+          - paragraph [ref=e84]: Primeira colocada, a Globo quase não oscilou e teve 13,47 pontos de média. A rede carioca fecha esse período com uma retração de 0,96% em relação ao ano de 2022. Nos mesmos quatro meses iniciais, a emissora controlada pelos Marinho teve queda de 1,1% em comparação a parcial anterior.
+          - paragraph [ref=e85]: A ocupante da medalha de bronze tinha 4,12 pontos no ano passado, dentro desse mesmo recorte. No ano corrente, a rede de Senor Abravanel registra queda de 5,1% no quadro comparativo de um ano para o outro e fica com 3,92 pontos de média.
+          - paragraph [ref=e86]: ">> Material elaborado com base nos dados consolidados de Globo, Record TV e SBT nos anos de 2022 e 2023, para demonstrar a queda ocorrida no comparativo entre os períodos."
+        - generic [ref=e88]:
+          - separator [ref=e89]
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - paragraph [ref=e93]: Publicado
+              - time [ref=e95]: 3 anos atrás
+              - paragraph [ref=e96]: em
+              - link "Notícias" [ref=e98] [cursor=pointer]:
+                - /url: https://ntvb.com.br/categoria/noticias/
+            - generic [ref=e99]:
+              - paragraph [ref=e100]: por
+              - paragraph [ref=e103]: Gustavo Dill
+            - generic [ref=e105]:
+              - link "Audiência" [ref=e106] [cursor=pointer]:
+                - /url: https://ntvb.com.br/tags/audiencia/
+              - text: ","
+              - link "Globo" [ref=e107] [cursor=pointer]:
+                - /url: https://ntvb.com.br/tags/globo/
+              - text: ","
+              - link "Notícias" [ref=e108] [cursor=pointer]:
+                - /url: https://ntvb.com.br/tags/noticias/
+              - text: ","
+              - link "Record TV" [ref=e109] [cursor=pointer]:
+                - /url: https://ntvb.com.br/tags/record-tv/
+              - text: ","
+              - link "SBT" [ref=e110] [cursor=pointer]:
+                - /url: https://ntvb.com.br/tags/sbt/
+        - generic [ref=e114]:
+          - heading "Comentários" [level=3] [ref=e117]
+          - generic [ref=e118]:
+            - heading "Deixe um comentário" [level=3] [ref=e119]: Deixe um comentário
+            - generic [ref=e120]:
+              - paragraph [ref=e121]:
+                - text: O seu endereço de e-mail não será publicado.
+                - generic [ref=e122]: Campos obrigatórios são marcados com *
+              - paragraph [ref=e123]:
+                - generic [ref=e124]: Comentário *
+                - textbox "Comentário *" [ref=e125]
+              - paragraph [ref=e126]:
+                - generic [ref=e127]: Nome *
+                - textbox "Nome *" [ref=e128]
+              - paragraph [ref=e129]:
+                - generic [ref=e130]: E-mail *
+                - textbox "E-mail *" [ref=e131]
+              - paragraph [ref=e132]:
+                - generic [ref=e133]: Site
+                - textbox "Site" [ref=e134]
+              - paragraph [ref=e135]:
+                - checkbox "Salvar meus dados neste navegador para a próxima vez que eu comentar." [ref=e136]
+                - generic [ref=e137]: Salvar meus dados neste navegador para a próxima vez que eu comentar.
+              - paragraph [ref=e138]:
+                - button "Publicar comentário" [ref=e139] [cursor=pointer]
+              - paragraph
+    - contentinfo [ref=e140]:
+      - generic [ref=e141]:
+        - generic [ref=e142]:
+          - link "Portal NTVB" [ref=e144] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e145]
+          - navigation "Menu Rodapé" [ref=e147]:
+            - list [ref=e148]:
+              - listitem [ref=e149]:
+                - link "Início" [ref=e150] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e151]:
+                - link "Contato" [ref=e152] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+              - listitem [ref=e153]:
+                - link "Política de Privacidade" [ref=e154] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/politica-de-privacidade/
+              - listitem [ref=e155]:
+                - link "Termos de Uso" [ref=e156] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/termos-de-uso/
+              - listitem [ref=e157]:
+                - link "Sobre Nós" [ref=e158] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/sobre-nos/
+          - paragraph [ref=e159]:
+            - strong [ref=e160]: Portal NTVB
+        - list [ref=e161]:
+          - listitem [ref=e162]:
+            - link "Facebook" [ref=e163] [cursor=pointer]:
+              - /url: https://www.facebook.com/PortalNTVB
+              - img [ref=e164]
+              - generic [ref=e166]: Facebook
+          - listitem [ref=e167]:
+            - link "Twitter" [ref=e168] [cursor=pointer]:
+              - /url: https://x.com/ntvb_portal
+              - img [ref=e169]
+              - generic [ref=e171]: Twitter

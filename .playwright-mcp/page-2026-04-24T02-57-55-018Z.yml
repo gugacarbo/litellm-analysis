@@ -1,0 +1,196 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e8]:
+          - link "Portal NTVB" [ref=e10] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e11]
+          - heading "Portal NTVB" [level=1] [ref=e12]:
+            - link "Portal NTVB" [ref=e13] [cursor=pointer]:
+              - /url: https://ntvb.com.br
+        - generic [ref=e14]:
+          - navigation "Header" [ref=e16]:
+            - list [ref=e21]:
+              - listitem [ref=e22]:
+                - link "Início" [ref=e23] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e24]:
+                - link "Notícias" [ref=e25] [cursor=pointer]:
+                  - /url: /categoria/noticias/
+                - button "Notícias submenu" [ref=e26] [cursor=pointer]:
+                  - img [ref=e27]
+              - listitem [ref=e29]:
+                - link "Televisão" [ref=e30] [cursor=pointer]:
+                  - /url: /categoria/televisao
+                - button "Televisão submenu" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+              - listitem [ref=e34]:
+                - link "Emissoras" [ref=e35] [cursor=pointer]:
+                  - /url: /categoria/emissoras-de-tv
+                - button "Emissoras submenu" [ref=e36] [cursor=pointer]:
+                  - img [ref=e37]
+              - listitem [ref=e39]:
+                - link "Opinião" [ref=e40] [cursor=pointer]:
+                  - /url: /categoria/opiniao
+              - listitem [ref=e41]:
+                - link "Resenha" [ref=e42] [cursor=pointer]:
+                  - /url: /categoria/resenha
+              - listitem [ref=e43]:
+                - link "Contato" [ref=e44] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+                - button "Contato submenu" [ref=e45] [cursor=pointer]:
+                  - img [ref=e46]
+          - navigation "Parceiros" [ref=e49]:
+            - list [ref=e54]:
+              - listitem [ref=e55]:
+                - generic [ref=e56]: Nossos Parceiros
+                - button "Nossos Parceiros submenu" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+    - main [ref=e60]:
+      - heading "Termos de Uso" [level=1] [ref=e62]
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - img "Termos de Uso do Portal NTVB" [ref=e65]
+          - paragraph
+          - paragraph [ref=e66]:
+            - strong [ref=e67]: "Última atualização:"
+            - text: 23 de abril de 2026
+        - paragraph [ref=e68]:
+          - text: Os Termos de Uso do Portal NTVB explicam como você pode navegar, compartilhar e interagir com o conteúdo publicado em ntvb.com.br. Além disso, para complementar esta página, consulte também a
+          - link "Política de Privacidade" [ref=e69] [cursor=pointer]:
+            - /url: /politica-de-privacidade/
+          - text: ", a"
+          - link "página Sobre Nós" [ref=e70] [cursor=pointer]:
+            - /url: /sobre-nos/
+          - text: e a
+          - link "página de Contato" [ref=e71] [cursor=pointer]:
+            - /url: /contato/
+          - text: .
+        - paragraph [ref=e72]:
+          - text: Também vale consultar as
+          - link "políticas de uso do Google" [ref=e73] [cursor=pointer]:
+            - /url: https://policies.google.com/terms
+          - text: e a
+          - link "política de conteúdo do Google AdSense" [ref=e74] [cursor=pointer]:
+            - /url: https://support.google.com/adsense/answer/48182
+          - text: para referências gerais de navegação e monetização de sites. Dessa forma, você tem um panorama mais amplo das regras aplicáveis.
+        - heading "1. Aceitação dos Termos" [level=3] [ref=e75]
+        - paragraph [ref=e76]: Ao acessar e utilizar o Portal NTVB, você concorda com estes Termos de Uso. Se, por outro lado, não concordar com qualquer parte deste documento, recomendamos que interrompa o uso do site.
+        - heading "2. Definições" [level=3] [ref=e77]
+        - list [ref=e78]:
+          - listitem [ref=e79]:
+            - strong [ref=e80]: “Portal”
+            - text: ","
+            - strong [ref=e81]: “Site”
+            - text: ou
+            - strong [ref=e82]: “NTVB”
+            - text: referem-se ao website ntvb.com.br e todo o seu conteúdo
+          - listitem [ref=e83]:
+            - strong [ref=e84]: “Usuário”
+            - text: ou
+            - strong [ref=e85]: “Você”
+            - text: referem-se a qualquer pessoa que acessa o Portal
+          - listitem [ref=e86]:
+            - strong [ref=e87]: “Conteúdo”
+            - text: refere-se a todos os textos, imagens, vídeos e demais materiais publicados no Portal
+        - heading "3. Uso do Site e do Conteúdo NTVB" [level=3] [ref=e88]
+        - heading "3.1. Permissões de uso" [level=4] [ref=e89]
+        - paragraph [ref=e90]: "Você está autorizado a:"
+        - list [ref=e91]:
+          - listitem [ref=e92]: Antes de tudo, acessar e ler o conteúdo disponibilizado no Portal.
+          - listitem [ref=e93]: Além disso, compartilhar links dos artigos em redes sociais e outros meios.
+          - listitem [ref=e94]: Por fim, citar pequenos trechos do conteúdo com atribuição e link para a fonte original.
+        - heading "3.2. O que não é permitido" [level=4] [ref=e95]
+        - list [ref=e96]:
+          - listitem [ref=e97]: Copiar, reproduzir, distribuir ou republicar o conteúdo completo sem autorização prévia por escrito
+          - listitem [ref=e98]: Também não é permitido utilizar o conteúdo para fins comerciais sem permissão
+          - listitem [ref=e99]: Além disso, não é permitido modificar, adaptar ou criar trabalhos derivados do nosso conteúdo
+          - listitem [ref=e100]: Da mesma forma, não é permitido utilizar técnicas de scraping, bots ou qualquer método automatizado para extrair dados do site
+          - listitem [ref=e101]: Por fim, não é permitido tentar acessar áreas restritas do site sem autorização
+          - listitem [ref=e102]: Naturalmente, não é permitido publicar conteúdo ofensivo, ilegal ou spam nos comentários
+        - heading "4. Propriedade Intelectual e Uso de Conteúdo NTVB" [level=3] [ref=e103]
+        - paragraph [ref=e104]: Todo o conteúdo disponibilizado no Portal NTVB, incluindo textos, imagens, logotipos, design e marca, é de propriedade exclusiva do Portal NTVB ou de seus licenciantes, salvo quando indicado de outra forma.
+        - paragraph [ref=e105]: Imagens de emissoras, programas e personalidades são utilizadas sob os princípios de direito de informação jornalística e direitos autorais aplicáveis. Marcas registradas mencionadas pertencem aos seus respectivos proprietários.
+        - paragraph [ref=e106]:
+          - img "Imagem ilustrativa dos Termos de Uso NTVB" [ref=e107]
+        - heading "5. Isenção de Responsabilidade" [level=3] [ref=e108]
+        - heading "5.1. Precisão das Informações" [level=4] [ref=e109]
+        - paragraph [ref=e110]: "O Portal NTVB empenha-se em fornecer informações precisas e atualizadas. No entanto:"
+        - list [ref=e111]:
+          - listitem [ref=e112]: Não garantimos a exatidão, completude ou atualidade de todo o conteúdo
+          - listitem [ref=e113]: Além disso, informações sobre audiência, contratações e movimentações podem mudar rapidamente
+          - listitem [ref=e114]: Por isso, opiniões e análises expressas são de responsabilidade do autor e não representam necessariamente a posição do Portal
+        - heading "5.2. Links Externos e Fontes Oficiais" [level=4] [ref=e115]
+        - paragraph [ref=e116]:
+          - text: Nosso site pode conter links para sites de terceiros. Além disso, consulte também a
+          - link "política de conteúdo do Google AdSense" [ref=e117] [cursor=pointer]:
+            - /url: https://support.google.com/adsense/answer/48182
+          - text: e a
+          - link "Lei Geral de Proteção de Dados" [ref=e118] [cursor=pointer]:
+            - /url: https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2018/lei/l13709.htm
+          - text: para referência.
+        - heading "5.3. Disponibilidade do Serviço" [level=4] [ref=e119]
+        - paragraph [ref=e120]: Não garantimos que o site estará disponível ininterruptamente ou livre de erros técnicos. Ainda assim, podemos realizar manutenções periódicas sem aviso prévio.
+        - heading "6. Comentários e Interação no Portal NTVB" [level=3] [ref=e121]
+        - paragraph [ref=e122]: "Ao publicar comentários em nossos artigos:"
+        - list [ref=e123]:
+          - listitem [ref=e124]: Em primeiro lugar, você é exclusivamente responsável pelo conteúdo que publica
+          - listitem [ref=e125]: Além disso, concede ao Portal NTVB licença não exclusiva para usar, reproduzir e distribuir seu comentário
+          - listitem [ref=e126]: Da mesma forma, concorda em não publicar conteúdo difamatório, ofensivo, ilegal ou que viole direitos de terceiros
+          - listitem [ref=e127]: Por fim, reservamo-nos o direito de remover comentários que violem estas regras sem aviso prévio
+        - heading "7. Privacidade e Dados Pessoais" [level=3] [ref=e128]
+        - paragraph [ref=e129]:
+          - text: O uso de dados pessoais está sujeito à nossa
+          - link "Política de Privacidade" [ref=e130] [cursor=pointer]:
+            - /url: /politica-de-privacidade/
+          - text: ", que faz parte integrante destes Termos de Uso. Assim, recomendamos a leitura dessa página em conjunto com este documento."
+        - heading "8. Modificações dos Termos de Uso NTVB" [level=3] [ref=e131]
+        - paragraph [ref=e132]: O Portal NTVB reserva-se o direito de modificar estes Termos de Uso a qualquer momento. Quando houver alterações significativas, elas serão notificadas por meio de aviso no site. Dessa forma, o uso continuado do site após modificações constitui aceitação dos novos termos.
+        - heading "9. Legislação Aplicável" [level=3] [ref=e133]
+        - paragraph [ref=e134]: Estes Termos de Uso são regidos pelas leis da República Federativa do Brasil. Por conseguinte, quaisquer disputas serão submetidas à jurisdição do foro da comarca de São Paulo.
+        - heading "10. Contato sobre os Termos de Uso NTVB" [level=3] [ref=e135]
+        - paragraph [ref=e136]: "Para questões sobre estes Termos de Uso, entre em contato:"
+        - list [ref=e137]:
+          - listitem [ref=e138]:
+            - text: "Email:"
+            - link "contato@ntvb.com.br" [ref=e139] [cursor=pointer]:
+              - /url: mailto:contato@ntvb.com.br
+    - contentinfo [ref=e140]:
+      - generic [ref=e141]:
+        - generic [ref=e142]:
+          - link "Portal NTVB" [ref=e144] [cursor=pointer]:
+            - /url: https://ntvb.com.br/
+            - img "Portal NTVB" [ref=e145]
+          - navigation "Menu Rodapé" [ref=e147]:
+            - list [ref=e148]:
+              - listitem [ref=e149]:
+                - link "Início" [ref=e150] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e151]:
+                - link "Contato" [ref=e152] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/contato/
+              - listitem [ref=e153]:
+                - link "Política de Privacidade" [ref=e154] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/politica-de-privacidade/
+              - listitem [ref=e155]:
+                - link "Termos de Uso" [ref=e156] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/termos-de-uso/
+              - listitem [ref=e157]:
+                - link "Sobre Nós" [ref=e158] [cursor=pointer]:
+                  - /url: https://ntvb.com.br/sobre-nos/
+          - paragraph [ref=e159]:
+            - strong [ref=e160]: Portal NTVB
+        - list [ref=e161]:
+          - listitem [ref=e162]:
+            - link "Facebook" [ref=e163] [cursor=pointer]:
+              - /url: https://www.facebook.com/PortalNTVB
+              - img [ref=e164]
+              - generic [ref=e166]: Facebook
+          - listitem [ref=e167]:
+            - link "Twitter" [ref=e168] [cursor=pointer]:
+              - /url: https://x.com/ntvb_portal
+              - img [ref=e169]
+              - generic [ref=e171]: Twitter
