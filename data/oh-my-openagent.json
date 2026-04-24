@@ -9,14 +9,12 @@
       ],
       "disable": false,
       "description": "Agente Orquestrador",
-      "mode": "all",
       "color": "#C83232"
     },
     "oracle": {
       "model": "oracle/gpt-5.4",
       "fallback_models": ["oracle/gpt-5.3"],
       "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
-      "mode": "subagent",
       "color": "#048B5E",
       "disable": false
     },
@@ -28,17 +26,23 @@
     "atlas": {
       "model": "atlas/gpt-5.4",
       "fallback_models": ["atlas/gpt-5.3"],
-      "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes."
+      "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
+      "disable": false,
+      "color": "#F0FF1A"
     },
     "sisyphus-junior": {
       "model": "sisyphus-junior/gpt-5.4",
       "fallback_models": ["sisyphus-junior/gpt-5.3"],
-      "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo."
+      "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
+      "disable": false,
+      "color": "#5A00C7"
     },
     "librarian": {
       "model": "librarian/gpt-5.4",
       "fallback_models": ["librarian/gpt-5.3"],
-      "description": "Agente de documentação, curadoria de conhecimento e organização de referências."
+      "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
+      "disable": false,
+      "color": "#945E00"
     },
     "momus": {
       "model": "momus/gpt-5.4",
@@ -49,7 +53,6 @@
       "model": "prometheus/gpt-5.4",
       "fallback_models": ["prometheus/gpt-5.3"],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
-      "mode": "subagent",
       "disable": false,
       "color": "#90A300"
     },
@@ -57,19 +60,20 @@
       "model": "explore/gpt-5.4",
       "fallback_models": ["explore/gpt-5.3"],
       "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
-      "mode": "subagent"
+      "disable": false,
+      "color": "#04B9AD"
     },
     "multimodal-looker": {
       "model": "multimodal-looker/gpt-5.4",
       "fallback_models": ["multimodal-looker/gpt-5.3"],
-      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
-      "mode": "subagent"
+      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais."
     },
     "metis": {
       "model": "metis/gpt-5.4",
       "fallback_models": ["metis/gpt-5.3"],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
-      "mode": "subagent"
+      "disable": false,
+      "color": "#0FE000"
     }
   },
   "categories": {

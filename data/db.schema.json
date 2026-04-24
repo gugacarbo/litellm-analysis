@@ -1,0 +1,259 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LiteLLM Analysis Database",
+  "description": "Primary data source for agent routing, model specs, and consumer config generation.",
+  "type": "object",
+  "required": ["version", "litellm", "models", "agents", "categories"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version for future migrations."
+    },
+    "litellm": {
+      "type": "object",
+      "required": ["baseUrl", "apiKey"],
+      "additionalProperties": false,
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "description": "LiteLLM proxy base URL (e.g. http://localhost:4000/v1)."
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "API key for LiteLLM proxy."
+        }
+      }
+    },
+    "models": {
+      "type": "object",
+      "description": "LiteLLM provider models available through the proxy.",
+      "additionalProperties": {
+        "$ref": "#/definitions/ModelSpec"
+      }
+    },
+    "agents": {
+      "type": "object",
+      "description": "Agent configurations keyed by agent name.",
+      "additionalProperties": {
+        "$ref": "#/definitions/AgentEntry"
+      }
+    },
+    "categories": {
+      "type": "object",
+      "description": "Category configurations keyed by category name.",
+      "additionalProperties": {
+        "$ref": "#/definitions/CategoryEntry"
+      }
+    }
+  },
+  "definitions": {
+    "ModelSpec": {
+      "type": "object",
+      "required": ["displayName", "contextLength", "maxOutput"],
+      "additionalProperties": false,
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable model name."
+        },
+        "ownedBy": {
+          "type": "string",
+          "default": "atplus",
+          "description": "Owner/organization label."
+        },
+        "family": {
+          "type": "string",
+          "description": "Model family identifier (e.g. z.ai)."
+        },
+        "contextLength": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum context window in tokens."
+        },
+        "maxOutput": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum output tokens."
+        },
+        "cost": {
+          "type": "object",
+          "description": "Cost per million tokens.",
+          "additionalProperties": false,
+          "properties": {
+            "input": {
+              "type": "number",
+              "minimum": 0
+            },
+            "output": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "AgentEntry": {
+      "type": "object",
+      "required": ["model"],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Primary model identifier (real model name, e.g. qwen3.5-plus)."
+        },
+        "fallbackModels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ordered fallback model identifiers (real model names)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Agent purpose description."
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Hex color for UI display."
+        },
+        "disable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this agent is disabled."
+        },
+        "variant": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "skills": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "top_p": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "prompt_append": {
+          "type": "string"
+        },
+        "tools": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" }
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["subagent", "primary", "all"]
+        },
+        "permission": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "edit": { "type": "string", "enum": ["ask", "allow", "deny"] },
+            "bash": {
+              "oneOf": [
+                { "type": "string", "enum": ["ask", "allow", "deny"] },
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": ["ask", "allow", "deny"]
+                  }
+                }
+              ]
+            },
+            "webfetch": { "type": "string", "enum": ["ask", "allow", "deny"] },
+            "doom_loop": { "type": "string", "enum": ["ask", "allow", "deny"] },
+            "external_directory": {
+              "type": "string",
+              "enum": ["ask", "allow", "deny"]
+            }
+          }
+        }
+      }
+    },
+    "CategoryEntry": {
+      "type": "object",
+      "required": ["model"],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Primary model identifier (real model name, e.g. qwen3.5-plus)."
+        },
+        "fallbackModels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ordered fallback model identifiers (real model names)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Category purpose description."
+        },
+        "variant": {
+          "type": "string"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "top_p": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "maxTokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "thinking": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["enabled", "disabled"]
+            },
+            "budgetTokens": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "reasoningEffort": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "xhigh"]
+        },
+        "textVerbosity": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "tools": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" }
+        },
+        "prompt_append": {
+          "type": "string"
+        },
+        "is_unstable_agent": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

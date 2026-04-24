@@ -1,0 +1,312 @@
+{
+  "$schema": "./db.schema.json",
+  "version": 1,
+  "litellm": {
+    "baseUrl": "http://localhost:4000/v1",
+    "apiKey": "sk-123456789"
+  },
+  "models": {
+    "glm-5": {
+      "displayName": "GLM 5",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1,
+        "output": 3.2
+      }
+    },
+    "glm-5.1": {
+      "displayName": "GLM 5.1",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1.4,
+        "output": 4.4
+      }
+    },
+    "glm-5-turbo": {
+      "displayName": "GLM 5 Turbo",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1.2,
+        "output": 4
+      }
+    },
+    "kimi-k2.5": {
+      "displayName": "Kimi K2.5",
+      "ownedBy": "atplus",
+      "contextLength": 256000,
+      "maxOutput": 64000,
+      "cost": {
+        "input": 0.6,
+        "output": 3
+      }
+    },
+    "minimax-m2.7-highspeed": {
+      "displayName": "MiniMax M2.7",
+      "ownedBy": "atplus",
+      "contextLength": 204800,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 0.3,
+        "output": 1.2
+      }
+    },
+    "qwen3.5-plus": {
+      "displayName": "Qwen 3.5+",
+      "ownedBy": "atplus",
+      "contextLength": 1000000,
+      "maxOutput": 64000,
+      "cost": {
+        "input": 0.4,
+        "output": 2.4
+      }
+    },
+    "qwen3-coder-plus": {
+      "displayName": "Qwen 3 Coder+",
+      "ownedBy": "atplus",
+      "contextLength": 1000000,
+      "maxOutput": 64000,
+      "cost": {
+        "input": 0.65,
+        "output": 3.25
+      }
+    }
+  },
+  "agents": {
+    "sisyphus": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "glm-5.1",
+        "minimax-m2.7-highspeed"
+      ],
+      "disable": false,
+      "description": "Agente Orquestrador",
+      "color": "#C83232",
+      "variant": "",
+      "category": "",
+      "skills": [],
+      "prompt": "",
+      "prompt_append": "",
+      "tools": {},
+      "mode": "subagent",
+      "permission": {}
+    },
+    "oracle": {
+      "model": "glm-5.1",
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "kimi-k2.5"
+      ],
+      "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
+      "color": "#048B5E",
+      "disable": false,
+      "variant": "",
+      "category": "",
+      "skills": [],
+      "prompt": "",
+      "prompt_append": "",
+      "tools": {},
+      "mode": "subagent",
+      "permission": {}
+    },
+    "hephaestus": {
+      "model": "qwen3-coder-plus",
+      "fallbackModels": [
+        "kimi-k2.5"
+      ],
+      "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
+    },
+    "atlas": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "glm-5.1",
+        "kimi-k2.5"
+      ],
+      "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
+      "disable": false,
+      "color": "#F0FF1A",
+      "variant": "",
+      "category": "",
+      "skills": [],
+      "prompt": "",
+      "prompt_append": "",
+      "tools": {},
+      "mode": "subagent",
+      "permission": {}
+    },
+    "sisyphus-junior": {
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "glm-5-turbo",
+        "kimi-k2.5",
+        "qwen3.5-plus"
+      ],
+      "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
+      "disable": false,
+      "color": "#5A00C7",
+      "variant": "",
+      "category": "",
+      "skills": [],
+      "prompt": "",
+      "prompt_append": "",
+      "tools": {},
+      "mode": "subagent",
+      "permission": {}
+    },
+    "librarian": {
+      "model": "glm-5-turbo",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "kimi-k2.5"
+      ],
+      "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
+      "disable": false,
+      "color": "#945E00",
+      "variant": "",
+      "category": "",
+      "skills": [],
+      "prompt": "",
+      "prompt_append": "",
+      "tools": {},
+      "mode": "subagent",
+      "permission": {}
+    },
+    "momus": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "kimi-k2.5"
+      ],
+      "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
+    },
+    "prometheus": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "glm-5.1",
+        "kimi-k2.5"
+      ],
+      "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
+      "disable": false,
+      "color": "#90A300",
+      "variant": "",
+      "category": "",
+      "skills": [],
+      "prompt": "",
+      "prompt_append": "",
+      "tools": {},
+      "mode": "subagent",
+      "permission": {}
+    },
+    "explore": {
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "glm-5-turbo",
+        "qwen3.5-plus"
+      ],
+      "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
+      "disable": false,
+      "color": "#04B9AD",
+      "variant": "",
+      "category": "",
+      "skills": [],
+      "prompt": "",
+      "prompt_append": "",
+      "tools": {},
+      "mode": "subagent",
+      "permission": {}
+    },
+    "multimodal-looker": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "kimi-k2.5",
+        "qwen3.5-plus",
+        "glm-5.1"
+      ],
+      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
+      "color": "",
+      "disable": false,
+      "variant": "",
+      "category": "",
+      "skills": [],
+      "prompt": "",
+      "prompt_append": "",
+      "tools": {},
+      "mode": "subagent",
+      "permission": {}
+    },
+    "metis": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "kimi-k2.5"
+      ],
+      "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
+      "disable": false,
+      "color": "#0FE000"
+    }
+  },
+  "categories": {
+    "visual-engineering": {
+      "model": "qwen3-coder-plus",
+      "fallbackModels": [
+        "qwen3.5-plus"
+      ],
+      "description": "Frontend, UI/UX, design, estilização e animação."
+    },
+    "ultrabrain": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "kimi-k2.5"
+      ],
+      "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
+    },
+    "deep": {
+      "model": "kimi-k2.5",
+      "fallbackModels": [
+        "qwen3.5-plus"
+      ],
+      "description": "Resolução autônoma de problemas orientada a objetivos."
+    },
+    "artistry": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "kimi-k2.5"
+      ],
+      "description": "Resolução de problemas complexos com abordagens não convencionais."
+    },
+    "quick": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "kimi-k2.5"
+      ],
+      "description": "Tarefas triviais — mudanças em arquivo único."
+    },
+    "unspecified-low": {
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "glm-5"
+      ],
+      "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
+    },
+    "unspecified-high": {
+      "model": "kimi-k2.5",
+      "fallbackModels": [
+        "qwen3.5-plus"
+      ],
+      "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
+    },
+    "writing": {
+      "model": "qwen3.5-plus",
+      "fallbackModels": [
+        "kimi-k2.5"
+      ],
+      "description": "Documentação, prosa e escrita técnica."
+    }
+  }
+}
