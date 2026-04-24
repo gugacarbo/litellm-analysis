@@ -25,7 +25,11 @@ export type TableColumn =
 export const LOG_COLUMNS: LogColumn[] = [
   { key: 'time', label: 'Time' },
   { key: 'model', label: 'Model' },
-  { key: 'user', label: 'User' },
+  {
+    key: 'user',
+    label: 'User',
+    defaultVisible: false,
+  },
   {
     key: 'promptTokens',
     label: 'Prompt Tokens',

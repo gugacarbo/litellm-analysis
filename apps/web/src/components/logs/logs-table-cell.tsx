@@ -1,26 +1,20 @@
 import {
   calculateTokensPerSecond,
   formatCurrency,
-  formatDateTime,
   formatDuration,
   formatNumber,
+  formatTime,
 } from '../../lib/spend-log-utils';
 import type { SpendLog } from '../../types/analytics';
 import { Badge } from '../badge';
-import { Button } from '../button';
 import type { TableColumn } from './logs-table-columns';
 
 type RenderLogCellParams = {
   log: SpendLog;
   columnKey: TableColumn['key'];
-  onSelectLog: (log: SpendLog) => void;
 };
 
-export function renderLogCell({
-  log,
-  columnKey,
-  onSelectLog,
-}: RenderLogCellParams) {
+export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
   const durationMs =
     new Date(log.end_time).getTime() - new Date(log.start_time).getTime();
   const isSuccess = log.status === '200' || log.status === 'success';
@@ -29,7 +23,7 @@ export function renderLogCell({
     case 'time':
       return (
         <span className="text-xs whitespace-nowrap text-muted-foreground">
-          {formatDateTime(log.start_time)}
+          {formatTime(log.start_time)}
         </span>
       );
     case 'model':
@@ -78,12 +72,6 @@ export function renderLogCell({
         <span className="font-mono text-xs text-muted-foreground break-all">
           {log.request_id}
         </span>
-      );
-    case 'actions':
-      return (
-        <Button variant="ghost" size="sm" onClick={() => onSelectLog(log)}>
-          Open
-        </Button>
       );
   }
 }

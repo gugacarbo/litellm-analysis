@@ -1,6 +1,18 @@
-import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  RefreshCw,
+  SlidersHorizontal,
+} from 'lucide-react';
+import { Fragment, useMemo, useState } from 'react';
+import {
+  formatCurrency,
+  formatNumber,
+  formatTime,
+} from '../../lib/spend-log-utils';
 import { cn } from '../../lib/utils';
 import type { PaginationMetadata, SpendLog } from '../../types/analytics';
+import { Badge } from '../badge';
 import { Button } from '../button';
 import {
   Card,
@@ -31,7 +43,6 @@ import {
 import { LogsPaginationControls } from './logs-pagination-controls';
 import { renderLogCell } from './logs-table-cell';
 import {
-  ACTIONS_COLUMN,
   LOG_COLUMNS,
   type LogColumnKey,
   type TableColumn,
@@ -48,9 +59,11 @@ type LogsTableProps = {
   pagination: PaginationMetadata;
   visibleColumns: LogColumnKey[];
   autoRefetchEnabled: boolean;
+  groupByModel: boolean;
   onSelectLog: (log: SpendLog) => void;
   onToggleColumn: (column: LogColumnKey) => void;
   onAutoRefetchChange: (enabled: boolean) => void;
+  onGroupByModelChange: (enabled: boolean) => void;
   onRefetch: () => void;
   onPageChange: (newPage: number) => void;
   onPageSizeChange: (newPageSize: string) => void;
@@ -65,9 +78,11 @@ export function LogsTable({
   pagination,
   visibleColumns,
   autoRefetchEnabled,
+  groupByModel,
   onSelectLog,
   onToggleColumn,
   onAutoRefetchChange,
+  onGroupByModelChange,
   onRefetch,
   onPageChange,
   onPageSizeChange,
@@ -77,10 +92,49 @@ export function LogsTable({
 
   const tableColumns: TableColumn[] = [
     ...LOG_COLUMNS.filter((column) => visibleColumns.includes(column.key)),
-    ACTIONS_COLUMN,
   ];
 
   const hasAnyLogs = pagination.total > 0;
+
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  const groupedLogs = useMemo(() => {
+    if (!groupByModel || logs.length === 0) return null;
+
+    // Group consecutive logs with the same model (run-length encoding style)
+    const groups: Array<{ model: string; logs: SpendLog[] }> = [];
+    let currentGroup: { model: string; logs: SpendLog[] } | null = null;
+
+    for (const log of logs) {
+      if (currentGroup && currentGroup.model === log.model) {
+        currentGroup.logs.push(log);
+      } else {
+        if (currentGroup) {
+          groups.push(currentGroup);
+        }
+        currentGroup = { model: log.model, logs: [log] };
+      }
+    }
+    if (currentGroup) {
+      groups.push(currentGroup);
+    }
+
+    // Set initial expanded state
+    const initialExpanded: Record<string, boolean> = {};
+    for (const group of groups) {
+      const key = `${group.model}-${group.logs[0].request_id}`;
+      if (expandedGroups[key] === undefined) {
+        initialExpanded[key] = false;
+      }
+    }
+    if (Object.keys(initialExpanded).length > 0) {
+      setExpandedGroups((prev) => ({ ...prev, ...initialExpanded }));
+    }
+
+    return groups;
+  }, [groupByModel, logs, expandedGroups]);
 
   return (
     <Card>
@@ -98,6 +152,19 @@ export function LogsTable({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant={groupByModel ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onGroupByModelChange(!groupByModel)}
+            >
+              <ChevronDownIcon
+                className={cn(
+                  'mr-1 h-3.5 w-3.5 transition-transform',
+                  !groupByModel && '-rotate-90',
+                )}
+              />
+              Group by Model
+            </Button>
             <div className="flex items-center gap-2 rounded-lg border px-3 py-1.5">
               <Switch
                 id="logs-auto-refetch"
@@ -201,9 +268,205 @@ export function LogsTable({
                     No logs found
                   </TableCell>
                 </TableRow>
+              ) : groupedLogs ? (
+                groupedLogs.map((group) => {
+                  const { model, logs: groupLogs } = group;
+                  const groupKey = `${model}-${groupLogs[0].request_id}`;
+                  const isExpanded = expandedGroups[groupKey] ?? false;
+
+                  // Calculate sums for the group
+                  const totalSpend = groupLogs.reduce(
+                    (sum, log) => sum + log.spend,
+                    0,
+                  );
+                  const totalPromptTokens = groupLogs.reduce(
+                    (sum, log) => sum + log.prompt_tokens,
+                    0,
+                  );
+                  const totalCompletionTokens = groupLogs.reduce(
+                    (sum, log) => sum + log.completion_tokens,
+                    0,
+                  );
+                  const totalTokens = groupLogs.reduce(
+                    (sum, log) => sum + log.total_tokens,
+                    0,
+                  );
+                  const totalDurationMs = groupLogs.reduce((sum, log) => {
+                    const start = new Date(log.start_time).getTime();
+                    const end = new Date(log.end_time).getTime();
+                    return sum + (end - start);
+                  }, 0);
+
+                  // Helper to render a summary cell for group rows
+                  const renderGroupSummaryCell = (column: TableColumn) => {
+                    // Actions column - not shown in summary
+                    if (column.key === 'actions') {
+                      return null;
+                    }
+
+                    // Time column - show time range for the group
+                    if (column.key === 'time') {
+                      return (
+                        <span className="text-xs whitespace-nowrap text-muted-foreground">
+                          {formatTime(groupLogs[0].start_time)} —{' '}
+                          {formatTime(
+                            groupLogs[groupLogs.length - 1].start_time,
+                          )}
+                        </span>
+                      );
+                    }
+
+                    // Model column - show model with count
+                    if (column.key === 'model') {
+                      return (
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="font-semibold">
+                            {model}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            ×{groupLogs.length}
+                          </span>
+                        </div>
+                      );
+                    }
+
+                    // User column - show "multiple" if mixed
+                    if (column.key === 'user') {
+                      const uniqueUsers = new Set(groupLogs.map((l) => l.user));
+                      if (uniqueUsers.size > 1) {
+                        return (
+                          <span className="text-sm text-muted-foreground">
+                            {uniqueUsers.size} users
+                          </span>
+                        );
+                      }
+                      return (
+                        <span className="text-sm text-muted-foreground">
+                          {groupLogs[0].user || '—'}
+                        </span>
+                      );
+                    }
+
+                    // Token columns - show summed values
+                    if (column.key === 'promptTokens') {
+                      return (
+                        <span className="text-right">
+                          {formatNumber(totalPromptTokens)}
+                        </span>
+                      );
+                    }
+                    if (column.key === 'completionTokens') {
+                      return (
+                        <span className="text-right">
+                          {formatNumber(totalCompletionTokens)}
+                        </span>
+                      );
+                    }
+                    if (column.key === 'totalTokens') {
+                      return (
+                        <span className="text-right font-medium">
+                          {formatNumber(totalTokens)}
+                        </span>
+                      );
+                    }
+
+                    // Duration - show total duration for the group
+                    if (column.key === 'duration') {
+                      return (
+                        <span className="text-right">
+                          {totalDurationMs.toLocaleString()}
+                        </span>
+                      );
+                    }
+
+                    // Tokens/s - not meaningful for aggregated data
+                    if (column.key === 'tokensPerSecond') {
+                      return (
+                        <span className="text-right text-muted-foreground">
+                          —
+                        </span>
+                      );
+                    }
+
+                    // Spend - show total spend
+                    if (column.key === 'spend') {
+                      return (
+                        <span className="text-right font-medium">
+                          {formatCurrency(totalSpend)}
+                        </span>
+                      );
+                    }
+
+                    // Status - show "—" for aggregated row
+                    if (column.key === 'status') {
+                      return <span className="text-muted-foreground">—</span>;
+                    }
+
+                    return null;
+                  };
+
+                  return (
+                    <Fragment key={groupKey}>
+                      <TableRow
+                        className="cursor-pointer bg-muted/50 hover:bg-muted"
+                        onClick={() =>
+                          setExpandedGroups((prev) => ({
+                            ...prev,
+                            [groupKey]: !prev[groupKey],
+                          }))
+                        }
+                      >
+                        {/* Expand icon */}
+                        <TableCell className="w-10">
+                          {isExpanded ? (
+                            <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronRightIcon className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </TableCell>
+                        {tableColumns.map((column) => (
+                          <TableCell
+                            key={column.key}
+                            className={
+                              column.align === 'right' ? 'text-right' : ''
+                            }
+                          >
+                            {renderGroupSummaryCell(column)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      {isExpanded &&
+                        groupLogs.map((log) => (
+                          <TableRow
+                            key={log.request_id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => onSelectLog(log)}
+                          >
+                            {tableColumns.map((column) => (
+                              <TableCell
+                                key={`${log.request_id}-${column.key}`}
+                                className={
+                                  column.align === 'right' ? 'text-right' : ''
+                                }
+                              >
+                                {renderLogCell({
+                                  log,
+                                  columnKey: column.key,
+                                })}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </Fragment>
+                  );
+                })
               ) : (
                 logs.map((log) => (
-                  <TableRow key={log.request_id}>
+                  <TableRow
+                    key={log.request_id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => onSelectLog(log)}
+                  >
                     {tableColumns.map((column) => (
                       <TableCell
                         key={`${log.request_id}-${column.key}`}
@@ -212,7 +475,6 @@ export function LogsTable({
                         {renderLogCell({
                           log,
                           columnKey: column.key,
-                          onSelectLog,
                         })}
                       </TableCell>
                     ))}

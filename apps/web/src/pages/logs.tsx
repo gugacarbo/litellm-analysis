@@ -53,6 +53,7 @@ export function LogsPage() {
   const [visibleColumns, setVisibleColumns] = useState<LogColumnKey[]>(
     DEFAULT_VISIBLE_LOG_COLUMNS,
   );
+  const [groupByModel, setGroupByModel] = useState(false);
   const [filterValues, setFilterValues] = useState<LogsFilterValues>({
     model: filters.model || '',
     user: filters.user || '',
@@ -185,10 +186,12 @@ export function LogsPage() {
           pagination={pagination}
           visibleColumns={visibleColumns}
           autoRefetchEnabled={autoRefetchEnabled}
+          groupByModel={groupByModel}
           refreshing={refreshing}
           onSelectLog={setSelectedLog}
           onToggleColumn={handleToggleColumn}
           onAutoRefetchChange={setAutoRefetchEnabled}
+          onGroupByModelChange={setGroupByModel}
           onRefetch={() => {
             void refetch({ background: true });
           }}
