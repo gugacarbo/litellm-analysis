@@ -50,3 +50,8 @@ export interface OhMyOpenAgentConfig {
     include_co_authored_by?: boolean;
   };
 }
+
+export interface AgentConfigFile {
+  agents: Record<string, AgentConfig>;
+  categories: Record<string, CategoryConfig>;
+}

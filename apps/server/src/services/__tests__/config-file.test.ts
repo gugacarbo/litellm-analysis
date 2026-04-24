@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const writeFileMock = vi.hoisted(() => vi.fn());
+const readFileMock = vi.hoisted(() => vi.fn());
 
 vi.mock('node:fs', async () => {
   const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
@@ -9,6 +10,7 @@ vi.mock('node:fs', async () => {
     promises: {
       ...actual.promises,
       writeFile: writeFileMock,
+      readFile: readFileMock,
     },
   };
 });
@@ -18,9 +20,28 @@ import { writeVscodeModelsFile } from '../config-file';
 describe('writeVscodeModelsFile', () => {
   afterEach(() => {
     writeFileMock.mockReset();
+    readFileMock.mockReset();
   });
 
   it('writes only the real LiteLLM models it receives', async () => {
+    // Mock db.json read to return empty models
+    readFileMock.mockImplementation(async (filePath: string) => {
+      if (filePath.includes('db.json')) {
+        return JSON.stringify({
+          version: 1,
+          litellm: {
+            baseUrl: 'http://localhost:4000/v1',
+            apiKey: 'sk-123456789',
+          },
+          models: {},
+          agents: {},
+          categories: {},
+        });
+      }
+      const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+      return actual.promises.readFile(filePath);
+    });
+
     await writeVscodeModelsFile([
       {
         modelName: 'openai/gpt-4.1',

@@ -5,83 +5,339 @@ import type {
   AgentConfig,
   AgentConfigFile,
   CategoryConfig,
-  ModelEntryConfig,
-} from '@lite-llm/analytics-types';
+} from '@litellm/shared';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, '../../../');
 const CONFIG_DIR = path.join(PROJECT_ROOT, 'data');
-const CONFIG_FILE = path.join(CONFIG_DIR, 'oh-my-openagent.json');
+const DB_FILE = path.join(CONFIG_DIR, 'db.json');
+const LEGACY_CONFIG_FILE = path.join(CONFIG_DIR, 'oh-my-openagent.json');
 const PROVIDERS_FILE = path.join(CONFIG_DIR, 'opencode.json');
-const VSODE_MODELS_FILE = path.join(CONFIG_DIR, 'vscode-oaicopilot.json');
+const VSCODE_MODELS_FILE = path.join(CONFIG_DIR, 'vscode-oaicopilot.json');
+
+// ── Database types ──
+
+export interface DbModelSpec {
+  displayName: string;
+  ownedBy?: string;
+  family?: string;
+  contextLength: number;
+  maxOutput: number;
+  cost?: {
+    input?: number;
+    output?: number;
+  };
+}
+
+export interface DbAgentEntry {
+  model: string;
+  fallbackModels?: string[];
+  description?: string;
+  color?: string;
+  disable?: boolean;
+  variant?: string;
+  category?: string;
+  skills?: string[];
+  temperature?: number;
+  top_p?: number;
+  prompt?: string;
+  prompt_append?: string;
+  tools?: Record<string, boolean>;
+  mode?: 'subagent' | 'primary' | 'all';
+  permission?: {
+    edit?: 'ask' | 'allow' | 'deny';
+    bash?: 'ask' | 'allow' | 'deny' | Record<string, 'ask' | 'allow' | 'deny'>;
+    webfetch?: 'ask' | 'allow' | 'deny';
+    doom_loop?: 'ask' | 'allow' | 'deny';
+    external_directory?: 'ask' | 'allow' | 'deny';
+  };
+}
+
+export interface DbCategoryEntry {
+  model: string;
+  fallbackModels?: string[];
+  description?: string;
+  variant?: string;
+  temperature?: number;
+  top_p?: number;
+  maxTokens?: number;
+  thinking?: {
+    type: 'enabled' | 'disabled';
+    budgetTokens?: number;
+  };
+  reasoningEffort?: 'low' | 'medium' | 'high' | 'xhigh';
+  textVerbosity?: 'low' | 'medium' | 'high';
+  tools?: Record<string, boolean>;
+  prompt_append?: string;
+  is_unstable_agent?: boolean;
+}
+
+export interface DbConfig {
+  $schema?: string;
+  version: number;
+  litellm: {
+    baseUrl: string;
+    apiKey: string;
+  };
+  models: Record<string, DbModelSpec>;
+  agents: Record<string, DbAgentEntry>;
+  categories: Record<string, DbCategoryEntry>;
+}
+
+// ── Database read/write ──
 
 async function ensureDir(): Promise<void> {
   await fs.promises.mkdir(CONFIG_DIR, { recursive: true });
 }
 
-export async function readConfigFile(): Promise<AgentConfigFile> {
+export async function readDb(): Promise<DbConfig> {
   try {
-    const content = await fs.promises.readFile(CONFIG_FILE, 'utf-8');
-    const parsed = JSON.parse(content) as AgentConfigFile;
-    return {
-      agents: parsed.agents || {},
-      categories: parsed.categories || {},
-    };
+    const content = await fs.promises.readFile(DB_FILE, 'utf-8');
+    return JSON.parse(content) as DbConfig;
   } catch (error: unknown) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return { agents: {}, categories: {} };
+      return {
+        version: 1,
+        litellm: {
+          baseUrl: 'http://localhost:4000/v1',
+          apiKey: 'sk-123456789',
+        },
+        models: {},
+        agents: {},
+        categories: {},
+      };
     }
-    throw new Error(`Failed to read config file: ${(error as Error).message}`);
+    throw new Error(`Failed to read db file: ${(error as Error).message}`);
   }
 }
 
-function isEmptyValue(value: unknown): boolean {
-  if (value === '' || value === null || value === undefined) return true;
-  if (Array.isArray(value) && value.length === 0) return true;
-  if (
-    typeof value === 'object' &&
-    value !== null &&
-    Object.keys(value).length === 0
-  )
-    return true;
-  return false;
+async function writeDb(config: DbConfig): Promise<void> {
+  await ensureDir();
+  const tmpPath = `${DB_FILE}.tmp`;
+  await fs.promises.writeFile(
+    tmpPath,
+    JSON.stringify(config, null, 2),
+    'utf-8',
+  );
+  await fs.promises.rename(tmpPath, DB_FILE);
 }
 
-function stripEmptyValues<T extends Record<string, unknown>>(
-  obj: T,
-): Partial<T> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (isEmptyValue(value)) continue;
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      const stripped = stripEmptyValues(value as Record<string, unknown>);
-      if (Object.keys(stripped).length > 0) {
-        result[key] = stripped;
-      }
-    } else {
-      result[key] = value;
+// ── Output configs: AgentConfigFile (oh-my-openagent.json) ──
+
+export async function readConfigFile(): Promise<AgentConfigFile> {
+  const db = await readDb();
+  return {
+    agents: agentsToOutputConfigs(db.agents),
+    categories: categoriesToOutputConfigs(db.categories),
+  };
+}
+
+const MODEL_NAMES = ['gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+
+function agentsToOutputConfigs(
+  agents: Record<string, DbAgentEntry>,
+): Record<string, AgentConfig> {
+  const result: Record<string, AgentConfig> = {};
+  for (const [key, entry] of Object.entries(agents)) {
+    if (Object.keys(entry).length === 0) continue;
+    const output: AgentConfig = {};
+
+    // Transform real model names to aliases: qwen3.5-plus → sisyphus/gpt-5.4
+    if (entry.model) {
+      output.model = `${key}/${MODEL_NAMES[0]}`;
     }
+    if (entry.fallbackModels?.length) {
+      output.fallback_models = entry.fallbackModels.map(
+        (_, i) => `${key}/${MODEL_NAMES[i + 1]}`,
+      );
+    }
+    if (entry.description) output.description = entry.description;
+    if (entry.color) output.color = entry.color;
+    if (entry.disable !== undefined) output.disable = entry.disable;
+    if (entry.variant) output.variant = entry.variant;
+    if (entry.category) output.category = entry.category;
+    if (entry.skills?.length) output.skills = entry.skills;
+    if (entry.temperature !== undefined) output.temperature = entry.temperature;
+    if (entry.top_p !== undefined) output.top_p = entry.top_p;
+    if (entry.prompt) output.prompt = entry.prompt;
+    if (entry.prompt_append) output.prompt_append = entry.prompt_append;
+    if (entry.tools) output.tools = entry.tools;
+    if (entry.mode) output.mode = entry.mode;
+    if (entry.permission) output.permission = entry.permission;
+    result[key] = output;
   }
-  return result as Partial<T>;
+  return result;
 }
 
-function sanitizeConfig(config: AgentConfigFile): AgentConfigFile {
-  const agents: Record<string, AgentConfig> = {};
-  for (const [key, agent] of Object.entries(config.agents || {})) {
-    if (Object.keys(agent).length === 0) continue;
-    agents[key] = stripEmptyValues(
-      agent as Record<string, unknown>,
-    ) as AgentConfig;
+function categoriesToOutputConfigs(
+  categories: Record<string, DbCategoryEntry>,
+): Record<string, CategoryConfig> {
+  const result: Record<string, CategoryConfig> = {};
+  for (const [key, entry] of Object.entries(categories)) {
+    if (Object.keys(entry).length === 0) continue;
+    const output: CategoryConfig = {};
+
+    // Transform real model names to aliases: qwen3.5-plus → visual-engineering/gpt-5.4
+    if (entry.model) {
+      output.model = `${key}/${MODEL_NAMES[0]}`;
+    }
+    if (entry.fallbackModels?.length) {
+      output.fallback_models = entry.fallbackModels.map(
+        (_, i) => `${key}/${MODEL_NAMES[i + 1]}`,
+      );
+    }
+    if (entry.description) output.description = entry.description;
+    if (entry.variant) output.variant = entry.variant;
+    if (entry.temperature !== undefined) output.temperature = entry.temperature;
+    if (entry.top_p !== undefined) output.top_p = entry.top_p;
+    if (entry.maxTokens) output.maxTokens = entry.maxTokens;
+    if (entry.thinking) output.thinking = entry.thinking;
+    if (entry.reasoningEffort) output.reasoningEffort = entry.reasoningEffort;
+    if (entry.textVerbosity) output.textVerbosity = entry.textVerbosity;
+    if (entry.tools) output.tools = entry.tools;
+    if (entry.prompt_append) output.prompt_append = entry.prompt_append;
+    if (entry.is_unstable_agent !== undefined)
+      output.is_unstable_agent = entry.is_unstable_agent;
+    result[key] = output;
   }
-  const categories: Record<string, CategoryConfig> = {};
-  for (const [key, category] of Object.entries(config.categories || {})) {
-    if (Object.keys(category).length === 0) continue;
-    categories[key] = stripEmptyValues(
-      category as Record<string, unknown>,
-    ) as CategoryConfig;
-  }
-  return { agents, categories };
+  return result;
 }
+
+function inputAgentToDb(raw: Partial<AgentConfig>): DbAgentEntry {
+  const entry: DbAgentEntry = {} as DbAgentEntry;
+  if (raw.model !== undefined) entry.model = raw.model;
+  if (raw.fallback_models !== undefined)
+    entry.fallbackModels = raw.fallback_models;
+  if (raw.description !== undefined) entry.description = raw.description;
+  if (raw.color !== undefined) entry.color = raw.color;
+  if (raw.disable !== undefined) entry.disable = raw.disable;
+  if (raw.variant !== undefined) entry.variant = raw.variant;
+  if (raw.category !== undefined) entry.category = raw.category;
+  if (raw.skills !== undefined) entry.skills = raw.skills;
+  if (raw.temperature !== undefined) entry.temperature = raw.temperature;
+  if (raw.top_p !== undefined) entry.top_p = raw.top_p;
+  if (raw.prompt !== undefined) entry.prompt = raw.prompt;
+  if (raw.prompt_append !== undefined) entry.prompt_append = raw.prompt_append;
+  if (raw.tools !== undefined) entry.tools = raw.tools;
+  if (raw.mode !== undefined) entry.mode = raw.mode;
+  if (raw.permission !== undefined) entry.permission = raw.permission;
+  return entry;
+}
+
+function inputCategoryToDb(raw: Partial<CategoryConfig>): DbCategoryEntry {
+  const entry: DbCategoryEntry = {} as DbCategoryEntry;
+  if (raw.model !== undefined) entry.model = raw.model;
+  if (raw.fallback_models !== undefined)
+    entry.fallbackModels = raw.fallback_models;
+  if (raw.description !== undefined) entry.description = raw.description;
+  if (raw.variant !== undefined) entry.variant = raw.variant;
+  if (raw.temperature !== undefined) entry.temperature = raw.temperature;
+  if (raw.top_p !== undefined) entry.top_p = raw.top_p;
+  if (raw.maxTokens !== undefined) entry.maxTokens = raw.maxTokens;
+  if (raw.thinking !== undefined) entry.thinking = raw.thinking;
+  if (raw.reasoningEffort !== undefined)
+    entry.reasoningEffort = raw.reasoningEffort;
+  if (raw.textVerbosity !== undefined) entry.textVerbosity = raw.textVerbosity;
+  if (raw.tools !== undefined) entry.tools = raw.tools;
+  if (raw.prompt_append !== undefined) entry.prompt_append = raw.prompt_append;
+  if (raw.is_unstable_agent !== undefined)
+    entry.is_unstable_agent = raw.is_unstable_agent;
+  return entry;
+}
+
+// ── DB CRUD operations ──
+
+export async function readAgentConfigs(): Promise<
+  Record<string, DbAgentEntry>
+> {
+  const db = await readDb();
+  return db.agents;
+}
+
+export async function readCategoryConfigs(): Promise<
+  Record<string, DbCategoryEntry>
+> {
+  const db = await readDb();
+  return db.categories;
+}
+
+export async function readModelSpecs(): Promise<Record<string, DbModelSpec>> {
+  const db = await readDb();
+  return db.models;
+}
+
+export async function updateAgentInDb(
+  agentKey: string,
+  config: Partial<AgentConfig>,
+): Promise<void> {
+  const db = await readDb();
+  db.agents[agentKey] = {
+    ...db.agents[agentKey],
+    ...inputAgentToDb(config),
+  };
+  await writeDb(db);
+}
+
+export async function updateCategoryInDb(
+  categoryKey: string,
+  config: Partial<CategoryConfig>,
+): Promise<void> {
+  const db = await readDb();
+  db.categories[categoryKey] = {
+    ...db.categories[categoryKey],
+    ...inputCategoryToDb(config),
+  };
+  await writeDb(db);
+}
+
+export async function deleteAgentFromDb(agentKey: string): Promise<void> {
+  const db = await readDb();
+  if (agentKey in db.agents) {
+    delete db.agents[agentKey];
+    await writeDb(db);
+  }
+}
+
+export async function deleteCategoryFromDb(categoryKey: string): Promise<void> {
+  const db = await readDb();
+  if (categoryKey in db.categories) {
+    delete db.categories[categoryKey];
+    await writeDb(db);
+  }
+}
+
+export async function writeFullConfig(config: AgentConfigFile): Promise<void> {
+  const db = await readDb();
+  db.agents = {};
+  db.categories = {};
+
+  for (const [key, raw] of Object.entries(config.agents || {}) as [
+    string,
+    AgentConfig,
+  ][]) {
+    if (Object.keys(raw).length === 0) continue;
+    db.agents[key] = inputAgentToDb(raw);
+  }
+
+  for (const [key, raw] of Object.entries(config.categories || {}) as [
+    string,
+    CategoryConfig,
+  ][]) {
+    if (Object.keys(raw).length === 0) continue;
+    db.categories[key] = inputCategoryToDb(raw);
+  }
+
+  await writeDb(db);
+}
+
+// ── Input adapters (from API input format to internal Db format) ──
+
+export const updateAgentInConfig = updateAgentInDb;
+export const updateCategoryInConfig = updateCategoryInDb;
+export const deleteAgentFromConfig = deleteAgentFromDb;
+export const deleteCategoryFromConfig = deleteCategoryFromDb;
+
+// ── OpenCode providers (opencode.json) generation ──
 
 interface LiteLLMModelConfig {
   id: string;
@@ -111,53 +367,36 @@ interface OpenCodeProviders {
   provider: Record<string, OpenCodeProviderEntry>;
 }
 
-function extractModelId(
-  modelName: string,
-  litellmParams: Record<string, unknown> | null,
-): string {
-  if (litellmParams?.model_name) {
-    return String(litellmParams.model_name);
-  }
-  if (modelName.startsWith('litellm/')) {
-    return modelName.slice(8);
-  }
-  return modelName;
+const MAX_FALLBACKS = 3;
+
+function capitalize(str: string): string {
+  return str
+    .split(/[_-]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 function buildLiteLLMProviderConfig(
-  models: ModelEntryConfig[],
+  models: Record<string, DbModelSpec>,
+  litellmConfig: DbConfig['litellm'],
 ): OpenCodeProviders['provider']['litellm'] {
   const liteLLMModels: Record<string, LiteLLMModelConfig> = {};
 
-  for (const model of models) {
-    const params = model.litellmParams || {};
-    const modelId = extractModelId(model.modelName, params);
-
+  for (const [modelId, spec] of Object.entries(models)) {
     const modelConfig: LiteLLMModelConfig = {
       id: modelId,
-      name: capitalize(modelId),
+      name: spec.displayName || capitalize(modelId),
     };
 
-    if (params.context_window_size || params.max_tokens) {
-      modelConfig.limit = {
-        context: params.context_window_size
-          ? Number(params.context_window_size)
-          : undefined,
-        output: params.max_tokens ? Number(params.max_tokens) : undefined,
-      };
-    }
+    modelConfig.limit = {
+      context: spec.contextLength,
+      output: spec.maxOutput,
+    };
 
-    if (
-      params.input_cost_per_token !== undefined ||
-      params.output_cost_per_token !== undefined
-    ) {
-      const toRoundedMillion = (v: unknown) =>
-        v ? Math.round(Number(v) * 1_000_000 * 100) / 100 : undefined;
-
+    if (spec.cost?.input !== undefined || spec.cost?.output !== undefined) {
       modelConfig.cost = {
-        input: toRoundedMillion(params.input_cost_per_token),
-        output: toRoundedMillion(params.output_cost_per_token),
-        cache_read: toRoundedMillion(params.cache_read_cost_per_token),
+        input: spec.cost.input,
+        output: spec.cost.output,
       };
     }
 
@@ -168,15 +407,12 @@ function buildLiteLLMProviderConfig(
     name: 'LiteLLM',
     npm: '@ai-sdk/openai-compatible',
     options: {
-      baseURL: process.env.LITELLM_BASE_URL || 'http://localhost:4000/v1',
-      apiKey: process.env.LITELLM_API_KEY || 'sk-123456789',
+      baseURL: litellmConfig.baseUrl,
+      apiKey: litellmConfig.apiKey,
     },
     models: liteLLMModels,
   };
 }
-
-const MODEL_NAMES = ['gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
-const MAX_FALLBACKS = 3;
 
 function buildAgentModels(
   providerKey: string,
@@ -202,52 +438,97 @@ function buildAgentModels(
   return models;
 }
 
-function capitalize(str: string): string {
-  return str
-    .split(/[_-]/)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
-
+/**
+ * Generate opencode.json from db.json.
+ * If `dbModels` from the database are provided, they are merged/override
+ * the static model specs in db.json.
+ */
 export async function writeProvidersFile(
-  config: AgentConfigFile,
-  models?: ModelEntryConfig[],
+  _config?: AgentConfigFile,
+  dbModels?: Array<{
+    modelName: string;
+    litellmParams: Record<string, unknown> | null;
+  }>,
 ): Promise<void> {
+  const db = await readDb();
   const providers: OpenCodeProviders = { provider: {} };
 
-  if (models && models.length > 0) {
-    providers.provider.litellm = buildLiteLLMProviderConfig(models);
+  // Build litellm provider from db.json models, optionally enriched by DB
+  const mergedModels: Record<string, DbModelSpec> = { ...db.models };
+
+  if (dbModels && dbModels.length > 0) {
+    for (const m of dbModels) {
+      const params = m.litellmParams || {};
+      let modelId = m.modelName;
+      if (modelId.startsWith('litellm/')) {
+        modelId = modelId.slice(8);
+      }
+      if (params.model_name) {
+        modelId = String(params.model_name);
+      }
+
+      mergedModels[modelId] = {
+        displayName: mergedModels[modelId]?.displayName || capitalize(modelId),
+        ownedBy: mergedModels[modelId]?.ownedBy || 'atplus',
+        family: mergedModels[modelId]?.family,
+        contextLength: params.context_window_size
+          ? Number(params.context_window_size)
+          : (mergedModels[modelId]?.contextLength ?? 200000),
+        maxOutput: params.max_tokens
+          ? Number(params.max_tokens)
+          : (mergedModels[modelId]?.maxOutput ?? 32768),
+        cost: {
+          input: params.input_cost_per_token
+            ? Math.round(
+                Number(params.input_cost_per_token) * 1_000_000 * 100,
+              ) / 100
+            : mergedModels[modelId]?.cost?.input,
+          output: params.output_cost_per_token
+            ? Math.round(
+                Number(params.output_cost_per_token) * 1_000_000 * 100,
+              ) / 100
+            : mergedModels[modelId]?.cost?.output,
+        },
+      };
+    }
   }
 
-  for (const [key, agent] of Object.entries(config.agents || {})) {
+  providers.provider.litellm = buildLiteLLMProviderConfig(
+    mergedModels,
+    db.litellm,
+  );
+
+  // Agent providers
+  for (const [key, agent] of Object.entries(db.agents)) {
     if (Object.keys(agent).length === 0) continue;
 
-    const fallbackCount = (agent.fallback_models || []).filter((f) =>
+    const fallbackCount = (agent.fallbackModels || []).filter((f) =>
       f?.startsWith(`${key}/`),
     ).length;
 
     providers.provider[key] = {
       npm: '@ai-sdk/openai-compatible',
       options: {
-        baseURL: process.env.LITELLM_BASE_URL || 'http://localhost:4000/v1',
-        apiKey: process.env.LITELLM_API_KEY || 'sk-123456789',
+        baseURL: db.litellm.baseUrl,
+        apiKey: db.litellm.apiKey,
       },
       models: buildAgentModels(key, fallbackCount),
     };
   }
 
-  for (const [key, category] of Object.entries(config.categories || {})) {
+  // Category providers
+  for (const [key, category] of Object.entries(db.categories)) {
     if (Object.keys(category).length === 0) continue;
 
-    const fallbackCount = (category.fallback_models || []).filter((f) =>
+    const fallbackCount = (category.fallbackModels || []).filter((f) =>
       f?.startsWith(`${key}/`),
     ).length;
 
     providers.provider[key] = {
       npm: '@ai-sdk/openai-compatible',
       options: {
-        baseURL: process.env.LITELLM_BASE_URL || 'http://localhost:4000/v1',
-        apiKey: process.env.LITELLM_API_KEY || 'sk-123456789',
+        baseURL: db.litellm.baseUrl,
+        apiKey: db.litellm.apiKey,
       },
       models: buildAgentModels(key, fallbackCount),
     };
@@ -260,7 +541,7 @@ export async function writeProvidersFile(
   );
 }
 
-// ── vscode-oaicopilot.json ──
+// ── VSCode models (vscode-oaicopilot.json) generation ──
 
 interface VscodeModelEntry {
   id: string;
@@ -275,60 +556,6 @@ interface VscodeModelEntry {
   family?: string;
 }
 
-/**
- * Known model specs — context_length and max_output from upstream providers.
- * Falls back to these when litellmParams has no context_window_size / max_tokens.
- */
-const MODEL_SPECS: Record<
-  string,
-  {
-    context_length: number;
-    output: number;
-    family?: string;
-    displayName?: string;
-    owned_by?: string;
-  }
-> = {
-  'glm-5': {
-    context_length: 200000,
-    output: 128000,
-    family: 'z.ai',
-    displayName: 'GLM 5',
-  },
-  'glm-5-turbo': {
-    context_length: 200000,
-    output: 128000,
-    family: 'z.ai',
-    displayName: 'GLM 5 Turbo',
-  },
-  'glm-5.1': {
-    context_length: 200000,
-    output: 128000,
-    family: 'z.ai',
-    displayName: 'GLM 5.1',
-  },
-  'kimi-k2.5': {
-    context_length: 256000,
-    output: 64000,
-    displayName: 'Kimi K2.5',
-  },
-  'minimax-m2.7-highspeed': {
-    context_length: 204800,
-    output: 128000,
-    displayName: 'MiniMax M2.7',
-  },
-  'qwen3.5-plus': {
-    context_length: 1000000,
-    output: 64000,
-    displayName: 'Qwen 3.5+',
-  },
-  'qwen3-coder-plus': {
-    context_length: 1000000,
-    output: 64000,
-    displayName: 'Qwen 3 Coder+',
-  },
-};
-
 function humanize(str: string): string {
   return str
     .split(/[-_.]/)
@@ -337,32 +564,24 @@ function humanize(str: string): string {
 }
 
 function buildVscodeModelsArray(
-  models: ModelEntryConfig[],
+  models: Record<string, DbModelSpec>,
+  litellmConfig: DbConfig['litellm'],
 ): VscodeModelEntry[] {
   const result: VscodeModelEntry[] = [];
-  const baseUrl = process.env.LITELLM_BASE_URL || 'http://localhost:4000';
+  const baseUrl = litellmConfig.baseUrl.replace(/\/v1$/, '');
 
-  // Database models (litellm provider models)
-  for (const model of models) {
-    const params = model.litellmParams || {};
-    const modelId = extractModelId(model.modelName, params);
-    const spec = MODEL_SPECS[modelId];
-
+  for (const [modelId, spec] of Object.entries(models)) {
     const entry: VscodeModelEntry = {
       id: modelId,
-      owned_by: spec?.owned_by ?? 'atplus',
-      displayName: spec?.displayName ?? humanize(modelId),
+      owned_by: spec.ownedBy ?? 'atplus',
+      displayName: spec.displayName ?? humanize(modelId),
       baseUrl,
       apiMode: 'openai',
-      context_length: params.context_window_size
-        ? Number(params.context_window_size)
-        : (spec?.context_length ?? 200000),
+      context_length: spec.contextLength,
       limit: {
-        output: params.max_tokens
-          ? Number(params.max_tokens)
-          : (spec?.output ?? 32768),
+        output: spec.maxOutput,
       },
-      ...(spec?.family ? { family: spec.family } : {}),
+      ...(spec.family ? { family: spec.family } : {}),
     };
 
     result.push(entry);
@@ -371,11 +590,46 @@ function buildVscodeModelsArray(
   return result;
 }
 
+/**
+ * Generate vscode-oaicopilot.json from db.json.
+ * If `dbModels` from the database are provided, they are merged/override
+ * the static model specs in db.json.
+ */
 export async function writeVscodeModelsFile(
-  models?: ModelEntryConfig[],
+  dbModels?: Array<{
+    modelName: string;
+    litellmParams: Record<string, unknown> | null;
+  }>,
 ): Promise<void> {
-  const modelsList = models || [];
-  const vscodeModels = buildVscodeModelsArray(modelsList);
+  const db = await readDb();
+  const mergedModels: Record<string, DbModelSpec> = { ...db.models };
+
+  if (dbModels && dbModels.length > 0) {
+    for (const m of dbModels) {
+      const params = m.litellmParams || {};
+      let modelId = m.modelName;
+      if (modelId.startsWith('litellm/')) {
+        modelId = modelId.slice(8);
+      }
+      if (params.model_name) {
+        modelId = String(params.model_name);
+      }
+
+      mergedModels[modelId] = {
+        displayName: mergedModels[modelId]?.displayName || humanize(modelId),
+        ownedBy: mergedModels[modelId]?.ownedBy || 'atplus',
+        family: mergedModels[modelId]?.family,
+        contextLength: params.context_window_size
+          ? Number(params.context_window_size)
+          : (mergedModels[modelId]?.contextLength ?? 200000),
+        maxOutput: params.max_tokens
+          ? Number(params.max_tokens)
+          : (mergedModels[modelId]?.maxOutput ?? 32768),
+      };
+    }
+  }
+
+  const vscodeModels = buildVscodeModelsArray(mergedModels, db.litellm);
 
   const output: Record<string, unknown> = {
     'oaicopilot.commitLanguage': 'Portuguese (Brazil)',
@@ -392,68 +646,34 @@ export async function writeVscodeModelsFile(
   };
 
   await fs.promises.writeFile(
-    VSODE_MODELS_FILE,
+    VSCODE_MODELS_FILE,
     JSON.stringify(output, null, 2),
     'utf-8',
   );
 }
 
-async function writeConfigFile(config: AgentConfigFile): Promise<void> {
-  const sanitized = sanitizeConfig(config);
+// ── oh-my-openagent.json output generation ──
+
+async function writeOutputConfigFile(config: AgentConfigFile): Promise<void> {
   await ensureDir();
-  const tmpPath = `${CONFIG_FILE}.tmp`;
+  const tmpPath = `${LEGACY_CONFIG_FILE}.tmp`;
   await fs.promises.writeFile(
     tmpPath,
-    JSON.stringify(sanitized, null, 2),
+    JSON.stringify(config, null, 2),
     'utf-8',
   );
-  await fs.promises.rename(tmpPath, CONFIG_FILE);
+  await fs.promises.rename(tmpPath, LEGACY_CONFIG_FILE);
 }
 
-export async function updateAgentInConfig(
-  agentKey: string,
-  config: Partial<AgentConfig>,
-): Promise<void> {
-  const fullConfig = await readConfigFile();
-  fullConfig.agents = fullConfig.agents || {};
-  fullConfig.agents[agentKey] = { ...fullConfig.agents[agentKey], ...config };
-  await writeConfigFile(fullConfig);
-}
-
-export async function updateCategoryInConfig(
-  categoryKey: string,
-  config: Partial<CategoryConfig>,
-): Promise<void> {
-  const fullConfig = await readConfigFile();
-  fullConfig.categories = fullConfig.categories || {};
-  fullConfig.categories[categoryKey] = {
-    ...fullConfig.categories[categoryKey],
-    ...config,
+/**
+ * Generate oh-my-openagent.json from db.json.
+ * Called after any db.json mutation to keep consumers in sync.
+ */
+export async function syncOutputConfigFile(): Promise<void> {
+  const db = await readDb();
+  const legacy = {
+    agents: agentsToOutputConfigs(db.agents),
+    categories: categoriesToOutputConfigs(db.categories),
   };
-  await writeConfigFile(fullConfig);
-}
-
-export async function writeFullConfig(config: AgentConfigFile): Promise<void> {
-  await writeConfigFile({
-    agents: config.agents || {},
-    categories: config.categories || {},
-  });
-}
-
-export async function deleteAgentFromConfig(agentKey: string): Promise<void> {
-  const fullConfig = await readConfigFile();
-  if (fullConfig.agents && agentKey in fullConfig.agents) {
-    delete fullConfig.agents[agentKey];
-    await writeConfigFile(fullConfig);
-  }
-}
-
-export async function deleteCategoryFromConfig(
-  categoryKey: string,
-): Promise<void> {
-  const fullConfig = await readConfigFile();
-  if (fullConfig.categories && categoryKey in fullConfig.categories) {
-    delete fullConfig.categories[categoryKey];
-    await writeConfigFile(fullConfig);
-  }
+  await writeOutputConfigFile(legacy);
 }
