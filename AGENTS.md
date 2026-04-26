@@ -44,13 +44,14 @@ lite-llm-analytics/
 | Add a page/route         | `apps/web/src/App.tsx` + `apps/web/src/pages/`                                     | Pages own their types, utils, and hooks              |
 | Add a UI component       | `apps/web/src/components/`                                                         | shadcn primitives at root, domain modules in subdirs |
 | Add an API endpoint      | `apps/server/src/api-server.ts`                                                    | All routes defined here                              |
-| Add a DB query           | `apps/server/src/db/queries.ts`                                                    | Drizzle ORM, camelCase column mappings               |
-| Add a data-source method | `apps/server/src/data-source/interface.ts` → implement in `database.ts` + `api.ts` | Must add to `AnalyticsCapabilities`                  |
+| Add a data-source method | `packages/analytics/src/data-source/api.ts` or `database.ts`                      | Must implement `AnalyticsDataSource` interface      |
+| Add a DB query           | `packages/analytics/src/queries/index.ts`                                           | Drizzle ORM queries, camelCase columns               |
+| Add a new data type      | `packages/analytics/src/types/index.ts`                                             | Add to interface or type exports                    |
 | Change feature gating    | `apps/web/src/components/feature-gate.tsx`                                         | Wraps destructive/limited features                   |
-| Change lint/format rules | `biome.json` (root)                                                                | Single quotes, 80 chars, import auto-organize        |
-| Change dev proxy         | `apps/web/vite.config.ts`                                                          | `/api` → `localhost:3008`                            |
-| Add agent config logic   | `packages/agents-manager/src/`                                                     | Adapters, transformers, CRUD, file generators        |
-| Modify agent API routes  | `apps/server/src/routes/agent-config-routes.ts`                                    | Express routes using agents-manager                  |
+| Change lint/format rules | `biome.json` (root)                                                               | Single quotes, 80 chars, import auto-organize       |
+| Change dev proxy         | `apps/web/vite.config.ts`                                                          | `/api` → `localhost:3008`                           |
+| Add agent config logic   | `packages/agents-manager/src/`                                                      | Adapters, transformers, CRUD, file generators       |
+| Modify agent API routes  | `apps/server/src/routes/agent-config-routes.ts`                                     | Express routes using agents-manager                 |
 
 ## CONVENTIONS
 
@@ -108,6 +109,52 @@ Manages agent and category configurations with file-based storage.
 ### @lite-llm/analytics
 DB queries + data source implementations (Database, Api, Limited modes).
 
+**Structure:**
+```
+packages/analytics/src/
+├── data-source/
+│   ├── index.ts      # Factory: createDataSource(), detectMode()
+│   ├── types.ts      # DATABASE_CAPABILITIES, LIMITED_CAPABILITIES, API_CAPABILITIES
+│   ├── database.ts  # DatabaseDataSource (direct DB access)
+│   └── api.ts        # ApiDataSource (HTTP to LiteLLM API)
+├── queries/
+│   ├── index.ts     # All Drizzle ORM queries (648 lines)
+│   ├── schema.ts    # Table definitions (spendLogs, proxyModelTable, errorLogs, liteLLMConfig)
+│   └── client.ts    # DB connection
+├── types/
+│   └── index.ts     # AnalyticsDataSource interface + all data types + exports from @litellm/shared
+└── index.ts         # Barrel: exports from data-source, data-source/types, types
+```
+
+**Key patterns:**
+- `AnalyticsDataSource` interface has 31 methods — any implementation must implement all
+- Data source mode detected from `ACCESS_MODE` env var or auto-detected from `DB_HOST` / `LITELLM_API_URL`
+- Queries use camelCase column names mapped to snake_case DB columns via Drizzle ORM
+- All queries are async and return plain objects (not Drizzle row objects)
+
+**Package exports (from package.json):**
+- `import { ApiDataSource } from '@lite-llm/analytics'` → `packages/analytics/src/index.ts`
+- `import type { AnalyticsCapabilities } from '@lite-llm/analytics/types'` → `src/types/index.ts`
+- `import { db, schema } from '@lite-llm/analytics/queries'` → `src/queries/client.ts`
+- `import type { AnalyticsDataSource } from '@lite-llm/analytics/data-source'` → `src/data-source/types.ts`
+
+**Adding a new query:**
+1. Add to `packages/analytics/src/queries/index.ts`
+2. Use `db.select({ ... }).from(schema.spendLogs)` pattern
+3. Export the function
+4. Call it from `data-source/database.ts` method
+
+**Adding a new data source method:**
+1. Add method signature to `AnalyticsDataSource` interface in `types/index.ts`
+2. Implement in `data-source/database.ts`
+3. Implement in `data-source/api.ts`
+4. Set capability flag in appropriate `*_CAPABILITIES` constant in `data-source/types.ts`
+
+**CAUTION — Refactoring pitfalls:**
+- Do NOT use class inheritance to split large data source classes — TypeScript's strict mode requires all interface methods in each class
+- Large files (>500 lines) are acceptable here due to TypeScript constraints
+- Use composition or functional splitting instead of inheritance
+
 ### @lite-llm/alias-router
 Resolves model aliases for LiteLLM routing.
 
@@ -139,6 +186,10 @@ pnpm test         # turbo test (vitest run per app)
 pnpm lint         # turbo lint (biome lint)
 pnpm format       # turbo format (biome check --write)
 pnpm typecheck    # turbo typecheck (tsc --noEmit)
+
+# Single package (faster for iteration)
+pnpm --filter @lite-llm/analytics typecheck
+pnpm --filter @lite-llm/analytics build
 ```
 
 ## NOTES
