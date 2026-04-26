@@ -20,10 +20,10 @@ export {
   writeDb,
   writeFullConfig,
 } from "./crud.js";
+// LiteLLM sync
+export { type LiteLLMSyncOptions, syncToLiteLLM } from "./litellm-sync.js";
 // Generator functions
 export { writeProvidersFile } from "./providers.js";
 export { type AgentsManagerOptions, createAgentsManager } from "./singleton.js";
 export { syncOutputConfigFile } from "./sync.js";
 export { writeVscodeModelsFile } from "./vscode.js";
-// LiteLLM sync
-export { syncToLiteLLM, type LiteLLMSyncOptions } from "./litellm-sync.js";

@@ -51,27 +51,27 @@ function ensureInitialized(): void {
 
 export function getStorage() {
   ensureInitialized();
-  return _storage!;
+  return _storage;
 }
 
 export function getAgentAdapter() {
   ensureInitialized();
-  return _agentAdapter!;
+  return _agentAdapter;
 }
 
 export function getCategoryAdapter() {
   ensureInitialized();
-  return _categoryAdapter!;
+  return _categoryAdapter;
 }
 
 export function getAgentTransformer() {
   ensureInitialized();
-  return _agentTransformer!;
+  return _agentTransformer;
 }
 
 export function getCategoryTransformer() {
   ensureInitialized();
-  return _categoryTransformer!;
+  return _categoryTransformer;
 }
 
 export function getLegacyConfigFile(): string {

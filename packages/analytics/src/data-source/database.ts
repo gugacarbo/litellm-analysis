@@ -383,7 +383,12 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     const customAliases: Record<string, string> = {};
     for (const [key, value] of Object.entries(modelGroupAlias)) {
       const prefix = key.includes("/") ? key.split("/")[0] : key;
-      if (!agentKeys.has(key) && !categoryKeys.has(key) && !agentKeys.has(prefix) && !categoryKeys.has(prefix)) {
+      if (
+        !agentKeys.has(key) &&
+        !categoryKeys.has(key) &&
+        !agentKeys.has(prefix) &&
+        !categoryKeys.has(prefix)
+      ) {
         customAliases[key] = value;
       }
     }
