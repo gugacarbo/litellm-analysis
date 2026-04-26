@@ -424,11 +424,8 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const { globalFallbackModel } = req.body as {
         globalFallbackModel?: string;
       };
-      const {
-        updateGlobalFallbackInDb,
-        readDb,
-        syncOutputConfigFile,
-      } = await import("@lite-llm/agents-manager");
+      const { updateGlobalFallbackInDb, readDb, syncOutputConfigFile } =
+        await import("@lite-llm/agents-manager");
       const newGlobalFallback = globalFallbackModel || "gpt-5.1";
       await updateGlobalFallbackInDb(newGlobalFallback);
       const db = await readDb();
@@ -768,9 +765,11 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       }
       const { type } = req.query;
 
-      const { deleteAgentFromConfig, deleteCategoryFromConfig, syncOutputConfigFile } = await import(
-        "@lite-llm/agents-manager"
-      );
+      const {
+        deleteAgentFromConfig,
+        deleteCategoryFromConfig,
+        syncOutputConfigFile,
+      } = await import("@lite-llm/agents-manager");
 
       if (type === "category") {
         await deleteCategoryFromConfig(key);

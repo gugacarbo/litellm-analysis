@@ -294,9 +294,11 @@ export function registerAgentConfigRoutes(
       }
       const { type } = req.query;
 
-      const { deleteAgentFromConfig, deleteCategoryFromConfig, syncOutputConfigFile } = await import(
-        "@lite-llm/agents-manager"
-      );
+      const {
+        deleteAgentFromConfig,
+        deleteCategoryFromConfig,
+        syncOutputConfigFile,
+      } = await import("@lite-llm/agents-manager");
 
       if (type === "category") {
         await deleteCategoryFromConfig(key);

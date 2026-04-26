@@ -9,7 +9,9 @@ import type {
 // Mocks must be hoisted
 const mockDeleteAgentFromConfig = vi.hoisted(() => vi.fn());
 const mockDeleteCategoryFromConfig = vi.hoisted(() => vi.fn());
-const mockSyncOutputConfigFile = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const mockSyncOutputConfigFile = vi.hoisted(() =>
+  vi.fn().mockResolvedValue(undefined),
+);
 
 // Mock the entire module to intercept dynamic imports
 vi.mock("@lite-llm/agents-manager", async () => {
@@ -124,9 +126,7 @@ describe("DELETE /agent-config/:key", () => {
   it("rejects deleting global-fallback", async () => {
     const { app } = await getServer(DATABASE_CAPABILITIES);
 
-    const res = await request(app).delete(
-      "/agent-config/global-fallback",
-    );
+    const res = await request(app).delete("/agent-config/global-fallback");
 
     expect(res.status).toBe(404);
     expect(res.body).toEqual({

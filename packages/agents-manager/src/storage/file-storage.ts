@@ -12,7 +12,11 @@ export interface IFileStorage {
 }
 
 // Helper to resolve paths - uses custom path if absolute, otherwise joins with projectRoot
-function resolveFilePath(projectRoot: string, customPath?: string, defaultPath?: string): string {
+function resolveFilePath(
+  projectRoot: string,
+  customPath?: string,
+  defaultPath?: string,
+): string {
   const target = customPath ?? defaultPath ?? "db";
   if (path.isAbsolute(target)) {
     return target;
@@ -25,15 +29,31 @@ export class FileStorage implements IFileStorage {
 
   constructor(customPaths?: Partial<FilePaths>) {
     // Use provided paths directly if absolute, otherwise resolve relative to project root
-    const dbFile = resolveFilePath(process.cwd(), customPaths?.dbFile, "db/db.json");
-    
+    const dbFile = resolveFilePath(
+      process.cwd(),
+      customPaths?.dbFile,
+      "db/db.json",
+    );
+
     this.paths = {
       // configDir is derived from dbFile's directory
       configDir: path.dirname(dbFile),
       dbFile,
-      legacyConfigFile: resolveFilePath(process.cwd(), customPaths?.legacyConfigFile, "data/oh-my-openagent.json"),
-      providersFile: resolveFilePath(process.cwd(), customPaths?.providersFile, "data/opencode.json"),
-      vscodeModelsFile: resolveFilePath(process.cwd(), customPaths?.vscodeModelsFile, "data/vscode-oaicopilot.json"),
+      legacyConfigFile: resolveFilePath(
+        process.cwd(),
+        customPaths?.legacyConfigFile,
+        "data/oh-my-openagent.json",
+      ),
+      providersFile: resolveFilePath(
+        process.cwd(),
+        customPaths?.providersFile,
+        "data/opencode.json",
+      ),
+      vscodeModelsFile: resolveFilePath(
+        process.cwd(),
+        customPaths?.vscodeModelsFile,
+        "data/vscode-oaicopilot.json",
+      ),
     };
   }
 
