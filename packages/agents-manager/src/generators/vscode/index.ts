@@ -1,4 +1,5 @@
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { type DbModelWithParams, mergeModelsFromDb } from "./merger.js";
 import { buildVscodeModelsArray } from "./model-builder.js";
 
@@ -37,11 +38,19 @@ export class VscodeModelsGenerator implements IVscodeModelsGenerator {
       "oaicopilot.models": vscodeModels,
     };
 
+    await this.ensureDir();
+    const tmpPath = `${this.vscodeModelsFile}.tmp`;
     await fs.promises.writeFile(
-      this.vscodeModelsFile,
+      tmpPath,
       JSON.stringify(output, null, 2),
       "utf-8",
     );
+    await fs.promises.rename(tmpPath, this.vscodeModelsFile);
+  }
+
+  private async ensureDir(): Promise<void> {
+    const dir = path.dirname(this.vscodeModelsFile);
+    await fs.promises.mkdir(dir, { recursive: true });
   }
 }
 

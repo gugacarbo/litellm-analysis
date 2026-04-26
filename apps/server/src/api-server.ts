@@ -424,17 +424,18 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const { globalFallbackModel } = req.body as {
         globalFallbackModel?: string;
       };
-      const { readDb, writeDb, syncOutputConfigFile } = await import(
-        "@lite-llm/agents-manager"
-      );
-      const db = await readDb();
+      const {
+        updateGlobalFallbackInDb,
+        readDb,
+        syncOutputConfigFile,
+      } = await import("@lite-llm/agents-manager");
       const newGlobalFallback = globalFallbackModel || "gpt-5.1";
-      db.globalFallbackModel = newGlobalFallback;
-      await writeDb(db);
+      await updateGlobalFallbackInDb(newGlobalFallback);
+      const db = await readDb();
       await syncOutputConfigFile();
 
       if (dataSource.capabilities.agentRouting) {
-        const { generateLitellmAliases, replaceAliasesForAgent } = await import(
+        const { generateLitellmAliases } = await import(
           "@lite-llm/alias-router"
         );
         const { updateAgentRoutingConfig, getAgentRoutingConfig } = dataSource;
@@ -767,7 +768,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       }
       const { type } = req.query;
 
-      const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(
+      const { deleteAgentFromConfig, deleteCategoryFromConfig, syncOutputConfigFile } = await import(
         "@lite-llm/agents-manager"
       );
 
@@ -776,6 +777,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       } else {
         await deleteAgentFromConfig(key);
       }
+      await syncOutputConfigFile();
 
       if (dataSource.capabilities.agentRouting) {
         const { getExistingAliasesForAgent } = await import(

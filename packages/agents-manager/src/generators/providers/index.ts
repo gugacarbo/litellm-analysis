@@ -1,4 +1,5 @@
 import * as fs from "node:fs";
+import * as path from "node:path";
 import type { DbAgentEntry, DbCategoryEntry } from "../../types/index.js";
 import { type DbModelWithParams, mergeModelsFromDb } from "./merger.js";
 import {
@@ -37,11 +38,19 @@ export class ProvidersGenerator implements IProvidersGenerator {
     this.addEntityProviders(db.agents, providers);
     this.addEntityProviders(db.categories, providers);
 
+    await this.ensureDir();
+    const tmpPath = `${this.providersFile}.tmp`;
     await fs.promises.writeFile(
-      this.providersFile,
+      tmpPath,
       JSON.stringify(providers, null, 2),
       "utf-8",
     );
+    await fs.promises.rename(tmpPath, this.providersFile);
+  }
+
+  private async ensureDir(): Promise<void> {
+    const dir = path.dirname(this.providersFile);
+    await fs.promises.mkdir(dir, { recursive: true });
   }
 
   private addEntityProviders(

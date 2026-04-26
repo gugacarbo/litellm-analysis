@@ -20,6 +20,7 @@ export {
   updateAgentInDb,
   updateCategoryInConfig,
   updateCategoryInDb,
+  updateGlobalFallbackInDb,
   writeDb,
   writeFullConfig,
   writeProvidersFile,

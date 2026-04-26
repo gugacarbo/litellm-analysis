@@ -34,20 +34,15 @@ export class AgentTransformer implements IAgentTransformer {
         output.model = `${key}/${MODEL_NAMES[0]}`;
       }
 
-      // Generate fallback slots
+      // Always generate all 4 fallback slots (gpt-5.4 through gpt-5.1)
+      // Use defined fallbacks when available, otherwise use globalFallbackModel
       const agentFallbacks: string[] = [];
-      const fbLen = entry.fallbackModels?.length ?? 0;
-      for (let i = 0; i < Math.min(fbLen, 3); i++) {
-        agentFallbacks.push(`${key}/${MODEL_NAMES[i + 1]}`);
-      }
-
-      const gpt51Model =
-        entry.fallbackModels && entry.fallbackModels.length >= 4
-          ? entry.fallbackModels[3]
-          : globalFallbackModel;
-
-      if (gpt51Model) {
-        agentFallbacks.push(`${key}/${MODEL_NAMES[4]}`);
+      const definedFallbacks = entry.fallbackModels ?? [];
+      for (let i = 1; i < MODEL_NAMES.length; i++) {
+        const slotModel = definedFallbacks[i - 1] ?? globalFallbackModel;
+        if (slotModel) {
+          agentFallbacks.push(`${key}/${MODEL_NAMES[i]}`);
+        }
       }
 
       if (agentFallbacks.length > 0) {

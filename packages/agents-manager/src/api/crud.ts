@@ -88,6 +88,14 @@ export async function updateCategoryInDb(
   await writeDb(db);
 }
 
+export async function updateGlobalFallbackInDb(
+  globalFallbackModel: string,
+): Promise<void> {
+  const db = await readDb();
+  db.globalFallbackModel = globalFallbackModel;
+  await writeDb(db);
+}
+
 export async function deleteAgentFromDb(agentKey: string): Promise<void> {
   const db = await readDb();
   if (agentKey in db.agents) {

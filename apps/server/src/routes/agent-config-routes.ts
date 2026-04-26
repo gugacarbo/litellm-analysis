@@ -6,33 +6,6 @@ export function registerAgentConfigRoutes(
   app: Application,
   dataSource: AnalyticsDataSource,
 ) {
-  // ── Global Fallback Model ──
-
-  app.get("/agent-config/global-fallback", async (_req, res) => {
-    try {
-      const { readDb } = await import("@lite-llm/agents-manager");
-      const db = await readDb();
-      res.json({ globalFallbackModel: db.globalFallbackModel || "gpt-5" });
-    } catch (error) {
-      res.status(500).json({ error: String(error) });
-    }
-  });
-
-  app.put("/agent-config/global-fallback", async (req, res) => {
-    try {
-      const { globalFallbackModel } = req.body as {
-        globalFallbackModel?: string;
-      };
-      const { readDb, writeDb } = await import("@lite-llm/agents-manager");
-      const db = await readDb();
-      db.globalFallbackModel = globalFallbackModel || "gpt-5";
-      await writeDb(db);
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: String(error) });
-    }
-  });
-
   // ── Agent Config (local JSON file) ──
 
   app.get("/agent-config", async (_req, res) => {
@@ -129,6 +102,7 @@ export function registerAgentConfigRoutes(
         readConfigFile,
         writeProvidersFile,
         writeVscodeModelsFile,
+        syncOutputConfigFile,
       } = await import("@lite-llm/agents-manager");
 
       if (type === "agent") {
@@ -143,6 +117,7 @@ export function registerAgentConfigRoutes(
         : [];
       await writeProvidersFile(config, models);
       await writeVscodeModelsFile(models);
+      await syncOutputConfigFile();
 
       if (syncAliases && dataSource.capabilities.agentRouting) {
         const { generateLitellmAliases, replaceAliasesForAgent } = await import(
@@ -255,6 +230,7 @@ export function registerAgentConfigRoutes(
         readConfigFile,
         writeProvidersFile,
         writeVscodeModelsFile,
+        syncOutputConfigFile,
       } = await import("@lite-llm/agents-manager");
       await writeFullConfig({
         agents: agentsToSave,
@@ -267,6 +243,7 @@ export function registerAgentConfigRoutes(
         : [];
       await writeProvidersFile(config, models);
       await writeVscodeModelsFile(models);
+      await syncOutputConfigFile();
 
       if (
         dataSource.capabilities.agentRouting &&
@@ -317,7 +294,7 @@ export function registerAgentConfigRoutes(
       }
       const { type } = req.query;
 
-      const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(
+      const { deleteAgentFromConfig, deleteCategoryFromConfig, syncOutputConfigFile } = await import(
         "@lite-llm/agents-manager"
       );
 
@@ -326,6 +303,7 @@ export function registerAgentConfigRoutes(
       } else {
         await deleteAgentFromConfig(key);
       }
+      await syncOutputConfigFile();
 
       if (dataSource.capabilities.agentRouting) {
         const { getExistingAliasesForAgent } = await import(

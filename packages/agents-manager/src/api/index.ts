@@ -16,6 +16,7 @@ export {
   updateAgentInDb,
   updateCategoryInConfig,
   updateCategoryInDb,
+  updateGlobalFallbackInDb,
   writeDb,
   writeFullConfig,
 } from "./crud.js";

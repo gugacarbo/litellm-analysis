@@ -3,6 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const writeFileMock = vi.hoisted(() => vi.fn());
 const readFileMock = vi.hoisted(() => vi.fn());
 
+const mkdirMock = vi.hoisted(() => vi.fn());
+const renameMock = vi.hoisted(() => vi.fn());
+
 vi.mock("node:fs", async () => {
   const actual = await vi.importActual<typeof import("node:fs")>("node:fs");
   return {
@@ -11,6 +14,8 @@ vi.mock("node:fs", async () => {
       ...actual.promises,
       writeFile: writeFileMock,
       readFile: readFileMock,
+      mkdir: mkdirMock,
+      rename: renameMock,
     },
   };
 });
@@ -21,6 +26,8 @@ describe("writeVscodeModelsFile", () => {
   afterEach(() => {
     writeFileMock.mockReset();
     readFileMock.mockReset();
+    mkdirMock.mockReset();
+    renameMock.mockReset();
   });
 
   it("writes only the real LiteLLM models it receives", async () => {

@@ -10,10 +10,9 @@
       "model": "sisyphus/gpt-5.5",
       "fallback_models": [
         "sisyphus/gpt-5.4",
-        "sisyphus/gpt-5.3",
         "sisyphus/gpt-5.1"
       ],
-      "description": "Agente Orquestrador",
+      "description": "Test 2",
       "color": "#C83232",
       "disable": false,
       "tools": {},
@@ -21,7 +20,11 @@
     },
     "oracle": {
       "model": "oracle/gpt-5.5",
-      "fallback_models": ["oracle/gpt-5.4", "oracle/gpt-5.3", "oracle/gpt-5.1"],
+      "fallback_models": [
+        "oracle/gpt-5.4",
+        "oracle/gpt-5.3",
+        "oracle/gpt-5.1"
+      ],
       "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
       "color": "#048B5E",
       "disable": false,
@@ -29,11 +32,17 @@
       "permission": {}
     },
     "hephaestus": {
-      "fallback_models": ["hephaestus/gpt-5.4", "hephaestus/gpt-5.1"],
+      "fallback_models": [
+        "hephaestus/gpt-5.4",
+        "hephaestus/gpt-5.1"
+      ],
       "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
     },
     "atlas": {
-      "fallback_models": ["atlas/gpt-5.4", "atlas/gpt-5.1"],
+      "fallback_models": [
+        "atlas/gpt-5.4",
+        "atlas/gpt-5.1"
+      ],
       "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
       "color": "#F0FF1A",
       "disable": false,
@@ -41,7 +50,10 @@
       "permission": {}
     },
     "sisyphus-junior": {
-      "fallback_models": ["sisyphus-junior/gpt-5.4", "sisyphus-junior/gpt-5.1"],
+      "fallback_models": [
+        "sisyphus-junior/gpt-5.4",
+        "sisyphus-junior/gpt-5.1"
+      ],
       "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
       "color": "#5A00C7",
       "disable": false,
@@ -49,7 +61,10 @@
       "permission": {}
     },
     "librarian": {
-      "fallback_models": ["librarian/gpt-5.4", "librarian/gpt-5.1"],
+      "fallback_models": [
+        "librarian/gpt-5.4",
+        "librarian/gpt-5.1"
+      ],
       "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
       "color": "#945E00",
       "disable": false,
@@ -57,7 +72,10 @@
       "permission": {}
     },
     "momus": {
-      "fallback_models": ["momus/gpt-5.4", "momus/gpt-5.1"],
+      "fallback_models": [
+        "momus/gpt-5.4",
+        "momus/gpt-5.1"
+      ],
       "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
     },
     "prometheus": {
@@ -100,7 +118,10 @@
       "permission": {}
     },
     "metis": {
-      "fallback_models": ["metis/gpt-5.4", "metis/gpt-5.1"],
+      "fallback_models": [
+        "metis/gpt-5.4",
+        "metis/gpt-5.1"
+      ],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
       "color": "#0FE000",
       "disable": false
@@ -115,23 +136,38 @@
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "fallback_models": ["ultrabrain/gpt-5.4", "ultrabrain/gpt-5.1"],
+      "fallback_models": [
+        "ultrabrain/gpt-5.4",
+        "ultrabrain/gpt-5.1"
+      ],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
-      "fallback_models": ["deep/gpt-5.4", "deep/gpt-5.1"],
+      "fallback_models": [
+        "deep/gpt-5.4",
+        "deep/gpt-5.1"
+      ],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
     "artistry": {
-      "fallback_models": ["artistry/gpt-5.4", "artistry/gpt-5.1"],
+      "fallback_models": [
+        "artistry/gpt-5.4",
+        "artistry/gpt-5.1"
+      ],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
-      "fallback_models": ["quick/gpt-5.4", "quick/gpt-5.1"],
+      "fallback_models": [
+        "quick/gpt-5.4",
+        "quick/gpt-5.1"
+      ],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
-      "fallback_models": ["unspecified-low/gpt-5.4", "unspecified-low/gpt-5.1"],
+      "fallback_models": [
+        "unspecified-low/gpt-5.4",
+        "unspecified-low/gpt-5.1"
+      ],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
@@ -142,7 +178,10 @@
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
-      "fallback_models": ["writing/gpt-5.4", "writing/gpt-5.1"],
+      "fallback_models": [
+        "writing/gpt-5.4",
+        "writing/gpt-5.1"
+      ],
       "description": "Documentação, prosa e escrita técnica."
     }
   }
