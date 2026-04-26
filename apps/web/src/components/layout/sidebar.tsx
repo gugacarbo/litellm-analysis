@@ -5,25 +5,25 @@ import {
   FileText,
   GitBranch,
   Settings,
-} from 'lucide-react';
-import { NavLink } from 'react-router-dom';
-import { Badge } from '../../components/badge';
-import { Card, CardContent } from '../../components/card';
-import { useServerMode } from '../../hooks/use-server-mode';
+} from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { Badge } from "../../components/badge";
+import { Card, CardContent } from "../../components/card";
+import { useServerMode } from "../../hooks/use-server-mode";
 
 export function Sidebar() {
   const { mode, capabilities, isLoading } = useServerMode();
 
   const navItems = [
-    { to: '/', icon: Activity, label: 'Dashboard' },
-    { to: '/model-stats', icon: BarChart3, label: 'Model Stats' },
-    { to: '/logs', icon: FileText, label: 'Spend Logs' },
+    { to: "/", icon: Activity, label: "Dashboard" },
+    { to: "/model-stats", icon: BarChart3, label: "Model Stats" },
+    { to: "/logs", icon: FileText, label: "Spend Logs" },
     ...(capabilities.errorLogs
-      ? [{ to: '/errors', icon: AlertCircle, label: 'Errors' }]
+      ? [{ to: "/errors", icon: AlertCircle, label: "Errors" }]
       : []),
-    { to: '/models', icon: Settings, label: 'Models' },
+    { to: "/models", icon: Settings, label: "Models" },
     ...(capabilities.agentRouting
-      ? [{ to: '/agent-routing', icon: GitBranch, label: 'Agent Routing' }]
+      ? [{ to: "/agent-routing", icon: GitBranch, label: "Agent Routing" }]
       : []),
   ];
 
@@ -36,17 +36,17 @@ export function Sidebar() {
             {!isLoading ? (
               <Badge
                 className={
-                  mode === 'limited'
-                    ? 'bg-amber-500/15 text-amber-600 border-amber-500/30'
-                    : ''
+                  mode === "limited"
+                    ? "bg-amber-500/15 text-amber-600 border-amber-500/30"
+                    : ""
                 }
-                variant={mode === 'database' ? 'default' : 'secondary'}
+                variant={mode === "database" ? "default" : "secondary"}
               >
-                {mode === 'database'
-                  ? '🟢 Full Access'
-                  : mode === 'limited'
-                    ? '🟠 Limited'
-                    : '🟡 API Mode'}
+                {mode === "database"
+                  ? "🟢 Full Access"
+                  : mode === "limited"
+                    ? "🟠 Limited"
+                    : "🟡 API Mode"}
               </Badge>
             ) : (
               <Badge variant="outline">Loading...</Badge>
@@ -60,8 +60,8 @@ export function Sidebar() {
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-muted'
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
                   }`
                 }
               >

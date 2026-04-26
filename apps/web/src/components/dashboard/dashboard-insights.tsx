@@ -1,20 +1,20 @@
-import type { DashboardInsight } from '../../pages/dashboard/dashboard-types';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+import type { DashboardInsight } from "../../pages/dashboard/dashboard-types";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 
 type DashboardInsightsProps = {
   loading: boolean;
   insights: DashboardInsight[];
 };
 
-function getToneClass(tone: DashboardInsight['tone']): string {
-  if (tone === 'positive') {
-    return 'text-emerald-700 dark:text-emerald-300';
+function getToneClass(tone: DashboardInsight["tone"]): string {
+  if (tone === "positive") {
+    return "text-emerald-700 dark:text-emerald-300";
   }
-  if (tone === 'warning') {
-    return 'text-amber-700 dark:text-amber-300';
+  if (tone === "warning") {
+    return "text-amber-700 dark:text-amber-300";
   }
-  return 'text-foreground';
+  return "text-foreground";
 }
 
 export function DashboardInsights({

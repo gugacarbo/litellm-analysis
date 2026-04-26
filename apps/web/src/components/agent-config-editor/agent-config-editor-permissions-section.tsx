@@ -1,12 +1,12 @@
-import type { AgentConfig } from '../../types/agent-routing';
-import { Label } from '../label';
+import type { AgentConfig } from "../../types/agent-routing";
+import { Label } from "../label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
+} from "../select";
 
 type Props = {
   config: AgentConfig;
@@ -16,7 +16,7 @@ type Props = {
   ) => void;
 };
 
-type PermissionValue = 'ask' | 'allow' | 'deny';
+type PermissionValue = "ask" | "allow" | "deny";
 
 function PermissionField({
   label,
@@ -53,7 +53,7 @@ export function AgentConfigEditorPermissionsSection({
   const perm = config.permission || {};
 
   function updatePerm(field: string, value: PermissionValue) {
-    onUpdateConfig('permission', { ...perm, [field]: value });
+    onUpdateConfig("permission", { ...perm, [field]: value });
   }
 
   return (
@@ -69,32 +69,32 @@ export function AgentConfigEditorPermissionsSection({
         <PermissionField
           label="Edit"
           id="perm-edit"
-          value={perm.edit || 'ask'}
-          onChange={(v) => updatePerm('edit', v)}
+          value={perm.edit || "ask"}
+          onChange={(v) => updatePerm("edit", v)}
         />
         <PermissionField
           label="Bash"
           id="perm-bash"
-          value={typeof perm.bash === 'string' ? perm.bash : 'ask'}
-          onChange={(v) => updatePerm('bash', v)}
+          value={typeof perm.bash === "string" ? perm.bash : "ask"}
+          onChange={(v) => updatePerm("bash", v)}
         />
         <PermissionField
           label="Webfetch"
           id="perm-webfetch"
-          value={perm.webfetch || 'ask'}
-          onChange={(v) => updatePerm('webfetch', v)}
+          value={perm.webfetch || "ask"}
+          onChange={(v) => updatePerm("webfetch", v)}
         />
         <PermissionField
           label="Doom Loop"
           id="perm-doom_loop"
-          value={perm.doom_loop || 'ask'}
-          onChange={(v) => updatePerm('doom_loop', v)}
+          value={perm.doom_loop || "ask"}
+          onChange={(v) => updatePerm("doom_loop", v)}
         />
         <PermissionField
           label="External Directory"
           id="perm-external_directory"
-          value={perm.external_directory || 'ask'}
-          onChange={(v) => updatePerm('external_directory', v)}
+          value={perm.external_directory || "ask"}
+          onChange={(v) => updatePerm("external_directory", v)}
         />
       </div>
     </section>

@@ -1,8 +1,8 @@
-import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
-import type { Application } from 'express';
+import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
+import type { Application } from "express";
 
 function parseDays(rawValue: unknown, fallback: number): number {
-  if (typeof rawValue !== 'string') {
+  if (typeof rawValue !== "string") {
     return fallback;
   }
 
@@ -17,10 +17,10 @@ export function registerErrorRoutes(
   app: Application,
   dataSource: AnalyticsDataSource,
 ) {
-  app.get('/errors', async (req, res) => {
+  app.get("/errors", async (req, res) => {
     if (!dataSource.capabilities.errorLogs) {
       res.status(501).json({
-        error: 'Error logs are not available in API-only mode',
+        error: "Error logs are not available in API-only mode",
       });
       return;
     }

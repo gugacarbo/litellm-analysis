@@ -9,19 +9,19 @@ export type ModelFormData = {
 };
 
 export const FIXED_KEYS = [
-  'api_base',
-  'input_cost_per_token',
-  'output_cost_per_token',
-  'context_window_size',
-  'max_tokens',
+  "api_base",
+  "input_cost_per_token",
+  "output_cost_per_token",
+  "context_window_size",
+  "max_tokens",
 ];
 
 export const EMPTY_MODEL_FORM_DATA: ModelFormData = {
-  modelName: '',
-  apiBase: '',
-  inputCostPerToken: '',
-  outputCostPerToken: '',
-  contextWindowSize: '',
-  maxTokens: '',
+  modelName: "",
+  apiBase: "",
+  inputCostPerToken: "",
+  outputCostPerToken: "",
+  contextWindowSize: "",
+  maxTokens: "",
   extraParams: {},
 };

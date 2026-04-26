@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import { getErrorLogs } from '../lib/api-client';
-import { queryKeys } from '../lib/query-keys';
-import type { ErrorLog } from '../types/analytics';
+import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { getErrorLogs } from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
+import type { ErrorLog } from "../types/analytics";
 
 const DEFAULT_ERROR_LOGS_LIMIT = 1000;
 

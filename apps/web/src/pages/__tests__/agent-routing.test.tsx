@@ -1,8 +1,8 @@
-import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderWithQueryClient } from '../../__tests__/react-query-test-utils';
-import type { AnalyticsCapabilities } from '../../types/analytics';
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
+import type { AnalyticsCapabilities } from "../../types/analytics";
 
 const mockCapabilities: AnalyticsCapabilities = {
   spendByModel: true,
@@ -32,9 +32,9 @@ const mockCapabilities: AnalyticsCapabilities = {
   agentRouting: true,
 };
 
-vi.mock('../../hooks/use-server-mode', () => ({
+vi.mock("../../hooks/use-server-mode", () => ({
   useServerMode: () => ({
-    mode: 'database',
+    mode: "database",
     capabilities: mockCapabilities,
     isLoading: false,
     error: null,
@@ -42,7 +42,7 @@ vi.mock('../../hooks/use-server-mode', () => ({
   }),
 }));
 
-vi.mock('../../lib/api-client', () => ({
+vi.mock("../../lib/api-client", () => ({
   getAgentRoutingConfig: vi.fn(),
   getAgentConfig: vi.fn(),
   updateAgentRoutingConfig: vi.fn(),
@@ -57,31 +57,31 @@ import {
   getAllModels,
   getGlobalFallbackModel,
   updateAgentConfig,
-} from '../../lib/api-client';
-import { AgentRoutingPage } from '../agent-routing';
+} from "../../lib/api-client";
+import { AgentRoutingPage } from "../agent-routing";
 
-describe('AgentRoutingPage', () => {
+describe("AgentRoutingPage", () => {
   const mockRoutingConfig = {
-    sisyphus: 'qwen3.5-plus',
-    oracle: 'kimi-k2.5',
+    sisyphus: "qwen3.5-plus",
+    oracle: "kimi-k2.5",
   };
 
   const mockModels = [
     {
-      modelName: 'qwen3.5-plus',
-      litellmParams: { api_base: 'https://api.openai.com' },
+      modelName: "qwen3.5-plus",
+      litellmParams: { api_base: "https://api.openai.com" },
     },
     {
-      modelName: 'gpt-3.5-turbo',
-      litellmParams: { api_base: 'https://api.openai.com' },
+      modelName: "gpt-3.5-turbo",
+      litellmParams: { api_base: "https://api.openai.com" },
     },
     {
-      modelName: 'kimi-k2.5',
-      litellmParams: { api_base: 'https://api.anthropic.com' },
+      modelName: "kimi-k2.5",
+      litellmParams: { api_base: "https://api.anthropic.com" },
     },
     {
-      modelName: 'glm-5',
-      litellmParams: { api_base: 'https://api.anthropic.com' },
+      modelName: "glm-5",
+      litellmParams: { api_base: "https://api.anthropic.com" },
     },
   ];
 
@@ -92,27 +92,27 @@ describe('AgentRoutingPage', () => {
       categories: {},
     });
     vi.mocked(getGlobalFallbackModel).mockResolvedValue({
-      globalFallbackModel: 'gpt-5.1',
+      globalFallbackModel: "gpt-5.1",
     });
   });
 
-  describe('Renderização', () => {
-    it('deve renderizar tabela com agentes', async () => {
+  describe("Renderização", () => {
+    it("deve renderizar tabela com agentes", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAllModels).mockResolvedValueOnce(mockModels);
 
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Sisyphus')).toBeInTheDocument();
+        expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Oracle')).toBeInTheDocument();
-      expect(screen.getByText('Prometheus')).toBeInTheDocument();
-      expect(screen.getByText('Metis')).toBeInTheDocument();
+      expect(screen.getByText("Oracle")).toBeInTheDocument();
+      expect(screen.getByText("Prometheus")).toBeInTheDocument();
+      expect(screen.getByText("Metis")).toBeInTheDocument();
     });
 
-    it('deve mostrar loading state inicialmente', () => {
+    it("deve mostrar loading state inicialmente", () => {
       vi.mocked(getAgentRoutingConfig).mockImplementation(
         () => new Promise(() => {}),
       );
@@ -124,9 +124,9 @@ describe('AgentRoutingPage', () => {
       expect(skeletons.length).toBe(5);
     });
 
-    it('deve mostrar erro quando fetch falha', async () => {
+    it("deve mostrar erro quando fetch falha", async () => {
       vi.mocked(getAgentRoutingConfig).mockRejectedValueOnce(
-        new Error('Failed to fetch'),
+        new Error("Failed to fetch"),
       );
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
         agents: {},
@@ -136,16 +136,16 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Agent Routing')).toBeInTheDocument();
+        expect(screen.getByText("Agent Routing")).toBeInTheDocument();
       });
     });
 
-    it('deve mostrar modelos atribuídos corretamente', async () => {
+    it("deve mostrar modelos atribuídos corretamente", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
         agents: {
-          sisyphus: { model: 'qwen3.5-plus' },
-          oracle: { model: 'kimi-k2.5' },
+          sisyphus: { model: "qwen3.5-plus" },
+          oracle: { model: "kimi-k2.5" },
         },
         categories: {},
       });
@@ -154,10 +154,10 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('qwen3.5-plus').length).toBeGreaterThan(0);
+        expect(screen.getAllByText("qwen3.5-plus").length).toBeGreaterThan(0);
       });
 
-      expect(screen.getAllByText('kimi-k2.5').length).toBeGreaterThan(0);
+      expect(screen.getAllByText("kimi-k2.5").length).toBeGreaterThan(0);
     });
 
     it('deve mostrar "Unassigned" para agentes sem modelo configurado', async () => {
@@ -170,12 +170,12 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        const unassignedElements = screen.getAllByText('Unconfigured');
+        const unassignedElements = screen.getAllByText("Unconfigured");
         expect(unassignedElements.length).toBe(11);
       });
     });
 
-    it('deve renderizar aba de categorias', async () => {
+    it("deve renderizar aba de categorias", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce({});
       vi.mocked(getAllModels).mockResolvedValueOnce(mockModels);
 
@@ -183,12 +183,12 @@ describe('AgentRoutingPage', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('tab', { name: 'Categories' }),
+          screen.getByRole("tab", { name: "Categories" }),
         ).toBeInTheDocument();
       });
     });
 
-    it('deve exibir categorias ao clicar na aba', async () => {
+    it("deve exibir categorias ao clicar na aba", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce({});
       vi.mocked(getAllModels).mockResolvedValueOnce(mockModels);
 
@@ -196,21 +196,21 @@ describe('AgentRoutingPage', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('tab', { name: 'Categories' }),
+          screen.getByRole("tab", { name: "Categories" }),
         ).toBeInTheDocument();
       });
 
-      await userEvent.click(screen.getByRole('tab', { name: 'Categories' }));
+      await userEvent.click(screen.getByRole("tab", { name: "Categories" }));
 
       await waitFor(() => {
-        expect(screen.getByText('Visual Engineering')).toBeInTheDocument();
-        expect(screen.getByText('Ultrabrain')).toBeInTheDocument();
+        expect(screen.getByText("Visual Engineering")).toBeInTheDocument();
+        expect(screen.getByText("Ultrabrain")).toBeInTheDocument();
       });
     });
   });
 
-  describe('Feature Gate', () => {
-    it('deve mostrar botões de editar quando agentRouting=true', async () => {
+  describe("Feature Gate", () => {
+    it("deve mostrar botões de editar quando agentRouting=true", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
         agents: {},
@@ -220,15 +220,15 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getAllByTitle('Edit agent configuration').length).toBe(
+        expect(screen.getAllByTitle("Edit agent configuration").length).toBe(
           11,
         );
       });
     });
   });
 
-  describe('Interação', () => {
-    it('deve abrir dialog ao clicar em editar', async () => {
+  describe("Interação", () => {
+    it("deve abrir dialog ao clicar em editar", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
         agents: {},
@@ -238,11 +238,11 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Sisyphus')).toBeInTheDocument();
+        expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
 
       await userEvent.click(
-        screen.getAllByTitle('Edit agent configuration')[0],
+        screen.getAllByTitle("Edit agent configuration")[0],
       );
 
       await waitFor(() => {
@@ -252,7 +252,7 @@ describe('AgentRoutingPage', () => {
       });
     });
 
-    it('deve mostrar dropdown de modelos no dialog', async () => {
+    it("deve mostrar dropdown de modelos no dialog", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
         agents: {},
@@ -263,11 +263,11 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Sisyphus')).toBeInTheDocument();
+        expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
 
       await userEvent.click(
-        screen.getAllByTitle('Edit agent configuration')[0],
+        screen.getAllByTitle("Edit agent configuration")[0],
       );
 
       await waitFor(() => {
@@ -276,10 +276,10 @@ describe('AgentRoutingPage', () => {
         ).toBeInTheDocument();
       });
 
-      expect(screen.getByRole('combobox')).toBeInTheDocument();
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
     });
 
-    it('deve chamar updateAgentRoutingConfig ao salvar', async () => {
+    it("deve chamar updateAgentRoutingConfig ao salvar", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
         agents: {},
@@ -292,11 +292,11 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Sisyphus')).toBeInTheDocument();
+        expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
 
       await userEvent.click(
-        screen.getAllByTitle('Edit agent configuration')[0],
+        screen.getAllByTitle("Edit agent configuration")[0],
       );
 
       await waitFor(() => {
@@ -305,7 +305,7 @@ describe('AgentRoutingPage', () => {
         ).toBeInTheDocument();
       });
 
-      const saveButton = screen.getByRole('button', {
+      const saveButton = screen.getByRole("button", {
         name: /Save Configuration/i,
       });
       await userEvent.click(saveButton);
@@ -315,7 +315,7 @@ describe('AgentRoutingPage', () => {
       });
     });
 
-    it('deve fechar dialog ao clicar em Cancel', async () => {
+    it("deve fechar dialog ao clicar em Cancel", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
         agents: {},
@@ -325,11 +325,11 @@ describe('AgentRoutingPage', () => {
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Sisyphus')).toBeInTheDocument();
+        expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
 
       await userEvent.click(
-        screen.getAllByTitle('Edit agent configuration')[0],
+        screen.getAllByTitle("Edit agent configuration")[0],
       );
 
       await waitFor(() => {
@@ -338,7 +338,7 @@ describe('AgentRoutingPage', () => {
         ).toBeInTheDocument();
       });
 
-      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i });
       await userEvent.click(cancelButton);
 
       await waitFor(() => {
@@ -359,18 +359,18 @@ describe('AgentRoutingPage', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('tab', { name: 'Categories' }),
+          screen.getByRole("tab", { name: "Categories" }),
         ).toBeInTheDocument();
       });
 
-      await userEvent.click(screen.getByRole('tab', { name: 'Categories' }));
+      await userEvent.click(screen.getByRole("tab", { name: "Categories" }));
 
       await waitFor(() => {
-        expect(screen.getByText('Visual Engineering')).toBeInTheDocument();
+        expect(screen.getByText("Visual Engineering")).toBeInTheDocument();
       });
 
       await userEvent.click(
-        screen.getAllByTitle('Edit category configuration')[0],
+        screen.getAllByTitle("Edit category configuration")[0],
       );
 
       await waitFor(() => {
@@ -381,19 +381,19 @@ describe('AgentRoutingPage', () => {
     });
   });
 
-  describe('Layout', () => {
-    it('deve exibir apenas a seção de agentes e categorias', async () => {
+  describe("Layout", () => {
+    it("deve exibir apenas a seção de agentes e categorias", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce({});
       vi.mocked(getAllModels).mockResolvedValueOnce(mockModels);
 
       renderWithQueryClient(<AgentRoutingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Sisyphus')).toBeInTheDocument();
+        expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
 
       expect(
-        screen.queryByRole('tab', { name: 'Custom Aliases' }),
+        screen.queryByRole("tab", { name: "Custom Aliases" }),
       ).not.toBeInTheDocument();
     });
   });

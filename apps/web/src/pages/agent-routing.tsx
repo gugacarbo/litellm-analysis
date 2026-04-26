@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { Database, RefreshCw, Settings } from 'lucide-react';
-import { AgentConfigEditor } from '../components/agent-config-editor';
-import { AgentRoutingAgentsTab } from '../components/agent-routing/agent-routing-agents-tab';
-import { AgentRoutingCategoriesTab } from '../components/agent-routing/agent-routing-categories-tab';
-import { Button } from '../components/button';
-import { CategoryConfigEditor } from '../components/category-config-editor';
-import { FeatureGate } from '../components/feature-gate';
-import { GlobalFallbackSelector } from '../components/global-fallback-selector';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/tabs';
+import { Database, RefreshCw, Settings } from "lucide-react";
+import { AgentConfigEditor } from "../components/agent-config-editor";
+import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
+import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
+import { Button } from "../components/button";
+import { CategoryConfigEditor } from "../components/category-config-editor";
+import { FeatureGate } from "../components/feature-gate";
+import { GlobalFallbackSelector } from "../components/global-fallback-selector";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,
-} from '../types/agent-routing';
-import { useAgentRoutingPageState } from './agent-routing/use-agent-routing-page';
+} from "../types/agent-routing";
+import { useAgentRoutingPageState } from "./agent-routing/use-agent-routing-page";
 
 export function AgentRoutingPage() {
   const state = useAgentRoutingPageState();

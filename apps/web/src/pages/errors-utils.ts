@@ -1,4 +1,4 @@
-import type { ErrorLog } from '../types/analytics';
+import type { ErrorLog } from "../types/analytics";
 
 export const AUTO_REFETCH_INTERVAL_MS = 5000;
 
@@ -35,7 +35,7 @@ export function applyErrorFilters(
     }
 
     if (normalizedUserFilter) {
-      const normalizedUser = (errorLog.user || '').toLowerCase();
+      const normalizedUser = (errorLog.user || "").toLowerCase();
       if (!normalizedUser.includes(normalizedUserFilter)) {
         return false;
       }

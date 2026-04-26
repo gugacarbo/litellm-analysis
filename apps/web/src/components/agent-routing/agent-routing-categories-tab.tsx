@@ -1,14 +1,14 @@
-import { Database } from 'lucide-react';
-import type { CategoryDefinition } from '../../types/agent-routing';
-import { Badge } from '../badge';
+import { Database } from "lucide-react";
+import type { CategoryDefinition } from "../../types/agent-routing";
+import { Badge } from "../badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../card';
-import { CategoriesTable } from './categories-table';
+} from "../card";
+import { CategoriesTable } from "./categories-table";
 
 type ConfigInfo = {
   model: string;
@@ -35,7 +35,7 @@ export function AgentRoutingCategoriesTab({
 }: Props) {
   const configuredCategoriesCount = categories.filter((category) => {
     const config = getCategoryConfigInfo(category.key);
-    return Boolean(config && config.model !== 'Unassigned');
+    return Boolean(config && config.model !== "Unassigned");
   }).length;
 
   return (

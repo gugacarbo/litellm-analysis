@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+const API_BASE = "/api";
 
 export type ApiError = {
   error: string;
@@ -9,14 +9,14 @@ export type ApiResponse<T> = T | ApiError;
 export class FeatureUnavailableError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'FeatureUnavailableError';
+    this.name = "FeatureUnavailableError";
   }
 }
 
 export function isFeatureUnavailable(error: unknown): boolean {
   return (
     error instanceof FeatureUnavailableError ||
-    (error instanceof Error && error.message.includes('not available in'))
+    (error instanceof Error && error.message.includes("not available in"))
   );
 }
 
@@ -27,7 +27,7 @@ export async function fetchApi<T>(
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options?.headers,
     },
   });

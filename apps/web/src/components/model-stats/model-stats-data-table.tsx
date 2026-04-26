@@ -4,18 +4,18 @@ import type {
   ModelStats,
   SortDirection,
   SortField,
-} from '../../pages/model-stats/model-stats-types';
+} from "../../pages/model-stats/model-stats-types";
 import {
   formatCurrency,
   formatDate,
   formatDuration,
   formatNumber,
   formatPercent,
-} from '../../pages/model-stats/model-stats-utils';
-import { Button } from '../button';
-import { Card, CardContent } from '../card';
-import { FeatureGate } from '../feature-gate';
-import { Skeleton } from '../skeleton';
+} from "../../pages/model-stats/model-stats-utils";
+import { Button } from "../button";
+import { Card, CardContent } from "../card";
+import { FeatureGate } from "../feature-gate";
+import { Skeleton } from "../skeleton";
 import {
   Table,
   TableBody,
@@ -23,7 +23,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../table';
+} from "../table";
 
 type ModelStatsDataTableProps = {
   loading: boolean;
@@ -63,16 +63,16 @@ export function ModelStatsDataTable({
                     <TableHead
                       key={col.key}
                       className={
-                        col.align === 'right'
-                          ? 'cursor-pointer hover:text-primary text-right'
-                          : 'cursor-pointer hover:text-primary'
+                        col.align === "right"
+                          ? "cursor-pointer hover:text-primary text-right"
+                          : "cursor-pointer hover:text-primary"
                       }
                       onClick={() => col.sortable && onSort(col.sortable)}
                     >
-                      {col.label}{' '}
+                      {col.label}{" "}
                       {col.sortable &&
                         sortField === col.sortable &&
-                        (sortDirection === 'asc' ? '↑' : '↓')}
+                        (sortDirection === "asc" ? "↑" : "↓")}
                     </TableHead>
                   ))}
               </TableRow>
@@ -87,7 +87,7 @@ export function ModelStatsDataTable({
                           <TableCell
                             key={col.key}
                             className={
-                              col.align === 'right' ? 'text-right' : ''
+                              col.align === "right" ? "text-right" : ""
                             }
                           >
                             <Skeleton className="h-4 w-12 ml-auto" />
@@ -97,14 +97,14 @@ export function ModelStatsDataTable({
                   ))
                 : data.map((m, i) => {
                     const modelName =
-                      typeof m.model === 'string' ? m.model : '';
+                      typeof m.model === "string" ? m.model : "";
                     const percentOfTotal =
                       totalSpend > 0
                         ? (Number(m.total_spend) / totalSpend) * 100
                         : 0;
                     const modelLabel = modelName.trim()
                       ? modelName
-                      : '(no model)';
+                      : "(no model)";
 
                     return (
                       <TableRow key={`${modelName}-${i}`}>
@@ -114,87 +114,87 @@ export function ModelStatsDataTable({
                             let value: React.ReactNode = null;
 
                             switch (col.key) {
-                              case 'model':
+                              case "model":
                                 value = (
                                   <span className="font-medium font-mono text-xs whitespace-nowrap">
                                     {modelLabel}
                                   </span>
                                 );
                                 break;
-                              case 'requests':
+                              case "requests":
                                 value = formatNumber(m.request_count);
                                 break;
-                              case 'spend':
+                              case "spend":
                                 value = formatCurrency(m.total_spend);
                                 break;
-                              case 'percent':
+                              case "percent":
                                 value = `${percentOfTotal.toFixed(1)}%`;
                                 break;
-                              case 'tokens':
+                              case "tokens":
                                 value = formatNumber(m.total_tokens);
                                 break;
-                              case 'prompt':
+                              case "prompt":
                                 value = formatNumber(m.prompt_tokens);
                                 break;
-                              case 'output':
+                              case "output":
                                 value = formatNumber(m.completion_tokens);
                                 break;
-                              case 'avgTok':
+                              case "avgTok":
                                 value = formatNumber(m.avg_tokens_per_request);
                                 break;
-                              case 'latency':
+                              case "latency":
                                 value = formatDuration(m.avg_latency_ms);
                                 break;
-                              case 'p50':
+                              case "p50":
                                 value = formatDuration(m.p50_latency_ms);
                                 break;
-                              case 'p95':
+                              case "p95":
                                 value = formatDuration(m.p95_latency_ms);
                                 break;
-                              case 'p99':
+                              case "p99":
                                 value = formatDuration(m.p99_latency_ms);
                                 break;
-                              case 'success':
+                              case "success":
                                 value = (
                                   <span
                                     className={
                                       Number(m.success_rate) > 95
-                                        ? 'text-green-600'
+                                        ? "text-green-600"
                                         : Number(m.success_rate) > 90
-                                          ? 'text-yellow-600'
-                                          : 'text-red-600'
+                                          ? "text-yellow-600"
+                                          : "text-red-600"
                                     }
                                   >
                                     {formatPercent(m.success_rate)}
                                   </span>
                                 );
                                 break;
-                              case 'errors':
+                              case "errors":
                                 value = (
                                   <span
                                     className={
                                       Number(m.error_count) > 0
-                                        ? 'text-red-600'
-                                        : ''
+                                        ? "text-red-600"
+                                        : ""
                                     }
                                   >
                                     {formatNumber(m.error_count)}
                                   </span>
                                 );
                                 break;
-                              case 'users':
+                              case "users":
                                 value = formatNumber(m.unique_users);
                                 break;
-                              case 'keys':
+                              case "keys":
                                 value = formatNumber(m.unique_api_keys);
                                 break;
-                              case 'first':
+                              case "first":
                                 value = formatDate(m.first_seen);
                                 break;
-                              case 'last':
+                              case "last":
                                 value = formatDate(m.last_seen);
                                 break;
-                              case 'actions':
+                              case "actions":
                                 value = (
                                   <FeatureGate
                                     capability="deleteModelLogs"
@@ -215,7 +215,7 @@ export function ModelStatsDataTable({
                                       disabled={deleting === modelName}
                                       onClick={() => onDeleteClick(modelName)}
                                     >
-                                      {deleting === modelName ? '...' : '×'}
+                                      {deleting === modelName ? "..." : "×"}
                                     </Button>
                                   </FeatureGate>
                                 );
@@ -226,7 +226,7 @@ export function ModelStatsDataTable({
                               <TableCell
                                 key={col.key}
                                 className={
-                                  col.align === 'right' ? 'text-right' : ''
+                                  col.align === "right" ? "text-right" : ""
                                 }
                               >
                                 {value}

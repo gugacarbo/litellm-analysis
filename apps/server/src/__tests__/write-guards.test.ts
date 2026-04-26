@@ -1,13 +1,13 @@
-import request from 'supertest';
-import { describe, expect, it, vi } from 'vitest';
+import request from "supertest";
+import { describe, expect, it, vi } from "vitest";
 import {
   DATABASE_CAPABILITIES,
   LIMITED_CAPABILITIES,
-} from '../data-source/database';
+} from "../data-source/database";
 import type {
   AnalyticsCapabilities,
   AnalyticsDataSource,
-} from '../data-source/types';
+} from "../data-source/types";
 
 function createMockDataSource(
   capabilities: AnalyticsCapabilities,
@@ -61,72 +61,72 @@ function createMockDataSource(
 }
 
 async function getServer(capabilities: AnalyticsCapabilities) {
-  const { createApiServer } = await import('../api-server');
+  const { createApiServer } = await import("../api-server");
   const mockDs = createMockDataSource(capabilities);
   return createApiServer(mockDs);
 }
 
-describe('Write endpoint guards', () => {
-  it('POST /models returns 403 in limited mode', async () => {
+describe("Write endpoint guards", () => {
+  it("POST /models returns 403 in limited mode", async () => {
     const app = await getServer(LIMITED_CAPABILITIES);
-    const res = await request(app).post('/models').send({ modelName: 'test' });
+    const res = await request(app).post("/models").send({ modelName: "test" });
     expect(res.status).toBe(403);
   });
 
-  it('DELETE /models/:name returns 403 in limited mode', async () => {
+  it("DELETE /models/:name returns 403 in limited mode", async () => {
     const app = await getServer(LIMITED_CAPABILITIES);
-    const res = await request(app).delete('/models/test-model');
+    const res = await request(app).delete("/models/test-model");
     expect(res.status).toBe(403);
   });
 
-  it('POST /models/merge returns 403 in limited mode', async () => {
+  it("POST /models/merge returns 403 in limited mode", async () => {
     const app = await getServer(LIMITED_CAPABILITIES);
     const res = await request(app)
-      .post('/models/merge')
-      .send({ sourceModel: 'a', targetModel: 'b' });
+      .post("/models/merge")
+      .send({ sourceModel: "a", targetModel: "b" });
     expect(res.status).toBe(403);
   });
 
-  it('DELETE /models/logs/:model returns 403 in limited mode', async () => {
+  it("DELETE /models/logs/:model returns 403 in limited mode", async () => {
     const app = await getServer(LIMITED_CAPABILITIES);
-    const res = await request(app).delete('/models/logs/test-model');
+    const res = await request(app).delete("/models/logs/test-model");
     expect(res.status).toBe(403);
   });
 
-  it('DELETE /models/logs?model= returns 403 in limited mode', async () => {
+  it("DELETE /models/logs?model= returns 403 in limited mode", async () => {
     const app = await getServer(LIMITED_CAPABILITIES);
-    const res = await request(app).delete('/models/logs?model=');
+    const res = await request(app).delete("/models/logs?model=");
     expect(res.status).toBe(403);
   });
 
-  it('PUT /models/:name returns 200 in limited mode (update allowed)', async () => {
+  it("PUT /models/:name returns 200 in limited mode (update allowed)", async () => {
     const app = await getServer(LIMITED_CAPABILITIES);
     const res = await request(app)
-      .put('/models/test-model')
+      .put("/models/test-model")
       .send({ litellmParams: {} });
     expect(res.status).toBe(200);
   });
 
-  it('POST /models returns 201 in full mode', async () => {
+  it("POST /models returns 201 in full mode", async () => {
     const app = await getServer(DATABASE_CAPABILITIES);
-    const res = await request(app).post('/models').send({ modelName: 'test' });
+    const res = await request(app).post("/models").send({ modelName: "test" });
     expect(res.status).toBe(201);
   });
 
-  it('DELETE /models/logs?model= forwards empty model in full mode', async () => {
-    const { createApiServer } = await import('../api-server');
+  it("DELETE /models/logs?model= forwards empty model in full mode", async () => {
+    const { createApiServer } = await import("../api-server");
     const mockDs = createMockDataSource(DATABASE_CAPABILITIES);
     const app = createApiServer(mockDs);
 
-    const res = await request(app).delete('/models/logs?model=');
+    const res = await request(app).delete("/models/logs?model=");
 
     expect(res.status).toBe(200);
-    expect(mockDs.deleteModelLogs).toHaveBeenCalledWith('');
+    expect(mockDs.deleteModelLogs).toHaveBeenCalledWith("");
   });
 
-  it('DELETE /models/logs without query model returns 400 in full mode', async () => {
+  it("DELETE /models/logs without query model returns 400 in full mode", async () => {
     const app = await getServer(DATABASE_CAPABILITIES);
-    const res = await request(app).delete('/models/logs');
+    const res = await request(app).delete("/models/logs");
     expect(res.status).toBe(400);
   });
 });

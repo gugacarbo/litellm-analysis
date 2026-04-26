@@ -1,14 +1,14 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from "react";
 import type {
   AgentConfig,
   AgentDefinition,
   AgentRoutingConfig,
   CategoryConfig,
-} from '../../types/agent-routing';
+} from "../../types/agent-routing";
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,
-} from '../../types/agent-routing';
+} from "../../types/agent-routing";
 
 /** Extract agent keys in UI display order. */
 const AGENT_KEYS: readonly string[] = AGENT_DEFINITIONS.map(
@@ -47,7 +47,7 @@ function sortAliases(aliases: AgentRoutingConfig): AgentRoutingConfig {
   const custom = Object.entries(aliases).filter(([k]) => {
     if (AGENT_KEYS.includes(k)) return false;
     if (CATEGORY_KEYS.includes(k)) return false;
-    if (k.includes('/')) return false;
+    if (k.includes("/")) return false;
     return true;
   });
   custom.sort((a, b) => a[0].localeCompare(b[0]));
@@ -94,7 +94,7 @@ export function useAgentRoutingDerived(
       if (!config) return null;
 
       return {
-        model: config.model || 'Unassigned',
+        model: config.model || "Unassigned",
         description: config.description,
         color: agentConfigs[key]?.color,
         fallbackCount: config.fallback_models?.length || 0,
@@ -109,7 +109,7 @@ export function useAgentRoutingDerived(
       if (!config) return null;
 
       return {
-        model: config.model || 'Unassigned',
+        model: config.model || "Unassigned",
         description: config.description,
         fallbackCount: config.fallback_models?.length || 0,
       };

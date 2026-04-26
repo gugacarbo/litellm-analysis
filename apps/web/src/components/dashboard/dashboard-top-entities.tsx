@@ -1,14 +1,14 @@
 import type {
   ApiKeyStatItem,
   SpendByUserItem,
-} from '../../pages/dashboard/dashboard-types';
+} from "../../pages/dashboard/dashboard-types";
 import {
   formatCurrency,
   formatNumber,
   formatPercent,
-} from '../../pages/dashboard/dashboard-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+} from "../../pages/dashboard/dashboard-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../table';
+} from "../table";
 
 type DashboardTopEntitiesProps = {
   loading: boolean;
@@ -72,7 +72,7 @@ export function DashboardTopEntities({
                 : apiKeyStats.slice(0, 10).map((k) => (
                     <TableRow key={k.key}>
                       <TableCell className="font-mono text-xs">
-                        {(k.key || 'N/A').slice(0, 12)}...
+                        {(k.key || "N/A").slice(0, 12)}...
                       </TableCell>
                       <TableCell className="text-right">
                         {formatNumber(k.request_count)}
@@ -86,10 +86,10 @@ export function DashboardTopEntities({
                       <TableCell
                         className={`text-right ${
                           k.success_rate > 95
-                            ? 'text-green-600'
+                            ? "text-green-600"
                             : k.success_rate > 90
-                              ? 'text-yellow-600'
-                              : 'text-red-600'
+                              ? "text-yellow-600"
+                              : "text-red-600"
                         }`}
                       >
                         {formatPercent(k.success_rate)}
@@ -136,7 +136,7 @@ export function DashboardTopEntities({
                 : spendByUser.slice(0, 10).map((u, i) => (
                     <TableRow key={i}>
                       <TableCell className="font-medium">
-                        {u.user || 'Anonymous'}
+                        {u.user || "Anonymous"}
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(u.total_spend)}

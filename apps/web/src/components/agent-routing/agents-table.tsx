@@ -1,10 +1,10 @@
-import { Palette } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import type { AgentDefinition } from '../../types/agent-routing';
-import { Badge } from '../badge';
-import { Button } from '../button';
-import { FeatureGate } from '../feature-gate';
-import { Skeleton } from '../skeleton';
+import { Palette } from "lucide-react";
+import { cn } from "../../lib/utils";
+import type { AgentDefinition } from "../../types/agent-routing";
+import { Badge } from "../badge";
+import { Button } from "../button";
+import { FeatureGate } from "../feature-gate";
+import { Skeleton } from "../skeleton";
 
 type ConfigInfo = {
   model: string;
@@ -49,7 +49,7 @@ export function AgentsTable({
     return {
       agent,
       configInfo,
-      hasPrimaryModel: Boolean(configInfo && configInfo.model !== 'Unassigned'),
+      hasPrimaryModel: Boolean(configInfo && configInfo.model !== "Unassigned"),
     };
   });
 
@@ -120,7 +120,7 @@ export function AgentsTable({
             </p>
           </div>
           <Badge variant="outline">
-            {modelGroups.length} model{modelGroups.length === 1 ? '' : 's'} in
+            {modelGroups.length} model{modelGroups.length === 1 ? "" : "s"} in
             use
           </Badge>
         </div>
@@ -139,7 +139,7 @@ export function AgentsTable({
                   </p>
                   <Badge variant="secondary">
                     {modelAgents.length} agent
-                    {modelAgents.length === 1 ? '' : 's'}
+                    {modelAgents.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -165,10 +165,10 @@ export function AgentsTable({
           <div
             key={agent.key}
             className={cn(
-              'rounded-xl border p-3',
+              "rounded-xl border p-3",
               hasPrimaryModel
-                ? 'bg-card'
-                : 'border-dashed border-border/80 bg-muted/15',
+                ? "bg-card"
+                : "border-dashed border-border/80 bg-muted/15",
             )}
           >
             <div className="flex items-start justify-between gap-2">
@@ -221,7 +221,7 @@ export function AgentsTable({
               {configInfo?.fallbackCount ? (
                 <Badge variant="secondary">
                   +{configInfo.fallbackCount} fallback
-                  {configInfo.fallbackCount === 1 ? '' : 's'}
+                  {configInfo.fallbackCount === 1 ? "" : "s"}
                 </Badge>
               ) : null}
             </div>

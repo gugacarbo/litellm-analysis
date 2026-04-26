@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Toaster as Sonner } from 'sonner';
+import * as React from "react";
+import { Toaster as Sonner } from "sonner";
 
 type ToasterProps = React.ComponentPropsWithoutRef<typeof Sonner>;
 
@@ -8,6 +8,6 @@ const Toaster = React.forwardRef<React.ElementRef<typeof Sonner>, ToasterProps>(
     <Sonner ref={ref} className={className} {...props} />
   ),
 );
-Toaster.displayName = 'Sonner';
+Toaster.displayName = "Sonner";
 
 export { Toaster };

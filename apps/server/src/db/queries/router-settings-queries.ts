@@ -1,6 +1,6 @@
-import { sql } from 'drizzle-orm';
-import { sortAliasesByDefinitionOrder } from '../../services/alias-generator.js';
-import { db } from '../client';
+import { sql } from "drizzle-orm";
+import { sortAliasesByDefinitionOrder } from "../../services/alias-generator.js";
+import { db } from "../client";
 
 export async function getRouterSettings(): Promise<Record<
   string,
@@ -19,14 +19,14 @@ export async function updateRouterSettings(
   const existing = await getRouterSettings();
   const merged: Record<string, unknown> = existing ? { ...existing } : {};
   const existingAliases =
-    typeof merged.model_group_alias === 'object' &&
+    typeof merged.model_group_alias === "object" &&
     merged.model_group_alias !== null
       ? ({ ...merged.model_group_alias } as Record<string, string>)
       : {};
 
   // Empty string signals deletion
   for (const [key, value] of Object.entries(modelGroupAlias)) {
-    if (value === '') {
+    if (value === "") {
       delete existingAliases[key];
     } else {
       existingAliases[key] = value;

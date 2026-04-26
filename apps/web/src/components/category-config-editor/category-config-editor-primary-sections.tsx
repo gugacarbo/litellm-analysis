@@ -1,8 +1,8 @@
-import type { CategoryConfig } from '../../types/agent-routing';
-import { Input } from '../input';
-import { Label } from '../label';
-import { ModelFallbackSelector } from '../model-fallback-selector';
-import { Textarea } from '../textarea';
+import type { CategoryConfig } from "../../types/agent-routing";
+import { Input } from "../input";
+import { Label } from "../label";
+import { ModelFallbackSelector } from "../model-fallback-selector";
+import { Textarea } from "../textarea";
 
 type UpdateConfigFn = (
   field: keyof CategoryConfig,
@@ -39,7 +39,7 @@ export function CategoryConfigEditorBasicSection({
             type="checkbox"
             checked={!!config.is_unstable_agent}
             onChange={(e) =>
-              onUpdateConfig('is_unstable_agent', e.target.checked)
+              onUpdateConfig("is_unstable_agent", e.target.checked)
             }
             className="h-4 w-4"
           />
@@ -51,8 +51,8 @@ export function CategoryConfigEditorBasicSection({
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={config.description || ''}
-          onChange={(e) => onUpdateConfig('description', e.target.value)}
+          value={config.description || ""}
+          onChange={(e) => onUpdateConfig("description", e.target.value)}
           placeholder="Enter description"
           rows={4}
         />
@@ -76,11 +76,11 @@ export function CategoryConfigEditorModelSection({
       </div>
 
       <ModelFallbackSelector
-        primaryModel={config.model || ''}
+        primaryModel={config.model || ""}
         fallbackModels={config.fallback_models || []}
-        onPrimaryModelChange={(model) => onUpdateConfig('model', model)}
+        onPrimaryModelChange={(model) => onUpdateConfig("model", model)}
         onFallbackModelsChange={(models) =>
-          onUpdateConfig('fallback_models', models)
+          onUpdateConfig("fallback_models", models)
         }
         agentKey={categoryKey}
       />
@@ -94,10 +94,10 @@ export function CategoryConfigEditorModelSection({
             min="0"
             max="2"
             step="0.1"
-            value={config.temperature ?? ''}
+            value={config.temperature ?? ""}
             onChange={(e) =>
               onUpdateConfig(
-                'temperature',
+                "temperature",
                 e.target.value ? parseFloat(e.target.value) : undefined,
               )
             }
@@ -113,10 +113,10 @@ export function CategoryConfigEditorModelSection({
             min="0"
             max="1"
             step="0.01"
-            value={config.top_p ?? ''}
+            value={config.top_p ?? ""}
             onChange={(e) =>
               onUpdateConfig(
-                'top_p',
+                "top_p",
                 e.target.value ? parseFloat(e.target.value) : undefined,
               )
             }
@@ -130,10 +130,10 @@ export function CategoryConfigEditorModelSection({
             id="maxTokens"
             type="number"
             min="0"
-            value={config.maxTokens ?? ''}
+            value={config.maxTokens ?? ""}
             onChange={(e) =>
               onUpdateConfig(
-                'maxTokens',
+                "maxTokens",
                 e.target.value ? parseInt(e.target.value, 10) : undefined,
               )
             }
@@ -145,8 +145,8 @@ export function CategoryConfigEditorModelSection({
           <Label htmlFor="variant">Variant</Label>
           <Input
             id="variant"
-            value={config.variant || ''}
-            onChange={(e) => onUpdateConfig('variant', e.target.value)}
+            value={config.variant || ""}
+            onChange={(e) => onUpdateConfig("variant", e.target.value)}
             placeholder="Enter variant"
           />
         </div>

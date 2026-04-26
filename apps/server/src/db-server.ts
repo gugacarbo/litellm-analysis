@@ -1,1 +1,1 @@
-export * from '@lite-llm/analytics/queries';
+export * from "@lite-llm/analytics/queries";

@@ -1,7 +1,7 @@
-import { Plus, Trash2 } from 'lucide-react';
-import type { ModelConfig } from '../../lib/api-client';
-import type { ModelFormData } from '../../pages/models/model-form-data';
-import { Button } from '../button';
+import { Plus, Trash2 } from "lucide-react";
+import type { ModelConfig } from "../../lib/api-client";
+import type { ModelFormData } from "../../pages/models/model-form-data";
+import { Button } from "../button";
 import {
   Dialog,
   DialogContent,
@@ -10,9 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../dialog';
-import { FeatureGate } from '../feature-gate';
-import { Input } from '../input';
+} from "../dialog";
+import { FeatureGate } from "../feature-gate";
+import { Input } from "../input";
 
 type ModelFormDialogProps = {
   open: boolean;
@@ -58,12 +58,12 @@ export function ModelFormDialog({
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>
-            {editingModel ? 'Edit Model' : 'Add New Model'}
+            {editingModel ? "Edit Model" : "Add New Model"}
           </DialogTitle>
           <DialogDescription>
             {editingModel
               ? `Update configuration for ${editingModel.modelName}`
-              : 'Configure a new model in LiteLLM'}
+              : "Configure a new model in LiteLLM"}
           </DialogDescription>
         </DialogHeader>
 
@@ -79,7 +79,7 @@ export function ModelFormDialog({
                 onFormDataChange({ ...formData, modelName: e.target.value })
               }
               placeholder="e.g., gpt-4, claude-3-opus"
-              disabled={Boolean(editingModel && mode !== 'limited')}
+              disabled={Boolean(editingModel && mode !== "limited")}
             />
           </div>
 
@@ -242,7 +242,7 @@ export function ModelFormDialog({
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={formLoading}>
-            {formLoading ? 'Saving...' : editingModel ? 'Update' : 'Create'}
+            {formLoading ? "Saving..." : editingModel ? "Update" : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>

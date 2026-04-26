@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { Plus, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
-import { getAllModels, type ModelConfig } from '../lib/api-client';
-import { queryKeys } from '../lib/query-keys';
-import { Badge } from './badge';
-import { Button } from './button';
-import { Input } from './input';
+import { useQuery } from "@tanstack/react-query";
+import { Plus, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { getAllModels, type ModelConfig } from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
+import { Badge } from "./badge";
+import { Button } from "./button";
+import { Input } from "./input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './select';
+} from "./select";
 
-const NONE_VALUE = '__none__';
+const NONE_VALUE = "__none__";
 
 interface ModelFallbackSelectorProps {
   primaryModel: string;
@@ -41,14 +41,14 @@ export function ModelFallbackSelector({
   const availableModels = (modelsQuery.data ?? []) as ModelConfig[];
 
   const [useCustomModel, setUseCustomModel] = useState(false);
-  const [customModelName, setCustomModelName] = useState('');
+  const [customModelName, setCustomModelName] = useState("");
 
   const addFallbackModel = () => {
-    onFallbackModelsChange([...fallbackModels, '']);
+    onFallbackModelsChange([...fallbackModels, ""]);
   };
 
   const updateFallbackModel = (index: number, model: string) => {
-    const resolved = model === NONE_VALUE ? '' : model;
+    const resolved = model === NONE_VALUE ? "" : model;
     const newFallbacks = [...fallbackModels];
     newFallbacks[index] = resolved;
     onFallbackModelsChange(newFallbacks);
@@ -61,19 +61,19 @@ export function ModelFallbackSelector({
   };
 
   const clearPrimaryModel = () => {
-    onPrimaryModelChange('');
+    onPrimaryModelChange("");
     setUseCustomModel(false);
-    setCustomModelName('');
+    setCustomModelName("");
   };
 
   const handlePrimarySelect = (value: string) => {
     if (value === NONE_VALUE) {
-      onPrimaryModelChange('');
+      onPrimaryModelChange("");
       setUseCustomModel(false);
-    } else if (value === '__custom__') {
+    } else if (value === "__custom__") {
       setUseCustomModel(true);
-      setCustomModelName('');
-      onPrimaryModelChange('');
+      setCustomModelName("");
+      onPrimaryModelChange("");
     } else {
       onPrimaryModelChange(value);
       setUseCustomModel(false);
@@ -89,7 +89,7 @@ export function ModelFallbackSelector({
   const getSelectValue = (modelValue: string) => {
     if (!modelValue) return NONE_VALUE;
     const isKnown = availableModels.some((m) => m.modelName === modelValue);
-    return isKnown ? modelValue : '__custom__';
+    return isKnown ? modelValue : "__custom__";
   };
 
   const getFallbackSelectValue = (modelValue: string) => {
@@ -123,7 +123,7 @@ export function ModelFallbackSelector({
                 placeholder="e.g. litellm/qwen3.5-plus"
                 className="flex-1"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleCustomModelConfirm();
+                  if (e.key === "Enter") handleCustomModelConfirm();
                 }}
               />
               <Button

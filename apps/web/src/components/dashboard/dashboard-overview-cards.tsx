@@ -2,16 +2,16 @@ import type {
   DashboardMetrics,
   PerformanceMetrics,
   TokenDistributionItem,
-} from '../../pages/dashboard/dashboard-types';
+} from "../../pages/dashboard/dashboard-types";
 import {
   formatCurrency,
   formatDuration,
   formatNumber,
   formatPercent,
   safeDivide,
-} from '../../pages/dashboard/dashboard-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+} from "../../pages/dashboard/dashboard-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 
 type DashboardOverviewCardsProps = {
   loading: boolean;
@@ -144,10 +144,10 @@ export function DashboardOverviewCards({
               <p
                 className={`text-2xl font-bold ${
                   (performance?.success_rate || 0) > 95
-                    ? 'text-green-600'
+                    ? "text-green-600"
                     : (performance?.success_rate || 0) > 90
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
+                      ? "text-yellow-600"
+                      : "text-red-600"
                 }`}
               >
                 {formatPercent(performance?.success_rate || 0)}

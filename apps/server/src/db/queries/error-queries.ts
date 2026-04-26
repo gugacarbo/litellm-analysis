@@ -1,12 +1,12 @@
-import { desc, eq, sql } from 'drizzle-orm';
-import { db } from '../client';
-import { errorLogs, spendLogs } from '../schema';
+import { desc, eq, sql } from "drizzle-orm";
+import { db } from "../client";
+import { errorLogs, spendLogs } from "../schema";
 import {
   combineConditions,
   getFailedSpendLogsCondition,
   getSpendLogsTimeCondition,
   normalizeDays,
-} from './spend-queries';
+} from "./spend-queries";
 
 export async function getErrorLogs(limit = 50, days = 30) {
   const normalizedDays = normalizeDays(days, 30);

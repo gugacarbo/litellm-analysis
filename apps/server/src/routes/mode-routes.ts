@@ -1,19 +1,19 @@
-import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
-import type { Application } from 'express';
+import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
+import type { Application } from "express";
 
 export function registerModeRoutes(
   app: Application,
   dataSource: AnalyticsDataSource,
 ) {
-  app.get('/mode', (_req, res) => {
+  app.get("/mode", (_req, res) => {
     const { capabilities } = dataSource;
     let mode: string;
     if (capabilities.errorLogs && capabilities.createModel) {
-      mode = 'database';
+      mode = "database";
     } else if (capabilities.errorLogs && !capabilities.createModel) {
-      mode = 'limited';
+      mode = "limited";
     } else {
-      mode = 'api-only';
+      mode = "api-only";
     }
     res.json({
       mode,

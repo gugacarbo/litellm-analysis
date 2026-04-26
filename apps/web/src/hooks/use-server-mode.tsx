@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import { createContext, useCallback, useContext } from 'react';
-import { queryKeys } from '../lib/query-keys';
-import { fetchServerMode } from '../lib/server-mode';
-import type { AnalyticsCapabilities, ServerMode } from '../types/analytics';
+import { useQuery } from "@tanstack/react-query";
+import { createContext, useCallback, useContext } from "react";
+import { queryKeys } from "../lib/query-keys";
+import { fetchServerMode } from "../lib/server-mode";
+import type { AnalyticsCapabilities, ServerMode } from "../types/analytics";
 
 interface ServerModeState {
   mode: ServerMode;
@@ -29,7 +29,7 @@ export function ServerModeProvider({
     void serverModeQuery.refetch();
   }, [serverModeQuery]);
 
-  const mode = serverModeQuery.data?.mode ?? 'api-only';
+  const mode = serverModeQuery.data?.mode ?? "api-only";
   const capabilities =
     serverModeQuery.data?.capabilities ?? ({} as AnalyticsCapabilities);
 
@@ -52,7 +52,7 @@ export function ServerModeProvider({
 export function useServerMode(): ServerModeState {
   const context = useContext(ServerModeContext);
   if (!context) {
-    throw new Error('useServerMode must be used within a ServerModeProvider');
+    throw new Error("useServerMode must be used within a ServerModeProvider");
   }
   return context;
 }

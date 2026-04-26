@@ -1,5 +1,5 @@
-import type { ModelConfig } from '../../lib/api-client';
-import { FIXED_KEYS, type ModelFormData } from './model-form-data';
+import type { ModelConfig } from "../../lib/api-client";
+import { FIXED_KEYS, type ModelFormData } from "./model-form-data";
 
 export function mapModelToFormData(model: ModelConfig): ModelFormData {
   const params = model.litellmParams || {};
@@ -7,17 +7,17 @@ export function mapModelToFormData(model: ModelConfig): ModelFormData {
 
   Object.entries(params).forEach(([key, value]) => {
     if (!FIXED_KEYS.includes(key)) {
-      extraParams[key] = String(value ?? '');
+      extraParams[key] = String(value ?? "");
     }
   });
 
   return {
     modelName: model.modelName,
-    apiBase: (params.api_base as string) || '',
-    inputCostPerToken: params.input_cost_per_token?.toString() || '',
-    outputCostPerToken: params.output_cost_per_token?.toString() || '',
-    contextWindowSize: params.context_window_size?.toString() || '',
-    maxTokens: params.max_tokens?.toString() || '',
+    apiBase: (params.api_base as string) || "",
+    inputCostPerToken: params.input_cost_per_token?.toString() || "",
+    outputCostPerToken: params.output_cost_per_token?.toString() || "",
+    contextWindowSize: params.context_window_size?.toString() || "",
+    maxTokens: params.max_tokens?.toString() || "",
     extraParams,
   };
 }
@@ -27,7 +27,7 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
   error?: string;
 } {
   if (!formData.modelName.trim()) {
-    return { params: {}, error: 'Model name is required' };
+    return { params: {}, error: "Model name is required" };
   }
 
   const inputCost = formData.inputCostPerToken
@@ -38,10 +38,10 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
     : 0;
 
   if (formData.inputCostPerToken && Number.isNaN(inputCost)) {
-    return { params: {}, error: 'Input cost must be a valid number' };
+    return { params: {}, error: "Input cost must be a valid number" };
   }
   if (formData.outputCostPerToken && Number.isNaN(outputCost)) {
-    return { params: {}, error: 'Output cost must be a valid number' };
+    return { params: {}, error: "Output cost must be a valid number" };
   }
 
   const contextWindow = formData.contextWindowSize
@@ -50,10 +50,10 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
   const maxTokens = formData.maxTokens ? parseInt(formData.maxTokens, 10) : 0;
 
   if (formData.contextWindowSize && Number.isNaN(contextWindow)) {
-    return { params: {}, error: 'Context window must be a valid number' };
+    return { params: {}, error: "Context window must be a valid number" };
   }
   if (formData.maxTokens && Number.isNaN(maxTokens)) {
-    return { params: {}, error: 'Max tokens must be a valid number' };
+    return { params: {}, error: "Max tokens must be a valid number" };
   }
 
   const params: Record<string, unknown> = {};

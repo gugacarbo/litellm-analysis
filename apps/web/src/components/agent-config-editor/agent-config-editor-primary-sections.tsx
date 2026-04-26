@@ -1,17 +1,17 @@
-import { useCallback } from 'react';
-import { normalizeHexColor } from '../../lib/utils';
-import type { AgentConfig } from '../../types/agent-routing';
-import { Input } from '../input';
-import { Label } from '../label';
-import { ModelFallbackSelector } from '../model-fallback-selector';
+import { useCallback } from "react";
+import { normalizeHexColor } from "../../lib/utils";
+import type { AgentConfig } from "../../types/agent-routing";
+import { Input } from "../input";
+import { Label } from "../label";
+import { ModelFallbackSelector } from "../model-fallback-selector";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
-import { Textarea } from '../textarea';
+} from "../select";
+import { Textarea } from "../textarea";
 
 type UpdateConfigFn = (
   field: keyof AgentConfig,
@@ -37,7 +37,7 @@ export function AgentConfigEditorBasicSection({
     (value: string) => {
       const normalized = normalizeHexColor(value);
       if (normalized) {
-        onUpdateConfig('color', normalized);
+        onUpdateConfig("color", normalized);
       }
     },
     [onUpdateConfig],
@@ -57,8 +57,8 @@ export function AgentConfigEditorBasicSection({
           <Label htmlFor="category">Category</Label>
           <Input
             id="category"
-            value={config.category || ''}
-            onChange={(e) => onUpdateConfig('category', e.target.value)}
+            value={config.category || ""}
+            onChange={(e) => onUpdateConfig("category", e.target.value)}
             placeholder="Enter category"
           />
         </div>
@@ -66,9 +66,9 @@ export function AgentConfigEditorBasicSection({
         <div className="space-y-2">
           <Label htmlFor="mode">Mode</Label>
           <Select
-            value={config.mode || 'subagent'}
-            onValueChange={(value: 'subagent' | 'primary' | 'all') =>
-              onUpdateConfig('mode', value)
+            value={config.mode || "subagent"}
+            onValueChange={(value: "subagent" | "primary" | "all") =>
+              onUpdateConfig("mode", value)
             }
           >
             <SelectTrigger>
@@ -87,13 +87,13 @@ export function AgentConfigEditorBasicSection({
           <div className="flex items-center gap-2">
             <input
               type="color"
-              value={config.color || '#000000'}
+              value={config.color || "#000000"}
               onChange={(e) => handleColorChange(e.target.value)}
               className="h-10 w-10 cursor-pointer rounded-md border border-border"
             />
             <Input
               id="color"
-              value={config.color || ''}
+              value={config.color || ""}
               onChange={(e) => handleColorChange(e.target.value)}
               placeholder="#RRGGBB"
               className="flex-1"
@@ -107,7 +107,7 @@ export function AgentConfigEditorBasicSection({
             <input
               type="checkbox"
               checked={!!config.disable}
-              onChange={(e) => onUpdateConfig('disable', e.target.checked)}
+              onChange={(e) => onUpdateConfig("disable", e.target.checked)}
               className="h-4 w-4"
             />
             <span className="text-sm text-muted-foreground">
@@ -121,8 +121,8 @@ export function AgentConfigEditorBasicSection({
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={config.description || ''}
-          onChange={(e) => onUpdateConfig('description', e.target.value)}
+          value={config.description || ""}
+          onChange={(e) => onUpdateConfig("description", e.target.value)}
           placeholder="Enter description"
           rows={3}
         />
@@ -146,11 +146,11 @@ export function AgentConfigEditorModelSection({
       </div>
 
       <ModelFallbackSelector
-        primaryModel={config.model || ''}
+        primaryModel={config.model || ""}
         fallbackModels={config.fallback_models || []}
-        onPrimaryModelChange={(model) => onUpdateConfig('model', model)}
+        onPrimaryModelChange={(model) => onUpdateConfig("model", model)}
         onFallbackModelsChange={(models) =>
-          onUpdateConfig('fallback_models', models)
+          onUpdateConfig("fallback_models", models)
         }
         agentKey={agentKey}
       />
@@ -164,10 +164,10 @@ export function AgentConfigEditorModelSection({
             min="0"
             max="2"
             step="0.1"
-            value={config.temperature ?? ''}
+            value={config.temperature ?? ""}
             onChange={(e) =>
               onUpdateConfig(
-                'temperature',
+                "temperature",
                 e.target.value ? parseFloat(e.target.value) : undefined,
               )
             }
@@ -183,10 +183,10 @@ export function AgentConfigEditorModelSection({
             min="0"
             max="1"
             step="0.01"
-            value={config.top_p ?? ''}
+            value={config.top_p ?? ""}
             onChange={(e) =>
               onUpdateConfig(
-                'top_p',
+                "top_p",
                 e.target.value ? parseFloat(e.target.value) : undefined,
               )
             }
@@ -198,8 +198,8 @@ export function AgentConfigEditorModelSection({
           <Label htmlFor="variant">Variant</Label>
           <Input
             id="variant"
-            value={config.variant || ''}
-            onChange={(e) => onUpdateConfig('variant', e.target.value)}
+            value={config.variant || ""}
+            onChange={(e) => onUpdateConfig("variant", e.target.value)}
             placeholder="Enter variant"
           />
         </div>
@@ -225,8 +225,8 @@ export function AgentConfigEditorPromptsSection({
         <Label htmlFor="prompt">Prompt</Label>
         <Textarea
           id="prompt"
-          value={config.prompt || ''}
-          onChange={(e) => onUpdateConfig('prompt', e.target.value)}
+          value={config.prompt || ""}
+          onChange={(e) => onUpdateConfig("prompt", e.target.value)}
           placeholder="Enter prompt"
           rows={8}
         />
@@ -236,8 +236,8 @@ export function AgentConfigEditorPromptsSection({
         <Label htmlFor="prompt_append">Prompt Append</Label>
         <Textarea
           id="prompt_append"
-          value={config.prompt_append || ''}
-          onChange={(e) => onUpdateConfig('prompt_append', e.target.value)}
+          value={config.prompt_append || ""}
+          onChange={(e) => onUpdateConfig("prompt_append", e.target.value)}
           placeholder="Enter prompt append"
           rows={5}
         />

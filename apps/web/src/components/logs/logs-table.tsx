@@ -3,24 +3,24 @@ import {
   ChevronRightIcon,
   RefreshCw,
   SlidersHorizontal,
-} from 'lucide-react';
-import { Fragment, useMemo, useState } from 'react';
+} from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
 import {
   formatCurrency,
   formatNumber,
   formatTime,
-} from '../../lib/spend-log-utils';
-import { cn } from '../../lib/utils';
-import type { PaginationMetadata, SpendLog } from '../../types/analytics';
-import { Badge } from '../badge';
-import { Button } from '../button';
+} from "../../lib/spend-log-utils";
+import { cn } from "../../lib/utils";
+import type { PaginationMetadata, SpendLog } from "../../types/analytics";
+import { Badge } from "../badge";
+import { Button } from "../button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../card';
+} from "../card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -28,10 +28,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../dropdown-menu';
-import { Label } from '../label';
-import { Skeleton } from '../skeleton';
-import { Switch } from '../switch';
+} from "../dropdown-menu";
+import { Label } from "../label";
+import { Skeleton } from "../skeleton";
+import { Switch } from "../switch";
 import {
   Table,
   TableBody,
@@ -39,16 +39,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../table';
-import { LogsPaginationControls } from './logs-pagination-controls';
-import { renderLogCell } from './logs-table-cell';
+} from "../table";
+import { LogsPaginationControls } from "./logs-pagination-controls";
+import { renderLogCell } from "./logs-table-cell";
 import {
   LOG_COLUMNS,
   type LogColumnKey,
   type TableColumn,
-} from './logs-table-columns';
+} from "./logs-table-columns";
 
-export { DEFAULT_VISIBLE_LOG_COLUMNS } from './logs-table-columns';
+export { DEFAULT_VISIBLE_LOG_COLUMNS } from "./logs-table-columns";
 
 type LogsTableProps = {
   logs: SpendLog[];
@@ -144,23 +144,23 @@ export function LogsTable({
             <CardTitle>Recent Requests</CardTitle>
             <CardDescription>
               {loading
-                ? 'Loading logs...'
+                ? "Loading logs..."
                 : hasAnyLogs
-                  ? `${pagination.total.toLocaleString('en-US')} matching records`
-                  : 'No matching logs for current filters'}
+                  ? `${pagination.total.toLocaleString("en-US")} matching records`
+                  : "No matching logs for current filters"}
             </CardDescription>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant={groupByModel ? 'default' : 'outline'}
+              variant={groupByModel ? "default" : "outline"}
               size="sm"
               onClick={() => onGroupByModelChange(!groupByModel)}
             >
               <ChevronDownIcon
                 className={cn(
-                  'mr-1 h-3.5 w-3.5 transition-transform',
-                  !groupByModel && '-rotate-90',
+                  "mr-1 h-3.5 w-3.5 transition-transform",
+                  !groupByModel && "-rotate-90",
                 )}
               />
               Group by Model
@@ -187,8 +187,8 @@ export function LogsTable({
             >
               <RefreshCw
                 className={cn(
-                  'mr-1 h-3.5 w-3.5',
-                  isFetching ? 'animate-spin' : '',
+                  "mr-1 h-3.5 w-3.5",
+                  isFetching ? "animate-spin" : "",
                 )}
               />
               Refresh
@@ -235,7 +235,7 @@ export function LogsTable({
                 {tableColumns.map((column) => (
                   <TableHead
                     key={column.key}
-                    className={column.align === 'right' ? 'text-right' : ''}
+                    className={column.align === "right" ? "text-right" : ""}
                   >
                     {column.label}
                   </TableHead>
@@ -254,13 +254,13 @@ export function LogsTable({
                     {tableColumns.map((column) => (
                       <TableCell
                         key={`${rowIndex}-${column.key}`}
-                        className={column.align === 'right' ? 'text-right' : ''}
+                        className={column.align === "right" ? "text-right" : ""}
                       >
                         <Skeleton
                           className={
-                            column.align === 'right'
-                              ? 'h-4 w-14 ml-auto'
-                              : 'h-4 w-24'
+                            column.align === "right"
+                              ? "h-4 w-14 ml-auto"
+                              : "h-4 w-24"
                           }
                         />
                       </TableCell>
@@ -338,27 +338,27 @@ export function LogsTable({
                         ) / timeToFirstTokenValues.length
                       : null;
                   const successCount = groupLogs.filter(
-                    (log) => log.status === '200' || log.status === 'success',
+                    (log) => log.status === "200" || log.status === "success",
                   ).length;
                   const groupStatus =
                     successCount === groupLogs.length
-                      ? 'success'
+                      ? "success"
                       : successCount === 0
-                        ? 'error'
-                        : 'partial';
+                        ? "error"
+                        : "partial";
 
                   // Helper to render a summary cell for group rows
                   const renderGroupSummaryCell = (column: TableColumn) => {
                     // Actions column - not shown in summary
-                    if (column.key === 'actions') {
+                    if (column.key === "actions") {
                       return null;
                     }
 
                     // Time column - show time range for the group
-                    if (column.key === 'time') {
+                    if (column.key === "time") {
                       return (
                         <span className="text-xs whitespace-nowrap text-muted-foreground">
-                          {formatTime(groupLogs[0].start_time)} —{' '}
+                          {formatTime(groupLogs[0].start_time)} —{" "}
                           {formatTime(
                             groupLogs[groupLogs.length - 1].start_time,
                           )}
@@ -367,7 +367,7 @@ export function LogsTable({
                     }
 
                     // Model column - show model with count
-                    if (column.key === 'model') {
+                    if (column.key === "model") {
                       return (
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary" className="font-semibold">
@@ -381,7 +381,7 @@ export function LogsTable({
                     }
 
                     // User column - show "multiple" if mixed
-                    if (column.key === 'user') {
+                    if (column.key === "user") {
                       const uniqueUsers = new Set(groupLogs.map((l) => l.user));
                       if (uniqueUsers.size > 1) {
                         return (
@@ -392,27 +392,27 @@ export function LogsTable({
                       }
                       return (
                         <span className="text-sm text-muted-foreground">
-                          {groupLogs[0].user || '—'}
+                          {groupLogs[0].user || "—"}
                         </span>
                       );
                     }
 
                     // Token columns - show summed values
-                    if (column.key === 'promptTokens') {
+                    if (column.key === "promptTokens") {
                       return (
                         <span className="text-right">
                           {formatNumber(totalPromptTokens)}
                         </span>
                       );
                     }
-                    if (column.key === 'completionTokens') {
+                    if (column.key === "completionTokens") {
                       return (
                         <span className="text-right">
                           {formatNumber(totalCompletionTokens)}
                         </span>
                       );
                     }
-                    if (column.key === 'totalTokens') {
+                    if (column.key === "totalTokens") {
                       return (
                         <span className="text-right font-medium">
                           {formatNumber(totalTokens)}
@@ -421,7 +421,7 @@ export function LogsTable({
                     }
 
                     // Duration - show total duration for the group
-                    if (column.key === 'duration') {
+                    if (column.key === "duration") {
                       return (
                         <span className="text-right">
                           {totalDurationMs.toLocaleString()}
@@ -429,18 +429,18 @@ export function LogsTable({
                       );
                     }
 
-                    if (column.key === 'timeToFirstToken') {
+                    if (column.key === "timeToFirstToken") {
                       return (
                         <span
                           className={cn(
-                            'text-right',
+                            "text-right",
                             averageTimeToFirstTokenMs === null
-                              ? 'text-muted-foreground'
-                              : '',
+                              ? "text-muted-foreground"
+                              : "",
                           )}
                         >
                           {averageTimeToFirstTokenMs === null
-                            ? '-'
+                            ? "-"
                             : formatNumber(
                                 Math.round(averageTimeToFirstTokenMs),
                               )}
@@ -449,25 +449,25 @@ export function LogsTable({
                     }
 
                     // Tokens/s - show average across valid group entries
-                    if (column.key === 'tokensPerSecond') {
+                    if (column.key === "tokensPerSecond") {
                       return (
                         <span
                           className={cn(
-                            'text-right',
+                            "text-right",
                             averageTokensPerSecond === null
-                              ? 'text-muted-foreground'
-                              : '',
+                              ? "text-muted-foreground"
+                              : "",
                           )}
                         >
                           {averageTokensPerSecond === null
-                            ? '-'
+                            ? "-"
                             : `${averageTokensPerSecond.toFixed(1)}/s`}
                         </span>
                       );
                     }
 
                     // Spend - show total spend
-                    if (column.key === 'spend') {
+                    if (column.key === "spend") {
                       return (
                         <span className="text-right font-medium">
                           {formatCurrency(totalSpend)}
@@ -476,20 +476,20 @@ export function LogsTable({
                     }
 
                     // Status - show "—" for aggregated row
-                    if (column.key === 'status') {
+                    if (column.key === "status") {
                       return (
                         <Badge
                           variant={
-                            groupStatus === 'error'
-                              ? 'destructive'
-                              : 'secondary'
+                            groupStatus === "error"
+                              ? "destructive"
+                              : "secondary"
                           }
                           className={
-                            groupStatus === 'success'
-                              ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
-                              : groupStatus === 'partial'
-                                ? 'bg-amber-500/15 text-amber-700 border-amber-500/30'
-                                : ''
+                            groupStatus === "success"
+                              ? "bg-emerald-500/15 text-emerald-700 border-emerald-500/30"
+                              : groupStatus === "partial"
+                                ? "bg-amber-500/15 text-amber-700 border-amber-500/30"
+                                : ""
                           }
                         >
                           {groupStatus}
@@ -523,7 +523,7 @@ export function LogsTable({
                           <TableCell
                             key={column.key}
                             className={
-                              column.align === 'right' ? 'text-right' : ''
+                              column.align === "right" ? "text-right" : ""
                             }
                           >
                             {renderGroupSummaryCell(column)}
@@ -544,7 +544,7 @@ export function LogsTable({
                               <TableCell
                                 key={`${log.request_id}-${column.key}`}
                                 className={
-                                  column.align === 'right' ? 'text-right' : ''
+                                  column.align === "right" ? "text-right" : ""
                                 }
                               >
                                 {renderLogCell({
@@ -568,7 +568,7 @@ export function LogsTable({
                     {tableColumns.map((column) => (
                       <TableCell
                         key={`${log.request_id}-${column.key}`}
-                        className={column.align === 'right' ? 'text-right' : ''}
+                        className={column.align === "right" ? "text-right" : ""}
                       >
                         {renderLogCell({
                           log,

@@ -1,7 +1,7 @@
-import type { AgentConfig } from '../../types/agent-routing';
-import { Separator } from '../separator';
-import { AgentConfigEditorExecutionSection } from './agent-config-editor-execution-section';
-import { AgentConfigEditorPermissionsSection } from './agent-config-editor-permissions-section';
+import type { AgentConfig } from "../../types/agent-routing";
+import { Separator } from "../separator";
+import { AgentConfigEditorExecutionSection } from "./agent-config-editor-execution-section";
+import { AgentConfigEditorPermissionsSection } from "./agent-config-editor-permissions-section";
 
 type Props = {
   config: AgentConfig;

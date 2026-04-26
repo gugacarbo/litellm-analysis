@@ -1,12 +1,12 @@
-import type { PaginationMetadata } from '../../types/analytics';
-import { Button } from '../button';
+import type { PaginationMetadata } from "../../types/analytics";
+import { Button } from "../button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
+} from "../select";
 
 type LogsPaginationControlsProps = {
   page: number;

@@ -1,10 +1,10 @@
-import { Settings } from 'lucide-react';
-import { AgentRoutingAliasDialog } from '../components/agent-routing/agent-routing-alias-dialog';
-import { AgentRoutingAliasesTab } from '../components/agent-routing/agent-routing-aliases-tab';
-import { ModelFormDialog } from '../components/models/model-form-dialog';
-import { ModelsTableCard } from '../components/models/models-table-card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/tabs';
-import { useModelsPage } from './models/use-models-page';
+import { Settings } from "lucide-react";
+import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
+import { AgentRoutingAliasesTab } from "../components/agent-routing/agent-routing-aliases-tab";
+import { ModelFormDialog } from "../components/models/model-form-dialog";
+import { ModelsTableCard } from "../components/models/models-table-card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
+import { useModelsPage } from "./models/use-models-page";
 
 export function ModelsPage() {
   const {

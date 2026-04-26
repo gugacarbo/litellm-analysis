@@ -1,18 +1,18 @@
-import type { PaginationMetadata, SpendLog } from '../../types/analytics';
-import { fetchApi } from './core';
+import type { PaginationMetadata, SpendLog } from "../../types/analytics";
+import { fetchApi } from "./core";
 
 function withDays(endpoint: string, days?: number): string {
   if (days === undefined) {
     return endpoint;
   }
-  const separator = endpoint.includes('?') ? '&' : '?';
+  const separator = endpoint.includes("?") ? "&" : "?";
   return `${endpoint}${separator}days=${days}`;
 }
 
 export async function getSpendByModel(
   days?: number,
 ): Promise<{ model: string; total_spend: number }[]> {
-  return fetchApi(withDays('/spend/model', days));
+  return fetchApi(withDays("/spend/model", days));
 }
 
 export async function getSpendLogs(params: {
@@ -24,12 +24,12 @@ export async function getSpendLogs(params: {
   offset?: number;
 }): Promise<{ logs: SpendLog[]; pagination: PaginationMetadata }> {
   const searchParams = new URLSearchParams();
-  if (params.model) searchParams.set('model', params.model);
-  if (params.user) searchParams.set('user', params.user);
-  if (params.startDate) searchParams.set('startDate', params.startDate);
-  if (params.endDate) searchParams.set('endDate', params.endDate);
-  if (params.limit) searchParams.set('limit', String(params.limit));
-  if (params.offset) searchParams.set('offset', String(params.offset));
+  if (params.model) searchParams.set("model", params.model);
+  if (params.user) searchParams.set("user", params.user);
+  if (params.startDate) searchParams.set("startDate", params.startDate);
+  if (params.endDate) searchParams.set("endDate", params.endDate);
+  if (params.limit) searchParams.set("limit", String(params.limit));
+  if (params.offset) searchParams.set("offset", String(params.offset));
 
   return fetchApi(`/spend/logs?${searchParams}`);
 }
@@ -41,10 +41,10 @@ export async function getSpendLogsCount(params: {
   endDate?: string;
 }): Promise<number> {
   const searchParams = new URLSearchParams();
-  if (params.model) searchParams.set('model', params.model);
-  if (params.user) searchParams.set('user', params.user);
-  if (params.startDate) searchParams.set('startDate', params.startDate);
-  if (params.endDate) searchParams.set('endDate', params.endDate);
+  if (params.model) searchParams.set("model", params.model);
+  if (params.user) searchParams.set("user", params.user);
+  if (params.startDate) searchParams.set("startDate", params.startDate);
+  if (params.endDate) searchParams.set("endDate", params.endDate);
 
   const response = await fetchApi<{ count: number }>(
     `/spend/logs/count?${searchParams}`,
@@ -60,13 +60,13 @@ export async function getSpendByUser(days?: number): Promise<
     request_count: number;
   }[]
 > {
-  return fetchApi(withDays('/spend/user', days));
+  return fetchApi(withDays("/spend/user", days));
 }
 
 export async function getSpendByKey(
   days?: number,
 ): Promise<{ key: string; total_spend: number; total_tokens: number }[]> {
-  return fetchApi(withDays('/spend/key', days));
+  return fetchApi(withDays("/spend/key", days));
 }
 
 export async function getDailySpendTrend(

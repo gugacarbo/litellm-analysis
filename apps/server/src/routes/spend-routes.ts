@@ -1,8 +1,8 @@
-import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
-import type { Application } from 'express';
+import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
+import type { Application } from "express";
 
 function parseDays(rawValue: unknown, fallback: number): number {
-  if (typeof rawValue !== 'string') {
+  if (typeof rawValue !== "string") {
     return fallback;
   }
 
@@ -18,7 +18,7 @@ export function registerSpendRoutes(
   dataSource: AnalyticsDataSource,
 ) {
   // Spend by model
-  app.get('/spend/model', async (req, res) => {
+  app.get("/spend/model", async (req, res) => {
     try {
       const days = parseDays(req.query.days, 30);
       const data = await dataSource.getSpendByModel(days);
@@ -29,7 +29,7 @@ export function registerSpendRoutes(
   });
 
   // Spend logs count
-  app.get('/spend/logs/count', async (req, res) => {
+  app.get("/spend/logs/count", async (req, res) => {
     try {
       const { model, user, startDate, endDate } = req.query;
       const count = await dataSource.getSpendLogsCount({
@@ -45,7 +45,7 @@ export function registerSpendRoutes(
   });
 
   // Spend logs
-  app.get('/spend/logs', async (req, res) => {
+  app.get("/spend/logs", async (req, res) => {
     try {
       const { model, user, startDate, endDate, limit, offset } = req.query;
       const data = await dataSource.getSpendLogs({
@@ -63,7 +63,7 @@ export function registerSpendRoutes(
   });
 
   // Spend by user
-  app.get('/spend/user', async (req, res) => {
+  app.get("/spend/user", async (req, res) => {
     try {
       const days = parseDays(req.query.days, 30);
       const data = await dataSource.getSpendByUser(days);
@@ -74,7 +74,7 @@ export function registerSpendRoutes(
   });
 
   // Spend by key
-  app.get('/spend/key', async (req, res) => {
+  app.get("/spend/key", async (req, res) => {
     try {
       const days = parseDays(req.query.days, 30);
       const data = await dataSource.getSpendByKey(days);
@@ -85,7 +85,7 @@ export function registerSpendRoutes(
   });
 
   // Spend trend
-  app.get('/spend/trend', async (req, res) => {
+  app.get("/spend/trend", async (req, res) => {
     try {
       const days = parseDays(req.query.days, 30);
       const data = await dataSource.getDailySpendTrend(days);

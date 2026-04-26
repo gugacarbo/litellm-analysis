@@ -1,12 +1,12 @@
-import { fetchApi } from './core';
+import { fetchApi } from "./core";
 
 export type AgentRoutingAPIResponse = {
   [model: string]: string;
 };
 
 export async function getAgentRoutingConfig(): Promise<AgentRoutingAPIResponse> {
-  const data = await fetchApi<unknown>('/agent-routing');
-  if (typeof data === 'object' && data && 'model_group_alias' in data) {
+  const data = await fetchApi<unknown>("/agent-routing");
+  if (typeof data === "object" && data && "model_group_alias" in data) {
     return (data as { model_group_alias: AgentRoutingAPIResponse })
       .model_group_alias;
   }
@@ -16,10 +16,10 @@ export async function getAgentRoutingConfig(): Promise<AgentRoutingAPIResponse> 
 export async function updateAgentRoutingConfig(
   modelGroupAlias: AgentRoutingAPIResponse,
 ): Promise<{ success: boolean }> {
-  return fetchApi('/agent-routing', {
-    method: 'PUT',
+  return fetchApi("/agent-routing", {
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ model_group_alias: modelGroupAlias }),
   });

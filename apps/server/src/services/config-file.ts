@@ -7,7 +7,7 @@ import {
   writeFullConfig,
   writeProvidersFile,
   writeVscodeModelsFile,
-} from '@lite-llm/agents-manager';
+} from "@lite-llm/agents-manager";
 
 export {
   deleteAgentFromConfig,

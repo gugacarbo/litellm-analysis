@@ -1,8 +1,8 @@
-import { Database, Pencil, Plus, Trash2 } from 'lucide-react';
-import { Button } from '../button';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { FeatureGate } from '../feature-gate';
-import { Skeleton } from '../skeleton';
+import { Database, Pencil, Plus, Trash2 } from "lucide-react";
+import { Button } from "../button";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { FeatureGate } from "../feature-gate";
+import { Skeleton } from "../skeleton";
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../table';
+} from "../table";
 
 type AgentRoutingAliasesTabProps = {
   loading: boolean;

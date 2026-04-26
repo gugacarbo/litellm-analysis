@@ -6,7 +6,7 @@ import {
   replaceAliasesForAgent,
   resolveConfiguredModels,
   sortAliasesByDefinitionOrder,
-} from '@lite-llm/alias-router';
+} from "@lite-llm/alias-router";
 
 export {
   AGENT_KEYS,

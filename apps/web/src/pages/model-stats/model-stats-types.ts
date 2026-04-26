@@ -21,92 +21,92 @@ export interface ModelStats {
 }
 
 export type SortField =
-  | 'model'
-  | 'request_count'
-  | 'total_spend'
-  | 'total_tokens'
-  | 'avg_latency_ms'
-  | 'success_rate';
+  | "model"
+  | "request_count"
+  | "total_spend"
+  | "total_tokens"
+  | "avg_latency_ms"
+  | "success_rate";
 
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = "asc" | "desc";
 
 export type ColumnKey =
-  | 'model'
-  | 'requests'
-  | 'spend'
-  | 'percent'
-  | 'tokens'
-  | 'prompt'
-  | 'output'
-  | 'avgTok'
-  | 'latency'
-  | 'p50'
-  | 'p95'
-  | 'p99'
-  | 'success'
-  | 'errors'
-  | 'users'
-  | 'keys'
-  | 'first'
-  | 'last'
-  | 'actions';
+  | "model"
+  | "requests"
+  | "spend"
+  | "percent"
+  | "tokens"
+  | "prompt"
+  | "output"
+  | "avgTok"
+  | "latency"
+  | "p50"
+  | "p95"
+  | "p99"
+  | "success"
+  | "errors"
+  | "users"
+  | "keys"
+  | "first"
+  | "last"
+  | "actions";
 
 export interface Column {
   key: ColumnKey;
   label: string;
   sortable?: SortField;
-  align?: 'left' | 'right';
+  align?: "left" | "right";
   default: boolean;
 }
 
 export const MODEL_STATS_COLUMNS: Column[] = [
-  { key: 'model', label: 'Model', default: true },
+  { key: "model", label: "Model", default: true },
   {
-    key: 'requests',
-    label: 'Requests',
-    sortable: 'request_count',
-    align: 'right',
+    key: "requests",
+    label: "Requests",
+    sortable: "request_count",
+    align: "right",
     default: true,
   },
   {
-    key: 'spend',
-    label: 'Spend',
-    sortable: 'total_spend',
-    align: 'right',
+    key: "spend",
+    label: "Spend",
+    sortable: "total_spend",
+    align: "right",
     default: true,
   },
-  { key: 'percent', label: '% Total', align: 'right', default: true },
+  { key: "percent", label: "% Total", align: "right", default: true },
   {
-    key: 'tokens',
-    label: 'Tokens',
-    sortable: 'total_tokens',
-    align: 'right',
+    key: "tokens",
+    label: "Tokens",
+    sortable: "total_tokens",
+    align: "right",
     default: true,
   },
-  { key: 'prompt', label: 'Prompt', align: 'right', default: false },
-  { key: 'output', label: 'Output', align: 'right', default: false },
-  { key: 'avgTok', label: 'Avg Tok/Req', align: 'right', default: true },
+  { key: "prompt", label: "Prompt", align: "right", default: false },
+  { key: "output", label: "Output", align: "right", default: false },
+  { key: "avgTok", label: "Avg Tok/Req", align: "right", default: true },
   {
-    key: 'latency',
-    label: 'Latency (avg)',
-    sortable: 'avg_latency_ms',
-    align: 'right',
+    key: "latency",
+    label: "Latency (avg)",
+    sortable: "avg_latency_ms",
+    align: "right",
     default: false,
   },
-  { key: 'p50', label: 'Latency (p50)', align: 'right', default: false },
-  { key: 'p95', label: 'Latency (p95)', align: 'right', default: false },
-  { key: 'p99', label: 'Latency (p99)', align: 'right', default: false },
+  { key: "p50", label: "Latency (p50)", align: "right", default: false },
+  { key: "p95", label: "Latency (p95)", align: "right", default: false },
+  { key: "p99", label: "Latency (p99)", align: "right", default: false },
   {
-    key: 'success',
-    label: 'Success',
-    sortable: 'success_rate',
-    align: 'right',
+    key: "success",
+    label: "Success",
+    sortable: "success_rate",
+    align: "right",
     default: true,
   },
-  { key: 'errors', label: 'Errors', align: 'right', default: false },
-  { key: 'users', label: 'Users', align: 'right', default: false },
-  { key: 'keys', label: 'API Keys', align: 'right', default: false },
-  { key: 'first', label: 'First Used', align: 'right', default: false },
-  { key: 'last', label: 'Last Used', align: 'right', default: false },
-  { key: 'actions', label: '', align: 'right', default: true },
+  { key: "errors", label: "Errors", align: "right", default: false },
+  { key: "users", label: "Users", align: "right", default: false },
+  { key: "keys", label: "API Keys", align: "right", default: false },
+  { key: "first", label: "First Used", align: "right", default: false },
+  { key: "last", label: "Last Used", align: "right", default: false },
+  { key: "actions", label: "", align: "right", default: true },
 ];

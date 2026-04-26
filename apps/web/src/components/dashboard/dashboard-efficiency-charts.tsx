@@ -10,18 +10,18 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
+} from "recharts";
 import type {
   CostEfficiencyItem,
   DailyTokenTrendItem,
-} from '../../pages/dashboard/dashboard-types';
+} from "../../pages/dashboard/dashboard-types";
 import {
   formatDate,
   formatNumber,
-} from '../../pages/dashboard/dashboard-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { ChartTooltipContent } from '../chart-tooltip';
-import { Skeleton } from '../skeleton';
+} from "../../pages/dashboard/dashboard-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { ChartTooltipContent } from "../chart-tooltip";
+import { Skeleton } from "../skeleton";
 
 type DashboardEfficiencyChartsProps = {
   loading: boolean;

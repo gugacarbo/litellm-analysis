@@ -1,15 +1,15 @@
-import { AlertCircle } from 'lucide-react';
-import { Button } from '../button';
-import { Card, CardContent } from '../card';
-import { Input } from '../input';
-import { Label } from '../label';
+import { AlertCircle } from "lucide-react";
+import { Button } from "../button";
+import { Card, CardContent } from "../card";
+import { Input } from "../input";
+import { Label } from "../label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
+} from "../select";
 
 export type ErrorsFilterValues = {
   model: string;
@@ -27,7 +27,7 @@ type ErrorsFilterCardProps = {
   onClear: () => void;
 };
 
-const ALL_MODELS_VALUE = '__all_models__';
+const ALL_MODELS_VALUE = "__all_models__";
 
 export function ErrorsFilterCard({
   models,
@@ -48,7 +48,7 @@ export function ErrorsFilterCard({
               onValueChange={(model) =>
                 onValuesChange({
                   ...values,
-                  model: model === ALL_MODELS_VALUE ? '' : model,
+                  model: model === ALL_MODELS_VALUE ? "" : model,
                 })
               }
             >

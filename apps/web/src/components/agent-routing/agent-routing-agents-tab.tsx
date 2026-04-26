@@ -1,14 +1,14 @@
-import { Zap } from 'lucide-react';
-import type { AgentDefinition } from '../../types/agent-routing';
-import { Badge } from '../badge';
+import { Zap } from "lucide-react";
+import type { AgentDefinition } from "../../types/agent-routing";
+import { Badge } from "../badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../card';
-import { AgentsTable } from './agents-table';
+} from "../card";
+import { AgentsTable } from "./agents-table";
 
 type ConfigInfo = {
   model: string;
@@ -32,7 +32,7 @@ export function AgentRoutingAgentsTab({
 }: Props) {
   const configuredAgentsCount = agents.filter((agent) => {
     const config = getAgentConfigInfo(agent.key);
-    return Boolean(config && config.model !== 'Unassigned');
+    return Boolean(config && config.model !== "Unassigned");
   }).length;
 
   return (

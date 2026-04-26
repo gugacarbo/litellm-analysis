@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+import type { ReactNode } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 
 type ErrorsTotals = {
   total: number;

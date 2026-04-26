@@ -1,23 +1,23 @@
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
-import { Badge } from '../components/badge';
-import { FeatureGate } from '../components/feature-gate';
-import { LogDetailDialog } from '../components/logs/log-detail-dialog';
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { Badge } from "../components/badge";
+import { FeatureGate } from "../components/feature-gate";
+import { LogDetailDialog } from "../components/logs/log-detail-dialog";
 import {
   LogsFilterCard,
   type LogsFilterValues,
-} from '../components/logs/logs-filter-card';
+} from "../components/logs/logs-filter-card";
 import {
   DEFAULT_VISIBLE_LOG_COLUMNS,
   LogsTable,
-} from '../components/logs/logs-table';
-import type { LogColumnKey } from '../components/logs/logs-table-columns';
-import { UnavailableFeature } from '../components/unavailable-feature';
-import { useLogs } from '../hooks/use-logs';
-import { useServerMode } from '../hooks/use-server-mode';
-import { getAllModels } from '../lib/api-client';
-import { queryKeys } from '../lib/query-keys';
-import type { SpendLog } from '../types/analytics';
+} from "../components/logs/logs-table";
+import type { LogColumnKey } from "../components/logs/logs-table-columns";
+import { UnavailableFeature } from "../components/unavailable-feature";
+import { useLogs } from "../hooks/use-logs";
+import { useServerMode } from "../hooks/use-server-mode";
+import { getAllModels } from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
+import type { SpendLog } from "../types/analytics";
 
 const AUTO_REFETCH_INTERVAL_MS = 15000;
 
@@ -55,10 +55,10 @@ export function LogsPage() {
   );
   const [groupByModel, setGroupByModel] = useState(false);
   const [filterValues, setFilterValues] = useState<LogsFilterValues>({
-    model: filters.model || '',
-    user: filters.user || '',
-    startDate: filters.startDate || '',
-    endDate: filters.endDate || '',
+    model: filters.model || "",
+    user: filters.user || "",
+    startDate: filters.startDate || "",
+    endDate: filters.endDate || "",
   });
 
   useEffect(() => {
@@ -83,10 +83,10 @@ export function LogsPage() {
 
   const handleClearFilters = () => {
     setFilterValues({
-      model: '',
-      user: '',
-      startDate: '',
-      endDate: '',
+      model: "",
+      user: "",
+      startDate: "",
+      endDate: "",
     });
     setFilters({});
     setPage(1);
@@ -123,18 +123,18 @@ export function LogsPage() {
   );
 
   const modeLabel =
-    mode === 'database'
-      ? 'Database Mode'
-      : mode === 'api-only'
-        ? 'API-Only Mode'
-        : 'Limited Mode';
+    mode === "database"
+      ? "Database Mode"
+      : mode === "api-only"
+        ? "API-Only Mode"
+        : "Limited Mode";
 
   const modeBadgeClass =
-    mode === 'database'
-      ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30'
-      : mode === 'limited'
-        ? 'bg-amber-500/15 text-amber-700 border-amber-500/30'
-        : 'bg-yellow-500/15 text-yellow-700 border-yellow-500/30';
+    mode === "database"
+      ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/30"
+      : mode === "limited"
+        ? "bg-amber-500/15 text-amber-700 border-amber-500/30"
+        : "bg-yellow-500/15 text-yellow-700 border-yellow-500/30";
 
   return (
     <FeatureGate
@@ -154,12 +154,12 @@ export function LogsPage() {
               {modeLabel}
             </Badge>
             <Badge variant="outline">
-              {pagination.total.toLocaleString('en-US')} logs
+              {pagination.total.toLocaleString("en-US")} logs
             </Badge>
             <Badge variant="outline">
               {activeFiltersCount > 0
                 ? `${activeFiltersCount} active filters`
-                : 'No active filters'}
+                : "No active filters"}
             </Badge>
           </div>
         </div>

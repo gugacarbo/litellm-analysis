@@ -1,6 +1,6 @@
-import { asc, desc, eq, sql } from 'drizzle-orm';
-import { db } from '../client';
-import { proxyModelTable, spendLogs } from '../schema';
+import { asc, eq, sql } from "drizzle-orm";
+import { db } from "../client";
+import { proxyModelTable, spendLogs } from "../schema";
 
 export async function getModelDetails() {
   const result = await db
@@ -70,7 +70,7 @@ export async function mergeModels(sourceModel: string, targetModel: string) {
 }
 
 export async function deleteModelLogs(modelName: string) {
-  if (modelName.trim() === '') {
+  if (modelName.trim() === "") {
     await db
       .delete(spendLogs)
       .where(sql`NULLIF(BTRIM(${spendLogs.model}), '') IS NULL`);

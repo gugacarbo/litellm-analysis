@@ -1,10 +1,10 @@
-import { ChevronDownIcon } from 'lucide-react';
+import { ChevronDownIcon } from "lucide-react";
 import type {
   Column,
   ColumnKey,
-} from '../../pages/model-stats/model-stats-types';
-import { Badge } from '../badge';
-import { Button } from '../button';
+} from "../../pages/model-stats/model-stats-types";
+import { Badge } from "../badge";
+import { Button } from "../button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -12,8 +12,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../dropdown-menu';
-import { FeatureGate } from '../feature-gate';
+} from "../dropdown-menu";
+import { FeatureGate } from "../feature-gate";
 
 type ModelStatsHeaderProps = {
   mergeMode: boolean;
@@ -54,7 +54,7 @@ export function ModelStatsHeader({
             }
           >
             <Button size="sm" variant="outline" onClick={onToggleMergeMode}>
-              {mergeMode ? 'Cancel' : 'Merge Models'}
+              {mergeMode ? "Cancel" : "Merge Models"}
             </Button>
           </FeatureGate>
         </div>

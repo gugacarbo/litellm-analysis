@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
-import { useServerMode } from '../../hooks/use-server-mode';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useServerMode } from "../../hooks/use-server-mode";
 import {
   type AgentRoutingAPIResponse,
   createModel,
@@ -10,14 +10,14 @@ import {
   type ModelConfig,
   updateAgentRoutingConfig,
   updateModel,
-} from '../../lib/api-client';
-import { queryKeys } from '../../lib/query-keys';
-import { EMPTY_MODEL_FORM_DATA, type ModelFormData } from './model-form-data';
-import { getAllAliasesSorted } from './models-alias-utils';
+} from "../../lib/api-client";
+import { queryKeys } from "../../lib/query-keys";
+import { EMPTY_MODEL_FORM_DATA, type ModelFormData } from "./model-form-data";
+import { getAllAliasesSorted } from "./models-alias-utils";
 import {
   mapModelToFormData,
   validateAndBuildModelParams,
-} from './models-form-utils';
+} from "./models-form-utils";
 
 export function useModelsPage() {
   const queryClient = useQueryClient();
@@ -64,9 +64,9 @@ export function useModelsPage() {
     null,
   );
   const [aliasDialogOpen, setAliasDialogOpen] = useState(false);
-  const [aliasDialogMode, setAliasDialogMode] = useState<'add' | 'edit'>('add');
-  const [aliasDialogKey, setAliasDialogKey] = useState('');
-  const [aliasDialogValue, setAliasDialogValue] = useState('');
+  const [aliasDialogMode, setAliasDialogMode] = useState<"add" | "edit">("add");
+  const [aliasDialogKey, setAliasDialogKey] = useState("");
+  const [aliasDialogValue, setAliasDialogValue] = useState("");
   const [formData, setFormData] = useState<ModelFormData>(
     EMPTY_MODEL_FORM_DATA,
   );
@@ -101,7 +101,7 @@ export function useModelsPage() {
 
       if (editingModel) {
         const newName =
-          mode === 'limited' && formData.modelName !== editingModel.modelName
+          mode === "limited" && formData.modelName !== editingModel.modelName
             ? formData.modelName
             : undefined;
 
@@ -140,7 +140,7 @@ export function useModelsPage() {
   function addExtraParam() {
     setFormData((prev) => ({
       ...prev,
-      extraParams: { ...prev.extraParams, [crypto.randomUUID()]: '' },
+      extraParams: { ...prev.extraParams, [crypto.randomUUID()]: "" },
     }));
   }
 
@@ -165,15 +165,15 @@ export function useModelsPage() {
   );
 
   function openAddAlias() {
-    setAliasDialogMode('add');
-    setAliasDialogKey('');
-    setAliasDialogValue('');
+    setAliasDialogMode("add");
+    setAliasDialogKey("");
+    setAliasDialogValue("");
     setAliasMutationError(null);
     setAliasDialogOpen(true);
   }
 
   function openEditAlias(key: string, value: string) {
-    setAliasDialogMode('edit');
+    setAliasDialogMode("edit");
     setAliasDialogKey(key);
     setAliasDialogValue(value);
     setAliasMutationError(null);
@@ -206,7 +206,7 @@ export function useModelsPage() {
   async function handleAliasDelete(key: string) {
     try {
       setAliasMutationError(null);
-      await updateAgentRoutingMutation.mutateAsync({ [key]: '' });
+      await updateAgentRoutingMutation.mutateAsync({ [key]: "" });
 
       queryClient.setQueryData<AgentRoutingAPIResponse>(
         queryKeys.agentRoutingAliases,

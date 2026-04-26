@@ -1,24 +1,24 @@
-import { RefreshCw } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { Badge } from '../components/badge';
-import { Button } from '../components/button';
-import { Card, CardContent } from '../components/card';
-import { DashboardEfficiencyCharts } from '../components/dashboard/dashboard-efficiency-charts';
-import { DashboardInsights } from '../components/dashboard/dashboard-insights';
-import { DashboardOverviewCards } from '../components/dashboard/dashboard-overview-cards';
-import { DashboardTopEntities } from '../components/dashboard/dashboard-top-entities';
-import { DashboardUsageCharts } from '../components/dashboard/dashboard-usage-charts';
-import { useDashboardData } from '../hooks/use-dashboard-data';
-import type { DashboardDateRangeKey } from './dashboard/dashboard-types';
+import { RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Badge } from "../components/badge";
+import { Button } from "../components/button";
+import { Card, CardContent } from "../components/card";
+import { DashboardEfficiencyCharts } from "../components/dashboard/dashboard-efficiency-charts";
+import { DashboardInsights } from "../components/dashboard/dashboard-insights";
+import { DashboardOverviewCards } from "../components/dashboard/dashboard-overview-cards";
+import { DashboardTopEntities } from "../components/dashboard/dashboard-top-entities";
+import { DashboardUsageCharts } from "../components/dashboard/dashboard-usage-charts";
+import { useDashboardData } from "../hooks/use-dashboard-data";
+import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
 import {
   DASHBOARD_DATE_RANGES,
   getDateRangeDays,
   getDateRangeLabel,
-} from './dashboard/dashboard-utils';
+} from "./dashboard/dashboard-utils";
 
 export function DashboardPage() {
   const [selectedDateRange, setSelectedDateRange] =
-    useState<DashboardDateRangeKey>('30d');
+    useState<DashboardDateRangeKey>("30d");
   const rangeDays = getDateRangeDays(selectedDateRange);
   const rangeLabel = getDateRangeLabel(selectedDateRange);
 
@@ -43,12 +43,12 @@ export function DashboardPage() {
 
   const lastUpdatedLabel = useMemo(() => {
     if (!lastUpdatedAt) {
-      return '--';
+      return "--";
     }
-    return lastUpdatedAt.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    return lastUpdatedAt.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   }, [lastUpdatedAt]);
 
@@ -69,7 +69,7 @@ export function DashboardPage() {
               <Button
                 key={option.key}
                 variant={
-                  option.key === selectedDateRange ? 'default' : 'outline'
+                  option.key === selectedDateRange ? "default" : "outline"
                 }
                 size="sm"
                 onClick={() => setSelectedDateRange(option.key)}
@@ -91,7 +91,7 @@ export function DashboardPage() {
             >
               <RefreshCw
                 className={`mr-2 h-3.5 w-3.5 ${
-                  refreshing ? 'animate-spin' : ''
+                  refreshing ? "animate-spin" : ""
                 }`}
               />
               Refresh

@@ -3,7 +3,7 @@ import type {
   DashboardMetrics,
   PerformanceMetrics,
   SpendByUserItem,
-} from '../../pages/dashboard/dashboard-types';
+} from "../../pages/dashboard/dashboard-types";
 
 type RawMetrics = {
   totalSpend?: number;
@@ -42,7 +42,7 @@ export function normalizeApiKeyStats(
 ): ApiKeyStatItem[] {
   return apiKeyStats.map((keyStats) => ({
     ...keyStats,
-    key: keyStats.key || 'Unknown',
+    key: keyStats.key || "Unknown",
     success_rate: normalizePercent(Number(keyStats.success_rate ?? 0)),
   }));
 }
@@ -51,7 +51,7 @@ export function normalizeSpendByUser(
   spendByUser: SpendByUserItem[],
 ): SpendByUserItem[] {
   return spendByUser.map((item) => ({
-    user: item.user || 'Anonymous',
+    user: item.user || "Anonymous",
     total_spend: Number(item.total_spend ?? 0),
     total_tokens: Number(item.total_tokens ?? 0),
     request_count: Number(item.request_count ?? 0),
@@ -63,21 +63,21 @@ export function normalizePercent(value: number): number {
 }
 
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
 }
 
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value);
+  return new Intl.NumberFormat("en-US").format(value);
 }
 
 export function formatPercent(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'percent',
+  return new Intl.NumberFormat("en-US", {
+    style: "percent",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value / 100);
@@ -89,12 +89,12 @@ export function safeDivide(numerator: number, denominator: number): number {
 
 export function getToneByDelta(
   value: number,
-): 'positive' | 'negative' | 'warning' | 'neutral' {
+): "positive" | "negative" | "warning" | "neutral" {
   if (value > 10) {
-    return 'warning';
+    return "warning";
   }
   if (value < -10) {
-    return 'positive';
+    return "positive";
   }
-  return 'neutral';
+  return "neutral";
 }

@@ -1,14 +1,14 @@
-import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import type { ErrorLog, PaginationMetadata } from '../../types/analytics';
-import { Button } from '../button';
+import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { cn } from "../../lib/utils";
+import type { ErrorLog, PaginationMetadata } from "../../types/analytics";
+import { Button } from "../button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../card';
+} from "../card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -16,11 +16,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../dropdown-menu';
-import { Label } from '../label';
-import { LogsPaginationControls } from '../logs/logs-pagination-controls';
-import { Skeleton } from '../skeleton';
-import { Switch } from '../switch';
+} from "../dropdown-menu";
+import { Label } from "../label";
+import { LogsPaginationControls } from "../logs/logs-pagination-controls";
+import { Skeleton } from "../skeleton";
+import { Switch } from "../switch";
 import {
   Table,
   TableBody,
@@ -28,16 +28,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../table';
-import { renderErrorCell } from './errors-table-cell';
+} from "../table";
+import { renderErrorCell } from "./errors-table-cell";
 import {
   ACTIONS_COLUMN,
   ERROR_COLUMNS,
   type ErrorColumnKey,
   type TableColumn,
-} from './errors-table-columns';
+} from "./errors-table-columns";
 
-export { DEFAULT_VISIBLE_ERROR_COLUMNS } from './errors-table-columns';
+export { DEFAULT_VISIBLE_ERROR_COLUMNS } from "./errors-table-columns";
 
 type ErrorsTableProps = {
   errors: ErrorLog[];
@@ -90,10 +90,10 @@ export function ErrorsTable({
             <CardTitle>Recent Errors</CardTitle>
             <CardDescription>
               {loading
-                ? 'Loading errors...'
+                ? "Loading errors..."
                 : hasAnyErrors
-                  ? `${pagination.total.toLocaleString('en-US')} matching records`
-                  : 'No matching errors for current filters'}
+                  ? `${pagination.total.toLocaleString("en-US")} matching records`
+                  : "No matching errors for current filters"}
             </CardDescription>
           </div>
 
@@ -120,11 +120,11 @@ export function ErrorsTable({
             >
               <RefreshCw
                 className={cn(
-                  'mr-1 h-3.5 w-3.5',
-                  isFetching ? 'animate-spin' : '',
+                  "mr-1 h-3.5 w-3.5",
+                  isFetching ? "animate-spin" : "",
                 )}
               />
-              {isRefetching ? 'Refetching...' : 'Refresh'}
+              {isRefetching ? "Refetching..." : "Refresh"}
             </Button>
 
             <DropdownMenu>
@@ -166,7 +166,7 @@ export function ErrorsTable({
                 {tableColumns.map((column) => (
                   <TableHead
                     key={column.key}
-                    className={column.align === 'right' ? 'text-right' : ''}
+                    className={column.align === "right" ? "text-right" : ""}
                   >
                     {column.label}
                   </TableHead>
@@ -180,13 +180,13 @@ export function ErrorsTable({
                     {tableColumns.map((column) => (
                       <TableCell
                         key={`${rowIndex}-${column.key}`}
-                        className={column.align === 'right' ? 'text-right' : ''}
+                        className={column.align === "right" ? "text-right" : ""}
                       >
                         <Skeleton
                           className={
-                            column.align === 'right'
-                              ? 'h-4 w-14 ml-auto'
-                              : 'h-4 w-24'
+                            column.align === "right"
+                              ? "h-4 w-14 ml-auto"
+                              : "h-4 w-24"
                           }
                         />
                       </TableCell>
@@ -208,7 +208,7 @@ export function ErrorsTable({
                     {tableColumns.map((column) => (
                       <TableCell
                         key={`${errorLog.id}-${column.key}`}
-                        className={column.align === 'right' ? 'text-right' : ''}
+                        className={column.align === "right" ? "text-right" : ""}
                       >
                         {renderErrorCell({
                           errorLog,

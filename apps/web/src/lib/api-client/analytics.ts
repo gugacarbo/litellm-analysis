@@ -1,10 +1,10 @@
-import { fetchApi } from './core';
+import { fetchApi } from "./core";
 
 function withDays(endpoint: string, days?: number): string {
   if (days === undefined) {
     return endpoint;
   }
-  const separator = endpoint.includes('?') ? '&' : '?';
+  const separator = endpoint.includes("?") ? "&" : "?";
   return `${endpoint}${separator}days=${days}`;
 }
 
@@ -15,7 +15,7 @@ export async function getModelDetails(): Promise<
     output_cost_per_token: string;
   }[]
 > {
-  return fetchApi('/model/details');
+  return fetchApi("/model/details");
 }
 
 export async function getErrorLogs(
@@ -41,7 +41,7 @@ export async function getMetricsSummary(days?: number): Promise<{
   activeModels: number;
   errorCount: number;
 }> {
-  return fetchApi(withDays('/metrics', days));
+  return fetchApi(withDays("/metrics", days));
 }
 
 export async function getTokenDistribution(days?: number): Promise<
@@ -53,7 +53,7 @@ export async function getTokenDistribution(days?: number): Promise<
     input_output_ratio: number;
   }[]
 > {
-  return fetchApi(withDays('/analytics/tokens', days));
+  return fetchApi(withDays("/analytics/tokens", days));
 }
 
 export async function getPerformanceMetrics(days?: number): Promise<{
@@ -61,7 +61,7 @@ export async function getPerformanceMetrics(days?: number): Promise<{
   avg_duration_ms: number;
   success_rate: number;
 }> {
-  return fetchApi(withDays('/analytics/performance', days));
+  return fetchApi(withDays("/analytics/performance", days));
 }
 
 export async function getHourlyUsagePatterns(days?: number): Promise<
@@ -72,7 +72,7 @@ export async function getHourlyUsagePatterns(days?: number): Promise<
     total_tokens: number;
   }[]
 > {
-  return fetchApi(withDays('/analytics/temporal', days));
+  return fetchApi(withDays("/analytics/temporal", days));
 }
 
 export async function getApiKeyDetailedStats(days?: number): Promise<
@@ -86,7 +86,7 @@ export async function getApiKeyDetailedStats(days?: number): Promise<
     last_used: string;
   }[]
 > {
-  return fetchApi(withDays('/analytics/keys', days));
+  return fetchApi(withDays("/analytics/keys", days));
 }
 
 export async function getCostEfficiencyByModel(days?: number): Promise<
@@ -98,13 +98,13 @@ export async function getCostEfficiencyByModel(days?: number): Promise<
     request_count: number;
   }[]
 > {
-  return fetchApi(withDays('/analytics/cost-efficiency', days));
+  return fetchApi(withDays("/analytics/cost-efficiency", days));
 }
 
 export async function getModelRequestDistribution(
   days?: number,
 ): Promise<{ model: string; request_count: number; percentage: number }[]> {
-  return fetchApi(withDays('/analytics/model-distribution', days));
+  return fetchApi(withDays("/analytics/model-distribution", days));
 }
 
 export async function getDailyTokenTrend(days = 30): Promise<
@@ -141,5 +141,5 @@ export async function getModelStatistics(): Promise<
     unique_api_keys: number;
   }[]
 > {
-  return fetchApi('/analytics/model-stats');
+  return fetchApi("/analytics/model-stats");
 }

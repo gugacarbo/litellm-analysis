@@ -1,10 +1,10 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const writeFileMock = vi.hoisted(() => vi.fn());
 const readFileMock = vi.hoisted(() => vi.fn());
 
-vi.mock('node:fs', async () => {
-  const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+vi.mock("node:fs", async () => {
+  const actual = await vi.importActual<typeof import("node:fs")>("node:fs");
   return {
     ...actual,
     promises: {
@@ -15,44 +15,44 @@ vi.mock('node:fs', async () => {
   };
 });
 
-import { writeVscodeModelsFile } from '../config-file';
+import { writeVscodeModelsFile } from "../config-file";
 
-describe('writeVscodeModelsFile', () => {
+describe("writeVscodeModelsFile", () => {
   afterEach(() => {
     writeFileMock.mockReset();
     readFileMock.mockReset();
   });
 
-  it('writes only the real LiteLLM models it receives', async () => {
+  it("writes only the real LiteLLM models it receives", async () => {
     // Mock db.json read to return empty models
     readFileMock.mockImplementation(async (filePath: string) => {
-      if (filePath.includes('db.json')) {
+      if (filePath.includes("db.json")) {
         return JSON.stringify({
           version: 1,
           litellm: {
-            baseUrl: 'http://localhost:4000/v1',
-            apiKey: 'sk-123456789',
+            baseUrl: "http://localhost:4000/v1",
+            apiKey: "sk-123456789",
           },
           models: {},
           agents: {},
           categories: {},
         });
       }
-      const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+      const actual = await vi.importActual<typeof import("node:fs")>("node:fs");
       return actual.promises.readFile(filePath);
     });
 
     await writeVscodeModelsFile([
       {
-        modelName: 'openai/gpt-4.1',
+        modelName: "openai/gpt-4.1",
         litellmParams: {
-          model_name: 'openai/gpt-4.1',
+          model_name: "openai/gpt-4.1",
           context_window_size: 128000,
           max_tokens: 4096,
         },
       },
       {
-        modelName: 'anthropic/claude-3-7-sonnet',
+        modelName: "anthropic/claude-3-7-sonnet",
         litellmParams: null,
       },
     ]);
@@ -65,16 +65,16 @@ describe('writeVscodeModelsFile', () => {
       string,
     ];
     const parsed = JSON.parse(writtenContent) as {
-      'oaicopilot.models': Array<{ id: string; displayName: string }>;
+      "oaicopilot.models": Array<{ id: string; displayName: string }>;
     };
 
-    expect(parsed['oaicopilot.models']).toHaveLength(2);
-    expect(parsed['oaicopilot.models'].map((model) => model.id)).toEqual([
-      'openai/gpt-4.1',
-      'anthropic/claude-3-7-sonnet',
+    expect(parsed["oaicopilot.models"]).toHaveLength(2);
+    expect(parsed["oaicopilot.models"].map((model) => model.id)).toEqual([
+      "openai/gpt-4.1",
+      "anthropic/claude-3-7-sonnet",
     ]);
     expect(
-      parsed['oaicopilot.models'].some((model) => model.id.includes('/gpt-5.')),
+      parsed["oaicopilot.models"].some((model) => model.id.includes("/gpt-5.")),
     ).toBe(false);
   });
 });

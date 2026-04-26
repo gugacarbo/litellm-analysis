@@ -14,31 +14,31 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
+} from "recharts";
 import type {
   DailyTrendItem,
   HourlyPatternItem,
   ModelDistributionItem,
   TokenDistributionItem,
-} from '../../pages/dashboard/dashboard-types';
+} from "../../pages/dashboard/dashboard-types";
 import {
   formatCurrency,
   formatDate,
   formatNumber,
-} from '../../pages/dashboard/dashboard-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { ChartTooltipContent } from '../chart-tooltip';
-import { Skeleton } from '../skeleton';
+} from "../../pages/dashboard/dashboard-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { ChartTooltipContent } from "../chart-tooltip";
+import { Skeleton } from "../skeleton";
 
 const COLORS = [
-  '#3b82f6',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#8b5cf6',
-  '#ec4899',
-  '#06b6d4',
-  '#84cc16',
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#ec4899",
+  "#06b6d4",
+  "#84cc16",
 ];
 
 type DashboardUsageChartsProps = {
@@ -215,7 +215,7 @@ export function DashboardUsageCharts({
                   <Tooltip
                     content={<ChartTooltipContent />}
                     formatter={(v, key) =>
-                      String(key).toLowerCase().includes('spend')
+                      String(key).toLowerCase().includes("spend")
                         ? formatCurrency(Number(v))
                         : formatNumber(Number(v))
                     }

@@ -7,7 +7,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../alert-dialog';
+} from "../alert-dialog";
 
 type DeleteModelLogsDialogProps = {
   open: boolean;
@@ -24,7 +24,7 @@ export function DeleteModelLogsDialog({
   onCancel,
   onConfirm,
 }: DeleteModelLogsDialogProps) {
-  const modelLabel = deleting?.trim() ? deleting : '(no model)';
+  const modelLabel = deleting?.trim() ? deleting : "(no model)";
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

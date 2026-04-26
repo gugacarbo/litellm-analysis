@@ -1,4 +1,4 @@
-import { TableCell, TableRow } from '../../table';
+import { TableCell, TableRow } from "../../table";
 
 type EmptyStateProps = {
   tableColumnsLength: number;
@@ -7,7 +7,7 @@ type EmptyStateProps = {
 
 export function EmptyState({
   tableColumnsLength,
-  message = 'No logs found',
+  message = "No logs found",
 }: EmptyStateProps) {
   return (
     <TableRow>

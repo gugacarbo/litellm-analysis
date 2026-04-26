@@ -1,4 +1,4 @@
-export type ServerMode = 'database' | 'api-only' | 'limited';
+export type ServerMode = "database" | "api-only" | "limited";
 
 export interface ServerModeConfig {
   mode: ServerMode;

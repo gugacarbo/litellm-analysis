@@ -1,14 +1,14 @@
-import { useMemo } from 'react';
-import type { AgentConfig, CategoryConfig } from '../../types/agent-routing';
-import { useAgentRoutingActions } from './use-agent-routing-actions';
-import { useAgentRoutingDerived } from './use-agent-routing-derived';
-import { useAgentRoutingState } from './use-agent-routing-state';
+import { useMemo } from "react";
+import type { AgentConfig, CategoryConfig } from "../../types/agent-routing";
+import { useAgentRoutingActions } from "./use-agent-routing-actions";
+import { useAgentRoutingDerived } from "./use-agent-routing-derived";
+import { useAgentRoutingState } from "./use-agent-routing-state";
 
 function resolveModelName(
   model: string | undefined,
   aliases: Record<string, string>,
 ): string {
-  if (!model) return '';
+  if (!model) return "";
   if (aliases[model]) {
     return aliases[model];
   }

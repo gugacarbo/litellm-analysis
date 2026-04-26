@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react';
-import { useServerMode } from '../hooks/use-server-mode';
-import type { AnalyticsCapabilities } from '../types/analytics';
-import { UnavailableFeature } from './unavailable-feature';
+import type { ReactNode } from "react";
+import { useServerMode } from "../hooks/use-server-mode";
+import type { AnalyticsCapabilities } from "../types/analytics";
+import { UnavailableFeature } from "./unavailable-feature";
 
 interface FeatureGateProps {
   capability: keyof AnalyticsCapabilities;

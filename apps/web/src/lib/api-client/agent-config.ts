@@ -1,25 +1,25 @@
-import type { AgentConfig, CategoryConfig } from '@litellm/shared';
-import { fetchApi } from './core';
+import type { AgentConfig, CategoryConfig } from "@litellm/shared";
+import { fetchApi } from "./core";
 
 export type AgentConfigResponse = {
-  type: 'agent' | 'category';
+  type: "agent" | "category";
   key: string;
   config: AgentConfig;
 };
 
 export type CategoryConfigResponse = {
-  type: 'category';
+  type: "category";
   key: string;
   config: CategoryConfig;
 };
 
-export type AgentConfigType = 'agent' | 'category';
+export type AgentConfigType = "agent" | "category";
 
 export async function getAgentConfig(): Promise<{
   agents: Record<string, AgentConfig>;
   categories: Record<string, CategoryConfig>;
 }> {
-  return fetchApi('/agent-config');
+  return fetchApi("/agent-config");
 }
 
 export async function getAgentConfigByKey(key: string): Promise<{
@@ -37,9 +37,9 @@ export async function updateAgentConfig(
   syncAliases: boolean = true,
 ): Promise<{ success: boolean }> {
   return fetchApi(`/agent-config/${key}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ type, config, syncAliases }),
   });
@@ -50,7 +50,7 @@ export async function deleteAgentConfig(
   type: AgentConfigType,
 ): Promise<{ success: boolean }> {
   return fetchApi(`/agent-config/${key}?type=${type}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 }
 
@@ -58,8 +58,8 @@ export async function saveAllAgentConfigs(
   agents: Record<string, AgentConfig>,
   categories: Record<string, CategoryConfig>,
 ): Promise<{ success: boolean }> {
-  return fetchApi('/agent-config', {
-    method: 'PUT',
+  return fetchApi("/agent-config", {
+    method: "PUT",
     body: JSON.stringify({ agents, categories }),
   });
 }
@@ -67,15 +67,15 @@ export async function saveAllAgentConfigs(
 export async function getGlobalFallbackModel(): Promise<{
   globalFallbackModel: string;
 }> {
-  return fetchApi('/agent-config/global-fallback');
+  return fetchApi("/agent-config/global-fallback");
 }
 
 export async function updateGlobalFallbackModel(
   globalFallbackModel: string,
 ): Promise<{ success: boolean }> {
-  return fetchApi('/agent-config/global-fallback', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+  return fetchApi("/agent-config/global-fallback", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ globalFallbackModel }),
   });
 }

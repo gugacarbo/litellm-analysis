@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import type { CategoryConfig } from '../types/agent-routing';
-import { Button } from './button';
-import { CategoryConfigEditorAdvancedSection } from './category-config-editor/category-config-editor-advanced-section';
-import { CategoryConfigEditorExecutionSection } from './category-config-editor/category-config-editor-execution-section';
+import { RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { CategoryConfig } from "../types/agent-routing";
+import { Button } from "./button";
+import { CategoryConfigEditorAdvancedSection } from "./category-config-editor/category-config-editor-advanced-section";
+import { CategoryConfigEditorExecutionSection } from "./category-config-editor/category-config-editor-execution-section";
 import {
   CategoryConfigEditorBasicSection,
   CategoryConfigEditorModelSection,
-} from './category-config-editor/category-config-editor-primary-sections';
+} from "./category-config-editor/category-config-editor-primary-sections";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
+} from "./dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 
 interface CategoryConfigEditorProps {
   open: boolean;
@@ -30,25 +30,25 @@ interface CategoryConfigEditorProps {
   error?: string | null;
 }
 
-type CategoryEditorTab = 'overview' | 'model' | 'advanced' | 'execution';
+type CategoryEditorTab = "overview" | "model" | "advanced" | "execution";
 
 function normalizeCategoryConfig(
   initialConfig: CategoryConfig = {},
 ): CategoryConfig {
   return {
-    model: initialConfig.model || '',
+    model: initialConfig.model || "",
     fallback_models: initialConfig.fallback_models || [],
-    variant: initialConfig.variant || '',
+    variant: initialConfig.variant || "",
     temperature: initialConfig.temperature,
     top_p: initialConfig.top_p,
     maxTokens: initialConfig.maxTokens,
-    thinking: initialConfig.thinking || { type: 'enabled' },
+    thinking: initialConfig.thinking || { type: "enabled" },
     reasoningEffort: initialConfig.reasoningEffort,
     textVerbosity: initialConfig.textVerbosity,
     tools: initialConfig.tools || {},
-    prompt_append: initialConfig.prompt_append || '',
+    prompt_append: initialConfig.prompt_append || "",
     is_unstable_agent: initialConfig.is_unstable_agent || false,
-    description: initialConfig.description || '',
+    description: initialConfig.description || "",
   };
 }
 
@@ -64,11 +64,11 @@ export function CategoryConfigEditor({
 }: CategoryConfigEditorProps) {
   const [resetConfirm, setResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const [activeTab, setActiveTab] = useState<CategoryEditorTab>('overview');
+  const [activeTab, setActiveTab] = useState<CategoryEditorTab>("overview");
   const [config, setConfig] = useState<CategoryConfig>(() =>
     normalizeCategoryConfig(initialConfig),
   );
-  const [newToolKey, setNewToolKey] = useState('');
+  const [newToolKey, setNewToolKey] = useState("");
   const [newToolValue, setNewToolValue] = useState(true);
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export function CategoryConfigEditor({
 
   useEffect(() => {
     if (!open) return;
-    setActiveTab('overview');
+    setActiveTab("overview");
     setResetConfirm(false);
   }, [open]);
 
@@ -98,15 +98,15 @@ export function CategoryConfigEditor({
   };
 
   const updateThinkingConfig = <
-    K extends keyof NonNullable<CategoryConfig['thinking']>,
+    K extends keyof NonNullable<CategoryConfig["thinking"]>,
   >(
     field: K,
-    value: NonNullable<CategoryConfig['thinking']>[K],
+    value: NonNullable<CategoryConfig["thinking"]>[K],
   ) => {
     setConfig((prev) => ({
       ...prev,
       thinking: {
-        ...(prev.thinking || { type: 'enabled' }),
+        ...(prev.thinking || { type: "enabled" }),
         [field]: value,
       },
     }));
@@ -115,21 +115,21 @@ export function CategoryConfigEditor({
   const addTool = () => {
     if (!newToolKey.trim()) return;
 
-    updateConfig('tools', {
+    updateConfig("tools", {
       ...(config.tools || {}),
       [newToolKey.trim()]: newToolValue,
     });
-    setNewToolKey('');
+    setNewToolKey("");
   };
 
   const removeTool = (key: string) => {
     const newTools = { ...(config.tools || {}) };
     delete newTools[key];
-    updateConfig('tools', newTools);
+    updateConfig("tools", newTools);
   };
 
   const updateToolValue = (key: string, value: boolean) => {
-    updateConfig('tools', {
+    updateConfig("tools", {
       ...(config.tools || {}),
       [key]: value,
     });
@@ -250,7 +250,7 @@ export function CategoryConfigEditor({
                     Resetting...
                   </>
                 ) : (
-                  'Confirm Reset'
+                  "Confirm Reset"
                 )}
               </Button>
             </>
@@ -273,7 +273,7 @@ export function CategoryConfigEditor({
                     Saving...
                   </>
                 ) : (
-                  'Save Configuration'
+                  "Save Configuration"
                 )}
               </Button>
             </>

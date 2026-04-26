@@ -1,4 +1,4 @@
-import type { AnalyticsCapabilities, ServerMode } from '../types/analytics';
+import type { AnalyticsCapabilities, ServerMode } from "../types/analytics";
 
 export interface ServerModeResponse {
   mode: ServerMode;
@@ -6,7 +6,7 @@ export interface ServerModeResponse {
 }
 
 export async function fetchServerMode(): Promise<ServerModeResponse> {
-  const response = await fetch('/api/mode');
+  const response = await fetch("/api/mode");
   if (!response.ok) {
     throw new Error(`Failed to fetch server mode: ${response.status}`);
   }

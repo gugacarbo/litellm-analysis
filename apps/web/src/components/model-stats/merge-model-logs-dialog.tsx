@@ -7,7 +7,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../alert-dialog';
+} from "../alert-dialog";
 
 type MergeModelLogsDialogProps = {
   open: boolean;

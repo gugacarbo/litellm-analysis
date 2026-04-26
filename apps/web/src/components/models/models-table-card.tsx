@@ -1,12 +1,12 @@
-import { Database, Pencil, Trash2 } from 'lucide-react';
-import type { ModelConfig } from '../../lib/api-client';
+import { Database, Pencil, Trash2 } from "lucide-react";
+import type { ModelConfig } from "../../lib/api-client";
 import {
   getApiBase,
   getContextWindow,
   getInputCost,
   getMaxOutput,
   getOutputCost,
-} from '../../pages/models/models-utils';
+} from "../../pages/models/models-utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,11 +17,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../alert-dialog';
-import { Button } from '../button';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { FeatureGate } from '../feature-gate';
-import { Skeleton } from '../skeleton';
+} from "../alert-dialog";
+import { Button } from "../button";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { FeatureGate } from "../feature-gate";
+import { Skeleton } from "../skeleton";
 import {
   Table,
   TableBody,
@@ -29,7 +29,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../table';
+} from "../table";
 
 type ModelsTableCardProps = {
   models: ModelConfig[];
@@ -132,7 +132,7 @@ export function ModelsTableCard({
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Model</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete{' '}
+                                Are you sure you want to delete{" "}
                                 <span className="font-semibold">
                                   {deleteModelName}
                                 </span>

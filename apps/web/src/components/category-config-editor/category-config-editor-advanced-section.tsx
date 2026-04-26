@@ -1,13 +1,13 @@
-import type { CategoryConfig } from '../../types/agent-routing';
-import { Input } from '../input';
-import { Label } from '../label';
+import type { CategoryConfig } from "../../types/agent-routing";
+import { Input } from "../input";
+import { Label } from "../label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
+} from "../select";
 
 type Props = {
   config: CategoryConfig;
@@ -16,9 +16,9 @@ type Props = {
     value: CategoryConfig[keyof CategoryConfig],
   ) => void;
   onUpdateThinkingConfig: (
-    field: keyof NonNullable<CategoryConfig['thinking']>,
-    value: NonNullable<CategoryConfig['thinking']>[keyof NonNullable<
-      CategoryConfig['thinking']
+    field: keyof NonNullable<CategoryConfig["thinking"]>,
+    value: NonNullable<CategoryConfig["thinking"]>[keyof NonNullable<
+      CategoryConfig["thinking"]
     >],
   ) => void;
 };
@@ -41,9 +41,9 @@ export function CategoryConfigEditorAdvancedSection({
         <div className="space-y-2">
           <Label htmlFor="reasoningEffort">Reasoning Effort</Label>
           <Select
-            value={config.reasoningEffort || ''}
-            onValueChange={(value: 'low' | 'medium' | 'high' | 'xhigh') =>
-              onUpdateConfig('reasoningEffort', value)
+            value={config.reasoningEffort || ""}
+            onValueChange={(value: "low" | "medium" | "high" | "xhigh") =>
+              onUpdateConfig("reasoningEffort", value)
             }
           >
             <SelectTrigger>
@@ -61,9 +61,9 @@ export function CategoryConfigEditorAdvancedSection({
         <div className="space-y-2">
           <Label htmlFor="textVerbosity">Text Verbosity</Label>
           <Select
-            value={config.textVerbosity || ''}
-            onValueChange={(value: 'low' | 'medium' | 'high') =>
-              onUpdateConfig('textVerbosity', value)
+            value={config.textVerbosity || ""}
+            onValueChange={(value: "low" | "medium" | "high") =>
+              onUpdateConfig("textVerbosity", value)
             }
           >
             <SelectTrigger>
@@ -80,9 +80,9 @@ export function CategoryConfigEditorAdvancedSection({
         <div className="space-y-2">
           <Label htmlFor="thinking-type">Thinking</Label>
           <Select
-            value={config.thinking?.type || 'enabled'}
-            onValueChange={(value: 'enabled' | 'disabled') =>
-              onUpdateThinkingConfig('type', value)
+            value={config.thinking?.type || "enabled"}
+            onValueChange={(value: "enabled" | "disabled") =>
+              onUpdateThinkingConfig("type", value)
             }
           >
             <SelectTrigger>
@@ -101,10 +101,10 @@ export function CategoryConfigEditorAdvancedSection({
             id="budgetTokens"
             type="number"
             min="0"
-            value={config.thinking?.budgetTokens ?? ''}
+            value={config.thinking?.budgetTokens ?? ""}
             onChange={(e) =>
               onUpdateThinkingConfig(
-                'budgetTokens',
+                "budgetTokens",
                 e.target.value ? parseInt(e.target.value, 10) : undefined,
               )
             }

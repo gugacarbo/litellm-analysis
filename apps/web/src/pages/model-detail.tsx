@@ -1,7 +1,7 @@
-import { useParams } from 'react-router-dom';
-import { Badge } from '../components/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/card';
-import { Skeleton } from '../components/skeleton';
+import { useParams } from "react-router-dom";
+import { Badge } from "../components/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/card";
+import { Skeleton } from "../components/skeleton";
 import {
   Table,
   TableBody,
@@ -9,18 +9,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/table';
-import { useDashboardData } from '../hooks/use-dashboard-data';
+} from "../components/table";
+import { useDashboardData } from "../hooks/use-dashboard-data";
 
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
   }).format(value);
 }
 
 function formatNumber(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value);
+  return new Intl.NumberFormat("en-US").format(value);
 }
 
 export function ModelDetailPage() {
@@ -123,7 +123,7 @@ export function ModelDetailPage() {
                 : modelUsers.map((u, i) => (
                     <TableRow key={i}>
                       <TableCell className="font-medium">
-                        {u.user || 'Anonymous'}
+                        {u.user || "Anonymous"}
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(u.total_spend)}

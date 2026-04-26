@@ -1,24 +1,24 @@
-import request from 'supertest';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DATABASE_CAPABILITIES } from '../data-source/database';
+import request from "supertest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DATABASE_CAPABILITIES } from "../data-source/database";
 import type {
   AnalyticsCapabilities,
   AnalyticsDataSource,
-} from '../data-source/types';
+} from "../data-source/types";
 
 const mockUpdateAgentInConfig = vi.fn();
 const mockReadConfigFile = vi.fn();
 const mockWriteProvidersFile = vi.fn();
 const mockWriteVscodeModelsFile = vi.fn();
 
-vi.mock('@lite-llm/agents-manager', () => ({
+vi.mock("@lite-llm/agents-manager", () => ({
   updateAgentInConfig: (...args: unknown[]) => mockUpdateAgentInConfig(...args),
   updateCategoryInConfig: vi.fn(),
   readConfigFile: (...args: unknown[]) => mockReadConfigFile(...args),
   readDb: vi.fn().mockResolvedValue({
     agents: {},
     categories: {},
-    globalFallbackModel: 'gpt-5.1',
+    globalFallbackModel: "gpt-5.1",
   }),
   writeDb: vi.fn(),
   writeProvidersFile: (...args: unknown[]) => mockWriteProvidersFile(...args),
@@ -72,9 +72,9 @@ function createMockDataSource(
     deleteModelLogs: vi.fn().mockResolvedValue(undefined),
     getAgentRoutingConfig: vi.fn().mockResolvedValue({
       model_group_alias: {
-        'sisyphus/gpt-5.5': 'openai/gpt-4.1',
-        'sisyphus/gpt-5.4': 'anthropic/claude-3-7-sonnet',
-        'oracle/gpt-5.4': 'openai/o3-mini',
+        "sisyphus/gpt-5.5": "openai/gpt-4.1",
+        "sisyphus/gpt-5.4": "anthropic/claude-3-7-sonnet",
+        "oracle/gpt-5.4": "openai/o3-mini",
       },
     }),
     updateAgentRoutingConfig: vi.fn().mockResolvedValue(undefined),
@@ -88,12 +88,12 @@ function createMockDataSource(
 }
 
 async function getServer(capabilities: AnalyticsCapabilities) {
-  const { createApiServer } = await import('../api-server');
+  const { createApiServer } = await import("../api-server");
   const mockDs = createMockDataSource(capabilities);
   return { app: createApiServer(mockDs), dataSource: mockDs };
 }
 
-describe('PUT /agent-config/:key alias resolution', () => {
+describe("PUT /agent-config/:key alias resolution", () => {
   beforeEach(() => {
     mockUpdateAgentInConfig.mockReset();
     mockReadConfigFile.mockReset();
@@ -105,18 +105,18 @@ describe('PUT /agent-config/:key alias resolution', () => {
     mockWriteVscodeModelsFile.mockResolvedValue(undefined);
   });
 
-  it('resolves logical gpt aliases to real LiteLLM models before persisting aliases', async () => {
+  it("resolves logical gpt aliases to real LiteLLM models before persisting aliases", async () => {
     const { app, dataSource } = await getServer(DATABASE_CAPABILITIES);
 
     const res = await request(app)
-      .put('/agent-config/sisyphus')
+      .put("/agent-config/sisyphus")
       .send({
-        type: 'agent',
+        type: "agent",
         syncAliases: true,
         config: {
-          model: 'sisyphus/gpt-5.5',
-          fallback_models: ['sisyphus/gpt-5.4'],
-          description: 'updated',
+          model: "sisyphus/gpt-5.5",
+          fallback_models: ["sisyphus/gpt-5.4"],
+          description: "updated",
         },
       });
 
@@ -126,18 +126,18 @@ describe('PUT /agent-config/:key alias resolution', () => {
     // With the new design, db.json stores real model names (not aliases)
     // so the resolved real model names are saved
     expect(mockUpdateAgentInConfig).toHaveBeenCalledWith(
-      'sisyphus',
+      "sisyphus",
       expect.objectContaining({
-        model: 'openai/gpt-4.1',
-        fallback_models: ['anthropic/claude-3-7-sonnet'],
+        model: "openai/gpt-4.1",
+        fallback_models: ["anthropic/claude-3-7-sonnet"],
       }),
     );
 
     expect(dataSource.updateAgentRoutingConfig).toHaveBeenCalledWith({
-      'sisyphus/gpt-5.5': 'openai/gpt-4.1',
-      'sisyphus/gpt-5.4': 'anthropic/claude-3-7-sonnet',
-      'sisyphus/gpt-5.1': 'gpt-5.1',
-      'oracle/gpt-5.4': 'openai/o3-mini',
+      "sisyphus/gpt-5.5": "openai/gpt-4.1",
+      "sisyphus/gpt-5.4": "anthropic/claude-3-7-sonnet",
+      "sisyphus/gpt-5.1": "gpt-5.1",
+      "oracle/gpt-5.4": "openai/o3-mini",
     });
   });
 });

@@ -1,4 +1,4 @@
-export type DashboardDateRangeKey = 'today' | '7d' | '30d' | '60d' | 'all';
+export type DashboardDateRangeKey = "today" | "7d" | "30d" | "60d" | "all";
 
 export type DashboardDateRangeOption = {
   key: DashboardDateRangeKey;
@@ -82,5 +82,5 @@ export type DashboardInsight = {
   title: string;
   value: string;
   detail: string;
-  tone: 'neutral' | 'positive' | 'warning';
+  tone: "neutral" | "positive" | "warning";
 };

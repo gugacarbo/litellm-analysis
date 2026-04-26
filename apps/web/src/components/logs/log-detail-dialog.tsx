@@ -1,4 +1,4 @@
-import { Clock, DollarSign, Key, User, Zap } from 'lucide-react';
+import { Clock, DollarSign, Key, User, Zap } from "lucide-react";
 import {
   calculateTokensPerSecond,
   formatCurrency,
@@ -6,17 +6,17 @@ import {
   formatFullDateTime,
   formatNumber,
   maskApiKey,
-} from '../../lib/spend-log-utils';
-import type { SpendLog } from '../../types/analytics';
-import { Badge } from '../badge';
+} from "../../lib/spend-log-utils";
+import type { SpendLog } from "../../types/analytics";
+import { Badge } from "../badge";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../dialog';
-import { LogDetailRow } from './log-detail-row';
+} from "../dialog";
+import { LogDetailRow } from "./log-detail-row";
 
 type LogDetailDialogProps = {
   log: SpendLog | null;
@@ -38,10 +38,10 @@ export function LogDetailDialog({
     log.start_time,
     log.end_time,
   );
-  const isSuccess = log.status === '200' || log.status === 'success';
+  const isSuccess = log.status === "200" || log.status === "success";
   const statusBadgeClass = isSuccess
-    ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
-    : '';
+    ? "bg-emerald-500/15 text-emerald-700 border-emerald-500/30"
+    : "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,12 +52,12 @@ export function LogDetailDialog({
               {log.model}
             </DialogTitle>
             <Badge
-              variant={isSuccess ? 'secondary' : 'destructive'}
+              variant={isSuccess ? "secondary" : "destructive"}
               className={statusBadgeClass}
             >
               {log.status}
             </Badge>
-            <Badge variant="outline">{log.user || 'anonymous'}</Badge>
+            <Badge variant="outline">{log.user || "anonymous"}</Badge>
           </div>
           <DialogDescription>
             Request started at {formatFullDateTime(log.start_time)}
@@ -74,22 +74,22 @@ export function LogDetailDialog({
           {[
             {
               icon: DollarSign,
-              label: 'Spend',
+              label: "Spend",
               value: formatCurrency(log.spend),
             },
             {
               icon: Clock,
-              label: 'Duration',
+              label: "Duration",
               value: formatDuration(durationMs),
             },
             {
               icon: Zap,
-              label: 'Total Tokens',
+              label: "Total Tokens",
               value: formatNumber(log.total_tokens),
             },
             {
               icon: Zap,
-              label: 'Tokens / Second',
+              label: "Tokens / Second",
               value: tokensPerSec,
             },
           ].map((metric) => {
@@ -119,7 +119,7 @@ export function LogDetailDialog({
               <LogDetailRow
                 icon={User}
                 label="User"
-                value={log.user || 'N/A'}
+                value={log.user || "N/A"}
               />
               <LogDetailRow icon={Key} label="Model" value={log.model} />
               <LogDetailRow
@@ -133,7 +133,7 @@ export function LogDetailDialog({
                 label="Status"
                 value={
                   <Badge
-                    variant={isSuccess ? 'secondary' : 'destructive'}
+                    variant={isSuccess ? "secondary" : "destructive"}
                     className={statusBadgeClass}
                   >
                     {log.status}

@@ -8,7 +8,7 @@
     "test": "turbo test --ui=tui",
     "build": "turbo build --ui=tui",
     "lint": "turbo lint",
-    "format": "turbo format",
+    "format": "turbo format -- --unsafe",
     "typecheck": "turbo typecheck",
     "lint-staged": "lint-staged",
     "prepare": "husky"

@@ -1,16 +1,16 @@
-import { Plus, Trash2 } from 'lucide-react';
-import type { AgentConfig } from '../../types/agent-routing';
-import { Badge } from '../badge';
-import { Button } from '../button';
-import { Input } from '../input';
-import { Label } from '../label';
+import { Plus, Trash2 } from "lucide-react";
+import type { AgentConfig } from "../../types/agent-routing";
+import { Badge } from "../badge";
+import { Button } from "../button";
+import { Input } from "../input";
+import { Label } from "../label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
+} from "../select";
 
 type Props = {
   config: AgentConfig;
@@ -108,7 +108,7 @@ export function AgentConfigEditorExecutionSection({
             />
             <Select
               value={newToolValue.toString()}
-              onValueChange={(value) => onNewToolValueChange(value === 'true')}
+              onValueChange={(value) => onNewToolValueChange(value === "true")}
             >
               <SelectTrigger className="h-8 w-24">
                 <SelectValue />
@@ -137,7 +137,7 @@ export function AgentConfigEditorExecutionSection({
                 </Badge>
                 <Select
                   value={value.toString()}
-                  onValueChange={(v) => onUpdateToolValue(key, v === 'true')}
+                  onValueChange={(v) => onUpdateToolValue(key, v === "true")}
                 >
                   <SelectTrigger className="h-8 w-24">
                     <SelectValue />

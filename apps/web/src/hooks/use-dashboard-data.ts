@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
 import {
   getApiKeyDetailedStats,
   getCostEfficiencyByModel,
@@ -12,22 +12,22 @@ import {
   getSpendByModel,
   getSpendByUser,
   getTokenDistribution,
-} from '../lib/api-client';
-import { queryKeys } from '../lib/query-keys';
+} from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
 import type {
   ApiKeyStatItem,
   DashboardInsight,
   DashboardMetrics,
   PerformanceMetrics,
   SpendByUserItem,
-} from '../pages/dashboard/dashboard-types';
+} from "../pages/dashboard/dashboard-types";
 import {
   formatCurrency,
   formatNumber,
   formatPercent,
   normalizePercent,
   safeDivide,
-} from '../pages/dashboard/dashboard-utils';
+} from "../pages/dashboard/dashboard-utils";
 
 const DEFAULT_DAYS = 30;
 const AUTO_REFRESH_MS = 30_000;
@@ -71,7 +71,7 @@ function normalizePerformance(
 function normalizeApiKeyStats(apiKeyStats: ApiKeyStatItem[]): ApiKeyStatItem[] {
   return apiKeyStats.map((keyStats) => ({
     ...keyStats,
-    key: keyStats.key || 'Unknown',
+    key: keyStats.key || "Unknown",
     success_rate: normalizePercent(Number(keyStats.success_rate ?? 0)),
   }));
 }
@@ -80,21 +80,21 @@ function normalizeSpendByUser(
   spendByUser: SpendByUserItem[],
 ): SpendByUserItem[] {
   return spendByUser.map((item) => ({
-    user: item.user || 'Anonymous',
+    user: item.user || "Anonymous",
     total_spend: Number(item.total_spend ?? 0),
     total_tokens: Number(item.total_tokens ?? 0),
     request_count: Number(item.request_count ?? 0),
   }));
 }
 
-function getToneByDelta(value: number): DashboardInsight['tone'] {
+function getToneByDelta(value: number): DashboardInsight["tone"] {
   if (value > 10) {
-    return 'warning';
+    return "warning";
   }
   if (value < -10) {
-    return 'positive';
+    return "positive";
   }
-  return 'neutral';
+  return "neutral";
 }
 
 export function useDashboardData(options: DashboardDataOptions = {}) {
@@ -291,35 +291,35 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
 
     return [
       {
-        title: 'Avg cost per request',
+        title: "Avg cost per request",
         value: formatCurrency(avgCostPerRequest),
         detail: `${formatNumber(totalRequests)} total requests`,
-        tone: 'neutral',
+        tone: "neutral",
       },
       {
-        title: 'Avg cost per 1K tokens',
+        title: "Avg cost per 1K tokens",
         value: formatCurrency(avgCostPer1kTokens),
         detail: `${formatNumber(totalTokens)} tokens in selected range`,
-        tone: 'neutral',
+        tone: "neutral",
       },
       {
-        title: 'Peak usage hour',
-        value: peakHour ? `${peakHour.hour}:00` : '--',
+        title: "Peak usage hour",
+        value: peakHour ? `${peakHour.hour}:00` : "--",
         detail: peakHour
           ? `${formatNumber(peakHour.request_count)} requests`
-          : 'No hourly requests in selected range',
-        tone: 'positive',
+          : "No hourly requests in selected range",
+        tone: "positive",
       },
       {
-        title: 'Output token share',
+        title: "Output token share",
         value: formatPercent(outputShare),
-        detail: 'Completion tokens over total token volume',
-        tone: outputShare > 65 ? 'warning' : 'neutral',
+        detail: "Completion tokens over total token volume",
+        tone: outputShare > 65 ? "warning" : "neutral",
       },
       {
-        title: 'Spend momentum',
-        value: `${momentum >= 0 ? '+' : ''}${formatPercent(momentum)}`,
-        detail: 'Last 7 days compared to previous 7 days',
+        title: "Spend momentum",
+        value: `${momentum >= 0 ? "+" : ""}${formatPercent(momentum)}`,
+        detail: "Last 7 days compared to previous 7 days",
         tone: getToneByDelta(momentum),
       },
     ];
@@ -336,7 +336,7 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
       successfulCount === 0
         ? firstError instanceof Error
           ? firstError.message
-          : 'Failed to fetch dashboard data'
+          : "Failed to fetch dashboard data"
         : null,
     tokenDistribution,
     performance,

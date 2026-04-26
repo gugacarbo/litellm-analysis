@@ -2,9 +2,9 @@ import {
   formatCurrency,
   formatNumber,
   formatPercent,
-} from '../../pages/model-stats/model-stats-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+} from "../../pages/model-stats/model-stats-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 
 type ModelStatsSummaryCardsProps = {
   loading: boolean;
@@ -75,10 +75,10 @@ export function ModelStatsSummaryCards({
             <p
               className={`text-2xl font-bold ${
                 avgSuccessRate > 95
-                  ? 'text-green-600'
+                  ? "text-green-600"
                   : avgSuccessRate > 90
-                    ? 'text-yellow-600'
-                    : 'text-red-600'
+                    ? "text-yellow-600"
+                    : "text-red-600"
               }`}
             >
               {formatPercent(avgSuccessRate)}

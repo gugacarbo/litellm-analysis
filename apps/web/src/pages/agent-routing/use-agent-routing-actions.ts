@@ -1,18 +1,18 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import {
   deleteAgentConfig,
   saveAllAgentConfigs,
   updateAgentConfig,
   updateAgentRoutingConfig,
   updateGlobalFallbackModel,
-} from '../../lib/api-client';
-import { queryKeys } from '../../lib/query-keys';
+} from "../../lib/api-client";
+import { queryKeys } from "../../lib/query-keys";
 import type {
   AgentConfig,
   AgentRoutingConfig,
   CategoryConfig,
-} from '../../types/agent-routing';
+} from "../../types/agent-routing";
 
 type SetAliases = (
   aliases:
@@ -50,13 +50,13 @@ export function useAgentRoutingActions(
   const updateAgentConfigMutation = useMutation({
     mutationFn: (params: {
       key: string;
-      type: 'agent' | 'category';
+      type: "agent" | "category";
       config: AgentConfig | CategoryConfig;
     }) => updateAgentConfig(params.key, params.type, params.config, true),
   });
 
   const deleteAgentConfigMutation = useMutation({
-    mutationFn: (params: { key: string; type: 'agent' | 'category' }) =>
+    mutationFn: (params: { key: string; type: "agent" | "category" }) =>
       deleteAgentConfig(params.key, params.type),
   });
 
@@ -79,12 +79,12 @@ export function useAgentRoutingActions(
   const [agentConfigDialogOpen, setAgentConfigDialogOpen] = useState(false);
   const [categoryConfigDialogOpen, setCategoryConfigDialogOpen] =
     useState(false);
-  const [editingAgentKey, setEditingAgentKey] = useState('');
-  const [editingCategoryKey, setEditingCategoryKey] = useState('');
+  const [editingAgentKey, setEditingAgentKey] = useState("");
+  const [editingCategoryKey, setEditingCategoryKey] = useState("");
   const [aliasDialogOpen, setAliasDialogOpen] = useState(false);
-  const [aliasDialogMode, setAliasDialogMode] = useState<'add' | 'edit'>('add');
-  const [aliasDialogKey, setAliasDialogKey] = useState('');
-  const [aliasDialogValue, setAliasDialogValue] = useState('');
+  const [aliasDialogMode, setAliasDialogMode] = useState<"add" | "edit">("add");
+  const [aliasDialogKey, setAliasDialogKey] = useState("");
+  const [aliasDialogValue, setAliasDialogValue] = useState("");
 
   const saving =
     updateAgentConfigMutation.isPending ||
@@ -96,7 +96,7 @@ export function useAgentRoutingActions(
     async (config: AgentConfig) => {
       await updateAgentConfigMutation.mutateAsync({
         key: editingAgentKey,
-        type: 'agent',
+        type: "agent",
         config,
       });
 
@@ -113,7 +113,7 @@ export function useAgentRoutingActions(
     async (config: CategoryConfig) => {
       await updateAgentConfigMutation.mutateAsync({
         key: editingCategoryKey,
-        type: 'category',
+        type: "category",
         config,
       });
 
@@ -136,7 +136,7 @@ export function useAgentRoutingActions(
 
   const handleDeleteAgentConfig = useCallback(
     async (key: string) => {
-      await deleteAgentConfigMutation.mutateAsync({ key, type: 'agent' });
+      await deleteAgentConfigMutation.mutateAsync({ key, type: "agent" });
 
       setAgentConfigs((prev) => {
         const next = { ...prev };
@@ -155,7 +155,7 @@ export function useAgentRoutingActions(
     async (key: string) => {
       await deleteAgentConfigMutation.mutateAsync({
         key,
-        type: 'category',
+        type: "category",
       });
 
       setCategoryConfigs((prev) => {
@@ -204,14 +204,14 @@ export function useAgentRoutingActions(
   }, []);
 
   const openAddAlias = useCallback(() => {
-    setAliasDialogMode('add');
-    setAliasDialogKey('');
-    setAliasDialogValue('');
+    setAliasDialogMode("add");
+    setAliasDialogKey("");
+    setAliasDialogValue("");
     setAliasDialogOpen(true);
   }, []);
 
   const openEditAlias = useCallback((key: string, value: string) => {
-    setAliasDialogMode('edit');
+    setAliasDialogMode("edit");
     setAliasDialogKey(key);
     setAliasDialogValue(value);
     setAliasDialogOpen(true);
@@ -239,7 +239,7 @@ export function useAgentRoutingActions(
 
   const handleAliasDelete = useCallback(
     async (key: string) => {
-      await updateAgentRoutingMutation.mutateAsync({ [key]: '' });
+      await updateAgentRoutingMutation.mutateAsync({ [key]: "" });
 
       setAliases((prev) => {
         const next = { ...prev };

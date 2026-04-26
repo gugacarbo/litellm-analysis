@@ -1,5 +1,5 @@
-import { RefreshCw } from 'lucide-react';
-import { Button } from '../button';
+import { RefreshCw } from "lucide-react";
+import { Button } from "../button";
 import {
   Dialog,
   DialogContent,
@@ -7,12 +7,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../dialog';
-import { Input } from '../input';
+} from "../dialog";
+import { Input } from "../input";
 
 type AgentRoutingAliasDialogProps = {
   open: boolean;
-  mode: 'add' | 'edit';
+  mode: "add" | "edit";
   saving: boolean;
   aliasKey: string;
   aliasValue: string;
@@ -38,12 +38,12 @@ export function AgentRoutingAliasDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'add' ? 'Add Custom Alias' : 'Edit Custom Alias'}
+            {mode === "add" ? "Add Custom Alias" : "Edit Custom Alias"}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {mode === 'add'
-              ? 'Add a new custom alias for routing.'
-              : 'Edit an existing custom alias.'}
+            {mode === "add"
+              ? "Add a new custom alias for routing."
+              : "Edit an existing custom alias."}
           </DialogDescription>
         </DialogHeader>
 
@@ -57,7 +57,7 @@ export function AgentRoutingAliasDialog({
               value={aliasKey}
               onChange={(e) => onAliasKeyChange(e.target.value)}
               placeholder="e.g. my-model-alias"
-              disabled={mode === 'edit'}
+              disabled={mode === "edit"}
             />
           </div>
 
@@ -88,7 +88,7 @@ export function AgentRoutingAliasDialog({
                 Saving...
               </>
             ) : (
-              'Save'
+              "Save"
             )}
           </Button>
         </DialogFooter>

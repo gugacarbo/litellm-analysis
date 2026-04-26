@@ -1,5 +1,5 @@
-import type { ComponentType, ReactNode } from 'react';
-import { cn } from '../../lib/utils';
+import type { ComponentType, ReactNode } from "react";
+import { cn } from "../../lib/utils";
 
 type LogDetailRowProps = {
   icon: ComponentType<{ className?: string }>;
@@ -22,8 +22,8 @@ export function LogDetailRow({
       </div>
       <div
         className={cn(
-          'min-w-0 max-w-[62%] text-right text-sm font-medium break-words',
-          mono ? 'font-mono text-xs break-all' : '',
+          "min-w-0 max-w-[62%] text-right text-sm font-medium break-words",
+          mono ? "font-mono text-xs break-all" : "",
         )}
       >
         {value}

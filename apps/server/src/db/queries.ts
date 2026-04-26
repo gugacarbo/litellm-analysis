@@ -1,11 +1,11 @@
-import { and, asc, desc, eq, gte, type SQL, sql } from 'drizzle-orm';
-import { sortAliasesByDefinitionOrder } from '../services/alias-generator.js';
-import { db } from './client';
-import { errorLogs, proxyModelTable, spendLogs } from './schema';
+import { and, asc, desc, eq, gte, type SQL, sql } from "drizzle-orm";
+import { sortAliasesByDefinitionOrder } from "../services/alias-generator.js";
+import { db } from "./client";
+import { errorLogs, proxyModelTable, spendLogs } from "./schema";
 
 function normalizeDays(days: number | string | undefined, fallback: number) {
-  const parsed = typeof days === 'string' ? Number.parseInt(days, 10) : days;
-  if (typeof parsed !== 'number' || Number.isNaN(parsed) || parsed < 0) {
+  const parsed = typeof days === "string" ? Number.parseInt(days, 10) : days;
+  if (typeof parsed !== "number" || Number.isNaN(parsed) || parsed < 0) {
     return fallback;
   }
   return parsed;
@@ -583,7 +583,7 @@ export async function mergeModels(sourceModel: string, targetModel: string) {
 }
 
 export async function deleteModelLogs(modelName: string) {
-  if (modelName.trim() === '') {
+  if (modelName.trim() === "") {
     await db
       .delete(spendLogs)
       .where(sql`NULLIF(BTRIM(${spendLogs.model}), '') IS NULL`);
@@ -610,14 +610,14 @@ export async function updateRouterSettings(
   const existing = await getRouterSettings();
   const merged: Record<string, unknown> = existing ? { ...existing } : {};
   const existingAliases =
-    typeof merged.model_group_alias === 'object' &&
+    typeof merged.model_group_alias === "object" &&
     merged.model_group_alias !== null
       ? ({ ...merged.model_group_alias } as Record<string, string>)
       : {};
 
   // Empty string signals deletion
   for (const [key, value] of Object.entries(modelGroupAlias)) {
-    if (value === '') {
+    if (value === "") {
       delete existingAliases[key];
     } else {
       existingAliases[key] = value;

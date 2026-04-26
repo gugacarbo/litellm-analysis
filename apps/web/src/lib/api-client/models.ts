@@ -1,4 +1,4 @@
-import { fetchApi } from './core';
+import { fetchApi } from "./core";
 
 export type ModelConfig = {
   modelName: string;
@@ -6,14 +6,14 @@ export type ModelConfig = {
 };
 
 export async function getAllModels(): Promise<ModelConfig[]> {
-  return fetchApi('/models');
+  return fetchApi("/models");
 }
 
 export async function createModel(
   model: ModelConfig,
 ): Promise<{ success: boolean }> {
-  return fetchApi('/models', {
-    method: 'POST',
+  return fetchApi("/models", {
+    method: "POST",
     body: JSON.stringify(model),
   });
 }
@@ -24,7 +24,7 @@ export async function updateModel(
   newName?: string,
 ): Promise<{ success: boolean }> {
   return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify({
       litellmParams,
       ...(newName ? { modelName: newName } : {}),
@@ -36,7 +36,7 @@ export async function deleteModel(
   modelName: string,
 ): Promise<{ success: boolean }> {
   return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 }
 
@@ -44,7 +44,7 @@ export async function deleteModelLogs(
   modelName: string,
 ): Promise<{ success: boolean }> {
   return fetchApi(`/models/logs?model=${encodeURIComponent(modelName)}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 }
 
@@ -52,8 +52,8 @@ export async function mergeModels(
   sourceModel: string,
   targetModel: string,
 ): Promise<{ success: boolean }> {
-  return fetchApi('/models/merge', {
-    method: 'POST',
+  return fetchApi("/models/merge", {
+    method: "POST",
     body: JSON.stringify({ sourceModel, targetModel }),
   });
 }

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 import {
   getApiKeyDetailedStats,
   getCostEfficiencyByModel,
@@ -11,8 +11,8 @@ import {
   getSpendByModel,
   getSpendByUser,
   getTokenDistribution,
-} from '../../lib/api-client';
-import { queryKeys } from '../../lib/query-keys';
+} from "../../lib/api-client";
+import { queryKeys } from "../../lib/query-keys";
 
 const DEFAULT_DAYS = 30;
 const AUTO_REFRESH_MS = 30_000;
@@ -106,17 +106,17 @@ export function useDailyTokenTrendQuery(days: number = DEFAULT_DAYS) {
 }
 
 export const ALL_DASHBOARD_QUERY_NAMES = [
-  'metricsQuery',
-  'spendByModelQuery',
-  'spendByUserQuery',
-  'dailyTrendQuery',
-  'tokenDistributionQuery',
-  'performanceQuery',
-  'hourlyPatternsQuery',
-  'apiKeyStatsQuery',
-  'costEfficiencyQuery',
-  'modelDistributionQuery',
-  'dailyTokenTrendQuery',
+  "metricsQuery",
+  "spendByModelQuery",
+  "spendByUserQuery",
+  "dailyTrendQuery",
+  "tokenDistributionQuery",
+  "performanceQuery",
+  "hourlyPatternsQuery",
+  "apiKeyStatsQuery",
+  "costEfficiencyQuery",
+  "modelDistributionQuery",
+  "dailyTokenTrendQuery",
 ] as const;
 
 export type DashboardQueryNames = (typeof ALL_DASHBOARD_QUERY_NAMES)[number];

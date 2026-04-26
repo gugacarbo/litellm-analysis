@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
-import { getAllModels } from '../lib/api-client';
-import { queryKeys } from '../lib/query-keys';
-import type { ModelConfig } from '../types/analytics';
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import { getAllModels } from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
+import type { ModelConfig } from "../types/analytics";
 import {
   Select,
   SelectContent,
@@ -12,7 +12,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from './select';
+} from "./select";
 
 type ModelSelectorProps = {
   value?: string;
@@ -26,7 +26,7 @@ type ModelSelectorProps = {
 export function ModelSelector({
   value,
   onChange,
-  placeholder = 'Select a model...',
+  placeholder = "Select a model...",
   disabled = false,
   className,
   label,
@@ -39,7 +39,7 @@ export function ModelSelector({
   const models = (modelsQuery.data ?? []) as ModelConfig[];
   const isLoading = modelsQuery.isPending && !modelsQuery.data;
   const error =
-    modelsQuery.error instanceof Error ? 'Failed to load models' : null;
+    modelsQuery.error instanceof Error ? "Failed to load models" : null;
 
   const id = useMemo(
     () => `model-selector-${Math.random().toString(36).substr(2, 9)}`,
@@ -52,7 +52,7 @@ export function ModelSelector({
 
   useEffect(() => {
     if (value && models.length > 0 && !selectedModel && onChange) {
-      onChange('');
+      onChange("");
     }
   }, [value, models, selectedModel, onChange]);
 

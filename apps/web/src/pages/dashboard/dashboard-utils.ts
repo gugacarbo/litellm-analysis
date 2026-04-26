@@ -1,23 +1,23 @@
 import type {
   DashboardDateRangeKey,
   DashboardDateRangeOption,
-} from './dashboard-types';
+} from "./dashboard-types";
 
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
   }).format(value);
 }
 
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value);
+  return new Intl.NumberFormat("en-US").format(value);
 }
 
 export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
   });
 }
 
@@ -53,34 +53,34 @@ export function normalizePercent(value: number): number {
 
 export const DASHBOARD_DATE_RANGES: DashboardDateRangeOption[] = [
   {
-    key: 'today',
-    label: 'Hoje',
+    key: "today",
+    label: "Hoje",
     days: 1,
-    description: 'Hoje',
+    description: "Hoje",
   },
   {
-    key: '7d',
-    label: '7 dias',
+    key: "7d",
+    label: "7 dias",
     days: 7,
-    description: 'Últimos 7 dias',
+    description: "Últimos 7 dias",
   },
   {
-    key: '30d',
-    label: '30 dias',
+    key: "30d",
+    label: "30 dias",
     days: 30,
-    description: 'Últimos 30 dias',
+    description: "Últimos 30 dias",
   },
   {
-    key: '60d',
-    label: '60 dias',
+    key: "60d",
+    label: "60 dias",
     days: 60,
-    description: 'Últimos 60 dias',
+    description: "Últimos 60 dias",
   },
   {
-    key: 'all',
-    label: 'Tudo',
+    key: "all",
+    label: "Tudo",
     days: 0,
-    description: 'Todo o histórico',
+    description: "Todo o histórico",
   },
 ];
 
@@ -91,6 +91,6 @@ export function getDateRangeDays(range: DashboardDateRangeKey): number {
 export function getDateRangeLabel(range: DashboardDateRangeKey): string {
   return (
     DASHBOARD_DATE_RANGES.find((item) => item.key === range)?.description ??
-    'Últimos 30 dias'
+    "Últimos 30 dias"
   );
 }

@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import type { AgentConfig } from '../types/agent-routing';
-import { AgentConfigEditorExecutionSection } from './agent-config-editor/agent-config-editor-execution-section';
-import { AgentConfigEditorPermissionsSection } from './agent-config-editor/agent-config-editor-permissions-section';
+import { RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { AgentConfig } from "../types/agent-routing";
+import { AgentConfigEditorExecutionSection } from "./agent-config-editor/agent-config-editor-execution-section";
+import { AgentConfigEditorPermissionsSection } from "./agent-config-editor/agent-config-editor-permissions-section";
 import {
   AgentConfigEditorBasicSection,
   AgentConfigEditorModelSection,
   AgentConfigEditorPromptsSection,
-} from './agent-config-editor/agent-config-editor-primary-sections';
-import { Button } from './button';
+} from "./agent-config-editor/agent-config-editor-primary-sections";
+import { Button } from "./button";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +18,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
+} from "./dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 
 interface AgentConfigEditorProps {
   open: boolean;
@@ -32,28 +32,28 @@ interface AgentConfigEditorProps {
 }
 
 type AgentEditorTab =
-  | 'overview'
-  | 'model'
-  | 'prompts'
-  | 'execution'
-  | 'permissions';
+  | "overview"
+  | "model"
+  | "prompts"
+  | "execution"
+  | "permissions";
 
 function normalizeAgentConfig(initialConfig: AgentConfig = {}): AgentConfig {
   return {
-    model: initialConfig.model || '',
+    model: initialConfig.model || "",
     fallback_models: initialConfig.fallback_models || [],
-    variant: initialConfig.variant || '',
-    category: initialConfig.category || '',
+    variant: initialConfig.variant || "",
+    category: initialConfig.category || "",
     skills: initialConfig.skills || [],
     temperature: initialConfig.temperature,
     top_p: initialConfig.top_p,
-    prompt: initialConfig.prompt || '',
-    prompt_append: initialConfig.prompt_append || '',
+    prompt: initialConfig.prompt || "",
+    prompt_append: initialConfig.prompt_append || "",
     tools: initialConfig.tools || {},
     disable: initialConfig.disable || false,
-    description: initialConfig.description || '',
-    mode: initialConfig.mode || 'subagent',
-    color: initialConfig.color || '',
+    description: initialConfig.description || "",
+    mode: initialConfig.mode || "subagent",
+    color: initialConfig.color || "",
     permission: initialConfig.permission || {},
   };
 }
@@ -67,12 +67,12 @@ export function AgentConfigEditor({
   saving = false,
   error,
 }: AgentConfigEditorProps) {
-  const [activeTab, setActiveTab] = useState<AgentEditorTab>('overview');
+  const [activeTab, setActiveTab] = useState<AgentEditorTab>("overview");
   const [config, setConfig] = useState<AgentConfig>(() =>
     normalizeAgentConfig(initialConfig),
   );
-  const [newSkill, setNewSkill] = useState('');
-  const [newToolKey, setNewToolKey] = useState('');
+  const [newSkill, setNewSkill] = useState("");
+  const [newToolKey, setNewToolKey] = useState("");
   const [newToolValue, setNewToolValue] = useState(true);
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export function AgentConfigEditor({
 
   useEffect(() => {
     if (!open) return;
-    setActiveTab('overview');
+    setActiveTab("overview");
   }, [open]);
 
   const updateConfig = <K extends keyof AgentConfig>(
@@ -102,34 +102,34 @@ export function AgentConfigEditor({
 
   const addSkill = () => {
     if (!newSkill.trim()) return;
-    updateConfig('skills', [...(config.skills || []), newSkill.trim()]);
-    setNewSkill('');
+    updateConfig("skills", [...(config.skills || []), newSkill.trim()]);
+    setNewSkill("");
   };
 
   const removeSkill = (index: number) => {
     const newSkills = [...(config.skills || [])];
     newSkills.splice(index, 1);
-    updateConfig('skills', newSkills);
+    updateConfig("skills", newSkills);
   };
 
   const addTool = () => {
     if (!newToolKey.trim()) return;
 
-    updateConfig('tools', {
+    updateConfig("tools", {
       ...(config.tools || {}),
       [newToolKey.trim()]: newToolValue,
     });
-    setNewToolKey('');
+    setNewToolKey("");
   };
 
   const removeTool = (key: string) => {
     const newTools = { ...(config.tools || {}) };
     delete newTools[key];
-    updateConfig('tools', newTools);
+    updateConfig("tools", newTools);
   };
 
   const updateToolValue = (key: string, value: boolean) => {
-    updateConfig('tools', {
+    updateConfig("tools", {
       ...(config.tools || {}),
       [key]: value,
     });
@@ -239,7 +239,7 @@ export function AgentConfigEditor({
                 Saving...
               </>
             ) : (
-              'Save Configuration'
+              "Save Configuration"
             )}
           </Button>
         </DialogFooter>

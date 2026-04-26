@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { Globe } from 'lucide-react';
-import { getAllModels, type ModelConfig } from '../lib/api-client';
-import { queryKeys } from '../lib/query-keys';
-import { Badge } from './badge';
+import { useQuery } from "@tanstack/react-query";
+import { Globe } from "lucide-react";
+import { getAllModels, type ModelConfig } from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
+import { Badge } from "./badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './select';
+} from "./select";
 
 interface GlobalFallbackSelectorProps {
   value: string;

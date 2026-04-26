@@ -1,10 +1,10 @@
-import type { ModelStats } from '../../pages/model-stats/model-stats-types';
+import type { ModelStats } from "../../pages/model-stats/model-stats-types";
 import {
   formatCurrency,
   formatNumber,
-} from '../../pages/model-stats/model-stats-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+} from "../../pages/model-stats/model-stats-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../table';
+} from "../table";
 
 type ModelStatsTopTablesProps = {
   data: ModelStats[];

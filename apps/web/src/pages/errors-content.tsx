@@ -1,27 +1,27 @@
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
-import type { ErrorColumnKey } from '@/components/errors/errors-table-columns';
-import { Badge } from '../components/badge';
-import { ErrorDetailDialog } from '../components/errors/error-detail-dialog';
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import type { ErrorColumnKey } from "@/components/errors/errors-table-columns";
+import { Badge } from "../components/badge";
+import { ErrorDetailDialog } from "../components/errors/error-detail-dialog";
 import {
   ErrorsFilterCard,
   type ErrorsFilterValues,
-} from '../components/errors/errors-filter-card';
-import { ErrorsSummaryCards } from '../components/errors/errors-summary-cards';
+} from "../components/errors/errors-filter-card";
+import { ErrorsSummaryCards } from "../components/errors/errors-summary-cards";
 import {
   DEFAULT_VISIBLE_ERROR_COLUMNS,
   ErrorsTable,
-} from '../components/errors/errors-table';
-import { useErrors } from '../hooks/use-errors';
-import { useServerMode } from '../hooks/use-server-mode';
-import { getAllModels } from '../lib/api-client';
-import { queryKeys } from '../lib/query-keys';
-import type { ErrorLog, PaginationMetadata } from '../types/analytics';
+} from "../components/errors/errors-table";
+import { useErrors } from "../hooks/use-errors";
+import { useServerMode } from "../hooks/use-server-mode";
+import { getAllModels } from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
+import type { ErrorLog, PaginationMetadata } from "../types/analytics";
 import {
   AUTO_REFETCH_INTERVAL_MS,
   applyErrorFilters,
   type ErrorFilters,
-} from './errors-utils';
+} from "./errors-utils";
 
 export function ErrorsContent() {
   const { errors, loading, refreshing, error, refetch } = useErrors();
@@ -46,10 +46,10 @@ export function ErrorsContent() {
     DEFAULT_VISIBLE_ERROR_COLUMNS,
   );
   const [filterValues, setFilterValues] = useState<ErrorsFilterValues>({
-    model: '',
-    user: '',
-    startDate: '',
-    endDate: '',
+    model: "",
+    user: "",
+    startDate: "",
+    endDate: "",
   });
 
   useEffect(() => {
@@ -107,18 +107,18 @@ export function ErrorsContent() {
   );
 
   const modeLabel =
-    mode === 'database'
-      ? 'Database Mode'
-      : mode === 'api-only'
-        ? 'API-Only Mode'
-        : 'Limited Mode';
+    mode === "database"
+      ? "Database Mode"
+      : mode === "api-only"
+        ? "API-Only Mode"
+        : "Limited Mode";
 
   const modeBadgeClass =
-    mode === 'database'
-      ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30'
-      : mode === 'limited'
-        ? 'bg-amber-500/15 text-amber-700 border-amber-500/30'
-        : 'bg-yellow-500/15 text-yellow-700 border-yellow-500/30';
+    mode === "database"
+      ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/30"
+      : mode === "limited"
+        ? "bg-amber-500/15 text-amber-700 border-amber-500/30"
+        : "bg-yellow-500/15 text-yellow-700 border-yellow-500/30";
 
   const handleApplyFilters = () => {
     setFilters({
@@ -132,10 +132,10 @@ export function ErrorsContent() {
 
   const handleClearFilters = () => {
     setFilterValues({
-      model: '',
-      user: '',
-      startDate: '',
-      endDate: '',
+      model: "",
+      user: "",
+      startDate: "",
+      endDate: "",
     });
     setFilters({});
     setPage(1);
@@ -181,12 +181,12 @@ export function ErrorsContent() {
               {modeLabel}
             </Badge>
             <Badge variant="outline">
-              {pagination.total.toLocaleString('en-US')} errors
+              {pagination.total.toLocaleString("en-US")} errors
             </Badge>
             <Badge variant="outline">
               {activeFiltersCount > 0
                 ? `${activeFiltersCount} active filters`
-                : 'No active filters'}
+                : "No active filters"}
             </Badge>
           </div>
         </div>

@@ -1,16 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   getAgentConfig,
   getAgentRoutingConfig,
   getGlobalFallbackModel,
-} from '../../lib/api-client';
-import { queryKeys } from '../../lib/query-keys';
+} from "../../lib/api-client";
+import { queryKeys } from "../../lib/query-keys";
 import type {
   AgentConfig,
   AgentRoutingConfig,
   CategoryConfig,
-} from '../../types/agent-routing';
+} from "../../types/agent-routing";
 
 export function useAgentRoutingState() {
   const [aliases, setAliases] = useState<AgentRoutingConfig>({});
@@ -21,7 +21,7 @@ export function useAgentRoutingState() {
     Record<string, CategoryConfig>
   >({});
   const [globalFallbackModel, setGlobalFallbackModel] =
-    useState<string>('gpt-5.1');
+    useState<string>("gpt-5.1");
 
   const agentRoutingQuery = useQuery({
     queryKey: queryKeys.agentRoutingData,

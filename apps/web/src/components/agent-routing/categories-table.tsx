@@ -1,10 +1,10 @@
-import { Palette, RefreshCw } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import type { CategoryDefinition } from '../../types/agent-routing';
-import { Badge } from '../badge';
-import { Button } from '../button';
-import { FeatureGate } from '../feature-gate';
-import { Skeleton } from '../skeleton';
+import { Palette, RefreshCw } from "lucide-react";
+import { cn } from "../../lib/utils";
+import type { CategoryDefinition } from "../../types/agent-routing";
+import { Badge } from "../badge";
+import { Button } from "../button";
+import { FeatureGate } from "../feature-gate";
+import { Skeleton } from "../skeleton";
 
 type ConfigInfo = {
   model: string;
@@ -52,7 +52,7 @@ export function CategoriesTable({
     return {
       category,
       configInfo,
-      hasPrimaryModel: Boolean(configInfo && configInfo.model !== 'Unassigned'),
+      hasPrimaryModel: Boolean(configInfo && configInfo.model !== "Unassigned"),
     };
   });
 
@@ -123,7 +123,7 @@ export function CategoriesTable({
             </p>
           </div>
           <Badge variant="outline">
-            {modelGroups.length} model{modelGroups.length === 1 ? '' : 's'} in
+            {modelGroups.length} model{modelGroups.length === 1 ? "" : "s"} in
             use
           </Badge>
         </div>
@@ -142,7 +142,7 @@ export function CategoriesTable({
                   </p>
                   <Badge variant="secondary">
                     {modelCategories.length} categor
-                    {modelCategories.length === 1 ? 'y' : 'ies'}
+                    {modelCategories.length === 1 ? "y" : "ies"}
                   </Badge>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -167,10 +167,10 @@ export function CategoriesTable({
           <div
             key={category.key}
             className={cn(
-              'rounded-xl border p-3',
+              "rounded-xl border p-3",
               hasPrimaryModel
-                ? 'bg-card'
-                : 'border-dashed border-border/80 bg-muted/15',
+                ? "bg-card"
+                : "border-dashed border-border/80 bg-muted/15",
             )}
           >
             <div className="flex items-start justify-between gap-2">
@@ -226,7 +226,7 @@ export function CategoriesTable({
               {configInfo?.fallbackCount ? (
                 <Badge variant="secondary">
                   +{configInfo.fallbackCount} fallback
-                  {configInfo.fallbackCount === 1 ? '' : 's'}
+                  {configInfo.fallbackCount === 1 ? "" : "s"}
                 </Badge>
               ) : null}
             </div>

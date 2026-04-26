@@ -1,17 +1,17 @@
-import { Plus, Trash2 } from 'lucide-react';
-import type { CategoryConfig } from '../../types/agent-routing';
-import { Badge } from '../badge';
-import { Button } from '../button';
-import { Input } from '../input';
-import { Label } from '../label';
+import { Plus, Trash2 } from "lucide-react";
+import type { CategoryConfig } from "../../types/agent-routing";
+import { Badge } from "../badge";
+import { Button } from "../button";
+import { Input } from "../input";
+import { Label } from "../label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
-import { Textarea } from '../textarea';
+} from "../select";
+import { Textarea } from "../textarea";
 
 type CategoryConfigEditorExecutionSectionProps = {
   config: CategoryConfig;
@@ -52,8 +52,8 @@ export function CategoryConfigEditorExecutionSection({
         <Label htmlFor="prompt_append">Prompt Append</Label>
         <Textarea
           id="prompt_append"
-          value={config.prompt_append || ''}
-          onChange={(e) => onUpdateConfig('prompt_append', e.target.value)}
+          value={config.prompt_append || ""}
+          onChange={(e) => onUpdateConfig("prompt_append", e.target.value)}
           placeholder="Enter prompt append"
           rows={6}
         />
@@ -71,7 +71,7 @@ export function CategoryConfigEditorExecutionSection({
             />
             <Select
               value={newToolValue.toString()}
-              onValueChange={(value) => onNewToolValueChange(value === 'true')}
+              onValueChange={(value) => onNewToolValueChange(value === "true")}
             >
               <SelectTrigger className="h-8 w-24">
                 <SelectValue />
@@ -101,7 +101,7 @@ export function CategoryConfigEditorExecutionSection({
                 </Badge>
                 <Select
                   value={value.toString()}
-                  onValueChange={(v) => onUpdateToolValue(key, v === 'true')}
+                  onValueChange={(v) => onUpdateToolValue(key, v === "true")}
                 >
                   <SelectTrigger className="h-8 w-24">
                     <SelectValue />

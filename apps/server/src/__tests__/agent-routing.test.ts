@@ -1,15 +1,15 @@
-import request from 'supertest';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DATABASE_CAPABILITIES } from '../data-source/database';
+import request from "supertest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DATABASE_CAPABILITIES } from "../data-source/database";
 import type {
   AnalyticsCapabilities,
   AnalyticsDataSource,
-} from '../data-source/types';
+} from "../data-source/types";
 
 const mockGetRouterSettings = vi.fn();
 const mockUpdateRouterSettings = vi.fn();
 
-vi.mock('../db/queries.js', () => ({
+vi.mock("../db/queries.js", () => ({
   getRouterSettings: (...args: unknown[]) => mockGetRouterSettings(...args),
   updateRouterSettings: (...args: unknown[]) =>
     mockUpdateRouterSettings(...args),
@@ -73,73 +73,73 @@ function createMockDataSource(
 }
 
 async function getServer(capabilities: AnalyticsCapabilities) {
-  const { createApiServer } = await import('../api-server');
+  const { createApiServer } = await import("../api-server");
   const mockDs = createMockDataSource(capabilities);
   return createApiServer(mockDs);
 }
 
-describe('GET /agent-routing', () => {
+describe("GET /agent-routing", () => {
   beforeEach(() => {
     mockGetRouterSettings.mockClear();
     mockUpdateRouterSettings.mockClear();
   });
 
-  it('returns 200 with current config when exists', async () => {
+  it("returns 200 with current config when exists", async () => {
     const mockConfig = {
       model_group_alias: {
-        'litellm/glm-5': 'glm-5',
-        'kimi-k2.5': 'kimi-k2-5',
+        "litellm/glm-5": "glm-5",
+        "kimi-k2.5": "kimi-k2-5",
       },
     };
     mockGetRouterSettings.mockResolvedValue(mockConfig);
 
     const app = await getServer(DATABASE_CAPABILITIES);
-    const res = await request(app).get('/agent-routing');
+    const res = await request(app).get("/agent-routing");
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual(mockConfig);
   });
 
-  it('returns 200 with empty object when not exists', async () => {
+  it("returns 200 with empty object when not exists", async () => {
     mockGetRouterSettings.mockResolvedValue(null);
 
     const app = await getServer(DATABASE_CAPABILITIES);
-    const res = await request(app).get('/agent-routing');
+    const res = await request(app).get("/agent-routing");
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({});
   });
 
-  it('returns 500 when database error occurs', async () => {
+  it("returns 500 when database error occurs", async () => {
     mockGetRouterSettings.mockRejectedValue(
-      new Error('Database connection failed'),
+      new Error("Database connection failed"),
     );
 
     const app = await getServer(DATABASE_CAPABILITIES);
-    const res = await request(app).get('/agent-routing');
+    const res = await request(app).get("/agent-routing");
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: 'Error: Database connection failed' });
+    expect(res.body).toEqual({ error: "Error: Database connection failed" });
   });
 });
 
-describe('PUT /agent-routing', () => {
+describe("PUT /agent-routing", () => {
   beforeEach(() => {
     mockGetRouterSettings.mockClear();
     mockUpdateRouterSettings.mockClear();
   });
 
-  it('returns 200 with success true when saved successfully', async () => {
+  it("returns 200 with success true when saved successfully", async () => {
     const mockConfig = {
-      'litellm/glm-5': 'glm-5',
-      'kimi-k2.5': 'kimi-k2-5',
+      "litellm/glm-5": "glm-5",
+      "kimi-k2.5": "kimi-k2-5",
     };
     mockGetRouterSettings.mockResolvedValue({});
     mockUpdateRouterSettings.mockResolvedValue(undefined);
 
     const app = await getServer(DATABASE_CAPABILITIES);
     const res = await request(app)
-      .put('/agent-routing')
+      .put("/agent-routing")
       .send({ model_group_alias: mockConfig });
 
     expect(res.status).toBe(200);
@@ -147,72 +147,72 @@ describe('PUT /agent-routing', () => {
     expect(mockUpdateRouterSettings).toHaveBeenCalledWith(mockConfig);
   });
 
-  it('returns 400 when model_group_alias is not an object', async () => {
+  it("returns 400 when model_group_alias is not an object", async () => {
     const app = await getServer(DATABASE_CAPABILITIES);
     const res = await request(app)
-      .put('/agent-routing')
-      .send({ model_group_alias: 'invalid-string' });
+      .put("/agent-routing")
+      .send({ model_group_alias: "invalid-string" });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: 'model_group_alias object is required' });
+    expect(res.body).toEqual({ error: "model_group_alias object is required" });
     expect(mockUpdateRouterSettings).not.toHaveBeenCalled();
   });
 
-  it('returns 400 when model_group_alias is an array', async () => {
+  it("returns 400 when model_group_alias is an array", async () => {
     const app = await getServer(DATABASE_CAPABILITIES);
     const res = await request(app)
-      .put('/agent-routing')
-      .send({ model_group_alias: ['model1', 'model2'] });
+      .put("/agent-routing")
+      .send({ model_group_alias: ["model1", "model2"] });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: 'model_group_alias object is required' });
+    expect(res.body).toEqual({ error: "model_group_alias object is required" });
     expect(mockUpdateRouterSettings).not.toHaveBeenCalled();
   });
 
-  it('returns 400 when model_group_alias is null', async () => {
+  it("returns 400 when model_group_alias is null", async () => {
     const app = await getServer(DATABASE_CAPABILITIES);
     const res = await request(app)
-      .put('/agent-routing')
+      .put("/agent-routing")
       .send({ model_group_alias: null });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: 'model_group_alias object is required' });
+    expect(res.body).toEqual({ error: "model_group_alias object is required" });
     expect(mockUpdateRouterSettings).not.toHaveBeenCalled();
   });
 
-  it('returns 400 when model_group_alias is missing', async () => {
+  it("returns 400 when model_group_alias is missing", async () => {
     const app = await getServer(DATABASE_CAPABILITIES);
     const res = await request(app)
-      .put('/agent-routing')
-      .send({ otherField: 'value' });
+      .put("/agent-routing")
+      .send({ otherField: "value" });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: 'model_group_alias object is required' });
+    expect(res.body).toEqual({ error: "model_group_alias object is required" });
     expect(mockUpdateRouterSettings).not.toHaveBeenCalled();
   });
 
-  it('returns 400 when model_group_alias has non-string values', async () => {
+  it("returns 400 when model_group_alias has non-string values", async () => {
     const app = await getServer(DATABASE_CAPABILITIES);
     const res = await request(app)
-      .put('/agent-routing')
-      .send({ model_group_alias: { 'litellm/glm-5': 123 } });
+      .put("/agent-routing")
+      .send({ model_group_alias: { "litellm/glm-5": 123 } });
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({
-      error: 'model_group_alias values must be strings',
+      error: "model_group_alias values must be strings",
     });
     expect(mockUpdateRouterSettings).not.toHaveBeenCalled();
   });
 
-  it('returns 500 when database error occurs', async () => {
-    mockUpdateRouterSettings.mockRejectedValue(new Error('Update failed'));
+  it("returns 500 when database error occurs", async () => {
+    mockUpdateRouterSettings.mockRejectedValue(new Error("Update failed"));
 
     const app = await getServer(DATABASE_CAPABILITIES);
     const res = await request(app)
-      .put('/agent-routing')
-      .send({ model_group_alias: { 'litellm/glm-5': 'glm-5' } });
+      .put("/agent-routing")
+      .send({ model_group_alias: { "litellm/glm-5": "glm-5" } });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: 'Error: Update failed' });
+    expect(res.body).toEqual({ error: "Error: Update failed" });
   });
 });

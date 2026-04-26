@@ -1,13 +1,13 @@
-import type { ModelStats } from '../../pages/model-stats/model-stats-types';
-import { Button } from '../button';
-import { Card, CardContent } from '../card';
+import type { ModelStats } from "../../pages/model-stats/model-stats-types";
+import { Button } from "../button";
+import { Card, CardContent } from "../card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
+} from "../select";
 
 type ModelStatsMergePanelProps = {
   data: ModelStats[];
@@ -75,7 +75,7 @@ export function ModelStatsMergePanel({
           disabled={merging || !sourceModel || !targetModel}
           onClick={onMerge}
         >
-          {merging ? 'Merging...' : 'Merge'}
+          {merging ? "Merging..." : "Merge"}
         </Button>
       </CardContent>
     </Card>

@@ -1,19 +1,19 @@
-import type { AgentRoutingAPIResponse } from '../../lib/api-client';
+import type { AgentRoutingAPIResponse } from "../../lib/api-client";
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,
-} from '../../types/agent-routing';
+} from "../../types/agent-routing";
 
 const AGENT_KEYS = AGENT_DEFINITIONS.map((a) => a.key);
 const CATEGORY_KEYS = CATEGORY_DEFINITIONS.map((c) => c.key);
 
 function isAgentKey(key: string): boolean {
-  const prefix = key.includes('/') ? key.split('/')[0] : key;
+  const prefix = key.includes("/") ? key.split("/")[0] : key;
   return AGENT_KEYS.includes(prefix);
 }
 
 function isCategoryKey(key: string): boolean {
-  const prefix = key.includes('/') ? key.split('/')[0] : key;
+  const prefix = key.includes("/") ? key.split("/")[0] : key;
   return CATEGORY_KEYS.includes(prefix);
 }
 
