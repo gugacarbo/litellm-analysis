@@ -11,7 +11,7 @@ const mockReadConfigFile = vi.fn();
 const mockWriteProvidersFile = vi.fn();
 const mockWriteVscodeModelsFile = vi.fn();
 
-vi.mock('@lite-llm/config-generator', () => ({
+vi.mock('@lite-llm/agents-manager', () => ({
   updateAgentInConfig: (...args: unknown[]) => mockUpdateAgentInConfig(...args),
   updateCategoryInConfig: vi.fn(),
   readConfigFile: (...args: unknown[]) => mockReadConfigFile(...args),

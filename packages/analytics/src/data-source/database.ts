@@ -4,7 +4,7 @@ import {
   readConfigFile,
   updateAgentInConfig,
   updateCategoryInConfig,
-} from '@lite-llm/config-generator';
+} from '@lite-llm/agents-manager';
 import {
   createModel as createModelQuery,
   deleteModelLogs as deleteModelLogsQuery,

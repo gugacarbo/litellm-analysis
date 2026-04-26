@@ -1,0 +1,127 @@
+{
+  "oaicopilot.commitLanguage": "Portuguese (Brazil)",
+  "oaicopilot.baseUrl": "",
+  "oaicopilot.delay": 0,
+  "oaicopilot.readFileLines": 0,
+  "oaicopilot.retry": {
+    "enabled": true,
+    "max_attempts": 3,
+    "interval_ms": 2000,
+    "status_codes": []
+  },
+  "oaicopilot.models": [
+    {
+      "id": "glm-5",
+      "owned_by": "atplus",
+      "displayName": "GLM 5",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 200000,
+      "limit": {
+        "output": 128000
+      },
+      "family": "z.ai"
+    },
+    {
+      "id": "glm-5.1",
+      "owned_by": "atplus",
+      "displayName": "GLM 5.1",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 200000,
+      "limit": {
+        "output": 128000
+      },
+      "family": "z.ai"
+    },
+    {
+      "id": "glm-5-turbo",
+      "owned_by": "atplus",
+      "displayName": "GLM 5 Turbo",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 200000,
+      "limit": {
+        "output": 128000
+      },
+      "family": "z.ai"
+    },
+    {
+      "id": "kimi-k2.5",
+      "owned_by": "atplus",
+      "displayName": "Kimi K2.5",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 256000,
+      "limit": {
+        "output": 64000
+      }
+    },
+    {
+      "id": "minimax-m2.7-highspeed",
+      "owned_by": "atplus",
+      "displayName": "MiniMax M2.7",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 204800,
+      "limit": {
+        "output": 128000
+      }
+    },
+    {
+      "id": "qwen3.5-plus",
+      "owned_by": "atplus",
+      "displayName": "Qwen 3.5+",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 1000000,
+      "limit": {
+        "output": 64000
+      }
+    },
+    {
+      "id": "qwen3-coder-plus",
+      "owned_by": "atplus",
+      "displayName": "Qwen 3 Coder+",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 1000000,
+      "limit": {
+        "output": 64000
+      }
+    },
+    {
+      "id": "glm-5-1",
+      "owned_by": "atplus",
+      "displayName": "Glm 5 1",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 200000,
+      "limit": {
+        "output": 32768
+      }
+    },
+    {
+      "id": "kimi-k2-5",
+      "owned_by": "atplus",
+      "displayName": "Kimi K2 5",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 200000,
+      "limit": {
+        "output": 32768
+      }
+    },
+    {
+      "id": "qwen3-5-plus",
+      "owned_by": "atplus",
+      "displayName": "Qwen3 5 Plus",
+      "baseUrl": "http://localhost:4000",
+      "apiMode": "openai",
+      "context_length": 200000,
+      "limit": {
+        "output": 32768
+      }
+    }
+  ]
+}

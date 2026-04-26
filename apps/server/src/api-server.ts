@@ -1,7 +1,6 @@
+import type { AgentConfig, CategoryConfig } from '@litellm/shared';
 import type {
-  AgentConfig,
   AnalyticsDataSource,
-  CategoryConfig,
 } from '@lite-llm/analytics/types';
 import express, { type Application } from 'express';
 
@@ -414,7 +413,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.get('/agent-config/global-fallback', async (_req, res) => {
     try {
-      const { readDb } = await import('@lite-llm/config-generator');
+      const { readDb } = await import('@lite-llm/agents-manager');
       const db = await readDb();
       res.json({ globalFallbackModel: db.globalFallbackModel || 'gpt-5.1' });
     } catch (error) {
@@ -425,7 +424,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
   app.put('/agent-config/global-fallback', async (req, res) => {
     try {
       const { globalFallbackModel } = req.body as { globalFallbackModel?: string };
-      const { readDb, writeDb, syncOutputConfigFile } = await import('@lite-llm/config-generator');
+      const { readDb, writeDb, syncOutputConfigFile } = await import('@lite-llm/agents-manager');
       const db = await readDb();
       const newGlobalFallback = globalFallbackModel || 'gpt-5.1';
       db.globalFallbackModel = newGlobalFallback;
@@ -479,7 +478,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.get('/agent-config', async (_req, res) => {
     try {
-      const { readConfigFile } = await import('@lite-llm/config-generator');
+      const { readConfigFile } = await import('@lite-llm/agents-manager');
       const config = await readConfigFile();
       res.json(config);
     } catch (error) {
@@ -494,15 +493,15 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         res.status(404).json({ error: 'Use /agent-config/global-fallback for global fallback' });
         return;
       }
-      const { readConfigFile } = await import('@lite-llm/config-generator');
+      const { readConfigFile } = await import('@lite-llm/agents-manager');
       const config = await readConfigFile();
       const isAgent = key in (config.agents || {});
       const isCategory = key in (config.categories || {});
 
       if (isAgent) {
-        res.json({ type: 'agent', key, config: config.agents[key] });
+        res.json({ type: 'agent', key, config: config.agents![key] });
       } else if (isCategory) {
-        res.json({ type: 'category', key, config: config.categories[key] });
+        res.json({ type: 'category', key, config: config.categories![key] });
       } else {
         res
           .status(404)
@@ -568,7 +567,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         writeProvidersFile,
         writeVscodeModelsFile,
         syncOutputConfigFile,
-      } = await import('@lite-llm/config-generator');
+      } = await import('@lite-llm/agents-manager');
 
       if (type === 'agent') {
         await updateAgentInConfig(key, configToSave);
@@ -589,7 +588,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
           '@lite-llm/alias-router'
         );
         const { updateAgentRoutingConfig } = dataSource;
-        const { readDb } = await import('@lite-llm/config-generator');
+        const { readDb } = await import('@lite-llm/agents-manager');
         const db = await readDb();
         const newAliases = generateLitellmAliases(
           key,
@@ -699,7 +698,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         writeProvidersFile,
         writeVscodeModelsFile,
         syncOutputConfigFile,
-      } = await import('@lite-llm/config-generator');
+      } = await import('@lite-llm/agents-manager');
       await writeFullConfig({
         agents: agentsToSave,
         categories: categoriesToSave,
@@ -763,7 +762,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const { type } = req.query;
 
       const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(
-        '@lite-llm/config-generator'
+        '@lite-llm/agents-manager'
       );
 
       if (type === 'category') {

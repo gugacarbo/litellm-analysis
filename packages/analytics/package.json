@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@lite-llm/alias-router": "workspace:*",
-    "@lite-llm/config-generator": "workspace:*",
+    "@lite-llm/agents-manager": "workspace:*",
     "@litellm/shared": "workspace:*",
     "drizzle-orm": "^0.38.0",
     "pg": "^8.13.0"

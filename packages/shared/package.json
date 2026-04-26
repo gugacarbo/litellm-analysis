@@ -5,13 +5,18 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./agent-config": "./src/agent-config.ts"
+    "./agent-config": "./src/types/agent-config.ts",
+    "./types/*": "./src/types/*.ts"
   },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/node": "^25.6.0",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "zod": "3"
   }
 }

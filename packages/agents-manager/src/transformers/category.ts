@@ -1,0 +1,72 @@
+import type { CategoryConfig, DbCategoryEntry } from '../types/index.js';
+
+// ── Model name aliasing constants ──
+
+const MODEL_NAMES = ['gpt-5.5', 'gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+
+// ── Category Transformer: DB format → Output config format ──
+
+export interface ICategoryTransformer {
+  toOutput(
+    categories: Record<string, DbCategoryEntry>,
+    globalFallbackModel?: string,
+  ): Record<string, CategoryConfig>;
+}
+
+export class CategoryTransformer implements ICategoryTransformer {
+  toOutput(
+    categories: Record<string, DbCategoryEntry>,
+    globalFallbackModel?: string,
+  ): Record<string, CategoryConfig> {
+    const result: Record<string, CategoryConfig> = {};
+    for (const [key, entry] of Object.entries(categories)) {
+      if (Object.keys(entry).length === 0) continue;
+      const output: CategoryConfig = {};
+
+      // Transform real model names to aliases
+      if (entry.model) {
+        output.model = `${key}/${MODEL_NAMES[0]}`;
+      }
+
+      // Generate fallback slots
+      const categoryFallbacks: string[] = [];
+      const fbLen = entry.fallbackModels?.length ?? 0;
+      for (let i = 0; i < Math.min(fbLen, 3); i++) {
+        categoryFallbacks.push(`${key}/${MODEL_NAMES[i + 1]}`);
+      }
+
+      const gpt51Model =
+        entry.fallbackModels && entry.fallbackModels.length >= 4
+          ? entry.fallbackModels[3]
+          : globalFallbackModel;
+
+      if (gpt51Model) {
+        categoryFallbacks.push(`${key}/${MODEL_NAMES[4]}`);
+      }
+
+      if (categoryFallbacks.length > 0) {
+        output.fallback_models = categoryFallbacks;
+      }
+      if (entry.description) output.description = entry.description;
+      if (entry.variant) output.variant = entry.variant;
+      if (entry.temperature !== undefined) output.temperature = entry.temperature;
+      if (entry.top_p !== undefined) output.top_p = entry.top_p;
+      if (entry.maxTokens) output.maxTokens = entry.maxTokens;
+      if (entry.thinking) output.thinking = entry.thinking;
+      if (entry.reasoningEffort) output.reasoningEffort = entry.reasoningEffort;
+      if (entry.textVerbosity) output.textVerbosity = entry.textVerbosity;
+      if (entry.tools) output.tools = entry.tools;
+      if (entry.prompt_append) output.prompt_append = entry.prompt_append;
+      if (entry.is_unstable_agent !== undefined)
+        output.is_unstable_agent = entry.is_unstable_agent;
+      result[key] = output;
+    }
+    return result;
+  }
+}
+
+// ── Factory ──
+
+export function createCategoryTransformer(): CategoryTransformer {
+  return new CategoryTransformer();
+}

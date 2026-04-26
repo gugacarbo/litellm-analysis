@@ -1,4 +1,4 @@
-import type { AgentConfig, CategoryConfig } from '../../types/agent-routing';
+import type { AgentConfig, CategoryConfig } from '@litellm/shared';
 import { fetchApi } from './core';
 
 export type AgentConfigResponse = {

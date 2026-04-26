@@ -13,9 +13,10 @@
     "start": "node dist/api-server.js"
   },
   "dependencies": {
+    "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/alias-router": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
-    "@lite-llm/config-generator": "workspace:*",
+    "@litellm/shared": "workspace:^",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^4.21.0",

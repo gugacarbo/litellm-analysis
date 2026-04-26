@@ -1,5 +1,5 @@
 {
-  "name": "@lite-llm/config-generator",
+  "name": "@lite-llm/agents-manager",
   "version": "0.1.0",
   "private": true,
   "type": "module",

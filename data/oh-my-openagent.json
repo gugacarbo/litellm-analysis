@@ -1,91 +1,17 @@
 {
-  "$schema": "./db.schema.json",
-  "version": 1,
-  "litellm": {
-    "baseUrl": "http://localhost:4000/v1",
-    "apiKey": "sk-123456789"
-  },
-  "models": {
-    "glm-5": {
-      "displayName": "GLM 5",
-      "ownedBy": "atplus",
-      "family": "z.ai",
-      "contextLength": 200000,
-      "maxOutput": 128000,
-      "cost": {
-        "input": 1,
-        "output": 3.2
-      }
-    },
-    "glm-5.1": {
-      "displayName": "GLM 5.1",
-      "ownedBy": "atplus",
-      "family": "z.ai",
-      "contextLength": 200000,
-      "maxOutput": 128000,
-      "cost": {
-        "input": 1.4,
-        "output": 4.4
-      }
-    },
-    "glm-5-turbo": {
-      "displayName": "GLM 5 Turbo",
-      "ownedBy": "atplus",
-      "family": "z.ai",
-      "contextLength": 200000,
-      "maxOutput": 128000,
-      "cost": {
-        "input": 1.2,
-        "output": 4
-      }
-    },
-    "kimi-k2.5": {
-      "displayName": "Kimi K2.5",
-      "ownedBy": "atplus",
-      "contextLength": 256000,
-      "maxOutput": 64000,
-      "cost": {
-        "input": 0.6,
-        "output": 3
-      }
-    },
-    "minimax-m2.7-highspeed": {
-      "displayName": "MiniMax M2.7",
-      "ownedBy": "atplus",
-      "contextLength": 204800,
-      "maxOutput": 128000,
-      "cost": {
-        "input": 0.3,
-        "output": 1.2
-      }
-    },
-    "qwen3.5-plus": {
-      "displayName": "Qwen 3.5+",
-      "ownedBy": "atplus",
-      "contextLength": 1000000,
-      "maxOutput": 64000,
-      "cost": {
-        "input": 0.4,
-        "output": 2.4
-      }
-    },
-    "qwen3-coder-plus": {
-      "displayName": "Qwen 3 Coder+",
-      "ownedBy": "atplus",
-      "contextLength": 1000000,
-      "maxOutput": 64000,
-      "cost": {
-        "input": 0.65,
-        "output": 3.25
-      }
-    }
+  "$schema": "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
+  "globalFallbackModel": "minimax-m2.7-highspeed",
+  "git_master": {
+    "commit_footer": false,
+    "include_co_authored_by": false
   },
   "agents": {
     "sisyphus": {
-      "model": "minimax-m2.7-highspeed",
-      "fallbackModels": [
-        "glm-5-1",
-        "minimax-m2.7-highspeed"
+      "model": "sisyphus/gpt-5.5",
+      "fallback_models": [
+        "sisyphus/gpt-5.4",
+        "sisyphus/gpt-5.3",
+        "sisyphus/gpt-5.1"
       ],
       "description": "Agente Orquestrador",
       "color": "#C83232",
@@ -94,10 +20,11 @@
       "permission": {}
     },
     "oracle": {
-      "model": "kimi-k2-5",
-      "fallbackModels": [
-        "glm-5-1",
-        "kimi-k2-5"
+      "model": "oracle/gpt-5.5",
+      "fallback_models": [
+        "oracle/gpt-5.4",
+        "oracle/gpt-5.3",
+        "oracle/gpt-5.1"
       ],
       "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
       "color": "#048B5E",
@@ -106,16 +33,16 @@
       "permission": {}
     },
     "hephaestus": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "hephaestus/gpt-5.4",
+        "hephaestus/gpt-5.1"
       ],
       "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
     },
     "atlas": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "atlas/gpt-5.4",
+        "atlas/gpt-5.1"
       ],
       "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
       "color": "#F0FF1A",
@@ -124,9 +51,9 @@
       "permission": {}
     },
     "sisyphus-junior": {
-      "model": "",
-      "fallbackModels": [
-        "kimi-k2.5"
+      "fallback_models": [
+        "sisyphus-junior/gpt-5.4",
+        "sisyphus-junior/gpt-5.1"
       ],
       "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
       "color": "#5A00C7",
@@ -135,9 +62,9 @@
       "permission": {}
     },
     "librarian": {
-      "model": "",
-      "fallbackModels": [
-        "kimi-k2.5"
+      "fallback_models": [
+        "librarian/gpt-5.4",
+        "librarian/gpt-5.1"
       ],
       "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
       "color": "#945E00",
@@ -146,17 +73,18 @@
       "permission": {}
     },
     "momus": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "momus/gpt-5.4",
+        "momus/gpt-5.1"
       ],
       "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
     },
     "prometheus": {
-      "model": "glm-5-1",
-      "fallbackModels": [
-        "qwen3-coder-plus",
-        "glm-5-1"
+      "model": "prometheus/gpt-5.5",
+      "fallback_models": [
+        "prometheus/gpt-5.4",
+        "prometheus/gpt-5.3",
+        "prometheus/gpt-5.1"
       ],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
       "color": "#90A300",
@@ -165,10 +93,11 @@
       "permission": {}
     },
     "explore": {
-      "model": "qwen3-coder-plus",
-      "fallbackModels": [
-        "glm-5-turbo",
-        "qwen3-coder-plus"
+      "model": "explore/gpt-5.5",
+      "fallback_models": [
+        "explore/gpt-5.4",
+        "explore/gpt-5.3",
+        "explore/gpt-5.1"
       ],
       "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
       "color": "#04B9AD",
@@ -177,11 +106,12 @@
       "permission": {}
     },
     "multimodal-looker": {
-      "model": "glm-5-1",
-      "fallbackModels": [
-        "qwen3-5-plus",
-        "glm-5-1",
-        "qwen3-coder-plus"
+      "model": "multimodal-looker/gpt-5.5",
+      "fallback_models": [
+        "multimodal-looker/gpt-5.4",
+        "multimodal-looker/gpt-5.3",
+        "multimodal-looker/gpt-5.2",
+        "multimodal-looker/gpt-5.1"
       ],
       "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
       "disable": false,
@@ -189,9 +119,9 @@
       "permission": {}
     },
     "metis": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "metis/gpt-5.4",
+        "metis/gpt-5.1"
       ],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
       "color": "#0FE000",
@@ -200,61 +130,60 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "visual-engineering/gpt-5.4",
+        "visual-engineering/gpt-5.1"
       ],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "ultrabrain/gpt-5.4",
+        "ultrabrain/gpt-5.1"
       ],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "deep/gpt-5.4",
+        "deep/gpt-5.1"
       ],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
     "artistry": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "artistry/gpt-5.4",
+        "artistry/gpt-5.1"
       ],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
-      "model": "",
-      "fallbackModels": [
-        "kimi-k2.5"
+      "fallback_models": [
+        "quick/gpt-5.4",
+        "quick/gpt-5.1"
       ],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
-      "model": "",
-      "fallbackModels": [
-        "kimi-k2.5"
+      "fallback_models": [
+        "unspecified-low/gpt-5.4",
+        "unspecified-low/gpt-5.1"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "unspecified-high/gpt-5.4",
+        "unspecified-high/gpt-5.1"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
-      "model": "",
-      "fallbackModels": [
-        "glm-5"
+      "fallback_models": [
+        "writing/gpt-5.4",
+        "writing/gpt-5.1"
       ],
       "description": "Documentação, prosa e escrita técnica."
     }
-  },
-  "globalFallbackModel": "minimax-m2.7-highspeed"
+  }
 }

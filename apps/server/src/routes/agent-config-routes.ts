@@ -1,3 +1,4 @@
+import type { AgentConfig, CategoryConfig } from '@litellm/shared';
 import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
 import type { Application } from 'express';
 
@@ -6,7 +7,7 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
 
   app.get('/agent-config/global-fallback', async (_req, res) => {
     try {
-      const { readDb } = await import('@lite-llm/config-generator');
+      const { readDb } = await import('@lite-llm/agents-manager');
       const db = await readDb();
       res.json({ globalFallbackModel: db.globalFallbackModel || 'gpt-5' });
     } catch (error) {
@@ -17,7 +18,7 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
   app.put('/agent-config/global-fallback', async (req, res) => {
     try {
       const { globalFallbackModel } = req.body as { globalFallbackModel?: string };
-      const { readDb, writeDb } = await import('@lite-llm/config-generator');
+      const { readDb, writeDb } = await import('@lite-llm/agents-manager');
       const db = await readDb();
       db.globalFallbackModel = globalFallbackModel || 'gpt-5';
       await writeDb(db);
@@ -31,7 +32,7 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
 
   app.get('/agent-config', async (_req, res) => {
     try {
-      const { readConfigFile } = await import('@lite-llm/config-generator');
+      const { readConfigFile } = await import('@lite-llm/agents-manager');
       const config = await readConfigFile();
       res.json(config);
     } catch (error) {
@@ -46,15 +47,15 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
         res.status(404).json({ error: 'Use /agent-config/global-fallback for global fallback' });
         return;
       }
-      const { readConfigFile } = await import('@lite-llm/config-generator');
+      const { readConfigFile } = await import('@lite-llm/agents-manager');
       const config = await readConfigFile();
       const isAgent = key in (config.agents || {});
       const isCategory = key in (config.categories || {});
 
       if (isAgent) {
-        res.json({ type: 'agent', key, config: config.agents[key] });
+        res.json({ type: 'agent', key, config: config.agents![key] });
       } else if (isCategory) {
-        res.json({ type: 'category', key, config: config.categories[key] });
+        res.json({ type: 'category', key, config: config.categories![key] });
       } else {
         res
           .status(404)
@@ -119,7 +120,7 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
         readConfigFile,
         writeProvidersFile,
         writeVscodeModelsFile,
-      } = await import('@lite-llm/config-generator');
+      } = await import('@lite-llm/agents-manager');
 
       if (type === 'agent') {
         await updateAgentInConfig(key, configToSave);
@@ -245,7 +246,7 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
         readConfigFile,
         writeProvidersFile,
         writeVscodeModelsFile,
-      } = await import('@lite-llm/config-generator');
+      } = await import('@lite-llm/agents-manager');
       await writeFullConfig({
         agents: agentsToSave,
         categories: categoriesToSave,
@@ -308,7 +309,7 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
       const { type } = req.query;
 
       const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(
-        '@lite-llm/config-generator'
+        '@lite-llm/agents-manager'
       );
 
       if (type === 'category') {
@@ -339,17 +340,4 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
       res.status(500).json({ error: String(error) });
     }
   });
-}
-
-// Define types that were referenced but not imported
-interface AgentConfig {
-  model: string;
-  fallback_models?: string[];
-  [key: string]: unknown;
-}
-
-interface CategoryConfig {
-  model: string;
-  fallback_models?: string[];
-  [key: string]: unknown;
 }

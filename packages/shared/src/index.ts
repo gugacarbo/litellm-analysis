@@ -3,4 +3,16 @@ export type {
   AgentConfigFile,
   CategoryConfig,
   OhMyOpenAgentConfig,
-} from './agent-config';
+  Permission,
+  Thinking,
+  GitMaster,
+} from './types/agent-config';
+
+export {
+  agentConfigSchema,
+  categoryConfigSchema,
+  ohMyOpenAgentConfigSchema,
+  agentConfigFileSchema,
+  permissionSchema,
+  thinkingSchema,
+} from './types/agent-config';
