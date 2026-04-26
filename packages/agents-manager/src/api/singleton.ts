@@ -28,7 +28,7 @@ export interface AgentsManagerOptions {
 
 export function createAgentsManager(options: AgentsManagerOptions = {}): void {
   _storage = createFileStorage({
-    configDir: options.configDir ?? "data",
+    configDir: options.configDir ?? "db",
     dbFile: options.dbFile,
     legacyConfigFile: options.legacyConfigFile,
     providersFile: options.providersFile,
@@ -43,32 +43,38 @@ export function createAgentsManager(options: AgentsManagerOptions = {}): void {
 
 // ── Getters for internal use ──
 
+function ensureInitialized(): void {
+  if (!_storage) {
+    createAgentsManager();
+  }
+}
+
 export function getStorage() {
-  if (!_storage) createAgentsManager();
-  return _storage;
+  ensureInitialized();
+  return _storage!;
 }
 
 export function getAgentAdapter() {
-  if (!_agentAdapter) createAgentsManager();
-  return _agentAdapter;
+  ensureInitialized();
+  return _agentAdapter!;
 }
 
 export function getCategoryAdapter() {
-  if (!_categoryAdapter) createAgentsManager();
-  return _categoryAdapter;
+  ensureInitialized();
+  return _categoryAdapter!;
 }
 
 export function getAgentTransformer() {
-  if (!_agentTransformer) createAgentsManager();
-  return _agentTransformer;
+  ensureInitialized();
+  return _agentTransformer!;
 }
 
 export function getCategoryTransformer() {
-  if (!_categoryTransformer) createAgentsManager();
-  return _categoryTransformer;
+  ensureInitialized();
+  return _categoryTransformer!;
 }
 
 export function getLegacyConfigFile(): string {
-  if (!_legacyConfigFile) createAgentsManager();
+  ensureInitialized();
   return _legacyConfigFile || "";
 }

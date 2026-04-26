@@ -2,9 +2,14 @@ import {
   deleteAgentFromConfig,
   deleteCategoryFromConfig,
   readConfigFile,
+  readDb,
   updateAgentInConfig,
   updateCategoryInConfig,
 } from "@lite-llm/agents-manager";
+import {
+  generateLitellmAliases,
+  sortAliasesByDefinitionOrder,
+} from "@lite-llm/alias-router";
 import {
   createModel as createModelQuery,
   deleteModelLogs as deleteModelLogsQuery,
@@ -333,25 +338,68 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   }
 
   async getAgentRoutingConfig(): Promise<Record<string, unknown> | null> {
-    const { getRouterSettings } = await import("../queries/index.js");
-    return getRouterSettings();
+    const db = await readDb();
+    const allAliases: Record<string, string> = {};
+
+    // Generate aliases from agents
+    for (const [key, agent] of Object.entries(db.agents || {})) {
+      const agentAliases = generateLitellmAliases(
+        key,
+        agent.model || "",
+        agent.fallbackModels,
+        db.globalFallbackModel,
+      );
+      Object.assign(allAliases, agentAliases);
+    }
+
+    // Generate aliases from categories
+    for (const [key, category] of Object.entries(db.categories || {})) {
+      const categoryAliases = generateLitellmAliases(
+        key,
+        category.model || "",
+        category.fallbackModels,
+        db.globalFallbackModel,
+      );
+      Object.assign(allAliases, categoryAliases);
+    }
+
+    // Sort aliases by definition order
+    const sortedAliases = sortAliasesByDefinitionOrder(allAliases);
+
+    return { model_group_alias: sortedAliases };
   }
 
   async updateAgentRoutingConfig(
     modelGroupAlias: Record<string, string>,
   ): Promise<void> {
-    const { updateRouterSettings } = await import("../queries/index.js");
-    await updateRouterSettings(modelGroupAlias);
+    // Import writeDb to update custom aliases in db.json
+    const { writeDb, readDb } = await import("@lite-llm/agents-manager");
+    const db = await readDb();
+
+    // Remove agent/category generated aliases, keep only custom ones
+    const agentKeys = new Set(Object.keys(db.agents || {}));
+    const categoryKeys = new Set(Object.keys(db.categories || {}));
+
+    const customAliases: Record<string, string> = {};
+    for (const [key, value] of Object.entries(modelGroupAlias)) {
+      const prefix = key.includes("/") ? key.split("/")[0] : key;
+      if (!agentKeys.has(key) && !categoryKeys.has(key) && !agentKeys.has(prefix) && !categoryKeys.has(prefix)) {
+        customAliases[key] = value;
+      }
+    }
+
+    db.customAliases = customAliases;
+    await writeDb(db);
   }
 
   async getAgentConfigs(): Promise<Record<string, unknown>> {
-    const config = await readConfigFile();
-    return config.agents || {};
+    const db = await readDb();
+    return db.agents || {};
   }
 
   async getCategoryConfigs(): Promise<Record<string, unknown>> {
-    const config = await readConfigFile();
-    return config.categories || {};
+    const db = await readDb();
+    return db.categories || {};
   }
 
   async updateAgentConfig(

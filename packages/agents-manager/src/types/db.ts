@@ -66,4 +66,5 @@ export interface DbConfig {
   agents: Record<string, DbAgentEntry>;
   categories: Record<string, DbCategoryEntry>;
   globalFallbackModel?: string;
+  customAliases?: Record<string, string>;
 }

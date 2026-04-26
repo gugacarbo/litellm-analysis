@@ -25,3 +25,5 @@ export { writeProvidersFile } from "./providers.js";
 export { type AgentsManagerOptions, createAgentsManager } from "./singleton.js";
 export { syncOutputConfigFile } from "./sync.js";
 export { writeVscodeModelsFile } from "./vscode.js";
+// LiteLLM sync
+export { syncToLiteLLM, type LiteLLMSyncOptions } from "./litellm-sync.js";
