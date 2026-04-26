@@ -1,7 +1,12 @@
 import { desc, eq, sql } from 'drizzle-orm';
 import { db } from '../client';
 import { errorLogs, spendLogs } from '../schema';
-import { combineConditions, getFailedSpendLogsCondition, getSpendLogsTimeCondition, normalizeDays } from './spend-queries';
+import {
+  combineConditions,
+  getFailedSpendLogsCondition,
+  getSpendLogsTimeCondition,
+  normalizeDays,
+} from './spend-queries';
 
 export async function getErrorLogs(limit = 50, days = 30) {
   const normalizedDays = normalizeDays(days, 30);
@@ -25,9 +30,8 @@ export async function getErrorLogs(limit = 50, days = 30) {
             String,
           ),
         timestamp: spendLogs.startTime,
-        status_code: sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(
-          Number,
-        ),
+        status_code:
+          sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(Number),
       })
       .from(spendLogs)
       .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))

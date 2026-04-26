@@ -47,9 +47,7 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
   const contextWindow = formData.contextWindowSize
     ? parseInt(formData.contextWindowSize, 10)
     : 0;
-  const maxTokens = formData.maxTokens
-    ? parseInt(formData.maxTokens, 10)
-    : 0;
+  const maxTokens = formData.maxTokens ? parseInt(formData.maxTokens, 10) : 0;
 
   if (formData.contextWindowSize && Number.isNaN(contextWindow)) {
     return { params: {}, error: 'Context window must be a valid number' };

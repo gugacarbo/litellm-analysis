@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { createContext, useCallback, useContext } from 'react';
-import { fetchServerMode } from '../lib/server-mode';
 import { queryKeys } from '../lib/query-keys';
+import { fetchServerMode } from '../lib/server-mode';
 import type { AnalyticsCapabilities, ServerMode } from '../types/analytics';
 
 interface ServerModeState {
@@ -40,9 +40,7 @@ export function ServerModeProvider({
         capabilities,
         isLoading: serverModeQuery.isPending && !serverModeQuery.data,
         error:
-          serverModeQuery.error instanceof Error
-            ? serverModeQuery.error
-            : null,
+          serverModeQuery.error instanceof Error ? serverModeQuery.error : null,
         refetch,
       }}
     >

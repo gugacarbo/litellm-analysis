@@ -1,5 +1,10 @@
 // ── Type exports ──
 
-export type { DbModelSpec, DbAgentEntry, DbCategoryEntry, DbConfig } from './db.js';
-export type { AgentConfig, CategoryConfig, AgentConfigFile } from './config.js';
-export type { FilePaths, DEFAULT_FILE_PATHS } from './paths.js';
+export type { AgentConfig, AgentConfigFile, CategoryConfig } from './config.js';
+export type {
+  DbAgentEntry,
+  DbCategoryEntry,
+  DbConfig,
+  DbModelSpec,
+} from './db.js';
+export type { DEFAULT_FILE_PATHS, FilePaths } from './paths.js';

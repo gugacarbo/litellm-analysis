@@ -205,7 +205,8 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
     (query) => query.error instanceof Error,
   )?.error;
 
-  const loading = successfulCount === 0 && dashboardQueries.some((q) => q.isPending);
+  const loading =
+    successfulCount === 0 && dashboardQueries.some((q) => q.isPending);
   const refreshing = !loading && dashboardQueries.some((q) => q.isFetching);
 
   const latestUpdateTimestamp = Math.max(

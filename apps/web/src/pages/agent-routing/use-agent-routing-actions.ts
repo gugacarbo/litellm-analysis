@@ -1,7 +1,4 @@
-import {
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import {
   deleteAgentConfig,
@@ -34,7 +31,9 @@ type SetCategoryConfigs = (
         prev: Record<string, CategoryConfig>,
       ) => Record<string, CategoryConfig>),
 ) => void;
-type SetGlobalFallbackModel = (model: string | ((prev: string) => string)) => void;
+type SetGlobalFallbackModel = (
+  model: string | ((prev: string) => string),
+) => void;
 
 export function useAgentRoutingActions(
   _aliases: Record<string, string>,

@@ -8,9 +8,7 @@
   "agents": {
     "sisyphus": {
       "model": "openai/gpt-4.1",
-      "fallbackModels": [
-        "anthropic/claude-3-7-sonnet"
-      ],
+      "fallbackModels": ["anthropic/claude-3-7-sonnet"],
       "description": "updated"
     }
   },

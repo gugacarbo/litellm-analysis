@@ -1,7 +1,10 @@
 import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
 import type { Application } from 'express';
 
-export function registerAgentRoutingRoutes(app: Application, dataSource: AnalyticsDataSource) {
+export function registerAgentRoutingRoutes(
+  app: Application,
+  dataSource: AnalyticsDataSource,
+) {
   app.get('/agent-routing', async (_req, res) => {
     if (!dataSource.capabilities.agentRouting) {
       res

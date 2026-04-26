@@ -2,10 +2,10 @@ import { Database, Pencil, Trash2 } from 'lucide-react';
 import type { ModelConfig } from '../../lib/api-client';
 import {
   getApiBase,
-  getInputCost,
-  getOutputCost,
   getContextWindow,
+  getInputCost,
   getMaxOutput,
+  getOutputCost,
 } from '../../pages/models/models-utils';
 import {
   AlertDialog,

@@ -38,7 +38,8 @@ export function ModelSelector({
 
   const models = (modelsQuery.data ?? []) as ModelConfig[];
   const isLoading = modelsQuery.isPending && !modelsQuery.data;
-  const error = modelsQuery.error instanceof Error ? 'Failed to load models' : null;
+  const error =
+    modelsQuery.error instanceof Error ? 'Failed to load models' : null;
 
   const id = useMemo(
     () => `model-selector-${Math.random().toString(36).substr(2, 9)}`,

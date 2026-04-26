@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import type {
-  AgentDefinition,
   AgentConfig,
+  AgentDefinition,
   AgentRoutingConfig,
   CategoryConfig,
 } from '../../types/agent-routing';
@@ -16,9 +16,7 @@ const AGENT_KEYS: readonly string[] = AGENT_DEFINITIONS.map(
 );
 
 /** Extract category keys in UI display order. */
-const CATEGORY_KEYS: readonly string[] = CATEGORY_DEFINITIONS.map(
-  (c) => c.key,
-);
+const CATEGORY_KEYS: readonly string[] = CATEGORY_DEFINITIONS.map((c) => c.key);
 
 /**
  * Sort all aliases: agent/category first (in UI definition order),

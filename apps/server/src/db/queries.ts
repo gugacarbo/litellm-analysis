@@ -1,5 +1,5 @@
-import { sortAliasesByDefinitionOrder } from '../services/alias-generator.js';
 import { and, asc, desc, eq, gte, type SQL, sql } from 'drizzle-orm';
+import { sortAliasesByDefinitionOrder } from '../services/alias-generator.js';
 import { db } from './client';
 import { errorLogs, proxyModelTable, spendLogs } from './schema';
 
@@ -226,9 +226,8 @@ export async function getErrorLogs(limit = 50, days = 30) {
             String,
           ),
         timestamp: spendLogs.startTime,
-        status_code: sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(
-          Number,
-        ),
+        status_code:
+          sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(Number),
       })
       .from(spendLogs)
       .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))

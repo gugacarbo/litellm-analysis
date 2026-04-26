@@ -1,7 +1,5 @@
+import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
 import type { AgentConfig, CategoryConfig } from '@litellm/shared';
-import type {
-  AnalyticsDataSource,
-} from '@lite-llm/analytics/types';
 import express, { type Application } from 'express';
 
 function parseDays(rawValue: unknown, fallback: number): number {
@@ -423,8 +421,12 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   app.put('/agent-config/global-fallback', async (req, res) => {
     try {
-      const { globalFallbackModel } = req.body as { globalFallbackModel?: string };
-      const { readDb, writeDb, syncOutputConfigFile } = await import('@lite-llm/agents-manager');
+      const { globalFallbackModel } = req.body as {
+        globalFallbackModel?: string;
+      };
+      const { readDb, writeDb, syncOutputConfigFile } = await import(
+        '@lite-llm/agents-manager'
+      );
       const db = await readDb();
       const newGlobalFallback = globalFallbackModel || 'gpt-5.1';
       db.globalFallbackModel = newGlobalFallback;
@@ -490,7 +492,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     try {
       const key = req.params.key;
       if (key === 'global-fallback') {
-        res.status(404).json({ error: 'Use /agent-config/global-fallback for global fallback' });
+        res.status(404).json({
+          error: 'Use /agent-config/global-fallback for global fallback',
+        });
         return;
       }
       const { readConfigFile } = await import('@lite-llm/agents-manager');
@@ -516,7 +520,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     try {
       const key = req.params.key;
       if (key === 'global-fallback') {
-        res.status(404).json({ error: 'Use PUT /agent-config/global-fallback for global fallback' });
+        res.status(404).json({
+          error: 'Use PUT /agent-config/global-fallback for global fallback',
+        });
         return;
       }
       const { type, config: rawConfig, syncAliases } = req.body;

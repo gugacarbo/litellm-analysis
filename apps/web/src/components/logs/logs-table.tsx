@@ -271,8 +271,7 @@ export function LogsTable({
                 <TableRow>
                   <TableCell
                     colSpan={
-                      tableColumns.length +
-                      (showGroupExpanderColumn ? 1 : 0)
+                      tableColumns.length + (showGroupExpanderColumn ? 1 : 0)
                     }
                     className="py-8 text-center text-muted-foreground"
                   >
@@ -481,7 +480,9 @@ export function LogsTable({
                       return (
                         <Badge
                           variant={
-                            groupStatus === 'error' ? 'destructive' : 'secondary'
+                            groupStatus === 'error'
+                              ? 'destructive'
+                              : 'secondary'
                           }
                           className={
                             groupStatus === 'success'

@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { db } from '../client';
 import { sortAliasesByDefinitionOrder } from '../../services/alias-generator.js';
+import { db } from '../client';
 
 export async function getRouterSettings(): Promise<Record<
   string,

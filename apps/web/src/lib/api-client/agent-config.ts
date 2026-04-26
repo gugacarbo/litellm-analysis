@@ -64,7 +64,9 @@ export async function saveAllAgentConfigs(
   });
 }
 
-export async function getGlobalFallbackModel(): Promise<{ globalFallbackModel: string }> {
+export async function getGlobalFallbackModel(): Promise<{
+  globalFallbackModel: string;
+}> {
   return fetchApi('/agent-config/global-fallback');
 }
 

@@ -1,7 +1,10 @@
 import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
 import type { Application } from 'express';
 
-export function registerModeRoutes(app: Application, dataSource: AnalyticsDataSource) {
+export function registerModeRoutes(
+  app: Application,
+  dataSource: AnalyticsDataSource,
+) {
   app.get('/mode', (_req, res) => {
     const { capabilities } = dataSource;
     let mode: string;

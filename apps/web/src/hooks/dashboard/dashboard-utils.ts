@@ -37,7 +37,9 @@ export function normalizePerformance(
   };
 }
 
-export function normalizeApiKeyStats(apiKeyStats: ApiKeyStatItem[]): ApiKeyStatItem[] {
+export function normalizeApiKeyStats(
+  apiKeyStats: ApiKeyStatItem[],
+): ApiKeyStatItem[] {
   return apiKeyStats.map((keyStats) => ({
     ...keyStats,
     key: keyStats.key || 'Unknown',
@@ -85,7 +87,9 @@ export function safeDivide(numerator: number, denominator: number): number {
   return denominator !== 0 ? numerator / denominator : 0;
 }
 
-export function getToneByDelta(value: number): 'positive' | 'negative' | 'warning' | 'neutral' {
+export function getToneByDelta(
+  value: number,
+): 'positive' | 'negative' | 'warning' | 'neutral' {
   if (value > 10) {
     return 'warning';
   }

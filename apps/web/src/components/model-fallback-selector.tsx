@@ -186,7 +186,9 @@ export function ModelFallbackSelector({
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium">
             Fallback Models
-            <span className="text-muted-foreground text-xs ms-1">(max 3, global fallback gpt-5.1 is always last)</span>
+            <span className="text-muted-foreground text-xs ms-1">
+              (max 3, global fallback gpt-5.1 is always last)
+            </span>
           </label>
           <Button
             type="button"

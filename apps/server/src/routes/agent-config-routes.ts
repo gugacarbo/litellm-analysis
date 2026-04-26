@@ -1,8 +1,11 @@
-import type { AgentConfig, CategoryConfig } from '@litellm/shared';
 import type { AnalyticsDataSource } from '@lite-llm/analytics/types';
+import type { AgentConfig, CategoryConfig } from '@litellm/shared';
 import type { Application } from 'express';
 
-export function registerAgentConfigRoutes(app: Application, dataSource: AnalyticsDataSource) {
+export function registerAgentConfigRoutes(
+  app: Application,
+  dataSource: AnalyticsDataSource,
+) {
   // ── Global Fallback Model ──
 
   app.get('/agent-config/global-fallback', async (_req, res) => {
@@ -17,7 +20,9 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
 
   app.put('/agent-config/global-fallback', async (req, res) => {
     try {
-      const { globalFallbackModel } = req.body as { globalFallbackModel?: string };
+      const { globalFallbackModel } = req.body as {
+        globalFallbackModel?: string;
+      };
       const { readDb, writeDb } = await import('@lite-llm/agents-manager');
       const db = await readDb();
       db.globalFallbackModel = globalFallbackModel || 'gpt-5';
@@ -44,7 +49,9 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
     try {
       const key = req.params.key;
       if (key === 'global-fallback') {
-        res.status(404).json({ error: 'Use /agent-config/global-fallback for global fallback' });
+        res.status(404).json({
+          error: 'Use /agent-config/global-fallback for global fallback',
+        });
         return;
       }
       const { readConfigFile } = await import('@lite-llm/agents-manager');
@@ -70,7 +77,9 @@ export function registerAgentConfigRoutes(app: Application, dataSource: Analytic
     try {
       const key = req.params.key;
       if (key === 'global-fallback') {
-        res.status(404).json({ error: 'Use PUT /agent-config/global-fallback for global fallback' });
+        res.status(404).json({
+          error: 'Use PUT /agent-config/global-fallback for global fallback',
+        });
         return;
       }
       const { type, config: rawConfig, syncAliases } = req.body;

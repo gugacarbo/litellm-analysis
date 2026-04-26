@@ -5,7 +5,10 @@ type EmptyStateProps = {
   message?: string;
 };
 
-export function EmptyState({ tableColumnsLength, message = 'No logs found' }: EmptyStateProps) {
+export function EmptyState({
+  tableColumnsLength,
+  message = 'No logs found',
+}: EmptyStateProps) {
   return (
     <TableRow>
       <TableCell

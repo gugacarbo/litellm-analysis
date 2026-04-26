@@ -77,18 +77,6 @@ const gitMasterSchema = z.object({
 
 export type GitMaster = z.infer<typeof gitMasterSchema>;
 
-// ── Oh My Open Agent Config Schema ──────────────────────────────────────────
-
-export const ohMyOpenAgentConfigSchema = z.object({
-  $schema: z.string().optional(),
-  globalFallbackModel: z.string().optional(),
-  agents: z.record(z.string(), agentConfigSchema),
-  categories: z.record(z.string(), categoryConfigSchema),
-  git_master: gitMasterSchema.optional(),
-});
-
-export type OhMyOpenAgentConfig = z.infer<typeof ohMyOpenAgentConfigSchema>;
-
 // ── Agent Config File Schema ─────────────────────────────────────────────────
 
 export const agentConfigFileSchema = z.object({
@@ -100,3 +88,15 @@ export type AgentConfigFile = z.infer<typeof agentConfigFileSchema>;
 
 // Re-export schemas for index.ts
 export { permissionSchema, thinkingSchema };
+
+// ── Oh My Open Agent Config Schema ──────────────────────────────────────────
+
+export const ohMyOpenAgentConfigSchema = z.object({
+  $schema: z.string().optional(),
+  globalFallbackModel: z.string().optional(),
+  agents: z.record(z.string(), agentConfigSchema),
+  categories: z.record(z.string(), categoryConfigSchema),
+  git_master: gitMasterSchema.optional(),
+});
+
+export type OhMyOpenAgentConfig = z.infer<typeof ohMyOpenAgentConfigSchema>;

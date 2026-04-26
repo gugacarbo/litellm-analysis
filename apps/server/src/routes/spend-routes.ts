@@ -13,7 +13,10 @@ function parseDays(rawValue: unknown, fallback: number): number {
   return parsed;
 }
 
-export function registerSpendRoutes(app: Application, dataSource: AnalyticsDataSource) {
+export function registerSpendRoutes(
+  app: Application,
+  dataSource: AnalyticsDataSource,
+) {
   // Spend by model
   app.get('/spend/model', async (req, res) => {
     try {

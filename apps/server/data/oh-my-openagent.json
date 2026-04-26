@@ -7,9 +7,7 @@
   "agents": {
     "sisyphus": {
       "model": "sisyphus/gpt-5.5",
-      "fallback_models": [
-        "sisyphus/gpt-5.4"
-      ],
+      "fallback_models": ["sisyphus/gpt-5.4"],
       "description": "updated"
     }
   },

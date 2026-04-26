@@ -13,7 +13,10 @@ function parseDays(rawValue: unknown, fallback: number): number {
   return parsed;
 }
 
-export function registerErrorRoutes(app: Application, dataSource: AnalyticsDataSource) {
+export function registerErrorRoutes(
+  app: Application,
+  dataSource: AnalyticsDataSource,
+) {
   app.get('/errors', async (req, res) => {
     if (!dataSource.capabilities.errorLogs) {
       res.status(501).json({

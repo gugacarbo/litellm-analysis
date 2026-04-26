@@ -2,7 +2,10 @@ import { and, eq, gte, type SQL, sql } from 'drizzle-orm';
 import { db } from '../client';
 import { spendLogs } from '../schema';
 
-export function normalizeDays(days: number | string | undefined, fallback: number) {
+export function normalizeDays(
+  days: number | string | undefined,
+  fallback: number,
+) {
   const parsed = typeof days === 'string' ? Number.parseInt(days, 10) : days;
   if (typeof parsed !== 'number' || Number.isNaN(parsed) || parsed < 0) {
     return fallback;
