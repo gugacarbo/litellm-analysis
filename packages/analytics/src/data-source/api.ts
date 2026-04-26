@@ -18,16 +18,16 @@ import type {
   SpendLogsFilters,
   SpendLogsResponse,
   TokenDistribution,
-} from '../types/index.js';
+} from "../types/index.js";
 
-import { API_CAPABILITIES } from './types.js';
+import { API_CAPABILITIES } from "./types.js";
 
 const DEFAULT_DASHBOARD_DAYS = 30;
 const DEFAULT_HOURLY_DAYS = 7;
 const MAX_LOGS_FETCH = 5000;
 
 function normalizeDays(days: number | undefined, fallback: number): number {
-  if (typeof days !== 'number' || Number.isNaN(days) || days < 0) {
+  if (typeof days !== "number" || Number.isNaN(days) || days < 0) {
     return fallback;
   }
   return days;
@@ -50,7 +50,7 @@ function getWindowStart(days: number): Date | null {
 }
 
 function getDayKey(timestamp: string): string {
-  return timestamp.split('T')[0];
+  return timestamp.split("T")[0];
 }
 
 function parseNullableNumber(value: unknown): number | null {
@@ -58,7 +58,7 @@ function parseNullableNumber(value: unknown): number | null {
     return null;
   }
 
-  const parsed = typeof value === 'number' ? value : Number(value);
+  const parsed = typeof value === "number" ? value : Number(value);
   if (Number.isNaN(parsed)) {
     return null;
   }
@@ -103,7 +103,7 @@ export class ApiDataSource implements AnalyticsDataSource {
   capabilities = API_CAPABILITIES;
 
   constructor(apiUrl: string, apiKey: string) {
-    this.apiUrl = apiUrl.replace(/\/$/, '');
+    this.apiUrl = apiUrl.replace(/\/$/, "");
     this.apiKey = apiKey;
   }
 
@@ -116,7 +116,7 @@ export class ApiDataSource implements AnalyticsDataSource {
       ...options,
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...options.headers,
       },
     });
@@ -241,7 +241,7 @@ export class ApiDataSource implements AnalyticsDataSource {
     >();
 
     logs.forEach((log) => {
-      const user = log.user ?? 'Anonymous';
+      const user = log.user ?? "Anonymous";
       const existing = users.get(user) || {
         total_spend: 0,
         total_tokens: 0,
@@ -276,7 +276,7 @@ export class ApiDataSource implements AnalyticsDataSource {
     >();
 
     logs.forEach((log) => {
-      const key = log.api_key ?? 'Unknown';
+      const key = log.api_key ?? "Unknown";
       const existing = keys.get(key) || {
         total_spend: 0,
         total_tokens: 0,
@@ -300,12 +300,12 @@ export class ApiDataSource implements AnalyticsDataSource {
 
   async getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse> {
     const params = new URLSearchParams();
-    if (filters.model) params.append('model', filters.model);
-    if (filters.user) params.append('user', filters.user);
-    if (filters.startDate) params.append('start_date', filters.startDate);
-    if (filters.endDate) params.append('end_date', filters.endDate);
-    if (filters.limit) params.append('limit', String(filters.limit));
-    if (filters.offset) params.append('offset', String(filters.offset));
+    if (filters.model) params.append("model", filters.model);
+    if (filters.user) params.append("user", filters.user);
+    if (filters.startDate) params.append("start_date", filters.startDate);
+    if (filters.endDate) params.append("end_date", filters.endDate);
+    if (filters.limit) params.append("limit", String(filters.limit));
+    if (filters.offset) params.append("offset", String(filters.offset));
 
     const logs = await this.fetchWithAuth<SpendLogResponse[]>(
       `/spend/logs?${params.toString()}`,
@@ -336,10 +336,10 @@ export class ApiDataSource implements AnalyticsDataSource {
           log.completion_tokens !== null ? Number(log.completion_tokens) : null,
         spend: Number(log.spend || log.total_spend || 0),
         time_to_first_token_ms: parseTimeToFirstTokenMs(log),
-        start_time: log.startTime ? new Date(log.startTime).toISOString() : '',
+        start_time: log.startTime ? new Date(log.startTime).toISOString() : "",
         end_time: log.endTime ? new Date(log.endTime).toISOString() : null,
         api_key: log.api_key || null,
-        status: log.status || 'unknown',
+        status: log.status || "unknown",
       })),
       pagination: {
         total: 0,
@@ -414,7 +414,7 @@ export class ApiDataSource implements AnalyticsDataSource {
     }
 
     const total_requests = logs.length;
-    const successful = logs.filter((log) => log.status === 'success').length;
+    const successful = logs.filter((log) => log.status === "success").length;
 
     let totalDuration = 0;
     let durationCount = 0;
@@ -496,19 +496,19 @@ export class ApiDataSource implements AnalyticsDataSource {
     >();
 
     logs.forEach((log) => {
-      const key = log.api_key ?? 'Unknown';
+      const key = log.api_key ?? "Unknown";
       const existing = keyStats.get(key) || {
         request_count: 0,
         total_spend: 0,
         total_tokens: 0,
         successful: 0,
-        last_used: '',
+        last_used: "",
       };
 
       existing.request_count += 1;
       existing.total_spend += Number(log.spend || log.total_spend || 0);
       existing.total_tokens += Number(log.total_tokens || 0);
-      existing.successful += log.status === 'success' ? 1 : 0;
+      existing.successful += log.status === "success" ? 1 : 0;
 
       if (log.startTime && log.startTime > existing.last_used) {
         existing.last_used = log.startTime;
@@ -533,7 +533,7 @@ export class ApiDataSource implements AnalyticsDataSource {
             : 0,
         last_used: stats.last_used
           ? new Date(stats.last_used).toISOString()
-          : '',
+          : "",
       }))
       .sort((a, b) => b.total_spend - a.total_spend)
       .slice(0, 20);
@@ -698,7 +698,7 @@ export class ApiDataSource implements AnalyticsDataSource {
         }
       }
 
-      if (log.status === 'success') {
+      if (log.status === "success") {
         data.successes++;
       } else {
         data.errors++;
@@ -751,7 +751,7 @@ export class ApiDataSource implements AnalyticsDataSource {
   }
 
   async getModels(): Promise<ModelEntry[]> {
-    const response = await this.fetchWithAuth<ModelsResponse>('/v1/models');
+    const response = await this.fetchWithAuth<ModelsResponse>("/v1/models");
 
     if (!response?.data || !Array.isArray(response.data)) {
       return [];
@@ -778,68 +778,68 @@ export class ApiDataSource implements AnalyticsDataSource {
     modelName: string;
     litellmParams: Record<string, unknown>;
   }): Promise<void> {
-    throw new Error('Creating models is not supported in API-only mode');
+    throw new Error("Creating models is not supported in API-only mode");
   }
 
   async updateModel(
     _name: string,
     _updates: { litellmParams?: Record<string, unknown>; modelName?: string },
   ): Promise<void> {
-    throw new Error('Updating models is not supported in API-only mode');
+    throw new Error("Updating models is not supported in API-only mode");
   }
 
   async deleteModel(_name: string): Promise<void> {
-    throw new Error('Deleting models is not supported in API-only mode');
+    throw new Error("Deleting models is not supported in API-only mode");
   }
 
   async mergeModels(_source: string, _target: string): Promise<void> {
-    throw new Error('Merging models is not supported in API-only mode');
+    throw new Error("Merging models is not supported in API-only mode");
   }
 
   async deleteModelLogs(_model: string): Promise<void> {
-    throw new Error('Deleting model logs is not supported in API-only mode');
+    throw new Error("Deleting model logs is not supported in API-only mode");
   }
 
   async getAgentRoutingConfig(): Promise<Record<string, unknown> | null> {
-    throw new Error('Agent routing config is not supported in API-only mode');
+    throw new Error("Agent routing config is not supported in API-only mode");
   }
 
   async updateAgentRoutingConfig(
     _config: Record<string, unknown>,
   ): Promise<void> {
     throw new Error(
-      'Agent routing config updates are not supported in API-only mode',
+      "Agent routing config updates are not supported in API-only mode",
     );
   }
 
   async getAgentConfigs(): Promise<Record<string, unknown>> {
-    throw new Error('Config file access is not supported in API-only mode');
+    throw new Error("Config file access is not supported in API-only mode");
   }
 
   async getCategoryConfigs(): Promise<Record<string, unknown>> {
-    throw new Error('Config file access is not supported in API-only mode');
+    throw new Error("Config file access is not supported in API-only mode");
   }
 
   async updateAgentConfig(
     _agentKey: string,
     _config: Record<string, unknown>,
   ): Promise<void> {
-    throw new Error('Config file updates are not supported in API-only mode');
+    throw new Error("Config file updates are not supported in API-only mode");
   }
 
   async updateCategoryConfig(
     _categoryKey: string,
     _config: Record<string, unknown>,
   ): Promise<void> {
-    throw new Error('Config file updates are not supported in API-only mode');
+    throw new Error("Config file updates are not supported in API-only mode");
   }
 
   async deleteAgentConfig(_agentKey: string): Promise<void> {
-    throw new Error('Config file updates are not supported in API-only mode');
+    throw new Error("Config file updates are not supported in API-only mode");
   }
 
   async deleteCategoryConfig(_categoryKey: string): Promise<void> {
-    throw new Error('Config file updates are not supported in API-only mode');
+    throw new Error("Config file updates are not supported in API-only mode");
   }
 }
 

@@ -1,8 +1,14 @@
-import type { CategoryConfig, DbCategoryEntry } from '../types/index.js';
+import type { CategoryConfig, DbCategoryEntry } from "../types/index.js";
 
 // ── Model name aliasing constants ──
 
-const MODEL_NAMES = ['gpt-5.5', 'gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+const MODEL_NAMES = [
+  "gpt-5.5",
+  "gpt-5.4",
+  "gpt-5.3",
+  "gpt-5.2",
+  "gpt-5.1",
+] as const;
 
 // ── Category Transformer: DB format → Output config format ──
 
@@ -49,7 +55,8 @@ export class CategoryTransformer implements ICategoryTransformer {
       }
       if (entry.description) output.description = entry.description;
       if (entry.variant) output.variant = entry.variant;
-      if (entry.temperature !== undefined) output.temperature = entry.temperature;
+      if (entry.temperature !== undefined)
+        output.temperature = entry.temperature;
       if (entry.top_p !== undefined) output.top_p = entry.top_p;
       if (entry.maxTokens) output.maxTokens = entry.maxTokens;
       if (entry.thinking) output.thinking = entry.thinking;

@@ -1,6 +1,12 @@
-import { createFileStorage } from '../storage/index.js';
-import { createAgentAdapter, createCategoryAdapter } from '../adapters/index.js';
-import { createAgentTransformer, createCategoryTransformer } from '../transformers/index.js';
+import {
+  createAgentAdapter,
+  createCategoryAdapter,
+} from "../adapters/index.js";
+import { createFileStorage } from "../storage/index.js";
+import {
+  createAgentTransformer,
+  createCategoryTransformer,
+} from "../transformers/index.js";
 
 // ── Singleton instances (initialized via createManager) ──
 
@@ -8,7 +14,8 @@ let _storage: ReturnType<typeof createFileStorage> | null = null;
 let _agentAdapter: ReturnType<typeof createAgentAdapter> | null = null;
 let _categoryAdapter: ReturnType<typeof createCategoryAdapter> | null = null;
 let _agentTransformer: ReturnType<typeof createAgentTransformer> | null = null;
-let _categoryTransformer: ReturnType<typeof createCategoryTransformer> | null = null;
+let _categoryTransformer: ReturnType<typeof createCategoryTransformer> | null =
+  null;
 let _legacyConfigFile: string | null = null;
 
 export interface AgentsManagerOptions {
@@ -21,7 +28,7 @@ export interface AgentsManagerOptions {
 
 export function createAgentsManager(options: AgentsManagerOptions = {}): void {
   _storage = createFileStorage({
-    configDir: options.configDir ?? 'data',
+    configDir: options.configDir ?? "data",
     dbFile: options.dbFile,
     legacyConfigFile: options.legacyConfigFile,
     providersFile: options.providersFile,

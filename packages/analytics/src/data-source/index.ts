@@ -2,24 +2,24 @@ import type {
   AnalyticsDataSource,
   DataSourceConfig,
   DataSourceMode,
-} from '../types/index.js';
+} from "../types/index.js";
 
-import { ApiDataSource } from './api.js';
-import { DatabaseDataSource } from './database.js';
-import { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES } from './types.js';
+import { ApiDataSource } from "./api.js";
+import { DatabaseDataSource } from "./database.js";
+import { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES } from "./types.js";
 
 export function detectMode(): DataSourceMode {
   const accessMode = process.env.ACCESS_MODE;
 
   if (accessMode) {
-    if (accessMode === 'full') return 'database';
-    if (accessMode === 'api-only') return 'api-only';
-    if (accessMode === 'limited') {
-      if (process.env.DB_HOST) return 'database';
+    if (accessMode === "full") return "database";
+    if (accessMode === "api-only") return "api-only";
+    if (accessMode === "limited") {
+      if (process.env.DB_HOST) return "database";
       console.warn(
-        '[data-source] ACCESS_MODE=limited but DB_HOST is not set. Falling back to api-only mode.',
+        "[data-source] ACCESS_MODE=limited but DB_HOST is not set. Falling back to api-only mode.",
       );
-      return 'api-only';
+      return "api-only";
     }
   }
 
@@ -29,12 +29,12 @@ export function detectMode(): DataSourceMode {
   );
 
   if (hasDbConfig) {
-    return 'database';
+    return "database";
   }
   if (hasApiConfig) {
-    return 'api-only';
+    return "api-only";
   }
-  return 'database';
+  return "database";
 }
 
 export function createDataSource(
@@ -43,20 +43,20 @@ export function createDataSource(
   const mode = config?.mode || detectMode();
 
   switch (mode) {
-    case 'database':
+    case "database":
       return new DatabaseDataSource();
 
-    case 'limited':
+    case "limited":
       return new DatabaseDataSource(LIMITED_CAPABILITIES);
 
-    case 'api-only': {
+    case "api-only": {
       const apiUrl = config?.api?.url || process.env.LITELLM_API_URL;
       const apiKey = config?.api?.api_key || process.env.LITELLM_API_KEY;
 
       if (!apiUrl || !apiKey) {
         throw new Error(
           `Missing API configuration for ${mode} mode. ` +
-            'Provide LITELLM_API_URL and LITELLM_API_KEY environment variables or pass api config.',
+            "Provide LITELLM_API_URL and LITELLM_API_KEY environment variables or pass api config.",
         );
       }
 
@@ -72,7 +72,7 @@ export type {
   AnalyticsDataSource,
   DataSourceConfig,
   DataSourceMode,
-} from '../types/index.js';
+} from "../types/index.js";
 export {
   ApiDataSource,
   DATABASE_CAPABILITIES,

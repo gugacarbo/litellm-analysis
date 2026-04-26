@@ -261,7 +261,7 @@ export interface AnalyticsCapabilities {
   agentConfigFile: boolean;
 }
 
-export type DataSourceMode = 'database' | 'api-only' | 'limited';
+export type DataSourceMode = "database" | "api-only" | "limited";
 
 export interface DataSourceConfig {
   mode?: DataSourceMode;
@@ -287,7 +287,7 @@ export type {
   AgentConfig,
   AgentConfigFile,
   CategoryConfig,
-} from '@litellm/shared';
+} from "@litellm/shared";
 
 export interface ModelEntryConfig {
   modelName: string;

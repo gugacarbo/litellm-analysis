@@ -8,7 +8,8 @@
     "test": "turbo test --ui=tui",
     "build": "turbo build --ui=tui",
     "lint": "turbo lint",
-    "format": "turbo format -- --write",
+    "format": "biome check --write",
+    "format:all": "turbo format -- --write",
     "typecheck": "turbo typecheck",
     "lint-staged": "lint-staged",
     "prepare": "husky"

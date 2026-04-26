@@ -1,10 +1,10 @@
 export {
-  type IAgentTransformer,
   AgentTransformer,
   createAgentTransformer,
-} from './agent.js';
+  type IAgentTransformer,
+} from "./agent.js";
 export {
-  type ICategoryTransformer,
   CategoryTransformer,
   createCategoryTransformer,
-} from './category.js';
+  type ICategoryTransformer,
+} from "./category.js";

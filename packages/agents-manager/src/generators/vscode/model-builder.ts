@@ -1,4 +1,4 @@
-import type { DbModelSpec } from '../../types/index.js';
+import type { DbModelSpec } from "../../types/index.js";
 
 export interface VscodeModelEntry {
   id: string;
@@ -12,7 +12,10 @@ export interface VscodeModelEntry {
 }
 
 export function humanize(str: string): string {
-  return str.split(/[-_.]/).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  return str
+    .split(/[-_.]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 export function buildVscodeModelsArray(
@@ -21,10 +24,10 @@ export function buildVscodeModelsArray(
 ): VscodeModelEntry[] {
   return Object.entries(models).map(([modelId, spec]) => ({
     id: modelId,
-    owned_by: spec.ownedBy ?? 'atplus',
+    owned_by: spec.ownedBy ?? "atplus",
     displayName: spec.displayName ?? humanize(modelId),
     baseUrl,
-    apiMode: 'openai',
+    apiMode: "openai",
     context_length: spec.contextLength,
     limit: { output: spec.maxOutput },
     ...(spec.family ? { family: spec.family } : {}),

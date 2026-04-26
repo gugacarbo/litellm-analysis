@@ -1,5 +1,5 @@
-import type { DbModelSpec } from '../../types/index.js';
-import { capitalize } from './model-builder.js';
+import type { DbModelSpec } from "../../types/index.js";
+import { capitalize } from "./model-builder.js";
 
 export interface DbModelWithParams {
   modelName: string;
@@ -18,7 +18,7 @@ export function mergeModelsFromDb(
     const params = m.litellmParams || {};
     let modelId = m.modelName;
 
-    if (modelId.startsWith('litellm/')) {
+    if (modelId.startsWith("litellm/")) {
       modelId = modelId.slice(8);
     }
     if (params.model_name) {
@@ -27,7 +27,7 @@ export function mergeModelsFromDb(
 
     merged[modelId] = {
       displayName: merged[modelId]?.displayName || capitalize(modelId),
-      ownedBy: merged[modelId]?.ownedBy || 'atplus',
+      ownedBy: merged[modelId]?.ownedBy || "atplus",
       family: merged[modelId]?.family,
       contextLength: params.context_window_size
         ? Number(params.context_window_size)
@@ -37,10 +37,12 @@ export function mergeModelsFromDb(
         : (merged[modelId]?.maxOutput ?? 32768),
       cost: {
         input: params.input_cost_per_token
-          ? Math.round(Number(params.input_cost_per_token) * 1_000_000 * 100) / 100
+          ? Math.round(Number(params.input_cost_per_token) * 1_000_000 * 100) /
+            100
           : merged[modelId]?.cost?.input,
         output: params.output_cost_per_token
-          ? Math.round(Number(params.output_cost_per_token) * 1_000_000 * 100) / 100
+          ? Math.round(Number(params.output_cost_per_token) * 1_000_000 * 100) /
+            100
           : merged[modelId]?.cost?.output,
       },
     };

@@ -1,12 +1,12 @@
-import { sortAliasesByDefinitionOrder } from '@lite-llm/alias-router';
-import { and, asc, desc, eq, gte, type SQL, sql } from 'drizzle-orm';
-import { db, schema } from './client';
+import { sortAliasesByDefinitionOrder } from "@lite-llm/alias-router";
+import { and, asc, desc, eq, gte, type SQL, sql } from "drizzle-orm";
+import { db, schema } from "./client";
 
 const { spendLogs, proxyModelTable, errorLogs } = schema;
 
 function normalizeDays(days: number | string | undefined, fallback: number) {
-  const parsed = typeof days === 'string' ? Number.parseInt(days, 10) : days;
-  if (typeof parsed !== 'number' || Number.isNaN(parsed) || parsed < 0) {
+  const parsed = typeof days === "string" ? Number.parseInt(days, 10) : days;
+  if (typeof parsed !== "number" || Number.isNaN(parsed) || parsed < 0) {
     return fallback;
   }
   return parsed;
@@ -240,9 +240,8 @@ export async function getErrorLogs(limit = 50, days = 30) {
             String,
           ),
         timestamp: spendLogs.startTime,
-        status_code: sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(
-          Number,
-        ),
+        status_code:
+          sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(Number),
       })
       .from(spendLogs)
       .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))
@@ -501,10 +500,11 @@ export async function getModelStatistics(days = 30) {
       request_count: sql<number>`COUNT(*)`.mapWith(Number),
       total_spend: sql<number>`SUM(${spendLogs.spend})`.mapWith(Number),
       total_tokens: sql<number>`SUM(${spendLogs.totalTokens})`.mapWith(Number),
-      prompt_tokens: sql<number>`SUM(${spendLogs.promptTokens})`.mapWith(Number),
-      completion_tokens: sql<number>`SUM(${spendLogs.completionTokens})`.mapWith(
+      prompt_tokens: sql<number>`SUM(${spendLogs.promptTokens})`.mapWith(
         Number,
       ),
+      completion_tokens:
+        sql<number>`SUM(${spendLogs.completionTokens})`.mapWith(Number),
       avg_tokens_per_request: sql`AVG(${spendLogs.totalTokens})`.mapWith(
         Number,
       ),
@@ -598,7 +598,7 @@ export async function mergeModels(sourceModel: string, targetModel: string) {
 }
 
 export async function deleteModelLogs(modelName: string) {
-  if (modelName.trim() === '') {
+  if (modelName.trim() === "") {
     await db
       .delete(spendLogs)
       .where(sql`NULLIF(BTRIM(${spendLogs.model}), '') IS NULL`);
@@ -625,13 +625,13 @@ export async function updateRouterSettings(
   const existing = await getRouterSettings();
   const merged: Record<string, unknown> = existing ? { ...existing } : {};
   const existingAliases =
-    typeof merged.model_group_alias === 'object' &&
+    typeof merged.model_group_alias === "object" &&
     merged.model_group_alias !== null
       ? ({ ...merged.model_group_alias } as Record<string, string>)
       : {};
 
   for (const [key, value] of Object.entries(modelGroupAlias)) {
-    if (value === '') {
+    if (value === "") {
       delete existingAliases[key];
     } else {
       existingAliases[key] = value;

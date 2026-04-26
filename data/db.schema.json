@@ -4,7 +4,15 @@
   "title": "LiteLLM Analytics Database Configuration",
   "description": "Configuration schema for LiteLLM analytics dashboard including models, agents, and categories",
   "type": "object",
-  "required": ["$schema", "version", "litellm", "models", "agents", "categories", "globalFallbackModel"],
+  "required": [
+    "$schema",
+    "version",
+    "litellm",
+    "models",
+    "agents",
+    "categories",
+    "globalFallbackModel"
+  ],
   "properties": {
     "$schema": {
       "type": "string",

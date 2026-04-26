@@ -1,16 +1,25 @@
-import type { DbModelSpec, DbConfig } from '../../types/index.js';
-import type { LiteLLMModelConfig, OpenCodeProviders } from './types.js';
+import type { DbConfig, DbModelSpec } from "../../types/index.js";
+import type { LiteLLMModelConfig, OpenCodeProviders } from "./types.js";
 
-const MODEL_NAMES = ['gpt-5.5', 'gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+const MODEL_NAMES = [
+  "gpt-5.5",
+  "gpt-5.4",
+  "gpt-5.3",
+  "gpt-5.2",
+  "gpt-5.1",
+] as const;
 
 export function capitalize(str: string): string {
-  return str.split(/[_-]/).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  return str
+    .split(/[_-]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 export function buildLiteLLMProviderConfig(
   models: Record<string, DbModelSpec>,
-  litellmConfig: DbConfig['litellm'],
-): OpenCodeProviders['provider']['litellm'] {
+  litellmConfig: DbConfig["litellm"],
+): OpenCodeProviders["provider"]["litellm"] {
   const liteLLMModels: Record<string, LiteLLMModelConfig> = {};
 
   for (const [modelId, spec] of Object.entries(models)) {
@@ -35,8 +44,8 @@ export function buildLiteLLMProviderConfig(
   }
 
   return {
-    name: 'LiteLLM',
-    npm: '@ai-sdk/openai-compatible',
+    name: "LiteLLM",
+    npm: "@ai-sdk/openai-compatible",
     options: {
       baseURL: litellmConfig.baseUrl,
       apiKey: litellmConfig.apiKey,

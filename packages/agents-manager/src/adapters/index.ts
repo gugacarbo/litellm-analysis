@@ -1,10 +1,10 @@
 export {
-  type IAgentAdapter,
   AgentAdapter,
   createAgentAdapter,
-} from './agent.js';
+  type IAgentAdapter,
+} from "./agent.js";
 export {
-  type ICategoryAdapter,
   CategoryAdapter,
   createCategoryAdapter,
-} from './category.js';
+  type ICategoryAdapter,
+} from "./category.js";

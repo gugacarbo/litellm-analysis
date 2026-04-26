@@ -1,8 +1,14 @@
-import type { AgentConfig, DbAgentEntry } from '../types/index.js';
+import type { AgentConfig, DbAgentEntry } from "../types/index.js";
 
 // ── Model name aliasing constants ──
 
-const MODEL_NAMES = ['gpt-5.5', 'gpt-5.4', 'gpt-5.3', 'gpt-5.2', 'gpt-5.1'] as const;
+const MODEL_NAMES = [
+  "gpt-5.5",
+  "gpt-5.4",
+  "gpt-5.3",
+  "gpt-5.2",
+  "gpt-5.1",
+] as const;
 
 // ── Agent Transformer: DB format → Output config format ──
 
@@ -53,7 +59,8 @@ export class AgentTransformer implements IAgentTransformer {
       if (entry.variant) output.variant = entry.variant;
       if (entry.category) output.category = entry.category;
       if (entry.skills?.length) output.skills = entry.skills;
-      if (entry.temperature !== undefined) output.temperature = entry.temperature;
+      if (entry.temperature !== undefined)
+        output.temperature = entry.temperature;
       if (entry.top_p !== undefined) output.top_p = entry.top_p;
       if (entry.prompt) output.prompt = entry.prompt;
       if (entry.prompt_append) output.prompt_append = entry.prompt_append;

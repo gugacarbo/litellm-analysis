@@ -26,13 +26,13 @@ export interface DbAgentEntry {
   prompt?: string;
   prompt_append?: string;
   tools?: Record<string, boolean>;
-  mode?: 'subagent' | 'primary' | 'all';
+  mode?: "subagent" | "primary" | "all";
   permission?: {
-    edit?: 'ask' | 'allow' | 'deny';
-    bash?: 'ask' | 'allow' | 'deny' | Record<string, 'ask' | 'allow' | 'deny'>;
-    webfetch?: 'ask' | 'allow' | 'deny';
-    doom_loop?: 'ask' | 'allow' | 'deny';
-    external_directory?: 'ask' | 'allow' | 'deny';
+    edit?: "ask" | "allow" | "deny";
+    bash?: "ask" | "allow" | "deny" | Record<string, "ask" | "allow" | "deny">;
+    webfetch?: "ask" | "allow" | "deny";
+    doom_loop?: "ask" | "allow" | "deny";
+    external_directory?: "ask" | "allow" | "deny";
   };
 }
 
@@ -45,11 +45,11 @@ export interface DbCategoryEntry {
   top_p?: number;
   maxTokens?: number;
   thinking?: {
-    type: 'enabled' | 'disabled';
+    type: "enabled" | "disabled";
     budgetTokens?: number;
   };
-  reasoningEffort?: 'low' | 'medium' | 'high' | 'xhigh';
-  textVerbosity?: 'low' | 'medium' | 'high';
+  reasoningEffort?: "low" | "medium" | "high" | "xhigh";
+  textVerbosity?: "low" | "medium" | "high";
   tools?: Record<string, boolean>;
   prompt_append?: string;
   is_unstable_agent?: boolean;

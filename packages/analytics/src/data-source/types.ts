@@ -1,4 +1,4 @@
-import type { AnalyticsCapabilities } from '../types/index.js';
+import type { AnalyticsCapabilities } from "../types/index.js";
 
 export const DATABASE_CAPABILITIES: AnalyticsCapabilities = {
   spendByModel: true,

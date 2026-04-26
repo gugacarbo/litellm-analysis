@@ -1,4 +1,4 @@
-import type { CategoryConfig, DbCategoryEntry } from '../types/index.js';
+import type { CategoryConfig, DbCategoryEntry } from "../types/index.js";
 
 // ── Category Adapter: Convert API format ↔ DB format ──
 
@@ -20,9 +20,11 @@ export class CategoryAdapter implements ICategoryAdapter {
     if (raw.thinking !== undefined) entry.thinking = raw.thinking;
     if (raw.reasoningEffort !== undefined)
       entry.reasoningEffort = raw.reasoningEffort;
-    if (raw.textVerbosity !== undefined) entry.textVerbosity = raw.textVerbosity;
+    if (raw.textVerbosity !== undefined)
+      entry.textVerbosity = raw.textVerbosity;
     if (raw.tools !== undefined) entry.tools = raw.tools;
-    if (raw.prompt_append !== undefined) entry.prompt_append = raw.prompt_append;
+    if (raw.prompt_append !== undefined)
+      entry.prompt_append = raw.prompt_append;
     if (raw.is_unstable_agent !== undefined)
       entry.is_unstable_agent = raw.is_unstable_agent;
     return entry;

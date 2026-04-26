@@ -1,5 +1,5 @@
-import { MODEL_NAMES } from '../constants/model-names.js';
-import { stripLitellmPrefix } from '../utils/strip-prefix.js';
+import { MODEL_NAMES } from "../constants/model-names.js";
+import { stripLitellmPrefix } from "../utils/strip-prefix.js";
 
 /**
  * Generate litellm aliases for an agent/category key.
@@ -38,7 +38,7 @@ export function generateLitellmAliases(
     ? stripLitellmPrefix(globalFallbackModel)
     : fallback_models && fallback_models.length > 0
       ? stripLitellmPrefix(fallback_models[fallback_models.length - 1])
-      : '';
+      : "";
 
   if (gpt51Value) {
     aliases[`${key}/${MODEL_NAMES[4]}`] = gpt51Value;

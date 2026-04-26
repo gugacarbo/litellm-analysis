@@ -4,7 +4,7 @@ import {
   readConfigFile,
   updateAgentInConfig,
   updateCategoryInConfig,
-} from '@lite-llm/agents-manager';
+} from "@lite-llm/agents-manager";
 import {
   createModel as createModelQuery,
   deleteModelLogs as deleteModelLogsQuery,
@@ -29,7 +29,7 @@ import {
   getTokenDistribution,
   mergeModels as mergeModelsQuery,
   updateModel as updateModelQuery,
-} from '../queries/index.js';
+} from "../queries/index.js";
 import type {
   AnalyticsCapabilities,
   AnalyticsDataSource,
@@ -51,8 +51,8 @@ import type {
   SpendLogsFilters,
   SpendLogsResponse,
   TokenDistribution,
-} from '../types/index.js';
-import { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES } from './types.js';
+} from "../types/index.js";
+import { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES } from "./types.js";
 
 export { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES };
 
@@ -61,7 +61,7 @@ function toNullableNumber(value: unknown): number | null {
     return null;
   }
 
-  const parsed = typeof value === 'number' ? value : Number(value);
+  const parsed = typeof value === "number" ? value : Number(value);
   if (Number.isNaN(parsed)) {
     return null;
   }
@@ -155,7 +155,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       completion_tokens: item.completion_tokens,
       spend: Number(item.spend),
       time_to_first_token_ms: toNullableNumber(item.time_to_first_token_ms),
-      start_time: item.startTime ? new Date(item.startTime).toISOString() : '',
+      start_time: item.startTime ? new Date(item.startTime).toISOString() : "",
       end_time: item.endTime ? new Date(item.endTime).toISOString() : null,
       api_key: item.api_key,
       status: item.status,
@@ -213,7 +213,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       success_rate: Number(item.success_rate || 0),
       last_used: item.last_used
         ? new Date(item.last_used as Date).toISOString()
-        : '',
+        : "",
     }));
   }
 
@@ -267,10 +267,10 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       p99_latency_ms: Number(item.p99_latency_ms || 0),
       first_seen: item.first_seen
         ? new Date(item.first_seen as Date).toISOString()
-        : '',
+        : "",
       last_seen: item.last_seen
         ? new Date(item.last_seen as Date).toISOString()
-        : '',
+        : "",
       unique_users: Number(item.unique_users || 0),
       unique_api_keys: Number(item.unique_api_keys || 0),
     }));
@@ -297,11 +297,11 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     const result = await getErrorLogs(limit, days);
     return result.map((item) => ({
       id: item.id,
-      error_type: String(item.error_type ?? ''),
-      model: String(item.model ?? ''),
-      user: String(item.user ?? ''),
-      error_message: String(item.error_message ?? ''),
-      timestamp: item.timestamp ? new Date(item.timestamp).toISOString() : '',
+      error_type: String(item.error_type ?? ""),
+      model: String(item.model ?? ""),
+      user: String(item.user ?? ""),
+      error_message: String(item.error_message ?? ""),
+      timestamp: item.timestamp ? new Date(item.timestamp).toISOString() : "",
       status_code: item.status_code || 0,
     }));
   }
@@ -333,14 +333,14 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   }
 
   async getAgentRoutingConfig(): Promise<Record<string, unknown> | null> {
-    const { getRouterSettings } = await import('../queries/index.js');
+    const { getRouterSettings } = await import("../queries/index.js");
     return getRouterSettings();
   }
 
   async updateAgentRoutingConfig(
     modelGroupAlias: Record<string, string>,
   ): Promise<void> {
-    const { updateRouterSettings } = await import('../queries/index.js');
+    const { updateRouterSettings } = await import("../queries/index.js");
     await updateRouterSettings(modelGroupAlias);
   }
 

@@ -1,44 +1,49 @@
 // ── Main export file ──
 
-// Re-export types
-export type {
-  DbModelSpec,
-  DbAgentEntry,
-  DbCategoryEntry,
-  DbConfig,
-  AgentConfigFile,
-  AgentConfig,
-  CategoryConfig,
-  FilePaths,
-  DEFAULT_FILE_PATHS,
-} from './types/index.js';
+export { createAgentAdapter, createCategoryAdapter } from "./adapters/index.js";
 
 // Re-export API
 export {
-  createAgentsManager,
   type AgentsManagerOptions,
-  syncOutputConfigFile,
-  readDb,
-  writeDb,
+  createAgentsManager,
+  deleteAgentFromConfig,
+  deleteAgentFromDb,
+  deleteCategoryFromConfig,
+  deleteCategoryFromDb,
   readAgentConfigs,
   readCategoryConfigs,
-  readModelSpecs,
   readConfigFile,
-  updateAgentInDb,
-  updateCategoryInDb,
-  deleteAgentFromDb,
-  deleteCategoryFromDb,
-  writeFullConfig,
+  readDb,
+  readModelSpecs,
+  syncOutputConfigFile,
   updateAgentInConfig,
+  updateAgentInDb,
   updateCategoryInConfig,
-  deleteAgentFromConfig,
-  deleteCategoryFromConfig,
+  updateCategoryInDb,
+  writeDb,
+  writeFullConfig,
   writeProvidersFile,
   writeVscodeModelsFile,
-} from './api/index.js';
-
+} from "./api/index.js";
+export {
+  createProvidersGenerator,
+  createVscodeModelsGenerator,
+} from "./generators/index.js";
 // Re-export factories (for advanced usage)
-export { createFileStorage } from './storage/index.js';
-export { createAgentAdapter, createCategoryAdapter } from './adapters/index.js';
-export { createAgentTransformer, createCategoryTransformer } from './transformers/index.js';
-export { createProvidersGenerator, createVscodeModelsGenerator } from './generators/index.js';
+export { createFileStorage } from "./storage/index.js";
+export {
+  createAgentTransformer,
+  createCategoryTransformer,
+} from "./transformers/index.js";
+// Re-export types
+export type {
+  AgentConfig,
+  AgentConfigFile,
+  CategoryConfig,
+  DbAgentEntry,
+  DbCategoryEntry,
+  DbConfig,
+  DbModelSpec,
+  DEFAULT_FILE_PATHS,
+  FilePaths,
+} from "./types/index.js";

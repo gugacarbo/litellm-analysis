@@ -1,4 +1,4 @@
-import { generateAliasCleanupPattern } from '../utils/regex.js';
+import { generateAliasCleanupPattern } from "../utils/regex.js";
 
 /**
  * Generate all aliases that should be removed when changing/clearing a key's configuration.

@@ -1,4 +1,4 @@
-import { escapeRegExp } from '../utils/regex.js';
+import { escapeRegExp } from "../utils/regex.js";
 
 /**
  * Check if a model string is a logical model reference for the given key.
@@ -22,11 +22,11 @@ export function resolveModelValue(
 ): string {
   const trimmed = value.trim();
   if (!trimmed) {
-    return '';
+    return "";
   }
 
   if (isLogicalModelForKey(key, trimmed)) {
-    return existingAliases[trimmed] ?? '';
+    return existingAliases[trimmed] ?? "";
   }
 
   return trimmed;

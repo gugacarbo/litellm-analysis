@@ -1,13 +1,17 @@
 import type {
   AgentConfig,
-  CategoryConfig,
   AgentConfigFile,
+  CategoryConfig,
   DbAgentEntry,
   DbCategoryEntry,
   DbConfig,
   DbModelSpec,
-} from '../types/index.js';
-import { getStorage, getAgentAdapter, getCategoryAdapter } from './singleton.js';
+} from "../types/index.js";
+import {
+  getAgentAdapter,
+  getCategoryAdapter,
+  getStorage,
+} from "./singleton.js";
 
 // ── Public CRUD API ──
 
@@ -21,12 +25,16 @@ export async function writeDb(config: DbConfig): Promise<void> {
   await storage.write(config);
 }
 
-export async function readAgentConfigs(): Promise<Record<string, DbAgentEntry>> {
+export async function readAgentConfigs(): Promise<
+  Record<string, DbAgentEntry>
+> {
   const db = await readDb();
   return db.agents;
 }
 
-export async function readCategoryConfigs(): Promise<Record<string, DbCategoryEntry>> {
+export async function readCategoryConfigs(): Promise<
+  Record<string, DbCategoryEntry>
+> {
   const db = await readDb();
   return db.categories;
 }
@@ -38,13 +46,19 @@ export async function readModelSpecs(): Promise<Record<string, DbModelSpec>> {
 
 export async function readConfigFile(): Promise<AgentConfigFile> {
   const db = await readDb();
-  const agentTransformer = (await import('./singleton.js')).getAgentTransformer();
-  const categoryTransformer = (await import('./singleton.js')).getCategoryTransformer();
+  const agentTransformer = (
+    await import("./singleton.js")
+  ).getAgentTransformer();
+  const categoryTransformer = (
+    await import("./singleton.js")
+  ).getCategoryTransformer();
 
   return {
     agents: agentTransformer.toOutput(db.agents),
     categories: categoryTransformer.toOutput(db.categories),
-    ...(db.globalFallbackModel ? { globalFallbackModel: db.globalFallbackModel } : {}),
+    ...(db.globalFallbackModel
+      ? { globalFallbackModel: db.globalFallbackModel }
+      : {}),
   };
 }
 
@@ -98,12 +112,18 @@ export async function writeFullConfig(config: AgentConfigFile): Promise<void> {
   db.agents = {};
   db.categories = {};
 
-  for (const [key, raw] of Object.entries(config.agents || {}) as [string, AgentConfig][]) {
+  for (const [key, raw] of Object.entries(config.agents || {}) as [
+    string,
+    AgentConfig,
+  ][]) {
     if (Object.keys(raw).length === 0) continue;
     db.agents[key] = agentAdapter.toDb(raw);
   }
 
-  for (const [key, raw] of Object.entries(config.categories || {}) as [string, CategoryConfig][]) {
+  for (const [key, raw] of Object.entries(config.categories || {}) as [
+    string,
+    CategoryConfig,
+  ][]) {
     if (Object.keys(raw).length === 0) continue;
     db.categories[key] = categoryAdapter.toDb(raw);
   }

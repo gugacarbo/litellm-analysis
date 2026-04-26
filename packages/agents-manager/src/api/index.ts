@@ -1,28 +1,26 @@
 // Re-export all public API functions
 
-export { createAgentsManager, type AgentsManagerOptions } from './singleton.js';
-export { syncOutputConfigFile } from './sync.js';
-
 // CRUD operations
 export {
-  readDb,
-  writeDb,
+  deleteAgentFromConfig,
+  deleteAgentFromDb,
+  deleteCategoryFromConfig,
+  deleteCategoryFromDb,
   readAgentConfigs,
   readCategoryConfigs,
-  readModelSpecs,
   readConfigFile,
-  updateAgentInDb,
-  updateCategoryInDb,
-  deleteAgentFromDb,
-  deleteCategoryFromDb,
-  writeFullConfig,
+  readDb,
+  readModelSpecs,
   // Aliases
   updateAgentInConfig,
+  updateAgentInDb,
   updateCategoryInConfig,
-  deleteAgentFromConfig,
-  deleteCategoryFromConfig,
-} from './crud.js';
-
+  updateCategoryInDb,
+  writeDb,
+  writeFullConfig,
+} from "./crud.js";
 // Generator functions
-export { writeProvidersFile } from './providers.js';
-export { writeVscodeModelsFile } from './vscode.js';
+export { writeProvidersFile } from "./providers.js";
+export { type AgentsManagerOptions, createAgentsManager } from "./singleton.js";
+export { syncOutputConfigFile } from "./sync.js";
+export { writeVscodeModelsFile } from "./vscode.js";

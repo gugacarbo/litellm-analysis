@@ -1,5 +1,5 @@
-import { getStorage } from './singleton.js';
-import { createProvidersGenerator } from '../generators/index.js';
+import { createProvidersGenerator } from "../generators/index.js";
+import { getStorage } from "./singleton.js";
 
 export async function writeProvidersFile(
   config?: unknown,

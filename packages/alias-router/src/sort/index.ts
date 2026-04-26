@@ -1,4 +1,4 @@
-import { AGENT_KEYS, CATEGORY_KEYS } from '../constants/model-names.js';
+import { AGENT_KEYS, CATEGORY_KEYS } from "../constants/model-names.js";
 
 /**
  * Sort aliases so that:
@@ -20,15 +20,15 @@ export function sortAliasesByDefinitionOrder(
   const customAliases: [string, string][] = [];
 
   for (const [key, value] of Object.entries(aliases)) {
-    if (agentKeySet.has(key) || key.includes('/')) {
-      const prefix = key.includes('/') ? key.split('/')[0] : key;
+    if (agentKeySet.has(key) || key.includes("/")) {
+      const prefix = key.includes("/") ? key.split("/")[0] : key;
       if (agentKeySet.has(prefix)) {
         agentAliases.push([key, value]);
         continue;
       }
     }
-    if (categoryKeySet.has(key) || key.includes('/')) {
-      const prefix = key.includes('/') ? key.split('/')[0] : key;
+    if (categoryKeySet.has(key) || key.includes("/")) {
+      const prefix = key.includes("/") ? key.split("/")[0] : key;
       if (categoryKeySet.has(prefix)) {
         categoryAliases.push([key, value]);
         continue;

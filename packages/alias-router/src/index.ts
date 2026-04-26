@@ -1,5 +1,5 @@
 function stripLitellmPrefix(model: string): string {
-  if (model.startsWith('litellm/')) {
+  if (model.startsWith("litellm/")) {
     return model.slice(8);
   }
   return model;
@@ -7,11 +7,11 @@ function stripLitellmPrefix(model: string): string {
 
 /** Model names for primary and fallback slots (always generates all 5: gpt-5.5 through gpt-5.1). */
 const MODEL_NAMES = [
-  'gpt-5.5',
-  'gpt-5.4',
-  'gpt-5.3',
-  'gpt-5.2',
-  'gpt-5.1',
+  "gpt-5.5",
+  "gpt-5.4",
+  "gpt-5.3",
+  "gpt-5.2",
+  "gpt-5.1",
 ] as const;
 
 /**
@@ -51,7 +51,7 @@ export function generateLitellmAliases(
     ? stripLitellmPrefix(globalFallbackModel)
     : fallback_models && fallback_models.length > 0
       ? stripLitellmPrefix(fallback_models[fallback_models.length - 1])
-      : '';
+      : "";
 
   if (gpt51Value) {
     aliases[`${key}/${MODEL_NAMES[4]}`] = gpt51Value;
@@ -110,7 +110,7 @@ export function replaceAliasesForAgent(
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function isLogicalModelForKey(key: string, model: string): boolean {
@@ -125,11 +125,11 @@ function resolveModelValue(
 ): string {
   const trimmed = value.trim();
   if (!trimmed) {
-    return '';
+    return "";
   }
 
   if (isLogicalModelForKey(key, trimmed)) {
-    return existingAliases[trimmed] ?? '';
+    return existingAliases[trimmed] ?? "";
   }
 
   return trimmed;
@@ -154,17 +154,17 @@ export function resolveConfiguredModels(
  * Must stay in sync with the frontend definition order.
  */
 export const AGENT_KEYS = [
-  'sisyphus',
-  'oracle',
-  'prometheus',
-  'explore',
-  'multimodal-looker',
-  'metis',
-  'atlas',
-  'librarian',
-  'sisyphus-junior',
-  'momus',
-  'hephaestus',
+  "sisyphus",
+  "oracle",
+  "prometheus",
+  "explore",
+  "multimodal-looker",
+  "metis",
+  "atlas",
+  "librarian",
+  "sisyphus-junior",
+  "momus",
+  "hephaestus",
 ] as const;
 
 /**
@@ -172,14 +172,14 @@ export const AGENT_KEYS = [
  * Must stay in sync with the frontend definition order.
  */
 export const CATEGORY_KEYS = [
-  'visual-engineering',
-  'ultrabrain',
-  'deep',
-  'artistry',
-  'quick',
-  'unspecified-low',
-  'unspecified-high',
-  'writing',
+  "visual-engineering",
+  "ultrabrain",
+  "deep",
+  "artistry",
+  "quick",
+  "unspecified-low",
+  "unspecified-high",
+  "writing",
 ] as const;
 
 /**
@@ -202,15 +202,15 @@ export function sortAliasesByDefinitionOrder(
   const customAliases: [string, string][] = [];
 
   for (const [key, value] of Object.entries(aliases)) {
-    if (agentKeySet.has(key) || key.includes('/')) {
-      const prefix = key.includes('/') ? key.split('/')[0] : key;
+    if (agentKeySet.has(key) || key.includes("/")) {
+      const prefix = key.includes("/") ? key.split("/")[0] : key;
       if (agentKeySet.has(prefix)) {
         agentAliases.push([key, value]);
         continue;
       }
     }
-    if (categoryKeySet.has(key) || key.includes('/')) {
-      const prefix = key.includes('/') ? key.split('/')[0] : key;
+    if (categoryKeySet.has(key) || key.includes("/")) {
+      const prefix = key.includes("/") ? key.split("/")[0] : key;
       if (categoryKeySet.has(prefix)) {
         categoryAliases.push([key, value]);
         continue;

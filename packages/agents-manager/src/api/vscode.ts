@@ -1,5 +1,5 @@
-import { getStorage } from './singleton.js';
-import { createVscodeModelsGenerator } from '../generators/index.js';
+import { createVscodeModelsGenerator } from "../generators/index.js";
+import { getStorage } from "./singleton.js";
 
 export async function writeVscodeModelsFile(
   dbModels?: Array<{

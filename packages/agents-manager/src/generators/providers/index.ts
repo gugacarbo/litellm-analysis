@@ -1,19 +1,16 @@
-import * as fs from 'node:fs';
-import type { DbAgentEntry, DbCategoryEntry } from '../../types/index.js';
-import type { OpenCodeProviders } from './types.js';
+import * as fs from "node:fs";
+import type { DbAgentEntry, DbCategoryEntry } from "../../types/index.js";
+import { type DbModelWithParams, mergeModelsFromDb } from "./merger.js";
 import {
-  buildLiteLLMProviderConfig,
   buildAgentModels,
-} from './model-builder.js';
-import { mergeModelsFromDb, type DbModelWithParams } from './merger.js';
+  buildLiteLLMProviderConfig,
+} from "./model-builder.js";
+import type { OpenCodeProviders } from "./types.js";
 
 // ── Providers Generator: Generate opencode.json ──
 
 export interface IProvidersGenerator {
-  write(
-    config?: unknown,
-    dbModels?: DbModelWithParams[],
-  ): Promise<void>;
+  write(config?: unknown, dbModels?: DbModelWithParams[]): Promise<void>;
 }
 
 export class ProvidersGenerator implements IProvidersGenerator {
@@ -27,7 +24,7 @@ export class ProvidersGenerator implements IProvidersGenerator {
     _config?: unknown,
     dbModels?: DbModelWithParams[],
   ): Promise<void> {
-    const { readDb } = await import('../../index.js');
+    const { readDb } = await import("../../index.js");
     const db = await readDb();
     const providers: OpenCodeProviders = { provider: {} };
 
@@ -43,7 +40,7 @@ export class ProvidersGenerator implements IProvidersGenerator {
     await fs.promises.writeFile(
       this.providersFile,
       JSON.stringify(providers, null, 2),
-      'utf-8',
+      "utf-8",
     );
   }
 
@@ -59,10 +56,10 @@ export class ProvidersGenerator implements IProvidersGenerator {
       ).length;
 
       providers.provider[key] = {
-        npm: '@ai-sdk/openai-compatible',
+        npm: "@ai-sdk/openai-compatible",
         options: {
-          baseURL: 'http://localhost:4000/v1',
-          apiKey: 'sk-123456789',
+          baseURL: "http://localhost:4000/v1",
+          apiKey: "sk-123456789",
         },
         models: buildAgentModels(key, fallbackCount),
       };
@@ -72,6 +69,8 @@ export class ProvidersGenerator implements IProvidersGenerator {
 
 // ── Factory ──
 
-export function createProvidersGenerator(providersFile: string): ProvidersGenerator {
+export function createProvidersGenerator(
+  providersFile: string,
+): ProvidersGenerator {
   return new ProvidersGenerator(providersFile);
 }

@@ -1,4 +1,4 @@
-import type { AgentConfig, DbAgentEntry } from '../types/index.js';
+import type { AgentConfig, DbAgentEntry } from "../types/index.js";
 
 // ── Agent Adapter: Convert API format ↔ DB format ──
 
@@ -21,7 +21,8 @@ export class AgentAdapter implements IAgentAdapter {
     if (raw.temperature !== undefined) entry.temperature = raw.temperature;
     if (raw.top_p !== undefined) entry.top_p = raw.top_p;
     if (raw.prompt !== undefined) entry.prompt = raw.prompt;
-    if (raw.prompt_append !== undefined) entry.prompt_append = raw.prompt_append;
+    if (raw.prompt_append !== undefined)
+      entry.prompt_append = raw.prompt_append;
     if (raw.tools !== undefined) entry.tools = raw.tools;
     if (raw.mode !== undefined) entry.mode = raw.mode;
     if (raw.permission !== undefined) entry.permission = raw.permission;
