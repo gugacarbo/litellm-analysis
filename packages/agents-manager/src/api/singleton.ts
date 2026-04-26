@@ -45,30 +45,30 @@ export function createAgentsManager(options: AgentsManagerOptions = {}): void {
 
 export function getStorage() {
   if (!_storage) createAgentsManager();
-  return _storage!;
+  return _storage;
 }
 
 export function getAgentAdapter() {
   if (!_agentAdapter) createAgentsManager();
-  return _agentAdapter!;
+  return _agentAdapter;
 }
 
 export function getCategoryAdapter() {
   if (!_categoryAdapter) createAgentsManager();
-  return _categoryAdapter!;
+  return _categoryAdapter;
 }
 
 export function getAgentTransformer() {
   if (!_agentTransformer) createAgentsManager();
-  return _agentTransformer!;
+  return _agentTransformer;
 }
 
 export function getCategoryTransformer() {
   if (!_categoryTransformer) createAgentsManager();
-  return _categoryTransformer!;
+  return _categoryTransformer;
 }
 
 export function getLegacyConfigFile(): string {
   if (!_legacyConfigFile) createAgentsManager();
-  return _legacyConfigFile!;
+  return _legacyConfigFile || "";
 }
