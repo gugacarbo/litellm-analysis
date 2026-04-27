@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
 import {
   AGENT_KEYS,
   CATEGORY_KEYS,
   sortAliasesByDefinitionOrder,
 } from "@lite-llm/alias-router";
+import { describe, expect, it } from "vitest";
 
 describe("sortAliasesByDefinitionOrder", () => {
   it("returns empty object for empty input", () => {

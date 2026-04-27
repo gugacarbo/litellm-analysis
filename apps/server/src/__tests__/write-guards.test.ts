@@ -1,13 +1,13 @@
+import type {
+  AnalyticsCapabilities,
+  AnalyticsDataSource,
+} from "@lite-llm/analytics";
+import {
+  DATABASE_CAPABILITIES,
+  LIMITED_CAPABILITIES,
+} from "@lite-llm/analytics";
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
-import {
-	DATABASE_CAPABILITIES,
-	LIMITED_CAPABILITIES,
-} from '@lite-llm/analytics';
-import type {
-	AnalyticsCapabilities,
-	AnalyticsDataSource,
-} from '@lite-llm/analytics';
 
 function createMockDataSource(
   capabilities: AnalyticsCapabilities,
@@ -73,7 +73,10 @@ function createMockOrchestration(ds: AnalyticsDataSource) {
 async function getServer(capabilities: AnalyticsCapabilities) {
   const { createApiServer } = await import("../api-server");
   const mockDs = createMockDataSource(capabilities);
-  return createApiServer({ dataSource: mockDs, orchestration: createMockOrchestration(mockDs) });
+  return createApiServer({
+    dataSource: mockDs,
+    orchestration: createMockOrchestration(mockDs),
+  });
 }
 
 describe("Write endpoint guards", () => {
@@ -126,7 +129,10 @@ describe("Write endpoint guards", () => {
   it("DELETE /models/logs?model= forwards empty model in full mode", async () => {
     const { createApiServer } = await import("../api-server");
     const mockDs = createMockDataSource(DATABASE_CAPABILITIES);
-    const app = createApiServer({ dataSource: mockDs, orchestration: createMockOrchestration(mockDs) });
+    const app = createApiServer({
+      dataSource: mockDs,
+      orchestration: createMockOrchestration(mockDs),
+    });
 
     const res = await request(app).delete("/models/logs?model=");
 
