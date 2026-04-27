@@ -78,101 +78,190 @@
         "input": 0.65,
         "output": 3.25
       }
+    },
+    "deepseek-v4-flash": {
+      "displayName": "Deepseek V4 Flash",
+      "ownedBy": "atplus",
+      "family": "deepseek",
+      "contextLength": 1048576,
+      "maxOutput": 384000,
+      "cost": {
+        "input": 0.14,
+        "output": 0.28
+      }
+    },
+    "deepseek-v4-pro": {
+      "displayName": "Deepseek V4 Pro",
+      "ownedBy": "atplus",
+      "family": "deepseek",
+      "contextLength": 1048576,
+      "maxOutput": 384000,
+      "cost": {
+        "input": 1.74,
+        "output": 3.48
+      }
+    },
+    "glm-5.1:ollama": {
+      "displayName": "Glm 5.1:ollama",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    "kimi-k2.6": {
+      "displayName": "Kimi K2.6",
+      "ownedBy": "atplus",
+      "family": "moonshot",
+      "contextLength": 262144,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 0.95,
+        "output": 4
+      }
+    },
+    "mimo-v2.5-pro": {
+      "displayName": "Mimo V2.5 Pro",
+      "ownedBy": "atplus",
+      "family": "xiaomi",
+      "contextLength": 1048576,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 1,
+        "output": 3
+      }
+    },
+    "mimo-v2-pro": {
+      "displayName": "Mimo V2 Pro",
+      "ownedBy": "atplus",
+      "family": "xiaomi",
+      "contextLength": 1048576,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 1,
+        "output": 3
+      }
     }
   },
   "agents": {
     "sisyphus": {
-      "model": "",
-      "fallbackModels": [],
-      "description": "Test 2",
-      "color": "#C83232",
-      "disable": false,
-      "tools": {},
-      "permission": {}
-    },
-    "oracle": {
-      "model": "",
-      "fallbackModels": [],
-      "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
-      "color": "#048B5E",
-      "disable": false,
-      "tools": {},
-      "permission": {}
-    },
-    "hephaestus": {
-      "model": "glm-5.1:ollama",
+      "model": "minimax-m2.7-highspeed",
       "fallbackModels": [
         "minimax-m2.7-highspeed",
         "minimax-m2.7-highspeed",
         "minimax-m2.7-highspeed",
         "minimax-m2.7-highspeed"
       ],
-      "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos.",
-      "disable": false,
-      "tools": {},
-      "mode": "subagent"
+      "description": "Test 2",
+      "color": "#C83232"
+    },
+    "oracle": {
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "qwen3.5-plus",
+        "qwen3.5-plus",
+        "minimax-m2.7-highspeed"
+      ],
+      "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
+      "color": "#048B5E"
+    },
+    "hephaestus": {
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
+      "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
     },
     "atlas": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
-      "color": "#F0FF1A",
-      "disable": false,
-      "tools": {},
-      "permission": {}
+      "color": "#F0FF1A"
     },
     "sisyphus-junior": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
-      "color": "#5A00C7",
-      "disable": false,
-      "tools": {},
-      "permission": {}
+      "color": "#5A00C7"
     },
     "librarian": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
-      "color": "#945E00",
-      "disable": false,
-      "tools": {},
-      "permission": {}
+      "color": "#945E00"
     },
     "momus": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
     },
     "prometheus": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
-      "color": "#90A300",
-      "disable": false,
-      "tools": {},
-      "permission": {}
+      "color": "#90A300"
     },
     "explore": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
-      "color": "#04B9AD",
-      "disable": false,
-      "tools": {},
-      "permission": {}
+      "color": "#04B9AD"
     },
     "multimodal-looker": {
-      "model": "",
-      "fallbackModels": [],
-      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
-      "disable": false,
-      "tools": {},
-      "permission": {}
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
+      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais."
     },
     "metis": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
       "color": "#0FE000",
       "disable": false
@@ -180,46 +269,85 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
     "artistry": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
-      "model": "",
-      "fallbackModels": [],
+      "model": "minimax-m2.7-highspeed",
+      "fallbackModels": [
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed",
+        "minimax-m2.7-highspeed"
+      ],
       "description": "Documentação, prosa e escrita técnica."
     }
   },
-  "globalFallbackModel": "minimax-m2.7-highspeed",
-  "customAliases": {}
+  "globalFallbackModel": "minimax-m2.7-highspeed"
 }

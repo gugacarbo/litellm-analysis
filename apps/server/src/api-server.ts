@@ -413,38 +413,49 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
    * Regenerates ALL aliases for ALL agents and categories.
    * Called after any save to ensure consistency with global fallback.
    */
+  async function buildAliasMapFromDb(): Promise<Record<string, string>> {
+    const { readDb } = await import("@lite-llm/agents-manager");
+    const { generateLitellmAliases, sortAliasesByDefinitionOrder } =
+      await import("@lite-llm/alias-router");
+    const db = await readDb();
+    const globalFallback = db.globalFallbackModel;
+
+    const mergedAliases: Record<string, string> = {
+      ...(db.customAliases || {}),
+    };
+
+    for (const [key, agent] of Object.entries(db.agents || {})) {
+      Object.assign(
+        mergedAliases,
+        generateLitellmAliases(
+          key,
+          agent.model || "",
+          agent.fallbackModels,
+          globalFallback,
+        ),
+      );
+    }
+
+    for (const [key, category] of Object.entries(db.categories || {})) {
+      Object.assign(
+        mergedAliases,
+        generateLitellmAliases(
+          key,
+          category.model || "",
+          category.fallbackModels,
+          globalFallback,
+        ),
+      );
+    }
+
+    return sortAliasesByDefinitionOrder(mergedAliases);
+  }
+
   async function regenerateAllAliases(
     dataSource: AnalyticsDataSource,
   ): Promise<void> {
     if (!dataSource.capabilities.agentRouting) return;
-
-    const { readDb } = await import("@lite-llm/agents-manager");
-    const { generateLitellmAliases } = await import("@lite-llm/alias-router");
-    const db = await readDb();
-    const globalFallback = db.globalFallbackModel;
-
-    const allAliases: Record<string, string> = {};
-
-    for (const [key, agent] of Object.entries(db.agents || {})) {
-      const aliases = generateLitellmAliases(
-        key,
-        agent.model || "",
-        agent.fallbackModels,
-        globalFallback,
-      );
-      Object.assign(allAliases, aliases);
-    }
-
-    for (const [key, category] of Object.entries(db.categories || {})) {
-      const aliases = generateLitellmAliases(
-        key,
-        category.model || "",
-        category.fallbackModels,
-        globalFallback,
-      );
-      Object.assign(allAliases, aliases);
-    }
-
+    const allAliases = await buildAliasMapFromDb();
     await dataSource.updateAgentRoutingConfig(allAliases);
   }
 
@@ -459,6 +470,10 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       writeVscodeModelsFile,
     } = await import("@lite-llm/agents-manager");
 
+    // First push db.json models/aliases to LiteLLM so subsequent reads reflect
+    // the latest model metadata (context/cost/output).
+    await syncToLiteLLM();
+
     const config = await readConfigFile();
     const models = dataSource.capabilities.models
       ? await dataSource.getModels()
@@ -467,7 +482,6 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     await writeProvidersFile(config, models);
     await writeVscodeModelsFile(models);
     await syncOutputConfigFile();
-    await syncToLiteLLM();
   }
 
   app.get("/agent-config/global-fallback", async (_req, res) => {
@@ -562,13 +576,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         return;
       }
 
-      let existingAliases: Record<string, string> = {};
-      if (dataSource.capabilities.agentRouting) {
-        const existingRouting = await dataSource.getAgentRoutingConfig();
-        existingAliases = existingRouting?.model_group_alias
-          ? (existingRouting.model_group_alias as Record<string, string>)
-          : {};
-      }
+      const existingAliases = await buildAliasMapFromDb();
 
       const { resolveConfiguredModels } = await import(
         "@lite-llm/alias-router"
@@ -620,6 +628,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const { resolveConfiguredModels } = await import(
         "@lite-llm/alias-router"
       );
+      const existingAliases = await buildAliasMapFromDb();
 
       if (rawAgents && typeof rawAgents === "object") {
         for (const [key, rawCfg] of Object.entries(
@@ -629,7 +638,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             key,
             String(rawCfg.model || ""),
             (rawCfg.fallback_models as string[] | undefined) || [],
-            {},
+            existingAliases,
           );
 
           // Save actual (real) model names to db.json
@@ -649,7 +658,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             key,
             String(rawCfg.model || ""),
             (rawCfg.fallback_models as string[] | undefined) || [],
-            {},
+            existingAliases,
           );
 
           // Save actual (real) model names to db.json

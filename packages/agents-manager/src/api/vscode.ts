@@ -1,5 +1,6 @@
 import { createVscodeModelsGenerator } from "../generators/index.js";
 import { getStorage } from "./singleton.js";
+import { persistAvailableModelsToDb } from "./model-persistence.js";
 
 export async function writeVscodeModelsFile(
   dbModels?: Array<{
@@ -7,6 +8,8 @@ export async function writeVscodeModelsFile(
     litellmParams: Record<string, unknown> | null;
   }>,
 ): Promise<void> {
+  await persistAvailableModelsToDb(dbModels);
+
   const storage = getStorage();
   const paths = storage.getPaths();
   const generator = createVscodeModelsGenerator(paths.vscodeModelsFile);

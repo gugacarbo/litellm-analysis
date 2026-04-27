@@ -64,14 +64,15 @@ describe("writeVscodeModelsFile", () => {
       },
     ]);
 
-    expect(writeFileMock).toHaveBeenCalledTimes(1);
+    expect(writeFileMock).toHaveBeenCalledTimes(2);
 
-    const [, writtenContent] = writeFileMock.mock.calls[0] as [
-      string,
-      string,
-      string,
-    ];
-    const parsed = JSON.parse(writtenContent) as {
+    const vscodeWrite = writeFileMock.mock.calls.find(([, content]) =>
+      String(content).includes('"oaicopilot.models"'),
+    );
+    expect(vscodeWrite).toBeDefined();
+
+    const [, vscodeContent] = vscodeWrite as [string, string, string];
+    const parsed = JSON.parse(vscodeContent) as {
       "oaicopilot.models": Array<{ id: string; displayName: string }>;
     };
 
@@ -83,5 +84,10 @@ describe("writeVscodeModelsFile", () => {
     expect(
       parsed["oaicopilot.models"].some((model) => model.id.includes("/gpt-5.")),
     ).toBe(false);
+
+    const dbWrite = writeFileMock.mock.calls.find(([filePath]) =>
+      String(filePath).includes("db.json.tmp"),
+    );
+    expect(dbWrite).toBeDefined();
   });
 });

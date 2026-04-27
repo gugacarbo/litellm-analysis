@@ -393,7 +393,11 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       }
     }
 
-    db.customAliases = customAliases;
+    if (Object.keys(customAliases).length > 0) {
+      db.customAliases = customAliases;
+    } else {
+      delete db.customAliases;
+    }
     await writeDb(db);
   }
 
