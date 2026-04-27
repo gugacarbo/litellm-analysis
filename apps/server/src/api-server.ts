@@ -463,8 +463,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const { globalFallbackModel } = req.body as {
         globalFallbackModel?: string;
       };
-      const { updateGlobalFallbackInDb, syncOutputConfigFile } =
-        await import("@lite-llm/agents-manager");
+      const { updateGlobalFallbackInDb, syncOutputConfigFile } = await import(
+        "@lite-llm/agents-manager"
+      );
       const newGlobalFallback = globalFallbackModel || "gpt-5.1";
       await updateGlobalFallbackInDb(newGlobalFallback);
       await syncOutputConfigFile();
@@ -605,7 +606,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const agentsToSave: Record<string, AgentConfig> = {};
       const categoriesToSave: Record<string, CategoryConfig> = {};
 
-      const { resolveConfiguredModels } = await import("@lite-llm/alias-router");
+      const { resolveConfiguredModels } = await import(
+        "@lite-llm/alias-router"
+      );
 
       if (rawAgents && typeof rawAgents === "object") {
         for (const [key, rawCfg] of Object.entries(
@@ -624,7 +627,6 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             model: actualModel,
             fallback_models: actualFallbacks,
           } as AgentConfig;
-
         }
       }
 
@@ -645,7 +647,6 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             model: actualModel,
             fallback_models: actualFallbacks,
           } as CategoryConfig;
-
         }
       }
 

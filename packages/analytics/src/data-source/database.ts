@@ -1,7 +1,7 @@
 import {
   deleteAgentFromConfig,
   deleteCategoryFromConfig,
-  readConfigFile,
+  // readConfigFile,
   readDb,
   updateAgentInConfig,
   updateCategoryInConfig,
