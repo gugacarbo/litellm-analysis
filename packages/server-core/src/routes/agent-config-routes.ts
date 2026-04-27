@@ -2,9 +2,7 @@ import type { AgentConfig, CategoryConfig } from "@litellm/shared";
 import type { Application } from "express";
 import {
   buildAliasMapFromDb,
-  buildLiteLLMParams,
   regenerateAllAliases,
-  syncGeneratedArtifacts,
 } from "../orchestration/index.js";
 import type { RouteOptions } from "../types/index.js";
 

@@ -5,6 +5,7 @@ import {
   syncGeneratedArtifacts,
   syncModelsDirectlyToDatabase,
 } from "./artifact-service.js";
+
 export { buildAliasMapFromDb, regenerateAllAliases } from "./alias-service.js";
 export {
   syncGeneratedArtifacts,
