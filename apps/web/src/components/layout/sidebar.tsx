@@ -1,6 +1,5 @@
 import {
   Activity,
-  AlertCircle,
   BarChart3,
   FileText,
   GitBranch,
@@ -18,9 +17,6 @@ export function Sidebar() {
     { to: "/", icon: Activity, label: "Dashboard" },
     { to: "/model-stats", icon: BarChart3, label: "Model Stats" },
     { to: "/logs", icon: FileText, label: "Spend Logs" },
-    ...(capabilities.errorLogs
-      ? [{ to: "/errors", icon: AlertCircle, label: "Errors" }]
-      : []),
     { to: "/models", icon: Settings, label: "Models" },
     ...(capabilities.agentRouting
       ? [{ to: "/agent-routing", icon: GitBranch, label: "Agent Routing" }]

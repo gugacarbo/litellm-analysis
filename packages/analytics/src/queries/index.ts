@@ -1,5 +1,6 @@
 import { sortAliasesByDefinitionOrder } from "@lite-llm/alias-router";
 import { and, asc, desc, eq, gte, type SQL, sql } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 import { db, schema } from "./client";
 
 const { spendLogs, proxyModelTable, errorLogs } = schema;
@@ -568,10 +569,28 @@ export async function createModel(model: {
   modelName: string;
   litellmParams: Record<string, unknown>;
 }) {
-  await db.insert(proxyModelTable).values({
-    modelName: model.modelName,
-    litellmParams: model.litellmParams,
-  });
+  const modelId = randomUUID();
+  const actor = "lite-llm-analytics";
+  const modelInfo = { id: modelId, db_model: true };
+
+  await db.execute(sql`
+    INSERT INTO "LiteLLM_ProxyModelTable" (
+      model_id,
+      model_name,
+      litellm_params,
+      model_info,
+      created_by,
+      updated_by
+    )
+    VALUES (
+      ${modelId},
+      ${model.modelName},
+      ${JSON.stringify(model.litellmParams)}::jsonb,
+      ${JSON.stringify(modelInfo)}::jsonb,
+      ${actor},
+      ${actor}
+    )
+  `);
 }
 
 export async function updateModel(

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Badge } from "../components/badge";
 import { FeatureGate } from "../components/feature-gate";
 import { LogDetailDialog } from "../components/logs/log-detail-dialog";
@@ -12,12 +13,14 @@ import {
   LogsTable,
 } from "../components/logs/logs-table";
 import type { LogColumnKey } from "../components/logs/logs-table-columns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
 import { UnavailableFeature } from "../components/unavailable-feature";
 import { useLogs } from "../hooks/use-logs";
 import { useServerMode } from "../hooks/use-server-mode";
 import { getAllModels } from "../lib/api-client";
 import { queryKeys } from "../lib/query-keys";
 import type { SpendLog } from "../types/analytics";
+import { LogsErrorsTab } from "./logs-errors-tab";
 
 const AUTO_REFETCH_INTERVAL_MS = 15000;
 
@@ -36,12 +39,120 @@ export function LogsPage() {
     setFilters,
     refetch,
   } = useLogs();
-  const { mode } = useServerMode();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeTab = searchParams.get("tab") === "errors" ? "errors" : "spend";
+
+  const handleTabChange = (tab: string) => {
+    if (tab === "errors") {
+      setSearchParams({ tab: "errors" });
+    } else {
+      setSearchParams({});
+    }
+  };
 
   const modelsQuery = useQuery({
     queryKey: queryKeys.models,
     queryFn: getAllModels,
   });
+
+  return (
+    <FeatureGate
+      capability="spendLogs"
+      fallback={<UnavailableFeature capability="spendLogs" />}
+    >
+      <div className="p-6 space-y-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold">Spend & Errors</h1>
+            <p className="text-sm text-muted-foreground">
+              Request-level costs, usage, and latency diagnostics.
+            </p>
+          </div>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <TabsList>
+            <TabsTrigger value="spend">Spend Logs</TabsTrigger>
+            <TabsTrigger value="errors">Error Logs</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="spend" className="mt-6">
+            <SpendLogsTab
+              logs={logs}
+              pagination={pagination}
+              loading={loading}
+              refreshing={refreshing}
+              error={error}
+              modelsQuery={modelsQuery}
+              page={page}
+              pageSize={pageSize}
+              filters={filters}
+              setPage={setPage}
+              setPageSize={setPageSize}
+              setFilters={setFilters}
+              refetch={refetch}
+            />
+          </TabsContent>
+
+          <TabsContent value="errors" className="mt-6">
+            <FeatureGate
+              capability="errorLogs"
+              fallback={<UnavailableFeature capability="errorLogs" />}
+            >
+              <LogsErrorsTab />
+            </FeatureGate>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </FeatureGate>
+  );
+}
+
+type SpendLogFilters = {
+  model?: string;
+  user?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
+interface SpendLogsTabProps {
+  logs: SpendLog[];
+  pagination: {
+    total: number;
+    page: number;
+    page_size: number;
+    total_pages: number;
+  };
+  loading: boolean;
+  refreshing: boolean;
+  error: string | null;
+  modelsQuery: ReturnType<typeof useQuery<Array<{ modelName: string }>, Error>>;
+  page: number;
+  pageSize: number;
+  filters: SpendLogFilters;
+  setPage: (page: number) => void;
+  setPageSize: (size: number) => void;
+  setFilters: (filters: SpendLogFilters) => void;
+  refetch: () => void;
+}
+
+function SpendLogsTab({
+  logs,
+  pagination,
+  loading,
+  refreshing,
+  error,
+  modelsQuery,
+  page,
+  pageSize,
+  filters,
+  setPage,
+  setPageSize,
+  setFilters,
+  refetch,
+}: SpendLogsTabProps) {
+  const { mode } = useServerMode();
 
   const models = useMemo(
     () => (modelsQuery.data ?? []).map((config) => config.modelName),
@@ -65,7 +176,7 @@ export function LogsPage() {
     if (!autoRefetchEnabled) return;
 
     const interval = window.setInterval(() => {
-      void refetch({ background: true });
+      void refetch();
     }, AUTO_REFETCH_INTERVAL_MS);
 
     return () => window.clearInterval(interval);
@@ -137,68 +248,55 @@ export function LogsPage() {
         : "bg-yellow-500/15 text-yellow-700 border-yellow-500/30";
 
   return (
-    <FeatureGate
-      capability="spendLogs"
-      fallback={<UnavailableFeature capability="spendLogs" />}
-    >
-      <div className="p-6 space-y-6">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold">Spend Logs</h1>
-            <p className="text-sm text-muted-foreground">
-              Request-level costs, usage, and latency diagnostics.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className={modeBadgeClass}>
-              {modeLabel}
-            </Badge>
-            <Badge variant="outline">
-              {pagination.total.toLocaleString("en-US")} logs
-            </Badge>
-            <Badge variant="outline">
-              {activeFiltersCount > 0
-                ? `${activeFiltersCount} active filters`
-                : "No active filters"}
-            </Badge>
-          </div>
-        </div>
-
-        <LogsFilterCard
-          models={models}
-          values={filterValues}
-          error={
-            error ||
-            (modelsQuery.error instanceof Error
-              ? modelsQuery.error.message
-              : null)
-          }
-          onValuesChange={setFilterValues}
-          onApply={handleApplyFilters}
-          onClear={handleClearFilters}
-        />
-
-        <LogsTable
-          logs={logs}
-          loading={loading}
-          page={page}
-          pageSize={pageSize}
-          pagination={pagination}
-          visibleColumns={visibleColumns}
-          autoRefetchEnabled={autoRefetchEnabled}
-          groupByModel={groupByModel}
-          refreshing={refreshing}
-          onSelectLog={setSelectedLog}
-          onToggleColumn={handleToggleColumn}
-          onAutoRefetchChange={setAutoRefetchEnabled}
-          onGroupByModelChange={setGroupByModel}
-          onRefetch={() => {
-            void refetch({ background: true });
-          }}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-        />
+    <>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <Badge variant="outline" className={modeBadgeClass}>
+          {modeLabel}
+        </Badge>
+        <Badge variant="outline">
+          {pagination.total.toLocaleString("en-US")} logs
+        </Badge>
+        <Badge variant="outline">
+          {activeFiltersCount > 0
+            ? `${activeFiltersCount} active filters`
+            : "No active filters"}
+        </Badge>
       </div>
+
+      <LogsFilterCard
+        models={models}
+        values={filterValues}
+        error={
+          error ||
+          (modelsQuery.error instanceof Error
+            ? modelsQuery.error.message
+            : null)
+        }
+        onValuesChange={setFilterValues}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
+      />
+
+      <LogsTable
+        logs={logs}
+        loading={loading}
+        page={page}
+        pageSize={pageSize}
+        pagination={pagination}
+        visibleColumns={visibleColumns}
+        autoRefetchEnabled={autoRefetchEnabled}
+        groupByModel={groupByModel}
+        refreshing={refreshing}
+        onSelectLog={setSelectedLog}
+        onToggleColumn={handleToggleColumn}
+        onAutoRefetchChange={setAutoRefetchEnabled}
+        onGroupByModelChange={setGroupByModel}
+        onRefetch={() => {
+          void refetch();
+        }}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
 
       <LogDetailDialog
         log={selectedLog}
@@ -207,6 +305,6 @@ export function LogsPage() {
           if (!open) setSelectedLog(null);
         }}
       />
-    </FeatureGate>
+    </>
   );
 }

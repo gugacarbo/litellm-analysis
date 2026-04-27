@@ -23,7 +23,7 @@ import {
   type ErrorFilters,
 } from "./errors-utils";
 
-export function ErrorsContent() {
+export function LogsErrorsTab() {
   const { errors, loading, refreshing, error, refetch } = useErrors();
   const { mode } = useServerMode();
 
@@ -168,27 +168,19 @@ export function ErrorsContent() {
 
   return (
     <>
-      <div className="p-6 space-y-6">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold">Error Logs</h1>
-            <p className="text-sm text-muted-foreground">
-              Failed requests and exception diagnostics.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className={modeBadgeClass}>
-              {modeLabel}
-            </Badge>
-            <Badge variant="outline">
-              {pagination.total.toLocaleString("en-US")} errors
-            </Badge>
-            <Badge variant="outline">
-              {activeFiltersCount > 0
-                ? `${activeFiltersCount} active filters`
-                : "No active filters"}
-            </Badge>
-          </div>
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline" className={modeBadgeClass}>
+            {modeLabel}
+          </Badge>
+          <Badge variant="outline">
+            {pagination.total.toLocaleString("en-US")} errors
+          </Badge>
+          <Badge variant="outline">
+            {activeFiltersCount > 0
+              ? `${activeFiltersCount} active filters`
+              : "No active filters"}
+          </Badge>
         </div>
 
         <ErrorsFilterCard

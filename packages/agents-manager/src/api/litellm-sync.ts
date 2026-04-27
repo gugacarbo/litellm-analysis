@@ -1,56 +1,11 @@
 // ── LiteLLM Model Sync ──
-// Registers agent/category aliases to LiteLLM proxy with real model targets.
+// Syncs real models from db.json to LiteLLM proxy.
 
-import {
-  generateLitellmAliases,
-  sortAliasesByDefinitionOrder,
-} from "@lite-llm/alias-router";
-import type {
-  DbAgentEntry,
-  DbCategoryEntry,
-  DbConfig,
-  DbModelSpec,
-} from "../types/index.js";
+import type { DbModelSpec } from "../types/index.js";
 import { getStorage } from "./singleton.js";
 
 export interface LiteLLMSyncOptions {
   skipSync?: boolean;
-}
-
-function addEntityAliases(
-  entities: Record<string, DbAgentEntry | DbCategoryEntry>,
-  globalFallbackModel: string | undefined,
-  aliases: Record<string, string>,
-): void {
-  for (const [key, entry] of Object.entries(entities)) {
-    if (Object.keys(entry).length === 0) continue;
-
-    const generated = generateLitellmAliases(
-      key,
-      entry.model || "",
-      entry.fallbackModels,
-      globalFallbackModel,
-    );
-    Object.assign(aliases, generated);
-  }
-}
-
-function extractAllAliasesFromConfig(
-  config: DbConfig,
-): Array<[string, string]> {
-  const mergedAliases: Record<string, string> = {
-    ...(config.customAliases || {}),
-  };
-
-  addEntityAliases(config.agents, config.globalFallbackModel, mergedAliases);
-  addEntityAliases(
-    config.categories,
-    config.globalFallbackModel,
-    mergedAliases,
-  );
-
-  const sortedAliases = sortAliasesByDefinitionOrder(mergedAliases);
-  return Object.entries(sortedAliases).filter(([, model]) => Boolean(model));
 }
 
 function isLikelyAlreadyExistsError(
@@ -66,6 +21,16 @@ function isLikelyAlreadyExistsError(
   return /already exists|already registered|duplicate|exists/i.test(errorText);
 }
 
+function isLikelyNotFoundError(status: number, errorText: string): boolean {
+  if (status === 404) {
+    return true;
+  }
+  if (status !== 400) {
+    return false;
+  }
+  return /not found|no row|does not exist|missing/i.test(errorText);
+}
+
 interface LiteLLMUpsertPayload {
   model_name: string;
   litellm_params: Record<string, unknown>;
@@ -79,6 +44,11 @@ function toCostPerToken(costPerMillion?: number): number | undefined {
   return costPerMillion / 1_000_000;
 }
 
+function getLiteLLMCredentialName(): string | undefined {
+  const credentialName = process.env.LITELLM_CREDENTIAL_NAME?.trim();
+  return credentialName ? credentialName : undefined;
+}
+
 function buildModelUpsertPayload(
   modelName: string,
   spec: DbModelSpec,
@@ -89,6 +59,10 @@ function buildModelUpsertPayload(
   const litellmParams: Record<string, unknown> = {
     model: modelName,
     model_name: modelName,
+    custom_llm_provider: "litellm_proxy",
+    use_litellm_proxy: false,
+    use_in_pass_through: false,
+    merge_reasoning_content_in_choices: false,
     context_window_size: spec.contextLength,
     max_tokens: spec.maxOutput,
   };
@@ -98,6 +72,11 @@ function buildModelUpsertPayload(
   }
   if (outputCostPerToken !== undefined) {
     litellmParams.output_cost_per_token = outputCostPerToken;
+  }
+
+  const litellmCredentialName = getLiteLLMCredentialName();
+  if (litellmCredentialName) {
+    litellmParams.litellm_credential_name = litellmCredentialName;
   }
 
   const modelInfo: Record<string, unknown> = {
@@ -120,33 +99,36 @@ function buildModelUpsertPayload(
   };
 }
 
-function buildAliasUpsertPayload(
-  aliasName: string,
-  actualModel: string,
-): LiteLLMUpsertPayload {
-  return {
-    model_name: aliasName,
-    litellm_params: {
-      model: actualModel,
-    },
-  };
-}
-
 async function postModelToLiteLLM(
   baseUrl: string,
   apiKey: string,
   endpoint: "/model/new" | "/model/update",
   payload: LiteLLMUpsertPayload,
 ): Promise<Response> {
-  const url = `${baseUrl.replace(/\/$/, "")}${endpoint}`;
-  return fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  const trimmedBaseUrl = baseUrl.replace(/\/$/, "");
+  const urls = [`${trimmedBaseUrl}${endpoint}`];
+  if (trimmedBaseUrl.endsWith("/v1")) {
+    urls.push(`${trimmedBaseUrl.slice(0, -3)}${endpoint}`);
+  }
+
+  let lastResponse: Response | null = null;
+  for (const url of urls) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.status !== 404) {
+      return response;
+    }
+    lastResponse = response;
+  }
+
+  return lastResponse as Response;
 }
 
 async function upsertModelToLiteLLM(
@@ -154,25 +136,6 @@ async function upsertModelToLiteLLM(
   apiKey: string,
   payload: LiteLLMUpsertPayload,
 ): Promise<void> {
-  const createResponse = await postModelToLiteLLM(
-    baseUrl,
-    apiKey,
-    "/model/new",
-    payload,
-  );
-  if (createResponse.ok) {
-    return;
-  }
-
-  const createErrorText = await createResponse
-    .text()
-    .catch(() => "Unknown error");
-  if (!isLikelyAlreadyExistsError(createResponse.status, createErrorText)) {
-    throw new Error(
-      `Failed to create model "${payload.model_name}": ${createResponse.status} ${createErrorText}`,
-    );
-  }
-
   const updateResponse = await postModelToLiteLLM(
     baseUrl,
     apiKey,
@@ -186,8 +149,46 @@ async function upsertModelToLiteLLM(
   const updateErrorText = await updateResponse
     .text()
     .catch(() => "Unknown error");
+  if (!isLikelyNotFoundError(updateResponse.status, updateErrorText)) {
+    throw new Error(
+      `Failed to update model "${payload.model_name}": ${updateResponse.status} ${updateErrorText}`,
+    );
+  }
+
+  const createResponse = await postModelToLiteLLM(
+    baseUrl,
+    apiKey,
+    "/model/new",
+    payload,
+  );
+  if (createResponse.ok) {
+    return;
+  }
+
+  const createErrorText = await createResponse
+    .text()
+    .catch(() => "Unknown error");
+  if (isLikelyAlreadyExistsError(createResponse.status, createErrorText)) {
+    const retryUpdateResponse = await postModelToLiteLLM(
+      baseUrl,
+      apiKey,
+      "/model/update",
+      payload,
+    );
+    if (retryUpdateResponse.ok) {
+      return;
+    }
+
+    const retryUpdateErrorText = await retryUpdateResponse
+      .text()
+      .catch(() => "Unknown error");
+    throw new Error(
+      `Failed to update model "${payload.model_name}" after create conflict: ${retryUpdateResponse.status} ${retryUpdateErrorText}`,
+    );
+  }
+
   throw new Error(
-    `Failed to update model "${payload.model_name}": ${updateResponse.status} ${updateErrorText}`,
+    `Failed to create model "${payload.model_name}": ${createResponse.status} ${createErrorText}`,
   );
 }
 
@@ -216,18 +217,10 @@ export async function syncToLiteLLM(
   const modelPayloads = Object.entries(config.models || {}).map(
     ([modelName, spec]) => buildModelUpsertPayload(modelName, spec),
   );
-  const modelNames = new Set(
-    modelPayloads.map((payload) => payload.model_name),
-  );
-  const aliasPayloads = extractAllAliasesFromConfig(config)
-    .filter(([aliasName]) => !modelNames.has(aliasName))
-    .map(([aliasName, actualModel]) =>
-      buildAliasUpsertPayload(aliasName, actualModel),
-    );
 
   let synced = 0;
-  const total = modelPayloads.length + aliasPayloads.length;
-  const errors: Array<{ alias: string; error: string }> = [];
+  const total = modelPayloads.length;
+  const errors: Array<{ model: string; error: string }> = [];
 
   for (const payload of modelPayloads) {
     try {
@@ -239,23 +232,7 @@ export async function syncToLiteLLM(
       synced++;
     } catch (error) {
       errors.push({
-        alias: payload.model_name,
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
-  for (const payload of aliasPayloads) {
-    try {
-      await upsertModelToLiteLLM(
-        config.litellm.baseUrl,
-        config.litellm.apiKey,
-        payload,
-      );
-      synced++;
-    } catch (error) {
-      errors.push({
-        alias: payload.model_name,
+        model: payload.model_name,
         error: error instanceof Error ? error.message : String(error),
       });
     }
@@ -263,13 +240,11 @@ export async function syncToLiteLLM(
 
   if (errors.length > 0) {
     console.error(
-      `[agents-manager] Failed to sync ${errors.length} aliases to LiteLLM:`,
+      `[agents-manager] Failed to sync ${errors.length} models to LiteLLM:`,
       errors,
     );
   }
 
-  console.log(
-    `[agents-manager] Synced ${synced}/${total} models/aliases to LiteLLM`,
-  );
+  console.log(`[agents-manager] Synced ${synced}/${total} models to LiteLLM`);
   return synced;
 }

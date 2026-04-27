@@ -39,18 +39,8 @@
         "output": 4
       }
     },
-    "kimi-k2.5": {
-      "displayName": "Kimi K2.5",
-      "ownedBy": "atplus",
-      "contextLength": 256000,
-      "maxOutput": 64000,
-      "cost": {
-        "input": 0.6,
-        "output": 3
-      }
-    },
-    "minimax-m2.7-highspeed": {
-      "displayName": "MiniMax M2.7",
+    "MiniMax-M2.7-highspeed": {
+      "displayName": "MiniMax M2.7 Hs",
       "ownedBy": "atplus",
       "contextLength": 204800,
       "maxOutput": 128000,
@@ -148,119 +138,119 @@
   },
   "agents": {
     "sisyphus": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Test 2",
       "color": "#C83232"
     },
     "oracle": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
         "qwen3.5-plus",
-        "qwen3.5-plus",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
       "color": "#048B5E"
     },
     "hephaestus": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
     },
     "atlas": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
       "color": "#F0FF1A"
     },
     "sisyphus-junior": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
       "color": "#5A00C7"
     },
     "librarian": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
       "color": "#945E00"
     },
     "momus": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
     },
     "prometheus": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
       "color": "#90A300"
     },
     "explore": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
       "color": "#04B9AD"
     },
     "multimodal-looker": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais."
     },
     "metis": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
       "color": "#0FE000",
@@ -269,85 +259,85 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
     "artistry": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
-      "model": "minimax-m2.7-highspeed",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed",
-        "minimax-m2.7-highspeed"
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Documentação, prosa e escrita técnica."
     }
   },
-  "globalFallbackModel": "minimax-m2.7-highspeed"
+  "globalFallbackModel": "MiniMax-M2.7-highspeed"
 }

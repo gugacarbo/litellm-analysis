@@ -4,7 +4,6 @@ import { TooltipProvider } from "./components/tooltip";
 import { ServerModeProvider } from "./hooks/use-server-mode";
 import { AgentRoutingPage } from "./pages/agent-routing";
 import { DashboardPage } from "./pages/dashboard";
-import { ErrorsPage } from "./pages/errors";
 import { LogsPage } from "./pages/logs";
 import { ModelDetailPage } from "./pages/model-detail";
 import { ModelStatsPage } from "./pages/model-stats";
@@ -21,7 +20,6 @@ function App() {
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/logs" element={<LogsPage />} />
-                <Route path="/errors" element={<ErrorsPage />} />
                 <Route path="/model/:modelName" element={<ModelDetailPage />} />
                 <Route path="/model-stats" element={<ModelStatsPage />} />
                 <Route path="/models" element={<ModelsPage />} />

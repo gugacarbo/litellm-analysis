@@ -2,6 +2,15 @@ import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
 import type { AgentConfig, CategoryConfig } from "@litellm/shared";
 import express, { type Application } from "express";
 
+type DbModelSpecLike = {
+  contextLength: number;
+  maxOutput: number;
+  cost?: {
+    input?: number;
+    output?: number;
+  };
+};
+
 function parseDays(rawValue: unknown, fallback: number): number {
   if (typeof rawValue !== "string") {
     return fallback;
@@ -12,6 +21,125 @@ function parseDays(rawValue: unknown, fallback: number): number {
     return fallback;
   }
   return parsed;
+}
+
+function toCostPerToken(costPerMillion?: number): number | undefined {
+  if (typeof costPerMillion !== "number" || Number.isNaN(costPerMillion)) {
+    return undefined;
+  }
+  return costPerMillion / 1_000_000;
+}
+
+function getLiteLLMCredentialName(): string | undefined {
+  const credentialName = process.env.LITELLM_CREDENTIAL_NAME?.trim();
+  return credentialName ? credentialName : undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function applyRequiredLiteLLMParams(
+  modelName: string,
+  litellmParams: Record<string, unknown>,
+): Record<string, unknown> {
+  const nextParams: Record<string, unknown> = { ...litellmParams };
+  nextParams.model = modelName;
+  nextParams.model_name = modelName;
+  nextParams.custom_llm_provider = "litellm_proxy";
+  nextParams.use_litellm_proxy = false;
+  nextParams.use_in_pass_through = false;
+  nextParams.merge_reasoning_content_in_choices = false;
+
+  const litellmCredentialName = getLiteLLMCredentialName();
+  if (litellmCredentialName) {
+    nextParams.litellm_credential_name = litellmCredentialName;
+  }
+
+  return nextParams;
+}
+
+function buildLiteLLMParams(
+  modelName: string,
+  spec: DbModelSpecLike,
+): Record<string, unknown> {
+  const litellmParams = applyRequiredLiteLLMParams(modelName, {
+    model: modelName,
+    model_name: modelName,
+    context_window_size: spec.contextLength,
+    max_tokens: spec.maxOutput,
+  });
+
+  const inputCostPerToken = toCostPerToken(spec.cost?.input);
+  const outputCostPerToken = toCostPerToken(spec.cost?.output);
+
+  if (inputCostPerToken !== undefined) {
+    litellmParams.input_cost_per_token = inputCostPerToken;
+  }
+  if (outputCostPerToken !== undefined) {
+    litellmParams.output_cost_per_token = outputCostPerToken;
+  }
+
+  return litellmParams;
+}
+
+async function syncModelsDirectlyToDatabase(
+  dataSource: AnalyticsDataSource,
+  models: Record<string, DbModelSpecLike>,
+): Promise<void> {
+  if (!dataSource.capabilities.models || !dataSource.capabilities.updateModel) {
+    return;
+  }
+
+  const desiredEntries = Object.entries(models || {});
+  const desiredNames = new Set(desiredEntries.map(([name]) => name));
+  const existing = await dataSource.getModels();
+
+  const existingCounts = new Map<string, number>();
+  for (const item of existing) {
+    existingCounts.set(
+      item.modelName,
+      (existingCounts.get(item.modelName) || 0) + 1,
+    );
+  }
+
+  if (dataSource.capabilities.deleteModel) {
+    const namesToDelete = new Set<string>();
+
+    for (const modelName of existingCounts.keys()) {
+      if (!desiredNames.has(modelName)) {
+        namesToDelete.add(modelName);
+      }
+    }
+
+    for (const [modelName, count] of existingCounts.entries()) {
+      if (count > 1) {
+        namesToDelete.add(modelName);
+      }
+    }
+
+    for (const modelName of namesToDelete) {
+      await dataSource.deleteModel(modelName);
+      existingCounts.delete(modelName);
+    }
+  }
+
+  for (const [modelName, spec] of desiredEntries) {
+    const litellmParams = buildLiteLLMParams(modelName, spec);
+
+    if (existingCounts.has(modelName)) {
+      await dataSource.updateModel(modelName, { litellmParams });
+      continue;
+    }
+
+    if (dataSource.capabilities.createModel) {
+      await dataSource.createModel({ modelName, litellmParams });
+      existingCounts.set(modelName, 1);
+      continue;
+    }
+
+    await dataSource.updateModel(modelName, { litellmParams });
+  }
 }
 
 export function createApiServer(dataSource: AnalyticsDataSource): Application {
@@ -240,9 +368,19 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     }
     try {
       const { modelName, litellmParams } = req.body;
+      const normalizedModelName = String(modelName || "").trim();
+      if (!normalizedModelName) {
+        res.status(400).json({ error: "modelName is required" });
+        return;
+      }
+
+      const baseParams = isRecord(litellmParams) ? litellmParams : {};
       await dataSource.createModel({
-        modelName,
-        litellmParams: litellmParams ?? {},
+        modelName: normalizedModelName,
+        litellmParams: applyRequiredLiteLLMParams(
+          normalizedModelName,
+          baseParams,
+        ),
       });
       res.status(201).json({ success: true });
     } catch (error) {
@@ -258,12 +396,31 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     try {
       const { name } = req.params;
       const { litellmParams, modelName } = req.body;
+      const normalizedNewName =
+        typeof modelName === "string" && modelName.trim()
+          ? modelName.trim()
+          : name;
+
       const updates: {
         litellmParams?: Record<string, unknown>;
         modelName?: string;
       } = {};
-      if (litellmParams !== undefined) updates.litellmParams = litellmParams;
-      if (modelName !== undefined) updates.modelName = modelName;
+
+      const existingModels = await dataSource.getModels();
+      const existingModel = existingModels.find((item) => item.modelName === name);
+      const existingParams = isRecord(existingModel?.litellmParams)
+        ? existingModel.litellmParams
+        : {};
+
+      if (litellmParams !== undefined || modelName !== undefined) {
+        const incomingParams = isRecord(litellmParams) ? litellmParams : {};
+        const mergedParams = { ...existingParams, ...incomingParams };
+        updates.litellmParams = applyRequiredLiteLLMParams(
+          normalizedNewName,
+          mergedParams,
+        );
+      }
+      if (modelName !== undefined) updates.modelName = normalizedNewName;
       await dataSource.updateModel(name, updates);
       res.json({ success: true });
     } catch (error) {
@@ -463,6 +620,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     dataSource: AnalyticsDataSource,
   ): Promise<void> {
     const {
+      readDb,
       readConfigFile,
       syncOutputConfigFile,
       syncToLiteLLM,
@@ -470,9 +628,19 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       writeVscodeModelsFile,
     } = await import("@lite-llm/agents-manager");
 
-    // First push db.json models/aliases to LiteLLM so subsequent reads reflect
-    // the latest model metadata (context/cost/output).
-    await syncToLiteLLM();
+    if (
+      dataSource.capabilities.models &&
+      dataSource.capabilities.updateModel &&
+      dataSource.capabilities.createModel
+    ) {
+      // In database mode, write directly to LiteLLM_ProxyModelTable to avoid
+      // API-level duplicate model creation.
+      const db = await readDb();
+      await syncModelsDirectlyToDatabase(dataSource, db.models || {});
+    } else {
+      // Fallback for non-database modes.
+      await syncToLiteLLM();
+    }
 
     const config = await readConfigFile();
     const models = dataSource.capabilities.models

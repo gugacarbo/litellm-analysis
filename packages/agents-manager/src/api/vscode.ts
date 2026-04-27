@@ -1,6 +1,6 @@
 import { createVscodeModelsGenerator } from "../generators/index.js";
-import { getStorage } from "./singleton.js";
 import { persistAvailableModelsToDb } from "./model-persistence.js";
+import { getStorage } from "./singleton.js";
 
 export async function writeVscodeModelsFile(
   dbModels?: Array<{
