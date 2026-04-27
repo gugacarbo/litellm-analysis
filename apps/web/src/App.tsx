@@ -3,6 +3,7 @@ import { Sidebar } from "./components/layout/sidebar";
 import { TooltipProvider } from "./components/tooltip";
 import { ServerModeProvider } from "./hooks/use-server-mode";
 import { AgentRoutingPage } from "./pages/agent-routing";
+import { AliasesPage } from "./pages/aliases";
 import { DashboardPage } from "./pages/dashboard";
 import { LogsPage } from "./pages/logs";
 import { ModelDetailPage } from "./pages/model-detail";
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/model/:modelName" element={<ModelDetailPage />} />
                 <Route path="/model-stats" element={<ModelStatsPage />} />
                 <Route path="/models" element={<ModelsPage />} />
+                <Route path="/aliases" element={<AliasesPage />} />
                 <Route path="/agent-routing" element={<AgentRoutingPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

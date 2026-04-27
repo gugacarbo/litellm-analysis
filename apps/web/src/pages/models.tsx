@@ -1,21 +1,15 @@
 import { Settings } from "lucide-react";
 import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
-import { AgentRoutingAliasesTab } from "../components/agent-routing/agent-routing-aliases-tab";
 import { ModelFormDialog } from "../components/models/model-form-dialog";
 import { ModelsTableCard } from "../components/models/models-table-card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
 import { useModelsPage } from "./models/use-models-page";
 
 export function ModelsPage() {
   const {
-    aliasesError,
-    aliasesLoading,
     aliasDialogKey,
     aliasDialogMode,
     aliasDialogOpen,
     aliasDialogValue,
-    capabilities,
-    customAliases,
     deleteModelName,
     dialogOpen,
     editingModel,
@@ -26,14 +20,11 @@ export function ModelsPage() {
     modelsQuery,
     mutationError,
     updateAgentRoutingMutation,
-    handleAliasDelete,
     handleAliasSave,
     handleDelete,
     handleOpenCreate,
     handleOpenEdit,
     handleSubmit,
-    openAddAlias,
-    openEditAlias,
     addExtraParam,
     removeExtraParam,
     setAliasDialogKey,
@@ -69,43 +60,18 @@ export function ModelsPage() {
         />
       </div>
 
-      <Tabs defaultValue="models">
-        <TabsList>
-          <TabsTrigger value="models">Models</TabsTrigger>
-          {capabilities.agentRouting ? (
-            <TabsTrigger value="aliases">Custom Aliases</TabsTrigger>
-          ) : null}
-        </TabsList>
-
-        <TabsContent value="models" className="mt-4">
-          <ModelsTableCard
-            models={modelsQuery.data ?? []}
-            loading={modelsQuery.isPending && !modelsQuery.data}
-            error={
-              mutationError ||
-              (modelsQuery.error ? String(modelsQuery.error) : null)
-            }
-            deleteModelName={deleteModelName}
-            onDeleteModelNameChange={setDeleteModelName}
-            onOpenEdit={handleOpenEdit}
-            onDelete={handleDelete}
-          />
-        </TabsContent>
-
-        {capabilities.agentRouting ? (
-          <TabsContent value="aliases" className="mt-4">
-            <AgentRoutingAliasesTab
-              loading={aliasesLoading}
-              saving={updateAgentRoutingMutation.isPending}
-              error={aliasesError}
-              customAliases={customAliases}
-              onOpenAddAlias={openAddAlias}
-              onOpenEditAlias={openEditAlias}
-              onDeleteAlias={handleAliasDelete}
-            />
-          </TabsContent>
-        ) : null}
-      </Tabs>
+      <ModelsTableCard
+        models={modelsQuery.data ?? []}
+        loading={modelsQuery.isPending && !modelsQuery.data}
+        error={
+          mutationError ||
+          (modelsQuery.error ? String(modelsQuery.error) : null)
+        }
+        deleteModelName={deleteModelName}
+        onDeleteModelNameChange={setDeleteModelName}
+        onOpenEdit={handleOpenEdit}
+        onDelete={handleDelete}
+      />
 
       <AgentRoutingAliasDialog
         open={aliasDialogOpen}

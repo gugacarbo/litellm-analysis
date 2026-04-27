@@ -14,7 +14,7 @@ lib/
 │   ├── analytics.ts       # Dashboard analytics
 │   ├── core.ts           # Base fetch wrapper
 │   ├── models.ts         # Model management
-│   └── spend.ts          # Spend logs
+│   └── spend.ts          # logs
 ├── query-client.ts       # React Query client
 ├── query-keys.ts         # Query key factories
 ├── server-mode.ts       # Server mode detection
@@ -24,12 +24,12 @@ lib/
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Add API endpoint | `api-client/` | Add new module + re-export in `api-client.ts` |
-| Add React Query key | `query-keys.ts` | Factory functions for cache keys |
-| Change server detection | `server-mode.ts` | Reads `GET /api/mode` |
-| Add HTTP client | `api-client/core.ts` | Base fetch with error handling |
+| Task                    | Location             | Notes                                         |
+| ----------------------- | -------------------- | --------------------------------------------- |
+| Add API endpoint        | `api-client/`        | Add new module + re-export in `api-client.ts` |
+| Add React Query key     | `query-keys.ts`      | Factory functions for cache keys              |
+| Change server detection | `server-mode.ts`     | Reads `GET /api/mode`                         |
+| Add HTTP client         | `api-client/core.ts` | Base fetch with error handling                |
 
 ## CONVENTIONS
 

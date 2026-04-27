@@ -17,6 +17,121 @@ function isCategoryKey(key: string): boolean {
   return CATEGORY_KEYS.includes(prefix);
 }
 
+export type AliasEntry = {
+  key: string;
+  value: string;
+};
+
+export type AliasGroup = {
+  type: "agent" | "category" | "custom";
+  key: string;
+  name: string;
+  icon?: string;
+  directAlias?: AliasEntry;
+  subgroups: Array<{
+    key: string;
+    name: string;
+    aliases: AliasEntry[];
+  }>;
+};
+
+export function getAliasesGrouped(
+  aliases: AgentRoutingAPIResponse | undefined,
+): AliasGroup[] {
+  if (!aliases) return [];
+
+  const agentMap: Map<string, AliasEntry[]> = new Map();
+  const categoryMap: Map<string, AliasEntry[]> = new Map();
+  const customEntries: AliasEntry[] = [];
+
+  for (const [k, v] of Object.entries(aliases)) {
+    if (isAgentKey(k)) {
+      const prefix = k.includes("/") ? k.split("/")[0] : k;
+      if (!agentMap.has(prefix)) agentMap.set(prefix, []);
+      agentMap.get(prefix)?.push({ key: k, value: v });
+    } else if (isCategoryKey(k)) {
+      const prefix = k.includes("/") ? k.split("/")[0] : k;
+      if (!categoryMap.has(prefix)) categoryMap.set(prefix, []);
+      categoryMap.get(prefix)?.push({ key: k, value: v });
+    } else {
+      customEntries.push({ key: k, value: v });
+    }
+  }
+
+  customEntries.sort((a, b) => a.key.localeCompare(b.key));
+
+  const groups: AliasGroup[] = [];
+
+  if (agentMap.size > 0) {
+    const subgroups: AliasGroup["subgroups"] = [];
+    for (const key of AGENT_KEYS) {
+      const entries = agentMap.get(key);
+      if (!entries?.length) continue;
+      const def = AGENT_DEFINITIONS.find((a) => a.key === key);
+      const direct = entries.find((e) => e.key === key);
+      const nested = entries
+        .filter((e) => e.key !== key)
+        .sort((a, b) => a.key.localeCompare(b.key));
+      subgroups.push({
+        key,
+        name: def?.name ?? key,
+        aliases: nested,
+      });
+      if (direct) {
+        subgroups[subgroups.length - 1].aliases.unshift(direct);
+      }
+    }
+    if (subgroups.length > 0) {
+      groups.push({
+        type: "agent",
+        key: "agents",
+        name: "Agents",
+        subgroups,
+      });
+    }
+  }
+
+  if (categoryMap.size > 0) {
+    const subgroups: AliasGroup["subgroups"] = [];
+    for (const key of CATEGORY_KEYS) {
+      const entries = categoryMap.get(key);
+      if (!entries?.length) continue;
+      const def = CATEGORY_DEFINITIONS.find((c) => c.key === key);
+      const direct = entries.find((e) => e.key === key);
+      const nested = entries
+        .filter((e) => e.key !== key)
+        .sort((a, b) => a.key.localeCompare(b.key));
+      subgroups.push({
+        key,
+        name: def?.name ?? key,
+        aliases: nested,
+      });
+      if (direct) {
+        subgroups[subgroups.length - 1].aliases.unshift(direct);
+      }
+    }
+    if (subgroups.length > 0) {
+      groups.push({
+        type: "category",
+        key: "categories",
+        name: "Categories",
+        subgroups,
+      });
+    }
+  }
+
+  if (customEntries.length > 0) {
+    groups.push({
+      type: "custom",
+      key: "custom",
+      name: "Custom",
+      aliases: customEntries,
+    });
+  }
+
+  return groups;
+}
+
 /**
  * Returns all aliases sorted by:
  * 1. Agent aliases first, in AGENT_DEFINITIONS UI order

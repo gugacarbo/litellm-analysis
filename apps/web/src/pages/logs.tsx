@@ -64,7 +64,7 @@ export function LogsPage() {
       <div className="p-6 space-y-6">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold">Spend & Errors</h1>
+            <h1 className="text-3xl font-bold">Logs & Errors</h1>
             <p className="text-sm text-muted-foreground">
               Request-level costs, usage, and latency diagnostics.
             </p>
@@ -73,7 +73,7 @@ export function LogsPage() {
 
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList>
-            <TabsTrigger value="spend">Spend Logs</TabsTrigger>
+            <TabsTrigger value="spend">Logs</TabsTrigger>
             <TabsTrigger value="errors">Error Logs</TabsTrigger>
           </TabsList>
 

@@ -138,7 +138,7 @@
   },
   "agents": {
     "sisyphus": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "glm-5.1:ollama",
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
         "MiniMax-M2.7-highspeed",
@@ -146,7 +146,9 @@
         "MiniMax-M2.7-highspeed"
       ],
       "description": "Test 2",
-      "color": "#C83232"
+      "color": "#C83232",
+      "disable": false,
+      "tools": {}
     },
     "oracle": {
       "model": "MiniMax-M2.7-highspeed",
@@ -259,88 +261,80 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "glm-5.1",
       "fallbackModels": [
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed"
+        "qwen3.5-plus",
+        "deepseek-v4-pro",
+        "kimi-k2.6"
       ],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed"
+        "glm-5.1",
+        "qwen3.5-plus",
+        "kimi-k2.6"
       ],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed"
+        "qwen3.5-plus",
+        "glm-5.1",
+        "mimo-v2.5-pro"
       ],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
     "artistry": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "glm-5.1",
       "fallbackModels": [
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed"
+        "deepseek-v4-pro",
+        "kimi-k2.6",
+        "qwen3.5-plus"
       ],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "deepseek-v4-flash",
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed"
+        "qwen3.5-plus",
+        "deepseek-v4-pro"
       ],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "deepseek-v4-flash",
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed"
+        "qwen3.5-plus",
+        "mimo-v2.5-pro"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "qwen3.5-plus",
       "fallbackModels": [
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed"
+        "deepseek-v4-pro",
+        "glm-5.1",
+        "mimo-v2.5-pro"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "glm-5.1",
       "fallbackModels": [
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed",
-        "MiniMax-M2.7-highspeed"
+        "qwen3.5-plus",
+        "deepseek-v4-flash",
+        "kimi-k2.6"
       ],
       "description": "Documentação, prosa e escrita técnica."
     }
   },
   "globalFallbackModel": "MiniMax-M2.7-highspeed",
   "customAliases": {
-    "minimax-m2-7-highspeed": "MiniMax-M2.7-highspeed"
+    "asd": "MiniMax-M2.7-highspeed"
   }
 }
