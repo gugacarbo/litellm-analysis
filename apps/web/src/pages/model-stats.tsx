@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent } from "../components/card";
-import { FeatureGate } from "../components/feature-gate";
 import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
 import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
 import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
@@ -230,19 +229,17 @@ export function ModelStatsPage() {
         onSearchChange={setSearchQuery}
       />
 
-      <FeatureGate capability="mergeModels">
-        {mergeMode && (
-          <ModelStatsMergePanel
-            data={data}
-            sourceModel={sourceModel}
-            targetModel={targetModel}
-            merging={merging}
-            onSourceModelChange={setSourceModel}
-            onTargetModelChange={setTargetModel}
-            onMerge={handleMerge}
-          />
-        )}
-      </FeatureGate>
+      {mergeMode && (
+        <ModelStatsMergePanel
+          data={data}
+          sourceModel={sourceModel}
+          targetModel={targetModel}
+          merging={merging}
+          onSourceModelChange={setSourceModel}
+          onTargetModelChange={setTargetModel}
+          onMerge={handleMerge}
+        />
+      )}
 
       <ModelStatsSummaryCards
         loading={loading}

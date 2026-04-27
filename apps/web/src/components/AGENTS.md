@@ -15,9 +15,7 @@ components/
 ├── agent-routing/             # Agents/aliases tabs, tables, dialogs
 ├── agent-config-editor/       # Primary, advanced, execution, permissions sections
 ├── category-config-editor/    # Primary, execution, advanced sections
-├── feature-gate.tsx           # Destructive feature gating
-├── unavailable-feature.tsx    # 501 error display
-└── theme-provider.tsx         # Dark/light mode provider
+├── theme-provider.tsx         # Dark/light mode provider
 ```
 
 ## WHERE TO LOOK
@@ -30,7 +28,6 @@ components/
 | Add model management UI | `models/` | Table-card + form-dialog pattern |
 | Add model stats feature | `model-stats/` | Columns driven by `MODEL_STATS_COLUMNS` |
 | Add agent routing UI | `agent-routing/` | Tabs pattern with table + dialog |
-| Wrap destructive feature | Use `feature-gate.tsx` | Checks `AnalyticsCapabilities` |
 
 ## CONVENTIONS
 

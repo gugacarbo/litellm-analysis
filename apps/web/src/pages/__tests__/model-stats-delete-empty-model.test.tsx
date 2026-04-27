@@ -2,35 +2,6 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
-import type { AnalyticsCapabilities } from "../../types/analytics";
-
-const mockCapabilities: AnalyticsCapabilities = {
-  spendByModel: true,
-  spendByUser: true,
-  spendByKey: true,
-  spendLogs: true,
-  metricsSummary: true,
-  dailySpendTrend: true,
-  tokenDistribution: true,
-  performanceMetrics: true,
-  hourlyUsagePatterns: true,
-  apiKeyStats: true,
-  costEfficiency: true,
-  modelDistribution: true,
-  dailyTokenTrend: true,
-  modelStatistics: true,
-  models: true,
-  errorLogs: true,
-  detailedLatency: true,
-  logMerge: true,
-  filterOptions: true,
-  createModel: true,
-  updateModel: true,
-  deleteModel: true,
-  mergeModels: true,
-  deleteModelLogs: true,
-  agentRouting: true,
-};
 
 const emptyModelStatsResponse = [
   {
@@ -55,16 +26,6 @@ const emptyModelStatsResponse = [
     unique_api_keys: 1,
   },
 ];
-
-vi.mock("../../hooks/use-server-mode", () => ({
-  useServerMode: () => ({
-    mode: "database",
-    capabilities: mockCapabilities,
-    isLoading: false,
-    error: null,
-    refetch: vi.fn(),
-  }),
-}));
 
 vi.mock("../../lib/api-client", () => ({
   getModelStatistics: vi.fn(),

@@ -11,14 +11,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../dialog";
-import { FeatureGate } from "../feature-gate";
 import { Input } from "../input";
 
 type ModelFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editingModel: ModelConfig | null;
-  mode: string;
   formLoading: boolean;
   formError: string | null;
   formData: ModelFormData;
@@ -34,7 +32,6 @@ export function ModelFormDialog({
   open,
   onOpenChange,
   editingModel,
-  mode,
   formLoading,
   formError,
   formData,
@@ -48,12 +45,10 @@ export function ModelFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <FeatureGate capability="createModel">
-          <Button onClick={onOpenCreate}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Model
-          </Button>
-        </FeatureGate>
+        <Button onClick={onOpenCreate}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Model
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
@@ -79,7 +74,7 @@ export function ModelFormDialog({
                 onFormDataChange({ ...formData, modelName: e.target.value })
               }
               placeholder="e.g., gpt-4, claude-3-opus"
-              disabled={Boolean(editingModel && mode !== "limited")}
+              disabled={Boolean(editingModel)}
             />
           </div>
 

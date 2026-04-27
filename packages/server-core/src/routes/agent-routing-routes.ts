@@ -8,12 +8,6 @@ export function registerAgentRoutingRoutes(
   const { dataSource } = opts;
 
   app.get("/agent-routing", async (_req, res) => {
-    if (!dataSource.capabilities.agentRouting) {
-      res.status(501).json({
-        error: "Agent routing is not available in the current mode",
-      });
-      return;
-    }
     try {
       const data = await dataSource.getAgentRoutingConfig();
       res.json(data ?? {});
@@ -31,12 +25,6 @@ export function registerAgentRoutingRoutes(
   });
 
   app.put("/agent-routing", async (req, res) => {
-    if (!dataSource.capabilities.agentRouting) {
-      res.status(501).json({
-        error: "Agent routing updates are not available in the current mode",
-      });
-      return;
-    }
     try {
       const { model_group_alias } = req.body;
 

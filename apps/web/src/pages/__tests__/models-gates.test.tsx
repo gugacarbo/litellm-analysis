@@ -1,46 +1,6 @@
 import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
-import type { AnalyticsCapabilities } from "../../types/analytics";
-
-// vi.mock is hoisted by vitest — the import below MUST come after the mock definitions
-const mockCapabilities: AnalyticsCapabilities = {
-  spendByModel: true,
-  spendByUser: true,
-  spendByKey: true,
-  spendLogs: true,
-  metricsSummary: true,
-  dailySpendTrend: true,
-  tokenDistribution: true,
-  performanceMetrics: true,
-  hourlyUsagePatterns: true,
-  apiKeyStats: true,
-  costEfficiency: true,
-  modelDistribution: true,
-  dailyTokenTrend: true,
-  modelStatistics: true,
-  models: true,
-  errorLogs: true,
-  detailedLatency: true,
-  logMerge: true,
-  filterOptions: true,
-  createModel: false,
-  updateModel: true,
-  deleteModel: false,
-  mergeModels: false,
-  deleteModelLogs: false,
-  agentRouting: false,
-};
-
-vi.mock("../../hooks/use-server-mode", () => ({
-  useServerMode: () => ({
-    mode: "limited",
-    capabilities: mockCapabilities,
-    isLoading: false,
-    error: null,
-    refetch: vi.fn(),
-  }),
-}));
 
 vi.mock("../../lib/api-client", () => ({
   getAllModels: vi.fn().mockResolvedValue([
@@ -73,38 +33,40 @@ vi.mock("../../lib/api-client", () => ({
 
 import { ModelsPage } from "../models";
 
-describe("ModelsPage UI gates (limited mode)", () => {
+describe("ModelsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should hide create button when createModel=false", async () => {
+  it("should show create button", async () => {
     renderWithQueryClient(<ModelsPage />);
 
     const modelNames = await screen.findAllByText(/gpt-4|claude-3-opus/);
     expect(modelNames.length).toBeGreaterThan(0);
 
     expect(
-      screen.queryByRole("button", { name: /add model/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: /add model/i }),
+    ).toBeInTheDocument();
   });
 
-  it("should hide delete buttons when deleteModel=false", async () => {
+  it("should show delete buttons", async () => {
     renderWithQueryClient(<ModelsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    const unavailableFeatures = screen.queryAllByText("Feature Unavailable");
-    expect(unavailableFeatures.length).toBeGreaterThanOrEqual(2);
+    const deleteButtons = screen
+      .getAllByRole("button")
+      .filter((btn) => btn.querySelector("svg.lucide-trash-2"));
+    expect(deleteButtons.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("should show edit button when updateModel=true", async () => {
+  it("should show edit button", async () => {
     renderWithQueryClient(<ModelsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
     const editButtons = screen
-      .getAllByRole("button", { name: "" })
+      .getAllByRole("button")
       .filter((btn) => btn.querySelector("svg.lucide-pencil"));
     expect(editButtons.length).toBe(2);
   });

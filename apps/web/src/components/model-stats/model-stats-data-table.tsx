@@ -14,7 +14,6 @@ import {
 } from "../../pages/model-stats/model-stats-utils";
 import { Button } from "../button";
 import { Card, CardContent } from "../card";
-import { FeatureGate } from "../feature-gate";
 import { Skeleton } from "../skeleton";
 import {
   Table,
@@ -196,28 +195,14 @@ export function ModelStatsDataTable({
                                 break;
                               case "actions":
                                 value = (
-                                  <FeatureGate
-                                    capability="deleteModelLogs"
-                                    fallback={
-                                      <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        disabled
-                                        title="Feature not available in limited mode"
-                                      >
-                                        —
-                                      </Button>
-                                    }
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={deleting === modelName}
+                                    onClick={() => onDeleteClick(modelName)}
                                   >
-                                    <Button
-                                      variant="destructive"
-                                      size="sm"
-                                      disabled={deleting === modelName}
-                                      onClick={() => onDeleteClick(modelName)}
-                                    >
-                                      {deleting === modelName ? "..." : "×"}
-                                    </Button>
-                                  </FeatureGate>
+                                    {deleting === modelName ? "..." : "×"}
+                                  </Button>
                                 );
                                 break;
                             }

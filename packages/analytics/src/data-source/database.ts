@@ -36,7 +36,6 @@ import {
   updateModel as updateModelQuery,
 } from "../queries/index.js";
 import type {
-  AnalyticsCapabilities,
   AnalyticsDataSource,
   ApiKeyStats,
   CostEfficiency,
@@ -57,9 +56,6 @@ import type {
   SpendLogsResponse,
   TokenDistribution,
 } from "../types/index.js";
-import { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES } from "./types.js";
-
-export { DATABASE_CAPABILITIES, LIMITED_CAPABILITIES };
 
 function toNullableNumber(value: unknown): number | null {
   if (value === null || value === undefined) {
@@ -75,12 +71,6 @@ function toNullableNumber(value: unknown): number | null {
 }
 
 export class DatabaseDataSource implements AnalyticsDataSource {
-  capabilities: AnalyticsCapabilities;
-
-  constructor(capabilities: AnalyticsCapabilities = DATABASE_CAPABILITIES) {
-    this.capabilities = capabilities;
-  }
-
   async getMetricsSummary(days = 30): Promise<MetricsSummary> {
     const result = await getMetricsSummary(days);
     return {

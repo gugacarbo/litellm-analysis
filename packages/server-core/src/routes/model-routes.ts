@@ -30,10 +30,6 @@ export function registerModelRoutes(
   });
 
   app.post("/models", async (req, res) => {
-    if (!dataSource.capabilities.createModel) {
-      res.status(403).json({ error: "Operation not allowed in limited mode" });
-      return;
-    }
     try {
       const { modelName, litellmParams } = req.body;
       const normalizedModelName = String(modelName || "").trim();
@@ -57,10 +53,6 @@ export function registerModelRoutes(
   });
 
   app.put("/models/:name", async (req, res) => {
-    if (!dataSource.capabilities.updateModel) {
-      res.status(403).json({ error: "Operation not allowed in limited mode" });
-      return;
-    }
     try {
       const { name } = req.params;
       const { litellmParams, modelName } = req.body;
@@ -107,10 +99,6 @@ export function registerModelRoutes(
   });
 
   app.post("/models/merge", async (req, res) => {
-    if (!dataSource.capabilities.mergeModels) {
-      res.status(403).json({ error: "Operation not allowed in limited mode" });
-      return;
-    }
     const { sourceModel, targetModel } = req.body;
     if (!sourceModel || !targetModel) {
       res
@@ -127,10 +115,6 @@ export function registerModelRoutes(
   });
 
   const handleDeleteModelLogs = async (model: string, res: Response) => {
-    if (!dataSource.capabilities.deleteModelLogs) {
-      res.status(403).json({ error: "Operation not allowed in limited mode" });
-      return;
-    }
     try {
       await dataSource.deleteModelLogs(model);
       res.json({ success: true });
@@ -157,10 +141,6 @@ export function registerModelRoutes(
   });
 
   app.delete("/models/:name", async (req, res) => {
-    if (!dataSource.capabilities.deleteModel) {
-      res.status(403).json({ error: "Operation not allowed in limited mode" });
-      return;
-    }
     try {
       const { name } = req.params;
       await dataSource.deleteModel(name);

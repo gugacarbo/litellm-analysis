@@ -1,7 +1,5 @@
 // Analytics Data Source Interface
 export interface AnalyticsDataSource {
-  capabilities: AnalyticsCapabilities;
-
   getMetricsSummary(days?: number): Promise<MetricsSummary>;
   getDailySpendTrend(days?: number): Promise<DailySpendTrend[]>;
   getSpendByModel(days?: number): Promise<SpendByModel[]>;
@@ -230,56 +228,6 @@ export interface FilterOptions {
     min: string;
     max: string;
   };
-}
-
-export interface AnalyticsCapabilities {
-  spendByModel: boolean;
-  spendByUser: boolean;
-  spendByKey: boolean;
-  spendLogs: boolean;
-  metricsSummary: boolean;
-  dailySpendTrend: boolean;
-  tokenDistribution: boolean;
-  performanceMetrics: boolean;
-  hourlyUsagePatterns: boolean;
-  apiKeyStats: boolean;
-  costEfficiency: boolean;
-  modelDistribution: boolean;
-  dailyTokenTrend: boolean;
-  modelStatistics: boolean;
-  models: boolean;
-  errorLogs: boolean;
-  detailedLatency: boolean;
-  logMerge: boolean;
-  filterOptions: boolean;
-  createModel: boolean;
-  updateModel: boolean;
-  deleteModel: boolean;
-  mergeModels: boolean;
-  deleteModelLogs: boolean;
-  agentRouting: boolean;
-  agentConfigFile: boolean;
-}
-
-export type DataSourceMode = "database" | "api-only" | "limited";
-
-export interface DataSourceConfig {
-  mode?: DataSourceMode;
-  database?: DatabaseConfig;
-  api?: ApiConfig;
-}
-
-export interface DatabaseConfig {
-  host: string;
-  port: number;
-  name: string;
-  user: string;
-  password: string;
-}
-
-export interface ApiConfig {
-  url: string;
-  api_key: string;
 }
 
 // Re-export agent config types from shared (single source of truth)

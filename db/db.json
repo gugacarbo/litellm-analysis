@@ -138,11 +138,11 @@
   },
   "agents": {
     "sisyphus": {
-      "model": "qwen3-coder-plus",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
+        "qwen3-coder-plus",
         "deepseek-v4-pro",
-        "glm-5.1",
-        "MiniMax-M2.7-highspeed"
+        "glm-5.1"
       ],
       "description": "Agente principal de código — implementação, refatoração e execução de tarefas complexas.",
       "color": "#C83232",
@@ -251,22 +251,47 @@
   "categories": {
     "visual-engineering": {
       "model": "glm-5.1",
-      "fallbackModels": ["qwen3.5-plus", "deepseek-v4-pro", "kimi-k2.6"],
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "deepseek-v4-pro",
+        "kimi-k2.6"
+      ],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
       "model": "deepseek-v4-pro",
-      "fallbackModels": ["glm-5.1", "qwen3.5-plus", "kimi-k2.6"],
+      "fallbackModels": [
+        "glm-5.1",
+        "qwen3.5-plus",
+        "kimi-k2.6"
+      ],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
       "model": "deepseek-v4-pro",
-      "fallbackModels": ["qwen3.5-plus", "glm-5.1", "mimo-v2.5-pro"],
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "qwen3-coder-plus",
+        "mimo-v2.5-pro"
+      ],
       "description": "Resolução autônoma de problemas orientada a objetivos."
+    },
+    "code": {
+      "model": "qwen3-coder-plus",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "deepseek-v4-flash",
+        "glm-5.1"
+      ],
+      "description": "Implementação de código, refatoração, debug e tarefas de engenharia de software."
     },
     "artistry": {
       "model": "glm-5.1",
-      "fallbackModels": ["deepseek-v4-pro", "kimi-k2.6", "qwen3.5-plus"],
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "kimi-k2.6",
+        "qwen3.5-plus"
+      ],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
@@ -289,12 +314,20 @@
     },
     "unspecified-high": {
       "model": "qwen3.5-plus",
-      "fallbackModels": ["deepseek-v4-pro", "glm-5.1", "mimo-v2.5-pro"],
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "glm-5.1",
+        "mimo-v2.5-pro"
+      ],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
       "model": "glm-5.1",
-      "fallbackModels": ["qwen3.5-plus", "deepseek-v4-flash", "kimi-k2.6"],
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "deepseek-v4-flash",
+        "kimi-k2.6"
+      ],
       "description": "Documentação, prosa e escrita técnica."
     }
   },

@@ -13,7 +13,6 @@ import {
   ErrorsTable,
 } from "../components/errors/errors-table";
 import { useErrors } from "../hooks/use-errors";
-import { useServerMode } from "../hooks/use-server-mode";
 import { getAllModels } from "../lib/api-client";
 import { queryKeys } from "../lib/query-keys";
 import type { ErrorLog, PaginationMetadata } from "../types/analytics";
@@ -25,7 +24,6 @@ import {
 
 export function LogsErrorsTab() {
   const { errors, loading, refreshing, error, refetch } = useErrors();
-  const { mode } = useServerMode();
 
   const modelsQuery = useQuery({
     queryKey: queryKeys.models,
@@ -106,73 +104,46 @@ export function LogsErrorsTab() {
     [filters],
   );
 
-  const modeLabel =
-    mode === "database"
-      ? "Database Mode"
-      : mode === "api-only"
-        ? "API-Only Mode"
-        : "Limited Mode";
-
-  const modeBadgeClass =
-    mode === "database"
-      ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/30"
-      : mode === "limited"
-        ? "bg-amber-500/15 text-amber-700 border-amber-500/30"
-        : "bg-yellow-500/15 text-yellow-700 border-yellow-500/30";
-
   const handleApplyFilters = () => {
     setFilters({
-      model: filterValues.model || undefined,
-      user: filterValues.user || undefined,
-      startDate: filterValues.startDate || undefined,
-      endDate: filterValues.endDate || undefined,
+      model: filterValues.model,
+      user: filterValues.user,
+      startDate: filterValues.startDate,
+      endDate: filterValues.endDate,
     });
-    setPage(1);
   };
 
   const handleClearFilters = () => {
+    setFilters({});
     setFilterValues({
       model: "",
       user: "",
       startDate: "",
       endDate: "",
     });
-    setFilters({});
-    setPage(1);
-  };
-
-  const handlePageChange = (newPage: number) => {
-    const totalPages = pagination.total_pages || 1;
-    if (newPage >= 1 && newPage <= totalPages) {
-      setPage(newPage);
-    }
-  };
-
-  const handlePageSizeChange = (newPageSize: string) => {
-    const parsedPageSize = Number(newPageSize);
-    if (Number.isNaN(parsedPageSize)) return;
-
-    setPageSize(parsedPageSize);
-    setPage(1);
   };
 
   const handleToggleColumn = (column: ErrorColumnKey) => {
-    setVisibleColumns((currentColumns) => {
-      if (currentColumns.includes(column)) {
-        if (currentColumns.length === 1) return currentColumns;
-        return currentColumns.filter((key) => key !== column);
-      }
-      return [...currentColumns, column];
-    });
+    setVisibleColumns((prev) =>
+      prev.includes(column)
+        ? prev.filter((c) => c !== column)
+        : [...prev, column],
+    );
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: string) => {
+    setPageSize(Number(newSize));
+    setPage(1);
   };
 
   return (
     <>
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className={modeBadgeClass}>
-            {modeLabel}
-          </Badge>
           <Badge variant="outline">
             {pagination.total.toLocaleString("en-US")} errors
           </Badge>

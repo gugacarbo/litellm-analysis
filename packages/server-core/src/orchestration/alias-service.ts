@@ -43,7 +43,6 @@ export async function buildAliasMapFromDb(): Promise<Record<string, string>> {
 export async function regenerateAllAliases(
   dataSource: AnalyticsDataSource,
 ): Promise<void> {
-  if (!dataSource.capabilities.agentRouting) return;
   const allAliases = await buildAliasMapFromDb();
   await dataSource.updateAgentRoutingConfig(allAliases);
 }
