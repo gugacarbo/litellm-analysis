@@ -215,7 +215,7 @@
       "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
     },
     "prometheus": {
-      "model": "deepseek-v4-pro",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -223,7 +223,10 @@
         "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
-      "color": "#90A300"
+      "color": "#90A300",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
     },
     "explore": {
       "model": "qwen3.5-plus",
@@ -351,8 +354,5 @@
       "description": "Documentação, prosa e escrita técnica."
     }
   },
-  "globalFallbackModel": "MiniMax-M2.7-highspeed",
-  "customAliases": {
-    "asd": "MiniMax-M2.7-highspeed"
-  }
+  "globalFallbackModel": "MiniMax-M2.7-highspeed"
 }

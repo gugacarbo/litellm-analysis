@@ -26,6 +26,7 @@ import {
   getModelRequestDistribution,
   getModelStatistics,
   getPerformanceMetrics,
+  getRouterSettings,
   getSpendByKey,
   getSpendByModel,
   getSpendByUser,
@@ -34,6 +35,7 @@ import {
   getTokenDistribution,
   mergeModels as mergeModelsQuery,
   updateModel as updateModelQuery,
+  updateRouterSettings,
 } from "../queries/index.js";
 import type {
   AnalyticsDataSource,
@@ -331,7 +333,23 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     const db = await readDb();
     const allAliases: Record<string, string> = {};
 
-    // Generate aliases from agents
+    // 1. Read existing aliases from LiteLLM_Config (router_settings)
+    // These are aliases that were set directly in LiteLLM or by other tools
+    try {
+      const routerSettings = await getRouterSettings();
+      if (routerSettings?.model_group_alias) {
+        Object.assign(allAliases, routerSettings.model_group_alias as Record<string, string>);
+      }
+    } catch {
+      // If LiteLLM_Config table does not exist or query fails, continue without it
+    }
+
+    // 2. Merge custom aliases from db.json
+    if (db.customAliases) {
+      Object.assign(allAliases, db.customAliases);
+    }
+
+    // 3. Generate aliases from agents (generated aliases override existing)
     for (const [key, agent] of Object.entries(db.agents || {})) {
       const agentAliases = generateLitellmAliases(
         key,
@@ -342,7 +360,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       Object.assign(allAliases, agentAliases);
     }
 
-    // Generate aliases from categories
+    // 4. Generate aliases from categories (generated aliases override existing)
     for (const [key, category] of Object.entries(db.categories || {})) {
       const categoryAliases = generateLitellmAliases(
         key,
@@ -353,16 +371,14 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       Object.assign(allAliases, categoryAliases);
     }
 
-    // Sort aliases by definition order
+    // 5. Sort aliases by definition order
     const sortedAliases = sortAliasesByDefinitionOrder(allAliases);
 
     return { model_group_alias: sortedAliases };
   }
-
   async updateAgentRoutingConfig(
     modelGroupAlias: Record<string, string>,
   ): Promise<void> {
-    // Import writeDb to update custom aliases in db.json
     const { writeDb, readDb } = await import("@lite-llm/agents-manager");
     const db = await readDb();
 
@@ -389,6 +405,9 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       delete db.customAliases;
     }
     await writeDb(db);
+
+    // Also write to LiteLLM_Config table
+    await updateRouterSettings(modelGroupAlias);
   }
 
   async getAgentConfigs(): Promise<Record<string, unknown>> {
