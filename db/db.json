@@ -163,7 +163,7 @@
       "permission": {}
     },
     "metis": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["glm-5"],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
       "color": "#0FE000",
@@ -172,42 +172,42 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["glm-5"],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["glm-5"],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["glm-5"],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
     "artistry": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["glm-5"],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["kimi-k2.5"],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["kimi-k2.5"],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["glm-5"],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
     "writing": {
-      "model": "",
+      "model": "glm-5-1",
       "fallbackModels": ["glm-5"],
       "description": "Documentação, prosa e escrita técnica."
     }
