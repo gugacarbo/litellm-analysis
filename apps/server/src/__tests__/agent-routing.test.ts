@@ -1,9 +1,7 @@
+import type { AnalyticsDataSource } from "@lite-llm/analytics";
+import type { RouteOptions } from "@lite-llm/server-core/types";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type {
-  AnalyticsDataSource,
-} from "@lite-llm/analytics";
-import type { RouteOptions } from "@lite-llm/server-core/types";
 
 const mockGetRouterSettings = vi.fn();
 const mockUpdateRouterSettings = vi.fn();

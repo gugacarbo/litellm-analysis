@@ -1,9 +1,7 @@
+import type { AnalyticsDataSource } from "@lite-llm/analytics";
+import type { OrchestrationServices } from "@lite-llm/server-core/types";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type {
-  AnalyticsDataSource,
-} from "@lite-llm/analytics";
-import type { OrchestrationServices } from "@lite-llm/server-core/types";
 
 // Mocks must be hoisted
 const mockDeleteAgentFromConfig = vi.hoisted(() => vi.fn());

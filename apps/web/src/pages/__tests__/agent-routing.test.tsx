@@ -353,9 +353,7 @@ describe("AgentRoutingPage", () => {
         expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
 
-      expect(
-        screen.getByRole("tab", { name: "Agents" }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Agents" })).toBeInTheDocument();
       expect(
         screen.getByRole("tab", { name: "Categories" }),
       ).toBeInTheDocument();

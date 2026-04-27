@@ -1,6 +1,6 @@
+import type { AnalyticsDataSource } from "@lite-llm/analytics";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AnalyticsDataSource } from "@lite-llm/analytics";
 
 const mockUpdateAgentInConfig = vi.fn();
 const mockReadConfigFile = vi.fn();
