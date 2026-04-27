@@ -3,7 +3,6 @@ import { cn } from "../../lib/utils";
 import type { AgentDefinition } from "../../types/agent-routing";
 import { Badge } from "../badge";
 import { Button } from "../button";
-import { FeatureGate } from "../feature-gate";
 import { Skeleton } from "../skeleton";
 
 type ConfigInfo = {
@@ -188,18 +187,16 @@ export function AgentsTable({
                 </p>
               </div>
 
-              <FeatureGate capability="agentRouting">
-                <div className="flex items-center">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onOpenAgentConfig(agent.key)}
-                    title="Edit agent configuration"
-                  >
-                    <Palette className="h-4 w-4" />
-                  </Button>
-                </div>
-              </FeatureGate>
+              <div className="flex items-center">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onOpenAgentConfig(agent.key)}
+                  title="Edit agent configuration"
+                >
+                  <Palette className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">

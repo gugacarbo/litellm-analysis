@@ -1,5 +1,4 @@
 export const queryKeys = {
-  serverMode: ["server-mode"] as const,
   models: ["models"] as const,
   modelStatistics: ["model-statistics"] as const,
   errorLogs: (limit: number) => ["error-logs", limit] as const,

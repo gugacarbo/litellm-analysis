@@ -154,6 +154,57 @@ export function registerAgentConfigRoutes(
     }
   });
 
+  app.delete('/agent-config/:key', async (req, res) => {
+    try {
+      const key = req.params.key;
+      if (key === 'global-fallback') {
+        res
+          .status(404)
+          .json({ error: 'Global fallback cannot be deleted' });
+        return;
+      }
+      const { type } = req.query;
+
+      const {
+        deleteAgentFromConfig,
+        deleteCategoryFromConfig,
+      } = await import('@lite-llm/agents-manager');
+
+      if (type === 'category') {
+        await deleteCategoryFromConfig(key);
+      } else {
+        await deleteAgentFromConfig(key);
+      }
+      await orchestration.syncGeneratedArtifacts();
+
+      const { getExistingAliasesForAgent } = await import(
+        '@lite-llm/alias-router'
+      );
+      const { getAgentRoutingConfig, updateAgentRoutingConfig } =
+        dataSource;
+      const existingRouting = await getAgentRoutingConfig();
+      const existingAliases = existingRouting?.model_group_alias
+        ? (existingRouting.model_group_alias as Record<
+            string,
+            string
+          >)
+        : {};
+      const keysToRemove = getExistingAliasesForAgent(
+        key,
+        existingAliases,
+      );
+      const deletions: Record<string, string> = {};
+      for (const aliasKey of keysToRemove) {
+        deletions[aliasKey] = '';
+      }
+      await updateAgentRoutingConfig(deletions);
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
   app.put('/agent-config', async (req, res) => {
     try {
       const { agents: rawAgents, categories: rawCategories } = req.body;
@@ -242,29 +293,27 @@ export function registerAgentConfigRoutes(
       }
       await orchestration.syncGeneratedArtifacts();
 
-      if (dataSource.capabilities.agentRouting) {
-        const { getExistingAliasesForAgent } = await import(
-          '@lite-llm/alias-router'
-        );
-        const { getAgentRoutingConfig, updateAgentRoutingConfig } =
-          dataSource;
-        const existingRouting = await getAgentRoutingConfig();
-        const existingAliases = existingRouting?.model_group_alias
-          ? (existingRouting.model_group_alias as Record<
-              string,
-              string
-            >)
-          : {};
-        const keysToRemove = getExistingAliasesForAgent(
-          key,
-          existingAliases,
-        );
-        const deletions: Record<string, string> = {};
-        for (const aliasKey of keysToRemove) {
-          deletions[aliasKey] = '';
-        }
-        await updateAgentRoutingConfig(deletions);
+      const { getExistingAliasesForAgent } = await import(
+        '@lite-llm/alias-router'
+      );
+      const { getAgentRoutingConfig, updateAgentRoutingConfig } =
+        dataSource;
+      const existingRouting = await getAgentRoutingConfig();
+      const existingAliases = existingRouting?.model_group_alias
+        ? (existingRouting.model_group_alias as Record<
+            string,
+            string
+          >)
+        : {};
+      const keysToRemove = getExistingAliasesForAgent(
+        key,
+        existingAliases,
+      );
+      const deletions: Record<string, string> = {};
+      for (const aliasKey of keysToRemove) {
+        deletions[aliasKey] = '';
       }
+      await updateAgentRoutingConfig(deletions);
 
       res.json({ success: true });
     } catch (error) {

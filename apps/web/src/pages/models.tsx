@@ -14,7 +14,6 @@ export function ModelsPage() {
     aliasDialogMode,
     aliasDialogOpen,
     aliasDialogValue,
-    capabilities,
     customAliases,
     deleteModelName,
     dialogOpen,
@@ -22,7 +21,6 @@ export function ModelsPage() {
     formData,
     formError,
     formLoading,
-    mode,
     modelsQuery,
     mutationError,
     updateAgentRoutingMutation,
@@ -56,7 +54,6 @@ export function ModelsPage() {
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           editingModel={editingModel}
-          mode={mode}
           formLoading={formLoading}
           formError={formError}
           formData={formData}
@@ -72,9 +69,7 @@ export function ModelsPage() {
       <Tabs defaultValue="models">
         <TabsList>
           <TabsTrigger value="models">Models</TabsTrigger>
-          {capabilities.agentRouting ? (
-            <TabsTrigger value="aliases">Custom Aliases</TabsTrigger>
-          ) : null}
+          <TabsTrigger value="aliases">Custom Aliases</TabsTrigger>
         </TabsList>
 
         <TabsContent value="models" className="mt-4">
@@ -92,19 +87,17 @@ export function ModelsPage() {
           />
         </TabsContent>
 
-        {capabilities.agentRouting ? (
-          <TabsContent value="aliases" className="mt-4">
-            <AgentRoutingAliasesTab
-              loading={aliasesLoading}
-              saving={updateAgentRoutingMutation.isPending}
-              error={aliasesError}
-              customAliases={customAliases}
-              onOpenAddAlias={openAddAlias}
-              onOpenEditAlias={openEditAlias}
-              onDeleteAlias={handleAliasDelete}
-            />
-          </TabsContent>
-        ) : null}
+        <TabsContent value="aliases" className="mt-4">
+          <AgentRoutingAliasesTab
+            loading={aliasesLoading}
+            saving={updateAgentRoutingMutation.isPending}
+            error={aliasesError}
+            customAliases={customAliases}
+            onOpenAddAlias={openAddAlias}
+            onOpenEditAlias={openEditAlias}
+            onDeleteAlias={handleAliasDelete}
+          />
+        </TabsContent>
       </Tabs>
 
       <AgentRoutingAliasDialog

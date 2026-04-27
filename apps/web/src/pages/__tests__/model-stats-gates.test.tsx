@@ -1,46 +1,6 @@
 import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
-import type { AnalyticsCapabilities } from "../../types/analytics";
-
-// vi.mock is hoisted by vitest — the import below MUST come after the mock definitions
-const mockCapabilities: AnalyticsCapabilities = {
-  spendByModel: true,
-  spendByUser: true,
-  spendByKey: true,
-  spendLogs: true,
-  metricsSummary: true,
-  dailySpendTrend: true,
-  tokenDistribution: true,
-  performanceMetrics: true,
-  hourlyUsagePatterns: true,
-  apiKeyStats: true,
-  costEfficiency: true,
-  modelDistribution: true,
-  dailyTokenTrend: true,
-  modelStatistics: true,
-  models: true,
-  errorLogs: true,
-  detailedLatency: true,
-  logMerge: true,
-  filterOptions: true,
-  createModel: false,
-  updateModel: true,
-  deleteModel: false,
-  mergeModels: false,
-  deleteModelLogs: false,
-  agentRouting: false,
-};
-
-vi.mock("../../hooks/use-server-mode", () => ({
-  useServerMode: () => ({
-    mode: "limited",
-    capabilities: mockCapabilities,
-    isLoading: false,
-    error: null,
-    refetch: vi.fn(),
-  }),
-}));
 
 vi.mock("../../lib/api-client", () => ({
   getModelStatistics: vi.fn().mockResolvedValue([
@@ -101,12 +61,12 @@ vi.mock("sonner", async (importOriginal) => {
 
 import { ModelStatsPage } from "../model-stats";
 
-describe("ModelStatsPage UI gates (limited mode)", () => {
+describe("ModelStatsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should hide merge section when mergeModels=false", async () => {
+  it("should show merge button", async () => {
     renderWithQueryClient(<ModelStatsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
@@ -115,18 +75,18 @@ describe("ModelStatsPage UI gates (limited mode)", () => {
       name: /^merge models$/i,
     });
     expect(mergeButton).toBeInTheDocument();
-    expect(mergeButton).toBeDisabled();
+    expect(mergeButton).not.toBeDisabled();
   });
 
-  it("should hide delete logs buttons when deleteModelLogs=false", async () => {
+  it("should show delete logs buttons", async () => {
     renderWithQueryClient(<ModelStatsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    const disabledButtons = screen.queryAllByRole("button", { name: "—" });
-    expect(disabledButtons.length).toBe(2);
-    for (const btn of disabledButtons) {
-      expect(btn).toBeDisabled();
+    const deleteButtons = screen.queryAllByRole("button", { name: "×" });
+    expect(deleteButtons.length).toBe(2);
+    for (const btn of deleteButtons) {
+      expect(btn).not.toBeDisabled();
     }
   });
 });

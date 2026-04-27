@@ -3,7 +3,6 @@ import { cn } from "../../lib/utils";
 import type { CategoryDefinition } from "../../types/agent-routing";
 import { Badge } from "../badge";
 import { Button } from "../button";
-import { FeatureGate } from "../feature-gate";
 import { Skeleton } from "../skeleton";
 
 type ConfigInfo = {
@@ -181,30 +180,28 @@ export function CategoriesTable({
                 </p>
               </div>
 
-              <FeatureGate capability="agentRouting">
-                <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onOpenCategoryConfig(category.key)}
+                  title="Edit category configuration"
+                >
+                  <Palette className="h-4 w-4" />
+                </Button>
+                {configInfo ? (
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    onClick={() => onOpenCategoryConfig(category.key)}
-                    title="Edit category configuration"
+                    onClick={() => onDeleteCategoryConfig(category.key)}
+                    title="Reset to default"
+                    disabled={saving}
                   >
-                    <Palette className="h-4 w-4" />
+                    <RefreshCw className="h-4 w-4" />
+                    <span className="sr-only">Reset</span>
                   </Button>
-                  {configInfo ? (
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => onDeleteCategoryConfig(category.key)}
-                      title="Reset to default"
-                      disabled={saving}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                      <span className="sr-only">Reset</span>
-                    </Button>
-                  ) : null}
-                </div>
-              </FeatureGate>
+                ) : null}
+              </div>
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">

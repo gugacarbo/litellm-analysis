@@ -45,7 +45,7 @@ pages/
 | Add page hooks | `pages/<page>/use-<page>-*.ts` | Follow State-Actions-Derived pattern |
 | Add column schema | `model-stats/model-stats-types.ts` | MODEL_STATS_COLUMNS declarative array |
 | Fix formatting | Check `dashboard-utils.ts` vs `model-stats-utils.ts` | Slight variations exist |
-| Add page tests | `__tests__/<page>.test.tsx` | Mock `useServerMode` with capability flags |
+| Add page tests | `__tests__/<page>.test.tsx` | Test page components directly |
 
 ## CONVENTIONS
 

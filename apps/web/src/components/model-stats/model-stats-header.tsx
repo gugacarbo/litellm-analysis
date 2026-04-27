@@ -13,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../dropdown-menu";
-import { FeatureGate } from "../feature-gate";
 
 type ModelStatsHeaderProps = {
   mergeMode: boolean;
@@ -40,23 +39,9 @@ export function ModelStatsHeader({
         <h1 className="text-3xl font-bold">Model Statistics</h1>
         <div className="flex items-center gap-2">
           <Badge variant="outline">30-day period</Badge>
-          <FeatureGate
-            capability="mergeModels"
-            fallback={
-              <Button
-                size="sm"
-                variant="outline"
-                disabled
-                title="Feature not available in limited mode"
-              >
-                Merge Models
-              </Button>
-            }
-          >
-            <Button size="sm" variant="outline" onClick={onToggleMergeMode}>
-              {mergeMode ? "Cancel" : "Merge Models"}
-            </Button>
-          </FeatureGate>
+          <Button size="sm" variant="outline" onClick={onToggleMergeMode}>
+            {mergeMode ? "Cancel" : "Merge Models"}
+          </Button>
         </div>
       </div>
 

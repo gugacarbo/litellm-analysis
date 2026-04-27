@@ -6,7 +6,6 @@ import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing
 import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
 import { Button } from "../components/button";
 import { CategoryConfigEditor } from "../components/category-config-editor";
-import { FeatureGate } from "../components/feature-gate";
 import { GlobalFallbackSelector } from "../components/global-fallback-selector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
 import {
@@ -31,32 +30,28 @@ export function AgentRoutingPage() {
           </p>
         </div>
 
-        <FeatureGate capability="agentRouting">
-          <Button
-            onClick={state.handleSaveAll}
-            disabled={state.saving || state.loading}
-          >
-            {state.saving ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin me-2" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Database className="h-4 w-4 me-2" />
-                Save All
-              </>
-            )}
-          </Button>
-        </FeatureGate>
+        <Button
+          onClick={state.handleSaveAll}
+          disabled={state.saving || state.loading}
+        >
+          {state.saving ? (
+            <>
+              <RefreshCw className="h-4 w-4 animate-spin me-2" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Database className="h-4 w-4 me-2" />
+              Save All
+            </>
+          )}
+        </Button>
       </div>
 
-      <FeatureGate capability="agentRouting">
-        <GlobalFallbackSelector
-          value={state.globalFallbackModel}
-          onValueChange={state.handleSaveGlobalFallback}
-        />
-      </FeatureGate>
+      <GlobalFallbackSelector
+        value={state.globalFallbackModel}
+        onValueChange={state.handleSaveGlobalFallback}
+      />
 
       <Tabs defaultValue="agents">
         <TabsList>

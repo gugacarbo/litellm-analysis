@@ -1,10 +1,6 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DATABASE_CAPABILITIES } from "@lite-llm/analytics";
-import type {
-  AnalyticsCapabilities,
-  AnalyticsDataSource,
-} from "@lite-llm/analytics";
+import type { AnalyticsDataSource } from "@lite-llm/analytics";
 
 const mockUpdateAgentInConfig = vi.fn();
 const mockReadConfigFile = vi.fn();
@@ -29,11 +25,8 @@ vi.mock("@lite-llm/agents-manager", () => ({
   deleteCategoryFromConfig: vi.fn(),
 }));
 
-function createMockDataSource(
-  capabilities: AnalyticsCapabilities,
-): AnalyticsDataSource {
+function createMockDataSource(): AnalyticsDataSource {
   return {
-    capabilities,
     getMetricsSummary: vi.fn().mockResolvedValue({
       total_spend: 0,
       total_tokens: 0,
@@ -86,9 +79,9 @@ function createMockDataSource(
   };
 }
 
-async function getServer(capabilities: AnalyticsCapabilities) {
+async function getServer() {
   const { createApiServer } = await import("../api-server");
-  const mockDs = createMockDataSource(capabilities);
+  const mockDs = createMockDataSource();
   const orchestration = {
     dataSource: mockDs,
     buildAliasMap: vi.fn().mockResolvedValue({}),
@@ -132,7 +125,7 @@ describe("PUT /agent-config/:key alias resolution", () => {
   });
 
   it("resolves logical gpt aliases to real LiteLLM models before persisting aliases", async () => {
-    const { app, dataSource } = await getServer(DATABASE_CAPABILITIES);
+    const { app, dataSource } = await getServer();
 
     const res = await request(app)
       .put("/agent-config/sisyphus")

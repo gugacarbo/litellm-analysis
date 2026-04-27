@@ -6,21 +6,15 @@ import {
   Settings,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { Badge } from "../../components/badge";
 import { Card, CardContent } from "../../components/card";
-import { useServerMode } from "../../hooks/use-server-mode";
 
 export function Sidebar() {
-  const { mode, capabilities, isLoading } = useServerMode();
-
   const navItems = [
     { to: "/", icon: Activity, label: "Dashboard" },
     { to: "/models", icon: Settings, label: "Models" },
     { to: "/model-stats", icon: BarChart3, label: "Model Stats" },
     { to: "/logs", icon: FileText, label: "Spend Logs" },
-    ...(capabilities.agentRouting
-      ? [{ to: "/agent-routing", icon: GitBranch, label: "Agent Routing" }]
-      : []),
+    { to: "/agent-routing", icon: GitBranch, label: "Agent Routing" },
   ];
 
   return (
@@ -29,24 +23,6 @@ export function Sidebar() {
         <CardContent className="px-3 py-0 gap-4 flex flex-col">
           <div className="flex gap-1 flex-col">
             <h2 className="font-bold text-lg">LiteLLM Stats</h2>
-            {!isLoading ? (
-              <Badge
-                className={
-                  mode === "limited"
-                    ? "bg-amber-500/15 text-amber-600 border-amber-500/30"
-                    : ""
-                }
-                variant={mode === "database" ? "default" : "secondary"}
-              >
-                {mode === "database"
-                  ? "🟢 Full Access"
-                  : mode === "limited"
-                    ? "🟠 Limited"
-                    : "🟡 API Mode"}
-              </Badge>
-            ) : (
-              <Badge variant="outline">Loading...</Badge>
-            )}
           </div>
           <nav className="space-y-1">
             {navItems.map(({ to, icon: Icon, label }) => (

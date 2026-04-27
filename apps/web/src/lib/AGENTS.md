@@ -17,7 +17,6 @@ lib/
 │   └── spend.ts          # Spend logs
 ├── query-client.ts       # React Query client
 ├── query-keys.ts         # Query key factories
-├── server-mode.ts       # Server mode detection
 ├── spend-log-utils.ts   # Spend log formatters
 └── utils.ts             # General utilities
 ```
@@ -28,7 +27,6 @@ lib/
 |------|----------|-------|
 | Add API endpoint | `api-client/` | Add new module + re-export in `api-client.ts` |
 | Add React Query key | `query-keys.ts` | Factory functions for cache keys |
-| Change server detection | `server-mode.ts` | Reads `GET /api/mode` |
 | Add HTTP client | `api-client/core.ts` | Base fetch with error handling |
 
 ## CONVENTIONS

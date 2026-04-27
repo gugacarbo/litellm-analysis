@@ -1,8 +1,6 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DATABASE_CAPABILITIES } from "@lite-llm/analytics";
 import type {
-  AnalyticsCapabilities,
   AnalyticsDataSource,
 } from "@lite-llm/analytics";
 import type { OrchestrationServices } from "@lite-llm/server-core/types";
@@ -33,11 +31,8 @@ vi.mock("@lite-llm/agents-manager", async () => {
   };
 });
 
-function createMockDataSource(
-  capabilities: AnalyticsCapabilities,
-): AnalyticsDataSource {
+function createMockDataSource(): AnalyticsDataSource {
   return {
-    capabilities,
     getMetricsSummary: vi.fn().mockResolvedValue({
       total_spend: 0,
       total_tokens: 0,
@@ -100,9 +95,9 @@ function createMockOrchestration(
   };
 }
 
-async function getServer(capabilities: AnalyticsCapabilities) {
+async function getServer() {
   const { createApiServer } = await import("../api-server");
-  const mockDs = createMockDataSource(capabilities);
+  const mockDs = createMockDataSource();
   const mockOrch = createMockOrchestration(mockDs);
   return {
     app: createApiServer({ dataSource: mockDs, orchestration: mockOrch }),
@@ -130,7 +125,7 @@ describe("DELETE /agent-config/:key", () => {
   });
 
   it("deletes agent and calls syncGeneratedArtifacts", async () => {
-    const { app, orchestration } = await getServer(DATABASE_CAPABILITIES);
+    const { app, orchestration } = await getServer();
 
     const res = await request(app).delete("/agent-config/sisyphus");
 
@@ -142,7 +137,7 @@ describe("DELETE /agent-config/:key", () => {
   });
 
   it("deletes category and calls syncGeneratedArtifacts", async () => {
-    const { app, orchestration } = await getServer(DATABASE_CAPABILITIES);
+    const { app, orchestration } = await getServer();
 
     const res = await request(app).delete(
       "/agent-config/visual-engineering?type=category",
@@ -157,7 +152,7 @@ describe("DELETE /agent-config/:key", () => {
   });
 
   it("rejects deleting global-fallback", async () => {
-    const { app } = await getServer(DATABASE_CAPABILITIES);
+    const { app } = await getServer();
 
     const res = await request(app).delete("/agent-config/global-fallback");
 

@@ -1,7 +1,6 @@
 import { Database, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "../button";
 import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { FeatureGate } from "../feature-gate";
 import { Skeleton } from "../skeleton";
 import {
   Table,
@@ -39,12 +38,10 @@ export function AgentRoutingAliasesTab({
             <Database className="h-5 w-5" />
             Custom Aliases
           </CardTitle>
-          <FeatureGate capability="agentRouting">
-            <Button onClick={onOpenAddAlias} size="sm">
-              <Plus className="h-4 w-4" />
-              Add Alias
-            </Button>
-          </FeatureGate>
+          <Button onClick={onOpenAddAlias} size="sm">
+            <Plus className="h-4 w-4" />
+            Add Alias
+          </Button>
         </CardHeader>
 
         <CardContent>
@@ -78,25 +75,23 @@ export function AgentRoutingAliasesTab({
                     </TableCell>
                     <TableCell className="font-mono">{value}</TableCell>
                     <TableCell>
-                      <FeatureGate capability="agentRouting">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => onOpenEditAlias(key, value)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => onDeleteAlias(key)}
-                            disabled={saving}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </FeatureGate>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => onOpenEditAlias(key, value)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => onDeleteAlias(key)}
+                          disabled={saving}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

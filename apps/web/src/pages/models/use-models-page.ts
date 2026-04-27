@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { useServerMode } from "../../hooks/use-server-mode";
 import {
   type AgentRoutingAPIResponse,
   createModel,
@@ -21,7 +20,6 @@ import {
 
 export function useModelsPage() {
   const queryClient = useQueryClient();
-  const { mode, capabilities } = useServerMode();
 
   const modelsQuery = useQuery({
     queryKey: queryKeys.models,
@@ -31,7 +29,6 @@ export function useModelsPage() {
   const aliasesQuery = useQuery({
     queryKey: queryKeys.agentRoutingAliases,
     queryFn: getAgentRoutingConfig,
-    enabled: capabilities.agentRouting,
   });
 
   const createModelMutation = useMutation({
@@ -100,15 +97,9 @@ export function useModelsPage() {
       }
 
       if (editingModel) {
-        const newName =
-          mode === "limited" && formData.modelName !== editingModel.modelName
-            ? formData.modelName
-            : undefined;
-
         await updateModelMutation.mutateAsync({
           modelName: editingModel.modelName,
           litellmParams: params,
-          newName,
         });
       } else {
         await createModelMutation.mutateAsync({
@@ -238,7 +229,6 @@ export function useModelsPage() {
     aliasDialogMode,
     aliasDialogOpen,
     aliasDialogValue,
-    capabilities,
     customAliases,
     deleteModelName,
     dialogOpen,
@@ -246,7 +236,6 @@ export function useModelsPage() {
     formData,
     formError,
     formLoading,
-    mode,
     modelsQuery,
     mutationError,
     updateAgentRoutingMutation,
