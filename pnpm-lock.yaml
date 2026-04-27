@@ -193,6 +193,9 @@ importers:
 
   packages/agents-manager:
     dependencies:
+      '@lite-llm/alias-router':
+        specifier: workspace:*
+        version: link:../alias-router
       '@litellm/shared':
         specifier: workspace:*
         version: link:../shared

@@ -409,6 +409,45 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
 
   // ── Agent Config (local JSON file) ──
 
+  /**
+   * Regenerates ALL aliases for ALL agents and categories.
+   * Called after any save to ensure consistency with global fallback.
+   */
+  async function regenerateAllAliases(
+    dataSource: AnalyticsDataSource,
+  ): Promise<void> {
+    if (!dataSource.capabilities.agentRouting) return;
+
+    const { readDb } = await import("@lite-llm/agents-manager");
+    const { generateLitellmAliases } = await import("@lite-llm/alias-router");
+    const db = await readDb();
+    const globalFallback = db.globalFallbackModel;
+
+    const allAliases: Record<string, string> = {};
+
+    for (const [key, agent] of Object.entries(db.agents || {})) {
+      const aliases = generateLitellmAliases(
+        key,
+        agent.model || "",
+        agent.fallbackModels,
+        globalFallback,
+      );
+      Object.assign(allAliases, aliases);
+    }
+
+    for (const [key, category] of Object.entries(db.categories || {})) {
+      const aliases = generateLitellmAliases(
+        key,
+        category.model || "",
+        category.fallbackModels,
+        globalFallback,
+      );
+      Object.assign(allAliases, aliases);
+    }
+
+    await dataSource.updateAgentRoutingConfig(allAliases);
+  }
+
   app.get("/agent-config/global-fallback", async (_req, res) => {
     try {
       const { readDb } = await import("@lite-llm/agents-manager");
@@ -424,51 +463,13 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const { globalFallbackModel } = req.body as {
         globalFallbackModel?: string;
       };
-      const { updateGlobalFallbackInDb, readDb, syncOutputConfigFile } =
+      const { updateGlobalFallbackInDb, syncOutputConfigFile } =
         await import("@lite-llm/agents-manager");
       const newGlobalFallback = globalFallbackModel || "gpt-5.1";
       await updateGlobalFallbackInDb(newGlobalFallback);
-      const db = await readDb();
       await syncOutputConfigFile();
 
-      if (dataSource.capabilities.agentRouting) {
-        const { generateLitellmAliases } = await import(
-          "@lite-llm/alias-router"
-        );
-        const { updateAgentRoutingConfig, getAgentRoutingConfig } = dataSource;
-        const existingRouting = await getAgentRoutingConfig();
-        const existingAliases = existingRouting?.model_group_alias
-          ? (existingRouting.model_group_alias as Record<string, string>)
-          : {};
-
-        for (const [key, agent] of Object.entries(db.agents)) {
-          const actualModel = agent.model || "";
-          const actualFallbacks = agent.fallbackModels || [];
-          const _newAliases = generateLitellmAliases(
-            key,
-            actualModel,
-            actualFallbacks,
-            newGlobalFallback,
-          );
-          existingAliases[key] = actualModel;
-          for (let i = 0; i < Math.min(actualFallbacks.length, 3); i++) {
-            existingAliases[`${key}/gpt-5.${4 - i}`] = actualFallbacks[i];
-          }
-          existingAliases[`${key}/gpt-5.1`] = newGlobalFallback;
-        }
-
-        for (const [key, category] of Object.entries(db.categories)) {
-          const actualModel = category.model || "";
-          const actualFallbacks = category.fallbackModels || [];
-          existingAliases[key] = actualModel;
-          for (let i = 0; i < Math.min(actualFallbacks.length, 3); i++) {
-            existingAliases[`${key}/gpt-5.${4 - i}`] = actualFallbacks[i];
-          }
-          existingAliases[`${key}/gpt-5.1`] = newGlobalFallback;
-        }
-
-        await updateAgentRoutingConfig(existingAliases);
-      }
+      await regenerateAllAliases(dataSource);
 
       res.json({ success: true });
     } catch (error) {
@@ -587,21 +588,8 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       await writeVscodeModelsFile(models);
       await syncOutputConfigFile();
 
-      if (syncAliases && dataSource.capabilities.agentRouting) {
-        const { generateLitellmAliases, replaceAliasesForAgent } = await import(
-          "@lite-llm/alias-router"
-        );
-        const { updateAgentRoutingConfig } = dataSource;
-        const { readDb } = await import("@lite-llm/agents-manager");
-        const db = await readDb();
-        const newAliases = generateLitellmAliases(
-          key,
-          actualModel,
-          actualFallbacks,
-          db.globalFallbackModel,
-        );
-        const merged = replaceAliasesForAgent(existingAliases, key, newAliases);
-        await updateAgentRoutingConfig(merged);
+      if (syncAliases) {
+        await regenerateAllAliases(dataSource);
       }
 
       res.json({ success: true });
@@ -617,20 +605,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const agentsToSave: Record<string, AgentConfig> = {};
       const categoriesToSave: Record<string, CategoryConfig> = {};
 
-      const allNewAliases: Record<string, string> = {};
-      let existingAliases: Record<string, string> = {};
-      if (dataSource.capabilities.agentRouting) {
-        const existingRouting = await dataSource.getAgentRoutingConfig();
-        existingAliases = existingRouting?.model_group_alias
-          ? (existingRouting.model_group_alias as Record<string, string>)
-          : {};
-      }
-
-      const {
-        generateLitellmAliases,
-        replaceAliasesForAgent,
-        resolveConfiguredModels,
-      } = await import("@lite-llm/alias-router");
+      const { resolveConfiguredModels } = await import("@lite-llm/alias-router");
 
       if (rawAgents && typeof rawAgents === "object") {
         for (const [key, rawCfg] of Object.entries(
@@ -640,7 +615,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             key,
             String(rawCfg.model || ""),
             (rawCfg.fallback_models as string[] | undefined) || [],
-            existingAliases,
+            {},
           );
 
           // Save actual (real) model names to db.json
@@ -650,17 +625,6 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             fallback_models: actualFallbacks,
           } as AgentConfig;
 
-          const aliases = generateLitellmAliases(
-            key,
-            actualModel,
-            actualFallbacks,
-          );
-          Object.assign(allNewAliases, aliases);
-          existingAliases = replaceAliasesForAgent(
-            existingAliases,
-            key,
-            aliases,
-          );
         }
       }
 
@@ -672,7 +636,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             key,
             String(rawCfg.model || ""),
             (rawCfg.fallback_models as string[] | undefined) || [],
-            existingAliases,
+            {},
           );
 
           // Save actual (real) model names to db.json
@@ -682,17 +646,6 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
             fallback_models: actualFallbacks,
           } as CategoryConfig;
 
-          const aliases = generateLitellmAliases(
-            key,
-            actualModel,
-            actualFallbacks,
-          );
-          Object.assign(allNewAliases, aliases);
-          existingAliases = replaceAliasesForAgent(
-            existingAliases,
-            key,
-            aliases,
-          );
         }
       }
 
@@ -716,39 +669,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       await writeVscodeModelsFile(models);
       await syncOutputConfigFile();
 
-      if (
-        dataSource.capabilities.agentRouting &&
-        Object.keys(allNewAliases).length > 0
-      ) {
-        const { replaceAliasesForAgent } = await import(
-          "@lite-llm/alias-router"
-        );
-        const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
-        const existingRouting = await getAgentRoutingConfig();
-        let aliasesToPersist = existingRouting?.model_group_alias
-          ? (existingRouting.model_group_alias as Record<string, string>)
-          : {};
-
-        const allKeys = new Set([
-          ...Object.keys(rawAgents || {}),
-          ...Object.keys(rawCategories || {}),
-        ]);
-        for (const key of allKeys) {
-          const keyAliases: Record<string, string> = {};
-          for (const [aliasKey, aliasValue] of Object.entries(allNewAliases)) {
-            if (aliasKey.startsWith(`${key}/gpt-5.`)) {
-              keyAliases[aliasKey] = aliasValue;
-            }
-          }
-          aliasesToPersist = replaceAliasesForAgent(
-            aliasesToPersist,
-            key,
-            keyAliases,
-          );
-        }
-
-        await updateAgentRoutingConfig(aliasesToPersist);
-      }
+      await regenerateAllAliases(dataSource);
 
       res.json({ success: true });
     } catch (error) {

@@ -26,4 +26,5 @@ export interface OpenCodeProviderEntry {
 
 export interface OpenCodeProviders {
   provider: Record<string, OpenCodeProviderEntry>;
+  model_group_alias?: Record<string, string>;
 }

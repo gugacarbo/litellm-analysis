@@ -29,10 +29,7 @@ export class CategoryTransformer implements ICategoryTransformer {
       if (Object.keys(entry).length === 0) continue;
       const output: CategoryConfig = {};
 
-      // Transform real model names to aliases
-      if (entry.model) {
-        output.model = `${key}/${MODEL_NAMES[0]}`;
-      }
+      output.model = `${key}/${MODEL_NAMES[0]}`;
 
       // Always generate all 4 fallback slots (gpt-5.4 through gpt-5.1)
       // Use defined fallbacks when available, otherwise use globalFallbackModel

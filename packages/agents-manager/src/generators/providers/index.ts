@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { generateLitellmAliases } from "@lite-llm/alias-router";
 import type { DbAgentEntry, DbCategoryEntry } from "../../types/index.js";
 import { type DbModelWithParams, mergeModelsFromDb } from "./merger.js";
 import {
@@ -37,6 +38,32 @@ export class ProvidersGenerator implements IProvidersGenerator {
 
     this.addEntityProviders(db.agents, providers);
     this.addEntityProviders(db.categories, providers);
+
+    // Generate ALL model_group_alias entries from all agents and categories
+    const globalFallback = db.globalFallbackModel;
+    const modelGroupAlias: Record<string, string> = {};
+
+    for (const [key, agent] of Object.entries(db.agents)) {
+      const aliases = generateLitellmAliases(
+        key,
+        agent.model || "",
+        agent.fallbackModels,
+        globalFallback,
+      );
+      Object.assign(modelGroupAlias, aliases);
+    }
+
+    for (const [key, category] of Object.entries(db.categories)) {
+      const aliases = generateLitellmAliases(
+        key,
+        category.model || "",
+        category.fallbackModels,
+        globalFallback,
+      );
+      Object.assign(modelGroupAlias, aliases);
+    }
+
+    providers.model_group_alias = modelGroupAlias;
 
     await this.ensureDir();
     const tmpPath = `${this.providersFile}.tmp`;

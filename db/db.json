@@ -212,6 +212,5 @@
       "description": "Documentação, prosa e escrita técnica."
     }
   },
-  "globalFallbackModel": "qwen3-5-plus",
-  "customAliases": {}
+  "globalFallbackModel": "minimax-m2.7-highspeed"
 }

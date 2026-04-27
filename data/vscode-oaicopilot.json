@@ -89,39 +89,6 @@
       "limit": {
         "output": 64000
       }
-    },
-    {
-      "id": "glm-5-1",
-      "owned_by": "atplus",
-      "displayName": "Glm 5 1",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "kimi-k2-5",
-      "owned_by": "atplus",
-      "displayName": "Kimi K2 5",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
-    },
-    {
-      "id": "qwen3-5-plus",
-      "owned_by": "atplus",
-      "displayName": "Qwen3 5 Plus",
-      "baseUrl": "http://localhost:4000",
-      "apiMode": "openai",
-      "context_length": 200000,
-      "limit": {
-        "output": 32768
-      }
     }
   ]
 }
