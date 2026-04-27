@@ -145,10 +145,7 @@ export function AgentRoutingAliasesTab({
                                       variant="ghost"
                                       size="icon-sm"
                                       onClick={() =>
-                                        onOpenEditAlias(
-                                          alias.key,
-                                          alias.value,
-                                        )
+                                        onOpenEditAlias(alias.key, alias.value)
                                       }
                                     >
                                       <Pencil className="h-4 w-4" />
@@ -186,16 +183,16 @@ export function AgentRoutingAliasesTab({
                       ) : (
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
-                        <span className="font-medium">{group.name}</span>
-                        <span className="text-xs text-muted-foreground ml-auto">
-                          {group.subgroups?.length ?? 0} group
-                          {(group.subgroups?.length ?? 0) !== 1 ? "s" : ""}
-                        </span>
-                      </button>
+                      <span className="font-medium">{group.name}</span>
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        {group.subgroups?.length ?? 0} group
+                        {(group.subgroups?.length ?? 0) !== 1 ? "s" : ""}
+                      </span>
+                    </button>
 
-                      {isExpanded && (
-                        <div className="pl-4 pb-2">
-                          {group.subgroups?.map((subgroup) => {
+                    {isExpanded && (
+                      <div className="pl-4 pb-2">
+                        {group.subgroups?.map((subgroup) => {
                           const isSubExpanded = expandedSubgroups.has(
                             subgroup.key,
                           );
