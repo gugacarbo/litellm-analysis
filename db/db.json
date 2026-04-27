@@ -339,8 +339,5 @@
       "description": "Documentação, prosa e escrita técnica."
     }
   },
-  "globalFallbackModel": "MiniMax-M2.7-highspeed",
-  "customAliases": {
-    "asdasd": "asdasd"
-  }
+  "globalFallbackModel": "MiniMax-M2.7-highspeed"
 }

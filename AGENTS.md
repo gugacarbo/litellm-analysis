@@ -81,6 +81,7 @@ lite-llm-analytics/
 - Mocking: `vi.mock()` hoisted, `vi.stubEnv()`, `createMockDataSource()` factory
 - Tests verify feature gates (capabilities matrix) explicitly
 - `passWithNoTests: true` at root
+- **⚠️ Dual test organization**: Both `__tests__/` directories AND `.test.ts` colocated files coexist — no single standard enforced
 
 ## PACKAGES
 
@@ -105,6 +106,8 @@ Manages agent and category configurations with file-based storage.
 **Dependencies:** `@litellm/shared` (workspace:*)
 
 **Build:** `tsc` → `dist/`, generates `.d.ts` declarations
+
+**⚠️ Documentation note:** `packages/agents-manager/src/AGENTS.md` mentions ".js extension" but actual implementation files are `.ts`
 
 ### @lite-llm/analytics
 DB queries + data source implementations (Database, Api, Limited modes).
@@ -156,10 +159,44 @@ packages/analytics/src/
 - Use composition or functional splitting instead of inheritance
 
 ### @lite-llm/alias-router
-Resolves model aliases for LiteLLM routing.
+Resolves model aliases for LiteLLM routing. Pure functions — no I/O, no side effects.
+
+**Entry point:** `packages/alias-router/src/index.ts`
+
+**Key exports:**
+- `generateLitellmAliases()` — generates alias mapping
+- `resolveConfiguredModels()` / `resolveModelValue()` — maps agent names → model identifiers
+- `getExistingAliasesForAgent()` / `replaceAliasesForAgent()` — alias cleanup
+- `sortAliasesByDefinitionOrder()` — definition-order sorting
+- `AGENT_KEYS`, `CATEGORY_KEYS`, `MODEL_NAMES` — constants
+
+**Structure:** `alias/` (generate/resolve/cleanup), `constants/`, `sort/`, `utils/`
+
+**Dependencies:** None (standalone logic package)
+
+**Build:** `tsc` → `dist/`
+
+**⚠️ Test location:** Tests at `__tests__/` (package root), not `src/__tests__/` — deviates from stated convention
 
 ### @litellm/shared
-Shared TypeScript types including `AgentConfig`, `CategoryConfig` from `@litellm/shared/agent-config`.
+Shared TypeScript types and Zod schemas for agent/category configuration.
+
+**Entry point:** `packages/shared/src/index.ts`
+
+**Key exports:**
+- Types: `AgentConfig`, `CategoryConfig`, `AgentConfigFile`, `OhMyOpenAgentConfig`, `Permission`, `Thinking`, `GitMaster`
+- Schemas: `agentConfigSchema`, `categoryConfigSchema`, `agentConfigFileSchema`, `ohMyOpenAgentConfigSchema`, `permissionSchema`, `thinkingSchema`
+
+**Data flow:**
+1. `@litellm/shared` defines types + Zod schemas
+2. `@lite-llm/agents-manager` imports and uses them for CRUD
+3. Consumer configs generated from internal format
+
+**Dependencies:** `zod` v3
+
+**Build:** `tsc` → `dist/`
+
+**⚠️ Package exports:** Uses glob pattern `"./types/*": "./src/types/*.ts"` — non-standard, may not work reliably across all tools
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
