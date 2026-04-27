@@ -50,7 +50,13 @@ export function Sidebar() {
     },
     { to: "/logs", icon: FileText, label: "Logs" },
     ...(capabilities.agentRouting
-      ? [{ to: "/agent-routing" as const, icon: BarChart3, label: "Agent Routing" }]
+      ? [
+          {
+            to: "/agent-routing" as const,
+            icon: BarChart3,
+            label: "Agent Routing",
+          },
+        ]
       : []),
   ];
 

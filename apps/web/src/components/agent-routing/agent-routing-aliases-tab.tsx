@@ -1,5 +1,13 @@
-import { ChevronDown, ChevronRight, Database, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Database,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
+import type { AliasGroup } from "../../pages/models/models-alias-utils";
 import { Button } from "../button";
 import { Card, CardContent, CardHeader, CardTitle } from "../card";
 import { FeatureGate } from "../feature-gate";
@@ -12,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "../table";
-import type { AliasGroup } from "../../pages/models/models-alias-utils";
 
 type AgentRoutingAliasesTabProps = {
   loading: boolean;
@@ -140,19 +147,22 @@ export function AgentRoutingAliasesTab({
                                         variant="ghost"
                                         size="icon-sm"
                                         onClick={() =>
-                                          onOpenEditAlias(alias.key, alias.value)
+                                          onOpenEditAlias(
+                                            alias.key,
+                                            alias.value,
+                                          )
                                         }
                                       >
                                         <Pencil className="h-4 w-4" />
                                       </Button>
-<Button
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                onClick={() => onDeleteAlias(alias.key)}
-                                                disabled={saving}
-                                              >
-                                                <Trash2 className="h-4 w-4" />
-                                              </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        onClick={() => onDeleteAlias(alias.key)}
+                                        disabled={saving}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
                                     </div>
                                   </FeatureGate>
                                 </TableCell>
@@ -189,7 +199,9 @@ export function AgentRoutingAliasesTab({
                     {isExpanded && (
                       <div className="pl-4 pb-2">
                         {group.subgroups.map((subgroup) => {
-                          const isSubExpanded = expandedSubgroups.has(subgroup.key);
+                          const isSubExpanded = expandedSubgroups.has(
+                            subgroup.key,
+                          );
                           return (
                             <div key={subgroup.key} className="mt-2">
                               <button
@@ -216,7 +228,9 @@ export function AgentRoutingAliasesTab({
                                     <TableRow>
                                       <TableHead>Alias</TableHead>
                                       <TableHead>Routes To</TableHead>
-                                      <TableHead className="w-25">Actions</TableHead>
+                                      <TableHead className="w-25">
+                                        Actions
+                                      </TableHead>
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
