@@ -5,8 +5,6 @@ import { Database } from "lucide-react";
 import { useState } from "react";
 import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
 import { AgentRoutingAliasesTab } from "../components/agent-routing/agent-routing-aliases-tab";
-import { FeatureGate } from "../components/feature-gate";
-import { useServerMode } from "../hooks/use-server-mode";
 import {
   type AgentRoutingAPIResponse,
   getAgentRoutingConfig,
@@ -17,12 +15,10 @@ import { getAliasesGrouped } from "./models/models-alias-utils";
 
 export function AliasesPage() {
   const queryClient = useQueryClient();
-  const { capabilities } = useServerMode();
 
   const aliasesQuery = useQuery({
     queryKey: queryKeys.agentRoutingAliases,
     queryFn: getAgentRoutingConfig,
-    enabled: capabilities.agentRouting,
   });
 
   const updateMutation = useMutation({
@@ -105,17 +101,15 @@ export function AliasesPage() {
         </p>
       </div>
 
-      <FeatureGate capability="agentRouting">
-        <AgentRoutingAliasesTab
-          loading={aliasesQuery.isPending && !aliasesQuery.data}
-          saving={updateMutation.isPending}
-          error={aliasError}
-          aliasGroups={aliasGroups}
-          onOpenAddAlias={openAddAlias}
-          onOpenEditAlias={openEditAlias}
-          onDeleteAlias={handleAliasDelete}
-        />
-      </FeatureGate>
+      <AgentRoutingAliasesTab
+        loading={aliasesQuery.isPending && !aliasesQuery.data}
+        saving={updateMutation.isPending}
+        error={aliasError}
+        aliasGroups={aliasGroups}
+        onOpenAddAlias={openAddAlias}
+        onOpenEditAlias={openEditAlias}
+        onDeleteAlias={handleAliasDelete}
+      />
 
       <AgentRoutingAliasDialog
         open={aliasDialogOpen}

@@ -8,9 +8,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Badge } from "../../components/badge";
 import { Card, CardContent } from "../../components/card";
-import { useServerMode } from "../../hooks/use-server-mode";
 
 interface NavLeaf {
   id?: string;
@@ -33,7 +31,6 @@ function isBranch(item: NavItem): item is NavBranch {
 }
 
 export function Sidebar() {
-  const { mode, capabilities, isLoading } = useServerMode();
   const [modelsExpanded, setModelsExpanded] = useState(true);
 
   const navItems: NavItem[] = [
@@ -49,15 +46,7 @@ export function Sidebar() {
       ],
     },
     { to: "/logs", icon: FileText, label: "Logs" },
-    ...(capabilities.agentRouting
-      ? [
-          {
-            to: "/agent-routing" as const,
-            icon: BarChart3,
-            label: "Agent Routing",
-          },
-        ]
-      : []),
+    { to: "/agent-routing", icon: BarChart3, label: "Agent Routing" },
   ];
 
   return (
@@ -66,24 +55,6 @@ export function Sidebar() {
         <CardContent className="px-3 py-0 gap-4 flex flex-col">
           <div className="flex gap-1 flex-col">
             <h2 className="font-bold text-lg">LiteLLM Stats</h2>
-            {!isLoading ? (
-              <Badge
-                className={
-                  mode === "limited"
-                    ? "bg-amber-500/15 text-amber-600 border-amber-500/30"
-                    : ""
-                }
-                variant={mode === "database" ? "default" : "secondary"}
-              >
-                {mode === "database"
-                  ? "🟢 Full Access"
-                  : mode === "limited"
-                    ? "🟠 Limited"
-                    : "🟡 API Mode"}
-              </Badge>
-            ) : (
-              <Badge variant="outline">Loading...</Badge>
-            )}
           </div>
           <nav className="space-y-1">
             {navItems.map((item) => {

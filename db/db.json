@@ -142,7 +142,8 @@
       "fallbackModels": [
         "qwen3-coder-plus",
         "deepseek-v4-pro",
-        "glm-5.1"
+        "glm-5.1",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente principal de código — implementação, refatoração e execução de tarefas complexas.",
       "color": "#C83232",
@@ -154,7 +155,8 @@
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
-        "kimi-k2.6"
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
       "color": "#048B5E"
@@ -164,6 +166,7 @@
       "fallbackModels": [
         "deepseek-v4-pro",
         "glm-5.1",
+        "MiniMax-M2.7-highspeed",
         "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
@@ -173,7 +176,8 @@
       "fallbackModels": [
         "mimo-v2.5-pro",
         "deepseek-v4-pro",
-        "glm-5.1"
+        "glm-5.1",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
       "color": "#F0FF1A"
@@ -183,7 +187,8 @@
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
         "qwen3.5-plus",
-        "glm-5.1:ollama"
+        "glm-5.1:ollama",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
       "color": "#5A00C7"
@@ -193,7 +198,8 @@
       "fallbackModels": [
         "qwen3.5-plus",
         "deepseek-v4-flash",
-        "kimi-k2.6"
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
       "color": "#945E00"
@@ -203,7 +209,8 @@
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
-        "mimo-v2.5-pro"
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
     },
@@ -212,7 +219,8 @@
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
-        "kimi-k2.6"
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
       "color": "#90A300"
@@ -222,6 +230,7 @@
       "fallbackModels": [
         "deepseek-v4-flash",
         "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed",
         "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
@@ -232,7 +241,8 @@
       "fallbackModels": [
         "kimi-k2.6",
         "qwen3.5-plus",
-        "deepseek-v4-flash"
+        "deepseek-v4-flash",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais."
     },
@@ -241,7 +251,8 @@
       "fallbackModels": [
         "glm-5.1",
         "qwen3-coder-plus",
-        "mimo-v2.5-pro"
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
       "color": "#0FE000",
@@ -254,7 +265,8 @@
       "fallbackModels": [
         "qwen3.5-plus",
         "deepseek-v4-pro",
-        "kimi-k2.6"
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
@@ -263,7 +275,8 @@
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
-        "kimi-k2.6"
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
@@ -272,7 +285,8 @@
       "fallbackModels": [
         "qwen3.5-plus",
         "qwen3-coder-plus",
-        "mimo-v2.5-pro"
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Resolução autônoma de problemas orientada a objetivos."
     },
@@ -281,7 +295,8 @@
       "fallbackModels": [
         "deepseek-v4-pro",
         "deepseek-v4-flash",
-        "glm-5.1"
+        "glm-5.1",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Implementação de código, refatoração, debug e tarefas de engenharia de software."
     },
@@ -290,7 +305,8 @@
       "fallbackModels": [
         "deepseek-v4-pro",
         "kimi-k2.6",
-        "qwen3.5-plus"
+        "qwen3.5-plus",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
@@ -299,7 +315,8 @@
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
         "qwen3.5-plus",
-        "deepseek-v4-pro"
+        "deepseek-v4-pro",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
@@ -308,7 +325,8 @@
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
         "qwen3.5-plus",
-        "mimo-v2.5-pro"
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
@@ -317,7 +335,8 @@
       "fallbackModels": [
         "deepseek-v4-pro",
         "glm-5.1",
-        "mimo-v2.5-pro"
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
     },
@@ -326,7 +345,8 @@
       "fallbackModels": [
         "qwen3.5-plus",
         "deepseek-v4-flash",
-        "kimi-k2.6"
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
       ],
       "description": "Documentação, prosa e escrita técnica."
     }

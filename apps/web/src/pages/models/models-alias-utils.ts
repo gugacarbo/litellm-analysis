@@ -28,7 +28,8 @@ export type AliasGroup = {
   name: string;
   icon?: string;
   directAlias?: AliasEntry;
-  subgroups: Array<{
+  aliases?: AliasEntry[];
+  subgroups?: Array<{
     key: string;
     name: string;
     aliases: AliasEntry[];

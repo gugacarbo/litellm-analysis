@@ -16,7 +16,6 @@ export function ModelsPage() {
     formData,
     formError,
     formLoading,
-    mode,
     modelsQuery,
     mutationError,
     updateAgentRoutingMutation,
@@ -47,7 +46,6 @@ export function ModelsPage() {
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           editingModel={editingModel}
-          mode={mode}
           formLoading={formLoading}
           formError={formError}
           formData={formData}

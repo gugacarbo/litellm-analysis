@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Badge } from "../components/badge";
-import { FeatureGate } from "../components/feature-gate";
 import { LogDetailDialog } from "../components/logs/log-detail-dialog";
 import {
   LogsFilterCard,
@@ -14,9 +13,7 @@ import {
 } from "../components/logs/logs-table";
 import type { LogColumnKey } from "../components/logs/logs-table-columns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
-import { UnavailableFeature } from "../components/unavailable-feature";
 import { useLogs } from "../hooks/use-logs";
-import { useServerMode } from "../hooks/use-server-mode";
 import { getAllModels } from "../lib/api-client";
 import { queryKeys } from "../lib/query-keys";
 import type { SpendLog } from "../types/analytics";
@@ -57,55 +54,45 @@ export function LogsPage() {
   });
 
   return (
-    <FeatureGate
-      capability="spendLogs"
-      fallback={<UnavailableFeature capability="spendLogs" />}
-    >
-      <div className="p-6 space-y-6">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold">Logs & Errors</h1>
-            <p className="text-sm text-muted-foreground">
-              Request-level costs, usage, and latency diagnostics.
-            </p>
-          </div>
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold">Logs & Errors</h1>
+          <p className="text-sm text-muted-foreground">
+            Request-level costs, usage, and latency diagnostics.
+          </p>
         </div>
-
-        <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <TabsList>
-            <TabsTrigger value="spend">Logs</TabsTrigger>
-            <TabsTrigger value="errors">Error Logs</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="spend" className="mt-6">
-            <SpendLogsTab
-              logs={logs}
-              pagination={pagination}
-              loading={loading}
-              refreshing={refreshing}
-              error={error}
-              modelsQuery={modelsQuery}
-              page={page}
-              pageSize={pageSize}
-              filters={filters}
-              setPage={setPage}
-              setPageSize={setPageSize}
-              setFilters={setFilters}
-              refetch={refetch}
-            />
-          </TabsContent>
-
-          <TabsContent value="errors" className="mt-6">
-            <FeatureGate
-              capability="errorLogs"
-              fallback={<UnavailableFeature capability="errorLogs" />}
-            >
-              <LogsErrorsTab />
-            </FeatureGate>
-          </TabsContent>
-        </Tabs>
       </div>
-    </FeatureGate>
+
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <TabsList>
+          <TabsTrigger value="spend">Logs</TabsTrigger>
+          <TabsTrigger value="errors">Error Logs</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="spend" className="mt-6">
+          <SpendLogsTab
+            logs={logs}
+            pagination={pagination}
+            loading={loading}
+            refreshing={refreshing}
+            error={error}
+            modelsQuery={modelsQuery}
+            page={page}
+            pageSize={pageSize}
+            filters={filters}
+            setPage={setPage}
+            setPageSize={setPageSize}
+            setFilters={setFilters}
+            refetch={refetch}
+          />
+        </TabsContent>
+
+        <TabsContent value="errors" className="mt-6">
+          <LogsErrorsTab />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
 
@@ -152,8 +139,6 @@ function SpendLogsTab({
   setFilters,
   refetch,
 }: SpendLogsTabProps) {
-  const { mode } = useServerMode();
-
   const models = useMemo(
     () => (modelsQuery.data ?? []).map((config) => config.modelName),
     [modelsQuery.data],
@@ -233,26 +218,9 @@ function SpendLogsTab({
     [filters],
   );
 
-  const modeLabel =
-    mode === "database"
-      ? "Database Mode"
-      : mode === "api-only"
-        ? "API-Only Mode"
-        : "Limited Mode";
-
-  const modeBadgeClass =
-    mode === "database"
-      ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/30"
-      : mode === "limited"
-        ? "bg-amber-500/15 text-amber-700 border-amber-500/30"
-        : "bg-yellow-500/15 text-yellow-700 border-yellow-500/30";
-
   return (
     <>
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <Badge variant="outline" className={modeBadgeClass}>
-          {modeLabel}
-        </Badge>
         <Badge variant="outline">
           {pagination.total.toLocaleString("en-US")} logs
         </Badge>

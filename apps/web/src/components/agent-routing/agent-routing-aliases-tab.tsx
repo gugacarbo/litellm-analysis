@@ -10,7 +10,6 @@ import { useState } from "react";
 import type { AliasGroup } from "../../pages/models/models-alias-utils";
 import { Button } from "../button";
 import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { FeatureGate } from "../feature-gate";
 import { Skeleton } from "../skeleton";
 import {
   Table,
@@ -64,7 +63,9 @@ export function AgentRoutingAliasesTab({
   }
 
   const hasAnyAliases = aliasGroups.some((g) =>
-    g.type === "custom" ? g.aliases.length > 0 : g.subgroups.length > 0,
+    g.type === "custom"
+      ? (g.aliases?.length ?? 0) > 0
+      : (g.subgroups?.length ?? 0) > 0,
   );
 
   return (
@@ -75,12 +76,10 @@ export function AgentRoutingAliasesTab({
             <Database className="h-5 w-5" />
             Aliases
           </CardTitle>
-          <FeatureGate capability="agentRouting">
-            <Button onClick={onOpenAddAlias} size="sm">
-              <Plus className="h-4 w-4" />
-              Add Alias
-            </Button>
-          </FeatureGate>
+          <Button onClick={onOpenAddAlias} size="sm">
+            <Plus className="h-4 w-4" />
+            Add Alias
+          </Button>
         </CardHeader>
 
         <CardContent>
@@ -102,7 +101,7 @@ export function AgentRoutingAliasesTab({
                 const isExpanded = expandedGroups.has(group.key);
 
                 if (group.type === "custom") {
-                  if (!group.aliases.length) return null;
+                  if (!group.aliases?.length) return null;
                   return (
                     <div key={group.key} className="border rounded-lg">
                       <button
@@ -117,8 +116,8 @@ export function AgentRoutingAliasesTab({
                         )}
                         <span className="font-medium">{group.name}</span>
                         <span className="text-xs text-muted-foreground ml-auto">
-                          {group.aliases.length} alias
-                          {group.aliases.length !== 1 ? "es" : ""}
+                          {group.aliases?.length ?? 0} alias
+                          {(group.aliases?.length ?? 0) !== 1 ? "es" : ""}
                         </span>
                       </button>
 
@@ -132,7 +131,7 @@ export function AgentRoutingAliasesTab({
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {group.aliases.map((alias) => (
+                            {group.aliases?.map((alias) => (
                               <TableRow key={alias.key}>
                                 <TableCell className="font-mono font-medium">
                                   {alias.key}
@@ -141,30 +140,28 @@ export function AgentRoutingAliasesTab({
                                   {alias.value}
                                 </TableCell>
                                 <TableCell>
-                                  <FeatureGate capability="agentRouting">
-                                    <div className="flex items-center justify-end gap-1">
-                                      <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        onClick={() =>
-                                          onOpenEditAlias(
-                                            alias.key,
-                                            alias.value,
-                                          )
-                                        }
-                                      >
-                                        <Pencil className="h-4 w-4" />
-                                      </Button>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        onClick={() => onDeleteAlias(alias.key)}
-                                        disabled={saving}
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  </FeatureGate>
+                                  <div className="flex items-center justify-end gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-sm"
+                                      onClick={() =>
+                                        onOpenEditAlias(
+                                          alias.key,
+                                          alias.value,
+                                        )
+                                      }
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-sm"
+                                      onClick={() => onDeleteAlias(alias.key)}
+                                      disabled={saving}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 </TableCell>
                               </TableRow>
                             ))}
@@ -175,7 +172,7 @@ export function AgentRoutingAliasesTab({
                   );
                 }
 
-                if (!group.subgroups.length) return null;
+                if (!(group.subgroups?.length ?? 0)) return null;
 
                 return (
                   <div key={group.key} className="border rounded-lg">
@@ -189,16 +186,16 @@ export function AgentRoutingAliasesTab({
                       ) : (
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span className="font-medium">{group.name}</span>
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        {group.subgroups.length} group
-                        {group.subgroups.length !== 1 ? "s" : ""}
-                      </span>
-                    </button>
+                        <span className="font-medium">{group.name}</span>
+                        <span className="text-xs text-muted-foreground ml-auto">
+                          {group.subgroups?.length ?? 0} group
+                          {(group.subgroups?.length ?? 0) !== 1 ? "s" : ""}
+                        </span>
+                      </button>
 
-                    {isExpanded && (
-                      <div className="pl-4 pb-2">
-                        {group.subgroups.map((subgroup) => {
+                      {isExpanded && (
+                        <div className="pl-4 pb-2">
+                          {group.subgroups?.map((subgroup) => {
                           const isSubExpanded = expandedSubgroups.has(
                             subgroup.key,
                           );
@@ -243,32 +240,30 @@ export function AgentRoutingAliasesTab({
                                           {alias.value}
                                         </TableCell>
                                         <TableCell>
-                                          <FeatureGate capability="agentRouting">
-                                            <div className="flex items-center justify-end gap-1">
-                                              <Button
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                onClick={() =>
-                                                  onOpenEditAlias(
-                                                    alias.key,
-                                                    alias.value,
-                                                  )
-                                                }
-                                              >
-                                                <Pencil className="h-4 w-4" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                onClick={() =>
-                                                  onDeleteAlias(alias.key)
-                                                }
-                                                disabled={saving}
-                                              >
-                                                <Trash2 className="h-4 w-4" />
-                                              </Button>
-                                            </div>
-                                          </FeatureGate>
+                                          <div className="flex items-center justify-end gap-1">
+                                            <Button
+                                              variant="ghost"
+                                              size="icon-sm"
+                                              onClick={() =>
+                                                onOpenEditAlias(
+                                                  alias.key,
+                                                  alias.value,
+                                                )
+                                              }
+                                            >
+                                              <Pencil className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon-sm"
+                                              onClick={() =>
+                                                onDeleteAlias(alias.key)
+                                              }
+                                              disabled={saving}
+                                            >
+                                              <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                          </div>
                                         </TableCell>
                                       </TableRow>
                                     ))}
