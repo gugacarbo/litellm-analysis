@@ -54,8 +54,11 @@ export async function readConfigFile(): Promise<AgentConfigFile> {
   ).getCategoryTransformer();
 
   return {
-    agents: agentTransformer.toOutput(db.agents),
-    categories: categoryTransformer.toOutput(db.categories),
+    agents: agentTransformer.toOutput(db.agents, db.globalFallbackModel),
+    categories: categoryTransformer.toOutput(
+      db.categories,
+      db.globalFallbackModel,
+    ),
     ...(db.globalFallbackModel
       ? { globalFallbackModel: db.globalFallbackModel }
       : {}),
@@ -117,15 +120,15 @@ export async function writeFullConfig(config: AgentConfigFile): Promise<void> {
   const agentAdapter = getAgentAdapter();
   const categoryAdapter = getCategoryAdapter();
 
-  db.agents = {};
-  db.categories = {};
-
   for (const [key, raw] of Object.entries(config.agents || {}) as [
     string,
     AgentConfig,
   ][]) {
     if (Object.keys(raw).length === 0) continue;
-    db.agents[key] = agentAdapter.toDb(raw);
+    db.agents[key] = {
+      ...db.agents[key],
+      ...agentAdapter.toDb(raw),
+    };
   }
 
   for (const [key, raw] of Object.entries(config.categories || {}) as [
@@ -133,7 +136,10 @@ export async function writeFullConfig(config: AgentConfigFile): Promise<void> {
     CategoryConfig,
   ][]) {
     if (Object.keys(raw).length === 0) continue;
-    db.categories[key] = categoryAdapter.toDb(raw);
+    db.categories[key] = {
+      ...db.categories[key],
+      ...categoryAdapter.toDb(raw),
+    };
   }
 
   await writeDb(db);

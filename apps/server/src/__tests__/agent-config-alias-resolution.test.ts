@@ -11,6 +11,7 @@ const mockReadConfigFile = vi.fn();
 const mockReadDb = vi.fn();
 const mockWriteProvidersFile = vi.fn();
 const mockWriteVscodeModelsFile = vi.fn();
+const mockSyncToLiteLLM = vi.fn();
 
 vi.mock("@lite-llm/agents-manager", () => ({
   updateAgentInConfig: (...args: unknown[]) => mockUpdateAgentInConfig(...args),
@@ -21,6 +22,7 @@ vi.mock("@lite-llm/agents-manager", () => ({
   writeProvidersFile: (...args: unknown[]) => mockWriteProvidersFile(...args),
   writeVscodeModelsFile: (...args: unknown[]) =>
     mockWriteVscodeModelsFile(...args),
+  syncToLiteLLM: (...args: unknown[]) => mockSyncToLiteLLM(...args),
   writeFullConfig: vi.fn(),
   syncOutputConfigFile: vi.fn().mockResolvedValue(undefined),
   deleteAgentFromConfig: vi.fn(),
@@ -97,6 +99,7 @@ describe("PUT /agent-config/:key alias resolution", () => {
     mockReadDb.mockReset();
     mockWriteProvidersFile.mockReset();
     mockWriteVscodeModelsFile.mockReset();
+    mockSyncToLiteLLM.mockReset();
 
     mockReadDb.mockResolvedValue({
       agents: {
@@ -115,6 +118,7 @@ describe("PUT /agent-config/:key alias resolution", () => {
     mockReadConfigFile.mockResolvedValue({ agents: {}, categories: {} });
     mockWriteProvidersFile.mockResolvedValue(undefined);
     mockWriteVscodeModelsFile.mockResolvedValue(undefined);
+    mockSyncToLiteLLM.mockResolvedValue(0);
   });
 
   it("resolves logical gpt aliases to real LiteLLM models before persisting aliases", async () => {
@@ -146,11 +150,18 @@ describe("PUT /agent-config/:key alias resolution", () => {
     );
 
     expect(dataSource.updateAgentRoutingConfig).toHaveBeenCalledWith({
-      "oracle/gpt-5.1": "gpt-5.1",
       "oracle/gpt-5.5": "openai/o3-mini",
+      "oracle/gpt-5.4": "gpt-5.1",
+      "oracle/gpt-5.3": "gpt-5.1",
+      "oracle/gpt-5.2": "gpt-5.1",
+      "oracle/gpt-5.1": "gpt-5.1",
       "sisyphus/gpt-5.1": "gpt-5.1",
+      "sisyphus/gpt-5.2": "gpt-5.1",
+      "sisyphus/gpt-5.3": "gpt-5.1",
       "sisyphus/gpt-5.4": "anthropic/claude-3-7-sonnet",
       "sisyphus/gpt-5.5": "openai/gpt-4.1",
     });
+
+    expect(mockSyncToLiteLLM).toHaveBeenCalledTimes(1);
   });
 });

@@ -22,7 +22,8 @@ dist
 build
 out
 .out
-
+dist/**
+*/dist
 # Debug
 npm-debug.log*
 

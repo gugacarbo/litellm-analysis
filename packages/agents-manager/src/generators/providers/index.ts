@@ -1,6 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { generateLitellmAliases } from "@lite-llm/alias-router";
+import {
+  generateLitellmAliases,
+  sortAliasesByDefinitionOrder,
+} from "@lite-llm/alias-router";
 import type { DbAgentEntry, DbCategoryEntry } from "../../types/index.js";
 import { type DbModelWithParams, mergeModelsFromDb } from "./merger.js";
 import {
@@ -39,9 +42,12 @@ export class ProvidersGenerator implements IProvidersGenerator {
     this.addEntityProviders(db.agents, providers);
     this.addEntityProviders(db.categories, providers);
 
-    // Generate ALL model_group_alias entries from all agents and categories
+    // Generate ALL model_group_alias entries from all agents and categories.
+    // Preserve custom aliases from db.json as well.
     const globalFallback = db.globalFallbackModel;
-    const modelGroupAlias: Record<string, string> = {};
+    const modelGroupAlias: Record<string, string> = {
+      ...(db.customAliases || {}),
+    };
 
     for (const [key, agent] of Object.entries(db.agents)) {
       const aliases = generateLitellmAliases(
@@ -63,7 +69,7 @@ export class ProvidersGenerator implements IProvidersGenerator {
       Object.assign(modelGroupAlias, aliases);
     }
 
-    providers.model_group_alias = modelGroupAlias;
+    providers.model_group_alias = sortAliasesByDefinitionOrder(modelGroupAlias);
 
     await this.ensureDir();
     const tmpPath = `${this.providersFile}.tmp`;
@@ -87,17 +93,13 @@ export class ProvidersGenerator implements IProvidersGenerator {
     for (const [key, entity] of Object.entries(entities)) {
       if (Object.keys(entity).length === 0) continue;
 
-      const fallbackCount = (entity.fallbackModels || []).filter((f) =>
-        f?.startsWith(`${key}/`),
-      ).length;
-
       providers.provider[key] = {
         npm: "@ai-sdk/openai-compatible",
         options: {
           baseURL: "http://localhost:4000/v1",
           apiKey: "sk-123456789",
         },
-        models: buildAgentModels(key, fallbackCount),
+        models: buildAgentModels(key),
       };
     }
   }

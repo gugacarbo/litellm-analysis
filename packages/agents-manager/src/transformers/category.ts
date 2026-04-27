@@ -1,14 +1,5 @@
+import { MODEL_NAMES } from "@lite-llm/alias-router";
 import type { CategoryConfig, DbCategoryEntry } from "../types/index.js";
-
-// ── Model name aliasing constants ──
-
-const MODEL_NAMES = [
-  "gpt-5.5",
-  "gpt-5.4",
-  "gpt-5.3",
-  "gpt-5.2",
-  "gpt-5.1",
-] as const;
 
 // ── Category Transformer: DB format → Output config format ──
 
@@ -22,7 +13,7 @@ export interface ICategoryTransformer {
 export class CategoryTransformer implements ICategoryTransformer {
   toOutput(
     categories: Record<string, DbCategoryEntry>,
-    globalFallbackModel?: string,
+    _globalFallbackModel?: string,
   ): Record<string, CategoryConfig> {
     const result: Record<string, CategoryConfig> = {};
     for (const [key, entry] of Object.entries(categories)) {
@@ -31,20 +22,9 @@ export class CategoryTransformer implements ICategoryTransformer {
 
       output.model = `${key}/${MODEL_NAMES[0]}`;
 
-      // Always generate all 4 fallback slots (gpt-5.4 through gpt-5.1)
-      // Use defined fallbacks when available, otherwise use globalFallbackModel
-      const categoryFallbacks: string[] = [];
-      const definedFallbacks = entry.fallbackModels ?? [];
-      for (let i = 1; i < MODEL_NAMES.length; i++) {
-        const slotModel = definedFallbacks[i - 1] ?? globalFallbackModel;
-        if (slotModel) {
-          categoryFallbacks.push(`${key}/${MODEL_NAMES[i]}`);
-        }
-      }
-
-      if (categoryFallbacks.length > 0) {
-        output.fallback_models = categoryFallbacks;
-      }
+      output.fallback_models = MODEL_NAMES.slice(1).map(
+        (modelName) => `${key}/${modelName}`,
+      );
       if (entry.description) output.description = entry.description;
       if (entry.variant) output.variant = entry.variant;
       if (entry.temperature !== undefined)

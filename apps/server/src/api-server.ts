@@ -448,6 +448,28 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
     await dataSource.updateAgentRoutingConfig(allAliases);
   }
 
+  async function syncGeneratedArtifacts(
+    dataSource: AnalyticsDataSource,
+  ): Promise<void> {
+    const {
+      readConfigFile,
+      syncOutputConfigFile,
+      syncToLiteLLM,
+      writeProvidersFile,
+      writeVscodeModelsFile,
+    } = await import("@lite-llm/agents-manager");
+
+    const config = await readConfigFile();
+    const models = dataSource.capabilities.models
+      ? await dataSource.getModels()
+      : [];
+
+    await writeProvidersFile(config, models);
+    await writeVscodeModelsFile(models);
+    await syncOutputConfigFile();
+    await syncToLiteLLM();
+  }
+
   app.get("/agent-config/global-fallback", async (_req, res) => {
     try {
       const { readDb } = await import("@lite-llm/agents-manager");
@@ -463,12 +485,12 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       const { globalFallbackModel } = req.body as {
         globalFallbackModel?: string;
       };
-      const { updateGlobalFallbackInDb, syncOutputConfigFile } = await import(
+      const { updateGlobalFallbackInDb } = await import(
         "@lite-llm/agents-manager"
       );
       const newGlobalFallback = globalFallbackModel || "gpt-5.1";
       await updateGlobalFallbackInDb(newGlobalFallback);
-      await syncOutputConfigFile();
+      await syncGeneratedArtifacts(dataSource);
 
       await regenerateAllAliases(dataSource);
 
@@ -566,14 +588,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         fallback_models: actualFallbacks,
       };
 
-      const {
-        updateAgentInConfig,
-        updateCategoryInConfig,
-        readConfigFile,
-        writeProvidersFile,
-        writeVscodeModelsFile,
-        syncOutputConfigFile,
-      } = await import("@lite-llm/agents-manager");
+      const { updateAgentInConfig, updateCategoryInConfig } = await import(
+        "@lite-llm/agents-manager"
+      );
 
       if (type === "agent") {
         await updateAgentInConfig(key, configToSave);
@@ -581,13 +598,7 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         await updateCategoryInConfig(key, configToSave);
       }
 
-      const config = await readConfigFile();
-      const models = dataSource.capabilities.models
-        ? await dataSource.getModels()
-        : [];
-      await writeProvidersFile(config, models);
-      await writeVscodeModelsFile(models);
-      await syncOutputConfigFile();
+      await syncGeneratedArtifacts(dataSource);
 
       if (syncAliases) {
         await regenerateAllAliases(dataSource);
@@ -650,25 +661,13 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
         }
       }
 
-      const {
-        writeFullConfig,
-        readConfigFile,
-        writeProvidersFile,
-        writeVscodeModelsFile,
-        syncOutputConfigFile,
-      } = await import("@lite-llm/agents-manager");
+      const { writeFullConfig } = await import("@lite-llm/agents-manager");
       await writeFullConfig({
         agents: agentsToSave,
         categories: categoriesToSave,
       });
 
-      const config = await readConfigFile();
-      const models = dataSource.capabilities.models
-        ? await dataSource.getModels()
-        : [];
-      await writeProvidersFile(config, models);
-      await writeVscodeModelsFile(models);
-      await syncOutputConfigFile();
+      await syncGeneratedArtifacts(dataSource);
 
       await regenerateAllAliases(dataSource);
 
@@ -687,18 +686,16 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       }
       const { type } = req.query;
 
-      const {
-        deleteAgentFromConfig,
-        deleteCategoryFromConfig,
-        syncOutputConfigFile,
-      } = await import("@lite-llm/agents-manager");
+      const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(
+        "@lite-llm/agents-manager"
+      );
 
       if (type === "category") {
         await deleteCategoryFromConfig(key);
       } else {
         await deleteAgentFromConfig(key);
       }
-      await syncOutputConfigFile();
+      await syncGeneratedArtifacts(dataSource);
 
       if (dataSource.capabilities.agentRouting) {
         const { getExistingAliasesForAgent } = await import(

@@ -1,95 +1,138 @@
 // ── LiteLLM Model Sync ──
-// Automatically registers agent/category model aliases to LiteLLM proxy
+// Registers agent/category aliases to LiteLLM proxy with real model targets.
 
-import type { DbConfig } from "../types/index.js";
+import {
+  generateLitellmAliases,
+  sortAliasesByDefinitionOrder,
+} from "@lite-llm/alias-router";
+import type {
+  DbAgentEntry,
+  DbCategoryEntry,
+  DbConfig,
+} from "../types/index.js";
 import { getStorage } from "./singleton.js";
 
 export interface LiteLLMSyncOptions {
-  /** Skip sync (useful for bulk writes) */
   skipSync?: boolean;
 }
 
-/**
- * Extracts all unique model names from agents and categories
- */
-function extractModelsFromConfig(config: DbConfig): Set<string> {
-  const models = new Set<string>();
+function addEntityAliases(
+  entities: Record<string, DbAgentEntry | DbCategoryEntry>,
+  globalFallbackModel: string | undefined,
+  aliases: Record<string, string>,
+): void {
+  for (const [key, entry] of Object.entries(entities)) {
+    if (Object.keys(entry).length === 0) continue;
 
-  // Extract from agents
-  for (const agent of Object.values(config.agents)) {
-    if (agent.model) {
-      models.add(agent.model);
-    }
-    if (agent.fallbackModels) {
-      for (const fallback of agent.fallbackModels) {
-        models.add(fallback);
-      }
-    }
+    const generated = generateLitellmAliases(
+      key,
+      entry.model || "",
+      entry.fallbackModels,
+      globalFallbackModel,
+    );
+    Object.assign(aliases, generated);
   }
-
-  // Extract from categories
-  for (const category of Object.values(config.categories)) {
-    if (category.model) {
-      models.add(category.model);
-    }
-    if (category.fallbackModels) {
-      for (const fallback of category.fallbackModels) {
-        models.add(fallback);
-      }
-    }
-  }
-
-  // Add global fallback
-  if (config.globalFallbackModel) {
-    models.add(config.globalFallbackModel);
-  }
-
-  return models;
 }
 
-/**
- * Registers a model alias to the LiteLLM proxy via admin API
- */
-async function registerModelToLiteLLM(
+function extractAllAliasesFromConfig(
+  config: DbConfig,
+): Array<[string, string]> {
+  const mergedAliases: Record<string, string> = {
+    ...(config.customAliases || {}),
+  };
+
+  addEntityAliases(config.agents, config.globalFallbackModel, mergedAliases);
+  addEntityAliases(
+    config.categories,
+    config.globalFallbackModel,
+    mergedAliases,
+  );
+
+  const sortedAliases = sortAliasesByDefinitionOrder(mergedAliases);
+  return Object.entries(sortedAliases).filter(([, model]) => Boolean(model));
+}
+
+function isLikelyAlreadyExistsError(
+  status: number,
+  errorText: string,
+): boolean {
+  if (status === 409) {
+    return true;
+  }
+  if (status !== 400) {
+    return false;
+  }
+  return /already exists|already registered|duplicate|exists/i.test(errorText);
+}
+
+async function postModelToLiteLLM(
   baseUrl: string,
   apiKey: string,
-  modelName: string,
-): Promise<void> {
-  // Use the model name as both the alias and the actual model
-  // The LiteLLM proxy will route this to the configured backend
-  const url = `${baseUrl.replace(/\/$/, "")}/model/new`;
-
-  const response = await fetch(url, {
+  endpoint: "/model/new" | "/model/update",
+  aliasName: string,
+  actualModel: string,
+): Promise<Response> {
+  const url = `${baseUrl.replace(/\/$/, "")}${endpoint}`;
+  return fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model_name: modelName,
+      model_name: aliasName,
       litellm_params: {
-        model: modelName,
+        model: actualModel,
       },
     }),
   });
-
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => "Unknown error");
-    throw new Error(
-      `Failed to register model ${modelName}: ${response.status} ${errorText}`,
-    );
-  }
 }
 
-/**
- * Syncs all agent/category model aliases to the LiteLLM proxy.
- *
- * Call this function after making changes to the agents/categories config
- * to ensure the models are registered with the LiteLLM proxy.
- *
- * @param options - Optional configuration
- * @returns The number of models synced
- */
+async function upsertModelToLiteLLM(
+  baseUrl: string,
+  apiKey: string,
+  aliasName: string,
+  actualModel: string,
+): Promise<void> {
+  const createResponse = await postModelToLiteLLM(
+    baseUrl,
+    apiKey,
+    "/model/new",
+    aliasName,
+    actualModel,
+  );
+  if (createResponse.ok) {
+    return;
+  }
+
+  const createErrorText = await createResponse
+    .text()
+    .catch(() => "Unknown error");
+  if (!isLikelyAlreadyExistsError(createResponse.status, createErrorText)) {
+    throw new Error(
+      `Failed to create alias ${aliasName} -> ${actualModel}: ${createResponse.status} ${createErrorText}`,
+    );
+  }
+
+  const updateResponse = await postModelToLiteLLM(
+    baseUrl,
+    apiKey,
+    "/model/update",
+    aliasName,
+    actualModel,
+  );
+  if (updateResponse.ok) {
+    return;
+  }
+
+  const updateErrorText = await updateResponse
+    .text()
+    .catch(() => "Unknown error");
+  throw new Error(
+    `Failed to update alias ${aliasName} -> ${actualModel}: ${updateResponse.status} ${updateErrorText}`,
+  );
+}
+
 export async function syncToLiteLLM(
   options?: LiteLLMSyncOptions,
 ): Promise<number> {
@@ -105,7 +148,6 @@ export async function syncToLiteLLM(
 
   const config = await storage.read();
 
-  // Skip if no LiteLLM config
   if (!config.litellm?.baseUrl || !config.litellm?.apiKey) {
     console.warn(
       "[agents-manager] No LiteLLM configuration found, skipping sync",
@@ -113,21 +155,22 @@ export async function syncToLiteLLM(
     return 0;
   }
 
-  const models = extractModelsFromConfig(config);
+  const aliases = extractAllAliasesFromConfig(config);
   let synced = 0;
-  const errors: Array<{ model: string; error: string }> = [];
+  const errors: Array<{ alias: string; error: string }> = [];
 
-  for (const modelName of models) {
+  for (const [aliasName, actualModel] of aliases) {
     try {
-      await registerModelToLiteLLM(
+      await upsertModelToLiteLLM(
         config.litellm.baseUrl,
         config.litellm.apiKey,
-        modelName,
+        aliasName,
+        actualModel,
       );
       synced++;
     } catch (error) {
       errors.push({
-        model: modelName,
+        alias: aliasName,
         error: error instanceof Error ? error.message : String(error),
       });
     }
@@ -135,13 +178,13 @@ export async function syncToLiteLLM(
 
   if (errors.length > 0) {
     console.error(
-      `[agents-manager] Failed to sync ${errors.length} models to LiteLLM:`,
+      `[agents-manager] Failed to sync ${errors.length} aliases to LiteLLM:`,
       errors,
     );
   }
 
   console.log(
-    `[agents-manager] Synced ${synced}/${models.size} models to LiteLLM`,
+    `[agents-manager] Synced ${synced}/${aliases.length} aliases to LiteLLM`,
   );
   return synced;
 }

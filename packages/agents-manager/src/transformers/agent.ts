@@ -1,14 +1,5 @@
+import { MODEL_NAMES } from "@lite-llm/alias-router";
 import type { AgentConfig, DbAgentEntry } from "../types/index.js";
-
-// ── Model name aliasing constants ──
-
-const MODEL_NAMES = [
-  "gpt-5.5",
-  "gpt-5.4",
-  "gpt-5.3",
-  "gpt-5.2",
-  "gpt-5.1",
-] as const;
 
 // ── Agent Transformer: DB format → Output config format ──
 
@@ -22,30 +13,20 @@ export interface IAgentTransformer {
 export class AgentTransformer implements IAgentTransformer {
   toOutput(
     agents: Record<string, DbAgentEntry>,
-    globalFallbackModel?: string,
+    _globalFallbackModel?: string,
   ): Record<string, AgentConfig> {
     const result: Record<string, AgentConfig> = {};
     for (const [key, entry] of Object.entries(agents)) {
       if (Object.keys(entry).length === 0) continue;
       const output: AgentConfig = {};
 
-      // Always set the principal model alias (gpt-5.5)
+      // Always set the primary logical alias.
       output.model = `${key}/${MODEL_NAMES[0]}`;
 
-      // Always generate all 4 fallback slots (gpt-5.4 through gpt-5.1)
-      // Use defined fallbacks when available, otherwise use globalFallbackModel
-      const agentFallbacks: string[] = [];
-      const definedFallbacks = entry.fallbackModels ?? [];
-      for (let i = 1; i < MODEL_NAMES.length; i++) {
-        const slotModel = definedFallbacks[i - 1] ?? globalFallbackModel;
-        if (slotModel) {
-          agentFallbacks.push(`${key}/${MODEL_NAMES[i]}`);
-        }
-      }
-
-      if (agentFallbacks.length > 0) {
-        output.fallback_models = agentFallbacks;
-      }
+      // Always expose the full logical fallback chain (5.4 -> 5.1).
+      output.fallback_models = MODEL_NAMES.slice(1).map(
+        (modelName) => `${key}/${modelName}`,
+      );
       if (entry.description) output.description = entry.description;
       if (entry.color) output.color = entry.color;
       if (entry.disable !== undefined) output.disable = entry.disable;

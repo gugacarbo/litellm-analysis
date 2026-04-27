@@ -39,23 +39,27 @@ type AgentEditorTab =
   | "permissions";
 
 function normalizeAgentConfig(initialConfig: AgentConfig = {}): AgentConfig {
-  return {
-    model: initialConfig.model || "",
-    fallback_models: initialConfig.fallback_models || [],
-    variant: initialConfig.variant || "",
-    category: initialConfig.category || "",
-    skills: initialConfig.skills || [],
+  const result: AgentConfig = {
+    model: initialConfig.model ?? "",
+    fallback_models: initialConfig.fallback_models ?? [],
+    tools: initialConfig.tools ?? {},
+    disable: initialConfig.disable ?? false,
+    description: initialConfig.description,
+    color: initialConfig.color,
+    mode: initialConfig.mode,
+    variant: initialConfig.variant,
+    category: initialConfig.category,
+    skills: initialConfig.skills,
     temperature: initialConfig.temperature,
     top_p: initialConfig.top_p,
-    prompt: initialConfig.prompt || "",
-    prompt_append: initialConfig.prompt_append || "",
-    tools: initialConfig.tools || {},
-    disable: initialConfig.disable || false,
-    description: initialConfig.description || "",
-    mode: initialConfig.mode || "subagent",
-    color: initialConfig.color || "",
-    permission: initialConfig.permission || {},
+    prompt: initialConfig.prompt,
+    prompt_append: initialConfig.prompt_append,
+    permission: initialConfig.permission,
   };
+  if (result.mode === undefined) {
+    result.mode = "subagent";
+  }
+  return result;
 }
 
 export function AgentConfigEditor({

@@ -56,6 +56,22 @@ describe("generateLitellmAliases", () => {
     expect(result["sisyphus/gpt-5.1"]).toBe("gemini-pro");
   });
 
+  it("should fill missing fallback slots with global fallback", () => {
+    const result = generateLitellmAliases(
+      "sisyphus",
+      "gpt-4o",
+      ["gpt-4o-mini"],
+      "gemini-pro",
+    );
+    expect(result).toEqual({
+      "sisyphus/gpt-5.5": "gpt-4o",
+      "sisyphus/gpt-5.4": "gpt-4o-mini",
+      "sisyphus/gpt-5.3": "gemini-pro",
+      "sisyphus/gpt-5.2": "gemini-pro",
+      "sisyphus/gpt-5.1": "gemini-pro",
+    });
+  });
+
   it("should use last fallback for gpt-5.1 when no global fallback", () => {
     const result = generateLitellmAliases("sisyphus", "gpt-4o", [
       "gpt-4o-mini",
@@ -67,6 +83,22 @@ describe("generateLitellmAliases", () => {
   it("should handle empty model", () => {
     const result = generateLitellmAliases("sisyphus", "");
     expect(result).toEqual({});
+  });
+
+  it("should use global fallback when primary model is empty", () => {
+    const result = generateLitellmAliases(
+      "sisyphus",
+      "",
+      undefined,
+      "gemini-pro",
+    );
+    expect(result).toEqual({
+      "sisyphus/gpt-5.5": "gemini-pro",
+      "sisyphus/gpt-5.4": "gemini-pro",
+      "sisyphus/gpt-5.3": "gemini-pro",
+      "sisyphus/gpt-5.2": "gemini-pro",
+      "sisyphus/gpt-5.1": "gemini-pro",
+    });
   });
 
   it("should handle undefined fallback_models", () => {

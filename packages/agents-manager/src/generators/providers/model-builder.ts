@@ -56,12 +56,11 @@ export function buildLiteLLMProviderConfig(
 
 export function buildAgentModels(
   providerKey: string,
-  fallbackCount: number,
+  _fallbackCount?: number,
 ): Record<string, LiteLLMModelConfig> {
   const models: Record<string, LiteLLMModelConfig> = {};
-  const totalSlots = 1 + Math.min(fallbackCount, 3);
 
-  for (let i = 0; i < totalSlots; i++) {
+  for (let i = 0; i < MODEL_NAMES.length; i++) {
     const modelName = MODEL_NAMES[i];
     const displayName =
       i === 0 ? capitalize(providerKey) : `${capitalize(providerKey)} ${i + 1}`;

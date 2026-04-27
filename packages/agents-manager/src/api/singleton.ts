@@ -49,32 +49,39 @@ function ensureInitialized(): void {
   }
 }
 
+function requireInitialized<T>(value: T | null, name: string): T {
+  if (value === null) {
+    throw new Error(`[agents-manager] ${name} is not initialized`);
+  }
+  return value;
+}
+
 export function getStorage() {
   ensureInitialized();
-  return _storage;
+  return requireInitialized(_storage, "storage");
 }
 
 export function getAgentAdapter() {
   ensureInitialized();
-  return _agentAdapter;
+  return requireInitialized(_agentAdapter, "agent adapter");
 }
 
 export function getCategoryAdapter() {
   ensureInitialized();
-  return _categoryAdapter;
+  return requireInitialized(_categoryAdapter, "category adapter");
 }
 
 export function getAgentTransformer() {
   ensureInitialized();
-  return _agentTransformer;
+  return requireInitialized(_agentTransformer, "agent transformer");
 }
 
 export function getCategoryTransformer() {
   ensureInitialized();
-  return _categoryTransformer;
+  return requireInitialized(_categoryTransformer, "category transformer");
 }
 
 export function getLegacyConfigFile(): string {
   ensureInitialized();
-  return _legacyConfigFile || "";
+  return requireInitialized(_legacyConfigFile, "legacy config file");
 }

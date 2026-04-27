@@ -12,6 +12,10 @@ const mockDeleteCategoryFromConfig = vi.hoisted(() => vi.fn());
 const mockSyncOutputConfigFile = vi.hoisted(() =>
   vi.fn().mockResolvedValue(undefined),
 );
+const mockReadConfigFile = vi.hoisted(() => vi.fn());
+const mockWriteProvidersFile = vi.hoisted(() => vi.fn());
+const mockWriteVscodeModelsFile = vi.hoisted(() => vi.fn());
+const mockSyncToLiteLLM = vi.hoisted(() => vi.fn());
 
 // Mock the entire module to intercept dynamic imports
 vi.mock("@lite-llm/agents-manager", async () => {
@@ -20,7 +24,11 @@ vi.mock("@lite-llm/agents-manager", async () => {
     ...actual,
     deleteAgentFromConfig: mockDeleteAgentFromConfig,
     deleteCategoryFromConfig: mockDeleteCategoryFromConfig,
+    readConfigFile: mockReadConfigFile,
+    writeProvidersFile: mockWriteProvidersFile,
+    writeVscodeModelsFile: mockWriteVscodeModelsFile,
     syncOutputConfigFile: mockSyncOutputConfigFile,
+    syncToLiteLLM: mockSyncToLiteLLM,
   };
 });
 
@@ -91,8 +99,16 @@ describe("DELETE /agent-config/:key", () => {
     mockDeleteAgentFromConfig.mockResolvedValue(undefined);
     mockDeleteCategoryFromConfig.mockReset();
     mockDeleteCategoryFromConfig.mockResolvedValue(undefined);
+    mockReadConfigFile.mockReset();
+    mockReadConfigFile.mockResolvedValue({ agents: {}, categories: {} });
+    mockWriteProvidersFile.mockReset();
+    mockWriteProvidersFile.mockResolvedValue(undefined);
+    mockWriteVscodeModelsFile.mockReset();
+    mockWriteVscodeModelsFile.mockResolvedValue(undefined);
     mockSyncOutputConfigFile.mockReset();
     mockSyncOutputConfigFile.mockResolvedValue(undefined);
+    mockSyncToLiteLLM.mockReset();
+    mockSyncToLiteLLM.mockResolvedValue(0);
   });
 
   it("deletes agent and calls syncOutputConfigFile", async () => {
