@@ -167,6 +167,13 @@
     "globalFallbackModel": {
       "type": "string",
       "description": "Default fallback model identifier used when no specific fallback is available"
+    },
+    "customAliases": {
+      "type": "object",
+      "description": "Custom alias mappings persisted from agent routing edits",
+      "additionalProperties": {
+        "type": "string"
+      }
     }
   },
   "additionalProperties": false

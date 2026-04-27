@@ -3,7 +3,7 @@ import {
   AGENT_KEYS,
   CATEGORY_KEYS,
   sortAliasesByDefinitionOrder,
-} from "../services/alias-generator";
+} from "@lite-llm/alias-router";
 
 describe("sortAliasesByDefinitionOrder", () => {
   it("returns empty object for empty input", () => {

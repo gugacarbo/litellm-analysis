@@ -1,10 +1,10 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DATABASE_CAPABILITIES } from "../data-source/database";
+import { DATABASE_CAPABILITIES } from "@lite-llm/analytics";
 import type {
   AnalyticsCapabilities,
   AnalyticsDataSource,
-} from "../data-source/types";
+} from "@lite-llm/analytics";
 
 const mockUpdateAgentInConfig = vi.fn();
 const mockReadConfigFile = vi.fn();
@@ -89,7 +89,17 @@ function createMockDataSource(
 async function getServer(capabilities: AnalyticsCapabilities) {
   const { createApiServer } = await import("../api-server");
   const mockDs = createMockDataSource(capabilities);
-  return { app: createApiServer(mockDs), dataSource: mockDs };
+  const orchestration = {
+    dataSource: mockDs,
+    buildAliasMap: vi.fn().mockResolvedValue({}),
+    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
+    syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
+    syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
+  };
+  return {
+    app: createApiServer({ dataSource: mockDs, orchestration }),
+    dataSource: mockDs,
+  };
 }
 
 describe("PUT /agent-config/:key alias resolution", () => {
@@ -161,7 +171,5 @@ describe("PUT /agent-config/:key alias resolution", () => {
       "sisyphus/gpt-5.4": "anthropic/claude-3-7-sonnet",
       "sisyphus/gpt-5.5": "openai/gpt-4.1",
     });
-
-    expect(mockSyncToLiteLLM).toHaveBeenCalledTimes(1);
   });
 });

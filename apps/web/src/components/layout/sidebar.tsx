@@ -15,9 +15,9 @@ export function Sidebar() {
 
   const navItems = [
     { to: "/", icon: Activity, label: "Dashboard" },
+    { to: "/models", icon: Settings, label: "Models" },
     { to: "/model-stats", icon: BarChart3, label: "Model Stats" },
     { to: "/logs", icon: FileText, label: "Spend Logs" },
-    { to: "/models", icon: Settings, label: "Models" },
     ...(capabilities.agentRouting
       ? [{ to: "/agent-routing", icon: GitBranch, label: "Agent Routing" }]
       : []),

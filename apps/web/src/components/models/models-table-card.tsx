@@ -1,7 +1,6 @@
 import { Database, Pencil, Trash2 } from "lucide-react";
 import type { ModelConfig } from "../../lib/api-client";
 import {
-  getApiBase,
   getContextWindow,
   getInputCost,
   getMaxOutput,
@@ -76,7 +75,6 @@ export function ModelsTableCard({
             <TableHeader>
               <TableRow>
                 <TableHead>Model Name</TableHead>
-                <TableHead>API Base</TableHead>
                 <TableHead className="text-right">Context</TableHead>
                 <TableHead className="text-right">Max Output</TableHead>
                 <TableHead className="text-right">Input ($/Mi)</TableHead>
@@ -89,9 +87,6 @@ export function ModelsTableCard({
                 <TableRow key={model.modelName}>
                   <TableCell className="font-medium">
                     {model.modelName}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {getApiBase(model.litellmParams)}
                   </TableCell>
                   <TableCell className="text-right">
                     {getContextWindow(model.litellmParams)}

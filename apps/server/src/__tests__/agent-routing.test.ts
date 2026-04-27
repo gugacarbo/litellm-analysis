@@ -1,19 +1,14 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DATABASE_CAPABILITIES } from "../data-source/database";
+import { DATABASE_CAPABILITIES } from "@lite-llm/analytics";
 import type {
   AnalyticsCapabilities,
   AnalyticsDataSource,
-} from "../data-source/types";
+} from "@lite-llm/analytics";
+import type { RouteOptions } from "@lite-llm/server-core/types";
 
 const mockGetRouterSettings = vi.fn();
 const mockUpdateRouterSettings = vi.fn();
-
-vi.mock("../db/queries.js", () => ({
-  getRouterSettings: (...args: unknown[]) => mockGetRouterSettings(...args),
-  updateRouterSettings: (...args: unknown[]) =>
-    mockUpdateRouterSettings(...args),
-}));
 
 function createMockDataSource(
   capabilities: AnalyticsCapabilities,
@@ -75,7 +70,15 @@ function createMockDataSource(
 async function getServer(capabilities: AnalyticsCapabilities) {
   const { createApiServer } = await import("../api-server");
   const mockDs = createMockDataSource(capabilities);
-  return createApiServer(mockDs);
+  const orchestration = {
+    dataSource: mockDs,
+    buildAliasMap: vi.fn().mockResolvedValue({}),
+    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
+    syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
+    syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
+  };
+  const opts: RouteOptions = { dataSource: mockDs, orchestration };
+  return createApiServer(opts);
 }
 
 describe("GET /agent-routing", () => {

@@ -1,0 +1,28 @@
+{
+  "name": "@lite-llm/server-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./orchestration": "./src/orchestration/index.ts",
+    "./routes": "./src/routes/index.ts",
+    "./types": "./src/types/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lite-llm/agents-manager": "workspace:*",
+    "@lite-llm/alias-router": "workspace:*",
+    "@lite-llm/analytics": "workspace:*",
+    "@litellm/shared": "workspace:*",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,13 +1,13 @@
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
 import {
-  DATABASE_CAPABILITIES,
-  LIMITED_CAPABILITIES,
-} from "../data-source/database";
+	DATABASE_CAPABILITIES,
+	LIMITED_CAPABILITIES,
+} from '@lite-llm/analytics';
 import type {
-  AnalyticsCapabilities,
-  AnalyticsDataSource,
-} from "../data-source/types";
+	AnalyticsCapabilities,
+	AnalyticsDataSource,
+} from '@lite-llm/analytics';
 
 function createMockDataSource(
   capabilities: AnalyticsCapabilities,
@@ -60,10 +60,20 @@ function createMockDataSource(
   };
 }
 
+function createMockOrchestration(ds: AnalyticsDataSource) {
+  return {
+    dataSource: ds,
+    buildAliasMap: vi.fn().mockResolvedValue({}),
+    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
+    syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
+    syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
 async function getServer(capabilities: AnalyticsCapabilities) {
   const { createApiServer } = await import("../api-server");
   const mockDs = createMockDataSource(capabilities);
-  return createApiServer(mockDs);
+  return createApiServer({ dataSource: mockDs, orchestration: createMockOrchestration(mockDs) });
 }
 
 describe("Write endpoint guards", () => {
@@ -116,7 +126,7 @@ describe("Write endpoint guards", () => {
   it("DELETE /models/logs?model= forwards empty model in full mode", async () => {
     const { createApiServer } = await import("../api-server");
     const mockDs = createMockDataSource(DATABASE_CAPABILITIES);
-    const app = createApiServer(mockDs);
+    const app = createApiServer({ dataSource: mockDs, orchestration: createMockOrchestration(mockDs) });
 
     const res = await request(app).delete("/models/logs?model=");
 

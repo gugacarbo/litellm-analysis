@@ -1,10 +1,11 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DATABASE_CAPABILITIES } from "../data-source/database";
+import { DATABASE_CAPABILITIES } from "@lite-llm/analytics";
 import type {
   AnalyticsCapabilities,
   AnalyticsDataSource,
-} from "../data-source/types";
+} from "@lite-llm/analytics";
+import type { OrchestrationServices } from "@lite-llm/server-core/types";
 
 // Mocks must be hoisted
 const mockDeleteAgentFromConfig = vi.hoisted(() => vi.fn());
@@ -87,10 +88,27 @@ function createMockDataSource(
   };
 }
 
+function createMockOrchestration(
+  ds: AnalyticsDataSource,
+): OrchestrationServices {
+  return {
+    dataSource: ds,
+    buildAliasMap: vi.fn().mockResolvedValue({}),
+    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
+    syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
+    syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
 async function getServer(capabilities: AnalyticsCapabilities) {
   const { createApiServer } = await import("../api-server");
   const mockDs = createMockDataSource(capabilities);
-  return { app: createApiServer(mockDs), dataSource: mockDs };
+  const mockOrch = createMockOrchestration(mockDs);
+  return {
+    app: createApiServer({ dataSource: mockDs, orchestration: mockOrch }),
+    dataSource: mockDs,
+    orchestration: mockOrch,
+  };
 }
 
 describe("DELETE /agent-config/:key", () => {
@@ -111,20 +129,20 @@ describe("DELETE /agent-config/:key", () => {
     mockSyncToLiteLLM.mockResolvedValue(0);
   });
 
-  it("deletes agent and calls syncOutputConfigFile", async () => {
-    const { app } = await getServer(DATABASE_CAPABILITIES);
+  it("deletes agent and calls syncGeneratedArtifacts", async () => {
+    const { app, orchestration } = await getServer(DATABASE_CAPABILITIES);
 
     const res = await request(app).delete("/agent-config/sisyphus");
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ success: true });
     expect(mockDeleteAgentFromConfig).toHaveBeenCalledWith("sisyphus");
-    // syncOutputConfigFile should be called AFTER deletion
-    expect(mockSyncOutputConfigFile).toHaveBeenCalledTimes(1);
+    // syncGeneratedArtifacts should be called AFTER deletion
+    expect(orchestration.syncGeneratedArtifacts).toHaveBeenCalledTimes(1);
   });
 
-  it("deletes category and calls syncOutputConfigFile", async () => {
-    const { app } = await getServer(DATABASE_CAPABILITIES);
+  it("deletes category and calls syncGeneratedArtifacts", async () => {
+    const { app, orchestration } = await getServer(DATABASE_CAPABILITIES);
 
     const res = await request(app).delete(
       "/agent-config/visual-engineering?type=category",
@@ -135,8 +153,7 @@ describe("DELETE /agent-config/:key", () => {
     expect(mockDeleteCategoryFromConfig).toHaveBeenCalledWith(
       "visual-engineering",
     );
-    // syncOutputConfigFile should be called for category deletion too
-    expect(mockSyncOutputConfigFile).toHaveBeenCalledTimes(1);
+    expect(orchestration.syncGeneratedArtifacts).toHaveBeenCalledTimes(1);
   });
 
   it("rejects deleting global-fallback", async () => {
