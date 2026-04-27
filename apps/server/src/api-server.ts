@@ -407,7 +407,9 @@ export function createApiServer(dataSource: AnalyticsDataSource): Application {
       } = {};
 
       const existingModels = await dataSource.getModels();
-      const existingModel = existingModels.find((item) => item.modelName === name);
+      const existingModel = existingModels.find(
+        (item) => item.modelName === name,
+      );
       const existingParams = isRecord(existingModel?.litellmParams)
         ? existingModel.litellmParams
         : {};
