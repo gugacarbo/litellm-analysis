@@ -10,6 +10,8 @@ import {
   getModelLatencyTrend,
   getModelRequestDistribution,
   getModelStatistics,
+  getModelTopApiKeys,
+  getModelTopUsers,
   getTokenDistribution,
 } from "../lib/api-client";
 import { queryKeys } from "../lib/query-keys";
@@ -21,7 +23,6 @@ import type {
   ModelDetailSummary,
   ModelErrorBreakdown,
   ModelHourlyUsage,
-  ModelUser,
 } from "../pages/model-detail/model-detail-types";
 
 const DEFAULT_DAYS = 30;
@@ -94,6 +95,20 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
   const costEffQuery = useQuery({
     queryKey: queryKeys.dashboardCostEfficiency(days),
     queryFn: () => getCostEfficiencyByModel(days),
+    refetchInterval: AUTO_REFRESH_MS,
+    enabled: !!modelName,
+  });
+
+  const topUsersQuery = useQuery({
+    queryKey: queryKeys.modelDetailTopUsers(modelName, days),
+    queryFn: () => getModelTopUsers(modelName, days),
+    refetchInterval: AUTO_REFRESH_MS,
+    enabled: !!modelName,
+  });
+
+  const topApiKeysQuery = useQuery({
+    queryKey: queryKeys.modelDetailTopApiKeys(modelName, days),
+    queryFn: () => getModelTopApiKeys(modelName, days),
     refetchInterval: AUTO_REFRESH_MS,
     enabled: !!modelName,
   });
@@ -226,7 +241,19 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
     hourlyUsage,
     errorBreakdown,
     dailyErrorTrend,
-    topUsers: [] as ModelUser[],
+    topUsers: (topUsersQuery.data ?? []).map((item) => ({
+      user: item.user ?? "",
+      totalSpend: Number(item.total_spend),
+      totalTokens: Number(item.total_tokens),
+      requestCount: Number(item.request_count),
+    })),
+    topApiKeys: (topApiKeysQuery.data ?? []).map((item) => ({
+      apiKey: item.api_key ?? "",
+      totalSpend: Number(item.total_spend),
+      totalTokens: Number(item.total_tokens),
+      requestCount: Number(item.request_count),
+      successRate: Number(item.success_rate),
+    })),
     loading,
     error,
     tokenDistribution: tokenDistQuery.data ?? [],

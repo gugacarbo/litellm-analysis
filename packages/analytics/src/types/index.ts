@@ -67,6 +67,14 @@ export interface AnalyticsDataSource {
   ): Promise<void>;
   deleteAgentConfig(agentKey: string): Promise<void>;
   deleteCategoryConfig(categoryKey: string): Promise<void>;
+  getTopUsersByModel(
+    model: string,
+    days?: number,
+  ): Promise<ModelTopUser[]>;
+  getTopApiKeysByModel(
+    model: string,
+    days?: number,
+  ): Promise<ModelTopApiKey[]>;
 }
 
 // Analytics Types
@@ -307,4 +315,19 @@ export interface ModelErrorBreakdown {
 export interface ModelDailyErrorTrend {
   date: string;
   error_count: number;
+}
+
+export interface ModelTopUser {
+  user: string | null;
+  total_spend: number;
+  total_tokens: number;
+  request_count: number;
+}
+
+export interface ModelTopApiKey {
+  api_key: string | null;
+  total_spend: number;
+  total_tokens: number;
+  request_count: number;
+  success_rate: number;
 }

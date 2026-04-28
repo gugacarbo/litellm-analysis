@@ -21,8 +21,16 @@ import {
   createModelImpl,
   deleteModelImpl,
   deleteModelLogsImpl,
+  getDailyErrorTrendByModelImpl,
+  getDailyLatencyTrendByModelImpl,
+  getDailySpendTrendByModelImpl,
+  getDailyTokenTrendByModelImpl,
+  getErrorBreakdownByModelImpl,
+  getHourlyUsageByModelImpl,
   getModelDetailsImpl,
   getModelsImpl,
+  getTopApiKeysByModelImpl,
+  getTopUsersByModelImpl,
   mergeModelsImpl,
   updateModelImpl,
 } from "./model-methods.js";
@@ -65,6 +73,12 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   getModelDistribution = getModelDistributionImpl;
   getDailyTokenTrend = getDailyTokenTrendImpl;
   getModelStatistics = getModelStatisticsImpl;
+  getDailySpendTrendByModel = getDailySpendTrendByModelImpl;
+  getDailyTokenTrendByModel = getDailyTokenTrendByModelImpl;
+  getHourlyUsageByModel = getHourlyUsageByModelImpl;
+  getDailyLatencyTrendByModel = getDailyLatencyTrendByModelImpl;
+  getErrorBreakdownByModel = getErrorBreakdownByModelImpl;
+  getDailyErrorTrendByModel = getDailyErrorTrendByModelImpl;
   getModels = getModelsImpl;
   getModelDetails = getModelDetailsImpl;
   getErrorLogs = getErrorLogsImpl;
@@ -81,4 +95,6 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   updateCategoryConfig = updateCategoryConfigImpl;
   deleteAgentConfig = deleteAgentConfigImpl;
   deleteCategoryConfig = deleteCategoryConfigImpl;
+  getTopUsersByModel = getTopUsersByModelImpl;
+  getTopApiKeysByModel = getTopApiKeysByModelImpl;
 }

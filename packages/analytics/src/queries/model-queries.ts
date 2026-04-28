@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql, type SQL } from "drizzle-orm";
 import { db, schema } from "./client";
 import {
   combineConditions,
@@ -176,3 +176,226 @@ export async function deleteModelLogs(modelName: string) {
 }
 
 export const modelMerges: Record<string, string> = {};
+
+export async function getDailySpendTrendByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      date: sql`DATE(${spendLogs.startTime})`,
+      spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
+      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+      request_count: sql`COUNT(*)`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`DATE(${spendLogs.startTime})`)
+    .orderBy(sql`DATE(${spendLogs.startTime})`);
+  return result;
+}
+
+export async function getDailyTokenTrendByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      date: sql`DATE(${spendLogs.startTime})`,
+      prompt_tokens: sql`SUM(${spendLogs.promptTokens})`.mapWith(Number),
+      completion_tokens: sql`SUM(${spendLogs.completionTokens})`.mapWith(
+        Number,
+      ),
+      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`DATE(${spendLogs.startTime})`)
+    .orderBy(sql`DATE(${spendLogs.startTime})`);
+  return result;
+}
+
+export async function getHourlyUsageByModel(model: string, days?: number) {
+  const normalizedDays = normalizeDays(days, 7);
+  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      hour: sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`.mapWith(Number),
+      request_count: sql`COUNT(*)`.mapWith(Number),
+      total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
+      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`)
+    .orderBy(sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`);
+  return result;
+}
+
+export async function getDailyLatencyTrendByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [
+    eq(spendLogs.model, model),
+    sql`${spendLogs.endTime} IS NOT NULL`,
+    sql`EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0`,
+  ];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      date: sql`DATE(${spendLogs.startTime})`,
+      avg_latency_ms: sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+        Number,
+      ),
+      p50_latency_ms: sql`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+        Number,
+      ),
+      p95_latency_ms: sql`PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+        Number,
+      ),
+      p99_latency_ms: sql`PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+        Number,
+      ),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`DATE(${spendLogs.startTime})`)
+    .orderBy(sql`DATE(${spendLogs.startTime})`);
+  return result;
+}
+
+export async function getErrorBreakdownByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [
+    eq(spendLogs.model, model),
+    sql`LOWER(COALESCE(${spendLogs.status}, '')) != 'success'`,
+  ];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      error_type: sql<string>`COALESCE(${spendLogs.status}, 'error')`,
+      count: sql`COUNT(*)`.mapWith(Number),
+      last_occurred: sql`MAX(${spendLogs.startTime})`,
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`COALESCE(${spendLogs.status}, 'error')`)
+    .orderBy(desc(sql`COUNT(*)`))
+    .limit(10);
+  return result;
+}
+
+export async function getDailyErrorTrendByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [
+    eq(spendLogs.model, model),
+    sql`LOWER(COALESCE(${spendLogs.status}, '')) != 'success'`,
+  ];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      date: sql`DATE(${spendLogs.startTime})`,
+      error_count: sql`COUNT(*)`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`DATE(${spendLogs.startTime})`)
+    .orderBy(sql`DATE(${spendLogs.startTime})`);
+  return result;
+}
+
+export async function getTopUsersByModel(model: string, days?: number) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      user: spendLogs.user,
+      total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
+      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+      request_count: sql`COUNT(*)`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(spendLogs.user)
+    .orderBy(desc(sql`SUM(${spendLogs.spend})`))
+    .limit(20);
+  return result;
+}
+
+export async function getTopApiKeysByModel(model: string, days?: number) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      api_key: spendLogs.apiKey,
+      total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
+      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+      request_count: sql`COUNT(*)`.mapWith(Number),
+      success_rate: sql`SUM(CASE WHEN ${spendLogs.status} = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100`.mapWith(
+        Number,
+      ),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(spendLogs.apiKey)
+    .orderBy(desc(sql`SUM(${spendLogs.spend})`))
+    .limit(20);
+  return result;
+}

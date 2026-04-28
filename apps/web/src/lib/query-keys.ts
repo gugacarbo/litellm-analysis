@@ -54,4 +54,8 @@ export const queryKeys = {
     ["model-detail", "error-breakdown", model, days] as const,
   modelDetailDailyErrors: (model: string, days: number) =>
     ["model-detail", "daily-errors", model, days] as const,
+  modelDetailTopUsers: (model: string, days: number) =>
+    ["model-detail", "top-users", model, days] as const,
+  modelDetailTopApiKeys: (model: string, days: number) =>
+    ["model-detail", "top-api-keys", model, days] as const,
 };

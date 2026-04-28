@@ -66,3 +66,11 @@ export interface ModelUser {
   totalTokens: number;
   requestCount: number;
 }
+
+export interface ModelApiKey {
+  apiKey: string;
+  totalSpend: number;
+  totalTokens: number;
+  requestCount: number;
+  successRate: number;
+}

@@ -84,6 +84,8 @@ function createMockDataSource(): AnalyticsDataSource {
     getDailyLatencyTrendByModel: vi.fn().mockResolvedValue([]),
     getErrorBreakdownByModel: vi.fn().mockResolvedValue([]),
     getDailyErrorTrendByModel: vi.fn().mockResolvedValue([]),
+    getTopUsersByModel: vi.fn().mockResolvedValue([]),
+    getTopApiKeysByModel: vi.fn().mockResolvedValue([]),
   };
 }
 

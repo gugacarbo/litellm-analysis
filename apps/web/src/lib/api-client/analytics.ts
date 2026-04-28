@@ -253,3 +253,42 @@ export async function getModelDailyErrors(
     ),
   );
 }
+
+export async function getModelTopUsers(
+  model: string,
+  days?: number,
+): Promise<
+  {
+    user: string | null;
+    total_spend: number;
+    total_tokens: number;
+    request_count: number;
+  }[]
+> {
+  return fetchApi(
+    withDays(
+      `/analytics/model-top-users?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
+}
+
+export async function getModelTopApiKeys(
+  model: string,
+  days?: number,
+): Promise<
+  {
+    api_key: string | null;
+    total_spend: number;
+    total_tokens: number;
+    request_count: number;
+    success_rate: number;
+  }[]
+> {
+  return fetchApi(
+    withDays(
+      `/analytics/model-top-api-keys?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
+}

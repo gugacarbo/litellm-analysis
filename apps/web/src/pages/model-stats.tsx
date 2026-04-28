@@ -78,7 +78,9 @@ export function ModelStatsPage() {
   const avgTokensPerSecond =
     totalTokens > 0
       ? data.reduce(
-          (sum, m) => sum + Number(m.avg_tokens_per_second || 0) * Number(m.request_count),
+          (sum, m) =>
+            sum +
+            Number(m.avg_tokens_per_second || 0) * Number(m.request_count),
           0,
         ) / totalRequests
       : 0;
@@ -88,12 +90,16 @@ export function ModelStatsPage() {
     0,
   );
 
-  const totalErrors = data.reduce((sum, m) => sum + Number(m.error_count || 0), 0);
+  const totalErrors = data.reduce(
+    (sum, m) => sum + Number(m.error_count || 0),
+    0,
+  );
 
   const avgLatency =
     totalRequests > 0
       ? data.reduce(
-          (sum, m) => sum + Number(m.avg_latency_ms || 0) * Number(m.request_count),
+          (sum, m) =>
+            sum + Number(m.avg_latency_ms || 0) * Number(m.request_count),
           0,
         ) / totalRequests
       : 0;
@@ -170,7 +176,13 @@ export function ModelStatsPage() {
         avgLatency={avgLatency}
         avgCostPerRequest={avgCostPerRequest}
         uniqueModels={uniqueModels}
-        rangeLabel={state.rangeDays === 1 ? "today" : state.rangeDays === 7 ? "7 days" : `${state.rangeDays} days`}
+        rangeLabel={
+          state.rangeDays === 1
+            ? "today"
+            : state.rangeDays === 7
+              ? "7 days"
+              : `${state.rangeDays} days`
+        }
         avgTokensPerSecond={avgTokensPerSecond}
         maxTokensPerSecond={maxTokensPerSecond}
       />

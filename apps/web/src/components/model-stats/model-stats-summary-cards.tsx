@@ -119,26 +119,34 @@ export function ModelStatsSummaryCards({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-border/70">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Avg Tokens/Sec</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Avg Tokens/Sec
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
-              <p className="text-2xl font-bold">{formatTokensPerSecond(avgTokensPerSecond)}</p>
+              <p className="text-2xl font-bold">
+                {formatTokensPerSecond(avgTokensPerSecond)}
+              </p>
             )}
           </CardContent>
         </Card>
 
         <Card className="border-border/70">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Max Tokens/Sec</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Max Tokens/Sec
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
-              <p className="text-2xl font-bold">{formatTokensPerSecond(maxTokensPerSecond)}</p>
+              <p className="text-2xl font-bold">
+                {formatTokensPerSecond(maxTokensPerSecond)}
+              </p>
             )}
           </CardContent>
         </Card>
@@ -217,26 +225,34 @@ export function ModelStatsSummaryCards({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-border/70">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Avg Tokens/Sec</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Avg Tokens/Sec
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
-              <p className="text-2xl font-bold">{formatTokensPerSecond(avgTokensPerSecond)}</p>
+              <p className="text-2xl font-bold">
+                {formatTokensPerSecond(avgTokensPerSecond)}
+              </p>
             )}
           </CardContent>
         </Card>
 
         <Card className="border-border/70">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Max Tokens/Sec</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Max Tokens/Sec
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
-              <p className="text-2xl font-bold">{formatTokensPerSecond(maxTokensPerSecond)}</p>
+              <p className="text-2xl font-bold">
+                {formatTokensPerSecond(maxTokensPerSecond)}
+              </p>
             )}
           </CardContent>
         </Card>
