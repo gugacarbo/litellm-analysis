@@ -670,4 +670,157 @@ export async function updateRouterSettings(
   );
 }
 
+export async function getDailySpendTrendByModel(
+  modelName: string,
+  days = 30,
+) {
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizeDays(days, 30)),
+    eq(spendLogs.model, modelName),
+  ]);
+  const result = await db
+    .select({
+      date: sql`DATE(${spendLogs.startTime})`,
+      spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
+      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+      request_count: sql<number>`COUNT(*)`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`DATE(${spendLogs.startTime})`)
+    .orderBy(asc(sql`DATE(${spendLogs.startTime})`));
+  return result;
+}
+
+export async function getDailyTokenTrendByModel(
+  modelName: string,
+  days = 30,
+) {
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizeDays(days, 30)),
+    eq(spendLogs.model, modelName),
+  ]);
+  const result = await db
+    .select({
+      date: sql`DATE(${spendLogs.startTime})`,
+      prompt_tokens: sql`SUM(${spendLogs.promptTokens})`.mapWith(Number),
+      completion_tokens:
+        sql`SUM(${spendLogs.completionTokens})`.mapWith(Number),
+      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`DATE(${spendLogs.startTime})`)
+    .orderBy(asc(sql`DATE(${spendLogs.startTime})`));
+  return result;
+}
+
+export async function getHourlyUsageByModel(modelName: string, days = 7) {
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizeDays(days, 7)),
+    eq(spendLogs.model, modelName),
+  ]);
+  const result = await db
+    .select({
+      hour: sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`,
+      request_count: sql`COUNT(*)`.mapWith(Number),
+      total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
+      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`)
+    .orderBy(asc(sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`));
+  return result;
+}
+
+export async function getDailyLatencyTrendByModel(
+  modelName: string,
+  days = 30,
+) {
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizeDays(days, 30)),
+    eq(spendLogs.model, modelName),
+    sql`${spendLogs.endTime} IS NOT NULL`,
+    sql`EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.1`,
+  ]);
+  const result = await db
+    .select({
+      date: sql`DATE(${spendLogs.startTime})`,
+      avg_latency_ms:
+        sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p50_latency_ms:
+        sql`PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p95_latency_ms:
+        sql`PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p99_latency_ms:
+        sql`PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`DATE(${spendLogs.startTime})`)
+    .orderBy(asc(sql`DATE(${spendLogs.startTime})`));
+  return result;
+}
+
+export async function getErrorBreakdownByModel(
+  modelName: string,
+  days = 30,
+) {
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizeDays(days, 30)),
+    eq(spendLogs.model, modelName),
+    getFailedSpendLogsCondition(),
+  ]);
+  const result = await db
+    .select({
+      error_type:
+        sql<string>`COALESCE(${errorLogs.exceptionType}, ${spendLogs.status}, 'error')`.mapWith(
+          String,
+        ),
+      count: sql<number>`COUNT(*)`.mapWith(Number),
+      last_occurred: sql<string>`MAX(${spendLogs.startTime})`.mapWith(
+        String,
+      ),
+    })
+    .from(spendLogs)
+    .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))
+    .where(whereClause)
+    .groupBy(
+      sql`COALESCE(${errorLogs.exceptionType}, ${spendLogs.status}, 'error')`,
+    )
+    .orderBy(desc(sql`COUNT(*)`))
+    .limit(20);
+  return result;
+}
+
+export async function getDailyErrorTrendByModel(
+  modelName: string,
+  days = 30,
+) {
+  const whereClause = combineConditions([
+    getSpendLogsTimeCondition(normalizeDays(days, 30)),
+    eq(spendLogs.model, modelName),
+    getFailedSpendLogsCondition(),
+  ]);
+  const result = await db
+    .select({
+      date: sql`DATE(${spendLogs.startTime})`,
+      error_count: sql<number>`COUNT(*)`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`DATE(${spendLogs.startTime})`)
+    .orderBy(asc(sql`DATE(${spendLogs.startTime})`));
+  return result;
+}
+
 export const modelMerges: Record<string, string> = {};

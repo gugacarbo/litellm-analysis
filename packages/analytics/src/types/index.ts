@@ -15,6 +15,30 @@ export interface AnalyticsDataSource {
   getModelDistribution(days?: number): Promise<ModelRequestDistribution[]>;
   getDailyTokenTrend(days?: number): Promise<DailyTokenTrend[]>;
   getModelStatistics(days?: number): Promise<ModelStatistics[]>;
+  getDailySpendTrendByModel(
+    model: string,
+    days?: number,
+  ): Promise<ModelDailySpendTrend[]>;
+  getDailyTokenTrendByModel(
+    model: string,
+    days?: number,
+  ): Promise<ModelDailyTokenTrend[]>;
+  getHourlyUsageByModel(
+    model: string,
+    days?: number,
+  ): Promise<ModelHourlyUsage[]>;
+  getDailyLatencyTrendByModel(
+    model: string,
+    days?: number,
+  ): Promise<ModelDailyLatencyTrend[]>;
+  getErrorBreakdownByModel(
+    model: string,
+    days?: number,
+  ): Promise<ModelErrorBreakdown[]>;
+  getDailyErrorTrendByModel(
+    model: string,
+    days?: number,
+  ): Promise<ModelDailyErrorTrend[]>;
   getModels(): Promise<ModelEntry[]>;
   getModelDetails(): Promise<ModelDetail[]>;
   getErrorLogs(limit: number, days?: number): Promise<ErrorLogEntry[]>;
@@ -241,4 +265,44 @@ export type {
 export interface ModelEntryConfig {
   modelName: string;
   litellmParams: Record<string, unknown> | null;
+}
+
+export interface ModelDailySpendTrend {
+  date: string;
+  spend: number;
+  total_tokens: number;
+  request_count: number;
+}
+
+export interface ModelDailyTokenTrend {
+  date: string;
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
+export interface ModelHourlyUsage {
+  hour: number;
+  request_count: number;
+  total_spend: number;
+  total_tokens: number;
+}
+
+export interface ModelDailyLatencyTrend {
+  date: string;
+  avg_latency_ms: number;
+  p50_latency_ms: number;
+  p95_latency_ms: number;
+  p99_latency_ms: number;
+}
+
+export interface ModelErrorBreakdown {
+  error_type: string;
+  count: number;
+  last_occurred: string;
+}
+
+export interface ModelDailyErrorTrend {
+  date: string;
+  error_count: number;
 }

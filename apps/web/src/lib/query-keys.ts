@@ -42,4 +42,16 @@ export const queryKeys = {
     ] as const,
   agentRoutingData: ["agent-routing-data"] as const,
   agentRoutingAliases: ["agent-routing-aliases"] as const,
+  modelDetailDailySpend: (model: string, days: number) =>
+    ["model-detail", "daily-spend", model, days] as const,
+  modelDetailDailyTokens: (model: string, days: number) =>
+    ["model-detail", "daily-tokens", model, days] as const,
+  modelDetailHourlyUsage: (model: string, days: number) =>
+    ["model-detail", "hourly-usage", model, days] as const,
+  modelDetailLatencyTrend: (model: string, days: number) =>
+    ["model-detail", "latency-trend", model, days] as const,
+  modelDetailErrorBreakdown: (model: string, days: number) =>
+    ["model-detail", "error-breakdown", model, days] as const,
+  modelDetailDailyErrors: (model: string, days: number) =>
+    ["model-detail", "daily-errors", model, days] as const,
 };

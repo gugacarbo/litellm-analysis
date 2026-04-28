@@ -78,6 +78,12 @@ function createMockDataSource(): AnalyticsDataSource {
     updateCategoryConfig: vi.fn().mockResolvedValue(undefined),
     deleteAgentConfig: vi.fn().mockResolvedValue(undefined),
     deleteCategoryConfig: vi.fn().mockResolvedValue(undefined),
+    getDailySpendTrendByModel: vi.fn().mockResolvedValue([]),
+    getDailyTokenTrendByModel: vi.fn().mockResolvedValue([]),
+    getHourlyUsageByModel: vi.fn().mockResolvedValue([]),
+    getDailyLatencyTrendByModel: vi.fn().mockResolvedValue([]),
+    getErrorBreakdownByModel: vi.fn().mockResolvedValue([]),
+    getDailyErrorTrendByModel: vi.fn().mockResolvedValue([]),
   };
 }
 

@@ -78,11 +78,104 @@ export function registerAnalyticsRoutes(
     }
   });
 
-  app.get("/analytics/model-stats", async (_req, res) => {
- try {
-     const days = parseDays(_req.query.days, 30);
-     const data = await dataSource.getModelStatistics(days);
-    res.json(data);
+  app.get("/analytics/model-stats", async (req, res) => {
+    try {
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getModelStatistics(days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-daily-spend", async (req, res) => {
+    const model = req.query.model as string;
+    if (!model) {
+      res.status(400).json({ error: 'Missing "model" query parameter' });
+      return;
+    }
+    try {
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getDailySpendTrendByModel(model, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-daily-tokens", async (req, res) => {
+    const model = req.query.model as string;
+    if (!model) {
+      res.status(400).json({ error: 'Missing "model" query parameter' });
+      return;
+    }
+    try {
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getDailyTokenTrendByModel(model, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-hourly-usage", async (req, res) => {
+    const model = req.query.model as string;
+    if (!model) {
+      res.status(400).json({ error: 'Missing "model" query parameter' });
+      return;
+    }
+    try {
+      const days = parseDays(req.query.days, 7);
+      const data = await dataSource.getHourlyUsageByModel(model, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-latency-trend", async (req, res) => {
+    const model = req.query.model as string;
+    if (!model) {
+      res.status(400).json({ error: 'Missing "model" query parameter' });
+      return;
+    }
+    try {
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getDailyLatencyTrendByModel(
+        model,
+        days,
+      );
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-error-breakdown", async (req, res) => {
+    const model = req.query.model as string;
+    if (!model) {
+      res.status(400).json({ error: 'Missing "model" query parameter' });
+      return;
+    }
+    try {
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getErrorBreakdownByModel(model, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-daily-errors", async (req, res) => {
+    const model = req.query.model as string;
+    if (!model) {
+      res.status(400).json({ error: 'Missing "model" query parameter' });
+      return;
+    }
+    try {
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getDailyErrorTrendByModel(model, days);
+      res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

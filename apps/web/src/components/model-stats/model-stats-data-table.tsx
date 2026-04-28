@@ -1,10 +1,11 @@
+import { Link } from 'react-router-dom';
 import type {
   Column,
   ColumnKey,
   ModelStats,
   SortDirection,
   SortField,
-} from "../../pages/model-stats/model-stats-types";
+} from '../../pages/model-stats/model-stats-types';
 import {
   formatCurrency,
   formatDate,
@@ -114,11 +115,14 @@ export function ModelStatsDataTable({
                             let value: React.ReactNode = null;
 
                             switch (col.key) {
-                              case "model":
+                              case 'model':
                                 value = (
-                                  <span className="font-medium font-mono text-xs whitespace-nowrap">
+                                  <Link
+                                    to={`/model/${encodeURIComponent(modelName)}`}
+                                    className='font-medium font-mono text-xs whitespace-nowrap hover:underline'
+                                  >
                                     {modelLabel}
-                                  </span>
+                                  </Link>
                                 );
                                 break;
                               case "requests":

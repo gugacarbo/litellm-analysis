@@ -17,9 +17,15 @@ import {
   getAllModels,
   getApiKeyDetailedStats,
   getCostEfficiencyByModel,
+  getDailyErrorTrendByModel,
+  getDailyLatencyTrendByModel,
   getDailySpendTrend,
+  getDailySpendTrendByModel,
   getDailyTokenTrend,
+  getDailyTokenTrendByModel,
+  getErrorBreakdownByModel,
   getErrorLogs,
+  getHourlyUsageByModel,
   getHourlyUsagePatterns,
   getMetricsSummary,
   getModelDetails,
@@ -46,8 +52,14 @@ import type {
   ErrorLogEntry,
   HourlyUsagePattern,
   MetricsSummary,
+  ModelDailyErrorTrend,
+  ModelDailyLatencyTrend,
+  ModelDailySpendTrend,
+  ModelDailyTokenTrend,
   ModelDetail,
   ModelEntry,
+  ModelErrorBreakdown,
+  ModelHourlyUsage,
   ModelRequestDistribution,
   ModelStatistics,
   PerformanceMetrics,
@@ -271,6 +283,84 @@ export class DatabaseDataSource implements AnalyticsDataSource {
       unique_users: Number(item.unique_users || 0),
       unique_api_keys: Number(item.unique_api_keys || 0),
       p50_tokens_per_second: Number(item.p50_tokens_per_second || 0),
+    }));
+  }
+
+  async getDailySpendTrendByModel(
+    model: string,
+    days = 30,
+  ): Promise<ModelDailySpendTrend[]> {
+    const result = await getDailySpendTrendByModel(model, days);
+    return result.map((item) => ({
+      date: String(item.date),
+      spend: Number(item.spend),
+      total_tokens: Number(item.total_tokens),
+      request_count: Number(item.request_count),
+    }));
+  }
+
+  async getDailyTokenTrendByModel(
+    model: string,
+    days = 30,
+  ): Promise<ModelDailyTokenTrend[]> {
+    const result = await getDailyTokenTrendByModel(model, days);
+    return result.map((item) => ({
+      date: String(item.date),
+      prompt_tokens: Number(item.prompt_tokens),
+      completion_tokens: Number(item.completion_tokens),
+      total_tokens: Number(item.total_tokens),
+    }));
+  }
+
+  async getHourlyUsageByModel(
+    model: string,
+    days = 7,
+  ): Promise<ModelHourlyUsage[]> {
+    const result = await getHourlyUsageByModel(model, days);
+    return result.map((item) => ({
+      hour: Number(item.hour),
+      request_count: Number(item.request_count),
+      total_spend: Number(item.total_spend),
+      total_tokens: Number(item.total_tokens),
+    }));
+  }
+
+  async getDailyLatencyTrendByModel(
+    model: string,
+    days = 30,
+  ): Promise<ModelDailyLatencyTrend[]> {
+    const result = await getDailyLatencyTrendByModel(model, days);
+    return result.map((item) => ({
+      date: String(item.date),
+      avg_latency_ms: Number(item.avg_latency_ms || 0),
+      p50_latency_ms: Number(item.p50_latency_ms || 0),
+      p95_latency_ms: Number(item.p95_latency_ms || 0),
+      p99_latency_ms: Number(item.p99_latency_ms || 0),
+    }));
+  }
+
+  async getErrorBreakdownByModel(
+    model: string,
+    days = 30,
+  ): Promise<ModelErrorBreakdown[]> {
+    const result = await getErrorBreakdownByModel(model, days);
+    return result.map((item) => ({
+      error_type: String(item.error_type ?? ''),
+      count: Number(item.count),
+      last_occurred: item.last_occurred
+        ? new Date(item.last_occurred).toISOString()
+        : '',
+    }));
+  }
+
+  async getDailyErrorTrendByModel(
+    model: string,
+    days = 30,
+  ): Promise<ModelDailyErrorTrend[]> {
+    const result = await getDailyErrorTrendByModel(model, days);
+    return result.map((item) => ({
+      date: String(item.date),
+      error_count: Number(item.error_count),
     }));
   }
 
