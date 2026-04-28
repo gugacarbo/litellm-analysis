@@ -140,6 +140,8 @@ export async function getModelStatistics(days?: number): Promise<
     unique_users: number;
     unique_api_keys: number;
     p50_tokens_per_second: number;
+    avg_tokens_per_second: number;
+    max_tokens_per_second: number;
   }[]
 > {
   return fetchApi(withDays("/analytics/model-stats", days));

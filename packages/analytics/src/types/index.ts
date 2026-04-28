@@ -210,6 +210,8 @@ export interface ModelStatistics {
   unique_users: number;
   unique_api_keys: number;
   p50_tokens_per_second: number;
+  avg_tokens_per_second: number;
+  max_tokens_per_second: number;
 }
 
 export interface ModelInfo {

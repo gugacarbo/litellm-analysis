@@ -93,5 +93,7 @@ export async function getModelStatisticsImpl(
     unique_users: Number(item.unique_users || 0),
     unique_api_keys: Number(item.unique_api_keys || 0),
     p50_tokens_per_second: Number(item.p50_tokens_per_second || 0),
+    avg_tokens_per_second: Number(item.avg_tokens_per_second || 0),
+    max_tokens_per_second: Number(item.max_tokens_per_second || 0),
   }));
 }
