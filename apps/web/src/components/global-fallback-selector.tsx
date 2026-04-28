@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Globe } from "lucide-react";
 import { useState } from "react";
-import { getAllModels, type ModelConfig } from "../lib/api-client";
+import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
 import { Button } from "./button";
 import {

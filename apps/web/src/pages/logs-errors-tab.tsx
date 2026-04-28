@@ -13,7 +13,7 @@ import {
   ErrorsTable,
 } from "../components/errors/errors-table";
 import { useErrors } from "../hooks/use-errors";
-import { getAllModels } from "../lib/api-client";
+import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
 import type { ErrorLog, PaginationMetadata } from "../types/analytics";
 import {

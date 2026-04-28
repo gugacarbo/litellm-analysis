@@ -190,7 +190,7 @@
       "mode": "subagent"
     },
     "sisyphus-junior": {
-      "model": "deepseek-v4-flash",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
         "qwen3.5-plus",
@@ -268,7 +268,7 @@
       "mode": "subagent"
     },
     "metis": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5.1",
       "fallbackModels": [
         "glm-5.1",
         "qwen3-coder-plus",
@@ -294,7 +294,7 @@
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "model": "deepseek-v4-pro",
+      "model": "qwen3-coder-plus",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -304,7 +304,7 @@
       "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
     },
     "deep": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5.1",
       "fallbackModels": [
         "qwen3.5-plus",
         "qwen3-coder-plus",
@@ -334,7 +334,7 @@
       "description": "Resolução de problemas complexos com abordagens não convencionais."
     },
     "quick": {
-      "model": "deepseek-v4-flash",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
         "qwen3.5-plus",
@@ -344,7 +344,7 @@
       "description": "Tarefas triviais — mudanças em arquivo único."
     },
     "unspecified-low": {
-      "model": "deepseek-v4-flash",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
         "qwen3.5-plus",
@@ -354,7 +354,7 @@
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
-      "model": "qwen3.5-plus",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "deepseek-v4-pro",
         "glm-5.1",

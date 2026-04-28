@@ -1,4 +1,4 @@
-import type { ModelConfig } from "../../lib/api-client";
+import type { ModelConfig } from "../../lib/api-client/models";
 import { FIXED_KEYS, type ModelFormData } from "./model-form-data";
 
 export function mapModelToFormData(model: ModelConfig): ModelFormData {

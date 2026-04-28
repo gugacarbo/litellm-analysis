@@ -1,5 +1,5 @@
 import { Plus, Trash2 } from "lucide-react";
-import type { ModelConfig } from "../../lib/api-client";
+import type { ModelConfig } from "../../lib/api-client/models";
 import type { ModelFormData } from "../../pages/models/model-form-data";
 import { Button } from "../button";
 import {

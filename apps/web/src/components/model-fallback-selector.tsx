@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getAllModels, type ModelConfig } from "../lib/api-client";
+import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
 import { Badge } from "./badge";
 import { FallbackList } from "./model-fallback-selector/fallback-list";

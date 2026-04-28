@@ -1,5 +1,5 @@
 import { Database, Pencil, Trash2 } from "lucide-react";
-import type { ModelConfig } from "../../lib/api-client";
+import type { ModelConfig } from "../../lib/api-client/models";
 import {
   getContextWindow,
   getInputCost,

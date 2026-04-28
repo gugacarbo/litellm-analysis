@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { deleteModelLogs, mergeModels } from "../../lib/api-client";
+import { deleteModelLogs, mergeModels } from "../../lib/api-client/models";
 
 export function useModelStatsMutations() {
   const deleteModelLogsMutation = useMutation({

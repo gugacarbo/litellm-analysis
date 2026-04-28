@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { deleteModelLogs, mergeModels } from "../../lib/api-client";
+import { deleteModelLogs, mergeModels } from "../../lib/api-client/models";
 import { queryKeys } from "../../lib/query-keys";
 import type {
   ColumnKey,

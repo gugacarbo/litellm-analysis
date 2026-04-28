@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ModelConfig } from "../../lib/api-client";
+import type { ModelConfig } from "../../lib/api-client/models";
 import { EMPTY_MODEL_FORM_DATA, type ModelFormData } from "./model-form-data";
 import { mapModelToFormData } from "./models-form-utils";
 

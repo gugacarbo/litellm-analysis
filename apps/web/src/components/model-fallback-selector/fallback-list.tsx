@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
-import type { ModelConfig } from "../../lib/api-client";
+import type { ModelConfig } from "../../lib/api-client/models";
 import { Button } from "../button";
 import {
   Select,

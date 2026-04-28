@@ -8,7 +8,7 @@ import { ModelStatsMergePanel } from "../components/model-stats/model-stats-merg
 import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
 import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
 import { Toaster } from "../components/sonner";
-import { getModelStatistics } from "../lib/api-client";
+import { getModelStatistics } from "../lib/api-client/analytics";
 import { queryKeys } from "../lib/query-keys";
 import { useModelStatsDialogHandlers } from "./model-stats/dialog-handlers";
 import { useModelStatsDialogState } from "./model-stats/dialog-state";

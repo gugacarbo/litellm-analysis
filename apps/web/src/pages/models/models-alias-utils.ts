@@ -1,4 +1,4 @@
-import type { AgentRoutingAPIResponse } from "../../lib/api-client";
+import type { AgentRoutingAPIResponse } from "../../lib/api-client/agent-routing";
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,

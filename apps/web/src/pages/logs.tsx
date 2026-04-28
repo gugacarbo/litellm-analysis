@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
 import { useLogs } from "../hooks/use-logs";
-import { getAllModels } from "../lib/api-client";
+import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
 import { SpendLogsTab } from "./logs/spend-logs-tab";
 import { LogsErrorsTab } from "./logs-errors-tab";

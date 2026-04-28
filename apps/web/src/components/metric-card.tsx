@@ -1,0 +1,242 @@
+import type { LucideIcon } from "lucide-react";
+import { cn } from "../lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "./card";
+import { Skeleton } from "./skeleton";
+
+type ColorScheme =
+  | "blue"
+  | "green"
+  | "amber"
+  | "red"
+  | "violet"
+  | "cyan"
+  | "neutral";
+
+type MetricCardProps = {
+  title: string;
+  value: string | number;
+  description?: string;
+  icon?: LucideIcon;
+  variant?: "gradient" | "simple" | "icon";
+  colorScheme?: ColorScheme;
+  progress?: { value: number; max: number; label?: string };
+  loading?: boolean;
+  className?: string;
+  valueColor?: string;
+};
+
+const colorConfig: Record<
+  ColorScheme,
+  {
+    iconBg: string;
+    iconColor: string;
+    gradientEnd: string;
+    border: string;
+    progress: string;
+  }
+> = {
+  blue: {
+    iconBg: "bg-blue-500/10",
+    iconColor: "text-blue-600 dark:text-blue-400",
+    gradientEnd: "to-blue-500/5",
+    border: "border-blue-500/20",
+    progress: "bg-blue-500",
+  },
+  green: {
+    iconBg: "bg-emerald-500/10",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
+    gradientEnd: "to-emerald-500/5",
+    border: "border-emerald-500/20",
+    progress: "bg-emerald-500",
+  },
+  amber: {
+    iconBg: "bg-amber-500/10",
+    iconColor: "text-amber-600 dark:text-amber-400",
+    gradientEnd: "to-amber-500/5",
+    border: "border-amber-500/20",
+    progress: "bg-amber-500",
+  },
+  red: {
+    iconBg: "bg-red-500/10",
+    iconColor: "text-red-600 dark:text-red-400",
+    gradientEnd: "to-red-500/5",
+    border: "border-red-500/20",
+    progress: "bg-red-500",
+  },
+  violet: {
+    iconBg: "bg-violet-500/10",
+    iconColor: "text-violet-600 dark:text-violet-400",
+    gradientEnd: "to-violet-500/5",
+    border: "border-violet-500/20",
+    progress: "bg-violet-500",
+  },
+  cyan: {
+    iconBg: "bg-cyan-500/10",
+    iconColor: "text-cyan-600 dark:text-cyan-400",
+    gradientEnd: "to-cyan-500/5",
+    border: "border-cyan-500/20",
+    progress: "bg-cyan-500",
+  },
+  neutral: {
+    iconBg: "bg-slate-500/10",
+    iconColor: "text-slate-600 dark:text-slate-400",
+    gradientEnd: "to-slate-500/5",
+    border: "border-slate-500/20",
+    progress: "bg-slate-500",
+  },
+};
+
+export type { ColorScheme, MetricCardProps };
+
+export function MetricCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+  variant = "gradient",
+  colorScheme = "neutral",
+  progress,
+  loading,
+  className,
+  valueColor,
+}: MetricCardProps) {
+  const colors = colorConfig[colorScheme];
+
+  if (variant === "gradient") {
+    return (
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-xl border bg-gradient-to-br p-4",
+          "from-background",
+          colors.gradientEnd,
+          colors.border,
+          "hover:shadow-sm transition-shadow duration-200",
+          className,
+        )}
+      >
+        <div className="relative z-10">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {Icon && (
+                <div
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-lg",
+                    colors.iconBg,
+                  )}
+                >
+                  <Icon className={cn("h-4 w-4", colors.iconColor)} />
+                </div>
+              )}
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {title}
+              </span>
+            </div>
+          </div>
+
+          {loading ? (
+            <Skeleton className="h-9 w-28" />
+          ) : (
+            <p
+              className={cn(
+                "mb-1 text-2xl font-bold tracking-tight",
+                valueColor || "text-foreground",
+              )}
+            >
+              {value}
+            </p>
+          )}
+
+          {description && (
+            <p className="text-xs text-muted-foreground">{description}</p>
+          )}
+
+          {progress && !loading && (
+            <div className="mt-3">
+              <div className="mb-1 flex items-center justify-between">
+                {progress.label && (
+                  <span className="text-[10px] text-muted-foreground">
+                    {progress.label}
+                  </span>
+                )}
+                <span className="text-[10px] font-medium">
+                  {((progress.value / progress.max) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    colors.progress,
+                  )}
+                  style={{
+                    width: `${Math.min(100, Math.max(0, (progress.value / progress.max) * 100))}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "simple") {
+    return (
+      <Card className={className}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <Skeleton className="h-8 w-24" />
+          ) : (
+            <p className={cn("text-2xl font-bold", valueColor)}>{value}</p>
+          )}
+          {description && (
+            <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (variant === "icon") {
+    return (
+      <Card
+        className={cn(
+          "bg-gradient-to-b from-background",
+          colors.gradientEnd,
+          className,
+        )}
+      >
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-2">
+            {Icon && (
+              <div
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-md",
+                  colors.iconBg,
+                )}
+              >
+                <Icon className={cn("h-3.5 w-3.5", colors.iconColor)} />
+              </div>
+            )}
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <Skeleton className="h-8 w-24" />
+          ) : (
+            <p className={cn("text-2xl font-bold", valueColor)}>{value}</p>
+          )}
+          {description && (
+            <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return null;
+}

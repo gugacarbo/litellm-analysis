@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { getErrorLogs } from "../lib/api-client";
+import { getErrorLogs } from "../lib/api-client/analytics";
 import { queryKeys } from "../lib/query-keys";
 import type { ErrorLog } from "../types/analytics";
 
