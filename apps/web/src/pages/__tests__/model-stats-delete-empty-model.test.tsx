@@ -25,6 +25,8 @@ const emptyModelStatsResponse = [
     unique_users: 1,
     unique_api_keys: 1,
     p50_tokens_per_second: 400,
+    avg_tokens_per_second: 400,
+    max_tokens_per_second: 600,
   },
 ];
 

@@ -52,18 +52,19 @@ export function useModelsFormState() {
   }
 
   return {
-    deleteModelName,
-    dialogOpen,
-    editingModel,
-    formData,
-    formError,
-    handleOpenCreate,
-    handleOpenEdit,
-    addExtraParam,
-    removeExtraParam,
-    updateExtraParam,
-    setDeleteModelName,
-    setDialogOpen,
-    setFormData,
-  };
+   deleteModelName,
+   dialogOpen,
+   editingModel,
+   formData,
+   formError,
+   handleOpenCreate,
+   handleOpenEdit,
+   addExtraParam,
+   removeExtraParam,
+   updateExtraParam,
+   setDeleteModelName,
+   setDialogOpen,
+   setFormData,
+   setFormError,
+ };
 }

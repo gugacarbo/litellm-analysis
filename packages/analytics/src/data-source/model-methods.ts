@@ -151,10 +151,7 @@ export async function getDailyErrorTrendByModelImpl(
   }));
 }
 
-export async function getTopUsersByModelImpl(
-  model: string,
-  days?: number,
-) {
+export async function getTopUsersByModelImpl(model: string, days?: number) {
   const result = await getTopUsersByModel(model, days);
   return result.map((item) => ({
     user: item.user,
@@ -164,10 +161,7 @@ export async function getTopUsersByModelImpl(
   }));
 }
 
-export async function getTopApiKeysByModelImpl(
-  model: string,
-  days?: number,
-) {
+export async function getTopApiKeysByModelImpl(model: string, days?: number) {
   const result = await getTopApiKeysByModel(model, days);
   return result.map((item) => ({
     api_key: item.api_key,

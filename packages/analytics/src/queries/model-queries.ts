@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { asc, desc, eq, sql, type SQL } from "drizzle-orm";
+import { asc, desc, eq, type SQL, sql } from "drizzle-orm";
 import { db, schema } from "./client";
 import {
   combineConditions,
@@ -177,10 +177,7 @@ export async function deleteModelLogs(modelName: string) {
 
 export const modelMerges: Record<string, string> = {};
 
-export async function getDailySpendTrendByModel(
-  model: string,
-  days?: number,
-) {
+export async function getDailySpendTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
   const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
   const timeCondition = getSpendLogsTimeCondition(normalizedDays);
@@ -203,10 +200,7 @@ export async function getDailySpendTrendByModel(
   return result;
 }
 
-export async function getDailyTokenTrendByModel(
-  model: string,
-  days?: number,
-) {
+export async function getDailyTokenTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
   const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
   const timeCondition = getSpendLogsTimeCondition(normalizedDays);
@@ -273,18 +267,22 @@ export async function getDailyLatencyTrendByModel(
   const result = await db
     .select({
       date: sql`DATE(${spendLogs.startTime})`,
-      avg_latency_ms: sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-        Number,
-      ),
-      p50_latency_ms: sql`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-        Number,
-      ),
-      p95_latency_ms: sql`PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-        Number,
-      ),
-      p99_latency_ms: sql`PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-        Number,
-      ),
+      avg_latency_ms:
+        sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p50_latency_ms:
+        sql`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p95_latency_ms:
+        sql`PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p99_latency_ms:
+        sql`PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
     })
     .from(spendLogs)
     .where(whereClause)
@@ -293,10 +291,7 @@ export async function getDailyLatencyTrendByModel(
   return result;
 }
 
-export async function getErrorBreakdownByModel(
-  model: string,
-  days?: number,
-) {
+export async function getErrorBreakdownByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
   const conditions: Array<SQL | undefined> = [
     eq(spendLogs.model, model),
@@ -322,10 +317,7 @@ export async function getErrorBreakdownByModel(
   return result;
 }
 
-export async function getDailyErrorTrendByModel(
-  model: string,
-  days?: number,
-) {
+export async function getDailyErrorTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
   const conditions: Array<SQL | undefined> = [
     eq(spendLogs.model, model),
@@ -388,9 +380,10 @@ export async function getTopApiKeysByModel(model: string, days?: number) {
       total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
       total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
       request_count: sql`COUNT(*)`.mapWith(Number),
-      success_rate: sql`SUM(CASE WHEN ${spendLogs.status} = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100`.mapWith(
-        Number,
-      ),
+      success_rate:
+        sql`SUM(CASE WHEN ${spendLogs.status} = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100`.mapWith(
+          Number,
+        ),
     })
     .from(spendLogs)
     .where(whereClause)

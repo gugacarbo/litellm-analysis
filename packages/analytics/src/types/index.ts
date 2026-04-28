@@ -67,14 +67,8 @@ export interface AnalyticsDataSource {
   ): Promise<void>;
   deleteAgentConfig(agentKey: string): Promise<void>;
   deleteCategoryConfig(categoryKey: string): Promise<void>;
-  getTopUsersByModel(
-    model: string,
-    days?: number,
-  ): Promise<ModelTopUser[]>;
-  getTopApiKeysByModel(
-    model: string,
-    days?: number,
-  ): Promise<ModelTopApiKey[]>;
+  getTopUsersByModel(model: string, days?: number): Promise<ModelTopUser[]>;
+  getTopApiKeysByModel(model: string, days?: number): Promise<ModelTopApiKey[]>;
 }
 
 // Analytics Types

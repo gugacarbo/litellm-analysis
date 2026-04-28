@@ -3,31 +3,15 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Badge } from "../components/badge";
 import { Button } from "../components/button";
-import {
-  ModelDetailErrorBreakdown,
-} from "../components/model-detail/model-detail-error-breakdown";
-import {
-  ModelDetailErrorTrendChart,
-} from "../components/model-detail/model-detail-error-trend-chart";
-import {
-  ModelDetailHourlyChart,
-} from "../components/model-detail/model-detail-hourly-chart";
-import {
-  ModelDetailLatencyChart,
-} from "../components/model-detail/model-detail-latency-chart";
-import {
-  ModelDetailSummaryCards,
-} from "../components/model-detail/model-detail-summary-cards";
-import {
-  ModelDetailTokenBreakdown,
-} from "../components/model-detail/model-detail-token-breakdown";
+import { ModelDetailApiKeyTable } from "../components/model-detail/model-detail-api-key-table";
+import { ModelDetailErrorBreakdown } from "../components/model-detail/model-detail-error-breakdown";
+import { ModelDetailErrorTrendChart } from "../components/model-detail/model-detail-error-trend-chart";
+import { ModelDetailHourlyChart } from "../components/model-detail/model-detail-hourly-chart";
+import { ModelDetailLatencyChart } from "../components/model-detail/model-detail-latency-chart";
+import { ModelDetailSummaryCards } from "../components/model-detail/model-detail-summary-cards";
+import { ModelDetailTokenBreakdown } from "../components/model-detail/model-detail-token-breakdown";
 import { ModelDetailTrendChart } from "../components/model-detail/model-detail-trend-chart";
-import {
-  ModelDetailUserTable,
-} from "../components/model-detail/model-detail-user-table";
-import {
-  ModelDetailApiKeyTable,
-} from "../components/model-detail/model-detail-api-key-table";
+import { ModelDetailUserTable } from "../components/model-detail/model-detail-user-table";
 import { useModelDetailData } from "../hooks/use-model-detail-data";
 import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
 import {
@@ -37,7 +21,8 @@ import {
 
 export function ModelDetailPage() {
   const { modelName } = useParams<{ modelName: string }>();
-  const [selectedDateRange, setSelectedDateRange] = useState<DashboardDateRangeKey>("30d");
+  const [selectedDateRange, setSelectedDateRange] =
+    useState<DashboardDateRangeKey>("30d");
   const days = getDateRangeDays(selectedDateRange);
 
   const {

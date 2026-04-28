@@ -8,7 +8,10 @@ import {
   YAxis,
 } from "recharts";
 import type { ModelHourlyUsage } from "../../pages/model-detail/model-detail-types";
-import { CHART_HEIGHT, formatCurrency } from "../../pages/model-detail/model-detail-utils";
+import {
+  CHART_HEIGHT,
+  formatCurrency,
+} from "../../pages/model-detail/model-detail-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../card";
 import { ChartTooltipContent } from "../chart-tooltip";
 import { Skeleton } from "../skeleton";
@@ -40,9 +43,14 @@ export function ModelDetailHourlyChart({ data, loading }: Props) {
                 content={<ChartTooltipContent />}
                 formatter={(v, name) => {
                   if (name === "totalSpend") return formatCurrency(Number(v));
-                  return [Number(v).toLocaleString(), name === "requestCount" ? "Requests" : "Tokens"];
+                  return [
+                    Number(v).toLocaleString(),
+                    name === "requestCount" ? "Requests" : "Tokens",
+                  ];
                 }}
-                labelFormatter={(label) => `${String(label).padStart(2, "0")}:00 - ${String(Number(label) + 1).padStart(2, "0")}:00`}
+                labelFormatter={(label) =>
+                  `${String(label).padStart(2, "0")}:00 - ${String(Number(label) + 1).padStart(2, "0")}:00`
+                }
               />
               <Bar
                 dataKey="requestCount"

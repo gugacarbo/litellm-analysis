@@ -168,6 +168,7 @@ export function ModelStatsPage() {
 
       <ModelStatsSummaryCards
         loading={loading}
+        rangeLabel={state.rangeDays === 1 ? "today" : state.rangeDays === 7 ? "7 days" : `${state.rangeDays} days`}
         totalSpend={totalSpend}
         totalRequests={totalRequests}
         totalTokens={totalTokens}
@@ -176,13 +177,6 @@ export function ModelStatsPage() {
         avgLatency={avgLatency}
         avgCostPerRequest={avgCostPerRequest}
         uniqueModels={uniqueModels}
-        rangeLabel={
-          state.rangeDays === 1
-            ? "today"
-            : state.rangeDays === 7
-              ? "7 days"
-              : `${state.rangeDays} days`
-        }
         avgTokensPerSecond={avgTokensPerSecond}
         maxTokensPerSecond={maxTokensPerSecond}
       />
@@ -201,11 +195,10 @@ export function ModelStatsPage() {
       />
 
       <ModelStatsTopTables
-        data={data}
-        loading={loading}
-        totalSpend={totalSpend}
-        totalRequests={totalRequests}
-      />
+       data={data}
+       loading={loading}
+        rangeLabel={state.rangeDays === 1 ? "today" : state.rangeDays === 7 ? "7 days" : `${state.rangeDays} days`}
+     />
     </div>
   );
 }
