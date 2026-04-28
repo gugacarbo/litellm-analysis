@@ -63,7 +63,7 @@ export function SpendLogsTab({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">
-          {pagination.total.toLocaleString("en-US")} logs
+          {pagination.total.toLocaleString("pt-BR")} logs
         </Badge>
         <Badge variant="outline">
           {state.activeFiltersCount > 0

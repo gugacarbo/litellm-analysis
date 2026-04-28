@@ -35,6 +35,7 @@ export {
   getSpendByKey,
   getSpendByModel,
   getSpendByUser,
+  getSpendLogById,
   getSpendLogs,
   getSpendLogsCount,
 } from "./spend-queries";

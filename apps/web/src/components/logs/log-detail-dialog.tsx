@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Copy,
   DollarSign,
+  FileText,
   MessageSquare,
   type Sparkles,
   Timer,
@@ -102,7 +103,15 @@ export function LogDetailDialog({
     });
   }
 
-  if (log.stream_flag || log.response) {
+  if (log.messages && log.messages.length > 0) {
+    contextBadges.push({
+      label: "Chat",
+      icon: MessageSquare,
+      variant: "purple",
+    });
+  }
+
+  if (log.cache_hit || log.response) {
     contextBadges.push({
       label: "Streaming",
       icon: Webhook,
@@ -284,6 +293,48 @@ export function LogDetailDialog({
           </div>
         </div>
 
+        {log.messages && log.messages.length > 0 && (
+          <CollapsibleSection
+            title={`Messages (${log.messages.length})`}
+            icon={MessageSquare}
+            defaultOpen={true}
+          >
+            <div className="space-y-3">
+              {log.messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`rounded-lg border p-3 ${
+                    msg.role === "user"
+                      ? "bg-blue-500/5 border-blue-500/20"
+                      : msg.role === "assistant"
+                        ? "bg-green-500/5 border-green-500/20"
+                        : msg.role === "system"
+                          ? "bg-purple-500/5 border-purple-500/20"
+                          : "bg-muted/50 border-border"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span
+                      className={`text-xs font-medium uppercase tracking-wide ${
+                        msg.role === "user"
+                          ? "text-blue-600 dark:text-blue-400"
+                          : msg.role === "assistant"
+                            ? "text-green-600 dark:text-green-400"
+                            : msg.role === "system"
+                              ? "text-purple-600 dark:text-purple-400"
+                              : "text-muted-foreground"
+                      }`}
+                    >
+                      {msg.role}
+                    </span>
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                </div>
+              ))}
+            </div>
+          </CollapsibleSection>
+        )}
+
         {log.metadata && Object.keys(log.metadata).length > 0 && (
           <CollapsibleSection
             title="Metadata"
@@ -307,6 +358,25 @@ export function LogDetailDialog({
                 </Badge>
               ))}
             </div>
+          </CollapsibleSection>
+        )}
+
+        {log.proxy_server_request && typeof log.proxy_server_request === 'object' && Object.keys(log.proxy_server_request).length > 0 && (
+          <CollapsibleSection
+            title="Request Body"
+            icon={MessageSquare}
+            defaultOpen={false}
+          >
+            <JsonViewer data={log.proxy_server_request} defaultOpen={false} />
+          </CollapsibleSection>
+        )}
+        {isSuccess && log.response && typeof log.response === 'object' && Object.keys(log.response).length > 0 && (
+          <CollapsibleSection
+            title="Response"
+            icon={FileText}
+            defaultOpen={false}
+          >
+            <JsonViewer data={log.response} defaultOpen={false} />
           </CollapsibleSection>
         )}
 

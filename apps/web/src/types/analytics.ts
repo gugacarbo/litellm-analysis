@@ -32,19 +32,20 @@ export interface SpendLog {
   api_base?: string;
   cache_hit?: string;
   cache_key?: string;
-  stream_flag?: boolean;
+
   request_tags?: string[];
   team_id?: string;
   end_user?: string;
   requester_ip_address?: string;
   metadata?: Record<string, unknown>;
-  messages?: unknown[];
+  proxy_server_request?: Record<string, unknown>;
   response?: Record<string, unknown>;
   session_id?: string;
   mcp_namespaced_tool_name?: string;
   organization_id?: string;
   agent_id?: string;
   request_duration_ms?: number;
+  messages?: Array<{ role: string; content: string }>;
 }
 
 export interface SpendLogWithError extends SpendLog {

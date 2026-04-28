@@ -44,6 +44,7 @@ import {
   getSpendByUserImpl,
   getSpendLogsCountImpl,
   getSpendLogsImpl,
+  getSpendLogDetailImpl,
 } from "./spend-methods.js";
 import {
   getApiKeyStatsImpl,
@@ -66,6 +67,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   getSpendLogs = (filters: SpendLogsFilters) =>
     getSpendLogsImpl(filters, this.getSpendLogsCount);
   getTokenDistribution = getTokenDistributionImpl;
+  getSpendLogDetail = getSpendLogDetailImpl;
   getPerformanceMetrics = getPerformanceMetricsImpl;
   getHourlyUsagePatterns = getHourlyUsagePatternsImpl;
   getApiKeyStats = getApiKeyStatsImpl;

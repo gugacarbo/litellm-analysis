@@ -15,7 +15,7 @@ type ColorScheme =
 type MetricCardProps = {
   title: string;
   value: string | number;
-  description?: string;
+  description?: React.ReactNode;
   icon?: LucideIcon;
   variant?: "gradient" | "simple" | "icon";
   colorScheme?: ColorScheme;
@@ -109,8 +109,8 @@ export function MetricCard({
     return (
       <div
         className={cn(
-          "relative overflow-hidden rounded-xl border bg-gradient-to-br",
-          compact ? "p-3" : "p-4",
+          "relative overflow-hidden rounded-xl border bg-linear-to-br",
+          compact ? "p-2" : "p-4",
           "from-background",
           colors.gradientEnd,
           colors.border,
@@ -122,7 +122,7 @@ export function MetricCard({
           <div
             className={cn(
               "flex items-center justify-between",
-              compact ? "mb-2" : "mb-3",
+              compact ? "mb-1" : "mb-3",
             )}
           >
             <div className="flex items-center gap-2">
@@ -142,9 +142,16 @@ export function MetricCard({
                   />
                 </div>
               )}
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {title}
-              </span>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {title}
+                </span>
+                {description && compact && (
+                  <span className="text-xs text-muted-foreground">
+                    {description}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -162,21 +169,23 @@ export function MetricCard({
             </p>
           )}
 
-          {description && (
+          {description && !compact && (
             <p className="text-xs text-muted-foreground">{description}</p>
           )}
 
           {progress && !loading && (
-            <div className={compact ? "mt-2" : "mt-3"}>
+            <div className={compact ? "-mt-1" : "mt-3"}>
               <div className="mb-1 flex items-center justify-between">
-                {progress.label && (
+                {progress.label && !compact && (
                   <span className="text-[10px] text-muted-foreground">
                     {progress.label}
                   </span>
                 )}
-                <span className="text-[10px] font-medium">
-                  {((progress.value / progress.max) * 100).toFixed(1)}%
-                </span>
+                {!compact && (
+                  <span className="text-[10px] font-medium">
+                    {((progress.value / progress.max) * 100).toFixed(1)}%
+                  </span>
+                )}
               </div>
               <div
                 className={cn(
@@ -225,7 +234,7 @@ export function MetricCard({
     return (
       <Card
         className={cn(
-          "bg-gradient-to-b from-background",
+          "bg-linear-to-b from-background",
           colors.gradientEnd,
           className,
         )}

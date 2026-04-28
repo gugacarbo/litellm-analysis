@@ -7,6 +7,7 @@ export interface AnalyticsDataSource {
   getSpendByKey(days?: number): Promise<SpendByKey[]>;
   getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse>;
   getSpendLogsCount(filters: SpendLogsFilters): Promise<number>;
+  getSpendLogDetail(requestId: string): Promise<SpendLogEntry>;
   getTokenDistribution(days?: number): Promise<TokenDistribution[]>;
   getPerformanceMetrics(days?: number): Promise<PerformanceMetrics>;
   getHourlyUsagePatterns(days?: number): Promise<HourlyUsagePattern[]>;
@@ -103,6 +104,27 @@ export interface SpendLogEntry {
   end_time: string | null;
   api_key: string | null;
   status: string;
+  call_type?: string | null;
+  api_base?: string | null;
+  team_id?: string | null;
+  end_user?: string | null;
+  organization_id?: string | null;
+  completion_start_time?: string | null;
+  request_duration_ms?: number | null;
+  cache_hit?: string | null;
+  cache_key?: string | null;
+  metadata?: Record<string, unknown> | null;
+  proxy_server_request?: Record<string, unknown> | null;
+  response?: Record<string, unknown> | null;
+  request_tags?: string[] | null;
+  requester_ip_address?: string | null;
+  session_id?: string | null;
+  agent_id?: string | null;
+  model_id?: string | null;
+  model_group?: string | null;
+  custom_llm_provider?: string | null;
+  mcp_namespaced_tool_name?: string | null;
+  messages?: Array<{ role: string; content: string }> | null;
 }
 
 export interface ErrorLogEntry {

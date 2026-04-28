@@ -50,6 +50,24 @@ export function registerSpendRoutes(
     }
   });
 
+  app.get("/spend/logs/:requestId", async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      if (!requestId) {
+        res.status(400).json({ error: "requestId is required" });
+        return;
+      }
+      const data = await dataSource.getSpendLogDetail(requestId);
+      res.json(data);
+    } catch (error) {
+      if (String(error).includes("not found")) {
+        res.status(404).json({ error: String(error) });
+      } else {
+        res.status(500).json({ error: String(error) });
+      }
+    }
+  });
+
   app.get("/spend/user", async (req, res) => {
     try {
       const days = parseDays(req.query.days, 30);

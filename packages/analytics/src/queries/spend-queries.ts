@@ -82,6 +82,16 @@ export async function getSpendLogs(params: {
       endTime: spendLogs.endTime,
       api_key: spendLogs.apiKey,
       status: spendLogs.status,
+      call_type: spendLogs.callType,
+      api_base: spendLogs.apiBase,
+      cache_hit: spendLogs.cacheHit,
+      metadata: spendLogs.metadata,
+      proxy_server_request: spendLogs.proxyServerRequest,
+      response: spendLogs.response,
+      request_tags: spendLogs.requestTags,
+      model_group: spendLogs.modelGroup,
+      custom_llm_provider: spendLogs.customLlmProvider,
+      messages: spendLogs.messages,
     })
     .from(spendLogs)
     .where(whereClause)
@@ -157,5 +167,53 @@ export async function getSpendByKey(days = 30) {
     .groupBy(spendLogs.apiKey)
     .orderBy(desc(sql`SUM(${spendLogs.spend})`))
     .limit(20);
+  return result;
+}
+
+export async function getSpendLogById(requestId: string) {
+  const completionStartTime = sql<string | null>`COALESCE(
+    to_jsonb(${spendLogs}) ->> 'completionStartTime',
+    to_jsonb(${spendLogs}) ->> 'completion_start_time'
+  )`;
+
+  const [result] = await db
+    .select({
+      request_id: spendLogs.requestId,
+      model: spendLogs.model,
+      call_type: spendLogs.callType,
+      api_base: spendLogs.apiBase,
+      user: spendLogs.user,
+      team_id: spendLogs.teamId,
+      end_user: spendLogs.endUser,
+      organization_id: spendLogs.organizationId,
+      total_tokens: spendLogs.totalTokens,
+      prompt_tokens: spendLogs.promptTokens,
+      completion_tokens: spendLogs.completionTokens,
+      spend: sql`${spendLogs.spend}`.mapWith(Number),
+      time_to_first_token_ms: sql<number | null>`CASE WHEN ${completionStartTime} IS NULL THEN NULL WHEN ${completionStartTime} !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}' THEN NULL ELSE EXTRACT(EPOCH FROM ((${completionStartTime})::timestamptz - ${spendLogs.startTime})) * 1000 END`,
+      start_time: spendLogs.startTime,
+      end_time: spendLogs.endTime,
+      completion_start_time: spendLogs.completionStartTime,
+      request_duration_ms: spendLogs.requestDurationMs,
+      api_key: spendLogs.apiKey,
+      status: spendLogs.status,
+      cache_hit: spendLogs.cacheHit,
+      cache_key: spendLogs.cacheKey,
+      metadata: spendLogs.metadata,
+      proxy_server_request: spendLogs.proxyServerRequest,
+      response: spendLogs.response,
+      request_tags: spendLogs.requestTags,
+      requester_ip_address: spendLogs.requesterIpAddress,
+      session_id: spendLogs.sessionId,
+      agent_id: spendLogs.agentId,
+      model_id: spendLogs.modelId,
+      model_group: spendLogs.modelGroup,
+      custom_llm_provider: spendLogs.customLlmProvider,
+      mcp_namespaced_tool_name: spendLogs.mcpNamespacedToolName,
+      messages: spendLogs.messages,
+    })
+    .from(spendLogs)
+    .where(eq(spendLogs.requestId, requestId))
+    .limit(1);
   return result;
 }

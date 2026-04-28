@@ -1,11 +1,9 @@
 import {
   Activity,
-  CheckCircle2,
   Clock,
   DollarSign,
   Gauge,
   Sparkles,
-  XCircle,
   Zap,
 } from "lucide-react";
 import { useMemo } from "react";
@@ -75,7 +73,12 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         icon={DollarSign}
         title="Total Spend"
         value={formatCurrency(metrics.totalSpend)}
-        description={`${metrics.totalRequests} reqs`}
+        description={
+          <span>
+            <span>{formatCurrency(metrics.avgSpend)}</span>
+            <small>/req</small> <span>avg</span>
+          </span>
+        }
         colorScheme="green"
         variant="gradient"
         size="sm"
@@ -95,18 +98,11 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         icon={Gauge}
         title="Requests"
         value={metrics.totalRequests}
-        description={`${metrics.successRate.toFixed(1)}% ok`}
+        description={`${metrics.successRate.toFixed(1)}% success`}
         colorScheme="violet"
         variant="gradient"
         size="sm"
         loading={loading}
-        progress={{
-          value:
-            metrics.totalRequests -
-            metrics.totalRequests * (1 - metrics.successRate / 100),
-          max: metrics.totalRequests,
-          label: "Success",
-        }}
       />
       <MetricCard
         icon={DollarSign}
@@ -131,21 +127,6 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         title="Avg Tokens"
         value={formatNumber(metrics.avgTokensPerRequest)}
         colorScheme="cyan"
-        variant="gradient"
-        size="sm"
-        loading={loading}
-      />
-      <MetricCard
-        icon={metrics.successRate >= 95 ? CheckCircle2 : XCircle}
-        title="Success Rate"
-        value={`${metrics.successRate.toFixed(1)}%`}
-        colorScheme={
-          metrics.successRate >= 95
-            ? "green"
-            : metrics.successRate >= 90
-              ? "amber"
-              : "red"
-        }
         variant="gradient"
         size="sm"
         loading={loading}
