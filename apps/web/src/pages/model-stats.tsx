@@ -16,6 +16,8 @@ import {
   mergeModels,
 } from "../lib/api-client";
 import { queryKeys } from "../lib/query-keys";
+import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
+import { getDateRangeDays } from "./dashboard/dashboard-utils";
 import {
   type ColumnKey,
   MODEL_STATS_COLUMNS,
@@ -26,12 +28,16 @@ import {
 
 export function ModelStatsPage() {
   const queryClient = useQueryClient();
+  const [selectedDateRange, setSelectedDateRange] =
+    useState<DashboardDateRangeKey>("30d");
+  const rangeDays = getDateRangeDays(selectedDateRange);
+
   const isUndefinedModel = (value: string | null | undefined): boolean =>
     !value || value.trim() === "";
 
   const modelStatsQuery = useQuery({
-    queryKey: queryKeys.modelStatistics,
-    queryFn: getModelStatistics,
+    queryKey: queryKeys.modelStatistics(rangeDays),
+    queryFn: () => getModelStatistics(rangeDays),
     refetchInterval: 30_000,
   });
 
@@ -98,7 +104,7 @@ export function ModelStatsPage() {
       await deleteModelLogsMutation.mutateAsync(modelName);
 
       queryClient.setQueryData<ModelStats[]>(
-        queryKeys.modelStatistics,
+        queryKeys.modelStatistics(rangeDays),
         (previous) => {
           const current = previous ?? [];
           return current.filter((m) =>
@@ -137,7 +143,7 @@ export function ModelStatsPage() {
     try {
       await mergeModelsMutation.mutateAsync({ sourceModel, targetModel });
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.modelStatistics,
+        queryKey: queryKeys.modelStatistics(rangeDays),
       });
       setMergeMode(false);
       setSourceModel("");
@@ -227,6 +233,8 @@ export function ModelStatsPage() {
         onToggleMergeMode={() => setMergeMode((prev) => !prev)}
         onToggleColumn={toggleColumn}
         onSearchChange={setSearchQuery}
+        selectedDateRange={selectedDateRange}
+        setSelectedDateRange={setSelectedDateRange}
       />
 
       {mergeMode && (

@@ -79,4 +79,15 @@ export function registerSpendRoutes(
       res.status(500).json({ error: String(error) });
     }
   });
+
+  app.get("/errors", async (req, res) => {
+    try {
+      const limit = Number.parseInt(req.query.limit as string, 10) || 1000;
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getErrorLogs(limit, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
 }

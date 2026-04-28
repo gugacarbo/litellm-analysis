@@ -118,7 +118,7 @@ export async function getDailyTokenTrend(days = 30): Promise<
   return fetchApi(`/analytics/token-trend?days=${days}`);
 }
 
-export async function getModelStatistics(): Promise<
+export async function getModelStatistics(days?: number): Promise<
   {
     model: string;
     request_count: number;
@@ -142,5 +142,5 @@ export async function getModelStatistics(): Promise<
     p50_tokens_per_second: number;
   }[]
 > {
-  return fetchApi("/analytics/model-stats");
+  return fetchApi(withDays("/analytics/model-stats", days));
 }

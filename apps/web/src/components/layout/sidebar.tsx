@@ -40,9 +40,9 @@ export function Sidebar() {
       icon: Settings,
       label: "Models",
       children: [
-        { to: "/models", label: "Models" },
-        { to: "/aliases", label: "Aliases" },
         { to: "/model-stats", label: "Stats" },
+        { to: "/aliases", label: "Aliases" },
+        { to: "/models", label: "Config" },
       ],
     },
     { to: "/logs", icon: FileText, label: "Logs" },

@@ -1,6 +1,6 @@
 export const queryKeys = {
   models: ["models"] as const,
-  modelStatistics: ["model-statistics"] as const,
+  modelStatistics: (days: number) => ["model-statistics", days] as const,
   errorLogs: (limit: number) => ["error-logs", limit] as const,
   dashboardMetrics: (days: number) => ["dashboard", "metrics", days] as const,
   dashboardSpendByModel: (days: number) =>
