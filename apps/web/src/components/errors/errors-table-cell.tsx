@@ -71,18 +71,73 @@ export function renderErrorCell({
           {errorType}
         </Badge>
       );
-    case "model":
+    case "model": {
+      const showLiteLLM =
+        errorLog.litellm_model_name &&
+        errorLog.litellm_model_name !== errorLog.model;
       return (
-        <span className="font-mono text-xs font-medium break-all">
-          {errorLog.model || "-"}
-        </span>
+        <div className="flex flex-col gap-0.5">
+          <span className="font-mono text-xs font-medium break-all">
+            {errorLog.model || "-"}
+          </span>
+          {showLiteLLM && (
+            <span className="text-[10px] text-muted-foreground font-mono break-all">
+              LiteLLM: {errorLog.litellm_model_name}
+            </span>
+          )}
+        </div>
       );
+    }
     case "user":
       return (
         <span className="text-sm text-muted-foreground break-all">
           {errorLog.user || "-"}
         </span>
       );
+    case "apiKey": {
+      const apiKey = errorLog.api_key;
+      if (!apiKey) {
+        return <span className="text-xs text-muted-foreground">-</span>;
+      }
+      const truncated =
+        apiKey.length > 16
+          ? `${apiKey.slice(0, 8)}...${apiKey.slice(-4)}`
+          : apiKey;
+      return (
+        <span
+          className="font-mono text-xs text-muted-foreground"
+          title={apiKey}
+        >
+          {truncated}
+        </span>
+      );
+    }
+    case "spendStatus": {
+      const status = errorLog.spend_status;
+      if (!status) {
+        return <span className="text-xs text-muted-foreground">-</span>;
+      }
+      const normalizedStatus = status.toLowerCase();
+      let badgeClass = "bg-muted text-muted-foreground";
+      if (normalizedStatus === "success" || normalizedStatus === "completed") {
+        badgeClass = "bg-green-500/15 text-green-700 border-green-500/30";
+      } else if (
+        normalizedStatus === "error" ||
+        normalizedStatus === "failed"
+      ) {
+        badgeClass = "bg-red-500/15 text-red-700 border-red-500/30";
+      } else if (
+        normalizedStatus === "pending" ||
+        normalizedStatus === "processing"
+      ) {
+        badgeClass = "bg-amber-500/15 text-amber-700 border-amber-500/30";
+      }
+      return (
+        <Badge variant="secondary" className={badgeClass}>
+          {status}
+        </Badge>
+      );
+    }
     case "message":
       return (
         <span
@@ -98,6 +153,21 @@ export function renderErrorCell({
           {errorLog.id}
         </span>
       );
+    case "requestKwargs":
+      if (
+        errorLog.request_kwargs &&
+        Object.keys(errorLog.request_kwargs).length > 0
+      ) {
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-green-500/15 text-green-700 border-green-500/30"
+          >
+            {Object.keys(errorLog.request_kwargs).length} params
+          </Badge>
+        );
+      }
+      return <span className="text-xs text-muted-foreground">-</span>;
     case "actions":
       return (
         <Button

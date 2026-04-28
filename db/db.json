@@ -176,7 +176,7 @@
       "mode": "subagent"
     },
     "atlas": {
-      "model": "qwen3.5-plus",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "mimo-v2.5-pro",
         "deepseek-v4-pro",
@@ -212,7 +212,7 @@
       "color": "#945E00"
     },
     "momus": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -294,7 +294,7 @@
       "description": "Frontend, UI/UX, design, estilização e animação."
     },
     "ultrabrain": {
-      "model": "qwen3-coder-plus",
+      "model": "glm-5.1",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",

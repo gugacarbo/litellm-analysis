@@ -36,7 +36,8 @@ export function Sidebar() {
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
     { to: "/model-stats", icon: BarChart3, label: "Stats" },
-
+    { to: "/logs", icon: FileText, label: "Logs" },
+    { to: "/agent-routing", icon: BarChart3, label: "Agents" },
     {
       id: "models",
       icon: Settings,
@@ -46,8 +47,6 @@ export function Sidebar() {
         { to: "/models", label: "Config" },
       ],
     },
-    { to: "/logs", icon: FileText, label: "Logs" },
-    { to: "/agent-routing", icon: BarChart3, label: "Agent Routing" },
   ];
 
   return (

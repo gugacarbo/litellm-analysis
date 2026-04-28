@@ -90,8 +90,12 @@ export interface ErrorLog {
   model: string;
   user: string;
   error_message: string;
+  api_key: string | null;
+  spend_status: string | null;
   timestamp: string;
   status_code: number;
+  litellm_model_name: string | null;
+  request_kwargs: Record<string, unknown> | null;
 }
 
 export interface MetricsSummary {

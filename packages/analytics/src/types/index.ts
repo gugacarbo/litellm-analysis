@@ -106,6 +106,8 @@ export interface SpendLogEntry {
 }
 
 export interface ErrorLogEntry {
+  litellm_model_name: string | null;
+  request_kwargs: Record<string, unknown> | null;
   id: string;
   error_type: string | null;
   model: string | null;
@@ -113,6 +115,8 @@ export interface ErrorLogEntry {
   error_message: string | null;
   timestamp: string;
   status_code: number | null;
+  api_key: string | null;
+  spend_status: string | null;
 }
 
 export interface ModelDetail {

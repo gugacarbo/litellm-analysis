@@ -27,12 +27,16 @@ export async function getErrorLogs(limit = 50, days = 30) {
         model: spendLogs.model,
         user: spendLogs.user,
         error_message:
-          sql<string>`COALESCE(${errorLogs.exceptionString}, 'Request failed')`.mapWith(
+          sql<string>`COALESCE(NULLIF(BTRIM(${errorLogs.exceptionString}), ''), ${spendLogs.status}, 'Request failed')`.mapWith(
             String,
           ),
         timestamp: spendLogs.startTime,
         status_code:
           sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(Number),
+        litellm_model_name: errorLogs.litellmModelName,
+        request_kwargs: errorLogs.requestKwargs,
+        api_key: spendLogs.apiKey,
+        spend_status: spendLogs.status,
       })
       .from(spendLogs)
       .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))
@@ -49,9 +53,19 @@ export async function getErrorLogs(limit = 50, days = 30) {
           ),
         model: spendLogs.model,
         user: spendLogs.user,
-        error_message: sql<string>`'Request failed'`.mapWith(String),
+        error_message:
+          sql<string>`COALESCE(NULLIF(BTRIM(${spendLogs.status}), ''), 'Request failed')`.mapWith(
+            String,
+          ),
         timestamp: spendLogs.startTime,
         status_code: sql<number>`500`.mapWith(Number),
+        litellm_model_name: sql<string>`null`.mapWith(String),
+        request_kwargs: sql<string>`null`.mapWith(String),
+        api_key: spendLogs.apiKey,
+        spend_status:
+          sql<string>`COALESCE(NULLIF(BTRIM(${spendLogs.status}), ''), 'error')`.mapWith(
+            String,
+          ),
       })
       .from(spendLogs)
       .where(whereClause)

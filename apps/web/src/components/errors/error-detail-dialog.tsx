@@ -1,4 +1,12 @@
-import { AlertTriangle, Clock, KeyRound, User } from "lucide-react";
+import {
+  AlertTriangle,
+  Clock,
+  Code2,
+  Cpu,
+  DollarSign,
+  KeyRound,
+  User,
+} from "lucide-react";
 import { formatDateTime, formatFullDateTime } from "../../lib/spend-log-utils";
 import type { ErrorLog } from "../../types/analytics";
 import { Badge } from "../badge";
@@ -45,20 +53,41 @@ function getErrorTypeBadgeClass(type: string): string {
   return "bg-muted text-muted-foreground";
 }
 
+function getSpendStatusBadgeClass(status: string): string {
+  const normalizedStatus = status?.toLowerCase() || "";
+  if (normalizedStatus === "success" || normalizedStatus === "completed") {
+    return "bg-green-500/15 text-green-700 border-green-500/30";
+  }
+  if (normalizedStatus === "error" || normalizedStatus === "failed") {
+    return "bg-red-500/15 text-red-700 border-red-500/30";
+  }
+  if (normalizedStatus === "pending" || normalizedStatus === "processing") {
+    return "bg-amber-500/15 text-amber-700 border-amber-500/30";
+  }
+  return "bg-muted text-muted-foreground";
+}
+
 export function ErrorDetailDialog({
   errorLog,
   open,
   onOpenChange,
 }: ErrorDetailDialogProps) {
   if (!errorLog) return null;
-
+  console.log({ errorLog });
   const statusCode = errorLog.status_code || 0;
   const errorType = errorLog.error_type || "Error";
   const errorMessage = errorLog.error_message || "-";
+  const apiKey = errorLog.api_key;
+  const spendStatus = errorLog.spend_status;
+  const hasRequestKwargs =
+    errorLog.request_kwargs && Object.keys(errorLog.request_kwargs).length > 0;
+  const showLiteLLMModel =
+    errorLog.litellm_model_name &&
+    errorLog.litellm_model_name !== errorLog.model;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[88vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-4xl max-h-[88vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <DialogTitle className="text-sm sm:text-base break-all">
@@ -83,7 +112,7 @@ export function ErrorDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-lg border bg-muted/20 px-3 py-2.5">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
@@ -103,6 +132,35 @@ export function ErrorDetailDialog({
               {statusCode || "N/A"}
             </div>
           </div>
+
+          {spendStatus && (
+            <div className="rounded-lg border bg-muted/20 px-3 py-2.5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <DollarSign className="h-3.5 w-3.5" />
+                Spend Status
+              </div>
+              <div className="mt-1">
+                <Badge
+                  variant="secondary"
+                  className={getSpendStatusBadgeClass(spendStatus)}
+                >
+                  {spendStatus}
+                </Badge>
+              </div>
+            </div>
+          )}
+
+          {showLiteLLMModel && (
+            <div className="rounded-lg border bg-muted/20 px-3 py-2.5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Cpu className="h-3.5 w-3.5" />
+                LiteLLM Model
+              </div>
+              <div className="mt-1 text-sm font-medium font-mono break-all">
+                {errorLog.litellm_model_name}
+              </div>
+            </div>
+          )}
         </div>
 
         <section className="overflow-hidden rounded-lg border">
@@ -122,10 +180,12 @@ export function ErrorDetailDialog({
 
             <div className="grid grid-cols-[120px_1fr] gap-3 px-3 py-2.5">
               <dt className="flex items-center gap-2 text-xs text-muted-foreground">
-                <KeyRound className="h-3.5 w-3.5" />
+                <Cpu className="h-3.5 w-3.5" />
                 Model
               </dt>
-              <dd className="text-sm break-all">{errorLog.model || "-"}</dd>
+              <dd className="text-sm break-all font-mono">
+                {errorLog.model || "-"}
+              </dd>
             </div>
 
             <div className="grid grid-cols-[120px_1fr] gap-3 px-3 py-2.5">
@@ -135,6 +195,16 @@ export function ErrorDetailDialog({
               </dt>
               <dd className="text-sm break-all">{errorLog.user || "-"}</dd>
             </div>
+
+            {apiKey && (
+              <div className="grid grid-cols-[120px_1fr] gap-3 px-3 py-2.5">
+                <dt className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <KeyRound className="h-3.5 w-3.5" />
+                  API Key
+                </dt>
+                <dd className="font-mono text-xs break-all">{apiKey}</dd>
+              </div>
+            )}
           </dl>
         </section>
 
@@ -148,6 +218,22 @@ export function ErrorDetailDialog({
             </pre>
           </div>
         </section>
+
+        {hasRequestKwargs && (
+          <section className="overflow-hidden rounded-lg border">
+            <div className="border-b bg-muted/30 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Code2 className="h-3.5 w-3.5" />
+                Request Parameters
+              </div>
+            </div>
+            <div className="px-3 py-3">
+              <pre className="max-h-80 overflow-auto rounded bg-muted/50 p-3 text-xs whitespace-pre-wrap break-words font-mono">
+                {JSON.stringify(errorLog.request_kwargs, null, 2)}
+              </pre>
+            </div>
+          </section>
+        )}
       </DialogContent>
     </Dialog>
   );

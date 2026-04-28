@@ -4,8 +4,11 @@ export type ErrorColumnKey =
   | "type"
   | "model"
   | "user"
+  | "apiKey"
+  | "spendStatus"
   | "message"
-  | "requestId";
+  | "requestId"
+  | "requestKwargs";
 
 export type ErrorColumn = {
   key: ErrorColumnKey;
@@ -28,8 +31,11 @@ export const ERROR_COLUMNS: ErrorColumn[] = [
   { key: "type", label: "Type" },
   { key: "model", label: "Model" },
   { key: "user", label: "User" },
+  { key: "apiKey", label: "API Key", defaultVisible: false },
+  { key: "spendStatus", label: "Spend Status", defaultVisible: false },
   { key: "message", label: "Message" },
   { key: "requestId", label: "Request ID", defaultVisible: false },
+  { key: "requestKwargs", label: "Has Params", defaultVisible: false },
 ];
 
 export const ACTIONS_COLUMN: TableColumn = {
