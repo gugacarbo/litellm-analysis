@@ -670,10 +670,7 @@ export async function updateRouterSettings(
   );
 }
 
-export async function getDailySpendTrendByModel(
-  modelName: string,
-  days = 30,
-) {
+export async function getDailySpendTrendByModel(modelName: string, days = 30) {
   const whereClause = combineConditions([
     getSpendLogsTimeCondition(normalizeDays(days, 30)),
     eq(spendLogs.model, modelName),
@@ -692,10 +689,7 @@ export async function getDailySpendTrendByModel(
   return result;
 }
 
-export async function getDailyTokenTrendByModel(
-  modelName: string,
-  days = 30,
-) {
+export async function getDailyTokenTrendByModel(modelName: string, days = 30) {
   const whereClause = combineConditions([
     getSpendLogsTimeCondition(normalizeDays(days, 30)),
     eq(spendLogs.model, modelName),
@@ -704,8 +698,9 @@ export async function getDailyTokenTrendByModel(
     .select({
       date: sql`DATE(${spendLogs.startTime})`,
       prompt_tokens: sql`SUM(${spendLogs.promptTokens})`.mapWith(Number),
-      completion_tokens:
-        sql`SUM(${spendLogs.completionTokens})`.mapWith(Number),
+      completion_tokens: sql`SUM(${spendLogs.completionTokens})`.mapWith(
+        Number,
+      ),
       total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
     })
     .from(spendLogs)
@@ -771,10 +766,7 @@ export async function getDailyLatencyTrendByModel(
   return result;
 }
 
-export async function getErrorBreakdownByModel(
-  modelName: string,
-  days = 30,
-) {
+export async function getErrorBreakdownByModel(modelName: string, days = 30) {
   const whereClause = combineConditions([
     getSpendLogsTimeCondition(normalizeDays(days, 30)),
     eq(spendLogs.model, modelName),
@@ -787,9 +779,7 @@ export async function getErrorBreakdownByModel(
           String,
         ),
       count: sql<number>`COUNT(*)`.mapWith(Number),
-      last_occurred: sql<string>`MAX(${spendLogs.startTime})`.mapWith(
-        String,
-      ),
+      last_occurred: sql<string>`MAX(${spendLogs.startTime})`.mapWith(String),
     })
     .from(spendLogs)
     .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))
@@ -802,10 +792,7 @@ export async function getErrorBreakdownByModel(
   return result;
 }
 
-export async function getDailyErrorTrendByModel(
-  modelName: string,
-  days = 30,
-) {
+export async function getDailyErrorTrendByModel(modelName: string, days = 30) {
   const whereClause = combineConditions([
     getSpendLogsTimeCondition(normalizeDays(days, 30)),
     eq(spendLogs.model, modelName),

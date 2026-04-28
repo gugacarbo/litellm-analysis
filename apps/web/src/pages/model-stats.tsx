@@ -1,15 +1,15 @@
-import { Toaster } from '../components/sonner';
-import { DeleteModelLogsDialog } from '../components/model-stats/delete-model-logs-dialog';
-import { MergeModelLogsDialog } from '../components/model-stats/merge-model-logs-dialog';
-import { ModelStatsCharts } from '../components/model-stats/model-stats-charts';
-import { ModelStatsDataTable } from '../components/model-stats/model-stats-data-table';
-import { ModelStatsHeader } from '../components/model-stats/model-stats-header';
-import { ModelStatsMergePanel } from '../components/model-stats/model-stats-merge-panel';
-import { ModelStatsSummaryCards } from '../components/model-stats/model-stats-summary-cards';
-import { ModelStatsTopTables } from '../components/model-stats/model-stats-top-tables';
-import { Card, CardContent } from '../components/card';
-import { MODEL_STATS_COLUMNS } from './model-stats/model-stats-types';
-import { useModelStatsPageState } from './model-stats/use-model-stats-page';
+import { Card, CardContent } from "../components/card";
+import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
+import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
+import { ModelStatsCharts } from "../components/model-stats/model-stats-charts";
+import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
+import { ModelStatsHeader } from "../components/model-stats/model-stats-header";
+import { ModelStatsMergePanel } from "../components/model-stats/model-stats-merge-panel";
+import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
+import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
+import { Toaster } from "../components/sonner";
+import { MODEL_STATS_COLUMNS } from "./model-stats/model-stats-types";
+import { useModelStatsPageState } from "./model-stats/use-model-stats-page";
 
 export function ModelStatsPage() {
   const state = useModelStatsPageState();

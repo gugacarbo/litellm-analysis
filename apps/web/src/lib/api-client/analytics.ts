@@ -156,7 +156,12 @@ export async function getModelDailySpend(
     request_count: number;
   }[]
 > {
-  return fetchApi(withDays(`/analytics/model-daily-spend?model=${encodeURIComponent(model)}`, days));
+  return fetchApi(
+    withDays(
+      `/analytics/model-daily-spend?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
 }
 
 export async function getModelDailyTokens(
@@ -170,7 +175,12 @@ export async function getModelDailyTokens(
     total_tokens: number;
   }[]
 > {
-  return fetchApi(withDays(`/analytics/model-daily-tokens?model=${encodeURIComponent(model)}`, days));
+  return fetchApi(
+    withDays(
+      `/analytics/model-daily-tokens?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
 }
 
 export async function getModelHourlyUsage(
@@ -184,7 +194,12 @@ export async function getModelHourlyUsage(
     total_tokens: number;
   }[]
 > {
-  return fetchApi(withDays(`/analytics/model-hourly-usage?model=${encodeURIComponent(model)}`, days));
+  return fetchApi(
+    withDays(
+      `/analytics/model-hourly-usage?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
 }
 
 export async function getModelLatencyTrend(
@@ -199,7 +214,12 @@ export async function getModelLatencyTrend(
     p99_latency_ms: number;
   }[]
 > {
-  return fetchApi(withDays(`/analytics/model-latency-trend?model=${encodeURIComponent(model)}`, days));
+  return fetchApi(
+    withDays(
+      `/analytics/model-latency-trend?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
 }
 
 export async function getModelErrorBreakdown(
@@ -212,12 +232,22 @@ export async function getModelErrorBreakdown(
     last_occurred: string;
   }[]
 > {
-  return fetchApi(withDays(`/analytics/model-error-breakdown?model=${encodeURIComponent(model)}`, days));
+  return fetchApi(
+    withDays(
+      `/analytics/model-error-breakdown?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
 }
 
 export async function getModelDailyErrors(
   model: string,
   days?: number,
 ): Promise<{ date: string; error_count: number }[]> {
-  return fetchApi(withDays(`/analytics/model-daily-errors?model=${encodeURIComponent(model)}`, days));
+  return fetchApi(
+    withDays(
+      `/analytics/model-daily-errors?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
 }

@@ -10,24 +10,24 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
-import type {
-  CostEfficiency,
-  ModelDistribution,
-  TokenDistribution,
-} from '../../types/analytics';
-import {
-  formatCurrency,
-  formatNumber,
-} from '../../pages/model-stats/model-stats-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { ChartTooltipContent } from '../chart-tooltip';
-import { Skeleton } from '../skeleton';
+} from "recharts";
 import {
   CHART_HEIGHT,
   MODEL_STATS_CHART_COLORS,
   TOP_N_MODELS,
-} from '../../pages/model-stats/model-stats-chart-utils';
+} from "../../pages/model-stats/model-stats-chart-utils";
+import {
+  formatCurrency,
+  formatNumber,
+} from "../../pages/model-stats/model-stats-utils";
+import type {
+  CostEfficiency,
+  ModelDistribution,
+  TokenDistribution,
+} from "../../types/analytics";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { ChartTooltipContent } from "../chart-tooltip";
+import { Skeleton } from "../skeleton";
 
 type ModelStatsChartsProps = {
   loading: boolean;
@@ -164,9 +164,7 @@ export function ModelStatsCharts({
                 <Tooltip
                   content={<ChartTooltipContent />}
                   formatter={(value, _name, item) => {
-                    const pct = Number(
-                      item?.payload?.percentage ?? 0,
-                    );
+                    const pct = Number(item?.payload?.percentage ?? 0);
                     return `${formatNumber(Number(value))} (${pct.toFixed(1)}%)`;
                   }}
                 />
@@ -204,10 +202,7 @@ export function ModelStatsCharts({
                   content={<ChartTooltipContent />}
                   formatter={(v) => formatCurrency(Number(v))}
                 />
-                <Bar
-                  dataKey="total_spend"
-                  fill={MODEL_STATS_CHART_COLORS[0]}
-                />
+                <Bar dataKey="total_spend" fill={MODEL_STATS_CHART_COLORS[0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : null}

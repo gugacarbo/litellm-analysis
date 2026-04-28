@@ -8,13 +8,15 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
-import type { ModelDailyTokenTrend } from '../../pages/model-detail/model-detail-types';
-import { formatNumber } from '../../pages/model-detail/model-detail-utils';
-import { CHART_HEIGHT } from '../../pages/model-detail/model-detail-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { ChartTooltipContent } from '../chart-tooltip';
-import { Skeleton } from '../skeleton';
+} from "recharts";
+import type { ModelDailyTokenTrend } from "../../pages/model-detail/model-detail-types";
+import {
+  CHART_HEIGHT,
+  formatNumber,
+} from "../../pages/model-detail/model-detail-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { ChartTooltipContent } from "../chart-tooltip";
+import { Skeleton } from "../skeleton";
 
 type Props = {
   data: ModelDailyTokenTrend[];

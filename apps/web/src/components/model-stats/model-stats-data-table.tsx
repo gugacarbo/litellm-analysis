@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import type {
   Column,
   ColumnKey,
   ModelStats,
   SortDirection,
   SortField,
-} from '../../pages/model-stats/model-stats-types';
+} from "../../pages/model-stats/model-stats-types";
 import {
   formatCurrency,
   formatDate,
@@ -115,11 +115,11 @@ export function ModelStatsDataTable({
                             let value: React.ReactNode = null;
 
                             switch (col.key) {
-                              case 'model':
+                              case "model":
                                 value = (
                                   <Link
                                     to={`/model/${encodeURIComponent(modelName)}`}
-                                    className='font-medium font-mono text-xs whitespace-nowrap hover:underline'
+                                    className="font-medium font-mono text-xs whitespace-nowrap hover:underline"
                                   >
                                     {modelLabel}
                                   </Link>

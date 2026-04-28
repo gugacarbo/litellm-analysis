@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import type { ModelStats, SortDirection, SortField } from './model-stats-types';
+import { useMemo } from "react";
+import type { ModelStats, SortDirection, SortField } from "./model-stats-types";
 
 export function useModelStatsDerived(
   data: ModelStats[],
@@ -10,10 +10,8 @@ export function useModelStatsDerived(
   const filteredData = useMemo(
     () =>
       data.filter((m) => {
-        const modelName = m.model ?? '';
-        return modelName
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        const modelName = m.model ?? "";
+        return modelName.toLowerCase().includes(searchQuery.toLowerCase());
       }),
     [data, searchQuery],
   );
@@ -23,12 +21,12 @@ export function useModelStatsDerived(
       [...filteredData].sort((a, b) => {
         const aVal = a[sortField];
         const bVal = b[sortField];
-        if (typeof aVal === 'string' && typeof bVal === 'string') {
-          return sortDirection === 'asc'
+        if (typeof aVal === "string" && typeof bVal === "string") {
+          return sortDirection === "asc"
             ? aVal.localeCompare(bVal)
             : bVal.localeCompare(aVal);
         }
-        return sortDirection === 'asc'
+        return sortDirection === "asc"
           ? Number(aVal) - Number(bVal)
           : Number(bVal) - Number(aVal);
       }),
@@ -54,8 +52,7 @@ export function useModelStatsDerived(
     () =>
       totalRequests > 0
         ? data.reduce(
-            (sum, m) =>
-              sum + Number(m.success_rate) * Number(m.request_count),
+            (sum, m) => sum + Number(m.success_rate) * Number(m.request_count),
             0,
           ) / totalRequests
         : 0,

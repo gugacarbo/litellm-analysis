@@ -1,35 +1,31 @@
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   getCostEfficiencyByModel,
   getModelRequestDistribution,
   getModelStatistics,
   getTokenDistribution,
-} from '../../lib/api-client';
-import { queryKeys } from '../../lib/query-keys';
-import type { DashboardDateRangeKey } from '../dashboard/dashboard-types';
-import { getDateRangeDays } from '../dashboard/dashboard-utils';
-import type {
-  ColumnKey,
-  SortDirection,
-  SortField,
-} from './model-stats-types';
-import { MODEL_STATS_COLUMNS } from './model-stats-types';
+} from "../../lib/api-client";
+import { queryKeys } from "../../lib/query-keys";
+import type { DashboardDateRangeKey } from "../dashboard/dashboard-types";
+import { getDateRangeDays } from "../dashboard/dashboard-utils";
+import type { ColumnKey, SortDirection, SortField } from "./model-stats-types";
+import { MODEL_STATS_COLUMNS } from "./model-stats-types";
 
 export function useModelStatsState() {
   const [selectedDateRange, setSelectedDateRange] =
-    useState<DashboardDateRangeKey>('30d');
+    useState<DashboardDateRangeKey>("30d");
   const rangeDays = getDateRangeDays(selectedDateRange);
 
-  const [sortField, setSortField] = useState<SortField>('total_spend');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [sortField, setSortField] = useState<SortField>("total_spend");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [searchQuery, setSearchQuery] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<ColumnKey[]>(() =>
     MODEL_STATS_COLUMNS.filter((c) => c.default).map((c) => c.key),
   );
   const [mergeMode, setMergeMode] = useState(false);
-  const [sourceModel, setSourceModel] = useState('');
-  const [targetModel, setTargetModel] = useState('');
+  const [sourceModel, setSourceModel] = useState("");
+  const [targetModel, setTargetModel] = useState("");
   const [merging, setMerging] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

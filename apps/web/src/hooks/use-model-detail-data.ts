@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import {
   getCostEfficiencyByModel,
   getModelDailyErrors,
@@ -8,11 +8,11 @@ import {
   getModelErrorBreakdown,
   getModelHourlyUsage,
   getModelLatencyTrend,
-  getModelStatistics,
   getModelRequestDistribution,
+  getModelStatistics,
   getTokenDistribution,
-} from '../lib/api-client';
-import { queryKeys } from '../lib/query-keys';
+} from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
 import type {
   ModelDailyErrorTrend,
   ModelDailyLatencyTrend,
@@ -22,15 +22,12 @@ import type {
   ModelErrorBreakdown,
   ModelHourlyUsage,
   ModelUser,
-} from '../pages/model-detail/model-detail-types';
+} from "../pages/model-detail/model-detail-types";
 
 const DEFAULT_DAYS = 30;
 const AUTO_REFRESH_MS = 30_000;
 
-export function useModelDetailData(
-  modelName: string,
-  days = DEFAULT_DAYS,
-) {
+export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
   const modelStatsQuery = useQuery({
     queryKey: queryKeys.modelStatistics(days),
     queryFn: () => getModelStatistics(days),
@@ -116,9 +113,7 @@ export function useModelDetailData(
     allQueries.every((q) => q.isPending) &&
     allQueries.every((q) => q.data === undefined);
 
-  const firstError = allQueries.find(
-    (q) => q.error instanceof Error,
-  )?.error;
+  const firstError = allQueries.find((q) => q.error instanceof Error)?.error;
 
   const error = firstError instanceof Error ? firstError.message : null;
 
@@ -144,19 +139,16 @@ export function useModelDetailData(
       p99LatencyMs: Number(modelData.p99_latency_ms || 0),
       successRate: Number(modelData.success_rate || 0),
       errorCount: Number(modelData.error_count || 0),
-      firstSeen: modelData.first_seen ?? '',
-      lastSeen: modelData.last_seen ?? '',
+      firstSeen: modelData.first_seen ?? "",
+      lastSeen: modelData.last_seen ?? "",
       rank: modelStats.findIndex((m) => m.model === modelName) + 1,
       percentOfTotal:
-        totalSpend > 0
-          ? (Number(modelData.total_spend) / totalSpend) * 100
-          : 0,
+        totalSpend > 0 ? (Number(modelData.total_spend) / totalSpend) * 100 : 0,
       uniqueUsers: Number(modelData.unique_users || 0),
       uniqueApiKeys: Number(modelData.unique_api_keys || 0),
       costPer1kTokens:
         Number(modelData.total_tokens || 0) > 0
-          ? (Number(modelData.total_spend) /
-              Number(modelData.total_tokens)) *
+          ? (Number(modelData.total_spend) / Number(modelData.total_tokens)) *
             1000
           : 0,
     };
@@ -210,9 +202,9 @@ export function useModelDetailData(
   const errorBreakdown = useMemo<ModelErrorBreakdown[]>(
     () =>
       (errorBreakdownQuery.data ?? []).map((item) => ({
-        errorType: String(item.error_type ?? ''),
+        errorType: String(item.error_type ?? ""),
         count: Number(item.count),
-        lastOccurred: item.last_occurred ?? '',
+        lastOccurred: item.last_occurred ?? "",
       })),
     [errorBreakdownQuery.data],
   );

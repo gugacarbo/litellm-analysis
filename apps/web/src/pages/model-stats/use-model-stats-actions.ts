@@ -1,9 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import { toast } from 'sonner';
-import { deleteModelLogs, mergeModels } from '../../lib/api-client';
-import { queryKeys } from '../../lib/query-keys';
-import type { ColumnKey, ModelStats, SortDirection, SortField } from './model-stats-types';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { toast } from "sonner";
+import { deleteModelLogs, mergeModels } from "../../lib/api-client";
+import { queryKeys } from "../../lib/query-keys";
+import type {
+  ColumnKey,
+  ModelStats,
+  SortDirection,
+  SortField,
+} from "./model-stats-types";
 
 type SetSortField = (f: SortField) => void;
 type SetSortDirection = (d: SortDirection) => void;
@@ -27,7 +32,9 @@ export function useModelStatsActions(
   setDeleteDialogOpen: SetBoolean,
   setMergeDialogOpen: SetBoolean,
   setMergeMode: SetBoolean,
-  setVisibleColumns: (fn: ColumnKey[] | ((prev: ColumnKey[]) => ColumnKey[])) => void,
+  setVisibleColumns: (
+    fn: ColumnKey[] | ((prev: ColumnKey[]) => ColumnKey[]),
+  ) => void,
 ) {
   const queryClient = useQueryClient();
 
@@ -43,11 +50,11 @@ export function useModelStatsActions(
   const handleSort = useCallback(
     (field: SortField) => {
       if (sortField === field) {
-        setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc');
+        setSortDirection(sortDirection === "desc" ? "asc" : "desc");
         return;
       }
       setSortField(field);
-      setSortDirection(field === 'model' ? 'asc' : 'desc');
+      setSortDirection(field === "model" ? "asc" : "desc");
     },
     [sortField, sortDirection, setSortField, setSortDirection],
   );
@@ -72,11 +79,11 @@ export function useModelStatsActions(
   const handleDelete = useCallback(async () => {
     const modelName = deleting;
     if (modelName === null) return;
-    const modelLabel = modelName.trim() ? modelName : '(no model)';
+    const modelLabel = modelName.trim() ? modelName : "(no model)";
     setDeleteDialogOpen(false);
     setDeleting(modelName);
     const isUndefined = (value: string | null | undefined): boolean =>
-      !value || value.trim() === '';
+      !value || value.trim() === "";
     try {
       await deleteModelLogsMutation.mutateAsync(modelName);
       queryClient.setQueryData<ModelStats[]>(
@@ -84,7 +91,7 @@ export function useModelStatsActions(
         (previous) => {
           const current = previous ?? [];
           return current.filter((m) =>
-            modelName.trim() === ''
+            modelName.trim() === ""
               ? !isUndefined(m.model)
               : m.model !== modelName,
           );
@@ -92,7 +99,7 @@ export function useModelStatsActions(
       );
       toast.success(`Deleted logs for model "${modelLabel}"`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to delete');
+      toast.error(err instanceof Error ? err.message : "Failed to delete");
     } finally {
       setDeleting(null);
     }
@@ -107,11 +114,11 @@ export function useModelStatsActions(
 
   const handleMerge = useCallback(() => {
     if (!sourceModel || !targetModel) {
-      toast.warning('Please select both source and target models');
+      toast.warning("Please select both source and target models");
       return;
     }
     if (sourceModel === targetModel) {
-      toast.warning('Source and target models must be different');
+      toast.warning("Source and target models must be different");
       return;
     }
     setMergeDialogOpen(true);
@@ -126,13 +133,11 @@ export function useModelStatsActions(
         queryKey: queryKeys.modelStatistics(rangeDays),
       });
       setMergeMode(false);
-      setSourceModel('');
-      setTargetModel('');
-      toast.success(
-        `Merged logs from "${sourceModel}" into "${targetModel}"`,
-      );
+      setSourceModel("");
+      setTargetModel("");
+      toast.success(`Merged logs from "${sourceModel}" into "${targetModel}"`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to merge');
+      toast.error(err instanceof Error ? err.message : "Failed to merge");
     } finally {
       setMerging(false);
     }

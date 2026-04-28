@@ -345,11 +345,11 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   ): Promise<ModelErrorBreakdown[]> {
     const result = await getErrorBreakdownByModel(model, days);
     return result.map((item) => ({
-      error_type: String(item.error_type ?? ''),
+      error_type: String(item.error_type ?? ""),
       count: Number(item.count),
       last_occurred: item.last_occurred
         ? new Date(item.last_occurred).toISOString()
-        : '',
+        : "",
     }));
   }
 

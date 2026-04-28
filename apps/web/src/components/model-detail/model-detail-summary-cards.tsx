@@ -1,12 +1,12 @@
-import type { ModelDetailSummary } from '../../pages/model-detail/model-detail-types';
+import type { ModelDetailSummary } from "../../pages/model-detail/model-detail-types";
 import {
   formatCurrency,
   formatDuration,
   formatNumber,
   formatPercent,
-} from '../../pages/model-detail/model-detail-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+} from "../../pages/model-detail/model-detail-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 
 type Props = {
   summary: ModelDetailSummary | null;
@@ -16,20 +16,20 @@ type Props = {
 export function ModelDetailSummaryCards({ summary, loading }: Props) {
   const cards = [
     {
-      title: 'Total Spend',
-      value: summary ? formatCurrency(summary.totalSpend) : '-',
+      title: "Total Spend",
+      value: summary ? formatCurrency(summary.totalSpend) : "-",
     },
     {
-      title: 'Total Requests',
-      value: summary ? formatNumber(summary.totalRequests) : '-',
+      title: "Total Requests",
+      value: summary ? formatNumber(summary.totalRequests) : "-",
     },
     {
-      title: 'Avg Latency',
-      value: summary ? formatDuration(summary.avgLatencyMs) : '-',
+      title: "Avg Latency",
+      value: summary ? formatDuration(summary.avgLatencyMs) : "-",
     },
     {
-      title: 'Success Rate',
-      value: summary ? formatPercent(summary.successRate) : '-',
+      title: "Success Rate",
+      value: summary ? formatPercent(summary.successRate) : "-",
     },
   ];
 
@@ -38,9 +38,7 @@ export function ModelDetailSummaryCards({ summary, loading }: Props) {
       {cards.map((card) => (
         <Card key={card.title}>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              {card.title}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (

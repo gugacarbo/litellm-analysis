@@ -141,10 +141,7 @@ export function registerAnalyticsRoutes(
     }
     try {
       const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getDailyLatencyTrendByModel(
-        model,
-        days,
-      );
+      const data = await dataSource.getDailyLatencyTrendByModel(model, days);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });

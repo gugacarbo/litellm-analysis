@@ -7,13 +7,15 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
-import type { ModelDailyLatencyTrend } from '../../pages/model-detail/model-detail-types';
-import { formatDuration } from '../../pages/model-detail/model-detail-utils';
-import { CHART_HEIGHT } from '../../pages/model-detail/model-detail-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { ChartTooltipContent } from '../chart-tooltip';
-import { Skeleton } from '../skeleton';
+} from "recharts";
+import type { ModelDailyLatencyTrend } from "../../pages/model-detail/model-detail-types";
+import {
+  CHART_HEIGHT,
+  formatDuration,
+} from "../../pages/model-detail/model-detail-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { ChartTooltipContent } from "../chart-tooltip";
+import { Skeleton } from "../skeleton";
 
 type Props = {
   data: ModelDailyLatencyTrend[];

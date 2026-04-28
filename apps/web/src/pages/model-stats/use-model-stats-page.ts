@@ -1,6 +1,6 @@
-import { useModelStatsActions } from './use-model-stats-actions';
-import { useModelStatsDerived } from './use-model-stats-derived';
-import { useModelStatsState } from './use-model-stats-state';
+import { useModelStatsActions } from "./use-model-stats-actions";
+import { useModelStatsDerived } from "./use-model-stats-derived";
+import { useModelStatsState } from "./use-model-stats-state";
 
 export function useModelStatsPageState() {
   const state = useModelStatsState();
