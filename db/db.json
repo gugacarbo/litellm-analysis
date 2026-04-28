@@ -151,7 +151,7 @@
       "tools": {}
     },
     "oracle": {
-      "model": "deepseek-v4-pro",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -169,7 +169,11 @@
         "MiniMax-M2.7-highspeed",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos."
+      "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos.",
+      "color": "#850047",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
     },
     "atlas": {
       "model": "qwen3.5-plus",
@@ -180,7 +184,10 @@
         "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
-      "color": "#F0FF1A"
+      "color": "#AD7F00",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
     },
     "sisyphus-junior": {
       "model": "deepseek-v4-flash",
@@ -212,7 +219,11 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha."
+      "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha.",
+      "color": "#300B99",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
     },
     "prometheus": {
       "model": "MiniMax-M2.7-highspeed",
@@ -250,7 +261,11 @@
         "deepseek-v4-flash",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais."
+      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
+      "color": "#006894",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
     },
     "metis": {
       "model": "deepseek-v4-pro",
@@ -261,8 +276,10 @@
         "MiniMax-M2.7-highspeed"
       ],
       "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
-      "color": "#0FE000",
-      "disable": false
+      "color": "#00B356",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
     }
   },
   "categories": {

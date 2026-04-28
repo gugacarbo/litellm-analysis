@@ -74,10 +74,10 @@ export function AgentRoutingPage() {
         <TabsContent value="categories" className="mt-4">
           <AgentRoutingCategoriesTab
             loading={state.loading}
-            saving={state.saving}
             categories={CATEGORY_DEFINITIONS}
+            models={state.models}
             onOpenCategoryConfig={state.openCategoryConfig}
-            onDeleteCategoryConfig={state.handleDeleteCategoryConfig}
+            onQuickModelChange={state.handleQuickCategoryModelChange}
             getCategoryConfigInfo={state.getCategoryConfigInfo}
           />
         </TabsContent>

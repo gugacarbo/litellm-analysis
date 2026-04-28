@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "../card";
 import { Skeleton } from "../skeleton";
 
 type ModelStatsTopTablesProps = {
- data: ModelStats[];
- loading: boolean;
- rangeLabel: string;
+  data: ModelStats[];
+  loading: boolean;
+  rangeLabel: string;
 };
 
 function BarRow({

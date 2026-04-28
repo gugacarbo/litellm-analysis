@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import {
   getAgentConfig,
   getAgentRoutingConfig,
-  getGlobalFallbackModel,
   getAllModels,
+  getGlobalFallbackModel,
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
 import type {

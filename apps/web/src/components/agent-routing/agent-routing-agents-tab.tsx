@@ -1,14 +1,14 @@
-import { ChevronDown, ChevronRight, Zap } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  LayersIcon,
+  UserIcon,
+  Zap,
+} from "lucide-react";
 import { useState } from "react";
 import type { AgentDefinition } from "../../types/agent-routing";
 import { Badge } from "../badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../card";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
 import { AgentFocusView } from "./agent-focus-view";
 import { ModelFocusView } from "./model-focus-view";
 
@@ -43,23 +43,38 @@ export function AgentRoutingAgentsTab({
     return Boolean(config && config.model !== "Unassigned");
   }).length;
 
+  const totalFallbacks = agents.reduce((sum, agent) => {
+    const config = getAgentConfigInfo(agent.key);
+    return sum + (config?.fallbackCount ?? 0);
+  }, 0);
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center flex-1 justify-between gap-4">
             <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
+              <Zap className="size-5" />
               Agent Routing
             </CardTitle>
-            <Badge variant="outline">
-              {configuredAgentsCount}/{agents.length} configured
-            </Badge>
+            <div className="flex items-center text-muted-foreground gap-4 ">
+              <div className=" flex items-center gap-1.5">
+                <UserIcon className="size-4" />
+                <span className="text-sm text-foreground">
+                  <span className="font-medium ">{configuredAgentsCount}</span>/
+                  {agents.length} configured
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <LayersIcon className="size-4" />
+                <span className="text-sm text-foreground">
+                  <span className="font-medium text-foreground">
+                    {totalFallbacks}
+                  </span>{" "}
+                  fallback{totalFallbacks === 1 ? "" : "s"}
+                </span>
+              </div>
+            </div>
           </div>
-          <CardDescription>
-            Gerencie rapidamente qual modelo cada agente está utilizando.
-            Clique no dropdown para trocar.
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <AgentFocusView

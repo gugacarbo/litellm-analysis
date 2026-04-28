@@ -27,16 +27,30 @@ describe("AgentRoutingPage", () => {
   };
 
   const mockModels = [
-    { modelName: "qwen3.5-plus", litellmParams: { api_base: "https://api.openai.com" } },
-    { modelName: "gpt-3.5-turbo", litellmParams: { api_base: "https://api.openai.com" } },
-    { modelName: "kimi-k2.5", litellmParams: { api_base: "https://api.anthropic.com" } },
-    { modelName: "glm-5", litellmParams: { api_base: "https://api.anthropic.com" } },
+    {
+      modelName: "qwen3.5-plus",
+      litellmParams: { api_base: "https://api.openai.com" },
+    },
+    {
+      modelName: "gpt-3.5-turbo",
+      litellmParams: { api_base: "https://api.openai.com" },
+    },
+    {
+      modelName: "kimi-k2.5",
+      litellmParams: { api_base: "https://api.anthropic.com" },
+    },
+    {
+      modelName: "glm-5",
+      litellmParams: { api_base: "https://api.anthropic.com" },
+    },
   ];
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getAgentConfig).mockResolvedValue({ agents: {}, categories: {} });
-    vi.mocked(getGlobalFallbackModel).mockResolvedValue({ globalFallbackModel: "gpt-5.1" });
+    vi.mocked(getGlobalFallbackModel).mockResolvedValue({
+      globalFallbackModel: "gpt-5.1",
+    });
     vi.mocked(getAllModels).mockResolvedValueOnce(mockModels);
   });
 
@@ -63,7 +77,10 @@ describe("AgentRoutingPage", () => {
     it("deve mostrar modelos atribuídos corretamente", async () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce(mockRoutingConfig);
       vi.mocked(getAgentConfig).mockResolvedValueOnce({
-        agents: { sisyphus: { model: "qwen3.5-plus" }, oracle: { model: "kimi-k2.5" } },
+        agents: {
+          sisyphus: { model: "qwen3.5-plus" },
+          oracle: { model: "kimi-k2.5" },
+        },
         categories: {},
       });
       renderWithQueryClient(<AgentRoutingPage />);
@@ -77,7 +94,9 @@ describe("AgentRoutingPage", () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce({});
       renderWithQueryClient(<AgentRoutingPage />);
       await waitFor(() => {
-        expect(screen.getByRole("tab", { name: "Categories" })).toBeInTheDocument();
+        expect(
+          screen.getByRole("tab", { name: "Categories" }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -102,11 +121,15 @@ describe("AgentRoutingPage", () => {
         expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
       // Find edit button by palette icon inside agent card and click
-      const paletteButtons = document.querySelectorAll('button[title="Edit configuration"]');
+      const paletteButtons = document.querySelectorAll(
+        'button[title="Edit configuration"]',
+      );
       if (paletteButtons.length > 0) {
         await userEvent.click(paletteButtons[0]);
         await waitFor(() => {
-          expect(screen.getByText(/Edit Agent Configuration:/)).toBeInTheDocument();
+          expect(
+            screen.getByText(/Edit Agent Configuration:/),
+          ).toBeInTheDocument();
         });
       }
     });
@@ -117,16 +140,22 @@ describe("AgentRoutingPage", () => {
       await waitFor(() => {
         expect(screen.getByText("Sisyphus")).toBeInTheDocument();
       });
-      const paletteButtons = document.querySelectorAll('button[title="Edit configuration"]');
+      const paletteButtons = document.querySelectorAll(
+        'button[title="Edit configuration"]',
+      );
       if (paletteButtons.length > 0) {
         await userEvent.click(paletteButtons[0]);
         await waitFor(() => {
-          expect(screen.getByText(/Edit Agent Configuration:/)).toBeInTheDocument();
+          expect(
+            screen.getByText(/Edit Agent Configuration:/),
+          ).toBeInTheDocument();
         });
         const cancelButton = screen.getByRole("button", { name: /Cancel/i });
         await userEvent.click(cancelButton);
         await waitFor(() => {
-          expect(screen.queryByText(/Edit Agent Configuration:/)).not.toBeInTheDocument();
+          expect(
+            screen.queryByText(/Edit Agent Configuration:/),
+          ).not.toBeInTheDocument();
         });
       }
     });
@@ -135,7 +164,9 @@ describe("AgentRoutingPage", () => {
       vi.mocked(getAgentRoutingConfig).mockResolvedValueOnce({});
       renderWithQueryClient(<AgentRoutingPage />);
       await waitFor(() => {
-        expect(screen.getByRole("tab", { name: "Categories" })).toBeInTheDocument();
+        expect(
+          screen.getByRole("tab", { name: "Categories" }),
+        ).toBeInTheDocument();
       });
       await userEvent.click(screen.getByRole("tab", { name: "Categories" }));
       await waitFor(() => {
@@ -151,7 +182,9 @@ describe("AgentRoutingPage", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
         expect(screen.getByRole("tab", { name: "Agents" })).toBeInTheDocument();
-        expect(screen.getByRole("tab", { name: "Categories" })).toBeInTheDocument();
+        expect(
+          screen.getByRole("tab", { name: "Categories" }),
+        ).toBeInTheDocument();
       });
     });
   });

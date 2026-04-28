@@ -1,7 +1,7 @@
 import { Check, Layers, Palette } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../../lib/utils";
-import type { AgentDefinition } from "../../types/agent-routing";
+import type { CategoryDefinition } from "../../types/agent-routing";
 import { Button } from "../button";
 import {
   Select,
@@ -14,25 +14,24 @@ import {
 type ConfigInfo = {
   model: string;
   description?: string;
-  color?: string;
   fallbackCount: number;
 };
 
 type Props = {
   loading: boolean;
-  agents: AgentDefinition[];
+  categories: CategoryDefinition[];
   models: string[];
-  getAgentConfigInfo: (key: string) => ConfigInfo | null;
-  onOpenAgentConfig: (key: string) => void;
-  onQuickModelChange: (agentKey: string, model: string) => void;
+  getCategoryConfigInfo: (key: string) => ConfigInfo | null;
+  onOpenCategoryConfig: (key: string) => void;
+  onQuickModelChange: (categoryKey: string, model: string) => void;
 };
 
-export function AgentFocusView({
+export function CategoryFocusView({
   loading,
-  agents,
+  categories,
   models,
-  getAgentConfigInfo,
-  onOpenAgentConfig,
+  getCategoryConfigInfo,
+  onOpenCategoryConfig,
   onQuickModelChange,
 }: Props) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -49,21 +48,47 @@ export function AgentFocusView({
     );
   }
 
-  const rows = agents.map((agent) => {
-    const configInfo = getAgentConfigInfo(agent.key);
+  const rows = categories.map((category) => {
+    const configInfo = getCategoryConfigInfo(category.key);
     return {
-      agent,
+      category,
       configInfo,
       hasPrimaryModel: Boolean(configInfo && configInfo.model !== "Unassigned"),
     };
   });
 
+  const configuredCount = rows.filter((row) => row.hasPrimaryModel).length;
+  const totalFallbacks = rows.reduce(
+    (sum, row) => sum + (row.configInfo?.fallbackCount || 0),
+    0,
+  );
+
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5">
+          <span className="font-medium text-foreground">
+            {configuredCount}
+          </span>
+          <span>
+            /{categories.length} configured
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Layers className="h-3 w-3" />
+          <span>
+            <span className="font-medium text-foreground">
+              {totalFallbacks}
+            </span>{" "}
+            fallback{totalFallbacks === 1 ? "" : "s"}
+          </span>
+        </div>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {rows.map(({ agent, configInfo, hasPrimaryModel }) => (
+        {rows.map(({ category, configInfo, hasPrimaryModel }) => (
           <div
-            key={agent.key}
+            key={category.key}
             className={cn(
               "group relative flex flex-col rounded-xl border overflow-hidden p-3 transition-all duration-200",
               hasPrimaryModel
@@ -71,29 +96,19 @@ export function AgentFocusView({
                 : "border-dashed border-amber-500/30 bg-amber-500/5 hover:border-amber-500/50",
             )}
           >
-            {configInfo?.color && (
-              <div
-                className="absolute inset-x-0 top-0 h-1 rounded-t-xl"
-                style={{ backgroundColor: configInfo.color }}
-              />
-            )}
-
             <div className="flex items-start justify-between gap-2">
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <span className="text-xl">{agent.icon}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{agent.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {configInfo?.description || agent.description}
-                  </p>
-                </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{category.name}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {configInfo?.description || category.description}
+                </p>
               </div>
 
               <Button
                 variant="ghost"
                 size="icon-sm"
                 className="h-7 w-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() => onOpenAgentConfig(agent.key)}
+                onClick={() => onOpenCategoryConfig(category.key)}
               >
                 <Palette className="h-3.5 w-3.5" />
               </Button>
@@ -106,12 +121,12 @@ export function AgentFocusView({
               <Select
                 value={hasPrimaryModel ? configInfo?.model : ""}
                 onValueChange={(value) => {
-                  onQuickModelChange(agent.key, value);
+                  onQuickModelChange(category.key, value);
                   setOpenDropdown(null);
                 }}
-                open={openDropdown === agent.key}
+                open={openDropdown === category.key}
                 onOpenChange={(open) =>
-                  setOpenDropdown(open ? agent.key : null)
+                  setOpenDropdown(open ? category.key : null)
                 }
               >
                 <SelectTrigger className="h-8 w-full justify-between font-mono text-xs">

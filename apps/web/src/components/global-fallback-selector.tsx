@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Globe, ChevronDown } from "lucide-react";
+import { ChevronDown, Globe } from "lucide-react";
 import { useState } from "react";
 import { getAllModels, type ModelConfig } from "../lib/api-client";
 import { queryKeys } from "../lib/query-keys";
@@ -60,7 +60,8 @@ export function GlobalFallbackSelector({
         <div className="max-h-[300px] overflow-y-auto mt-2">
           <div className="space-y-1">
             {availableModels.map((model) => (
-              <button type="button"
+              <button
+                type="button"
                 key={model.modelName}
                 onClick={() => handleSelect(model.modelName)}
                 className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${

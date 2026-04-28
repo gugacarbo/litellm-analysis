@@ -168,7 +168,13 @@ export function ModelStatsPage() {
 
       <ModelStatsSummaryCards
         loading={loading}
-        rangeLabel={state.rangeDays === 1 ? "today" : state.rangeDays === 7 ? "7 days" : `${state.rangeDays} days`}
+        rangeLabel={
+          state.rangeDays === 1
+            ? "today"
+            : state.rangeDays === 7
+              ? "7 days"
+              : `${state.rangeDays} days`
+        }
         totalSpend={totalSpend}
         totalRequests={totalRequests}
         totalTokens={totalTokens}
@@ -195,10 +201,16 @@ export function ModelStatsPage() {
       />
 
       <ModelStatsTopTables
-       data={data}
-       loading={loading}
-        rangeLabel={state.rangeDays === 1 ? "today" : state.rangeDays === 7 ? "7 days" : `${state.rangeDays} days`}
-     />
+        data={data}
+        loading={loading}
+        rangeLabel={
+          state.rangeDays === 1
+            ? "today"
+            : state.rangeDays === 7
+              ? "7 days"
+              : `${state.rangeDays} days`
+        }
+      />
     </div>
   );
 }
