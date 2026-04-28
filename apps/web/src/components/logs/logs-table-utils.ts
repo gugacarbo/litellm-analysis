@@ -1,4 +1,4 @@
-import type { SpendLog } from '../../types/analytics';
+import type { SpendLog } from "../../types/analytics";
 
 export type LogGroup = {
   model: string;
@@ -13,7 +13,7 @@ export type GroupSummary = {
   totalDurationMs: number;
   averageTokensPerSecond: number | null;
   averageTimeToFirstTokenMs: number | null;
-  groupStatus: 'success' | 'error' | 'partial';
+  groupStatus: "success" | "error" | "partial";
 };
 
 export function groupLogsByModel(logs: SpendLog[]): LogGroup[] {
@@ -76,10 +76,7 @@ export function calculateGroupSummary(group: LogGroup): GroupSummary {
 
   const timeToFirstTokenValues = group.logs
     .map((log) => log.time_to_first_token_ms)
-    .filter(
-      (value): value is number =>
-        value !== null && !Number.isNaN(value),
-    );
+    .filter((value): value is number => value !== null && !Number.isNaN(value));
   const averageTimeToFirstTokenMs =
     timeToFirstTokenValues.length > 0
       ? timeToFirstTokenValues.reduce((sum, value) => sum + value, 0) /
@@ -87,14 +84,14 @@ export function calculateGroupSummary(group: LogGroup): GroupSummary {
       : null;
 
   const successCount = group.logs.filter(
-    (log) => log.status === '200' || log.status === 'success',
+    (log) => log.status === "200" || log.status === "success",
   ).length;
   const groupStatus =
     successCount === group.logs.length
-      ? 'success'
+      ? "success"
       : successCount === 0
-        ? 'error'
-        : 'partial';
+        ? "error"
+        : "partial";
 
   return {
     totalSpend,

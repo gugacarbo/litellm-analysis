@@ -1,14 +1,9 @@
+import { readDb } from "@lite-llm/agents-manager";
 import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
-} from '@lite-llm/alias-router';
-import {
-  readDb,
-} from '@lite-llm/agents-manager';
-import {
-  getRouterSettings,
-  updateRouterSettings,
-} from '../queries/index.js';
+} from "@lite-llm/alias-router";
+import { getRouterSettings, updateRouterSettings } from "../queries/index.js";
 
 export async function getAgentRoutingConfigImpl(): Promise<Record<
   string,
@@ -23,10 +18,7 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
     if (routerSettings?.model_group_alias) {
       Object.assign(
         allAliases,
-        routerSettings.model_group_alias as Record<
-          string,
-          string
-        >,
+        routerSettings.model_group_alias as Record<string, string>,
       );
     }
   } catch {
@@ -40,12 +32,10 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
   }
 
   // Generate aliases from agents (generated aliases override)
-  for (const [key, agent] of Object.entries(
-    db.agents || {},
-  )) {
+  for (const [key, agent] of Object.entries(db.agents || {})) {
     const agentAliases = generateLitellmAliases(
       key,
-      agent.model || '',
+      agent.model || "",
       agent.fallbackModels,
       db.globalFallbackModel,
     );
@@ -53,12 +43,10 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
   }
 
   // Generate aliases from categories (generated aliases override)
-  for (const [key, category] of Object.entries(
-    db.categories || {},
-  )) {
+  for (const [key, category] of Object.entries(db.categories || {})) {
     const categoryAliases = generateLitellmAliases(
       key,
-      category.model || '',
+      category.model || "",
       category.fallbackModels,
       db.globalFallbackModel,
     );
@@ -66,8 +54,7 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
   }
 
   // Sort aliases by definition order
-  const sortedAliases =
-    sortAliasesByDefinitionOrder(allAliases);
+  const sortedAliases = sortAliasesByDefinitionOrder(allAliases);
 
   return { model_group_alias: sortedAliases };
 }
@@ -76,19 +63,17 @@ export async function updateAgentRoutingConfigImpl(
   modelGroupAlias: Record<string, string>,
 ): Promise<void> {
   const { writeDb, readDb: readDbDynamic } = await import(
-    '@lite-llm/agents-manager'
+    "@lite-llm/agents-manager"
   );
   const db = await readDbDynamic();
 
   // Remove agent/category generated aliases, keep only custom
   const agentKeys = new Set(Object.keys(db.agents || {}));
-  const categoryKeys = new Set(
-    Object.keys(db.categories || {}),
-  );
+  const categoryKeys = new Set(Object.keys(db.categories || {}));
 
   const customAliases: Record<string, string> = {};
   for (const [key, value] of Object.entries(modelGroupAlias)) {
-    const prefix = key.includes('/') ? key.split('/')[0] : key;
+    const prefix = key.includes("/") ? key.split("/")[0] : key;
     if (
       !agentKeys.has(key) &&
       !categoryKeys.has(key) &&

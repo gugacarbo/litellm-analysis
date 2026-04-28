@@ -1,11 +1,5 @@
-import {
-  getMetricsSummary,
-  getDailySpendTrend,
-} from '../queries/index.js';
-import type {
-  DailySpendTrend,
-  MetricsSummary,
-} from '../types/index.js';
+import { getDailySpendTrend, getMetricsSummary } from "../queries/index.js";
+import type { DailySpendTrend, MetricsSummary } from "../types/index.js";
 
 export async function getMetricsSummaryImpl(
   days = 30,

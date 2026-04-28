@@ -1,11 +1,11 @@
-import { randomUUID } from 'node:crypto';
-import { asc, desc, eq, sql } from 'drizzle-orm';
-import { db, schema } from './client';
+import { randomUUID } from "node:crypto";
+import { asc, desc, eq, sql } from "drizzle-orm";
+import { db, schema } from "./client";
 import {
   combineConditions,
   getSpendLogsTimeCondition,
   normalizeDays,
-} from './helpers';
+} from "./helpers";
 
 const { spendLogs, proxyModelTable } = schema;
 
@@ -13,10 +13,8 @@ export async function getModelDetails() {
   const result = await db
     .select({
       model_name: proxyModelTable.modelName,
-      input_cost_per_token:
-        sql`${proxyModelTable.litellmParams}->>'input_cost_per_token'`,
-      output_cost_per_token:
-        sql`${proxyModelTable.litellmParams}->>'output_cost_per_token'`,
+      input_cost_per_token: sql`${proxyModelTable.litellmParams}->>'input_cost_per_token'`,
+      output_cost_per_token: sql`${proxyModelTable.litellmParams}->>'output_cost_per_token'`,
     })
     .from(proxyModelTable);
   return result;
@@ -67,8 +65,7 @@ export async function getModelStatistics(days = 30) {
       first_seen: sql`MIN(${spendLogs.startTime})`,
       last_seen: sql`MAX(${spendLogs.startTime})`,
       unique_users: sql`COUNT(DISTINCT ${spendLogs.user})`.mapWith(Number),
-      unique_api_keys:
-        sql`COUNT(DISTINCT ${spendLogs.apiKey})`.mapWith(Number),
+      unique_api_keys: sql`COUNT(DISTINCT ${spendLogs.apiKey})`.mapWith(Number),
       p50_tokens_per_second:
         sql`PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.5 THEN ${spendLogs.completionTokens}::float / EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) ELSE NULL END)`.mapWith(
           Number,
@@ -110,7 +107,7 @@ export async function createModel(model: {
   litellmParams: Record<string, unknown>;
 }) {
   const modelId = randomUUID();
-  const actor = 'lite-llm-analytics';
+  const actor = "lite-llm-analytics";
   const modelInfo = { id: modelId, db_model: true };
 
   await db.execute(sql`
@@ -160,7 +157,7 @@ export async function mergeModels(sourceModel: string, targetModel: string) {
 }
 
 export async function deleteModelLogs(modelName: string) {
-  if (modelName.trim() === '') {
+  if (modelName.trim() === "") {
     await db
       .delete(spendLogs)
       .where(sql`NULLIF(BTRIM(${spendLogs.model}), '') IS NULL`);

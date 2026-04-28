@@ -1,14 +1,12 @@
 import {
+  deleteAgentFromConfig,
+  deleteCategoryFromConfig,
   readDb,
   updateAgentInConfig,
   updateCategoryInConfig,
-  deleteAgentFromConfig,
-  deleteCategoryFromConfig,
-} from '@lite-llm/agents-manager';
+} from "@lite-llm/agents-manager";
 
-export async function getAgentConfigsImpl(): Promise<
-  Record<string, unknown>
-> {
+export async function getAgentConfigsImpl(): Promise<Record<string, unknown>> {
   const db = await readDb();
   return db.agents || {};
 }
@@ -34,9 +32,7 @@ export async function updateCategoryConfigImpl(
   await updateCategoryInConfig(categoryKey, config);
 }
 
-export async function deleteAgentConfigImpl(
-  agentKey: string,
-): Promise<void> {
+export async function deleteAgentConfigImpl(agentKey: string): Promise<void> {
   await deleteAgentFromConfig(agentKey);
 }
 

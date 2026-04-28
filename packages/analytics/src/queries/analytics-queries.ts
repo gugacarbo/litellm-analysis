@@ -1,11 +1,11 @@
-import { desc, sql } from 'drizzle-orm';
-import { db, schema } from './client';
+import { desc, sql } from "drizzle-orm";
+import { db, schema } from "./client";
 import {
   combineConditions,
   getFailedSpendLogsCondition,
   getSpendLogsTimeCondition,
   normalizeDays,
-} from './helpers';
+} from "./helpers";
 
 const { spendLogs } = schema;
 
@@ -23,8 +23,9 @@ export async function getMetricsSummary(days = 30) {
           sql<number>`COALESCE(SUM(${spendLogs.totalTokens}), 0)`.mapWith(
             Number,
           ),
-        activeModels:
-          sql<number>`COUNT(DISTINCT ${spendLogs.model})`.mapWith(Number),
+        activeModels: sql<number>`COUNT(DISTINCT ${spendLogs.model})`.mapWith(
+          Number,
+        ),
       })
       .from(spendLogs)
       .where(spendLogsTimeCondition),
@@ -82,8 +83,7 @@ export async function getCostEfficiencyByModel(days = 30) {
     .select({
       model: spendLogs.model,
       total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
-      total_tokens:
-        sql<number>`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+      total_tokens: sql<number>`SUM(${spendLogs.totalTokens})`.mapWith(Number),
       cost_per_1k_tokens: sql`CASE WHEN SUM(${spendLogs.totalTokens}) > 0 THEN SUM(${spendLogs.spend}) / SUM(${spendLogs.totalTokens}) * 1000 ELSE 0 END`,
       request_count: sql<number>`COUNT(*)`.mapWith(Number),
     })

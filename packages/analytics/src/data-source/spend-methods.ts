@@ -1,22 +1,20 @@
 import {
+  getSpendByKey,
   getSpendByModel,
   getSpendByUser,
-  getSpendByKey,
   getSpendLogs,
   getSpendLogsCount,
-} from '../queries/index.js';
-import { toNullableNumber } from './utils.js';
+} from "../queries/index.js";
 import type {
   SpendByKey,
   SpendByModel,
   SpendByUser,
   SpendLogsFilters,
   SpendLogsResponse,
-} from '../types/index.js';
+} from "../types/index.js";
+import { toNullableNumber } from "./utils.js";
 
-export async function getSpendByModelImpl(
-  days = 30,
-): Promise<SpendByModel[]> {
+export async function getSpendByModelImpl(days = 30): Promise<SpendByModel[]> {
   const result = await getSpendByModel(days);
   return result.map((item) => ({
     model: item.model,
@@ -24,9 +22,7 @@ export async function getSpendByModelImpl(
   }));
 }
 
-export async function getSpendByUserImpl(
-  days = 30,
-): Promise<SpendByUser[]> {
+export async function getSpendByUserImpl(days = 30): Promise<SpendByUser[]> {
   const result = await getSpendByUser(days);
   return result.map((item) => ({
     user: item.user,
@@ -36,9 +32,7 @@ export async function getSpendByUserImpl(
   }));
 }
 
-export async function getSpendByKeyImpl(
-  days = 30,
-): Promise<SpendByKey[]> {
+export async function getSpendByKeyImpl(days = 30): Promise<SpendByKey[]> {
   const result = await getSpendByKey(days);
   return result.map((item) => ({
     key: item.key,
@@ -60,9 +54,7 @@ export async function getSpendLogsCountImpl(
 
 export async function getSpendLogsImpl(
   filters: SpendLogsFilters,
-  getSpendLogsCountFn: (
-    filters: SpendLogsFilters,
-  ) => Promise<number>,
+  getSpendLogsCountFn: (filters: SpendLogsFilters) => Promise<number>,
 ): Promise<SpendLogsResponse> {
   const limit = filters.limit ?? 50;
   const offset = filters.offset ?? 0;
@@ -87,15 +79,9 @@ export async function getSpendLogsImpl(
     prompt_tokens: item.prompt_tokens,
     completion_tokens: item.completion_tokens,
     spend: Number(item.spend),
-    time_to_first_token_ms: toNullableNumber(
-      item.time_to_first_token_ms,
-    ),
-    start_time: item.startTime
-      ? new Date(item.startTime).toISOString()
-      : '',
-    end_time: item.endTime
-      ? new Date(item.endTime).toISOString()
-      : null,
+    time_to_first_token_ms: toNullableNumber(item.time_to_first_token_ms),
+    start_time: item.startTime ? new Date(item.startTime).toISOString() : "",
+    end_time: item.endTime ? new Date(item.endTime).toISOString() : null,
     api_key: item.api_key,
     status: item.status,
   }));

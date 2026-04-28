@@ -1,6 +1,6 @@
-import { sortAliasesByDefinitionOrder } from '@lite-llm/alias-router';
-import { sql } from 'drizzle-orm';
-import { db } from './client';
+import { sortAliasesByDefinitionOrder } from "@lite-llm/alias-router";
+import { sql } from "drizzle-orm";
+import { db } from "./client";
 
 export async function getRouterSettings(): Promise<Record<
   string,
@@ -10,9 +10,7 @@ export async function getRouterSettings(): Promise<Record<
     sql`SELECT param_value FROM "LiteLLM_Config" WHERE param_name = 'router_settings' LIMIT 1`,
   );
   const row = result.rows[0] as { param_value: unknown } | undefined;
-  return row?.param_value
-    ? (row.param_value as Record<string, unknown>)
-    : null;
+  return row?.param_value ? (row.param_value as Record<string, unknown>) : null;
 }
 
 export async function updateRouterSettings(
@@ -21,13 +19,13 @@ export async function updateRouterSettings(
   const existing = await getRouterSettings();
   const merged: Record<string, unknown> = existing ? { ...existing } : {};
   const existingAliases =
-    typeof merged.model_group_alias === 'object' &&
+    typeof merged.model_group_alias === "object" &&
     merged.model_group_alias !== null
       ? ({ ...merged.model_group_alias } as Record<string, string>)
       : {};
 
   for (const [key, value] of Object.entries(modelGroupAlias)) {
-    if (value === '') {
+    if (value === "") {
       delete existingAliases[key];
     } else {
       existingAliases[key] = value;

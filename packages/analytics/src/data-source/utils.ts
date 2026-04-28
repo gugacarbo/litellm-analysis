@@ -3,7 +3,7 @@ export function toNullableNumber(value: unknown): number | null {
     return null;
   }
 
-  const parsed = typeof value === 'number' ? value : Number(value);
+  const parsed = typeof value === "number" ? value : Number(value);
   if (Number.isNaN(parsed)) {
     return null;
   }

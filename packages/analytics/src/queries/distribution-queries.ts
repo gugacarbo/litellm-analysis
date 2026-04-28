@@ -1,6 +1,6 @@
-import { desc, sql } from 'drizzle-orm';
-import { db, schema } from './client';
-import { getSpendLogsTimeCondition, normalizeDays } from './helpers';
+import { desc, sql } from "drizzle-orm";
+import { db, schema } from "./client";
+import { getSpendLogsTimeCondition, normalizeDays } from "./helpers";
 
 const { spendLogs } = schema;
 

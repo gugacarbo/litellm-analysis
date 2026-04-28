@@ -1,11 +1,11 @@
-import { desc, eq, sql } from 'drizzle-orm';
-import { db, schema } from './client';
+import { desc, eq, sql } from "drizzle-orm";
+import { db, schema } from "./client";
 import {
   combineConditions,
   getFailedSpendLogsCondition,
   getSpendLogsTimeCondition,
   normalizeDays,
-} from './helpers';
+} from "./helpers";
 
 const { spendLogs, errorLogs } = schema;
 

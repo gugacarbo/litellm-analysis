@@ -1,7 +1,7 @@
-import type { AgentConfig } from '../../types/agent-routing';
-import { Input } from '../input';
-import { Label } from '../label';
-import { ModelFallbackSelector } from '../model-fallback-selector';
+import type { AgentConfig } from "../../types/agent-routing";
+import { Input } from "../input";
+import { Label } from "../label";
+import { ModelFallbackSelector } from "../model-fallback-selector";
 
 type UpdateConfigFn = (
   field: keyof AgentConfig,
@@ -29,11 +29,11 @@ export function AgentConfigEditorModelSection({
       </div>
 
       <ModelFallbackSelector
-        primaryModel={config.model || ''}
+        primaryModel={config.model || ""}
         fallbackModels={config.fallback_models || []}
-        onPrimaryModelChange={(model) => onUpdateConfig('model', model)}
+        onPrimaryModelChange={(model) => onUpdateConfig("model", model)}
         onFallbackModelsChange={(models) =>
-          onUpdateConfig('fallback_models', models)
+          onUpdateConfig("fallback_models", models)
         }
         agentKey={agentKey}
       />
@@ -47,10 +47,10 @@ export function AgentConfigEditorModelSection({
             min="0"
             max="2"
             step="0.1"
-            value={config.temperature ?? ''}
+            value={config.temperature ?? ""}
             onChange={(e) =>
               onUpdateConfig(
-                'temperature',
+                "temperature",
                 e.target.value ? parseFloat(e.target.value) : undefined,
               )
             }
@@ -66,10 +66,10 @@ export function AgentConfigEditorModelSection({
             min="0"
             max="1"
             step="0.01"
-            value={config.top_p ?? ''}
+            value={config.top_p ?? ""}
             onChange={(e) =>
               onUpdateConfig(
-                'top_p',
+                "top_p",
                 e.target.value ? parseFloat(e.target.value) : undefined,
               )
             }
@@ -81,8 +81,8 @@ export function AgentConfigEditorModelSection({
           <Label htmlFor="variant">Variant</Label>
           <Input
             id="variant"
-            value={config.variant || ''}
-            onChange={(e) => onUpdateConfig('variant', e.target.value)}
+            value={config.variant || ""}
+            onChange={(e) => onUpdateConfig("variant", e.target.value)}
             placeholder="Enter variant"
           />
         </div>

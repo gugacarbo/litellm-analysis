@@ -1,21 +1,19 @@
 import {
   getApiKeyDetailedStats,
   getCostEfficiencyByModel,
-  getModelRequestDistribution,
   getDailyTokenTrend,
+  getModelRequestDistribution,
   getModelStatistics,
-} from '../queries/index.js';
+} from "../queries/index.js";
 import type {
   ApiKeyStats,
   CostEfficiency,
   DailyTokenTrend,
   ModelRequestDistribution,
   ModelStatistics,
-} from '../types/index.js';
+} from "../types/index.js";
 
-export async function getApiKeyStatsImpl(
-  days = 30,
-): Promise<ApiKeyStats[]> {
+export async function getApiKeyStatsImpl(days = 30): Promise<ApiKeyStats[]> {
   const result = await getApiKeyDetailedStats(days);
   return result.map((item) => ({
     key: item.key,
@@ -26,7 +24,7 @@ export async function getApiKeyStatsImpl(
     success_rate: Number(item.success_rate || 0),
     last_used: item.last_used
       ? new Date(item.last_used as Date).toISOString()
-      : '',
+      : "",
   }));
 }
 
@@ -88,13 +86,12 @@ export async function getModelStatisticsImpl(
     p99_latency_ms: Number(item.p99_latency_ms || 0),
     first_seen: item.first_seen
       ? new Date(item.first_seen as Date).toISOString()
-      : '',
+      : "",
     last_seen: item.last_seen
       ? new Date(item.last_seen as Date).toISOString()
-      : '',
+      : "",
     unique_users: Number(item.unique_users || 0),
     unique_api_keys: Number(item.unique_api_keys || 0),
-    p50_tokens_per_second:
-      Number(item.p50_tokens_per_second || 0),
+    p50_tokens_per_second: Number(item.p50_tokens_per_second || 0),
   }));
 }

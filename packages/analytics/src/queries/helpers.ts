@@ -1,5 +1,5 @@
-import { and, gte, type SQL, sql } from 'drizzle-orm';
-import { schema } from './client';
+import { and, gte, type SQL, sql } from "drizzle-orm";
+import { schema } from "./client";
 
 const { spendLogs } = schema;
 
@@ -7,9 +7,8 @@ export function normalizeDays(
   days: number | string | undefined,
   fallback: number,
 ) {
-  const parsed =
-    typeof days === 'string' ? Number.parseInt(days, 10) : days;
-  if (typeof parsed !== 'number' || Number.isNaN(parsed) || parsed < 0) {
+  const parsed = typeof days === "string" ? Number.parseInt(days, 10) : days;
+  if (typeof parsed !== "number" || Number.isNaN(parsed) || parsed < 0) {
     return fallback;
   }
   return parsed;

@@ -1,23 +1,18 @@
-import { useMemo, useState } from 'react';
-import type { PaginationMetadata, SpendLog } from '../../types/analytics';
-import { Card, CardContent } from '../card';
-import {
-  Table,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../table';
-import { LogsTableBody } from './logs-table-body';
-import { LogsTableHeader } from './logs-table-header';
+import { useMemo, useState } from "react";
+import type { PaginationMetadata, SpendLog } from "../../types/analytics";
+import { Card, CardContent } from "../card";
+import { Table, TableHead, TableHeader, TableRow } from "../table";
+import { LogsPaginationControls } from "./logs-pagination-controls";
+import { LogsTableBody } from "./logs-table-body";
 import {
   LOG_COLUMNS,
   type LogColumnKey,
   type TableColumn,
-} from './logs-table-columns';
-import { groupLogsByModel } from './logs-table-utils';
-import { LogsPaginationControls } from './logs-pagination-controls';
+} from "./logs-table-columns";
+import { LogsTableHeader } from "./logs-table-header";
+import { groupLogsByModel } from "./logs-table-utils";
 
-export { DEFAULT_VISIBLE_LOG_COLUMNS } from './logs-table-columns';
+export { DEFAULT_VISIBLE_LOG_COLUMNS } from "./logs-table-columns";
 
 type LogsTableProps = {
   logs: SpendLog[];
@@ -63,9 +58,9 @@ export function LogsTable({
     visibleColumns.includes(column.key),
   );
 
-  const [expandedGroups, setExpandedGroups] = useState<
-    Record<string, boolean>
-  >({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const groupedLogs = useMemo(() => {
     if (!groupByModel || logs.length === 0) return null;
@@ -107,20 +102,18 @@ export function LogsTable({
         onRefetch={onRefetch}
         onToggleColumn={onToggleColumn}
       />
-      <CardContent className='space-y-4'>
-        <div className='overflow-x-auto rounded-lg border'>
+      <CardContent className="space-y-4">
+        <div className="overflow-x-auto rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
                 {showGroupExpanderColumn ? (
-                  <TableHead className='w-10' aria-label='Expand group' />
+                  <TableHead className="w-10" aria-label="Expand group" />
                 ) : null}
                 {tableColumns.map((column) => (
                   <TableHead
                     key={column.key}
-                    className={
-                      column.align === 'right' ? 'text-right' : ''
-                    }
+                    className={column.align === "right" ? "text-right" : ""}
                   >
                     {column.label}
                   </TableHead>

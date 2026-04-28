@@ -1,6 +1,6 @@
-import type { AgentConfig } from '../../types/agent-routing';
-import { Label } from '../label';
-import { Textarea } from '../textarea';
+import type { AgentConfig } from "../../types/agent-routing";
+import { Label } from "../label";
+import { Textarea } from "../textarea";
 
 type UpdateConfigFn = (
   field: keyof AgentConfig,
@@ -29,8 +29,8 @@ export function AgentConfigEditorPromptsSection({
         <Label htmlFor="prompt">Prompt</Label>
         <Textarea
           id="prompt"
-          value={config.prompt || ''}
-          onChange={(e) => onUpdateConfig('prompt', e.target.value)}
+          value={config.prompt || ""}
+          onChange={(e) => onUpdateConfig("prompt", e.target.value)}
           placeholder="Enter prompt"
           rows={8}
         />
@@ -40,8 +40,8 @@ export function AgentConfigEditorPromptsSection({
         <Label htmlFor="prompt_append">Prompt Append</Label>
         <Textarea
           id="prompt_append"
-          value={config.prompt_append || ''}
-          onChange={(e) => onUpdateConfig('prompt_append', e.target.value)}
+          value={config.prompt_append || ""}
+          onChange={(e) => onUpdateConfig("prompt_append", e.target.value)}
           placeholder="Enter prompt append"
           rows={5}
         />

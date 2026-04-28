@@ -1,10 +1,10 @@
-import type { AgentConfig, CategoryConfig } from '@litellm/shared';
-import type { Application } from 'express';
+import type { AgentConfig, CategoryConfig } from "@litellm/shared";
+import type { Application } from "express";
 import {
   buildAliasMapFromDb,
   regenerateAllAliases,
-} from '../../orchestration/index.js';
-import type { RouteOptions } from '../../types/index.js';
+} from "../../orchestration/index.js";
+import type { RouteOptions } from "../../types/index.js";
 
 export function registerConfigRoutes(
   app: Application,
@@ -12,9 +12,9 @@ export function registerConfigRoutes(
 ): void {
   const { dataSource, orchestration } = opts;
 
-  app.get('/agent-config', async (_req, res) => {
+  app.get("/agent-config", async (_req, res) => {
     try {
-      const { readConfigFile } = await import('@lite-llm/agents-manager');
+      const { readConfigFile } = await import("@lite-llm/agents-manager");
       const config = await readConfigFile();
       res.json(config);
     } catch (error) {
@@ -22,7 +22,7 @@ export function registerConfigRoutes(
     }
   });
 
-  app.put('/agent-config', async (req, res) => {
+  app.put("/agent-config", async (req, res) => {
     try {
       const { agents: rawAgents, categories: rawCategories } = req.body;
 
@@ -30,17 +30,17 @@ export function registerConfigRoutes(
       const categoriesToSave: Record<string, CategoryConfig> = {};
 
       const { resolveConfiguredModels } = await import(
-        '@lite-llm/alias-router'
+        "@lite-llm/alias-router"
       );
       const existingAliases = await buildAliasMapFromDb();
 
-      if (rawAgents && typeof rawAgents === 'object') {
+      if (rawAgents && typeof rawAgents === "object") {
         for (const [key, rawCfg] of Object.entries(
           rawAgents as Record<string, Record<string, unknown>>,
         )) {
           const { actualModel, actualFallbacks } = resolveConfiguredModels(
             key,
-            String(rawCfg.model || ''),
+            String(rawCfg.model || ""),
             (rawCfg.fallback_models as string[] | undefined) || [],
             existingAliases,
           );
@@ -53,13 +53,13 @@ export function registerConfigRoutes(
         }
       }
 
-      if (rawCategories && typeof rawCategories === 'object') {
+      if (rawCategories && typeof rawCategories === "object") {
         for (const [key, rawCfg] of Object.entries(
           rawCategories as Record<string, Record<string, unknown>>,
         )) {
           const { actualModel, actualFallbacks } = resolveConfiguredModels(
             key,
-            String(rawCfg.model || ''),
+            String(rawCfg.model || ""),
             (rawCfg.fallback_models as string[] | undefined) || [],
             existingAliases,
           );
@@ -72,7 +72,7 @@ export function registerConfigRoutes(
         }
       }
 
-      const { writeFullConfig } = await import('@lite-llm/agents-manager');
+      const { writeFullConfig } = await import("@lite-llm/agents-manager");
       await writeFullConfig({
         agents: agentsToSave,
         categories: categoriesToSave,

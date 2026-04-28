@@ -1,11 +1,11 @@
-import type { SpendLog } from '../../types/analytics';
-import { TableBody, TableCell, TableRow } from '../table';
-import { renderLogCell } from './logs-table-cell';
-import type { TableColumn } from './logs-table-columns';
-import { LogsTableGroupRenderer } from './logs-table-group-renderer';
-import { LogsTableSkeleton } from './logs-table-skeleton';
-import type { LogGroup } from './logs-table-utils';
-import { calculateGroupSummary } from './logs-table-utils';
+import type { SpendLog } from "../../types/analytics";
+import { TableBody, TableCell, TableRow } from "../table";
+import { renderLogCell } from "./logs-table-cell";
+import type { TableColumn } from "./logs-table-columns";
+import { LogsTableGroupRenderer } from "./logs-table-group-renderer";
+import { LogsTableSkeleton } from "./logs-table-skeleton";
+import type { LogGroup } from "./logs-table-utils";
+import { calculateGroupSummary } from "./logs-table-utils";
 
 type LogsTableBodyProps = {
   loading: boolean;
@@ -44,10 +44,8 @@ export function LogsTableBody({
       <TableBody>
         <TableRow>
           <TableCell
-            colSpan={
-              tableColumns.length + (showGroupExpanderColumn ? 1 : 0)
-            }
-            className='py-8 text-center text-muted-foreground'
+            colSpan={tableColumns.length + (showGroupExpanderColumn ? 1 : 0)}
+            className="py-8 text-center text-muted-foreground"
           >
             No logs found
           </TableCell>
@@ -87,15 +85,13 @@ export function LogsTableBody({
       {logs.map((log) => (
         <TableRow
           key={log.request_id}
-          className='cursor-pointer hover:bg-muted/50'
+          className="cursor-pointer hover:bg-muted/50"
           onClick={() => onSelectLog(log)}
         >
           {tableColumns.map((column) => (
             <TableCell
               key={`${log.request_id}-${column.key}`}
-              className={
-                column.align === 'right' ? 'text-right' : ''
-              }
+              className={column.align === "right" ? "text-right" : ""}
             >
               {renderLogCell({
                 log,

@@ -1,16 +1,16 @@
-import { useCallback } from 'react';
-import { normalizeHexColor } from '../../lib/utils';
-import type { AgentConfig } from '../../types/agent-routing';
-import { Input } from '../input';
-import { Label } from '../label';
+import { useCallback } from "react";
+import { normalizeHexColor } from "../../lib/utils";
+import type { AgentConfig } from "../../types/agent-routing";
+import { Input } from "../input";
+import { Label } from "../label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../select';
-import { Textarea } from '../textarea';
+} from "../select";
+import { Textarea } from "../textarea";
 
 type UpdateConfigFn = (
   field: keyof AgentConfig,
@@ -30,7 +30,7 @@ export function AgentConfigEditorBasicSection({
     (value: string) => {
       const normalized = normalizeHexColor(value);
       if (normalized) {
-        onUpdateConfig('color', normalized);
+        onUpdateConfig("color", normalized);
       }
     },
     [onUpdateConfig],
@@ -50,8 +50,8 @@ export function AgentConfigEditorBasicSection({
           <Label htmlFor="category">Category</Label>
           <Input
             id="category"
-            value={config.category || ''}
-            onChange={(e) => onUpdateConfig('category', e.target.value)}
+            value={config.category || ""}
+            onChange={(e) => onUpdateConfig("category", e.target.value)}
             placeholder="Enter category"
           />
         </div>
@@ -59,9 +59,9 @@ export function AgentConfigEditorBasicSection({
         <div className="space-y-2">
           <Label htmlFor="mode">Mode</Label>
           <Select
-            value={config.mode || 'subagent'}
-            onValueChange={(value: 'subagent' | 'primary' | 'all') =>
-              onUpdateConfig('mode', value)
+            value={config.mode || "subagent"}
+            onValueChange={(value: "subagent" | "primary" | "all") =>
+              onUpdateConfig("mode", value)
             }
           >
             <SelectTrigger>
@@ -80,13 +80,13 @@ export function AgentConfigEditorBasicSection({
           <div className="flex items-center gap-2">
             <input
               type="color"
-              value={config.color || '#000000'}
+              value={config.color || "#000000"}
               onChange={(e) => handleColorChange(e.target.value)}
               className="h-10 w-10 cursor-pointer rounded-md border border-border"
             />
             <Input
               id="color"
-              value={config.color || ''}
+              value={config.color || ""}
               onChange={(e) => handleColorChange(e.target.value)}
               placeholder="#RRGGBB"
               className="flex-1"
@@ -100,7 +100,7 @@ export function AgentConfigEditorBasicSection({
             <input
               type="checkbox"
               checked={!!config.disable}
-              onChange={(e) => onUpdateConfig('disable', e.target.checked)}
+              onChange={(e) => onUpdateConfig("disable", e.target.checked)}
               className="h-4 w-4"
             />
             <span className="text-sm text-muted-foreground">
@@ -114,8 +114,8 @@ export function AgentConfigEditorBasicSection({
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={config.description || ''}
-          onChange={(e) => onUpdateConfig('description', e.target.value)}
+          value={config.description || ""}
+          onChange={(e) => onUpdateConfig("description", e.target.value)}
           placeholder="Enter description"
           rows={3}
         />
