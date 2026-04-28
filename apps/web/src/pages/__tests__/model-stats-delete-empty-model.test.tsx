@@ -24,6 +24,7 @@ const emptyModelStatsResponse = [
     last_seen: "2025-01-02T00:00:00Z",
     unique_users: 1,
     unique_api_keys: 1,
+    p50_tokens_per_second: 400,
   },
 ];
 

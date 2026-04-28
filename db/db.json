@@ -229,7 +229,7 @@
       "mode": "subagent"
     },
     "explore": {
-      "model": "qwen3.5-plus",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "deepseek-v4-flash",
         "mimo-v2.5-pro",
@@ -237,7 +237,10 @@
         "MiniMax-M2.7-highspeed"
       ],
       "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
-      "color": "#04B9AD"
+      "color": "#04B9AD",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
     },
     "multimodal-looker": {
       "model": "glm-5.1",

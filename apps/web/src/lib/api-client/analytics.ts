@@ -139,6 +139,7 @@ export async function getModelStatistics(): Promise<
     last_seen: string;
     unique_users: number;
     unique_api_keys: number;
+    p50_tokens_per_second: number;
   }[]
 > {
   return fetchApi("/analytics/model-stats");

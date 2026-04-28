@@ -11,6 +11,7 @@ import {
   formatDuration,
   formatNumber,
   formatPercent,
+  formatTokensPerSecond,
 } from "../../pages/model-stats/model-stats-utils";
 import { Button } from "../button";
 import { Card, CardContent } from "../card";
@@ -140,6 +141,9 @@ export function ModelStatsDataTable({
                                 break;
                               case "avgTok":
                                 value = formatNumber(m.avg_tokens_per_request);
+                                break;
+                              case "tokPerSec":
+                                value = formatTokensPerSecond(m.p50_tokens_per_second);
                                 break;
                               case "latency":
                                 value = formatDuration(m.avg_latency_ms);

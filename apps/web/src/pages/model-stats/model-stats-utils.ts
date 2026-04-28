@@ -14,6 +14,10 @@ export function formatDuration(ms: number): string {
   if (ms < 1000) return `${Math.round(ms)}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
 }
+export function formatTokensPerSecond(value: number): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return "-";
+  return `${value.toFixed(1)} tok/s`;
+}
 
 export function formatPercent(value: number): string {
   if (!value || Number.isNaN(value)) return "-";

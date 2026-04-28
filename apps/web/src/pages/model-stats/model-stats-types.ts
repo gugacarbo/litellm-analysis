@@ -18,6 +18,7 @@ export interface ModelStats {
   last_seen: string;
   unique_users: number;
   unique_api_keys: number;
+  p50_tokens_per_second: number;
 }
 
 export type SortField =
@@ -39,6 +40,7 @@ export type ColumnKey =
   | "prompt"
   | "output"
   | "avgTok"
+  | "tokPerSec"
   | "latency"
   | "p50"
   | "p95"
@@ -87,11 +89,10 @@ export const MODEL_STATS_COLUMNS: Column[] = [
   { key: "output", label: "Output", align: "right", default: false },
   { key: "avgTok", label: "Avg Tok/Req", align: "right", default: true },
   {
-    key: "latency",
-    label: "Latency (avg)",
-    sortable: "avg_latency_ms",
+    key: "tokPerSec",
+    label: "Out tok/s (p50)",
     align: "right",
-    default: false,
+    default: true,
   },
   { key: "p50", label: "Latency (p50)", align: "right", default: false },
   { key: "p95", label: "Latency (p95)", align: "right", default: false },

@@ -270,6 +270,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
         : "",
       unique_users: Number(item.unique_users || 0),
       unique_api_keys: Number(item.unique_api_keys || 0),
+      p50_tokens_per_second: Number(item.p50_tokens_per_second || 0),
     }));
   }
 
@@ -338,7 +339,10 @@ export class DatabaseDataSource implements AnalyticsDataSource {
     try {
       const routerSettings = await getRouterSettings();
       if (routerSettings?.model_group_alias) {
-        Object.assign(allAliases, routerSettings.model_group_alias as Record<string, string>);
+        Object.assign(
+          allAliases,
+          routerSettings.model_group_alias as Record<string, string>,
+        );
       }
     } catch {
       // If LiteLLM_Config table does not exist or query fails, continue without it
