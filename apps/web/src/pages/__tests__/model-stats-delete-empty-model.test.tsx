@@ -30,6 +30,9 @@ const emptyModelStatsResponse = [
 
 vi.mock("../../lib/api-client", () => ({
   getModelStatistics: vi.fn(),
+  getTokenDistribution: vi.fn().mockResolvedValue([]),
+  getModelRequestDistribution: vi.fn().mockResolvedValue([]),
+  getCostEfficiencyByModel: vi.fn().mockResolvedValue([]),
   deleteModelLogs: vi.fn(),
   mergeModels: vi.fn().mockResolvedValue(undefined),
 }));
@@ -57,9 +60,12 @@ describe("ModelStatsPage", () => {
   it("deletes stats rows with empty model name", async () => {
     renderWithQueryClient(<ModelStatsPage />);
 
-    await screen.findByText("(no model)");
+    const elements = await screen.findAllByText("(no model)");
+    expect(elements.length).toBeGreaterThanOrEqual(1);
 
-    await userEvent.click(screen.getByRole("button", { name: "×" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Delete (no model)" }),
+    );
     await userEvent.click(screen.getByRole("button", { name: "Delete" }));
 
     await waitFor(() => {

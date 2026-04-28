@@ -1,10 +1,10 @@
-import { ChevronDownIcon, Search } from 'lucide-react';
-import { DASHBOARD_DATE_RANGES } from '@/pages/dashboard/dashboard-utils';
+import { ChevronDownIcon, Search } from "lucide-react";
+import { DASHBOARD_DATE_RANGES } from "@/pages/dashboard/dashboard-utils";
 import type {
   Column,
   ColumnKey,
-} from '../../pages/model-stats/model-stats-types';
-import { Button } from '../button';
+} from "../../pages/model-stats/model-stats-types";
+import { Button } from "../button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -12,19 +12,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../dropdown-menu';
+} from "../dropdown-menu";
 
 type ModelStatsHeaderProps = {
   mergeMode: boolean;
   columns: Column[];
   visibleColumns: ColumnKey[];
   searchQuery: string;
-  selectedDateRange: (typeof DASHBOARD_DATE_RANGES)[number]['key'];
+  selectedDateRange: (typeof DASHBOARD_DATE_RANGES)[number]["key"];
   onToggleMergeMode: () => void;
   onToggleColumn: (key: ColumnKey) => void;
   onSearchChange: (query: string) => void;
   setSelectedDateRange: (
-    range: (typeof DASHBOARD_DATE_RANGES)[number]['key'],
+    range: (typeof DASHBOARD_DATE_RANGES)[number]["key"],
   ) => void;
 };
 
@@ -45,7 +45,7 @@ export function ModelStatsHeader({
         <h1 className="text-3xl font-bold">Model Statistics</h1>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={onToggleMergeMode}>
-            {mergeMode ? 'Cancel' : 'Merge Models'}
+            {mergeMode ? "Cancel" : "Merge Models"}
           </Button>
         </div>
       </div>
@@ -68,9 +68,7 @@ export function ModelStatsHeader({
               <Button
                 key={option.key}
                 variant={
-                  option.key === selectedDateRange
-                    ? 'default'
-                    : 'outline'
+                  option.key === selectedDateRange ? "default" : "outline"
                 }
                 size="sm"
                 className="h-7 text-xs"

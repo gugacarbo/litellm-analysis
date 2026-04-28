@@ -5,26 +5,25 @@ import {
   DollarSign,
   TrendingUp,
   Zap,
-} from 'lucide-react';
-import type { ModelInsight } from '../../pages/model-stats/model-stats-types';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+} from "lucide-react";
+import type { ModelInsight } from "../../pages/model-stats/model-stats-types";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 
 const ICON_MAP = {
-  'badge-dollar-sign': DollarSign,
-  'trending-up': TrendingUp,
+  "badge-dollar-sign": DollarSign,
+  "trending-up": TrendingUp,
   zap: Zap,
   clock: Clock,
-  'bar-chart-3': BarChart3,
-  'alert-triangle': AlertTriangle,
+  "bar-chart-3": BarChart3,
+  "alert-triangle": AlertTriangle,
 } as const;
 
 const TONE_CLASSES = {
-  positive:
-    'text-emerald-700 dark:text-emerald-300',
-  warning: 'text-amber-700 dark:text-amber-300',
-  negative: 'text-red-700 dark:text-red-300',
-  neutral: 'text-foreground',
+  positive: "text-emerald-700 dark:text-emerald-300",
+  warning: "text-amber-700 dark:text-amber-300",
+  negative: "text-red-700 dark:text-red-300",
+  neutral: "text-foreground",
 } as const;
 
 type ModelStatsInsightsProps = {

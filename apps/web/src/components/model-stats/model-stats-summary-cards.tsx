@@ -4,9 +4,9 @@ import {
   formatDuration,
   formatNumber,
   formatPercent,
-} from '../../pages/model-stats/model-stats-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+} from "../../pages/model-stats/model-stats-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 
 type ModelStatsSummaryCardsProps = {
   loading: boolean;
@@ -46,9 +46,7 @@ export function ModelStatsSummaryCards({
             {loading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
-              <p className="text-2xl font-bold">
-                {formatCurrency(totalSpend)}
-              </p>
+              <p className="text-2xl font-bold">{formatCurrency(totalSpend)}</p>
             )}
           </CardContent>
         </Card>
@@ -100,10 +98,10 @@ export function ModelStatsSummaryCards({
               <p
                 className={`text-2xl font-bold ${
                   avgSuccessRate > 95
-                    ? 'text-green-600'
+                    ? "text-green-600"
                     : avgSuccessRate > 90
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
+                      ? "text-yellow-600"
+                      : "text-red-600"
                 }`}
               >
                 {formatPercent(avgSuccessRate)}
@@ -116,17 +114,13 @@ export function ModelStatsSummaryCards({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-border/70">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Avg Latency
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Avg Latency</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
-              <p className="text-2xl font-bold">
-                {formatDuration(avgLatency)}
-              </p>
+              <p className="text-2xl font-bold">{formatDuration(avgLatency)}</p>
             )}
           </CardContent>
         </Card>
@@ -144,10 +138,10 @@ export function ModelStatsSummaryCards({
               <p
                 className={`text-2xl font-bold ${
                   totalErrors > 50
-                    ? 'text-red-600'
+                    ? "text-red-600"
                     : totalErrors > 10
-                      ? 'text-yellow-600'
-                      : ''
+                      ? "text-yellow-600"
+                      : ""
                 }`}
               >
                 {formatNumber(totalErrors)}
@@ -175,17 +169,13 @@ export function ModelStatsSummaryCards({
 
         <Card className="border-border/70">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Models
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Active Models</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <Skeleton className="h-8 w-12" />
             ) : (
-              <p className="text-2xl font-bold">
-                {uniqueModels}
-              </p>
+              <p className="text-2xl font-bold">{uniqueModels}</p>
             )}
           </CardContent>
         </Card>

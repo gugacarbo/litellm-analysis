@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
-import type { ModelStats } from '../../pages/model-stats/model-stats-types';
+import { Link } from "react-router-dom";
+import type { ModelStats } from "../../pages/model-stats/model-stats-types";
 import {
   formatCompactNumber,
   formatCurrency,
-} from '../../pages/model-stats/model-stats-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { Skeleton } from '../skeleton';
+} from "../../pages/model-stats/model-stats-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { Skeleton } from "../skeleton";
 
 type ModelStatsTopTablesProps = {
   data: ModelStats[];
@@ -36,7 +36,7 @@ function BarRow({
           to={href}
           className="font-mono text-xs hover:underline truncate max-w-[60%]"
         >
-          {label || '(no model)'}
+          {label || "(no model)"}
         </Link>
         <span className="text-muted-foreground tabular-nums">{formatted}</span>
       </div>
@@ -56,20 +56,14 @@ export function ModelStatsTopTables({
   rangeLabel,
 }: ModelStatsTopTablesProps) {
   const topBySpend = [...data]
-    .sort(
-      (a, b) => Number(b.total_spend) - Number(a.total_spend),
-    )
+    .sort((a, b) => Number(b.total_spend) - Number(a.total_spend))
     .slice(0, 8);
 
   const topByRequests = [...data]
-    .sort(
-      (a, b) => Number(b.request_count) - Number(a.request_count),
-    )
+    .sort((a, b) => Number(b.request_count) - Number(a.request_count))
     .slice(0, 8);
 
-  const maxSpend = topBySpend[0]
-    ? Number(topBySpend[0].total_spend)
-    : 0;
+  const maxSpend = topBySpend[0] ? Number(topBySpend[0].total_spend) : 0;
   const maxRequests = topByRequests[0]
     ? Number(topByRequests[0].request_count)
     : 0;

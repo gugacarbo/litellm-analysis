@@ -10,28 +10,28 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
+} from "recharts";
 import {
   CHART_HEIGHT,
   ERROR_CHART_COLOR,
   LATENCY_CHART_COLORS,
   MODEL_STATS_CHART_COLORS,
   TOP_N_MODELS,
-} from '../../pages/model-stats/model-stats-chart-utils';
+} from "../../pages/model-stats/model-stats-chart-utils";
+import type { ModelStats } from "../../pages/model-stats/model-stats-types";
 import {
   formatCurrency,
   formatDuration,
   formatNumber,
-} from '../../pages/model-stats/model-stats-utils';
+} from "../../pages/model-stats/model-stats-utils";
 import type {
   CostEfficiency,
   ModelDistribution,
   TokenDistribution,
-} from '../../types/analytics';
-import type { ModelStats } from '../../pages/model-stats/model-stats-types';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
-import { ChartTooltipContent } from '../chart-tooltip';
-import { Skeleton } from '../skeleton';
+} from "../../types/analytics";
+import { Card, CardContent, CardHeader, CardTitle } from "../card";
+import { ChartTooltipContent } from "../chart-tooltip";
+import { Skeleton } from "../skeleton";
 
 type ModelStatsChartsProps = {
   loading: boolean;
@@ -165,10 +165,7 @@ export function ModelStatsCharts({
             <Skeleton className="h-64 w-full" />
           ) : latencyData.length > 0 ? (
             <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <BarChart
-                data={latencyData}
-                layout="vertical"
-              >
+              <BarChart data={latencyData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   type="number"
@@ -218,10 +215,7 @@ export function ModelStatsCharts({
             <Skeleton className="h-64 w-full" />
           ) : errorData.length > 0 ? (
             <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <BarChart
-                data={errorData}
-                layout="vertical"
-              >
+              <BarChart data={errorData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
                 <YAxis
@@ -245,10 +239,10 @@ export function ModelStatsCharts({
                       key={`cell-${index}`}
                       fill={
                         entry.success_rate < 90
-                          ? '#ef4444'
+                          ? "#ef4444"
                           : entry.success_rate < 95
-                            ? '#f59e0b'
-                            : '#10b981'
+                            ? "#f59e0b"
+                            : "#10b981"
                       }
                     />
                   ))}

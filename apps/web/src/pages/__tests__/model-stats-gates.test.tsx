@@ -83,7 +83,9 @@ describe("ModelStatsPage", () => {
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    const deleteButtons = screen.queryAllByRole("button", { name: "×" });
+    const deleteButtons = screen.queryAllByRole("button", {
+      name: /Delete/,
+    });
     expect(deleteButtons.length).toBe(2);
     for (const btn of deleteButtons) {
       expect(btn).not.toBeDisabled();

@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import type {
   Column,
   ColumnKey,
   ModelStats,
   SortDirection,
   SortField,
-} from '../../pages/model-stats/model-stats-types';
+} from "../../pages/model-stats/model-stats-types";
 import {
   formatCurrency,
   formatDate,
@@ -14,10 +14,11 @@ import {
   formatPercent,
   formatTokensPerSecond,
   getHealthColor,
-} from '../../pages/model-stats/model-stats-utils';
-import { Badge } from '../badge';
-import { Card, CardContent } from '../card';
-import { Skeleton } from '../skeleton';
+  safeDivide,
+} from "../../pages/model-stats/model-stats-utils";
+import { Badge } from "../badge";
+import { Card, CardContent } from "../card";
+import { Skeleton } from "../skeleton";
 import {
   Table,
   TableBody,
@@ -25,7 +26,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../table';
+} from "../table";
 
 type ModelStatsDataTableProps = {
   loading: boolean;
@@ -82,16 +83,16 @@ export function ModelStatsDataTable({
                     <TableHead
                       key={col.key}
                       className={
-                        col.align === 'right'
-                          ? 'cursor-pointer hover:text-primary text-right'
-                          : 'cursor-pointer hover:text-primary'
+                        col.align === "right"
+                          ? "cursor-pointer hover:text-primary text-right"
+                          : "cursor-pointer hover:text-primary"
                       }
                       onClick={() => col.sortable && onSort(col.sortable)}
                     >
-                      {col.label}{' '}
+                      {col.label}{" "}
                       {col.sortable &&
                         sortField === col.sortable &&
-                        (sortDirection === 'asc' ? '↑' : '↓')}
+                        (sortDirection === "asc" ? "↑" : "↓")}
                     </TableHead>
                   ))}
               </TableRow>
@@ -106,7 +107,7 @@ export function ModelStatsDataTable({
                           <TableCell
                             key={col.key}
                             className={
-                              col.align === 'right' ? 'text-right' : ''
+                              col.align === "right" ? "text-right" : ""
                             }
                           >
                             <Skeleton className="h-4 w-12 ml-auto" />
@@ -116,10 +117,10 @@ export function ModelStatsDataTable({
                   ))
                 : data.map((m, i) => {
                     const modelName =
-                      typeof m.model === 'string' ? m.model : '';
+                      typeof m.model === "string" ? m.model : "";
                     const modelLabel = modelName.trim()
                       ? modelName
-                      : '(no model)';
+                      : "(no model)";
 
                     return (
                       <TableRow key={`${modelName}-${i}`}>
@@ -129,7 +130,7 @@ export function ModelStatsDataTable({
                             let value: React.ReactNode = null;
 
                             switch (col.key) {
-                              case 'model':
+                              case "model":
                                 value = (
                                   <div className="flex items-center gap-2">
                                     <div
@@ -144,13 +145,13 @@ export function ModelStatsDataTable({
                                   </div>
                                 );
                                 break;
-                              case 'requests':
+                              case "requests":
                                 value = formatNumber(m.request_count);
                                 break;
-                              case 'spend':
+                              case "spend":
                                 value = formatCurrency(m.total_spend);
                                 break;
-                              case 'percent':
+                              case "percent":
                                 value = (
                                   <SpendBar
                                     value={Number(m.total_spend)}
@@ -158,57 +159,57 @@ export function ModelStatsDataTable({
                                   />
                                 );
                                 break;
-                              case 'tokens':
+                              case "tokens":
                                 value = formatNumber(m.total_tokens);
                                 break;
-                              case 'prompt':
+                              case "prompt":
                                 value = formatNumber(m.prompt_tokens);
                                 break;
-                              case 'output':
+                              case "output":
                                 value = formatNumber(m.completion_tokens);
                                 break;
-                              case 'avgTok':
+                              case "avgTok":
                                 value = formatNumber(m.avg_tokens_per_request);
                                 break;
-                              case 'tokPerSec':
+                              case "tokPerSec":
                                 value = formatTokensPerSecond(
                                   m.p50_tokens_per_second,
                                 );
                                 break;
-                              case 'costPer1k':
+                              case "costPer1k":
                                 value =
                                   Number(m.total_tokens) > 0
                                     ? `$${((Number(m.total_spend) / Number(m.total_tokens)) * 1000).toFixed(4)}`
-                                    : '-';
+                                    : "-";
                                 break;
-                              case 'latency':
+                              case "latency":
                                 value = formatDuration(m.avg_latency_ms);
                                 break;
-                              case 'p50':
+                              case "p50":
                                 value = formatDuration(m.p50_latency_ms);
                                 break;
-                              case 'p95':
+                              case "p95":
                                 value = formatDuration(m.p95_latency_ms);
                                 break;
-                              case 'p99':
+                              case "p99":
                                 value = formatDuration(m.p99_latency_ms);
                                 break;
-                              case 'success':
+                              case "success":
                                 value = (
                                   <Badge
                                     variant={
                                       Number(m.success_rate) > 95
-                                        ? 'default'
+                                        ? "default"
                                         : Number(m.success_rate) > 90
-                                          ? 'secondary'
-                                          : 'destructive'
+                                          ? "secondary"
+                                          : "destructive"
                                     }
                                   >
                                     {formatPercent(m.success_rate)}
                                   </Badge>
                                 );
                                 break;
-                              case 'errors':
+                              case "errors":
                                 value =
                                   Number(m.error_count) > 0 ? (
                                     <span className="text-red-600 dark:text-red-400 font-medium">
@@ -220,19 +221,43 @@ export function ModelStatsDataTable({
                                     </span>
                                   );
                                 break;
-                              case 'users':
+                              case "errorRate":
+                                value = (
+                                  <Badge
+                                    variant={
+                                      safeDivide(
+                                        Number(m.error_count),
+                                        Number(m.request_count),
+                                      ) * 100 > 5
+                                        ? "destructive"
+                                        : safeDivide(
+                                              Number(m.error_count),
+                                              Number(m.request_count),
+                                            ) * 100 > 1
+                                          ? "secondary"
+                                          : "default"
+                                    }
+                                  >
+                                    {formatPercent(
+                                      100 -
+                                        Number(m.success_rate),
+                                    )}
+                                  </Badge>
+                                );
+                                break;
+                              case "users":
                                 value = formatNumber(m.unique_users);
                                 break;
-                              case 'keys':
+                              case "keys":
                                 value = formatNumber(m.unique_api_keys);
                                 break;
-                              case 'first':
+                              case "first":
                                 value = formatDate(m.first_seen);
                                 break;
-                              case 'last':
+                              case "last":
                                 value = formatDate(m.last_seen);
                                 break;
-                              case 'actions':
+                              case "actions":
                                 value = (
                                   <button
                                     type="button"
@@ -241,7 +266,7 @@ export function ModelStatsDataTable({
                                     onClick={() => onDeleteClick(modelName)}
                                     aria-label={`Delete ${modelLabel}`}
                                   >
-                                    {deleting === modelName ? '⋯' : '✕'}
+                                    {deleting === modelName ? "⋯" : "✕"}
                                   </button>
                                 );
                                 break;
@@ -251,7 +276,7 @@ export function ModelStatsDataTable({
                               <TableCell
                                 key={col.key}
                                 className={
-                                  col.align === 'right' ? 'text-right' : ''
+                                  col.align === "right" ? "text-right" : ""
                                 }
                               >
                                 {value}
