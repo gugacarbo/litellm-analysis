@@ -535,7 +535,10 @@ export async function getModelStatistics(days = 30) {
       last_seen: sql`MAX(${spendLogs.startTime})`,
       unique_users: sql`COUNT(DISTINCT ${spendLogs.user})`.mapWith(Number),
       unique_api_keys: sql`COUNT(DISTINCT ${spendLogs.apiKey})`.mapWith(Number),
-      p50_tokens_per_second: sql`PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.5 THEN ${spendLogs.completionTokens}::float / EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) ELSE NULL END)`.mapWith(Number),
+      p50_tokens_per_second:
+        sql`PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.5 THEN ${spendLogs.completionTokens}::float / EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) ELSE NULL END)`.mapWith(
+          Number,
+        ),
     })
     .from(spendLogs)
     .where(whereClause)

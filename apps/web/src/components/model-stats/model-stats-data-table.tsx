@@ -143,7 +143,9 @@ export function ModelStatsDataTable({
                                 value = formatNumber(m.avg_tokens_per_request);
                                 break;
                               case "tokPerSec":
-                                value = formatTokensPerSecond(m.p50_tokens_per_second);
+                                value = formatTokensPerSecond(
+                                  m.p50_tokens_per_second,
+                                );
                                 break;
                               case "latency":
                                 value = formatDuration(m.avg_latency_ms);

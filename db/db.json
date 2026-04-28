@@ -98,8 +98,8 @@
       "contextLength": 200000,
       "maxOutput": 32768,
       "cost": {
-        "input": 0,
-        "output": 0
+        "input": 1.2,
+        "output": 4
       }
     },
     "kimi-k2.6": {
