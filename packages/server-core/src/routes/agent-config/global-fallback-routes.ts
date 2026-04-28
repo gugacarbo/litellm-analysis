@@ -1,8 +1,4 @@
 import type { Application } from "express";
-import {
-  buildAliasMapFromDb,
-  regenerateAllAliases,
-} from "../../orchestration/index.js";
 import type { RouteOptions } from "../../types/index.js";
 
 export function registerGlobalFallbackRoutes(

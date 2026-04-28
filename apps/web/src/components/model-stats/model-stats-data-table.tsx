@@ -14,7 +14,6 @@ import {
   formatPercent,
   formatTokensPerSecond,
   getHealthColor,
-  safeDivide,
 } from "../../pages/model-stats/model-stats-utils";
 import { Badge } from "../badge";
 import { Card, CardContent } from "../card";
@@ -220,30 +219,6 @@ export function ModelStatsDataTable({
                                       0
                                     </span>
                                   );
-                                break;
-                              case "errorRate":
-                                value = (
-                                  <Badge
-                                    variant={
-                                      safeDivide(
-                                        Number(m.error_count),
-                                        Number(m.request_count),
-                                      ) * 100 > 5
-                                        ? "destructive"
-                                        : safeDivide(
-                                              Number(m.error_count),
-                                              Number(m.request_count),
-                                            ) * 100 > 1
-                                          ? "secondary"
-                                          : "default"
-                                    }
-                                  >
-                                    {formatPercent(
-                                      100 -
-                                        Number(m.success_rate),
-                                    )}
-                                  </Badge>
-                                );
                                 break;
                               case "users":
                                 value = formatNumber(m.unique_users);

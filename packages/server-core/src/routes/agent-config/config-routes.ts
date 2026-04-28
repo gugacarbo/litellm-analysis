@@ -1,9 +1,6 @@
 import type { AgentConfig, CategoryConfig } from "@litellm/shared";
 import type { Application } from "express";
-import {
-  buildAliasMapFromDb,
-  regenerateAllAliases,
-} from "../../orchestration/index.js";
+import { buildAliasMapFromDb } from "../../orchestration/index.js";
 import type { RouteOptions } from "../../types/index.js";
 
 export function registerConfigRoutes(
