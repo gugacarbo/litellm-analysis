@@ -26,7 +26,7 @@ export function AgentRoutingPage() {
             Agent Routing
           </h1>
           <p className="text-muted-foreground mt-1">
-            Visual overview of configured models across agents and categories
+            Configure models for agents and categories
           </p>
         </div>
 
@@ -48,22 +48,25 @@ export function AgentRoutingPage() {
         </Button>
       </div>
 
-      <GlobalFallbackSelector
-        value={state.globalFallbackModel}
-        onValueChange={state.handleSaveGlobalFallback}
-      />
-
       <Tabs defaultValue="agents">
-        <TabsList>
-          <TabsTrigger value="agents">Agents</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="agents">Agents</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+          </TabsList>
+          <GlobalFallbackSelector
+            value={state.globalFallbackModel}
+            onValueChange={state.handleSaveGlobalFallback}
+          />
+        </div>
 
         <TabsContent value="agents" className="mt-4">
           <AgentRoutingAgentsTab
             loading={state.loading}
             agents={AGENT_DEFINITIONS}
+            models={state.models}
             onOpenAgentConfig={state.openAgentConfig}
+            onQuickModelChange={state.handleQuickModelChange}
             getAgentConfigInfo={state.getAgentConfigInfo}
           />
         </TabsContent>

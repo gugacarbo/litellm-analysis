@@ -4,6 +4,7 @@ import {
   getAgentConfig,
   getAgentRoutingConfig,
   getGlobalFallbackModel,
+  getAllModels,
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
 import type {
@@ -41,6 +42,11 @@ export function useAgentRoutingState() {
     },
   });
 
+  const modelsQuery = useQuery({
+    queryKey: queryKeys.models,
+    queryFn: () => getAllModels(),
+  });
+
   useEffect(() => {
     if (!agentRoutingQuery.data) return;
 
@@ -64,5 +70,6 @@ export function useAgentRoutingState() {
       agentRoutingQuery.error instanceof Error
         ? agentRoutingQuery.error.message
         : null,
+    models: modelsQuery.data?.map((m) => m.modelName) || [],
   };
 }

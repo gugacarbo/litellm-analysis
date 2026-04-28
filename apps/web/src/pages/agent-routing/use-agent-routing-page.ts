@@ -27,6 +27,7 @@ export function useAgentRoutingPageState() {
     setGlobalFallbackModel,
     loading,
     error,
+    models,
   } = useAgentRoutingState();
 
   const resolvedAgentConfigs = useMemo<Record<string, AgentConfig>>(() => {
@@ -75,6 +76,7 @@ export function useAgentRoutingPageState() {
     setAliasDialogKey,
     setAliasDialogValue,
     handleSaveAgentConfig,
+    handleQuickModelChange,
     handleDeleteAgentConfig,
     handleSaveCategoryConfig,
     handleDeleteCategoryConfig,
@@ -122,6 +124,7 @@ export function useAgentRoutingPageState() {
     resolvedAgentConfigs,
     resolvedCategoryConfigs,
     globalFallbackModel,
+    models,
     setAliasDialogOpen,
     setAliasDialogKey,
     setAliasDialogValue,
@@ -129,6 +132,7 @@ export function useAgentRoutingPageState() {
     setCategoryConfigDialogOpen,
     handleSaveAll,
     handleSaveAgentConfig,
+    handleQuickModelChange,
     handleDeleteAgentConfig,
     handleSaveCategoryConfig,
     handleDeleteCategoryConfig,

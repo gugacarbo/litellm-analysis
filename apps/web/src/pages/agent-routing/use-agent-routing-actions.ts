@@ -136,6 +136,28 @@ export function useAgentRoutingActions(
     ],
   );
 
+  const handleQuickModelChange = useCallback(
+    async (agentKey: string, model: string) => {
+      const currentConfig = agentConfigs[agentKey] || {};
+      const newConfig: AgentConfig = {
+        ...currentConfig,
+        model,
+      };
+
+      await updateAgentConfigMutation.mutateAsync({
+        key: agentKey,
+        type: "agent",
+        config: newConfig,
+      });
+
+      setAgentConfigs((prev) => ({ ...prev, [agentKey]: newConfig }));
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.agentRoutingData,
+      });
+    },
+    [agentConfigs, queryClient, setAgentConfigs, updateAgentConfigMutation],
+  );
+
   const handleSaveCategoryConfig = useCallback(
     async (config: CategoryConfig) => {
       await updateAgentConfigMutation.mutateAsync({
@@ -237,6 +259,7 @@ export function useAgentRoutingActions(
     setAliasDialogKey,
     setAliasDialogValue,
     handleSaveAgentConfig,
+    handleQuickModelChange,
     handleSaveCategoryConfig,
     handleDeleteAgentConfig,
     handleDeleteCategoryConfig,
