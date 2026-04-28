@@ -79,9 +79,10 @@ export function registerAnalyticsRoutes(
   });
 
   app.get("/analytics/model-stats", async (_req, res) => {
-    try {
-      const data = await dataSource.getModelStatistics();
-      res.json(data);
+ try {
+     const days = parseDays(_req.query.days, 30);
+     const data = await dataSource.getModelStatistics(days);
+    res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
