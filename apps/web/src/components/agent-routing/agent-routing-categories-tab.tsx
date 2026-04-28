@@ -1,24 +1,11 @@
-import { ChevronDown, ChevronRight, Database } from "lucide-react";
-import { useState } from "react";
+import { Database } from "lucide-react";
 import type { CategoryDefinition } from "../../types/agent-routing";
-import { Badge } from "../badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../card";
+import type { ConfigInfo } from "./agent-routing-types";
 import { CategoryFocusView } from "./category-focus-view";
 import { CategoryModelView } from "./category-model-view";
+import { EntityRoutingCard } from "./entity-routing-card";
 
-type ConfigInfo = {
-  model: string;
-  description?: string;
-  fallbackCount: number;
-};
-
-type Props = {
+export type AgentRoutingCategoriesTabProps = {
   loading: boolean;
   categories: CategoryDefinition[];
   models: string[];
@@ -34,73 +21,42 @@ export function AgentRoutingCategoriesTab({
   onOpenCategoryConfig,
   onQuickModelChange,
   getCategoryConfigInfo,
-}: Props) {
-  const [showModelStations, setShowModelStations] = useState(false);
-
+}: AgentRoutingCategoriesTabProps) {
   const configuredCategoriesCount = categories.filter((category) => {
     const config = getCategoryConfigInfo(category.key);
     return Boolean(config && config.model !== "Unassigned");
   }).length;
 
+  const totalFallbacks = categories.reduce((sum, category) => {
+    const config = getCategoryConfigInfo(category.key);
+    return sum + (config?.fallbackCount ?? 0);
+  }, 0);
+
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Categories
-            </CardTitle>
-            <Badge variant="outline">
-              {configuredCategoriesCount}/{categories.length} configured
-            </Badge>
-          </div>
-          <CardDescription>
-            Category-level model distribution and execution defaults.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <CategoryFocusView
-            loading={loading}
-            categories={categories}
-            models={models}
-            getCategoryConfigInfo={getCategoryConfigInfo}
-            onOpenCategoryConfig={onOpenCategoryConfig}
-            onQuickModelChange={onQuickModelChange}
-          />
-
-          <div className="rounded-lg border">
-            <button
-              type="button"
-              onClick={() => setShowModelStations(!showModelStations)}
-              className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-muted/50"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Model Stations</span>
-                <Badge variant="secondary" className="font-normal">
-                  visualização
-                </Badge>
-              </div>
-              {showModelStations ? (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              )}
-            </button>
-
-            {showModelStations && (
-              <div className="border-t p-3">
-                <CategoryModelView
-                  loading={loading}
-                  categories={categories}
-                  getCategoryConfigInfo={getCategoryConfigInfo}
-                  onOpenCategoryConfig={onOpenCategoryConfig}
-                />
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <EntityRoutingCard
+      icon={Database}
+      title="Categories"
+      description="Category-level model distribution and execution defaults."
+      totalCount={categories.length}
+      configuredCount={configuredCategoriesCount}
+      totalFallbacks={totalFallbacks}
+      modelStationsContent={
+        <CategoryModelView
+          loading={loading}
+          categories={categories}
+          getCategoryConfigInfo={getCategoryConfigInfo}
+          onOpenCategoryConfig={onOpenCategoryConfig}
+        />
+      }
+    >
+      <CategoryFocusView
+        loading={loading}
+        categories={categories}
+        models={models}
+        getCategoryConfigInfo={getCategoryConfigInfo}
+        onOpenCategoryConfig={onOpenCategoryConfig}
+        onQuickModelChange={onQuickModelChange}
+      />
+    </EntityRoutingCard>
   );
 }

@@ -35,12 +35,13 @@ export function Sidebar() {
 
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
+    { to: "/model-stats", icon: BarChart3, label: "Stats" },
+
     {
       id: "models",
       icon: Settings,
       label: "Models",
       children: [
-        { to: "/model-stats", label: "Stats" },
         { to: "/aliases", label: "Aliases" },
         { to: "/models", label: "Config" },
       ],

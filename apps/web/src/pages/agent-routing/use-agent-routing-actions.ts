@@ -177,7 +177,12 @@ export function useAgentRoutingActions(
         queryKey: queryKeys.agentRoutingData,
       });
     },
-    [categoryConfigs, queryClient, setCategoryConfigs, updateAgentConfigMutation],
+    [
+      categoryConfigs,
+      queryClient,
+      setCategoryConfigs,
+      updateAgentConfigMutation,
+    ],
   );
 
   const handleSaveCategoryConfig = useCallback(
