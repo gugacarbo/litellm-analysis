@@ -7,7 +7,7 @@ export function registerConfigRoutes(
   app: Application,
   opts: RouteOptions,
 ): void {
-  const { dataSource, orchestration } = opts;
+  const { orchestration } = opts;
 
   app.get("/agent-config", async (_req, res) => {
     try {
