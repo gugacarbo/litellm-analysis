@@ -22,5 +22,12 @@ export async function getErrorLogsImpl(
       : null,
     api_key: item.api_key ? String(item.api_key) : null,
     spend_status: item.spend_status ? String(item.spend_status) : null,
+    total_tokens: item.total_tokens ?? null,
+    prompt_tokens: item.prompt_tokens ?? null,
+    completion_tokens: item.completion_tokens ?? null,
+    spend: item.spend ?? null,
+    end_time: item.end_time
+      ? new Date(item.end_time).toISOString()
+      : null,
   }));
 }

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { ErrorColumnKey } from "@/components/errors/errors-table-columns";
 import { Badge } from "../components/badge";
 import { ErrorDetailDialog } from "../components/errors/error-detail-dialog";
+import { ErrorsDistributionChart } from "../components/errors/errors-distribution-chart";
 import {
   ErrorsFilterCard,
   type ErrorsFilterValues,
@@ -96,6 +97,14 @@ export function LogsErrorsTab() {
         (entry) => entry.status_code >= 400 && entry.status_code < 500,
       ).length,
       uniqueModels: new Set(filteredErrors.map((entry) => entry.model)).size,
+      totalSpendOnErrors: filteredErrors.reduce(
+        (sum, entry) => sum + (entry.spend ?? 0),
+        0,
+      ),
+      totalTokensBeforeErrors: filteredErrors.reduce(
+        (sum, entry) => sum + (entry.total_tokens ?? 0),
+        0,
+      ),
     };
   }, [filteredErrors]);
 
@@ -169,6 +178,8 @@ export function LogsErrorsTab() {
         />
 
         <ErrorsSummaryCards loading={loading} totals={totals} />
+
+        <ErrorsDistributionChart errors={filteredErrors} loading={loading} />
 
         <ErrorsTable
           errors={paginatedErrors}

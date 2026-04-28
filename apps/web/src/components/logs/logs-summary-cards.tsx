@@ -1,0 +1,164 @@
+import {
+  Activity,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  Gauge,
+  Sparkles,
+  XCircle,
+  Zap,
+} from "lucide-react";
+import { useMemo } from "react";
+import {
+  formatCurrency,
+  formatDuration,
+  formatNumber,
+} from "../../lib/spend-log-utils";
+import type { SpendLog } from "../../types/analytics";
+import { MetricCard } from "../metric-card";
+
+type LogsSummaryCardsProps = {
+  logs: SpendLog[];
+  loading: boolean;
+};
+
+export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
+  const metrics = useMemo(() => {
+    if (logs.length === 0) return null;
+    const totalSpend = logs.reduce((s, l) => s + l.spend, 0);
+    const totalTokens = logs.reduce((s, l) => s + l.total_tokens, 0);
+    const totalRequests = logs.length;
+    const avgSpend = totalSpend / totalRequests;
+    const successCount = logs.filter(
+      (l) => l.status === "200" || l.status === "success",
+    ).length;
+    const successRate = (successCount / totalRequests) * 100;
+
+    const durations = logs
+      .filter((l) => l.end_time)
+      .map(
+        (l) =>
+          new Date(l.end_time).getTime() - new Date(l.start_time).getTime(),
+      );
+    const avgDuration =
+      durations.length > 0
+        ? durations.reduce((s, d) => s + d, 0) / durations.length
+        : 0;
+
+    const speeds = logs
+      .filter((l) => l.end_time && l.completion_tokens > 0)
+      .map((l) => {
+        const ms =
+          new Date(l.end_time).getTime() - new Date(l.start_time).getTime();
+        return ms > 0 ? (l.completion_tokens / ms) * 1000 : 0;
+      });
+    const avgSpeed =
+      speeds.length > 0 ? speeds.reduce((s, v) => s + v, 0) / speeds.length : 0;
+
+    return {
+      totalSpend,
+      totalTokens,
+      totalRequests,
+      avgSpend,
+      avgDuration,
+      avgTokensPerRequest: totalTokens / totalRequests,
+      successRate,
+      avgSpeed,
+    };
+  }, [logs]);
+
+  if (!metrics) return null;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-2">
+      <MetricCard
+        icon={DollarSign}
+        title="Total Spend"
+        value={formatCurrency(metrics.totalSpend)}
+        description={`${metrics.totalRequests} reqs`}
+        colorScheme="green"
+        variant="gradient"
+        size="sm"
+        loading={loading}
+      />
+      <MetricCard
+        icon={Sparkles}
+        title="Total Tokens"
+        value={formatNumber(metrics.totalTokens)}
+        description={`${formatNumber(metrics.avgTokensPerRequest)}/req`}
+        colorScheme="blue"
+        variant="gradient"
+        size="sm"
+        loading={loading}
+      />
+      <MetricCard
+        icon={Gauge}
+        title="Requests"
+        value={metrics.totalRequests}
+        description={`${metrics.successRate.toFixed(1)}% ok`}
+        colorScheme="violet"
+        variant="gradient"
+        size="sm"
+        loading={loading}
+        progress={{
+          value:
+            metrics.totalRequests -
+            metrics.totalRequests * (1 - metrics.successRate / 100),
+          max: metrics.totalRequests,
+          label: "Success",
+        }}
+      />
+      <MetricCard
+        icon={DollarSign}
+        title="Avg Spend"
+        value={formatCurrency(metrics.avgSpend)}
+        colorScheme="amber"
+        variant="gradient"
+        size="sm"
+        loading={loading}
+      />
+      <MetricCard
+        icon={Clock}
+        title="Avg Duration"
+        value={formatDuration(metrics.avgDuration)}
+        colorScheme="neutral"
+        variant="gradient"
+        size="sm"
+        loading={loading}
+      />
+      <MetricCard
+        icon={Activity}
+        title="Avg Tokens"
+        value={formatNumber(metrics.avgTokensPerRequest)}
+        colorScheme="cyan"
+        variant="gradient"
+        size="sm"
+        loading={loading}
+      />
+      <MetricCard
+        icon={metrics.successRate >= 95 ? CheckCircle2 : XCircle}
+        title="Success Rate"
+        value={`${metrics.successRate.toFixed(1)}%`}
+        colorScheme={
+          metrics.successRate >= 95
+            ? "green"
+            : metrics.successRate >= 90
+              ? "amber"
+              : "red"
+        }
+        variant="gradient"
+        size="sm"
+        loading={loading}
+      />
+      <MetricCard
+        icon={Zap}
+        title="Avg Speed"
+        value={`${metrics.avgSpeed.toFixed(1)} tok/s`}
+        colorScheme="violet"
+        variant="gradient"
+        size="sm"
+        loading={loading}
+      />
+    </div>
+  );
+}

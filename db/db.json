@@ -254,7 +254,7 @@
       "mode": "subagent"
     },
     "multimodal-looker": {
-      "model": "glm-5.1",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "kimi-k2.6",
         "qwen3.5-plus",

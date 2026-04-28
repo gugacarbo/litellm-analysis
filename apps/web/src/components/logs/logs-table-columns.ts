@@ -1,4 +1,5 @@
 export type LogColumnKey =
+  | "latencyHeat"
   | "time"
   | "model"
   | "user"
@@ -44,6 +45,12 @@ export const LOG_COLUMNS: LogColumn[] = [
   { key: "totalTokens", label: "Total Tokens", align: "right" },
   { key: "duration", label: "Duration (ms)", align: "right" },
   { key: "timeToFirstToken", label: "TTFT (ms)", align: "right" },
+  {
+    key: "latencyHeat",
+    label: "Latency",
+    align: "right" as const,
+    defaultVisible: false,
+  },
   { key: "tokensPerSecond", label: "Tokens/s", align: "right" },
   { key: "spend", label: "Spend", align: "right" },
   { key: "status", label: "Status" },

@@ -117,6 +117,11 @@ export interface ErrorLogEntry {
   status_code: number | null;
   api_key: string | null;
   spend_status: string | null;
+  total_tokens: number | null;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
+  spend: number | null;
+  end_time: string | null;
 }
 
 export interface ModelDetail {

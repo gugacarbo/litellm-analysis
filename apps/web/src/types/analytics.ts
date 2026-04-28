@@ -23,6 +23,37 @@ export interface SpendLog {
   end_time: string;
   api_key: string;
   status: string;
+  // Extended fields from DB (unmapped columns)
+  call_type?: string;
+  completion_start_time?: string;
+  model_id?: string;
+  model_group?: string;
+  custom_llm_provider?: string;
+  api_base?: string;
+  cache_hit?: string;
+  cache_key?: string;
+  stream_flag?: boolean;
+  request_tags?: string[];
+  team_id?: string;
+  end_user?: string;
+  requester_ip_address?: string;
+  metadata?: Record<string, unknown>;
+  messages?: unknown[];
+  response?: Record<string, unknown>;
+  session_id?: string;
+  mcp_namespaced_tool_name?: string;
+  organization_id?: string;
+  agent_id?: string;
+  request_duration_ms?: number;
+}
+
+export interface SpendLogWithError extends SpendLog {
+  error_type?: string;
+  error_message?: string;
+  error_status_code?: number;
+  error_exception_string?: string;
+  request_kwargs?: Record<string, unknown>;
+  litellm_model_name?: string;
 }
 
 export interface UserSpend {
@@ -96,6 +127,11 @@ export interface ErrorLog {
   status_code: number;
   litellm_model_name: string | null;
   request_kwargs: Record<string, unknown> | null;
+  total_tokens: number | null;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
+  spend: number | null;
+  end_time: string | null;
 }
 
 export interface MetricsSummary {

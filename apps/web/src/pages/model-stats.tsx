@@ -5,6 +5,7 @@ import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs
 import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
 import { ModelStatsHeader } from "../components/model-stats/model-stats-header";
 import { ModelStatsMergePanel } from "../components/model-stats/model-stats-merge-panel";
+import { ModelStatsMiniCharts } from "../components/model-stats/model-stats-mini-charts";
 import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
 import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
 import { Toaster } from "../components/sonner";
@@ -165,6 +166,8 @@ export function ModelStatsPage() {
           onMerge={handleMerge}
         />
       )}
+
+      <ModelStatsMiniCharts data={data} loading={loading} />
 
       <ModelStatsSummaryCards
         loading={loading}

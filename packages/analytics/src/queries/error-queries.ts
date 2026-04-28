@@ -37,6 +37,11 @@ export async function getErrorLogs(limit = 50, days = 30) {
         request_kwargs: errorLogs.requestKwargs,
         api_key: spendLogs.apiKey,
         spend_status: spendLogs.status,
+        total_tokens: spendLogs.totalTokens,
+        prompt_tokens: spendLogs.promptTokens,
+        completion_tokens: spendLogs.completionTokens,
+        spend: spendLogs.spend,
+        end_time: spendLogs.endTime,
       })
       .from(spendLogs)
       .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))
@@ -66,6 +71,11 @@ export async function getErrorLogs(limit = 50, days = 30) {
           sql<string>`COALESCE(NULLIF(BTRIM(${spendLogs.status}), ''), 'error')`.mapWith(
             String,
           ),
+        total_tokens: spendLogs.totalTokens,
+        prompt_tokens: spendLogs.promptTokens,
+        completion_tokens: spendLogs.completionTokens,
+        spend: spendLogs.spend,
+        end_time: spendLogs.endTime,
       })
       .from(spendLogs)
       .where(whereClause)

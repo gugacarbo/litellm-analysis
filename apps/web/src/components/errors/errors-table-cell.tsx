@@ -168,6 +168,28 @@ export function renderErrorCell({
         );
       }
       return <span className="text-xs text-muted-foreground">-</span>;
+    case "partialTokens": {
+      const tokens = errorLog.total_tokens;
+      if (tokens == null || tokens === 0) {
+        return <span className="text-xs text-muted-foreground">-</span>;
+      }
+      return (
+        <span className="text-xs font-medium tabular-nums text-right">
+          {tokens.toLocaleString("en-US")}
+        </span>
+      );
+    }
+    case "partialSpend": {
+      const spend = errorLog.spend;
+      if (spend == null || spend === 0) {
+        return <span className="text-xs text-muted-foreground">-</span>;
+      }
+      return (
+        <span className="text-xs font-medium tabular-nums text-right text-amber-600">
+          ${spend.toFixed(4)}
+        </span>
+      );
+    }
     case "actions":
       return (
         <Button

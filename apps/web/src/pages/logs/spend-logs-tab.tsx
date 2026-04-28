@@ -1,6 +1,7 @@
 import { Badge } from "../../components/badge";
 import { LogDetailDialog } from "../../components/logs/log-detail-dialog";
 import { LogsFilterCard } from "../../components/logs/logs-filter-card";
+import { LogsSummaryCards } from "../../components/logs/logs-summary-cards";
 import { LogsTable } from "../../components/logs/logs-table";
 import type { SpendLog } from "../../types/analytics";
 import {
@@ -59,8 +60,8 @@ export function SpendLogsTab({
   });
 
   return (
-    <>
-      <div className="flex flex-wrap items-center gap-2 mb-4">
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">
           {pagination.total.toLocaleString("en-US")} logs
         </Badge>
@@ -70,6 +71,8 @@ export function SpendLogsTab({
             : "No active filters"}
         </Badge>
       </div>
+
+      <LogsSummaryCards logs={logs} loading={loading} />
 
       <LogsFilterCard
         models={state.models}
@@ -113,6 +116,6 @@ export function SpendLogsTab({
           if (!open) state.setSelectedLog(null);
         }}
       />
-    </>
+    </div>
   );
 }

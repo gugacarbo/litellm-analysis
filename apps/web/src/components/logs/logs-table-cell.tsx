@@ -77,5 +77,37 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
           {log.request_id}
         </span>
       );
+    case "latencyHeat": {
+      const startTime = new Date(log.start_time).getTime();
+      const endTime = log.end_time
+        ? new Date(log.end_time).getTime()
+        : startTime;
+      const durationMs = endTime - startTime;
+      const durationSec = durationMs / 1000;
+
+      let barColor = "bg-emerald-500";
+      if (durationSec >= 5) {
+        barColor = "bg-red-500";
+      } else if (durationSec >= 1) {
+        barColor = "bg-amber-500";
+      }
+
+      const maxWidth = 100;
+      const barWidth = Math.min(maxWidth, (durationSec / 10) * maxWidth);
+
+      return (
+        <div className="flex items-center gap-2 justify-end">
+          <div className="w-20 h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${barColor}`}
+              style={{ width: `${barWidth}%` }}
+            />
+          </div>
+          <span className="text-xs text-muted-foreground tabular-nums w-14 text-right">
+            {formatDuration(durationMs)}
+          </span>
+        </div>
+      );
+    }
   }
 }

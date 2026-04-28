@@ -23,6 +23,7 @@ type MetricCardProps = {
   loading?: boolean;
   className?: string;
   valueColor?: string;
+  size?: "sm" | "md";
 };
 
 const colorConfig: Record<
@@ -99,14 +100,17 @@ export function MetricCard({
   loading,
   className,
   valueColor,
+  size = "md",
 }: MetricCardProps) {
   const colors = colorConfig[colorScheme];
+  const compact = size === "sm";
 
   if (variant === "gradient") {
     return (
       <div
         className={cn(
-          "relative overflow-hidden rounded-xl border bg-gradient-to-br p-4",
+          "relative overflow-hidden rounded-xl border bg-gradient-to-br",
+          compact ? "p-3" : "p-4",
           "from-background",
           colors.gradientEnd,
           colors.border,
@@ -115,16 +119,27 @@ export function MetricCard({
         )}
       >
         <div className="relative z-10">
-          <div className="mb-3 flex items-center justify-between">
+          <div
+            className={cn(
+              "flex items-center justify-between",
+              compact ? "mb-2" : "mb-3",
+            )}
+          >
             <div className="flex items-center gap-2">
               {Icon && (
                 <div
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-lg",
+                    "flex items-center justify-center rounded-lg",
+                    compact ? "h-7 w-7" : "h-8 w-8",
                     colors.iconBg,
                   )}
                 >
-                  <Icon className={cn("h-4 w-4", colors.iconColor)} />
+                  <Icon
+                    className={cn(
+                      compact ? "h-3.5 w-3.5" : "h-4 w-4",
+                      colors.iconColor,
+                    )}
+                  />
                 </div>
               )}
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -134,11 +149,12 @@ export function MetricCard({
           </div>
 
           {loading ? (
-            <Skeleton className="h-9 w-28" />
+            <Skeleton className={compact ? "h-7 w-24" : "h-9 w-28"} />
           ) : (
             <p
               className={cn(
-                "mb-1 text-2xl font-bold tracking-tight",
+                "mb-1 font-bold tracking-tight",
+                compact ? "text-xl" : "text-2xl",
                 valueColor || "text-foreground",
               )}
             >
@@ -151,7 +167,7 @@ export function MetricCard({
           )}
 
           {progress && !loading && (
-            <div className="mt-3">
+            <div className={compact ? "mt-2" : "mt-3"}>
               <div className="mb-1 flex items-center justify-between">
                 {progress.label && (
                   <span className="text-[10px] text-muted-foreground">
@@ -162,7 +178,12 @@ export function MetricCard({
                   {((progress.value / progress.max) * 100).toFixed(1)}%
                 </span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className={cn(
+                  "w-full overflow-hidden rounded-full bg-muted",
+                  compact ? "h-1" : "h-1.5",
+                )}
+              >
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-500",

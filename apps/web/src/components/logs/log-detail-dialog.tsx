@@ -1,11 +1,17 @@
 import {
   AlertCircle,
+  AlertTriangle,
   CheckCircle2,
+  Copy,
   DollarSign,
+  MessageSquare,
+  type Sparkles,
   Timer,
   TrendingUp,
+  Webhook,
   Zap,
 } from "lucide-react";
+import { useState } from "react";
 import {
   calculateTokensPerSecond,
   formatCurrency,
@@ -22,7 +28,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../dialog";
+import { CollapsibleSection } from "./log-detail-collapsible-section";
+import { ContextBadge } from "./log-detail-context-badge";
 import { LogDetailInfoSections } from "./log-detail-info-section";
+import { JsonViewer } from "./log-detail-json-viewer";
 import { MetricCard } from "./log-detail-metric-card";
 
 type LogDetailDialogProps = {
@@ -36,6 +45,8 @@ export function LogDetailDialog({
   open,
   onOpenChange,
 }: LogDetailDialogProps) {
+  const [copied, setCopied] = useState(false);
+
   if (!log) return null;
 
   const durationMs =
@@ -63,9 +74,47 @@ export function LogDetailDialog({
 
   const StatusIcon = statusConfig.icon;
 
+  const handleCopyRequestId = async () => {
+    await navigator.clipboard.writeText(log.request_id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const contextBadges: {
+    label: string;
+    icon: typeof Sparkles;
+    variant: "success" | "info" | "warning" | "purple" | "cyan" | "default";
+  }[] = [];
+
+  if (log.call_type) {
+    contextBadges.push({
+      label: log.call_type.replace(/_/g, " ").replace(/\./g, " "),
+      icon: MessageSquare,
+      variant: "info",
+    });
+  }
+
+  if (log.cache_hit) {
+    contextBadges.push({
+      label: log.cache_hit === "true" ? "Cache Hit" : "Cache Miss",
+      icon: Zap,
+      variant: log.cache_hit === "true" ? "success" : "warning",
+    });
+  }
+
+  if (log.stream_flag || log.response) {
+    contextBadges.push({
+      label: "Streaming",
+      icon: Webhook,
+      variant: "cyan",
+    });
+  }
+
+  const hasContextBadges = contextBadges.length > 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl max-h-[88vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <div
@@ -77,10 +126,18 @@ export function LogDetailDialog({
               <DialogTitle className="font-mono text-sm sm:text-base break-all pr-4">
                 {log.model}
               </DialogTitle>
-              <DialogDescription className="flex items-center gap-2 mt-1">
+              <DialogDescription className="flex items-center gap-2 mt-1 flex-wrap">
                 <span>{formatFullDateTime(log.start_time)}</span>
                 <span className="text-muted-foreground/50">&bull;</span>
                 <span>{formatDuration(durationMs)}</span>
+                {log.call_type && (
+                  <>
+                    <span className="text-muted-foreground/50">&bull;</span>
+                    <span className="capitalize">
+                      {log.call_type.replace(/_/g, " ")}
+                    </span>
+                  </>
+                )}
               </DialogDescription>
             </div>
             <Badge
@@ -96,13 +153,38 @@ export function LogDetailDialog({
             <span className="text-xs text-muted-foreground uppercase tracking-wide shrink-0">
               Request ID
             </span>
-            <span className="font-mono text-xs break-all">
+            <span className="font-mono text-xs break-all flex-1">
               {log.request_id}
             </span>
+            <button
+              type="button"
+              onClick={handleCopyRequestId}
+              className="shrink-0 text-muted-foreground/50 hover:text-foreground transition-colors"
+              title="Copy request ID"
+            >
+              {copied ? (
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
+            </button>
           </div>
         </DialogHeader>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {hasContextBadges && (
+          <div className="flex flex-wrap gap-2">
+            {contextBadges.map((badge) => (
+              <ContextBadge
+                key={badge.label}
+                label={badge.label}
+                icon={badge.icon}
+                variant={badge.variant}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <MetricCard
             icon={DollarSign}
             label="Total Spend"
@@ -127,6 +209,24 @@ export function LogDetailDialog({
             value={`${tokensPerSec} tok/s`}
             accent="text-purple-500"
           />
+          <MetricCard
+            icon={Zap}
+            label="Time to First Token"
+            value={
+              log.time_to_first_token_ms != null
+                ? `${Math.round(log.time_to_first_token_ms)}ms`
+                : "-"
+            }
+            accent={
+              log.time_to_first_token_ms != null
+                ? log.time_to_first_token_ms < 500
+                  ? "text-emerald-500"
+                  : log.time_to_first_token_ms < 2000
+                    ? "text-amber-500"
+                    : "text-red-500"
+                : "text-muted-foreground"
+            }
+          />
         </div>
 
         <div className="rounded-lg border overflow-hidden">
@@ -134,7 +234,7 @@ export function LogDetailDialog({
             Token Breakdown
           </div>
           <div className="p-4">
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-4 text-sm flex-wrap">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm bg-blue-500" />
                 <span className="text-muted-foreground">Prompt</span>
@@ -159,7 +259,7 @@ export function LogDetailDialog({
                 </span>
               </div>
             </div>
-            <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden flex">
+            <div className="mt-3 h-2.5 rounded-full bg-muted overflow-hidden flex">
               <div
                 className="bg-blue-500 h-full transition-all"
                 style={{
@@ -183,6 +283,53 @@ export function LogDetailDialog({
             </div>
           </div>
         </div>
+
+        {log.metadata && Object.keys(log.metadata).length > 0 && (
+          <CollapsibleSection
+            title="Metadata"
+            icon={MessageSquare}
+            defaultOpen={false}
+          >
+            <JsonViewer data={log.metadata} defaultOpen={false} />
+          </CollapsibleSection>
+        )}
+
+        {log.request_tags && log.request_tags.length > 0 && (
+          <CollapsibleSection
+            title="Request Tags"
+            icon={Zap}
+            defaultOpen={false}
+          >
+            <div className="flex flex-wrap gap-2">
+              {log.request_tags.map((tag, index) => (
+                <Badge key={index} variant="outline">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </CollapsibleSection>
+        )}
+
+        {!isSuccess && (
+          <section className="overflow-hidden rounded-lg border border-red-500/30">
+            <div className="border-b bg-red-500/10 px-3 py-2 text-xs font-medium uppercase tracking-wide text-red-700 dark:text-red-400 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              Error Details
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <Badge className="bg-red-500/15 text-red-700 border-red-500/30">
+                  {log.status}
+                </Badge>
+              </div>
+              <pre className="text-sm whitespace-pre-wrap bg-muted/50 p-3 rounded font-mono overflow-x-auto">
+                {log.response
+                  ? JSON.stringify(log.response, null, 2)
+                  : "No error details available"}
+              </pre>
+            </div>
+          </section>
+        )}
 
         <LogDetailInfoSections
           log={log}
