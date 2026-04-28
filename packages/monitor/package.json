@@ -1,0 +1,27 @@
+{
+  "name": "@lite-llm/monitor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./db": "./src/db/monitor-schema.ts",
+    "./client": "./src/db/monitor-client.ts",
+    "./queries": "./src/db/monitor-queries.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lite-llm/analytics": "workspace:*",
+    "better-sqlite3": "^11.6.0",
+    "drizzle-orm": "^0.38.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

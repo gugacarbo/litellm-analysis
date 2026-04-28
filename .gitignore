@@ -31,5 +31,5 @@ npm-debug.log*
 .DS_Store
 *.pem
 
-# Sisyphus
-.sisyphus/
+# Monitor SQLite
+db/monitor.db
