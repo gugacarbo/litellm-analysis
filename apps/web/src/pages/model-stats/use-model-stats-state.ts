@@ -8,7 +8,10 @@ import {
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
 import type { DashboardDateRangeKey } from "../dashboard/dashboard-types";
-import { getDateRangeDays } from "../dashboard/dashboard-utils";
+import {
+  getDateRangeDays,
+  getDateRangeLabel,
+} from "../dashboard/dashboard-utils";
 import type { ColumnKey, SortDirection, SortField } from "./model-stats-types";
 import { MODEL_STATS_COLUMNS } from "./model-stats-types";
 
@@ -16,6 +19,7 @@ export function useModelStatsState() {
   const [selectedDateRange, setSelectedDateRange] =
     useState<DashboardDateRangeKey>("30d");
   const rangeDays = getDateRangeDays(selectedDateRange);
+  const rangeLabel = getDateRangeLabel(selectedDateRange);
 
   const [sortField, setSortField] = useState<SortField>("total_spend");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -59,6 +63,7 @@ export function useModelStatsState() {
     selectedDateRange,
     setSelectedDateRange,
     rangeDays,
+    rangeLabel,
     sortField,
     setSortField,
     sortDirection,

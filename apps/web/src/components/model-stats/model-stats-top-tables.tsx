@@ -1,141 +1,130 @@
-import type { ModelStats } from "../../pages/model-stats/model-stats-types";
+import { Link } from 'react-router-dom';
+import type { ModelStats } from '../../pages/model-stats/model-stats-types';
 import {
+  formatCompactNumber,
   formatCurrency,
-  formatNumber,
-} from "../../pages/model-stats/model-stats-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../table";
+} from '../../pages/model-stats/model-stats-utils';
+import { Card, CardContent, CardHeader, CardTitle } from '../card';
+import { Skeleton } from '../skeleton';
 
 type ModelStatsTopTablesProps = {
   data: ModelStats[];
   loading: boolean;
-  totalSpend: number;
-  totalRequests: number;
+  rangeLabel: string;
 };
+
+function BarRow({
+  label,
+  value,
+  formatted,
+  max,
+  color,
+  href,
+}: {
+  label: string;
+  value: number;
+  formatted: string;
+  max: number;
+  color: string;
+  href: string;
+}) {
+  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-xs">
+        <Link
+          to={href}
+          className="font-mono text-xs hover:underline truncate max-w-[60%]"
+        >
+          {label || '(no model)'}
+        </Link>
+        <span className="text-muted-foreground tabular-nums">{formatted}</span>
+      </div>
+      <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all ${color}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export function ModelStatsTopTables({
   data,
   loading,
-  totalSpend,
-  totalRequests,
+  rangeLabel,
 }: ModelStatsTopTablesProps) {
+  const topBySpend = [...data]
+    .sort(
+      (a, b) => Number(b.total_spend) - Number(a.total_spend),
+    )
+    .slice(0, 8);
+
+  const topByRequests = [...data]
+    .sort(
+      (a, b) => Number(b.request_count) - Number(a.request_count),
+    )
+    .slice(0, 8);
+
+  const maxSpend = topBySpend[0]
+    ? Number(topBySpend[0].total_spend)
+    : 0;
+  const maxRequests = topByRequests[0]
+    ? Number(topByRequests[0].request_count)
+    : 0;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Top Models by Spend</CardTitle>
+          <CardTitle>Top Models by Spend ({rangeLabel})</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Model</TableHead>
-                <TableHead className="text-right">Spend</TableHead>
-                <TableHead className="text-right">%</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <Skeleton className="h-4 w-32" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-4 w-16 ml-auto" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-4 w-12 ml-auto" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                : data.slice(0, 5).map((m, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-mono text-xs">
-                        {m.model}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(m.total_spend)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {totalSpend > 0
-                          ? (
-                              (Number(m.total_spend) / totalSpend) *
-                              100
-                            ).toFixed(1)
-                          : 0}
-                        %
-                      </TableCell>
-                    </TableRow>
-                  ))}
-            </TableBody>
-          </Table>
+        <CardContent className="space-y-3">
+          {loading
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="space-y-1">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-2 w-3/4" />
+                </div>
+              ))
+            : topBySpend.map((m) => (
+                <BarRow
+                  key={m.model}
+                  label={m.model}
+                  value={Number(m.total_spend)}
+                  formatted={formatCurrency(m.total_spend)}
+                  max={maxSpend}
+                  color="bg-blue-500"
+                  href={`/model/${encodeURIComponent(m.model)}`}
+                />
+              ))}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Top Models by Requests</CardTitle>
+          <CardTitle>Top Models by Requests ({rangeLabel})</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Model</TableHead>
-                <TableHead className="text-right">Requests</TableHead>
-                <TableHead className="text-right">%</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <Skeleton className="h-4 w-32" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-4 w-16 ml-auto" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-4 w-12 ml-auto" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                : [...data]
-                    .sort(
-                      (a, b) =>
-                        Number(b.request_count) - Number(a.request_count),
-                    )
-                    .slice(0, 5)
-                    .map((m, i) => (
-                      <TableRow key={i}>
-                        <TableCell className="font-mono text-xs">
-                          {m.model}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatNumber(m.request_count)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {totalRequests > 0
-                            ? (
-                                (Number(m.request_count) / totalRequests) *
-                                100
-                              ).toFixed(1)
-                            : 0}
-                          %
-                        </TableCell>
-                      </TableRow>
-                    ))}
-            </TableBody>
-          </Table>
+        <CardContent className="space-y-3">
+          {loading
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="space-y-1">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-2 w-3/4" />
+                </div>
+              ))
+            : topByRequests.map((m) => (
+                <BarRow
+                  key={m.model}
+                  label={m.model}
+                  value={Number(m.request_count)}
+                  formatted={`${formatCompactNumber(m.request_count)} reqs`}
+                  max={maxRequests}
+                  color="bg-emerald-500"
+                  href={`/model/${encodeURIComponent(m.model)}`}
+                />
+              ))}
         </CardContent>
       </Card>
     </div>

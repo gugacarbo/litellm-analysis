@@ -27,7 +27,9 @@ export type SortField =
   | "total_spend"
   | "total_tokens"
   | "avg_latency_ms"
-  | "success_rate";
+  | "success_rate"
+  | "error_count"
+  | "avg_tokens_per_request";
 
 export type SortDirection = "asc" | "desc";
 
@@ -47,10 +49,12 @@ export type ColumnKey =
   | "p99"
   | "success"
   | "errors"
+  | "errorRate"
   | "users"
   | "keys"
   | "first"
   | "last"
+  | "costPer1k"
   | "actions";
 
 export interface Column {
@@ -59,6 +63,13 @@ export interface Column {
   sortable?: SortField;
   align?: "left" | "right";
   default: boolean;
+}
+
+export interface ModelInsight {
+  label: string;
+  value: string;
+  detail: string;
+  tone: "positive" | "warning" | "negative" | "neutral";
 }
 
 export const MODEL_STATS_COLUMNS: Column[] = [
@@ -87,7 +98,13 @@ export const MODEL_STATS_COLUMNS: Column[] = [
   },
   { key: "prompt", label: "Prompt", align: "right", default: false },
   { key: "output", label: "Output", align: "right", default: false },
-  { key: "avgTok", label: "Avg Tok/Req", align: "right", default: true },
+  {
+    key: "avgTok",
+    label: "Avg Tok/Req",
+    sortable: "avg_tokens_per_request",
+    align: "right",
+    default: false,
+  },
   {
     key: "tokPerSec",
     label: "Out tok/s (p50)",
@@ -105,6 +122,8 @@ export const MODEL_STATS_COLUMNS: Column[] = [
     default: true,
   },
   { key: "errors", label: "Errors", align: "right", default: false },
+  { key: "errorRate", label: "Error Rate", align: "right", default: false },
+  { key: "costPer1k", label: "$/1K tok", align: "right", default: false },
   { key: "users", label: "Users", align: "right", default: false },
   { key: "keys", label: "API Keys", align: "right", default: false },
   { key: "first", label: "First Used", align: "right", default: false },

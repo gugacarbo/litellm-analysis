@@ -5,14 +5,7 @@ import { useModelStatsState } from "./use-model-stats-state";
 export function useModelStatsPageState() {
   const state = useModelStatsState();
 
-  const {
-    filteredData,
-    sortedData,
-    totalSpend,
-    totalRequests,
-    totalTokens,
-    avgSuccessRate,
-  } = useModelStatsDerived(
+  const derived = useModelStatsDerived(
     state.data,
     state.searchQuery,
     state.sortField,
@@ -47,12 +40,7 @@ export function useModelStatsPageState() {
 
   return {
     ...state,
-    filteredData,
-    sortedData,
-    totalSpend,
-    totalRequests,
-    totalTokens,
-    avgSuccessRate,
+    ...derived,
     handleSort,
     toggleColumn,
     openDeleteDialog,

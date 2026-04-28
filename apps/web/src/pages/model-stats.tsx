@@ -1,15 +1,16 @@
-import { Card, CardContent } from "../components/card";
-import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
-import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
-import { ModelStatsCharts } from "../components/model-stats/model-stats-charts";
-import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
-import { ModelStatsHeader } from "../components/model-stats/model-stats-header";
-import { ModelStatsMergePanel } from "../components/model-stats/model-stats-merge-panel";
-import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
-import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
-import { Toaster } from "../components/sonner";
-import { MODEL_STATS_COLUMNS } from "./model-stats/model-stats-types";
-import { useModelStatsPageState } from "./model-stats/use-model-stats-page";
+import { Card, CardContent } from '../components/card';
+import { DeleteModelLogsDialog } from '../components/model-stats/delete-model-logs-dialog';
+import { MergeModelLogsDialog } from '../components/model-stats/merge-model-logs-dialog';
+import { ModelStatsCharts } from '../components/model-stats/model-stats-charts';
+import { ModelStatsDataTable } from '../components/model-stats/model-stats-data-table';
+import { ModelStatsHeader } from '../components/model-stats/model-stats-header';
+import { ModelStatsInsights } from '../components/model-stats/model-stats-insights';
+import { ModelStatsMergePanel } from '../components/model-stats/model-stats-merge-panel';
+import { ModelStatsSummaryCards } from '../components/model-stats/model-stats-summary-cards';
+import { ModelStatsTopTables } from '../components/model-stats/model-stats-top-tables';
+import { Toaster } from '../components/sonner';
+import { MODEL_STATS_COLUMNS } from './model-stats/model-stats-types';
+import { useModelStatsPageState } from './model-stats/use-model-stats-page';
 
 export function ModelStatsPage() {
   const state = useModelStatsPageState();
@@ -80,6 +81,16 @@ export function ModelStatsPage() {
         totalRequests={state.totalRequests}
         totalTokens={state.totalTokens}
         avgSuccessRate={state.avgSuccessRate}
+        totalErrors={state.totalErrors}
+        avgLatency={state.avgLatency}
+        avgCostPerRequest={state.avgCostPerRequest}
+        uniqueModels={state.uniqueModels}
+        rangeLabel={state.rangeLabel}
+      />
+
+      <ModelStatsInsights
+        loading={state.loading}
+        insights={state.insights}
       />
 
       <ModelStatsDataTable
@@ -100,13 +111,14 @@ export function ModelStatsPage() {
         tokenDistribution={state.tokenDistribution}
         modelDistribution={state.modelDistribution}
         costEfficiency={state.costEfficiency}
+        sortedData={state.sortedData}
+        rangeLabel={state.rangeLabel}
       />
 
       <ModelStatsTopTables
         data={state.data}
         loading={state.loading}
-        totalSpend={state.totalSpend}
-        totalRequests={state.totalRequests}
+        rangeLabel={state.rangeLabel}
       />
     </div>
   );
