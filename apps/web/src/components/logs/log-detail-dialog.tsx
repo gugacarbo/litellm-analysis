@@ -1,12 +1,9 @@
 import {
   AlertCircle,
   CheckCircle2,
-  Clock,
   DollarSign,
-  Key,
   Timer,
   TrendingUp,
-  User,
   Zap,
 } from "lucide-react";
 import {
@@ -15,7 +12,6 @@ import {
   formatDuration,
   formatFullDateTime,
   formatNumber,
-  maskApiKey,
 } from "../../lib/spend-log-utils";
 import type { SpendLog } from "../../types/analytics";
 import { Badge } from "../badge";
@@ -26,6 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../dialog";
+import { LogDetailInfoSections } from "./log-detail-info-section";
+import { MetricCard } from "./log-detail-metric-card";
 
 type LogDetailDialogProps = {
   log: SpendLog | null;
@@ -81,7 +79,7 @@ export function LogDetailDialog({
               </DialogTitle>
               <DialogDescription className="flex items-center gap-2 mt-1">
                 <span>{formatFullDateTime(log.start_time)}</span>
-                <span className="text-muted-foreground/50">•</span>
+                <span className="text-muted-foreground/50">&bull;</span>
                 <span>{formatDuration(durationMs)}</span>
               </DialogDescription>
             </div>
@@ -186,116 +184,13 @@ export function LogDetailDialog({
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <section className="overflow-hidden rounded-lg border">
-            <div className="border-b bg-muted/30 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Request Info
-            </div>
-            <dl className="divide-y divide-border">
-              <DetailRow icon={User} label="User" value={log.user || "N/A"} />
-              <DetailRow icon={Key} label="Model" value={log.model} mono />
-              <DetailRow
-                icon={Key}
-                label="API Key"
-                value={maskApiKey(log.api_key)}
-                mono
-              />
-              <DetailRow
-                icon={isSuccess ? CheckCircle2 : AlertCircle}
-                label="Status"
-                value={
-                  <Badge
-                    variant={isSuccess ? "secondary" : "destructive"}
-                    className={statusConfig.badge}
-                  >
-                    {log.status}
-                  </Badge>
-                }
-              />
-            </dl>
-          </section>
-
-          <section className="overflow-hidden rounded-lg border">
-            <div className="border-b bg-muted/30 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Timing Details
-            </div>
-            <dl className="divide-y divide-border">
-              <DetailRow
-                icon={Clock}
-                label="Start Time"
-                value={formatFullDateTime(log.start_time)}
-              />
-              <DetailRow
-                icon={Clock}
-                label="End Time"
-                value={formatFullDateTime(log.end_time)}
-              />
-              <DetailRow
-                icon={Timer}
-                label="Duration"
-                value={formatDuration(durationMs)}
-              />
-              <DetailRow
-                icon={TrendingUp}
-                label="Tokens/Second"
-                value={tokensPerSec}
-              />
-            </dl>
-          </section>
-        </div>
+        <LogDetailInfoSections
+          log={log}
+          statusConfig={statusConfig}
+          durationMs={durationMs}
+          tokensPerSec={tokensPerSec}
+        />
       </DialogContent>
     </Dialog>
-  );
-}
-
-function MetricCard({
-  icon: Icon,
-  label,
-  value,
-  accent,
-}: {
-  icon: typeof DollarSign;
-  label: string;
-  value: string;
-  accent: string;
-}) {
-  return (
-    <div className="rounded-lg border bg-card p-3 space-y-2">
-      <div className="flex items-center gap-2">
-        <Icon className={`h-4 w-4 ${accent}`} />
-        <span className="text-xs text-muted-foreground uppercase tracking-wide">
-          {label}
-        </span>
-      </div>
-      <div className="text-lg font-semibold">{value}</div>
-    </div>
-  );
-}
-
-function DetailRow({
-  icon: Icon,
-  label,
-  value,
-  mono = false,
-}: {
-  icon: typeof User;
-  label: string;
-  value: React.ReactNode;
-  mono?: boolean;
-}) {
-  return (
-    <div className="grid grid-cols-[110px_1fr] gap-3 px-3 py-2.5">
-      <dt className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Icon className="h-3.5 w-3.5 shrink-0" />
-        {label}
-      </dt>
-      <dd
-        className={`text-sm font-medium break-words ${
-          mono ? "font-mono text-xs" : ""
-        }`}
-      >
-        {value}
-      </dd>
-    </div>
   );
 }

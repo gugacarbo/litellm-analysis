@@ -10,6 +10,13 @@ import {
   CategoryConfigEditorBasicSection,
   CategoryConfigEditorModelSection,
 } from "./category-config-editor/category-config-editor-primary-sections";
+import { normalizeCategoryConfig } from "./category-config-editor/normalize";
+import { useConfigUpdaters } from "./category-config-editor/state-utils";
+import {
+  addTool as addToolUtil,
+  removeTool as removeToolUtil,
+  updateToolValue as updateToolValueUtil,
+} from "./category-config-editor/tool-utils";
 import {
   Dialog,
   DialogContent,
@@ -32,26 +39,6 @@ interface CategoryConfigEditorProps {
 
 type CategoryEditorTab = "overview" | "model" | "advanced" | "execution";
 
-function normalizeCategoryConfig(
-  initialConfig: CategoryConfig = {},
-): CategoryConfig {
-  return {
-    model: initialConfig.model ?? "",
-    fallback_models: initialConfig.fallback_models ?? [],
-    tools: initialConfig.tools ?? {},
-    description: initialConfig.description,
-    variant: initialConfig.variant,
-    temperature: initialConfig.temperature,
-    top_p: initialConfig.top_p,
-    maxTokens: initialConfig.maxTokens,
-    thinking: initialConfig.thinking,
-    reasoningEffort: initialConfig.reasoningEffort,
-    textVerbosity: initialConfig.textVerbosity,
-    prompt_append: initialConfig.prompt_append,
-    is_unstable_agent: initialConfig.is_unstable_agent,
-  };
-}
-
 export function CategoryConfigEditor({
   open,
   onOpenChange,
@@ -71,6 +58,8 @@ export function CategoryConfigEditor({
   const [newToolKey, setNewToolKey] = useState("");
   const [newToolValue, setNewToolValue] = useState(true);
 
+  const { updateConfig, updateThinkingConfig } = useConfigUpdaters(setConfig);
+
   useEffect(() => {
     const normalized = normalizeCategoryConfig(initialConfig);
     setConfig((prev) => {
@@ -87,52 +76,16 @@ export function CategoryConfigEditor({
     setResetConfirm(false);
   }, [open]);
 
-  const updateConfig = <K extends keyof CategoryConfig>(
-    field: K,
-    value: CategoryConfig[K],
-  ) => {
-    setConfig((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const updateThinkingConfig = <
-    K extends keyof NonNullable<CategoryConfig["thinking"]>,
-  >(
-    field: K,
-    value: NonNullable<CategoryConfig["thinking"]>[K],
-  ) => {
-    setConfig((prev) => ({
-      ...prev,
-      thinking: {
-        ...(prev.thinking || { type: "enabled" }),
-        [field]: value,
-      },
-    }));
-  };
-
   const addTool = () => {
-    if (!newToolKey.trim()) return;
-
-    updateConfig("tools", {
-      ...(config.tools || {}),
-      [newToolKey.trim()]: newToolValue,
-    });
-    setNewToolKey("");
+    addToolUtil(newToolKey, newToolValue, setConfig, setNewToolKey);
   };
 
   const removeTool = (key: string) => {
-    const newTools = { ...(config.tools || {}) };
-    delete newTools[key];
-    updateConfig("tools", newTools);
+    removeToolUtil(key, setConfig);
   };
 
   const updateToolValue = (key: string, value: boolean) => {
-    updateConfig("tools", {
-      ...(config.tools || {}),
-      [key]: value,
-    });
+    updateToolValueUtil(key, value, setConfig);
   };
 
   const handleSave = async () => {

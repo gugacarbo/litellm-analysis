@@ -1,26 +1,86 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "../components/card";
 import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
 import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
-import { ModelStatsCharts } from "../components/model-stats/model-stats-charts";
 import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
 import { ModelStatsHeader } from "../components/model-stats/model-stats-header";
-import { ModelStatsInsights } from "../components/model-stats/model-stats-insights";
 import { ModelStatsMergePanel } from "../components/model-stats/model-stats-merge-panel";
 import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
 import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
 import { Toaster } from "../components/sonner";
+import { getModelStatistics } from "../lib/api-client";
+import { queryKeys } from "../lib/query-keys";
+import { useModelStatsDialogHandlers } from "./model-stats/dialog-handlers";
+import { useModelStatsDialogState } from "./model-stats/dialog-state";
 import { MODEL_STATS_COLUMNS } from "./model-stats/model-stats-types";
-import { useModelStatsPageState } from "./model-stats/use-model-stats-page";
+import { useModelStatsMutations } from "./model-stats/mutations";
 
 export function ModelStatsPage() {
-  const state = useModelStatsPageState();
+  const queryClient = useQueryClient();
+  const state = useModelStatsDialogState();
+  const mutations = useModelStatsMutations();
+  const {
+    handleSort,
+    toggleColumn,
+    openDeleteDialog,
+    handleDelete,
+    handleMerge,
+    confirmMerge,
+  } = useModelStatsDialogHandlers(queryClient, state, mutations);
 
-  if (state.error) {
+  const modelStatsQuery = useQuery({
+    queryKey: queryKeys.modelStatistics(state.rangeDays),
+    queryFn: () => getModelStatistics(state.rangeDays),
+    refetchInterval: 30_000,
+  });
+
+  const data = modelStatsQuery.data ?? [];
+  const loading = modelStatsQuery.isPending && !modelStatsQuery.data;
+  const error =
+    modelStatsQuery.error instanceof Error
+      ? modelStatsQuery.error.message
+      : null;
+
+  const filteredData = data.filter((m) => {
+    const modelName = m.model ?? "";
+    return modelName.toLowerCase().includes(state.searchQuery.toLowerCase());
+  });
+
+  const sortedData = [...filteredData].sort((a, b) => {
+    const aVal = a[state.sortField];
+    const bVal = b[state.sortField];
+
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return state.sortDirection === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    }
+
+    return state.sortDirection === "asc"
+      ? Number(aVal) - Number(bVal)
+      : Number(bVal) - Number(aVal);
+  });
+
+  const totalSpend = data.reduce((sum, m) => sum + Number(m.total_spend), 0);
+  const totalRequests = data.reduce(
+    (sum, m) => sum + Number(m.request_count),
+    0,
+  );
+  const totalTokens = data.reduce((sum, m) => sum + Number(m.total_tokens), 0);
+  const avgSuccessRate =
+    totalRequests > 0
+      ? data.reduce(
+          (sum, m) => sum + Number(m.success_rate) * Number(m.request_count),
+          0,
+        ) / totalRequests
+      : 0;
+
+  if (error) {
     return (
       <div className="p-6">
         <Card>
           <CardContent className="p-6">
-            <p className="text-red-500">Error: {state.error}</p>
+            <p className="text-red-500">Error: {error}</p>
           </CardContent>
         </Card>
       </div>
@@ -36,7 +96,7 @@ export function ModelStatsPage() {
         deleting={state.deleting}
         onOpenChange={state.setDeleteDialogOpen}
         onCancel={() => state.setDeleting(null)}
-        onConfirm={state.handleDelete}
+        onConfirm={handleDelete}
       />
 
       <MergeModelLogsDialog
@@ -44,11 +104,10 @@ export function ModelStatsPage() {
         sourceModel={state.sourceModel}
         targetModel={state.targetModel}
         sourceModelCount={
-          state.data.find((m) => m.model === state.sourceModel)
-            ?.request_count || 0
+          data.find((m) => m.model === state.sourceModel)?.request_count || 0
         }
         onOpenChange={state.setMergeDialogOpen}
-        onConfirm={state.confirmMerge}
+        onConfirm={confirmMerge}
       />
 
       <ModelStatsHeader
@@ -57,7 +116,7 @@ export function ModelStatsPage() {
         visibleColumns={state.visibleColumns}
         searchQuery={state.searchQuery}
         onToggleMergeMode={() => state.setMergeMode((prev) => !prev)}
-        onToggleColumn={state.toggleColumn}
+        onToggleColumn={toggleColumn}
         onSearchChange={state.setSearchQuery}
         selectedDateRange={state.selectedDateRange}
         setSelectedDateRange={state.setSelectedDateRange}
@@ -65,57 +124,42 @@ export function ModelStatsPage() {
 
       {state.mergeMode && (
         <ModelStatsMergePanel
-          data={state.data}
+          data={data}
           sourceModel={state.sourceModel}
           targetModel={state.targetModel}
           merging={state.merging}
           onSourceModelChange={state.setSourceModel}
           onTargetModelChange={state.setTargetModel}
-          onMerge={state.handleMerge}
+          onMerge={handleMerge}
         />
       )}
 
       <ModelStatsSummaryCards
-        loading={state.loading}
-        totalSpend={state.totalSpend}
-        totalRequests={state.totalRequests}
-        totalTokens={state.totalTokens}
-        avgSuccessRate={state.avgSuccessRate}
-        totalErrors={state.totalErrors}
-        avgLatency={state.avgLatency}
-        avgCostPerRequest={state.avgCostPerRequest}
-        uniqueModels={state.uniqueModels}
-        rangeLabel={state.rangeLabel}
+        loading={loading}
+        totalSpend={totalSpend}
+        totalRequests={totalRequests}
+        totalTokens={totalTokens}
+        avgSuccessRate={avgSuccessRate}
       />
 
-      <ModelStatsInsights loading={state.loading} insights={state.insights} />
-
       <ModelStatsDataTable
-        loading={state.loading}
-        data={state.sortedData}
+        loading={loading}
+        data={sortedData}
         columns={MODEL_STATS_COLUMNS}
         visibleColumns={state.visibleColumns}
         sortField={state.sortField}
         sortDirection={state.sortDirection}
-        totalSpend={state.totalSpend}
+        totalSpend={totalSpend}
         deleting={state.deleting}
-        onSort={state.handleSort}
-        onDeleteClick={state.openDeleteDialog}
-      />
-
-      <ModelStatsCharts
-        loading={state.loading}
-        tokenDistribution={state.tokenDistribution}
-        modelDistribution={state.modelDistribution}
-        costEfficiency={state.costEfficiency}
-        sortedData={state.sortedData}
-        rangeLabel={state.rangeLabel}
+        onSort={handleSort}
+        onDeleteClick={openDeleteDialog}
       />
 
       <ModelStatsTopTables
-        data={state.data}
-        loading={state.loading}
-        rangeLabel={state.rangeLabel}
+        data={data}
+        loading={loading}
+        totalSpend={totalSpend}
+        totalRequests={totalRequests}
       />
     </div>
   );

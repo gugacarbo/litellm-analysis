@@ -11,12 +11,10 @@ import {
   updateModel,
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
-import { EMPTY_MODEL_FORM_DATA, type ModelFormData } from "./model-form-data";
 import { getAllAliasesSorted } from "./models-alias-utils";
-import {
-  mapModelToFormData,
-  validateAndBuildModelParams,
-} from "./models-form-utils";
+import { validateAndBuildModelParams } from "./models-form-utils";
+import { useModelsAliasState } from "./use-models-alias-state";
+import { useModelsFormState } from "./use-models-form-state";
 
 export function useModelsPage() {
   const queryClient = useQueryClient();
@@ -52,38 +50,40 @@ export function useModelsPage() {
       updateAgentRoutingConfig(modelGroupAlias),
   });
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingModel, setEditingModel] = useState<ModelConfig | null>(null);
-  const [deleteModelName, setDeleteModelName] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
+  const {
+    deleteModelName,
+    dialogOpen,
+    editingModel,
+    formData,
+    formError,
+    handleOpenCreate,
+    handleOpenEdit,
+    addExtraParam,
+    removeExtraParam,
+    updateExtraParam,
+    setDeleteModelName,
+    setDialogOpen,
+    setFormData,
+  } = useModelsFormState();
+
+  const {
+    aliasDialogKey,
+    aliasDialogMode,
+    aliasDialogOpen,
+    aliasDialogValue,
+    aliasMutationError,
+    openAddAlias,
+    openEditAlias,
+    setAliasDialogKey,
+    setAliasDialogOpen,
+    setAliasDialogValue,
+    setAliasMutationError,
+  } = useModelsAliasState();
+
   const [mutationError, setMutationError] = useState<string | null>(null);
-  const [aliasMutationError, setAliasMutationError] = useState<string | null>(
-    null,
-  );
-  const [aliasDialogOpen, setAliasDialogOpen] = useState(false);
-  const [aliasDialogMode, setAliasDialogMode] = useState<"add" | "edit">("add");
-  const [aliasDialogKey, setAliasDialogKey] = useState("");
-  const [aliasDialogValue, setAliasDialogValue] = useState("");
-  const [formData, setFormData] = useState<ModelFormData>(
-    EMPTY_MODEL_FORM_DATA,
-  );
 
   const formLoading =
     createModelMutation.isPending || updateModelMutation.isPending;
-
-  function handleOpenCreate() {
-    setEditingModel(null);
-    setFormData(EMPTY_MODEL_FORM_DATA);
-    setFormError(null);
-    setDialogOpen(true);
-  }
-
-  function handleOpenEdit(model: ModelConfig) {
-    setEditingModel(model);
-    setFormData(mapModelToFormData(model));
-    setFormError(null);
-    setDialogOpen(true);
-  }
 
   async function handleSubmit() {
     setFormError(null);
@@ -128,48 +128,10 @@ export function useModelsPage() {
     }
   }
 
-  function addExtraParam() {
-    setFormData((prev) => ({
-      ...prev,
-      extraParams: { ...prev.extraParams, [crypto.randomUUID()]: "" },
-    }));
-  }
-
-  function removeExtraParam(key: string) {
-    setFormData((prev) => {
-      const next = { ...prev.extraParams };
-      delete next[key];
-      return { ...prev, extraParams: next };
-    });
-  }
-
-  function updateExtraParam(key: string, value: string) {
-    setFormData((prev) => ({
-      ...prev,
-      extraParams: { ...prev.extraParams, [key]: value },
-    }));
-  }
-
   const customAliases = useMemo(
     () => getAllAliasesSorted(aliasesQuery.data),
     [aliasesQuery.data],
   );
-
-  function openAddAlias() {
-    setAliasDialogMode("add");
-    setAliasDialogKey("");
-    setAliasDialogValue("");
-    setAliasMutationError(null);
-    setAliasDialogOpen(true);
-  }
-
-  function openEditAlias(key: string, value: string) {
-    setAliasDialogMode("edit");
-    setAliasDialogKey(key);
-    setAliasDialogValue(value);
-    setAliasMutationError(null);
-    setAliasDialogOpen(true);
-  }
 
   async function handleAliasSave() {
     const key = aliasDialogKey.trim();
@@ -223,12 +185,13 @@ export function useModelsPage() {
     (aliasesQuery.error instanceof Error ? aliasesQuery.error.message : null);
 
   return {
-    aliasesError,
-    aliasesLoading,
+    addExtraParam,
     aliasDialogKey,
     aliasDialogMode,
     aliasDialogOpen,
     aliasDialogValue,
+    aliasesError,
+    aliasesLoading,
     customAliases,
     deleteModelName,
     dialogOpen,
@@ -236,18 +199,16 @@ export function useModelsPage() {
     formData,
     formError,
     formLoading,
-    modelsQuery,
-    mutationError,
-    updateAgentRoutingMutation,
     handleAliasDelete,
     handleAliasSave,
     handleDelete,
     handleOpenCreate,
     handleOpenEdit,
     handleSubmit,
+    modelsQuery,
+    mutationError,
     openAddAlias,
     openEditAlias,
-    addExtraParam,
     removeExtraParam,
     setAliasDialogKey,
     setAliasDialogOpen,
@@ -255,6 +216,7 @@ export function useModelsPage() {
     setDeleteModelName,
     setDialogOpen,
     setFormData,
+    updateAgentRoutingMutation,
     updateExtraParam,
   };
 }

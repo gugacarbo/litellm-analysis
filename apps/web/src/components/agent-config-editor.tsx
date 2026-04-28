@@ -10,6 +10,16 @@ import {
   AgentConfigEditorModelSection,
   AgentConfigEditorPromptsSection,
 } from "./agent-config-editor/agent-config-editor-primary-sections";
+import { normalizeAgentConfig } from "./agent-config-editor/normalize";
+import {
+  addSkill as addSkillFn,
+  removeSkill as removeSkillFn,
+} from "./agent-config-editor/skill-utils";
+import {
+  addTool as addToolFn,
+  removeTool as removeToolFn,
+  updateToolValue as updateToolValueFn,
+} from "./agent-config-editor/tool-utils";
 import { Button } from "./button";
 import {
   Dialog,
@@ -37,30 +47,6 @@ type AgentEditorTab =
   | "prompts"
   | "execution"
   | "permissions";
-
-function normalizeAgentConfig(initialConfig: AgentConfig = {}): AgentConfig {
-  const result: AgentConfig = {
-    model: initialConfig.model ?? "",
-    fallback_models: initialConfig.fallback_models ?? [],
-    tools: initialConfig.tools ?? {},
-    disable: initialConfig.disable ?? false,
-    description: initialConfig.description,
-    color: initialConfig.color,
-    mode: initialConfig.mode,
-    variant: initialConfig.variant,
-    category: initialConfig.category,
-    skills: initialConfig.skills,
-    temperature: initialConfig.temperature,
-    top_p: initialConfig.top_p,
-    prompt: initialConfig.prompt,
-    prompt_append: initialConfig.prompt_append,
-    permission: initialConfig.permission,
-  };
-  if (result.mode === undefined) {
-    result.mode = "subagent";
-  }
-  return result;
-}
 
 export function AgentConfigEditor({
   open,
@@ -104,40 +90,26 @@ export function AgentConfigEditor({
     }));
   };
 
-  const addSkill = () => {
-    if (!newSkill.trim()) return;
-    updateConfig("skills", [...(config.skills || []), newSkill.trim()]);
-    setNewSkill("");
-  };
+  const addSkill = () =>
+    addSkillFn(config.skills, newSkill, updateConfig, setNewSkill);
 
-  const removeSkill = (index: number) => {
-    const newSkills = [...(config.skills || [])];
-    newSkills.splice(index, 1);
-    updateConfig("skills", newSkills);
-  };
+  const removeSkill = (index: number) =>
+    removeSkillFn(config.skills, index, updateConfig);
 
-  const addTool = () => {
-    if (!newToolKey.trim()) return;
+  const addTool = () =>
+    addToolFn(
+      config.tools,
+      newToolKey,
+      newToolValue,
+      updateConfig,
+      setNewToolKey,
+    );
 
-    updateConfig("tools", {
-      ...(config.tools || {}),
-      [newToolKey.trim()]: newToolValue,
-    });
-    setNewToolKey("");
-  };
+  const removeTool = (key: string) =>
+    removeToolFn(config.tools, key, updateConfig);
 
-  const removeTool = (key: string) => {
-    const newTools = { ...(config.tools || {}) };
-    delete newTools[key];
-    updateConfig("tools", newTools);
-  };
-
-  const updateToolValue = (key: string, value: boolean) => {
-    updateConfig("tools", {
-      ...(config.tools || {}),
-      [key]: value,
-    });
-  };
+  const updateToolValue = (key: string, value: boolean) =>
+    updateToolValueFn(config.tools, key, value, updateConfig);
 
   const handleSave = async () => {
     await onSave(config);

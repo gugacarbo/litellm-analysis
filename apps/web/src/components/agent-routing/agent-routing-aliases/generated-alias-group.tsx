@@ -1,0 +1,128 @@
+import { ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import type { AliasGroup } from "../../../pages/models/models-alias-utils";
+import { Button } from "../../button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../table";
+
+type GeneratedAliasGroupProps = {
+  group: AliasGroup;
+  isExpanded: boolean;
+  onToggle: () => void;
+  expandedSubgroups: Set<string>;
+  onToggleSubgroup: (key: string) => void;
+  saving: boolean;
+  onOpenEditAlias: (key: string, value: string) => void;
+  onDeleteAlias: (key: string) => void;
+};
+
+export function GeneratedAliasGroup({
+  group,
+  isExpanded,
+  onToggle,
+  expandedSubgroups,
+  onToggleSubgroup,
+  saving,
+  onOpenEditAlias,
+  onDeleteAlias,
+}: GeneratedAliasGroupProps) {
+  if (!(group.subgroups?.length ?? 0)) return null;
+
+  return (
+    <div className="border rounded-lg">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex items-center gap-2 w-full px-3 py-2 hover:bg-muted/50 transition-colors"
+      >
+        {isExpanded ? (
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        ) : (
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        )}
+        <span className="font-medium">{group.name}</span>
+        <span className="text-xs text-muted-foreground ml-auto">
+          {group.subgroups?.length ?? 0} group
+          {(group.subgroups?.length ?? 0) !== 1 ? "s" : ""}
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div className="pl-4 pb-2">
+          {group.subgroups?.map((subgroup) => {
+            const isSubExpanded = expandedSubgroups.has(subgroup.key);
+            return (
+              <div key={subgroup.key} className="mt-2">
+                <button
+                  type="button"
+                  onClick={() => onToggleSubgroup(subgroup.key)}
+                  className="flex items-center gap-2 w-full px-3 py-1.5 hover:bg-muted/50 transition-colors rounded-md"
+                >
+                  {isSubExpanded ? (
+                    <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                  )}
+                  <span className="text-sm font-medium">{subgroup.name}</span>
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    {subgroup.aliases.length}
+                  </span>
+                </button>
+
+                {isSubExpanded && (
+                  <Table className="mt-1">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Alias</TableHead>
+                        <TableHead>Routes To</TableHead>
+                        <TableHead className="w-25">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {subgroup.aliases.map((alias) => (
+                        <TableRow key={alias.key}>
+                          <TableCell className="font-mono font-medium">
+                            {alias.key}
+                          </TableCell>
+                          <TableCell className="font-mono">
+                            {alias.value}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() =>
+                                  onOpenEditAlias(alias.key, alias.value)
+                                }
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() => onDeleteAlias(alias.key)}
+                                disabled={saving}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

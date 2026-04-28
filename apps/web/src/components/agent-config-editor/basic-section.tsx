@@ -1,0 +1,125 @@
+import { useCallback } from 'react';
+import { normalizeHexColor } from '../../lib/utils';
+import type { AgentConfig } from '../../types/agent-routing';
+import { Input } from '../input';
+import { Label } from '../label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../select';
+import { Textarea } from '../textarea';
+
+type UpdateConfigFn = (
+  field: keyof AgentConfig,
+  value: AgentConfig[keyof AgentConfig],
+) => void;
+
+type BasicSectionProps = {
+  config: AgentConfig;
+  onUpdateConfig: UpdateConfigFn;
+};
+
+export function AgentConfigEditorBasicSection({
+  config,
+  onUpdateConfig,
+}: BasicSectionProps) {
+  const handleColorChange = useCallback(
+    (value: string) => {
+      const normalized = normalizeHexColor(value);
+      if (normalized) {
+        onUpdateConfig('color', normalized);
+      }
+    },
+    [onUpdateConfig],
+  );
+
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1">
+        <h3 className="font-semibold">Basic Information</h3>
+        <p className="text-xs text-muted-foreground">
+          Identity, grouping and availability controls.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <Input
+            id="category"
+            value={config.category || ''}
+            onChange={(e) => onUpdateConfig('category', e.target.value)}
+            placeholder="Enter category"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="mode">Mode</Label>
+          <Select
+            value={config.mode || 'subagent'}
+            onValueChange={(value: 'subagent' | 'primary' | 'all') =>
+              onUpdateConfig('mode', value)
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="subagent">Subagent</SelectItem>
+              <SelectItem value="primary">Primary</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="color">Color</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={config.color || '#000000'}
+              onChange={(e) => handleColorChange(e.target.value)}
+              className="h-10 w-10 cursor-pointer rounded-md border border-border"
+            />
+            <Input
+              id="color"
+              value={config.color || ''}
+              onChange={(e) => handleColorChange(e.target.value)}
+              placeholder="#RRGGBB"
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Disable</Label>
+          <div className="flex items-center gap-2 pt-2">
+            <input
+              type="checkbox"
+              checked={!!config.disable}
+              onChange={(e) => onUpdateConfig('disable', e.target.checked)}
+              className="h-4 w-4"
+            />
+            <span className="text-sm text-muted-foreground">
+              Disable this agent
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={config.description || ''}
+          onChange={(e) => onUpdateConfig('description', e.target.value)}
+          placeholder="Enter description"
+          rows={3}
+        />
+      </div>
+    </section>
+  );
+}
