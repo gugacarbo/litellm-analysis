@@ -161,7 +161,7 @@ export function MetricCard({
             <p
               className={cn(
                 "mb-1 font-bold tracking-tight",
-                compact ? "text-xl" : "text-2xl",
+                compact ? "text-xl px-4" : "text-2xl",
                 valueColor || "text-foreground",
               )}
             >

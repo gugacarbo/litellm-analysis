@@ -63,7 +63,11 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         duration:
           new Date(l.end_time).getTime() - new Date(l.start_time).getTime(),
       }))
-      .sort((a, b) => b.duration - a.duration)[0];
+      .sort((a, b) => b.duration - a.duration)[0].duration;
+
+    const topTotalTokens = logs.sort(
+      (a, b) => b.total_tokens - a.total_tokens,
+    )[0].total_tokens;
 
     return {
       totalSpend,
@@ -76,6 +80,7 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
       avgSpeed,
       maxTokensPerSecond,
       slowestRequest,
+      topTotalTokens,
     };
   }, [logs]);
 
@@ -122,7 +127,7 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         icon={Clock}
         title="Avg Duration"
         value={formatDuration(metrics.avgDuration)}
-        description={`${metrics.slowestRequest}`}
+        description={`${formatDuration(metrics.slowestRequest)} slowest`}
         colorScheme="neutral"
         variant="gradient"
         size="sm"
@@ -132,7 +137,7 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         icon={Activity}
         title="Avg Tokens"
         value={formatNumber(metrics.avgTokensPerRequest)}
-        description="per request"
+        description={`${formatNumber(metrics.topTotalTokens)} max in a req`}
         colorScheme="cyan"
         variant="gradient"
         size="sm"

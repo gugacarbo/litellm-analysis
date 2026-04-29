@@ -3,22 +3,24 @@
 > **Note:** This is a cached reference. Data changes frequently in the live database. Always run a query if exact real-time precision is needed.
 
 ## Schema Sketch
-Mapeia a tabela `LiteLLM_Config` do banco de dados para configurações do proxy/roteador.
+A tabela mapeia `LiteLLM_Config` do Postgres.
+- `paramName`: varchar (PK)
+- `paramValue`: jsonb
 
-- `paramName`: varchar (PK) -> mapeado do DB `param_name`
-- `paramValue`: jsonb -> mapeado do DB `param_value`
-
-## Descrição de Armazenamento de Chaves (Resposta ao Teste 1)
-No repositório do LiteLLM, as configurações (incluindo chaves de provedores) ficam serializadas no campo `paramValue` (JSON). Dependendo da versão do LiteLLM rodando, dados sensíveis podem ser mascarados diretamente na engine Python e salvos na secret DB (hash/salt), porém a configuração visível fica aqui no Postgres. Em grande parte dos setups, as chaves reais são passadas via variável de ambiente, e o banco detém referências da configuração geral do roteador.
+Na coluna `paramValue` do tipo JSONB não há recurso de mascaramento no banco de dados, então valores que não são encriptados pela aplicação ficam em texto simples.
 
 ## Example Record
 ```json
 {
   "paramName": "general_settings",
   "paramValue": {
-    "master_key": "sk-1234********890",
-    "alerting": ["slack"],
-    "alerting_threshold": 100
+    "ui_access_mode": "all",
+    "store_model_in_db": true,
+    "health_check_interval": 300,
+    "enable_public_model_hub": false,
+    "database_connection_timeout": 60,
+    "store_prompts_in_spend_logs": true,
+    "database_connection_pool_limit": 10
   }
 }
 ```

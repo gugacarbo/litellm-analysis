@@ -2,7 +2,7 @@ import "dotenv/config";
 import * as path from "node:path";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { createDataSource } from "@lite-llm/analytics/data-source";
-import { MonitorService, getMonitorDb } from "@lite-llm/monitor";
+import { getMonitorDb, MonitorService } from "@lite-llm/monitor";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
 import { createApiServer } from "./api-server.js";
 import { WebSocketServer } from "./ws/websocket-server.js";

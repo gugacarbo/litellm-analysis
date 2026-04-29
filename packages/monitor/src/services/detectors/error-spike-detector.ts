@@ -2,7 +2,7 @@ import type { DetectorInput, DetectorResult } from "../monitor-types";
 
 const COOLDOWN_SECONDS = 300; // 5 minutes
 const SPIKE_THRESHOLD = 3; // current rate must be 3x baseline
-const MIN_ERRORS_FOR_SPIKE = 10; // need at least 10 errors in 5 min to consider spike
+const MIN_ERRORS_FOR_SPIKE = 5; // need at least 5 errors in 5 min to consider spike
 
 export function detectErrorSpike(
   input: DetectorInput,
@@ -25,7 +25,7 @@ export function detectErrorSpike(
       continue;
     }
 
-    // Need at least 10 errors in last 5 min to check for spike
+    // Need at least 5 errors in last 5 min to check for spike
     if (recentErrorCount < MIN_ERRORS_FOR_SPIKE) {
       continue;
     }

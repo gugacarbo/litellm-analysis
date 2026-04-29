@@ -80,7 +80,10 @@ export function ModelStatsMiniCharts({
     (sum, m) => sum + Number(m.request_count),
     0,
   );
-  const totalErrors = data.reduce((sum, m) => sum + Number(m.error_count || 0), 0);
+  const totalErrors = data.reduce(
+    (sum, m) => sum + Number(m.error_count || 0),
+    0,
+  );
   const successRequests = totalRequests - totalErrors;
   const successPct =
     totalRequests > 0 ? (successRequests / totalRequests) * 100 : 0;
@@ -98,26 +101,24 @@ export function ModelStatsMiniCharts({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {loading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="space-y-1">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-2 w-3/4" />
-              </div>
-            ))
-          ) : (
-            topBySpend.map((m) => (
-              <BarRow
-                key={m.model}
-                label={m.model}
-                value={Number(m.total_spend)}
-                formatted={formatCurrency(m.total_spend)}
-                max={maxSpend}
-                color="bg-blue-500"
-                href={`/model/${encodeURIComponent(m.model)}`}
-              />
-            ))
-          )}
+          {loading
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="space-y-1">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-2 w-3/4" />
+                </div>
+              ))
+            : topBySpend.map((m) => (
+                <BarRow
+                  key={m.model}
+                  label={m.model}
+                  value={Number(m.total_spend)}
+                  formatted={formatCurrency(m.total_spend)}
+                  max={maxSpend}
+                  color="bg-blue-500"
+                  href={`/model/${encodeURIComponent(m.model)}`}
+                />
+              ))}
         </CardContent>
       </Card>
 
@@ -129,51 +130,50 @@ export function ModelStatsMiniCharts({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {loading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="space-y-1">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-2 w-3/4" />
-              </div>
-            ))
-          ) : (
-            topByTokens.map((m) => {
-              return (
-                <div key={m.model} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono text-xs truncate max-w-[60%]">
-                      {m.model || "(no model)"}
-                    </span>
-                    <span className="text-muted-foreground tabular-nums text-xs">
-                      {Number(m.total_tokens).toLocaleString(APP_LOCALE)} tokens
-                    </span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden flex">
-                    <div
-                      className="h-full bg-blue-500 transition-all"
-                      style={{
-                        width: `${
-                          maxTokens > 0
-                            ? (Number(m.prompt_tokens) / maxTokens) * 100
-                            : 0
-                        }%`,
-                      }}
-                    />
-                    <div
-                      className="h-full bg-orange-400 transition-all"
-                      style={{
-                        width: `${
-                          maxTokens > 0
-                            ? (Number(m.completion_tokens) / maxTokens) * 100
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
+          {loading
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="space-y-1">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-2 w-3/4" />
                 </div>
-              );
-            })
-          )}
+              ))
+            : topByTokens.map((m) => {
+                return (
+                  <div key={m.model} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-mono text-xs truncate max-w-[60%]">
+                        {m.model || "(no model)"}
+                      </span>
+                      <span className="text-muted-foreground tabular-nums text-xs">
+                        {Number(m.total_tokens).toLocaleString(APP_LOCALE)}{" "}
+                        tokens
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden flex">
+                      <div
+                        className="h-full bg-blue-500 transition-all"
+                        style={{
+                          width: `${
+                            maxTokens > 0
+                              ? (Number(m.prompt_tokens) / maxTokens) * 100
+                              : 0
+                          }%`,
+                        }}
+                      />
+                      <div
+                        className="h-full bg-orange-400 transition-all"
+                        style={{
+                          width: `${
+                            maxTokens > 0
+                              ? (Number(m.completion_tokens) / maxTokens) * 100
+                              : 0
+                          }%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
         </CardContent>
       </Card>
 
@@ -185,42 +185,42 @@ export function ModelStatsMiniCharts({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {loading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="space-y-1">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-2 w-3/4" />
-              </div>
-            ))
-          ) : (
-            slowestModels.map((m) => {
-              const latency = Number(m.avg_latency_ms);
-              return (
-                <BarRow
-                  key={m.model}
-                  label={m.model}
-                  value={latency}
-                  formatted={formatDuration(latency)}
-                  max={maxLatency}
-                  color={
-                    latency >= 5000
-                      ? "bg-red-500"
-                      : latency >= 1000
-                        ? "bg-yellow-500"
-                        : "bg-emerald-500"
-                  }
-                  href={`/model/${encodeURIComponent(m.model)}`}
-                />
-              );
-            })
-          )}
+          {loading
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="space-y-1">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-2 w-3/4" />
+                </div>
+              ))
+            : slowestModels.map((m) => {
+                const latency = Number(m.avg_latency_ms);
+                return (
+                  <BarRow
+                    key={m.model}
+                    label={m.model}
+                    value={latency}
+                    formatted={formatDuration(latency)}
+                    max={maxLatency}
+                    color={
+                      latency >= 5000
+                        ? "bg-red-500"
+                        : latency >= 1000
+                          ? "bg-yellow-500"
+                          : "bg-emerald-500"
+                    }
+                    href={`/model/${encodeURIComponent(m.model)}`}
+                  />
+                );
+              })}
         </CardContent>
       </Card>
 
       {/* Status Breakdown */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">Status Breakdown</CardTitle>
+          <CardTitle className="text-sm font-medium">
+            Status Breakdown
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (

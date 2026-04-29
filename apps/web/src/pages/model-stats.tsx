@@ -76,16 +76,6 @@ export function ModelStatsPage() {
         ) / totalRequests
       : 0;
 
-  const avgTokensPerSecond =
-    totalTokens > 0
-      ? data.reduce(
-          (sum, m) =>
-            sum +
-            Number(m.avg_tokens_per_second || 0) * Number(m.request_count),
-          0,
-        ) / totalRequests
-      : 0;
-
   const maxTokensPerSecond = Math.max(
     ...data.map((m) => Number(m.max_tokens_per_second || 0)),
     0,
@@ -184,7 +174,6 @@ export function ModelStatsPage() {
         avgLatency={avgLatency}
         avgCostPerRequest={avgCostPerRequest}
         uniqueModels={uniqueModels}
-        avgTokensPerSecond={avgTokensPerSecond}
         maxTokensPerSecond={maxTokensPerSecond}
       />
 

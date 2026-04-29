@@ -1,4 +1,7 @@
-import type { ConnectionState, WsMessage } from "../../pages/monitor/monitor-types";
+import type {
+  ConnectionState,
+  WsMessage,
+} from "../../pages/monitor/monitor-types";
 
 type MessageCallback = (message: WsMessage) => void;
 type StatusCallback = (status: ConnectionState) => void;
@@ -27,7 +30,7 @@ export class WsClient {
 
   private doConnect(): void {
     if (this.destroyed) return;
-    this.emitStatus('connecting');
+    this.emitStatus("connecting");
 
     try {
       this.ws = new WebSocket(this.url);
@@ -40,7 +43,7 @@ export class WsClient {
 
     ws.onopen = () => {
       this.reconnectAttempt = 0;
-      this.emitStatus('connected');
+      this.emitStatus("connected");
     };
 
     ws.onmessage = (event: MessageEvent) => {
@@ -57,10 +60,10 @@ export class WsClient {
     ws.onclose = () => {
       this.ws = null;
       if (this.shouldReconnect && !this.destroyed) {
-        this.emitStatus('reconnecting');
+        this.emitStatus("reconnecting");
         this.scheduleReconnect();
       } else {
-        this.emitStatus('disconnected');
+        this.emitStatus("disconnected");
       }
     };
 
@@ -79,7 +82,7 @@ export class WsClient {
       this.ws.close();
       this.ws = null;
     }
-    this.emitStatus('disconnected');
+    this.emitStatus("disconnected");
   }
 
   destroy(): void {
@@ -100,16 +103,23 @@ export class WsClient {
   }
 
   getStatus(): ConnectionState {
-    if (!this.ws || this.ws.readyState === WebSocket.CLOSED || this.ws.readyState === WebSocket.CLOSING) {
-      return this.shouldReconnect ? 'reconnecting' : 'disconnected';
+    if (
+      !this.ws ||
+      this.ws.readyState === WebSocket.CLOSED ||
+      this.ws.readyState === WebSocket.CLOSING
+    ) {
+      return this.shouldReconnect ? "reconnecting" : "disconnected";
     }
-    if (this.ws.readyState === WebSocket.CONNECTING) return 'connecting';
-    return 'connected';
+    if (this.ws.readyState === WebSocket.CONNECTING) return "connecting";
+    return "connected";
   }
 
   private scheduleReconnect(): void {
     if (this.destroyed || !this.shouldReconnect) return;
-    const delay = Math.min(1000 * 2 ** this.reconnectAttempt, this.maxReconnectDelay);
+    const delay = Math.min(
+      1000 * 2 ** this.reconnectAttempt,
+      this.maxReconnectDelay,
+    );
     this.reconnectAttempt++;
     this.reconnectTimer = setTimeout(() => this.doConnect(), delay);
   }

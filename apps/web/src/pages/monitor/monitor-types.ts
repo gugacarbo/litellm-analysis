@@ -1,7 +1,15 @@
-export type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'reconnecting';
+export type ConnectionState =
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "reconnecting";
 
-export type AnomalyType = 'model_offline' | 'error_spike' | 'timeout_stuck' | 'silent_failure';
-export type AlertSeverity = 'critical' | 'warning' | 'info';
+export type AnomalyType =
+  | "model_offline"
+  | "error_spike"
+  | "timeout_stuck"
+  | "silent_failure";
+export type AlertSeverity = "critical" | "warning" | "info";
 
 export interface MonitorAlert {
   id: number;
@@ -15,7 +23,7 @@ export interface MonitorAlert {
   createdAt: number;
 }
 
-export type ModelHealthStatus = 'healthy' | 'degraded' | 'offline' | 'unknown';
+export type ModelHealthStatus = "healthy" | "degraded" | "offline" | "unknown";
 
 export interface ModelHealthEntry {
   model: string;
@@ -25,7 +33,7 @@ export interface ModelHealthEntry {
 }
 
 export interface WsMessage {
-  type: 'alert' | 'health_update' | 'connected';
+  type: "alert" | "health_update" | "connected";
   data: unknown;
 }
 
