@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { MonitorAlert } from "@/pages/monitor/monitor-types";
 import { AlertHistoryTable } from "../alert-history-table";
 
-function createMockAlert(
-  overrides: Partial<MonitorAlert> = {},
-): MonitorAlert {
+function createMockAlert(overrides: Partial<MonitorAlert> = {}): MonitorAlert {
   const now = Math.floor(Date.now() / 1000);
   return {
     id: now + Math.random(),
