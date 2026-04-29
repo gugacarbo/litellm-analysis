@@ -1,7 +1,10 @@
+import type {
+  ErrorLog,
+  PaginationMetadata,
+} from "@lite-llm/api-contracts/analytics";
 import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { APP_LOCALE } from "@/lib/locale";
 import { cn } from "../../lib/utils";
-import type { ErrorLog, PaginationMetadata } from "@lite-llm/api-contracts/analytics";
 import { LogsPaginationControls } from "../logs/logs-pagination-controls";
 import { Button } from "../ui/button";
 import {

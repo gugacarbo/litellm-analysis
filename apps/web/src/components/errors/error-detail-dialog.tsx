@@ -1,3 +1,4 @@
+import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
 import {
   AlertTriangle,
   Clock,
@@ -14,7 +15,6 @@ import {
   formatDuration,
   formatFullDateTime,
 } from "../../lib/spend-log-utils";
-import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
 import { Badge } from "../ui/badge";
 import {
   Dialog,

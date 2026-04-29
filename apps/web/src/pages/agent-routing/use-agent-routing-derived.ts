@@ -1,4 +1,3 @@
-import { useCallback, useMemo } from "react";
 import type {
   AgentConfig,
   AgentDefinition,
@@ -9,6 +8,7 @@ import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,
 } from "@lite-llm/api-contracts/agent-routing";
+import { useCallback, useMemo } from "react";
 
 /** Extract agent keys in UI display order. */
 const AGENT_KEYS: readonly string[] = AGENT_DEFINITIONS.map(

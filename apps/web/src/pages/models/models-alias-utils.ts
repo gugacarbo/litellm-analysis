@@ -1,8 +1,8 @@
-import type { AgentRoutingAPIResponse } from "../../lib/api-client/agent-routing";
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,
 } from "@lite-llm/api-contracts/agent-routing";
+import type { AgentRoutingAPIResponse } from "../../lib/api-client/agent-routing";
 
 const AGENT_KEYS = AGENT_DEFINITIONS.map((a) => a.key);
 const CATEGORY_KEYS = CATEGORY_DEFINITIONS.map((c) => c.key);

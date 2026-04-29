@@ -1,5 +1,5 @@
-import type { Dispatch, SetStateAction } from "react";
 import type { CategoryConfig } from "@lite-llm/api-contracts/agent-routing";
+import type { Dispatch, SetStateAction } from "react";
 
 export function useConfigUpdaters(
   setConfig: Dispatch<SetStateAction<CategoryConfig>>,

@@ -1,3 +1,8 @@
+import type {
+  AgentConfig,
+  AgentRoutingConfig,
+  CategoryConfig,
+} from "@lite-llm/api-contracts/agent-routing";
 import { useMutation } from "@tanstack/react-query";
 import {
   deleteAgentConfig,
@@ -6,11 +11,6 @@ import {
   updateGlobalFallbackModel,
 } from "../../lib/api-client/agent-config";
 import { updateAgentRoutingConfig } from "../../lib/api-client/agent-routing";
-import type {
-  AgentConfig,
-  AgentRoutingConfig,
-  CategoryConfig,
-} from "@lite-llm/api-contracts/agent-routing";
 
 export function useAgentRoutingMutations() {
   const updateAgentConfigMutation = useMutation({

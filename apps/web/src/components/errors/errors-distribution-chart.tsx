@@ -1,3 +1,4 @@
+import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
 import { useMemo } from "react";
 import {
   Bar,
@@ -9,7 +10,6 @@ import {
   YAxis,
 } from "recharts";
 import { ERROR_COLOR } from "../../lib/chart-colors";
-import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChartTooltipContent } from "../ui/chart-tooltip";
 import { Skeleton } from "../ui/skeleton";

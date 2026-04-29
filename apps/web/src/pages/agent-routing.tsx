@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  AGENT_DEFINITIONS,
+  CATEGORY_DEFINITIONS,
+} from "@lite-llm/api-contracts/agent-routing";
 import { Database, RefreshCw, Settings } from "lucide-react";
 import { AgentConfigEditor } from "../components/agent-config-editor";
 import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
@@ -13,10 +17,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import {
-  AGENT_DEFINITIONS,
-  CATEGORY_DEFINITIONS,
-} from "@lite-llm/api-contracts/agent-routing";
 import { useAgentRoutingPageState } from "./agent-routing/use-agent-routing-page";
 
 export function AgentRoutingPage() {

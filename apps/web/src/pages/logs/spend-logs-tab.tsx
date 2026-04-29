@@ -1,10 +1,10 @@
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { APP_LOCALE } from "@/lib/locale";
 import { LogDetailDialog } from "../../components/logs/log-detail-dialog";
 import { LogsFilterCard } from "../../components/logs/logs-filter-card";
 import { LogsSummaryCards } from "../../components/logs/logs-summary-cards";
 import { LogsTable } from "../../components/logs/logs-table";
 import { Badge } from "../../components/ui/badge";
-import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import {
   type SpendLogFilters,
   type SpendLogsState,

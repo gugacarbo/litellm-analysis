@@ -1,3 +1,8 @@
+import type {
+  CostEfficiency,
+  ModelDistribution,
+  TokenDistribution,
+} from "@lite-llm/api-contracts/analytics";
 import {
   Bar,
   BarChart,
@@ -24,11 +29,6 @@ import {
   formatDuration,
   formatNumber,
 } from "../../pages/model-stats/model-stats-utils";
-import type {
-  CostEfficiency,
-  ModelDistribution,
-  TokenDistribution,
-} from "@lite-llm/api-contracts/analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChartTooltipContent } from "../ui/chart-tooltip";
 import { Skeleton } from "../ui/skeleton";

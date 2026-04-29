@@ -1,8 +1,8 @@
 "use client";
 
+import type { AgentConfig } from "@lite-llm/api-contracts/agent-routing";
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { AgentConfig } from "@lite-llm/api-contracts/agent-routing";
 import { AgentConfigEditorExecutionSection } from "./agent-config-editor/agent-config-editor-execution-section";
 import { AgentConfigEditorPermissionsSection } from "./agent-config-editor/agent-config-editor-permissions-section";
 import {

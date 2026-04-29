@@ -1,3 +1,4 @@
+import type { CostEfficiency } from "@lite-llm/api-contracts/analytics";
 import {
   Bar,
   BarChart,
@@ -9,7 +10,6 @@ import {
 } from "recharts";
 import { CHART_COLORS, CHART_HEIGHT } from "@/lib/chart-colors";
 import { TOP_N_MODELS } from "@/pages/model-stats/model-stats-chart-utils";
-import type { CostEfficiency } from "@lite-llm/api-contracts/analytics";
 import { ChartTooltipContent } from "../../ui/chart-tooltip";
 import { ChartCard } from "./chart-card";
 

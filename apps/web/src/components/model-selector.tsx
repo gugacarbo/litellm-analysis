@@ -1,10 +1,10 @@
 "use client";
 
+import type { ModelConfig } from "@lite-llm/api-contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
-import type { ModelConfig } from "@lite-llm/api-contracts/analytics";
 import {
   Select,
   SelectContent,

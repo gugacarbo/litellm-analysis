@@ -1,5 +1,5 @@
-import { Plus, Trash2 } from "lucide-react";
 import type { AgentConfig } from "@lite-llm/api-contracts/agent-routing";
+import { Plus, Trash2 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";

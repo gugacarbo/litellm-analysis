@@ -1,3 +1,8 @@
+import type {
+  AgentConfig,
+  AgentRoutingConfig,
+  CategoryConfig,
+} from "@lite-llm/api-contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
@@ -7,11 +12,6 @@ import {
   getGlobalFallbackModel,
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
-import type {
-  AgentConfig,
-  AgentRoutingConfig,
-  CategoryConfig,
-} from "@lite-llm/api-contracts/agent-routing";
 
 export function useAgentRoutingState() {
   const [aliases, setAliases] = useState<AgentRoutingConfig>({});

@@ -1,3 +1,4 @@
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import {
   AlertCircle,
   AlertTriangle,
@@ -20,7 +21,6 @@ import {
   formatFullDateTime,
   formatNumber,
 } from "../../lib/spend-log-utils";
-import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { Badge } from "../ui/badge";
 import {
   Dialog,

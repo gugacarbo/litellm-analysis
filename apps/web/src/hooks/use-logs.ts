@@ -1,8 +1,11 @@
+import type {
+  PaginationMetadata,
+  SpendLog,
+} from "@lite-llm/api-contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { getSpendLogs } from "../lib/api-client/spend";
 import { queryKeys } from "../lib/query-keys";
-import type { PaginationMetadata, SpendLog } from "@lite-llm/api-contracts/analytics";
 
 export type LogFilters = {
   model?: string;

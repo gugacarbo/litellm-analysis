@@ -1,8 +1,8 @@
 "use client";
 
+import type { CategoryConfig } from "@lite-llm/api-contracts/agent-routing";
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { CategoryConfig } from "@lite-llm/api-contracts/agent-routing";
 import { CategoryConfigEditorAdvancedSection } from "./category-config-editor/category-config-editor-advanced-section";
 import { CategoryConfigEditorExecutionSection } from "./category-config-editor/category-config-editor-execution-section";
 import {

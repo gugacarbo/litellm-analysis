@@ -1,3 +1,4 @@
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import {
   Activity,
   Clock,
@@ -12,7 +13,6 @@ import {
   formatDuration,
   formatNumber,
 } from "../../lib/spend-log-utils";
-import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { MetricCard } from "../metric-card";
 
 type LogsSummaryCardsProps = {

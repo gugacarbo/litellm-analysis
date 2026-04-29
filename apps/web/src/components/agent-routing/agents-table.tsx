@@ -1,6 +1,6 @@
+import type { AgentDefinition } from "@lite-llm/api-contracts/agent-routing";
 import { Circle, Layers, Palette } from "lucide-react";
 import { cn } from "../../lib/utils";
-import type { AgentDefinition } from "@lite-llm/api-contracts/agent-routing";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
