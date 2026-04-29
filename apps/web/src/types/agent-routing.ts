@@ -65,6 +65,7 @@ export interface CategoryDefinition {
   key: string;
   name: string;
   description: string;
+  icon?: string;
 }
 
 export const AGENT_DEFINITIONS: AgentDefinition[] = [

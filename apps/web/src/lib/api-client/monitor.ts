@@ -1,4 +1,5 @@
 import { fetchApi } from "./core";
+import type { ModelHealthStatus } from "../../pages/monitor/monitor-types";
 
 // Types
 export interface MonitorAlert {
@@ -30,7 +31,7 @@ export interface MonitorStats {
 
 export interface ModelHealthEntry {
   model: string;
-  status: string;
+  status: ModelHealthStatus;
   last_error_at: string | null;
   error_rate_1h: number;
 }
