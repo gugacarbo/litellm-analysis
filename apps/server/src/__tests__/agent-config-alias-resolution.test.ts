@@ -1,6 +1,6 @@
-import type { AnalyticsDataSource } from "@lite-llm/analytics";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createMockDataSource } from "./helpers/create-mock-data-source";
 
 const mockUpdateAgentInConfig = vi.fn();
 const mockReadConfigFile = vi.fn();
@@ -25,43 +25,9 @@ vi.mock("@lite-llm/agents-manager", () => ({
   deleteCategoryFromConfig: vi.fn(),
 }));
 
-function createMockDataSource(): AnalyticsDataSource {
-  return {
-    getMetricsSummary: vi.fn().mockResolvedValue({
-      total_spend: 0,
-      total_tokens: 0,
-      active_models: 0,
-      error_count: 0,
-    }),
-    getDailySpendTrend: vi.fn().mockResolvedValue([]),
-    getSpendByModel: vi.fn().mockResolvedValue([]),
-    getSpendByUser: vi.fn().mockResolvedValue([]),
-    getSpendByKey: vi.fn().mockResolvedValue([]),
-    getSpendLogsCount: vi.fn().mockResolvedValue(0),
-    getSpendLogs: vi.fn().mockResolvedValue({
-      logs: [],
-      pagination: { total: 0, page: 1, page_size: 50, total_pages: 0 },
-    }),
-    getTokenDistribution: vi.fn().mockResolvedValue([]),
-    getPerformanceMetrics: vi.fn().mockResolvedValue({
-      total_requests: 0,
-      avg_duration_ms: 0,
-      success_rate: 0,
-    }),
-    getHourlyUsagePatterns: vi.fn().mockResolvedValue([]),
-    getApiKeyStats: vi.fn().mockResolvedValue([]),
-    getCostEfficiency: vi.fn().mockResolvedValue([]),
-    getModelDistribution: vi.fn().mockResolvedValue([]),
-    getDailyTokenTrend: vi.fn().mockResolvedValue([]),
-    getModelStatistics: vi.fn().mockResolvedValue([]),
-    getModels: vi.fn().mockResolvedValue([]),
-    getModelDetails: vi.fn().mockResolvedValue([]),
-    getErrorLogs: vi.fn().mockResolvedValue([]),
-    createModel: vi.fn().mockResolvedValue(undefined),
-    updateModel: vi.fn().mockResolvedValue(undefined),
-    deleteModel: vi.fn().mockResolvedValue(undefined),
-    mergeModels: vi.fn().mockResolvedValue(undefined),
-    deleteModelLogs: vi.fn().mockResolvedValue(undefined),
+async function getServer() {
+  const { createApiServer } = await import("../api-server");
+  const mockDs = createMockDataSource({
     getAgentRoutingConfig: vi.fn().mockResolvedValue({
       model_group_alias: {
         "sisyphus/gpt-5.5": "openai/gpt-4.1",
@@ -69,47 +35,7 @@ function createMockDataSource(): AnalyticsDataSource {
         "oracle/gpt-5.4": "openai/o3-mini",
       },
     }),
-    updateAgentRoutingConfig: vi.fn().mockResolvedValue(undefined),
-    getAgentConfigs: vi.fn().mockResolvedValue({}),
-    getCategoryConfigs: vi.fn().mockResolvedValue({}),
-    updateAgentConfig: vi.fn().mockResolvedValue(undefined),
-    updateCategoryConfig: vi.fn().mockResolvedValue(undefined),
-    deleteAgentConfig: vi.fn().mockResolvedValue(undefined),
-    deleteCategoryConfig: vi.fn().mockResolvedValue(undefined),
-    getDailySpendTrendByModel: vi.fn().mockResolvedValue([]),
-    getDailyTokenTrendByModel: vi.fn().mockResolvedValue([]),
-    getHourlyUsageByModel: vi.fn().mockResolvedValue([]),
-    getDailyLatencyTrendByModel: vi.fn().mockResolvedValue([]),
-    getErrorBreakdownByModel: vi.fn().mockResolvedValue([]),
-    getDailyErrorTrendByModel: vi.fn().mockResolvedValue([]),
-    getTopUsersByModel: vi.fn().mockResolvedValue([]),
-    getTopApiKeysByModel: vi.fn().mockResolvedValue([]),
-    getSpendLogDetail: vi.fn().mockResolvedValue(null),
-    getErrorsSince: vi.fn().mockResolvedValue([]),
-    getErrorCountByModelSince: vi.fn().mockResolvedValue([]),
-    getModelHealthSince: vi.fn().mockResolvedValue(null),
-    getStuckRequests: vi.fn().mockResolvedValue([]),
-    getCacheHitRateByModel: vi.fn().mockResolvedValue({
-      cache_hits: 0,
-      total_requests: 0,
-      cache_hit_rate: 0,
-    }),
-    getTTFTPercentilesByModel: vi.fn().mockResolvedValue({
-      avg_ttft_ms: 0,
-      p50_ttft_ms: 0,
-      p95_ttft_ms: 0,
-      p99_ttft_ms: 0,
-      min_ttft_ms: 0,
-      max_ttft_ms: 0,
-    }),
-    getStatusDistributionByModel: vi.fn().mockResolvedValue([]),
-    getProviderBreakdownByModel: vi.fn().mockResolvedValue([]),
-  };
-}
-
-async function getServer() {
-  const { createApiServer } = await import("../api-server");
-  const mockDs = createMockDataSource();
+  });
   const orchestration = {
     dataSource: mockDs,
     buildAliasMap: vi.fn().mockResolvedValue({}),

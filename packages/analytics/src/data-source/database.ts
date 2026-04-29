@@ -4,14 +4,6 @@ import {
   getPerformanceMetricsImpl,
   getTokenDistributionImpl,
 } from "./analytics-methods.js";
-import {
-  deleteAgentConfigImpl,
-  deleteCategoryConfigImpl,
-  getAgentConfigsImpl,
-  getCategoryConfigsImpl,
-  updateAgentConfigImpl,
-  updateCategoryConfigImpl,
-} from "./config-methods.js";
 import { getErrorLogsImpl } from "./error-methods.js";
 import {
   getDailySpendTrendImpl,
@@ -106,12 +98,6 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   deleteModelLogs = deleteModelLogsImpl;
   getAgentRoutingConfig = getAgentRoutingConfigImpl;
   updateAgentRoutingConfig = updateAgentRoutingConfigImpl;
-  getAgentConfigs = getAgentConfigsImpl;
-  getCategoryConfigs = getCategoryConfigsImpl;
-  updateAgentConfig = updateAgentConfigImpl;
-  updateCategoryConfig = updateCategoryConfigImpl;
-  deleteAgentConfig = deleteAgentConfigImpl;
-  deleteCategoryConfig = deleteCategoryConfigImpl;
   getTopUsersByModel = getTopUsersByModelImpl;
   getTopApiKeysByModel = getTopApiKeysByModelImpl;
   getErrorsSince = getErrorsSinceImpl;
