@@ -136,7 +136,7 @@ export function ModelStatsDataTable({
                                       className={`h-2 w-2 rounded-full shrink-0 ${getHealthColor(m.success_rate)}`}
                                     />
                                     <Link
-                                      to={`/model/${encodeURIComponent(modelName)}`}
+                                      to={`/model-stats/${encodeURIComponent(modelName)}`}
                                       className="font-medium font-mono text-xs whitespace-nowrap hover:underline"
                                     >
                                       {modelLabel}

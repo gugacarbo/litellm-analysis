@@ -2,7 +2,10 @@ export type AnomalyType =
   | "model_offline"
   | "error_spike"
   | "timeout_stuck"
-  | "silent_failure";
+  | "silent_failure"
+  | "spend_spike"
+  | "low_throughput"
+  | "non_success_spike";
 export type AlertSeverity = "critical" | "warning" | "info";
 
 export interface AnomalyAlert {

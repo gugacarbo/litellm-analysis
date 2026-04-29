@@ -19,13 +19,18 @@ import { Skeleton } from "../ui/skeleton";
 type Props = {
   data: ModelDailyErrorTrend[];
   loading: boolean;
+  rangeLabel?: string;
 };
 
-export function ModelDetailErrorTrendChart({ data, loading }: Props) {
+export function ModelDetailErrorTrendChart({
+  data,
+  loading,
+  rangeLabel,
+}: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Error Trend</CardTitle>
+        <CardTitle>Error Trend {rangeLabel && `(${rangeLabel})`}</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

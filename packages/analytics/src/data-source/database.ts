@@ -21,6 +21,7 @@ import {
   createModelImpl,
   deleteModelImpl,
   deleteModelLogsImpl,
+  getCacheHitRateByModelImpl,
   getDailyErrorTrendByModelImpl,
   getDailyLatencyTrendByModelImpl,
   getDailySpendTrendByModelImpl,
@@ -29,15 +30,23 @@ import {
   getHourlyUsageByModelImpl,
   getModelDetailsImpl,
   getModelsImpl,
+  getProviderBreakdownByModelImpl,
+  getStatusDistributionByModelImpl,
   getTopApiKeysByModelImpl,
   getTopUsersByModelImpl,
+  getTTFTPercentilesByModelImpl,
   mergeModelsImpl,
   updateModelImpl,
 } from "./model-methods.js";
 import {
   getErrorCountByModelSinceImpl,
   getErrorsSinceImpl,
+  getLowThroughputRequestsSinceImpl,
   getModelHealthSinceImpl,
+  getNonSuccessCountByModelSinceImpl,
+  getNonSuccessLogsSinceImpl,
+  getSpendAnomaliesSinceImpl,
+  getSpendByModelSinceImpl,
   getStuckRequestsImpl,
 } from "./monitor-methods.js";
 import {
@@ -109,4 +118,13 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   getErrorCountByModelSince = getErrorCountByModelSinceImpl;
   getModelHealthSince = getModelHealthSinceImpl;
   getStuckRequests = getStuckRequestsImpl;
+  getSpendAnomaliesSince = getSpendAnomaliesSinceImpl;
+  getSpendByModelSince = getSpendByModelSinceImpl;
+  getNonSuccessLogsSince = getNonSuccessLogsSinceImpl;
+  getNonSuccessCountByModelSince = getNonSuccessCountByModelSinceImpl;
+  getLowThroughputRequestsSince = getLowThroughputRequestsSinceImpl;
+  getCacheHitRateByModel = getCacheHitRateByModelImpl;
+  getTTFTPercentilesByModel = getTTFTPercentilesByModelImpl;
+  getStatusDistributionByModel = getStatusDistributionByModelImpl;
+  getProviderBreakdownByModel = getProviderBreakdownByModelImpl;
 }

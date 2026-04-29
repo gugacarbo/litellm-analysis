@@ -41,4 +41,22 @@ export const OH_MY_AGENTS = [
     category: "default",
     description: "Plan Critic",
   },
+  {
+    id: "build",
+    name: "Build",
+    category: "default",
+    description: "Default Agent",
+  },
+  {
+    id: "OpenCode-Builder",
+    name: "OpenCode Builder",
+    category: "default",
+    description: "Builder Agent",
+  },
+  {
+    id: "plan",
+    name: "Plan",
+    category: "default",
+    description: "Plan Mode Agent",
+  },
 ] as const;

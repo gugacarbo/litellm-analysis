@@ -74,3 +74,31 @@ export interface ModelApiKey {
   requestCount: number;
   successRate: number;
 }
+
+export interface ModelCacheHitRate {
+  cache_hits: number;
+  total_requests: number;
+  cache_hit_rate: number;
+}
+
+export interface ModelTTFTPercentiles {
+  avg_ttft_ms: number;
+  p50_ttft_ms: number;
+  p95_ttft_ms: number;
+  p99_ttft_ms: number;
+  min_ttft_ms: number;
+  max_ttft_ms: number;
+}
+
+export interface ModelStatusDistribution {
+  status: string;
+  count: number;
+  percentage: number;
+}
+
+export interface ModelProviderBreakdown {
+  provider: string;
+  request_count: number;
+  total_spend: number;
+  avg_latency_ms: number;
+}

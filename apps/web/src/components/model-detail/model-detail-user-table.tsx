@@ -17,13 +17,14 @@ import {
 type Props = {
   users: ModelUser[];
   loading: boolean;
+  rangeLabel?: string;
 };
 
-export function ModelDetailUserTable({ users, loading }: Props) {
+export function ModelDetailUserTable({ users, loading, rangeLabel }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Users</CardTitle>
+        <CardTitle>Top Users {rangeLabel && `(${rangeLabel})`}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>

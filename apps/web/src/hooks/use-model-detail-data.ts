@@ -2,16 +2,20 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import {
   getCostEfficiencyByModel,
+  getModelCacheHitRate,
   getModelDailyErrors,
   getModelDailySpend,
   getModelDailyTokens,
   getModelErrorBreakdown,
   getModelHourlyUsage,
   getModelLatencyTrend,
+  getModelProviderBreakdown,
   getModelRequestDistribution,
   getModelStatistics,
+  getModelStatusDistribution,
   getModelTopApiKeys,
   getModelTopUsers,
+  getModelTTFT,
   getTokenDistribution,
 } from "../lib/api-client";
 import { queryKeys } from "../lib/query-keys";
@@ -113,6 +117,34 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
     enabled: !!modelName,
   });
 
+  const cacheHitRateQuery = useQuery({
+    queryKey: queryKeys.modelDetailCacheHitRate(modelName, days),
+    queryFn: () => getModelCacheHitRate(modelName, days),
+    refetchInterval: AUTO_REFRESH_MS,
+    enabled: !!modelName,
+  });
+
+  const ttftQuery = useQuery({
+    queryKey: queryKeys.modelDetailTTFT(modelName, days),
+    queryFn: () => getModelTTFT(modelName, days),
+    refetchInterval: AUTO_REFRESH_MS,
+    enabled: !!modelName,
+  });
+
+  const statusDistributionQuery = useQuery({
+    queryKey: queryKeys.modelDetailStatusDistribution(modelName, days),
+    queryFn: () => getModelStatusDistribution(modelName, days),
+    refetchInterval: AUTO_REFRESH_MS,
+    enabled: !!modelName,
+  });
+
+  const providerBreakdownQuery = useQuery({
+    queryKey: queryKeys.modelDetailProviderBreakdown(modelName, days),
+    queryFn: () => getModelProviderBreakdown(modelName, days),
+    refetchInterval: AUTO_REFRESH_MS,
+    enabled: !!modelName,
+  });
+
   const allQueries = [
     modelStatsQuery,
     dailySpendQuery,
@@ -121,6 +153,10 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
     errorBreakdownQuery,
     dailyErrorsQuery,
     hourlyUsageQuery,
+    cacheHitRateQuery,
+    ttftQuery,
+    statusDistributionQuery,
+    providerBreakdownQuery,
   ];
 
   const loading =
@@ -259,5 +295,9 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
     tokenDistribution: tokenDistQuery.data ?? [],
     modelDistribution: modelDistQuery.data ?? [],
     costEfficiency: costEffQuery.data ?? [],
+    cacheHitRate: cacheHitRateQuery.data ?? null,
+    ttft: ttftQuery.data ?? null,
+    statusDistribution: statusDistributionQuery.data ?? [],
+    providerBreakdown: providerBreakdownQuery.data ?? [],
   };
 }

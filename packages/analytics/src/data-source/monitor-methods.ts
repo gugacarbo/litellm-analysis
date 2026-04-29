@@ -90,3 +90,129 @@ export async function getStuckRequestsImpl(
     startTime: item.startTime ? new Date(item.startTime).toISOString() : null,
   }));
 }
+
+/**
+ * Get spend anomalies since timestamp
+ */
+export async function getSpendAnomaliesSinceImpl(
+  since: Date,
+  threshold = 10,
+): Promise<
+  {
+    request_id: string;
+    model: string;
+    spend: number;
+    total_tokens: number | null;
+    start_time: string;
+    status: string;
+  }[]
+> {
+  const { getSpendAnomaliesSince } = await import("../queries/index.js");
+  const result = await getSpendAnomaliesSince(since, threshold);
+  return result.map((item) => ({
+    request_id: String(item.request_id),
+    model: String(item.model ?? ""),
+    spend: Number(item.spend),
+    total_tokens: item.total_tokens ?? null,
+    start_time: item.start_time ? new Date(item.start_time).toISOString() : "",
+    status: String(item.status ?? ""),
+  }));
+}
+
+/**
+ * Get spend aggregated by model since timestamp
+ */
+export async function getSpendByModelSinceImpl(since: Date): Promise<
+  {
+    model: string;
+    total_spend: number;
+    request_count: number;
+    avg_spend: number;
+  }[]
+> {
+  const { getSpendByModelSince } = await import("../queries/index.js");
+  const result = await getSpendByModelSince(since);
+  return result.map((item) => ({
+    model: String(item.model ?? ""),
+    total_spend: Number(item.total_spend),
+    request_count: Number(item.request_count),
+    avg_spend: Number(item.avg_spend),
+  }));
+}
+
+/**
+ * Get non-success logs since timestamp
+ */
+export async function getNonSuccessLogsSinceImpl(
+  since: Date,
+  limit = 500,
+): Promise<
+  {
+    request_id: string;
+    model: string;
+    spend: number;
+    status: string;
+    start_time: string;
+    end_time: string | null;
+    error_message: string | null;
+  }[]
+> {
+  const { getNonSuccessLogsSince } = await import("../queries/index.js");
+  const result = await getNonSuccessLogsSince(since, limit);
+  return result.map((item) => ({
+    request_id: String(item.request_id),
+    model: String(item.model ?? ""),
+    spend: Number(item.spend),
+    status: String(item.status ?? ""),
+    start_time: item.start_time ? new Date(item.start_time).toISOString() : "",
+    end_time: item.end_time ? new Date(item.end_time).toISOString() : null,
+    error_message: item.error_message ?? null,
+  }));
+}
+
+/**
+ * Get count of non-success requests by model since timestamp
+ */
+export async function getNonSuccessCountByModelSinceImpl(since: Date): Promise<
+  {
+    model: string;
+    non_success_count: number;
+  }[]
+> {
+  const { getNonSuccessCountByModelSince } = await import(
+    "../queries/index.js"
+  );
+  const result = await getNonSuccessCountByModelSince(since);
+  return result.map((item) => ({
+    model: String(item.model ?? ""),
+    non_success_count: Number(item.non_success_count),
+  }));
+}
+
+/**
+ * Get low throughput requests since timestamp
+ */
+export async function getLowThroughputRequestsSinceImpl(
+  since: Date,
+  threshold = 10,
+): Promise<
+  {
+    request_id: string;
+    model: string;
+    completion_tokens: number | null;
+    tokens_per_second: number;
+    start_time: string;
+    end_time: string | null;
+  }[]
+> {
+  const { getLowThroughputRequestsSince } = await import("../queries/index.js");
+  const result = await getLowThroughputRequestsSince(since, threshold);
+  return result.map((item) => ({
+    request_id: String(item.request_id),
+    model: String(item.model ?? ""),
+    completion_tokens: item.completion_tokens ?? null,
+    tokens_per_second: Number(item.tokens_per_second),
+    start_time: item.start_time ? new Date(item.start_time).toISOString() : "",
+    end_time: item.end_time ? new Date(item.end_time).toISOString() : null,
+  }));
+}

@@ -136,6 +136,24 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
     description: "Engenheiro de execução — tarefas auxiliares e automações",
     icon: "🔨",
   },
+  {
+    key: "build",
+    name: "Build",
+    description: "Agente padrão — execução geral de ferramentas",
+    icon: "🔧",
+  },
+  {
+    key: "plan",
+    name: "Plan",
+    description: "Modo planejamento — sem ferramentas de edição",
+    icon: "📋",
+  },
+  {
+    key: "OpenCode-Builder",
+    name: "OpenCode Builder",
+    description: "Builder — construção e scaffolding de projetos",
+    icon: "🏗️",
+  },
 ];
 
 export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [

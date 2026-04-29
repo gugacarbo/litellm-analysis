@@ -392,3 +392,151 @@ export async function getTopApiKeysByModel(model: string, days?: number) {
     .limit(20);
   return result;
 }
+
+export async function getModelCacheHitRateByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      cache_hits: sql<number>`COUNT(*) FILTER (WHERE ${
+        spendLogs.cacheHit
+      } = 'true')`.mapWith(Number),
+      total_requests: sql<number>`COUNT(*)`.mapWith(Number),
+      cache_hit_rate: sql<number>`ROUND(COUNT(*) FILTER (WHERE ${
+        spendLogs.cacheHit
+      } = 'true') * 100.0 / NULLIF(COUNT(*), 0), 2)`.mapWith(Number),
+    })
+    .from(spendLogs)
+    .where(whereClause);
+
+  return result[0] || { cache_hits: 0, total_requests: 0, cache_hit_rate: 0 };
+}
+
+export async function getModelTTFTPercentilesByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [
+    eq(spendLogs.model, model),
+    sql`${spendLogs.completionStartTime} IS NOT NULL`,
+  ];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      avg_ttft_ms:
+        sql<number>`AVG(EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p50_ttft_ms:
+        sql<number>`PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p95_ttft_ms:
+        sql<number>`PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      p99_ttft_ms:
+        sql<number>`PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      min_ttft_ms:
+        sql<number>`MIN(EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+      max_ttft_ms:
+        sql<number>`MAX(EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+    })
+    .from(spendLogs)
+    .where(whereClause);
+
+  return (
+    result[0] || {
+      avg_ttft_ms: 0,
+      p50_ttft_ms: 0,
+      p95_ttft_ms: 0,
+      p99_ttft_ms: 0,
+      min_ttft_ms: 0,
+      max_ttft_ms: 0,
+    }
+  );
+}
+
+export async function getModelStatusDistributionByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      status: sql<string>`COALESCE(${spendLogs.status}, 'pending')`,
+      count: sql<number>`COUNT(*)`.mapWith(Number),
+      percentage:
+        sql<number>`ROUND(COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER (), 0), 2)`.mapWith(
+          Number,
+        ),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`COALESCE(${spendLogs.status}, 'pending')`)
+    .orderBy(desc(sql`COUNT(*)`))
+    .limit(20);
+
+  return result;
+}
+
+export async function getModelProviderBreakdownByModel(
+  model: string,
+  days?: number,
+) {
+  const normalizedDays = normalizeDays(days, 30);
+  const conditions: Array<SQL | undefined> = [
+    eq(spendLogs.model, model),
+    sql`${spendLogs.endTime} IS NOT NULL`,
+  ];
+  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
+  if (timeCondition) {
+    conditions.push(timeCondition);
+  }
+  const whereClause = combineConditions(conditions);
+
+  const result = await db
+    .select({
+      provider: sql<string>`COALESCE(${spendLogs.customLlmProvider}, 'unknown')`,
+      request_count: sql<number>`COUNT(*)`.mapWith(Number),
+      total_spend: sql<number>`SUM(${spendLogs.spend})`.mapWith(Number),
+      avg_latency_ms:
+        sql<number>`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
+          Number,
+        ),
+    })
+    .from(spendLogs)
+    .where(whereClause)
+    .groupBy(sql`COALESCE(${spendLogs.customLlmProvider}, 'unknown')`)
+    .orderBy(desc(sql`SUM(${spendLogs.spend})`));
+
+  return result;
+}

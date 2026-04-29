@@ -22,13 +22,16 @@ import { Skeleton } from "../ui/skeleton";
 type Props = {
   data: ModelDailySpendTrend[];
   loading: boolean;
+  rangeLabel?: string;
 };
 
-export function ModelDetailTrendChart({ data, loading }: Props) {
+export function ModelDetailTrendChart({ data, loading, rangeLabel }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Daily Spend Trend</CardTitle>
+        <CardTitle>
+          Daily Spend Trend {rangeLabel && `(${rangeLabel})`}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

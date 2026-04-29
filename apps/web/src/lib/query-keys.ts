@@ -58,4 +58,12 @@ export const queryKeys = {
     ["model-detail", "top-users", model, days] as const,
   modelDetailTopApiKeys: (model: string, days: number) =>
     ["model-detail", "top-api-keys", model, days] as const,
+  modelDetailCacheHitRate: (model: string, days: number) =>
+    ["model-detail", "cache-hit-rate", model, days] as const,
+  modelDetailTTFT: (model: string, days: number) =>
+    ["model-detail", "ttft", model, days] as const,
+  modelDetailStatusDistribution: (model: string, days: number) =>
+    ["model-detail", "status-distribution", model, days] as const,
+  modelDetailProviderBreakdown: (model: string, days: number) =>
+    ["model-detail", "provider-breakdown", model, days] as const,
 };

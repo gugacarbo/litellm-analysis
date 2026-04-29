@@ -20,13 +20,14 @@ import { Skeleton } from "../ui/skeleton";
 type Props = {
   data: ModelDailyLatencyTrend[];
   loading: boolean;
+  rangeLabel?: string;
 };
 
-export function ModelDetailLatencyChart({ data, loading }: Props) {
+export function ModelDetailLatencyChart({ data, loading, rangeLabel }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Latency Trend</CardTitle>
+        <CardTitle>Latency Trend {rangeLabel && `(${rangeLabel})`}</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

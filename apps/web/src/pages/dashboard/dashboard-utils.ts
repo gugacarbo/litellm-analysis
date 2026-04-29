@@ -83,6 +83,30 @@ export const DASHBOARD_DATE_RANGES: DashboardDateRangeOption[] = [
     days: 0,
     description: "Todo o histórico",
   },
+  {
+    key: "1h",
+    label: "1 hora",
+    days: 0.0417,
+    description: "Última 1 hora",
+  },
+  {
+    key: "6h",
+    label: "6 horas",
+    days: 0.25,
+    description: "Últimas 6 horas",
+  },
+  {
+    key: "90d",
+    label: "90 dias",
+    days: 90,
+    description: "Últimos 90 dias",
+  },
+  {
+    key: "custom",
+    label: "Personalizado",
+    days: 0,
+    description: "Período personalizado",
+  },
 ];
 
 export function getDateRangeDays(range: DashboardDateRangeKey): number {

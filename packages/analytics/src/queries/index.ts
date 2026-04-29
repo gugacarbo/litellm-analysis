@@ -22,8 +22,12 @@ export {
   getErrorBreakdownByModel,
   getHourlyUsageByModel,
   getModelByName,
+  getModelCacheHitRateByModel,
   getModelDetails,
+  getModelProviderBreakdownByModel,
   getModelStatistics,
+  getModelStatusDistributionByModel,
+  getModelTTFTPercentilesByModel,
   getTopApiKeysByModel,
   getTopUsersByModel,
   mergeModels,
@@ -33,7 +37,12 @@ export {
 export {
   getErrorCountByModelSince,
   getErrorsSince,
+  getLowThroughputRequestsSince,
   getModelHealthSince,
+  getNonSuccessCountByModelSince,
+  getNonSuccessLogsSince,
+  getSpendAnomaliesSince,
+  getSpendByModelSince,
   getStuckRequests,
 } from "./monitor-queries";
 export { getRouterSettings, updateRouterSettings } from "./router-queries";

@@ -86,6 +86,26 @@ function createMockDataSource(): AnalyticsDataSource {
     getDailyErrorTrendByModel: vi.fn().mockResolvedValue([]),
     getTopUsersByModel: vi.fn().mockResolvedValue([]),
     getTopApiKeysByModel: vi.fn().mockResolvedValue([]),
+    getSpendLogDetail: vi.fn().mockResolvedValue(null),
+    getErrorsSince: vi.fn().mockResolvedValue([]),
+    getErrorCountByModelSince: vi.fn().mockResolvedValue([]),
+    getModelHealthSince: vi.fn().mockResolvedValue(null),
+    getStuckRequests: vi.fn().mockResolvedValue([]),
+    getCacheHitRateByModel: vi.fn().mockResolvedValue({
+      cache_hits: 0,
+      total_requests: 0,
+      cache_hit_rate: 0,
+    }),
+    getTTFTPercentilesByModel: vi.fn().mockResolvedValue({
+      avg_ttft_ms: 0,
+      p50_ttft_ms: 0,
+      p95_ttft_ms: 0,
+      p99_ttft_ms: 0,
+      min_ttft_ms: 0,
+      max_ttft_ms: 0,
+    }),
+    getStatusDistributionByModel: vi.fn().mockResolvedValue([]),
+    getProviderBreakdownByModel: vi.fn().mockResolvedValue([]),
   };
 }
 

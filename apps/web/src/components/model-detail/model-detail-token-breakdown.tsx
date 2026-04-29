@@ -21,13 +21,20 @@ import { Skeleton } from "../ui/skeleton";
 type Props = {
   data: ModelDailyTokenTrend[];
   loading: boolean;
+  rangeLabel?: string;
 };
 
-export function ModelDetailTokenBreakdown({ data, loading }: Props) {
+export function ModelDetailTokenBreakdown({
+  data,
+  loading,
+  rangeLabel,
+}: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Token Usage Trend</CardTitle>
+        <CardTitle>
+          Token Usage Trend {rangeLabel && `(${rangeLabel})`}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

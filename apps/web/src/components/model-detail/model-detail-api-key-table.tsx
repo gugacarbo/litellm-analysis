@@ -18,6 +18,7 @@ import {
 type Props = {
   apiKeys: ModelApiKey[];
   loading: boolean;
+  rangeLabel?: string;
 };
 
 function maskApiKey(key: string): string {
@@ -25,11 +26,15 @@ function maskApiKey(key: string): string {
   return `${key.slice(0, 4)}...${key.slice(-4)}`;
 }
 
-export function ModelDetailApiKeyTable({ apiKeys, loading }: Props) {
+export function ModelDetailApiKeyTable({
+  apiKeys,
+  loading,
+  rangeLabel,
+}: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top API Keys</CardTitle>
+        <CardTitle>Top API Keys {rangeLabel && `(${rangeLabel})`}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>

@@ -1,54 +1,149 @@
-import type { ModelDetailSummary } from "../../pages/model-detail/model-detail-types";
+import {
+  Activity,
+  AlertCircle,
+  Cpu,
+  Database,
+  DollarSign,
+  Hash,
+  ShieldCheck,
+  Timer,
+  Users,
+  Zap,
+} from "lucide-react";
+import type {
+  ModelCacheHitRate,
+  ModelDetailSummary,
+  ModelTTFTPercentiles,
+} from "../../pages/model-detail/model-detail-types";
 import {
   formatCurrency,
   formatDuration,
   formatNumber,
   formatPercent,
 } from "../../pages/model-detail/model-detail-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
+import { MetricCard } from "../metric-card";
 
 type Props = {
   summary: ModelDetailSummary | null;
+  cacheHitRate: ModelCacheHitRate | null;
+  ttft: ModelTTFTPercentiles | null;
   loading: boolean;
+  days: number;
 };
 
-export function ModelDetailSummaryCards({ summary, loading }: Props) {
-  const cards = [
-    {
-      title: "Total Spend",
-      value: summary ? formatCurrency(summary.totalSpend) : "-",
-    },
-    {
-      title: "Total Requests",
-      value: summary ? formatNumber(summary.totalRequests) : "-",
-    },
-    {
-      title: "Avg Latency",
-      value: summary ? formatDuration(summary.avgLatencyMs) : "-",
-    },
-    {
-      title: "Success Rate",
-      value: summary ? formatPercent(summary.successRate) : "-",
-    },
-  ];
+export function ModelDetailSummaryCards({
+  summary,
+  cacheHitRate,
+  ttft,
+  loading,
+  days,
+}: Props) {
+  const tokensPerSecond =
+    summary && days > 0 ? summary.totalTokens / (days * 86_400) : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {cards.map((card) => (
-        <Card key={card.title}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <p className="text-2xl font-bold">{card.value}</p>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <MetricCard
+          title="Total Spend"
+          value={summary ? formatCurrency(summary.totalSpend) : "—"}
+          icon={DollarSign}
+          variant="gradient"
+          colorScheme="blue"
+          size="sm"
+          loading={loading}
+        />
+        <MetricCard
+          title="Requests"
+          value={summary ? formatNumber(summary.totalRequests) : "—"}
+          icon={Activity}
+          variant="gradient"
+          colorScheme="green"
+          size="sm"
+          loading={loading}
+        />
+        <MetricCard
+          title="Total Tokens"
+          value={summary ? formatNumber(summary.totalTokens) : "—"}
+          icon={Database}
+          variant="gradient"
+          colorScheme="violet"
+          size="sm"
+          loading={loading}
+        />
+        <MetricCard
+          title="Avg Latency"
+          value={summary ? formatDuration(summary.avgLatencyMs) : "—"}
+          icon={Timer}
+          variant="gradient"
+          colorScheme="amber"
+          size="sm"
+          loading={loading}
+        />
+        <MetricCard
+          title="Success Rate"
+          value={summary ? formatPercent(summary.successRate) : "—"}
+          icon={ShieldCheck}
+          variant="gradient"
+          colorScheme="cyan"
+          size="sm"
+          loading={loading}
+          progress={
+            summary
+              ? { value: summary.successRate, max: 100, label: "Success Rate" }
+              : undefined
+          }
+        />
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <MetricCard
+          title="Errors"
+          value={summary ? formatNumber(summary.errorCount) : "—"}
+          icon={AlertCircle}
+          variant="gradient"
+          colorScheme="red"
+          size="sm"
+          loading={loading}
+        />
+        <MetricCard
+          title="Unique Users"
+          value={summary ? formatNumber(summary.uniqueUsers) : "—"}
+          icon={Users}
+          variant="gradient"
+          colorScheme="green"
+          size="sm"
+          loading={loading}
+        />
+        <MetricCard
+          title="Tokens/s"
+          value={summary ? formatNumber(Math.round(tokensPerSecond)) : "—"}
+          icon={Zap}
+          variant="gradient"
+          colorScheme="violet"
+          size="sm"
+          loading={loading}
+        />
+        <MetricCard
+          title="Cache Hit Rate"
+          value={
+            cacheHitRate ? formatPercent(cacheHitRate.cache_hit_rate) : "—"
+          }
+          icon={Hash}
+          variant="gradient"
+          colorScheme="cyan"
+          size="sm"
+          loading={loading}
+        />
+        <MetricCard
+          title="TTFT"
+          value={ttft ? formatDuration(ttft.avg_ttft_ms) : "—"}
+          icon={Cpu}
+          variant="gradient"
+          colorScheme="amber"
+          size="sm"
+          loading={loading}
+        />
+      </div>
     </div>
   );
 }

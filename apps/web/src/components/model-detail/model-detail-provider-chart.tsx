@@ -2,33 +2,35 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import type { ModelHourlyUsage } from "../../pages/model-detail/model-detail-types";
+import { CHART_COLORS } from "../../lib/chart-colors";
+import type { ModelProviderBreakdown } from "../../pages/model-detail/model-detail-types";
 import {
   CHART_HEIGHT,
   formatCurrency,
+  formatDuration,
+  formatNumber,
 } from "../../pages/model-detail/model-detail-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChartTooltipContent } from "../ui/chart-tooltip";
 import { Skeleton } from "../ui/skeleton";
 
 type Props = {
-  data: ModelHourlyUsage[];
+  data: ModelProviderBreakdown[];
   loading: boolean;
-  rangeLabel?: string;
 };
 
-export function ModelDetailHourlyChart({ data, loading, rangeLabel }: Props) {
+export function ModelDetailProviderChart({ data, loading }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          Hourly Usage Pattern {rangeLabel && `(${rangeLabel})`}
-        </CardTitle>
+        <CardTitle>Provider Breakdown</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -37,35 +39,36 @@ export function ModelDetailHourlyChart({ data, loading, rangeLabel }: Props) {
           <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="hour"
-                tickFormatter={(v) => `${String(v).padStart(2, "0")}:00`}
-              />
-              <YAxis />
+              <XAxis dataKey="provider" />
+              <YAxis tickFormatter={(v) => formatNumber(Number(v))} />
               <Tooltip
                 content={<ChartTooltipContent />}
                 formatter={(v, name) => {
-                  if (name === "totalSpend") return formatCurrency(Number(v));
-                  return [
-                    Number(v).toLocaleString(),
-                    name === "requestCount" ? "Requests" : "Tokens",
-                  ];
+                  if (name === "total_spend")
+                    return [formatCurrency(Number(v)), "Spend"];
+                  if (name === "avg_latency_ms")
+                    return [formatDuration(Number(v)), "Avg Latency"];
+                  return [formatNumber(Number(v)), "Requests"];
                 }}
-                labelFormatter={(label) =>
-                  `${String(label).padStart(2, "0")}:00 - ${String(Number(label) + 1).padStart(2, "0")}:00`
-                }
               />
+              <Legend />
               <Bar
-                dataKey="requestCount"
+                dataKey="request_count"
                 name="Requests"
-                fill="hsl(var(--chart-1))"
                 radius={[4, 4, 0, 0]}
-              />
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={entry.provider}
+                    fill={CHART_COLORS[index % CHART_COLORS.length]}
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         ) : (
           <div className="flex h-64 items-center justify-center text-muted-foreground">
-            No hourly data available
+            No provider data available
           </div>
         )}
       </CardContent>

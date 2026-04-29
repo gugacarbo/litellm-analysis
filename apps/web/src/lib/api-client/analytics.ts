@@ -296,3 +296,66 @@ export async function getModelTopApiKeys(
     ),
   );
 }
+
+export async function getModelCacheHitRate(
+  model: string,
+  days?: number,
+): Promise<{
+  cache_hits: number;
+  total_requests: number;
+  cache_hit_rate: number;
+}> {
+  return fetchApi(
+    withDays(
+      `/analytics/model-cache-hit-rate?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
+}
+
+export async function getModelTTFT(
+  model: string,
+  days?: number,
+): Promise<{
+  avg_ttft_ms: number;
+  p50_ttft_ms: number;
+  p95_ttft_ms: number;
+  p99_ttft_ms: number;
+  min_ttft_ms: number;
+  max_ttft_ms: number;
+}> {
+  return fetchApi(
+    withDays(`/analytics/model-ttft?model=${encodeURIComponent(model)}`, days),
+  );
+}
+
+export async function getModelStatusDistribution(
+  model: string,
+  days?: number,
+): Promise<{ status: string; count: number; percentage: number }[]> {
+  return fetchApi(
+    withDays(
+      `/analytics/model-status-distribution?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
+}
+
+export async function getModelProviderBreakdown(
+  model: string,
+  days?: number,
+): Promise<
+  {
+    provider: string;
+    request_count: number;
+    total_spend: number;
+    avg_latency_ms: number;
+  }[]
+> {
+  return fetchApi(
+    withDays(
+      `/analytics/model-provider-breakdown?model=${encodeURIComponent(model)}`,
+      days,
+    ),
+  );
+}

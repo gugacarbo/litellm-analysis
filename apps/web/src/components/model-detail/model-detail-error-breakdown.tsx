@@ -19,13 +19,18 @@ import { Skeleton } from "../ui/skeleton";
 type Props = {
   data: ModelErrorBreakdown[];
   loading: boolean;
+  rangeLabel?: string;
 };
 
-export function ModelDetailErrorBreakdown({ data, loading }: Props) {
+export function ModelDetailErrorBreakdown({
+  data,
+  loading,
+  rangeLabel,
+}: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Error Breakdown</CardTitle>
+        <CardTitle>Error Breakdown {rangeLabel && `(${rangeLabel})`}</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

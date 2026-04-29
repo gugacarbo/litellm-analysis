@@ -1,4 +1,19 @@
-export type DashboardDateRangeKey = "today" | "7d" | "30d" | "60d" | "all";
+export type DashboardDateRangeKey =
+  | "1h"
+  | "6h"
+  | "today"
+  | "7d"
+  | "30d"
+  | "60d"
+  | "90d"
+  | "all"
+  | "custom";
+
+export type TimeRangeValue = {
+  preset?: DashboardDateRangeKey;
+  from?: Date;
+  to?: Date;
+};
 
 export type DashboardDateRangeOption = {
   key: DashboardDateRangeKey;

@@ -9,13 +9,18 @@ import {
   getDailyTokenTrendByModel,
   getErrorBreakdownByModel,
   getHourlyUsageByModel,
+  getModelCacheHitRateByModel,
   getModelDetails,
+  getModelProviderBreakdownByModel,
+  getModelStatusDistributionByModel,
+  getModelTTFTPercentilesByModel,
   getTopApiKeysByModel,
   getTopUsersByModel,
   mergeModels,
   updateModel,
 } from "../queries/index.js";
 import type {
+  ModelCacheHitRate,
   ModelDailyErrorTrend,
   ModelDailyLatencyTrend,
   ModelDailySpendTrend,
@@ -24,6 +29,9 @@ import type {
   ModelEntry,
   ModelErrorBreakdown,
   ModelHourlyUsage,
+  ModelProviderBreakdown,
+  ModelStatusDistribution,
+  ModelTTFTPercentiles,
 } from "../types/index.js";
 
 export async function getModelsImpl(): Promise<ModelEntry[]> {
@@ -169,5 +177,57 @@ export async function getTopApiKeysByModelImpl(model: string, days?: number) {
     total_tokens: Number(item.total_tokens),
     request_count: Number(item.request_count),
     success_rate: Number(item.success_rate),
+  }));
+}
+
+export async function getCacheHitRateByModelImpl(
+  model: string,
+  days?: number,
+): Promise<ModelCacheHitRate> {
+  const result = await getModelCacheHitRateByModel(model, days);
+  return {
+    cache_hits: Number(result.cache_hits),
+    total_requests: Number(result.total_requests),
+    cache_hit_rate: Number(result.cache_hit_rate),
+  };
+}
+
+export async function getTTFTPercentilesByModelImpl(
+  model: string,
+  days?: number,
+): Promise<ModelTTFTPercentiles> {
+  const result = await getModelTTFTPercentilesByModel(model, days);
+  return {
+    avg_ttft_ms: Number(result.avg_ttft_ms),
+    p50_ttft_ms: Number(result.p50_ttft_ms),
+    p95_ttft_ms: Number(result.p95_ttft_ms),
+    p99_ttft_ms: Number(result.p99_ttft_ms),
+    min_ttft_ms: Number(result.min_ttft_ms),
+    max_ttft_ms: Number(result.max_ttft_ms),
+  };
+}
+
+export async function getStatusDistributionByModelImpl(
+  model: string,
+  days?: number,
+): Promise<ModelStatusDistribution[]> {
+  const result = await getModelStatusDistributionByModel(model, days);
+  return result.map((item) => ({
+    status: String(item.status),
+    count: Number(item.count),
+    percentage: Number(item.percentage),
+  }));
+}
+
+export async function getProviderBreakdownByModelImpl(
+  model: string,
+  days?: number,
+): Promise<ModelProviderBreakdown[]> {
+  const result = await getModelProviderBreakdownByModel(model, days);
+  return result.map((item) => ({
+    provider: String(item.provider),
+    request_count: Number(item.request_count),
+    total_spend: Number(item.total_spend),
+    avg_latency_ms: Number(item.avg_latency_ms),
   }));
 }

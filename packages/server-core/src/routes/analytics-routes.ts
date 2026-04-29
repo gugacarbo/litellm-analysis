@@ -208,6 +208,66 @@ export function registerAnalyticsRoutes(
     }
   });
 
+  app.get("/analytics/model-cache-hit-rate", async (req, res) => {
+    try {
+      const model = String(req.query.model || "");
+      if (!model) {
+        res.status(400).json({ error: "model is required" });
+        return;
+      }
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getCacheHitRateByModel(model, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-ttft", async (req, res) => {
+    try {
+      const model = String(req.query.model || "");
+      if (!model) {
+        res.status(400).json({ error: "model is required" });
+        return;
+      }
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getTTFTPercentilesByModel(model, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-status-distribution", async (req, res) => {
+    try {
+      const model = String(req.query.model || "");
+      if (!model) {
+        res.status(400).json({ error: "model is required" });
+        return;
+      }
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getStatusDistributionByModel(model, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/analytics/model-provider-breakdown", async (req, res) => {
+    try {
+      const model = String(req.query.model || "");
+      if (!model) {
+        res.status(400).json({ error: "model is required" });
+        return;
+      }
+      const days = parseDays(req.query.days, 30);
+      const data = await dataSource.getProviderBreakdownByModel(model, days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
   app.get("/metrics", async (req, res) => {
     try {
       const days = parseDays(req.query.days, 30);

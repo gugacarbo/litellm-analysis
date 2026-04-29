@@ -20,7 +20,10 @@ function App() {
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/logs" element={<LogsPage />} />
-              <Route path="/model/:modelName" element={<ModelDetailPage />} />
+              <Route
+                path="/model-stats/:modelName"
+                element={<ModelDetailPage />}
+              />
               <Route path="/model-stats" element={<ModelStatsPage />} />
               <Route path="/models" element={<ModelsPage />} />
               <Route path="/aliases" element={<AliasesPage />} />

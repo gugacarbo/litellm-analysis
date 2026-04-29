@@ -3,10 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { MonitorAlert } from "@/pages/monitor/monitor-types";
 import { AlertHistoryTable } from "../alert-history-table";
 
-/**
- * Alert simulation utilities for testing
- */
-export function createMockAlert(
+function createMockAlert(
   overrides: Partial<MonitorAlert> = {},
 ): MonitorAlert {
   const now = Math.floor(Date.now() / 1000);
@@ -24,7 +21,7 @@ export function createMockAlert(
   };
 }
 
-export function createErrorSpikeAlert(model = "gpt-4"): MonitorAlert {
+function createErrorSpikeAlert(model = "gpt-4"): MonitorAlert {
   return createMockAlert({
     anomalyType: "error_spike",
     model,
@@ -33,7 +30,7 @@ export function createErrorSpikeAlert(model = "gpt-4"): MonitorAlert {
   });
 }
 
-export function createModelOfflineAlert(model = "claude-3"): MonitorAlert {
+function createModelOfflineAlert(model = "claude-3"): MonitorAlert {
   return createMockAlert({
     anomalyType: "model_offline",
     model,
@@ -42,7 +39,7 @@ export function createModelOfflineAlert(model = "claude-3"): MonitorAlert {
   });
 }
 
-export function createTimeoutStuckAlert(model = "gpt-3.5-turbo"): MonitorAlert {
+function createTimeoutStuckAlert(model = "gpt-3.5-turbo"): MonitorAlert {
   return createMockAlert({
     anomalyType: "timeout_stuck",
     model,
@@ -51,7 +48,7 @@ export function createTimeoutStuckAlert(model = "gpt-3.5-turbo"): MonitorAlert {
   });
 }
 
-export function createSilentFailureAlert(model = "gemini-pro"): MonitorAlert {
+function createSilentFailureAlert(model = "gemini-pro"): MonitorAlert {
   return createMockAlert({
     anomalyType: "silent_failure",
     model,
@@ -60,10 +57,7 @@ export function createSilentFailureAlert(model = "gemini-pro"): MonitorAlert {
   });
 }
 
-/**
- * Mock WebSocket client for testing
- */
-export class MockWsClient {
+class MockWsClient {
   private messageCallbacks: Set<
     (msg: { type: string; data: unknown }) => void
   > = new Set();
@@ -88,16 +82,22 @@ export class MockWsClient {
 
   connect(): void {
     this._status = "connecting";
-    this.statusCallbacks.forEach((cb) => cb(this._status));
+    this.statusCallbacks.forEach((cb) => {
+      cb(this._status);
+    });
     setTimeout(() => {
       this._status = "connected";
-      this.statusCallbacks.forEach((cb) => cb(this._status));
+      this.statusCallbacks.forEach((cb) => {
+        cb(this._status);
+      });
     }, 0);
   }
 
   disconnect(): void {
     this._status = "disconnected";
-    this.statusCallbacks.forEach((cb) => cb(this._status));
+    this.statusCallbacks.forEach((cb) => {
+      cb(this._status);
+    });
   }
 
   destroy(): void {
@@ -106,11 +106,15 @@ export class MockWsClient {
   }
 
   simulateAlert(alert: MonitorAlert): void {
-    this.messageCallbacks.forEach((cb) => cb({ type: "alert", data: alert }));
+    this.messageCallbacks.forEach((cb) => {
+      cb({ type: "alert", data: alert });
+    });
   }
 
   simulateAlerts(alerts: MonitorAlert[]): void {
-    alerts.forEach((alert) => this.simulateAlert(alert));
+    alerts.forEach((alert) => {
+      this.simulateAlert(alert);
+    });
   }
 }
 
