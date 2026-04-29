@@ -166,15 +166,6 @@ vi.mock("@/lib/api-client/monitor", () => ({
   acknowledgeAlertById: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("@/hooks/use-monitor-websocket", () => ({
-  useMonitorWebSocket: vi.fn().mockReturnValue({
-    status: "connected",
-    lastAlerts: [],
-    healthData: null,
-    connectionState: "connected",
-  }),
-}));
-
 describe("Alert Simulation Utilities", () => {
   describe("createMockAlert", () => {
     it("creates an alert with default values", () => {
@@ -273,7 +264,9 @@ describe("Alert Simulation Utilities", () => {
 
 describe("AlertHistoryTable with simulated alerts", () => {
   it("displays alert history card", async () => {
-    render(<AlertHistoryTable />);
+    render(
+      <AlertHistoryTable lastAlerts={[]} onAcknowledge={vi.fn()} />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Alert History")).toBeInTheDocument();
@@ -284,7 +277,9 @@ describe("AlertHistoryTable with simulated alerts", () => {
   });
 
   it("displays alert type badges", async () => {
-    render(<AlertHistoryTable />);
+    render(
+      <AlertHistoryTable lastAlerts={[]} onAcknowledge={vi.fn()} />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Error Spike")).toBeInTheDocument();
@@ -296,7 +291,9 @@ describe("AlertHistoryTable with simulated alerts", () => {
   });
 
   it("displays severity badges", async () => {
-    render(<AlertHistoryTable />);
+    render(
+      <AlertHistoryTable lastAlerts={[]} onAcknowledge={vi.fn()} />,
+    );
 
     await waitFor(() => {
       // First alert is critical
@@ -305,7 +302,9 @@ describe("AlertHistoryTable with simulated alerts", () => {
   });
 
   it("shows acknowledge buttons for unacknowledged alerts", async () => {
-    render(<AlertHistoryTable />);
+    render(
+      <AlertHistoryTable lastAlerts={[]} onAcknowledge={vi.fn()} />,
+    );
 
     await waitFor(() => {
       // Should have at least one acknowledge button

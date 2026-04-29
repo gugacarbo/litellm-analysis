@@ -1,18 +1,10 @@
-import type { ModelHealthStatus } from "../../pages/monitor/monitor-types";
+import type {
+  ModelHealthEntry,
+  MonitorAlert,
+} from "../../pages/monitor/monitor-types";
 import { fetchApi } from "./core";
 
-// Types
-export interface MonitorAlert {
-  id: number;
-  anomalyType: string;
-  model: string | null;
-  severity: string;
-  message: string;
-  metadata: string | null;
-  detectedAt: number;
-  acknowledgedAt: number | null;
-  createdAt: number;
-}
+export type { ModelHealthEntry, MonitorAlert };
 
 export interface GetAlertsResponse {
   alerts: MonitorAlert[];
@@ -27,13 +19,6 @@ export interface MonitorStats {
   alerts_by_type: Record<string, number>;
   alerts_by_severity: Record<string, number>;
   last_24h_count: number;
-}
-
-export interface ModelHealthEntry {
-  model: string;
-  status: ModelHealthStatus;
-  last_error_at: string | null;
-  error_rate_1h: number;
 }
 
 export interface ModelHealthResponse {

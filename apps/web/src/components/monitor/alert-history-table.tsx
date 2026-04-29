@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useMonitorWebSocket } from "../../hooks/use-monitor-websocket";
-import {
-  acknowledgeAlertById,
-  getMonitorAlerts,
-} from "../../lib/api-client/monitor";
+import { getMonitorAlerts } from "../../lib/api-client/monitor";
 import { formatDateTime } from "../../lib/spend-log-utils";
 import type { MonitorAlert } from "../../pages/monitor/monitor-types";
 import { Button } from "../ui/button";
@@ -29,8 +25,17 @@ import { AlertTypeBadge } from "./alert-type-badge";
 
 const PAGE_SIZE = 20;
 
-export function AlertHistoryTable() {
-  const { lastAlerts } = useMonitorWebSocket();
+interface AlertHistoryTableProps {
+  lastAlerts: MonitorAlert[];
+  onAcknowledge: (id: number) => void;
+  isAcknowledging?: boolean;
+}
+
+export function AlertHistoryTable({
+  lastAlerts,
+  onAcknowledge,
+  isAcknowledging = false,
+}: AlertHistoryTableProps) {
   const [alerts, setAlerts] = useState<MonitorAlert[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -64,7 +69,7 @@ export function AlertHistoryTable() {
     fetchAlerts();
   }, [fetchAlerts]);
 
-  // Optimistic update from WebSocket — prepend new alerts on first page
+  // Optimistic update — prepend new WS alerts on first page
   useEffect(() => {
     if (lastAlerts.length === 0 || offset !== 0) return;
 
@@ -78,7 +83,7 @@ export function AlertHistoryTable() {
 
   const handleAcknowledge = async (id: number) => {
     try {
-      await acknowledgeAlertById(id);
+      await onAcknowledge(id);
       setAlerts((prev) => prev.filter((a) => a.id !== id));
       setTotal((prev) => Math.max(0, prev - 1));
     } catch {
@@ -185,6 +190,7 @@ export function AlertHistoryTable() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          disabled={isAcknowledging}
                           onClick={() => handleAcknowledge(alert.id)}
                         >
                           Acknowledge

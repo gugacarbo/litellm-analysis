@@ -14,6 +14,4 @@ export function getBrowserLocale(): string | undefined {
 }
 
 export const APP_LOCALE =
-  getBrowserLocale() ||
-  env.VITE_APP_LOCALE ||
-  DEFAULT_LOCALE;
+  getBrowserLocale() || env.VITE_APP_LOCALE || DEFAULT_LOCALE;

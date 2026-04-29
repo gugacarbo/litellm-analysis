@@ -1,17 +1,5 @@
 import type { ModelHealthEntry } from "../../pages/monitor/monitor-types";
-
-const STATUS_ORDER: Record<string, number> = {
-  offline: 0,
-  degraded: 1,
-  healthy: 2,
-  unknown: 3,
-};
-const STATUS_COLORS: Record<string, string> = {
-  offline: "bg-red-500/15 text-red-700 border-red-500/30",
-  degraded: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30",
-  healthy: "bg-green-500/15 text-green-700 border-green-500/30",
-  unknown: "bg-gray-500/15 text-gray-700 border-gray-500/30",
-};
+import { STATUS_COLORS, STATUS_ORDER } from "../../pages/monitor/monitor-utils";
 
 interface ModelHealthGridProps {
   models: ModelHealthEntry[];
