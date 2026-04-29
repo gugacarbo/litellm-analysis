@@ -1,11 +1,15 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./monitor-schema";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const DB_PATH = path.resolve(
-  import.meta.dirname,
+  __dirname,
   "..",
   "..",
   "..",

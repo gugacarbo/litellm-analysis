@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@lite-llm/analytics": "workspace:*",
-    "better-sqlite3": "^11.6.0",
+    "better-sqlite3": "^12.9.0",
     "drizzle-orm": "^0.38.0"
   },
   "devDependencies": {
