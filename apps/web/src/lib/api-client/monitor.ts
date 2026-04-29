@@ -1,5 +1,5 @@
-import { fetchApi } from "./core";
 import type { ModelHealthStatus } from "../../pages/monitor/monitor-types";
+import { fetchApi } from "./core";
 
 // Types
 export interface MonitorAlert {

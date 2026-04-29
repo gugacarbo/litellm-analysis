@@ -4,7 +4,15 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./monitor-schema";
 
-const DB_PATH = path.resolve(import.meta.dirname, "..", "..", "..", "..", "db", "monitor.db");
+const DB_PATH = path.resolve(
+  import.meta.dirname,
+  "..",
+  "..",
+  "..",
+  "..",
+  "db",
+  "monitor.db",
+);
 
 let dbInstance: ReturnType<typeof drizzle> | null = null;
 
