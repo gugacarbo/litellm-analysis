@@ -33,3 +33,4 @@ npm-debug.log*
 
 # Monitor SQLite
 db/monitor.db
+__pycache__
