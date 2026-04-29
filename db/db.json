@@ -151,7 +151,7 @@
       "tools": {}
     },
     "oracle": {
-      "model": "kimi-k2.6",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -176,7 +176,7 @@
       "mode": "subagent"
     },
     "atlas": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "mimo-v2.5-pro",
         "deepseek-v4-pro",
@@ -212,7 +212,7 @@
       "color": "#945E00"
     },
     "momus": {
-      "model": "glm-5-turbo",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -226,7 +226,7 @@
       "mode": "subagent"
     },
     "prometheus": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -240,7 +240,7 @@
       "mode": "subagent"
     },
     "explore": {
-      "model": "glm-5-turbo",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "deepseek-v4-flash",
         "mimo-v2.5-pro",
@@ -268,7 +268,7 @@
       "mode": "subagent"
     },
     "metis": {
-      "model": "deepseek-v4-flash",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3-coder-plus",
@@ -363,7 +363,7 @@
       "description": "Implementação de código, refatoração, debug e tarefas de engenharia de software."
     },
     "artistry": {
-      "model": "qwen3.5-plus",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "deepseek-v4-pro",
         "kimi-k2.6",
@@ -393,7 +393,7 @@
       "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
     },
     "unspecified-high": {
-      "model": "qwen3-coder-plus",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "deepseek-v4-pro",
         "glm-5.1",
