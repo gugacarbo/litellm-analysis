@@ -1,0 +1,23 @@
+{
+    "skill_name": "lite-llm-db-access",
+    "evals": [
+        {
+            "id": 1,
+            "prompt": "Me mostre como a tabela liteLLMConfig armazena as chaves de API e se a coluna value vem mascarada ou não. Eu não lembro ao certo.",
+            "expected_output": "The agent should fetch the liteLLMConfig table schema, explore the DB, create a reference file in tables/liteLLMConfig.md with an example JSON record, and update tables.md.",
+            "files": []
+        },
+        {
+            "id": 2,
+            "prompt": "Faz uma query para me retornar a listagem de todas as APIs ativas e o saldo do model gpt-4o baseado nas logs. Preciso adicionar esse gráfico no Dashboard.",
+            "expected_output": "The agent should fetch spendLogs and liteLLMConfig schemas, write example records in tables folder, update tables.md, and provide the Drizzle query.",
+            "files": []
+        },
+        {
+            "id": 3,
+            "prompt": "Me mostre como são salvas as mensagens de input e output nos logs",
+            "expected_output": "The agent should query the DB for the spendLogs table to see how messages/responses are stored, update tables/spendLogs.md with an example JSON record, and update tables.md.",
+            "files": []
+        }
+    ]
+}

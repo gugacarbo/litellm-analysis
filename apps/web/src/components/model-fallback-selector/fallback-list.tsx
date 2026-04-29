@@ -2,14 +2,14 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import type { ModelConfig } from "../../lib/api-client/models";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../select";
+} from "../ui/select";
 
 const NONE_VALUE = "__none__";
 

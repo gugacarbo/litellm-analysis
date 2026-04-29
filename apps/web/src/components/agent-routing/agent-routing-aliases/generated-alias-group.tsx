@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import type { AliasGroup } from "../../../pages/models/models-alias-utils";
-import { Button } from "../../button";
+import { Button } from "../../ui/button";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../table";
+} from "../../ui/table";
 
 type GeneratedAliasGroupProps = {
   group: AliasGroup;

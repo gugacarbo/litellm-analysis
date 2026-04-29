@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Skeleton } from "../../ui/skeleton";
 
 type ChartCardProps = {
   title: string;

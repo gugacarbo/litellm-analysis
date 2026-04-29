@@ -52,9 +52,7 @@ export async function getSpendLogsCount(params: {
   return response.count;
 }
 
-export async function getSpendLogDetail(
-  requestId: string,
-): Promise<SpendLog> {
+export async function getSpendLogDetail(requestId: string): Promise<SpendLog> {
   return fetchApi(`/spend/logs/${encodeURIComponent(requestId)}`);
 }
 

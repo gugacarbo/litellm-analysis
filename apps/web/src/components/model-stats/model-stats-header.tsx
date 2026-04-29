@@ -4,7 +4,7 @@ import type {
   Column,
   ColumnKey,
 } from "../../pages/model-stats/model-stats-types";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../dropdown-menu";
+} from "../ui/dropdown-menu";
 
 type ModelStatsHeaderProps = {
   mergeMode: boolean;

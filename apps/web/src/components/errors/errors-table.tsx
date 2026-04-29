@@ -1,14 +1,16 @@
 import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { APP_LOCALE } from "@/lib/locale";
 import { cn } from "../../lib/utils";
 import type { ErrorLog, PaginationMetadata } from "../../types/analytics";
-import { Button } from "../button";
+import { LogsPaginationControls } from "../logs/logs-pagination-controls";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../card";
+} from "../ui/card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -16,11 +18,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../dropdown-menu";
-import { Label } from "../label";
-import { LogsPaginationControls } from "../logs/logs-pagination-controls";
-import { Skeleton } from "../skeleton";
-import { Switch } from "../switch";
+} from "../ui/dropdown-menu";
+import { Label } from "../ui/label";
+import { Skeleton } from "../ui/skeleton";
+import { Switch } from "../ui/switch";
 import {
   Table,
   TableBody,
@@ -28,7 +29,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../table";
+} from "../ui/table";
 import { renderErrorCell } from "./errors-table-cell";
 import {
   ACTIONS_COLUMN,
@@ -92,7 +93,7 @@ export function ErrorsTable({
               {loading
                 ? "Loading errors..."
                 : hasAnyErrors
-                  ? `${pagination.total.toLocaleString("en-US")} matching records`
+                  ? `${pagination.total.toLocaleString(APP_LOCALE)} matching records`
                   : "No matching errors for current filters"}
             </CardDescription>
           </div>

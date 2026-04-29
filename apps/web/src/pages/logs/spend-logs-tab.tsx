@@ -1,8 +1,9 @@
-import { Badge } from "../../components/badge";
+import { APP_LOCALE } from "@/lib/locale";
 import { LogDetailDialog } from "../../components/logs/log-detail-dialog";
 import { LogsFilterCard } from "../../components/logs/logs-filter-card";
 import { LogsSummaryCards } from "../../components/logs/logs-summary-cards";
 import { LogsTable } from "../../components/logs/logs-table";
+import { Badge } from "../../components/ui/badge";
 import type { SpendLog } from "../../types/analytics";
 import {
   type SpendLogFilters,
@@ -63,7 +64,7 @@ export function SpendLogsTab({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">
-          {pagination.total.toLocaleString("pt-BR")} logs
+          {pagination.total.toLocaleString(APP_LOCALE)} logs
         </Badge>
         <Badge variant="outline">
           {state.activeFiltersCount > 0

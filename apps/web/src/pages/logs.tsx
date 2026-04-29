@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { useLogs } from "../hooks/use-logs";
 import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";

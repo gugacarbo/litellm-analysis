@@ -1,21 +1,22 @@
+import { APP_LOCALE } from "@/lib/locale";
 import type {
   DashboardDateRangeKey,
   DashboardDateRangeOption,
 } from "./dashboard-types";
 
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(APP_LOCALE, {
     style: "currency",
     currency: "USD",
   }).format(value);
 }
 
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat("en-US").format(value);
+  return new Intl.NumberFormat(APP_LOCALE).format(value);
 }
 
 export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString(APP_LOCALE, {
     month: "short",
     day: "numeric",
   });

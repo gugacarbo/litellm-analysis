@@ -2,14 +2,16 @@
  * Shared formatting utilities consolidated from across the web app.
  */
 
+import { APP_LOCALE } from "@/lib/locale";
+
 export function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return "0";
-  return new Intl.NumberFormat("en-US").format(value);
+  return new Intl.NumberFormat(APP_LOCALE).format(value);
 }
 
 export function formatCurrency(value: number): string {
   if (!Number.isFinite(value)) return "$0.00";
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(APP_LOCALE, {
     style: "currency",
     currency: "USD",
   }).format(value);
@@ -47,7 +49,7 @@ export function normalizePercent(value: number): number {
 export function formatDate(date: string | Date): string {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString(APP_LOCALE, {
     month: "short",
     day: "numeric",
   });
@@ -56,7 +58,7 @@ export function formatDate(date: string | Date): string {
 export function formatDateTime(date: string | Date): string {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleString("en-US", {
+  return d.toLocaleString(APP_LOCALE, {
     month: "short",
     day: "numeric",
     hour: "2-digit",

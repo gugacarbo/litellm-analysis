@@ -1,9 +1,9 @@
 import { Circle, Layers, Palette } from "lucide-react";
 import { cn } from "../../lib/utils";
 import type { AgentDefinition } from "../../types/agent-routing";
-import { Badge } from "../badge";
-import { Button } from "../button";
-import { Skeleton } from "../skeleton";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
 
 type ConfigInfo = {
   model: string;

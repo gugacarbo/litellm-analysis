@@ -21,7 +21,7 @@ import {
   maskApiKey,
 } from "../../lib/spend-log-utils";
 import type { SpendLog } from "../../types/analytics";
-import { Badge } from "../badge";
+import { Badge } from "../ui/badge";
 import { CollapsibleSection } from "./log-detail-collapsible-section";
 import { ContextBadge } from "./log-detail-context-badge";
 

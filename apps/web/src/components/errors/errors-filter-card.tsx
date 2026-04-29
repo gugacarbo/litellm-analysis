@@ -1,15 +1,15 @@
 import { AlertCircle } from "lucide-react";
-import { Button } from "../button";
-import { Card, CardContent } from "../card";
-import { Input } from "../input";
-import { Label } from "../label";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../select";
+} from "../ui/select";
 
 export type ErrorsFilterValues = {
   model: string;

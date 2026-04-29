@@ -16,10 +16,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../alert-dialog";
-import { Button } from "../button";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
+} from "../ui/alert-dialog";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 import {
   Table,
   TableBody,
@@ -27,7 +27,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../table";
+} from "../ui/table";
 
 type ModelsTableCardProps = {
   models: ModelConfig[];

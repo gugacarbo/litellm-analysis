@@ -11,29 +11,27 @@ export {
   getAlerts,
   insertAlert,
 } from "./db/monitor-queries";
-export {
-  alerts,
-  alertRules,
-} from "./db/monitor-schema";
 export type {
   Alert,
   AlertRule,
   NewAlert,
   NewAlertRule,
 } from "./db/monitor-schema";
-export type {
-  MonitorServiceEvents,
-} from "./services/monitor-service";
+export {
+  alertRules,
+  alerts,
+} from "./db/monitor-schema";
+export { runAllDetectors } from "./services/detectors";
+export type { MonitorServiceEvents } from "./services/monitor-service";
 export { MonitorService } from "./services/monitor-service";
 export type {
+  AlertSeverity,
   AnomalyAlert,
   AnomalyType,
-  AlertSeverity,
   DetectorInput,
   DetectorResult,
+  ModelHealthStats,
   ModelHealthStatus,
   ModelHealthUpdate,
   MonitorServiceOptions,
 } from "./services/monitor-types";
-
-export { runAllDetectors } from "./services/detectors";

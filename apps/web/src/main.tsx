@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import "./styles/globals.css";
 import { ThemeProvider } from "@/components/theme-provider.tsx";
 import App from "./App.tsx";
+import { Toaster } from "./components/ui/sonner.tsx";
 import { queryClient } from "./lib/query-client";
 
 const rootEl = document.getElementById("root");
@@ -13,6 +14,7 @@ createRoot(rootEl).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        <Toaster position="top-right" richColors closeButton duration={5000} />
         <App />
       </ThemeProvider>
     </QueryClientProvider>

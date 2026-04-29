@@ -1,7 +1,7 @@
 import type { AgentConfig } from "../../types/agent-routing";
-import { Input } from "../input";
-import { Label } from "../label";
 import { ModelFallbackSelector } from "../model-fallback-selector";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 type UpdateConfigFn = (
   field: keyof AgentConfig,

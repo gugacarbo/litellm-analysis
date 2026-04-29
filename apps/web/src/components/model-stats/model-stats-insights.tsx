@@ -7,8 +7,8 @@ import {
   Zap,
 } from "lucide-react";
 import type { ModelInsight } from "../../pages/model-stats/model-stats-types";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 
 const ICON_MAP = {
   "badge-dollar-sign": DollarSign,

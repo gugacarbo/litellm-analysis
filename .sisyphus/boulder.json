@@ -1,9 +1,7 @@
 {
   "active_plan": "/home/gustavo_carbonera/.local/share/opencode/worktree/9352445eba19326cd2471a017eacec657b66edd0/sunny-harbor/.sisyphus/plans/log-analyzer.md",
   "started_at": "2026-04-28T20:00:29.161Z",
-  "session_ids": [
-    "ses_22a8110cdffemGKLTWV0Gz1ZI2"
-  ],
+  "session_ids": ["ses_22a8110cdffemGKLTWV0Gz1ZI2"],
   "session_origins": {
     "ses_22a8110cdffemGKLTWV0Gz1ZI2": "direct"
   },

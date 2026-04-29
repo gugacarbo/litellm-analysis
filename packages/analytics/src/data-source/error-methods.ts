@@ -26,8 +26,6 @@ export async function getErrorLogsImpl(
     prompt_tokens: item.prompt_tokens ?? null,
     completion_tokens: item.completion_tokens ?? null,
     spend: item.spend ?? null,
-    end_time: item.end_time
-      ? new Date(item.end_time).toISOString()
-      : null,
+    end_time: item.end_time ? new Date(item.end_time).toISOString() : null,
   }));
 }

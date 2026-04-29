@@ -1,5 +1,7 @@
+import { APP_LOCALE } from "@/lib/locale";
+
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(APP_LOCALE, {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 4,
@@ -8,11 +10,11 @@ export function formatCurrency(value: number): string {
 }
 
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat("en-US").format(value);
+  return new Intl.NumberFormat(APP_LOCALE).format(value);
 }
 
 export function formatDateTime(date: string | Date): string {
-  return new Date(date).toLocaleString("en-US", {
+  return new Date(date).toLocaleString(APP_LOCALE, {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -21,7 +23,7 @@ export function formatDateTime(date: string | Date): string {
 }
 
 export function formatTime(date: string | Date): string {
-  return new Date(date).toLocaleString("en-US", {
+  return new Date(date).toLocaleString(APP_LOCALE, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
@@ -30,7 +32,7 @@ export function formatTime(date: string | Date): string {
 }
 
 export function formatFullDateTime(date: string | Date): string {
-  return new Date(date).toLocaleString("en-US", {
+  return new Date(date).toLocaleString(APP_LOCALE, {
     year: "numeric",
     month: "short",
     day: "numeric",

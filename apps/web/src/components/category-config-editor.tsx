@@ -3,7 +3,6 @@
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CategoryConfig } from "../types/agent-routing";
-import { Button } from "./button";
 import { CategoryConfigEditorAdvancedSection } from "./category-config-editor/category-config-editor-advanced-section";
 import { CategoryConfigEditorExecutionSection } from "./category-config-editor/category-config-editor-execution-section";
 import {
@@ -17,14 +16,15 @@ import {
   removeTool as removeToolUtil,
   updateToolValue as updateToolValueUtil,
 } from "./category-config-editor/tool-utils";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
+} from "./ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface CategoryConfigEditorProps {
   open: boolean;

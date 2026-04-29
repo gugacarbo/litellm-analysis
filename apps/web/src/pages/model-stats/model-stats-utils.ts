@@ -1,12 +1,14 @@
+import { APP_LOCALE } from "@/lib/locale";
+
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(APP_LOCALE, {
     style: "currency",
     currency: "USD",
   }).format(value);
 }
 
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat("en-US").format(value);
+  return new Intl.NumberFormat(APP_LOCALE).format(value);
 }
 
 export function formatDuration(ms: number): string {
@@ -27,7 +29,7 @@ export function formatPercent(value: number): string {
 
 export function formatDate(dateStr: string | null): string {
   if (!dateStr) return "-";
-  return new Date(dateStr).toLocaleDateString("en-US", {
+  return new Date(dateStr).toLocaleDateString(APP_LOCALE, {
     month: "short",
     day: "numeric",
     year: "numeric",

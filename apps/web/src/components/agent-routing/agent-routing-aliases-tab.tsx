@@ -1,9 +1,9 @@
 import { Database, Plus } from "lucide-react";
 import { useState } from "react";
 import type { AliasGroup } from "../../pages/models/models-alias-utils";
-import { Button } from "../button";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 import { CustomAliasGroup } from "./agent-routing-aliases/custom-alias-group";
 import { GeneratedAliasGroup } from "./agent-routing-aliases/generated-alias-group";
 

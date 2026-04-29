@@ -1,13 +1,14 @@
 import { RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Badge } from "../components/badge";
-import { Button } from "../components/button";
-import { Card, CardContent } from "../components/card";
+import { APP_LOCALE } from "@/lib/locale";
 import { DashboardEfficiencyCharts } from "../components/dashboard/dashboard-efficiency-charts";
 import { DashboardInsights } from "../components/dashboard/dashboard-insights";
 import { DashboardOverviewCards } from "../components/dashboard/dashboard-overview-cards";
 import { DashboardTopEntities } from "../components/dashboard/dashboard-top-entities";
 import { DashboardUsageCharts } from "../components/dashboard/dashboard-usage-charts";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
 import { useDashboardData } from "../hooks/use-dashboard-data";
 import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
 import {
@@ -45,7 +46,7 @@ export function DashboardPage() {
     if (!lastUpdatedAt) {
       return "--";
     }
-    return lastUpdatedAt.toLocaleTimeString("en-US", {
+    return lastUpdatedAt.toLocaleTimeString(APP_LOCALE, {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",

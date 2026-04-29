@@ -1,13 +1,13 @@
 import type { ModelStats } from "../../pages/model-stats/model-stats-types";
-import { Button } from "../button";
-import { Card, CardContent } from "../card";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../select";
+} from "../ui/select";
 
 type ModelStatsMergePanelProps = {
   data: ModelStats[];

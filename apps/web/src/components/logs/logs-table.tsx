@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { PaginationMetadata, SpendLog } from "../../types/analytics";
-import { Card, CardContent } from "../card";
-import { Table, TableHead, TableHeader, TableRow } from "../table";
+import { Card, CardContent } from "../ui/card";
+import { Table, TableHead, TableHeader, TableRow } from "../ui/table";
 import { LogsPaginationControls } from "./logs-pagination-controls";
 import { LogsTableBody } from "./logs-table-body";
 import {

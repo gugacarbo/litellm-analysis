@@ -53,22 +53,36 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
     const avgSpeed =
       speeds.length > 0 ? speeds.reduce((s, v) => s + v, 0) / speeds.length : 0;
 
+    const avgTokensPerRequest = totalTokens / totalRequests;
+    const maxTokensPerSecond = speeds.length > 0 ? Math.max(...speeds) : 0;
+
+    const slowestRequest = logs
+      .filter((l) => l.end_time)
+      .map((l) => ({
+        id: l.request_id,
+        duration:
+          new Date(l.end_time).getTime() - new Date(l.start_time).getTime(),
+      }))
+      .sort((a, b) => b.duration - a.duration)[0];
+
     return {
       totalSpend,
       totalTokens,
       totalRequests,
       avgSpend,
       avgDuration,
-      avgTokensPerRequest: totalTokens / totalRequests,
+      avgTokensPerRequest,
       successRate,
       avgSpeed,
+      maxTokensPerSecond,
+      slowestRequest,
     };
   }, [logs]);
 
   if (!metrics) return null;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2">
       <MetricCard
         icon={DollarSign}
         title="Total Spend"
@@ -105,18 +119,10 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         loading={loading}
       />
       <MetricCard
-        icon={DollarSign}
-        title="Avg Spend"
-        value={formatCurrency(metrics.avgSpend)}
-        colorScheme="amber"
-        variant="gradient"
-        size="sm"
-        loading={loading}
-      />
-      <MetricCard
         icon={Clock}
         title="Avg Duration"
         value={formatDuration(metrics.avgDuration)}
+        description={`${metrics.slowestRequest}`}
         colorScheme="neutral"
         variant="gradient"
         size="sm"
@@ -126,6 +132,7 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         icon={Activity}
         title="Avg Tokens"
         value={formatNumber(metrics.avgTokensPerRequest)}
+        description="per request"
         colorScheme="cyan"
         variant="gradient"
         size="sm"
@@ -135,6 +142,7 @@ export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
         icon={Zap}
         title="Avg Speed"
         value={`${metrics.avgSpeed.toFixed(1)} tok/s`}
+        description={`max ${formatNumber(metrics.maxTokensPerSecond)} tok/s`}
         colorScheme="violet"
         variant="gradient"
         size="sm"

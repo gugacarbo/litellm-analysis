@@ -176,7 +176,7 @@
       "mode": "subagent"
     },
     "atlas": {
-      "model": "glm-5-turbo",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "mimo-v2.5-pro",
         "deepseek-v4-pro",
@@ -268,7 +268,7 @@
       "mode": "subagent"
     },
     "metis": {
-      "model": "glm-5.1",
+      "model": "deepseek-v4-flash",
       "fallbackModels": [
         "glm-5.1",
         "qwen3-coder-plus",

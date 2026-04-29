@@ -1,6 +1,6 @@
 import type { AgentConfig } from "../../types/agent-routing";
-import { Label } from "../label";
-import { Textarea } from "../textarea";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 type UpdateConfigFn = (
   field: keyof AgentConfig,

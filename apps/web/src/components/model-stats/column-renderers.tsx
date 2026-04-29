@@ -13,7 +13,7 @@ import {
   formatTokensPerSecond,
   getHealthColor,
 } from "../../pages/model-stats/model-stats-utils";
-import { Badge } from "../badge";
+import { Badge } from "../ui/badge";
 
 function SpendBar({ value, total }: { value: number; total: number }) {
   const pct = total > 0 ? Math.min((value / total) * 100, 100) : 0;

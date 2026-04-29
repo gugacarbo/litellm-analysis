@@ -11,7 +11,7 @@ import { CHART_COLORS, CHART_HEIGHT } from "@/lib/chart-colors";
 import { TOP_N_MODELS } from "@/pages/model-stats/model-stats-chart-utils";
 import { formatCurrency } from "@/pages/model-stats/model-stats-utils";
 import type { CostEfficiency } from "@/types/analytics";
-import { ChartTooltipContent } from "../../chart-tooltip";
+import { ChartTooltipContent } from "../../ui/chart-tooltip";
 import { ChartCard } from "./chart-card";
 
 type SpendByModelChartProps = {

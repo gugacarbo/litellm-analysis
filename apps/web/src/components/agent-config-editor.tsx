@@ -20,7 +20,7 @@ import {
   removeTool as removeToolFn,
   updateToolValue as updateToolValueFn,
 } from "./agent-config-editor/tool-utils";
-import { Button } from "./button";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -28,8 +28,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
+} from "./ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface AgentConfigEditorProps {
   open: boolean;

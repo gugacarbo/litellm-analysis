@@ -3,9 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
-import { Badge } from "./badge";
 import { FallbackList } from "./model-fallback-selector/fallback-list";
 import { PrimaryModelSelect } from "./model-fallback-selector/primary-model-select";
+import { Badge } from "./ui/badge";
 
 interface ModelFallbackSelectorProps {
   primaryModel: string;

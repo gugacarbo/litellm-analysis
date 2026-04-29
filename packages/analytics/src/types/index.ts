@@ -70,6 +70,15 @@ export interface AnalyticsDataSource {
   deleteCategoryConfig(categoryKey: string): Promise<void>;
   getTopUsersByModel(model: string, days?: number): Promise<ModelTopUser[]>;
   getTopApiKeysByModel(model: string, days?: number): Promise<ModelTopApiKey[]>;
+  // Monitor queries — used by anomaly detection system
+  getErrorsSince(since: Date, limit?: number): Promise<ErrorLogEntry[]>;
+  getErrorCountByModelSince(since: Date): Promise<ModelErrorCountSince[]>;
+  getModelHealthSince(
+    model: string,
+    since: Date,
+    baselineHours: number,
+  ): Promise<ModelHealth>;
+  getStuckRequests(since: Date): Promise<StuckRequest[]>;
 }
 
 // Analytics Types
@@ -355,4 +364,26 @@ export interface ModelTopApiKey {
   total_tokens: number;
   request_count: number;
   success_rate: number;
+}
+
+// Monitor types — used by anomaly detection system
+export interface ModelErrorCountSince {
+  model: string;
+  error_count: number;
+}
+
+export interface ModelHealth {
+  total_requests: number;
+  success_count: number;
+  error_count: number;
+  avg_latency_ms: number | null;
+  last_success_at: string | null;
+  last_error_at: string | null;
+  p95_latency_ms: number | null;
+}
+
+export interface StuckRequest {
+  request_id: string;
+  model: string | null;
+  startTime: string | null;
 }

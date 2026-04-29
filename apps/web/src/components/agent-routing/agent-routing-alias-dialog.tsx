@@ -1,5 +1,5 @@
 import { RefreshCw } from "lucide-react";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,8 +7,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../dialog";
-import { Input } from "../input";
+} from "../ui/dialog";
+import { Input } from "../ui/input";
 
 type AgentRoutingAliasDialogProps = {
   open: boolean;

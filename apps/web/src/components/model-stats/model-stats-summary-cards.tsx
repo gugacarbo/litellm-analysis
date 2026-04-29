@@ -14,7 +14,7 @@ import {
   formatPercent,
   formatTokensPerSecond,
 } from "../../pages/model-stats/model-stats-utils";
-import { Skeleton } from "../skeleton";
+import { Skeleton } from "../ui/skeleton";
 
 type CardVariant =
   | "spend"

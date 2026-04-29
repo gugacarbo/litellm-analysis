@@ -12,7 +12,7 @@ import { CHART_HEIGHT, LATENCY_COLORS } from "@/lib/chart-colors";
 import { TOP_N_MODELS } from "@/pages/model-stats/model-stats-chart-utils";
 import type { ModelStats } from "@/pages/model-stats/model-stats-types";
 import { formatDuration } from "@/pages/model-stats/model-stats-utils";
-import { ChartTooltipContent } from "../../chart-tooltip";
+import { ChartTooltipContent } from "../../ui/chart-tooltip";
 import { ChartCard } from "./chart-card";
 
 type LatencyChartProps = {

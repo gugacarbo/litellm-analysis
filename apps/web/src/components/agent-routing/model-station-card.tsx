@@ -1,6 +1,6 @@
 import { ChevronRight, Palette } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import { getModelColor } from "./model-stations-utils";
 
 export type EntityItem = {

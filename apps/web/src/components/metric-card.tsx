@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { cn } from "../lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "./card";
-import { Skeleton } from "./skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
 
 type ColorScheme =
   | "blue"

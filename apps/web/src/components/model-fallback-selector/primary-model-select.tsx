@@ -3,15 +3,15 @@
 import { X } from "lucide-react";
 import { useState } from "react";
 import type { ModelConfig } from "../../lib/api-client/models";
-import { Button } from "../button";
-import { Input } from "../input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../select";
+} from "../ui/select";
 
 const NONE_VALUE = "__none__";
 

@@ -1,6 +1,6 @@
 import type { DashboardInsight } from "../../pages/dashboard/dashboard-types";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 
 type DashboardInsightsProps = {
   loading: boolean;

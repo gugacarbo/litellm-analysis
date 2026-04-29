@@ -90,12 +90,18 @@ export async function getSpendLogsImpl(
     api_base: item.api_base ?? null,
     cache_hit: item.cache_hit ?? null,
     metadata: (item.metadata ?? null) as Record<string, unknown> | null,
-    proxy_server_request: (item.proxy_server_request ?? null) as Record<string, unknown> | null,
+    proxy_server_request: (item.proxy_server_request ?? null) as Record<
+      string,
+      unknown
+    > | null,
     response: (item.response ?? null) as Record<string, unknown> | null,
     request_tags: (item.request_tags ?? null) as string[] | null,
     model_group: item.model_group ?? null,
     custom_llm_provider: item.custom_llm_provider ?? null,
-    messages: (item.messages ?? null) as Array<{ role: string; content: string }> | null,
+    messages: (item.messages ?? null) as Array<{
+      role: string;
+      content: string;
+    }> | null,
   }));
 
   return {
@@ -141,7 +147,10 @@ export async function getSpendLogDetailImpl(
     cache_hit: item.cache_hit ?? null,
     cache_key: item.cache_key ?? null,
     metadata: (item.metadata ?? null) as Record<string, unknown> | null,
-    proxy_server_request: (item.proxy_server_request ?? null) as Record<string, unknown> | null,
+    proxy_server_request: (item.proxy_server_request ?? null) as Record<
+      string,
+      unknown
+    > | null,
     response: (item.response ?? null) as Record<string, unknown> | null,
     request_tags: (item.request_tags ?? null) as string[] | null,
     requester_ip_address: item.requester_ip_address ?? null,
@@ -151,6 +160,9 @@ export async function getSpendLogDetailImpl(
     model_group: item.model_group ?? null,
     custom_llm_provider: item.custom_llm_provider ?? null,
     mcp_namespaced_tool_name: item.mcp_namespaced_tool_name ?? null,
-    messages: (item.messages ?? null) as Array<{ role: string; content: string }> | null,
+    messages: (item.messages ?? null) as Array<{
+      role: string;
+      content: string;
+    }> | null,
   };
 }

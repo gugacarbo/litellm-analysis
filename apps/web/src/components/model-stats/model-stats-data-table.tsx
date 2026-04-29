@@ -15,9 +15,9 @@ import {
   formatTokensPerSecond,
   getHealthColor,
 } from "../../pages/model-stats/model-stats-utils";
-import { Badge } from "../badge";
-import { Card, CardContent } from "../card";
-import { Skeleton } from "../skeleton";
+import { Badge } from "../ui/badge";
+import { Card, CardContent } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 import {
   Table,
   TableBody,
@@ -25,7 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../table";
+} from "../ui/table";
 
 type ModelStatsDataTableProps = {
   loading: boolean;

@@ -5,8 +5,8 @@ import {
   formatNumber,
   formatPercent,
 } from "../../pages/model-detail/model-detail-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 
 type Props = {
   summary: ModelDetailSummary | null;

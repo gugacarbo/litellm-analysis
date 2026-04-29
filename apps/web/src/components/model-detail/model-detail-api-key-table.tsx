@@ -4,8 +4,8 @@ import {
   formatNumber,
   formatPercent,
 } from "../../pages/model-detail/model-detail-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../table";
+} from "../ui/table";
 
 type Props = {
   apiKeys: ModelApiKey[];

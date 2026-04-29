@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "../components/card";
 import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
 import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
 import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
@@ -8,7 +7,8 @@ import { ModelStatsMergePanel } from "../components/model-stats/model-stats-merg
 import { ModelStatsMiniCharts } from "../components/model-stats/model-stats-mini-charts";
 import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
 import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
-import { Toaster } from "../components/sonner";
+import { Card, CardContent } from "../components/ui/card";
+import { Toaster } from "../components/ui/sonner";
 import { getModelStatistics } from "../lib/api-client/analytics";
 import { queryKeys } from "../lib/query-keys";
 import { useModelStatsDialogHandlers } from "./model-stats/dialog-handlers";
@@ -167,8 +167,6 @@ export function ModelStatsPage() {
         />
       )}
 
-      <ModelStatsMiniCharts data={data} loading={loading} />
-
       <ModelStatsSummaryCards
         loading={loading}
         rangeLabel={
@@ -214,6 +212,8 @@ export function ModelStatsPage() {
               : `${state.rangeDays} days`
         }
       />
+
+      <ModelStatsMiniCharts data={data} loading={loading} />
     </div>
   );
 }

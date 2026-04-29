@@ -35,6 +35,12 @@ import {
   updateModelImpl,
 } from "./model-methods.js";
 import {
+  getErrorCountByModelSinceImpl,
+  getErrorsSinceImpl,
+  getModelHealthSinceImpl,
+  getStuckRequestsImpl,
+} from "./monitor-methods.js";
+import {
   getAgentRoutingConfigImpl,
   updateAgentRoutingConfigImpl,
 } from "./routing-methods.js";
@@ -42,9 +48,9 @@ import {
   getSpendByKeyImpl,
   getSpendByModelImpl,
   getSpendByUserImpl,
+  getSpendLogDetailImpl,
   getSpendLogsCountImpl,
   getSpendLogsImpl,
-  getSpendLogDetailImpl,
 } from "./spend-methods.js";
 import {
   getApiKeyStatsImpl,
@@ -99,4 +105,8 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   deleteCategoryConfig = deleteCategoryConfigImpl;
   getTopUsersByModel = getTopUsersByModelImpl;
   getTopApiKeysByModel = getTopApiKeysByModelImpl;
+  getErrorsSince = getErrorsSinceImpl;
+  getErrorCountByModelSince = getErrorCountByModelSinceImpl;
+  getModelHealthSince = getModelHealthSinceImpl;
+  getStuckRequests = getStuckRequestsImpl;
 }

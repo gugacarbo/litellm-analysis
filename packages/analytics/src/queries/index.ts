@@ -30,6 +30,12 @@ export {
   modelMerges,
   updateModel,
 } from "./model-queries";
+export {
+  getErrorCountByModelSince,
+  getErrorsSince,
+  getModelHealthSince,
+  getStuckRequests,
+} from "./monitor-queries";
 export { getRouterSettings, updateRouterSettings } from "./router-queries";
 export {
   getSpendByKey,

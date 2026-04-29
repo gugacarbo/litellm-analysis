@@ -14,9 +14,9 @@ import {
   formatCurrency,
   formatNumber,
 } from "../../../pages/dashboard/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../../card";
-import { ChartTooltipContent } from "../../chart-tooltip";
-import { Skeleton } from "../../skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { ChartTooltipContent } from "../../ui/chart-tooltip";
+import { Skeleton } from "../../ui/skeleton";
 
 type HourlyPatternChartProps = {
   data: HourlyPatternItem[];

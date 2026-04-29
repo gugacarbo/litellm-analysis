@@ -2,14 +2,14 @@ import type { LucideIcon } from "lucide-react";
 import { ChevronDown, ChevronRight, LayersIcon, UserIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { Badge } from "../badge";
+import { Badge } from "../ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../card";
+} from "../ui/card";
 export type EntityRoutingCardProps = {
   /** Icon displayed in the card header */
   icon: LucideIcon;

@@ -2,7 +2,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { CHART_COLORS, CHART_HEIGHT } from "@/lib/chart-colors";
 import { formatNumber } from "@/pages/model-stats/model-stats-utils";
 import type { ModelDistribution } from "@/types/analytics";
-import { ChartTooltipContent } from "../../chart-tooltip";
+import { ChartTooltipContent } from "../../ui/chart-tooltip";
 import { ChartCard } from "./chart-card";
 
 type RequestDistributionChartProps = {

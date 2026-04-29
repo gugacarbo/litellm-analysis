@@ -1,5 +1,5 @@
 import type { SpendLog } from "../../types/analytics";
-import { TableBody, TableCell, TableRow } from "../table";
+import { TableBody, TableCell, TableRow } from "../ui/table";
 import { renderLogCell } from "./logs-table-cell";
 import type { TableColumn } from "./logs-table-columns";
 import { LogsTableGroupRenderer } from "./logs-table-group-renderer";

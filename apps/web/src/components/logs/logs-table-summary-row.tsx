@@ -5,7 +5,7 @@ import {
 } from "../../lib/spend-log-utils";
 import { cn } from "../../lib/utils";
 import type { SpendLog } from "../../types/analytics";
-import { Badge } from "../badge";
+import { Badge } from "../ui/badge";
 import type { TableColumn } from "./logs-table-columns";
 import type { GroupSummary } from "./logs-table-utils";
 

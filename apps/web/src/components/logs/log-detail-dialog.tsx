@@ -21,14 +21,14 @@ import {
   formatNumber,
 } from "../../lib/spend-log-utils";
 import type { SpendLog } from "../../types/analytics";
-import { Badge } from "../badge";
+import { Badge } from "../ui/badge";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../dialog";
+} from "../ui/dialog";
 import { CollapsibleSection } from "./log-detail-collapsible-section";
 import { ContextBadge } from "./log-detail-context-badge";
 import { LogDetailInfoSections } from "./log-detail-info-section";
@@ -361,24 +361,29 @@ export function LogDetailDialog({
           </CollapsibleSection>
         )}
 
-        {log.proxy_server_request && typeof log.proxy_server_request === 'object' && Object.keys(log.proxy_server_request).length > 0 && (
-          <CollapsibleSection
-            title="Request Body"
-            icon={MessageSquare}
-            defaultOpen={false}
-          >
-            <JsonViewer data={log.proxy_server_request} defaultOpen={false} />
-          </CollapsibleSection>
-        )}
-        {isSuccess && log.response && typeof log.response === 'object' && Object.keys(log.response).length > 0 && (
-          <CollapsibleSection
-            title="Response"
-            icon={FileText}
-            defaultOpen={false}
-          >
-            <JsonViewer data={log.response} defaultOpen={false} />
-          </CollapsibleSection>
-        )}
+        {log.proxy_server_request &&
+          typeof log.proxy_server_request === "object" &&
+          Object.keys(log.proxy_server_request).length > 0 && (
+            <CollapsibleSection
+              title="Request Body"
+              icon={MessageSquare}
+              defaultOpen={false}
+            >
+              <JsonViewer data={log.proxy_server_request} defaultOpen={false} />
+            </CollapsibleSection>
+          )}
+        {isSuccess &&
+          log.response &&
+          typeof log.response === "object" &&
+          Object.keys(log.response).length > 0 && (
+            <CollapsibleSection
+              title="Response"
+              icon={FileText}
+              defaultOpen={false}
+            >
+              <JsonViewer data={log.response} defaultOpen={false} />
+            </CollapsibleSection>
+          )}
 
         {!isSuccess && (
           <section className="overflow-hidden rounded-lg border border-red-500/30">

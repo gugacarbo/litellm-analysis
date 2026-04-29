@@ -4,11 +4,12 @@ import {
   ChevronDown,
   ChevronRight,
   FileText,
+  Radar,
   Settings,
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Card, CardContent } from "../../components/card";
+import { Card, CardContent } from "../ui/card";
 
 interface NavLeaf {
   id?: string;
@@ -35,6 +36,7 @@ export function Sidebar() {
 
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
+    { to: "/monitor", icon: Radar, label: "Monitor" },
     { to: "/model-stats", icon: BarChart3, label: "Stats" },
     { to: "/logs", icon: FileText, label: "Logs" },
     { to: "/agent-routing", icon: BarChart3, label: "Agents" },

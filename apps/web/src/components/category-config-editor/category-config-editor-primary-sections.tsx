@@ -1,8 +1,8 @@
 import type { CategoryConfig } from "../../types/agent-routing";
-import { Input } from "../input";
-import { Label } from "../label";
 import { ModelFallbackSelector } from "../model-fallback-selector";
-import { Textarea } from "../textarea";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 type UpdateConfigFn = (
   field: keyof CategoryConfig,

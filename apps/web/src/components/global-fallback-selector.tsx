@@ -5,14 +5,14 @@ import { ChevronDown, Globe } from "lucide-react";
 import { useState } from "react";
 import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
-import { Button } from "./button";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./dialog";
+} from "./ui/dialog";
 
 interface GlobalFallbackSelectorProps {
   value: string;

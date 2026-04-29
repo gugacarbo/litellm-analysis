@@ -1,7 +1,7 @@
 import { Plus, Trash2 } from "lucide-react";
 import type { ModelConfig } from "../../lib/api-client/models";
 import type { ModelFormData } from "../../pages/models/model-form-data";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../dialog";
-import { Input } from "../input";
+} from "../ui/dialog";
+import { Input } from "../ui/input";
 
 type ModelFormDialogProps = {
   open: boolean;

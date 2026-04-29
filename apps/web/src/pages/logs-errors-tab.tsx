@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import type { ErrorColumnKey } from "@/components/errors/errors-table-columns";
-import { Badge } from "../components/badge";
+import { APP_LOCALE } from "@/lib/locale";
 import { ErrorDetailDialog } from "../components/errors/error-detail-dialog";
 import { ErrorsDistributionChart } from "../components/errors/errors-distribution-chart";
 import {
@@ -13,6 +13,7 @@ import {
   DEFAULT_VISIBLE_ERROR_COLUMNS,
   ErrorsTable,
 } from "../components/errors/errors-table";
+import { Badge } from "../components/ui/badge";
 import { useErrors } from "../hooks/use-errors";
 import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
@@ -154,7 +155,7 @@ export function LogsErrorsTab() {
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">
-            {pagination.total.toLocaleString("en-US")} errors
+            {pagination.total.toLocaleString(APP_LOCALE)} errors
           </Badge>
           <Badge variant="outline">
             {activeFiltersCount > 0

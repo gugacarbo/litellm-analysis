@@ -1,15 +1,15 @@
 import { Plus, Trash2 } from "lucide-react";
-import { Badge } from "./badge";
-import { Button } from "./button";
-import { Input } from "./input";
-import { Label } from "./label";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./select";
+} from "./ui/select";
 
 type ToolsEditorProps = {
   tools: Record<string, boolean>;

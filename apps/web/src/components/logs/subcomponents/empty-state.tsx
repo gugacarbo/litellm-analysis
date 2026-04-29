@@ -1,4 +1,4 @@
-import { TableCell, TableRow } from "../../table";
+import { TableCell, TableRow } from "../../ui/table";
 
 type EmptyStateProps = {
   tableColumnsLength: number;

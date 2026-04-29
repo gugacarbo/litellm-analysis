@@ -1,5 +1,5 @@
 import type { AgentDefinition } from "../../types/agent-routing";
-import { Badge } from "../badge";
+import { Badge } from "../ui/badge";
 import type { ConfigInfo } from "./agent-routing-types";
 import type { EntityItem } from "./model-station-card";
 import { ModelStationCard } from "./model-station-card";

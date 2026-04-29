@@ -4,8 +4,8 @@ import {
   formatCompactNumber,
   formatCurrency,
 } from "../../pages/model-stats/model-stats-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 
 type ModelStatsTopTablesProps = {
   data: ModelStats[];

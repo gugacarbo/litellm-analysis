@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Sidebar } from "./components/layout/sidebar";
-import { TooltipProvider } from "./components/tooltip";
+import { TooltipProvider } from "./components/ui/tooltip";
 import { AgentRoutingPage } from "./pages/agent-routing";
 import { AliasesPage } from "./pages/aliases";
 import { DashboardPage } from "./pages/dashboard";
@@ -8,6 +8,7 @@ import { LogsPage } from "./pages/logs";
 import { ModelDetailPage } from "./pages/model-detail";
 import { ModelStatsPage } from "./pages/model-stats";
 import { ModelsPage } from "./pages/models";
+import { MonitorPage } from "./pages/monitor";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               <Route path="/models" element={<ModelsPage />} />
               <Route path="/aliases" element={<AliasesPage />} />
               <Route path="/agent-routing" element={<AgentRoutingPage />} />
+              <Route path="/monitor" element={<MonitorPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

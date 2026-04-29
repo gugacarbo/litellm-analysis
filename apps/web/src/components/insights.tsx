@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./card";
-import { Skeleton } from "./skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
 
 export type Insight = {
   type: "positive" | "warning" | "negative" | "neutral";

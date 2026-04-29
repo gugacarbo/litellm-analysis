@@ -1,9 +1,9 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { ModelDistributionItem } from "../../../pages/dashboard/dashboard-types";
 import { formatNumber } from "../../../pages/dashboard/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../../card";
-import { ChartTooltipContent } from "../../chart-tooltip";
-import { Skeleton } from "../../skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { ChartTooltipContent } from "../../ui/chart-tooltip";
+import { Skeleton } from "../../ui/skeleton";
 
 const COLORS = [
   "#3b82f6",

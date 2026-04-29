@@ -1,3 +1,5 @@
+import { APP_LOCALE } from "@/lib/locale";
+
 export const CHART_HEIGHT = 300;
 
 export const MODEL_DETAIL_CHART_COLORS = [
@@ -17,7 +19,7 @@ export function formatCurrency(value: number): string {
 export function formatNumber(value: number): string {
   const num = Number(value);
   if (Number.isNaN(num)) return "0";
-  return num.toLocaleString("en-US");
+  return num.toLocaleString(APP_LOCALE);
 }
 
 export function formatDuration(ms: number): string {
@@ -37,7 +39,7 @@ export function formatDate(value: string): string {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(APP_LOCALE, {
     month: "short",
     day: "numeric",
   });

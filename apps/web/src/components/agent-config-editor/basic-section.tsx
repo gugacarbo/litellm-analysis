@@ -1,16 +1,16 @@
 import { useCallback } from "react";
 import { normalizeHexColor } from "../../lib/utils";
 import type { AgentConfig } from "../../types/agent-routing";
-import { Input } from "../input";
-import { Label } from "../label";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../select";
-import { Textarea } from "../textarea";
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
 type UpdateConfigFn = (
   field: keyof AgentConfig,

@@ -12,7 +12,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "./select";
+} from "./ui/select";
 
 type ModelSelectorProps = {
   value?: string;

@@ -1,7 +1,7 @@
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { getMonitorDb } from "./monitor-client";
-import { alerts, type NewAlert } from "./monitor-schema";
 import type { Alert } from "./monitor-schema";
+import { alerts, type NewAlert } from "./monitor-schema";
 
 export interface GetAlertsOptions {
   anomalyType?: string;

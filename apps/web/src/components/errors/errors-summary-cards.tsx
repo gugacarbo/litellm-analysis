@@ -1,4 +1,5 @@
 import { AlertTriangle, DollarSign, Hash, Server } from "lucide-react";
+import { APP_LOCALE } from "@/lib/locale";
 import { MetricCard } from "../metric-card";
 
 type ErrorsTotals = {
@@ -66,7 +67,7 @@ export function ErrorsSummaryCards({
       <MetricCard
         icon={Hash}
         title="Tokens Wasted"
-        value={totals.totalTokensBeforeErrors.toLocaleString("en-US")}
+        value={totals.totalTokensBeforeErrors.toLocaleString(APP_LOCALE)}
         description="Partial token usage before errors"
         colorScheme="blue"
         variant="gradient"

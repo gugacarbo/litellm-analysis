@@ -1,14 +1,14 @@
 import { Check, Layers, Palette } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../../lib/utils";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../select";
+} from "../ui/select";
 import type { ConfigInfo } from "./agent-routing-types";
 
 export type EntityFocusCardProps = {

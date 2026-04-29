@@ -1,7 +1,8 @@
 import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { APP_LOCALE } from "@/lib/locale";
 import { cn } from "../../lib/utils";
-import { Button } from "../button";
-import { CardDescription, CardHeader, CardTitle } from "../card";
+import { Button } from "../ui/button";
+import { CardDescription, CardHeader, CardTitle } from "../ui/card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -9,9 +10,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../dropdown-menu";
-import { Label } from "../label";
-import { Switch } from "../switch";
+} from "../ui/dropdown-menu";
+import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
 import type { LogColumnKey } from "./logs-table-columns";
 import { LOG_COLUMNS } from "./logs-table-columns";
 
@@ -51,7 +52,7 @@ export function LogsTableHeader({
             {loading
               ? "Loading logs..."
               : hasAnyLogs
-                ? `${paginationTotal.toLocaleString("en-US")} matching records`
+                ? `${paginationTotal.toLocaleString(APP_LOCALE)} matching records`
                 : "No matching logs for current filters"}
           </CardDescription>
         </div>

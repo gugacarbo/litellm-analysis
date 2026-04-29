@@ -4,10 +4,15 @@ import { Database, RefreshCw, Settings } from "lucide-react";
 import { AgentConfigEditor } from "../components/agent-config-editor";
 import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
 import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
-import { Button } from "../components/button";
 import { CategoryConfigEditor } from "../components/category-config-editor";
 import { GlobalFallbackSelector } from "../components/global-fallback-selector";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/tabs";
+import { Button } from "../components/ui/button";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,

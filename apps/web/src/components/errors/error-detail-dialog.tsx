@@ -8,20 +8,21 @@ import {
   KeyRound,
   User,
 } from "lucide-react";
+import { APP_LOCALE } from "../../lib/locale";
 import {
   formatDateTime,
   formatDuration,
   formatFullDateTime,
 } from "../../lib/spend-log-utils";
 import type { ErrorLog } from "../../types/analytics";
-import { Badge } from "../badge";
+import { Badge } from "../ui/badge";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../dialog";
+} from "../ui/dialog";
 
 type ErrorDetailDialogProps = {
   errorLog: ErrorLog | null;
@@ -180,7 +181,7 @@ export function ErrorDetailDialog({
                     Tokens Used
                   </div>
                   <div className="mt-1 text-sm font-medium">
-                    {errorLog.total_tokens?.toLocaleString("en-US") || "-"}
+                    {errorLog.total_tokens?.toLocaleString(APP_LOCALE) || "-"}
                   </div>
                 </div>
                 <div className="rounded-lg border bg-muted/20 px-3 py-2.5">
@@ -218,15 +219,17 @@ export function ErrorDetailDialog({
                       <div className="w-2.5 h-2.5 rounded-sm bg-blue-500" />
                       <span className="text-muted-foreground">
                         Prompt:{" "}
-                        {errorLog.prompt_tokens?.toLocaleString("en-US") || "0"}
+                        {errorLog.prompt_tokens?.toLocaleString(APP_LOCALE) ||
+                          "0"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
                       <span className="text-muted-foreground">
                         Completion:{" "}
-                        {errorLog.completion_tokens?.toLocaleString("en-US") ||
-                          "0"}
+                        {errorLog.completion_tokens?.toLocaleString(
+                          APP_LOCALE,
+                        ) || "0"}
                       </span>
                     </div>
                   </div>

@@ -190,7 +190,9 @@ export async function getSpendLogById(requestId: string) {
       prompt_tokens: spendLogs.promptTokens,
       completion_tokens: spendLogs.completionTokens,
       spend: sql`${spendLogs.spend}`.mapWith(Number),
-      time_to_first_token_ms: sql<number | null>`CASE WHEN ${completionStartTime} IS NULL THEN NULL WHEN ${completionStartTime} !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}' THEN NULL ELSE EXTRACT(EPOCH FROM ((${completionStartTime})::timestamptz - ${spendLogs.startTime})) * 1000 END`,
+      time_to_first_token_ms: sql<
+        number | null
+      >`CASE WHEN ${completionStartTime} IS NULL THEN NULL WHEN ${completionStartTime} !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}' THEN NULL ELSE EXTRACT(EPOCH FROM ((${completionStartTime})::timestamptz - ${spendLogs.startTime})) * 1000 END`,
       start_time: spendLogs.startTime,
       end_time: spendLogs.endTime,
       completion_start_time: spendLogs.completionStartTime,

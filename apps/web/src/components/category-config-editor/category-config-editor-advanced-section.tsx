@@ -1,13 +1,13 @@
 import type { CategoryConfig } from "../../types/agent-routing";
-import { Input } from "../input";
-import { Label } from "../label";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../select";
+} from "../ui/select";
 
 type Props = {
   config: CategoryConfig;

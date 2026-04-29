@@ -1,8 +1,6 @@
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Badge } from "../components/badge";
-import { Button } from "../components/button";
 import { ModelDetailApiKeyTable } from "../components/model-detail/model-detail-api-key-table";
 import { ModelDetailErrorBreakdown } from "../components/model-detail/model-detail-error-breakdown";
 import { ModelDetailErrorTrendChart } from "../components/model-detail/model-detail-error-trend-chart";
@@ -12,6 +10,8 @@ import { ModelDetailSummaryCards } from "../components/model-detail/model-detail
 import { ModelDetailTokenBreakdown } from "../components/model-detail/model-detail-token-breakdown";
 import { ModelDetailTrendChart } from "../components/model-detail/model-detail-trend-chart";
 import { ModelDetailUserTable } from "../components/model-detail/model-detail-user-table";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
 import { useModelDetailData } from "../hooks/use-model-detail-data";
 import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
 import {

@@ -1,12 +1,12 @@
 import type { AgentConfig } from "../../types/agent-routing";
-import { Label } from "../label";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../select";
+} from "../ui/select";
 
 type Props = {
   config: AgentConfig;
