@@ -1,12 +1,19 @@
 import type {
   AgentConfig,
+  AgentDefinition,
   AgentRoutingConfig,
   CategoryConfig,
+  CategoryDefinition,
+} from "@lite-llm/api-contracts/agent-routing";
+import {
+  AGENT_DEFINITIONS,
+  CATEGORY_DEFINITIONS,
 } from "@lite-llm/api-contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
   getAgentConfig,
+  getAgentDefinitions,
   getAgentRoutingConfig,
   getAllModels,
   getGlobalFallbackModel,
@@ -47,6 +54,26 @@ export function useAgentRoutingState() {
     queryFn: () => getAllModels(),
   });
 
+  const agentDefinitionsQuery = useQuery({
+    queryKey: queryKeys.agentDefinitions,
+    queryFn: getAgentDefinitions,
+  });
+
+  const agents: AgentDefinition[] =
+    agentDefinitionsQuery.data?.agents ?? AGENT_DEFINITIONS;
+  const categories: CategoryDefinition[] =
+    agentDefinitionsQuery.data?.categories ?? CATEGORY_DEFINITIONS;
+
+  const hasBlockingLoading =
+    (agentRoutingQuery.isPending && !agentRoutingQuery.data) ||
+    (agentDefinitionsQuery.isPending && !agentDefinitionsQuery.data);
+  const firstError =
+    agentRoutingQuery.error instanceof Error
+      ? agentRoutingQuery.error
+      : agentDefinitionsQuery.error instanceof Error
+        ? agentDefinitionsQuery.error
+        : null;
+
   useEffect(() => {
     if (!agentRoutingQuery.data) return;
 
@@ -65,11 +92,10 @@ export function useAgentRoutingState() {
     setCategoryConfigs,
     globalFallbackModel,
     setGlobalFallbackModel,
-    loading: agentRoutingQuery.isPending && !agentRoutingQuery.data,
-    error:
-      agentRoutingQuery.error instanceof Error
-        ? agentRoutingQuery.error.message
-        : null,
+    loading: hasBlockingLoading,
+    error: firstError?.message ?? null,
     models: modelsQuery.data?.map((m) => m.modelName) || [],
+    agents,
+    categories,
   };
 }

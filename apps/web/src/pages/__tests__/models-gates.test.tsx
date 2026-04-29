@@ -28,6 +28,10 @@ vi.mock("../../lib/api-client", () => ({
   deleteModelLogs: vi.fn().mockResolvedValue(undefined),
   mergeModels: vi.fn().mockResolvedValue(undefined),
   getAgentRoutingConfig: vi.fn().mockResolvedValue({}),
+  getAgentDefinitions: vi.fn().mockResolvedValue({
+    agents: [],
+    categories: [],
+  }),
   updateAgentRoutingConfig: vi.fn().mockResolvedValue({ success: true }),
 }));
 

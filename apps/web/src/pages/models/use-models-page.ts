@@ -4,6 +4,7 @@ import {
   type AgentRoutingAPIResponse,
   createModel,
   deleteModel,
+  getAgentDefinitions,
   getAgentRoutingConfig,
   getAllModels,
   type ModelConfig,
@@ -27,6 +28,10 @@ export function useModelsPage() {
   const aliasesQuery = useQuery({
     queryKey: queryKeys.agentRoutingAliases,
     queryFn: getAgentRoutingConfig,
+  });
+  const definitionsQuery = useQuery({
+    queryKey: queryKeys.agentDefinitions,
+    queryFn: getAgentDefinitions,
   });
 
   const createModelMutation = useMutation({
@@ -130,8 +135,17 @@ export function useModelsPage() {
   }
 
   const customAliases = useMemo(
-    () => getAllAliasesSorted(aliasesQuery.data),
-    [aliasesQuery.data],
+    () =>
+      getAllAliasesSorted(
+        aliasesQuery.data,
+        definitionsQuery.data?.agents,
+        definitionsQuery.data?.categories,
+      ),
+    [
+      aliasesQuery.data,
+      definitionsQuery.data?.agents,
+      definitionsQuery.data?.categories,
+    ],
   );
 
   async function handleAliasSave() {

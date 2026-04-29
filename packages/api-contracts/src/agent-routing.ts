@@ -22,6 +22,11 @@ export interface CategoryDefinition {
   icon?: string;
 }
 
+export interface AgentDefinitionsResponse {
+  agents: AgentDefinition[];
+  categories: CategoryDefinition[];
+}
+
 export const AGENT_DEFINITIONS: AgentDefinition[] = [
   {
     key: "sisyphus",

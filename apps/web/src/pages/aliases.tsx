@@ -7,6 +7,7 @@ import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routi
 import { AgentRoutingAliasesTab } from "../components/agent-routing/agent-routing-aliases-tab";
 import {
   type AgentRoutingAPIResponse,
+  getAgentDefinitions,
   getAgentRoutingConfig,
   updateAgentRoutingConfig,
 } from "../lib/api-client";
@@ -20,6 +21,10 @@ export function AliasesPage() {
     queryKey: queryKeys.agentRoutingAliases,
     queryFn: getAgentRoutingConfig,
   });
+  const definitionsQuery = useQuery({
+    queryKey: queryKeys.agentDefinitions,
+    queryFn: getAgentDefinitions,
+  });
 
   const updateMutation = useMutation({
     mutationFn: (modelGroupAlias: AgentRoutingAPIResponse) =>
@@ -32,7 +37,11 @@ export function AliasesPage() {
   const [aliasDialogValue, setAliasDialogValue] = useState("");
   const [aliasError, setAliasError] = useState<string | null>(null);
 
-  const aliasGroups = getAliasesGrouped(aliasesQuery.data);
+  const aliasGroups = getAliasesGrouped(
+    aliasesQuery.data,
+    definitionsQuery.data?.agents,
+    definitionsQuery.data?.categories,
+  );
 
   function openAddAlias() {
     setAliasDialogMode("add");

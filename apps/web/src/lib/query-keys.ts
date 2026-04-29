@@ -42,6 +42,7 @@ export const queryKeys = {
     ] as const,
   agentRoutingData: ["agent-routing-data"] as const,
   agentRoutingAliases: ["agent-routing-aliases"] as const,
+  agentDefinitions: ["agent-definitions"] as const,
   modelDetailDailySpend: (model: string, days: number) =>
     ["model-detail", "daily-spend", model, days] as const,
   modelDetailDailyTokens: (model: string, days: number) =>

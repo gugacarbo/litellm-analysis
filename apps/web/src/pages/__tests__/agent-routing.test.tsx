@@ -6,6 +6,7 @@ import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
 vi.mock("../../lib/api-client", () => ({
   getAgentRoutingConfig: vi.fn(),
   getAgentConfig: vi.fn(),
+  getAgentDefinitions: vi.fn(),
   updateAgentRoutingConfig: vi.fn(),
   updateAgentConfig: vi.fn(),
   getAllModels: vi.fn(),
@@ -13,7 +14,12 @@ vi.mock("../../lib/api-client", () => ({
 }));
 
 import {
+  AGENT_DEFINITIONS,
+  CATEGORY_DEFINITIONS,
+} from "@lite-llm/api-contracts/agent-routing";
+import {
   getAgentConfig,
+  getAgentDefinitions,
   getAgentRoutingConfig,
   getAllModels,
   getGlobalFallbackModel,
@@ -47,6 +53,10 @@ describe("AgentRoutingPage", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getAgentDefinitions).mockResolvedValue({
+      agents: AGENT_DEFINITIONS,
+      categories: CATEGORY_DEFINITIONS,
+    });
     vi.mocked(getAgentConfig).mockResolvedValue({ agents: {}, categories: {} });
     vi.mocked(getGlobalFallbackModel).mockResolvedValue({
       globalFallbackModel: "gpt-5.1",

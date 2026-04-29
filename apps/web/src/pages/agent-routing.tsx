@@ -1,9 +1,5 @@
 "use client";
 
-import {
-  AGENT_DEFINITIONS,
-  CATEGORY_DEFINITIONS,
-} from "@lite-llm/api-contracts/agent-routing";
 import { Database, RefreshCw, Settings } from "lucide-react";
 import { AgentConfigEditor } from "../components/agent-config-editor";
 import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
@@ -68,7 +64,7 @@ export function AgentRoutingPage() {
         <TabsContent value="agents" className="mt-4">
           <AgentRoutingAgentsTab
             loading={state.loading}
-            agents={AGENT_DEFINITIONS}
+            agents={state.agents}
             models={state.models}
             onOpenAgentConfig={state.openAgentConfig}
             onQuickModelChange={state.handleQuickModelChange}
@@ -79,7 +75,7 @@ export function AgentRoutingPage() {
         <TabsContent value="categories" className="mt-4">
           <AgentRoutingCategoriesTab
             loading={state.loading}
-            categories={CATEGORY_DEFINITIONS}
+            categories={state.categories}
             models={state.models}
             onOpenCategoryConfig={state.openCategoryConfig}
             onQuickModelChange={state.handleQuickCategoryModelChange}

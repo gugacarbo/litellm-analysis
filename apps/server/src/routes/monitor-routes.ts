@@ -1,12 +1,9 @@
-import {
-  acknowledgeAlert,
-  countAlertsSince,
-  getActiveAlerts,
-  getAlerts,
-} from "@lite-llm/monitor";
 import { Router } from "express";
+import type { MonitorApplicationService } from "../application/monitor-application-service.js";
 
-export function createMonitorRouter(): Router {
+export function createMonitorRouter(
+  service: MonitorApplicationService,
+): Router {
   const router = Router();
 
   // GET /api/monitor/alerts — List alerts with pagination/filters
@@ -21,7 +18,7 @@ export function createMonitorRouter(): Router {
         since,
         acknowledged,
       } = req.query;
-      const result = getAlerts({
+      const result = service.listAlerts({
         limit: limit ? Number(limit) : 50,
         offset: offset ? Number(offset) : 0,
         anomalyType: anomaly_type as string | undefined,
@@ -29,21 +26,9 @@ export function createMonitorRouter(): Router {
         severity: severity as string | undefined,
         acknowledged:
           acknowledged !== undefined ? acknowledged === "true" : undefined,
+        since: since as string | undefined,
       });
-
-      // If since filter, filter in-memory (simple approach for v1)
-      let alerts = result.alerts;
-      if (since) {
-        const sinceTs = Math.floor(new Date(since as string).getTime() / 1000);
-        alerts = alerts.filter((a) => a.detectedAt >= sinceTs);
-      }
-
-      res.json({
-        alerts,
-        total: alerts.length,
-        limit: Number(limit || 50),
-        offset: Number(offset || 0),
-      });
+      res.json(result);
     } catch (_err) {
       res.status(500).json({ error: "Failed to fetch alerts" });
     }
@@ -52,7 +37,7 @@ export function createMonitorRouter(): Router {
   // GET /api/monitor/alerts/active — Active (unacknowledged) alerts
   router.get("/alerts/active", (_req, res) => {
     try {
-      const alerts = getActiveAlerts();
+      const alerts = service.listActiveAlerts();
       res.json({ alerts });
     } catch (_err) {
       res.status(500).json({ error: "Failed to fetch active alerts" });
@@ -67,7 +52,7 @@ export function createMonitorRouter(): Router {
         res.status(400).json({ error: "Invalid alert ID" });
         return;
       }
-      const alert = acknowledgeAlert(id);
+      const alert = service.acknowledgeAlertById(id);
       if (!alert) {
         res.status(404).json({ error: "Alert not found" });
         return;
@@ -81,27 +66,7 @@ export function createMonitorRouter(): Router {
   // GET /api/monitor/stats — Alert statistics
   router.get("/stats", (_req, res) => {
     try {
-      const allAlerts = getAlerts({ limit: 10000 });
-      const activeAlerts = getActiveAlerts();
-      const last24h = countAlertsSince(Math.floor(Date.now() / 1000) - 86400);
-
-      const alertsByType: Record<string, number> = {};
-      const alertsBySeverity: Record<string, number> = {};
-
-      for (const alert of allAlerts.alerts) {
-        alertsByType[alert.anomalyType] =
-          (alertsByType[alert.anomalyType] || 0) + 1;
-        alertsBySeverity[alert.severity] =
-          (alertsBySeverity[alert.severity] || 0) + 1;
-      }
-
-      res.json({
-        total_alerts: allAlerts.total,
-        active_alerts: activeAlerts.length,
-        alerts_by_type: alertsByType,
-        alerts_by_severity: alertsBySeverity,
-        last_24h_count: last24h,
-      });
+      res.json(service.getStats());
     } catch (_err) {
       res.status(500).json({ error: "Failed to fetch stats" });
     }
@@ -110,45 +75,7 @@ export function createMonitorRouter(): Router {
   // GET /api/monitor/models/health — Current model health
   router.get("/models/health", (_req, res) => {
     try {
-      // For v1, derive from active alerts
-      const activeAlerts = getActiveAlerts();
-      const modelStatuses: Record<
-        string,
-        { status: string; last_error_at: string | null; error_rate_1h: number }
-      > = {};
-
-      for (const alert of activeAlerts) {
-        if (!alert.model) continue;
-        if (!modelStatuses[alert.model]) {
-          modelStatuses[alert.model] = {
-            status: "unknown",
-            last_error_at: null,
-            error_rate_1h: 0,
-          };
-        }
-        if (alert.severity === "critical") {
-          modelStatuses[alert.model].status = "offline";
-        } else if (
-          alert.severity === "warning" &&
-          modelStatuses[alert.model].status !== "offline"
-        ) {
-          modelStatuses[alert.model].status = "degraded";
-        }
-        if (
-          !modelStatuses[alert.model].last_error_at ||
-          alert.detectedAt * 1000 >
-            new Date(modelStatuses[alert.model].last_error_at || "0").getTime()
-        ) {
-          modelStatuses[alert.model].last_error_at = new Date(
-            alert.detectedAt * 1000,
-          ).toISOString();
-        }
-      }
-
-      const models = Object.entries(modelStatuses).map(([model, data]) => ({
-        model,
-        ...data,
-      }));
+      const models = service.getModelHealth();
       res.json({ models });
     } catch (_err) {
       res.status(500).json({ error: "Failed to fetch model health" });

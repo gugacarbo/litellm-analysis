@@ -3,30 +3,23 @@ import type {
   AgentDefinition,
   AgentRoutingConfig,
   CategoryConfig,
-} from "@lite-llm/api-contracts/agent-routing";
-import {
-  AGENT_DEFINITIONS,
-  CATEGORY_DEFINITIONS,
+  CategoryDefinition,
 } from "@lite-llm/api-contracts/agent-routing";
 import { useCallback, useMemo } from "react";
-
-/** Extract agent keys in UI display order. */
-const AGENT_KEYS: readonly string[] = AGENT_DEFINITIONS.map(
-  (a: AgentDefinition) => a.key,
-);
-
-/** Extract category keys in UI display order. */
-const CATEGORY_KEYS: readonly string[] = CATEGORY_DEFINITIONS.map((c) => c.key);
 
 /**
  * Sort all aliases: agent/category first (in UI definition order),
  * then custom aliases alphabetically.
  */
-function sortAliases(aliases: AgentRoutingConfig): AgentRoutingConfig {
+function sortAliases(
+  aliases: AgentRoutingConfig,
+  agentKeys: readonly string[],
+  categoryKeys: readonly string[],
+): AgentRoutingConfig {
   const sorted: AgentRoutingConfig = {};
 
   // Agent aliases in definition order
-  for (const key of AGENT_KEYS) {
+  for (const key of agentKeys) {
     for (const [k, v] of Object.entries(aliases)) {
       if (k === key || k.startsWith(`${key}/`)) {
         sorted[k] = v;
@@ -35,7 +28,7 @@ function sortAliases(aliases: AgentRoutingConfig): AgentRoutingConfig {
   }
 
   // Category aliases in definition order
-  for (const key of CATEGORY_KEYS) {
+  for (const key of categoryKeys) {
     for (const [k, v] of Object.entries(aliases)) {
       if (k === key || k.startsWith(`${key}/`)) {
         sorted[k] = v;
@@ -45,8 +38,8 @@ function sortAliases(aliases: AgentRoutingConfig): AgentRoutingConfig {
 
   // Custom aliases alphabetically
   const custom = Object.entries(aliases).filter(([k]) => {
-    if (AGENT_KEYS.includes(k)) return false;
-    if (CATEGORY_KEYS.includes(k)) return false;
+    if (agentKeys.includes(k)) return false;
+    if (categoryKeys.includes(k)) return false;
     if (k.includes("/")) return false;
     return true;
   });
@@ -58,11 +51,6 @@ function sortAliases(aliases: AgentRoutingConfig): AgentRoutingConfig {
   return sorted;
 }
 
-const KNOWN_KEYS = new Set([
-  ...AGENT_DEFINITIONS.map((a) => a.key),
-  ...CATEGORY_DEFINITIONS.map((c) => c.key),
-]);
-
 type ConfigInfo = {
   model: string;
   description?: string;
@@ -72,21 +60,35 @@ type ConfigInfo = {
 
 export function useAgentRoutingDerived(
   aliases: AgentRoutingConfig,
+  agents: AgentDefinition[],
+  categories: CategoryDefinition[],
   agentConfigs: Record<string, AgentConfig>,
   _categoryConfigs: Record<string, CategoryConfig>,
   resolvedAgentConfigs: Record<string, AgentConfig>,
   resolvedCategoryConfigs: Record<string, CategoryConfig>,
 ) {
+  const agentKeys = useMemo(() => agents.map((agent) => agent.key), [agents]);
+  const categoryKeys = useMemo(
+    () => categories.map((category) => category.key),
+    [categories],
+  );
+  const knownKeys = useMemo(
+    () => new Set([...agentKeys, ...categoryKeys]),
+    [agentKeys, categoryKeys],
+  );
+
   const customAliases = useMemo(() => {
     const knownPrefixes = [
-      ...AGENT_DEFINITIONS.map((a) => `${a.key}/`),
-      ...CATEGORY_DEFINITIONS.map((c) => `${c.key}/`),
+      ...agentKeys.map((key) => `${key}/`),
+      ...categoryKeys.map((key) => `${key}/`),
     ];
-    return Object.entries(sortAliases(aliases)).filter(([key]) => {
-      if (KNOWN_KEYS.has(key)) return false;
-      return !knownPrefixes.some((prefix) => key.startsWith(prefix));
-    });
-  }, [aliases]);
+    return Object.entries(sortAliases(aliases, agentKeys, categoryKeys)).filter(
+      ([key]) => {
+        if (knownKeys.has(key)) return false;
+        return !knownPrefixes.some((prefix) => key.startsWith(prefix));
+      },
+    );
+  }, [agentKeys, aliases, categoryKeys, knownKeys]);
 
   const getAgentConfigInfo = useCallback(
     (key: string): ConfigInfo | null => {
