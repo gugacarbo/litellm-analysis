@@ -5,5 +5,7 @@ export {};
 declare global {
   interface ImportMetaEnv {
     readonly VITE_APP_LOCALE?: string;
+    readonly VITE_LITELLM_API_URL?: string;
+    readonly VITE_LITELLM_API_KEY?: string;
   }
 }

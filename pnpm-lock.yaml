@@ -59,6 +59,9 @@ importers:
       ws:
         specifier: ^8.20.0
         version: 8.20.0
+      zod:
+        specifier: '3'
+        version: 3.25.76
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.4.12
@@ -153,6 +156,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      zod:
+        specifier: '3'
+        version: 3.25.76
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.4.13

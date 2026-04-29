@@ -1,3 +1,5 @@
+import { env } from "../env";
+
 const DEFAULT_LOCALE = "en-US";
 
 export function getBrowserLocale(): string | undefined {
@@ -13,5 +15,5 @@ export function getBrowserLocale(): string | undefined {
 
 export const APP_LOCALE =
   getBrowserLocale() ||
-  import.meta.env.VITE_APP_LOCALE?.trim() ||
+  env.VITE_APP_LOCALE ||
   DEFAULT_LOCALE;

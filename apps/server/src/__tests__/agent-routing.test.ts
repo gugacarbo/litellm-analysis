@@ -7,7 +7,7 @@ const mockGetRouterSettings = vi.fn();
 const mockUpdateRouterSettings = vi.fn();
 
 async function getServer() {
-  const { createApiServer } = await import("../api-server");
+  const { createApiServer } = await import("../runtime/api-server");
   const mockDs = createMockDataSource({
     getAgentRoutingConfig: vi
       .fn()

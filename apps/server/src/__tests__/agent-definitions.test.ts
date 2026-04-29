@@ -11,7 +11,7 @@ vi.mock("@lite-llm/agents-manager", () => ({
 }));
 
 async function getServer() {
-  const { createApiServer } = await import("../api-server");
+  const { createApiServer } = await import("../runtime/api-server");
   const mockDs = createMockDataSource();
   const orchestration = {
     dataSource: mockDs,

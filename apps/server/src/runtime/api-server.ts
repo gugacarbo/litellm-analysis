@@ -1,8 +1,8 @@
 import { registerAllRoutes } from "@lite-llm/server-core/routes";
 import type { RouteOptions } from "@lite-llm/server-core/types";
 import express, { type Application } from "express";
-import { createMonitorApplicationService } from "./application/monitor-application-service";
-import { createMonitorRouter } from "./routes/monitor-routes";
+import { createMonitorApplicationService } from "../application/monitor-application-service";
+import { createMonitorRouter } from "../routes/monitor-routes";
 
 export function createApiServer(opts: RouteOptions): Application {
   const app = express();

@@ -2,7 +2,8 @@ import * as path from "node:path";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { createDataSource } from "@lite-llm/analytics/data-source";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
-import { createApiServer } from "../api-server";
+import { env } from "../env";
+import { createApiServer } from "./api-server";
 import { createMonitorRuntime, type MonitorRuntime } from "./monitor-runtime";
 
 export interface AppRuntime {
@@ -34,9 +35,11 @@ export function startAppRuntime(): AppRuntime {
 
   const dataSource = createDataSource();
   const orchestration = createOrchestrationServices(dataSource);
+
   const app = createApiServer({ dataSource, orchestration });
 
-  const port = Number(process.env.PORT || 3000);
+  const port = env.PORT;
+
   const httpServer = app.listen(port, () => {
     console.log(`API server running on http://localhost:${port}`);
     console.log(`Config files location: ${path.join(projectRoot, "data")}`);
@@ -45,8 +48,9 @@ export function startAppRuntime(): AppRuntime {
   const monitorRuntime: MonitorRuntime = createMonitorRuntime({
     analyticsDataSource: dataSource,
     httpServer,
-    pollIntervalMs: Number(process.env.MONITOR_POLL_INTERVAL_MS) || 15_000,
+    pollIntervalMs: env.MONITOR_POLL_INTERVAL_MS,
   });
+
   monitorRuntime.start();
 
   const stop = () => {
