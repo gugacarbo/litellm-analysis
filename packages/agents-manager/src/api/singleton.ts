@@ -19,6 +19,7 @@ let _categoryTransformer: ReturnType<typeof createCategoryTransformer> | null =
 let _legacyConfigFile: string | null = null;
 
 export interface AgentsManagerOptions {
+  projectRoot?: string;
   configDir?: string;
   dbFile?: string;
   legacyConfigFile?: string;
@@ -27,13 +28,16 @@ export interface AgentsManagerOptions {
 }
 
 export function createAgentsManager(options: AgentsManagerOptions = {}): void {
-  _storage = createFileStorage({
-    configDir: options.configDir ?? "db",
-    dbFile: options.dbFile,
-    legacyConfigFile: options.legacyConfigFile,
-    providersFile: options.providersFile,
-    vscodeModelsFile: options.vscodeModelsFile,
-  });
+  _storage = createFileStorage(
+    {
+      configDir: options.configDir ?? "db",
+      dbFile: options.dbFile,
+      legacyConfigFile: options.legacyConfigFile,
+      providersFile: options.providersFile,
+      vscodeModelsFile: options.vscodeModelsFile,
+    },
+    options.projectRoot,
+  );
   _agentAdapter = createAgentAdapter();
   _categoryAdapter = createCategoryAdapter();
   _agentTransformer = createAgentTransformer();

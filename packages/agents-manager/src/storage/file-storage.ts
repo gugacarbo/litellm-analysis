@@ -11,6 +11,11 @@ export interface IFileStorage {
   getPaths(): FilePaths;
 }
 
+export interface FileStorageOptions {
+  paths?: Partial<FilePaths>;
+  projectRoot?: string;
+}
+
 // Helper to resolve paths - uses custom path if absolute, otherwise joins with projectRoot
 function resolveFilePath(
   projectRoot: string,
@@ -27,10 +32,12 @@ function resolveFilePath(
 export class FileStorage implements IFileStorage {
   private readonly paths: FilePaths;
 
-  constructor(customPaths?: Partial<FilePaths>) {
+  constructor(options: FileStorageOptions = {}) {
+    const customPaths = options.paths;
+    const projectRoot = options.projectRoot ?? process.cwd();
     // Use provided paths directly if absolute, otherwise resolve relative to project root
     const dbFile = resolveFilePath(
-      process.cwd(),
+      projectRoot,
       customPaths?.dbFile,
       "db/db.json",
     );
@@ -40,17 +47,17 @@ export class FileStorage implements IFileStorage {
       configDir: path.dirname(dbFile),
       dbFile,
       legacyConfigFile: resolveFilePath(
-        process.cwd(),
+        projectRoot,
         customPaths?.legacyConfigFile,
         "data/oh-my-openagent.json",
       ),
       providersFile: resolveFilePath(
-        process.cwd(),
+        projectRoot,
         customPaths?.providersFile,
         "data/opencode.json",
       ),
       vscodeModelsFile: resolveFilePath(
-        process.cwd(),
+        projectRoot,
         customPaths?.vscodeModelsFile,
         "data/vscode-oaicopilot.json",
       ),
@@ -104,6 +111,9 @@ export class FileStorage implements IFileStorage {
 
 // ── Factory ──
 
-export function createFileStorage(paths?: Partial<FilePaths>): FileStorage {
-  return new FileStorage(paths);
+export function createFileStorage(
+  paths?: Partial<FilePaths>,
+  projectRoot?: string,
+): FileStorage {
+  return new FileStorage({ paths, projectRoot });
 }
