@@ -2,11 +2,8 @@ import * as path from "node:path";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { createDataSource } from "@lite-llm/analytics/data-source";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
-import { createApiServer } from "../api-server.js";
-import {
-  createMonitorRuntime,
-  type MonitorRuntime,
-} from "./monitor-runtime.js";
+import { createApiServer } from "../api-server";
+import { createMonitorRuntime, type MonitorRuntime } from "./monitor-runtime";
 
 export interface AppRuntime {
   stop: () => void;

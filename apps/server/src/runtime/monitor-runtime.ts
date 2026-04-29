@@ -1,7 +1,7 @@
 import type { Server as HttpServer } from "node:http";
 import type { AnalyticsDataSource } from "@lite-llm/analytics/data-source";
 import { getMonitorDb, MonitorService } from "@lite-llm/monitor";
-import { WebSocketServer } from "../ws/websocket-server.js";
+import { WebSocketServer } from "../ws/websocket-server";
 
 interface MonitorRuntimeOptions {
   analyticsDataSource: AnalyticsDataSource;

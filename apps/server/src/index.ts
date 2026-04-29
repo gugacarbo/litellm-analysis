@@ -1,4 +1,4 @@
 import "dotenv/config";
-import { startAppRuntime } from "./runtime/app-runtime.js";
+import { startAppRuntime } from "./runtime/app-runtime";
 
 startAppRuntime();

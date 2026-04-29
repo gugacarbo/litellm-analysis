@@ -1,5 +1,5 @@
 import { Router } from "express";
-import type { MonitorApplicationService } from "../application/monitor-application-service.js";
+import type { MonitorApplicationService } from "../application/monitor-application-service";
 
 export function createMonitorRouter(
   service: MonitorApplicationService,
