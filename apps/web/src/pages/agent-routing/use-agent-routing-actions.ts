@@ -12,7 +12,7 @@ import type {
   AgentConfig,
   AgentRoutingConfig,
   CategoryConfig,
-} from "../../types/agent-routing";
+} from "@lite-llm/api-contracts/agent-routing";
 import { useAgentRoutingAliasActions } from "./use-agent-routing-alias-actions";
 import { useAgentRoutingDialogState } from "./use-agent-routing-dialog-state";
 

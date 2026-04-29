@@ -11,7 +11,7 @@ import type {
   AgentConfig,
   AgentRoutingConfig,
   CategoryConfig,
-} from "../../types/agent-routing";
+} from "@lite-llm/api-contracts/agent-routing";
 
 export function useAgentRoutingState() {
   const [aliases, setAliases] = useState<AgentRoutingConfig>({});

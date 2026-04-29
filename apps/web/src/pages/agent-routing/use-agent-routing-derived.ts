@@ -4,11 +4,11 @@ import type {
   AgentDefinition,
   AgentRoutingConfig,
   CategoryConfig,
-} from "../../types/agent-routing";
+} from "@lite-llm/api-contracts/agent-routing";
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,
-} from "../../types/agent-routing";
+} from "@lite-llm/api-contracts/agent-routing";
 
 /** Extract agent keys in UI display order. */
 const AGENT_KEYS: readonly string[] = AGENT_DEFINITIONS.map(

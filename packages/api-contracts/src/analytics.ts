@@ -23,7 +23,6 @@ export interface SpendLog {
   end_time: string;
   api_key: string;
   status: string;
-  // Extended fields from DB (unmapped columns)
   call_type?: string;
   completion_start_time?: string;
   model_id?: string;
@@ -32,7 +31,6 @@ export interface SpendLog {
   api_base?: string;
   cache_hit?: string;
   cache_key?: string;
-
   request_tags?: string[];
   team_id?: string;
   end_user?: string;

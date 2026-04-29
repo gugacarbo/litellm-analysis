@@ -11,7 +11,7 @@ import {
 import { CHART_COLORS, CHART_HEIGHT } from "@/lib/chart-colors";
 import { TOP_N_MODELS } from "@/pages/model-stats/model-stats-chart-utils";
 import { formatNumber } from "@/pages/model-stats/model-stats-utils";
-import type { TokenDistribution } from "@/types/analytics";
+import type { TokenDistribution } from "@lite-llm/api-contracts/analytics";
 import { ChartTooltipContent } from "../../ui/chart-tooltip";
 import { ChartCard } from "./chart-card";
 

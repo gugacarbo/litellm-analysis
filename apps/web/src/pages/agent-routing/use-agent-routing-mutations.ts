@@ -10,7 +10,7 @@ import type {
   AgentConfig,
   AgentRoutingConfig,
   CategoryConfig,
-} from "../../types/agent-routing";
+} from "@lite-llm/api-contracts/agent-routing";
 
 export function useAgentRoutingMutations() {
   const updateAgentConfigMutation = useMutation({

@@ -1,4 +1,4 @@
-import type { AgentConfig } from "../../types/agent-routing";
+import type { AgentConfig } from "@lite-llm/api-contracts/agent-routing";
 
 type UpdateConfig = <K extends keyof AgentConfig>(
   field: K,

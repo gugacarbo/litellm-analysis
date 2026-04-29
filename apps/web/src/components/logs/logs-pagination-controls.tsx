@@ -1,4 +1,4 @@
-import type { PaginationMetadata } from "../../types/analytics";
+import type { PaginationMetadata } from "@lite-llm/api-contracts/analytics";
 import { Button } from "../ui/button";
 import {
   Select,

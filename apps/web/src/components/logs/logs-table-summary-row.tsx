@@ -4,7 +4,7 @@ import {
   formatTime,
 } from "../../lib/spend-log-utils";
 import { cn } from "../../lib/utils";
-import type { SpendLog } from "../../types/analytics";
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { Badge } from "../ui/badge";
 import type { TableColumn } from "./logs-table-columns";
 import type { GroupSummary } from "./logs-table-utils";

@@ -16,7 +16,7 @@ import {
 import {
   AGENT_DEFINITIONS,
   CATEGORY_DEFINITIONS,
-} from "../types/agent-routing";
+} from "@lite-llm/api-contracts/agent-routing";
 import { useAgentRoutingPageState } from "./agent-routing/use-agent-routing-page";
 
 export function AgentRoutingPage() {

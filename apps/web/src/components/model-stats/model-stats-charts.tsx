@@ -28,7 +28,7 @@ import type {
   CostEfficiency,
   ModelDistribution,
   TokenDistribution,
-} from "../../types/analytics";
+} from "@lite-llm/api-contracts/analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChartTooltipContent } from "../ui/chart-tooltip";
 import { Skeleton } from "../ui/skeleton";

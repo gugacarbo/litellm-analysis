@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { queryKeys } from "../../lib/query-keys";
-import type { AgentRoutingConfig } from "../../types/agent-routing";
+import type { AgentRoutingConfig } from "@lite-llm/api-contracts/agent-routing";
 
 type SetAliases = (
   aliases:

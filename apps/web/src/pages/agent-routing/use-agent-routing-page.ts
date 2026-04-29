@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { AgentConfig, CategoryConfig } from "../../types/agent-routing";
+import type { AgentConfig, CategoryConfig } from "@lite-llm/api-contracts/agent-routing";
 import { useAgentRoutingActions } from "./use-agent-routing-actions";
 import { useAgentRoutingDerived } from "./use-agent-routing-derived";
 import { useAgentRoutingState } from "./use-agent-routing-state";

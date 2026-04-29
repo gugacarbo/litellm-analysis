@@ -1,4 +1,4 @@
-import type { AgentConfig } from "../../types/agent-routing";
+import type { AgentConfig } from "@lite-llm/api-contracts/agent-routing";
 import { Label } from "../ui/label";
 import {
   Select,

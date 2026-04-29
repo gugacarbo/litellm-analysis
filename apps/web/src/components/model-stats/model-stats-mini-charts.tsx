@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { APP_LOCALE } from "@/lib/locale";
 import { formatCurrency, formatDuration } from "../../lib/spend-log-utils";
-import type { ModelStatistics } from "../../types/analytics";
+import type { ModelStatistics } from "@lite-llm/api-contracts/analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 

@@ -1,4 +1,4 @@
-import type { AgentDefinition } from "../../types/agent-routing";
+import type { AgentDefinition } from "@lite-llm/api-contracts/agent-routing";
 import type { ConfigInfo } from "./agent-routing-types";
 import { EntityFocusCard } from "./entity-focus-card";
 

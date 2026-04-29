@@ -120,15 +120,15 @@ export async function writeFullConfig(config: AgentConfigFile): Promise<void> {
   const agentAdapter = getAgentAdapter();
   const categoryAdapter = getCategoryAdapter();
 
+  const nextAgents: Record<string, DbAgentEntry> = {};
+  const nextCategories: Record<string, DbCategoryEntry> = {};
+
   for (const [key, raw] of Object.entries(config.agents || {}) as [
     string,
     AgentConfig,
   ][]) {
     if (Object.keys(raw).length === 0) continue;
-    db.agents[key] = {
-      ...db.agents[key],
-      ...agentAdapter.toDb(raw),
-    };
+    nextAgents[key] = agentAdapter.toDb(raw);
   }
 
   for (const [key, raw] of Object.entries(config.categories || {}) as [
@@ -136,11 +136,11 @@ export async function writeFullConfig(config: AgentConfigFile): Promise<void> {
     CategoryConfig,
   ][]) {
     if (Object.keys(raw).length === 0) continue;
-    db.categories[key] = {
-      ...db.categories[key],
-      ...categoryAdapter.toDb(raw),
-    };
+    nextCategories[key] = categoryAdapter.toDb(raw);
   }
+
+  db.agents = nextAgents;
+  db.categories = nextCategories;
 
   await writeDb(db);
 }

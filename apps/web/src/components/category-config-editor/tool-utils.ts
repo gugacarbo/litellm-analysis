@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { CategoryConfig } from "../../types/agent-routing";
+import type { CategoryConfig } from "@lite-llm/api-contracts/agent-routing";
 
 export function addTool(
   newToolKey: string,

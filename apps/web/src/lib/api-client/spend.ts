@@ -1,4 +1,4 @@
-import type { PaginationMetadata, SpendLog } from "../../types/analytics";
+import type { PaginationMetadata, SpendLog } from "@lite-llm/api-contracts/analytics";
 import { fetchApi } from "./core";
 
 function withDays(endpoint: string, days?: number): string {

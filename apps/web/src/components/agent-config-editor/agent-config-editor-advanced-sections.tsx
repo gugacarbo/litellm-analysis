@@ -1,4 +1,4 @@
-import type { AgentConfig } from "../../types/agent-routing";
+import type { AgentConfig } from "@lite-llm/api-contracts/agent-routing";
 import { Separator } from "../ui/separator";
 import { AgentConfigEditorExecutionSection } from "./agent-config-editor-execution-section";
 import { AgentConfigEditorPermissionsSection } from "./agent-config-editor-permissions-section";

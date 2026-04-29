@@ -1,5 +1,5 @@
 import { Database } from "lucide-react";
-import type { CategoryDefinition } from "../../types/agent-routing";
+import type { CategoryDefinition } from "@lite-llm/api-contracts/agent-routing";
 import type { ConfigInfo } from "./agent-routing-types";
 import { CategoryFocusView } from "./category-focus-view";
 import { CategoryModelView } from "./category-model-view";

@@ -1,4 +1,4 @@
-import type { ErrorLog } from "../types/analytics";
+import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
 
 export const AUTO_REFETCH_INTERVAL_MS = 5000;
 

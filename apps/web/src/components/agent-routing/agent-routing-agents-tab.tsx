@@ -1,5 +1,5 @@
 import { Zap } from "lucide-react";
-import type { AgentDefinition } from "../../types/agent-routing";
+import type { AgentDefinition } from "@lite-llm/api-contracts/agent-routing";
 import { AgentFocusView } from "./agent-focus-view";
 import type { ConfigInfo } from "./agent-routing-types";
 import { EntityRoutingCard } from "./entity-routing-card";

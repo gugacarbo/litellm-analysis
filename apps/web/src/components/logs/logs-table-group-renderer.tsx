@@ -1,6 +1,6 @@
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { Fragment } from "react";
-import type { SpendLog } from "../../types/analytics";
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { TableCell, TableRow } from "../ui/table";
 import { renderLogCell } from "./logs-table-cell";
 import type { TableColumn } from "./logs-table-columns";

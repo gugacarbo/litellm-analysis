@@ -1,4 +1,4 @@
-import type { SpendLog } from "../../types/analytics";
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { TableBody, TableCell, TableRow } from "../ui/table";
 import { renderLogCell } from "./logs-table-cell";
 import type { TableColumn } from "./logs-table-columns";

@@ -17,7 +17,7 @@ import { Badge } from "../components/ui/badge";
 import { useErrors } from "../hooks/use-errors";
 import { getAllModels } from "../lib/api-client/models";
 import { queryKeys } from "../lib/query-keys";
-import type { ErrorLog, PaginationMetadata } from "../types/analytics";
+import type { ErrorLog, PaginationMetadata } from "@lite-llm/api-contracts/analytics";
 import {
   AUTO_REFETCH_INTERVAL_MS,
   applyErrorFilters,

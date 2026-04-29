@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { LogsFilterValues } from "../../components/logs/logs-filter-card";
 import { DEFAULT_VISIBLE_LOG_COLUMNS } from "../../components/logs/logs-table";
 import type { LogColumnKey } from "../../components/logs/logs-table-columns";
-import type { SpendLog } from "../../types/analytics";
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 
 const AUTO_REFETCH_INTERVAL_MS = 15000;
 

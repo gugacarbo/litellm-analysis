@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { normalizeHexColor } from "../../lib/utils";
-import type { AgentConfig } from "../../types/agent-routing";
+import type { AgentConfig } from "@lite-llm/api-contracts/agent-routing";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {

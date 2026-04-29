@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { PaginationMetadata, SpendLog } from "../../types/analytics";
+import type { PaginationMetadata, SpendLog } from "@lite-llm/api-contracts/analytics";
 import { Card, CardContent } from "../ui/card";
 import { Table, TableHead, TableHeader, TableRow } from "../ui/table";
 import { LogsPaginationControls } from "./logs-pagination-controls";

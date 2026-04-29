@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { getErrorLogs } from "../lib/api-client/analytics";
 import { queryKeys } from "../lib/query-keys";
-import type { ErrorLog } from "../types/analytics";
+import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
 
 const DEFAULT_ERROR_LOGS_LIMIT = 1000;
 

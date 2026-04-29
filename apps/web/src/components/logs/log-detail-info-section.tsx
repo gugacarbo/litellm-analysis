@@ -20,7 +20,7 @@ import {
   formatFullDateTime,
   maskApiKey,
 } from "../../lib/spend-log-utils";
-import type { SpendLog } from "../../types/analytics";
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { Badge } from "../ui/badge";
 import { CollapsibleSection } from "./log-detail-collapsible-section";
 import { ContextBadge } from "./log-detail-context-badge";

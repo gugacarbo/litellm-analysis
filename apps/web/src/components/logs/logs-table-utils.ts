@@ -1,4 +1,4 @@
-import type { SpendLog } from "../../types/analytics";
+import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 
 export type LogGroup = {
   model: string;

@@ -1,4 +1,4 @@
-import type { CategoryConfig } from "../../types/agent-routing";
+import type { CategoryConfig } from "@lite-llm/api-contracts/agent-routing";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {
