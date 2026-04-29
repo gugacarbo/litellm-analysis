@@ -145,7 +145,7 @@
         "glm-5.1",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Agente principal de código — implementação, refatoração e execução de tarefas complexas.",
+      "description": "Orquestrador principal — delega tarefas para subagentes, consolida resultados e gerencia o fluxo de execução de planos complexos.",
       "color": "#C83232",
       "disable": false,
       "tools": {}
@@ -158,7 +158,7 @@
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Especialista em análise estratégica, raciocínio profundo e decisões complexas.",
+      "description": "Analista estratégico — avalia cenários, pondera trade-offs e produz recomendações fundamentadas para decisões de arquitetura e design.",
       "color": "#048B5E"
     },
     "hephaestus": {
@@ -169,21 +169,21 @@
         "MiniMax-M2.7-highspeed",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Especialista em implementação de código, refatoração e solução de bugs técnicos.",
+      "description": "Engenheiro de implementação — escreve, refatora e depura código seguindo especificações precisas; opera como subagente especializado.",
       "color": "#850047",
       "disable": false,
       "tools": {},
       "mode": "subagent"
     },
     "atlas": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5.1",
       "fallbackModels": [
         "mimo-v2.5-pro",
         "deepseek-v4-pro",
         "glm-5.1",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Agente para tarefas extensas de contexto amplo e consolidação de múltiplas frentes.",
+      "description": "Consolidador de contexto amplo — agrega resultados de múltiplas frentes de trabalho e mantém coerência em tarefas que exigem visão sistêmica.",
       "color": "#AD7F00",
       "disable": false,
       "tools": {},
@@ -197,7 +197,7 @@
         "glm-5.1:ollama",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Versão enxuta para tarefas rápidas de execução e iterações de baixo custo.",
+      "description": "Executor leve — versão otimizada do Sisyphus para tarefas rápidas, mudanças localizadas e iterações de baixo custo.",
       "color": "#5A00C7"
     },
     "librarian": {
@@ -208,7 +208,7 @@
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Agente de documentação, curadoria de conhecimento e organização de referências.",
+      "description": "Curador de conhecimento — organiza documentação, referências técnicas e mantém a base de conhecimento do projeto.",
       "color": "#945E00"
     },
     "momus": {
@@ -219,7 +219,7 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Revisor crítico para auditoria de qualidade, inconsistências e pontos de falha.",
+      "description": "Auditor de qualidade — revisa código, identifica inconsistências, pontos de falha e violações de padrões; opera como revisor crítico.",
       "color": "#300B99",
       "disable": false,
       "tools": {},
@@ -233,21 +233,21 @@
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Agente focado em antecipar riscos, levantar hipóteses e sugerir melhorias proativas.",
+      "description": "Arquiteto de planejamento — estrutura planos de execução, antecipa riscos, define escopo e garante que todas as decisões sejam tomadas antes da implementação.",
       "color": "#90A300",
       "disable": false,
       "tools": {},
       "mode": "subagent"
     },
     "explore": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "deepseek-v4-flash",
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Agente de exploração para pesquisa, descoberta de contexto e mapeamento inicial.",
+      "description": "Cartógrafo do código — navega pela base de código, descobre padrões, mapeia dependências e coleta contexto para embasar decisões.",
       "color": "#04B9AD",
       "disable": false,
       "tools": {},
@@ -261,21 +261,21 @@
         "deepseek-v4-flash",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Especialista multimodal para interpretar imagens, interfaces e artefatos visuais.",
+      "description": "Intérprete visual — analisa imagens, screenshots, diagramas e artefatos visuais para extrair informações e guiar implementação.",
       "color": "#006894",
       "disable": false,
       "tools": {},
       "mode": "subagent"
     },
     "metis": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "glm-5.1",
         "qwen3-coder-plus",
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Especialista em estratégia de solução, decomposição de problemas e arquitetura.",
+      "description": "Estrategista de solução — decompõe problemas complexos, valida abordagens e sugere arquiteturas antes da implementação.",
       "color": "#00B356",
       "disable": false,
       "tools": {},
@@ -289,20 +289,20 @@
         "qwen3.5-plus",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Default Agent — agente padrão de execução.",
+      "description": "Agente padrão — executor genérico para tarefas que não se encaixam em agentes especializados; ponto de entrada default do sistema.",
       "color": "#555555",
       "disable": false,
       "tools": {}
     },
     "plan": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5.1",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
         "deepseek-v4-flash",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Plan Mode Agent — modo de planejamento, sem ferramentas de edição.",
+      "description": "Agente de planejamento — opera em modo exclusivo de planejamento (read-only), sem acesso a ferramentas de edição; restrito a artefatos de especificação.",
       "color": "#2E86AB",
       "disable": false,
       "mode": "subagent"
@@ -315,7 +315,7 @@
         "qwen3.5-plus",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Builder Agent — agente de construção do OpenCode.",
+      "description": "Construtor do ecossistema — responsável pela manutenção, evolução e sincronização das configurações do OpenCode e seus plugins.",
       "color": "#A23B72",
       "disable": false,
       "tools": {}
@@ -323,24 +323,24 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "deepseek-v4-flash",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "qwen3.5-plus",
         "deepseek-v4-pro",
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Frontend, UI/UX, design, estilização e animação."
+      "description": "Frontend e UI/UX — componentes React, Tailwind, estilização, animações e design systems."
     },
     "ultrabrain": {
-      "model": "qwen3-coder-plus",
+      "model": "glm-5.1",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Use apenas para tarefas genuinamente difíceis e com muita lógica."
+      "description": "Raciocínio profundo — reservado para problemas com alta densidade lógica, algoritmos complexos e análises multifatoriais."
     },
     "deep": {
       "model": "deepseek-v4-pro",
@@ -350,7 +350,7 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Resolução autônoma de problemas orientada a objetivos."
+      "description": "Execução autônoma — resolve problemas orientados a objetivos com mínima supervisão; ideal para tarefas de médio a grande porte."
     },
     "code": {
       "model": "qwen3-coder-plus",
@@ -360,7 +360,7 @@
         "glm-5.1",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Implementação de código, refatoração, debug e tarefas de engenharia de software."
+      "description": "Engenharia de software — implementação, refatoração, debug e tarefas técnicas gerais de código."
     },
     "artistry": {
       "model": "deepseek-v4-pro",
@@ -370,7 +370,7 @@
         "qwen3.5-plus",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Resolução de problemas complexos com abordagens não convencionais."
+      "description": "Solução criativa — aborda problemas complexos com estratégias não convencionais e pensamento divergente."
     },
     "quick": {
       "model": "deepseek-v4-flash",
@@ -380,7 +380,7 @@
         "deepseek-v4-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Tarefas triviais — mudanças em arquivo único."
+      "description": "Tarefas triviais — mudanças em arquivo único, correções pontuais e operações rápidas sem dependências cruzadas."
     },
     "unspecified-low": {
       "model": "MiniMax-M2.7-highspeed",
@@ -390,7 +390,7 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Tarefas que não se encaixam em outras categorias, baixo esforço."
+      "description": "Propósito geral (baixo esforço) — tarefas que não se encaixam em outras categorias e exigem pouco tempo ou contexto."
     },
     "unspecified-high": {
       "model": "deepseek-v4-pro",
@@ -400,7 +400,7 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Tarefas que não se encaixam em outras categorias, alto esforço."
+      "description": "Propósito geral (alto esforço) — tarefas que não se encaixam em outras categorias e exigem investimento significativo de contexto."
     },
     "writing": {
       "model": "deepseek-v4-flash",
@@ -410,7 +410,7 @@
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "description": "Documentação, prosa e escrita técnica."
+      "description": "Documentação técnica — redação de docs, README, changelogs, AGENTS.md e prosa técnica em geral."
     }
   },
   "globalFallbackModel": "MiniMax-M2.7-highspeed"
