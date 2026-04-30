@@ -16,12 +16,12 @@
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/alias-router": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
+    "@lite-llm/config": "workspace:*",
     "@lite-llm/monitor": "workspace:^",
     "@lite-llm/server-core": "workspace:*",
     "dotenv": "^17.4.2",
     "express": "^4.21.0",
-    "ws": "^8.20.0",
-    "zod": "3"
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",

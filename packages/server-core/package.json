@@ -17,6 +17,7 @@
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/alias-router": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
+    "@lite-llm/config": "workspace:*",
     "@litellm/shared": "workspace:*",
     "express": "^4.21.0"
   },

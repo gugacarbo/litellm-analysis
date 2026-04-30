@@ -3,9 +3,13 @@ import { STATUS_COLORS, STATUS_ORDER } from "../../pages/monitor/monitor-utils";
 
 interface ModelHealthGridProps {
   models: ModelHealthEntry[];
+  compact?: boolean;
 }
 
-export function ModelHealthGrid({ models }: ModelHealthGridProps) {
+export function ModelHealthGrid({
+  models,
+  compact = false,
+}: ModelHealthGridProps) {
   if (models.length === 0) {
     return (
       <div>
@@ -23,6 +27,19 @@ export function ModelHealthGrid({ models }: ModelHealthGridProps) {
   const sorted = [...models].sort(
     (a, b) => (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3),
   );
+
+  if (compact) {
+    return (
+      <div>
+        <h2 className="mb-3 text-lg font-semibold">Model Health</h2>
+        <div className="space-y-2">
+          {sorted.map((model) => (
+            <CompactModelHealthCard key={model.model} model={model} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -72,6 +89,39 @@ function ModelHealthCard({ model }: { model: ModelHealthEntry }) {
         {!model.last_error_at && model.status === "healthy" && (
           <div className="mt-1 text-green-600">No recent errors</div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function CompactModelHealthCard({ model }: { model: ModelHealthEntry }) {
+  const colorClass = STATUS_COLORS[model.status] ?? STATUS_COLORS.unknown;
+  const errorRate = model.error_rate_1h.toFixed(1);
+
+  return (
+    <div className="flex items-center justify-between rounded-lg border p-3">
+      <div className="flex items-center gap-2 truncate min-w-0">
+        <span
+          className={`h-2 w-2 shrink-0 rounded-full ${colorClass.split(" ")[0]}`}
+        />
+        <span className="truncate text-sm font-medium">{model.model}</span>
+      </div>
+      <div className="flex items-center gap-3 shrink-0">
+        <span className="text-xs text-muted-foreground">
+          Error:{" "}
+          <span
+            className={
+              model.error_rate_1h > 10 ? "font-medium text-red-600" : ""
+            }
+          >
+            {errorRate}%
+          </span>
+        </span>
+        <span
+          className={`rounded-full border px-2 py-0.5 text-xs font-medium ${colorClass}`}
+        >
+          {model.status}
+        </span>
       </div>
     </div>
   );

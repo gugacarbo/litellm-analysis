@@ -1,3 +1,5 @@
+import { serverEnv } from "@lite-llm/config/server";
+
 export function parseDays(rawValue: unknown, fallback: number): number {
   if (typeof rawValue !== "string") {
     return fallback;
@@ -18,7 +20,7 @@ export function toCostPerToken(costPerMillion?: number): number | undefined {
 }
 
 export function getLiteLLMCredentialName(): string | undefined {
-  const credentialName = process.env.LITELLM_CREDENTIAL_NAME?.trim();
+  const credentialName = serverEnv.LITELLM_CREDENTIAL_NAME?.trim();
   return credentialName ? credentialName : undefined;
 }
 

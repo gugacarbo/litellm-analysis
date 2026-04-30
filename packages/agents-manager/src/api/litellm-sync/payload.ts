@@ -1,5 +1,6 @@
 // ── LiteLLM Payload Construction ──
 
+import { serverEnv } from "@lite-llm/config/server";
 import type { DbModelSpec } from "../../types/index.js";
 
 export interface LiteLLMUpsertPayload {
@@ -16,7 +17,7 @@ function toCostPerToken(costPerMillion?: number): number | undefined {
 }
 
 function getLiteLLMCredentialName(): string | undefined {
-  const credentialName = process.env.LITELLM_CREDENTIAL_NAME?.trim();
+  const credentialName = serverEnv.LITELLM_CREDENTIAL_NAME?.trim();
   return credentialName ? credentialName : undefined;
 }
 
