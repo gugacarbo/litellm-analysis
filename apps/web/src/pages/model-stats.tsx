@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BarChart3 } from "lucide-react";
+import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
 import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
 import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
@@ -10,7 +11,6 @@ import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-su
 import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
-import { PageLayout } from "../components/ui/page-layout";
 import { Toaster } from "../components/ui/sonner";
 import { getModelStatistics } from "../lib/api-client/analytics";
 import { queryKeys } from "../lib/query-keys";

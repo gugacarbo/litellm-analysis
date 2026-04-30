@@ -6,10 +6,10 @@ import { DashboardInsights } from "../components/dashboard/dashboard-insights";
 import { DashboardOverviewCards } from "../components/dashboard/dashboard-overview-cards";
 import { DashboardTopEntities } from "../components/dashboard/dashboard-top-entities";
 import { DashboardUsageCharts } from "../components/dashboard/dashboard-usage-charts";
+import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
-import { PageLayout } from "../components/ui/page-layout";
 import {
   Tabs,
   TabsContent,

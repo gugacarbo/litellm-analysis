@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { FileText } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { PageLayout } from "../components/ui/page-layout";
+import { PageLayout } from "../components/layout/page-layout/page-layout";
 import {
   Tabs,
   TabsContent,

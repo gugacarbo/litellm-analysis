@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { PageLayout } from "../page-layout";
+import { PageLayout } from "../../layout/page-layout/page-layout";
 
 vi.mock("./card", () => ({
   Card: ({

@@ -1,8 +1,8 @@
 import { Settings } from "lucide-react";
 import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
+import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { ModelFormDialog } from "../components/models/model-form-dialog";
 import { ModelsTableCard } from "../components/models/models-table-card";
-import { PageLayout } from "../components/ui/page-layout";
 import { useModelsPage } from "./models/use-models-page";
 
 export function ModelsPage() {

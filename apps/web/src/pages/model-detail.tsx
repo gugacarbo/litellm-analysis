@@ -1,6 +1,7 @@
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { ModelDetailApiKeyTable } from "../components/model-detail/model-detail-api-key-table";
 import { ModelDetailCostChart } from "../components/model-detail/model-detail-cost-chart";
 import { ModelDetailErrorBreakdown } from "../components/model-detail/model-detail-error-breakdown";
@@ -16,7 +17,6 @@ import { ModelDetailTTFTChart } from "../components/model-detail/model-detail-tt
 import { ModelDetailUserTable } from "../components/model-detail/model-detail-user-table";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
-import { PageLayout } from "../components/ui/page-layout";
 import { Separator } from "../components/ui/separator";
 import { TimeRangePicker } from "../components/ui/time-range-picker";
 import { useModelDetailData } from "../hooks/use-model-detail-data";

@@ -6,8 +6,8 @@ import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing
 import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
 import { CategoryConfigEditor } from "../components/category-config-editor";
 import { GlobalFallbackSelector } from "../components/global-fallback-selector";
+import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { Button } from "../components/ui/button";
-import { PageLayout } from "../components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
