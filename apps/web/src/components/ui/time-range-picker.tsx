@@ -10,7 +10,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 const PRESET_BUTTON_LABELS: Record<string, string> = {
   "1h": "1h",
   "6h": "6h",
-  today: "24h",
+  "24h": "24h",
+  today: "Today",
   "7d": "7d",
   "30d": "30d",
   "60d": "60d",
@@ -28,7 +29,7 @@ type TimeRangePickerProps = {
 export function TimeRangePicker({
   value,
   onChange,
-  presets = ["1h", "6h", "today", "7d", "30d", "60d", "90d", "all"],
+  presets = ["1h", "6h", "24h", "today", "7d", "30d", "60d", "90d", "all"],
   showCustom = true,
 }: TimeRangePickerProps) {
   const [customFrom, setCustomFrom] = useState<string>(

@@ -1,6 +1,7 @@
 export type DashboardDateRangeKey =
   | "1h"
   | "6h"
+  | "24h"
   | "today"
   | "7d"
   | "30d"

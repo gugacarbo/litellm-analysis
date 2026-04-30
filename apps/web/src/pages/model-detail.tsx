@@ -34,7 +34,8 @@ function getRangeLabel(
   const labels: Record<string, string> = {
     "1h": "Last hour",
     "6h": "Last 6 hours",
-    today: "Last 24 hours",
+    "24h": "Last 24 hours",
+    today: "Today",
     "7d": "Last 7 days",
     "30d": "Last 30 days",
     "60d": "Last 60 days",

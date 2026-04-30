@@ -21,20 +21,18 @@ export function getWindowStart(days: number): Date | null {
 
   const now = new Date();
 
-  if (days < 1) {
-    // Sub-day ranges (e.g. 0.0417 = 1h, 0.25 = 6h):
-    // subtract the exact number of milliseconds
-    const ms = days * 24 * 60 * 60 * 1000;
-    return new Date(now.getTime() - ms);
-  }
-
   if (days === 1) {
+    // "Today" — since midnight of the current day
     now.setHours(0, 0, 0, 0);
     return now;
   }
 
-  now.setDate(now.getDate() - days);
-  return now;
+  // Sub-day ranges (e.g. 0.0417 = 1h, 0.25 = 6h) and
+  // multi-day ranges (e.g. 7.5 = 7 days 12 hours):
+  // Use millisecond subtraction for sub-day precision.
+  // setDate() truncates to integers and loses hour-level accuracy.
+  const ms = days * 24 * 60 * 60 * 1000;
+  return new Date(now.getTime() - ms);
 }
 
 export function getSpendLogsTimeCondition(days: number): SQL | undefined {

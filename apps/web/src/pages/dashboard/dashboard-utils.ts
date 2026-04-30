@@ -54,6 +54,24 @@ export function normalizePercent(value: number): number {
 
 export const DASHBOARD_DATE_RANGES: DashboardDateRangeOption[] = [
   {
+    key: "1h",
+    label: "1 hora",
+    days: 0.0417,
+    description: "Última 1 hora",
+  },
+  {
+    key: "6h",
+    label: "6 horas",
+    days: 0.25,
+    description: "Últimas 6 horas",
+  },
+  {
+    key: "24h",
+    label: "24h",
+    days: 0.99999,
+    description: "Últimas 24 horas",
+  },
+  {
     key: "today",
     label: "Hoje",
     days: 1,
@@ -78,28 +96,16 @@ export const DASHBOARD_DATE_RANGES: DashboardDateRangeOption[] = [
     description: "Últimos 60 dias",
   },
   {
-    key: "all",
-    label: "Tudo",
-    days: 0,
-    description: "Todo o histórico",
-  },
-  {
-    key: "1h",
-    label: "1 hora",
-    days: 0.0417,
-    description: "Última 1 hora",
-  },
-  {
-    key: "6h",
-    label: "6 horas",
-    days: 0.25,
-    description: "Últimas 6 horas",
-  },
-  {
     key: "90d",
     label: "90 dias",
     days: 90,
     description: "Últimos 90 dias",
+  },
+  {
+    key: "all",
+    label: "Tudo",
+    days: 0,
+    description: "Todo o histórico",
   },
   {
     key: "custom",
