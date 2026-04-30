@@ -1,8 +1,5 @@
 import { useMemo } from "react";
-import type {
-  ModelHealthEntry,
-  MonitorAlert,
-} from "./monitor-types";
+import type { ModelHealthEntry, MonitorAlert } from "./monitor-types";
 import { formatAnomalyType } from "./monitor-utils";
 
 export interface SeveritySlice {
@@ -101,8 +98,11 @@ export function useMonitorDerived(
 
   const healthStatsSummary = useMemo(() => {
     const withStats = models.filter(
-      (m): m is ModelHealthEntry & { stats: NonNullable<ModelHealthEntry["stats"]> } =>
-        m.stats != null && m.stats.total_requests > 0,
+      (
+        m,
+      ): m is ModelHealthEntry & {
+        stats: NonNullable<ModelHealthEntry["stats"]>;
+      } => m.stats != null && m.stats.total_requests > 0,
     );
     if (withStats.length === 0) {
       return { avgP95Latency: null, totalRequests: 0, avgSuccessRate: null };
@@ -114,8 +114,12 @@ export function useMonitorDerived(
       (m) => (m.stats.success_count / m.stats.total_requests) * 100,
     );
     return {
-      avgP95Latency: p95s.length > 0 ? p95s.reduce((a, b) => a + b, 0) / p95s.length : null,
-      totalRequests: withStats.reduce((sum, m) => sum + m.stats.total_requests, 0),
+      avgP95Latency:
+        p95s.length > 0 ? p95s.reduce((a, b) => a + b, 0) / p95s.length : null,
+      totalRequests: withStats.reduce(
+        (sum, m) => sum + m.stats.total_requests,
+        0,
+      ),
       avgSuccessRate:
         successRates.length > 0
           ? successRates.reduce((a, b) => a + b, 0) / successRates.length

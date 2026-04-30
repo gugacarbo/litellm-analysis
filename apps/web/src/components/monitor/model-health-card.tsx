@@ -45,9 +45,7 @@ export function ModelHealthCard({ model, className }: ModelHealthCardProps) {
         <>
           <div className="mb-2 grid grid-cols-2 gap-x-3 gap-y-1">
             <div>
-              <span className="text-[10px] text-muted-foreground">
-                Success
-              </span>
+              <span className="text-[10px] text-muted-foreground">Success</span>
               <p
                 className={cn(
                   "text-sm font-medium",
@@ -62,9 +60,8 @@ export function ModelHealthCard({ model, className }: ModelHealthCardProps) {
               >
                 {model.stats.total_requests > 0
                   ? `${(
-                      (model.stats.success_count /
-                        model.stats.total_requests) *
-                      100
+                      (model.stats.success_count / model.stats.total_requests) *
+                        100
                     ).toFixed(0)}%`
                   : "—"}
               </p>
@@ -98,9 +95,7 @@ export function ModelHealthCard({ model, className }: ModelHealthCardProps) {
             <div className="mb-0.5 flex items-center justify-between text-[10px]">
               <span className="text-muted-foreground">Errors</span>
               <span
-                className={cn(
-                  getSuccessRateColor(100 - model.error_rate_1h),
-                )}
+                className={cn(getSuccessRateColor(100 - model.error_rate_1h))}
               >
                 {model.error_rate_1h.toFixed(0)}%
               </span>

@@ -14,12 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Skeleton } from "../ui/skeleton";
 import {
   Table,
@@ -57,9 +52,10 @@ function getErrorBarColor(rate: number): string {
 }
 
 function getLastTs(model: ModelHealthEntry): string | null {
-  return [model.stats?.last_error_at, model.last_error_at].find(
-    (t) => t != null,
-  ) ?? null;
+  return (
+    [model.stats?.last_error_at, model.last_error_at].find((t) => t != null) ??
+    null
+  );
 }
 
 function isOlderThan(minutes: number, iso: string | null): boolean {
@@ -226,9 +222,7 @@ function ModelDetailDialog({
                 </span>
                 <p className="truncate text-sm font-medium">
                   {model.stats.last_success_at
-                    ? new Date(
-                        model.stats.last_success_at,
-                      ).toLocaleString()
+                    ? new Date(model.stats.last_success_at).toLocaleString()
                     : "—"}
                 </p>
               </div>
@@ -255,8 +249,9 @@ export function AlertHistoryTable({
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [selectedModel, setSelectedModel] =
-    useState<ModelHealthEntry | null>(null);
+  const [selectedModel, setSelectedModel] = useState<ModelHealthEntry | null>(
+    null,
+  );
   const [filters, setFilters] = useState<AlertFiltersState>({
     anomalyType: "",
     severity: "",

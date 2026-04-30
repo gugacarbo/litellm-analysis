@@ -38,10 +38,10 @@ export function PageLayout({
         </div>
         {hasRightContent && (
           <div className="flex flex-col items-end gap-2">
-            {showFilters && filters && (
-              <Card className="p-3">{filters}</Card>
+            {showFilters && filters && <Card className="p-3">{filters}</Card>}
+            {buttons && (
+              <div className="flex items-center gap-2">{buttons}</div>
             )}
-            {buttons && <div className="flex items-center gap-2">{buttons}</div>}
           </div>
         )}
       </div>

@@ -50,8 +50,7 @@ export function AlertFilters({
         onValueChange={(anomalyType) =>
           onValuesChange({
             ...values,
-            anomalyType:
-              anomalyType === ALL_TYPES_VALUE ? "" : anomalyType,
+            anomalyType: anomalyType === ALL_TYPES_VALUE ? "" : anomalyType,
           })
         }
       >
@@ -81,9 +80,7 @@ export function AlertFilters({
           <SelectValue placeholder="All severities" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL_SEVERITIES_VALUE}>
-            All severities
-          </SelectItem>
+          <SelectItem value={ALL_SEVERITIES_VALUE}>All severities</SelectItem>
           {SEVERITIES.map((s) => (
             <SelectItem key={s.value} value={s.value}>
               {s.label}
@@ -96,9 +93,7 @@ export function AlertFilters({
         className="h-8 w-[160px]"
         placeholder="Filter by model..."
         value={values.model}
-        onChange={(e) =>
-          onValuesChange({ ...values, model: e.target.value })
-        }
+        onChange={(e) => onValuesChange({ ...values, model: e.target.value })}
       />
 
       <Button size="sm" onClick={onApply}>
