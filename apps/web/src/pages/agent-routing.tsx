@@ -7,6 +7,7 @@ import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-rou
 import { CategoryConfigEditor } from "../components/category-config-editor";
 import { GlobalFallbackSelector } from "../components/global-fallback-selector";
 import { Button } from "../components/ui/button";
+import { PageLayout } from "../components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
@@ -19,18 +20,11 @@ export function AgentRoutingPage() {
   const state = useAgentRoutingPageState();
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Settings className="h-8 w-8" />
-            Agent Routing
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Configure models for agents and categories
-          </p>
-        </div>
-
+    <PageLayout
+      title="Agent Routing"
+      subtitle="Configure models for agents and categories"
+      icon={Settings}
+      buttons={
         <Button
           onClick={state.handleSaveAll}
           disabled={state.saving || state.loading}
@@ -47,8 +41,8 @@ export function AgentRoutingPage() {
             </>
           )}
         </Button>
-      </div>
-
+      }
+    >
       <Tabs defaultValue="agents">
         <div className="flex items-center justify-between">
           <TabsList>
@@ -106,7 +100,7 @@ export function AgentRoutingPage() {
         saving={state.saving}
         error={state.error}
       />
-    </div>
+    </PageLayout>
   );
 }
 

@@ -94,9 +94,7 @@ export function Sidebar() {
                               }`
                             }
                           >
-                            {child.icon && (
-                              <child.icon className="h-4 w-4" />
-                            )}
+                            {child.icon && <child.icon className="h-4 w-4" />}
                             <span>{child.label}</span>
                           </NavLink>
                         ))}

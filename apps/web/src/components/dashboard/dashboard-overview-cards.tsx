@@ -1,16 +1,14 @@
 import type {
   DashboardMetrics,
   PerformanceMetrics,
-  TokenDistributionItem,
 } from "../../pages/dashboard/dashboard-types";
 import {
   formatCurrency,
-  formatDuration,
   formatNumber,
   formatPercent,
-  safeDivide,
 } from "../../pages/dashboard/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card } from "../ui/card";
+import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
 
 type DashboardOverviewCardsProps = {
@@ -18,7 +16,6 @@ type DashboardOverviewCardsProps = {
   rangeLabel: string;
   metrics: DashboardMetrics | null;
   performance: PerformanceMetrics | null;
-  tokenDistribution: TokenDistributionItem[];
 };
 
 export function DashboardOverviewCards({
@@ -26,189 +23,95 @@ export function DashboardOverviewCards({
   rangeLabel,
   metrics,
   performance,
-  tokenDistribution,
 }: DashboardOverviewCardsProps) {
-  const totalRequests = Number(performance?.total_requests ?? 0);
-  const totalTokens = Number(metrics?.totalTokens ?? 0);
-  const totalSpend = Number(metrics?.totalSpend ?? 0);
-  const avgTokensPerRequest = safeDivide(totalTokens, totalRequests);
-  const avgCostPerRequest = safeDivide(totalSpend, totalRequests);
+  const successRate = performance?.success_rate ?? 0;
+  const successRateColor =
+    successRate > 95
+      ? "text-emerald-500"
+      : successRate > 90
+        ? "text-amber-500"
+        : "text-red-500";
+
+  const errorCount = metrics?.errorCount ?? 0;
+  const errorColor =
+    errorCount === 0
+      ? "text-emerald-500"
+      : errorCount < 10
+        ? "text-amber-500"
+        : "text-red-500";
+
+  const skeleton = (className = "h-7 w-20") => (
+    <Skeleton className={className} />
+  );
+
+  const kpis = [
+    {
+      label: `Total Spend (${rangeLabel})`,
+      value: loading
+        ? skeleton("h-7 w-24")
+        : formatCurrency(metrics?.totalSpend ?? 0),
+      className: "text-foreground",
+    },
+    {
+      label: `Total Tokens (${rangeLabel})`,
+      value: loading
+        ? skeleton()
+        : formatNumber(metrics?.totalTokens ?? 0),
+      className: "text-foreground",
+    },
+    {
+      label: "Success Rate",
+      value: loading
+        ? skeleton("h-7 w-16")
+        : formatPercent(successRate),
+      className: successRateColor,
+    },
+    {
+      label: "Active Models",
+      value: loading
+        ? skeleton("h-7 w-12")
+        : String(metrics?.activeModels ?? 0),
+      className: "text-foreground",
+    },
+    {
+      label: "Errors",
+      value: loading
+        ? skeleton("h-7 w-12")
+        : String(errorCount),
+      className: errorColor,
+    },
+    {
+      label: "Avg Latency",
+      value: loading
+        ? skeleton("h-7 w-16")
+        : `${(performance?.avg_duration_ms ?? 0).toFixed(0)}ms`,
+      className: "text-foreground",
+    },
+  ];
 
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-b from-background to-blue-500/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Spend ({rangeLabel})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {formatCurrency(metrics?.totalSpend || 0)}
-              </p>
+    <Card className="overflow-hidden">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+        {kpis.map((kpi, index) => (
+          <div
+            key={kpi.label}
+            className="relative flex flex-col gap-1 px-4 py-4"
+          >
+            <span className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
+              {kpi.label}
+            </span>
+            <span className={`text-xl font-semibold tabular-nums ${kpi.className}`}>
+              {kpi.value}
+            </span>
+            {index < kpis.length - 1 && (
+              <Separator
+                orientation="vertical"
+                className="absolute right-0 top-3 h-[calc(100%-1.5rem)] hidden lg:block"
+              />
             )}
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-b from-background to-emerald-500/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Tokens ({rangeLabel})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {formatNumber(metrics?.totalTokens || 0)}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-b from-background to-violet-500/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Models</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-12" />
-            ) : (
-              <p className="text-2xl font-bold">{metrics?.activeModels || 0}</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-b from-background to-rose-500/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Errors ({rangeLabel})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-12" />
-            ) : (
-              <p className="text-2xl font-bold">{metrics?.errorCount || 0}</p>
-            )}
-          </CardContent>
-        </Card>
+          </div>
+        ))}
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/70">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Requests ({rangeLabel})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {formatNumber(performance?.total_requests || 0)}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Avg Latency</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {formatDuration(performance?.avg_duration_ms || 0)}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <p
-                className={`text-2xl font-bold ${
-                  (performance?.success_rate || 0) > 95
-                    ? "text-green-600"
-                    : (performance?.success_rate || 0) > 90
-                      ? "text-yellow-600"
-                      : "text-red-600"
-                }`}
-              >
-                {formatPercent(performance?.success_rate || 0)}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Avg Tokens/Request
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {formatNumber(avgTokensPerRequest)}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="border-dashed border-border/70">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Avg Cost / Request
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-20" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {formatCurrency(avgCostPerRequest)}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-dashed border-border/70">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Tracked Models
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-20" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {formatNumber(tokenDistribution.length)}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </>
+    </Card>
   );
 }

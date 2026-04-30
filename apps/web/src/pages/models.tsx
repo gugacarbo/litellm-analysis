@@ -2,6 +2,7 @@ import { Settings } from "lucide-react";
 import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
 import { ModelFormDialog } from "../components/models/model-form-dialog";
 import { ModelsTableCard } from "../components/models/models-table-card";
+import { PageLayout } from "../components/ui/page-layout";
 import { useModelsPage } from "./models/use-models-page";
 
 export function ModelsPage() {
@@ -36,12 +37,10 @@ export function ModelsPage() {
   } = useModelsPage();
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Settings className="h-8 w-8" />
-          Models
-        </h1>
+    <PageLayout
+      title="Models"
+      icon={Settings}
+      buttons={
         <ModelFormDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
@@ -56,8 +55,8 @@ export function ModelsPage() {
           onUpdateExtraParam={updateExtraParam}
           onSubmit={handleSubmit}
         />
-      </div>
-
+      }
+    >
       <ModelsTableCard
         models={modelsQuery.data ?? []}
         loading={modelsQuery.isPending && !modelsQuery.data}
@@ -82,7 +81,7 @@ export function ModelsPage() {
         onAliasValueChange={setAliasDialogValue}
         onSave={handleAliasSave}
       />
-    </div>
+    </PageLayout>
   );
 }
 

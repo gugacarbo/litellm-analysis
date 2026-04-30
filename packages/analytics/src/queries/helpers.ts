@@ -7,7 +7,7 @@ export function normalizeDays(
   days: number | string | undefined,
   fallback: number,
 ) {
-  const parsed = typeof days === "string" ? Number.parseInt(days, 10) : days;
+  const parsed = typeof days === "string" ? Number.parseFloat(days) : days;
   if (typeof parsed !== "number" || Number.isNaN(parsed) || parsed < 0) {
     return fallback;
   }
@@ -20,6 +20,13 @@ export function getWindowStart(days: number): Date | null {
   }
 
   const now = new Date();
+
+  if (days < 1) {
+    // Sub-day ranges (e.g. 0.0417 = 1h, 0.25 = 6h):
+    // subtract the exact number of milliseconds
+    const ms = days * 24 * 60 * 60 * 1000;
+    return new Date(now.getTime() - ms);
+  }
 
   if (days === 1) {
     now.setHours(0, 0, 0, 0);

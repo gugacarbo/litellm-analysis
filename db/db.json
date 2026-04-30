@@ -151,7 +151,7 @@
       "tools": {}
     },
     "oracle": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5.1",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -201,7 +201,7 @@
       "color": "#5A00C7"
     },
     "librarian": {
-      "model": "deepseek-v4-flash",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "qwen3.5-plus",
         "deepseek-v4-flash",
@@ -212,7 +212,7 @@
       "color": "#945E00"
     },
     "momus": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -226,7 +226,7 @@
       "mode": "subagent"
     },
     "prometheus": {
-      "model": "deepseek-v4-pro",
+      "model": "glm-5.1",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -282,7 +282,7 @@
       "mode": "subagent"
     },
     "build": {
-      "model": "deepseek-v4-flash",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "deepseek-v4-pro",
         "glm-5.1",
@@ -363,7 +363,7 @@
       "description": "Engenharia de software — implementação, refatoração, debug e tarefas técnicas gerais de código."
     },
     "artistry": {
-      "model": "deepseek-v4-pro",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "deepseek-v4-pro",
         "kimi-k2.6",

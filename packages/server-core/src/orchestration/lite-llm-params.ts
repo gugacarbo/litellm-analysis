@@ -5,7 +5,7 @@ export function parseDays(rawValue: unknown, fallback: number): number {
     return fallback;
   }
 
-  const parsed = Number.parseInt(rawValue, 10);
+  const parsed = Number.parseFloat(rawValue);
   if (Number.isNaN(parsed) || parsed < 0) {
     return fallback;
   }

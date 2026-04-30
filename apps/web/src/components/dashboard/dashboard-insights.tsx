@@ -1,79 +1,69 @@
 import type { DashboardInsight } from "../../pages/dashboard/dashboard-types";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
+import { cn } from "../../lib/utils";
 
 type DashboardInsightsProps = {
   loading: boolean;
   insights: DashboardInsight[];
 };
 
-function getToneClass(tone: DashboardInsight["tone"]): string {
-  if (tone === "positive") {
-    return "text-emerald-700 dark:text-emerald-300";
-  }
-  if (tone === "warning") {
-    return "text-amber-700 dark:text-amber-300";
-  }
-  return "text-foreground";
+function getToneDot(tone: DashboardInsight["tone"]): string {
+  if (tone === "positive") return "bg-emerald-500";
+  if (tone === "warning") return "bg-amber-500";
+  return "bg-muted-foreground";
 }
 
 export function DashboardInsights({
   loading,
   insights,
 }: DashboardInsightsProps) {
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold">Analysis Highlights</h2>
-          <p className="text-sm text-muted-foreground">
-            Derived signals from usage, cost, and performance data.
-          </p>
+  const content = loading ? (
+    <div className="flex flex-wrap gap-2">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          key={`skeleton-${index}`}
+          className="flex items-center gap-2 rounded-full bg-muted px-3 py-1.5"
+        >
+          <Skeleton className="h-2 w-2 rounded-full shrink-0" />
+          <Skeleton className="h-4 w-20" />
         </div>
+      ))}
+    </div>
+  ) : insights.length === 0 ? null : (
+    <div className="flex flex-wrap gap-2">
+      {insights.map((item) => (
+        <div
+          key={item.title}
+          className="group relative flex items-center gap-2 rounded-full border bg-muted/30 px-3 py-1.5 text-sm transition-colors hover:bg-muted/60"
+        >
+          <span
+            className={cn(
+              "h-2 w-2 rounded-full shrink-0",
+              getToneDot(item.tone),
+            )}
+          />
+          <span className="font-medium">{item.value}</span>
+          <span className="text-muted-foreground hidden sm:inline">
+            {item.title}
+          </span>
+          <div className="absolute bottom-full left-1/2 z-10 mb-2 hidden w-48 -translate-x-1/2 rounded-lg border bg-popover p-2 text-xs text-popover-foreground shadow-md group-hover:block">
+            <p className="font-medium">{item.title}</p>
+            <p className="text-muted-foreground">{item.detail}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <Card key={`skeleton-${index}`}>
-              <CardHeader className="pb-2">
-                <Skeleton className="h-4 w-32" />
-              </CardHeader>
-              <CardContent className="space-y-1">
-                <Skeleton className="h-7 w-24" />
-                <Skeleton className="h-3 w-full" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  if (content === null) return null;
 
   return (
-    <div className="space-y-3">
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold">Analysis Highlights</h2>
-        <p className="text-sm text-muted-foreground">
-          Derived signals from usage, cost, and performance data.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {insights.map((item) => (
-          <Card key={item.title}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {item.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              <p className={`text-2xl font-bold ${getToneClass(item.tone)}`}>
-                {item.value}
-              </p>
-              <p className="text-xs text-muted-foreground">{item.detail}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Analysis Highlights</CardTitle>
+      </CardHeader>
+      <CardContent>{content}</CardContent>
+    </Card>
   );
 }

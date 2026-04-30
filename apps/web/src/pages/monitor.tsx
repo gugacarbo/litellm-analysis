@@ -1,4 +1,4 @@
-import { AlertTriangle, BarChart3, Clock, Radio, Radar } from "lucide-react";
+import { AlertTriangle, BarChart3, Clock, Radar, Radio } from "lucide-react";
 import { useEffect } from "react";
 import { MetricCard } from "../components/metric-card";
 import { AlertDetailDialog } from "../components/monitor/alert-detail-dialog";
@@ -6,6 +6,7 @@ import { AlertHistoryTable } from "../components/monitor/alert-history-table";
 import { AlertsByTypeChart } from "../components/monitor/alerts-by-type-chart";
 import { ConnectionBadge } from "../components/monitor/connection-badge";
 import { SeverityBreakdownChart } from "../components/monitor/severity-breakdown-chart";
+import { PageLayout } from "../components/ui/page-layout";
 import { useMonitorPageState } from "./monitor/use-monitor-page";
 
 export function MonitorPage() {
@@ -18,7 +19,18 @@ export function MonitorPage() {
   }, [state.error]);
 
   return (
-    <div className="flex h-full flex-col gap-6 overflow-auto p-6">
+    <PageLayout
+      title="Monitor"
+      subtitle="Real-time model health and anomaly detection"
+      icon={Radar}
+      variant="flex"
+      buttons={
+        <ConnectionBadge
+          status={state.websocketStatus}
+          alertCount={state.mergedAlertCount}
+        />
+      }
+    >
       <AlertDetailDialog
         alert={state.selectedAlert}
         open={state.selectedAlert !== null}
@@ -30,19 +42,6 @@ export function MonitorPage() {
           state.onClearSelectedAlert();
         }}
       />
-
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold flex items-center gap-2 tracking-tight"><Radar className="h-8 w-8" />Monitor</h1>
-          <p className="text-sm text-muted-foreground">
-            Real-time model health and anomaly detection
-          </p>
-        </div>
-        <ConnectionBadge
-          status={state.websocketStatus}
-          alertCount={state.mergedAlertCount}
-        />
-      </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <MetricCard
@@ -106,7 +105,7 @@ export function MonitorPage() {
           />
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
 

@@ -1,5 +1,4 @@
-import { RefreshCw } from "lucide-react";
-import { Activity } from "lucide-react";
+import { Activity, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { APP_LOCALE } from "@/lib/locale";
 import { DashboardEfficiencyCharts } from "../components/dashboard/dashboard-efficiency-charts";
@@ -10,6 +9,8 @@ import { DashboardUsageCharts } from "../components/dashboard/dashboard-usage-ch
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
+import { PageLayout } from "../components/ui/page-layout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useDashboardData } from "../hooks/use-dashboard-data";
 import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
 import {
@@ -18,9 +19,12 @@ import {
   getDateRangeLabel,
 } from "./dashboard/dashboard-utils";
 
+type ChartTabKey = "usage" | "models" | "efficiency";
+
 export function DashboardPage() {
   const [selectedDateRange, setSelectedDateRange] =
     useState<DashboardDateRangeKey>("30d");
+  const [chartTab, setChartTab] = useState<ChartTabKey>("usage");
   const rangeDays = getDateRangeDays(selectedDateRange);
   const rangeLabel = getDateRangeLabel(selectedDateRange);
 
@@ -55,94 +59,120 @@ export function DashboardPage() {
   }, [lastUpdatedAt]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold flex items-center gap-2"><Activity className="h-8 w-8" />Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Usage, cost, reliability, and model behavior for the selected
-            period.
-          </p>
-        </div>
-
-        <div className="flex flex-col items-start gap-3 xl:items-end">
-          <div className="flex flex-wrap items-center gap-2">
-            {DASHBOARD_DATE_RANGES.map((option) => (
-              <Button
-                key={option.key}
-                variant={
-                  option.key === selectedDateRange ? "default" : "outline"
-                }
-                size="sm"
-                onClick={() => setSelectedDateRange(option.key)}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">Auto-refresh: 30s</Badge>
-            <Badge variant="outline">Last update: {lastUpdatedLabel}</Badge>
+    <PageLayout
+      title="Dashboard"
+      subtitle="Usage, cost, reliability, and model behavior."
+      icon={Activity}
+      filters={
+        <div className="flex flex-wrap items-center gap-1.5">
+          {DASHBOARD_DATE_RANGES.map((option) => (
             <Button
-              variant="outline"
+              key={option.key}
+              variant={
+                option.key === selectedDateRange ? "default" : "outline"
+              }
               size="sm"
-              onClick={() => {
-                void refetch();
-              }}
+              className="h-7 px-2 text-xs"
+              onClick={() => setSelectedDateRange(option.key)}
             >
-              <RefreshCw
-                className={`mr-2 h-3.5 w-3.5 ${
-                  refreshing ? "animate-spin" : ""
-                }`}
-              />
-              Refresh
+              {option.label}
             </Button>
-          </div>
+          ))}
         </div>
+      }
+      buttons={
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge variant="outline" className="text-xs px-2 py-0.5">
+            Auto: 30s
+          </Badge>
+          <Badge variant="outline" className="text-xs px-2 py-0.5">
+            {lastUpdatedLabel}
+          </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => {
+              void refetch();
+            }}
+          >
+            <RefreshCw
+              className={`mr-1.5 h-3 w-3 ${
+                refreshing ? "animate-spin" : ""
+              }`}
+            />
+            Refresh
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-5">
+        {error ? (
+          <Card className="border-destructive/40 bg-destructive/5">
+            <CardContent className="p-4">
+              <p className="text-sm text-destructive">{error}</p>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        <DashboardOverviewCards
+          loading={loading}
+          rangeLabel={rangeLabel}
+          metrics={metrics}
+          performance={performance}
+        />
+
+        <Tabs
+          value={chartTab}
+          onValueChange={(v) => setChartTab(v as ChartTabKey)}
+        >
+          <TabsList variant="line">
+            <TabsTrigger value="usage">Usage</TabsTrigger>
+            <TabsTrigger value="models">Models</TabsTrigger>
+            <TabsTrigger value="efficiency">Efficiency</TabsTrigger>
+          </TabsList>
+          <TabsContent value="usage">
+            <DashboardUsageCharts
+              loading={loading}
+              rangeLabel={rangeLabel}
+              variant="usage"
+              tokenDistribution={tokenDistribution}
+              dailyTrend={dailyTrend}
+              modelDistribution={modelDistribution}
+              hourlyPatterns={hourlyPatterns}
+            />
+          </TabsContent>
+          <TabsContent value="models">
+            <DashboardUsageCharts
+              loading={loading}
+              rangeLabel={rangeLabel}
+              variant="models"
+              tokenDistribution={tokenDistribution}
+              dailyTrend={dailyTrend}
+              modelDistribution={modelDistribution}
+              hourlyPatterns={hourlyPatterns}
+            />
+          </TabsContent>
+          <TabsContent value="efficiency">
+            <DashboardEfficiencyCharts
+              loading={loading}
+              rangeLabel={rangeLabel}
+              costEfficiency={costEfficiency}
+              dailyTokenTrend={dailyTokenTrend}
+            />
+          </TabsContent>
+        </Tabs>
+
+        <DashboardInsights loading={loading} insights={insights} />
+
+        <DashboardTopEntities
+          loading={loading}
+          rangeLabel={rangeLabel}
+          apiKeyStats={apiKeyStats}
+          spendByUser={spendByUser}
+        />
       </div>
-
-      {error ? (
-        <Card className="border-destructive/40 bg-destructive/5">
-          <CardContent className="p-4">
-            <p className="text-sm text-destructive">{error}</p>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      <DashboardOverviewCards
-        loading={loading}
-        rangeLabel={rangeLabel}
-        metrics={metrics}
-        performance={performance}
-        tokenDistribution={tokenDistribution}
-      />
-
-      <DashboardUsageCharts
-        loading={loading}
-        rangeLabel={rangeLabel}
-        tokenDistribution={tokenDistribution}
-        dailyTrend={dailyTrend}
-        modelDistribution={modelDistribution}
-        hourlyPatterns={hourlyPatterns}
-      />
-
-      <DashboardEfficiencyCharts
-        loading={loading}
-        rangeLabel={rangeLabel}
-        costEfficiency={costEfficiency}
-        dailyTokenTrend={dailyTokenTrend}
-      />
-
-      <DashboardInsights loading={loading} insights={insights} />
-
-      <DashboardTopEntities
-        loading={loading}
-        rangeLabel={rangeLabel}
-        apiKeyStats={apiKeyStats}
-        spendByUser={spendByUser}
-      />
-    </div>
+    </PageLayout>
   );
 }
 

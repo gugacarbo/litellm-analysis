@@ -1,10 +1,11 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Database, GitBranch } from "lucide-react";
+import { GitBranch } from "lucide-react";
 import { useState } from "react";
 import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
 import { AgentRoutingAliasesTab } from "../components/agent-routing/agent-routing-aliases-tab";
+import { PageLayout } from "../components/ui/page-layout";
 import {
   type AgentRoutingAPIResponse,
   getAgentDefinitions,
@@ -99,17 +100,11 @@ export function AliasesPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><GitBranch className="h-8 w-8" />
-          <Database className="h-8 w-8" />
-          Custom Aliases
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Route additional model names to configured models
-        </p>
-      </div>
-
+    <PageLayout
+      title="Custom Aliases"
+      subtitle="Route additional model names to configured models"
+      icon={GitBranch}
+    >
       <AgentRoutingAliasesTab
         loading={aliasesQuery.isPending && !aliasesQuery.data}
         saving={updateMutation.isPending}
@@ -131,7 +126,7 @@ export function AliasesPage() {
         onAliasValueChange={setAliasDialogValue}
         onSave={handleAliasSave}
       />
-    </div>
+    </PageLayout>
   );
 }
 
