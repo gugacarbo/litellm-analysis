@@ -1,7 +1,7 @@
+import { cn } from "../../lib/utils";
 import type { DashboardInsight } from "../../pages/dashboard/dashboard-types";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
-import { cn } from "../../lib/utils";
 
 type DashboardInsightsProps = {
   loading: boolean;

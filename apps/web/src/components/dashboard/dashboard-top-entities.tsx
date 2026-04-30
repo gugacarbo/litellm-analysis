@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type {
   ApiKeyStatItem,
   SpendByUserItem,
@@ -18,7 +19,6 @@ import {
   TableRow,
 } from "../ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { useState } from "react";
 
 type DashboardTopEntitiesProps = {
   loading: boolean;
@@ -37,20 +37,38 @@ export function DashboardTopEntities({
 
   const keySkeletonRows = Array.from({ length: 5 }).map((_, i) => (
     <TableRow key={i}>
-      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-      <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
-      <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
-      <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
-      <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-24" />
+      </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="h-4 w-12 ml-auto" />
+      </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="h-4 w-16 ml-auto" />
+      </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="h-4 w-16 ml-auto" />
+      </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="h-4 w-12 ml-auto" />
+      </TableCell>
     </TableRow>
   ));
 
   const userSkeletonRows = Array.from({ length: 5 }).map((_, i) => (
     <TableRow key={i}>
-      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-      <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
-      <TableCell className="text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
-      <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-24" />
+      </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="h-4 w-16 ml-auto" />
+      </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="h-4 w-20 ml-auto" />
+      </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="h-4 w-12 ml-auto" />
+      </TableCell>
     </TableRow>
   ));
 

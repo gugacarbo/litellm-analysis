@@ -54,16 +54,12 @@ export function DashboardOverviewCards({
     },
     {
       label: `Total Tokens (${rangeLabel})`,
-      value: loading
-        ? skeleton()
-        : formatNumber(metrics?.totalTokens ?? 0),
+      value: loading ? skeleton() : formatNumber(metrics?.totalTokens ?? 0),
       className: "text-foreground",
     },
     {
       label: "Success Rate",
-      value: loading
-        ? skeleton("h-7 w-16")
-        : formatPercent(successRate),
+      value: loading ? skeleton("h-7 w-16") : formatPercent(successRate),
       className: successRateColor,
     },
     {
@@ -75,9 +71,7 @@ export function DashboardOverviewCards({
     },
     {
       label: "Errors",
-      value: loading
-        ? skeleton("h-7 w-12")
-        : String(errorCount),
+      value: loading ? skeleton("h-7 w-12") : String(errorCount),
       className: errorColor,
     },
     {
@@ -100,7 +94,9 @@ export function DashboardOverviewCards({
             <span className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
               {kpi.label}
             </span>
-            <span className={`text-xl font-semibold tabular-nums ${kpi.className}`}>
+            <span
+              className={`text-xl font-semibold tabular-nums ${kpi.className}`}
+            >
               {kpi.value}
             </span>
             {index < kpis.length - 1 && (

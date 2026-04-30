@@ -10,7 +10,12 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { PageLayout } from "../components/ui/page-layout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { useDashboardData } from "../hooks/use-dashboard-data";
 import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
 import {
@@ -68,9 +73,7 @@ export function DashboardPage() {
           {DASHBOARD_DATE_RANGES.map((option) => (
             <Button
               key={option.key}
-              variant={
-                option.key === selectedDateRange ? "default" : "outline"
-              }
+              variant={option.key === selectedDateRange ? "default" : "outline"}
               size="sm"
               className="h-7 px-2 text-xs"
               onClick={() => setSelectedDateRange(option.key)}
@@ -97,9 +100,7 @@ export function DashboardPage() {
             }}
           >
             <RefreshCw
-              className={`mr-1.5 h-3 w-3 ${
-                refreshing ? "animate-spin" : ""
-              }`}
+              className={`mr-1.5 h-3 w-3 ${refreshing ? "animate-spin" : ""}`}
             />
             Refresh
           </Button>
