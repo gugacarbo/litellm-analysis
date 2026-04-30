@@ -12,10 +12,10 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_STYLES: Record<string, string> = {
-  model_offline: "bg-red-500/15 text-red-700 border-red-500/30",
-  error_spike: "bg-amber-500/15 text-amber-700 border-amber-500/30",
-  timeout_stuck: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30",
-  silent_failure: "bg-purple-500/15 text-purple-700 border-purple-500/30",
+  model_offline: "bg-red-100 text-red-800 border-red-300 dark:bg-red-900/40 dark:text-red-200 dark:border-red-700",
+  error_spike: "bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/40 dark:text-orange-200 dark:border-orange-700",
+  timeout_stuck: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-700",
+  silent_failure: "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/40 dark:text-purple-200 dark:border-purple-700",
 };
 
 export function AlertTypeBadge({ type }: AlertTypeBadgeProps) {

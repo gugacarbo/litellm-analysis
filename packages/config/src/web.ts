@@ -6,8 +6,6 @@ export const webEnv = createEnv({
   clientPrefix: "VITE_",
   client: {
     VITE_APP_LOCALE: z.string().trim().optional(),
-    VITE_LITELLM_API_URL: z.string().url().optional(),
-    VITE_LITELLM_API_KEY: z.string().trim().optional(),
   },
   runtimeEnv: import.meta.env,
   emptyStringAsUndefined: true,

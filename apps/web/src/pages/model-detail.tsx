@@ -16,6 +16,7 @@ import { ModelDetailTTFTChart } from "../components/model-detail/model-detail-tt
 import { ModelDetailUserTable } from "../components/model-detail/model-detail-user-table";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import { PageLayout } from "../components/ui/page-layout";
 import { Separator } from "../components/ui/separator";
 import { TimeRangePicker } from "../components/ui/time-range-picker";
 import { useModelDetailData } from "../hooks/use-model-detail-data";
@@ -125,10 +126,11 @@ export function ModelDetailPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/*** HEADER ***/}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-4 flex-wrap">
+    <PageLayout
+      title="Model Detail"
+      showFilters={false}
+      buttons={
+        <>
           <Button variant="ghost" size="sm" asChild>
             <Link to="/model-stats">
               <ArrowLeft className="h-4 w-4" />
@@ -141,19 +143,19 @@ export function ModelDetailPage() {
           {loading && (
             <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
           )}
-        </div>
-
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <TimeRangePicker
-            value={timeRangeValue}
-            onChange={handleTimeRangeChange}
-          />
-        </div>
-
-        <p className="text-sm text-muted-foreground">
-          Showing data for {rangeLabel}
-        </p>
+        </>
+      }
+      className="p-6 space-y-6"
+    >
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <TimeRangePicker
+          value={timeRangeValue}
+          onChange={handleTimeRangeChange}
+        />
       </div>
+      <p className="text-sm text-muted-foreground">
+        Showing data for {rangeLabel}
+      </p>
 
       {error && (
         <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
@@ -292,7 +294,7 @@ export function ModelDetailPage() {
           />
         </div>
       </section>
-    </div>
+    </PageLayout>
   );
 }
 

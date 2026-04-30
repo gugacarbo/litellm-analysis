@@ -1,4 +1,4 @@
-import type { ModelHealthStatus } from "./monitor-types";
+import type { AlertMetadata, ModelHealthStatus } from "./monitor-types";
 
 export const STATUS_ORDER: Record<ModelHealthStatus, number> = {
   offline: 0,
@@ -20,4 +20,24 @@ export function formatAlertCount(count: number): string {
 
 export function formatTimestamp(unixSeconds: number): string {
   return new Date(unixSeconds * 1000).toISOString();
+}
+
+const ANOMALY_TYPE_LABELS: Record<string, string> = {
+  model_offline: "Model Offline",
+  error_spike: "Error Spike",
+  timeout_stuck: "Timeout/Stuck",
+  silent_failure: "Silent Failure",
+};
+
+export function formatAnomalyType(type: string): string {
+  return ANOMALY_TYPE_LABELS[type] ?? type;
+}
+
+export function parseAlertMetadata(raw: string | null): AlertMetadata | null {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as AlertMetadata;
+  } catch {
+    return null;
+  }
 }

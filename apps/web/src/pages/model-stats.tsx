@@ -7,7 +7,9 @@ import { ModelStatsMergePanel } from "../components/model-stats/model-stats-merg
 import { ModelStatsMiniCharts } from "../components/model-stats/model-stats-mini-charts";
 import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
 import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
+import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
+import { PageLayout } from "../components/ui/page-layout";
 import { Toaster } from "../components/ui/sonner";
 import { getModelStatistics } from "../lib/api-client/analytics";
 import { queryKeys } from "../lib/query-keys";
@@ -111,7 +113,30 @@ export function ModelStatsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <PageLayout
+      title="Model Statistics"
+      showFilters
+      filters={
+        <ModelStatsHeader
+          columns={MODEL_STATS_COLUMNS}
+          visibleColumns={state.visibleColumns}
+          searchQuery={state.searchQuery}
+          onToggleColumn={toggleColumn}
+          onSearchChange={state.setSearchQuery}
+          selectedDateRange={state.selectedDateRange}
+          setSelectedDateRange={state.setSelectedDateRange}
+        />
+      }
+      buttons={
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => state.setMergeMode((prev) => !prev)}
+        >
+          {state.mergeMode ? "Cancel" : "Merge Models"}
+        </Button>
+      }
+    >
       <Toaster position="bottom-right" />
 
       <DeleteModelLogsDialog
@@ -131,18 +156,6 @@ export function ModelStatsPage() {
         }
         onOpenChange={state.setMergeDialogOpen}
         onConfirm={confirmMerge}
-      />
-
-      <ModelStatsHeader
-        mergeMode={state.mergeMode}
-        columns={MODEL_STATS_COLUMNS}
-        visibleColumns={state.visibleColumns}
-        searchQuery={state.searchQuery}
-        onToggleMergeMode={() => state.setMergeMode((prev) => !prev)}
-        onToggleColumn={toggleColumn}
-        onSearchChange={state.setSearchQuery}
-        selectedDateRange={state.selectedDateRange}
-        setSelectedDateRange={state.setSelectedDateRange}
       />
 
       {state.mergeMode && (
@@ -203,7 +216,7 @@ export function ModelStatsPage() {
       />
 
       <ModelStatsMiniCharts data={data} loading={loading} />
-    </div>
+    </PageLayout>
   );
 }
 

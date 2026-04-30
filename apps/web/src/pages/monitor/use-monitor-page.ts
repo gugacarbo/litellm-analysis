@@ -8,6 +8,7 @@ export function useMonitorPageState() {
     state.lastAlerts,
     state.activeAlerts,
     state.models,
+    state.stats?.alerts_by_type ?? {},
   );
   const actions = useMonitorActions();
 

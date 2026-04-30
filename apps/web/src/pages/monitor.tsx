@@ -1,62 +1,109 @@
+import { AlertTriangle, BarChart3, Clock, Radio } from "lucide-react";
+import { useEffect } from "react";
+import { MetricCard } from "../components/metric-card";
+import { AlertDetailDialog } from "../components/monitor/alert-detail-dialog";
 import { AlertHistoryTable } from "../components/monitor/alert-history-table";
+import { AlertsByTypeChart } from "../components/monitor/alerts-by-type-chart";
 import { ConnectionBadge } from "../components/monitor/connection-badge";
-import { ModelHealthGrid } from "../components/monitor/model-health-grid";
-import { Card, CardContent } from "../components/ui/card";
+import { SeverityBreakdownChart } from "../components/monitor/severity-breakdown-chart";
 import { useMonitorPageState } from "./monitor/use-monitor-page";
 
 export function MonitorPage() {
   const state = useMonitorPageState();
 
+  useEffect(() => {
+    if (state.error) {
+      console.error("[Monitor] Error:", state.error);
+    }
+  }, [state.error]);
+
   return (
-    <div className="flex h-full flex-col p-6">
-      <div className="flex items-center justify-between pb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Monitor</h1>
+    <div className="flex h-full flex-col gap-6 overflow-auto p-6">
+      <AlertDetailDialog
+        alert={state.selectedAlert}
+        open={state.selectedAlert !== null}
+        onOpenChange={(open) => {
+          if (!open) state.onClearSelectedAlert();
+        }}
+        onAcknowledge={(id) => {
+          state.acknowledgeAlert(id);
+          state.onClearSelectedAlert();
+        }}
+      />
+
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Monitor</h1>
+          <p className="text-sm text-muted-foreground">
+            Real-time model health and anomaly detection
+          </p>
+        </div>
         <ConnectionBadge
           status={state.websocketStatus}
           alertCount={state.mergedAlertCount}
         />
       </div>
 
-      <div className="flex flex-1 gap-6 overflow-hidden">
-        <div className="flex w-1/2 min-w-0 flex-col">
-          <div className="flex-1 overflow-auto">
-            <AlertHistoryTable
-              lastAlerts={state.lastAlerts}
-              onAcknowledge={state.acknowledgeAlert}
-              isAcknowledging={state.isAcknowledging}
-            />
-          </div>
-        </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <MetricCard
+          icon={AlertTriangle}
+          title="Active Alerts"
+          value={state.stats?.active_alerts ?? 0}
+          colorScheme="red"
+          size="sm"
+          loading={state.isLoading}
+        />
+        <MetricCard
+          icon={Radio}
+          title="Models Tracked"
+          value={state.models.length}
+          colorScheme="blue"
+          size="sm"
+          loading={state.isLoading}
+        />
+        <MetricCard
+          icon={Clock}
+          title="Last 24h Alerts"
+          value={state.stats?.last_24h_count ?? 0}
+          colorScheme="amber"
+          size="sm"
+          loading={state.isLoading}
+        />
+        <MetricCard
+          icon={BarChart3}
+          title="Avg P95 Latency"
+          value={
+            state.healthStatsSummary.avgP95Latency
+              ? `${state.healthStatsSummary.avgP95Latency.toFixed(0)}ms`
+              : "—"
+          }
+          colorScheme="violet"
+          size="sm"
+          loading={state.isLoading}
+        />
+      </div>
 
-        <div className="flex w-1/2 min-w-0 flex-col gap-6">
-          <div className="grid grid-cols-3 gap-3">
-            <Card>
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground">Active Alerts</p>
-                <p className="text-xl font-bold">
-                  {state.stats?.active_alerts ?? 0}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground">Models Tracked</p>
-                <p className="text-xl font-bold">{state.models.length}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground">Last 24h Alerts</p>
-                <p className="text-xl font-bold">
-                  {state.stats?.last_24h_count ?? 0}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+      <div className="min-h-0 flex-1">
+        <AlertHistoryTable
+          lastAlerts={state.lastAlerts}
+          models={state.sortedModels}
+          onAcknowledge={state.acknowledgeAlert}
+          isAcknowledging={state.isAcknowledging}
+          onAlertClick={state.onSelectAlert}
+        />
+      </div>
 
-          <div className="flex-1 overflow-auto">
-            <ModelHealthGrid models={state.sortedModels} compact />
-          </div>
+      <div>
+        <h2 className="mb-4 text-lg font-semibold">Charts</h2>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <SeverityBreakdownChart
+            data={state.severityBreakdown}
+            loading={state.isLoading}
+          />
+          <AlertsByTypeChart
+            data={state.alertsByTypeData}
+            loading={state.isLoading}
+          />
         </div>
       </div>
     </div>
