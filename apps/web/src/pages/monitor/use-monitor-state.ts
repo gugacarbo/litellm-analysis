@@ -5,13 +5,13 @@ import {
   getActiveAlerts,
   getModelsHealth,
   getMonitorStats,
+  type MonitorStats,
 } from "../../lib/api-client/monitor";
 import type {
   ConnectionState,
   HealthUpdateData,
   ModelHealthEntry,
   MonitorAlert,
-  MonitorStats,
 } from "./monitor-types";
 
 export interface UseMonitorStateResult {
