@@ -1,4 +1,4 @@
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ModelDetailApiKeyTable } from "../components/model-detail/model-detail-api-key-table";
@@ -128,6 +128,7 @@ export function ModelDetailPage() {
   return (
     <PageLayout
       title="Model Detail"
+      icon={TrendingUp}
       showFilters={false}
       buttons={
         <>

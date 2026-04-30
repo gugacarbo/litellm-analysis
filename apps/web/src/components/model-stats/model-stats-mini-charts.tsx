@@ -92,7 +92,7 @@ export function ModelStatsMiniCharts({
   if (!loading && data.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Top Spend */}
       <Card>
         <CardHeader>

@@ -1,4 +1,5 @@
 import { RefreshCw } from "lucide-react";
+import { Activity } from "lucide-react";
 import { useMemo, useState } from "react";
 import { APP_LOCALE } from "@/lib/locale";
 import { DashboardEfficiencyCharts } from "../components/dashboard/dashboard-efficiency-charts";
@@ -57,7 +58,7 @@ export function DashboardPage() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-2"><Activity className="h-8 w-8" />Dashboard</h1>
           <p className="text-sm text-muted-foreground">
             Usage, cost, reliability, and model behavior for the selected
             period.

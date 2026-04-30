@@ -1,4 +1,4 @@
-import { AlertTriangle, BarChart3, Clock, Radio } from "lucide-react";
+import { AlertTriangle, BarChart3, Clock, Radio, Radar } from "lucide-react";
 import { useEffect } from "react";
 import { MetricCard } from "../components/metric-card";
 import { AlertDetailDialog } from "../components/monitor/alert-detail-dialog";
@@ -33,7 +33,7 @@ export function MonitorPage() {
 
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Monitor</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-2 tracking-tight"><Radar className="h-8 w-8" />Monitor</h1>
           <p className="text-sm text-muted-foreground">
             Real-time model health and anomaly detection
           </p>

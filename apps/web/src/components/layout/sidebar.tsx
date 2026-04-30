@@ -1,11 +1,13 @@
 import {
   Activity,
-  BarChart3,
+  Bot,
   ChevronDown,
   ChevronRight,
   FileText,
+  GitBranch,
   Radar,
   Settings,
+  TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -37,15 +39,15 @@ export function Sidebar() {
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
     { to: "/monitor", icon: Radar, label: "Monitor" },
-    { to: "/model-stats", icon: BarChart3, label: "Stats" },
+    { to: "/model-stats", icon: TrendingUp, label: "Stats" },
     { to: "/logs", icon: FileText, label: "Logs" },
-    { to: "/agent-routing", icon: BarChart3, label: "Agents" },
+    { to: "/agent-routing", icon: Bot, label: "Agents" },
     {
       id: "models",
       icon: Settings,
       label: "Models",
       children: [
-        { to: "/aliases", label: "Aliases" },
+        { to: "/aliases", icon: GitBranch, label: "Aliases" },
         { to: "/models", label: "Config" },
       ],
     },
@@ -92,6 +94,9 @@ export function Sidebar() {
                               }`
                             }
                           >
+                            {child.icon && (
+                              <child.icon className="h-4 w-4" />
+                            )}
                             <span>{child.label}</span>
                           </NavLink>
                         ))}

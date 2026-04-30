@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { FileText } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import {
   Tabs,
@@ -47,7 +48,7 @@ export function LogsPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold">Logs & Errors</h1>
+        <h1 className="text-3xl font-bold flex items-center gap-2"><FileText className="h-8 w-8" />Logs & Errors</h1>
         <p className="text-sm text-muted-foreground">
           Request-level costs, usage, and latency diagnostics.
         </p>

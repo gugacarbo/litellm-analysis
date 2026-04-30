@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Database } from "lucide-react";
+import { Database, GitBranch } from "lucide-react";
 import { useState } from "react";
 import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
 import { AgentRoutingAliasesTab } from "../components/agent-routing/agent-routing-aliases-tab";
@@ -101,7 +101,7 @@ export function AliasesPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
+        <h1 className="text-3xl font-bold flex items-center gap-2"><GitBranch className="h-8 w-8" />
           <Database className="h-8 w-8" />
           Custom Aliases
         </h1>

@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { BarChart3 } from "lucide-react";
 import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
 import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
 import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
@@ -115,6 +116,7 @@ export function ModelStatsPage() {
   return (
     <PageLayout
       title="Model Statistics"
+      icon={BarChart3}
       showFilters
       filters={
         <ModelStatsHeader
@@ -170,52 +172,60 @@ export function ModelStatsPage() {
         />
       )}
 
-      <ModelStatsSummaryCards
-        loading={loading}
-        rangeLabel={
-          state.rangeDays === 1
-            ? "today"
-            : state.rangeDays === 7
-              ? "7 days"
-              : `${state.rangeDays} days`
-        }
-        totalSpend={totalSpend}
-        totalRequests={totalRequests}
-        totalTokens={totalTokens}
-        avgSuccessRate={avgSuccessRate}
-        totalErrors={totalErrors}
-        avgLatency={avgLatency}
-        avgCostPerRequest={avgCostPerRequest}
-        uniqueModels={uniqueModels}
-        maxTokensPerSecond={maxTokensPerSecond}
-      />
+      <div className="mt-6">
+        <ModelStatsSummaryCards
+          loading={loading}
+          rangeLabel={
+            state.rangeDays === 1
+              ? "today"
+              : state.rangeDays === 7
+                ? "7 days"
+                : `${state.rangeDays} days`
+          }
+          totalSpend={totalSpend}
+          totalRequests={totalRequests}
+          totalTokens={totalTokens}
+          avgSuccessRate={avgSuccessRate}
+          totalErrors={totalErrors}
+          avgLatency={avgLatency}
+          avgCostPerRequest={avgCostPerRequest}
+          uniqueModels={uniqueModels}
+          maxTokensPerSecond={maxTokensPerSecond}
+        />
+      </div>
 
-      <ModelStatsDataTable
-        loading={loading}
-        data={sortedData}
-        columns={MODEL_STATS_COLUMNS}
-        visibleColumns={state.visibleColumns}
-        sortField={state.sortField}
-        sortDirection={state.sortDirection}
-        totalSpend={totalSpend}
-        deleting={state.deleting}
-        onSort={handleSort}
-        onDeleteClick={openDeleteDialog}
-      />
+      <div className="mt-6">
+        <ModelStatsDataTable
+          loading={loading}
+          data={sortedData}
+          columns={MODEL_STATS_COLUMNS}
+          visibleColumns={state.visibleColumns}
+          sortField={state.sortField}
+          sortDirection={state.sortDirection}
+          totalSpend={totalSpend}
+          deleting={state.deleting}
+          onSort={handleSort}
+          onDeleteClick={openDeleteDialog}
+        />
+      </div>
 
-      <ModelStatsTopTables
-        data={data}
-        loading={loading}
-        rangeLabel={
-          state.rangeDays === 1
-            ? "today"
-            : state.rangeDays === 7
-              ? "7 days"
-              : `${state.rangeDays} days`
-        }
-      />
+      <div className="mt-6">
+        <ModelStatsTopTables
+          data={data}
+          loading={loading}
+          rangeLabel={
+            state.rangeDays === 1
+              ? "today"
+              : state.rangeDays === 7
+                ? "7 days"
+                : `${state.rangeDays} days`
+          }
+        />
+      </div>
 
-      <ModelStatsMiniCharts data={data} loading={loading} />
+      <div className="mt-6">
+        <ModelStatsMiniCharts data={data} loading={loading} />
+      </div>
     </PageLayout>
   );
 }
