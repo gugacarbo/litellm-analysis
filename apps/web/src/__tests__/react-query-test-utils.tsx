@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type RenderResult, render } from "@testing-library/react";
-import { FilterProvider } from "@/contexts/filter-context";
 import type { ReactElement } from "react";
 import { MemoryRouter } from "react-router-dom";
+import { FilterProvider } from "@/contexts/filter-context";
 
 function createTestQueryClient(): QueryClient {
   return new QueryClient({

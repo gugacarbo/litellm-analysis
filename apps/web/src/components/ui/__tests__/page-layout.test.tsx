@@ -57,10 +57,9 @@ describe("PageLayout", () => {
 
   describe("Filters visibility", () => {
     it("shows filters by default", () => {
-      render(
-        <PageLayout title="Test" filters={<div>Filter Content</div>} />,
-        { wrapper },
-      );
+      render(<PageLayout title="Test" filters={<div>Filter Content</div>} />, {
+        wrapper,
+      });
       expect(screen.getByText("Filter Content")).toBeInTheDocument();
     });
 
@@ -134,10 +133,9 @@ describe("PageLayout", () => {
 
   describe("Variant styling", () => {
     it('applies flex classes when variant is "flex"', () => {
-      const { container } = render(
-        <PageLayout title="Test" variant="flex" />,
-        { wrapper },
-      );
+      const { container } = render(<PageLayout title="Test" variant="flex" />, {
+        wrapper,
+      });
       expect(container.firstChild).toHaveClass("flex", "flex-col", "gap-6");
     });
 
@@ -146,20 +144,12 @@ describe("PageLayout", () => {
         <PageLayout title="Test" variant="default" />,
         { wrapper },
       );
-      expect(container.firstChild).not.toHaveClass(
-        "flex",
-        "flex-col",
-        "gap-6",
-      );
+      expect(container.firstChild).not.toHaveClass("flex", "flex-col", "gap-6");
     });
 
     it("defaults to default variant", () => {
       const { container } = render(<PageLayout title="Test" />, { wrapper });
-      expect(container.firstChild).not.toHaveClass(
-        "flex",
-        "flex-col",
-        "gap-6",
-      );
+      expect(container.firstChild).not.toHaveClass("flex", "flex-col", "gap-6");
     });
   });
 
