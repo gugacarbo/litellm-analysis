@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type RenderResult, render } from "@testing-library/react";
+import { FilterProvider } from "@/contexts/filter-context";
 import type { ReactElement } from "react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -18,7 +19,9 @@ export function renderWithQueryClient(ui: ReactElement): RenderResult {
 
   return render(
     <MemoryRouter>
-      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <FilterProvider>{ui}</FilterProvider>
+      </QueryClientProvider>
     </MemoryRouter>,
   );
 }

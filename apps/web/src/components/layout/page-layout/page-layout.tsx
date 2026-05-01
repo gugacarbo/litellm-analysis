@@ -9,6 +9,7 @@ export interface PageLayoutProps {
   showFilters?: boolean;
   filters?: ReactNode;
   buttons?: ReactNode;
+  onReload?: () => void;
   variant?: "default" | "flex";
   children?: ReactNode;
 }
@@ -20,6 +21,7 @@ export function PageLayout({
   showFilters = true,
   filters,
   buttons,
+  onReload,
   variant = "default",
   children,
 }: PageLayoutProps) {
@@ -34,6 +36,7 @@ export function PageLayout({
         showFilters={showFilters}
         filters={filters}
         buttons={buttons}
+        onReload={onReload}
       />
       {children}
     </div>

@@ -1,6 +1,5 @@
 import { useState } from "react";
-import type { DashboardDateRangeKey } from "../dashboard/dashboard-types";
-import { getDateRangeDays } from "../dashboard/dashboard-utils";
+import { useFilter } from "@/contexts/filter-context";
 import {
   type ColumnKey,
   MODEL_STATS_COLUMNS,
@@ -9,8 +8,6 @@ import {
 } from "./model-stats-types";
 
 export interface ModelStatsDialogState {
-  selectedDateRange: DashboardDateRangeKey;
-  setSelectedDateRange: (v: DashboardDateRangeKey) => void;
   rangeDays: number;
   sortField: SortField;
   setSortField: (v: SortField) => void;
@@ -39,9 +36,7 @@ export interface ModelStatsDialogState {
 }
 
 export function useModelStatsDialogState(): ModelStatsDialogState {
-  const [selectedDateRange, setSelectedDateRange] =
-    useState<DashboardDateRangeKey>("30d");
-  const rangeDays = getDateRangeDays(selectedDateRange);
+  const { rangeDays } = useFilter();
 
   const [sortField, setSortField] = useState<SortField>("total_spend");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -58,8 +53,6 @@ export function useModelStatsDialogState(): ModelStatsDialogState {
   const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
 
   return {
-    selectedDateRange,
-    setSelectedDateRange,
     rangeDays,
     sortField,
     setSortField,

@@ -151,7 +151,7 @@
       "tools": {}
     },
     "oracle": {
-      "model": "glm-5.1",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -176,7 +176,7 @@
       "mode": "subagent"
     },
     "atlas": {
-      "model": "glm-5.1",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "mimo-v2.5-pro",
         "deepseek-v4-pro",
@@ -201,7 +201,7 @@
       "color": "#5A00C7"
     },
     "librarian": {
-      "model": "glm-5-turbo",
+      "model": "deepseek-v4-flash",
       "fallbackModels": [
         "qwen3.5-plus",
         "deepseek-v4-flash",
@@ -226,7 +226,7 @@
       "mode": "subagent"
     },
     "prometheus": {
-      "model": "glm-5.1",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -295,7 +295,7 @@
       "tools": {}
     },
     "plan": {
-      "model": "glm-5.1",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -403,7 +403,7 @@
       "description": "Propósito geral (alto esforço) — tarefas que não se encaixam em outras categorias e exigem investimento significativo de contexto."
     },
     "writing": {
-      "model": "deepseek-v4-flash",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "qwen3.5-plus",
         "deepseek-v4-flash",

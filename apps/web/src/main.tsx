@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import "./styles/globals.css";
 import { ThemeProvider } from "@/components/theme-provider.tsx";
 import { Toaster } from "@/components/ui/sonner.tsx";
+import { FilterProvider } from "@/contexts/filter-context.tsx";
 import { queryClient } from "@/lib/query-client";
 import App from "./App.tsx";
 
@@ -14,10 +15,12 @@ if (!rootEl) throw new Error("Root element not found");
 
 createRoot(rootEl).render(
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <Toaster position="top-right" richColors closeButton duration={5000} />
-      <App />
-    </ThemeProvider>
+    <FilterProvider>
+      <ThemeProvider>
+        <Toaster position="top-right" richColors closeButton duration={5000} />
+        <App />
+      </ThemeProvider>
+    </FilterProvider>
 
     {import.meta.env.DEV && (
       <TanStackDevtools

@@ -17,14 +17,18 @@
 
 ```json
 {
-  "credential_id": "422950f9-021b-4b3d-88c9-a6f9697e1fd4",
-  "credential_name": "MAIN CREDENTIALS",
-  "credential_info": {
-    "custom_llm_provider": "OPENAI_LIKE"
+  "credential_id": "fc30c8b5-b411-4bc0-9869-617e7aba9e88",
+  "credential_name": "ATplus Router",
+  "credential_values": {
+    "api_key": "1q3WqsREYQ50uN1NTB3utYrHhs1mfAprZetVMe14WeVkCmTVWo38_nyYVvD2L8oMlQW6-_EhaYcMsg6hJW3ZX-8=",
+    "api_base": "g6vpYKOm0RkWJo_wCmkeOUCF6LEzPjmb4ud4PqMXBEMMxg10G3DFiYy6p3A7jGo49zKphl75o66ruWchu1eVP3c="
   },
-  "created_at": "2026-04-30T21:32:59.72",
+  "credential_info": {
+    "custom_llm_provider": "litellm_proxy"
+  },
+  "created_at": "2026-04-30T23:37:45.588",
   "created_by": "default_user_id",
-  "updated_at": "2026-04-30T21:32:59.72",
+  "updated_at": "2026-04-30T23:37:45.588",
   "updated_by": "default_user_id"
 }
 ```
