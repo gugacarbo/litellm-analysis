@@ -1,4 +1,4 @@
-import { APP_LOCALE } from "@/lib/locale";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
 export const CHART_HEIGHT = 300;
 
@@ -42,5 +42,6 @@ export function formatDate(value: string): string {
   return date.toLocaleDateString(APP_LOCALE, {
     month: "short",
     day: "numeric",
+    timeZone: APP_TIMEZONE,
   });
 }

@@ -1,3 +1,4 @@
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import type { ModelHealthEntry } from "../../pages/monitor/monitor-types";
 import { STATUS_COLORS, STATUS_ORDER } from "../../pages/monitor/monitor-utils";
 
@@ -82,7 +83,9 @@ function ModelHealthCard({ model }: { model: ModelHealthEntry }) {
           <div className="mt-1 flex justify-between">
             <span>Last error</span>
             <span className="tabular-nums">
-              {new Date(model.last_error_at).toLocaleString()}
+              {new Date(model.last_error_at).toLocaleString(APP_LOCALE, {
+                timeZone: APP_TIMEZONE,
+              })}
             </span>
           </div>
         )}

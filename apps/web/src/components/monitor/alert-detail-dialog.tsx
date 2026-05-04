@@ -1,3 +1,4 @@
+import { APP_LOCALE } from "@/lib/locale";
 import { cn } from "../../lib/utils";
 import type {
   AlertMetadata,
@@ -47,7 +48,7 @@ function ErrorSpikeView({ data }: { data: ErrorSpikeMetadata }) {
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
       <MetricCard
         label="Recent Errors (5min)"
-        value={data.recent_error_count_5min.toLocaleString("en-US")}
+        value={data.recent_error_count_5min.toLocaleString(APP_LOCALE)}
       />
       <MetricCard
         label="Spike Ratio"
@@ -70,7 +71,7 @@ function ModelOfflineView({ data }: { data: ModelOfflineMetadata }) {
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
       <MetricCard
         label="Recent Failure Count"
-        value={data.recent_failure_count.toLocaleString("en-US")}
+        value={data.recent_failure_count.toLocaleString(APP_LOCALE)}
       />
       <MetricCard label="Last Error At" value={data.last_error_at} />
       <MetricCard
@@ -87,7 +88,7 @@ function TimeoutStuckView({ data }: { data: TimeoutStuckMetadata }) {
       {data.stuck_request_count !== undefined && (
         <MetricCard
           label="Stuck Request Count"
-          value={data.stuck_request_count.toLocaleString("en-US")}
+          value={data.stuck_request_count.toLocaleString(APP_LOCALE)}
         />
       )}
       <MetricCard
@@ -113,7 +114,7 @@ function SilentFailureView({ data }: { data: SilentFailureMetadata }) {
     <div className="space-y-3">
       <MetricCard
         label="Silent Failure Count"
-        value={data.silent_failure_count.toLocaleString("en-US")}
+        value={data.silent_failure_count.toLocaleString(APP_LOCALE)}
       />
       {data.sample_errors.length > 0 && (
         <div className="space-y-1">

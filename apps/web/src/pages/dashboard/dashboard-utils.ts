@@ -1,4 +1,4 @@
-import { APP_LOCALE } from "@/lib/locale";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import type {
   DashboardDateRangeKey,
   DashboardDateRangeOption,
@@ -19,6 +19,7 @@ export function formatDate(date: string | Date): string {
   return new Date(date).toLocaleDateString(APP_LOCALE, {
     month: "short",
     day: "numeric",
+    timeZone: APP_TIMEZONE,
   });
 }
 

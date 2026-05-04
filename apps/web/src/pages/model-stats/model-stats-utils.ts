@@ -1,4 +1,4 @@
-import { APP_LOCALE } from "@/lib/locale";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
 export function formatCurrency(value: number): string {
   return new Intl.NumberFormat(APP_LOCALE, {
@@ -33,6 +33,7 @@ export function formatDate(dateStr: string | null): string {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: APP_TIMEZONE,
   });
 }
 

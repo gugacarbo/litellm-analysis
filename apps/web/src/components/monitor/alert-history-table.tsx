@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import { getMonitorAlerts } from "../../lib/api-client/monitor";
 import { formatDateTime } from "../../lib/spend-log-utils";
 import { cn } from "../../lib/utils";
@@ -107,9 +108,10 @@ function MiniIssueCard({
           {lastTs != null && (
             <>
               {" · "}
-              {new Date(lastTs).toLocaleTimeString("en-US", {
+              {new Date(lastTs).toLocaleTimeString(APP_LOCALE, {
                 hour: "2-digit",
                 minute: "2-digit",
+                timeZone: APP_TIMEZONE,
               })}
             </>
           )}
@@ -185,7 +187,7 @@ function ModelDetailDialog({
                   Requests (1h)
                 </span>
                 <p className="text-lg font-semibold">
-                  {model.stats.total_requests.toLocaleString()}
+                  {model.stats.total_requests.toLocaleString(APP_LOCALE)}
                 </p>
               </div>
               <div>
@@ -213,7 +215,7 @@ function ModelDetailDialog({
                   Errors
                 </span>
                 <p className="text-lg font-semibold">
-                  {model.stats.error_count.toLocaleString()}
+                  {model.stats.error_count.toLocaleString(APP_LOCALE)}
                 </p>
               </div>
               <div>
@@ -222,7 +224,9 @@ function ModelDetailDialog({
                 </span>
                 <p className="truncate text-sm font-medium">
                   {model.stats.last_success_at
-                    ? new Date(model.stats.last_success_at).toLocaleString()
+                    ? new Date(model.stats.last_success_at).toLocaleString(APP_LOCALE, {
+                        timeZone: APP_TIMEZONE,
+                      })
                     : "—"}
                 </p>
               </div>
@@ -331,7 +335,7 @@ export function AlertHistoryTable({
               {loading
                 ? "Loading alerts..."
                 : total > 0
-                  ? `${total.toLocaleString("en-US")} matching alerts`
+                  ? `${total.toLocaleString(APP_LOCALE)} matching alerts`
                   : "No alerts detected — the system is running normally"}
             </CardDescription>
           </div>
@@ -442,7 +446,7 @@ export function AlertHistoryTable({
         {total > PAGE_SIZE && (
           <div className="flex items-center justify-between pt-3">
             <span className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages} ({total} total)
+              Page {currentPage} of {totalPages} ({total.toLocaleString(APP_LOCALE)} total)
             </span>
             <div className="flex gap-2">
               <Button

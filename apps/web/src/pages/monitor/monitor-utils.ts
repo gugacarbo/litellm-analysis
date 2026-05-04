@@ -1,4 +1,5 @@
 import type { AlertMetadata, ModelHealthStatus } from "./monitor-types";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
 export const STATUS_ORDER: Record<ModelHealthStatus, number> = {
   offline: 0,
@@ -15,11 +16,19 @@ export const STATUS_COLORS: Record<ModelHealthStatus, string> = {
 };
 
 export function formatAlertCount(count: number): string {
-  return count === 1 ? "1 alert" : `${count.toLocaleString("en-US")} alerts`;
+  return count === 1 ? "1 alert" : `${count.toLocaleString(APP_LOCALE)} alerts`;
 }
 
 export function formatTimestamp(unixSeconds: number): string {
-  return new Date(unixSeconds * 1000).toISOString();
+  return new Date(unixSeconds * 1000).toLocaleString(APP_LOCALE, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: APP_TIMEZONE,
+  });
 }
 
 const ANOMALY_TYPE_LABELS: Record<string, string> = {

@@ -60,6 +60,7 @@ export function DashboardPage() {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
+      timeZone: APP_TIMEZONE,
     });
   }, [lastUpdatedAt]);
 

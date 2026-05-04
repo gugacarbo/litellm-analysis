@@ -2,7 +2,7 @@
  * Shared formatting utilities consolidated from across the web app.
  */
 
-import { APP_LOCALE } from "@/lib/locale";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
 export function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return "0";
@@ -52,6 +52,7 @@ export function formatDate(date: string | Date): string {
   return d.toLocaleDateString(APP_LOCALE, {
     month: "short",
     day: "numeric",
+    timeZone: APP_TIMEZONE,
   });
 }
 
@@ -63,5 +64,6 @@ export function formatDateTime(date: string | Date): string {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: APP_TIMEZONE,
   });
 }

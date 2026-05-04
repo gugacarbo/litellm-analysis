@@ -1,4 +1,4 @@
-import { APP_LOCALE } from "@/lib/locale";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
 export function formatCurrency(value: number): string {
   return new Intl.NumberFormat(APP_LOCALE, {
@@ -19,6 +19,7 @@ export function formatDateTime(date: string | Date): string {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: APP_TIMEZONE,
   });
 }
 
@@ -28,6 +29,7 @@ export function formatTime(date: string | Date): string {
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
+    timeZone: APP_TIMEZONE,
   });
 }
 
@@ -46,6 +48,7 @@ export function formatTimeRelative(date: string | Date): string {
       minute: "2-digit",
       second: "2-digit",
       hour12: false,
+      timeZone: APP_TIMEZONE,
     });
   }
 
@@ -56,6 +59,7 @@ export function formatTimeRelative(date: string | Date): string {
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
+    timeZone: APP_TIMEZONE,
   });
 }
 
@@ -67,6 +71,7 @@ export function formatFullDateTime(date: string | Date): string {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+    timeZone: APP_TIMEZONE,
   });
 }
 

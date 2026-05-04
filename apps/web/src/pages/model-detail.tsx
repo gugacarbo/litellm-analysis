@@ -43,8 +43,12 @@ function getRangeLabel(
     all: "All time",
   };
   if (rangeKey === "custom" && fromIso && toIso) {
-    const from = new Date(fromIso).toLocaleDateString();
-    const to = new Date(toIso).toLocaleDateString();
+    const from = new Date(fromIso).toLocaleDateString(APP_LOCALE, {
+      timeZone: APP_TIMEZONE,
+    });
+    const to = new Date(toIso).toLocaleDateString(APP_LOCALE, {
+      timeZone: APP_TIMEZONE,
+    });
     return `${from} — ${to}`;
   }
   return labels[rangeKey] ?? rangeKey;

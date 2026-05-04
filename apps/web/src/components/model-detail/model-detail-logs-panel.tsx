@@ -5,7 +5,7 @@ import type {
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Filter, User } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { APP_LOCALE } from "@/lib/locale";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import { getSpendLogs } from "../../lib/api-client/spend";
 import { queryKeys } from "../../lib/query-keys";
 import { LogDetailDialog } from "../logs/log-detail-dialog";
@@ -40,11 +40,20 @@ const EMPTY_PAGINATION: PaginationMetadata = {
   total_pages: 0,
 };
 
+function toLocalDateString(date: string | Date): string {
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(APP_LOCALE, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: APP_TIMEZONE,
+  }).split("/").reverse().join("-");
+}
+
 function normalizeDateInput(value: string | null | undefined): string {
   if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toISOString().slice(0, 10);
+  return toLocalDateString(value);
 }
 
 export function ModelDetailLogsPanel({

@@ -51,7 +51,17 @@ export function LogsPage() {
       title="Logs & Errors"
       subtitle="Request-level costs, usage, and latency diagnostics."
       icon={FileText}
+      filters={
+        DEBUG_LOCALE ? (
+          <div className="rounded-lg border border-dashed border-amber-500/50 bg-amber-500/10 px-3 py-1.5 text-xs font-mono text-amber-700 dark:text-amber-400">
+            <span className="font-semibold">DEBUG:</span>{" "}
+            <span className="mr-3">locale={APP_LOCALE}</span>
+            <span>tz={APP_TIMEZONE}</span>
+          </div>
+        ) : undefined
+      }
     >
+
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="spend">Logs</TabsTrigger>
@@ -83,3 +93,4 @@ export function LogsPage() {
     </PageLayout>
   );
 }
+import { APP_LOCALE, APP_TIMEZONE, DEBUG_LOCALE } from "@/lib/locale";
