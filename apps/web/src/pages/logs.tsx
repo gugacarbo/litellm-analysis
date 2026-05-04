@@ -61,7 +61,6 @@ export function LogsPage() {
         ) : undefined
       }
     >
-
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="spend">Logs</TabsTrigger>
@@ -93,4 +92,5 @@ export function LogsPage() {
     </PageLayout>
   );
 }
+
 import { APP_LOCALE, APP_TIMEZONE, DEBUG_LOCALE } from "@/lib/locale";

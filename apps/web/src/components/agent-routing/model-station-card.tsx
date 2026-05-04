@@ -1,7 +1,7 @@
 import { ChevronRight, Globe, Hash, Palette, Users, Zap } from "lucide-react";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import type { ModelStatistics } from "../../lib/api-client/analytics";
 import { cn } from "../../lib/utils";
-import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import {

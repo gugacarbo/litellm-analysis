@@ -25,11 +25,17 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
         <span className="text-xs whitespace-nowrap text-muted-foreground">
           {DEBUG_LOCALE && (
             <span className="mr-2">
-              <span className="text-amber-500">[{new Date(log.start_time).toISOString()}]</span>{" "}
-              <span className="text-blue-500">[local: {new Date(log.start_time).toLocaleString()}]</span>{" "}
+              <span className="text-amber-500">
+                [{new Date(log.start_time).toISOString()}]
+              </span>{" "}
+              <span className="text-blue-500">
+                [local: {new Date(log.start_time).toLocaleString()}]
+              </span>{" "}
             </span>
           )}
-          <span className="text-green-600">{formatTimeRelative(log.start_time)}</span>
+          <span>
+            {formatTimeRelative(log.start_time)}
+          </span>
           {DEBUG_LOCALE && (
             <span className="ml-2 text-red-500">tz={APP_TIMEZONE}</span>
           )}
@@ -120,4 +126,5 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
     }
   }
 }
+
 import { APP_TIMEZONE, DEBUG_LOCALE } from "@/lib/locale";

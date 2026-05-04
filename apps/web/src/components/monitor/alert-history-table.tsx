@@ -224,9 +224,12 @@ function ModelDetailDialog({
                 </span>
                 <p className="truncate text-sm font-medium">
                   {model.stats.last_success_at
-                    ? new Date(model.stats.last_success_at).toLocaleString(APP_LOCALE, {
-                        timeZone: APP_TIMEZONE,
-                      })
+                    ? new Date(model.stats.last_success_at).toLocaleString(
+                        APP_LOCALE,
+                        {
+                          timeZone: APP_TIMEZONE,
+                        },
+                      )
                     : "—"}
                 </p>
               </div>
@@ -446,7 +449,8 @@ export function AlertHistoryTable({
         {total > PAGE_SIZE && (
           <div className="flex items-center justify-between pt-3">
             <span className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages} ({total.toLocaleString(APP_LOCALE)} total)
+              Page {currentPage} of {totalPages} (
+              {total.toLocaleString(APP_LOCALE)} total)
             </span>
             <div className="flex gap-2">
               <Button

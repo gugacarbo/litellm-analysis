@@ -43,12 +43,16 @@ const EMPTY_PAGINATION: PaginationMetadata = {
 function toLocalDateString(date: string | Date): string {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString(APP_LOCALE, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    timeZone: APP_TIMEZONE,
-  }).split("/").reverse().join("-");
+  return d
+    .toLocaleDateString(APP_LOCALE, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: APP_TIMEZONE,
+    })
+    .split("/")
+    .reverse()
+    .join("-");
 }
 
 function normalizeDateInput(value: string | null | undefined): string {

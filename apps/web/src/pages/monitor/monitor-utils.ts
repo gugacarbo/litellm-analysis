@@ -1,5 +1,5 @@
-import type { AlertMetadata, ModelHealthStatus } from "./monitor-types";
 import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
+import type { AlertMetadata, ModelHealthStatus } from "./monitor-types";
 
 export const STATUS_ORDER: Record<ModelHealthStatus, number> = {
   offline: 0,
