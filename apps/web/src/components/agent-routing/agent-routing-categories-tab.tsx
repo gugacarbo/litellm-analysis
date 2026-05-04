@@ -2,7 +2,6 @@ import type { CategoryDefinition } from "@lite-llm/api-contracts/agent-routing";
 import { Database } from "lucide-react";
 import type { ConfigInfo } from "./agent-routing-types";
 import { CategoryFocusView } from "./category-focus-view";
-import { CategoryModelView } from "./category-model-view";
 import { EntityRoutingCard } from "./entity-routing-card";
 
 export type AgentRoutingCategoriesTabProps = {
@@ -40,14 +39,6 @@ export function AgentRoutingCategoriesTab({
       totalCount={categories.length}
       configuredCount={configuredCategoriesCount}
       totalFallbacks={totalFallbacks}
-      modelStationsContent={
-        <CategoryModelView
-          loading={loading}
-          categories={categories}
-          getCategoryConfigInfo={getCategoryConfigInfo}
-          onOpenCategoryConfig={onOpenCategoryConfig}
-        />
-      }
     >
       <CategoryFocusView
         loading={loading}

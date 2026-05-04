@@ -1,4 +1,28 @@
 import { fetchApi } from "./core";
+export type ModelStatistics = {
+  model: string;
+  request_count: number;
+  total_spend: number;
+  total_tokens: number;
+  prompt_tokens: number;
+  completion_tokens: number;
+  avg_tokens_per_request: number;
+  avg_latency_ms: number | null;
+  success_rate: number | null;
+  error_count: number;
+  avg_input_cost: number | null;
+  avg_output_cost: number | null;
+  p50_latency_ms: number | null;
+  p95_latency_ms: number | null;
+  p99_latency_ms: number | null;
+  first_seen: string | null;
+  last_seen: string | null;
+  unique_users: number;
+  unique_api_keys: number;
+  p50_tokens_per_second: number;
+  avg_tokens_per_second: number;
+  max_tokens_per_second: number;
+};
 
 function withDays(endpoint: string, days?: number): string {
   if (days === undefined) {

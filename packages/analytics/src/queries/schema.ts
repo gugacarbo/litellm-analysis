@@ -71,3 +71,39 @@ export const liteLLMConfig = pgTable("LiteLLM_Config", {
   paramName: varchar("param_name", { length: 255 }).primaryKey(),
   paramValue: jsonb("param_value"),
 });
+
+// LiteLLM Credentials Table - stores API credentials for models (e.g., API keys for providers)
+export const litellmCredentialsTable = pgTable("LiteLLM_CredentialsTable", {
+  credentialId: varchar("credential_id", { length: 255 }).primaryKey(),
+  credentialName: varchar("credential_name", { length: 255 })
+    .notNull()
+    .unique(),
+  credentialValues: jsonb("credential_values"),
+  credentialInfo: jsonb("credential_info"),
+  createdAt: timestamp("created_at", { withTimezone: true }),
+  createdBy: varchar("created_by", { length: 255 }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }),
+  updatedBy: varchar("updated_by", { length: 255 }),
+});
+
+export type LitellmCredentialsTable =
+  typeof litellmCredentialsTable.$inferSelect;
+export type NewLitellmCredentialsTable =
+  typeof litellmCredentialsTable.$inferInsert;
+
+// LiteLLM Verification Token Table - stores API key metadata (for tracking usage)
+export const litellmKeyTable = pgTable("LiteLLM_VerificationToken", {
+  tokenId: varchar("token", { length: 255 }).primaryKey(),
+  tokenName: varchar("key_name", { length: 255 }),
+  tokenAlias: varchar("key_alias", { length: 255 }),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at", { withTimezone: true }),
+  expires: timestamp("expires", { withTimezone: true }),
+  userId: varchar("user_id", { length: 255 }),
+  teamId: varchar("team_id", { length: 255 }),
+  budgetId: varchar("budget_id", { length: 255 }),
+  metadata: jsonb("metadata"),
+});
+
+export type LitellmKeyTable = typeof litellmKeyTable.$inferSelect;
+export type NewLitellmKeyTable = typeof litellmKeyTable.$inferInsert;

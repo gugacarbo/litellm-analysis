@@ -83,6 +83,10 @@ export interface AnalyticsDataSource {
     model: string,
     days?: number,
   ): Promise<ModelProviderBreakdown[]>;
+  // Credentials — LiteLLM virtual key management
+  getCredentials(): Promise<LiteLLMCredential[]>;
+  getDefaultCredential(): Promise<string | null>;
+  setDefaultCredential(credentialAlias: string | null): Promise<void>;
 }
 
 // Analytics Types
@@ -418,4 +422,17 @@ export interface ModelProviderBreakdown {
   request_count: number;
   total_spend: number;
   avg_latency_ms: number;
+}
+
+// Credentials types
+// Credentials types
+export interface LiteLLMCredential {
+  credentialId: string;
+  credentialName: string;
+  credentialValues: Record<string, unknown> | null;
+  credentialInfo: Record<string, unknown> | null;
+  createdAt: string | null;
+  createdBy: string | null;
+  updatedAt: string | null;
+  updatedBy: string | null;
 }

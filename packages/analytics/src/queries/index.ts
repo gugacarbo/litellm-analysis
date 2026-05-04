@@ -4,12 +4,17 @@ export {
   getPerformanceMetrics,
 } from "./analytics-queries";
 export {
+  getDefaultCredential,
+  setDefaultCredential,
+} from "./credential-settings-queries";
+export {
   getApiKeyDetailedStats,
   getModelRequestDistribution,
   getTokenDistribution,
   getTopModelsByRequests,
 } from "./distribution-queries";
 export { getErrorLogs } from "./error-queries";
+export { getAllCredentials } from "./key-queries";
 export {
   createModel,
   deleteModel,

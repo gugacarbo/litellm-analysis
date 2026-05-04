@@ -1,15 +1,15 @@
-import { Activity } from "lucide-react";
+import { Activity, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useFilter } from "@/contexts/filter-context";
 import { APP_LOCALE } from "@/lib/locale";
 import { DashboardEfficiencyCharts } from "../components/dashboard/dashboard-efficiency-charts";
 import { DashboardInsights } from "../components/dashboard/dashboard-insights";
 import { DashboardOverviewCards } from "../components/dashboard/dashboard-overview-cards";
 import { DashboardTopEntities } from "../components/dashboard/dashboard-top-entities";
 import { DashboardUsageCharts } from "../components/dashboard/dashboard-usage-charts";
-import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
+import { PageLayout } from "../components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
@@ -17,20 +17,28 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { useDashboardData } from "../hooks/use-dashboard-data";
-import { getDateRangeLabel } from "./dashboard/dashboard-utils";
+import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
+import {
+  DASHBOARD_DATE_RANGES,
+  getDateRangeDays,
+  getDateRangeLabel,
+} from "./dashboard/dashboard-utils";
 
 type ChartTabKey = "usage" | "models" | "efficiency";
 
 export function DashboardPage() {
-  const { dateRange, rangeDays } = useFilter();
+  const [selectedDateRange, setSelectedDateRange] =
+    useState<DashboardDateRangeKey>("30d");
   const [chartTab, setChartTab] = useState<ChartTabKey>("usage");
-  const rangeLabel = getDateRangeLabel(dateRange);
+  const rangeDays = getDateRangeDays(selectedDateRange);
+  const rangeLabel = getDateRangeLabel(selectedDateRange);
 
   const {
     metrics,
     spendByUser,
     dailyTrend,
     loading,
+    refreshing,
     error,
     tokenDistribution,
     performance,
@@ -60,9 +68,21 @@ export function DashboardPage() {
       title="Dashboard"
       subtitle="Usage, cost, reliability, and model behavior."
       icon={Activity}
-      onReload={() => {
-        void refetch();
-      }}
+      filters={
+        <div className="flex flex-wrap items-center gap-1.5">
+          {DASHBOARD_DATE_RANGES.map((option) => (
+            <Button
+              key={option.key}
+              variant={option.key === selectedDateRange ? "default" : "outline"}
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setSelectedDateRange(option.key)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      }
       buttons={
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge variant="outline" className="text-xs px-2 py-0.5">
@@ -71,6 +91,19 @@ export function DashboardPage() {
           <Badge variant="outline" className="text-xs px-2 py-0.5">
             {lastUpdatedLabel}
           </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => {
+              void refetch();
+            }}
+          >
+            <RefreshCw
+              className={`mr-1.5 h-3 w-3 ${refreshing ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
         </div>
       }
     >

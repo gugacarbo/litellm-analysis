@@ -19,6 +19,18 @@ export function useModelsFormState() {
     setDialogOpen(true);
   }
 
+  function handleOpenCreateWithDefaultCredential(
+    defaultCredential: string | null,
+  ) {
+    setEditingModel(null);
+    setFormData({
+      ...EMPTY_MODEL_FORM_DATA,
+      litellmCredentialName: defaultCredential || "",
+    });
+    setFormError(null);
+    setDialogOpen(true);
+  }
+
   function handleOpenEdit(model: ModelConfig) {
     setEditingModel(model);
     setFormData(mapModelToFormData(model));
@@ -58,6 +70,7 @@ export function useModelsFormState() {
     formData,
     formError,
     handleOpenCreate,
+    handleOpenCreateWithDefaultCredential,
     handleOpenEdit,
     addExtraParam,
     removeExtraParam,

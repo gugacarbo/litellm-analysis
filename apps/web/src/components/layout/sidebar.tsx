@@ -54,7 +54,7 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 min-h-screen p-3 pr-2">
+    <aside className="w-64 min-h-screen border-l bg-muted/10 p-4">
       <Card>
         <CardContent className="px-3 py-0 gap-4 flex flex-col">
           <div className="flex gap-1 flex-col">

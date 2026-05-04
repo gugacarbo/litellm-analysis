@@ -10,7 +10,6 @@ export type EntityRoutingTabProps = {
   configuredCount: number;
   totalFallbacks: number;
   focusContent: ReactNode;
-  modelContent: ReactNode;
 };
 
 export function EntityRoutingTab({
@@ -21,7 +20,6 @@ export function EntityRoutingTab({
   configuredCount,
   totalFallbacks,
   focusContent,
-  modelContent,
 }: EntityRoutingTabProps) {
   return (
     <EntityRoutingCard
@@ -31,7 +29,6 @@ export function EntityRoutingTab({
       totalCount={totalCount}
       configuredCount={configuredCount}
       totalFallbacks={totalFallbacks}
-      modelStationsContent={modelContent}
     >
       {focusContent}
     </EntityRoutingCard>

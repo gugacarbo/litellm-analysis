@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BarChart3 } from "lucide-react";
-import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
 import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
 import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
@@ -11,6 +10,7 @@ import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-su
 import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
+import { PageLayout } from "../components/ui/page-layout";
 import { Toaster } from "../components/ui/sonner";
 import { getModelStatistics } from "../lib/api-client/analytics";
 import { queryKeys } from "../lib/query-keys";
@@ -101,13 +101,6 @@ export function ModelStatsPage() {
   const avgCostPerRequest = totalRequests > 0 ? totalSpend / totalRequests : 0;
   const uniqueModels = data.length;
 
-  const rangeLabel =
-    state.rangeDays === 1
-      ? "today"
-      : state.rangeDays === 7
-        ? "7 days"
-        : `${state.rangeDays} days`;
-
   if (error) {
     return (
       <div className="p-6">
@@ -123,7 +116,6 @@ export function ModelStatsPage() {
   return (
     <PageLayout
       title="Model Statistics"
-      subtitle="Explore model performance, reliability, and cost with a sortable leaderboard."
       icon={BarChart3}
       showFilters
       filters={
@@ -131,16 +123,12 @@ export function ModelStatsPage() {
           columns={MODEL_STATS_COLUMNS}
           visibleColumns={state.visibleColumns}
           searchQuery={state.searchQuery}
-          matchedModelsCount={sortedData.length}
-          totalModelsCount={data.length}
           onToggleColumn={toggleColumn}
-          onApplyColumnPreset={state.setVisibleColumns}
           onSearchChange={state.setSearchQuery}
+          selectedDateRange={state.selectedDateRange}
+          setSelectedDateRange={state.setSelectedDateRange}
         />
       }
-      onReload={() => {
-        void modelStatsQuery.refetch();
-      }}
       buttons={
         <Button
           size="sm"
@@ -187,7 +175,13 @@ export function ModelStatsPage() {
       <div className="mt-6">
         <ModelStatsSummaryCards
           loading={loading}
-          rangeLabel={rangeLabel}
+          rangeLabel={
+            state.rangeDays === 1
+              ? "today"
+              : state.rangeDays === 7
+                ? "7 days"
+                : `${state.rangeDays} days`
+          }
           totalSpend={totalSpend}
           totalRequests={totalRequests}
           totalTokens={totalTokens}
@@ -204,7 +198,6 @@ export function ModelStatsPage() {
         <ModelStatsDataTable
           loading={loading}
           data={sortedData}
-          totalModelsCount={data.length}
           columns={MODEL_STATS_COLUMNS}
           visibleColumns={state.visibleColumns}
           sortField={state.sortField}
@@ -220,7 +213,13 @@ export function ModelStatsPage() {
         <ModelStatsTopTables
           data={data}
           loading={loading}
-          rangeLabel={rangeLabel}
+          rangeLabel={
+            state.rangeDays === 1
+              ? "today"
+              : state.rangeDays === 7
+                ? "7 days"
+                : `${state.rangeDays} days`
+          }
         />
       </div>
 

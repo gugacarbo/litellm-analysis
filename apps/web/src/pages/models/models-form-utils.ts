@@ -18,6 +18,7 @@ export function mapModelToFormData(model: ModelConfig): ModelFormData {
     outputCostPerToken: params.output_cost_per_token?.toString() || "",
     contextWindowSize: params.context_window_size?.toString() || "",
     maxTokens: params.max_tokens?.toString() || "",
+    litellmCredentialName: (params.litellm_credential_name as string) || "",
     extraParams,
   };
 }
@@ -71,6 +72,9 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
   }
   if (maxTokens > 0) {
     params.max_tokens = maxTokens;
+  }
+  if (formData.litellmCredentialName.trim()) {
+    params.litellm_credential_name = formData.litellmCredentialName.trim();
   }
 
   Object.entries(formData.extraParams).forEach(([key, value]) => {

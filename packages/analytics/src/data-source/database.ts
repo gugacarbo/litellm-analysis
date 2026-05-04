@@ -4,6 +4,11 @@ import {
   getPerformanceMetricsImpl,
   getTokenDistributionImpl,
 } from "./analytics-methods.js";
+import {
+  getCredentialsImpl,
+  getDefaultCredentialImpl,
+  setDefaultCredentialImpl,
+} from "./credential-methods.js";
 import { getErrorLogsImpl } from "./error-methods.js";
 import {
   getDailySpendTrendImpl,
@@ -113,4 +118,7 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   getTTFTPercentilesByModel = getTTFTPercentilesByModelImpl;
   getStatusDistributionByModel = getStatusDistributionByModelImpl;
   getProviderBreakdownByModel = getProviderBreakdownByModelImpl;
+  getCredentials = getCredentialsImpl;
+  getDefaultCredential = getDefaultCredentialImpl;
+  setDefaultCredential = setDefaultCredentialImpl;
 }

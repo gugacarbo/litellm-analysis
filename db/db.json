@@ -151,7 +151,7 @@
       "tools": {}
     },
     "oracle": {
-      "model": "kimi-k2.6",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -176,7 +176,7 @@
       "mode": "subagent"
     },
     "atlas": {
-      "model": "glm-5-turbo",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "mimo-v2.5-pro",
         "deepseek-v4-pro",
@@ -201,7 +201,7 @@
       "color": "#5A00C7"
     },
     "librarian": {
-      "model": "deepseek-v4-flash",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "qwen3.5-plus",
         "deepseek-v4-flash",
@@ -226,7 +226,7 @@
       "mode": "subagent"
     },
     "prometheus": {
-      "model": "kimi-k2.6",
+      "model": "glm-5.1",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -295,7 +295,7 @@
       "tools": {}
     },
     "plan": {
-      "model": "kimi-k2.6",
+      "model": "glm-5.1",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -353,7 +353,7 @@
       "description": "Execução autônoma — resolve problemas orientados a objetivos com mínima supervisão; ideal para tarefas de médio a grande porte."
     },
     "code": {
-      "model": "qwen3-coder-plus",
+      "model": "glm-5.1",
       "fallbackModels": [
         "deepseek-v4-pro",
         "deepseek-v4-flash",

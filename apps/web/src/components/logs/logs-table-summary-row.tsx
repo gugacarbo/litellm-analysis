@@ -2,7 +2,7 @@ import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import {
   formatCurrency,
   formatNumber,
-  formatTime,
+  formatTimeRelative,
 } from "../../lib/spend-log-utils";
 import { cn } from "../../lib/utils";
 import { Badge } from "../ui/badge";
@@ -27,8 +27,8 @@ export function renderGroupSummaryCell({
   if (column.key === "time") {
     return (
       <span className="text-xs whitespace-nowrap text-muted-foreground">
-        {formatTime(groupLogs[0].start_time)} —{" "}
-        {formatTime(groupLogs[groupLogs.length - 1].start_time)}
+        {formatTimeRelative(groupLogs[0].start_time)} —{" "}
+        {formatTimeRelative(groupLogs[groupLogs.length - 1].start_time)}
       </span>
     );
   }

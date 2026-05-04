@@ -1,4 +1,5 @@
 import { Plus, Trash2 } from "lucide-react";
+import type { LiteLLMCredential } from "../../lib/api-client/credentials";
 import type { ModelConfig } from "../../lib/api-client/models";
 import type { ModelFormData } from "../../pages/models/model-form-data";
 import { Button } from "../ui/button";
@@ -12,6 +13,13 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 type ModelFormDialogProps = {
   open: boolean;
@@ -26,6 +34,8 @@ type ModelFormDialogProps = {
   onRemoveExtraParam: (key: string) => void;
   onUpdateExtraParam: (key: string, value: string) => void;
   onSubmit: () => void;
+  credentials: LiteLLMCredential[];
+  defaultCredential: string | null;
 };
 
 export function ModelFormDialog({
@@ -41,6 +51,8 @@ export function ModelFormDialog({
   onRemoveExtraParam,
   onUpdateExtraParam,
   onSubmit,
+  credentials,
+  defaultCredential,
 }: ModelFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,6 +102,53 @@ export function ModelFormDialog({
               }
               placeholder="https://api.openai.com/v1"
             />
+          </div>
+
+          <div className="grid gap-2">
+            <label htmlFor="credential" className="text-sm font-medium">
+              Credential
+              <span className="text-muted-foreground font-normal ml-1">
+                (LiteLLM virtual key)
+              </span>
+            </label>
+            <Select
+              value={formData.litellmCredentialName}
+              onValueChange={(value) =>
+                onFormDataChange({
+                  ...formData,
+                  litellmCredentialName: value === "none" ? "" : value,
+                })
+              }
+            >
+              <SelectTrigger id="credential">
+                <SelectValue placeholder="Select a credential (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">
+                  <span className="text-muted-foreground">No credential</span>
+                </SelectItem>
+                {credentials.map((cred) => (
+                  <SelectItem
+                    key={cred.credentialId}
+                    value={cred.credentialName}
+                  >
+                    <div className="flex flex-col">
+                      <span>{cred.credentialName}</span>
+                      {cred.credentialInfo && (
+                        <span className="text-xs text-muted-foreground">
+                          {JSON.stringify(cred.credentialInfo).slice(0, 50)}
+                        </span>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {defaultCredential && !editingModel && (
+              <p className="text-xs text-muted-foreground">
+                Default: {defaultCredential}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

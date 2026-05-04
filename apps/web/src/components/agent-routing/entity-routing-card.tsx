@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import { ChevronDown, ChevronRight, LayersIcon, UserIcon } from "lucide-react";
+import { UserIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { useState } from "react";
 import { Badge } from "../ui/badge";
 import {
   Card,
@@ -10,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+
 export type EntityRoutingCardProps = {
   /** Icon displayed in the card header */
   icon: LucideIcon;
@@ -25,8 +25,6 @@ export type EntityRoutingCardProps = {
   totalFallbacks: number;
   /** Main content (FocusView component) */
   children: ReactNode;
-  /** Collapsible section with ModelStations view */
-  modelStationsContent: ReactNode;
 };
 
 export function EntityRoutingCard({
@@ -37,10 +35,7 @@ export function EntityRoutingCard({
   configuredCount,
   totalFallbacks,
   children,
-  modelStationsContent,
 }: EntityRoutingCardProps) {
-  const [showModelStations, setShowModelStations] = useState(false);
-
   const hasFallbacks = totalFallbacks > 0;
 
   return (
@@ -63,7 +58,6 @@ export function EntityRoutingCard({
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <LayersIcon className="size-4" />
                     <span className="text-sm text-foreground">
                       <span className="font-medium text-foreground">
                         {totalFallbacks}
@@ -81,33 +75,7 @@ export function EntityRoutingCard({
           </div>
           {description && <CardDescription>{description}</CardDescription>}
         </CardHeader>
-        <CardContent className="space-y-6">
-          {children}
-
-          <div className="rounded-lg border">
-            <button
-              type="button"
-              onClick={() => setShowModelStations(!showModelStations)}
-              className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-muted/50"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Model Stations</span>
-                <Badge variant="secondary" className="font-normal">
-                  visualização
-                </Badge>
-              </div>
-              {showModelStations ? (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              )}
-            </button>
-
-            {showModelStations && (
-              <div className="border-t p-3">{modelStationsContent}</div>
-            )}
-          </div>
-        </CardContent>
+        <CardContent className="space-y-6">{children}</CardContent>
       </Card>
     </div>
   );

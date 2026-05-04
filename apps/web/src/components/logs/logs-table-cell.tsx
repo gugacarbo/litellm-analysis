@@ -4,7 +4,7 @@ import {
   formatCurrency,
   formatDuration,
   formatNumber,
-  formatTime,
+  formatTimeRelative,
 } from "../../lib/spend-log-utils";
 import { Badge } from "../ui/badge";
 import type { TableColumn } from "./logs-table-columns";
@@ -23,7 +23,7 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
     case "time":
       return (
         <span className="text-xs whitespace-nowrap text-muted-foreground">
-          {formatTime(log.start_time)}
+          {formatTimeRelative(log.start_time)}
         </span>
       );
     case "model":

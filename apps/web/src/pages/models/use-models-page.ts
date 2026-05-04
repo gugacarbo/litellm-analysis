@@ -25,6 +25,22 @@ export function useModelsPage() {
     queryFn: getAllModels,
   });
 
+  const credentialsQuery = useQuery({
+    queryKey: ["credentials"],
+    queryFn: () =>
+      import("../../lib/api-client/credentials").then((m) =>
+        m.getAllCredentials(),
+      ),
+  });
+
+  const defaultCredentialQuery = useQuery({
+    queryKey: ["default-credential"],
+    queryFn: () =>
+      import("../../lib/api-client/credentials").then((m) =>
+        m.getDefaultCredential(),
+      ),
+  });
+
   const aliasesQuery = useQuery({
     queryKey: queryKeys.agentRoutingAliases,
     queryFn: getAgentRoutingConfig,
@@ -63,6 +79,7 @@ export function useModelsPage() {
     formError,
     setFormError,
     handleOpenCreate,
+    handleOpenCreateWithDefaultCredential,
     handleOpenEdit,
     addExtraParam,
     removeExtraParam,
@@ -207,7 +224,9 @@ export function useModelsPage() {
     aliasDialogValue,
     aliasesError,
     aliasesLoading,
+    credentials: credentialsQuery.data ?? [],
     customAliases,
+    defaultCredential: defaultCredentialQuery.data?.defaultCredential ?? null,
     deleteModelName,
     dialogOpen,
     editingModel,
@@ -219,6 +238,7 @@ export function useModelsPage() {
     handleAliasSave,
     handleDelete,
     handleOpenCreate,
+    handleOpenCreateWithDefaultCredential,
     handleOpenEdit,
     handleSubmit,
     modelsQuery,

@@ -3,7 +3,6 @@ import { Zap } from "lucide-react";
 import { AgentFocusView } from "./agent-focus-view";
 import type { ConfigInfo } from "./agent-routing-types";
 import { EntityRoutingCard } from "./entity-routing-card";
-import { ModelFocusView } from "./model-focus-view";
 
 export type AgentRoutingAgentsTabProps = {
   loading: boolean;
@@ -39,14 +38,6 @@ export function AgentRoutingAgentsTab({
       totalCount={agents.length}
       configuredCount={configuredAgentsCount}
       totalFallbacks={totalFallbacks}
-      modelStationsContent={
-        <ModelFocusView
-          loading={loading}
-          agents={agents}
-          getAgentConfigInfo={getAgentConfigInfo}
-          onOpenAgentConfig={onOpenAgentConfig}
-        />
-      }
     >
       <AgentFocusView
         loading={loading}

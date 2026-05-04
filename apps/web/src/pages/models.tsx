@@ -1,8 +1,8 @@
 import { Settings } from "lucide-react";
 import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
-import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { ModelFormDialog } from "../components/models/model-form-dialog";
 import { ModelsTableCard } from "../components/models/models-table-card";
+import { PageLayout } from "../components/ui/page-layout";
 import { useModelsPage } from "./models/use-models-page";
 
 export function ModelsPage() {
@@ -22,7 +22,7 @@ export function ModelsPage() {
     updateAgentRoutingMutation,
     handleAliasSave,
     handleDelete,
-    handleOpenCreate,
+    handleOpenCreateWithDefaultCredential,
     handleOpenEdit,
     handleSubmit,
     addExtraParam,
@@ -34,6 +34,8 @@ export function ModelsPage() {
     setDialogOpen,
     setFormData,
     updateExtraParam,
+    credentials,
+    defaultCredential,
   } = useModelsPage();
 
   return (
@@ -48,12 +50,16 @@ export function ModelsPage() {
           formLoading={formLoading}
           formError={formError}
           formData={formData}
-          onOpenCreate={handleOpenCreate}
+          onOpenCreate={() =>
+            handleOpenCreateWithDefaultCredential(defaultCredential)
+          }
           onFormDataChange={setFormData}
           onAddExtraParam={addExtraParam}
           onRemoveExtraParam={removeExtraParam}
           onUpdateExtraParam={updateExtraParam}
           onSubmit={handleSubmit}
+          credentials={credentials}
+          defaultCredential={defaultCredential}
         />
       }
     >

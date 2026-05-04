@@ -5,7 +5,7 @@ import { GitBranch } from "lucide-react";
 import { useState } from "react";
 import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
 import { AgentRoutingAliasesTab } from "../components/agent-routing/agent-routing-aliases-tab";
-import { PageLayout } from "../components/layout/page-layout/page-layout";
+import { PageLayout } from "../components/ui/page-layout";
 import {
   type AgentRoutingAPIResponse,
   getAgentDefinitions,

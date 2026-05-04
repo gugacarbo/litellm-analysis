@@ -31,6 +31,34 @@ export function formatTime(date: string | Date): string {
   });
 }
 
+export function formatTimeRelative(date: string | Date): string {
+  const d = new Date(date);
+  const now = new Date();
+
+  const isToday =
+    d.getDate() === now.getDate() &&
+    d.getMonth() === now.getMonth() &&
+    d.getFullYear() === now.getFullYear();
+
+  if (isToday) {
+    return d.toLocaleString(APP_LOCALE, {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+  }
+
+  return d.toLocaleString(APP_LOCALE, {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
+
 export function formatFullDateTime(date: string | Date): string {
   return new Date(date).toLocaleString(APP_LOCALE, {
     year: "numeric",

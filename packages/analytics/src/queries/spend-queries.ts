@@ -51,7 +51,9 @@ export async function getSpendLogs(params: {
     );
   }
 
-  const limit = params.limit || 50;
+  // Use a very high limit when 0 (all) to effectively return all records
+  // In practice, the frontend will show all records
+  const effectiveLimit = params.limit === 0 ? 100000 : (params.limit ?? 50);
   const offset = params.offset || 0;
 
   const whereClause = combineConditions(conditions);
@@ -96,7 +98,7 @@ export async function getSpendLogs(params: {
     .from(spendLogs)
     .where(whereClause)
     .orderBy(desc(spendLogs.startTime))
-    .limit(limit)
+    .limit(effectiveLimit)
     .offset(offset);
   return result;
 }

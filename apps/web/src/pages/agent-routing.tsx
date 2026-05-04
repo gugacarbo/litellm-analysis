@@ -1,13 +1,14 @@
 "use client";
 
-import { Database, RefreshCw, Settings } from "lucide-react";
+import { Database, Layers, RefreshCw, Settings } from "lucide-react";
 import { AgentConfigEditor } from "../components/agent-config-editor";
 import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
 import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
+import { AgentRoutingModelStationsTab } from "../components/agent-routing/agent-routing-model-stations-tab";
 import { CategoryConfigEditor } from "../components/category-config-editor";
 import { GlobalFallbackSelector } from "../components/global-fallback-selector";
-import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { Button } from "../components/ui/button";
+import { PageLayout } from "../components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
@@ -48,6 +49,10 @@ export function AgentRoutingPage() {
           <TabsList>
             <TabsTrigger value="agents">Agents</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="model-stations">
+              <Layers className="h-4 w-4 me-1.5" />
+              Model Stations
+            </TabsTrigger>
           </TabsList>
           <GlobalFallbackSelector
             value={state.globalFallbackModel}
@@ -73,6 +78,19 @@ export function AgentRoutingPage() {
             models={state.models}
             onOpenCategoryConfig={state.openCategoryConfig}
             onQuickModelChange={state.handleQuickCategoryModelChange}
+            getCategoryConfigInfo={state.getCategoryConfigInfo}
+          />
+        </TabsContent>
+
+        <TabsContent value="model-stations" className="mt-4">
+          <AgentRoutingModelStationsTab
+            loading={state.loading}
+            agents={state.agents}
+            categories={state.categories}
+            models={state.models}
+            onOpenAgentConfig={state.openAgentConfig}
+            onOpenCategoryConfig={state.openCategoryConfig}
+            getAgentConfigInfo={state.getAgentConfigInfo}
             getCategoryConfigInfo={state.getCategoryConfigInfo}
           />
         </TabsContent>

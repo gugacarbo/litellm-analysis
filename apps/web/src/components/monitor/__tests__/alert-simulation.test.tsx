@@ -1,6 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { MonitorAlert } from "@/pages/monitor/monitor-types";
+import type {
+  ModelHealthEntry,
+  MonitorAlert,
+} from "@/pages/monitor/monitor-types";
 import { AlertHistoryTable } from "../alert-history-table";
 
 function createMockAlert(overrides: Partial<MonitorAlert> = {}): MonitorAlert {
@@ -16,6 +19,24 @@ function createMockAlert(overrides: Partial<MonitorAlert> = {}): MonitorAlert {
     acknowledgedAt: null,
     createdAt: now,
     ...overrides,
+  };
+}
+
+function createMockModelEntry(modelName: string): ModelHealthEntry {
+  return {
+    model: modelName,
+    status: "healthy",
+    last_error_at: null,
+    error_rate_1h: 0,
+    stats: {
+      total_requests: 100,
+      success_count: 98,
+      error_count: 2,
+      avg_latency_ms: 150,
+      p95_latency_ms: 300,
+      last_success_at: null,
+      last_error_at: null,
+    },
   };
 }
 
@@ -264,7 +285,13 @@ describe("Alert Simulation Utilities", () => {
 
 describe("AlertHistoryTable with simulated alerts", () => {
   it("displays alert history card", async () => {
-    render(<AlertHistoryTable lastAlerts={[]} onAcknowledge={vi.fn()} />);
+    render(
+      <AlertHistoryTable
+        lastAlerts={[]}
+        models={[createMockModelEntry("gpt-4")]}
+        onAcknowledge={vi.fn()}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Alert History")).toBeInTheDocument();
@@ -275,7 +302,13 @@ describe("AlertHistoryTable with simulated alerts", () => {
   });
 
   it("displays alert type badges", async () => {
-    render(<AlertHistoryTable lastAlerts={[]} onAcknowledge={vi.fn()} />);
+    render(
+      <AlertHistoryTable
+        lastAlerts={[]}
+        models={[createMockModelEntry("gpt-4")]}
+        onAcknowledge={vi.fn()}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Error Spike")).toBeInTheDocument();
@@ -287,7 +320,13 @@ describe("AlertHistoryTable with simulated alerts", () => {
   });
 
   it("displays severity badges", async () => {
-    render(<AlertHistoryTable lastAlerts={[]} onAcknowledge={vi.fn()} />);
+    render(
+      <AlertHistoryTable
+        lastAlerts={[]}
+        models={[createMockModelEntry("gpt-4")]}
+        onAcknowledge={vi.fn()}
+      />,
+    );
 
     await waitFor(() => {
       // First alert is critical
@@ -296,7 +335,13 @@ describe("AlertHistoryTable with simulated alerts", () => {
   });
 
   it("shows acknowledge buttons for unacknowledged alerts", async () => {
-    render(<AlertHistoryTable lastAlerts={[]} onAcknowledge={vi.fn()} />);
+    render(
+      <AlertHistoryTable
+        lastAlerts={[]}
+        models={[createMockModelEntry("gpt-4")]}
+        onAcknowledge={vi.fn()}
+      />,
+    );
 
     await waitFor(() => {
       // Should have at least one acknowledge button

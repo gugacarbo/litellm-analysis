@@ -46,7 +46,7 @@ export function useLogs() {
         user: filters.user,
         startDate: filters.startDate,
         endDate: filters.endDate,
-        limit: pageSize,
+        limit: pageSize || undefined,
         offset,
       });
     },

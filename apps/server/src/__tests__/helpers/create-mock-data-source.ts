@@ -72,6 +72,9 @@ export function createMockDataSource(
     }),
     getStatusDistributionByModel: vi.fn().mockResolvedValue([]),
     getProviderBreakdownByModel: vi.fn().mockResolvedValue([]),
+    getCredentials: vi.fn().mockResolvedValue([]),
+    getDefaultCredential: vi.fn().mockResolvedValue(null),
+    setDefaultCredential: vi.fn().mockResolvedValue(undefined),
   };
 
   return { ...base, ...overrides };

@@ -1,12 +1,12 @@
 import { AlertTriangle, BarChart3, Clock, Radar, Radio } from "lucide-react";
 import { useEffect } from "react";
-import { PageLayout } from "../components/layout/page-layout/page-layout";
 import { MetricCard } from "../components/metric-card";
 import { AlertDetailDialog } from "../components/monitor/alert-detail-dialog";
 import { AlertHistoryTable } from "../components/monitor/alert-history-table";
 import { AlertsByTypeChart } from "../components/monitor/alerts-by-type-chart";
 import { ConnectionBadge } from "../components/monitor/connection-badge";
 import { SeverityBreakdownChart } from "../components/monitor/severity-breakdown-chart";
+import { PageLayout } from "../components/ui/page-layout";
 import { useMonitorPageState } from "./monitor/use-monitor-page";
 
 export function MonitorPage() {
