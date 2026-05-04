@@ -8,15 +8,14 @@ import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 const PRESET_BUTTON_LABELS: Record<string, string> = {
+  "15m": "15m",
   "1h": "1h",
-  "6h": "6h",
+  "5h": "5h",
+  "12h": "12h",
   "24h": "24h",
-  today: "Today",
   "7d": "7d",
+  "14d": "14d",
   "30d": "30d",
-  "60d": "60d",
-  "90d": "90d",
-  all: "All",
 };
 
 type TimeRangePickerProps = {
@@ -29,7 +28,7 @@ type TimeRangePickerProps = {
 export function TimeRangePicker({
   value,
   onChange,
-  presets = ["1h", "6h", "24h", "today", "7d", "30d", "60d", "90d", "all"],
+  presets = ["15m", "1h", "5h", "12h", "24h", "7d", "14d", "30d"],
   showCustom = true,
 }: TimeRangePickerProps) {
   const [customFrom, setCustomFrom] = useState<string>(

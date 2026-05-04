@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { FilterProvider } from "./contexts/filter-context";
 import { Sidebar } from "./components/layout/sidebar";
 import { AgentRoutingPage } from "./pages/agent-routing";
 import { AliasesPage } from "./pages/aliases";
@@ -12,6 +13,7 @@ import { MonitorPage } from "./pages/monitor";
 function App() {
   return (
     <BrowserRouter>
+      <FilterProvider>
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 overflow-auto">
@@ -31,6 +33,7 @@ function App() {
           </Routes>
         </main>
       </div>
+      </FilterProvider>
     </BrowserRouter>
   );
 }

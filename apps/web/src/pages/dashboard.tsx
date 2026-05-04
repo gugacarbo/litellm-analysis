@@ -1,6 +1,6 @@
 import { Activity, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
-import { APP_LOCALE } from "@/lib/locale";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import { DashboardEfficiencyCharts } from "../components/dashboard/dashboard-efficiency-charts";
 import { DashboardInsights } from "../components/dashboard/dashboard-insights";
 import { DashboardOverviewCards } from "../components/dashboard/dashboard-overview-cards";
@@ -177,5 +177,3 @@ export function DashboardPage() {
     </PageLayout>
   );
 }
-
-export default DashboardPage;

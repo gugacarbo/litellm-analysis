@@ -1,14 +1,19 @@
 export type DashboardDateRangeKey =
+  | "15m"
   | "1h"
-  | "6h"
+  | "5h"
+  | "12h"
   | "24h"
-  | "today"
   | "7d"
+  | "14d"
   | "30d"
-  | "60d"
-  | "90d"
-  | "all"
   | "custom";
+export type DateRangeGroup = "hours" | "days" | "custom";
+export const DATE_RANGE_GROUPS: { key: DateRangeGroup; label: string }[] = [
+  { key: "hours", label: "Horas" },
+  { key: "days", label: "Dias" },
+  { key: "custom", label: "Personalizado" },
+];
 
 export type TimeRangeValue = {
   preset?: DashboardDateRangeKey;
