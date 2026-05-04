@@ -33,9 +33,7 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
               </span>{" "}
             </span>
           )}
-          <span>
-            {formatTimeRelative(log.start_time)}
-          </span>
+          <span>{formatTimeRelative(log.start_time)}</span>
           {DEBUG_LOCALE && (
             <span className="ml-2 text-red-500">tz={APP_TIMEZONE}</span>
           )}
