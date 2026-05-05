@@ -13,8 +13,7 @@
   },
   "dependencies": {
     "@lite-llm/alias-router": "workspace:*",
-    "@lite-llm/config": "workspace:*",
-    "@litellm/shared": "workspace:*"
+    "@lite-llm/config": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -9,8 +9,7 @@
     "./queries": "./src/queries/index.ts",
     "./queries/schema": "./src/queries/schema.ts",
     "./queries/client": "./src/queries/client.ts",
-    "./data-source": "./src/data-source/index.ts",
-    "./data-source/types": "./src/data-source/types.ts"
+    "./data-source": "./src/data-source/index.ts"
   },
   "scripts": {
     "build": "tsc",
