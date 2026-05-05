@@ -105,11 +105,12 @@ function LatencyCell({
   errorMessage: string | null;
 }) {
   if (ms === null) return <span className="text-muted-foreground">—</span>;
-  const color = ms < 500
-    ? STATUS_COLORS.healthy
-    : ms < 2000
-      ? STATUS_COLORS.unhealthy
-      : STATUS_COLORS.error;
+  const color =
+    ms < 500
+      ? STATUS_COLORS.healthy
+      : ms < 2000
+        ? STATUS_COLORS.unhealthy
+        : STATUS_COLORS.error;
   return (
     <div className="flex items-center gap-1.5">
       <span className="font-mono text-xs tabular-nums" style={{ color }}>
@@ -146,7 +147,8 @@ export function HealthStatusPage() {
     state.resultsLimit > 0
       ? Math.floor(state.resultsOffset / state.resultsLimit) + 1
       : 1;
-  const totalPages = state.resultsLimit > 0 ? Math.ceil(totalHistory / state.resultsLimit) : 1;
+  const totalPages =
+    state.resultsLimit > 0 ? Math.ceil(totalHistory / state.resultsLimit) : 1;
   const start = totalHistory > 0 ? state.resultsOffset + 1 : 0;
   const end = Math.min(state.resultsOffset + state.resultsLimit, totalHistory);
 
@@ -188,12 +190,12 @@ export function HealthStatusPage() {
           color={STATUS_COLORS.error}
           icon={XCircle}
         />
-          <StatsBadge
-            label="Unknown"
-            count={unknownCount}
-            color="#94a3b8"
-            icon={Clock}
-          />
+        <StatsBadge
+          label="Unknown"
+          count={unknownCount}
+          color="#94a3b8"
+          icon={Clock}
+        />
       </div>
 
       <Tabs defaultValue="models">
