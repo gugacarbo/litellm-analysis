@@ -70,3 +70,45 @@ export type MonitorServiceEvents = {
     timestamp: number;
   }) => void;
 };
+
+export type HealthCheckStatus = "healthy" | "unhealthy" | "error";
+
+export type HealthCheckSource = "scheduled" | "manual";
+
+export interface HealthCheckResult {
+  id: number;
+  modelName: string;
+  status: HealthCheckStatus;
+  responseTimeMs: number | null;
+  statusCode: number | null;
+  promptSent: string;
+  responseReceived: string | null;
+  errorMessage: string | null;
+  source: HealthCheckSource;
+  checkedAt: number;
+}
+
+export interface HealthCheckServiceOptions {
+  pollIntervalMs: number;
+  timeoutMs: number;
+  prompt: string;
+  maxConcurrency: number;
+  litellmApiUrl: string;
+  litellmApiKey: string;
+  analyticsDataSource: import("@lite-llm/analytics/data-source").AnalyticsDataSource;
+  monitorDb: ReturnType<typeof import("../db/monitor-client").getMonitorDb>;
+}
+
+export type HealthCheckServiceEvents = {
+  health_check_update: (data: {
+    results: HealthCheckResult[];
+    timestamp: number;
+  }) => void;
+};
+
+export interface HealthCheckSummary {
+  healthy: number;
+  unhealthy: number;
+  error: number;
+  total: number;
+}

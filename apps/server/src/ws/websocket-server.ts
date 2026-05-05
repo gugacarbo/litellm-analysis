@@ -1,7 +1,11 @@
 import type { Server as HttpServer } from "node:http";
 import { WebSocket, WebSocketServer as WsServer } from "ws";
 
-export type MessageType = "alert" | "health_update" | "connected";
+export type MessageType =
+  | "alert"
+  | "health_update"
+  | "health_check_update"
+  | "connected";
 
 export interface WsMessage {
   type: MessageType;

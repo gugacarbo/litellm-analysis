@@ -1,7 +1,12 @@
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { getMonitorDb } from "./monitor-client";
-import type { Alert } from "./monitor-schema";
-import { alerts, type NewAlert } from "./monitor-schema";
+import type { Alert, ModelHealthCheck } from "./monitor-schema";
+import {
+  alerts,
+  modelHealthChecks,
+  type NewAlert,
+  type NewModelHealthCheck,
+} from "./monitor-schema";
 
 export interface GetAlertsOptions {
   anomalyType?: string;
@@ -126,4 +131,127 @@ export function countAlertsSince(timestamp: number): number {
     .get();
 
   return result?.count ?? 0;
+}
+
+export interface GetHealthChecksOptions {
+  model?: string;
+  limit?: number;
+  offset?: number;
+  since?: number;
+}
+
+export interface GetHealthChecksResult {
+  checks: ModelHealthCheck[];
+  total: number;
+}
+
+export function insertHealthCheck(
+  check: NewModelHealthCheck,
+): ModelHealthCheck {
+  const db = getMonitorDb();
+  const now = Math.floor(Date.now() / 1000);
+
+  return db
+    .insert(modelHealthChecks)
+    .values({
+      modelName: check.modelName,
+      status: check.status,
+      responseTimeMs: check.responseTimeMs,
+      statusCode: check.statusCode,
+      promptSent: check.promptSent,
+      responseReceived: check.responseReceived,
+      errorMessage: check.errorMessage,
+      source: check.source ?? "scheduled",
+      checkedAt: check.checkedAt ?? now,
+    })
+    .returning()
+    .get();
+}
+
+export function getHealthChecks(
+  opts: GetHealthChecksOptions = {},
+): GetHealthChecksResult {
+  const db = getMonitorDb();
+  const { model, limit = 50, offset = 0, since } = opts;
+
+  const conditions = [];
+  if (model) conditions.push(eq(modelHealthChecks.modelName, model));
+  if (since) conditions.push(sql`${modelHealthChecks.checkedAt} >= ${since}`);
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const row = db
+    .select({ count: sql<number>`count(*)` })
+    .from(modelHealthChecks)
+    .where(whereClause)
+    .get();
+  const total = row?.count ?? 0;
+
+  const checks = db
+    .select()
+    .from(modelHealthChecks)
+    .where(whereClause)
+    .orderBy(desc(modelHealthChecks.checkedAt))
+    .limit(limit)
+    .offset(offset)
+    .all();
+
+  return { checks, total };
+}
+
+export function getLatestHealthChecks(): ModelHealthCheck[] {
+  const db = getMonitorDb();
+
+  const all = db
+    .select()
+    .from(modelHealthChecks)
+    .orderBy(desc(modelHealthChecks.checkedAt))
+    .all();
+
+  const seen = new Set<string>();
+  return all.filter((c) => {
+    if (seen.has(c.modelName)) return false;
+    seen.add(c.modelName);
+    return true;
+  });
+}
+
+export interface HealthCheckSummaryResult {
+  healthy: number;
+  unhealthy: number;
+  error: number;
+  total: number;
+}
+
+export function getHealthCheckSummary(): HealthCheckSummaryResult {
+  const latest = getLatestHealthChecks();
+
+  const summary: HealthCheckSummaryResult = {
+    healthy: 0,
+    unhealthy: 0,
+    error: 0,
+    total: latest.length,
+  };
+
+  for (const check of latest) {
+    if (check.status === "healthy") summary.healthy++;
+    else if (check.status === "unhealthy") summary.unhealthy++;
+    else summary.error++;
+  }
+
+  return summary;
+}
+
+export function cleanupOldHealthChecks(retentionDays: number): {
+  deleted: number;
+} {
+  const db = getMonitorDb();
+  const cutoff = Math.floor(Date.now() / 1000) - retentionDays * 86_400;
+
+  const result = db
+    .delete(modelHealthChecks)
+    .where(sql`${modelHealthChecks.checkedAt} < ${cutoff}`)
+    .run();
+
+  return { deleted: result.changes };
 }

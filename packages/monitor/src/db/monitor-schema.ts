@@ -26,3 +26,19 @@ export type Alert = typeof alerts.$inferSelect;
 export type NewAlert = typeof alerts.$inferInsert;
 export type AlertRule = typeof alertRules.$inferSelect;
 export type NewAlertRule = typeof alertRules.$inferInsert;
+
+export const modelHealthChecks = sqliteTable("model_health_checks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  modelName: text("model_name").notNull(),
+  status: text("status").notNull(),
+  responseTimeMs: integer("response_time_ms"),
+  statusCode: integer("status_code"),
+  promptSent: text("prompt_sent").notNull(),
+  responseReceived: text("response_received"),
+  errorMessage: text("error_message"),
+  source: text("source").notNull().default("scheduled"),
+  checkedAt: integer("checked_at").notNull(),
+});
+
+export type ModelHealthCheck = typeof modelHealthChecks.$inferSelect;
+export type NewModelHealthCheck = typeof modelHealthChecks.$inferInsert;

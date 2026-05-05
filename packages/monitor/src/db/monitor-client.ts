@@ -54,6 +54,26 @@ function initDb(): ReturnType<typeof drizzle> {
     )
   `);
 
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS model_health_checks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      model_name TEXT NOT NULL,
+      status TEXT NOT NULL,
+      response_time_ms INTEGER,
+      status_code INTEGER,
+      prompt_sent TEXT NOT NULL,
+      response_received TEXT,
+      error_message TEXT,
+      source TEXT NOT NULL DEFAULT 'scheduled',
+      checked_at INTEGER NOT NULL
+    )
+  `);
+
+  sqlite.exec(`
+    CREATE INDEX IF NOT EXISTS idx_health_checks_model_checked
+    ON model_health_checks(model_name, checked_at DESC)
+  `);
+
   return drizzle(sqlite, { schema });
 }
 

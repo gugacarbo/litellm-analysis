@@ -67,4 +67,20 @@ export const queryKeys = {
     ["model-detail", "status-distribution", model, days] as const,
   modelDetailProviderBreakdown: (model: string, days: number) =>
     ["model-detail", "provider-breakdown", model, days] as const,
+  healthCheckResults: (params: {
+    limit: number;
+    offset: number;
+    model?: string;
+    since?: string;
+  }) =>
+    [
+      "health-check",
+      "results",
+      params.limit,
+      params.offset,
+      params.model ?? "",
+      params.since ?? "",
+    ] as const,
+  healthCheckLatest: ["health-check", "latest"] as const,
+  healthCheckSummary: ["health-check", "summary"] as const,
 };

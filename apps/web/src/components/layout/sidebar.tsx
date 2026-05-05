@@ -5,6 +5,7 @@ import {
   ChevronRight,
   FileText,
   GitBranch,
+  HeartPulse,
   Radar,
   Settings,
   TrendingUp,
@@ -33,12 +34,42 @@ function isBranch(item: NavItem): item is NavBranch {
   return "children" in item;
 }
 
+function getExpandedState(
+  id: string,
+  monitoringExpanded: boolean,
+  modelsExpanded: boolean,
+): boolean {
+  if (id === "monitoring") return monitoringExpanded;
+  if (id === "models") return modelsExpanded;
+  return false;
+}
+
+function toggleExpanded(
+  id: string,
+  setMonitoring: (v: boolean) => void,
+  setModels: (v: boolean) => void,
+  currentMonitoring: boolean,
+  currentModels: boolean,
+): void {
+  if (id === "monitoring") setMonitoring(!currentMonitoring);
+  if (id === "models") setModels(!currentModels);
+}
+
 export function Sidebar() {
+  const [monitoringExpanded, setMonitoringExpanded] = useState(false);
   const [modelsExpanded, setModelsExpanded] = useState(false);
 
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
-    { to: "/monitor", icon: Radar, label: "Monitor" },
+    {
+      id: "monitoring",
+      icon: Radar,
+      label: "Monitoring",
+      children: [
+        { to: "/monitor", icon: Radar, label: "Monitor" },
+        { to: "/health-status", icon: HeartPulse, label: "Health Status" },
+      ],
+    },
     { to: "/model-stats", icon: TrendingUp, label: "Stats" },
     { to: "/logs", icon: FileText, label: "Logs" },
     { to: "/agent-routing", icon: Bot, label: "Agents" },
@@ -63,24 +94,37 @@ export function Sidebar() {
           <nav className="space-y-1">
             {navItems.map((item) => {
               if (isBranch(item)) {
+                const expanded = getExpandedState(
+                  item.id,
+                  monitoringExpanded,
+                  modelsExpanded,
+                );
                 return (
                   <div key={item.id}>
                     <button
                       type="button"
-                      onClick={() => setModelsExpanded(!modelsExpanded)}
+                      onClick={() =>
+                        toggleExpanded(
+                          item.id,
+                          setMonitoringExpanded,
+                          setModelsExpanded,
+                          monitoringExpanded,
+                          modelsExpanded,
+                        )
+                      }
                       className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors w-full text-left ${
-                        modelsExpanded ? "bg-muted" : "hover:bg-muted"
+                        expanded ? "bg-muted" : "hover:bg-muted"
                       }`}
                     >
                       {item.icon && <item.icon className="h-4 w-4" />}
                       <span className="flex-1">{item.label}</span>
-                      {modelsExpanded ? (
+                      {expanded ? (
                         <ChevronDown className="h-4 w-4" />
                       ) : (
                         <ChevronRight className="h-4 w-4" />
                       )}
                     </button>
-                    {modelsExpanded && (
+                    {expanded && (
                       <div className="ml-4 mt-1 space-y-1">
                         {item.children.map((child) => (
                           <NavLink

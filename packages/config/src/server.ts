@@ -14,6 +14,11 @@ export const serverSchema = {
 
   DB_PASSWORD: z.string().default("dbpassword9090"),
   LITELLM_CREDENTIAL_NAME: z.string().trim().optional(),
+  LITELLM_API_URL: z.string().url().default("http://localhost:4000"),
+  LITELLM_API_KEY: z.string().default(""),
+  HEALTH_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(120_000),
+  HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),
+  HEALTH_CHECK_PROMPT: z.string().default("Say OK"),
 };
 
 export const serverEnv = createEnv({

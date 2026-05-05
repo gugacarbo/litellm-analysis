@@ -4,6 +4,10 @@ import { createDataSource } from "@lite-llm/analytics/data-source";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
 import { env } from "../env";
 import { createApiServer } from "./api-server";
+import {
+  createHealthCheckRuntime,
+  type HealthCheckRuntime,
+} from "./health-check-runtime";
 import { createMonitorRuntime, type MonitorRuntime } from "./monitor-runtime";
 
 export interface AppRuntime {
@@ -51,10 +55,35 @@ export function startAppRuntime(): AppRuntime {
     pollIntervalMs: env.MONITOR_POLL_INTERVAL_MS,
   });
 
+  const healthCheckRuntime: HealthCheckRuntime = createHealthCheckRuntime({
+    analyticsDataSource: dataSource,
+    httpServer,
+    wsServer: monitorRuntime.wsServer,
+    pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
+    timeoutMs: env.HEALTH_CHECK_TIMEOUT_MS,
+    prompt: env.HEALTH_CHECK_PROMPT,
+    maxConcurrency: 3,
+    litellmApiUrl: env.LITELLM_API_URL,
+    litellmApiKey: env.LITELLM_API_KEY,
+  });
+
+  app.post("/health-check/run", async (req, res) => {
+    try {
+      const { models } = (req.body as { models?: string[] }) ?? {};
+      const modelList = models?.length ? models : undefined;
+      await healthCheckRuntime.healthCheckService.runAllChecks(modelList);
+      res.json({ triggered: true });
+    } catch (_err) {
+      res.status(500).json({ error: "Failed to trigger health check" });
+    }
+  });
+
   monitorRuntime.start();
+  healthCheckRuntime.start();
 
   const stop = () => {
     console.log("\nShutting down gracefully...");
+    healthCheckRuntime.stop();
     monitorRuntime.stop();
     httpServer.close(() => process.exit(0));
   };
