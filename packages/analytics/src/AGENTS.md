@@ -1,23 +1,22 @@
 # packages/analytics/src/
 
 ## OVERVIEW
-DB queries (Drizzle ORM) + data source implementations (Database, Api, Limited modes). Strategy pattern with 31-method interface.
+DB queries (Drizzle ORM) + data source implementations (Database, Api, Limited modes). Strategy pattern with 46-method interface.
 
 ## STRUCTURE
 
 ```
 analytics/src/
 ├── data-source/
-│   ├── index.ts      # Factory: createDataSource(), detectMode()
-│   ├── types.ts      # DATABASE/LIMITED/API capabilities, 28 flags
-│   ├── database.ts   # DatabaseDataSource (direct Drizzle)
-│   └── api.ts        # ApiDataSource (LiteLLM REST API)
+│   ├── index.ts      # Factory: createDataSource()
+│   ├── database.ts   # DatabaseDataSource (direct Drizzle, composed from 14 *-queries.ts files)
+│   └── utils.ts      # Data source utilities
 ├── queries/
-│   ├── index.ts     # 648 lines of Drizzle ORM queries
-│   ├── schema.ts    # Table definitions
-│   └── client.ts    # DB connection
+│   ├── index.ts      # All Drizzle ORM queries
+│   ├── schema.ts     # Table definitions (spendLogs, proxyModelTable, errorLogs, liteLLMConfig)
+│   └── client.ts     # DB connection
 ├── types/
-│   └── index.ts     # AnalyticsDataSource interface (31 methods)
+│   └── index.ts      # AnalyticsDataSource interface (46 methods) + all data types + exports from @litellm/shared
 └── index.ts         # Barrel: re-exports from submodules
 ```
 
@@ -26,9 +25,8 @@ analytics/src/
 | Task | Location | Notes |
 |------|----------|-------|
 | Add query | `queries/index.ts` | `db.select({}).from(schema.spendLogs)` |
-| Add data method | `types/index.ts` interface → implement in `database.ts` + `api.ts` | Add capability flag |
-| Change capabilities | `data-source/types.ts` | 28 flags in 3 constants |
-| Fix mode detection | `data-source/index.ts` → `detectMode()` | Priority: ACCESS_MODE → DB_HOST → LITELLM_API_URL |
+| Add data method | `types/index.ts` interface → implement in `database.ts` | Add method to DatabaseDataSource class |
+| Check available queries | `queries/` | 14 files: spend, model, error, trend, distribution, key, etc. |
 
 ## CONVENTIONS
 
@@ -39,10 +37,9 @@ analytics/src/
 4. Wrap numerics with `Number()` for safety
 
 ### Adding Data Source Methods
-1. Add signature to `AnalyticsDataSource` interface in `types/index.ts`
-2. Implement in `data-source/database.ts`
-3. Implement in `data-source/api.ts`
-4. Update capability constants in `data-source/types.ts`
+1. Add method signature to `AnalyticsDataSource` interface in `types/index.ts`
+2. Implement in `data-source/database.ts` (the single DatabaseDataSource class)
+3. Implement corresponding query in `queries/` if new DB logic needed
 
 ## ANTI-PATTERNS
 

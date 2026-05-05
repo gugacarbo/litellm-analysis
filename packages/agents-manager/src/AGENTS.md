@@ -20,7 +20,7 @@ agents-manager/src/
 
 | Task | Location | Notes |
 |------|----------|-------|
-| Add CRUD operation | `api/crud.js` | Read/write `db.json` |
+| Add CRUD operation | `api/crud.ts` | Read/write `db.json` |
 | Add consumer config | `generators/` | Transformers in `transformers/` |
 | Change file paths | `types/index.ts` → `DEFAULT_FILE_PATHS` | `data/db.json`, `data/*.json` |
 | Add adapter | `adapters/` | Convert between DB and config formats |
@@ -40,6 +40,10 @@ agents-manager/src/
 
 ## CONVENTIONS
 
-- Uses `.js` extension (not `.ts`) for implementation files
-- Dynamic imports for config-file.js to avoid circular deps
+- Implementation files are `.ts`; imports use `.js` extensions (verbatimModuleSyntax + ESM)
+- Dynamic imports for `config-file.js` to avoid circular deps
 - File paths resolved relative to project root
+
+## ANTI-PATTERNS
+
+- Don't use `.js` file extensions — all source files are `.ts` (the `.js` in imports is ESM convention, not file type)

@@ -23,6 +23,9 @@ packages/server-core/src/
 │   ├── model-routes.ts         # CRUD /models/*
 │   ├── agent-routing-routes.ts # GET/PUT /agent-routing
 │   ├── agent-config-routes.ts  # CRUD /agent-config/*
+│   ├── agent-config/           # Sub-routes: agent + category CRUD
+│   ├── agent-definitions-routes.ts # Agent definitions endpoints
+│   ├── credential-routes.ts    # LiteLLM credential management
 │   └── mode-routes.ts          # GET /mode
 └── types/
     └── index.ts               # DbModelSpecLike, RouteOptions

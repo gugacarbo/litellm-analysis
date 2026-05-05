@@ -15,12 +15,14 @@ apps/
 │       ├── hooks/           # React Query data-fetching hooks
 │       ├── lib/             # API client, utils, server-mode
 │       └── types/           # Shared TypeScript interfaces
-└── server/                 # Express.js + Drizzle ORM
+└── server/                 # Express.js entry point + monitor + WebSocket
     └── src/
-        ├── api-server.ts    # Express app factory
-        ├── index.ts         # Entry point (server init, monitor wiring)
-        ├── routes/          # Monitor routes only
-        └── ws/              # WebSocket server
+        ├── runtime/         # Express app factory, server bootstrap, monitor runtime
+        ├── application/     # Business services (monitor application service)
+        ├── routes/          # Monitor-specific routes
+        ├── ws/              # WebSocket server for live data
+        ├── __tests__/       # Integration tests
+        └── env.ts           # Environment config re-export
 ```
 
 ## SUBAGENTS.md LOCATIONS

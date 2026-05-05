@@ -1,7 +1,7 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-04-29
-**Commit:** 81e96e0
+**Generated:** 2026-05-04
+**Commit:** 75b2b76
 **Branch:** main
 
 ## OVERVIEW
@@ -21,18 +21,23 @@ lite-llm-analytics/
 │   │       ├── hooks/       # use-dashboard-data, use-logs, use-server-mode
 │   │       ├── types/       # Shared TypeScript interfaces
 │   │       └── data/        # Static agent definition data
-│   └── server/             # Express.js + Drizzle ORM + PostgreSQL
+│   └── server/             # Express.js entry point + monitor + WebSocket
 │       └── src/
-│           ├── data-source/ # Strategy pattern: Database vs API vs Limited modes
-│           ├── db/          # Drizzle schema, queries, model-merge logic
-│           └── services/    # Config file I/O, alias generation
+│           ├── runtime/         # Express app factory, server bootstrap, monitor runtime
+│           ├── application/     # Business services (monitor application service)
+│           ├── routes/          # Monitor-specific Express routes
+│           ├── ws/              # WebSocket server for live data
+│           ├── __tests__/       # Integration tests
+│           └── env.ts           # Environment config re-export
 ├── packages/               # Shared libraries
 │   ├── agents-manager/     # Agent/category config CRUD, file generators
 │   ├── alias-router/        # LiteLLM alias routing resolution
 │   ├── analytics/           # DB queries + data source implementation
 │   ├── monitor/             # Model health monitoring (SQLite, anomaly detection)
 │   ├── server-core/         # Orchestration layer (routes, alias service, artifact sync)
-│   └── shared/             # Common types (AgentConfig, CategoryConfig)
+│   ├── shared/             # Common types (AgentConfig, CategoryConfig)
+│   ├── config/             # Environment variable validation (t3-env, Zod)
+│   └── api-contracts/      # API type contracts (analytics, agent-routing)
 ├── data/                    # Generated JSON configs (OpenCode, VS Code, agent-routing)
 ├── biome.json               # Biome 2.x (replaces ESLint+Prettier)
 ├── turbo.json               # Turborepo task pipeline
@@ -65,7 +70,7 @@ lite-llm-analytics/
 - Import auto-organization on format (`organizeImports: "on"`)
 
 ### Architecture
-- **Strategy pattern** for data access: `AnalyticsDataSource` interface (51 methods), with `DatabaseDataSource` as the sole implementation (composed from 9 \*-methods.ts files)
+- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (composed from 14 \*-queries.ts files)
 - **No capability gating** — full access mode only (no Limited/Api modes implemented yet)
 - **FeatureUnavailableError / HTTP 501** pattern referenced in frontend but not yet active
 - **Page-level architecture**: Pages contain hooks/types/utils only (no JSX). Components live in `components/` and import from page directories
@@ -84,7 +89,9 @@ lite-llm-analytics/
 - Tests verify feature gates (capabilities matrix) explicitly
 - `passWithNoTests: true` at root
 - **⚠️ Dual test organization**: Both `__tests__/` directories AND `.test.ts` colocated files coexist — no single standard enforced
-- **⚠️ createMockDataSource() copy-pasted 3x** across server tests (43 methods each) — not extracted to shared helpers
+- **⚠️ createMockDataSource() copy-pasted 3x** across server tests (79 methods each) — not extracted to shared helpers
+- **⚠️ TypeScript version fragmentation** across packages (5.7.2 / 5.9.3 / 6.0.3) — root uses 6.0.3
+- **⚠️ Vitest version split**: packages/monitor pins ^2.1.8 while rest of repo uses ^4.1.5
 
 ## PACKAGES
 
@@ -110,7 +117,7 @@ Manages agent and category configurations with file-based storage.
 
 **Build:** `tsc` → `dist/`, generates `.d.ts` declarations
 
-**⚠️ Documentation note:** The `packages/agents-manager/src/AGENTS.md` structure diagram references a `.js` extension convention from an earlier iteration — actual files are `.ts`
+**⚠️ Documentation note:** The agents-manager AGENTS.md previously referenced a `.js` extension convention — now corrected; all source files are `.ts` (imports use `.js` extensions due to ESM/verbatimModuleSyntax)
 
 ### @lite-llm/analytics
 DB queries + data source implementations (Database mode only; Api/Limited not yet implemented).
@@ -120,19 +127,19 @@ DB queries + data source implementations (Database mode only; Api/Limited not ye
 packages/analytics/src/
 ├── data-source/
 │   ├── index.ts      # Factory: createDataSource()
-│   ├── database.ts   # DatabaseDataSource (direct Drizzle, composed from 9 *-methods.ts files)
+│   ├── database.ts   # DatabaseDataSource (direct Drizzle, composed from 14 *-queries.ts files)
 │   └── utils.ts      # Data source utilities
 ├── queries/
 │   ├── index.ts      # All Drizzle ORM queries
 │   ├── schema.ts     # Table definitions (spendLogs, proxyModelTable, errorLogs, liteLLMConfig)
 │   └── client.ts     # DB connection
 ├── types/
-│   └── index.ts      # AnalyticsDataSource interface (51 methods) + all data types + exports from @litellm/shared
+│   └── index.ts      # AnalyticsDataSource interface (46 methods) + all data types + exports from @litellm/shared
 └── index.ts          # Barrel: exports from data-source, types
 ```
 
 **Key patterns:**
-- `AnalyticsDataSource` interface has 51 methods — any implementation must implement all (no Api/Limited implementations exist yet)
+- `AnalyticsDataSource` interface has 46 methods — any implementation must implement all (no Api/Limited implementations exist yet)
 - Data source mode currently returns DatabaseDataSource unconditionally
 - Queries use camelCase column names mapped to snake_case DB columns via Drizzle ORM
 - All queries are async and return plain objects (not Drizzle row objects)
@@ -152,8 +159,7 @@ packages/analytics/src/
 **Adding a new data source method:**
 1. Add method signature to `AnalyticsDataSource` interface in `types/index.ts`
 2. Implement in `data-source/database.ts`
-3. Implement in `data-source/api.ts`
-4. Set capability flag in appropriate `*_CAPABILITIES` constant in `data-source/types.ts`
+3. Add corresponding query in `queries/` if new DB logic needed
 
 **CAUTION — Refactoring pitfalls:**
 - Do NOT use class inheritance to split large data source classes — TypeScript's strict mode requires all interface methods in each class
