@@ -38,9 +38,7 @@ export function detectNonSuccessSpike(
     // Calculate historical non-success rate for baseline comparison
     // Compare current rate against historical rate using same data source (spendLogs)
     const historicalNonSuccessRate =
-      totalRequests > 0
-        ? (health.error_count / totalRequests) * 60
-        : 0;
+      totalRequests > 0 ? (health.error_count / totalRequests) * 60 : 0;
     const spikeRatio =
       historicalNonSuccessRate > 0
         ? currentHourlyRate / historicalNonSuccessRate
