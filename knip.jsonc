@@ -3,9 +3,7 @@
   // Suppress false positives from shadcn/ui, barrel exports, and public APIs
 
   // Ignore files from analysis entirely
-  "ignore": [
-    "**/eslint.config.js"
-  ],
+  "ignore": ["**/eslint.config.js"],
 
   // Ignore specific unused files (false positives from barrel exports)
   "ignoreFiles": [
@@ -45,9 +43,7 @@
   ],
 
   // Ignore dependencies used by tooling
-  "ignoreDependencies": [
-    "@radix-ui/react-collapsible"
-  ],
+  "ignoreDependencies": ["@radix-ui/react-collapsible"],
 
   // Ignore exports used internally but exported for public API
   "ignoreExportsUsedInFile": {
