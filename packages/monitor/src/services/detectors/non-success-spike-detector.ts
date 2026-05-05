@@ -29,15 +29,24 @@ export function detectNonSuccessSpike(
       continue;
     }
 
+    const totalRequests = health.total_requests;
+
+    // Extrapolate to hourly rate: non_success_count is from a 5-min polling window
+    // (assumes monitor service ticks every 5 minutes)
     const currentHourlyRate = non_success_count * 12;
 
+    // Calculate historical non-success rate for baseline comparison
+    // Compare current rate against historical rate using same data source (spendLogs)
+    const historicalNonSuccessRate =
+      totalRequests > 0
+        ? (health.error_count / totalRequests) * 60
+        : 0;
     const spikeRatio =
-      health.error_count > 0
-        ? currentHourlyRate / health.error_count
+      historicalNonSuccessRate > 0
+        ? currentHourlyRate / historicalNonSuccessRate
         : currentHourlyRate;
 
     if (spikeRatio >= SPIKE_RATIO_THRESHOLD) {
-      const totalRequests = health.total_requests;
       const nonSuccessRate =
         totalRequests > 0
           ? ((non_success_count / totalRequests) * 100).toFixed(1)
@@ -53,12 +62,12 @@ export function detectNonSuccessSpike(
             `Non-success spike detected for model "${model}". ` +
             `${non_success_count} non-success request(s) in window ` +
             `(${nonSuccessRate}% of requests), ` +
-            `baseline: ${health.error_count} errors/hour ` +
+            `baseline: ${historicalNonSuccessRate.toFixed(1)}/hour ` +
             `(${spikeRatio.toFixed(1)}x increase)`,
           metadata: {
             non_success_count_window: non_success_count,
             non_success_rate_pct: Number(nonSuccessRate),
-            baseline_error_count: health.error_count,
+            baseline_hourly_rate: historicalNonSuccessRate,
             current_hourly_rate: currentHourlyRate,
             spike_ratio: spikeRatio,
             total_requests_window: totalRequests,

@@ -13,9 +13,6 @@ export function detectErrorSpike(
   ) => boolean,
 ): DetectorResult[] {
   const results: DetectorResult[] = [];
-  const now = Date.now();
-  const _fiveMinAgo = new Date(now - 5 * 60 * 1000);
-  const _oneHourAgo = new Date(now - 60 * 60 * 1000);
 
   for (const errorCountEntry of input.errorCountsByModel) {
     const { model, error_count: recentErrorCount } = errorCountEntry;
