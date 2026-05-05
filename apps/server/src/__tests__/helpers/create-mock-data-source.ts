@@ -55,6 +55,7 @@ export function createMockDataSource(
     getSpendLogDetail: vi.fn().mockResolvedValue(null),
     getErrorsSince: vi.fn().mockResolvedValue([]),
     getErrorCountByModelSince: vi.fn().mockResolvedValue([]),
+    getNonSuccessCountByModelSince: vi.fn().mockResolvedValue([]),
     getModelHealthSince: vi.fn().mockResolvedValue(null),
     getStuckRequests: vi.fn().mockResolvedValue([]),
     getCacheHitRateByModel: vi.fn().mockResolvedValue({

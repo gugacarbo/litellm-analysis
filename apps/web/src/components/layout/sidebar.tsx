@@ -34,7 +34,7 @@ function isBranch(item: NavItem): item is NavBranch {
 }
 
 export function Sidebar() {
-  const [modelsExpanded, setModelsExpanded] = useState(true);
+  const [modelsExpanded, setModelsExpanded] = useState(false);
 
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
@@ -47,8 +47,8 @@ export function Sidebar() {
       icon: Settings,
       label: "Models",
       children: [
+        { to: "/models", label: "Manage", icon: Settings },
         { to: "/aliases", icon: GitBranch, label: "Aliases" },
-        { to: "/models", label: "Config" },
       ],
     },
   ];

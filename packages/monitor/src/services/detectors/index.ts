@@ -4,6 +4,7 @@ import { alerts } from "../../db/monitor-schema";
 import type { DetectorInput, DetectorResult } from "../monitor-types";
 import { detectErrorSpike } from "./error-spike-detector";
 import { detectModelOffline } from "./model-offline-detector";
+import { detectNonSuccessSpike } from "./non-success-spike-detector";
 import { detectSilentFailure } from "./silent-failure-detector";
 import { detectTimeoutStuck } from "./timeout-stuck-detector";
 
@@ -64,6 +65,13 @@ export function runAllDetectors(input: DetectorInput): DetectorResult[] {
     results.push(...timeoutResults);
   } catch (err) {
     console.error("[Detectors] timeout_stuck detector failed:", err);
+  }
+
+  try {
+    const nonSuccessResults = detectNonSuccessSpike(input, isInCooldown);
+    results.push(...nonSuccessResults);
+  } catch (err) {
+    console.error("[Detectors] non_success_spike detector failed:", err);
   }
 
   // Silent failure detector

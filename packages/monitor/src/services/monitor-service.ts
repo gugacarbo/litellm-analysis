@@ -60,23 +60,30 @@ export class MonitorService {
       const since = this.lastPollTimestamp;
 
       // Collect data from analytics
-      const [recentErrors, errorCountsByModel, stuckRequests] =
-        await Promise.all([
-          analyticsDataSource
-            .getErrorsSince(since)
-            .catch(() => [] as ErrorLogEntry[]),
-          analyticsDataSource
-            .getErrorCountByModelSince(since)
-            .catch(() => [] as { model: string; error_count: number }[]),
-          analyticsDataSource.getStuckRequests(since).catch(
-            () =>
-              [] as {
-                request_id: string;
-                model: string | null;
-                startTime: string | null;
-              }[],
-          ),
-        ]);
+      const [
+        recentErrors,
+        errorCountsByModel,
+        nonSuccessCountsByModel,
+        stuckRequests,
+      ] = await Promise.all([
+        analyticsDataSource
+          .getErrorsSince(since)
+          .catch(() => [] as ErrorLogEntry[]),
+        analyticsDataSource
+          .getErrorCountByModelSince(since)
+          .catch(() => [] as { model: string; error_count: number }[]),
+        analyticsDataSource
+          .getNonSuccessCountByModelSince(since)
+          .catch(() => [] as { model: string; non_success_count: number }[]),
+        analyticsDataSource.getStuckRequests(since).catch(
+          () =>
+            [] as {
+              request_id: string;
+              model: string | null;
+              startTime: string | null;
+            }[],
+        ),
+      ]);
 
       // Build model health map
       const modelHealthMap = new Map<string, ModelHealthStats>();
@@ -86,6 +93,7 @@ export class MonitorService {
             .map((e) => e.model ?? e.litellm_model_name)
             .filter(Boolean) as string[]),
           ...errorCountsByModel.map((e) => e.model),
+          ...nonSuccessCountsByModel.map((e) => e.model),
         ]),
       ];
 
@@ -110,6 +118,7 @@ export class MonitorService {
       const input: DetectorInput = {
         recentErrors,
         errorCountsByModel,
+        nonSuccessCountsByModel,
         stuckRequests,
         modelHealthMap,
       };

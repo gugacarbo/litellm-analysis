@@ -20,6 +20,10 @@ export interface AnomalyAlert {
 export interface DetectorInput {
   recentErrors: import("@lite-llm/analytics/types").ErrorLogEntry[];
   errorCountsByModel: { model: string; error_count: number }[];
+  nonSuccessCountsByModel: {
+    model: string;
+    non_success_count: number;
+  }[];
   stuckRequests: {
     request_id: string;
     model: string | null;

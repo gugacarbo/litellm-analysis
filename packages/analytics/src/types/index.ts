@@ -61,6 +61,9 @@ export interface AnalyticsDataSource {
   // Monitor queries — used by anomaly detection system
   getErrorsSince(since: Date, limit?: number): Promise<ErrorLogEntry[]>;
   getErrorCountByModelSince(since: Date): Promise<ModelErrorCountSince[]>;
+  getNonSuccessCountByModelSince(
+    since: Date,
+  ): Promise<NonSuccessCountByModel[]>;
   getModelHealthSince(
     model: string,
     since: Date,
@@ -378,6 +381,11 @@ export interface ModelTopApiKey {
 export interface ModelErrorCountSince {
   model: string;
   error_count: number;
+}
+
+export interface NonSuccessCountByModel {
+  model: string;
+  non_success_count: number;
 }
 
 export interface ModelHealth {
