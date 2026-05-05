@@ -226,7 +226,7 @@
       "mode": "subagent"
     },
     "prometheus": {
-      "model": "glm-5.1",
+      "model": "kimi-k2.6",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -295,7 +295,7 @@
       "tools": {}
     },
     "plan": {
-      "model": "glm-5.1",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -333,7 +333,7 @@
       "description": "Frontend e UI/UX — componentes React, Tailwind, estilização, animações e design systems."
     },
     "ultrabrain": {
-      "model": "glm-5.1",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -353,7 +353,7 @@
       "description": "Execução autônoma — resolve problemas orientados a objetivos com mínima supervisão; ideal para tarefas de médio a grande porte."
     },
     "code": {
-      "model": "glm-5.1",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "deepseek-v4-pro",
         "deepseek-v4-flash",
