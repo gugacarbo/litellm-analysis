@@ -38,8 +38,7 @@
     "apps/web/src/pages/model-stats/use-model-stats-page.ts",
     "apps/web/src/pages/model-stats/use-model-stats-state.ts",
     // Packages barrel exports
-    "packages/analytics/query.ts",
-    "packages/server-core/src/routes/agent-config/types.ts"
+    "packages/analytics/query.ts"
   ],
 
   // Ignore dependencies used by tooling

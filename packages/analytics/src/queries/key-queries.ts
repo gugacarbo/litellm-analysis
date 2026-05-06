@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc } from "drizzle-orm";
 import { db, schema } from "./client";
 
 const { litellmCredentialsTable } = schema;
@@ -53,25 +53,4 @@ export async function getAllCredentials(): Promise<LiteLLMCredential[]> {
     .orderBy(asc(litellmCredentialsTable.credentialName));
 
   return result.map(mapRow);
-}
-
-export async function getCredentialByName(
-  credentialName: string,
-): Promise<LiteLLMCredential | null> {
-  const result = await db
-    .select({
-      credentialId: litellmCredentialsTable.credentialId,
-      credentialName: litellmCredentialsTable.credentialName,
-      credentialValues: litellmCredentialsTable.credentialValues,
-      credentialInfo: litellmCredentialsTable.credentialInfo,
-      createdAt: litellmCredentialsTable.createdAt,
-      createdBy: litellmCredentialsTable.createdBy,
-      updatedAt: litellmCredentialsTable.updatedAt,
-      updatedBy: litellmCredentialsTable.updatedBy,
-    })
-    .from(litellmCredentialsTable)
-    .where(eq(litellmCredentialsTable.credentialName, credentialName))
-    .limit(1);
-
-  return result[0] ? mapRow(result[0]) : null;
 }

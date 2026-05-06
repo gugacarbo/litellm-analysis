@@ -75,8 +75,6 @@ const gitMasterSchema = z.object({
   include_co_authored_by: z.boolean().optional(),
 });
 
-export type GitMaster = z.infer<typeof gitMasterSchema>;
-
 // ── Agent Config File Schema ─────────────────────────────────────────────────
 
 export const agentConfigFileSchema = z.object({

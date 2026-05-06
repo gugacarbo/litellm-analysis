@@ -2,7 +2,6 @@ export type {
   AgentConfig,
   AgentConfigFile,
   CategoryConfig,
-  GitMaster,
   OhMyOpenAgentConfig,
   Permission,
   Thinking,

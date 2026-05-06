@@ -39,6 +39,9 @@ describe("AGENT_KEYS", () => {
       "sisyphus-junior",
       "momus",
       "hephaestus",
+      "build",
+      "plan",
+      "OpenCode-Builder",
     ];
     expect(AGENT_KEYS).toEqual(expected);
   });
@@ -46,9 +49,8 @@ describe("AGENT_KEYS", () => {
   it("should have sisyphus as first key", () => {
     expect(AGENT_KEYS[0]).toBe("sisyphus");
   });
-
-  it("should have hephaestus as last key", () => {
-    expect(AGENT_KEYS[AGENT_KEYS.length - 1]).toBe("hephaestus");
+  it("should have OpenCode-Builder as last key", () => {
+    expect(AGENT_KEYS[AGENT_KEYS.length - 1]).toBe("OpenCode-Builder");
   });
 });
 

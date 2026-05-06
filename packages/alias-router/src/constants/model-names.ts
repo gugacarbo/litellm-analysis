@@ -25,6 +25,9 @@ export const AGENT_KEYS = [
   "sisyphus-junior",
   "momus",
   "hephaestus",
+  "build",
+  "plan",
+  "OpenCode-Builder",
 ] as const;
 
 /**

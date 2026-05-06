@@ -274,10 +274,6 @@ export interface ModelInfo {
 
 export type ModelEntry = ModelInfo;
 
-export interface ModelQueryParams {
-  name?: string;
-}
-
 export interface SpendLogsQueryParams {
   model?: string;
   user?: string;
@@ -299,15 +295,6 @@ export interface PaginationMetadata {
 export interface SpendLogsResponse {
   logs: SpendLogEntry[];
   pagination: PaginationMetadata;
-}
-
-export interface FilterOptions {
-  models: string[];
-  users: string[];
-  date_range: {
-    min: string;
-    max: string;
-  };
 }
 
 // Re-export agent config types from shared (single source of truth)
