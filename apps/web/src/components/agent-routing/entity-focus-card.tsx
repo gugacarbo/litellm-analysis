@@ -67,6 +67,7 @@ export function EntityFocusCard({
         <Button
           variant="ghost"
           size="icon-sm"
+          title="Edit configuration"
           className="h-7 w-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
           onClick={() => onOpenConfig(entityKey)}
         >

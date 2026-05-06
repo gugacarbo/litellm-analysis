@@ -134,14 +134,13 @@ describe("AgentRoutingPage", () => {
       const paletteButtons = document.querySelectorAll(
         'button[title="Edit configuration"]',
       );
-      if (paletteButtons.length > 0) {
-        await userEvent.click(paletteButtons[0]);
-        await waitFor(() => {
-          expect(
-            screen.getByText(/Edit Agent Configuration:/),
-          ).toBeInTheDocument();
-        });
-      }
+      expect(paletteButtons.length).toBeGreaterThan(0);
+      await userEvent.click(paletteButtons[0]);
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Edit Agent Configuration:/),
+        ).toBeInTheDocument();
+      });
     });
 
     it("deve fechar dialog ao clicar em Cancel", async () => {
@@ -153,21 +152,20 @@ describe("AgentRoutingPage", () => {
       const paletteButtons = document.querySelectorAll(
         'button[title="Edit configuration"]',
       );
-      if (paletteButtons.length > 0) {
-        await userEvent.click(paletteButtons[0]);
-        await waitFor(() => {
-          expect(
-            screen.getByText(/Edit Agent Configuration:/),
-          ).toBeInTheDocument();
-        });
-        const cancelButton = screen.getByRole("button", { name: /Cancel/i });
-        await userEvent.click(cancelButton);
-        await waitFor(() => {
-          expect(
-            screen.queryByText(/Edit Agent Configuration:/),
-          ).not.toBeInTheDocument();
-        });
-      }
+      expect(paletteButtons.length).toBeGreaterThan(0);
+      await userEvent.click(paletteButtons[0]);
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Edit Agent Configuration:/),
+        ).toBeInTheDocument();
+      });
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i });
+      await userEvent.click(cancelButton);
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/Edit Agent Configuration:/),
+        ).not.toBeInTheDocument();
+      });
     });
 
     it("deve mostrar category edit dialog", async () => {

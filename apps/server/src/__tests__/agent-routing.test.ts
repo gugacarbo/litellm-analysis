@@ -1,33 +1,9 @@
-import type { RouteOptions } from "@lite-llm/server-core/types";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createMockDataSource } from "./helpers/create-mock-data-source";
+import { createTestServer } from "./helpers/create-test-server";
 
 const mockGetRouterSettings = vi.fn();
 const mockUpdateRouterSettings = vi.fn();
-
-async function getServer() {
-  const { createApiServer } = await import("../runtime/api-server");
-  const mockDs = createMockDataSource({
-    getAgentRoutingConfig: vi
-      .fn()
-      .mockImplementation(() => mockGetRouterSettings()),
-    updateAgentRoutingConfig: vi
-      .fn()
-      .mockImplementation((config: Record<string, string>) =>
-        mockUpdateRouterSettings(config),
-      ),
-  });
-  const orchestration = {
-    dataSource: mockDs,
-    buildAliasMap: vi.fn().mockResolvedValue({}),
-    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
-    syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
-    syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
-  };
-  const opts: RouteOptions = { dataSource: mockDs, orchestration };
-  return createApiServer(opts);
-}
 
 describe("GET /agent-routing", () => {
   beforeEach(() => {
@@ -44,7 +20,16 @@ describe("GET /agent-routing", () => {
     };
     mockGetRouterSettings.mockResolvedValue(mockConfig);
 
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app).get("/agent-routing");
 
     expect(res.status).toBe(200);
@@ -54,7 +39,16 @@ describe("GET /agent-routing", () => {
   it("returns 200 with empty object when not exists", async () => {
     mockGetRouterSettings.mockResolvedValue(null);
 
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app).get("/agent-routing");
 
     expect(res.status).toBe(200);
@@ -66,7 +60,16 @@ describe("GET /agent-routing", () => {
       new Error("Database connection failed"),
     );
 
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app).get("/agent-routing");
 
     expect(res.status).toBe(500);
@@ -88,7 +91,16 @@ describe("PUT /agent-routing", () => {
     mockGetRouterSettings.mockResolvedValue({});
     mockUpdateRouterSettings.mockResolvedValue(undefined);
 
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app)
       .put("/agent-routing")
       .send({ model_group_alias: mockConfig });
@@ -99,7 +111,16 @@ describe("PUT /agent-routing", () => {
   });
 
   it("returns 400 when model_group_alias is not an object", async () => {
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app)
       .put("/agent-routing")
       .send({ model_group_alias: "invalid-string" });
@@ -110,7 +131,16 @@ describe("PUT /agent-routing", () => {
   });
 
   it("returns 400 when model_group_alias is an array", async () => {
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app)
       .put("/agent-routing")
       .send({ model_group_alias: ["model1", "model2"] });
@@ -121,7 +151,16 @@ describe("PUT /agent-routing", () => {
   });
 
   it("returns 400 when model_group_alias is null", async () => {
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app)
       .put("/agent-routing")
       .send({ model_group_alias: null });
@@ -132,7 +171,16 @@ describe("PUT /agent-routing", () => {
   });
 
   it("returns 400 when model_group_alias is missing", async () => {
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app)
       .put("/agent-routing")
       .send({ otherField: "value" });
@@ -143,7 +191,16 @@ describe("PUT /agent-routing", () => {
   });
 
   it("returns 400 when model_group_alias has non-string values", async () => {
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app)
       .put("/agent-routing")
       .send({ model_group_alias: { "litellm/glm-5": 123 } });
@@ -158,7 +215,16 @@ describe("PUT /agent-routing", () => {
   it("returns 500 when database error occurs", async () => {
     mockUpdateRouterSettings.mockRejectedValue(new Error("Update failed"));
 
-    const app = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation(() => mockGetRouterSettings()),
+      updateAgentRoutingConfig: vi
+        .fn()
+        .mockImplementation((config: Record<string, string>) =>
+          mockUpdateRouterSettings(config),
+        ),
+    });
     const res = await request(app)
       .put("/agent-routing")
       .send({ model_group_alias: { "litellm/glm-5": "glm-5" } });

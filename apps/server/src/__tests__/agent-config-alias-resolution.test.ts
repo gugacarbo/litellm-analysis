@@ -1,6 +1,6 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createMockDataSource } from "./helpers/create-mock-data-source";
+import { createTestServer } from "./helpers/create-test-server";
 
 const mockUpdateAgentInConfig = vi.fn();
 const mockReadConfigFile = vi.fn();
@@ -24,30 +24,6 @@ vi.mock("@lite-llm/agents-manager", () => ({
   deleteAgentFromConfig: vi.fn(),
   deleteCategoryFromConfig: vi.fn(),
 }));
-
-async function getServer() {
-  const { createApiServer } = await import("../runtime/api-server");
-  const mockDs = createMockDataSource({
-    getAgentRoutingConfig: vi.fn().mockResolvedValue({
-      model_group_alias: {
-        "sisyphus/gpt-5.5": "openai/gpt-4.1",
-        "sisyphus/gpt-5.4": "anthropic/claude-3-7-sonnet",
-        "oracle/gpt-5.4": "openai/o3-mini",
-      },
-    }),
-  });
-  const orchestration = {
-    dataSource: mockDs,
-    buildAliasMap: vi.fn().mockResolvedValue({}),
-    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
-    syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
-    syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
-  };
-  return {
-    app: createApiServer({ dataSource: mockDs, orchestration }),
-    dataSource: mockDs,
-  };
-}
 
 describe("PUT /agent-config/:key alias resolution", () => {
   beforeEach(() => {
@@ -79,7 +55,15 @@ describe("PUT /agent-config/:key alias resolution", () => {
   });
 
   it("resolves logical gpt aliases to real LiteLLM models before persisting aliases", async () => {
-    const { app, dataSource } = await getServer();
+    const { app, dataSource } = await createTestServer({
+      getAgentRoutingConfig: vi.fn().mockResolvedValue({
+        model_group_alias: {
+          "sisyphus/gpt-5.5": "openai/gpt-4.1",
+          "sisyphus/gpt-5.4": "anthropic/claude-3-7-sonnet",
+          "oracle/gpt-5.4": "openai/o3-mini",
+        },
+      }),
+    });
 
     const res = await request(app)
       .put("/agent-config/sisyphus")

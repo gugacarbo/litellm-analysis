@@ -1,28 +1,13 @@
 import type { DbConfig } from "@lite-llm/agents-manager";
-import type { RouteOptions } from "@lite-llm/server-core/types";
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
-import { createMockDataSource } from "./helpers/create-mock-data-source";
+import { createTestServer } from "./helpers/create-test-server";
 
 const readDbMock = vi.fn();
 
 vi.mock("@lite-llm/agents-manager", () => ({
   readDb: () => readDbMock(),
 }));
-
-async function getServer() {
-  const { createApiServer } = await import("../runtime/api-server");
-  const mockDs = createMockDataSource();
-  const orchestration = {
-    dataSource: mockDs,
-    buildAliasMap: vi.fn().mockResolvedValue({}),
-    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
-    syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
-    syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
-  };
-  const opts: RouteOptions = { dataSource: mockDs, orchestration };
-  return createApiServer(opts);
-}
 
 function buildDbFixture(): DbConfig {
   return {
@@ -54,7 +39,7 @@ describe("GET /agent-definitions", () => {
   it("returns normalized definitions from db entries", async () => {
     readDbMock.mockResolvedValue(buildDbFixture());
 
-    const app = await getServer();
+    const { app } = await createTestServer();
     const res = await request(app).get("/agent-definitions");
 
     expect(res.status).toBe(200);
@@ -91,7 +76,7 @@ describe("GET /agent-definitions", () => {
   it("returns 500 when db read fails", async () => {
     readDbMock.mockRejectedValue(new Error("db read failed"));
 
-    const app = await getServer();
+    const { app } = await createTestServer();
     const res = await request(app).get("/agent-definitions");
 
     expect(res.status).toBe(500);

@@ -1,7 +1,6 @@
-import type { OrchestrationServices } from "@lite-llm/server-core/types";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createMockDataSource } from "./helpers/create-mock-data-source";
+import { createTestServer } from "./helpers/create-test-server";
 
 // Mocks must be hoisted
 const mockDeleteAgentFromConfig = vi.hoisted(() => vi.fn());
@@ -29,35 +28,6 @@ vi.mock("@lite-llm/agents-manager", async () => {
   };
 });
 
-function createMockOrchestration(
-  ds: ReturnType<typeof createMockDataSource>,
-): OrchestrationServices {
-  return {
-    dataSource: ds,
-    buildAliasMap: vi.fn().mockResolvedValue({}),
-    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
-    syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
-    syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
-  };
-}
-
-async function getServer() {
-  const { createApiServer } = await import("../runtime/api-server");
-  const mockDs = createMockDataSource({
-    getAgentRoutingConfig: vi.fn().mockResolvedValue({
-      model_group_alias: {
-        "sisyphus/gpt-5.5": "openai/gpt-4.1",
-      },
-    }),
-  });
-  const mockOrch = createMockOrchestration(mockDs);
-  return {
-    app: createApiServer({ dataSource: mockDs, orchestration: mockOrch }),
-    dataSource: mockDs,
-    orchestration: mockOrch,
-  };
-}
-
 describe("DELETE /agent-config/:key", () => {
   beforeEach(() => {
     mockDeleteAgentFromConfig.mockReset();
@@ -77,7 +47,13 @@ describe("DELETE /agent-config/:key", () => {
   });
 
   it("deletes agent and calls syncGeneratedArtifacts", async () => {
-    const { app, orchestration } = await getServer();
+    const { app, orchestration } = await createTestServer({
+      getAgentRoutingConfig: vi.fn().mockResolvedValue({
+        model_group_alias: {
+          "sisyphus/gpt-5.5": "openai/gpt-4.1",
+        },
+      }),
+    });
 
     const res = await request(app).delete("/agent-config/sisyphus");
 
@@ -89,7 +65,13 @@ describe("DELETE /agent-config/:key", () => {
   });
 
   it("deletes category and calls syncGeneratedArtifacts", async () => {
-    const { app, orchestration } = await getServer();
+    const { app, orchestration } = await createTestServer({
+      getAgentRoutingConfig: vi.fn().mockResolvedValue({
+        model_group_alias: {
+          "sisyphus/gpt-5.5": "openai/gpt-4.1",
+        },
+      }),
+    });
 
     const res = await request(app).delete(
       "/agent-config/visual-engineering?type=category",
@@ -104,7 +86,13 @@ describe("DELETE /agent-config/:key", () => {
   });
 
   it("rejects deleting global-fallback", async () => {
-    const { app } = await getServer();
+    const { app } = await createTestServer({
+      getAgentRoutingConfig: vi.fn().mockResolvedValue({
+        model_group_alias: {
+          "sisyphus/gpt-5.5": "openai/gpt-4.1",
+        },
+      }),
+    });
 
     const res = await request(app).delete("/agent-config/global-fallback");
 
