@@ -26,7 +26,8 @@ export class ErrorBoundary extends Component<Props, State> {
         <div style={{ padding: 40, textAlign: "center" }}>
           <h2>Something went wrong</h2>
           <p>{this.state.error?.message}</p>
-          <button type="button"
+          <button
+            type="button"
             onClick={() => this.setState({ hasError: false, error: null })}
           >
             Try Again

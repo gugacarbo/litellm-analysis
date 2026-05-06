@@ -18,14 +18,17 @@ export async function getSpendByModel(
   return fetchApi(withDays("/spend/model", days));
 }
 
-export async function getSpendLogs(params: {
-  model?: string;
-  user?: string;
-  startDate?: string;
-  endDate?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<{ logs: SpendLog[]; pagination: PaginationMetadata }> {
+export async function getSpendLogs(
+  params: {
+    model?: string;
+    user?: string;
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+    offset?: number;
+  },
+  options?: RequestInit,
+): Promise<{ logs: SpendLog[]; pagination: PaginationMetadata }> {
   const searchParams = new URLSearchParams();
   if (params.model) searchParams.set("model", params.model);
   if (params.user) searchParams.set("user", params.user);
@@ -34,7 +37,7 @@ export async function getSpendLogs(params: {
   if (params.limit) searchParams.set("limit", String(params.limit));
   if (params.offset) searchParams.set("offset", String(params.offset));
 
-  return fetchApi(`/spend/logs?${searchParams}`);
+  return fetchApi(`/spend/logs?${searchParams}`, options);
 }
 
 export async function getSpendLogsCount(params: {

@@ -1,6 +1,6 @@
 import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { getErrorLogs } from "../lib/api-client/analytics";
 import { queryKeys } from "../lib/query-keys";
 
@@ -11,10 +11,24 @@ type RefetchOptions = {
 };
 
 export function useErrors() {
+  const abortRef = useRef<AbortController | null>(null);
+
   const errorsQuery = useQuery({
     queryKey: queryKeys.errorLogs(DEFAULT_ERROR_LOGS_LIMIT),
-    queryFn: () => getErrorLogs(DEFAULT_ERROR_LOGS_LIMIT),
+    queryFn: () => {
+      const controller = new AbortController();
+      abortRef.current = controller;
+      return getErrorLogs(DEFAULT_ERROR_LOGS_LIMIT, undefined, {
+        signal: controller.signal,
+      });
+    },
   });
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const loading = errorsQuery.isPending && !errorsQuery.data;
 

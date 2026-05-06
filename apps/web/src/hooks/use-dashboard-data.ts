@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useAllDashboardQueries } from "./dashboard/dashboard-queries";
 import { computeInsights } from "./use-dashboard-data/insights";
 import type { RawMetrics } from "./use-dashboard-data/normalizers";
@@ -17,6 +17,15 @@ type DashboardDataOptions = {
 
 export function useDashboardData(options: DashboardDataOptions = {}) {
   const days = options.days ?? DEFAULT_DAYS;
+  const abortRef = useRef<AbortController>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    abortRef.current = controller;
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
   const {
     metricsQuery,

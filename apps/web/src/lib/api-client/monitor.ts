@@ -48,8 +48,10 @@ export async function getMonitorAlerts(params?: {
   return fetchApi(`/monitor/alerts${qs ? `?${qs}` : ""}`);
 }
 
-export async function getActiveAlerts(): Promise<{ alerts: MonitorAlert[] }> {
-  return fetchApi("/monitor/alerts/active");
+export async function getActiveAlerts(
+  options?: RequestInit,
+): Promise<{ alerts: MonitorAlert[] }> {
+  return fetchApi("/monitor/alerts/active", options);
 }
 
 export async function acknowledgeAlertById(

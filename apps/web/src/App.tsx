@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "./components/error-boundary";
 import { Sidebar } from "./components/layout/sidebar";
 import { FilterProvider } from "./contexts/filter-context";
 import { AgentRoutingPage } from "./pages/agent-routing";
@@ -19,16 +20,62 @@ function App() {
           <main className="flex-1 overflow-auto">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/logs" element={<LogsPage />} />
+              <Route
+                path="/logs"
+                element={
+                  <ErrorBoundary>
+                    <LogsPage />
+                  </ErrorBoundary>
+                }
+              />
               <Route
                 path="/model-stats/:modelName"
-                element={<ModelDetailPage />}
+                element={
+                  <ErrorBoundary>
+                    <ModelDetailPage />
+                  </ErrorBoundary>
+                }
               />
-              <Route path="/model-stats" element={<ModelStatsPage />} />
-              <Route path="/models" element={<ModelsPage />} />
-              <Route path="/aliases" element={<AliasesPage />} />
-              <Route path="/agent-routing" element={<AgentRoutingPage />} />
-              <Route path="/monitor" element={<MonitorPage />} />
+              <Route
+                path="/model-stats"
+                element={
+                  <ErrorBoundary>
+                    <ModelStatsPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/models"
+                element={
+                  <ErrorBoundary>
+                    <ModelsPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/aliases"
+                element={
+                  <ErrorBoundary>
+                    <AliasesPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/agent-routing"
+                element={
+                  <ErrorBoundary>
+                    <AgentRoutingPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/monitor"
+                element={
+                  <ErrorBoundary>
+                    <MonitorPage />
+                  </ErrorBoundary>
+                }
+              />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

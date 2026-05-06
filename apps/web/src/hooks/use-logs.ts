@@ -3,7 +3,7 @@ import type {
   SpendLog,
 } from "@lite-llm/api-contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getSpendLogs } from "../lib/api-client/spend";
 import { queryKeys } from "../lib/query-keys";
 
@@ -29,6 +29,7 @@ export function useLogs() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [filters, setFilters] = useState<LogFilters>({});
+  const abortRef = useRef<AbortController | null>(null);
 
   const logsQuery = useQuery({
     queryKey: queryKeys.spendLogs({
@@ -40,17 +41,28 @@ export function useLogs() {
       endDate: filters.endDate,
     }),
     queryFn: () => {
+      const controller = new AbortController();
+      abortRef.current = controller;
       const offset = (page - 1) * pageSize;
-      return getSpendLogs({
-        model: filters.model,
-        user: filters.user,
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-        limit: pageSize || undefined,
-        offset,
-      });
+      return getSpendLogs(
+        {
+          model: filters.model,
+          user: filters.user,
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+          limit: pageSize || undefined,
+          offset,
+        },
+        { signal: controller.signal },
+      );
     },
   });
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const loading = logsQuery.isPending && !logsQuery.data;
 

@@ -35,6 +35,8 @@ export function useMonitorWebSocket(): UseMonitorWebSocketResult {
     const client = new WsClient(getWsUrl());
     clientRef.current = client;
 
+    const abortController = new AbortController();
+
     client.onMessage((message: WsMessage) => {
       if (message.type === "alert") {
         const alert = message.data as MonitorAlert;
@@ -48,7 +50,7 @@ export function useMonitorWebSocket(): UseMonitorWebSocketResult {
     client.connect();
 
     // Fetch initial active alerts
-    getActiveAlerts()
+    getActiveAlerts({ signal: abortController.signal })
       .then((res) => {
         if (res.alerts && res.alerts.length > 0) {
           setLastAlerts(res.alerts.slice(0, MAX_BUFFERED_ALERTS));
@@ -57,6 +59,7 @@ export function useMonitorWebSocket(): UseMonitorWebSocketResult {
       .catch(() => {});
 
     return () => {
+      abortController.abort();
       client.destroy();
     };
   }, []);

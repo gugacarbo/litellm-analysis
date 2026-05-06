@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   getCostEfficiencyByModel,
   getModelCacheHitRate,
@@ -33,6 +33,16 @@ const DEFAULT_DAYS = 30;
 const AUTO_REFRESH_MS = 30_000;
 
 export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
+  const abortRef = useRef<AbortController>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    abortRef.current = controller;
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   const modelStatsQuery = useQuery({
     queryKey: queryKeys.modelStatistics(days),
     queryFn: () => getModelStatistics(days),

@@ -1,4 +1,3 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BarChart3 } from "lucide-react";
 import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
 import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
@@ -12,101 +11,23 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { PageLayout } from "../components/ui/page-layout";
 import { Toaster } from "../components/ui/sonner";
-import { getModelStatistics } from "../lib/api-client/analytics";
-import { queryKeys } from "../lib/query-keys";
-import { useModelStatsDialogHandlers } from "./model-stats/dialog-handlers";
-import { useModelStatsDialogState } from "./model-stats/dialog-state";
 import { MODEL_STATS_COLUMNS } from "./model-stats/model-stats-types";
-import { useModelStatsMutations } from "./model-stats/mutations";
+import { useModelStatsPageState } from "./model-stats/use-model-stats-page";
 
 export function ModelStatsPage() {
-  const queryClient = useQueryClient();
-  const state = useModelStatsDialogState();
-  const mutations = useModelStatsMutations();
-  const {
-    handleSort,
-    toggleColumn,
-    openDeleteDialog,
-    handleDelete,
-    handleMerge,
-    confirmMerge,
-  } = useModelStatsDialogHandlers(queryClient, state, mutations);
-
-  const modelStatsQuery = useQuery({
-    queryKey: queryKeys.modelStatistics(state.rangeDays),
-    queryFn: () => getModelStatistics(state.rangeDays),
-    refetchInterval: 30_000,
-  });
-
-  const data = modelStatsQuery.data ?? [];
-  const loading = modelStatsQuery.isPending && !modelStatsQuery.data;
-  const error =
-    modelStatsQuery.error instanceof Error
-      ? modelStatsQuery.error.message
-      : null;
-
-  const filteredData = data.filter((m) => {
-    const modelName = m.model ?? "";
-    return modelName.toLowerCase().includes(state.searchQuery.toLowerCase());
-  });
-
-  const sortedData = [...filteredData].sort((a, b) => {
-    const aVal = a[state.sortField];
-    const bVal = b[state.sortField];
-
-    if (typeof aVal === "string" && typeof bVal === "string") {
-      return state.sortDirection === "asc"
-        ? aVal.localeCompare(bVal)
-        : bVal.localeCompare(aVal);
-    }
-
-    return state.sortDirection === "asc"
-      ? Number(aVal) - Number(bVal)
-      : Number(bVal) - Number(aVal);
-  });
-
-  const totalSpend = data.reduce((sum, m) => sum + Number(m.total_spend), 0);
-  const totalRequests = data.reduce(
-    (sum, m) => sum + Number(m.request_count),
-    0,
-  );
-  const totalTokens = data.reduce((sum, m) => sum + Number(m.total_tokens), 0);
-  const avgSuccessRate =
-    totalRequests > 0
-      ? data.reduce(
-          (sum, m) => sum + Number(m.success_rate) * Number(m.request_count),
-          0,
-        ) / totalRequests
-      : 0;
+  const state = useModelStatsPageState();
 
   const maxTokensPerSecond = Math.max(
-    ...data.map((m) => Number(m.max_tokens_per_second || 0)),
+    ...state.data.map((m) => Number(m.max_tokens_per_second || 0)),
     0,
   );
 
-  const totalErrors = data.reduce(
-    (sum, m) => sum + Number(m.error_count || 0),
-    0,
-  );
-
-  const avgLatency =
-    totalRequests > 0
-      ? data.reduce(
-          (sum, m) =>
-            sum + Number(m.avg_latency_ms || 0) * Number(m.request_count),
-          0,
-        ) / totalRequests
-      : 0;
-
-  const avgCostPerRequest = totalRequests > 0 ? totalSpend / totalRequests : 0;
-  const uniqueModels = data.length;
-
-  if (error) {
+  if (state.error) {
     return (
       <div className="p-6">
         <Card>
           <CardContent className="p-6">
-            <p className="text-red-500">Error: {error}</p>
+            <p className="text-red-500">Error: {state.error}</p>
           </CardContent>
         </Card>
       </div>
@@ -123,7 +44,7 @@ export function ModelStatsPage() {
           columns={MODEL_STATS_COLUMNS}
           visibleColumns={state.visibleColumns}
           searchQuery={state.searchQuery}
-          onToggleColumn={toggleColumn}
+          onToggleColumn={state.toggleColumn}
           onSearchChange={state.setSearchQuery}
           selectedDateRange={state.selectedDateRange}
           setSelectedDateRange={state.setSelectedDateRange}
@@ -146,7 +67,7 @@ export function ModelStatsPage() {
         deleting={state.deleting}
         onOpenChange={state.setDeleteDialogOpen}
         onCancel={() => state.setDeleting(null)}
-        onConfirm={handleDelete}
+        onConfirm={state.handleDelete}
       />
 
       <MergeModelLogsDialog
@@ -154,77 +75,66 @@ export function ModelStatsPage() {
         sourceModel={state.sourceModel}
         targetModel={state.targetModel}
         sourceModelCount={
-          data.find((m) => m.model === state.sourceModel)?.request_count || 0
+          state.data.find((m) => m.model === state.sourceModel)
+            ?.request_count || 0
         }
         onOpenChange={state.setMergeDialogOpen}
-        onConfirm={confirmMerge}
+        onConfirm={state.confirmMerge}
       />
 
       {state.mergeMode && (
         <ModelStatsMergePanel
-          data={data}
+          data={state.data}
           sourceModel={state.sourceModel}
           targetModel={state.targetModel}
           merging={state.merging}
           onSourceModelChange={state.setSourceModel}
           onTargetModelChange={state.setTargetModel}
-          onMerge={handleMerge}
+          onMerge={state.handleMerge}
         />
       )}
 
       <div className="mt-6">
         <ModelStatsSummaryCards
-          loading={loading}
-          rangeLabel={
-            state.rangeDays === 1
-              ? "today"
-              : state.rangeDays === 7
-                ? "7 days"
-                : `${state.rangeDays} days`
-          }
-          totalSpend={totalSpend}
-          totalRequests={totalRequests}
-          totalTokens={totalTokens}
-          avgSuccessRate={avgSuccessRate}
-          totalErrors={totalErrors}
-          avgLatency={avgLatency}
-          avgCostPerRequest={avgCostPerRequest}
-          uniqueModels={uniqueModels}
+          loading={state.loading}
+          rangeLabel={state.rangeLabel}
+          totalSpend={state.totalSpend}
+          totalRequests={state.totalRequests}
+          totalTokens={state.totalTokens}
+          avgSuccessRate={state.avgSuccessRate}
+          totalErrors={state.totalErrors}
+          avgLatency={state.avgLatency}
+          avgCostPerRequest={state.avgCostPerRequest}
+          uniqueModels={state.uniqueModels}
           maxTokensPerSecond={maxTokensPerSecond}
         />
       </div>
 
       <div className="mt-6">
         <ModelStatsDataTable
-          loading={loading}
-          data={sortedData}
+          loading={state.loading}
+          data={state.sortedData}
           columns={MODEL_STATS_COLUMNS}
           visibleColumns={state.visibleColumns}
           sortField={state.sortField}
           sortDirection={state.sortDirection}
-          totalSpend={totalSpend}
+          totalSpend={state.totalSpend}
           deleting={state.deleting}
-          onSort={handleSort}
-          onDeleteClick={openDeleteDialog}
+          onSort={state.handleSort}
+          onDeleteClick={state.openDeleteDialog}
         />
       </div>
 
       <div className="mt-6">
         <ModelStatsTopTables
-          data={data}
-          loading={loading}
-          rangeLabel={
-            state.rangeDays === 1
-              ? "today"
-              : state.rangeDays === 7
-                ? "7 days"
-                : `${state.rangeDays} days`
-          }
+          data={state.data}
+          loading={state.loading}
+          rangeLabel={state.rangeLabel}
         />
       </div>
 
       <div className="mt-6">
-        <ModelStatsMiniCharts data={data} loading={loading} />
+        <ModelStatsMiniCharts data={state.data} loading={state.loading} />
       </div>
     </PageLayout>
   );

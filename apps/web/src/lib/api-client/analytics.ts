@@ -45,6 +45,7 @@ export async function getModelDetails(): Promise<
 export async function getErrorLogs(
   limit = 50,
   days?: number,
+  options?: RequestInit,
 ): Promise<
   {
     id: string;
@@ -60,7 +61,7 @@ export async function getErrorLogs(
     request_kwargs: Record<string, unknown> | null;
   }[]
 > {
-  return fetchApi(withDays(`/errors?limit=${limit}`, days));
+  return fetchApi(withDays(`/errors?limit=${limit}`, days), options);
 }
 
 export async function getMetricsSummary(days?: number): Promise<{
