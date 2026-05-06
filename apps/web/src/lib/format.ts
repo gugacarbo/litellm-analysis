@@ -11,19 +11,47 @@ export function formatNumber(value: number): string {
 
 export function formatCurrency(value: number): string {
   if (!Number.isFinite(value)) return "$0.00";
+  if (value > 0 && value < 0.01) {
+    return new Intl.NumberFormat(APP_LOCALE, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4,
+    }).format(value);
+  }
   return new Intl.NumberFormat(APP_LOCALE, {
     style: "currency",
     currency: "USD",
   }).format(value);
 }
 
-export function formatDuration(ms: number): string {
+export function formatCompactNumber(value: number): string {
+  if (!Number.isFinite(value)) return "0";
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+  return value.toFixed(0);
+}
+
+export function formatCostPer1k(value: number): string {
+  if (!Number.isFinite(value)) return "-";
+  if (value < 0.01) return `$${value.toFixed(4)}`;
+  if (value < 1) return `$${value.toFixed(3)}`;
+  return `$${value.toFixed(2)}`;
+}
+
+export function formatDuration(
+  ms: number | null | undefined,
+): string {
+  if (ms === null || ms === undefined) return "N/A";
   if (!Number.isFinite(ms)) return "0ms";
   if (ms < 1000) return `${Math.round(ms)}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
-export function formatPercent(value: number): string {
+export function formatPercent(
+  value: number | null | undefined,
+): string {
+  if (value === null || value === undefined) return "N/A";
   if (!Number.isFinite(value)) return "0%";
   return `${value.toFixed(1)}%`;
 }

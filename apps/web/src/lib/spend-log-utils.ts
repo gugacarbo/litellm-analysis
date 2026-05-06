@@ -1,27 +1,18 @@
 import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat(APP_LOCALE, {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 4,
-  }).format(value);
-}
-
-export function formatNumber(value: number): string {
-  return new Intl.NumberFormat(APP_LOCALE).format(value);
-}
-
-export function formatDateTime(date: string | Date): string {
-  return new Date(date).toLocaleString(APP_LOCALE, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: APP_TIMEZONE,
-  });
-}
+// Re-export common formatters from the canonical source
+export {
+  formatCurrency,
+  formatNumber,
+  formatDuration,
+  formatPercent,
+  formatCompactNumber,
+  formatCostPer1k,
+  safeDivide,
+  normalizePercent,
+  formatDate,
+  formatDateTime,
+} from "@/lib/format";
 
 export function formatTime(date: string | Date): string {
   return new Date(date).toLocaleString(APP_LOCALE, {
@@ -73,11 +64,6 @@ export function formatFullDateTime(date: string | Date): string {
     second: "2-digit",
     timeZone: APP_TIMEZONE,
   });
-}
-
-export function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`;
-  return `${(ms / 1000).toFixed(2)}s`;
 }
 
 export function calculateTokensPerSecond(

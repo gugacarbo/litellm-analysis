@@ -1,20 +1,17 @@
 import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
+import {
+  formatCurrency,
+  formatNumber,
+  formatPercent,
+  safeDivide,
+} from "@/lib/format";
 import type {
   DashboardDateRangeKey,
   DashboardDateRangeOption,
   DateRangeGroup,
 } from "./dashboard-types";
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat(APP_LOCALE, {
-    style: "currency",
-    currency: "USD",
-  }).format(value);
-}
-
-export function formatNumber(value: number): string {
-  return new Intl.NumberFormat(APP_LOCALE).format(value);
-}
+export { formatCurrency, formatNumber, formatPercent, safeDivide };
 
 export function formatDate(date: string | Date): string {
   return new Date(date).toLocaleDateString(APP_LOCALE, {
@@ -27,24 +24,6 @@ export function formatDate(date: string | Date): string {
 export function formatDuration(ms: number): string {
   if (ms < 1000) return `${Math.round(ms)}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
-}
-
-export function formatPercent(value: number): string {
-  return `${value.toFixed(1)}%`;
-}
-
-export function safeDivide(
-  numerator: number,
-  denominator: number,
-  fallback = 0,
-): number {
-  if (!Number.isFinite(numerator) || !Number.isFinite(denominator)) {
-    return fallback;
-  }
-  if (denominator <= 0) {
-    return fallback;
-  }
-  return numerator / denominator;
 }
 
 export function normalizePercent(value: number): number {

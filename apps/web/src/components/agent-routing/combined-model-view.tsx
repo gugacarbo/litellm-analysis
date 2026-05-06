@@ -2,6 +2,7 @@ import type {
   AgentDefinition,
   CategoryDefinition,
 } from "@lite-llm/api-contracts/agent-routing";
+import { formatCompactNumber, formatCurrency } from "@/lib/format";
 import { Layers } from "lucide-react";
 import type { ModelStatistics } from "../../lib/api-client/analytics";
 import { cn } from "../../lib/utils";
@@ -260,27 +261,4 @@ function AggregateStat({
       </div>
     </div>
   );
-}
-
-function formatCompactNumber(num: number): string {
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`;
-  }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}K`;
-  }
-  return num.toString();
-}
-
-function formatCurrency(amount: number): string {
-  if (amount >= 1_000) {
-    return `$${(amount / 1_000).toFixed(1)}K`;
-  }
-  if (amount >= 1) {
-    return `$${amount.toFixed(2)}`;
-  }
-  if (amount >= 0.01) {
-    return `$${amount.toFixed(4)}`;
-  }
-  return `$${amount.toExponential(2)}`;
 }

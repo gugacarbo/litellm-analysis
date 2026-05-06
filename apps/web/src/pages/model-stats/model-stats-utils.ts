@@ -1,15 +1,19 @@
 import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
+import {
+  formatCurrency,
+  formatCompactNumber,
+  formatNumber,
+  formatCostPer1k,
+  safeDivide,
+} from "@/lib/format";
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat(APP_LOCALE, {
-    style: "currency",
-    currency: "USD",
-  }).format(value);
-}
-
-export function formatNumber(value: number): string {
-  return new Intl.NumberFormat(APP_LOCALE).format(value);
-}
+export {
+  formatCurrency,
+  formatCompactNumber,
+  formatNumber,
+  formatCostPer1k,
+  safeDivide,
+};
 
 export function formatDuration(ms: number): string {
   if (!ms || Number.isNaN(ms)) return "-";
@@ -35,24 +39,6 @@ export function formatDate(dateStr: string | null): string {
     year: "numeric",
     timeZone: APP_TIMEZONE,
   });
-}
-
-export function formatCostPer1k(value: number): string {
-  if (!value || Number.isNaN(value)) return "-";
-  if (value < 0.01) return `$${value.toFixed(4)}`;
-  if (value < 1) return `$${value.toFixed(3)}`;
-  return `$${value.toFixed(2)}`;
-}
-
-export function formatCompactNumber(value: number): string {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
-  return value.toFixed(0);
-}
-
-export function safeDivide(a: number, b: number, fallback = 0): number {
-  if (!b || Number.isNaN(b)) return fallback;
-  return a / b;
 }
 
 export function getHealthColor(successRate: number): string {

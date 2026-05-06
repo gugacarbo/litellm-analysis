@@ -1,6 +1,20 @@
 // Shared utilities for model station cards
 // Color utilities for consistent model visualization
 
+import {
+  formatCompactNumber,
+  formatCurrency,
+  formatDuration,
+  formatPercent,
+} from "@/lib/format";
+
+export {
+  formatCompactNumber,
+  formatCurrency,
+  formatDuration,
+  formatPercent,
+};
+
 export const MODEL_COLORS = [
   {
     bg: "bg-emerald-500/10",
@@ -100,42 +114,6 @@ export function getHealthLevel(
   if (successRate >= 95) return "good";
   if (successRate >= 80 || errorCount > 0) return "warning";
   return "error";
-}
-
-export function formatCompactNumber(num: number): string {
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`;
-  }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}K`;
-  }
-  return num.toString();
-}
-
-export function formatCurrency(amount: number): string {
-  if (amount >= 1_000) {
-    return `$${(amount / 1_000).toFixed(1)}K`;
-  }
-  if (amount >= 1) {
-    return `$${amount.toFixed(2)}`;
-  }
-  if (amount >= 0.01) {
-    return `$${amount.toFixed(4)}`;
-  }
-  return `$${amount.toExponential(2)}`;
-}
-
-export function formatDuration(ms: number | null): string {
-  if (ms === null) return "N/A";
-  if (ms >= 1000) {
-    return `${(ms / 1000).toFixed(1)}s`;
-  }
-  return `${Math.round(ms)}ms`;
-}
-
-export function formatPercent(value: number | null): string {
-  if (value === null) return "N/A";
-  return `${value.toFixed(1)}%`;
 }
 
 export function getHealthColor(successRate: number | null): string {
