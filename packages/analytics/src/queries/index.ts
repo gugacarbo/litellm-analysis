@@ -3,6 +3,7 @@ export {
   getMetricsSummary,
   getPerformanceMetrics,
 } from "./analytics-queries";
+export { closePool, ensureConnected } from "./client";
 export {
   getDefaultCredential,
   setDefaultCredential,
@@ -26,7 +27,6 @@ export {
   getDailyTokenTrendByModel,
   getErrorBreakdownByModel,
   getHourlyUsageByModel,
-  getModelByName,
   getModelCacheHitRateByModel,
   getModelDetails,
   getModelProviderBreakdownByModel,
@@ -36,7 +36,6 @@ export {
   getTopApiKeysByModel,
   getTopUsersByModel,
   mergeModels,
-  modelMerges,
   updateModel,
 } from "./model-queries";
 export {

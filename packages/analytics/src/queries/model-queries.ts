@@ -98,18 +98,6 @@ export async function getAllModels() {
   return result;
 }
 
-export async function getModelByName(modelName: string) {
-  const result = await db
-    .select({
-      modelName: proxyModelTable.modelName,
-      litellmParams: proxyModelTable.litellmParams,
-    })
-    .from(proxyModelTable)
-    .where(eq(proxyModelTable.modelName, modelName))
-    .limit(1);
-  return result[0] || null;
-}
-
 export async function createModel(model: {
   modelName: string;
   litellmParams: Record<string, unknown>;
@@ -152,30 +140,34 @@ export async function updateModel(
 }
 
 export async function deleteModel(modelName: string) {
-  await db
-    .delete(proxyModelTable)
-    .where(eq(proxyModelTable.modelName, modelName));
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(proxyModelTable)
+      .where(eq(proxyModelTable.modelName, modelName));
+  });
 }
 
 export async function mergeModels(sourceModel: string, targetModel: string) {
-  await db
-    .update(spendLogs)
-    .set({ model: targetModel })
-    .where(eq(spendLogs.model, sourceModel));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(spendLogs)
+      .set({ model: targetModel })
+      .where(eq(spendLogs.model, sourceModel));
+  });
 }
 
 export async function deleteModelLogs(modelName: string) {
-  if (modelName.trim() === "") {
-    await db
-      .delete(spendLogs)
-      .where(sql`NULLIF(BTRIM(${spendLogs.model}), '') IS NULL`);
-    return;
-  }
+  await db.transaction(async (tx) => {
+    if (modelName.trim() === "") {
+      await tx
+        .delete(spendLogs)
+        .where(sql`NULLIF(BTRIM(${spendLogs.model}), '') IS NULL`);
+      return;
+    }
 
-  await db.delete(spendLogs).where(eq(spendLogs.model, modelName));
+    await tx.delete(spendLogs).where(eq(spendLogs.model, modelName));
+  });
 }
-
-export const modelMerges: Record<string, string> = {};
 
 export async function getDailySpendTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
