@@ -122,20 +122,6 @@ export function registerModelRoutes(
       res.status(500).json({ error: String(error) });
     }
   };
-
-  app.delete("/models/logs", async (req, res) => {
-    const { model } = req.query;
-    if (Array.isArray(model)) {
-      res.status(400).json({ error: "model must be a single query value" });
-      return;
-    }
-    if (typeof model !== "string") {
-      res.status(400).json({ error: "model query parameter is required" });
-      return;
-    }
-    await handleDeleteModelLogs(model, res);
-  });
-
   app.delete("/models/logs/:model", async (req, res) => {
     await handleDeleteModelLogs(req.params.model, res);
   });

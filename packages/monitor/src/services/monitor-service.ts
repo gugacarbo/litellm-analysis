@@ -18,6 +18,7 @@ export class MonitorService {
   private timer: ReturnType<typeof setInterval> | null = null;
   private lastPollTimestamp: Date;
   private running = false;
+  private dataSourceAvailable = true;
 
   constructor(options: MonitorServiceOptions) {
     this.options = options;
@@ -46,6 +47,10 @@ export class MonitorService {
     return this.running;
   }
 
+  isDataSourceAvailable(): boolean {
+    return this.dataSourceAvailable;
+  }
+
   on<K extends keyof MonitorServiceEvents>(
     event: K,
     listener: MonitorServiceEvents[K],
@@ -59,6 +64,8 @@ export class MonitorService {
       const now = new Date();
       const since = this.lastPollTimestamp;
 
+      this.dataSourceAvailable = true;
+
       // Collect data from analytics
       const [
         recentErrors,
@@ -66,24 +73,57 @@ export class MonitorService {
         nonSuccessCountsByModel,
         stuckRequests,
       ] = await Promise.all([
-        analyticsDataSource
-          .getErrorsSince(since)
-          .catch(() => [] as ErrorLogEntry[]),
+        analyticsDataSource.getErrorsSince(since).catch((err: unknown) => {
+          console.error(
+            "[MonitorService] Failed to fetch errors since",
+            since,
+            err,
+          );
+          this.dataSourceAvailable = false;
+          return [] as ErrorLogEntry[];
+        }),
         analyticsDataSource
           .getErrorCountByModelSince(since)
-          .catch(() => [] as { model: string; error_count: number }[]),
+          .catch((err: unknown) => {
+            console.error(
+              "[MonitorService] Failed to fetch error counts by model since",
+              since,
+              err,
+            );
+            this.dataSourceAvailable = false;
+            return [] as { model: string; error_count: number }[];
+          }),
         analyticsDataSource
           .getNonSuccessCountByModelSince(since)
-          .catch(() => [] as { model: string; non_success_count: number }[]),
-        analyticsDataSource.getStuckRequests(since).catch(
-          () =>
-            [] as {
-              request_id: string;
-              model: string | null;
-              startTime: string | null;
-            }[],
-        ),
+          .catch((err: unknown) => {
+            console.error(
+              "[MonitorService] Failed to fetch non-success counts by model since",
+              since,
+              err,
+            );
+            this.dataSourceAvailable = false;
+            return [] as { model: string; non_success_count: number }[];
+          }),
+        analyticsDataSource.getStuckRequests(since).catch((err: unknown) => {
+          console.error(
+            "[MonitorService] Failed to fetch stuck requests since",
+            since,
+            err,
+          );
+          this.dataSourceAvailable = false;
+          return [] as {
+            request_id: string;
+            model: string | null;
+            startTime: string | null;
+          }[];
+        }),
       ]);
+
+      if (!this.dataSourceAvailable) {
+        console.warn(
+          "[MonitorService] Analytics data source unavailable — some data may be incomplete",
+        );
+      }
 
       // Build model health map
       const modelHealthMap = new Map<string, ModelHealthStats>();
@@ -100,7 +140,15 @@ export class MonitorService {
       for (const model of models) {
         const health = await analyticsDataSource
           .getModelHealthSince(model, new Date(now.getTime() - 3600000), 24)
-          .catch(() => null as ModelHealth | null);
+          .catch((err: unknown) => {
+            console.error(
+              "[MonitorService] Failed to fetch health for model",
+              model,
+              err,
+            );
+            this.dataSourceAvailable = false;
+            return null as ModelHealth | null;
+          });
         if (health) {
           modelHealthMap.set(model, {
             total_requests: health.total_requests,

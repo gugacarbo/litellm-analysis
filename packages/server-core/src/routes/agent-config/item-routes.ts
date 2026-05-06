@@ -1,3 +1,14 @@
+import {
+  deleteAgentFromConfig,
+  deleteCategoryFromConfig,
+  readConfigFile,
+  updateAgentInConfig,
+  updateCategoryInConfig,
+} from "@lite-llm/agents-manager";
+import {
+  getExistingAliasesForAgent,
+  resolveConfiguredModels,
+} from "@lite-llm/alias-router";
 import type { Application } from "express";
 import {
   buildAliasMapFromDb,
@@ -17,7 +28,6 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
         });
         return;
       }
-      const { readConfigFile } = await import("@lite-llm/agents-manager");
       const config = await readConfigFile();
       const isAgent = key in (config.agents || {});
       const isCategory = key in (config.categories || {});
@@ -66,9 +76,6 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
 
       const existingAliases = await buildAliasMapFromDb();
 
-      const { resolveConfiguredModels } = await import(
-        "@lite-llm/alias-router"
-      );
       const { actualModel, actualFallbacks } = resolveConfiguredModels(
         key,
         String(rawConfig.model || ""),
@@ -81,10 +88,6 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
         model: actualModel,
         fallback_models: actualFallbacks,
       };
-
-      const { updateAgentInConfig, updateCategoryInConfig } = await import(
-        "@lite-llm/agents-manager"
-      );
 
       if (type === "agent") {
         await updateAgentInConfig(key, configToSave);
@@ -113,10 +116,6 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
       }
       const { type } = req.query;
 
-      const { deleteAgentFromConfig, deleteCategoryFromConfig } = await import(
-        "@lite-llm/agents-manager"
-      );
-
       if (type === "category") {
         await deleteCategoryFromConfig(key);
       } else {
@@ -124,9 +123,6 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
       }
       await orchestration.syncGeneratedArtifacts();
 
-      const { getExistingAliasesForAgent } = await import(
-        "@lite-llm/alias-router"
-      );
       const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
       const existingRouting = await getAgentRoutingConfig();
       const existingAliases = existingRouting?.model_group_alias
