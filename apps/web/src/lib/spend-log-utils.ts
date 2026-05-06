@@ -2,16 +2,16 @@ import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
 // Re-export common formatters from the canonical source
 export {
-  formatCurrency,
-  formatNumber,
-  formatDuration,
-  formatPercent,
   formatCompactNumber,
   formatCostPer1k,
-  safeDivide,
-  normalizePercent,
+  formatCurrency,
   formatDate,
   formatDateTime,
+  formatDuration,
+  formatNumber,
+  formatPercent,
+  normalizePercent,
+  safeDivide,
 } from "@/lib/format";
 
 export function formatTime(date: string | Date): string {

@@ -153,8 +153,8 @@ export class HealthCheckService {
         responsePayload: streamResult.responsePayload,
         errorMessage: response.ok
           ? null
-          : streamResult.responseErrorMessage ??
-            `HTTP ${statusCode}: ${response.statusText}`,
+          : (streamResult.responseErrorMessage ??
+            `HTTP ${statusCode}: ${response.statusText}`),
         source,
         checkedAt: Math.floor(startTime / 1000),
       };
@@ -250,7 +250,9 @@ export class HealthCheckService {
       signal: AbortSignal.timeout(timeoutMs),
     });
 
-    if (!(await this.shouldRetryWithoutReasoningEffort(withReasoningDisabled))) {
+    if (
+      !(await this.shouldRetryWithoutReasoningEffort(withReasoningDisabled))
+    ) {
       return {
         response: withReasoningDisabled,
         requestPayload: JSON.stringify({ attempts }),
@@ -293,7 +295,9 @@ export class HealthCheckService {
     };
   }
 
-  private redactHeaders(headers: Record<string, string>): Record<string, string> {
+  private redactHeaders(
+    headers: Record<string, string>,
+  ): Record<string, string> {
     return Object.fromEntries(
       Object.entries(headers).map(([key, value]) => {
         if (key.toLowerCase() === "authorization") {
@@ -471,10 +475,11 @@ export class HealthCheckService {
     const reasoning = reasoningParts.join("").trim();
 
     return {
-      responseText: (content || reasoning || responseErrorMessage)?.slice(
-        0,
-        MAX_CAPTURED_RESPONSE_CHARS,
-      ) ?? null,
+      responseText:
+        (content || reasoning || responseErrorMessage)?.slice(
+          0,
+          MAX_CAPTURED_RESPONSE_CHARS,
+        ) ?? null,
       ttftMs: firstTokenAt ? firstTokenAt - startTime : null,
       completionTokens,
       responseErrorMessage,

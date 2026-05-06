@@ -138,7 +138,7 @@
   },
   "agents": {
     "sisyphus": {
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "qwen3-coder-plus",
         "deepseek-v4-pro",

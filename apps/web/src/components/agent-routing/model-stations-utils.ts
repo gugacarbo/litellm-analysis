@@ -8,12 +8,7 @@ import {
   formatPercent,
 } from "@/lib/format";
 
-export {
-  formatCompactNumber,
-  formatCurrency,
-  formatDuration,
-  formatPercent,
-};
+export { formatCompactNumber, formatCurrency, formatDuration, formatPercent };
 
 export const MODEL_COLORS = [
   {

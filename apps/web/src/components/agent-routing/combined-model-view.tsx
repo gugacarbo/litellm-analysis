@@ -2,8 +2,8 @@ import type {
   AgentDefinition,
   CategoryDefinition,
 } from "@lite-llm/api-contracts/agent-routing";
-import { formatCompactNumber, formatCurrency } from "@/lib/format";
 import { Layers } from "lucide-react";
+import { formatCompactNumber, formatCurrency } from "@/lib/format";
 import type { ModelStatistics } from "../../lib/api-client/analytics";
 import { cn } from "../../lib/utils";
 import { Badge } from "../ui/badge";

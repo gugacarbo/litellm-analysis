@@ -1,10 +1,10 @@
-import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import {
   formatCurrency,
   formatNumber,
   formatPercent,
   safeDivide,
 } from "@/lib/format";
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 import type {
   DashboardDateRangeKey,
   DashboardDateRangeOption,

@@ -39,18 +39,14 @@ export function formatCostPer1k(value: number): string {
   return `$${value.toFixed(2)}`;
 }
 
-export function formatDuration(
-  ms: number | null | undefined,
-): string {
+export function formatDuration(ms: number | null | undefined): string {
   if (ms === null || ms === undefined) return "N/A";
   if (!Number.isFinite(ms)) return "0ms";
   if (ms < 1000) return `${Math.round(ms)}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
-export function formatPercent(
-  value: number | null | undefined,
-): string {
+export function formatPercent(value: number | null | undefined): string {
   if (value === null || value === undefined) return "N/A";
   if (!Number.isFinite(value)) return "0%";
   return `${value.toFixed(1)}%`;

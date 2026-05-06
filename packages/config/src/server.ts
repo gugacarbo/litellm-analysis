@@ -20,9 +20,7 @@ export const serverSchema = {
   HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
   HEALTH_CHECK_PROMPT: z
     .string()
-    .default(
-      "Respond with ONLY your model name. Example: gpt-5.3-codex",
-    ),
+    .default("Respond with ONLY your model name. Example: gpt-5.3-codex"),
 };
 
 export const serverEnv = createEnv({

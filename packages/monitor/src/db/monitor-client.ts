@@ -35,7 +35,9 @@ function ensureHealthCheckColumns(sqlite: InstanceType<typeof Database>): void {
     );
   }
   if (!columnNames.has("output_tokens")) {
-    sqlite.exec("ALTER TABLE model_health_checks ADD COLUMN output_tokens INTEGER");
+    sqlite.exec(
+      "ALTER TABLE model_health_checks ADD COLUMN output_tokens INTEGER",
+    );
   }
   if (!columnNames.has("request_payload")) {
     sqlite.exec(

@@ -1,9 +1,5 @@
+import { formatCurrency, formatNumber, formatPercent } from "@/lib/format";
 import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
-import {
-  formatCurrency,
-  formatNumber,
-  formatPercent,
-} from "@/lib/format";
 
 export { formatCurrency, formatNumber, formatPercent };
 

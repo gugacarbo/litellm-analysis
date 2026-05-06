@@ -31,8 +31,8 @@ import type { HealthCheckResultEntry } from "./health-status/health-status-types
 import {
   formatRelativeTime,
   formatResponseTime,
-  formatTokensPerSecond,
   formatTimestamp,
+  formatTokensPerSecond,
   STATUS_COLORS,
   STATUS_LABELS,
 } from "./health-status/health-status-utils";
@@ -131,7 +131,9 @@ function StatusDetailsDialog({
           </div>
           {selected.checkedAt ? (
             <div className="mt-0.5 space-y-0.5">
-              <div className="text-xs">{formatTimestamp(selected.checkedAt)}</div>
+              <div className="text-xs">
+                {formatTimestamp(selected.checkedAt)}
+              </div>
               <div className="text-[11px] text-muted-foreground">
                 {formatRelativeTime(selected.checkedAt)}
               </div>
@@ -190,14 +192,18 @@ function StatusDetailsDialog({
         </div>
 
         <div className="rounded-md border bg-muted/20 p-3">
-          <div className="mb-1 text-xs text-muted-foreground">Response received</div>
+          <div className="mb-1 text-xs text-muted-foreground">
+            Response received
+          </div>
           <pre className="max-h-52 overflow-auto whitespace-pre-wrap break-words rounded bg-muted/50 p-2 font-mono text-xs">
             {formatPayload(selected.responseReceived)}
           </pre>
         </div>
 
         <div className="rounded-md border bg-muted/20 p-3">
-          <div className="mb-1 text-xs text-muted-foreground">Request payload</div>
+          <div className="mb-1 text-xs text-muted-foreground">
+            Request payload
+          </div>
           <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded bg-muted/50 p-2 font-mono text-xs">
             {formatPayload(selected.requestPayload)}
           </pre>
@@ -231,8 +237,9 @@ export function HealthStatusContent({
 }: HealthStatusContentProps) {
   const { state, actions, derived } = useHealthStatusPage();
   const [activeTab, setActiveTab] = useState<"models" | "history">("models");
-  const [selectedStatus, setSelectedStatus] =
-    useState<ModelWithStatus | HealthCheckResultEntry | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<
+    ModelWithStatus | HealthCheckResultEntry | null
+  >(null);
 
   const total = derived.sorted.length;
   const totalHistory = state.resultsQuery.data?.total ?? 0;
@@ -289,11 +296,22 @@ export function HealthStatusContent({
           value={derived.unhealthyCount}
           color={STATUS_COLORS.unhealthy}
         />
-        <SmallStat label="Errors" value={derived.errorCount} color={STATUS_COLORS.error} />
-        <SmallStat label="Unknown" value={derived.unknownCount} color="#94a3b8" />
+        <SmallStat
+          label="Errors"
+          value={derived.errorCount}
+          color={STATUS_COLORS.error}
+        />
+        <SmallStat
+          label="Unknown"
+          value={derived.unknownCount}
+          color="#94a3b8"
+        />
       </div>
 
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "models" | "history")}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as "models" | "history")}
+      >
         <div className="flex items-center justify-between gap-2">
           <TabsList>
             <TabsTrigger value="models">
@@ -353,8 +371,9 @@ export function HealthStatusContent({
                     );
                     const isIndividualButtonDisabled =
                       actions.isGlobalRunning || modelIsRunning;
-                    const displayStatus =
-                      isIndividualButtonDisabled ? "checking" : model.status;
+                    const displayStatus = isIndividualButtonDisabled
+                      ? "checking"
+                      : model.status;
 
                     return (
                       <tr
@@ -500,7 +519,10 @@ export function HealthStatusContent({
                           {entry.statusCode ?? "—"}
                         </td>
                         <td className="px-3 py-2">
-                          <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
+                          <Badge
+                            variant="outline"
+                            className="px-1.5 py-0 text-[10px]"
+                          >
                             {entry.source}
                           </Badge>
                         </td>
