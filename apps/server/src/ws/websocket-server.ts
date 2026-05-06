@@ -19,6 +19,7 @@ const PONG_TIMEOUT = 30_000;
 interface TrackedWebSocket {
   ws: WebSocket;
   isAlive: boolean;
+  pongTimer: ReturnType<typeof setTimeout> | null;
 }
 
 export class WebSocketServer {
@@ -40,7 +41,7 @@ export class WebSocketServer {
     this.wss = new WsServer({ noServer: true, path: WS_PATH });
 
     this.wss.on("connection", (ws: WebSocket) => {
-      const tracked: TrackedWebSocket = { ws, isAlive: true };
+      const tracked: TrackedWebSocket = { ws, isAlive: true, pongTimer: null };
       this.clients.add(tracked);
 
       const connectedMessage: WsMessage = {
@@ -54,10 +55,18 @@ export class WebSocketServer {
       });
 
       ws.on("close", () => {
+        if (tracked.pongTimer) {
+          clearTimeout(tracked.pongTimer);
+          tracked.pongTimer = null;
+        }
         this.clients.delete(tracked);
       });
 
       ws.on("error", () => {
+        if (tracked.pongTimer) {
+          clearTimeout(tracked.pongTimer);
+          tracked.pongTimer = null;
+        }
         this.clients.delete(tracked);
       });
     });
@@ -88,7 +97,10 @@ export class WebSocketServer {
           tracked.isAlive = false;
           ws.ping();
 
-          setTimeout(() => {
+          if (tracked.pongTimer) {
+            clearTimeout(tracked.pongTimer);
+          }
+          tracked.pongTimer = setTimeout(() => {
             if (!tracked.isAlive && ws.readyState === WebSocket.OPEN) {
               ws.terminate();
               deadClients.push(tracked);

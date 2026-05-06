@@ -149,7 +149,8 @@ export async function getStuckRequests(since: Date) {
     })
     .from(spendLogs)
     .where(and(gt(spendLogs.startTime, since), isNull(spendLogs.endTime)))
-    .orderBy(sql`${spendLogs.startTime} ASC`);
+    .orderBy(sql`${spendLogs.startTime} ASC`)
+    .limit(1000);
 }
 
 /**

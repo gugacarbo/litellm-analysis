@@ -207,18 +207,31 @@ export function getHealthChecks(
 export function getLatestHealthChecks(): ModelHealthCheck[] {
   const db = getMonitorDb();
 
-  const all = db
+  const latestSubquery = db
+    .select({
+      modelName: modelHealthChecks.modelName,
+      maxCheckedAt: sql<number>`max(${modelHealthChecks.checkedAt})`.as(
+        "maxCheckedAt",
+      ),
+    })
+    .from(modelHealthChecks)
+    .groupBy(modelHealthChecks.modelName)
+    .as("latest");
+
+  const rows = db
     .select()
     .from(modelHealthChecks)
+    .innerJoin(
+      latestSubquery,
+      and(
+        eq(modelHealthChecks.modelName, latestSubquery.modelName),
+        eq(modelHealthChecks.checkedAt, latestSubquery.maxCheckedAt),
+      ),
+    )
     .orderBy(desc(modelHealthChecks.checkedAt))
     .all();
 
-  const seen = new Set<string>();
-  return all.filter((c) => {
-    if (seen.has(c.modelName)) return false;
-    seen.add(c.modelName);
-    return true;
-  });
+  return rows.map((r) => r.model_health_checks);
 }
 
 export interface HealthCheckSummaryResult {

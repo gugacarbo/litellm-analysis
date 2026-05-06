@@ -1,6 +1,7 @@
 import * as path from "node:path";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { createDataSource } from "@lite-llm/analytics/data-source";
+import { closePool } from "@lite-llm/analytics/queries";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
 import { env } from "../env";
 import { createApiServer } from "./api-server";
@@ -85,7 +86,10 @@ export function startAppRuntime(): AppRuntime {
     console.log("\nShutting down gracefully...");
     healthCheckRuntime.stop();
     monitorRuntime.stop();
-    httpServer.close(() => process.exit(0));
+    httpServer.close(async () => {
+      await closePool();
+      process.exit(0);
+    });
   };
 
   registerShutdownHooks(stop);

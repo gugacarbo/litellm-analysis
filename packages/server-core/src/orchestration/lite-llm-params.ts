@@ -5,11 +5,12 @@ export function parseDays(rawValue: unknown, fallback: number): number {
     return fallback;
   }
 
+  const MAX_DAYS = 365;
   const parsed = Number.parseFloat(rawValue);
   if (Number.isNaN(parsed) || parsed < 0) {
     return fallback;
   }
-  return parsed;
+  return Math.min(parsed, MAX_DAYS);
 }
 
 export function toCostPerToken(costPerMillion?: number): number | undefined {

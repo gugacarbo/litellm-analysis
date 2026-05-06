@@ -51,9 +51,9 @@ export async function getSpendLogs(params: {
     );
   }
 
-  // Use a very high limit when 0 (all) to effectively return all records
-  // In practice, the frontend will show all records
-  const effectiveLimit = params.limit === 0 ? 100000 : (params.limit ?? 50);
+  // Use a moderate limit when 0 (unlimited) to avoid OOM on large tables
+  // The frontend supports pagination for browsing beyond 1000 rows
+  const effectiveLimit = params.limit === 0 ? 1000 : (params.limit ?? 50);
   const offset = params.offset || 0;
 
   const whereClause = combineConditions(conditions);
