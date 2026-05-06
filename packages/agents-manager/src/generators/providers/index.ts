@@ -8,6 +8,8 @@ import {
 } from "./model-builder.js";
 import type { OpenCodeProviders } from "./types.js";
 
+const LITELLM_API_KEY_ENV_REF = "{env:LITELLM_API_KEY}";
+
 // ── Providers Generator: Generate opencode.json ──
 
 export interface IProvidersGenerator {
@@ -64,7 +66,7 @@ export class ProvidersGenerator implements IProvidersGenerator {
         npm: "@ai-sdk/openai-compatible",
         options: {
           baseURL: "http://localhost:4000/v1",
-          apiKey: "sk-123456789",
+          apiKey: LITELLM_API_KEY_ENV_REF,
         },
         models: buildAgentModels(key),
       };

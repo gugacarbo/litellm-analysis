@@ -100,7 +100,7 @@ export class FileStorage implements IFileStorage {
       version: 1,
       litellm: {
         baseUrl: "http://localhost:4000/v1",
-        apiKey: "sk-123456789",
+        apiKey: process.env.OPENAI_API_KEY || "",
       },
       models: {},
       agents: {},

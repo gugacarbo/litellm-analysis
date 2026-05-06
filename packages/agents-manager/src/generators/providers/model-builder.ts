@@ -1,6 +1,8 @@
 import type { DbConfig, DbModelSpec } from "../../types/index.js";
 import type { LiteLLMModelConfig, OpenCodeProviders } from "./types.js";
 
+const LITELLM_API_KEY_ENV_REF = "{env:LITELLM_API_KEY}";
+
 const MODEL_NAMES = [
   "gpt-5.5",
   "gpt-5.4",
@@ -48,7 +50,7 @@ export function buildLiteLLMProviderConfig(
     npm: "@ai-sdk/openai-compatible",
     options: {
       baseURL: litellmConfig.baseUrl,
-      apiKey: litellmConfig.apiKey,
+      apiKey: LITELLM_API_KEY_ENV_REF,
     },
     models: liteLLMModels,
   };
