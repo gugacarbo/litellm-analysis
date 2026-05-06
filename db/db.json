@@ -138,7 +138,7 @@
   },
   "agents": {
     "sisyphus": {
-      "model": "glm-5-turbo",
+      "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "qwen3-coder-plus",
         "deepseek-v4-pro",
@@ -151,7 +151,7 @@
       "tools": {}
     },
     "oracle": {
-      "model": "glm-5-turbo",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -212,7 +212,7 @@
       "color": "#945E00"
     },
     "momus": {
-      "model": "glm-5-turbo",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
@@ -240,7 +240,7 @@
       "mode": "subagent"
     },
     "explore": {
-      "model": "glm-5-turbo",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "deepseek-v4-flash",
         "mimo-v2.5-pro",
@@ -268,7 +268,7 @@
       "mode": "subagent"
     },
     "metis": {
-      "model": "glm-5-turbo",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3-coder-plus",
@@ -282,7 +282,7 @@
       "mode": "subagent"
     },
     "build": {
-      "model": "glm-5-turbo",
+      "model": "deepseek-v4-flash",
       "fallbackModels": [
         "deepseek-v4-pro",
         "glm-5.1",
