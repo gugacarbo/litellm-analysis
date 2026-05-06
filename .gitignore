@@ -38,3 +38,5 @@ __pycache__
 # CocoIndex Code (ccc)
 /.cocoindex_code/
 .playwright-mcp/
+.weave/analytics/
+.sisyphus

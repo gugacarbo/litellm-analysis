@@ -226,7 +226,7 @@
       "mode": "subagent"
     },
     "prometheus": {
-      "model": "kimi-k2.6",
+      "model": "deepseek-v4-pro",
       "fallbackModels": [
         "glm-5.1",
         "qwen3.5-plus",
