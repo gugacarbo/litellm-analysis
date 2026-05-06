@@ -4,7 +4,6 @@ import { FilterProvider } from "./contexts/filter-context";
 import { AgentRoutingPage } from "./pages/agent-routing";
 import { AliasesPage } from "./pages/aliases";
 import { DashboardPage } from "./pages/dashboard";
-import { HealthStatusPage } from "./pages/health-status";
 import { LogsPage } from "./pages/logs";
 import { ModelDetailPage } from "./pages/model-detail";
 import { ModelStatsPage } from "./pages/model-stats";
@@ -30,7 +29,6 @@ function App() {
               <Route path="/aliases" element={<AliasesPage />} />
               <Route path="/agent-routing" element={<AgentRoutingPage />} />
               <Route path="/monitor" element={<MonitorPage />} />
-              <Route path="/health-status" element={<HealthStatusPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

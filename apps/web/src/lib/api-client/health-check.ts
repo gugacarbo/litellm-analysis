@@ -5,9 +5,14 @@ export interface HealthCheckResult {
   modelName: string;
   status: "healthy" | "unhealthy" | "error";
   responseTimeMs: number | null;
+  ttftMs: number | null;
+  outputTokens: number | null;
+  tokensPerSecond: number | null;
   statusCode: number | null;
   promptSent: string;
   responseReceived: string | null;
+  requestPayload: string | null;
+  responsePayload: string | null;
   errorMessage: string | null;
   source: "scheduled" | "manual";
   checkedAt: number;

@@ -62,7 +62,7 @@ export function startAppRuntime(): AppRuntime {
     pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
     timeoutMs: env.HEALTH_CHECK_TIMEOUT_MS,
     prompt: env.HEALTH_CHECK_PROMPT,
-    maxConcurrency: 3,
+    maxConcurrency: 6,
     litellmApiUrl: env.LITELLM_API_URL,
     litellmApiKey: env.LITELLM_API_KEY,
   });

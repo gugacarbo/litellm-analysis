@@ -30,6 +30,12 @@ export function formatResponseTime(ms: number | null): string {
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
+export function formatTokensPerSecond(tokensPerSecond: number | null): string {
+  if (tokensPerSecond === null) return "—";
+  if (tokensPerSecond < 10) return `${tokensPerSecond.toFixed(2)} tok/s`;
+  return `${tokensPerSecond.toFixed(1)} tok/s`;
+}
+
 export function formatTimestamp(unixSeconds: number): string {
   return new Date(unixSeconds * 1000).toLocaleString();
 }

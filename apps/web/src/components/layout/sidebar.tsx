@@ -5,7 +5,6 @@ import {
   ChevronRight,
   FileText,
   GitBranch,
-  HeartPulse,
   Radar,
   Settings,
   TrendingUp,
@@ -61,15 +60,7 @@ export function Sidebar() {
 
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
-    {
-      id: "monitoring",
-      icon: Radar,
-      label: "Monitoring",
-      children: [
-        { to: "/monitor", icon: Radar, label: "Monitor" },
-        { to: "/health-status", icon: HeartPulse, label: "Health Status" },
-      ],
-    },
+    { to: "/monitor", icon: Radar, label: "Monitor" },
     { to: "/model-stats", icon: TrendingUp, label: "Stats" },
     { to: "/logs", icon: FileText, label: "Logs" },
     { to: "/agent-routing", icon: Bot, label: "Agents" },

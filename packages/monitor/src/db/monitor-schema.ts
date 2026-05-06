@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const alerts = sqliteTable("alerts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -32,9 +32,14 @@ export const modelHealthChecks = sqliteTable("model_health_checks", {
   modelName: text("model_name").notNull(),
   status: text("status").notNull(),
   responseTimeMs: integer("response_time_ms"),
+  ttftMs: integer("ttft_ms"),
+  outputTokens: integer("output_tokens"),
+  tokensPerSecond: real("tokens_per_second"),
   statusCode: integer("status_code"),
   promptSent: text("prompt_sent").notNull(),
   responseReceived: text("response_received"),
+  requestPayload: text("request_payload"),
+  responsePayload: text("response_payload"),
   errorMessage: text("error_message"),
   source: text("source").notNull().default("scheduled"),
   checkedAt: integer("checked_at").notNull(),

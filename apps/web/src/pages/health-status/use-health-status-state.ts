@@ -15,13 +15,19 @@ import { useHealthStatusWebSocket } from "./use-health-status-websocket";
 
 const REFETCH_INTERVAL = 30_000;
 
-export type HealthStatusTab = "status" | "history" | "summary";
-
 export interface ModelWithStatus {
+  id: number | null;
   modelName: string;
   status: HealthCheckResultEntry["status"];
   responseTimeMs: number | null;
+  ttftMs: number | null;
+  outputTokens: number | null;
+  tokensPerSecond: number | null;
   statusCode: number | null;
+  promptSent: string | null;
+  responseReceived: string | null;
+  requestPayload: string | null;
+  responsePayload: string | null;
   errorMessage: string | null;
   checkedAt: number | null;
   source: HealthCheckResultEntry["source"] | null;
@@ -46,12 +52,9 @@ interface UseHealthStatusStateResult {
   resultsLimit: number;
   resultsOffset: number;
   setResultsOffset: (offset: number) => void;
-  activeTab: HealthStatusTab;
-  setActiveTab: (tab: HealthStatusTab) => void;
 }
 
 export function useHealthStatusState(): UseHealthStatusStateResult {
-  const [activeTab, setActiveTab] = useState<HealthStatusTab>("status");
   const { status: wsStatus, latestResults: wsResults } =
     useHealthStatusWebSocket();
 
@@ -73,7 +76,7 @@ export function useHealthStatusState(): UseHealthStatusStateResult {
     refetchInterval: REFETCH_INTERVAL,
   });
 
-  const resultsLimit = 50;
+  const resultsLimit = 10;
   const [resultsOffset, setResultsOffset] = useState(0);
 
   const resultsQuery = useQuery({
@@ -100,19 +103,35 @@ export function useHealthStatusState(): UseHealthStatusStateResult {
     const check = checkMap.get(m.modelName);
     return check
       ? {
+          id: check.id,
           modelName: m.modelName,
           status: check.status,
           responseTimeMs: check.responseTimeMs,
+          ttftMs: check.ttftMs,
+          outputTokens: check.outputTokens,
+          tokensPerSecond: check.tokensPerSecond,
           statusCode: check.statusCode,
+          promptSent: check.promptSent,
+          responseReceived: check.responseReceived,
+          requestPayload: check.requestPayload,
+          responsePayload: check.responsePayload,
           errorMessage: check.errorMessage,
           checkedAt: check.checkedAt,
           source: check.source,
         }
       : {
+          id: null,
           modelName: m.modelName,
           status: "unknown" as HealthCheckResultEntry["status"],
           responseTimeMs: null,
+          ttftMs: null,
+          outputTokens: null,
+          tokensPerSecond: null,
           statusCode: null,
+          promptSent: null,
+          responseReceived: null,
+          requestPayload: null,
+          responsePayload: null,
           errorMessage: null,
           checkedAt: null,
           source: null,
@@ -129,7 +148,5 @@ export function useHealthStatusState(): UseHealthStatusStateResult {
     resultsLimit,
     resultsOffset,
     setResultsOffset,
-    activeTab,
-    setActiveTab,
   };
 }

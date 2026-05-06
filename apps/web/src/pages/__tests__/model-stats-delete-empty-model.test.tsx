@@ -30,11 +30,14 @@ const emptyModelStatsResponse = [
   },
 ];
 
-vi.mock("../../lib/api-client", () => ({
+vi.mock("../../lib/api-client/analytics", () => ({
   getModelStatistics: vi.fn(),
   getTokenDistribution: vi.fn().mockResolvedValue([]),
   getModelRequestDistribution: vi.fn().mockResolvedValue([]),
   getCostEfficiencyByModel: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("../../lib/api-client/models", () => ({
   deleteModelLogs: vi.fn(),
   mergeModels: vi.fn().mockResolvedValue(undefined),
 }));
@@ -47,16 +50,15 @@ vi.mock("sonner", async (importOriginal) => {
   };
 });
 
-import * as apiClient from "../../lib/api-client";
+import { getModelStatistics } from "../../lib/api-client/analytics";
+import { deleteModelLogs } from "../../lib/api-client/models";
 import { ModelStatsPage } from "../model-stats";
 
 describe("ModelStatsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(apiClient.getModelStatistics).mockResolvedValue(
-      emptyModelStatsResponse,
-    );
-    vi.mocked(apiClient.deleteModelLogs).mockResolvedValue({ success: true });
+    vi.mocked(getModelStatistics).mockResolvedValue(emptyModelStatsResponse);
+    vi.mocked(deleteModelLogs).mockResolvedValue({ success: true });
   });
 
   it("deletes stats rows with empty model name", async () => {
@@ -71,7 +73,7 @@ describe("ModelStatsPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Delete" }));
 
     await waitFor(() => {
-      expect(apiClient.deleteModelLogs).toHaveBeenCalledWith("");
+      expect(deleteModelLogs).toHaveBeenCalledWith("");
     });
   });
 });

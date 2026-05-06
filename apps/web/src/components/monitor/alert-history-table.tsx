@@ -30,7 +30,7 @@ import { AlertSeverityBadge } from "./alert-severity-badge";
 import { AlertTypeBadge } from "./alert-type-badge";
 import { HealthStatusBadge } from "./health-status-badge";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 interface AlertHistoryTableProps {
   lastAlerts: MonitorAlert[];

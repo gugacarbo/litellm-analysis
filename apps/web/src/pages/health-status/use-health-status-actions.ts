@@ -1,51 +1,92 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { runHealthCheck } from "../../lib/api-client/health-check";
 import { queryKeys } from "../../lib/query-keys";
 
-export type HealthStatusTab = "status" | "history" | "summary";
-
 interface UseHealthStatusActionsResult {
   triggerRun: (models?: string[]) => void;
   triggerSingleRun: (modelName: string) => void;
-  isRunning: boolean;
-  runningModel: string | null;
-  activeTab: HealthStatusTab;
-  setActiveTab: (tab: HealthStatusTab) => void;
+  isGlobalRunning: boolean;
+  isModelRunning: (modelName: string) => boolean;
 }
 
 export function useHealthStatusActions(): UseHealthStatusActionsResult {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<HealthStatusTab>("status");
+  const [globalPendingCount, setGlobalPendingCount] = useState(0);
+  const [runningModelCounts, setRunningModelCounts] = useState<
+    Record<string, number>
+  >({});
 
-  const runMutation = useMutation({
-    mutationFn: (models?: string[]) => runHealthCheck(models),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.healthCheckLatest,
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.healthCheckSummary,
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.healthCheckResults({ limit: 50, offset: 0 }),
-      });
+  const invalidateHealthQueries = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.healthCheckLatest,
+    });
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.healthCheckSummary,
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["health-check", "results"],
+    });
+  }, [queryClient]);
+
+  const isModelRunning = useCallback(
+    (modelName: string) => (runningModelCounts[modelName] ?? 0) > 0,
+    [runningModelCounts],
+  );
+
+  const triggerRun = useCallback(
+    (models?: string[]) => {
+      const singleModelName = models?.length === 1 ? models[0] : null;
+
+      if (singleModelName) {
+        setRunningModelCounts((prev) => ({
+          ...prev,
+          [singleModelName]: (prev[singleModelName] ?? 0) + 1,
+        }));
+      } else {
+        setGlobalPendingCount((count) => count + 1);
+      }
+
+      void runHealthCheck(models)
+        .catch(() => {
+          // UI refresh already handles failed requests
+        })
+        .finally(() => {
+          invalidateHealthQueries();
+
+          if (singleModelName) {
+            setRunningModelCounts((prev) => {
+              const current = prev[singleModelName] ?? 0;
+              if (current <= 1) {
+                const next = { ...prev };
+                delete next[singleModelName];
+                return next;
+              }
+
+              return {
+                ...prev,
+                [singleModelName]: current - 1,
+              };
+            });
+          } else {
+            setGlobalPendingCount((count) => Math.max(0, count - 1));
+          }
+        });
     },
-  });
+    [invalidateHealthQueries],
+  );
 
-  const handleSetActiveTab = useCallback((tab: HealthStatusTab) => {
-    setActiveTab(tab);
-  }, []);
+  const triggerSingleRun = useCallback(
+    (modelName: string) => {
+      triggerRun([modelName]);
+    },
+    [triggerRun],
+  );
 
   return {
-    triggerRun: (models) => runMutation.mutate(models),
-    triggerSingleRun: (modelName) => runMutation.mutate([modelName]),
-    isRunning: runMutation.isPending,
-    runningModel:
-      runMutation.isPending && runMutation.variables?.length === 1
-        ? (runMutation.variables as string[])[0]
-        : null,
-    activeTab,
-    setActiveTab: handleSetActiveTab,
+    triggerRun,
+    triggerSingleRun,
+    isGlobalRunning: globalPendingCount > 0,
+    isModelRunning,
   };
 }

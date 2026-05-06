@@ -22,7 +22,7 @@ export function PageLayout({
   variant = "default",
   children,
 }: PageLayoutProps) {
-  const containerClass = variant === "flex" ? "flex flex-col gap-6" : "";
+  const containerClass = variant === "flex" ? "flex flex-col gap-3" : "";
   const hasRightContent = (showFilters && filters) || buttons;
 
   return (

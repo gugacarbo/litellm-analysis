@@ -21,7 +21,6 @@ export default defineConfig({
         target: "http://localhost:3008",
         ws: true,
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/ws/, "/ws/monitor"),
       },
     },
   },

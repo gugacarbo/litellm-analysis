@@ -118,7 +118,7 @@ describe("AgentRoutingPage", () => {
       });
       await userEvent.click(screen.getByText("Model Stations"));
       await waitFor(() => {
-        expect(screen.getByText("visualização")).toBeInTheDocument();
+        expect(screen.getByText("No models configured")).toBeInTheDocument();
       });
     });
   });

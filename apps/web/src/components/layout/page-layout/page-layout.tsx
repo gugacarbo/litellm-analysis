@@ -27,7 +27,7 @@ export function PageLayout({
 }: PageLayoutProps) {
   return (
     <div
-      className={`p-2 md:pr-3 ${variant === "flex" ? "flex flex-col gap-6" : ""} `}
+      className={`p-2 md:pr-3 ${variant === "flex" ? "flex flex-col" : ""} `}
     >
       <PageLayoutHeader
         title={title}

@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
 
-vi.mock("../../lib/api-client", () => ({
+vi.mock("../../lib/api-client/analytics", () => ({
   getModelStatistics: vi.fn().mockResolvedValue([
     {
       model: "gpt-4",
@@ -47,6 +47,9 @@ vi.mock("../../lib/api-client", () => ({
       unique_api_keys: 3,
     },
   ]),
+}));
+
+vi.mock("../../lib/api-client/models", () => ({
   deleteModelLogs: vi.fn().mockResolvedValue(undefined),
   mergeModels: vi.fn().mockResolvedValue(undefined),
 }));
