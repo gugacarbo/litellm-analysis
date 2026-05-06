@@ -1,7 +1,7 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-04
-**Commit:** 75b2b76
+**Generated:** 2026-05-06
+**Commit:** a6a4e5d
 **Branch:** main
 
 ## OVERVIEW
@@ -70,10 +70,10 @@ lite-llm-analytics/
 - Import auto-organization on format (`organizeImports: "on"`)
 
 ### Architecture
-- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (composed from 14 \*-queries.ts files)
+- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (method implementations composed from 8 \*-methods.ts files, backed by 14 query files)
 - **No capability gating** — full access mode only (no Limited/Api modes implemented yet)
 - **FeatureUnavailableError / HTTP 501** pattern referenced in frontend but not yet active
-- **Page-level architecture**: Pages contain hooks/types/utils only (no JSX). Components live in `components/` and import from page directories
+- **Page-level architecture**: Page subdirectories contain hooks/types/utils only (no JSX). Page root `.tsx` files contain JSX. Components live in `components/` and import from page directories
 - **State-Actions-Derived pattern**: Complex pages (agent-routing) split into `use-*-state.ts`, `use-*-actions.ts`, `use-*-derived.ts`, composed via `use-*-page.ts`
 
 ### TypeScript

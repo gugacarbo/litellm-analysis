@@ -46,4 +46,4 @@ agents-manager/src/
 
 ## ANTI-PATTERNS
 
-- Don't use `.js` file extensions — all source files are `.ts` (the `.js` in imports is ESM convention, not file type)
+- Don't rename source files to `.js` — all source files are `.ts`. Using `.js` extensions in `import` statements is correct and required (ESM/verbatimModuleSyntax convention).
