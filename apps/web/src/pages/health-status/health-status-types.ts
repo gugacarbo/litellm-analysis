@@ -1,3 +1,5 @@
+export type { ConnectionState } from "@/types/connection";
+
 export type HealthCheckStatus = "healthy" | "unhealthy" | "error" | "unknown";
 
 export interface HealthCheckResultEntry {
@@ -29,12 +31,6 @@ export interface HealthCheckUpdatePayload {
   results: HealthCheckResultEntry[];
   timestamp: number;
 }
-
-export type ConnectionState =
-  | "connected"
-  | "connecting"
-  | "reconnecting"
-  | "disconnected";
 
 export interface HealthCheckWsMessage {
   type: "health_check_update" | "connected";

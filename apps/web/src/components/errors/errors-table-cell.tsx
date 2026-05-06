@@ -1,39 +1,13 @@
 import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
+import {
+  getErrorTypeBadgeClass,
+  getStatusBadgeClass,
+} from "@/components/errors/errors-utils";
 import { APP_LOCALE } from "@/lib/locale";
 import { formatDateTime } from "../../lib/spend-log-utils";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import type { TableColumn } from "./errors-table-columns";
-
-function getStatusBadgeClass(statusCode: number): string {
-  if (statusCode >= 500) {
-    return "bg-red-500/15 text-red-700 border-red-500/30";
-  }
-
-  if (statusCode >= 400) {
-    return "bg-amber-500/15 text-amber-700 border-amber-500/30";
-  }
-
-  return "bg-muted text-muted-foreground";
-}
-
-function getErrorTypeBadgeClass(type: string): string {
-  const normalizedType = type.toLowerCase();
-
-  if (normalizedType.includes("rate")) {
-    return "bg-sky-500/15 text-sky-700 border-sky-500/30";
-  }
-
-  if (normalizedType.includes("timeout")) {
-    return "bg-yellow-500/15 text-yellow-700 border-yellow-500/30";
-  }
-
-  if (normalizedType.includes("auth") || normalizedType.includes("key")) {
-    return "bg-red-500/15 text-red-700 border-red-500/30";
-  }
-
-  return "bg-muted text-muted-foreground";
-}
 
 type RenderErrorCellParams = {
   errorLog: ErrorLog;

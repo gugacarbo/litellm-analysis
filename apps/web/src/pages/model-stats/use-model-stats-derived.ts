@@ -121,126 +121,94 @@ export function useModelStatsDerived(
   sortField: SortField,
   sortDirection: SortDirection,
 ) {
-  const filteredData = useMemo(
-    () =>
-      data.filter((m) => {
-        const modelName = m.model ?? "";
-        return modelName.toLowerCase().includes(searchQuery.toLowerCase());
-      }),
-    [data, searchQuery],
-  );
+  const processed = useMemo(() => {
+    const filtered = data.filter((m) => {
+      const modelName = m.model ?? "";
+      return modelName.toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
-  const sortedData = useMemo(
-    () =>
-      [...filteredData].sort((a, b) => {
-        const aVal = a[sortField];
-        const bVal = b[sortField];
-        if (typeof aVal === "string" && typeof bVal === "string") {
-          return sortDirection === "asc"
-            ? aVal.localeCompare(bVal)
-            : bVal.localeCompare(aVal);
-        }
+    const sorted = [...filtered].sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+      if (typeof aVal === "string" && typeof bVal === "string") {
         return sortDirection === "asc"
-          ? Number(aVal) - Number(bVal)
-          : Number(bVal) - Number(aVal);
-      }),
-    [filteredData, sortField, sortDirection],
-  );
+          ? aVal.localeCompare(bVal)
+          : bVal.localeCompare(aVal);
+      }
+      return sortDirection === "asc"
+        ? Number(aVal) - Number(bVal)
+        : Number(bVal) - Number(aVal);
+    });
 
-  const totalSpend = useMemo(
-    () => data.reduce((sum, m) => sum + Number(m.total_spend), 0),
-    [data],
-  );
+    return { filteredData: filtered, sortedData: sorted };
+  }, [data, searchQuery, sortField, sortDirection]);
 
-  const totalRequests = useMemo(
-    () => data.reduce((sum, m) => sum + Number(m.request_count), 0),
-    [data],
-  );
+  const aggregates = useMemo(() => {
+    const acc = data.reduce(
+      (sums, m) => {
+        const reqs = Number(m.request_count);
+        sums.totalSpend += Number(m.total_spend);
+        sums.totalRequests += reqs;
+        sums.totalTokens += Number(m.total_tokens);
+        sums.totalErrors += Number(m.error_count);
+        sums.totalPromptTokens += Number(m.prompt_tokens);
+        sums.totalCompletionTokens += Number(m.completion_tokens);
+        sums.weightedSuccessRate += Number(m.success_rate) * reqs;
+        sums.weightedLatency += Number(m.avg_latency_ms) * reqs;
+        return sums;
+      },
+      {
+        totalSpend: 0,
+        totalRequests: 0,
+        totalTokens: 0,
+        totalErrors: 0,
+        totalPromptTokens: 0,
+        totalCompletionTokens: 0,
+        weightedSuccessRate: 0,
+        weightedLatency: 0,
+      },
+    );
 
-  const totalTokens = useMemo(
-    () => data.reduce((sum, m) => sum + Number(m.total_tokens), 0),
-    [data],
-  );
+    const avgSuccessRate =
+      acc.totalRequests > 0 ? acc.weightedSuccessRate / acc.totalRequests : 0;
 
-  const avgSuccessRate = useMemo(
-    () =>
-      totalRequests > 0
-        ? data.reduce(
-            (sum, m) => sum + Number(m.success_rate) * Number(m.request_count),
-            0,
-          ) / totalRequests
-        : 0,
-    [data, totalRequests],
-  );
+    const avgLatency =
+      acc.totalRequests > 0 ? acc.weightedLatency / acc.totalRequests : 0;
 
-  const totalErrors = useMemo(
-    () => data.reduce((sum, m) => sum + Number(m.error_count), 0),
-    [data],
-  );
+    const avgCostPerRequest = safeDivide(acc.totalSpend, acc.totalRequests);
+    const avgCostPer1kTokens = safeDivide(
+      acc.totalSpend,
+      safeDivide(acc.totalTokens, 1000),
+    );
+    const inputOutputRatio = safeDivide(
+      acc.totalPromptTokens,
+      acc.totalCompletionTokens,
+    );
+    const errorRate = safeDivide(acc.totalErrors, acc.totalRequests) * 100;
 
-  const totalPromptTokens = useMemo(
-    () => data.reduce((sum, m) => sum + Number(m.prompt_tokens), 0),
-    [data],
-  );
+    const insights = computeInsights(data, acc.totalSpend, acc.totalRequests);
 
-  const totalCompletionTokens = useMemo(
-    () => data.reduce((sum, m) => sum + Number(m.completion_tokens), 0),
-    [data],
-  );
-
-  const avgLatency = useMemo(
-    () =>
-      totalRequests > 0
-        ? data.reduce(
-            (sum, m) =>
-              sum + Number(m.avg_latency_ms) * Number(m.request_count),
-            0,
-          ) / totalRequests
-        : 0,
-    [data, totalRequests],
-  );
-
-  const avgCostPerRequest = useMemo(
-    () => safeDivide(totalSpend, totalRequests),
-    [totalSpend, totalRequests],
-  );
-
-  const avgCostPer1kTokens = useMemo(
-    () => safeDivide(totalSpend, safeDivide(totalTokens, 1000)),
-    [totalSpend, totalTokens],
-  );
-
-  const inputOutputRatio = useMemo(
-    () => safeDivide(totalPromptTokens, totalCompletionTokens),
-    [totalPromptTokens, totalCompletionTokens],
-  );
-
-  const errorRate = useMemo(
-    () => safeDivide(totalErrors, totalRequests) * 100,
-    [totalErrors, totalRequests],
-  );
-
-  const insights = useMemo(
-    () => computeInsights(data, totalSpend, totalRequests),
-    [data, totalSpend, totalRequests],
-  );
+    return {
+      totalSpend: acc.totalSpend,
+      totalRequests: acc.totalRequests,
+      totalTokens: acc.totalTokens,
+      avgSuccessRate,
+      totalErrors: acc.totalErrors,
+      totalPromptTokens: acc.totalPromptTokens,
+      totalCompletionTokens: acc.totalCompletionTokens,
+      avgLatency,
+      avgCostPerRequest,
+      avgCostPer1kTokens,
+      inputOutputRatio,
+      errorRate,
+      insights,
+      uniqueModels: data.length,
+    };
+  }, [data]);
 
   return {
-    filteredData,
-    sortedData,
-    totalSpend,
-    totalRequests,
-    totalTokens,
-    avgSuccessRate,
-    totalErrors,
-    totalPromptTokens,
-    totalCompletionTokens,
-    avgLatency,
-    avgCostPerRequest,
-    avgCostPer1kTokens,
-    inputOutputRatio,
-    errorRate,
-    insights,
-    uniqueModels: data.length,
+    filteredData: processed.filteredData,
+    sortedData: processed.sortedData,
+    ...aggregates,
   };
 }

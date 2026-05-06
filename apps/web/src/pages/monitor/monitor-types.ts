@@ -1,8 +1,4 @@
-export type ConnectionState =
-  | "connecting"
-  | "connected"
-  | "disconnected"
-  | "reconnecting";
+export type { ConnectionState } from "@/types/connection";
 
 export type AnomalyType =
   | "model_offline"
