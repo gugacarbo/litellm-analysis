@@ -1,6 +1,0 @@
-{
-  "eval_id": 4,
-  "eval_name": "combined-auto-and-path",
-  "prompt": "commit -y src/shared/types.ts — updated the AgentConfig interface with new fields",
-  "assertions": []
-}

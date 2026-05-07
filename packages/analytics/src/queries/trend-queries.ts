@@ -28,6 +28,7 @@ export async function getDailyTokenTrend(days = 30) {
         Number,
       ),
       total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
+      request_count: sql`COUNT(*)`.mapWith(Number),
     })
     .from(spendLogs)
     .where(whereClause)

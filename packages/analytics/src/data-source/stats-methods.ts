@@ -61,6 +61,7 @@ export async function getDailyTokenTrendImpl(
     prompt_tokens: Number(item.prompt_tokens),
     completion_tokens: Number(item.completion_tokens),
     total_tokens: Number(item.total_tokens),
+    request_count: Number(item.request_count),
   }));
 }
 

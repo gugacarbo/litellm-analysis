@@ -190,4 +190,5 @@ export interface DailyTokenTrend {
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
+  request_count: number;
 }

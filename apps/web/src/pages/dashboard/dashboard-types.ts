@@ -90,6 +90,7 @@ export type DailyTokenTrendItem = {
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
+  request_count: number;
 };
 
 export type SpendByUserItem = {

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Area,
   AreaChart,
@@ -6,6 +7,7 @@ import {
   CartesianGrid,
   Legend,
   Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -36,6 +38,15 @@ export function DashboardEfficiencyCharts({
   costEfficiency,
   dailyTokenTrend,
 }: DashboardEfficiencyChartsProps) {
+  const tokensPerRequestData = useMemo(
+    () =>
+      dailyTokenTrend.map((item) => ({
+        date: item.date,
+        tokens_per_request: item.total_tokens / Math.max(item.request_count, 1),
+      })),
+    [dailyTokenTrend],
+  );
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
@@ -115,6 +126,40 @@ export function DashboardEfficiencyCharts({
                   dot={false}
                 />
               </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>
+            Tokens por Request ao Longo do Tempo ({rangeLabel})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <Skeleton className="h-64 w-full" />
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={tokensPerRequestData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickFormatter={formatDate} />
+                <YAxis tickFormatter={formatNumber} />
+                <Tooltip
+                  content={<ChartTooltipContent />}
+                  formatter={(v) => formatNumber(Number(v))}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="tokens_per_request"
+                  name="Tokens / Request"
+                  stroke="#8b5cf6"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
             </ResponsiveContainer>
           )}
         </CardContent>

@@ -208,6 +208,7 @@ describe("@lite-llm/api-contracts", () => {
         prompt_tokens: 30000,
         completion_tokens: 20000,
         total_tokens: 50000,
+        request_count: 100,
       };
 
       expect(userSpend.total_spend).toBe(50);

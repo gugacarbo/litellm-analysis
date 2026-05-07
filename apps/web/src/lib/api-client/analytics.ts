@@ -142,6 +142,7 @@ export async function getDailyTokenTrend(days = 30): Promise<
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
+    request_count: number;
   }[]
 > {
   return fetchApi(`/analytics/token-trend?days=${days}`);

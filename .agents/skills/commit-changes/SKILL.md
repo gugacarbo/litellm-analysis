@@ -1,6 +1,6 @@
 ---
 name: commit-changes
-description: Create git commits based on current changes. Use this skill whenever you need to commit changes, create a commit message, stage files, or when the user mentions git commit, staging, or committing code. Automatically analyzes git diff, groups related changes, generates Conventional Commits messages, proposes atomic commits, and detects AGENTS.md updates from diff signals. ALWAYS run git status and git diff first. Unless the user explicitly passes --yes / -y / --auto-approve, ALWAYS show proposed commit message(s) and ask for confirmation before executing git commit. When a file path or directory is provided, scope the commit to only those paths. ALWAYS scan diffs for AGENTS.md-relevant information (new commands, features, types, patterns) and propose documentation updates.
+description: Create git commits from working tree changes with Conventional Commits messages. Trigger when the user asks to commit changes, stage files, save work via git, generate a commit message, or says phrases like "commit my changes", "commita pra mim", "git commit", "stage and commit". Handles auto-approve flags (--yes, --sim, -y), path/file scoping, and AGENTS.md documentation updates detected from diffs. Do not trigger for database/transaction commits, git log or history queries, reverting/undoing commits, squashing/rebasing/cherry-picking, or general educational git questions — those are different operations, not creating commits.
 compatibility: Requires git CLI, bash tool
 ---
 

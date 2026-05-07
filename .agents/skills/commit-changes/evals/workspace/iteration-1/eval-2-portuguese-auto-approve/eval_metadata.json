@@ -1,6 +1,0 @@
-{
-  "eval_id": 2,
-  "eval_name": "portuguese-auto-approve",
-  "prompt": "comita minhas mudancas --sim, adicionei um novo endpoint de health check em src/server/health.ts",
-  "assertions": []
-}
