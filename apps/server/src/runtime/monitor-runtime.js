@@ -1,38 +1,18 @@
-import type { Server as HttpServer } from "node:http";
 import { MonitorService } from "@lite-llm/monitor";
-import type { AppContext } from "../contexts";
 import { WebSocketServer } from "../ws/websocket-server";
-
-interface MonitorRuntimeOptions {
-  ctx: AppContext;
-  httpServer: HttpServer;
-  pollIntervalMs: number;
-}
-
-export interface MonitorRuntime {
-  wsServer: WebSocketServer;
-  monitorService: MonitorService;
-  start: () => void;
-  stop: () => void;
-}
-
-export function createMonitorRuntime(
-  options: MonitorRuntimeOptions,
-): MonitorRuntime {
+export function createMonitorRuntime(options) {
   const wsServer = new WebSocketServer(options.httpServer);
   const monitorService = new MonitorService({
     pollIntervalMs: options.pollIntervalMs,
     analyticsDataSource: options.ctx.analytics.dataSource,
     monitorDb: options.ctx.monitor.monitorDb,
   });
-
   monitorService.on("alert", (alert) => {
     wsServer.broadcast({ type: "alert", data: alert });
   });
   monitorService.on("health_update", (data) => {
     wsServer.broadcast({ type: "health_update", data });
   });
-
   return {
     wsServer,
     monitorService,

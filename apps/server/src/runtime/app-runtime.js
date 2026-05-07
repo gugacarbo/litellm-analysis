@@ -7,75 +7,55 @@ import { createOrchestrationServices } from "@lite-llm/server-core/orchestration
 import { createAppContext } from "../contexts";
 import { env } from "../env";
 import { createApiServer } from "./api-server";
-import {
-  createHealthCheckRuntime,
-  type HealthCheckRuntime,
-} from "./health-check-runtime";
-import { createMonitorRuntime, type MonitorRuntime } from "./monitor-runtime";
+import { createHealthCheckRuntime } from "./health-check-runtime";
+import { createMonitorRuntime } from "./monitor-runtime";
 
-export interface AppRuntime {
-  stop: () => void;
-}
-
-function getProjectRoot(): string {
+function getProjectRoot() {
   // Resolve workspace root by walking up to the pnpm workspace marker.
   const serverRuntimeDir = path.dirname(fileURLToPath(import.meta.url));
   return findWorkspaceRoot(serverRuntimeDir);
 }
-
-function findWorkspaceRoot(startDir: string): string {
+function findWorkspaceRoot(startDir) {
   let dir = startDir;
   const root = path.parse(dir).root;
-
   while (dir !== root) {
     if (existsSync(path.join(dir, "pnpm-workspace.yaml"))) {
       return dir;
     }
-
     dir = path.dirname(dir);
   }
-
   return startDir;
 }
-
-function setupAgentsManager(projectRoot: string): void {
+function setupAgentsManager(projectRoot) {
   createAgentsManager({
     dbPath: path.join(projectRoot, "@settings", "agents.json"),
     outputDir: path.join(projectRoot, "data"),
   });
 }
-
-function registerShutdownHooks(stop: () => void): void {
+function registerShutdownHooks(stop) {
   process.on("SIGTERM", stop);
   process.on("SIGINT", stop);
 }
-
-export function startAppRuntime(): AppRuntime {
+export function startAppRuntime() {
   const projectRoot = getProjectRoot();
   setupAgentsManager(projectRoot);
-
   const ctx = createAppContext();
   const orchestration = createOrchestrationServices(ctx.analytics.dataSource);
-
   const app = createApiServer(
     { dataSource: ctx.analytics.dataSource, orchestration },
     ctx,
   );
-
   const port = env.PORT;
-
   const httpServer = app.listen(port, () => {
     console.log(`API server running on http://localhost:${port}`);
     console.log(`Config files location: ${path.join(projectRoot, "data")}`);
   });
-
-  const monitorRuntime: MonitorRuntime = createMonitorRuntime({
+  const monitorRuntime = createMonitorRuntime({
     ctx,
     httpServer,
     pollIntervalMs: env.MONITOR_POLL_INTERVAL_MS,
   });
-
-  const healthCheckRuntime: HealthCheckRuntime = createHealthCheckRuntime({
+  const healthCheckRuntime = createHealthCheckRuntime({
     ctx,
     httpServer,
     wsServer: monitorRuntime.wsServer,
@@ -86,10 +66,9 @@ export function startAppRuntime(): AppRuntime {
     litellmApiUrl: env.LITELLM_API_URL,
     litellmApiKey: env.LITELLM_API_KEY,
   });
-
   app.post("/health-check/run", async (req, res) => {
     try {
-      const { models } = (req.body as { models?: string[] }) ?? {};
+      const { models } = req.body ?? {};
       const modelList = models?.length ? models : undefined;
       await healthCheckRuntime.healthCheckService.runAllChecks(modelList);
       res.json({ triggered: true });
@@ -97,10 +76,8 @@ export function startAppRuntime(): AppRuntime {
       res.status(500).json({ error: "Failed to trigger health check" });
     }
   });
-
   monitorRuntime.start();
   healthCheckRuntime.start();
-
   const stop = () => {
     console.log("\nShutting down gracefully...");
     healthCheckRuntime.stop();
@@ -110,8 +87,6 @@ export function startAppRuntime(): AppRuntime {
       process.exit(0);
     });
   };
-
   registerShutdownHooks(stop);
-
   return { stop };
 }
