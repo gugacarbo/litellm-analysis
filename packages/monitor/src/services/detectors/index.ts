@@ -14,10 +14,10 @@ function isInCooldown(
   cooldownSeconds: number,
 ): boolean {
   try {
-    const db = getMonitorDb();
+    const alertDb = getMonitorDb();
     const cutoff = Math.floor(Date.now() / 1000) - cooldownSeconds;
 
-    const result = db
+    const result = alertDb
       .select({ count: sql<number>`count(*)` })
       .from(alerts)
       .where(

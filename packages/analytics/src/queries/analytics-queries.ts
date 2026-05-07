@@ -1,5 +1,5 @@
 import { desc, sql } from "drizzle-orm";
-import { db, schema } from "./client";
+import { litellmDb, schema } from "./client";
 import {
   combineConditions,
   getFailedSpendLogsCondition,
@@ -14,7 +14,7 @@ export async function getMetricsSummary(days = 30) {
   const spendLogsTimeCondition = getSpendLogsTimeCondition(normalizedDays);
 
   const [spendSummary, errorSummary] = await Promise.all([
-    db
+    litellmDb
       .select({
         totalSpend: sql<number>`COALESCE(SUM(${spendLogs.spend}), 0)`.mapWith(
           Number,
@@ -29,7 +29,7 @@ export async function getMetricsSummary(days = 30) {
       })
       .from(spendLogs)
       .where(spendLogsTimeCondition),
-    db
+    litellmDb
       .select({
         errorCount: sql<number>`COUNT(*)`.mapWith(Number),
       })
@@ -61,7 +61,7 @@ export async function getPerformanceMetrics(days = 30) {
     sql`EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.1`,
   ]);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       total_requests: sql<number>`COUNT(*)`.mapWith(Number),
       avg_duration_ms:
@@ -79,7 +79,7 @@ export async function getPerformanceMetrics(days = 30) {
 
 export async function getCostEfficiencyByModel(days = 30) {
   const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
-  const result = await db
+  const result = await litellmDb
     .select({
       model: spendLogs.model,
       total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),

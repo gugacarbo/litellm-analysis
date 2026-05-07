@@ -1,4 +1,4 @@
-import { serverEnv } from "@lite-llm/config/server";
+import { serverEnv } from "@lite-llm/env/server";
 
 export function parseDays(rawValue: unknown, fallback: number): number {
   if (typeof rawValue !== "string") {

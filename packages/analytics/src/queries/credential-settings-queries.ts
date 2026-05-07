@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { db } from "./client";
+import { litellmDb } from "./client";
 
 const DEFAULT_CREDENTIAL_SETTING_NAME = "default_credential";
 
@@ -8,7 +8,7 @@ export interface DefaultCredentialSetting {
 }
 
 export async function getDefaultCredential(): Promise<string | null> {
-  const result = await db.execute(
+  const result = await litellmDb.execute(
     sql`SELECT param_value FROM "LiteLLM_Config" WHERE param_name = ${DEFAULT_CREDENTIAL_SETTING_NAME} LIMIT 1`,
   );
   const row = result.rows[0] as { param_value: unknown } | undefined;
@@ -22,7 +22,7 @@ export async function setDefaultCredential(
 ): Promise<void> {
   if (credentialAlias === null) {
     // Remove the setting
-    await db.execute(
+    await litellmDb.execute(
       sql`DELETE FROM "LiteLLM_Config" WHERE param_name = ${DEFAULT_CREDENTIAL_SETTING_NAME}`,
     );
     return;
@@ -32,7 +32,7 @@ export async function setDefaultCredential(
     default_credential: credentialAlias,
   });
 
-  await db.execute(
+  await litellmDb.execute(
     sql`INSERT INTO "LiteLLM_Config" (param_name, param_value) VALUES (${DEFAULT_CREDENTIAL_SETTING_NAME}, ${setting})
       ON CONFLICT (param_name) DO UPDATE SET param_value = EXCLUDED.param_value`,
   );

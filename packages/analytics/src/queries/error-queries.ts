@@ -1,5 +1,5 @@
 import { desc, eq, sql } from "drizzle-orm";
-import { db, schema } from "./client";
+import { litellmDb, schema } from "./client";
 import {
   combineConditions,
   getFailedSpendLogsCondition,
@@ -17,7 +17,7 @@ export async function getErrorLogs(limit = 50, days = 30) {
   ]);
 
   try {
-    return await db
+    return await litellmDb
       .select({
         id: spendLogs.requestId,
         error_type:
@@ -49,7 +49,7 @@ export async function getErrorLogs(limit = 50, days = 30) {
       .orderBy(desc(spendLogs.startTime))
       .limit(limit);
   } catch {
-    return db
+    return litellmDb
       .select({
         id: spendLogs.requestId,
         error_type:

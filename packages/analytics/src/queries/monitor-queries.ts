@@ -1,5 +1,5 @@
 import { and, count, eq, gt, isNull, sql } from "drizzle-orm";
-import { db, schema } from "./client";
+import { litellmDb, schema } from "./client";
 import { combineConditions, getFailedSpendLogsCondition } from "./helpers";
 
 const { spendLogs, errorLogs } = schema;
@@ -11,7 +11,7 @@ export async function getErrorsSince(since: Date, limit = 100) {
   ]);
 
   try {
-    return await db
+    return await litellmDb
       .select({
         id: spendLogs.requestId,
         error_type:
@@ -43,7 +43,7 @@ export async function getErrorsSince(since: Date, limit = 100) {
       .orderBy(sql`${spendLogs.startTime} DESC`)
       .limit(limit);
   } catch {
-    return db
+    return litellmDb
       .select({
         id: spendLogs.requestId,
         error_type:
@@ -84,7 +84,7 @@ export async function getErrorCountByModelSince(since: Date) {
     getFailedSpendLogsCondition(),
   );
 
-  return db
+  return litellmDb
     .select({
       model: spendLogs.model,
       error_count: sql<number>`COUNT(*)`.mapWith(Number),
@@ -104,7 +104,7 @@ export async function getModelHealthSince(params: {
   const modelCondition = eq(spendLogs.model, model);
   const timeCondition = gt(spendLogs.startTime, since);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       total_requests: sql<number>`COUNT(*)`.mapWith(Number),
       success_count:
@@ -141,7 +141,7 @@ export async function getModelHealthSince(params: {
 }
 
 export async function getStuckRequests(since: Date) {
-  return db
+  return litellmDb
     .select({
       request_id: spendLogs.requestId,
       model: spendLogs.model,
@@ -157,7 +157,7 @@ export async function getStuckRequests(since: Date) {
  * Get spend anomalies - individual high-spend requests
  */
 export async function getSpendAnomaliesSince(since: Date, threshold = 10) {
-  return db
+  return litellmDb
     .select({
       request_id: spendLogs.requestId,
       model: spendLogs.model,
@@ -181,7 +181,7 @@ export async function getSpendAnomaliesSince(since: Date, threshold = 10) {
  * Get spend aggregated by model since a timestamp
  */
 export async function getSpendByModelSince(since: Date) {
-  return db
+  return litellmDb
     .select({
       model: spendLogs.model,
       total_spend: sql<number>`COALESCE(SUM(${spendLogs.spend}), 0)`.mapWith(
@@ -201,7 +201,7 @@ export async function getSpendByModelSince(since: Date) {
  * Get non-success logs (status != 'success')
  */
 export async function getNonSuccessLogsSince(since: Date, limit = 500) {
-  return db
+  return litellmDb
     .select({
       request_id: spendLogs.requestId,
       model: spendLogs.model,
@@ -222,7 +222,7 @@ export async function getNonSuccessLogsSince(since: Date, limit = 500) {
  * Get count of non-success requests grouped by model
  */
 export async function getNonSuccessCountByModelSince(since: Date) {
-  return db
+  return litellmDb
     .select({
       model: spendLogs.model,
       non_success_count: count(spendLogs.requestId).mapWith(Number),
@@ -241,7 +241,7 @@ export async function getLowThroughputRequestsSince(
   threshold = 10,
   limit = 100,
 ) {
-  return db
+  return litellmDb
     .select({
       request_id: spendLogs.requestId,
       model: spendLogs.model,

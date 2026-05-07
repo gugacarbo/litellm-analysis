@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { asc, desc, eq, type SQL, sql } from "drizzle-orm";
-import { db, schema } from "./client";
+import { litellmDb, schema } from "./client";
 import {
   combineConditions,
   getSpendLogsTimeCondition,
@@ -10,7 +10,7 @@ import {
 const { spendLogs, proxyModelTable } = schema;
 
 export async function getModelDetails() {
-  const result = await db
+  const result = await litellmDb
     .select({
       model_name: proxyModelTable.modelName,
       input_cost_per_token: sql`${proxyModelTable.litellmParams}->>'input_cost_per_token'`,
@@ -28,7 +28,7 @@ export async function getModelStatistics(days = 30) {
     sql`EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.1`,
   ]);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       model: spendLogs.model,
       request_count: sql<number>`COUNT(*)`.mapWith(Number),
@@ -88,7 +88,7 @@ export async function getModelStatistics(days = 30) {
 }
 
 export async function getAllModels() {
-  const result = await db
+  const result = await litellmDb
     .select({
       modelName: proxyModelTable.modelName,
       litellmParams: proxyModelTable.litellmParams,
@@ -106,7 +106,7 @@ export async function createModel(model: {
   const actor = "lite-llm-analytics";
   const modelInfo = { id: modelId, db_model: true };
 
-  await db.execute(sql`
+  await litellmDb.execute(sql`
     INSERT INTO "LiteLLM_ProxyModelTable" (
       model_id,
       model_name,
@@ -133,14 +133,14 @@ export async function updateModel(
     modelName?: string;
   },
 ) {
-  await db
+  await litellmDb
     .update(proxyModelTable)
     .set(updates)
     .where(eq(proxyModelTable.modelName, modelName));
 }
 
 export async function deleteModel(modelName: string) {
-  await db.transaction(async (tx) => {
+  await litellmDb.transaction(async (tx) => {
     await tx
       .delete(proxyModelTable)
       .where(eq(proxyModelTable.modelName, modelName));
@@ -148,7 +148,7 @@ export async function deleteModel(modelName: string) {
 }
 
 export async function mergeModels(sourceModel: string, targetModel: string) {
-  await db.transaction(async (tx) => {
+  await litellmDb.transaction(async (tx) => {
     await tx
       .update(spendLogs)
       .set({ model: targetModel })
@@ -157,7 +157,7 @@ export async function mergeModels(sourceModel: string, targetModel: string) {
 }
 
 export async function deleteModelLogs(modelName: string) {
-  await db.transaction(async (tx) => {
+  await litellmDb.transaction(async (tx) => {
     if (modelName.trim() === "") {
       await tx
         .delete(spendLogs)
@@ -178,7 +178,7 @@ export async function getDailySpendTrendByModel(model: string, days?: number) {
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       date: sql`DATE(${spendLogs.startTime})`,
       spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
@@ -201,7 +201,7 @@ export async function getDailyTokenTrendByModel(model: string, days?: number) {
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       date: sql`DATE(${spendLogs.startTime})`,
       prompt_tokens: sql`SUM(${spendLogs.promptTokens})`.mapWith(Number),
@@ -226,7 +226,7 @@ export async function getHourlyUsageByModel(model: string, days?: number) {
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       hour: sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`.mapWith(Number),
       request_count: sql`COUNT(*)`.mapWith(Number),
@@ -256,7 +256,7 @@ export async function getDailyLatencyTrendByModel(
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       date: sql`DATE(${spendLogs.startTime})`,
       avg_latency_ms:
@@ -295,7 +295,7 @@ export async function getErrorBreakdownByModel(model: string, days?: number) {
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       error_type: sql<string>`COALESCE(${spendLogs.status}, 'error')`,
       count: sql`COUNT(*)`.mapWith(Number),
@@ -321,7 +321,7 @@ export async function getDailyErrorTrendByModel(model: string, days?: number) {
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       date: sql`DATE(${spendLogs.startTime})`,
       error_count: sql`COUNT(*)`.mapWith(Number),
@@ -342,7 +342,7 @@ export async function getTopUsersByModel(model: string, days?: number) {
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       user: spendLogs.user,
       total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
@@ -366,7 +366,7 @@ export async function getTopApiKeysByModel(model: string, days?: number) {
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       api_key: spendLogs.apiKey,
       total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
@@ -397,7 +397,7 @@ export async function getModelCacheHitRateByModel(
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       cache_hits: sql<number>`COUNT(*) FILTER (WHERE ${
         spendLogs.cacheHit
@@ -428,7 +428,7 @@ export async function getModelTTFTPercentilesByModel(
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       avg_ttft_ms:
         sql<number>`AVG(EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
@@ -482,7 +482,7 @@ export async function getModelStatusDistributionByModel(
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       status: sql<string>`COALESCE(${spendLogs.status}, 'pending')`,
       count: sql<number>`COUNT(*)`.mapWith(Number),
@@ -515,7 +515,7 @@ export async function getModelProviderBreakdownByModel(
   }
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({
       provider: sql<string>`COALESCE(${spendLogs.customLlmProvider}, 'unknown')`,
       request_count: sql<number>`COUNT(*)`.mapWith(Number),

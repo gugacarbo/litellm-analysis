@@ -1,12 +1,12 @@
 import { desc, sql } from "drizzle-orm";
-import { db, schema } from "./client";
+import { litellmDb, schema } from "./client";
 import { getSpendLogsTimeCondition, normalizeDays } from "./helpers";
 
 const { spendLogs } = schema;
 
 export async function getTokenDistribution(days = 30) {
   const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
-  const result = await db
+  const result = await litellmDb
     .select({
       model: spendLogs.model,
       prompt_tokens: sql`SUM(${spendLogs.promptTokens})`.mapWith(Number),
@@ -32,7 +32,7 @@ export async function getTokenDistribution(days = 30) {
 
 export async function getApiKeyDetailedStats(days = 30) {
   const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
-  const result = await db
+  const result = await litellmDb
     .select({
       key: spendLogs.apiKey,
       request_count: sql`COUNT(*)`.mapWith(Number),
@@ -54,13 +54,13 @@ export async function getApiKeyDetailedStats(days = 30) {
 
 export async function getModelRequestDistribution(days = 30) {
   const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
-  const totalResult = await db
+  const totalResult = await litellmDb
     .select({ count: sql`COUNT(*)`.mapWith(Number) })
     .from(spendLogs)
     .where(whereClause);
   const totalCount = totalResult[0]?.count || 1;
 
-  const result = await db
+  const result = await litellmDb
     .select({
       model: spendLogs.model,
       request_count: sql<number>`COUNT(*)`.mapWith(Number),
@@ -76,7 +76,7 @@ export async function getModelRequestDistribution(days = 30) {
 
 export async function getTopModelsByRequests(limit = 10, days = 30) {
   const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
-  const result = await db
+  const result = await litellmDb
     .select({
       model: spendLogs.model,
       request_count: sql<number>`COUNT(*)`.mapWith(Number),

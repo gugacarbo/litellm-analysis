@@ -1,12 +1,12 @@
 import { sortAliasesByDefinitionOrder } from "@lite-llm/alias-router";
 import { sql } from "drizzle-orm";
-import { db } from "./client";
+import { litellmDb } from "./client";
 
 export async function getRouterSettings(): Promise<Record<
   string,
   unknown
 > | null> {
-  const result = await db.execute(
+  const result = await litellmDb.execute(
     sql`SELECT param_value FROM "LiteLLM_Config" WHERE param_name = 'router_settings' LIMIT 1`,
   );
   const row = result.rows[0] as { param_value: unknown } | undefined;
@@ -33,7 +33,7 @@ export async function updateRouterSettings(
   }
   merged.model_group_alias = sortAliasesByDefinitionOrder(existingAliases);
 
-  await db.execute(
+  await litellmDb.execute(
     sql`INSERT INTO "LiteLLM_Config" (param_name, param_value) VALUES ('router_settings', ${JSON.stringify(merged)})
 			ON CONFLICT (param_name) DO UPDATE SET param_value = EXCLUDED.param_value`,
   );

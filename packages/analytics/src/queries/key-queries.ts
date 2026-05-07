@@ -1,5 +1,5 @@
 import { asc } from "drizzle-orm";
-import { db, schema } from "./client";
+import { litellmDb, schema } from "./client";
 
 const { litellmCredentialsTable } = schema;
 
@@ -38,7 +38,7 @@ function mapRow(row: {
 }
 
 export async function getAllCredentials(): Promise<LiteLLMCredential[]> {
-  const result = await db
+  const result = await litellmDb
     .select({
       credentialId: litellmCredentialsTable.credentialId,
       credentialName: litellmCredentialsTable.credentialName,

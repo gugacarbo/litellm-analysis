@@ -1,5 +1,5 @@
 import { desc, eq, gte, type SQL, sql } from "drizzle-orm";
-import { db, schema } from "./client";
+import { litellmDb, schema } from "./client";
 import {
   combineConditions,
   getSpendLogsTimeCondition,
@@ -11,7 +11,7 @@ const { spendLogs } = schema;
 export async function getSpendByModel(days = 30) {
   const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
 
-  const result = await db
+  const result = await litellmDb
     .select({
       model: spendLogs.model,
       total_spend: sql<number>`SUM(${spendLogs.spend})`.mapWith(Number),
@@ -62,7 +62,7 @@ export async function getSpendLogs(params: {
     to_jsonb(${spendLogs}) ->> 'completion_start_time'
   )`;
 
-  const result = await db
+  const result = await litellmDb
     .select({
       request_id: spendLogs.requestId,
       model: spendLogs.model,
@@ -130,7 +130,7 @@ export async function getSpendLogsCount(params: {
 
   const whereClause = combineConditions(conditions);
 
-  const result = await db
+  const result = await litellmDb
     .select({ count: sql`COUNT(*)`.mapWith(Number) })
     .from(spendLogs)
     .where(whereClause);
@@ -140,7 +140,7 @@ export async function getSpendLogsCount(params: {
 export async function getSpendByUser(days = 30) {
   const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
 
-  const result = await db
+  const result = await litellmDb
     .select({
       user: spendLogs.user,
       total_spend: sql<number>`SUM(${spendLogs.spend})`.mapWith(Number),
@@ -158,7 +158,7 @@ export async function getSpendByUser(days = 30) {
 export async function getSpendByKey(days = 30) {
   const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
 
-  const result = await db
+  const result = await litellmDb
     .select({
       key: spendLogs.apiKey,
       total_spend: sql<number>`SUM(${spendLogs.spend})`.mapWith(Number),
@@ -178,7 +178,7 @@ export async function getSpendLogById(requestId: string) {
     to_jsonb(${spendLogs}) ->> 'completion_start_time'
   )`;
 
-  const [result] = await db
+  const [result] = await litellmDb
     .select({
       request_id: spendLogs.requestId,
       model: spendLogs.model,
