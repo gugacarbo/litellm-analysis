@@ -32,12 +32,20 @@ npm-debug.log*
 *.pem
 
 # Monitor SQLite
-db/monitor.db
+db/*.db
+db/*.sqlite
+db/*.sqlite3
+
 __pycache__
 .codex
+
 # CocoIndex Code (ccc)
 /.cocoindex_code/
+
+# Playwright MCP
 .playwright-mcp/
-.weave/analytics/
+
+# Agents
 .sisyphus
+.weave/analytics/
 /.weave/runtime/
