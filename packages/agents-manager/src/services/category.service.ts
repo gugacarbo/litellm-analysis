@@ -1,10 +1,10 @@
 import type {
   CategoryEntry,
-  IDbRepository,
-} from "@lite-llm/settings-repository/repository";
+  IAgentsRepository,
+} from "@lite-llm/agents-repository/repository";
 
 export interface CategoryServiceOptions {
-  repository: IDbRepository;
+  repository: IAgentsRepository;
 }
 
 export interface ICategoryService {
@@ -17,7 +17,7 @@ export interface ICategoryService {
 }
 
 export class CategoryService implements ICategoryService {
-  private readonly repository: IDbRepository;
+  private readonly repository: IAgentsRepository;
 
   constructor(options: CategoryServiceOptions) {
     this.repository = options.repository;

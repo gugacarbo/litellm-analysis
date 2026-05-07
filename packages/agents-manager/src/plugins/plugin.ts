@@ -3,7 +3,7 @@ import type {
   CategoryEntry,
   DbConfig,
   ModelSpec,
-} from "@lite-llm/settings-repository/repository";
+} from "@lite-llm/agents-repository/repository";
 
 // ── Types ──
 

@@ -1,10 +1,10 @@
 import type {
   AgentEntry,
-  IDbRepository,
-} from "@lite-llm/settings-repository/repository";
+  IAgentsRepository,
+} from "@lite-llm/agents-repository/repository";
 
 export interface AgentServiceOptions {
-  repository: IDbRepository;
+  repository: IAgentsRepository;
 }
 
 export interface IAgentService {
@@ -17,7 +17,7 @@ export interface IAgentService {
 }
 
 export class AgentService implements IAgentService {
-  private readonly repository: IDbRepository;
+  private readonly repository: IAgentsRepository;
 
   constructor(options: AgentServiceOptions) {
     this.repository = options.repository;

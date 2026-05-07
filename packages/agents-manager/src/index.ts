@@ -1,16 +1,16 @@
 // ── Main export file ──
 
-// Re-export types from settings-repository
+// Re-export types from agents-repository
 export type {
   AgentEntry,
   CategoryEntry,
   DbConfig,
-  IDbRepository,
+  IAgentsRepository,
   ModelSpec,
   RepositoryOptions,
-} from "@lite-llm/settings-repository/repository";
+} from "@lite-llm/agents-repository/repository";
 
-// Repository client (wraps settings-repository)
+// Repository client (wraps agents-repository)
 import {
   createRepositoryClient,
   type RepositoryClientOptions,
