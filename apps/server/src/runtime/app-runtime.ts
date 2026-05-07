@@ -40,7 +40,7 @@ function findWorkspaceRoot(startDir: string): string {
 
 function setupAgentsManager(projectRoot: string): void {
   createAgentsManager({
-    dbPath: path.join(projectRoot, "@db", "db.json"),
+    dbPath: path.join(projectRoot, "@settings", "settings.json"),
     outputDir: path.join(projectRoot, "data"),
   });
 }

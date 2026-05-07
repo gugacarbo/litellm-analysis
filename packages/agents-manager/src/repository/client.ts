@@ -5,7 +5,7 @@ import {
   createRepository,
   type IDbRepository,
   type RepositoryOptions,
-} from "@lite-llm/db-repository/repository";
+} from "@lite-llm/settings-repository/repository";
 import { DEFAULT_DB_PATH } from "../config/defaults.js";
 
 export interface RepositoryClientOptions {
@@ -17,7 +17,7 @@ export function createRepositoryClient(
 ): IDbRepository {
   const filePath = options.filePath ?? DEFAULT_DB_PATH;
 
-  // Resolve special paths like @db/db.json
+  // Resolve special paths like @settings/settings.json
   const resolvedPath = resolveDbPath(filePath);
 
   const repoOptions: RepositoryOptions = {
@@ -29,9 +29,9 @@ export function createRepositoryClient(
 
 function resolveDbPath(dbPath: string): string {
   // Handle special @db/ paths — resolve relative to monorepo root
-  if (dbPath.startsWith("@db/")) {
+  if (dbPath.startsWith("@settings/")) {
     const monorepoRoot = findMonorepoRoot();
-    // @db/db.json stays as-is since @db is the actual directory name
+    // @settings/settings.json stays as-is since @settings is the actual directory name
     return path.join(monorepoRoot, dbPath);
   }
 

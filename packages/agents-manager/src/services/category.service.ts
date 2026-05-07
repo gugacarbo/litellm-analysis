@@ -1,7 +1,7 @@
 import type {
   CategoryEntry,
   IDbRepository,
-} from "@lite-llm/db-repository/repository";
+} from "@lite-llm/settings-repository/repository";
 
 export interface CategoryServiceOptions {
   repository: IDbRepository;

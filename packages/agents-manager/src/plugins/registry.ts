@@ -3,7 +3,7 @@ import * as path from "node:path";
 import type {
   DbConfig,
   IDbRepository,
-} from "@lite-llm/db-repository/repository";
+} from "@lite-llm/settings-repository/repository";
 import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin.js";
 
 export interface PluginRegistryOptions {

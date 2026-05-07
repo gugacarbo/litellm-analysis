@@ -14,7 +14,7 @@
   "dependencies": {
     "@lite-llm/alias-router": "workspace:*",
     "@lite-llm/config": "workspace:*",
-    "@lite-llm/db-repository": "workspace:*"
+    "@lite-llm/settings-repository": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

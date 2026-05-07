@@ -46,7 +46,7 @@ export class DbRepository implements IDbRepository {
     if (this.validateOnRead) {
       const result = dbConfigSchema.safeParse(parsed);
       if (!result.success) {
-        throw new Error(`Invalid db.json: ${result.error.message}`);
+        throw new Error(`Invalid settings.json: ${result.error.message}`);
       }
       return result.data;
     }
@@ -61,7 +61,7 @@ export class DbRepository implements IDbRepository {
     if (this.validateOnRead) {
       const result = dbConfigSchema.safeParse(parsed);
       if (!result.success) {
-        throw new Error(`Invalid db.json: ${result.error.message}`);
+        throw new Error(`Invalid settings.json: ${result.error.message}`);
       }
       return result.data;
     }

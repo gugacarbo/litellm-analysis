@@ -1,4 +1,4 @@
-export const DEFAULT_DB_PATH = "@db/db.json";
+export const DEFAULT_DB_PATH = "@settings/settings.json";
 
 export const DEFAULT_OUTPUT_DIR = "data";
 

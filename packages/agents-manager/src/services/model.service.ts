@@ -1,7 +1,7 @@
 import type {
   IDbRepository,
   ModelSpec,
-} from "@lite-llm/db-repository/repository";
+} from "@lite-llm/settings-repository/repository";
 
 export interface ModelServiceOptions {
   repository: IDbRepository;

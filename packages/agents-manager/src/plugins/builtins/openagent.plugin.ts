@@ -2,7 +2,7 @@ import type {
   AgentEntry,
   CategoryEntry,
   DbConfig,
-} from "@lite-llm/db-repository/repository";
+} from "@lite-llm/settings-repository/repository";
 import type { IPlugin, PluginEntry, TransformContext } from "../plugin";
 
 const CURRENT_VERSION = 1;

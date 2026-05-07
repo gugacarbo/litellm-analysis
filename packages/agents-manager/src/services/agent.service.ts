@@ -1,7 +1,7 @@
 import type {
   AgentEntry,
   IDbRepository,
-} from "@lite-llm/db-repository/repository";
+} from "@lite-llm/settings-repository/repository";
 
 export interface AgentServiceOptions {
   repository: IDbRepository;
