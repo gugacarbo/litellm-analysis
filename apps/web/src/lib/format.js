@@ -1,0 +1,78 @@
+/**
+ * Shared formatting utilities consolidated from across the web app.
+ */
+import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
+export function formatNumber(value) {
+  if (!Number.isFinite(value)) return "0";
+  return new Intl.NumberFormat(APP_LOCALE).format(value);
+}
+export function formatCurrency(value) {
+  if (!Number.isFinite(value)) return "$0.00";
+  if (value > 0 && value < 0.01) {
+    return new Intl.NumberFormat(APP_LOCALE, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4,
+    }).format(value);
+  }
+  return new Intl.NumberFormat(APP_LOCALE, {
+    style: "currency",
+    currency: "USD",
+  }).format(value);
+}
+export function formatCompactNumber(value) {
+  if (!Number.isFinite(value)) return "0";
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+  return value.toFixed(0);
+}
+export function formatCostPer1k(value) {
+  if (!Number.isFinite(value)) return "-";
+  if (value < 0.01) return `$${value.toFixed(4)}`;
+  if (value < 1) return `$${value.toFixed(3)}`;
+  return `$${value.toFixed(2)}`;
+}
+export function formatDuration(ms) {
+  if (ms === null || ms === undefined) return "N/A";
+  if (!Number.isFinite(ms)) return "0ms";
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+export function formatPercent(value) {
+  if (value === null || value === undefined) return "N/A";
+  if (!Number.isFinite(value)) return "0%";
+  return `${value.toFixed(1)}%`;
+}
+export function safeDivide(numerator, denominator, fallback = 0) {
+  if (!Number.isFinite(numerator) || !Number.isFinite(denominator)) {
+    return fallback;
+  }
+  if (denominator <= 0) {
+    return fallback;
+  }
+  return numerator / denominator;
+}
+export function normalizePercent(value) {
+  return Math.min(Math.max(value, 0), 100);
+}
+export function formatDate(date) {
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(APP_LOCALE, {
+    month: "short",
+    day: "numeric",
+    timeZone: APP_TIMEZONE,
+  });
+}
+export function formatDateTime(date) {
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString(APP_LOCALE, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: APP_TIMEZONE,
+  });
+}
