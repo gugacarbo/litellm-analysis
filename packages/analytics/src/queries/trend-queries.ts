@@ -1,9 +1,6 @@
 import { asc, sql } from "drizzle-orm";
 import { litellmDb, schema } from "./client";
-import {
-  getSpendLogsTimeCondition,
-  normalizeDays,
-} from "./helpers";
+import { getSpendLogsTimeCondition, normalizeDays } from "./helpers";
 
 const { spendLogs } = schema;
 
@@ -63,9 +60,7 @@ export async function getDailyTokenTrend(days = 30) {
   return litellmDb
     .select({
       date: label,
-      prompt_tokens: sql`SUM(${spendLogs.promptTokens})`.mapWith(
-        Number,
-      ),
+      prompt_tokens: sql`SUM(${spendLogs.promptTokens})`.mapWith(Number),
       completion_tokens: sql`SUM(${spendLogs.completionTokens})`.mapWith(
         Number,
       ),
@@ -92,7 +87,9 @@ export async function getHourlySpendTrend(days = 1) {
     .select({
       // Format: "2024-01-15 14:00"
       timestamp: sql`to_char(date_trunc('hour', ${spendLogs.startTime}), 'YYYY-MM-DD HH24:MI')`,
-      hour: sql`EXTRACT(HOUR FROM date_trunc('hour', ${spendLogs.startTime}))`.mapWith(Number),
+      hour: sql`EXTRACT(HOUR FROM date_trunc('hour', ${spendLogs.startTime}))`.mapWith(
+        Number,
+      ),
       spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
       total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
       request_count: sql`COUNT(*)`.mapWith(Number),

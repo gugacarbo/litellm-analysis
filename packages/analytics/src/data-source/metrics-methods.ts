@@ -3,7 +3,11 @@ import {
   getHourlySpendTrend,
   getMetricsSummary,
 } from "../queries/index.js";
-import type { DailySpendTrend, HourlySpendTrend, MetricsSummary } from "../types/index.js";
+import type {
+  DailySpendTrend,
+  HourlySpendTrend,
+  MetricsSummary,
+} from "../types/index.js";
 
 export async function getMetricsSummaryImpl(
   days = 30,
