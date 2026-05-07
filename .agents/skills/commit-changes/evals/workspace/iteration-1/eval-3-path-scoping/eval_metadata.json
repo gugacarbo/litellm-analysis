@@ -1,0 +1,6 @@
+{
+  "eval_id": 3,
+  "eval_name": "path-scoping",
+  "prompt": "Commit only src/components/ — I refactored the button and card components.",
+  "assertions": []
+}

@@ -1,0 +1,6 @@
+{
+  "eval_id": 1,
+  "eval_name": "auto-approve",
+  "prompt": "I just made changes to src/utils/helpers.ts — added a new formatCurrency function. Commit --yes.",
+  "assertions": []
+}

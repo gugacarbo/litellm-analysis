@@ -1,20 +1,21 @@
 {
-  "name": "@lite-llm/api-contracts",
-  "version": "0.0.1",
+  "name": "@lite-llm/agents-repository",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./analytics": "./src/analytics.ts",
-    "./agent-routing": "./src/agent-routing.ts"
+    "./repository": "./src/repository.ts",
+    "./schema": "./src/schema.ts",
+    "./storage": "./src/storage.ts"
   },
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@litellm/shared": "workspace:^"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

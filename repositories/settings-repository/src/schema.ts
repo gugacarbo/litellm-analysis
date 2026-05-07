@@ -7,7 +7,7 @@ export const permissionSchema = z.object({
   bash: z
     .union([
       z.enum(["ask", "allow", "deny"]),
-      z.record(z.enum(["ask", "allow", "deny"])),
+      z.record(z.string(), z.enum(["ask", "allow", "deny"])),
     ])
     .optional(),
   webfetch: z.enum(["ask", "allow", "deny"]).optional(),
@@ -47,7 +47,7 @@ export const agentEntrySchema = z.object({
   top_p: z.number().optional(),
   prompt: z.string().optional(),
   prompt_append: z.string().optional(),
-  tools: z.record(z.boolean()).optional(),
+  tools: z.record(z.string(), z.boolean()).optional(),
   mode: z.enum(["subagent", "primary", "all"]).optional(),
   permission: permissionSchema.optional(),
 });
@@ -63,7 +63,7 @@ export const categoryEntrySchema = z.object({
   thinking: thinkingSchema.optional(),
   reasoningEffort: z.enum(["low", "medium", "high", "xhigh"]).optional(),
   textVerbosity: z.enum(["low", "medium", "high"]).optional(),
-  tools: z.record(z.boolean()).optional(),
+  tools: z.record(z.string(), z.boolean()).optional(),
   prompt_append: z.string().optional(),
   is_unstable_agent: z.boolean().optional(),
 });
@@ -75,11 +75,11 @@ export const dbConfigSchema = z.object({
     baseUrl: z.string(),
     apiKey: z.string(),
   }),
-  models: z.record(modelSpecSchema),
-  agents: z.record(agentEntrySchema),
-  categories: z.record(categoryEntrySchema),
+  models: z.record(z.string(), modelSpecSchema),
+  agents: z.record(z.string(), agentEntrySchema),
+  categories: z.record(z.string(), categoryEntrySchema),
   globalFallbackModel: z.string().optional(),
-  customAliases: z.record(z.string()).optional(),
+  customAliases: z.record(z.string(), z.string()).optional(),
 });
 
 // ── TypeScript Types ──

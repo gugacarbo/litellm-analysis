@@ -1,0 +1,57 @@
+{
+  "skill_name": "commit-changes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just made changes to src/utils/helpers.ts — added a new formatCurrency function. Commit --yes.",
+      "expected_output": "Shows proposed commit message, marks it as 'Auto-approved', executes git add and git commit without asking for confirmation. Commit uses conventional commits format with appropriate type and scope.",
+      "files": [],
+      "expectations": [
+        "Runs git status or git diff to analyze changes",
+        "Shows a commit message using conventional commits format (e.g., feat(utils): ...)",
+        "Does NOT ask 'Proceed?' or any confirmation question",
+        "Mentions 'Auto-approved' or similar indicator in the output",
+        "Executes git add and git commit without user confirmation"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "comita minhas mudancas --sim, adicionei um novo endpoint de health check em src/server/health.ts",
+      "expected_output": "Recognizes the Portuguese --sim flag as auto-approve. Shows proposal marked as auto-approved and commits immediately. Does not ask for confirmation.",
+      "files": [],
+      "expectations": [
+        "Recognizes '--sim' as auto-approve flag (Portuguese equivalent of --yes)",
+        "Shows a commit message in conventional commits format",
+        "Does NOT ask for confirmation — executes immediately",
+        "Mentions 'Auto-approved' or similar in output",
+        "Runs git add and git commit"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Commit only src/components/ — I refactored the button and card components.",
+      "expected_output": "Only stages and commits files under src/components/. Shows commit proposal scoped to that path. Uses git status/diff with the path filter.",
+      "files": [],
+      "expectations": [
+        "Uses path scoping — git status or git diff is scoped to src/components/",
+        "Only files under src/components/ appear in the proposed commit",
+        "Asks for confirmation before committing (no auto-approve flag)",
+        "Commit message is scoped to components (e.g., refactor(ui): ...)",
+        "Does NOT mention or include changes from outside src/components/"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "commit -y src/shared/types.ts — updated the AgentConfig interface with new fields",
+      "expected_output": "Combines auto-approve with path scoping. Only commits src/shared/types.ts, shows auto-approved indicator, no confirmation.",
+      "files": [],
+      "expectations": [
+        "Scopes to only src/shared/types.ts",
+        "Recognizes -y as auto-approve",
+        "Mentions 'Auto-approved' or equivalent",
+        "Does NOT ask for confirmation",
+        "Runs git add and git commit on the scoped file"
+      ]
+    }
+  ]
+}

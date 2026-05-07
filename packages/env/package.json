@@ -9,17 +9,17 @@
     "./web": "./src/web.ts"
   },
   "scripts": {
-    "build": "../../node_modules/.bin/tsc",
-    "typecheck": "../../node_modules/.bin/tsc --noEmit"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",
-    "dotenv": "^17.4.2",
-    "zod": "^4.4.1"
+    "dotenv": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
-    "typescript": "^6.0.3",
-    "vite": "^6.0.3"
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

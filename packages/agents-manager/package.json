@@ -7,9 +7,9 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "../../node_modules/.bin/tsc",
-    "typecheck": "../../node_modules/.bin/tsc --noEmit",
-    "test": "../../node_modules/.bin/vitest run"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@lite-llm/alias-router": "workspace:*",
@@ -17,8 +17,8 @@
     "@lite-llm/agents-repository": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

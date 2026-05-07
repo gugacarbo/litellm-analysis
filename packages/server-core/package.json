@@ -10,8 +10,8 @@
     "./types": "./src/types/index.ts"
   },
   "scripts": {
-    "build": "../../node_modules/.bin/tsc",
-    "typecheck": "../../node_modules/.bin/tsc --noEmit"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@lite-llm/agents-manager": "workspace:*",
@@ -19,11 +19,11 @@
     "@lite-llm/analytics": "workspace:*",
     "@lite-llm/env": "workspace:*",
     "@litellm/shared": "workspace:*",
-    "express": "^4.21.0"
+    "express": "catalog:"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.10.0",
-    "typescript": "^6.0.3"
+    "@types/express": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
   }
 }
