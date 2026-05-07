@@ -1,0 +1,393 @@
+{
+  "version": 1,
+  "litellm": {
+    "baseUrl": "http://localhost:4000/v1",
+    "apiKey": "sk-123456789"
+  },
+  "models": {
+    "glm-5": {
+      "displayName": "GLM 5",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1,
+        "output": 3.2
+      }
+    },
+    "glm-5.1": {
+      "displayName": "GLM 5.1",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1.4,
+        "output": 4.4
+      }
+    },
+    "glm-5-turbo": {
+      "displayName": "GLM 5 Turbo",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1.2,
+        "output": 4
+      }
+    },
+    "MiniMax-M2.7-highspeed": {
+      "displayName": "MiniMax M2.7 Hs",
+      "ownedBy": "atplus",
+      "contextLength": 204800,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 0.3,
+        "output": 1.2
+      }
+    },
+    "qwen3.5-plus": {
+      "displayName": "Qwen 3.5+",
+      "ownedBy": "atplus",
+      "contextLength": 1000000,
+      "maxOutput": 64000,
+      "cost": {
+        "input": 0.4,
+        "output": 2.4
+      }
+    },
+    "qwen3-coder-plus": {
+      "displayName": "Qwen 3 Coder+",
+      "ownedBy": "atplus",
+      "contextLength": 1000000,
+      "maxOutput": 64000,
+      "cost": {
+        "input": 0.65,
+        "output": 3.25
+      }
+    },
+    "deepseek-v4-flash": {
+      "displayName": "Deepseek V4 Flash",
+      "ownedBy": "atplus",
+      "family": "deepseek",
+      "contextLength": 1048576,
+      "maxOutput": 384000,
+      "cost": {
+        "input": 0.14,
+        "output": 0.28
+      }
+    },
+    "deepseek-v4-pro": {
+      "displayName": "Deepseek V4 Pro",
+      "ownedBy": "atplus",
+      "family": "deepseek",
+      "contextLength": 1048576,
+      "maxOutput": 384000,
+      "cost": {
+        "input": 1.74,
+        "output": 3.48
+      }
+    },
+    "glm-5.1:ollama": {
+      "displayName": "Glm 5.1:ollama",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 1.2,
+        "output": 4
+      }
+    },
+    "kimi-k2.6": {
+      "displayName": "Kimi K2.6",
+      "ownedBy": "atplus",
+      "family": "moonshot",
+      "contextLength": 262144,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 0.95,
+        "output": 4
+      }
+    },
+    "mimo-v2.5-pro": {
+      "displayName": "Mimo V2.5 Pro",
+      "ownedBy": "atplus",
+      "family": "xiaomi",
+      "contextLength": 1048576,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 1,
+        "output": 3
+      }
+    },
+    "mimo-v2-pro": {
+      "displayName": "Mimo V2 Pro",
+      "ownedBy": "atplus",
+      "family": "xiaomi",
+      "contextLength": 1048576,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 1,
+        "output": 3
+      }
+    }
+  },
+  "agents": {
+    "oracle": {
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "glm-5.1",
+        "qwen3.5-plus",
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Analista estratégico — avalia cenários, pondera trade-offs e produz recomendações fundamentadas para decisões de arquitetura e design.",
+      "color": "#048B5E"
+    },
+    "hephaestus": {
+      "model": "deepseek-v4-flash",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "glm-5.1",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Engenheiro de implementação — escreve, refatora e depura código seguindo especificações precisas; opera como subagente especializado.",
+      "color": "#850047",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
+    },
+    "atlas": {
+      "model": "kimi-k2.6",
+      "fallbackModels": [
+        "mimo-v2.5-pro",
+        "deepseek-v4-pro",
+        "glm-5.1",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Consolidador de contexto amplo — agrega resultados de múltiplas frentes de trabalho e mantém coerência em tarefas que exigem visão sistêmica.",
+      "color": "#AD7F00",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
+    },
+    "sisyphus-junior": {
+      "model": "MiniMax-M2.7-highspeed",
+      "fallbackModels": [
+        "MiniMax-M2.7-highspeed",
+        "qwen3.5-plus",
+        "glm-5.1:ollama",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Executor leve — versão otimizada do Sisyphus para tarefas rápidas, mudanças localizadas e iterações de baixo custo.",
+      "color": "#5A00C7"
+    },
+    "librarian": {
+      "model": "glm-5-turbo",
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "deepseek-v4-flash",
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Curador de conhecimento — organiza documentação, referências técnicas e mantém a base de conhecimento do projeto.",
+      "color": "#945E00"
+    },
+    "momus": {
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "glm-5.1",
+        "qwen3.5-plus",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Auditor de qualidade — revisa código, identifica inconsistências, pontos de falha e violações de padrões; opera como revisor crítico.",
+      "color": "#300B99",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
+    },
+    "prometheus": {
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "glm-5.1",
+        "qwen3.5-plus",
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Arquiteto de planejamento — estrutura planos de execução, antecipa riscos, define escopo e garante que todas as decisões sejam tomadas antes da implementação.",
+      "color": "#90A300",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
+    },
+    "explore": {
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "deepseek-v4-flash",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Cartógrafo do código — navega pela base de código, descobre padrões, mapeia dependências e coleta contexto para embasar decisões.",
+      "color": "#04B9AD",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
+    },
+    "multimodal-looker": {
+      "model": "kimi-k2.6",
+      "fallbackModels": [
+        "kimi-k2.6",
+        "qwen3.5-plus",
+        "deepseek-v4-flash",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Intérprete visual — analisa imagens, screenshots, diagramas e artefatos visuais para extrair informações e guiar implementação.",
+      "color": "#006894",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
+    },
+    "metis": {
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "glm-5.1",
+        "qwen3-coder-plus",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Estrategista de solução — decompõe problemas complexos, valida abordagens e sugere arquiteturas antes da implementação.",
+      "color": "#00B356",
+      "disable": false,
+      "tools": {},
+      "mode": "subagent"
+    },
+    "build": {
+      "model": "deepseek-v4-flash",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "glm-5.1",
+        "qwen3.5-plus",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Agente padrão — executor genérico para tarefas que não se encaixam em agentes especializados; ponto de entrada default do sistema.",
+      "color": "#555555",
+      "disable": false,
+      "tools": {}
+    },
+    "plan": {
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "glm-5.1",
+        "qwen3.5-plus",
+        "deepseek-v4-flash",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Agente de planejamento — opera em modo exclusivo de planejamento (read-only), sem acesso a ferramentas de edição; restrito a artefatos de especificação.",
+      "color": "#2E86AB",
+      "disable": false,
+      "mode": "subagent"
+    },
+    "OpenCode-Builder": {
+      "model": "deepseek-v4-flash",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "glm-5.1",
+        "qwen3.5-plus",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Construtor do ecossistema — responsável pela manutenção, evolução e sincronização das configurações do OpenCode e seus plugins.",
+      "color": "#A23B72",
+      "disable": false,
+      "tools": {}
+    }
+  },
+  "categories": {
+    "ultrabrain": {
+      "model": "glm-5-turbo",
+      "fallbackModels": [
+        "glm-5.1",
+        "qwen3.5-plus",
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Raciocínio profundo — reservado para problemas com alta densidade lógica, algoritmos complexos e análises multifatoriais."
+    },
+    "deep": {
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "qwen3-coder-plus",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Execução autônoma — resolve problemas orientados a objetivos com mínima supervisão; ideal para tarefas de médio a grande porte."
+    },
+    "code": {
+      "model": "glm-5-turbo",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "deepseek-v4-flash",
+        "glm-5.1",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Engenharia de software — implementação, refatoração, debug e tarefas técnicas gerais de código."
+    },
+    "artistry": {
+      "model": "kimi-k2.6",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "kimi-k2.6",
+        "qwen3.5-plus",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Solução criativa — aborda problemas complexos com estratégias não convencionais e pensamento divergente."
+    },
+    "quick": {
+      "model": "deepseek-v4-flash",
+      "fallbackModels": [
+        "MiniMax-M2.7-highspeed",
+        "qwen3.5-plus",
+        "deepseek-v4-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Tarefas triviais — mudanças em arquivo único, correções pontuais e operações rápidas sem dependências cruzadas."
+    },
+    "unspecified-low": {
+      "model": "MiniMax-M2.7-highspeed",
+      "fallbackModels": [
+        "MiniMax-M2.7-highspeed",
+        "qwen3.5-plus",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Propósito geral (baixo esforço) — tarefas que não se encaixam em outras categorias e exigem pouco tempo ou contexto."
+    },
+    "unspecified-high": {
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "glm-5.1",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Propósito geral (alto esforço) — tarefas que não se encaixam em outras categorias e exigem investimento significativo de contexto."
+    },
+    "writing": {
+      "model": "MiniMax-M2.7-highspeed",
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "deepseek-v4-flash",
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "description": "Documentação técnica — redação de docs, README, changelogs, AGENTS.md e prosa técnica em geral."
+    }
+  },
+  "globalFallbackModel": "MiniMax-M2.7-highspeed"
+}
