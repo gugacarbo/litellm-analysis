@@ -1,28 +1,12 @@
-import type { DbConfig } from "@lite-llm/agents-manager";
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
 import { createTestServer } from "./helpers/create-test-server";
 
-const mockGetAllAgents = vi.fn();
-const mockGetAllCategories = vi.fn();
-
-vi.mock("@lite-llm/agents-manager", async () => {
-  const actual = await vi.importActual("@lite-llm/agents-manager");
-  return {
-    ...actual,
-    createAgentsManager: () => ({
-      repository: {
-        read: vi.fn().mockResolvedValue({ agents: {}, categories: {} }),
-      },
-      services: {
-        agents: { getAll: mockGetAllAgents },
-        categories: { getAll: mockGetAllCategories },
-      },
-    }),
-  };
-});
-
-function buildDbFixture(): DbConfig {
+const readDbMock = vi.fn();
+vi.mock("@lite-llm/agents-manager", () => ({
+  readDb: () => readDbMock(),
+}));
+function buildDbFixture() {
   return {
     version: 1,
     litellm: { baseUrl: "http://localhost:4000/v1", apiKey: "sk-test" },
@@ -47,16 +31,11 @@ function buildDbFixture(): DbConfig {
     },
   };
 }
-
 describe("GET /agent-definitions", () => {
   it("returns normalized definitions from db entries", async () => {
-    const fixture = buildDbFixture();
-    mockGetAllAgents.mockResolvedValue(fixture.agents);
-    mockGetAllCategories.mockResolvedValue(fixture.categories);
-
+    readDbMock.mockResolvedValue(buildDbFixture());
     const { app } = await createTestServer();
     const res = await request(app).get("/agent-definitions");
-
     expect(res.status).toBe(200);
     expect(res.body).toEqual({
       agents: [
@@ -87,13 +66,10 @@ describe("GET /agent-definitions", () => {
       ],
     });
   });
-
   it("returns 500 when db read fails", async () => {
-    mockGetAllAgents.mockRejectedValue(new Error("db read failed"));
-
+    readDbMock.mockRejectedValue(new Error("db read failed"));
     const { app } = await createTestServer();
     const res = await request(app).get("/agent-definitions");
-
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Error: db read failed" });
   });

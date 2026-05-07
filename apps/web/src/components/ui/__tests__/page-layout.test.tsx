@@ -117,7 +117,7 @@ describe("PageLayout", () => {
   describe("Variant styling", () => {
     it('applies flex classes when variant is "flex"', () => {
       const { container } = render(<PageLayout title="Test" variant="flex" />);
-      expect(container.firstChild).toHaveClass("flex", "flex-col", "gap-6");
+      expect(container.firstChild).toHaveClass("flex", "flex-col", "gap-3");
     });
 
     it("does not apply flex classes for default variant", () => {

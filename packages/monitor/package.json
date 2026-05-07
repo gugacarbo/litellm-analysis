@@ -10,16 +10,15 @@
     "./queries": "./src/db/monitor-queries.ts"
   },
   "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "build": "../../node_modules/.bin/tsc",
+    "typecheck": "../../node_modules/.bin/tsc --noEmit"
   },
   "dependencies": {
     "@lite-llm/analytics": "workspace:*",
-    "better-sqlite3": "^12.9.0",
+    "@lite-llm/app-repository": "workspace:*",
     "drizzle-orm": "^0.38.0"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.10.0",
     "typescript": "^6.0.3"
   }

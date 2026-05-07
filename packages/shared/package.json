@@ -9,9 +9,9 @@
     "./types/*": "./src/types/*.ts"
   },
   "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "build": "../../node_modules/.bin/tsc",
+    "typecheck": "../../node_modules/.bin/tsc --noEmit",
+    "test": "../../node_modules/.bin/vitest run",
     "test:watch": "vitest"
   },
   "devDependencies": {

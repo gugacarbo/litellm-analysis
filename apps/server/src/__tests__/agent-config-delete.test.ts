@@ -2,48 +2,31 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestServer } from "./helpers/create-test-server";
 
-// Mocks must be hoisted
-const mockDeleteAgentFromConfig = vi.hoisted(() => vi.fn());
-const mockDeleteCategoryFromConfig = vi.hoisted(() => vi.fn());
-const mockSyncOutputConfigFile = vi.hoisted(() =>
-  vi.fn().mockResolvedValue(undefined),
-);
-const mockReadConfigFile = vi.hoisted(() => vi.fn());
-const mockWriteProvidersFile = vi.hoisted(() => vi.fn());
-const mockWriteVscodeModelsFile = vi.hoisted(() => vi.fn());
-const mockSyncToLiteLLM = vi.hoisted(() => vi.fn());
+const mockDeleteAgent = vi.hoisted(() => vi.fn());
+const mockDeleteCategory = vi.hoisted(() => vi.fn());
 
-// Mock the entire module to intercept dynamic imports
 vi.mock("@lite-llm/agents-manager", async () => {
   const actual = await vi.importActual("@lite-llm/agents-manager");
   return {
     ...actual,
-    deleteAgentFromConfig: mockDeleteAgentFromConfig,
-    deleteCategoryFromConfig: mockDeleteCategoryFromConfig,
-    readConfigFile: mockReadConfigFile,
-    writeProvidersFile: mockWriteProvidersFile,
-    writeVscodeModelsFile: mockWriteVscodeModelsFile,
-    syncOutputConfigFile: mockSyncOutputConfigFile,
-    syncToLiteLLM: mockSyncToLiteLLM,
+    createAgentsManager: () => ({
+      repository: {
+        read: vi.fn().mockResolvedValue({ agents: {}, categories: {} }),
+      },
+      services: {
+        agents: { delete: mockDeleteAgent },
+        categories: { delete: mockDeleteCategory },
+      },
+    }),
   };
 });
 
 describe("DELETE /agent-config/:key", () => {
   beforeEach(() => {
-    mockDeleteAgentFromConfig.mockReset();
-    mockDeleteAgentFromConfig.mockResolvedValue(undefined);
-    mockDeleteCategoryFromConfig.mockReset();
-    mockDeleteCategoryFromConfig.mockResolvedValue(undefined);
-    mockReadConfigFile.mockReset();
-    mockReadConfigFile.mockResolvedValue({ agents: {}, categories: {} });
-    mockWriteProvidersFile.mockReset();
-    mockWriteProvidersFile.mockResolvedValue(undefined);
-    mockWriteVscodeModelsFile.mockReset();
-    mockWriteVscodeModelsFile.mockResolvedValue(undefined);
-    mockSyncOutputConfigFile.mockReset();
-    mockSyncOutputConfigFile.mockResolvedValue(undefined);
-    mockSyncToLiteLLM.mockReset();
-    mockSyncToLiteLLM.mockResolvedValue(0);
+    mockDeleteAgent.mockReset();
+    mockDeleteAgent.mockResolvedValue(undefined);
+    mockDeleteCategory.mockReset();
+    mockDeleteCategory.mockResolvedValue(undefined);
   });
 
   it("deletes agent and calls syncGeneratedArtifacts", async () => {
@@ -59,8 +42,7 @@ describe("DELETE /agent-config/:key", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ success: true });
-    expect(mockDeleteAgentFromConfig).toHaveBeenCalledWith("sisyphus");
-    // syncGeneratedArtifacts should be called AFTER deletion
+    expect(mockDeleteAgent).toHaveBeenCalledWith("sisyphus");
     expect(orchestration.syncGeneratedArtifacts).toHaveBeenCalledTimes(1);
   });
 
@@ -79,14 +61,12 @@ describe("DELETE /agent-config/:key", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ success: true });
-    expect(mockDeleteCategoryFromConfig).toHaveBeenCalledWith(
-      "visual-engineering",
-    );
+    expect(mockDeleteCategory).toHaveBeenCalledWith("visual-engineering");
     expect(orchestration.syncGeneratedArtifacts).toHaveBeenCalledTimes(1);
   });
 
   it("rejects deleting global-fallback", async () => {
-    const { app } = await createTestServer({
+    const { app, orchestration } = await createTestServer({
       getAgentRoutingConfig: vi.fn().mockResolvedValue({
         model_group_alias: {
           "sisyphus/gpt-5.5": "openai/gpt-4.1",
@@ -100,7 +80,7 @@ describe("DELETE /agent-config/:key", () => {
     expect(res.body).toEqual({
       error: "Global fallback cannot be deleted",
     });
-    expect(mockDeleteAgentFromConfig).not.toHaveBeenCalled();
-    expect(mockSyncOutputConfigFile).not.toHaveBeenCalled();
+    expect(mockDeleteAgent).not.toHaveBeenCalled();
+    expect(orchestration.syncGeneratedArtifacts).not.toHaveBeenCalled();
   });
 });
