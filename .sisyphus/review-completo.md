@@ -608,7 +608,7 @@ A cada heartbeat (30s), novo `setTimeout` por cliente. Nunca `clearTimeout`. Sob
 
 ### L4. Zod v3 (`shared`) vs Zod v4 (`config`) — APIs quebradas
 
-Se `@litellm/shared` schemas forem importados no contexto de `@lite-llm/config`, quebram em runtime.
+Se `@litellm/shared` schemas forem importados no contexto de `@lite-llm/env`, quebram em runtime.
 
 **Solução:** Unificar versão Zod (recomendado: migrar shared para v4).
 
