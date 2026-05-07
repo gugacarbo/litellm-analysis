@@ -35,9 +35,27 @@ export type DashboardMetrics = {
   errorCount: number;
 };
 
+/**
+ * Daily trend item with automatic granularity support.
+ * For hourly ranges (< 1 day): date is formatted as "YYYY-MM-DD HH24:MI"
+ * For daily ranges (>= 1 day): date is formatted as "YYYY-MM-DD"
+ */
 export type DailyTrendItem = {
   date: string;
   spend: number;
+  granularity?: "hour" | "day";
+};
+
+/**
+ * Hourly trend item for short time ranges.
+ * Groups by hour with full timestamp for accurate charting.
+ */
+export type HourlyTrendItem = {
+  timestamp: string;
+  hour: number;
+  spend: number;
+  total_tokens: number;
+  request_count: number;
 };
 
 export type TokenDistributionItem = {
@@ -91,6 +109,7 @@ export type DailyTokenTrendItem = {
   completion_tokens: number;
   total_tokens: number;
   request_count: number;
+  granularity?: "hour" | "day";
 };
 
 export type SpendByUserItem = {

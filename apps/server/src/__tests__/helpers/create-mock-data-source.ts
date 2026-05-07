@@ -14,6 +14,7 @@ export function createMockDataSource(
       error_count: 0,
     }),
     getDailySpendTrend: vi.fn().mockResolvedValue([]),
+    getHourlySpendTrend: vi.fn().mockResolvedValue([]),
     getSpendByModel: vi.fn().mockResolvedValue([]),
     getSpendByUser: vi.fn().mockResolvedValue([]),
     getSpendByKey: vi.fn().mockResolvedValue([]),

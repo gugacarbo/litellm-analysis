@@ -13,10 +13,44 @@ import type {
 
 export { formatCurrency, formatNumber, formatPercent, safeDivide };
 
+/**
+ * Format a date string for display.
+ * - For "YYYY-MM-DD HH24:MI" format (hourly): shows time only
+ * - For "YYYY-MM-DD" format (daily): shows month and day
+ */
 export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString(APP_LOCALE, {
+  const d = new Date(date);
+
+  // Check if the date string contains time component (hourly granularity)
+  const dateStr = String(date);
+  if (dateStr.includes(" ")) {
+    // Hourly format: "2024-01-15 14:00" -> show time
+    return d.toLocaleTimeString(APP_LOCALE, {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: APP_TIMEZONE,
+    });
+  }
+
+  // Daily format: "2024-01-15" -> show month and day
+  return d.toLocaleDateString(APP_LOCALE, {
     month: "short",
     day: "numeric",
+    timeZone: APP_TIMEZONE,
+  });
+}
+
+/**
+ * Format a full datetime string for tooltip display.
+ * Shows both date and time for hourly granularity.
+ */
+export function formatDateTime(date: string | Date): string {
+  const d = new Date(date);
+  return d.toLocaleString(APP_LOCALE, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
     timeZone: APP_TIMEZONE,
   });
 }
@@ -78,4 +112,11 @@ export function getDateRangeLabel(range: DashboardDateRangeKey): string {
     DASHBOARD_DATE_RANGES.find((item) => item.key === range)?.description ??
     "Últimos 30 dias"
   );
+}
+
+/**
+ * Check if the date range represents a short time range (less than 24 hours).
+ */
+export function isShortTimeRange(days: number): boolean {
+  return days < 1;
 }

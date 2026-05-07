@@ -61,5 +61,6 @@ export {
 export {
   getDailySpendTrend,
   getDailyTokenTrend,
+  getHourlySpendTrend,
   getHourlyUsagePatterns,
 } from "./trend-queries";

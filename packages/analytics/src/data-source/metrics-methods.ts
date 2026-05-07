@@ -1,5 +1,9 @@
-import { getDailySpendTrend, getMetricsSummary } from "../queries/index.js";
-import type { DailySpendTrend, MetricsSummary } from "../types/index.js";
+import {
+  getDailySpendTrend,
+  getHourlySpendTrend,
+  getMetricsSummary,
+} from "../queries/index.js";
+import type { DailySpendTrend, HourlySpendTrend, MetricsSummary } from "../types/index.js";
 
 export async function getMetricsSummaryImpl(
   days = 30,
@@ -20,5 +24,19 @@ export async function getDailySpendTrendImpl(
   return result.map((item) => ({
     date: String(item.date),
     spend: item.spend,
+    granularity: item.granularity as "hour" | "day" | undefined,
+  }));
+}
+
+export async function getHourlySpendTrendImpl(
+  days = 1,
+): Promise<HourlySpendTrend[]> {
+  const result = await getHourlySpendTrend(days);
+  return result.map((item) => ({
+    timestamp: String(item.timestamp),
+    hour: item.hour,
+    spend: item.spend,
+    total_tokens: item.total_tokens,
+    request_count: item.request_count,
   }));
 }

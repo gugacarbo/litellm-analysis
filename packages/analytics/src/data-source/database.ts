@@ -12,6 +12,7 @@ import {
 import { getErrorLogsImpl } from "./error-methods.js";
 import {
   getDailySpendTrendImpl,
+  getHourlySpendTrendImpl,
   getMetricsSummaryImpl,
 } from "./metrics-methods.js";
 import {
@@ -72,6 +73,7 @@ export { toNullableNumber };
 export class DatabaseDataSource implements AnalyticsDataSource {
   getMetricsSummary = getMetricsSummaryImpl;
   getDailySpendTrend = getDailySpendTrendImpl;
+  getHourlySpendTrend = getHourlySpendTrendImpl;
   getSpendByModel = getSpendByModelImpl;
   getSpendByUser = getSpendByUserImpl;
   getSpendByKey = getSpendByKeyImpl;

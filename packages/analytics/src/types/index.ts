@@ -2,6 +2,7 @@
 export interface AnalyticsDataSource {
   getMetricsSummary(days?: number): Promise<MetricsSummary>;
   getDailySpendTrend(days?: number): Promise<DailySpendTrend[]>;
+  getHourlySpendTrend(days?: number): Promise<HourlySpendTrend[]>;
   getSpendByModel(days?: number): Promise<SpendByModel[]>;
   getSpendByUser(days?: number): Promise<SpendByUser[]>;
   getSpendByKey(days?: number): Promise<SpendByKey[]>;
@@ -181,9 +182,27 @@ export interface MetricsSummaryResult {
 
 export type MetricsSummary = MetricsSummaryResult;
 
+/**
+ * Spend trend with automatic granularity.
+ * For ranges < 1 day: date is formatted as "YYYY-MM-DD HH24:MI" (hourly)
+ * For ranges >= 1 day: date is formatted as "YYYY-MM-DD" (daily)
+ */
 export interface DailySpendTrend {
   date: string;
   spend: number;
+  granularity?: "hour" | "day";
+}
+
+/**
+ * Hourly spend trend for short time ranges.
+ * Groups by hour with full timestamp for accurate charting.
+ */
+export interface HourlySpendTrend {
+  timestamp: string;
+  hour: number;
+  spend: number;
+  total_tokens: number;
+  request_count: number;
 }
 
 export interface TokenDistribution {
@@ -235,12 +254,18 @@ export interface ModelDistribution {
 
 export type ModelRequestDistribution = ModelDistribution;
 
+/**
+ * Token trend with automatic granularity.
+ * For ranges < 1 day: date is formatted as "YYYY-MM-DD HH24:MI" (hourly)
+ * For ranges >= 1 day: date is formatted as "YYYY-MM-DD" (daily)
+ */
 export interface DailyTokenTrend {
   date: string;
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
   request_count: number;
+  granularity?: "hour" | "day";
 }
 
 export interface ModelStatistics {

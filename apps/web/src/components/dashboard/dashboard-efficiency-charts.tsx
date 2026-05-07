@@ -7,7 +7,6 @@ import {
   CartesianGrid,
   Legend,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -19,6 +18,7 @@ import type {
 } from "../../pages/dashboard/dashboard-types";
 import {
   formatDate,
+  formatDateTime,
   formatNumber,
 } from "../../pages/dashboard/dashboard-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -38,6 +38,10 @@ export function DashboardEfficiencyCharts({
   costEfficiency,
   dailyTokenTrend,
 }: DashboardEfficiencyChartsProps) {
+  // Check if data has hourly granularity
+  const hasHourlyData =
+    dailyTokenTrend.length > 0 && dailyTokenTrend[0].date.includes(" ");
+
   const tokensPerRequestData = useMemo(
     () =>
       dailyTokenTrend.map((item) => ({
@@ -46,6 +50,15 @@ export function DashboardEfficiencyCharts({
       })),
     [dailyTokenTrend],
   );
+
+  const barSize = useMemo(() => {
+    const len = tokensPerRequestData.length;
+    if (len <= 1) return 60;
+    if (len <= 3) return 48;
+    if (len <= 7) return 36;
+    if (len <= 14) return 24;
+    return 12;
+  }, [tokensPerRequestData.length]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -94,11 +107,19 @@ export function DashboardEfficiencyCharts({
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={dailyTokenTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickFormatter={formatDate} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDate}
+                  interval="preserveStartEnd"
+                  minTickGap={50}
+                />
                 <YAxis tickFormatter={formatNumber} />
                 <Tooltip
                   content={<ChartTooltipContent />}
                   formatter={(v) => formatNumber(Number(v))}
+                  labelFormatter={(label) =>
+                    hasHourlyData ? formatDateTime(label) : formatDate(label)
+                  }
                 />
                 <Legend />
                 <Area
@@ -142,24 +163,31 @@ export function DashboardEfficiencyCharts({
             <Skeleton className="h-64 w-full" />
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={tokensPerRequestData}>
+              <BarChart data={tokensPerRequestData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickFormatter={formatDate} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDate}
+                  interval="preserveStartEnd"
+                  minTickGap={50}
+                />
                 <YAxis tickFormatter={formatNumber} />
                 <Tooltip
                   content={<ChartTooltipContent />}
                   formatter={(v) => formatNumber(Number(v))}
+                  labelFormatter={(label) =>
+                    hasHourlyData ? formatDateTime(label) : formatDate(label)
+                  }
                 />
                 <Legend />
-                <Line
-                  type="monotone"
+                <Bar
                   dataKey="tokens_per_request"
                   name="Tokens / Request"
-                  stroke="#8b5cf6"
-                  strokeWidth={2}
-                  dot={false}
+                  fill="#8b5cf6"
+                  barSize={barSize}
+                  radius={[4, 4, 0, 0]}
                 />
-              </LineChart>
+              </BarChart>
             </ResponsiveContainer>
           )}
         </CardContent>
