@@ -1,4 +1,4 @@
-import { readDb } from "@lite-llm/agents-manager";
+import { createAgentsManager } from "@lite-llm/agents-manager";
 import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
@@ -9,7 +9,9 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
   string,
   unknown
 > | null> {
-  const db = await readDb();
+  const { repository } = createAgentsManager();
+  const config = await repository.read();
+
   const allAliases: Record<string, string> = {};
 
   // Read existing aliases from LiteLLM_Config (router_settings)
@@ -27,28 +29,28 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
   }
 
   // Merge custom aliases from db.json
-  if (db.customAliases) {
-    Object.assign(allAliases, db.customAliases);
+  if (config.customAliases) {
+    Object.assign(allAliases, config.customAliases);
   }
 
   // Generate aliases from agents (generated aliases override)
-  for (const [key, agent] of Object.entries(db.agents || {})) {
+  for (const [key, agent] of Object.entries(config.agents || {})) {
     const agentAliases = generateLitellmAliases(
       key,
       agent.model || "",
       agent.fallbackModels,
-      db.globalFallbackModel,
+      config.globalFallbackModel,
     );
     Object.assign(allAliases, agentAliases);
   }
 
   // Generate aliases from categories (generated aliases override)
-  for (const [key, category] of Object.entries(db.categories || {})) {
+  for (const [key, category] of Object.entries(config.categories || {})) {
     const categoryAliases = generateLitellmAliases(
       key,
       category.model || "",
       category.fallbackModels,
-      db.globalFallbackModel,
+      config.globalFallbackModel,
     );
     Object.assign(allAliases, categoryAliases);
   }
@@ -62,14 +64,12 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
 export async function updateAgentRoutingConfigImpl(
   modelGroupAlias: Record<string, string>,
 ): Promise<void> {
-  const { writeDb, readDb: readDbDynamic } = await import(
-    "@lite-llm/agents-manager"
-  );
-  const db = await readDbDynamic();
+  const { repository } = createAgentsManager();
+  const config = await repository.read();
 
   // Remove agent/category generated aliases, keep only custom
-  const agentKeys = new Set(Object.keys(db.agents || {}));
-  const categoryKeys = new Set(Object.keys(db.categories || {}));
+  const agentKeys = new Set(Object.keys(config.agents || {}));
+  const categoryKeys = new Set(Object.keys(config.categories || {}));
 
   const customAliases: Record<string, string> = {};
   for (const [key, value] of Object.entries(modelGroupAlias)) {
@@ -85,11 +85,11 @@ export async function updateAgentRoutingConfigImpl(
   }
 
   if (Object.keys(customAliases).length > 0) {
-    db.customAliases = customAliases;
+    config.customAliases = customAliases;
   } else {
-    delete db.customAliases;
+    delete config.customAliases;
   }
-  await writeDb(db);
+  await repository.write(config);
 
   // Also write to LiteLLM_Config table
   await updateRouterSettings(modelGroupAlias);

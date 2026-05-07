@@ -1,3 +1,4 @@
+import { createAgentsManager } from "@lite-llm/agents-manager";
 import type { Application } from "express";
 import type { RouteOptions } from "../../types/index.js";
 
@@ -9,10 +10,10 @@ export function registerGlobalFallbackRoutes(
 
   app.get("/agent-config/global-fallback", async (_req, res) => {
     try {
-      const { readDb } = await import("@lite-llm/agents-manager");
-      const db = await readDb();
+      const { repository } = createAgentsManager();
+      const config = await repository.read();
       res.json({
-        globalFallbackModel: db.globalFallbackModel || "gpt-5.1",
+        globalFallbackModel: config.globalFallbackModel || "gpt-5.1",
       });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -24,13 +25,14 @@ export function registerGlobalFallbackRoutes(
       const { globalFallbackModel } = req.body as {
         globalFallbackModel?: string;
       };
-      const { updateGlobalFallbackInDb } = await import(
-        "@lite-llm/agents-manager"
-      );
-      const newGlobalFallback = globalFallbackModel || "gpt-5.1";
-      await updateGlobalFallbackInDb(newGlobalFallback);
+      const { repository } = createAgentsManager();
+      const config = await repository.read();
+      config.globalFallbackModel = globalFallbackModel || "gpt-5.1";
+      await repository.write(config);
+
       await orchestration.syncGeneratedArtifacts();
       await orchestration.regenerateAllAliases();
+
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });

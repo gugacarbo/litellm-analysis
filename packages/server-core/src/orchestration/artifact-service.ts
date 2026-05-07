@@ -1,10 +1,4 @@
-import {
-  readConfigFile,
-  readDb,
-  syncOutputConfigFile,
-  writeProvidersFile,
-  writeVscodeModelsFile,
-} from "@lite-llm/agents-manager";
+import { createAgentsManager } from "@lite-llm/agents-manager";
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
 import type { DbModelSpecLike } from "../types/index.js";
 import { buildLiteLLMParams } from "./lite-llm-params.js";
@@ -33,9 +27,11 @@ export async function syncModelsDirectlyToDatabase(
     }
   }
 
-  for (const [modelName, count] of existingCounts.entries()) {
+  for (const [, count] of existingCounts.entries()) {
     if (count > 1) {
-      namesToDelete.add(modelName);
+      for (const modelName of existingCounts.keys()) {
+        namesToDelete.add(modelName);
+      }
     }
   }
 
@@ -60,15 +56,12 @@ export async function syncModelsDirectlyToDatabase(
 export async function syncGeneratedArtifacts(
   dataSource: AnalyticsDataSource,
 ): Promise<void> {
-  // In database mode, write directly to LiteLLM_ProxyModelTable
-  // to avoid API-level duplicate model creation.
-  const db = await readDb();
-  await syncModelsDirectlyToDatabase(dataSource, db.models || {});
+  const { repository, registry } = createAgentsManager();
 
-  const config = await readConfigFile();
-  const models = await dataSource.getModels();
+  // Sync models to database
+  const config = await repository.read();
+  await syncModelsDirectlyToDatabase(dataSource, config.models || {});
 
-  await writeProvidersFile(config, models);
-  await writeVscodeModelsFile(models);
-  await syncOutputConfigFile();
+  // Export config files via plugins
+  await registry.exportAll();
 }

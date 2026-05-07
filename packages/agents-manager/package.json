@@ -1,6 +1,6 @@
 {
   "name": "@lite-llm/agents-manager",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@lite-llm/alias-router": "workspace:*",
-    "@lite-llm/config": "workspace:*"
+    "@lite-llm/config": "workspace:*",
+    "@lite-llm/db-repository": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

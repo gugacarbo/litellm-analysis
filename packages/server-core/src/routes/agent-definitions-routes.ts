@@ -1,4 +1,4 @@
-import type { DbAgentEntry, DbCategoryEntry } from "@lite-llm/agents-manager";
+import { createAgentsManager } from "@lite-llm/agents-manager";
 import type { Application } from "express";
 
 type AgentDefinition = {
@@ -68,7 +68,10 @@ function normalizeDescription(
   return fallback ?? `Configuration metadata for ${toTitleCase(key)}.`;
 }
 
-function toAgentDefinition(key: string, entry: DbAgentEntry): AgentDefinition {
+function toAgentDefinition(
+  key: string,
+  entry: { description?: string },
+): AgentDefinition {
   const metadata = AGENT_METADATA[key];
   return {
     key,
@@ -84,7 +87,7 @@ function toAgentDefinition(key: string, entry: DbAgentEntry): AgentDefinition {
 
 function toCategoryDefinition(
   key: string,
-  entry: DbCategoryEntry,
+  entry: { description?: string },
 ): CategoryDefinition {
   const metadata = CATEGORY_METADATA[key];
   return {
@@ -102,17 +105,18 @@ function toCategoryDefinition(
 export function registerAgentDefinitionsRoutes(app: Application): void {
   app.get("/agent-definitions", async (_req, res) => {
     try {
-      const { readDb } = await import("@lite-llm/agents-manager");
-      const db = await readDb();
+      const { services } = createAgentsManager();
+      const agents = await services.agents.getAll();
+      const categories = await services.categories.getAll();
 
-      const agents = Object.entries(db.agents ?? {}).map(([key, entry]) =>
+      const agentDefs = Object.entries(agents).map(([key, entry]) =>
         toAgentDefinition(key, entry),
       );
-      const categories = Object.entries(db.categories ?? {}).map(
-        ([key, entry]) => toCategoryDefinition(key, entry),
+      const categoryDefs = Object.entries(categories).map(([key, entry]) =>
+        toCategoryDefinition(key, entry),
       );
 
-      res.json({ agents, categories });
+      res.json({ agents: agentDefs, categories: categoryDefs });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

@@ -224,7 +224,8 @@ describe("agentConfigSchema", () => {
       permission: { edit: "allow", unknown: true },
     });
     expect(result.permission?.edit).toBe("allow");
-    expect("unknown" in result.permission!).toBe(false);
+    if (!result.permission) throw new Error("expected permission");
+    expect("unknown" in result.permission).toBe(false);
   });
 });
 

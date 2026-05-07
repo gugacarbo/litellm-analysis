@@ -4,11 +4,13 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "outDir": "dist",
-    "rootDir": "src",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "declaration": true,
+    "declarationMap": true,
     "skipLibCheck": true,
-    "types": ["node", "vite/client"]
+    "types": ["node"],
+    "customConditions": ["development"]
   },
   "include": ["src"]
 }

@@ -1,4 +1,6 @@
+import { existsSync } from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { createDataSource } from "@lite-llm/analytics/data-source";
 import { closePool } from "@lite-llm/analytics/queries";
@@ -15,17 +17,31 @@ export interface AppRuntime {
   stop: () => void;
 }
 
-function getProjectRoot(cwd: string): string {
-  return path.resolve(cwd, "..", "..");
+function getProjectRoot(): string {
+  // Resolve workspace root by walking up to the pnpm workspace marker.
+  const serverRuntimeDir = path.dirname(fileURLToPath(import.meta.url));
+  return findWorkspaceRoot(serverRuntimeDir);
+}
+
+function findWorkspaceRoot(startDir: string): string {
+  let dir = startDir;
+  const root = path.parse(dir).root;
+
+  while (dir !== root) {
+    if (existsSync(path.join(dir, "pnpm-workspace.yaml"))) {
+      return dir;
+    }
+
+    dir = path.dirname(dir);
+  }
+
+  return startDir;
 }
 
 function setupAgentsManager(projectRoot: string): void {
   createAgentsManager({
-    projectRoot,
-    dbFile: path.join(projectRoot, "db", "db.json"),
-    legacyConfigFile: path.join(projectRoot, "data", "oh-my-openagent.json"),
-    providersFile: path.join(projectRoot, "data", "opencode.json"),
-    vscodeModelsFile: path.join(projectRoot, "data", "vscode-oaicopilot.json"),
+    dbPath: path.join(projectRoot, "@db", "db.json"),
+    outputDir: path.join(projectRoot, "data"),
   });
 }
 
@@ -35,7 +51,7 @@ function registerShutdownHooks(stop: () => void): void {
 }
 
 export function startAppRuntime(): AppRuntime {
-  const projectRoot = getProjectRoot(process.cwd());
+  const projectRoot = getProjectRoot();
   setupAgentsManager(projectRoot);
 
   const dataSource = createDataSource();

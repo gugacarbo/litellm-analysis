@@ -1,8 +1,8 @@
+import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// https://vite.dev/config/
 export default defineConfig({
   envDir: "../../",
   plugins: [react(), tailwindcss()],
@@ -15,7 +15,7 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:3008",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        rewrite: (p) => p.replace(/^\/api/, ""),
       },
       "/ws": {
         target: "http://localhost:3008",
@@ -23,5 +23,9 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  build: {
+    outDir: path.resolve(__dirname, "dist"),
+    emptyOutDir: true,
   },
 });

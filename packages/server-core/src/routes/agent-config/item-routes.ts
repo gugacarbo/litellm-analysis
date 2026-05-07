@@ -1,10 +1,4 @@
-import {
-  deleteAgentFromConfig,
-  deleteCategoryFromConfig,
-  readConfigFile,
-  updateAgentInConfig,
-  updateCategoryInConfig,
-} from "@lite-llm/agents-manager";
+import { createAgentsManager } from "@lite-llm/agents-manager";
 import {
   getExistingAliasesForAgent,
   resolveConfiguredModels,
@@ -28,17 +22,19 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
         });
         return;
       }
-      const config = await readConfigFile();
-      const isAgent = key in (config.agents || {});
-      const isCategory = key in (config.categories || {});
+      const { services } = createAgentsManager();
+      const agents = await services.agents.getAll();
+      const categories = await services.categories.getAll();
+      const isAgent = key in (agents || {});
+      const isCategory = key in (categories || {});
 
       if (isAgent) {
-        res.json({ type: "agent", key, config: config.agents?.[key] });
+        res.json({ type: "agent", key, config: agents[key] });
       } else if (isCategory) {
         res.json({
           type: "category",
           key,
-          config: config.categories?.[key],
+          config: categories[key],
         });
       } else {
         res.status(404).json({
@@ -75,6 +71,7 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
       }
 
       const existingAliases = await buildAliasMapFromDb();
+      const { services } = createAgentsManager();
 
       const { actualModel, actualFallbacks } = resolveConfiguredModels(
         key,
@@ -90,9 +87,9 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
       };
 
       if (type === "agent") {
-        await updateAgentInConfig(key, configToSave);
+        await services.agents.upsert(key, configToSave);
       } else {
-        await updateCategoryInConfig(key, configToSave);
+        await services.categories.upsert(key, configToSave);
       }
 
       await orchestration.syncGeneratedArtifacts();
@@ -115,11 +112,12 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
         return;
       }
       const { type } = req.query;
+      const { services } = createAgentsManager();
 
       if (type === "category") {
-        await deleteCategoryFromConfig(key);
+        await services.categories.delete(key);
       } else {
-        await deleteAgentFromConfig(key);
+        await services.agents.delete(key);
       }
       await orchestration.syncGeneratedArtifacts();
 

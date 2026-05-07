@@ -1,4 +1,4 @@
-import { readDb } from "@lite-llm/agents-manager";
+import { createAgentsManager } from "@lite-llm/agents-manager";
 import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
@@ -6,14 +6,15 @@ import {
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
 
 export async function buildAliasMapFromDb(): Promise<Record<string, string>> {
-  const db = await readDb();
-  const globalFallback = db.globalFallbackModel;
+  const { repository } = createAgentsManager();
+  const config = await repository.read();
+  const globalFallback = config.globalFallbackModel;
 
   const mergedAliases: Record<string, string> = {
-    ...(db.customAliases || {}),
+    ...(config.customAliases || {}),
   };
 
-  for (const [key, agent] of Object.entries(db.agents || {})) {
+  for (const [key, agent] of Object.entries(config.agents || {})) {
     Object.assign(
       mergedAliases,
       generateLitellmAliases(
@@ -25,7 +26,7 @@ export async function buildAliasMapFromDb(): Promise<Record<string, string>> {
     );
   }
 
-  for (const [key, category] of Object.entries(db.categories || {})) {
+  for (const [key, category] of Object.entries(config.categories || {})) {
     Object.assign(
       mergedAliases,
       generateLitellmAliases(
