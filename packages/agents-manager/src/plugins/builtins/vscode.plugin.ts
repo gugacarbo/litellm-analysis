@@ -1,4 +1,7 @@
-import type { DbConfig, ModelSpec } from "@lite-llm/settings-repository/repository";
+import type {
+  DbConfig,
+  ModelSpec,
+} from "@lite-llm/settings-repository/repository";
 import type { IPlugin, PluginModel, TransformContext } from "../plugin";
 
 const CURRENT_VERSION = 1;
