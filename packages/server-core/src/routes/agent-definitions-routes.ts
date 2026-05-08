@@ -1,3 +1,4 @@
+import type { IAgentCatalogService } from "@lite-llm/agents-manager";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import type { Application } from "express";
 
@@ -13,40 +14,6 @@ type CategoryDefinition = {
   name: string;
   description: string;
   icon?: string;
-};
-
-const AGENT_METADATA: Record<
-  string,
-  { name: string; icon: string; description?: string }
-> = {
-  sisyphus: { name: "Sisyphus", icon: "🔄" },
-  oracle: { name: "Oracle", icon: "🔮" },
-  prometheus: { name: "Prometheus", icon: "🔥" },
-  explore: { name: "Explore", icon: "🔍" },
-  "multimodal-looker": { name: "Multimodal Looker", icon: "👁️" },
-  metis: { name: "Metis", icon: "🧩" },
-  atlas: { name: "Atlas", icon: "🧭" },
-  librarian: { name: "Librarian", icon: "📚" },
-  "sisyphus-junior": { name: "Sisyphus Junior", icon: "🤖" },
-  momus: { name: "Momus", icon: "✅" },
-  hephaestus: { name: "Hephaestus", icon: "🔨" },
-  build: { name: "Build", icon: "🔧" },
-  plan: { name: "Plan", icon: "📋" },
-  "OpenCode-Builder": { name: "OpenCode Builder", icon: "🏗️" },
-};
-
-const CATEGORY_METADATA: Record<
-  string,
-  { name: string; icon?: string; description?: string }
-> = {
-  "visual-engineering": { name: "Visual Engineering" },
-  ultrabrain: { name: "Ultrabrain" },
-  deep: { name: "Deep" },
-  artistry: { name: "Artistry" },
-  quick: { name: "Quick" },
-  "unspecified-low": { name: "Unspecified Low" },
-  "unspecified-high": { name: "Unspecified High" },
-  writing: { name: "Writing" },
 };
 
 function toTitleCase(input: string): string {
@@ -68,19 +35,20 @@ function normalizeDescription(
   return fallback ?? `Configuration metadata for ${toTitleCase(key)}.`;
 }
 
-function toAgentDefinition(
+async function toAgentDefinition(
   key: string,
   entry: { description?: string },
-): AgentDefinition {
-  const metadata = AGENT_METADATA[key];
+  catalog: IAgentCatalogService,
+): Promise<AgentDefinition> {
+  const agent = await catalog.get(key);
   return {
     key,
-    name: metadata?.name ?? toTitleCase(key),
-    icon: metadata?.icon ?? "🤖",
+    name: agent?.displayName ?? toTitleCase(key),
+    icon: agent?.icon ?? "🤖",
     description: normalizeDescription(
       key,
       entry.description,
-      metadata?.description,
+      agent?.description,
     ),
   };
 }
@@ -89,16 +57,10 @@ function toCategoryDefinition(
   key: string,
   entry: { description?: string },
 ): CategoryDefinition {
-  const metadata = CATEGORY_METADATA[key];
   return {
     key,
-    name: metadata?.name ?? toTitleCase(key),
-    icon: metadata?.icon,
-    description: normalizeDescription(
-      key,
-      entry.description,
-      metadata?.description,
-    ),
+    name: toTitleCase(key),
+    description: normalizeDescription(key, entry.description),
   };
 }
 
@@ -108,9 +70,12 @@ export function registerAgentDefinitionsRoutes(app: Application): void {
       const { services } = createAgentsManager();
       const agents = await services.agents.getAll();
       const categories = await services.categories.getAll();
+      const catalog = services.catalog;
 
-      const agentDefs = Object.entries(agents).map(([key, entry]) =>
-        toAgentDefinition(key, entry),
+      const agentDefs = await Promise.all(
+        Object.entries(agents).map(([key, entry]) =>
+          toAgentDefinition(key, entry, catalog),
+        ),
       );
       const categoryDefs = Object.entries(categories).map(([key, entry]) =>
         toCategoryDefinition(key, entry),

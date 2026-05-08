@@ -40,6 +40,14 @@ export class PluginRegistry implements IPluginRegistry {
     return Array.from(this.plugins.values());
   }
 
+  listBuiltins(): IPlugin[] {
+    return this.list().filter((p) => p.builtin === true);
+  }
+
+  listExternal(): IPlugin[] {
+    return this.list().filter((p) => p.builtin !== true);
+  }
+
   async exportAll(): Promise<void> {
     for (const plugin of this.plugins.values()) {
       await this.exportOne(plugin.id);
@@ -54,7 +62,29 @@ export class PluginRegistry implements IPluginRegistry {
 
     const config = await this.repository.read();
     const context = this.buildContext(config);
-    const output = plugin.buildOutput(config, context);
+
+    // Use v2 buildOutputV2 if available, otherwise fall back to legacy
+    let output: unknown;
+    if (plugin.buildOutputV2) {
+      const agents = Object.values(config.agents).map((entry) => ({
+        id: "",
+        displayName: "",
+        icon: "",
+        description: entry.description ?? "",
+        versions: [],
+        model: entry.model,
+        fallbackModels: entry.fallbackModels ?? [],
+        enabledPlugins: [],
+        config: {},
+      }));
+      output = plugin.buildOutputV2(
+        agents,
+        { version: 1, plugins: {} },
+        context,
+      );
+    } else {
+      output = plugin.buildOutput(config, context);
+    }
 
     if (plugin.validate) {
       if (!plugin.validate(output)) {
@@ -68,7 +98,6 @@ export class PluginRegistry implements IPluginRegistry {
   private buildContext(config: DbConfig): TransformContext {
     const resolvedModels = new Map<string, string>();
 
-    // Resolve all model references
     for (const [key, entry] of Object.entries({
       ...config.agents,
       ...config.categories,

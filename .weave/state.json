@@ -1,9 +1,14 @@
 {
-  "active_plan": "/home/gustavo_carbonera/Apps/litellm-analysis/.weave/plans/providers-reorganization.md",
-  "started_at": "2026-05-07T16:50:43.165Z",
-  "session_ids": ["ses_1fcb39005ffeoy4JTmoyBGpdbg"],
-  "plan_name": "providers-reorganization",
+  "active_plan": "/home/gustavo_carbonera/Apps/litellm-analysis/.weave/plans/generic-agents-manager.md",
+  "started_at": "2026-05-08T17:19:18.450Z",
+  "session_ids": [
+    "ses_1f795ca99ffejW7ji2ndDt9xb7"
+  ],
+  "plan_name": "generic-agents-manager",
   "agent": "tapestry",
-  "start_sha": "1473f942efa57ee60f552f035338731e71f46205",
-  "paused": true
+  "start_sha": null,
+  "paused": true,
+  "verification_reminder_sent": true,
+  "continuation_completed_snapshot": 0,
+  "stale_continuation_count": 0
 }

@@ -83,4 +83,12 @@ export const queryKeys = {
     ] as const,
   healthCheckLatest: ["health-check", "latest"] as const,
   healthCheckSummary: ["health-check", "summary"] as const,
+  agentCatalog: {
+    all: ["agent-catalog"] as const,
+    detail: (id: string) => ["agent-catalog", id] as const,
+  },
+  pluginRouting: {
+    all: ["plugin-routing"] as const,
+    plugins: ["plugin-routing", "plugins"] as const,
+  },
 };

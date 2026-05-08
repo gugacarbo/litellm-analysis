@@ -1,0 +1,1187 @@
+{
+  "provider": {
+    "litellm": {
+      "name": "LiteLLM",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-123456789"
+      },
+      "models": {
+        "glm-5": {
+          "id": "glm-5",
+          "name": "GLM 5",
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          },
+          "cost": {
+            "input": 1,
+            "output": 3.2
+          }
+        },
+        "glm-5.1": {
+          "id": "glm-5.1",
+          "name": "GLM 5.1",
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          },
+          "cost": {
+            "input": 1.4,
+            "output": 4.4
+          }
+        },
+        "glm-5-turbo": {
+          "id": "glm-5-turbo",
+          "name": "GLM 5 Turbo",
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          },
+          "cost": {
+            "input": 1.2,
+            "output": 4
+          }
+        },
+        "MiniMax-M2.7-highspeed": {
+          "id": "MiniMax-M2.7-highspeed",
+          "name": "MiniMax M2.7 Hs",
+          "limit": {
+            "context": 204800,
+            "output": 128000
+          },
+          "cost": {
+            "input": 0.3,
+            "output": 1.2
+          }
+        },
+        "qwen3.5-plus": {
+          "id": "qwen3.5-plus",
+          "name": "Qwen 3.5+",
+          "limit": {
+            "context": 1000000,
+            "output": 64000
+          },
+          "cost": {
+            "input": 0.4,
+            "output": 2.4
+          }
+        },
+        "qwen3-coder-plus": {
+          "id": "qwen3-coder-plus",
+          "name": "Qwen 3 Coder+",
+          "limit": {
+            "context": 1000000,
+            "output": 64000
+          },
+          "cost": {
+            "input": 0.65,
+            "output": 3.25
+          }
+        },
+        "deepseek-v4-flash": {
+          "id": "deepseek-v4-flash",
+          "name": "Deepseek V4 Flash",
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          },
+          "cost": {
+            "input": 0.14,
+            "output": 0.28
+          }
+        },
+        "deepseek-v4-pro": {
+          "id": "deepseek-v4-pro",
+          "name": "Deepseek V4 Pro",
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          },
+          "cost": {
+            "input": 1.74,
+            "output": 3.48
+          }
+        },
+        "glm-5.1:ollama": {
+          "id": "glm-5.1:ollama",
+          "name": "Glm 5.1:ollama",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          },
+          "cost": {
+            "input": 1.2,
+            "output": 4
+          }
+        },
+        "kimi-k2.6": {
+          "id": "kimi-k2.6",
+          "name": "Kimi K2.6",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "cost": {
+            "input": 0.95,
+            "output": 4
+          }
+        },
+        "mimo-v2.5-pro": {
+          "id": "mimo-v2.5-pro",
+          "name": "Mimo V2.5 Pro",
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "cost": {
+            "input": 1,
+            "output": 3
+          }
+        },
+        "mimo-v2-pro": {
+          "id": "mimo-v2-pro",
+          "name": "Mimo V2 Pro",
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "cost": {
+            "input": 1,
+            "output": 3
+          }
+        }
+      }
+    },
+    "oracle": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "oracle/gpt-5.5",
+          "name": "Oracle 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "oracle/gpt-5.4",
+          "name": "Oracle 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "oracle/gpt-5.3",
+          "name": "Oracle 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "oracle/gpt-5.2",
+          "name": "Oracle 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "oracle/gpt-5.1",
+          "name": "Oracle 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "hephaestus": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "hephaestus/gpt-5.5",
+          "name": "Hephaestus 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "hephaestus/gpt-5.4",
+          "name": "Hephaestus 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "hephaestus/gpt-5.3",
+          "name": "Hephaestus 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "hephaestus/gpt-5.2",
+          "name": "Hephaestus 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "hephaestus/gpt-5.1",
+          "name": "Hephaestus 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "atlas": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "atlas/gpt-5.5",
+          "name": "Atlas 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "atlas/gpt-5.4",
+          "name": "Atlas 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "atlas/gpt-5.3",
+          "name": "Atlas 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "atlas/gpt-5.2",
+          "name": "Atlas 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "atlas/gpt-5.1",
+          "name": "Atlas 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "sisyphus-junior": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "sisyphus-junior/gpt-5.5",
+          "name": "Sisyphus-junior 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "sisyphus-junior/gpt-5.4",
+          "name": "Sisyphus-junior 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "sisyphus-junior/gpt-5.3",
+          "name": "Sisyphus-junior 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "sisyphus-junior/gpt-5.2",
+          "name": "Sisyphus-junior 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "sisyphus-junior/gpt-5.1",
+          "name": "Sisyphus-junior 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "librarian": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "librarian/gpt-5.5",
+          "name": "Librarian 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "librarian/gpt-5.4",
+          "name": "Librarian 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "librarian/gpt-5.3",
+          "name": "Librarian 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "librarian/gpt-5.2",
+          "name": "Librarian 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "librarian/gpt-5.1",
+          "name": "Librarian 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "momus": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "momus/gpt-5.5",
+          "name": "Momus 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "momus/gpt-5.4",
+          "name": "Momus 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "momus/gpt-5.3",
+          "name": "Momus 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "momus/gpt-5.2",
+          "name": "Momus 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "momus/gpt-5.1",
+          "name": "Momus 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "prometheus": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "prometheus/gpt-5.5",
+          "name": "Prometheus 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "prometheus/gpt-5.4",
+          "name": "Prometheus 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "prometheus/gpt-5.3",
+          "name": "Prometheus 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "prometheus/gpt-5.2",
+          "name": "Prometheus 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "prometheus/gpt-5.1",
+          "name": "Prometheus 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "explore": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "explore/gpt-5.5",
+          "name": "Explore 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "explore/gpt-5.4",
+          "name": "Explore 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "explore/gpt-5.3",
+          "name": "Explore 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "explore/gpt-5.2",
+          "name": "Explore 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "explore/gpt-5.1",
+          "name": "Explore 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "multimodal-looker": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "multimodal-looker/gpt-5.5",
+          "name": "Multimodal-looker 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "multimodal-looker/gpt-5.4",
+          "name": "Multimodal-looker 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "multimodal-looker/gpt-5.3",
+          "name": "Multimodal-looker 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "multimodal-looker/gpt-5.2",
+          "name": "Multimodal-looker 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "multimodal-looker/gpt-5.1",
+          "name": "Multimodal-looker 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "metis": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "metis/gpt-5.5",
+          "name": "Metis 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "metis/gpt-5.4",
+          "name": "Metis 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "metis/gpt-5.3",
+          "name": "Metis 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "metis/gpt-5.2",
+          "name": "Metis 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "metis/gpt-5.1",
+          "name": "Metis 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "build": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "build/gpt-5.5",
+          "name": "Build 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "build/gpt-5.4",
+          "name": "Build 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "build/gpt-5.3",
+          "name": "Build 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "build/gpt-5.2",
+          "name": "Build 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "build/gpt-5.1",
+          "name": "Build 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "plan": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "plan/gpt-5.5",
+          "name": "Plan 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "plan/gpt-5.4",
+          "name": "Plan 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "plan/gpt-5.3",
+          "name": "Plan 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "plan/gpt-5.2",
+          "name": "Plan 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "plan/gpt-5.1",
+          "name": "Plan 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "OpenCode-Builder": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "OpenCode-Builder/gpt-5.5",
+          "name": "OpenCode-Builder 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "OpenCode-Builder/gpt-5.4",
+          "name": "OpenCode-Builder 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "OpenCode-Builder/gpt-5.3",
+          "name": "OpenCode-Builder 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "OpenCode-Builder/gpt-5.2",
+          "name": "OpenCode-Builder 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "OpenCode-Builder/gpt-5.1",
+          "name": "OpenCode-Builder 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "ultrabrain": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "ultrabrain/gpt-5.5",
+          "name": "Ultrabrain 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "ultrabrain/gpt-5.4",
+          "name": "Ultrabrain 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "ultrabrain/gpt-5.3",
+          "name": "Ultrabrain 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "ultrabrain/gpt-5.2",
+          "name": "Ultrabrain 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "ultrabrain/gpt-5.1",
+          "name": "Ultrabrain 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "deep": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "deep/gpt-5.5",
+          "name": "Deep 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "deep/gpt-5.4",
+          "name": "Deep 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "deep/gpt-5.3",
+          "name": "Deep 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "deep/gpt-5.2",
+          "name": "Deep 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "deep/gpt-5.1",
+          "name": "Deep 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "code": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "code/gpt-5.5",
+          "name": "Code 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "code/gpt-5.4",
+          "name": "Code 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "code/gpt-5.3",
+          "name": "Code 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "code/gpt-5.2",
+          "name": "Code 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "code/gpt-5.1",
+          "name": "Code 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "artistry": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "artistry/gpt-5.5",
+          "name": "Artistry 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "artistry/gpt-5.4",
+          "name": "Artistry 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "artistry/gpt-5.3",
+          "name": "Artistry 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "artistry/gpt-5.2",
+          "name": "Artistry 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "artistry/gpt-5.1",
+          "name": "Artistry 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "quick": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "quick/gpt-5.5",
+          "name": "Quick 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "quick/gpt-5.4",
+          "name": "Quick 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "quick/gpt-5.3",
+          "name": "Quick 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "quick/gpt-5.2",
+          "name": "Quick 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "quick/gpt-5.1",
+          "name": "Quick 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "unspecified-low": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "unspecified-low/gpt-5.5",
+          "name": "Unspecified-low 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "unspecified-low/gpt-5.4",
+          "name": "Unspecified-low 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "unspecified-low/gpt-5.3",
+          "name": "Unspecified-low 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "unspecified-low/gpt-5.2",
+          "name": "Unspecified-low 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "unspecified-low/gpt-5.1",
+          "name": "Unspecified-low 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "unspecified-high": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "unspecified-high/gpt-5.5",
+          "name": "Unspecified-high 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "unspecified-high/gpt-5.4",
+          "name": "Unspecified-high 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "unspecified-high/gpt-5.3",
+          "name": "Unspecified-high 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "unspecified-high/gpt-5.2",
+          "name": "Unspecified-high 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "unspecified-high/gpt-5.1",
+          "name": "Unspecified-high 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    },
+    "writing": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "{env:LITELLM_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "id": "writing/gpt-5.5",
+          "name": "Writing 1",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.4": {
+          "id": "writing/gpt-5.4",
+          "name": "Writing 2",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.3": {
+          "id": "writing/gpt-5.3",
+          "name": "Writing 3",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.2": {
+          "id": "writing/gpt-5.2",
+          "name": "Writing 4",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        },
+        "gpt-5.1": {
+          "id": "writing/gpt-5.1",
+          "name": "Writing 5",
+          "limit": {
+            "output": 32768,
+            "context": 200000
+          }
+        }
+      }
+    }
+  }
+}

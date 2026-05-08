@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./analytics": "./src/analytics.ts",
-    "./agent-routing": "./src/agent-routing.ts"
+    "./agent-routing": "./src/agent-routing.ts",
+    "./agent-catalog": "./src/agent-catalog.ts"
   },
   "scripts": {
     "build": "tsc",

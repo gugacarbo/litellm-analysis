@@ -162,7 +162,7 @@
       "mode": "subagent"
     },
     "atlas": {
-      "model": "kimi-k2.6",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "mimo-v2.5-pro",
         "deepseek-v4-pro",
@@ -240,7 +240,7 @@
       "mode": "subagent"
     },
     "multimodal-looker": {
-      "model": "kimi-k2.6",
+      "model": "glm-5-turbo",
       "fallbackModels": [
         "kimi-k2.6",
         "qwen3.5-plus",

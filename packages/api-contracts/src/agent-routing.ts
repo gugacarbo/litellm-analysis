@@ -27,6 +27,11 @@ export interface AgentDefinitionsResponse {
   categories: CategoryDefinition[];
 }
 
+/**
+ * Hard-coded agent definitions for fallback use.
+ * @deprecated Data should come from the Agent Catalog API (GET /agent-catalog).
+ *             This array will be removed in a future version.
+ */
 export const AGENT_DEFINITIONS: AgentDefinition[] = [
   {
     key: "sisyphus",
@@ -116,6 +121,11 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
   },
 ];
 
+/**
+ * Hard-coded category definitions for fallback use.
+ * @deprecated Data should come from the Agent Catalog API (GET /agent-catalog).
+ *             This array will be removed in a future version.
+ */
 export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
   {
     key: "visual-engineering",

@@ -53,6 +53,18 @@ export async function syncModelsDirectlyToDatabase(
   }
 }
 
+/**
+ * Syncs generated artifact files (configs, provider models) to disk.
+ *
+ * Only built-in plugins (those registered automatically by createAgentsManager,
+ * currently OpenCodePlugin) are exported by default. External plugins such as
+ * OpenAgentPlugin or VsCodePlugin must be explicitly registered on the registry
+ * instance before calling this function (or before exportAll()) to be included
+ * in the output.
+ *
+ * This means only intentionally enabled plugins produce output files — no plugin
+ * is exported unless it has been registered via registry.register().
+ */
 export async function syncGeneratedArtifacts(
   dataSource: AnalyticsDataSource,
 ): Promise<void> {
@@ -62,6 +74,7 @@ export async function syncGeneratedArtifacts(
   const config = await repository.read();
   await syncModelsDirectlyToDatabase(dataSource, config.models || {});
 
-  // Export config files via plugins
+  // Export config files via all registered plugins.
+  // Only built-in + any plugins explicitly registered elsewhere will produce output.
   await registry.exportAll();
 }

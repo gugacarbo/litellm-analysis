@@ -1,0 +1,170 @@
+{
+  "oaicopilot.commitLanguage": "Portuguese (Brazil)",
+  "oaicopilot.baseUrl": "",
+  "oaicopilot.delay": 0,
+  "oaicopilot.readFileLines": 0,
+  "oaicopilot.retry": {
+    "enabled": true,
+    "max_attempts": 3,
+    "interval_ms": 2000,
+    "status_codes": []
+  },
+  "oaicopilot.models": [
+    {
+      "name": "GLM 5",
+      "id": "glm-5",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 128000
+      }
+    },
+    {
+      "name": "GLM 5.1",
+      "id": "glm-5.1",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 128000
+      }
+    },
+    {
+      "name": "GLM 5 Turbo",
+      "id": "glm-5-turbo",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 128000
+      }
+    },
+    {
+      "name": "MiniMax M2.7 Hs",
+      "id": "MiniMax-M2.7-highspeed",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 128000
+      }
+    },
+    {
+      "name": "Qwen 3.5+",
+      "id": "qwen3.5-plus",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 64000
+      }
+    },
+    {
+      "name": "Qwen 3 Coder+",
+      "id": "qwen3-coder-plus",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 64000
+      }
+    },
+    {
+      "name": "Deepseek V4 Flash",
+      "id": "deepseek-v4-flash",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 384000
+      }
+    },
+    {
+      "name": "Deepseek V4 Pro",
+      "id": "deepseek-v4-pro",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 384000
+      }
+    },
+    {
+      "name": "Glm 5.1:ollama",
+      "id": "glm-5.1:ollama",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 32768
+      }
+    },
+    {
+      "name": "Kimi K2.6",
+      "id": "kimi-k2.6",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 32768
+      }
+    },
+    {
+      "name": "Mimo V2.5 Pro",
+      "id": "mimo-v2.5-pro",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 32768
+      }
+    },
+    {
+      "name": "Mimo V2 Pro",
+      "id": "mimo-v2-pro",
+      "baseUrl": "http://localhost:4000",
+      "request-options": {
+        "headers": {
+          "Authorization": "Bearer {env:LITELLM_API_KEY}"
+        }
+      },
+      "model-settings": {
+        "max-tokens": 32768
+      }
+    }
+  ]
+}

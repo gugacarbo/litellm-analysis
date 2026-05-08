@@ -1,5 +1,6 @@
 import {
   Activity,
+  BookOpen,
   Bot,
   ChevronDown,
   ChevronRight,
@@ -37,9 +38,11 @@ function getExpandedState(
   id: string,
   monitoringExpanded: boolean,
   modelsExpanded: boolean,
+  agentsExpanded: boolean,
 ): boolean {
   if (id === "monitoring") return monitoringExpanded;
   if (id === "models") return modelsExpanded;
+  if (id === "agents") return agentsExpanded;
   return false;
 }
 
@@ -47,23 +50,36 @@ function toggleExpanded(
   id: string,
   setMonitoring: (v: boolean) => void,
   setModels: (v: boolean) => void,
+  setAgents: (v: boolean) => void,
   currentMonitoring: boolean,
   currentModels: boolean,
+  currentAgents: boolean,
 ): void {
   if (id === "monitoring") setMonitoring(!currentMonitoring);
   if (id === "models") setModels(!currentModels);
+  if (id === "agents") setAgents(!currentAgents);
 }
 
 export function Sidebar() {
   const [monitoringExpanded, setMonitoringExpanded] = useState(false);
   const [modelsExpanded, setModelsExpanded] = useState(false);
+  const [agentsExpanded, setAgentsExpanded] = useState(false);
 
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
     { to: "/monitor", icon: Radar, label: "Monitor" },
     { to: "/model-stats", icon: TrendingUp, label: "Stats" },
     { to: "/logs", icon: FileText, label: "Logs" },
-    { to: "/agent-routing", icon: Bot, label: "Agents" },
+    {
+      id: "agents",
+      icon: Bot,
+      label: "Agents",
+      children: [
+        { to: "/agent-routing", label: "Routing", icon: Bot },
+        { to: "/agent-catalog", label: "Catalog", icon: BookOpen },
+        { to: "/plugin-routing", label: "Plugins", icon: GitBranch },
+      ],
+    },
     {
       id: "models",
       icon: Settings,
@@ -89,6 +105,7 @@ export function Sidebar() {
                   item.id,
                   monitoringExpanded,
                   modelsExpanded,
+                  agentsExpanded,
                 );
                 return (
                   <div key={item.id}>
@@ -99,8 +116,10 @@ export function Sidebar() {
                           item.id,
                           setMonitoringExpanded,
                           setModelsExpanded,
+                          setAgentsExpanded,
                           monitoringExpanded,
                           modelsExpanded,
+                          agentsExpanded,
                         )
                       }
                       className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors w-full text-left ${
