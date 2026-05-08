@@ -11,6 +11,8 @@ vi.mock("../../lib/api-client", () => ({
   updateAgentConfig: vi.fn(),
   getAllModels: vi.fn(),
   getGlobalFallbackModel: vi.fn(),
+  getSyncAliasesConfig: vi.fn(),
+  setSyncAliasesConfig: vi.fn(),
 }));
 
 import {
@@ -23,6 +25,7 @@ import {
   getAgentRoutingConfig,
   getAllModels,
   getGlobalFallbackModel,
+  getSyncAliasesConfig,
 } from "../../lib/api-client";
 import { AgentRoutingPage } from "../agent-routing";
 
@@ -61,6 +64,7 @@ describe("AgentRoutingPage", () => {
     vi.mocked(getGlobalFallbackModel).mockResolvedValue({
       globalFallbackModel: "gpt-5.1",
     });
+    vi.mocked(getSyncAliasesConfig).mockResolvedValue({ enabled: false });
     vi.mocked(getAllModels).mockResolvedValueOnce(mockModels);
   });
 
