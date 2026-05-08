@@ -8,13 +8,20 @@ import { AgentRoutingModelStationsTab } from "../components/agent-routing/agent-
 import { CategoryConfigEditor } from "../components/category-config-editor";
 import { GlobalFallbackSelector } from "../components/global-fallback-selector";
 import { Button } from "../components/ui/button";
+import { Label } from "../components/ui/label";
 import { PageLayout } from "../components/ui/page-layout";
+import { Switch } from "../components/ui/switch";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../components/ui/tooltip";
 import { useAgentRoutingPageState } from "./agent-routing/use-agent-routing-page";
 
 export function AgentRoutingPage() {
@@ -54,10 +61,37 @@ export function AgentRoutingPage() {
               Model Stations
             </TabsTrigger>
           </TabsList>
-          <GlobalFallbackSelector
-            value={state.globalFallbackModel}
-            onValueChange={state.handleSaveGlobalFallback}
-          />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <Switch
+                      id="sync-aliases"
+                      checked={state.syncAliases}
+                      onCheckedChange={state.handleToggleSyncAliases}
+                    />
+                    <Label
+                      htmlFor="sync-aliases"
+                      className="text-sm cursor-pointer"
+                    >
+                      Sync Aliases
+                    </Label>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-48 text-xs">
+                    Quando desativado, alterações em agentes e categorias não
+                    geram mudanças nos aliases do LiteLLM
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <GlobalFallbackSelector
+              value={state.globalFallbackModel}
+              onValueChange={state.handleSaveGlobalFallback}
+            />
+          </div>
         </div>
 
         <TabsContent value="agents" className="mt-4">
