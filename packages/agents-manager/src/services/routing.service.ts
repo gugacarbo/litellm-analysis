@@ -2,9 +2,7 @@ import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type { DbConfig } from "@lite-llm/agents-repository/schema";
 import type {
   PluginRoutingConfig,
-  PluginRoutingRule,
 } from "../types/routing.js";
-import type { SystemAgent } from "../types/system-agent.js";
 
 export interface RoutingServiceOptions {
   repository: IAgentsRepository;
