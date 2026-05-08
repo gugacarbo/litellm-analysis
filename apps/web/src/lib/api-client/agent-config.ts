@@ -79,3 +79,17 @@ export async function updateGlobalFallbackModel(
     body: JSON.stringify({ globalFallbackModel }),
   });
 }
+
+export async function getSyncAliasesConfig(): Promise<{ enabled: boolean }> {
+  return fetchApi("/agent-config/sync-aliases");
+}
+
+export async function setSyncAliasesConfig(
+  enabled: boolean,
+): Promise<{ success: boolean }> {
+  return fetchApi("/agent-config/sync-aliases", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enabled }),
+  });
+}

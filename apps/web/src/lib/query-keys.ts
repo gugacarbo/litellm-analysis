@@ -91,4 +91,5 @@ export const queryKeys = {
     all: ["plugin-routing"] as const,
     plugins: ["plugin-routing", "plugins"] as const,
   },
+  syncAliases: ["sync-aliases"] as const,
 };
