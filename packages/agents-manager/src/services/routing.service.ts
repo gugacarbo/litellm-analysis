@@ -1,18 +1,10 @@
-import type {
-  DbConfig,
-  IAgentsRepository,
-} from "@lite-llm/agents-repository/repository";
+import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
+import type { DbConfig } from "@lite-llm/agents-repository/schema";
 import type {
   PluginRoutingConfig,
   PluginRoutingRule,
 } from "../types/routing.js";
 import type { SystemAgent } from "../types/system-agent.js";
-
-// Extended config to access routing field not yet in the DbConfig schema
-interface ExtendedConfig extends DbConfig {
-  routing?: PluginRoutingConfig;
-  systemAgents?: Record<string, SystemAgent>;
-}
 
 export interface RoutingServiceOptions {
   repository: IAgentsRepository;
@@ -25,6 +17,8 @@ export interface IRoutingService {
   setRoutingForAgent(agentId: string, pluginIds: string[]): Promise<void>;
   toggleAgentPlugin(pluginId: string, agentId: string): Promise<boolean>;
   isPluginEnabled(pluginId: string, agentId: string): Promise<boolean>;
+  getSyncAliases(): Promise<boolean>;
+  setSyncAliases(enabled: boolean): Promise<void>;
 }
 
 export class RoutingService implements IRoutingService {
@@ -35,13 +29,23 @@ export class RoutingService implements IRoutingService {
   }
 
   async getConfig(): Promise<PluginRoutingConfig> {
-    const config = (await this.repository.read()) as ExtendedConfig;
-    return config.routing ?? { version: 1, plugins: {} };
+    const config = (await this.repository.read()) as DbConfig;
+    return (config.routing ?? {
+      version: 1,
+      plugins: {},
+    }) as unknown as PluginRoutingConfig;
   }
 
   async saveConfig(routing: PluginRoutingConfig): Promise<void> {
-    const config = (await this.repository.read()) as ExtendedConfig;
+    const config = (await this.repository.read()) as DbConfig;
+    const existingSyncAliases = config.routing
+      ? (config.routing as Record<string, unknown>).syncAliases
+      : undefined;
     config.routing = routing;
+    if (existingSyncAliases !== undefined) {
+      (config.routing as Record<string, unknown>).syncAliases =
+        existingSyncAliases;
+    }
     await this.repository.write(config as DbConfig);
   }
 
@@ -117,5 +121,20 @@ export class RoutingService implements IRoutingService {
   async isPluginEnabled(pluginId: string, agentId: string): Promise<boolean> {
     const routing = await this.getConfig();
     return routing.plugins[pluginId]?.agents[agentId]?.enabled ?? false;
+  }
+
+  async getSyncAliases(): Promise<boolean> {
+    const config = (await this.repository.read()) as DbConfig;
+    if (!config.routing) return false;
+    return (config.routing as Record<string, unknown>).syncAliases === true;
+  }
+
+  async setSyncAliases(enabled: boolean): Promise<void> {
+    const config = (await this.repository.read()) as DbConfig;
+    if (!config.routing) {
+      config.routing = { version: 1, plugins: {} };
+    }
+    (config.routing as Record<string, unknown>).syncAliases = enabled;
+    await this.repository.write(config as DbConfig);
   }
 }
