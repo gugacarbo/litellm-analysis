@@ -18,7 +18,6 @@
     "@lite-llm/alias-router": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
     "@lite-llm/env": "workspace:*",
-    "@litellm/shared": "workspace:*",
     "express": "catalog:"
   },
   "devDependencies": {

@@ -5,8 +5,6 @@ export type AnomalyType =
   | "error_spike"
   | "timeout_stuck"
   | "silent_failure";
-export type AlertSeverity = "critical" | "warning" | "info";
-
 export interface MonitorAlert {
   id: number;
   anomalyType: string;

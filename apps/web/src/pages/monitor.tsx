@@ -146,5 +146,3 @@ export function MonitorPage() {
     </PageLayout>
   );
 }
-
-export default MonitorPage;

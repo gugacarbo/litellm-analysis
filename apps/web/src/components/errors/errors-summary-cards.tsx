@@ -76,5 +76,3 @@ export function ErrorsSummaryCards({
     </div>
   );
 }
-
-export type { ErrorsSummaryCardsProps, ErrorsTotals };

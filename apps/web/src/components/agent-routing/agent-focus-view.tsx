@@ -2,7 +2,7 @@ import type { AgentDefinition } from "@lite-llm/api-contracts/agent-routing";
 import type { ConfigInfo } from "./agent-routing-types";
 import { EntityFocusCard } from "./entity-focus-card";
 
-export type AgentFocusViewProps = {
+type AgentFocusViewProps = {
   loading: boolean;
   agents: AgentDefinition[];
   models: string[];

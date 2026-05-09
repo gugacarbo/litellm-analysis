@@ -4,7 +4,7 @@ import type { ConfigInfo } from "./agent-routing-types";
 import { CategoryFocusView } from "./category-focus-view";
 import { EntityRoutingCard } from "./entity-routing-card";
 
-export type AgentRoutingCategoriesTabProps = {
+type AgentRoutingCategoriesTabProps = {
   loading: boolean;
   categories: CategoryDefinition[];
   models: string[];

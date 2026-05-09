@@ -3,7 +3,7 @@ import type { SystemAgent } from "../types/system-agent.js";
 
 export const DEFAULT_DB_PATH = "@settings/agents.json";
 
-export const DEFAULT_OUTPUT_DIR = "data";
+const DEFAULT_OUTPUT_DIR = "data";
 
 // Only opencode is built-in; openagent and vscode are external plugins
 export const DEFAULT_FILE_PATHS = {
@@ -26,7 +26,7 @@ export function getFilePaths(baseDir?: string): FilePaths {
 
 // ── Default System Agents ──
 
-export const DEFAULT_SYSTEM_AGENTS: SystemAgent[] = [
+const DEFAULT_SYSTEM_AGENTS: SystemAgent[] = [
   {
     id: "builder",
     displayName: "Builder",
@@ -145,7 +145,7 @@ export const DEFAULT_SYSTEM_AGENTS: SystemAgent[] = [
 
 // ── Default Plugin Routing ──
 
-export const DEFAULT_ROUTING: PluginRoutingConfig = {
+const DEFAULT_ROUTING: PluginRoutingConfig = {
   version: 1,
   plugins: {
     opencode: {

@@ -4,7 +4,7 @@ import { AgentFocusView } from "./agent-focus-view";
 import type { ConfigInfo } from "./agent-routing-types";
 import { EntityRoutingCard } from "./entity-routing-card";
 
-export type AgentRoutingAgentsTabProps = {
+type AgentRoutingAgentsTabProps = {
   loading: boolean;
   agents: AgentDefinition[];
   models: string[];

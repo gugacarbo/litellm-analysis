@@ -1,52 +1,6 @@
 {
-  // Knip configuration for lite-llm-analytics
-  // Suppress false positives from shadcn/ui, barrel exports, and public APIs
-
-  // Ignore files from analysis entirely
-  "ignore": ["**/eslint.config.js"],
-
-  // Ignore specific unused files (false positives from barrel exports)
-  "ignoreFiles": [
-    // shadcn/ui components - used via barrel files
-    "apps/web/src/components/ui/collapsible.tsx",
-    "apps/web/src/components/ui/date-range-filter.tsx",
-    "apps/web/src/components/ui/empty-state.tsx",
-    "apps/web/src/components/ui/pagination.tsx",
-    "apps/web/src/components/ui/reload-button.tsx",
-    // Component subdirectories
-    "apps/web/src/components/logs/subcomponents/empty-state.tsx",
-    "apps/web/src/components/logs/log-detail-row.tsx",
-    "apps/web/src/components/model-detail/model-detail-logs-panel.tsx",
-    "apps/web/src/components/model-detail/model-detail-token-breakdown.tsx",
-    "apps/web/src/components/errors/errors-utils.ts",
-    "apps/web/src/components/insights.tsx",
-    "apps/web/src/components/layout/page-layout/page-layout.tsx",
-    "apps/web/src/components/layout/page-layout/page-layout-header.tsx",
-    "apps/web/src/components/model-stats/charts/chart-card.tsx",
-    "apps/web/src/components/model-stats/charts/cost-efficiency-chart.tsx",
-    "apps/web/src/components/model-stats/charts/error-breakdown-chart.tsx",
-    "apps/web/src/components/model-stats/charts/latency-chart.tsx",
-    "apps/web/src/components/model-stats/charts/request-distribution-chart.tsx",
-    "apps/web/src/components/model-stats/charts/spend-by-model-chart.tsx",
-    "apps/web/src/components/model-stats/charts/token-distribution-chart.tsx",
-    // Utilities and hooks used by consumers
-    "apps/web/src/lib/format.ts",
-    "apps/web/src/lib/tool-utils.ts",
-    "apps/web/src/pages/model-stats/model-stats-chart-utils.ts",
-    "apps/web/src/pages/model-stats/use-model-stats-actions.ts",
-    "apps/web/src/pages/model-stats/use-model-stats-derived.ts",
-    "apps/web/src/pages/model-stats/use-model-stats-page.ts",
-    "apps/web/src/pages/model-stats/use-model-stats-state.ts",
-    // Packages barrel exports
-    "packages/analytics/query.ts"
-  ],
-
-  // Ignore dependencies used by tooling
-  "ignoreDependencies": ["@radix-ui/react-collapsible"],
-
-  // Ignore exports used internally but exported for public API
-  "ignoreExportsUsedInFile": {
-    "type": true,
-    "interface": true
-  }
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": ["**/components/ui/*"],
+  "ignoreFiles": [],
+  "ignoreDependencies": ["@radix-ui/react-collapsible"]
 }

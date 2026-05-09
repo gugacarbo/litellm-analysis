@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "../ui/card";
 
-export type EntityRoutingCardProps = {
+type EntityRoutingCardProps = {
   /** Icon displayed in the card header */
   icon: LucideIcon;
   /** Main title for the card */

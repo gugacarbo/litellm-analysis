@@ -14,7 +14,7 @@ import type {
   MonitorAlert,
 } from "./monitor-types";
 
-export interface UseMonitorStateResult {
+interface UseMonitorStateResult {
   websocketStatus: ConnectionState;
   lastAlerts: MonitorAlert[];
   healthData: HealthUpdateData | null;

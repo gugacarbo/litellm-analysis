@@ -16,7 +16,7 @@ import type {
 const CURRENT_VERSION = 1;
 const LITELLM_API_KEY_REF = "{env:LITELLM_API_KEY}";
 
-export interface OpenCodeProviders {
+interface OpenCodeProviders {
   provider: Record<string, unknown>;
 }
 

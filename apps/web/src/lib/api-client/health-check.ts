@@ -1,6 +1,6 @@
 import { fetchApi } from "./core";
 
-export interface HealthCheckResult {
+interface HealthCheckResult {
   id: number;
   modelName: string;
   status: "healthy" | "unhealthy" | "error";
@@ -18,25 +18,25 @@ export interface HealthCheckResult {
   checkedAt: number;
 }
 
-export interface GetHealthCheckResultsResponse {
+interface GetHealthCheckResultsResponse {
   checks: HealthCheckResult[];
   total: number;
   limit: number;
   offset: number;
 }
 
-export interface GetLatestHealthChecksResponse {
+interface GetLatestHealthChecksResponse {
   checks: HealthCheckResult[];
 }
 
-export interface HealthCheckSummary {
+interface HealthCheckSummary {
   healthy: number;
   unhealthy: number;
   error: number;
   total: number;
 }
 
-export interface RunHealthCheckResponse {
+interface RunHealthCheckResponse {
   triggered: boolean;
 }
 

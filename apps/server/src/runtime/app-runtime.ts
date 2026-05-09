@@ -13,7 +13,7 @@ import {
 } from "./health-check-runtime";
 import { createMonitorRuntime, type MonitorRuntime } from "./monitor-runtime";
 
-export interface AppRuntime {
+interface AppRuntime {
   stop: () => void;
 }
 

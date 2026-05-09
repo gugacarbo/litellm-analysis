@@ -1,7 +1,3 @@
-export function getApiBase(params: Record<string, unknown>): string {
-  return (params?.api_base as string) || "-";
-}
-
 function formatCost(value: unknown): string {
   if (value === null || value === undefined) return "-";
   const num = Number(value);

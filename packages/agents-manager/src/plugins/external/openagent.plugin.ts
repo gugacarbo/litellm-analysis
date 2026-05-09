@@ -7,7 +7,7 @@ import type { IPlugin, PluginEntry, TransformContext } from "../plugin";
 
 const CURRENT_VERSION = 1;
 
-export interface OpenAgentConfig {
+interface OpenAgentConfig {
   $schema: string;
   globalFallbackModel?: string;
   git_master: {

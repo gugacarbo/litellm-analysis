@@ -161,5 +161,3 @@ export function PluginsPage() {
     </PageLayout>
   );
 }
-
-export default PluginsPage;

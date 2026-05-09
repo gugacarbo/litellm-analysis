@@ -3,6 +3,7 @@ import {
   Bot,
   ChevronDown,
   ChevronRight,
+  Cpu,
   FileText,
   GitBranch,
   Radar,
@@ -36,11 +37,9 @@ function isBranch(item: NavItem): item is NavBranch {
 function getExpandedState(
   id: string,
   monitoringExpanded: boolean,
-  modelsExpanded: boolean,
   agentsExpanded: boolean,
 ): boolean {
   if (id === "monitoring") return monitoringExpanded;
-  if (id === "models") return modelsExpanded;
   if (id === "agents") return agentsExpanded;
   return false;
 }
@@ -48,21 +47,17 @@ function getExpandedState(
 function toggleExpanded(
   id: string,
   setMonitoring: (v: boolean) => void,
-  setModels: (v: boolean) => void,
   setAgents: (v: boolean) => void,
   currentMonitoring: boolean,
-  currentModels: boolean,
   currentAgents: boolean,
 ): void {
   if (id === "monitoring") setMonitoring(!currentMonitoring);
-  if (id === "models") setModels(!currentModels);
   if (id === "agents") setAgents(!currentAgents);
 }
 
 export function Sidebar() {
   const [monitoringExpanded, setMonitoringExpanded] = useState(false);
-  const [modelsExpanded, setModelsExpanded] = useState(false);
-  const [agentsExpanded, setAgentsExpanded] = useState(false);
+  const [agentsExpanded, setAgentsExpanded] = useState(true);
 
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
@@ -78,12 +73,7 @@ export function Sidebar() {
         { to: "/plugins", label: "Plugins + Routing", icon: GitBranch },
       ],
     },
-    {
-      id: "models",
-      icon: Settings,
-      label: "Models",
-      children: [{ to: "/models", label: "Manage", icon: Settings }],
-    },
+    { to: "/models", icon: Cpu, label: "Models" },
   ];
 
   return (
@@ -99,7 +89,6 @@ export function Sidebar() {
                 const expanded = getExpandedState(
                   item.id,
                   monitoringExpanded,
-                  modelsExpanded,
                   agentsExpanded,
                 );
                 return (
@@ -110,10 +99,8 @@ export function Sidebar() {
                         toggleExpanded(
                           item.id,
                           setMonitoringExpanded,
-                          setModelsExpanded,
                           setAgentsExpanded,
                           monitoringExpanded,
-                          modelsExpanded,
                           agentsExpanded,
                         )
                       }

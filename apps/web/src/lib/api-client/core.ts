@@ -1,11 +1,5 @@
 const API_BASE = "/api";
 
-export type ApiError = {
-  error: string;
-};
-
-export type ApiResponse<T> = T | ApiError;
-
 export async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit,

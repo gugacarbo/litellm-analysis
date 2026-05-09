@@ -65,9 +65,6 @@ importers:
       lint-staged:
         specifier: ^16.4.0
         version: 16.4.0
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       turbo:
         specifier: ^2.9.6
         version: 2.9.6
@@ -268,9 +265,6 @@ importers:
       '@lite-llm/alias-router':
         specifier: workspace:*
         version: link:../alias-router
-      '@lite-llm/env':
-        specifier: workspace:*
-        version: link:../env
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -299,9 +293,6 @@ importers:
       '@lite-llm/alias-router':
         specifier: workspace:*
         version: link:../alias-router
-      '@lite-llm/env':
-        specifier: workspace:*
-        version: link:../env
       '@lite-llm/litellm-repository':
         specifier: workspace:*
         version: link:../../repositories/litellm-repository
@@ -396,9 +387,6 @@ importers:
       '@lite-llm/env':
         specifier: workspace:*
         version: link:../env
-      '@litellm/shared':
-        specifier: workspace:*
-        version: link:../shared
       express:
         specifier: 'catalog:'
         version: 4.22.1

@@ -1,33 +1,13 @@
 import type { AgentConfig, CategoryConfig } from "@litellm/shared";
 import { fetchApi } from "./core";
 
-export type AgentConfigResponse = {
-  type: "agent" | "category";
-  key: string;
-  config: AgentConfig;
-};
-
-export type CategoryConfigResponse = {
-  type: "category";
-  key: string;
-  config: CategoryConfig;
-};
-
-export type AgentConfigType = "agent" | "category";
+type AgentConfigType = "agent" | "category";
 
 export async function getAgentConfig(): Promise<{
   agents: Record<string, AgentConfig>;
   categories: Record<string, CategoryConfig>;
 }> {
   return fetchApi("/agent-config");
-}
-
-export async function getAgentConfigByKey(key: string): Promise<{
-  type: AgentConfigType;
-  key: string;
-  config: AgentConfig | CategoryConfig;
-}> {
-  return fetchApi(`/agent-config/${key}`);
 }
 
 export async function updateAgentConfig(

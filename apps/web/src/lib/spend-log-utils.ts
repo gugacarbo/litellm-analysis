@@ -2,27 +2,11 @@ import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
 // Re-export common formatters from the canonical source
 export {
-  formatCompactNumber,
-  formatCostPer1k,
   formatCurrency,
-  formatDate,
   formatDateTime,
   formatDuration,
   formatNumber,
-  formatPercent,
-  normalizePercent,
-  safeDivide,
 } from "@/lib/format";
-
-export function formatTime(date: string | Date): string {
-  return new Date(date).toLocaleString(APP_LOCALE, {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-    timeZone: APP_TIMEZONE,
-  });
-}
 
 export function formatTimeRelative(date: string | Date): string {
   const d = new Date(date);

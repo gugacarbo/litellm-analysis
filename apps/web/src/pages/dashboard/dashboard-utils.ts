@@ -55,11 +55,6 @@ export function formatDateTime(date: string | Date): string {
   });
 }
 
-export function formatDuration(ms: number): string {
-  if (ms < 1000) return `${Math.round(ms)}ms`;
-  return `${(ms / 1000).toFixed(1)}s`;
-}
-
 export function normalizePercent(value: number): number {
   if (!Number.isFinite(value)) {
     return 0;
@@ -84,7 +79,7 @@ export const DAYS_OPTIONS: DashboardDateRangeOption[] = [
   { key: "14d", label: "14 dias", days: 14, description: "Últimos 14 dias" },
   { key: "30d", label: "30 dias", days: 30, description: "Últimos 30 dias" },
 ];
-export const CUSTOM_OPTION: DashboardDateRangeOption = {
+const CUSTOM_OPTION: DashboardDateRangeOption = {
   key: "custom",
   label: "Personalizado",
   days: 0,
@@ -112,11 +107,4 @@ export function getDateRangeLabel(range: DashboardDateRangeKey): string {
     DASHBOARD_DATE_RANGES.find((item) => item.key === range)?.description ??
     "Últimos 30 dias"
   );
-}
-
-/**
- * Check if the date range represents a short time range (less than 24 hours).
- */
-export function isShortTimeRange(days: number): boolean {
-  return days < 1;
 }

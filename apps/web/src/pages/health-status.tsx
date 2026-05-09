@@ -186,7 +186,3 @@ export function HealthStatusContent({
     </PageLayout>
   );
 }
-
-export function HealthStatusPage() {
-  return <HealthStatusContent />;
-}

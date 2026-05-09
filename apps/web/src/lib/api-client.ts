@@ -1,6 +1,5 @@
 // Barrel file - re-exports from api-client submodules
 
-export * from "./api-client/agent-catalog";
 export * from "./api-client/agent-config";
 export * from "./api-client/agent-definitions";
 export * from "./api-client/agent-routing";

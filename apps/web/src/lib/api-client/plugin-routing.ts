@@ -1,21 +1,5 @@
-import type {
-  PluginInfoDTO,
-  PluginRoutingDTO,
-} from "@lite-llm/api-contracts/agent-catalog";
+import type { PluginInfoDTO } from "@lite-llm/api-contracts/agent-catalog";
 import { fetchApi } from "./core";
-
-export async function getPluginRouting(): Promise<PluginRoutingDTO> {
-  return fetchApi("/plugin-routing");
-}
-
-export async function updatePluginRouting(
-  config: PluginRoutingDTO,
-): Promise<PluginRoutingDTO> {
-  return fetchApi("/plugin-routing", {
-    method: "PUT",
-    body: JSON.stringify(config),
-  });
-}
 
 export async function toggleAgentPlugin(
   pluginId: string,

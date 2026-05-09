@@ -146,5 +146,3 @@ export function AgentsPage() {
     </PageLayout>
   );
 }
-
-export default AgentsPage;

@@ -6,7 +6,7 @@ import type { IPlugin, PluginModel, TransformContext } from "../plugin";
 
 const CURRENT_VERSION = 1;
 
-export interface VsCodeModelsOutput {
+interface VsCodeModelsOutput {
   "oaicopilot.commitLanguage": string;
   "oaicopilot.baseUrl": string;
   "oaicopilot.delay": number;
@@ -20,7 +20,7 @@ export interface VsCodeModelsOutput {
   "oaicopilot.models": VsCodeModel[];
 }
 
-export interface VsCodeModel {
+interface VsCodeModel {
   name: string;
   id: string;
   baseUrl: string;

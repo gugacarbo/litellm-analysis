@@ -87,8 +87,6 @@ const colorConfig: Record<
   },
 };
 
-export type { ColorScheme, MetricCardProps };
-
 export function MetricCard({
   title,
   value,

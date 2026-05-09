@@ -3,7 +3,7 @@ import { litellmDb } from "./client";
 
 const DEFAULT_CREDENTIAL_SETTING_NAME = "default_credential";
 
-export interface DefaultCredentialSetting {
+interface DefaultCredentialSetting {
   defaultCredential: string | null;
 }
 

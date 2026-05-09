@@ -2,7 +2,7 @@ import type { CategoryDefinition } from "@lite-llm/api-contracts/agent-routing";
 import type { ConfigInfo } from "./agent-routing-types";
 import { EntityFocusCard } from "./entity-focus-card";
 
-export type CategoryFocusViewProps = {
+type CategoryFocusViewProps = {
   loading: boolean;
   categories: CategoryDefinition[];
   models: string[];

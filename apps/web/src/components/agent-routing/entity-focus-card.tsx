@@ -11,7 +11,7 @@ import {
 } from "../ui/select";
 import type { ConfigInfo } from "./agent-routing-types";
 
-export type EntityFocusCardProps = {
+type EntityFocusCardProps = {
   entityKey: string;
   name: string;
   description: string;

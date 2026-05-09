@@ -90,5 +90,3 @@ export function ModelsPage() {
     </PageLayout>
   );
 }
-
-export default ModelsPage;

@@ -16,10 +16,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lite-llm/alias-router": "workspace:*",
     "@lite-llm/agents-manager": "workspace:*",
+    "@lite-llm/alias-router": "workspace:*",
     "@lite-llm/litellm-repository": "workspace:*",
-    "@lite-llm/env": "workspace:*",
     "@litellm/shared": "workspace:*",
     "drizzle-orm": "catalog:",
     "pg": "catalog:"

@@ -9,11 +9,6 @@ export type DashboardDateRangeKey =
   | "30d"
   | "custom";
 export type DateRangeGroup = "hours" | "days" | "custom";
-export const DATE_RANGE_GROUPS: { key: DateRangeGroup; label: string }[] = [
-  { key: "hours", label: "Horas" },
-  { key: "days", label: "Dias" },
-  { key: "custom", label: "Personalizado" },
-];
 
 export type TimeRangeValue = {
   preset?: DashboardDateRangeKey;
@@ -44,18 +39,6 @@ export type DailyTrendItem = {
   date: string;
   spend: number;
   granularity?: "hour" | "day";
-};
-
-/**
- * Hourly trend item for short time ranges.
- * Groups by hour with full timestamp for accurate charting.
- */
-export type HourlyTrendItem = {
-  timestamp: string;
-  hour: number;
-  spend: number;
-  total_tokens: number;
-  request_count: number;
 };
 
 export type TokenDistributionItem = {

@@ -17,7 +17,7 @@ import { queryKeys } from "../../lib/query-keys";
 const DEFAULT_DAYS = 30;
 const AUTO_REFRESH_MS = 30_000;
 
-export function useDashboardMetricsQuery(days: number = DEFAULT_DAYS) {
+function useDashboardMetricsQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardMetrics(days),
     queryFn: () => getMetricsSummary(days),
@@ -25,7 +25,7 @@ export function useDashboardMetricsQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useSpendByModelQuery(days: number = DEFAULT_DAYS) {
+function useSpendByModelQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardSpendByModel(days),
     queryFn: () => getSpendByModel(days),
@@ -33,7 +33,7 @@ export function useSpendByModelQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useSpendByUserQuery(days: number = DEFAULT_DAYS) {
+function useSpendByUserQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardSpendByUser(days),
     queryFn: () => getSpendByUser(days),
@@ -41,7 +41,7 @@ export function useSpendByUserQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useDailyTrendQuery(days: number = DEFAULT_DAYS) {
+function useDailyTrendQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardDailySpendTrend(days),
     queryFn: () => getDailySpendTrend(days),
@@ -49,7 +49,7 @@ export function useDailyTrendQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useTokenDistributionQuery(days: number = DEFAULT_DAYS) {
+function useTokenDistributionQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardTokenDistribution(days),
     queryFn: () => getTokenDistribution(days),
@@ -57,7 +57,7 @@ export function useTokenDistributionQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function usePerformanceQuery(days: number = DEFAULT_DAYS) {
+function usePerformanceQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardPerformance(days),
     queryFn: () => getPerformanceMetrics(days),
@@ -65,7 +65,7 @@ export function usePerformanceQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useHourlyPatternsQuery(days: number = DEFAULT_DAYS) {
+function useHourlyPatternsQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardHourlyPatterns(days),
     queryFn: () => getHourlyUsagePatterns(days),
@@ -73,7 +73,7 @@ export function useHourlyPatternsQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useApiKeyStatsQuery(days: number = DEFAULT_DAYS) {
+function useApiKeyStatsQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardApiKeyStats(days),
     queryFn: () => getApiKeyDetailedStats(days),
@@ -81,7 +81,7 @@ export function useApiKeyStatsQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useCostEfficiencyQuery(days: number = DEFAULT_DAYS) {
+function useCostEfficiencyQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardCostEfficiency(days),
     queryFn: () => getCostEfficiencyByModel(days),
@@ -89,7 +89,7 @@ export function useCostEfficiencyQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useModelDistributionQuery(days: number = DEFAULT_DAYS) {
+function useModelDistributionQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardModelDistribution(days),
     queryFn: () => getModelRequestDistribution(days),
@@ -97,37 +97,13 @@ export function useModelDistributionQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
-export function useDailyTokenTrendQuery(days: number = DEFAULT_DAYS) {
+function useDailyTokenTrendQuery(days: number = DEFAULT_DAYS) {
   return useQuery({
     queryKey: queryKeys.dashboardDailyTokenTrend(days),
     queryFn: () => getDailyTokenTrend(days),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
-
-export const ALL_DASHBOARD_QUERY_NAMES = [
-  "metricsQuery",
-  "spendByModelQuery",
-  "spendByUserQuery",
-  "dailyTrendQuery",
-  "tokenDistributionQuery",
-  "performanceQuery",
-  "hourlyPatternsQuery",
-  "apiKeyStatsQuery",
-  "costEfficiencyQuery",
-  "modelDistributionQuery",
-  "dailyTokenTrendQuery",
-] as const;
-
-export type DashboardQueryNames = (typeof ALL_DASHBOARD_QUERY_NAMES)[number];
-
-export type DashboardQueries = {
-  [K in DashboardQueryNames]: ReturnType<
-    typeof useDashboardMetricsQuery
-  > extends infer T
-    ? T
-    : never;
-};
 
 export function useAllDashboardQueries(options: { days?: number } = {}) {
   const days = options.days ?? 30;
