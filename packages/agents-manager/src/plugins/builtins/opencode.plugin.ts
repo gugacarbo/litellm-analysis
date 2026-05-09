@@ -70,7 +70,7 @@ export class OpenCodePlugin implements IPlugin {
     // Add agent providers
     for (const agent of agents) {
       const agentRouting = pluginRouting.agents[agent.id];
-      if (!agentRouting || !agentRouting.enabled) continue;
+      if (!agentRouting?.enabled) continue;
 
       // Build models for each version, applying overrides
       const models: Record<string, unknown> = {};

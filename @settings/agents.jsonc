@@ -165,9 +165,7 @@
       ],
       "model": "",
       "fallbackModels": [],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {
         "mode": "all",
         "color": "#4A90D9"
@@ -178,10 +176,7 @@
       "display_name": "Tapestry (Orquestrador de Execução)",
       "model": "atlas/gpt-5.5",
       "description": "Orquestrador focado em planos com múltiplas etapas: conduz execução sequencial com checklist e controle de progresso.",
-      "fallback_models": [
-        "atlas/gpt-5.4",
-        "atlas/gpt-5.3"
-      ],
+      "fallback_models": ["atlas/gpt-5.4", "atlas/gpt-5.3"],
       "temperature": 0.2,
       "color": "#D94A4A"
     },
@@ -190,10 +185,7 @@
       "display_name": "Shuttle (Especialista de Domínio)",
       "model": "build/gpt-5.5",
       "description": "Especialista técnico para tarefas delegadas: implementa, investiga e resolve demandas complexas com alta autonomia e uso intensivo de ferramentas.",
-      "fallback_models": [
-        "build/gpt-5.4",
-        "build/gpt-5.3"
-      ],
+      "fallback_models": ["build/gpt-5.4", "build/gpt-5.3"],
       "category": "deep",
       "temperature": 0.2,
       "color": "#E67E22"
@@ -217,9 +209,7 @@
       ],
       "model": "",
       "fallbackModels": [],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {
         "mode": "subagent",
         "color": "#9B59B6"
@@ -230,10 +220,7 @@
       "display_name": "Thread (Genérico de Contexto)",
       "model": "explore/gpt-5.5",
       "description": "Agente de contexto rápido: faz leitura exploratória da base, consolida informações e reduz incerteza antes da implementação.",
-      "fallback_models": [
-        "explore/gpt-5.4",
-        "explore/gpt-5.3"
-      ],
+      "fallback_models": ["explore/gpt-5.4", "explore/gpt-5.3"],
       "temperature": 0.1,
       "color": "#27AE60"
     },
@@ -256,9 +243,7 @@
       ],
       "model": "",
       "fallbackModels": [],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {
         "mode": "subagent",
         "color": "#F39C12"
@@ -283,9 +268,7 @@
       ],
       "model": "",
       "fallbackModels": [],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {
         "mode": "subagent",
         "color": "#1ABC9C"
@@ -296,10 +279,7 @@
       "display_name": "Warp (Auditor de Segurança)",
       "model": "prometheus/gpt-5.5",
       "description": "Auditor de segurança: analisa vulnerabilidades, superfícies de ataque e práticas inseguras em código, configuração e fluxo operacional.",
-      "fallback_models": [
-        "prometheus/gpt-5.4",
-        "prometheus/gpt-5.3"
-      ],
+      "fallback_models": ["prometheus/gpt-5.4", "prometheus/gpt-5.3"],
       "temperature": 0.1,
       "color": "#E74C3C"
     }
@@ -323,9 +303,7 @@
       ],
       "model": "",
       "fallbackModels": [],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "ultrabrain": {
@@ -351,9 +329,7 @@
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "deep": {
@@ -379,9 +355,7 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "code": {
@@ -407,9 +381,7 @@
         "glm-5.1",
         "MiniMax-M2.7-highspeed"
       ],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "artistry": {
@@ -435,9 +407,7 @@
         "qwen3.5-plus",
         "MiniMax-M2.7-highspeed"
       ],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "quick": {
@@ -463,9 +433,7 @@
         "deepseek-v4-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "unspecified-low": {
@@ -491,9 +459,7 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "unspecified-high": {
@@ -519,9 +485,7 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "writing": {
@@ -547,9 +511,7 @@
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     },
     "visual-engineering": {
@@ -570,9 +532,7 @@
       ],
       "model": "",
       "fallbackModels": [],
-      "enabledPlugins": [
-        "opencode"
-      ],
+      "enabledPlugins": ["opencode"],
       "config": {}
     }
   },
