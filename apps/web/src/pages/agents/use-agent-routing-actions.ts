@@ -1,324 +1,65 @@
-import type {
-  AgentConfig,
-  AgentRoutingConfig,
-  CategoryConfig,
-} from "@lite-llm/api-contracts/agent-routing";
+import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
-  deleteAgentConfig,
-  saveAllAgentConfigs,
-  setSyncAliasesConfig,
-  updateAgentConfig,
-  updateAgentRoutingConfig,
-  updateGlobalFallbackModel,
-} from "../../lib/api-client";
+  deleteSystemAgent,
+  upsertSystemAgent,
+} from "../../lib/api-client/agent-catalog";
 import { queryKeys } from "../../lib/query-keys";
-import { useAgentRoutingAliasActions } from "./use-agent-routing-alias-actions";
-import { useAgentRoutingDialogState } from "./use-agent-routing-dialog-state";
 
-type SetAliases = (
-  aliases:
-    | AgentRoutingConfig
-    | ((prev: AgentRoutingConfig) => AgentRoutingConfig),
-) => void;
-type SetAgentConfigs = (
-  configs:
-    | Record<string, AgentConfig>
-    | ((prev: Record<string, AgentConfig>) => Record<string, AgentConfig>),
-) => void;
-type SetCategoryConfigs = (
-  configs:
-    | Record<string, CategoryConfig>
-    | ((
-        prev: Record<string, CategoryConfig>,
-      ) => Record<string, CategoryConfig>),
-) => void;
-type SetGlobalFallbackModel = (
-  model: string | ((prev: string) => string),
-) => void;
-
-export function useAgentRoutingActions(
-  _aliases: Record<string, string>,
-  setAliases: SetAliases,
-  agentConfigs: Record<string, AgentConfig>,
-  setAgentConfigs: SetAgentConfigs,
-  categoryConfigs: Record<string, CategoryConfig>,
-  setCategoryConfigs: SetCategoryConfigs,
-  _globalFallbackModel: string,
-  setGlobalFallbackModel: SetGlobalFallbackModel,
-  syncAliases: boolean,
-  setSyncAliases: (value: boolean) => void,
-) {
+export function useAgentRoutingActions() {
   const queryClient = useQueryClient();
 
-  const updateAgentConfigMutation = useMutation({
-    mutationFn: (params: {
-      key: string;
-      type: "agent" | "category";
-      config: AgentConfig | CategoryConfig;
-    }) =>
-      updateAgentConfig(params.key, params.type, params.config, syncAliases),
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingAgentId, setEditingAgentId] = useState<string>("");
+
+  const upsertMutation = useMutation({
+    mutationFn: ({ id, agent }: { id: string; agent: SystemAgent }) =>
+      upsertSystemAgent(id, agent),
   });
 
-  const deleteAgentConfigMutation = useMutation({
-    mutationFn: (params: { key: string; type: "agent" | "category" }) =>
-      deleteAgentConfig(params.key, params.type),
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteSystemAgent(id),
   });
 
-  const saveAllConfigsMutation = useMutation({
-    mutationFn: (params: {
-      agents: Record<string, AgentConfig>;
-      categories: Record<string, CategoryConfig>;
-    }) => saveAllAgentConfigs(params.agents, params.categories),
-  });
+  const saving = upsertMutation.isPending || deleteMutation.isPending;
 
-  const updateAgentRoutingMutation = useMutation({
-    mutationFn: (modelGroupAlias: AgentRoutingConfig) =>
-      updateAgentRoutingConfig(modelGroupAlias),
-  });
-
-  const updateGlobalFallbackMutation = useMutation({
-    mutationFn: (model: string) => updateGlobalFallbackModel(model),
-  });
-
-  const {
-    agentConfigDialogOpen,
-    categoryConfigDialogOpen,
-    editingAgentKey,
-    editingCategoryKey,
-    aliasDialogOpen,
-    aliasDialogMode,
-    aliasDialogKey,
-    aliasDialogValue,
-    setAgentConfigDialogOpen,
-    setCategoryConfigDialogOpen,
-    setAliasDialogOpen,
-    setAliasDialogKey,
-    setAliasDialogValue,
-    openAgentConfig,
-    openCategoryConfig,
-    openAddAlias,
-    openEditAlias,
-  } = useAgentRoutingDialogState();
-
-  const { handleAliasSave, handleAliasDelete } = useAgentRoutingAliasActions(
-    updateAgentRoutingMutation,
-    queryClient,
-    setAliases,
-    aliasDialogKey,
-    aliasDialogValue,
-    setAliasDialogOpen,
-  );
-
-  const saving =
-    updateAgentConfigMutation.isPending ||
-    deleteAgentConfigMutation.isPending ||
-    saveAllConfigsMutation.isPending ||
-    updateAgentRoutingMutation.isPending;
-
-  const handleSaveAgentConfig = useCallback(
-    async (config: AgentConfig) => {
-      await updateAgentConfigMutation.mutateAsync({
-        key: editingAgentKey,
-        type: "agent",
-        config,
+  const handleSaveAgent = useCallback(
+    async (agent: SystemAgent) => {
+      await upsertMutation.mutateAsync({
+        id: agent.id,
+        agent,
       });
-
-      setAgentConfigs((prev) => ({ ...prev, [editingAgentKey]: config }));
-      setAgentConfigDialogOpen(false);
+      setDialogOpen(false);
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
+        queryKey: queryKeys.agentCatalog.all,
       });
     },
-    [
-      editingAgentKey,
-      queryClient,
-      setAgentConfigs,
-      setAgentConfigDialogOpen,
-      updateAgentConfigMutation,
-    ],
+    [queryClient, upsertMutation],
   );
 
-  const handleQuickModelChange = useCallback(
-    async (agentKey: string, model: string) => {
-      const currentConfig = agentConfigs[agentKey] || {};
-      const newConfig: AgentConfig = {
-        ...currentConfig,
-        model,
-      };
-
-      await updateAgentConfigMutation.mutateAsync({
-        key: agentKey,
-        type: "agent",
-        config: newConfig,
-      });
-
-      setAgentConfigs((prev) => ({ ...prev, [agentKey]: newConfig }));
+  const handleDeleteAgent = useCallback(
+    async (id: string) => {
+      await deleteMutation.mutateAsync(id);
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
+        queryKey: queryKeys.agentCatalog.all,
       });
     },
-    [agentConfigs, queryClient, setAgentConfigs, updateAgentConfigMutation],
+    [deleteMutation, queryClient],
   );
 
-  const handleQuickCategoryModelChange = useCallback(
-    async (categoryKey: string, model: string) => {
-      const currentConfig = categoryConfigs[categoryKey] || {};
-      const newConfig: CategoryConfig = {
-        ...currentConfig,
-        model,
-      };
-
-      await updateAgentConfigMutation.mutateAsync({
-        key: categoryKey,
-        type: "category",
-        config: newConfig,
-      });
-
-      setCategoryConfigs((prev) => ({ ...prev, [categoryKey]: newConfig }));
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
-      });
-    },
-    [
-      categoryConfigs,
-      queryClient,
-      setCategoryConfigs,
-      updateAgentConfigMutation,
-    ],
-  );
-
-  const handleSaveCategoryConfig = useCallback(
-    async (config: CategoryConfig) => {
-      await updateAgentConfigMutation.mutateAsync({
-        key: editingCategoryKey,
-        type: "category",
-        config,
-      });
-
-      setCategoryConfigs((prev) => ({
-        ...prev,
-        [editingCategoryKey]: config,
-      }));
-      setCategoryConfigDialogOpen(false);
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
-      });
-    },
-    [
-      editingCategoryKey,
-      queryClient,
-      setCategoryConfigs,
-      setCategoryConfigDialogOpen,
-      updateAgentConfigMutation,
-    ],
-  );
-
-  const handleDeleteAgentConfig = useCallback(
-    async (key: string) => {
-      await deleteAgentConfigMutation.mutateAsync({ key, type: "agent" });
-
-      setAgentConfigs((prev) => {
-        const next = { ...prev };
-        delete next[key];
-        return next;
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
-      });
-    },
-    [deleteAgentConfigMutation, queryClient, setAgentConfigs],
-  );
-
-  const handleDeleteCategoryConfig = useCallback(
-    async (key: string) => {
-      await deleteAgentConfigMutation.mutateAsync({
-        key,
-        type: "category",
-      });
-
-      setCategoryConfigs((prev) => {
-        const next = { ...prev };
-        delete next[key];
-        return next;
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
-      });
-    },
-    [deleteAgentConfigMutation, queryClient, setCategoryConfigs],
-  );
-
-  const handleSaveAll = useCallback(async () => {
-    await saveAllConfigsMutation.mutateAsync({
-      agents: agentConfigs,
-      categories: categoryConfigs,
-    });
-
-    await queryClient.invalidateQueries({
-      queryKey: queryKeys.agentRoutingData,
-    });
-  }, [agentConfigs, categoryConfigs, queryClient, saveAllConfigsMutation]);
-
-  const handleSaveGlobalFallback = useCallback(
-    async (model: string) => {
-      await updateGlobalFallbackMutation.mutateAsync(model);
-      setGlobalFallbackModel(model);
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
-      });
-    },
-    [queryClient, setGlobalFallbackModel, updateGlobalFallbackMutation],
-  );
-
-  const handleToggleSyncAliases = useCallback(
-    async (enabled: boolean) => {
-      setSyncAliases(enabled);
-      try {
-        await setSyncAliasesConfig(enabled);
-        await queryClient.invalidateQueries({
-          queryKey: queryKeys.syncAliases,
-        });
-      } catch {
-        setSyncAliases(!enabled);
-      }
-    },
-    [queryClient, setSyncAliases],
-  );
+  const openAgentEditor = useCallback((id: string) => {
+    setEditingAgentId(id);
+    setDialogOpen(true);
+  }, []);
 
   return {
     saving,
-    agentConfigDialogOpen,
-    categoryConfigDialogOpen,
-    editingAgentKey,
-    editingCategoryKey,
-    aliasDialogOpen,
-    aliasDialogMode,
-    aliasDialogKey,
-    aliasDialogValue,
-    setAgentConfigDialogOpen,
-    setCategoryConfigDialogOpen,
-    setAliasDialogOpen,
-    setAliasDialogKey,
-    setAliasDialogValue,
-    handleSaveAgentConfig,
-    handleQuickModelChange,
-    handleQuickCategoryModelChange,
-    handleSaveCategoryConfig,
-    handleDeleteAgentConfig,
-    handleDeleteCategoryConfig,
-    handleSaveAll,
-    handleSaveGlobalFallback,
-    handleToggleSyncAliases,
-    syncAliases,
-    openAgentConfig,
-    openCategoryConfig,
-    openAddAlias,
-    openEditAlias,
-    handleAliasSave,
-    handleAliasDelete,
+    dialogOpen,
+    editingAgentId,
+    setDialogOpen,
+    handleSaveAgent,
+    handleDeleteAgent,
+    openAgentEditor,
   };
 }

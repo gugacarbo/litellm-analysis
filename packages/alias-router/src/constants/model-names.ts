@@ -10,7 +10,7 @@ export const MODEL_NAMES = [
 ] as const;
 
 /**
- * Agent keys in the exact order they appear in the UI (matches AGENT_DEFINITIONS).
+ * Agent keys in the exact order they appear in the UI.
  * Must stay in sync with the frontend definition order.
  */
 export const AGENT_KEYS = [

@@ -1,7 +1,7 @@
-import type { PluginInfoDTO } from "@lite-llm/api-contracts/agent-catalog";
+import type { PluginInfo } from "@lite-llm/api-contracts/agent-catalog";
 
 export type PluginCardProps = {
-  plugin: PluginInfoDTO;
+  plugin: PluginInfo;
   onToggle: (pluginId: string) => void;
   onToggleAgent: (pluginId: string, agentId: string) => void;
   agentNames?: string[];
@@ -9,7 +9,7 @@ export type PluginCardProps = {
 };
 
 export type PluginRoutingGridProps = {
-  plugins: PluginInfoDTO[];
+  plugins: PluginInfo[];
   loading: boolean;
   onTogglePlugin: (pluginId: string) => void;
   onToggleAgent: (pluginId: string, agentId: string) => void;

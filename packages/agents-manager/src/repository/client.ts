@@ -22,7 +22,7 @@ export function createRepositoryClient(
 
   const repoOptions: RepositoryOptions = {
     filePath: resolvedPath,
-    validateOnRead: true,
+    validateOnRead: false,
   };
   return createRepository(repoOptions);
 }
@@ -49,10 +49,9 @@ function resolveDbPathWithFallback(dbPath: string): string {
 }
 
 function resolveDbPath(dbPath: string): string {
-  // Handle special @db/ paths -- resolve relative to monorepo root
-  if (dbPath.startsWith("@settings/")) {
+  // Handle special @storage/ and @db/ paths -- resolve relative to monorepo root
+  if (dbPath.startsWith("@storage/") || dbPath.startsWith("@db/")) {
     const monorepoRoot = findMonorepoRoot();
-    // @settings/agents.json stays as-is since @settings is the actual directory name
     return path.join(monorepoRoot, dbPath);
   }
 

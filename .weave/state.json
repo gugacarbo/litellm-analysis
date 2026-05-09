@@ -1,14 +1,11 @@
 {
-  "active_plan": "/home/gustavo_carbonera/Apps/litellm-analysis/.weave/plans/generic-agents-manager.md",
-  "started_at": "2026-05-08T17:19:18.450Z",
+  "active_plan": "/home/gustavo/Apps/lite-llm-analytics/.weave/plans/ui-agents-manager-migration.md",
+  "started_at": "2026-05-09T05:01:27.486Z",
   "session_ids": [
-    "ses_1f795ca99ffejW7ji2ndDt9xb7"
+    "ses_1f52c90c0ffeWHL9tjKHq1Y9ef"
   ],
-  "plan_name": "generic-agents-manager",
+  "plan_name": "ui-agents-manager-migration",
   "agent": "tapestry",
-  "start_sha": null,
-  "paused": true,
-  "verification_reminder_sent": true,
-  "continuation_completed_snapshot": 0,
-  "stale_continuation_count": 0
+  "start_sha": "1779992620183933b6e81e1b3a7f7e0e17193491",
+  "paused": true
 }

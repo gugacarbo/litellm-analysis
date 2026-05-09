@@ -1,4 +1,4 @@
-import type { PluginInfoDTO } from "@lite-llm/api-contracts/agent-catalog";
+import type { PluginInfo } from "@lite-llm/api-contracts/agent-catalog";
 import { useCallback } from "react";
 import {
   useAvailablePlugins,
@@ -6,7 +6,7 @@ import {
 } from "@/hooks/use-plugin-routing";
 
 export function usePluginRoutingPage(): {
-  plugins: PluginInfoDTO[];
+  plugins: PluginInfo[];
   loading: boolean;
   error: string | null;
   handleTogglePlugin: (pluginId: string) => void;

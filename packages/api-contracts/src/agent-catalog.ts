@@ -1,31 +1,12 @@
-export interface SystemAgentDTO {
-  id: string;
-  displayName: string;
-  icon: string;
-  description: string;
-  versions: AgentVersionDTO[];
-  model: string;
-  fallbackModels: string[];
-  enabledPlugins: string[];
-  mode?: string;
-  color?: string;
-  disable?: boolean;
-}
+import type {
+  PluginRoutingConfig,
+  PluginRoutingRule,
+  SystemAgent,
+} from "@litellm/shared";
 
-export interface AgentVersionDTO {
-  id: string;
-  name: string;
-  model: string;
-  enabled: boolean;
-}
+export type { PluginRoutingConfig, PluginRoutingRule, SystemAgent };
 
-export interface PluginRoutingDTO {
-  agentId: string;
-  plugins: string[];
-  outputFile: string;
-}
-
-export interface PluginInfoDTO {
+export interface PluginInfo {
   id: string;
   name: string;
   builtin: boolean;
@@ -35,11 +16,13 @@ export interface PluginInfoDTO {
   enabledAgentCount: number;
 }
 
-export interface AgentCatalogResponse {
-  agents: SystemAgentDTO[];
+export interface PluginRoutingResponse {
+  config: PluginRoutingConfig;
+  plugins: PluginInfo[];
 }
 
-export interface PluginRoutingResponse {
-  routing: PluginRoutingDTO;
-  plugins: PluginInfoDTO[];
+export interface PluginToggleResponse {
+  pluginId: string;
+  agentId: string;
+  enabled: boolean;
 }

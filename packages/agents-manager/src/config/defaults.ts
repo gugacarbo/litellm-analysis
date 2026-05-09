@@ -1,7 +1,7 @@
 import type { PluginRoutingConfig } from "../types/routing.js";
 import type { SystemAgent } from "../types/system-agent.js";
 
-export const DEFAULT_DB_PATH = "@settings/agents.json";
+export const DEFAULT_DB_PATH = "@storage/agents.jsonc";
 
 const DEFAULT_OUTPUT_DIR = "data";
 
@@ -26,7 +26,7 @@ export function getFilePaths(baseDir?: string): FilePaths {
 
 // ── Default System Agents ──
 
-const DEFAULT_SYSTEM_AGENTS: SystemAgent[] = [
+export const DEFAULT_SYSTEM_AGENTS: SystemAgent[] = [
   {
     id: "builder",
     displayName: "Builder",
@@ -145,7 +145,7 @@ const DEFAULT_SYSTEM_AGENTS: SystemAgent[] = [
 
 // ── Default Plugin Routing ──
 
-const DEFAULT_ROUTING: PluginRoutingConfig = {
+export const DEFAULT_ROUTING: PluginRoutingConfig = {
   version: 1,
   plugins: {
     opencode: {

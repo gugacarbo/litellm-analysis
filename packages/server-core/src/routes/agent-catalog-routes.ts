@@ -14,7 +14,7 @@ export function registerAgentCatalogRoutes(
     try {
       const { services } = createAgentsManager();
       const agents = await services.catalog.getAll();
-      res.json(Object.values(agents));
+      res.json({ agents: Object.values(agents) });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

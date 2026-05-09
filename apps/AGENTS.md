@@ -13,7 +13,7 @@ apps/
 │       ├── components/      # shadcn/ui primitives + domain modules
 │       ├── pages/           # Route pages (JSX) + hooks/types/utils
 │       ├── hooks/           # React Query data-fetching hooks
-│       ├── lib/             # API client, utils, server-mode
+│       ├── lib/             # API client, utils
 │       └── types/           # Shared TypeScript interfaces
 └── server/                 # Express.js entry point + monitor + WebSocket
     └── src/
@@ -27,23 +27,23 @@ apps/
 
 ## SUBAGENTS.md LOCATIONS
 
-| Location | Content |
-|----------|---------|
+| Location                            | Content                                    |
+| ----------------------------------- | ------------------------------------------ |
 | `apps/web/src/components/AGENTS.md` | UI components, shadcn primitives, Recharts |
-| `apps/web/src/pages/AGENTS.md` | Route pages, State-Actions-Derived pattern |
-| `apps/web/src/hooks/AGENTS.md` | React Query hooks, WebSocket |
-| `apps/web/src/lib/AGENTS.md` | API client, React Query setup |
-| `apps/web/src/types/AGENTS.md` | Agent/category types, AGENT_DEFINITIONS |
+| `apps/web/src/pages/AGENTS.md`      | Route pages, State-Actions-Derived pattern |
+| `apps/web/src/hooks/AGENTS.md`      | React Query hooks, WebSocket               |
+| `apps/web/src/lib/AGENTS.md`        | API client, React Query setup              |
+| `apps/web/src/types/AGENTS.md`      | Agent/category types, AGENT_DEFINITIONS    |
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Add a page/route | `apps/web/src/App.tsx` + `apps/web/src/pages/` | Pages own types/hooks/utils |
-| Add UI component | `apps/web/src/components/` | shadcn at root, domain in subdirs |
-| Add API endpoint | `packages/server-core/src/routes/` | Express routes registered via server-core |
-| Add monitor routes | `apps/server/src/routes/monitor-routes.ts` | Monitor-specific endpoints |
-| Change dev proxy | `apps/web/vite.config.ts` | `/api` → `localhost:3008` |
+| Task               | Location                                       | Notes                                     |
+| ------------------ | ---------------------------------------------- | ----------------------------------------- |
+| Add a page/route   | `apps/web/src/App.tsx` + `apps/web/src/pages/` | Pages own types/hooks/utils               |
+| Add UI component   | `apps/web/src/components/`                     | shadcn at root, domain in subdirs         |
+| Add API endpoint   | `packages/server-core/src/routes/`             | Express routes registered via server-core |
+| Add monitor routes | `apps/server/src/routes/monitor-routes.ts`     | Monitor-specific endpoints                |
+| Change dev proxy   | `apps/web/vite.config.ts`                      | `/api` → `localhost:3008`                 |
 
 ## CONVENTIONS
 

@@ -323,12 +323,7 @@ export interface SpendLogsResponse {
   pagination: PaginationMetadata;
 }
 
-// Re-export agent config types from shared (single source of truth)
-export type {
-  AgentConfig,
-  AgentConfigFile,
-  CategoryConfig,
-} from "@litellm/shared";
+export type { SystemAgent } from "@litellm/shared";
 
 export interface ModelEntryConfig {
   modelName: string;

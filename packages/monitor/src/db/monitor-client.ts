@@ -1,5 +1,2 @@
-import { type AppDb, getAppDb } from "@lite-llm/app-repository/client";
-
-// Backward-compatible aliases
-export const getMonitorDb = getAppDb;
-export type MonitorDb = AppDb;
+export type { AppDb as MonitorDb } from "@lite-llm/app-repository/client";
+export { getAppDb as getMonitorDb } from "@lite-llm/app-repository/client";

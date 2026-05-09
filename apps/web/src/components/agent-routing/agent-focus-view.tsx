@@ -1,32 +1,25 @@
-import type { AgentDefinition } from "@lite-llm/api-contracts/agent-routing";
-import type { ConfigInfo } from "./agent-routing-types";
+import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 import { EntityFocusCard } from "./entity-focus-card";
 
 type AgentFocusViewProps = {
   loading: boolean;
-  agents: AgentDefinition[];
-  models: string[];
-  getAgentConfigInfo: (key: string) => ConfigInfo | null;
-  onOpenAgentConfig: (key: string) => void;
-  onQuickModelChange: (agentKey: string, model: string) => void;
+  agents: SystemAgent[];
+  onOpenAgentConfig: (id: string) => void;
+  onDeleteAgent: (id: string) => void;
 };
 
 export function AgentFocusView({
   loading,
   agents,
-  models,
-  getAgentConfigInfo,
   onOpenAgentConfig,
-  onQuickModelChange,
+  onDeleteAgent,
 }: AgentFocusViewProps) {
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-32 animate-pulse rounded-xl bg-muted" />
-          ))}
-        </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-32 animate-pulse rounded-xl bg-muted" />
+        ))}
       </div>
     );
   }
@@ -35,15 +28,10 @@ export function AgentFocusView({
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {agents.map((agent) => (
         <EntityFocusCard
-          key={agent.key}
-          entityKey={agent.key}
-          name={agent.name}
-          description={agent.description}
-          icon={agent.icon}
-          configInfo={getAgentConfigInfo(agent.key)}
-          models={models}
+          key={agent.id}
+          agent={agent}
           onOpenConfig={onOpenAgentConfig}
-          onQuickModelChange={onQuickModelChange}
+          onDelete={onDeleteAgent}
         />
       ))}
     </div>

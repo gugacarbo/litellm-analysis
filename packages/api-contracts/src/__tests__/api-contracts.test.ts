@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type {
-  AgentDefinition,
-  AgentDefinitionsResponse,
-  AgentRoutingConfig,
-  CategoryDefinition,
+  AgentCatalogDetailResponse,
+  AgentCatalogResponse,
+  SystemAgent,
 } from "../agent-routing";
-import { AGENT_DEFINITIONS, CATEGORY_DEFINITIONS } from "../agent-routing";
 import type {
   CostEfficiency,
   DailySpend,
@@ -31,28 +29,22 @@ import type {
 describe("@lite-llm/api-contracts", () => {
   describe("type exports are importable (compile-time check)", () => {
     it("imports agent-routing types", () => {
-      // Type-only imports verify at compile time.
-      // Runtime: verify the symbol is usable.
-      const _agentDef: AgentDefinition = {
-        key: "test",
-        name: "Test",
+      const _agent: SystemAgent = {
+        id: "test",
+        displayName: "Test",
+        icon: "T",
         description: "A test agent",
-        icon: "🧪",
+        versions: [],
+        model: "gpt-4",
+        fallbackModels: [],
+        enabledPlugins: [],
+        config: {},
       };
-      const _catDef: CategoryDefinition = {
-        key: "test-cat",
-        name: "Test Category",
-        description: "A test category",
-      };
-      const _resp: AgentDefinitionsResponse = {
-        agents: [_agentDef],
-        categories: [_catDef],
-      };
-      const _cfg: AgentRoutingConfig = { test: "gpt-4" };
-      expect(_agentDef.key).toBe("test");
-      expect(_catDef.key).toBe("test-cat");
-      expect(_resp.agents).toHaveLength(1);
-      expect(Object.keys(_cfg)).toContain("test");
+      const _catalogResp: AgentCatalogResponse = { agents: [_agent] };
+      const _detailResp: AgentCatalogDetailResponse = { agent: _agent };
+      expect(_agent.id).toBe("test");
+      expect(_catalogResp.agents).toHaveLength(1);
+      expect(_detailResp.agent.id).toBe("test");
     });
 
     it("imports analytics types", () => {
@@ -117,7 +109,6 @@ describe("@lite-llm/api-contracts", () => {
       expect(filters.model).toBe("gpt-4");
       expect(summary.activeModels).toBe(3);
 
-      // Spot-check remaining types
       const userSpend: UserSpend = {
         user: "u1",
         total_spend: 50,
@@ -224,106 +215,6 @@ describe("@lite-llm/api-contracts", () => {
       expect(costEff.cost_per_1k_tokens).toBe(0.001);
       expect(modelDist.percentage).toBe(50);
       expect(dailyToken.total_tokens).toBe(50000);
-    });
-  });
-
-  describe("AGENT_DEFINITIONS", () => {
-    it("exports an array with expected length", () => {
-      expect(Array.isArray(AGENT_DEFINITIONS)).toBe(true);
-      expect(AGENT_DEFINITIONS.length).toBeGreaterThan(0);
-    });
-
-    it("every entry has required fields", () => {
-      for (const agent of AGENT_DEFINITIONS) {
-        expect(agent).toHaveProperty("key");
-        expect(agent).toHaveProperty("name");
-        expect(agent).toHaveProperty("description");
-        expect(agent).toHaveProperty("icon");
-        expect(typeof agent.key).toBe("string");
-        expect(typeof agent.name).toBe("string");
-        expect(typeof agent.description).toBe("string");
-        expect(typeof agent.icon).toBe("string");
-        expect(agent.key.length).toBeGreaterThan(0);
-        expect(agent.name.length).toBeGreaterThan(0);
-      }
-    });
-
-    it("all keys are unique", () => {
-      const keys = AGENT_DEFINITIONS.map((a) => a.key);
-      expect(new Set(keys).size).toBe(keys.length);
-    });
-
-    it("contains expected entries", () => {
-      const keys = AGENT_DEFINITIONS.map((a) => a.key);
-      expect(keys).toContain("sisyphus");
-      expect(keys).toContain("oracle");
-      expect(keys).toContain("prometheus");
-      expect(keys).toContain("build");
-      expect(keys).toContain("plan");
-      expect(keys).toContain("OpenCode-Builder");
-    });
-
-    it("sisyphus is first entry", () => {
-      expect(AGENT_DEFINITIONS[0].key).toBe("sisyphus");
-      expect(AGENT_DEFINITIONS[0].name).toBe("Sisyphus");
-      expect(AGENT_DEFINITIONS[0].icon).toBe("🔄");
-    });
-  });
-
-  describe("CATEGORY_DEFINITIONS", () => {
-    it("exports an array with expected length", () => {
-      expect(Array.isArray(CATEGORY_DEFINITIONS)).toBe(true);
-      expect(CATEGORY_DEFINITIONS.length).toBeGreaterThan(0);
-    });
-
-    it("every entry has required fields", () => {
-      for (const cat of CATEGORY_DEFINITIONS) {
-        expect(cat).toHaveProperty("key");
-        expect(cat).toHaveProperty("name");
-        expect(cat).toHaveProperty("description");
-        expect(typeof cat.key).toBe("string");
-        expect(typeof cat.name).toBe("string");
-        expect(typeof cat.description).toBe("string");
-        expect(cat.key.length).toBeGreaterThan(0);
-        expect(cat.name.length).toBeGreaterThan(0);
-      }
-    });
-
-    it("all keys are unique", () => {
-      const keys = CATEGORY_DEFINITIONS.map((c) => c.key);
-      expect(new Set(keys).size).toBe(keys.length);
-    });
-
-    it("contains expected entries", () => {
-      const keys = CATEGORY_DEFINITIONS.map((c) => c.key);
-      expect(keys).toContain("visual-engineering");
-      expect(keys).toContain("ultrabrain");
-      expect(keys).toContain("deep");
-      expect(keys).toContain("quick");
-      expect(keys).toContain("writing");
-    });
-
-    it("visual-engineering is first entry", () => {
-      expect(CATEGORY_DEFINITIONS[0].key).toBe("visual-engineering");
-      expect(CATEGORY_DEFINITIONS[0].name).toBe("Visual Engineering");
-    });
-
-    it("icon field is optional", () => {
-      for (const cat of CATEGORY_DEFINITIONS) {
-        if (cat.icon !== undefined) {
-          expect(typeof cat.icon).toBe("string");
-        }
-      }
-    });
-  });
-
-  describe("barrel re-exports", () => {
-    it("re-exports agent-routing from index", async () => {
-      const index = await import("../index");
-      expect(index.AGENT_DEFINITIONS).toBeDefined();
-      expect(index.CATEGORY_DEFINITIONS).toBeDefined();
-      expect(index.AGENT_DEFINITIONS).toBe(AGENT_DEFINITIONS);
-      expect(index.CATEGORY_DEFINITIONS).toBe(CATEGORY_DEFINITIONS);
     });
   });
 });

@@ -42,8 +42,6 @@ npm-debug.log*
 .DS_Store
 *.pem
 
-# Monitor SQLite
-db/monitor.db
 __pycache__
 .codex
 # CocoIndex Code (ccc)
@@ -54,3 +52,5 @@ __pycache__
 .weave/*
 !.weave/plans/
 !.weave/designs/
+
+@db/*.db

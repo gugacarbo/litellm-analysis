@@ -1,7 +1,7 @@
 # packages/analytics/src/
 
 ## OVERVIEW
-DB queries (Drizzle ORM) + data source implementations (Database, Api, Limited modes). Strategy pattern with 46-method interface.
+DB queries (Drizzle ORM) + data source implementation. Strategy pattern with 46-method interface.
 
 ## STRUCTURE
 
@@ -22,11 +22,11 @@ analytics/src/
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Add query | `queries/index.ts` | `db.select({}).from(schema.spendLogs)` |
-| Add data method | `types/index.ts` interface → implement in `database.ts` | Add method to DatabaseDataSource class |
-| Check available queries | `queries/` | 14 files: spend, model, error, trend, distribution, key, etc. |
+| Task                    | Location                                                | Notes                                                         |
+| ----------------------- | ------------------------------------------------------- | ------------------------------------------------------------- |
+| Add query               | `queries/index.ts`                                      | `db.select({}).from(schema.spendLogs)`                        |
+| Add data method         | `types/index.ts` interface → implement in `database.ts` | Add method to DatabaseDataSource class                        |
+| Check available queries | `queries/`                                              | 14 files: spend, model, error, trend, distribution, key, etc. |
 
 ## CONVENTIONS
 

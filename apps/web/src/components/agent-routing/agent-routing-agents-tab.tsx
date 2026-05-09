@@ -1,51 +1,38 @@
-import type { AgentDefinition } from "@lite-llm/api-contracts/agent-routing";
+import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 import { Zap } from "lucide-react";
 import { AgentFocusView } from "./agent-focus-view";
-import type { ConfigInfo } from "./agent-routing-types";
 import { EntityRoutingCard } from "./entity-routing-card";
 
 type AgentRoutingAgentsTabProps = {
   loading: boolean;
-  agents: AgentDefinition[];
-  models: string[];
-  onOpenAgentConfig: (key: string) => void;
-  onQuickModelChange: (agentKey: string, model: string) => void;
-  getAgentConfigInfo: (key: string) => ConfigInfo | null;
+  agents: SystemAgent[];
+  onOpenAgentConfig: (id: string) => void;
+  onDeleteAgent: (id: string) => void;
 };
 
 export function AgentRoutingAgentsTab({
   loading,
   agents,
-  models,
   onOpenAgentConfig,
-  onQuickModelChange,
-  getAgentConfigInfo,
+  onDeleteAgent,
 }: AgentRoutingAgentsTabProps) {
-  const configuredAgentsCount = agents.filter((agent) => {
-    const config = getAgentConfigInfo(agent.key);
-    return Boolean(config && config.model !== "Unassigned");
-  }).length;
-
-  const totalFallbacks = agents.reduce((sum, agent) => {
-    const config = getAgentConfigInfo(agent.key);
-    return sum + (config?.fallbackCount ?? 0);
-  }, 0);
+  const safeAgents = agents ?? [];
+  const configuredCount = safeAgents.filter(
+    (a) => a.model !== "" && (a.versions?.length ?? 0) > 0,
+  ).length;
 
   return (
     <EntityRoutingCard
       icon={Zap}
-      title="Agent Routing"
-      totalCount={agents.length}
-      configuredCount={configuredAgentsCount}
-      totalFallbacks={totalFallbacks}
+      title="Agents"
+      totalCount={safeAgents.length}
+      configuredCount={configuredCount}
     >
       <AgentFocusView
         loading={loading}
-        agents={agents}
-        models={models}
-        getAgentConfigInfo={getAgentConfigInfo}
+        agents={safeAgents}
         onOpenAgentConfig={onOpenAgentConfig}
-        onQuickModelChange={onQuickModelChange}
+        onDeleteAgent={onDeleteAgent}
       />
     </EntityRoutingCard>
   );

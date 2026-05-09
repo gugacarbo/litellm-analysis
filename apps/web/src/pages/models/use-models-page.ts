@@ -1,20 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
-  type AgentRoutingAPIResponse,
   createModel,
   deleteModel,
-  getAgentDefinitions,
-  getAgentRoutingConfig,
   getAllModels,
   type ModelConfig,
-  updateAgentRoutingConfig,
   updateModel,
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
-import { getAllAliasesSorted } from "./models-alias-utils";
 import { validateAndBuildModelParams } from "./models-form-utils";
-import { useModelsAliasState } from "./use-models-alias-state";
 import { useModelsFormState } from "./use-models-form-state";
 
 export function useModelsPage() {
@@ -41,15 +35,6 @@ export function useModelsPage() {
       ),
   });
 
-  const aliasesQuery = useQuery({
-    queryKey: queryKeys.agentRoutingAliases,
-    queryFn: getAgentRoutingConfig,
-  });
-  const definitionsQuery = useQuery({
-    queryKey: queryKeys.agentDefinitions,
-    queryFn: getAgentDefinitions,
-  });
-
   const createModelMutation = useMutation({
     mutationFn: (model: ModelConfig) => createModel(model),
   });
@@ -64,11 +49,6 @@ export function useModelsPage() {
 
   const deleteModelMutation = useMutation({
     mutationFn: (modelName: string) => deleteModel(modelName),
-  });
-
-  const updateAgentRoutingMutation = useMutation({
-    mutationFn: (modelGroupAlias: AgentRoutingAPIResponse) =>
-      updateAgentRoutingConfig(modelGroupAlias),
   });
 
   const {
@@ -88,20 +68,6 @@ export function useModelsPage() {
     setDialogOpen,
     setFormData,
   } = useModelsFormState();
-
-  const {
-    aliasDialogKey,
-    aliasDialogMode,
-    aliasDialogOpen,
-    aliasDialogValue,
-    aliasMutationError,
-    openAddAlias,
-    openEditAlias,
-    setAliasDialogKey,
-    setAliasDialogOpen,
-    setAliasDialogValue,
-    setAliasMutationError,
-  } = useModelsAliasState();
 
   const [mutationError, setMutationError] = useState<string | null>(null);
 
@@ -151,81 +117,9 @@ export function useModelsPage() {
     }
   }
 
-  const customAliases = useMemo(
-    () =>
-      getAllAliasesSorted(
-        aliasesQuery.data,
-        definitionsQuery.data?.agents,
-        definitionsQuery.data?.categories,
-      ),
-    [
-      aliasesQuery.data,
-      definitionsQuery.data?.agents,
-      definitionsQuery.data?.categories,
-    ],
-  );
-
-  async function handleAliasSave() {
-    const key = aliasDialogKey.trim();
-    const value = aliasDialogValue.trim();
-    if (!key || !value) return;
-
-    try {
-      setAliasMutationError(null);
-      await updateAgentRoutingMutation.mutateAsync({ [key]: value });
-
-      queryClient.setQueryData<AgentRoutingAPIResponse>(
-        queryKeys.agentRoutingAliases,
-        (previous) => ({ ...(previous ?? {}), [key]: value }),
-      );
-
-      setAliasDialogOpen(false);
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
-      });
-    } catch (e) {
-      setAliasMutationError(String(e));
-    }
-  }
-
-  async function handleAliasDelete(key: string) {
-    try {
-      setAliasMutationError(null);
-      await updateAgentRoutingMutation.mutateAsync({ [key]: "" });
-
-      queryClient.setQueryData<AgentRoutingAPIResponse>(
-        queryKeys.agentRoutingAliases,
-        (previous) => {
-          if (!previous) return previous;
-          const next = { ...previous };
-          delete next[key];
-          return next;
-        },
-      );
-
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.agentRoutingData,
-      });
-    } catch (e) {
-      setAliasMutationError(String(e));
-    }
-  }
-
-  const aliasesLoading = aliasesQuery.isPending && !aliasesQuery.data;
-  const aliasesError =
-    aliasMutationError ||
-    (aliasesQuery.error instanceof Error ? aliasesQuery.error.message : null);
-
   return {
     addExtraParam,
-    aliasDialogKey,
-    aliasDialogMode,
-    aliasDialogOpen,
-    aliasDialogValue,
-    aliasesError,
-    aliasesLoading,
     credentials: credentialsQuery.data ?? [],
-    customAliases,
     defaultCredential: defaultCredentialQuery.data?.defaultCredential ?? null,
     deleteModelName,
     dialogOpen,
@@ -234,8 +128,6 @@ export function useModelsPage() {
     formError,
     setFormError,
     formLoading,
-    handleAliasDelete,
-    handleAliasSave,
     handleDelete,
     handleOpenCreate,
     handleOpenCreateWithDefaultCredential,
@@ -243,16 +135,10 @@ export function useModelsPage() {
     handleSubmit,
     modelsQuery,
     mutationError,
-    openAddAlias,
-    openEditAlias,
     removeExtraParam,
-    setAliasDialogKey,
-    setAliasDialogOpen,
-    setAliasDialogValue,
     setDeleteModelName,
     setDialogOpen,
     setFormData,
-    updateAgentRoutingMutation,
     updateExtraParam,
   };
 }

@@ -1,9 +1,15 @@
-// Centralized types for agent-routing components
-// Avoids duplication across agent/category views
+import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 
-export type ConfigInfo = {
-  model: string;
-  description?: string;
-  color?: string;
-  fallbackCount: number;
+export type AgentFocusViewProps = {
+  loading: boolean;
+  agents: SystemAgent[];
+  onOpenAgentConfig: (id: string) => void;
+  onDeleteAgent: (id: string) => void;
+};
+
+export type AgentTabProps = {
+  loading: boolean;
+  agents: SystemAgent[];
+  onOpenAgentConfig: (id: string) => void;
+  onDeleteAgent: (id: string) => void;
 };
