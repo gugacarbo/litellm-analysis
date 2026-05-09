@@ -113,7 +113,11 @@ export function registerConfigRoutes(
       }
 
       await orchestration.syncGeneratedArtifacts();
-      await orchestration.regenerateAllAliases();
+
+      const syncAliases = await services.routing.getSyncAliases();
+      if (syncAliases) {
+        await orchestration.regenerateAllAliases();
+      }
 
       res.json({ success: true });
     } catch (error) {

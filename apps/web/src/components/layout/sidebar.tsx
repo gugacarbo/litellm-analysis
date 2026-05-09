@@ -1,6 +1,5 @@
 import {
   Activity,
-  BookOpen,
   Bot,
   ChevronDown,
   ChevronRight,
@@ -75,19 +74,15 @@ export function Sidebar() {
       icon: Bot,
       label: "Agents",
       children: [
-        { to: "/agent-routing", label: "Routing", icon: Bot },
-        { to: "/agent-catalog", label: "Catalog", icon: BookOpen },
-        { to: "/plugin-routing", label: "Plugins", icon: GitBranch },
+        { to: "/agents", label: "Config", icon: Settings },
+        { to: "/plugins", label: "Plugins + Routing", icon: GitBranch },
       ],
     },
     {
       id: "models",
       icon: Settings,
       label: "Models",
-      children: [
-        { to: "/models", label: "Manage", icon: Settings },
-        { to: "/aliases", icon: GitBranch, label: "Aliases" },
-      ],
+      children: [{ to: "/models", label: "Manage", icon: Settings }],
     },
   ];
 

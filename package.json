@@ -12,10 +12,13 @@
     "format:all": "turbo format -- --write",
     "typecheck": "turbo typecheck",
     "lint-staged": "lint-staged",
-    "prepare": "husky"
+    "prepare": "husky",
+    "validate:agents": "ajv validate -s @settings/agents.schema.json -d @settings/agents.json --spec=draft7",
+    "validate:agents:all": "ajv validate -s @settings/agents.schema.json -d @settings/agents.json --spec=draft7 --strict=true"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "ajv-cli": "^5.0.0",
     "husky": "^9.1.7",
     "knip": "^6.6.2",
     "lint-staged": "^16.4.0",

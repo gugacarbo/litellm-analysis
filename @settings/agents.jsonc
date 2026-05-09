@@ -1,0 +1,600 @@
+{
+  "version": 2,
+  "litellm": {
+    "apiKey": "sk-123456789"
+  },
+  "models": {
+    "glm-5": {
+      "displayName": "GLM 5",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1,
+        "output": 3.2
+      }
+    },
+    "glm-5.1": {
+      "displayName": "GLM 5.1",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1.4,
+        "output": 4.4
+      }
+    },
+    "glm-5-turbo": {
+      "displayName": "GLM 5 Turbo",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1.2,
+        "output": 4
+      }
+    },
+    "MiniMax-M2.7-highspeed": {
+      "displayName": "MiniMax M2.7 Hs",
+      "ownedBy": "atplus",
+      "contextLength": 204800,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 0.3,
+        "output": 1.2
+      }
+    },
+    "qwen3.5-plus": {
+      "displayName": "Qwen 3.5+",
+      "ownedBy": "atplus",
+      "contextLength": 1000000,
+      "maxOutput": 64000,
+      "cost": {
+        "input": 0.4,
+        "output": 2.4
+      }
+    },
+    "qwen3-coder-plus": {
+      "displayName": "Qwen 3 Coder+",
+      "ownedBy": "atplus",
+      "contextLength": 1000000,
+      "maxOutput": 64000,
+      "cost": {
+        "input": 0.65,
+        "output": 3.25
+      }
+    },
+    "deepseek-v4-flash": {
+      "displayName": "Deepseek V4 Flash",
+      "ownedBy": "atplus",
+      "family": "deepseek",
+      "contextLength": 1048576,
+      "maxOutput": 384000,
+      "cost": {
+        "input": 0.14,
+        "output": 0.28
+      }
+    },
+    "deepseek-v4-pro": {
+      "displayName": "Deepseek V4 Pro",
+      "ownedBy": "atplus",
+      "family": "deepseek",
+      "contextLength": 1048576,
+      "maxOutput": 384000,
+      "cost": {
+        "input": 1.74,
+        "output": 3.48
+      }
+    },
+    "glm-5.1:ollama": {
+      "displayName": "Glm 5.1:ollama",
+      "ownedBy": "atplus",
+      "family": "z.ai",
+      "contextLength": 200000,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 1.2,
+        "output": 4
+      }
+    },
+    "kimi-k2.6": {
+      "displayName": "Kimi K2.6",
+      "ownedBy": "atplus",
+      "family": "moonshot",
+      "contextLength": 262144,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 0.95,
+        "output": 4
+      }
+    },
+    "mimo-v2.5-pro": {
+      "displayName": "Mimo V2.5 Pro",
+      "ownedBy": "atplus",
+      "family": "xiaomi",
+      "contextLength": 1048576,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 1,
+        "output": 3
+      }
+    },
+    "mimo-v2-pro": {
+      "displayName": "Mimo V2 Pro",
+      "ownedBy": "atplus",
+      "family": "xiaomi",
+      "contextLength": 1048576,
+      "maxOutput": 32768,
+      "cost": {
+        "input": 1,
+        "output": 3
+      }
+    }
+  },
+  "agents": {},
+  "globalFallbackModel": "MiniMax-M2.7-highspeed",
+  "systemAgents": {
+    //* Main orchestrator — the primary user-facing interface that understands requests, routes work, and coordinates results
+    "loom": {
+      "id": "loom",
+      "displayName": "Loom",
+      "icon": "🔧",
+      "description": "Agente principal para atendimento geral: entende o pedido, organiza a execução e entrega soluções ponta a ponta.",
+      "versions": [
+        {
+          "id": "latest",
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        },
+        {
+          "id": "stable",
+          "displayName": "Stable",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "",
+      "fallbackModels": [],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {
+        "mode": "all",
+        "color": "#4A90D9"
+      }
+    },
+    //* Execution Orchestrator — Manages todo-list driven execution of multi-step plans, focusing on sequential implementation without subagent spawning.
+    "tapestry": {
+      "display_name": "Tapestry (Orquestrador de Execução)",
+      "model": "atlas/gpt-5.5",
+      "description": "Orquestrador focado em planos com múltiplas etapas: conduz execução sequencial com checklist e controle de progresso.",
+      "fallback_models": [
+        "atlas/gpt-5.4",
+        "atlas/gpt-5.3"
+      ],
+      "temperature": 0.2,
+      "color": "#D94A4A"
+    },
+    //! Domain specialist worker — Worker with full tool access, dispatched dynamically via the category system.
+    "shuttle": {
+      "display_name": "Shuttle (Especialista de Domínio)",
+      "model": "build/gpt-5.5",
+      "description": "Especialista técnico para tarefas delegadas: implementa, investiga e resolve demandas complexas com alta autonomia e uso intensivo de ferramentas.",
+      "fallback_models": [
+        "build/gpt-5.4",
+        "build/gpt-5.3"
+      ],
+      "category": "deep",
+      "temperature": 0.2,
+      "color": "#E67E22"
+    },
+    //| Strategic planner — Analyzes requirements and produces detailed implementation plans with research and dependency mapping.
+    "planner": {
+      "id": "planner",
+      "displayName": "Planner",
+      "icon": "📋",
+      "description": "Planejador estratégico: transforma objetivos em planos executáveis, com etapas claras, riscos, dependências e critérios de sucesso.",
+      "versions": [
+        {
+          "id": "latest",
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "",
+      "fallbackModels": [],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {
+        "mode": "subagent",
+        "color": "#9B59B6"
+      }
+    },
+    //| Codebase explorer — Fast, read-only codebase navigation and analysis using grep, glob, and read tools.
+    "thread": {
+      "display_name": "Thread (Genérico de Contexto)",
+      "model": "explore/gpt-5.5",
+      "description": "Agente de contexto rápido: faz leitura exploratória da base, consolida informações e reduz incerteza antes da implementação.",
+      "fallback_models": [
+        "explore/gpt-5.4",
+        "explore/gpt-5.3"
+      ],
+      "temperature": 0.1,
+      "color": "#27AE60"
+    },
+    //| External researcher — Performs external documentation lookups and reference searches, providing synthesized answers with source citations.
+    "explorer": {
+      "id": "explorer",
+      "displayName": "Explorer",
+      "icon": "🔍",
+      "description": "Explorador de código e fontes externas: levanta evidências, mapeia estrutura e retorna insights acionáveis para apoiar decisões.",
+      "versions": [
+        {
+          "id": "latest",
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "",
+      "fallbackModels": [],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {
+        "mode": "subagent",
+        "color": "#F39C12"
+      }
+    },
+    //| Quality reviewer and auditor - Reviews completed work and plans with a critical but fair eye, rejecting only for true blocking issues.
+    "reviewer": {
+      "id": "reviewer",
+      "displayName": "Reviewer",
+      "icon": "✅",
+      "description": "Revisor de qualidade: verifica consistência técnica, identifica riscos e aponta melhorias antes da entrega final.",
+      "versions": [
+        {
+          "id": "latest",
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "",
+      "fallbackModels": [],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {
+        "mode": "subagent",
+        "color": "#1ABC9C"
+      }
+    },
+    //| Security auditor - Audits code changes for security vulnerabilities and specification compliance with a skeptical bias.
+    "warp": {
+      "display_name": "Warp (Auditor de Segurança)",
+      "model": "prometheus/gpt-5.5",
+      "description": "Auditor de segurança: analisa vulnerabilidades, superfícies de ataque e práticas inseguras em código, configuração e fluxo operacional.",
+      "fallback_models": [
+        "prometheus/gpt-5.4",
+        "prometheus/gpt-5.3"
+      ],
+      "temperature": 0.1,
+      "color": "#E74C3C"
+    }
+  },
+  "categories": {
+    "writer": {
+      "id": "writer",
+      "displayName": "Writer",
+      "icon": "✍️",
+      "description": "Categoria voltada à escrita: documentação, guias, explicações técnicas e comunicação clara para diferentes públicos.",
+      "versions": [
+        {
+          "id": "latest",
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "",
+      "fallbackModels": [],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "ultrabrain": {
+      "id": "ultrabrain",
+      "displayName": "Ultrabrain",
+      "icon": "🤖",
+      "description": "Raciocínio de alta profundidade para problemas complexos, decisões de alto impacto e análises com múltiplas variáveis.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "glm-5-turbo",
+      "fallbackModels": [
+        "glm-5.1",
+        "qwen3.5-plus",
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "deep": {
+      "id": "deep",
+      "displayName": "Deep",
+      "icon": "🤖",
+      "description": "Execução autônoma orientada a objetivos, ideal para tarefas de médio e grande porte com necessidade de continuidade e ownership.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "qwen3-coder-plus",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "code": {
+      "id": "code",
+      "displayName": "Code",
+      "icon": "🤖",
+      "description": "Engenharia de software geral: implementação, refatoração, debugging, testes e manutenção de código em produção.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "glm-5-turbo",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "deepseek-v4-flash",
+        "glm-5.1",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "artistry": {
+      "id": "artistry",
+      "displayName": "Artistry",
+      "icon": "🤖",
+      "description": "Categoria criativa para soluções fora do padrão: explora alternativas, protótipos e abordagens não convencionais com critério técnico.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "kimi-k2.6",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "kimi-k2.6",
+        "qwen3.5-plus",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "quick": {
+      "id": "quick",
+      "displayName": "Quick",
+      "icon": "🤖",
+      "description": "Categoria de resposta rápida para ajustes pontuais: mudanças pequenas, baixo risco e escopo limitado.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "deepseek-v4-flash",
+      "fallbackModels": [
+        "MiniMax-M2.7-highspeed",
+        "qwen3.5-plus",
+        "deepseek-v4-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "unspecified-low": {
+      "id": "unspecified-low",
+      "displayName": "Unspecified Low",
+      "icon": "🤖",
+      "description": "Fallback de baixo esforço para tarefas simples sem categoria específica, priorizando velocidade e custo controlado.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "MiniMax-M2.7-highspeed",
+      "fallbackModels": [
+        "MiniMax-M2.7-highspeed",
+        "qwen3.5-plus",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "unspecified-high": {
+      "id": "unspecified-high",
+      "displayName": "Unspecified High",
+      "icon": "🤖",
+      "description": "Fallback de alto esforço para demandas sem categoria específica que exigem análise extensa e maior investimento de contexto.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [
+        "deepseek-v4-pro",
+        "glm-5.1",
+        "mimo-v2.5-pro",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "writing": {
+      "id": "writing",
+      "displayName": "Writing",
+      "icon": "🤖",
+      "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "MiniMax-M2.7-highspeed",
+      "fallbackModels": [
+        "qwen3.5-plus",
+        "deepseek-v4-flash",
+        "kimi-k2.6",
+        "MiniMax-M2.7-highspeed"
+      ],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    },
+    "visual-engineering": {
+      "id": "visual-engineering",
+      "displayName": "Visual Engineering",
+      "icon": "🎨",
+      "description": "Categoria focada em frontend visual: UI/UX, design system, estilos, layout responsivo e animações com intenção de produto.",
+      "versions": [
+        {
+          "id": "v1",
+          "displayName": "V1",
+          "modelIdStrategy": "model-name",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "",
+      "fallbackModels": [],
+      "enabledPlugins": [
+        "opencode"
+      ],
+      "config": {}
+    }
+  },
+  "routing": {
+    "version": 1,
+    "plugins": {
+      "opencode": {
+        "enabled": true,
+        "outputFile": "opencode.json",
+        "agents": {}
+      },
+      "openagent": {
+        "enabled": false,
+        "outputFile": "oh-my-openagent.json",
+        "agents": {}
+      },
+      "vscode": {
+        "enabled": false,
+        "outputFile": "vscode-oaicopilot.json",
+        "agents": {}
+      }
+    },
+    "globalFallbackModel": "MiniMax-M2.7-highspeed"
+  }
+}

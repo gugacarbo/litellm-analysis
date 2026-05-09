@@ -1,11 +1,5 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { DbConfig } from "@lite-llm/agents-repository/schema";
-import type { PluginRoutingConfig, SystemAgent } from "../types/index.js";
-
-interface ExtendedConfig extends DbConfig {
-  systemAgents?: Record<string, SystemAgent>;
-  routing?: PluginRoutingConfig;
-}
+import type { DbConfig, SystemAgent } from "@lite-llm/agents-repository/schema";
 
 export interface AgentCatalogServiceOptions {
   repository: IAgentsRepository;
@@ -85,8 +79,8 @@ export class AgentCatalogService implements IAgentCatalogService {
     await this.repository.write(config);
   }
 
-  private async readWithSystemAgents(): Promise<ExtendedConfig> {
+  private async readWithSystemAgents(): Promise<DbConfig> {
     const config = await this.repository.read();
-    return config as ExtendedConfig;
+    return config as DbConfig;
   }
 }

@@ -8,6 +8,7 @@ import { useCallback } from "react";
 import {
   deleteAgentConfig,
   saveAllAgentConfigs,
+  setSyncAliasesConfig,
   updateAgentConfig,
   updateAgentRoutingConfig,
   updateGlobalFallbackModel,
@@ -46,6 +47,8 @@ export function useAgentRoutingActions(
   setCategoryConfigs: SetCategoryConfigs,
   _globalFallbackModel: string,
   setGlobalFallbackModel: SetGlobalFallbackModel,
+  syncAliases: boolean,
+  setSyncAliases: (value: boolean) => void,
 ) {
   const queryClient = useQueryClient();
 
@@ -54,7 +57,8 @@ export function useAgentRoutingActions(
       key: string;
       type: "agent" | "category";
       config: AgentConfig | CategoryConfig;
-    }) => updateAgentConfig(params.key, params.type, params.config, true),
+    }) =>
+      updateAgentConfig(params.key, params.type, params.config, syncAliases),
   });
 
   const deleteAgentConfigMutation = useMutation({
@@ -270,6 +274,21 @@ export function useAgentRoutingActions(
     [queryClient, setGlobalFallbackModel, updateGlobalFallbackMutation],
   );
 
+  const handleToggleSyncAliases = useCallback(
+    async (enabled: boolean) => {
+      setSyncAliases(enabled);
+      try {
+        await setSyncAliasesConfig(enabled);
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.syncAliases,
+        });
+      } catch {
+        setSyncAliases(!enabled);
+      }
+    },
+    [queryClient, setSyncAliases],
+  );
+
   return {
     saving,
     agentConfigDialogOpen,
@@ -293,6 +312,8 @@ export function useAgentRoutingActions(
     handleDeleteCategoryConfig,
     handleSaveAll,
     handleSaveGlobalFallback,
+    handleToggleSyncAliases,
+    syncAliases,
     openAgentConfig,
     openCategoryConfig,
     openAddAlias,

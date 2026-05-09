@@ -68,6 +68,61 @@ export const categoryEntrySchema = z.object({
   is_unstable_agent: z.boolean().optional(),
 });
 
+export const pluginRoutingRuleSchema = z.object({
+  enabled: z.boolean(),
+  versionOverrides: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const pluginRoutingSchema = z.object({
+  enabled: z.boolean(),
+  outputFile: z.string(),
+  agents: z.record(z.string(), pluginRoutingRuleSchema),
+});
+
+export const pluginRoutingConfigSchema = z.object({
+  version: z.number(),
+  plugins: z.record(z.string(), pluginRoutingSchema),
+  globalFallbackModel: z.string().optional(),
+});
+
+export const agentVersionSchema = z.object({
+  id: z.string(),
+  displayName: z.string(),
+  modelIdStrategy: z.enum(["model-name", "prefix-version"]),
+  limits: z.object({
+    context: z.number(),
+    output: z.number(),
+  }),
+  cost: costSchema.optional(),
+});
+
+export const agentExtraConfigSchema = z.object({
+  mode: z.enum(["subagent", "primary", "all"]).optional(),
+  tools: z.record(z.string(), z.boolean()).optional(),
+  permissions: z.record(z.string(), z.unknown()).optional(),
+  color: z.string().optional(),
+  disable: z.boolean().optional(),
+  variant: z.string().optional(),
+  category: z.string().optional(),
+  skills: z.array(z.string()).optional(),
+  temperature: z.number().optional(),
+  topP: z.number().optional(),
+  prompt: z.string().optional(),
+  promptAppend: z.string().optional(),
+});
+
+export const systemAgentSchema = z.object({
+  id: z.string(),
+  displayName: z.string(),
+  icon: z.string(),
+  description: z.string(),
+  versions: z.array(agentVersionSchema),
+  model: z.string(),
+  fallbackModels: z.array(z.string()),
+  enabledPlugins: z.array(z.string()),
+  config: agentExtraConfigSchema,
+});
+
 export const dbConfigSchema = z.object({
   $schema: z.string().optional(),
   version: z.number(),
@@ -80,6 +135,8 @@ export const dbConfigSchema = z.object({
   categories: z.record(z.string(), categoryEntrySchema),
   globalFallbackModel: z.string().optional(),
   customAliases: z.record(z.string(), z.string()).optional(),
+  systemAgents: z.record(z.string(), systemAgentSchema).optional(),
+  routing: pluginRoutingConfigSchema.optional(),
 });
 
 // ── TypeScript Types ──
@@ -90,4 +147,10 @@ export type CategoryEntry = z.infer<typeof categoryEntrySchema>;
 export type Permission = z.infer<typeof permissionSchema>;
 export type ThinkingConfig = z.infer<typeof thinkingSchema>;
 export type Cost = z.infer<typeof costSchema>;
+export type PluginRoutingRule = z.infer<typeof pluginRoutingRuleSchema>;
+export type PluginRouting = z.infer<typeof pluginRoutingSchema>;
+export type PluginRoutingConfig = z.infer<typeof pluginRoutingConfigSchema>;
+export type AgentVersion = z.infer<typeof agentVersionSchema>;
+export type AgentExtraConfig = z.infer<typeof agentExtraConfigSchema>;
+export type SystemAgent = z.infer<typeof systemAgentSchema>;
 export type DbConfig = z.infer<typeof dbConfigSchema>;

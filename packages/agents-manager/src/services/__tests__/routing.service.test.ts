@@ -1,9 +1,11 @@
-import { describe, it, expect } from "vitest";
-import { RoutingService } from "../routing.service";
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type { DbConfig } from "@lite-llm/agents-repository/schema";
+import { describe, expect, it } from "vitest";
+import { RoutingService } from "../routing.service";
 
-function createMockRepository(data: Record<string, unknown> = {}): IAgentsRepository {
+function createMockRepository(
+  data: Record<string, unknown> = {},
+): IAgentsRepository {
   const defaults: Record<string, unknown> = {
     version: 2,
     models: {},

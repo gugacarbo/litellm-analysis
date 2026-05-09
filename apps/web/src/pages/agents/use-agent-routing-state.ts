@@ -17,6 +17,7 @@ import {
   getAgentRoutingConfig,
   getAllModels,
   getGlobalFallbackModel,
+  getSyncAliasesConfig,
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
 
@@ -30,6 +31,7 @@ export function useAgentRoutingState() {
   >({});
   const [globalFallbackModel, setGlobalFallbackModel] =
     useState<string>("gpt-5.1");
+  const [syncAliases, setSyncAliases] = useState<boolean>(false);
 
   const agentRoutingQuery = useQuery({
     queryKey: queryKeys.agentRoutingData,
@@ -59,6 +61,11 @@ export function useAgentRoutingState() {
     queryFn: getAgentDefinitions,
   });
 
+  const syncAliasesQuery = useQuery({
+    queryKey: queryKeys.syncAliases,
+    queryFn: getSyncAliasesConfig,
+  });
+
   const agents: AgentDefinition[] =
     agentDefinitionsQuery.data?.agents ?? AGENT_DEFINITIONS;
   const categories: CategoryDefinition[] =
@@ -83,6 +90,12 @@ export function useAgentRoutingState() {
     setGlobalFallbackModel(agentRoutingQuery.data.globalFallbackModel);
   }, [agentRoutingQuery.data]);
 
+  useEffect(() => {
+    if (syncAliasesQuery.data !== undefined) {
+      setSyncAliases(syncAliasesQuery.data.enabled);
+    }
+  }, [syncAliasesQuery.data]);
+
   return {
     aliases,
     setAliases,
@@ -92,6 +105,8 @@ export function useAgentRoutingState() {
     setCategoryConfigs,
     globalFallbackModel,
     setGlobalFallbackModel,
+    syncAliases,
+    setSyncAliases,
     loading: hasBlockingLoading,
     error: firstError?.message ?? null,
     models: modelsQuery.data?.map((m) => m.modelName) || [],

@@ -121,17 +121,21 @@ export function registerItemRoutes(app: Application, opts: RouteOptions): void {
       }
       await orchestration.syncGeneratedArtifacts();
 
-      const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
-      const existingRouting = await getAgentRoutingConfig();
-      const existingAliases = existingRouting?.model_group_alias
-        ? (existingRouting.model_group_alias as Record<string, string>)
-        : {};
-      const keysToRemove = getExistingAliasesForAgent(key, existingAliases);
-      const deletions: Record<string, string> = {};
-      for (const aliasKey of keysToRemove) {
-        deletions[aliasKey] = "";
+      const syncAliases = await services.routing.getSyncAliases();
+
+      if (syncAliases) {
+        const { getAgentRoutingConfig, updateAgentRoutingConfig } = dataSource;
+        const existingRouting = await getAgentRoutingConfig();
+        const existingAliases = existingRouting?.model_group_alias
+          ? (existingRouting.model_group_alias as Record<string, string>)
+          : {};
+        const keysToRemove = getExistingAliasesForAgent(key, existingAliases);
+        const deletions: Record<string, string> = {};
+        for (const aliasKey of keysToRemove) {
+          deletions[aliasKey] = "";
+        }
+        await updateAgentRoutingConfig(deletions);
       }
-      await updateAgentRoutingConfig(deletions);
 
       res.json({ success: true });
     } catch (error) {

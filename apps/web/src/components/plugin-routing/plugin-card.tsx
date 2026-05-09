@@ -49,7 +49,8 @@ export function PluginCard({
               </span>
               <div className="space-y-2">
                 {agentNames.map((agentName) => {
-                  const isEnabled = enabledAgentIds?.includes(agentName) ?? false;
+                  const isEnabled =
+                    enabledAgentIds?.includes(agentName) ?? false;
                   return (
                     <div
                       key={agentName}

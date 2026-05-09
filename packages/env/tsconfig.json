@@ -9,7 +9,7 @@
     "declaration": true,
     "declarationMap": true,
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": ["node", "vite/client"],
     "customConditions": ["development"]
   },
   "include": ["src"]

@@ -1,10 +1,9 @@
 "use client";
 
-import { Database, Layers, RefreshCw, Settings } from "lucide-react";
+import { Database, RefreshCw, Settings } from "lucide-react";
 import { AgentConfigEditor } from "../components/agent-config-editor";
 import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
 import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
-import { AgentRoutingModelStationsTab } from "../components/agent-routing/agent-routing-model-stations-tab";
 import { CategoryConfigEditor } from "../components/category-config-editor";
 import { GlobalFallbackSelector } from "../components/global-fallback-selector";
 import { Button } from "../components/ui/button";
@@ -20,35 +19,71 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "../components/ui/tooltip";
-import { useAgentRoutingPageState } from "./agent-routing/use-agent-routing-page";
-
-export function AgentRoutingPage() {
+import { useAgentRoutingPageState } from "./agents/use-agent-routing-page";
+export function AgentsPage() {
   const state = useAgentRoutingPageState();
 
   return (
     <PageLayout
-      title="Agent Routing"
+      title="Agent Config"
       subtitle="Configure models for agents and categories"
       icon={Settings}
       buttons={
-        <Button
-          onClick={state.handleSaveAll}
-          disabled={state.saving || state.loading}
-        >
-          {state.saving ? (
-            <>
-              <RefreshCw className="h-4 w-4 animate-spin me-2" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Database className="h-4 w-4 me-2" />
-              Save All
-            </>
-          )}
-        </Button>
+        <>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <TooltipProvider>
+                {" "}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <Switch
+                        id="sync-aliases"
+                        checked={state.syncAliases}
+                        onCheckedChange={state.handleToggleSyncAliases}
+                      />
+                      <Label
+                        htmlFor="sync-aliases"
+                        className="text-sm cursor-pointer"
+                      >
+                        Sync Aliases
+                      </Label>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-48 text-xs">
+                      Quando desativado, alterações em agentes e categorias não
+                      geram mudanças nos aliases do LiteLLM
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <GlobalFallbackSelector
+              value={state.globalFallbackModel}
+              onValueChange={state.handleSaveGlobalFallback}
+            />
+          </div>
+          <Button
+            onClick={state.handleSaveAll}
+            disabled={state.saving || state.loading}
+          >
+            {state.saving ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin me-2" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Database className="h-4 w-4 me-2" />
+                Save All
+              </>
+            )}
+          </Button>
+        </>
       }
     >
       <Tabs defaultValue="agents">
@@ -56,42 +91,11 @@ export function AgentRoutingPage() {
           <TabsList>
             <TabsTrigger value="agents">Agents</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
-            <TabsTrigger value="model-stations">
-              <Layers className="h-4 w-4 me-1.5" />
-              Model Stations
-            </TabsTrigger>
           </TabsList>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2 cursor-pointer">
-                    <Switch
-                      id="sync-aliases"
-                      checked={state.syncAliases}
-                      onCheckedChange={state.handleToggleSyncAliases}
-                    />
-                    <Label
-                      htmlFor="sync-aliases"
-                      className="text-sm cursor-pointer"
-                    >
-                      Sync Aliases
-                    </Label>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-48 text-xs">
-                    Quando desativado, alterações em agentes e categorias não
-                    geram mudanças nos aliases do LiteLLM
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <GlobalFallbackSelector
-              value={state.globalFallbackModel}
-              onValueChange={state.handleSaveGlobalFallback}
-            />
-          </div>
+          <GlobalFallbackSelector
+            value={state.globalFallbackModel}
+            onValueChange={state.handleSaveGlobalFallback}
+          />
         </div>
 
         <TabsContent value="agents" className="mt-4">
@@ -112,19 +116,6 @@ export function AgentRoutingPage() {
             models={state.models}
             onOpenCategoryConfig={state.openCategoryConfig}
             onQuickModelChange={state.handleQuickCategoryModelChange}
-            getCategoryConfigInfo={state.getCategoryConfigInfo}
-          />
-        </TabsContent>
-
-        <TabsContent value="model-stations" className="mt-4">
-          <AgentRoutingModelStationsTab
-            loading={state.loading}
-            agents={state.agents}
-            categories={state.categories}
-            models={state.models}
-            onOpenAgentConfig={state.openAgentConfig}
-            onOpenCategoryConfig={state.openCategoryConfig}
-            getAgentConfigInfo={state.getAgentConfigInfo}
             getCategoryConfigInfo={state.getCategoryConfigInfo}
           />
         </TabsContent>
@@ -156,4 +147,4 @@ export function AgentRoutingPage() {
   );
 }
 
-export default AgentRoutingPage;
+export default AgentsPage;
