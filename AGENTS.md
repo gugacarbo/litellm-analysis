@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-06
+**Generated:** 2026-05-09
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -52,7 +52,7 @@ lite-llm-analytics/
 | Add a UI component       | `apps/web/src/components/`                                                         | shadcn primitives at root, domain modules in subdirs |
 | Add an API endpoint      | `apps/server/src/api-server.ts`                                                    | All routes defined here                              |
 | Add a data-source method | `packages/analytics/src/data-source/database.ts`                                  | Must implement `AnalyticsDataSource` interface      |
-| Add a DB query           | `packages/analytics/src/queries/index.ts`                                           | Drizzle ORM queries, camelCase columns               |
+| Add a DB query           | `packages/analytics/src/queries/`                                                  | Drizzle ORM queries, camelCase columns               |
 | Add a new data type      | `packages/analytics/src/types/index.ts`                                             | Add to interface or type exports                    |
 | Change feature gating    | `apps/web/src/components/feature-gate.tsx`                                         | Wraps destructive/limited features                   |
 | Change lint/format rules | `biome.json` (root)                                                               | Single quotes, 80 chars, import auto-organize       |
@@ -139,9 +139,17 @@ pnpm --filter @lite-llm/server-core typecheck
 pnpm --filter @lite-llm/monitor typecheck
 ```
 
-## NOTES
+## BUILD & CI (Gaps)
 
-- No CI/CD pipeline exists — all checks run manually
+- No GitHub Actions or CI pipeline — all checks run manually
 - No Docker/containerization — runs on Node.js >= 20 + PostgreSQL 14+
-- Web dev proxy strips `/api` prefix before forwarding to server
-- Server port defaults to 3000 (env) but `.env` uses 3008; Vite proxy targets 3008
+- No remote cache — Turborepo local cache only
+- Pre-commit hook runs `pnpm format` only — no lint/type-check
+- lint-staged command in scripts but no config file found
+
+## SUBPACKAGE DOCUMENTATION
+
+| Location | Coverage |
+|----------|----------|
+| `packages/analytics/src/queries/` | Drizzle ORM query patterns, helpers |
+| `packages/analytics/src/data-source/` | DatabaseDataSource composition |
