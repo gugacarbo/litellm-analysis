@@ -4,10 +4,7 @@
 export type {
   AgentExtraConfig,
   AgentVersion,
-  SystemAgent,
-} from "@lite-llm/agents-manager";
-
-export type {
   PluginRoutingConfig,
   PluginRoutingRule,
+  SystemAgent,
 } from "@lite-llm/agents-manager";

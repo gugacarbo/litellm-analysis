@@ -3,9 +3,6 @@ import { RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { normalizeSystemAgent } from "./agent-config-editor/normalize";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +11,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 
 interface AgentConfigEditorProps {
   open: boolean;

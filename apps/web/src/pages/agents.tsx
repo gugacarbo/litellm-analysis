@@ -1,12 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import { Settings } from "lucide-react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { AgentConfigEditor } from "../components/agent-config-editor";
+import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
 import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
 import { PageLayout } from "../components/ui/page-layout";
 import { useAgentRoutingPageState } from "./agents/use-agent-routing-page";
 
 export function AgentsPage() {
+  const [activeTab, setActiveTab] = useState<"agents" | "categories">("agents");
+
   const {
     agents,
     loading,
@@ -17,6 +27,8 @@ export function AgentsPage() {
     handleSaveAgent,
     handleDeleteAgent,
     openAgentEditor,
+    categories,
+    categoriesLoading,
   } = useAgentRoutingPageState();
 
   const editingAgent = agents.find((a) => a.id === editingAgentId) ?? null;
@@ -27,12 +39,31 @@ export function AgentsPage() {
       subtitle="Manage system agents and their configurations"
       icon={Settings}
     >
-      <AgentRoutingAgentsTab
-        loading={loading}
-        agents={agents}
-        onOpenAgentConfig={openAgentEditor}
-        onDeleteAgent={handleDeleteAgent}
-      />
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) =>
+          setActiveTab(value as "agents" | "categories")
+        }
+      >
+        <TabsList>
+          <TabsTrigger value="agents">Agents</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
+        </TabsList>
+        <TabsContent value="agents">
+          <AgentRoutingAgentsTab
+            loading={loading}
+            agents={agents}
+            onOpenAgentConfig={openAgentEditor}
+            onDeleteAgent={handleDeleteAgent}
+          />
+        </TabsContent>
+        <TabsContent value="categories">
+          <AgentRoutingCategoriesTab
+            loading={categoriesLoading}
+            categories={categories}
+          />
+        </TabsContent>
+      </Tabs>
 
       <AgentConfigEditor
         open={dialogOpen}

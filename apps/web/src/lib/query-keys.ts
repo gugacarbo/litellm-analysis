@@ -84,6 +84,10 @@ export const queryKeys = {
     all: ["agent-catalog"] as const,
     detail: (id: string) => ["agent-catalog", id] as const,
   },
+  categoryCatalog: {
+    all: ["category-catalog"] as const,
+    detail: (key: string) => ["category-catalog", key] as const,
+  },
   pluginRouting: {
     all: ["plugin-routing"] as const,
     plugins: ["plugin-routing", "plugins"] as const,
