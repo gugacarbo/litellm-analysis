@@ -1,5 +1,7 @@
 import type {
+  PluginConfigResponse,
   PluginInfo,
+  PluginRoutingConfig,
   PluginRoutingResponse,
 } from "@lite-llm/api-contracts/agent-catalog";
 import { fetchApi } from "./core";
@@ -18,5 +20,43 @@ export async function toggleAgentPlugin(
 ): Promise<{ pluginId: string; agentId: string; enabled: boolean }> {
   return fetchApi(`/plugin-routing/${pluginId}/agents/${agentId}`, {
     method: "PATCH",
+  });
+}
+
+export async function getPluginConfig(
+  pluginId: string,
+): Promise<PluginConfigResponse> {
+  return fetchApi(`/plugin-routing/${pluginId}/config`);
+}
+
+export async function savePluginConfig(
+  pluginId: string,
+  data: {
+    config?: Record<string, unknown>;
+    agentMappings?: Record<string, string>;
+    categoryMappings?: Record<string, boolean>;
+  },
+): Promise<{ success: boolean }> {
+  return fetchApi(`/plugin-routing/${pluginId}/config`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function toggleCategoryExport(
+  pluginId: string,
+  categoryId: string,
+): Promise<{ categoryId: string; enabled: boolean }> {
+  return fetchApi(`/plugin-routing/${pluginId}/categories/${categoryId}`, {
+    method: "PATCH",
+  });
+}
+
+export async function savePluginRouting(
+  config: PluginRoutingConfig,
+): Promise<{ success: boolean }> {
+  return fetchApi("/plugin-routing", {
+    method: "PUT",
+    body: JSON.stringify(config),
   });
 }

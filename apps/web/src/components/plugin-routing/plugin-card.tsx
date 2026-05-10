@@ -1,5 +1,4 @@
 import { Lock, Plug, Unlock } from "lucide-react";
-import { Badge } from "../ui/badge";
 import {
   Card,
   CardContent,
@@ -24,9 +23,6 @@ export function PluginCard({
           <div className="flex items-center gap-2">
             <Plug className="h-4 w-4 text-muted-foreground" />
             <CardTitle className="text-base">{plugin.name}</CardTitle>
-            <Badge variant={plugin.builtin ? "secondary" : "outline"}>
-              {plugin.builtin ? "Built-in" : "External"}
-            </Badge>
           </div>
           <Switch
             checked={plugin.enabled}
