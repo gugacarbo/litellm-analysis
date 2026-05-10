@@ -10,7 +10,7 @@ Manages agent and category configurations with a repository client, 5 domain ser
 agents-manager/src/
 ├── index.ts                     # Barrel + createAgentsManager() factory
 ├── config/
-│   └── defaults.ts              # DEFAULT_FILE_PATHS, getFilePaths()
+│   └── defaults.ts              # DEFAULT_DB_PATH, DEFAULT_ROUTING, DEFAULT_SYSTEM_AGENTS
 ├── repository/
 │   └── client.ts                # createRepositoryClient() with JSONC fallback
 ├── services/
@@ -31,7 +31,6 @@ agents-manager/src/
 ├── types/
 │   ├── routing.ts               # PluginRoutingConfig, PluginRoutingRule
 │   └── system-agent.ts          # SystemAgent, AgentVersion, AgentExtraConfig
-└── plugins/builtins/index.ts   # OpenCodePlugin export
 ```
 
 ## KEY EXPORTS
@@ -71,8 +70,7 @@ data/opencode.json, data/oh-my-openagent.json, data/vscode-oaicopilot.json
 
 - Repository client handles `@settings/` path resolution from monorepo root
 - JSON/JSONC fallback: `.json` → `.jsonc` if file not found
-- Plugin interface uses optional `transformAgent`/`buildOutputV2` for v2 plugins
-- Legacy plugins implement `transformEntry`, `transformModel`, `preprocess`, `buildOutput`
+
 
 ## ANTI-PATTERNS
 
