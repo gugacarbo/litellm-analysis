@@ -18,7 +18,6 @@ export function PluginsPage() {
         plugins={pluginState.plugins}
         loading={pluginState.loading}
         onTogglePlugin={pluginState.handleTogglePlugin}
-        onToggleAgent={pluginState.handleToggleAgent}
       />
     </PageLayout>
   );

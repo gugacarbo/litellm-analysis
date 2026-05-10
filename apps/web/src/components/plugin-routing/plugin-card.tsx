@@ -1,4 +1,6 @@
-import { Lock, Plug, Unlock } from "lucide-react";
+import { Plug, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -9,13 +11,9 @@ import {
 import { Switch } from "../ui/switch";
 import type { PluginCardProps } from "./plugin-routing-types";
 
-export function PluginCard({
-  plugin,
-  onToggle,
-  onToggleAgent,
-  agentNames,
-  enabledAgentIds,
-}: PluginCardProps) {
+export function PluginCard({ plugin, onToggle }: PluginCardProps) {
+  const navigate = useNavigate();
+
   return (
     <Card>
       <CardHeader>
@@ -36,46 +34,18 @@ export function PluginCard({
           )}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {plugin.enabled ? (
-          agentNames && agentNames.length > 0 ? (
-            <div className="space-y-2">
-              <span className="text-xs font-medium text-muted-foreground">
-                Agent Routing
-              </span>
-              <div className="space-y-2">
-                {agentNames.map((agentName) => {
-                  const isEnabled =
-                    enabledAgentIds?.includes(agentName) ?? false;
-                  return (
-                    <div
-                      key={agentName}
-                      className="flex items-center justify-between rounded-md border px-3 py-2"
-                    >
-                      <span className="text-sm">{agentName}</span>
-                      <Switch
-                        checked={isEnabled}
-                        onCheckedChange={() =>
-                          onToggleAgent(plugin.id, agentName)
-                        }
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Unlock className="h-4 w-4" />
-              <span>No agents available for routing.</span>
-            </div>
-          )
-        ) : (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Lock className="h-4 w-4" />
-            <span>Enable this plugin to configure agent routing.</span>
-          </div>
-        )}
+      <CardContent>
+        <div className="pt-2 border-t mt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => navigate(`/plugins/${plugin.id}`)}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Configure
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

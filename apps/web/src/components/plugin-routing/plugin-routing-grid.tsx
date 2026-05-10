@@ -7,9 +7,6 @@ export function PluginRoutingGrid({
   plugins,
   loading,
   onTogglePlugin,
-  onToggleAgent,
-  agentNames,
-  enabledAgentIds,
 }: PluginRoutingGridProps) {
   if (loading) {
     return (
@@ -20,16 +17,11 @@ export function PluginRoutingGrid({
               <div className="flex items-center gap-2">
                 <Skeleton className="h-4 w-4" />
                 <Skeleton className="h-5 w-28" />
-                <Skeleton className="h-5 w-16 rounded-full" />
               </div>
               <Skeleton className="h-5 w-9 rounded-full" />
             </div>
             <Skeleton className="h-4 w-36" />
-            <div className="space-y-2 pt-1">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-9 w-full" />
-              <Skeleton className="h-9 w-full" />
-            </div>
+            <Skeleton className="h-9 w-full" />
           </div>
         ))}
       </div>
@@ -57,9 +49,6 @@ export function PluginRoutingGrid({
           key={plugin.id}
           plugin={plugin}
           onToggle={onTogglePlugin}
-          onToggleAgent={onToggleAgent}
-          agentNames={agentNames}
-          enabledAgentIds={enabledAgentIds}
         />
       ))}
     </div>
