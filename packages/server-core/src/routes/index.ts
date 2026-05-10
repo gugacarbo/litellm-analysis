@@ -17,7 +17,7 @@ export function registerAllRoutes(app: Application, opts: RouteOptions): void {
   registerSpendRoutes(app, opts);
   registerAnalyticsRoutes(app, opts);
   registerModelRoutes(app, opts);
-  registerPluginRoutingRoutes(app);
+  registerPluginRoutingRoutes(app, opts);
   registerAgentConfigRoutes(app, opts);
   registerCredentialRoutes(app, opts);
 }
