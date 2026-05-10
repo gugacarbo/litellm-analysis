@@ -17,13 +17,11 @@ export function usePluginConfig(pluginId: string) {
 export function useSavePluginConfig(pluginId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (
-      data: {
-        config?: Record<string, unknown>;
-        agentMappings?: Record<string, string>;
-        categoryMappings?: Record<string, boolean>;
-      },
-    ) => savePluginConfig(pluginId, data),
+    mutationFn: (data: {
+      config?: Record<string, unknown>;
+      agentMappings?: Record<string, string>;
+      categoryMappings?: Record<string, boolean>;
+    }) => savePluginConfig(pluginId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.pluginRouting.pluginConfig(pluginId),

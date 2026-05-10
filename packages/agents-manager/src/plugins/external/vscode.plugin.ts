@@ -70,9 +70,10 @@ export class VsCodePlugin implements IPlugin {
     routing: PluginRoutingConfig,
     ctx: TransformContext,
   ): VsCodeModelsOutput {
-    const pluginConfig = (
-      routing.plugins[this.id]?.config ?? {}
-    ) as Record<string, unknown>;
+    const pluginConfig = (routing.plugins[this.id]?.config ?? {}) as Record<
+      string,
+      unknown
+    >;
     const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
 
     const output: VsCodeModelsOutput = {

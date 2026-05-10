@@ -24,7 +24,11 @@ export class OpenAgentPlugin implements IPlugin {
 
   getInternalAgents(): InternalAgent[] {
     return [
-      { id: "default", displayName: "Default", description: "Default OpenAgent" },
+      {
+        id: "default",
+        displayName: "Default",
+        description: "Default OpenAgent",
+      },
     ];
   }
 
@@ -63,15 +67,17 @@ export class OpenAgentPlugin implements IPlugin {
       globalFallbackModel: ctx.globalFallbackModel,
       git_master: {
         commit_footer: (config.commitFooter as boolean) ?? false,
-        include_co_authored_by: (config.includeCoAuthoredBy as boolean) ?? false,
+        include_co_authored_by:
+          (config.includeCoAuthoredBy as boolean) ?? false,
       },
       agents: {},
       categories: {},
     };
 
-    const agentMappings = (
-      pluginRouting?.agentMappings ?? {}
-    ) as Record<string, string>;
+    const agentMappings = (pluginRouting?.agentMappings ?? {}) as Record<
+      string,
+      string
+    >;
     for (const agent of agents) {
       if (!agent.id) continue;
       const internalId = agentMappings[agent.id];

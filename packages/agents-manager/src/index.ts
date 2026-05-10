@@ -78,14 +78,11 @@ import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin.js";
 import { OpenAgentPlugin } from "./plugins/external/openagent.plugin.js";
 import { VsCodePlugin } from "./plugins/external/vscode.plugin.js";
 import type {
-  ConfigField,
-  InternalAgent,
-} from "./plugins/plugin-types.js";
-import type {
   IPlugin,
   IPluginRegistry,
   TransformContext,
 } from "./plugins/plugin.js";
+import type { ConfigField, InternalAgent } from "./plugins/plugin-types.js";
 import {
   PluginRegistry,
   type PluginRegistryOptions,
@@ -93,16 +90,20 @@ import {
 
 export type {
   ConfigField,
+  InternalAgent,
   IPlugin,
   IPluginRegistry,
-  InternalAgent,
   PluginRegistryOptions,
   TransformContext,
 };
 export { OpenAgentPlugin, OpenCodePlugin, PluginRegistry, VsCodePlugin };
 
 // Config
-import { DEFAULT_DB_PATH, DEFAULT_ROUTING, DEFAULT_SYSTEM_AGENTS } from "./config/defaults.js";
+import {
+  DEFAULT_DB_PATH,
+  DEFAULT_ROUTING,
+  DEFAULT_SYSTEM_AGENTS,
+} from "./config/defaults.js";
 
 export { DEFAULT_DB_PATH, DEFAULT_ROUTING, DEFAULT_SYSTEM_AGENTS };
 

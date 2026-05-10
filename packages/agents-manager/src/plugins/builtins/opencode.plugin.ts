@@ -19,12 +19,36 @@ export class OpenCodePlugin implements IPlugin {
 
   getInternalAgents(): InternalAgent[] {
     return [
-      { id: "coder", displayName: "Coder", description: "General-purpose coding agent" },
-      { id: "planner", displayName: "Planner", description: "Planning and scoping agent" },
-      { id: "explorer", displayName: "Explorer", description: "Codebase exploration agent" },
-      { id: "reviewer", displayName: "Reviewer", description: "Code review agent" },
-      { id: "writer", displayName: "Writer", description: "Documentation and writing agent" },
-      { id: "architect", displayName: "Architect", description: "Architecture decisions agent" },
+      {
+        id: "coder",
+        displayName: "Coder",
+        description: "General-purpose coding agent",
+      },
+      {
+        id: "planner",
+        displayName: "Planner",
+        description: "Planning and scoping agent",
+      },
+      {
+        id: "explorer",
+        displayName: "Explorer",
+        description: "Codebase exploration agent",
+      },
+      {
+        id: "reviewer",
+        displayName: "Reviewer",
+        description: "Code review agent",
+      },
+      {
+        id: "writer",
+        displayName: "Writer",
+        description: "Documentation and writing agent",
+      },
+      {
+        id: "architect",
+        displayName: "Architect",
+        description: "Architecture decisions agent",
+      },
     ];
   }
 
@@ -75,9 +99,10 @@ export class OpenCodePlugin implements IPlugin {
     };
 
     const pluginRouting = routing.plugins[this.id];
-    const agentMappings = (
-      pluginRouting?.agentMappings ?? {}
-    ) as Record<string, string>;
+    const agentMappings = (pluginRouting?.agentMappings ?? {}) as Record<
+      string,
+      string
+    >;
 
     for (const agent of agents) {
       if (!agent.id) continue;
@@ -88,8 +113,9 @@ export class OpenCodePlugin implements IPlugin {
       const models: Record<string, unknown> = {};
       for (const version of agent.versions) {
         const resolvedVersion =
-          (pluginRouting?.agents[agent.id]?.versionOverrides?.[version.id] as AgentVersion) ??
-          version;
+          (pluginRouting?.agents[agent.id]?.versionOverrides?.[
+            version.id
+          ] as AgentVersion) ?? version;
         models[version.id] = {
           id: `${internalAgentId}/${version.id}`,
           name: `${resolvedVersion.displayName} ${version.displayName}`,

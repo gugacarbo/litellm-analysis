@@ -45,11 +45,7 @@ export function PluginRoutingGrid({
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {plugins.map((plugin) => (
-        <PluginCard
-          key={plugin.id}
-          plugin={plugin}
-          onToggle={onTogglePlugin}
-        />
+        <PluginCard key={plugin.id} plugin={plugin} onToggle={onTogglePlugin} />
       ))}
     </div>
   );
