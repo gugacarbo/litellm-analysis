@@ -76,6 +76,9 @@ export const pluginRoutingRuleSchema = z.object({
 export const pluginRoutingSchema = z.object({
   enabled: z.boolean(),
   outputFile: z.string(),
+  config: z.record(z.string(), z.unknown()).optional(),
+  agentMappings: z.record(z.string(), z.string()).optional(),
+  categoryMappings: z.record(z.string(), z.boolean()).optional(),
   agents: z.record(z.string(), pluginRoutingRuleSchema),
 });
 
@@ -137,7 +140,7 @@ export const dbConfigSchema = z.object({
   customAliases: z.record(z.string(), z.string()).optional(),
   systemAgents: z.record(z.string(), systemAgentSchema).optional(),
   routing: pluginRoutingConfigSchema.optional(),
-});
+}).passthrough();
 
 // ── TypeScript Types ──
 
