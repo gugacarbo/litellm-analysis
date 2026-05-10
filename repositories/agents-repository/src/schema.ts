@@ -126,21 +126,23 @@ export const systemAgentSchema = z.object({
   config: agentExtraConfigSchema,
 });
 
-export const dbConfigSchema = z.object({
-  $schema: z.string().optional(),
-  version: z.number(),
-  litellm: z.object({
-    baseUrl: z.string(),
-    apiKey: z.string(),
-  }),
-  models: z.record(z.string(), modelSpecSchema),
-  agents: z.record(z.string(), agentEntrySchema),
-  categories: z.record(z.string(), categoryEntrySchema),
-  globalFallbackModel: z.string().optional(),
-  customAliases: z.record(z.string(), z.string()).optional(),
-  systemAgents: z.record(z.string(), systemAgentSchema).optional(),
-  routing: pluginRoutingConfigSchema.optional(),
-}).passthrough();
+export const dbConfigSchema = z
+  .object({
+    $schema: z.string().optional(),
+    version: z.number(),
+    litellm: z.object({
+      baseUrl: z.string(),
+      apiKey: z.string(),
+    }),
+    models: z.record(z.string(), modelSpecSchema),
+    agents: z.record(z.string(), agentEntrySchema),
+    categories: z.record(z.string(), categoryEntrySchema),
+    globalFallbackModel: z.string().optional(),
+    customAliases: z.record(z.string(), z.string()).optional(),
+    systemAgents: z.record(z.string(), systemAgentSchema).optional(),
+    routing: pluginRoutingConfigSchema.optional(),
+  })
+  .passthrough();
 
 // ── TypeScript Types ──
 

@@ -1,10 +1,10 @@
 import type {
-  DbConfig,
   ModelSpec,
-} from "@lite-llm/agents-repository/repository";
-import type { IPlugin, PluginModel, TransformContext } from "../plugin";
-
-const CURRENT_VERSION = 1;
+  PluginRoutingConfig,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schema";
+import type { IPlugin, TransformContext } from "../plugin.js";
+import type { ConfigField, InternalAgent } from "../plugin-types.js";
 
 interface VsCodeModelsOutput {
   "oaicopilot.commitLanguage": string;
@@ -17,75 +17,84 @@ interface VsCodeModelsOutput {
     interval_ms: number;
     status_codes: number[];
   };
-  "oaicopilot.models": VsCodeModel[];
-}
-
-interface VsCodeModel {
-  name: string;
-  id: string;
-  baseUrl: string;
-  "request-options": {
-    headers?: Record<string, string>;
-  };
-  "model-settings"?: {
-    "max-tokens"?: number;
-    temperature?: number;
-    "stop-sequences"?: string[];
-  };
+  "oaicopilot.models": Array<{
+    name: string;
+    id: string;
+    baseUrl: string;
+    "request-options": { headers?: Record<string, string> };
+    "model-settings"?: { "max-tokens"?: number };
+  }>;
 }
 
 export class VsCodePlugin implements IPlugin {
   readonly id = "vscode";
   readonly name = "VS Code OAICopilot";
-  readonly version = CURRENT_VERSION;
-  readonly builtin = false;
+  readonly version = 1;
   readonly outputFile = "vscode-oaicopilot.json";
 
-  transformEntry(): Record<string, unknown> {
-    // VSCode plugin only exports models, not agents/categories
-    return {};
+  getInternalAgents(): InternalAgent[] {
+    return [];
   }
 
-  transformModel(key: string, spec: ModelSpec): PluginModel {
-    return {
-      id: key,
-      name: spec.displayName,
-      limit: {
-        context: spec.contextLength,
-        output: spec.maxOutput,
+  getConfigSchema(): ConfigField[] {
+    return [
+      {
+        key: "commitLanguage",
+        type: "string",
+        label: "Commit Language",
+        required: false,
+        default: "Portuguese (Brazil)",
+        description: "Language for commit messages",
       },
-      cost: spec.cost,
-    };
+      {
+        key: "retryEnabled",
+        type: "boolean",
+        label: "Enable Retry",
+        required: false,
+        default: true,
+        description: "Enable retry on failed requests",
+      },
+      {
+        key: "maxRetryAttempts",
+        type: "number",
+        label: "Max Retry Attempts",
+        required: false,
+        default: 3,
+        description: "Maximum number of retry attempts",
+      },
+    ];
   }
 
-  preprocess(_config: DbConfig): VsCodeModelsOutput {
-    return {
-      "oaicopilot.commitLanguage": "Portuguese (Brazil)",
+  buildOutput(
+    _agents: SystemAgent[],
+    routing: PluginRoutingConfig,
+    ctx: TransformContext,
+  ): VsCodeModelsOutput {
+    const pluginConfig = (
+      routing.plugins[this.id]?.config ?? {}
+    ) as Record<string, unknown>;
+    const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
+
+    const output: VsCodeModelsOutput = {
+      "oaicopilot.commitLanguage":
+        (pluginConfig.commitLanguage as string) ?? "Portuguese (Brazil)",
       "oaicopilot.baseUrl": "",
       "oaicopilot.delay": 0,
       "oaicopilot.readFileLines": 0,
       "oaicopilot.retry": {
-        enabled: true,
-        max_attempts: 3,
+        enabled: (pluginConfig.retryEnabled as boolean) ?? true,
+        max_attempts: (pluginConfig.maxRetryAttempts as number) ?? 3,
         interval_ms: 2000,
         status_codes: [],
       },
       "oaicopilot.models": [],
     };
-  }
 
-  buildOutput(
-    config: DbConfig,
-    _context: TransformContext,
-  ): VsCodeModelsOutput {
-    const output = this.preprocess(config);
-    const baseUrl = config.litellm.baseUrl.replace(/\/v1$/, "");
-
-    for (const [key, spec] of Object.entries(config.models)) {
-      const model = this.transformModel(key, spec);
+    for (const [key, spec] of Object.entries(ctx.allModels)) {
+      const model = spec as ModelSpec;
       output["oaicopilot.models"].push({
-        name: model.name,
-        id: model.id,
+        name: model.displayName,
+        id: key,
         baseUrl,
         "request-options": {
           headers: {
@@ -93,7 +102,7 @@ export class VsCodePlugin implements IPlugin {
           },
         },
         "model-settings": {
-          "max-tokens": model.limit?.output,
+          "max-tokens": model.maxOutput,
         },
       });
     }

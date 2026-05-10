@@ -5,27 +5,6 @@ import type {
 
 export const DEFAULT_DB_PATH = "@storage/agents.jsonc";
 
-const DEFAULT_OUTPUT_DIR = "data";
-
-// Only opencode is built-in; openagent and vscode are external plugins
-export const DEFAULT_FILE_PATHS = {
-  db: DEFAULT_DB_PATH,
-  opencode: "data/opencode.json",
-} as const;
-
-export interface FilePaths {
-  db: string;
-  opencode: string;
-}
-
-export function getFilePaths(baseDir?: string): FilePaths {
-  const dir = baseDir ?? DEFAULT_OUTPUT_DIR;
-  return {
-    db: DEFAULT_DB_PATH,
-    opencode: `${dir}/opencode.json`,
-  };
-}
-
 // ── Default System Agents ──
 
 export const DEFAULT_SYSTEM_AGENTS: SystemAgent[] = [

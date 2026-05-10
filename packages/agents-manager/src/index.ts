@@ -78,6 +78,10 @@ import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin.js";
 import { OpenAgentPlugin } from "./plugins/external/openagent.plugin.js";
 import { VsCodePlugin } from "./plugins/external/vscode.plugin.js";
 import type {
+  ConfigField,
+  InternalAgent,
+} from "./plugins/plugin-types.js";
+import type {
   IPlugin,
   IPluginRegistry,
   TransformContext,
@@ -88,29 +92,25 @@ import {
 } from "./plugins/registry.js";
 
 export type {
+  ConfigField,
   IPlugin,
   IPluginRegistry,
+  InternalAgent,
   PluginRegistryOptions,
   TransformContext,
 };
 export { OpenAgentPlugin, OpenCodePlugin, PluginRegistry, VsCodePlugin };
 
 // Config
-import {
-  DEFAULT_FILE_PATHS,
-  type FilePaths,
-  getFilePaths,
-} from "./config/defaults.js";
+import { DEFAULT_DB_PATH, DEFAULT_ROUTING, DEFAULT_SYSTEM_AGENTS } from "./config/defaults.js";
 
-export type { FilePaths };
-export { DEFAULT_FILE_PATHS, getFilePaths };
+export { DEFAULT_DB_PATH, DEFAULT_ROUTING, DEFAULT_SYSTEM_AGENTS };
 
 // ── Factory ──
 
 export interface AgentsManagerFactoryOptions {
   dbPath?: string;
   outputDir?: string;
-  registerBuiltins?: boolean;
 }
 
 export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
@@ -124,15 +124,17 @@ export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
     routing: new RoutingService({ repository }),
   };
 
+  const allPlugins: IPlugin[] = [
+    new OpenCodePlugin(),
+    new OpenAgentPlugin(),
+    new VsCodePlugin(),
+  ];
+
   const registry = new PluginRegistry({
     repository,
     outputDir: options.outputDir,
+    allPlugins,
   });
-
-  if (options.registerBuiltins !== false) {
-    // Only OpenCodePlugin is built-in
-    registry.register(new OpenCodePlugin());
-  }
 
   return { repository, services, registry };
 }

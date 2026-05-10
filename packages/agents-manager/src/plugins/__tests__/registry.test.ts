@@ -16,7 +16,8 @@ function createMockRepository(): IAgentsRepository {
     }),
     readSync: vi.fn(),
     write: vi.fn(),
-    validate: ((_config: unknown): _config is never => true) as IAgentsRepository["validate"],
+    validate: ((_config: unknown): _config is never =>
+      true) as IAgentsRepository["validate"],
     exists: vi.fn().mockResolvedValue(true),
     getPath: vi.fn().mockReturnValue("/tmp/test.json"),
   };
