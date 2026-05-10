@@ -4,8 +4,11 @@ import type {
   DbConfig,
   ModelSpec,
 } from "@lite-llm/agents-repository/repository";
-import type { PluginRoutingConfig } from "../../types/routing.js";
-import type { AgentVersion, SystemAgent } from "../../types/system-agent.js";
+import type {
+  AgentVersion,
+  PluginRoutingConfig,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schema";
 import type {
   IPlugin,
   PluginEntry,
@@ -69,19 +72,20 @@ export class OpenCodePlugin implements IPlugin {
 
     // Add agent providers
     for (const agent of agents) {
-      const agentRouting = pluginRouting.agents[agent.id];
+      const agentRouting = pluginRouting.agents[agent.id!];
       if (!agentRouting?.enabled) continue;
 
       // Build models for each version, applying overrides
       const models: Record<string, unknown> = {};
       for (const version of agent.versions) {
         const resolvedVersion =
-          agentRouting.versionOverrides?.[version.id] ?? version;
+          (agentRouting.versionOverrides?.[version.id] as AgentVersion) ??
+          version;
         const entry = this.transformAgent(agent, resolvedVersion, ctx);
         Object.assign(models, entry.models);
       }
 
-      output.provider[agent.id] = {
+      output.provider[agent.id!] = {
         npm: "@ai-sdk/openai-compatible",
         options: {
           baseURL: ctx.litellmConfig.baseUrl,

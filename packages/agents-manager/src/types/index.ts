@@ -1,6 +1,7 @@
-export type { PluginRoutingConfig, PluginRoutingRule } from "./routing.js";
 export type {
   AgentExtraConfig,
   AgentVersion,
+  PluginRoutingConfig,
+  PluginRoutingRule,
   SystemAgent,
-} from "./system-agent.js";
+} from "@lite-llm/agents-repository/schema";

@@ -4,8 +4,11 @@ import type {
   DbConfig,
   ModelSpec,
 } from "@lite-llm/agents-repository/repository";
-import type { PluginRoutingConfig } from "../types/routing.js";
-import type { AgentVersion, SystemAgent } from "../types/system-agent.js";
+import type {
+  AgentVersion,
+  PluginRoutingConfig,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schema";
 
 // ── Types ──
 

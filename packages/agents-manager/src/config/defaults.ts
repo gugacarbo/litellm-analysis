@@ -1,5 +1,7 @@
-import type { PluginRoutingConfig } from "../types/routing.js";
-import type { SystemAgent } from "../types/system-agent.js";
+import type {
+  PluginRoutingConfig,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schema";
 
 export const DEFAULT_DB_PATH = "@storage/agents.jsonc";
 
