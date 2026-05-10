@@ -9,6 +9,7 @@ import { ModelDetailPage } from "./pages/model-detail";
 import { ModelStatsPage } from "./pages/model-stats";
 import { ModelsPage } from "./pages/models";
 import { MonitorPage } from "./pages/monitor";
+import { PluginConfigPage } from "./pages/plugin-config";
 import { PluginsPage } from "./pages/plugins";
 
 function App() {
@@ -65,6 +66,14 @@ function App() {
                 element={
                   <ErrorBoundary>
                     <PluginsPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/plugins/:pluginId"
+                element={
+                  <ErrorBoundary>
+                    <PluginConfigPage />
                   </ErrorBoundary>
                 }
               />

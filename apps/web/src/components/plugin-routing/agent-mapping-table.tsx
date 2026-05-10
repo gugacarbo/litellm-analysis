@@ -6,9 +6,7 @@ interface AgentMappingTableProps {
   onChange: (agentId: string, internalAgentId: string) => void;
 }
 
-export function AgentMappingTable({
-  internalAgents,
-}: AgentMappingTableProps) {
+export function AgentMappingTable({ internalAgents }: AgentMappingTableProps) {
   if (internalAgents.length === 0) return null;
 
   return (
