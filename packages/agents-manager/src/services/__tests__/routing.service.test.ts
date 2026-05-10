@@ -53,4 +53,49 @@ describe("RoutingService", () => {
       expect(result2).toBe(false);
     });
   });
+
+  describe("pluginConfig", () => {
+    it("retorna {} quando plugin não existe", async () => {
+      const repo = createMockRepository();
+      const service = new RoutingService({ repository: repo });
+      const config = await service.getPluginConfig("nonexistent");
+      expect(config).toEqual({});
+    });
+
+    it("persiste config do plugin", async () => {
+      const repo = createMockRepository();
+      const service = new RoutingService({ repository: repo });
+      await service.savePluginConfig("opencode", { apiKey: "test" });
+      const config = await service.getPluginConfig("opencode");
+      expect(config).toEqual({ apiKey: "test" });
+    });
+  });
+
+  describe("agentMappings", () => {
+    it("retorna {} quando plugin não existe", async () => {
+      const repo = createMockRepository();
+      const service = new RoutingService({ repository: repo });
+      expect(await service.getAgentMappings("nonexistent")).toEqual({});
+    });
+
+    it("persiste agent mappings", async () => {
+      const repo = createMockRepository();
+      const service = new RoutingService({ repository: repo });
+      await service.saveAgentMappings("opencode", { builder: "coder" });
+      expect(await service.getAgentMappings("opencode")).toEqual({
+        builder: "coder",
+      });
+    });
+  });
+
+  describe("categoryMappings", () => {
+    it("toggle alterna entre true e false", async () => {
+      const repo = createMockRepository();
+      const service = new RoutingService({ repository: repo });
+      const result1 = await service.toggleCategoryMapping("opencode", "dev");
+      expect(result1).toBe(true);
+      const result2 = await service.toggleCategoryMapping("opencode", "dev");
+      expect(result2).toBe(false);
+    });
+  });
 });

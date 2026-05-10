@@ -1,5 +1,4 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { DbConfig } from "@lite-llm/agents-repository/schema";
 import type { PluginRoutingConfig } from "@lite-llm/agents-repository/schema";
 
 export interface RoutingServiceOptions {
@@ -15,6 +14,22 @@ export interface IRoutingService {
   isPluginEnabled(pluginId: string, agentId: string): Promise<boolean>;
   getSyncAliases(): Promise<boolean>;
   setSyncAliases(enabled: boolean): Promise<void>;
+  getPluginConfig(pluginId: string): Promise<Record<string, unknown>>;
+  savePluginConfig(
+    pluginId: string,
+    config: Record<string, unknown>,
+  ): Promise<void>;
+  getAgentMappings(pluginId: string): Promise<Record<string, string>>;
+  saveAgentMappings(
+    pluginId: string,
+    mappings: Record<string, string>,
+  ): Promise<void>;
+  getCategoryMappings(pluginId: string): Promise<Record<string, boolean>>;
+  saveCategoryMappings(
+    pluginId: string,
+    mappings: Record<string, boolean>,
+  ): Promise<void>;
+  toggleCategoryMapping(pluginId: string, categoryId: string): Promise<boolean>;
 }
 
 export class RoutingService implements IRoutingService {
@@ -25,24 +40,21 @@ export class RoutingService implements IRoutingService {
   }
 
   async getConfig(): Promise<PluginRoutingConfig> {
-    const config = (await this.repository.read()) as DbConfig;
-    return (config.routing ?? {
-      version: 1,
-      plugins: {},
-    }) as unknown as PluginRoutingConfig;
+    const config = await this.repository.read();
+    return config.routing ?? { version: 1, plugins: {} };
   }
 
   async saveConfig(routing: PluginRoutingConfig): Promise<void> {
-    const config = (await this.repository.read()) as DbConfig;
+    const config = await this.repository.read();
     const existingSyncAliases = config.routing
-      ? (config.routing as Record<string, unknown>).syncAliases
+      ? (config.routing as unknown as Record<string, unknown>).syncAliases
       : undefined;
     config.routing = routing;
     if (existingSyncAliases !== undefined) {
-      (config.routing as Record<string, unknown>).syncAliases =
+      (config.routing as unknown as Record<string, unknown>).syncAliases =
         existingSyncAliases;
     }
-    await this.repository.write(config as DbConfig);
+    await this.repository.write(config);
   }
 
   async getRoutingForAgent(agentId: string): Promise<string[]> {
@@ -65,14 +77,12 @@ export class RoutingService implements IRoutingService {
   ): Promise<void> {
     const routing = await this.getConfig();
 
-    // Disable the agent in all plugins first
     for (const plugin of Object.values(routing.plugins)) {
       if (plugin.agents[agentId]) {
         plugin.agents[agentId].enabled = false;
       }
     }
 
-    // Enable only the specified plugins
     for (const pluginId of pluginIds) {
       if (!routing.plugins[pluginId]) {
         routing.plugins[pluginId] = {
@@ -120,17 +130,88 @@ export class RoutingService implements IRoutingService {
   }
 
   async getSyncAliases(): Promise<boolean> {
-    const config = (await this.repository.read()) as DbConfig;
-    if (!config.routing) return false;
-    return (config.routing as Record<string, unknown>).syncAliases === true;
+    const config = await this.repository.read();
+    const routing = config.routing;
+    if (!routing) return false;
+    return (routing as unknown as Record<string, unknown>).syncAliases === true;
   }
 
   async setSyncAliases(enabled: boolean): Promise<void> {
-    const config = (await this.repository.read()) as DbConfig;
+    const config = await this.repository.read();
     if (!config.routing) {
       config.routing = { version: 1, plugins: {} };
     }
-    (config.routing as Record<string, unknown>).syncAliases = enabled;
-    await this.repository.write(config as DbConfig);
+    (config.routing as unknown as Record<string, unknown>).syncAliases =
+      enabled;
+    await this.repository.write(config);
+  }
+
+  async getPluginConfig(pluginId: string): Promise<Record<string, unknown>> {
+    const config = await this.getConfig();
+    return (config.plugins[pluginId]?.config as Record<string, unknown>) ?? {};
+  }
+
+  async savePluginConfig(
+    pluginId: string,
+    config: Record<string, unknown>,
+  ): Promise<void> {
+    const routing = await this.getConfig();
+    if (!routing.plugins[pluginId]) {
+      routing.plugins[pluginId] = { enabled: true, outputFile: "", agents: {} };
+    }
+    routing.plugins[pluginId].config = config;
+    await this.saveConfig(routing);
+  }
+
+  async getAgentMappings(pluginId: string): Promise<Record<string, string>> {
+    const config = await this.getConfig();
+    return (
+      (config.plugins[pluginId]?.agentMappings as Record<string, string>) ?? {}
+    );
+  }
+
+  async saveAgentMappings(
+    pluginId: string,
+    mappings: Record<string, string>,
+  ): Promise<void> {
+    const routing = await this.getConfig();
+    if (!routing.plugins[pluginId]) {
+      routing.plugins[pluginId] = { enabled: true, outputFile: "", agents: {} };
+    }
+    routing.plugins[pluginId].agentMappings = mappings;
+    await this.saveConfig(routing);
+  }
+
+  async getCategoryMappings(
+    pluginId: string,
+  ): Promise<Record<string, boolean>> {
+    const config = await this.getConfig();
+    return (
+      (config.plugins[pluginId]?.categoryMappings as Record<string, boolean>) ??
+      {}
+    );
+  }
+
+  async saveCategoryMappings(
+    pluginId: string,
+    mappings: Record<string, boolean>,
+  ): Promise<void> {
+    const routing = await this.getConfig();
+    if (!routing.plugins[pluginId]) {
+      routing.plugins[pluginId] = { enabled: true, outputFile: "", agents: {} };
+    }
+    routing.plugins[pluginId].categoryMappings = mappings;
+    await this.saveConfig(routing);
+  }
+
+  async toggleCategoryMapping(
+    pluginId: string,
+    categoryId: string,
+  ): Promise<boolean> {
+    const mappings = await this.getCategoryMappings(pluginId);
+    const newEnabled = !mappings[categoryId];
+    mappings[categoryId] = newEnabled;
+    await this.saveCategoryMappings(pluginId, mappings);
+    return newEnabled;
   }
 }
