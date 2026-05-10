@@ -1,12 +1,14 @@
-import { createAgentsManager } from "@lite-llm/agents-manager";
 import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
 } from "@lite-llm/alias-router";
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
+import type { AgentsManager } from "../types/index.js";
 
-export async function buildAliasMapFromDb(): Promise<Record<string, string>> {
-  const { repository } = createAgentsManager();
+export async function buildAliasMapFromDb(
+  agentsManager: AgentsManager,
+): Promise<Record<string, string>> {
+  const { repository } = agentsManager;
   const config = await repository.read();
   const globalFallback = config.globalFallbackModel;
 
@@ -43,7 +45,8 @@ export async function buildAliasMapFromDb(): Promise<Record<string, string>> {
 
 export async function regenerateAllAliases(
   dataSource: AnalyticsDataSource,
+  agentsManager: AgentsManager,
 ): Promise<void> {
-  const allAliases = await buildAliasMapFromDb();
+  const allAliases = await buildAliasMapFromDb(agentsManager);
   await dataSource.updateAgentRoutingConfig(allAliases);
 }

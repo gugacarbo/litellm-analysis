@@ -1,5 +1,9 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
-import type { DbModelSpecLike, OrchestrationServices } from "../types/index.js";
+import type {
+  AgentsManager,
+  DbModelSpecLike,
+  OrchestrationServices,
+} from "../types/index.js";
 import { buildAliasMapFromDb, regenerateAllAliases } from "./alias-service.js";
 import {
   syncGeneratedArtifacts,
@@ -22,12 +26,14 @@ export {
 
 export function createOrchestrationServices(
   dataSource: AnalyticsDataSource,
+  agentsManager: AgentsManager,
 ): OrchestrationServices {
   return {
     dataSource,
-    buildAliasMap: () => buildAliasMapFromDb(),
-    regenerateAllAliases: () => regenerateAllAliases(dataSource),
-    syncGeneratedArtifacts: () => syncGeneratedArtifacts(dataSource),
+    buildAliasMap: () => buildAliasMapFromDb(agentsManager),
+    regenerateAllAliases: () => regenerateAllAliases(dataSource, agentsManager),
+    syncGeneratedArtifacts: () =>
+      syncGeneratedArtifacts(dataSource, agentsManager),
     syncModelsDirectlyToDatabase: (models: Record<string, DbModelSpecLike>) =>
       syncModelsDirectlyToDatabase(dataSource, models),
   };

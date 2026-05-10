@@ -1,18 +1,19 @@
 import type { SystemAgent } from "@lite-llm/agents-manager";
-import { createAgentsManager } from "@lite-llm/agents-manager";
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index.js";
-
-// Extract the key from the body for POST, from params for PUT/DELETE
 
 export function registerAgentCatalogRoutes(
   app: Application,
   opts?: RouteOptions,
 ): void {
-  // GET /agent-catalog — returns all SystemAgents as an array
   app.get("/agent-catalog", async (_req, res) => {
     try {
-      const { services } = createAgentsManager();
+      const manager = opts?.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+      const { services } = manager;
       const agents = await services.catalog.getAll();
       res.json({ agents: Object.values(agents) });
     } catch (error) {
@@ -20,10 +21,14 @@ export function registerAgentCatalogRoutes(
     }
   });
 
-  // GET /agent-catalog/:id — returns a single SystemAgent by key
   app.get("/agent-catalog/:id", async (req, res) => {
     try {
-      const { services } = createAgentsManager();
+      const manager = opts?.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+      const { services } = manager;
       const agent = await services.catalog.get(req.params.id);
 
       if (agent === undefined) {
@@ -39,7 +44,6 @@ export function registerAgentCatalogRoutes(
     }
   });
 
-  // POST /agent-catalog — creates a new SystemAgent
   app.post("/agent-catalog", async (req, res) => {
     try {
       const { key, ...entry } = req.body as { key: string } & SystemAgent;
@@ -49,10 +53,14 @@ export function registerAgentCatalogRoutes(
         return;
       }
 
-      const { services } = createAgentsManager();
+      const manager = opts?.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+      const { services } = manager;
       await services.catalog.create(key, entry as SystemAgent);
 
-      // Optionally sync generated artifacts if orchestration is available
       if (opts?.orchestration) {
         await opts.orchestration.syncGeneratedArtifacts();
       }
@@ -68,10 +76,14 @@ export function registerAgentCatalogRoutes(
     }
   });
 
-  // PUT /agent-catalog/:id — updates an existing SystemAgent (partial merge)
   app.put("/agent-catalog/:id", async (req, res) => {
     try {
-      const { services } = createAgentsManager();
+      const manager = opts?.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+      const { services } = manager;
       const existing = await services.catalog.get(req.params.id);
 
       if (existing === undefined) {
@@ -84,7 +96,6 @@ export function registerAgentCatalogRoutes(
       const entry = req.body as Partial<SystemAgent>;
       await services.catalog.update(req.params.id, entry);
 
-      // Optionally sync generated artifacts if orchestration is available
       if (opts?.orchestration) {
         await opts.orchestration.syncGeneratedArtifacts();
       }
@@ -96,10 +107,14 @@ export function registerAgentCatalogRoutes(
     }
   });
 
-  // DELETE /agent-catalog/:id — deletes a SystemAgent
   app.delete("/agent-catalog/:id", async (req, res) => {
     try {
-      const { services } = createAgentsManager();
+      const manager = opts?.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+      const { services } = manager;
       const existing = await services.catalog.get(req.params.id);
 
       if (existing === undefined) {

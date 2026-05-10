@@ -136,7 +136,13 @@ export function registerPluginRoutingRoutes(
           Promise.resolve(registry.getInternalAgents(pluginId)),
         ]);
 
-      res.json({ config, agentMappings, categoryMappings, schema, internalAgents });
+      res.json({
+        config,
+        agentMappings,
+        categoryMappings,
+        schema,
+        internalAgents,
+      });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

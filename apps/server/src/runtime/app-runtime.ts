@@ -38,8 +38,8 @@ function findWorkspaceRoot(startDir: string): string {
   return startDir;
 }
 
-function setupAgentsManager(projectRoot: string): void {
-  createAgentsManager({
+function setupAgentsManager(projectRoot: string) {
+  return createAgentsManager({
     dbPath: path.join(projectRoot, "@settings", "agents.json"),
     outputDir: path.join(projectRoot, "data"),
   });
@@ -52,13 +52,16 @@ function registerShutdownHooks(stop: () => void): void {
 
 export function startAppRuntime(): AppRuntime {
   const projectRoot = getProjectRoot();
-  setupAgentsManager(projectRoot);
+  const agentsManager = setupAgentsManager(projectRoot);
 
   const ctx = createAppContext();
-  const orchestration = createOrchestrationServices(ctx.analytics.dataSource);
+  const orchestration = createOrchestrationServices(
+    ctx.analytics.dataSource,
+    agentsManager,
+  );
 
   const app = createApiServer(
-    { dataSource: ctx.analytics.dataSource, orchestration },
+    { dataSource: ctx.analytics.dataSource, orchestration, agentsManager },
     ctx,
   );
 

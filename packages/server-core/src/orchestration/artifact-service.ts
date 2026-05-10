@@ -1,6 +1,5 @@
-import { createAgentsManager } from "@lite-llm/agents-manager";
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
-import type { DbModelSpecLike } from "../types/index.js";
+import type { AgentsManager, DbModelSpecLike } from "../types/index.js";
 import { buildLiteLLMParams } from "./lite-llm-params.js";
 
 export async function syncModelsDirectlyToDatabase(
@@ -67,8 +66,9 @@ export async function syncModelsDirectlyToDatabase(
  */
 export async function syncGeneratedArtifacts(
   dataSource: AnalyticsDataSource,
+  agentsManager: AgentsManager,
 ): Promise<void> {
-  const { repository, registry } = createAgentsManager();
+  const { repository, registry } = agentsManager;
 
   // Sync models to database
   const config = await repository.read();
