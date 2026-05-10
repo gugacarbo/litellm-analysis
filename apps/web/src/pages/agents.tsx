@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { Settings } from "lucide-react";
+import { useState } from "react";
+import { AgentConfigEditor } from "../components/agent-config-editor";
+import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
+import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
+import { PageLayout } from "../components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import { AgentConfigEditor } from "../components/agent-config-editor";
-import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
-import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
-import { PageLayout } from "../components/ui/page-layout";
 import { useAgentRoutingPageState } from "./agents/use-agent-routing-page";
 
 export function AgentsPage() {

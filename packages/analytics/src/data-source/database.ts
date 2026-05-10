@@ -66,7 +66,6 @@ import {
   getModelDistributionImpl,
   getModelStatisticsImpl,
 } from "./stats-methods.js";
-import { toNullableNumber } from "./utils.js";
 
 export class DatabaseDataSource implements AnalyticsDataSource {
   getMetricsSummary = getMetricsSummaryImpl;

@@ -172,10 +172,7 @@ export function DashboardEfficiencyCharts({
                   interval="preserveStartEnd"
                   minTickGap={50}
                 />
-                <YAxis
-                  yAxisId="left"
-                  tickFormatter={formatNumber}
-                />
+                <YAxis yAxisId="left" tickFormatter={formatNumber} />
                 <YAxis
                   yAxisId="right"
                   orientation="right"
