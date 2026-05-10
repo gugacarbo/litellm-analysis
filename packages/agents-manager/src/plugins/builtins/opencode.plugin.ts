@@ -72,7 +72,8 @@ export class OpenCodePlugin implements IPlugin {
 
     // Add agent providers
     for (const agent of agents) {
-      const agentRouting = pluginRouting.agents[agent.id!];
+      if (!agent.id) continue;
+      const agentRouting = pluginRouting.agents[agent.id];
       if (!agentRouting?.enabled) continue;
 
       // Build models for each version, applying overrides
@@ -85,7 +86,7 @@ export class OpenCodePlugin implements IPlugin {
         Object.assign(models, entry.models);
       }
 
-      output.provider[agent.id!] = {
+      output.provider[agent.id] = {
         npm: "@ai-sdk/openai-compatible",
         options: {
           baseURL: ctx.litellmConfig.baseUrl,
