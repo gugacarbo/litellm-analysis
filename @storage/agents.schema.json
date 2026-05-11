@@ -18,10 +18,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "baseUrl",
-        "apiKey"
-      ],
+      "required": ["baseUrl", "apiKey"],
       "additionalProperties": false
     },
     "models": {
@@ -60,11 +57,7 @@
             "additionalProperties": false
           }
         },
-        "required": [
-          "displayName",
-          "contextLength",
-          "maxOutput"
-        ],
+        "required": ["displayName", "contextLength", "maxOutput"],
         "additionalProperties": false
       }
     },
@@ -88,10 +81,7 @@
           "modelIdStrategy": {
             "default": "prefix-version",
             "type": "string",
-            "enum": [
-              "model-name",
-              "prefix-version"
-            ]
+            "enum": ["model-name", "prefix-version"]
           },
           "limits": {
             "type": "object",
@@ -103,10 +93,7 @@
                 "type": "number"
               }
             },
-            "required": [
-              "context",
-              "output"
-            ],
+            "required": ["context", "output"],
             "additionalProperties": false
           },
           "cost": {
@@ -131,10 +118,7 @@
                 },
                 "modelIdStrategy": {
                   "type": "string",
-                  "enum": [
-                    "model-name",
-                    "prefix-version"
-                  ]
+                  "enum": ["model-name", "prefix-version"]
                 },
                 "limits": {
                   "type": "object",
@@ -146,10 +130,7 @@
                       "type": "number"
                     }
                   },
-                  "required": [
-                    "context",
-                    "output"
-                  ],
+                  "required": ["context", "output"],
                   "additionalProperties": false
                 },
                 "cost": {
@@ -165,11 +146,7 @@
                   "additionalProperties": false
                 }
               },
-              "required": [
-                "displayName",
-                "modelIdStrategy",
-                "limits"
-              ],
+              "required": ["displayName", "modelIdStrategy", "limits"],
               "additionalProperties": false
             }
           },
@@ -187,11 +164,7 @@
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": [
-                  "subagent",
-                  "primary",
-                  "all"
-                ]
+                "enum": ["subagent", "primary", "all"]
               },
               "tools": {
                 "type": "object",
@@ -276,10 +249,7 @@
           "modelIdStrategy": {
             "default": "prefix-version",
             "type": "string",
-            "enum": [
-              "model-name",
-              "prefix-version"
-            ]
+            "enum": ["model-name", "prefix-version"]
           },
           "limits": {
             "type": "object",
@@ -291,10 +261,7 @@
                 "type": "number"
               }
             },
-            "required": [
-              "context",
-              "output"
-            ],
+            "required": ["context", "output"],
             "additionalProperties": false
           },
           "cost": {
@@ -319,10 +286,7 @@
                 },
                 "modelIdStrategy": {
                   "type": "string",
-                  "enum": [
-                    "model-name",
-                    "prefix-version"
-                  ]
+                  "enum": ["model-name", "prefix-version"]
                 },
                 "limits": {
                   "type": "object",
@@ -334,10 +298,7 @@
                       "type": "number"
                     }
                   },
-                  "required": [
-                    "context",
-                    "output"
-                  ],
+                  "required": ["context", "output"],
                   "additionalProperties": false
                 },
                 "cost": {
@@ -353,11 +314,7 @@
                   "additionalProperties": false
                 }
               },
-              "required": [
-                "displayName",
-                "modelIdStrategy",
-                "limits"
-              ],
+              "required": ["displayName", "modelIdStrategy", "limits"],
               "additionalProperties": false
             }
           },
@@ -375,11 +332,7 @@
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": [
-                  "subagent",
-                  "primary",
-                  "all"
-                ]
+                "enum": ["subagent", "primary", "all"]
               },
               "tools": {
                 "type": "object",
@@ -504,35 +457,20 @@
                       "type": "boolean"
                     }
                   },
-                  "required": [
-                    "enabled"
-                  ],
+                  "required": ["enabled"],
                   "additionalProperties": false
                 }
               }
             },
-            "required": [
-              "enabled",
-              "outputFile",
-              "agents"
-            ],
+            "required": ["enabled", "outputFile", "agents"],
             "additionalProperties": false
           }
         }
       },
-      "required": [
-        "version",
-        "plugins"
-      ],
+      "required": ["version", "plugins"],
       "additionalProperties": false
     }
   },
-  "required": [
-    "version",
-    "litellm",
-    "models",
-    "agents",
-    "categories"
-  ],
+  "required": ["version", "litellm", "models", "agents", "categories"],
   "additionalProperties": {}
 }
