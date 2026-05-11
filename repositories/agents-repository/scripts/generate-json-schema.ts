@@ -1,8 +1,9 @@
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { z } from "zod";
 import { dbConfigSchema } from "../src/schema.js";
 
-const jsonSchema = dbConfigSchema.toJSONSchema();
+const jsonSchema = z.toJSONSchema(dbConfigSchema);
 
 // Downgrade $schema URI to draft-07 for AJV compatibility
 // (the schema doesn't use draft-2020-12 specific features)

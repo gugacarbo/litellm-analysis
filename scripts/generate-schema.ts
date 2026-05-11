@@ -1,5 +1,5 @@
 import { writeFileSync } from "node:fs";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import { z } from "zod";
 import {
   agentEntrySchema,
   agentExtraConfigSchema,
@@ -31,34 +31,19 @@ function extractDefinition(
 }
 
 // Generate all schemas
-const dbConfigResult = zodToJsonSchema(dbConfigSchema, "DbConfig");
-const agentEntryResult = zodToJsonSchema(agentEntrySchema, "AgentEntry");
-const categoryEntryResult = zodToJsonSchema(
-  categoryEntrySchema,
-  "CategoryEntry",
-);
-const modelSpecResult = zodToJsonSchema(modelSpecSchema, "ModelSpec");
-const systemAgentResult = zodToJsonSchema(systemAgentSchema, "SystemAgent");
-const agentVersionResult = zodToJsonSchema(agentVersionSchema, "AgentVersion");
-const agentExtraConfigResult = zodToJsonSchema(
-  agentExtraConfigSchema,
-  "AgentExtraConfig",
-);
-const pluginRoutingConfigResult = zodToJsonSchema(
-  pluginRoutingConfigSchema,
-  "PluginRoutingConfig",
-);
-const pluginRoutingResult = zodToJsonSchema(
-  pluginRoutingSchema,
-  "PluginRouting",
-);
-const pluginRoutingRuleResult = zodToJsonSchema(
-  pluginRoutingRuleSchema,
-  "PluginRoutingRule",
-);
-const permissionResult = zodToJsonSchema(permissionSchema, "Permission");
-const thinkingResult = zodToJsonSchema(thinkingSchema, "ThinkingConfig");
-const costResult = zodToJsonSchema(costSchema, "Cost");
+const dbConfigResult = z.toJSONSchema(dbConfigSchema);
+const agentEntryResult = z.toJSONSchema(agentEntrySchema);
+const categoryEntryResult = z.toJSONSchema(categoryEntrySchema);
+const modelSpecResult = z.toJSONSchema(modelSpecSchema);
+const systemAgentResult = z.toJSONSchema(systemAgentSchema);
+const agentVersionResult = z.toJSONSchema(agentVersionSchema);
+const agentExtraConfigResult = z.toJSONSchema(agentExtraConfigSchema);
+const pluginRoutingConfigResult = z.toJSONSchema(pluginRoutingConfigSchema);
+const pluginRoutingResult = z.toJSONSchema(pluginRoutingSchema);
+const pluginRoutingRuleResult = z.toJSONSchema(pluginRoutingRuleSchema);
+const permissionResult = z.toJSONSchema(permissionSchema);
+const thinkingResult = z.toJSONSchema(thinkingSchema);
+const costResult = z.toJSONSchema(costSchema);
 
 const fullSchema = {
   $schema: "https://json-schema.org/draft/2020-12/schema",

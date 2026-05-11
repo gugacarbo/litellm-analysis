@@ -140,13 +140,11 @@
   "agents": {
     //* Main orchestrator — the primary user-facing interface that understands requests, routes work, and coordinates results
     "loom": {
-      "id": "loom",
       "displayName": "Loom",
       "icon": "🔧",
       "description": "Agente principal para atendimento geral: entende o pedido, organiza a execução e entrega soluções ponta a ponta.",
       "versions": [
         {
-          "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
           "limits": {
@@ -155,7 +153,6 @@
           }
         },
         {
-          "id": "stable",
           "displayName": "Stable",
           "modelIdStrategy": "prefix-version",
           "limits": {
@@ -173,13 +170,11 @@
     },
     //* Execution Orchestrator — Manages todo-list driven execution of multi-step plans, focusing on sequential implementation without subagent spawning.
     "tapestry": {
-      "id": "tapestry",
       "displayName": "Tapestry",
       "icon": "🧶",
       "description": "Orquestrador focado em planos com múltiplas etapas: conduz execução sequencial com checklist e controle de progresso.",
       "versions": [
         {
-          "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
           "limits": {
@@ -189,7 +184,10 @@
         }
       ],
       "model": "atlas/gpt-5.5",
-      "fallbackModels": ["atlas/gpt-5.4", "atlas/gpt-5.3"],
+      "fallbackModels": [
+        "atlas/gpt-5.4",
+        "atlas/gpt-5.3"
+      ],
       "config": {
         "mode": "subagent",
         "temperature": 0.2,
@@ -198,13 +196,11 @@
     },
     //! Domain specialist worker — Worker with full tool access, dispatched dynamically via the category system.
     "shuttle": {
-      "id": "shuttle",
       "displayName": "Shuttle",
       "icon": "🚀",
       "description": "Especialista técnico para tarefas delegadas: implementa, investiga e resolve demandas complexas com alta autonomia e uso intensivo de ferramentas.",
       "versions": [
         {
-          "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
           "limits": {
@@ -214,7 +210,10 @@
         }
       ],
       "model": "build/gpt-5.5",
-      "fallbackModels": ["build/gpt-5.4", "build/gpt-5.3"],
+      "fallbackModels": [
+        "build/gpt-5.4",
+        "build/gpt-5.3"
+      ],
       "config": {
         "mode": "subagent",
         "category": "deep",
@@ -224,13 +223,11 @@
     },
     //| Strategic planner — Analyzes requirements and produces detailed implementation plans with research and dependency mapping.
     "planner": {
-      "id": "planner",
       "displayName": "Planner",
       "icon": "📋",
       "description": "Planejador estratégico: transforma objetivos em planos executáveis, com etapas claras, riscos, dependências e critérios de sucesso.",
       "versions": [
         {
-          "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
           "limits": {
@@ -248,22 +245,37 @@
     },
     //| Codebase explorer — Fast, read-only codebase navigation and analysis using grep, glob, and read tools.
     "thread": {
-      "display_name": "Thread (Genérico de Contexto)",
+      "displayName": "Thread (Genérico de Contexto)",
+      "icon": "🧵",
       "model": "explore/gpt-5.5",
       "description": "Agente de contexto rápido: faz leitura exploratória da base, consolida informações e reduz incerteza antes da implementação.",
-      "fallback_models": ["explore/gpt-5.4", "explore/gpt-5.3"],
-      "temperature": 0.1,
-      "color": "#27AE60"
+      "versions": [
+        {
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "fallbackModels": [
+        "explore/gpt-5.4",
+        "explore/gpt-5.3"
+      ],
+      "config": {
+        "mode": "subagent",
+        "temperature": 0.1,
+        "color": "#27AE60"
+      }
     },
     //| External researcher — Performs external documentation lookups and reference searches, providing synthesized answers with source citations.
     "explorer": {
-      "id": "explorer",
       "displayName": "Explorer",
       "icon": "🔍",
       "description": "Explorador de código e fontes externas: levanta evidências, mapeia estrutura e retorna insights acionáveis para apoiar decisões.",
       "versions": [
         {
-          "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
           "limits": {
@@ -281,13 +293,11 @@
     },
     //| Quality reviewer and auditor - Reviews completed work and plans with a critical but fair eye, rejecting only for true blocking issues.
     "reviewer": {
-      "id": "reviewer",
       "displayName": "Reviewer",
       "icon": "✅",
       "description": "Revisor de qualidade: verifica consistência técnica, identifica riscos e aponta melhorias antes da entrega final.",
       "versions": [
         {
-          "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
           "limits": {
@@ -305,12 +315,29 @@
     },
     //| Security auditor - Audits code changes for security vulnerabilities and specification compliance with a skeptical bias.
     "warp": {
-      "display_name": "Warp (Auditor de Segurança)",
+      "displayName": "Warp (Auditor de Segurança)",
+      "icon": "🛡️",
       "model": "prometheus/gpt-5.5",
       "description": "Auditor de segurança: analisa vulnerabilidades, superfícies de ataque e práticas inseguras em código, configuração e fluxo operacional.",
-      "fallback_models": ["prometheus/gpt-5.4", "prometheus/gpt-5.3"],
-      "temperature": 0.1,
-      "color": "#E74C3C"
+      "versions": [
+        {
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "fallbackModels": [
+        "prometheus/gpt-5.4",
+        "prometheus/gpt-5.3"
+      ],
+      "config": {
+        "mode": "subagent",
+        "temperature": 0.1,
+        "color": "#E74C3C"
+      }
     }
   },
   "categories": {
@@ -320,7 +347,6 @@
       "description": "Categoria voltada à escrita: documentação, guias, explicações técnicas e comunicação clara para diferentes públicos.",
       "versions": [
         {
-          "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
           "limits": {
@@ -334,13 +360,11 @@
       "config": {}
     },
     "ultrabrain": {
-      "id": "ultrabrain",
       "displayName": "Ultrabrain",
       "icon": "🤖",
       "description": "Raciocínio de alta profundidade para problemas complexos, decisões de alto impacto e análises com múltiplas variáveis.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -359,13 +383,11 @@
       "config": {}
     },
     "deep": {
-      "id": "deep",
       "displayName": "Deep",
       "icon": "🤖",
       "description": "Execução autônoma orientada a objetivos, ideal para tarefas de médio e grande porte com necessidade de continuidade e ownership.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -384,13 +406,11 @@
       "config": {}
     },
     "code": {
-      "id": "code",
       "displayName": "Code",
       "icon": "🤖",
       "description": "Engenharia de software geral: implementação, refatoração, debugging, testes e manutenção de código em produção.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -409,13 +429,11 @@
       "config": {}
     },
     "artistry": {
-      "id": "artistry",
       "displayName": "Artistry",
       "icon": "🤖",
       "description": "Categoria criativa para soluções fora do padrão: explora alternativas, protótipos e abordagens não convencionais com critério técnico.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -434,13 +452,11 @@
       "config": {}
     },
     "quick": {
-      "id": "quick",
       "displayName": "Quick",
       "icon": "🤖",
       "description": "Categoria de resposta rápida para ajustes pontuais: mudanças pequenas, baixo risco e escopo limitado.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -459,13 +475,11 @@
       "config": {}
     },
     "unspecified-low": {
-      "id": "unspecified-low",
       "displayName": "Unspecified Low",
       "icon": "🤖",
       "description": "Fallback de baixo esforço para tarefas simples sem categoria específica, priorizando velocidade e custo controlado.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -484,13 +498,11 @@
       "config": {}
     },
     "unspecified-high": {
-      "id": "unspecified-high",
       "displayName": "Unspecified High",
       "icon": "🤖",
       "description": "Fallback de alto esforço para demandas sem categoria específica que exigem análise extensa e maior investimento de contexto.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -509,13 +521,11 @@
       "config": {}
     },
     "writing": {
-      "id": "writing",
       "displayName": "Writing",
       "icon": "🤖",
       "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -534,13 +544,11 @@
       "config": {}
     },
     "visual-engineering": {
-      "id": "visual-engineering",
       "displayName": "Visual Engineering",
       "icon": "🎨",
       "description": "Categoria focada em frontend visual: UI/UX, design system, estilos, layout responsivo e animações com intenção de produto.",
       "versions": [
         {
-          "id": "v1",
           "displayName": "V1",
           "modelIdStrategy": "model-name",
           "limits": {
@@ -572,7 +580,6 @@
         "outputFile": "vscode-oaicopilot.json",
         "agents": {}
       }
-    },
-    "globalFallbackModel": "MiniMax-M2.7-highspeed"
+    }
   }
 }

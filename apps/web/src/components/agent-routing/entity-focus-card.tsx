@@ -54,12 +54,7 @@ export function EntityFocusCard({
         </p>
         <div className="flex flex-wrap gap-1">
           <Badge variant="outline" className="text-xs">
-            {agent.versions.length} version
-            {agent.versions.length !== 1 ? "s" : ""}
-          </Badge>
-          <Badge variant="outline" className="text-xs">
-            {agent.enabledPlugins.length} plugin
-            {agent.enabledPlugins.length !== 1 ? "s" : ""}
+            {agent.limits.context.toLocaleString()} ctx
           </Badge>
           {agent.config.mode && (
             <Badge variant="secondary" className="text-xs">

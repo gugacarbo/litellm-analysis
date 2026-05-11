@@ -9,10 +9,10 @@ export function normalizeSystemAgent(
     displayName: partial.displayName ?? id,
     icon: partial.icon ?? "🔧",
     description: partial.description ?? "",
-    versions: partial.versions ?? [],
+    modelIdStrategy: partial.modelIdStrategy ?? "prefix-version",
+    limits: partial.limits ?? { context: 200000, output: 32768 },
     model: partial.model ?? "",
     fallbackModels: partial.fallbackModels ?? [],
-    enabledPlugins: partial.enabledPlugins ?? [],
     config: {
       mode: partial.config?.mode ?? "subagent",
       tools: partial.config?.tools ?? {},

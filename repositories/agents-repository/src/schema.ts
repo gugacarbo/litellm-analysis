@@ -44,12 +44,12 @@ export const agentEntrySchema = z.object({
   category: z.string().optional(),
   skills: z.array(z.string()).optional(),
   temperature: z.number().optional(),
-  top_p: z.number().optional(),
+  topP: z.number().optional(),
   prompt: z.string().optional(),
-  prompt_append: z.string().optional(),
+  promptAppend: z.string().optional(),
   tools: z.record(z.string(), z.boolean()).optional(),
   mode: z.enum(["subagent", "primary", "all"]).optional(),
-  permission: permissionSchema.optional(),
+  permissions: permissionSchema.optional(),
 });
 
 export const categoryEntrySchema = z.object({
@@ -58,19 +58,18 @@ export const categoryEntrySchema = z.object({
   description: z.string().optional(),
   variant: z.string().optional(),
   temperature: z.number().optional(),
-  top_p: z.number().optional(),
+  topP: z.number().optional(),
   maxTokens: z.number().optional(),
   thinking: thinkingSchema.optional(),
   reasoningEffort: z.enum(["low", "medium", "high", "xhigh"]).optional(),
   textVerbosity: z.enum(["low", "medium", "high"]).optional(),
   tools: z.record(z.string(), z.boolean()).optional(),
-  prompt_append: z.string().optional(),
-  is_unstable_agent: z.boolean().optional(),
+  promptAppend: z.string().optional(),
+  isUnstableAgent: z.boolean().optional(),
 });
 
 export const pluginRoutingRuleSchema = z.object({
   enabled: z.boolean(),
-  versionOverrides: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const pluginRoutingSchema = z.object({
@@ -85,11 +84,9 @@ export const pluginRoutingSchema = z.object({
 export const pluginRoutingConfigSchema = z.object({
   version: z.number(),
   plugins: z.record(z.string(), pluginRoutingSchema),
-  globalFallbackModel: z.string().optional(),
 });
 
 export const agentVersionSchema = z.object({
-  id: z.string(),
   displayName: z.string(),
   modelIdStrategy: z.enum(["model-name", "prefix-version"]),
   limits: z.object({
@@ -115,14 +112,21 @@ export const agentExtraConfigSchema = z.object({
 });
 
 export const systemAgentSchema = z.object({
-  id: z.string(),
   displayName: z.string(),
   icon: z.string(),
   description: z.string(),
-  versions: z.array(agentVersionSchema),
+  modelIdStrategy: z
+    .enum(["model-name", "prefix-version"])
+    .default("prefix-version"),
+  limits: z.object({
+    context: z.number(),
+    output: z.number(),
+  }),
+  cost: costSchema.optional(),
+  // Legacy: accepted for migration, ignored by runtime.
+  versions: z.array(agentVersionSchema).optional(),
   model: z.string(),
   fallbackModels: z.array(z.string()),
-  enabledPlugins: z.array(z.string()),
   config: agentExtraConfigSchema,
 });
 
@@ -136,10 +140,8 @@ export const dbConfigSchema = z
     }),
     models: z.record(z.string(), modelSpecSchema),
     agents: z.record(z.string(), systemAgentSchema),
-    categories: z.record(z.string(), categoryEntrySchema),
+    categories: z.record(z.string(), systemAgentSchema),
     globalFallbackModel: z.string().optional(),
-    customAliases: z.record(z.string(), z.string()).optional(),
-    systemAgents: z.record(z.string(), systemAgentSchema).optional(),
     routing: pluginRoutingConfigSchema.optional(),
   })
   .passthrough();
@@ -155,7 +157,6 @@ export type Cost = z.infer<typeof costSchema>;
 export type PluginRoutingRule = z.infer<typeof pluginRoutingRuleSchema>;
 export type PluginRouting = z.infer<typeof pluginRoutingSchema>;
 export type PluginRoutingConfig = z.infer<typeof pluginRoutingConfigSchema>;
-export type AgentVersion = z.infer<typeof agentVersionSchema>;
 export type AgentExtraConfig = z.infer<typeof agentExtraConfigSchema>;
 export type SystemAgent = z.infer<typeof systemAgentSchema>;
 export type DbConfig = z.infer<typeof dbConfigSchema>;

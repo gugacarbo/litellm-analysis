@@ -70,7 +70,10 @@ export class PluginRegistry implements IPluginRegistry {
     const routing = config.routing ?? { version: 1, plugins: {} };
     const ctx = this.buildContext(config);
 
-    const agents = Object.values(config.agents ?? {});
+    const agents = Object.entries(config.agents ?? {}).map(([id, agent]) => ({
+      ...agent,
+      id,
+    }));
     const output = plugin.buildOutput(agents, routing, ctx);
 
     if (plugin.validate && !plugin.validate(output)) {

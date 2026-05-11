@@ -7,7 +7,6 @@ export interface AgentSummaryInfo {
   icon: string;
   description: string;
   model: string;
-  versionCount: number;
   pluginCount: number;
   mode: string;
 }
@@ -26,8 +25,7 @@ export function useAgentRoutingDerived(agents: SystemAgent[]) {
         icon: agent.icon,
         description: agent.description,
         model: agent.model || "Unassigned",
-        versionCount: agent.versions.length,
-        pluginCount: agent.enabledPlugins.length,
+        pluginCount: 0,
         mode: agent.config.mode ?? "subagent",
       };
     },

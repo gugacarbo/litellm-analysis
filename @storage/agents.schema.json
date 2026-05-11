@@ -18,7 +18,10 @@
           "type": "string"
         }
       },
-      "required": ["baseUrl", "apiKey"],
+      "required": [
+        "baseUrl",
+        "apiKey"
+      ],
       "additionalProperties": false
     },
     "models": {
@@ -57,7 +60,11 @@
             "additionalProperties": false
           }
         },
-        "required": ["displayName", "contextLength", "maxOutput"],
+        "required": [
+          "displayName",
+          "contextLength",
+          "maxOutput"
+        ],
         "additionalProperties": false
       }
     },
@@ -69,9 +76,6 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "displayName": {
             "type": "string"
           },
@@ -86,15 +90,15 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
                 "displayName": {
                   "type": "string"
                 },
                 "modelIdStrategy": {
                   "type": "string",
-                  "enum": ["model-name", "prefix-version"]
+                  "enum": [
+                    "model-name",
+                    "prefix-version"
+                  ]
                 },
                 "limits": {
                   "type": "object",
@@ -106,7 +110,10 @@
                       "type": "number"
                     }
                   },
-                  "required": ["context", "output"],
+                  "required": [
+                    "context",
+                    "output"
+                  ],
                   "additionalProperties": false
                 },
                 "cost": {
@@ -122,7 +129,11 @@
                   "additionalProperties": false
                 }
               },
-              "required": ["id", "displayName", "modelIdStrategy", "limits"],
+              "required": [
+                "displayName",
+                "modelIdStrategy",
+                "limits"
+              ],
               "additionalProperties": false
             }
           },
@@ -135,18 +146,16 @@
               "type": "string"
             }
           },
-          "enabledPlugins": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "config": {
             "type": "object",
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": ["subagent", "primary", "all"]
+                "enum": [
+                  "subagent",
+                  "primary",
+                  "all"
+                ]
               },
               "tools": {
                 "type": "object",
@@ -205,7 +214,6 @@
           "versions",
           "model",
           "fallbackModels",
-          "enabledPlugins",
           "config"
         ],
         "additionalProperties": false
@@ -219,95 +227,6 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "model": {
-            "type": "string"
-          },
-          "fallbackModels": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "description": {
-            "type": "string"
-          },
-          "variant": {
-            "type": "string"
-          },
-          "temperature": {
-            "type": "number"
-          },
-          "top_p": {
-            "type": "number"
-          },
-          "maxTokens": {
-            "type": "number"
-          },
-          "thinking": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["enabled", "disabled"]
-              },
-              "budgetTokens": {
-                "type": "number"
-              }
-            },
-            "required": ["type"],
-            "additionalProperties": false
-          },
-          "reasoningEffort": {
-            "type": "string",
-            "enum": ["low", "medium", "high", "xhigh"]
-          },
-          "textVerbosity": {
-            "type": "string",
-            "enum": ["low", "medium", "high"]
-          },
-          "tools": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {
-              "type": "boolean"
-            }
-          },
-          "prompt_append": {
-            "type": "string"
-          },
-          "is_unstable_agent": {
-            "type": "boolean"
-          }
-        },
-        "required": ["model"],
-        "additionalProperties": false
-      }
-    },
-    "globalFallbackModel": {
-      "type": "string"
-    },
-    "customAliases": {
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "type": "string"
-      }
-    },
-    "systemAgents": {
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
           "displayName": {
             "type": "string"
           },
@@ -322,15 +241,15 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
                 "displayName": {
                   "type": "string"
                 },
                 "modelIdStrategy": {
                   "type": "string",
-                  "enum": ["model-name", "prefix-version"]
+                  "enum": [
+                    "model-name",
+                    "prefix-version"
+                  ]
                 },
                 "limits": {
                   "type": "object",
@@ -342,7 +261,10 @@
                       "type": "number"
                     }
                   },
-                  "required": ["context", "output"],
+                  "required": [
+                    "context",
+                    "output"
+                  ],
                   "additionalProperties": false
                 },
                 "cost": {
@@ -358,7 +280,11 @@
                   "additionalProperties": false
                 }
               },
-              "required": ["id", "displayName", "modelIdStrategy", "limits"],
+              "required": [
+                "displayName",
+                "modelIdStrategy",
+                "limits"
+              ],
               "additionalProperties": false
             }
           },
@@ -371,18 +297,16 @@
               "type": "string"
             }
           },
-          "enabledPlugins": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "config": {
             "type": "object",
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": ["subagent", "primary", "all"]
+                "enum": [
+                  "subagent",
+                  "primary",
+                  "all"
+                ]
               },
               "tools": {
                 "type": "object",
@@ -441,11 +365,13 @@
           "versions",
           "model",
           "fallbackModels",
-          "enabledPlugins",
           "config"
         ],
         "additionalProperties": false
       }
+    },
+    "globalFallbackModel": {
+      "type": "string"
     },
     "routing": {
       "type": "object",
@@ -511,23 +437,35 @@
                       "additionalProperties": {}
                     }
                   },
-                  "required": ["enabled"],
+                  "required": [
+                    "enabled"
+                  ],
                   "additionalProperties": false
                 }
               }
             },
-            "required": ["enabled", "outputFile", "agents"],
+            "required": [
+              "enabled",
+              "outputFile",
+              "agents"
+            ],
             "additionalProperties": false
           }
-        },
-        "globalFallbackModel": {
-          "type": "string"
         }
       },
-      "required": ["version", "plugins"],
+      "required": [
+        "version",
+        "plugins"
+      ],
       "additionalProperties": false
     }
   },
-  "required": ["version", "litellm", "models", "agents", "categories"],
+  "required": [
+    "version",
+    "litellm",
+    "models",
+    "agents",
+    "categories"
+  ],
   "additionalProperties": {}
 }

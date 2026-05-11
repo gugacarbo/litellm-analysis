@@ -1,5 +1,4 @@
 import type {
-  AgentVersion,
   ModelSpec,
   PluginRoutingConfig,
   SystemAgent,
@@ -53,20 +52,7 @@ export class OpenCodePlugin implements IPlugin {
   }
 
   getConfigSchema(): ConfigField[] {
-    return [
-      {
-        key: "defaultVersion",
-        type: "select",
-        label: "Default Version",
-        required: false,
-        default: "latest",
-        options: [
-          { value: "latest", label: "Latest" },
-          { value: "stable", label: "Stable" },
-        ],
-        description: "Default version to use when no override is set",
-      },
-    ];
+    return [];
   }
 
   buildOutput(
@@ -105,26 +91,15 @@ export class OpenCodePlugin implements IPlugin {
     >;
 
     for (const agent of agents) {
-      if (!agent.id) continue;
-
-      const internalAgentId = agentMappings[agent.id];
+      const agentId =
+        (agent as SystemAgent & { id?: string }).id ?? agent.displayName;
+      const internalAgentId = agentMappings[agentId];
       if (!internalAgentId) continue;
 
-      const models: Record<string, unknown> = {};
-      for (const version of agent.versions) {
-        const resolvedVersion =
-          (pluginRouting?.agents[agent.id]?.versionOverrides?.[
-            version.id
-          ] as AgentVersion) ?? version;
-        models[version.id] = {
-          id: `${internalAgentId}/${version.id}`,
-          name: `${resolvedVersion.displayName} ${version.displayName}`,
-          limit: {
-            context: version.limits.context,
-            output: version.limits.output,
-          },
-        };
-      }
+      const legacyVersion = agent.versions?.[0];
+      const limits = legacyVersion?.limits ?? agent.limits;
+      const modelKey = "default";
+      const modelLabel = legacyVersion?.displayName ?? "Default";
 
       output.provider[internalAgentId] = {
         npm: "@ai-sdk/openai-compatible",
@@ -132,7 +107,16 @@ export class OpenCodePlugin implements IPlugin {
           baseURL: ctx.litellmConfig.baseUrl,
           apiKey: ctx.litellmConfig.apiKey,
         },
-        models,
+        models: {
+          [modelKey]: {
+            id: `${internalAgentId}/${modelKey}`,
+            name: `${agent.displayName} ${modelLabel}`,
+            limit: {
+              context: limits.context,
+              output: limits.output,
+            },
+          },
+        },
       };
     }
 

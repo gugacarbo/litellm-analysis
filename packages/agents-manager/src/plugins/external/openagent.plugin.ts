@@ -79,8 +79,9 @@ export class OpenAgentPlugin implements IPlugin {
       string
     >;
     for (const agent of agents) {
-      if (!agent.id) continue;
-      const internalId = agentMappings[agent.id];
+      const agentId =
+        (agent as SystemAgent & { id?: string }).id ?? agent.displayName;
+      const internalId = agentMappings[agentId];
       if (!internalId) continue;
 
       const entry: Record<string, unknown> = {};
