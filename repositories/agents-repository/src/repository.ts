@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import * as path from "node:path";
-import { type DbConfig, dbConfigSchema } from "./schema.js";
+import { type DbConfig, dbConfigSchema } from "./schemas/index.js";
 import { FileStorage, type IStorage } from "./storage.js";
 
 // Re-export types for convenience
@@ -12,7 +12,7 @@ export type {
   ModelSpec,
   Permission,
   ThinkingConfig,
-} from "./schema.js";
+} from "./schemas/index.js";
 
 export interface RepositoryOptions {
   filePath: string;
@@ -238,41 +238,7 @@ function normalizeConfig(config: unknown): unknown {
     return config;
   }
 
-  normalizeAgentMap(config, "agents");
-  normalizeAgentMap(config, "categories");
-
   return config;
-}
-
-function normalizeAgentMap(
-  root: Record<string, unknown>,
-  key: "agents" | "categories",
-): void {
-  const group = root[key];
-  if (!isRecord(group)) return;
-
-  for (const value of Object.values(group)) {
-    if (!isRecord(value)) continue;
-
-    const versions = value.versions;
-    if (
-      Array.isArray(versions) &&
-      versions.length > 0 &&
-      isRecord(versions[0]) &&
-      (!isRecord(value.limits) || value.modelIdStrategy === undefined)
-    ) {
-      const first = versions[0];
-      if (value.modelIdStrategy === undefined && first.modelIdStrategy) {
-        value.modelIdStrategy = first.modelIdStrategy;
-      }
-      if (!isRecord(value.limits) && isRecord(first.limits)) {
-        value.limits = first.limits;
-      }
-      if (value.cost === undefined && isRecord(first.cost)) {
-        value.cost = first.cost;
-      }
-    }
-  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,9 +1,12 @@
 {
   "$schema": "./agents.schema.json",
   "version": 2,
-  "litellm": {
-    "apiKey": "sk-123456789",
-    "baseUrl": "http://0.0.0.0:4000"
+  "provider": {
+    "litellm": {
+      "name": "LiteLLM",
+      "apiKey": "sk-123456789",
+      "baseUrl": "http://0.0.0.0:4000"
+    }
   },
   "globalFallbackModel": "MiniMax-M2.7-highspeed",
   "models": {
@@ -138,193 +141,141 @@
     }
   },
   "agents": {
-    //* Main orchestrator — the primary user-facing interface that understands requests, routes work, and coordinates results
     "loom": {
       "displayName": "Loom",
       "icon": "🔧",
       "description": "Agente principal para atendimento geral: entende o pedido, organiza a execução e entrega soluções ponta a ponta.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        },
-        {
-          "displayName": "Stable",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "",
       "fallbackModels": [],
       "config": {
         "mode": "all",
         "color": "#4A90D9"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
       }
     },
-    //* Execution Orchestrator — Manages todo-list driven execution of multi-step plans, focusing on sequential implementation without subagent spawning.
     "tapestry": {
       "displayName": "Tapestry",
       "icon": "🧶",
       "description": "Orquestrador focado em planos com múltiplas etapas: conduz execução sequencial com checklist e controle de progresso.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "atlas/gpt-5.5",
-      "fallbackModels": ["atlas/gpt-5.4", "atlas/gpt-5.3"],
+      "fallbackModels": [
+        "atlas/gpt-5.4",
+        "atlas/gpt-5.3"
+      ],
       "config": {
         "mode": "subagent",
         "temperature": 0.2,
         "color": "#D94A4A"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
       }
     },
-    //! Domain specialist worker — Worker with full tool access, dispatched dynamically via the category system.
     "shuttle": {
       "displayName": "Shuttle",
       "icon": "🚀",
       "description": "Especialista técnico para tarefas delegadas: implementa, investiga e resolve demandas complexas com alta autonomia e uso intensivo de ferramentas.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "build/gpt-5.5",
-      "fallbackModels": ["build/gpt-5.4", "build/gpt-5.3"],
+      "fallbackModels": [
+        "build/gpt-5.4",
+        "build/gpt-5.3"
+      ],
       "config": {
         "mode": "subagent",
         "category": "deep",
         "temperature": 0.2,
         "color": "#E67E22"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
       }
     },
-    //| Strategic planner — Analyzes requirements and produces detailed implementation plans with research and dependency mapping.
     "planner": {
       "displayName": "Planner",
       "icon": "📋",
       "description": "Planejador estratégico: transforma objetivos em planos executáveis, com etapas claras, riscos, dependências e critérios de sucesso.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "",
       "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "color": "#9B59B6"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
       }
     },
-    //| Codebase explorer — Fast, read-only codebase navigation and analysis using grep, glob, and read tools.
     "thread": {
       "displayName": "Thread (Genérico de Contexto)",
       "icon": "🧵",
       "model": "explore/gpt-5.5",
       "description": "Agente de contexto rápido: faz leitura exploratória da base, consolida informações e reduz incerteza antes da implementação.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
+      "fallbackModels": [
+        "explore/gpt-5.4",
+        "explore/gpt-5.3"
       ],
-      "fallbackModels": ["explore/gpt-5.4", "explore/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.1,
         "color": "#27AE60"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
       }
     },
-    //| External researcher — Performs external documentation lookups and reference searches, providing synthesized answers with source citations.
     "explorer": {
       "displayName": "Explorer",
       "icon": "🔍",
       "description": "Explorador de código e fontes externas: levanta evidências, mapeia estrutura e retorna insights acionáveis para apoiar decisões.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "",
       "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "color": "#F39C12"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
       }
     },
-    //| Quality reviewer and auditor - Reviews completed work and plans with a critical but fair eye, rejecting only for true blocking issues.
     "reviewer": {
       "displayName": "Reviewer",
       "icon": "✅",
       "description": "Revisor de qualidade: verifica consistência técnica, identifica riscos e aponta melhorias antes da entrega final.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "",
       "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "color": "#1ABC9C"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
       }
     },
-    //| Security auditor - Audits code changes for security vulnerabilities and specification compliance with a skeptical bias.
     "warp": {
       "displayName": "Warp (Auditor de Segurança)",
       "icon": "🛡️",
       "model": "prometheus/gpt-5.5",
       "description": "Auditor de segurança: analisa vulnerabilidades, superfícies de ataque e práticas inseguras em código, configuração e fluxo operacional.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
+      "fallbackModels": [
+        "prometheus/gpt-5.4",
+        "prometheus/gpt-5.3"
       ],
-      "fallbackModels": ["prometheus/gpt-5.4", "prometheus/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.1,
         "color": "#E74C3C"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
       }
     }
   },
@@ -333,34 +284,18 @@
       "displayName": "Writer",
       "icon": "✍️",
       "description": "Categoria voltada à escrita: documentação, guias, explicações técnicas e comunicação clara para diferentes públicos.",
-      "versions": [
-        {
-          "displayName": "Latest",
-          "modelIdStrategy": "prefix-version",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "",
       "fallbackModels": [],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "ultrabrain": {
       "displayName": "Ultrabrain",
       "icon": "🤖",
       "description": "Raciocínio de alta profundidade para problemas complexos, decisões de alto impacto e análises com múltiplas variáveis.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "glm-5-turbo",
       "fallbackModels": [
         "glm-5.1",
@@ -368,22 +303,16 @@
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "deep": {
       "displayName": "Deep",
       "icon": "🤖",
       "description": "Execução autônoma orientada a objetivos, ideal para tarefas de médio e grande porte com necessidade de continuidade e ownership.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "deepseek-v4-pro",
       "fallbackModels": [
         "qwen3.5-plus",
@@ -391,22 +320,16 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "code": {
       "displayName": "Code",
       "icon": "🤖",
       "description": "Engenharia de software geral: implementação, refatoração, debugging, testes e manutenção de código em produção.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "glm-5-turbo",
       "fallbackModels": [
         "deepseek-v4-pro",
@@ -414,22 +337,16 @@
         "glm-5.1",
         "MiniMax-M2.7-highspeed"
       ],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "artistry": {
       "displayName": "Artistry",
       "icon": "🤖",
       "description": "Categoria criativa para soluções fora do padrão: explora alternativas, protótipos e abordagens não convencionais com critério técnico.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "kimi-k2.6",
       "fallbackModels": [
         "deepseek-v4-pro",
@@ -437,22 +354,16 @@
         "qwen3.5-plus",
         "MiniMax-M2.7-highspeed"
       ],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "quick": {
       "displayName": "Quick",
       "icon": "🤖",
       "description": "Categoria de resposta rápida para ajustes pontuais: mudanças pequenas, baixo risco e escopo limitado.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "deepseek-v4-flash",
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
@@ -460,22 +371,16 @@
         "deepseek-v4-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "unspecified-low": {
       "displayName": "Unspecified Low",
       "icon": "🤖",
       "description": "Fallback de baixo esforço para tarefas simples sem categoria específica, priorizando velocidade e custo controlado.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "MiniMax-M2.7-highspeed",
@@ -483,22 +388,16 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "unspecified-high": {
       "displayName": "Unspecified High",
       "icon": "🤖",
       "description": "Fallback de alto esforço para demandas sem categoria específica que exigem análise extensa e maior investimento de contexto.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "deepseek-v4-pro",
       "fallbackModels": [
         "deepseek-v4-pro",
@@ -506,22 +405,16 @@
         "mimo-v2.5-pro",
         "MiniMax-M2.7-highspeed"
       ],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "writing": {
       "displayName": "Writing",
       "icon": "🤖",
       "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "MiniMax-M2.7-highspeed",
       "fallbackModels": [
         "qwen3.5-plus",
@@ -529,25 +422,23 @@
         "kimi-k2.6",
         "MiniMax-M2.7-highspeed"
       ],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     },
     "visual-engineering": {
       "displayName": "Visual Engineering",
       "icon": "🎨",
       "description": "Categoria focada em frontend visual: UI/UX, design system, estilos, layout responsivo e animações com intenção de produto.",
-      "versions": [
-        {
-          "displayName": "V1",
-          "modelIdStrategy": "model-name",
-          "limits": {
-            "context": 200000,
-            "output": 32768
-          }
-        }
-      ],
       "model": "",
       "fallbackModels": [],
-      "config": {}
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
     }
   },
   "routing": {
@@ -556,17 +447,17 @@
       "opencode": {
         "enabled": true,
         "outputFile": "opencode.json",
-        "agents": {}
+        "routing": {"agents": {}, "categories": {}}
       },
       "openagent": {
         "enabled": false,
         "outputFile": "oh-my-openagent.json",
-        "agents": {}
+        "routing": {"agents": {}, "categories": {}}
       },
       "vscode": {
         "enabled": false,
         "outputFile": "vscode-oaicopilot.json",
-        "agents": {}
+        "routing": {"agents": {}, "categories": {}}
       }
     }
   }

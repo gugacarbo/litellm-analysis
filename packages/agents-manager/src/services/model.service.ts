@@ -76,11 +76,6 @@ export class ModelService implements IModelService {
   async resolveModelName(key: string): Promise<string> {
     const config = await this.repository.read();
 
-    // Check custom aliases first
-    if (config.customAliases?.[key]) {
-      return config.customAliases[key];
-    }
-
     // Check if it's a direct model
     if (config.models[key] !== undefined) {
       return key;

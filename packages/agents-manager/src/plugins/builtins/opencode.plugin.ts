@@ -85,7 +85,7 @@ export class OpenCodePlugin implements IPlugin {
     };
 
     const pluginRouting = routing.plugins[this.id];
-    const agentMappings = (pluginRouting?.agentMappings ?? {}) as Record<
+    const agentMappings = (pluginRouting?.routing?.agents ?? {}) as Record<
       string,
       string
     >;
@@ -96,10 +96,9 @@ export class OpenCodePlugin implements IPlugin {
       const internalAgentId = agentMappings[agentId];
       if (!internalAgentId) continue;
 
-      const legacyVersion = agent.versions?.[0];
-      const limits = legacyVersion?.limits ?? agent.limits;
+      const limits = agent.limits;
       const modelKey = "default";
-      const modelLabel = legacyVersion?.displayName ?? "Default";
+      const modelLabel = "Default";
 
       output.provider[internalAgentId] = {
         npm: "@ai-sdk/openai-compatible",

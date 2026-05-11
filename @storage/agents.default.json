@@ -1,0 +1,68 @@
+{
+  "$schema": "./agents.schema.json",
+  "version": 2,
+  "globalFallbackModel": "",
+  "provider": {
+    "litellm": {
+      "name": "LiteLLM",
+      "apiKey": "{env:API_KEY}",
+      "baseUrl": "{env:API_BASE_URL}"
+    }
+  },
+  "models": {
+    "provider/model-name": {
+      "displayName": "Model Name",
+      "family": "model-family",
+      "contextLength": 200000,
+      "maxOutput": 128000,
+      "cost": {
+        "input": 1,
+        "output": 2
+      }
+    }
+  },
+  "agents": {
+    "agent-id": {
+      "displayName": "Agent Name",
+      "icon": "🤖",
+      "description": "Description of the agent's purpose and capabilities.",
+      "model": "",
+      "fallbackModels": [],
+      "config": {
+        "mode": "all",
+        "color": "#4A90D9"
+      },
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
+    }
+  },
+  "categories": {
+    "category-id": {
+      "displayName": "Category Name",
+      "icon": "📂",
+      "description": "Description of the category.",
+      "model": "",
+      "fallbackModels": [],
+      "config": {},
+      "limits": {
+        "context": 200000,
+        "output": 32768
+      }
+    }
+  },
+  "routing": {
+    "version": 1,
+    "plugins": {
+      "opencode": {
+        "enabled": true,
+        "outputFile": "opencode.json",
+        "routing": {
+          "agents": {},
+          "categories": {}
+        }
+      }
+    }
+  }
+}

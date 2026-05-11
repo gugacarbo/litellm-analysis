@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
 import {
@@ -19,12 +19,28 @@ export function createRepositoryClient(
 
   // Resolve special paths like @storage/agents.json, with json/jsonc fallback.
   const resolvedPath = resolveDbPathWithFallback(filePath);
+  ensureConfigFileExists(resolvedPath);
 
   const repoOptions: RepositoryOptions = {
     filePath: resolvedPath,
     validateOnRead: false,
   };
   return createRepository(repoOptions);
+}
+
+function ensureConfigFileExists(targetPath: string): void {
+  if (existsSync(targetPath)) return;
+
+  const ext = path.extname(targetPath).toLowerCase();
+  const defaultPath =
+    ext === ".jsonc"
+      ? targetPath.replace(/\.jsonc$/i, ".default.json")
+      : targetPath.replace(/\.json$/i, ".default.json");
+
+  if (!existsSync(defaultPath)) return;
+
+  mkdirSync(path.dirname(targetPath), { recursive: true });
+  copyFileSync(defaultPath, targetPath);
 }
 
 function resolveDbPathWithFallback(dbPath: string): string {

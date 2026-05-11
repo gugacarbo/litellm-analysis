@@ -29,7 +29,7 @@ describe("AgentsRepository", () => {
       [filePath]: `{
         // comment
         "version": 2,
-        "litellm": { "apiKey": "sk-test" },
+        "provider": { "litellm": { "name": "LiteLLM", "apiKey": "sk-test" } },
         "models": {},
         "categories": {},
         "agents": {},
@@ -44,7 +44,7 @@ describe("AgentsRepository", () => {
 
     const config = await repository.read();
     expect(config.version).toBe(2);
-    expect(config.litellm.apiKey).toBe("sk-test");
+    expect(config.provider.litellm.apiKey).toBe("sk-test");
   });
 
   it("throws a parse error with file path context", async () => {
@@ -63,31 +63,23 @@ describe("AgentsRepository", () => {
     );
   });
 
-  it("infers system agent id from object key", async () => {
+  it("reads agent configuration with all fields", async () => {
     const filePath = "/tmp/agents.json";
     const storage = new MemoryStorage({
       [filePath]: JSON.stringify({
         version: 2,
-        litellm: { baseUrl: "http://localhost:4000", apiKey: "sk-test" },
+        provider: { litellm: { name: "LiteLLM", baseUrl: "http://localhost:4000", apiKey: "sk-test" } },
         models: {},
-        agents: {},
         categories: {},
-        systemAgents: {
+        agents: {
           loom: {
             displayName: "Loom",
             icon: "L",
             description: "Agent",
-            versions: [
-              {
-                id: "v1",
-                displayName: "V1",
-                modelIdStrategy: "model-name",
-                limits: { context: 1, output: 1 },
-              },
-            ],
-            model: "m1",
-            fallbackModels: [],
-            enabledPlugins: [],
+            modelIdStrategy: "model-name" as const,
+            limits: { context: 200000, output: 32768 },
+            model: "gpt-4",
+            fallbackModels: [] as string[],
             config: {},
           },
         },
@@ -96,44 +88,38 @@ describe("AgentsRepository", () => {
     const repository = createRepository({ filePath, storage });
 
     const config = await repository.read();
-    expect(config.systemAgents?.loom?.id).toBe("loom");
+    expect(config.agents?.loom?.displayName).toBe("Loom");
+    expect(config.agents?.loom?.model).toBe("gpt-4");
   });
 
-  it("throws when explicit system agent id conflicts with object key", async () => {
+  it("validates and writes configuration", async () => {
     const filePath = "/tmp/agents.json";
-    const storage = new MemoryStorage({
-      [filePath]: JSON.stringify({
-        version: 2,
-        litellm: { baseUrl: "http://localhost:4000", apiKey: "sk-test" },
-        models: {},
-        agents: {},
-        categories: {},
-        systemAgents: {
-          loom: {
-            id: "other",
-            displayName: "Loom",
-            icon: "L",
-            description: "Agent",
-            versions: [
-              {
-                id: "v1",
-                displayName: "V1",
-                modelIdStrategy: "model-name",
-                limits: { context: 1, output: 1 },
-              },
-            ],
-            model: "m1",
-            fallbackModels: [],
-            enabledPlugins: [],
-            config: {},
-          },
-        },
-      }),
-    });
+    const storage = new MemoryStorage({});
     const repository = createRepository({ filePath, storage });
 
-    await expect(repository.read()).rejects.toThrow(
-      'Invalid systemAgents.loom.id: expected "loom", received "other"',
-    );
+    const config = {
+      version: 2,
+      provider: { litellm: { name: "LiteLLM", baseUrl: "http://localhost:4000", apiKey: "sk-test" } },
+      models: {} as Record<string, { displayName: string; contextLength: number; maxOutput: number }>,
+      categories: {} as Record<string, { model: string; modelIdStrategy: "model-name" | "prefix-version"; limits: { context: number; output: number } }>,
+      agents: {
+        loom: {
+          displayName: "Loom",
+          icon: "L",
+          description: "Agent",
+          modelIdStrategy: "model-name" as const,
+          limits: { context: 200000, output: 32768 },
+          model: "gpt-4",
+          fallbackModels: [] as string[],
+          config: {} as Record<string, unknown>,
+        },
+      },
+    };
+
+    await repository.write(config);
+
+    const stored = await storage.read(filePath);
+    const parsed = JSON.parse(stored);
+    expect(parsed.agents.loom.model).toBe("gpt-4");
   });
 });

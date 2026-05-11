@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { z } from "zod";
-import { dbConfigSchema } from "../src/schema.js";
+import { dbConfigSchema } from "../src/schemas/index.js";
 
 const jsonSchema = z.toJSONSchema(dbConfigSchema);
 

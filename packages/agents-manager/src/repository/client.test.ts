@@ -39,4 +39,16 @@ describe("createRepositoryClient fallback", () => {
     const repository = createRepositoryClient();
     expect(repository.getPath()).toBe(jsonPath);
   });
+
+  it("copies agents.default.json when config file is missing", async () => {
+    const jsonPath = path.join(tmpDir, "@storage", "agents.json");
+    const defaultPath = path.join(tmpDir, "@storage", "agents.default.json");
+    await fs.writeFile(defaultPath, '{"$schema":"./agents.schema.json"}');
+
+    const repository = createRepositoryClient();
+    expect(repository.getPath()).toBe(jsonPath);
+
+    const created = await fs.readFile(jsonPath, "utf-8");
+    expect(created).toContain('"$schema":"./agents.schema.json"');
+  });
 });

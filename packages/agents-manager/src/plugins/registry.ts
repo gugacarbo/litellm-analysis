@@ -96,12 +96,21 @@ export class PluginRegistry implements IPluginRegistry {
   private buildContext(config: {
     models: Record<string, unknown>;
     globalFallbackModel?: string;
-    litellm: { baseUrl: string; apiKey: string };
+    provider: Record<string, { name: string; baseUrl: string; apiKey: string }>;
   }): TransformContext {
+    const selectedProvider =
+      config.provider.litellm ?? Object.values(config.provider)[0];
+    if (!selectedProvider) {
+      throw new Error("At least one provider must be configured");
+    }
+
     return {
       allModels: config.models as TransformContext["allModels"],
       globalFallbackModel: config.globalFallbackModel,
-      litellmConfig: config.litellm,
+      litellmConfig: {
+        baseUrl: selectedProvider.baseUrl,
+        apiKey: selectedProvider.apiKey,
+      },
     };
   }
 

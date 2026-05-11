@@ -74,7 +74,7 @@ export class OpenAgentPlugin implements IPlugin {
       categories: {},
     };
 
-    const agentMappings = (pluginRouting?.agentMappings ?? {}) as Record<
+    const agentMappings = (pluginRouting?.routing?.agents ?? {}) as Record<
       string,
       string
     >;

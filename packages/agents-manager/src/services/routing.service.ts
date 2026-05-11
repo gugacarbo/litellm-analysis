@@ -62,8 +62,8 @@ export class RoutingService implements IRoutingService {
     const enabled: string[] = [];
 
     for (const [pluginId, plugin] of Object.entries(routing.plugins)) {
-      const rule = plugin.agents[agentId];
-      if (rule?.enabled) {
+      const mapped = plugin.routing?.agents?.[agentId];
+      if (mapped) {
         enabled.push(pluginId);
       }
     }
@@ -78,8 +78,8 @@ export class RoutingService implements IRoutingService {
     const routing = await this.getConfig();
 
     for (const plugin of Object.values(routing.plugins)) {
-      if (plugin.agents[agentId]) {
-        plugin.agents[agentId].enabled = false;
+      if (plugin.routing?.agents?.[agentId]) {
+        delete plugin.routing.agents[agentId];
       }
     }
 
@@ -88,14 +88,19 @@ export class RoutingService implements IRoutingService {
         routing.plugins[pluginId] = {
           enabled: true,
           outputFile: "",
-          agents: {},
+          routing: { agents: {}, categories: {} },
         };
       }
 
-      routing.plugins[pluginId].agents[agentId] = {
-        ...routing.plugins[pluginId].agents[agentId],
-        enabled: true,
-      };
+      if (!routing.plugins[pluginId].routing) {
+        routing.plugins[pluginId].routing = { agents: {}, categories: {} };
+      }
+      if (!routing.plugins[pluginId].routing.agents) {
+        routing.plugins[pluginId].routing.agents = {};
+      }
+
+      // Default route keeps the same id for plugin-side agent when not specified.
+      routing.plugins[pluginId].routing.agents[agentId] = agentId;
     }
 
     await this.saveConfig(routing);
@@ -108,17 +113,23 @@ export class RoutingService implements IRoutingService {
       routing.plugins[pluginId] = {
         enabled: true,
         outputFile: "",
-        agents: {},
+        routing: { agents: {}, categories: {} },
       };
     }
 
-    const current = routing.plugins[pluginId].agents[agentId];
-    const newEnabled = !current?.enabled;
-
-    routing.plugins[pluginId].agents[agentId] = {
-      ...current,
-      enabled: newEnabled,
-    };
+    if (!routing.plugins[pluginId].routing) {
+      routing.plugins[pluginId].routing = { agents: {}, categories: {} };
+    }
+    if (!routing.plugins[pluginId].routing.agents) {
+      routing.plugins[pluginId].routing.agents = {};
+    }
+    const current = routing.plugins[pluginId].routing.agents[agentId];
+    const newEnabled = !current;
+    if (newEnabled) {
+      routing.plugins[pluginId].routing.agents[agentId] = agentId;
+    } else {
+      delete routing.plugins[pluginId].routing.agents[agentId];
+    }
 
     await this.saveConfig(routing);
     return newEnabled;
@@ -126,7 +137,7 @@ export class RoutingService implements IRoutingService {
 
   async isPluginEnabled(pluginId: string, agentId: string): Promise<boolean> {
     const routing = await this.getConfig();
-    return routing.plugins[pluginId]?.agents[agentId]?.enabled ?? false;
+    return Boolean(routing.plugins[pluginId]?.routing?.agents?.[agentId]);
   }
 
   async getSyncAliases(): Promise<boolean> {
@@ -157,7 +168,11 @@ export class RoutingService implements IRoutingService {
   ): Promise<void> {
     const routing = await this.getConfig();
     if (!routing.plugins[pluginId]) {
-      routing.plugins[pluginId] = { enabled: true, outputFile: "", agents: {} };
+      routing.plugins[pluginId] = {
+        enabled: true,
+        outputFile: "",
+        routing: { agents: {}, categories: {} },
+      };
     }
     routing.plugins[pluginId].config = config;
     await this.saveConfig(routing);
@@ -165,9 +180,10 @@ export class RoutingService implements IRoutingService {
 
   async getAgentMappings(pluginId: string): Promise<Record<string, string>> {
     const config = await this.getConfig();
-    return (
-      (config.plugins[pluginId]?.agentMappings as Record<string, string>) ?? {}
-    );
+    return (config.plugins[pluginId]?.routing?.agents ?? {}) as Record<
+      string,
+      string
+    >;
   }
 
   async saveAgentMappings(
@@ -176,9 +192,16 @@ export class RoutingService implements IRoutingService {
   ): Promise<void> {
     const routing = await this.getConfig();
     if (!routing.plugins[pluginId]) {
-      routing.plugins[pluginId] = { enabled: true, outputFile: "", agents: {} };
+      routing.plugins[pluginId] = {
+        enabled: true,
+        outputFile: "",
+        routing: { agents: {}, categories: {} },
+      };
     }
-    routing.plugins[pluginId].agentMappings = mappings;
+    if (!routing.plugins[pluginId].routing) {
+      routing.plugins[pluginId].routing = { agents: {}, categories: {} };
+    }
+    routing.plugins[pluginId].routing.agents = mappings;
     await this.saveConfig(routing);
   }
 
@@ -186,10 +209,8 @@ export class RoutingService implements IRoutingService {
     pluginId: string,
   ): Promise<Record<string, boolean>> {
     const config = await this.getConfig();
-    return (
-      (config.plugins[pluginId]?.categoryMappings as Record<string, boolean>) ??
-      {}
-    );
+    return (config.plugins[pluginId]?.routing?.categories ??
+      {}) as Record<string, boolean>;
   }
 
   async saveCategoryMappings(
@@ -198,9 +219,16 @@ export class RoutingService implements IRoutingService {
   ): Promise<void> {
     const routing = await this.getConfig();
     if (!routing.plugins[pluginId]) {
-      routing.plugins[pluginId] = { enabled: true, outputFile: "", agents: {} };
+      routing.plugins[pluginId] = {
+        enabled: true,
+        outputFile: "",
+        routing: { agents: {}, categories: {} },
+      };
     }
-    routing.plugins[pluginId].categoryMappings = mappings;
+    if (!routing.plugins[pluginId].routing) {
+      routing.plugins[pluginId].routing = { agents: {}, categories: {} };
+    }
+    routing.plugins[pluginId].routing.categories = mappings;
     await this.saveConfig(routing);
   }
 
