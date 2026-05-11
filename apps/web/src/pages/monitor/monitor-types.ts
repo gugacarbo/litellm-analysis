@@ -66,7 +66,7 @@ export interface ModelHealthEntry {
   status: ModelHealthStatus;
   last_error_at: string | null;
   error_rate_1h: number;
-  stats: ModelHealthStats | null;
+  stats?: ModelHealthStats | null;
 }
 
 export interface WsMessage {

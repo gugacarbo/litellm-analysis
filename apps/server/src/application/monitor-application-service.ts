@@ -46,7 +46,7 @@ function toModelStatuses(
     if (!alert.model) continue;
     if (!modelStatuses[alert.model]) {
       modelStatuses[alert.model] = {
-        status: "unknown",
+        status: "healthy",
         last_error_at: null,
         error_rate_1h: 0,
       };

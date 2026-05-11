@@ -8,6 +8,7 @@ import {
   updateModel,
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
+import { getModelsHealth } from "../../lib/api-client/monitor";
 import { validateAndBuildModelParams } from "./models-form-utils";
 import { useModelsFormState } from "./use-models-form-state";
 
@@ -17,6 +18,15 @@ export function useModelsPage() {
   const modelsQuery = useQuery({
     queryKey: queryKeys.models,
     queryFn: getAllModels,
+  });
+
+  const modelsHealthQuery = useQuery({
+    queryKey: ["models-health"],
+    queryFn: async () => {
+      const result = await getModelsHealth();
+      console.log("[DEBUG] modelsHealth response:", result);
+      return result;
+    },
   });
 
   const credentialsQuery = useQuery({
@@ -117,6 +127,8 @@ export function useModelsPage() {
     }
   }
 
+  console.log("[DEBUG] modelsHealth from hook:", modelsHealthQuery.data?.models);
+
   return {
     addExtraParam,
     credentials: credentialsQuery.data ?? [],
@@ -130,6 +142,7 @@ export function useModelsPage() {
     formLoading,
     handleDelete,
     handleOpenCreate,
+    modelsHealth: modelsHealthQuery.data?.models ?? [],
     handleOpenCreateWithDefaultCredential,
     handleOpenEdit,
     handleSubmit,

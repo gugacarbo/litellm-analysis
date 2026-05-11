@@ -14,6 +14,7 @@ export function ModelsPage() {
     formError,
     formLoading,
     modelsQuery,
+    modelsHealth,
     mutationError,
     handleDelete,
     handleOpenCreateWithDefaultCredential,
@@ -56,6 +57,7 @@ export function ModelsPage() {
       <ModelsTableCard
         models={modelsQuery.data ?? []}
         loading={modelsQuery.isPending && !modelsQuery.data}
+        modelsHealth={modelsHealth}
         error={
           mutationError ||
           (modelsQuery.error ? String(modelsQuery.error) : null)
