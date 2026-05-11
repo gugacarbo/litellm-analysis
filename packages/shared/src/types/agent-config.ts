@@ -3,7 +3,6 @@
 // Use SystemAgent for both agents and categories.
 export type {
   AgentExtraConfig,
-  AgentVersion,
   PluginRoutingConfig,
   PluginRoutingRule,
   SystemAgent,

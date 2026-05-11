@@ -238,30 +238,41 @@ function normalizeConfig(config: unknown): unknown {
     return config;
   }
 
-  const systemAgents = config.systemAgents;
-  if (!isRecord(systemAgents)) {
-    return config;
-  }
-
-  for (const [key, value] of Object.entries(systemAgents)) {
-    if (!isRecord(value)) {
-      continue;
-    }
-
-    const explicitId = value.id;
-    if (explicitId === undefined) {
-      value.id = key;
-      continue;
-    }
-
-    if (typeof explicitId === "string" && explicitId !== key) {
-      throw new Error(
-        `Invalid systemAgents.${key}.id: expected "${key}", received "${explicitId}"`,
-      );
-    }
-  }
+  normalizeAgentMap(config, "agents");
+  normalizeAgentMap(config, "categories");
 
   return config;
+}
+
+function normalizeAgentMap(
+  root: Record<string, unknown>,
+  key: "agents" | "categories",
+): void {
+  const group = root[key];
+  if (!isRecord(group)) return;
+
+  for (const value of Object.values(group)) {
+    if (!isRecord(value)) continue;
+
+    const versions = value.versions;
+    if (
+      Array.isArray(versions) &&
+      versions.length > 0 &&
+      isRecord(versions[0]) &&
+      (!isRecord(value.limits) || value.modelIdStrategy === undefined)
+    ) {
+      const first = versions[0];
+      if (value.modelIdStrategy === undefined && first.modelIdStrategy) {
+        value.modelIdStrategy = first.modelIdStrategy;
+      }
+      if (!isRecord(value.limits) && isRecord(first.limits)) {
+        value.limits = first.limits;
+      }
+      if (value.cost === undefined && isRecord(first.cost)) {
+        value.cost = first.cost;
+      }
+    }
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -85,6 +85,42 @@
           "description": {
             "type": "string"
           },
+          "modelIdStrategy": {
+            "default": "prefix-version",
+            "type": "string",
+            "enum": [
+              "model-name",
+              "prefix-version"
+            ]
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "number"
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "context",
+              "output"
+            ],
+            "additionalProperties": false
+          },
+          "cost": {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "number"
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
+          },
           "versions": {
             "type": "array",
             "items": {
@@ -211,7 +247,8 @@
           "displayName",
           "icon",
           "description",
-          "versions",
+          "modelIdStrategy",
+          "limits",
           "model",
           "fallbackModels",
           "config"
@@ -236,6 +273,42 @@
           "description": {
             "type": "string"
           },
+          "modelIdStrategy": {
+            "default": "prefix-version",
+            "type": "string",
+            "enum": [
+              "model-name",
+              "prefix-version"
+            ]
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "number"
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "context",
+              "output"
+            ],
+            "additionalProperties": false
+          },
+          "cost": {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "number"
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
+          },
           "versions": {
             "type": "array",
             "items": {
@@ -362,7 +435,8 @@
           "displayName",
           "icon",
           "description",
-          "versions",
+          "modelIdStrategy",
+          "limits",
           "model",
           "fallbackModels",
           "config"
@@ -428,13 +502,6 @@
                   "properties": {
                     "enabled": {
                       "type": "boolean"
-                    },
-                    "versionOverrides": {
-                      "type": "object",
-                      "propertyNames": {
-                        "type": "string"
-                      },
-                      "additionalProperties": {}
                     }
                   },
                   "required": [

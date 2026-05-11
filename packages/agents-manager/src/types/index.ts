@@ -1,6 +1,5 @@
 export type {
   AgentExtraConfig,
-  AgentVersion,
   PluginRoutingConfig,
   PluginRoutingRule,
   SystemAgent,

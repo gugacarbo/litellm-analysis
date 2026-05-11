@@ -48,7 +48,6 @@ import {
 // New types
 export type {
   AgentExtraConfig,
-  AgentVersion,
   PluginRoutingConfig,
   PluginRoutingRule,
   SystemAgent,

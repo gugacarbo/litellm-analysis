@@ -184,10 +184,7 @@
         }
       ],
       "model": "atlas/gpt-5.5",
-      "fallbackModels": [
-        "atlas/gpt-5.4",
-        "atlas/gpt-5.3"
-      ],
+      "fallbackModels": ["atlas/gpt-5.4", "atlas/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.2,
@@ -210,10 +207,7 @@
         }
       ],
       "model": "build/gpt-5.5",
-      "fallbackModels": [
-        "build/gpt-5.4",
-        "build/gpt-5.3"
-      ],
+      "fallbackModels": ["build/gpt-5.4", "build/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "category": "deep",
@@ -259,10 +253,7 @@
           }
         }
       ],
-      "fallbackModels": [
-        "explore/gpt-5.4",
-        "explore/gpt-5.3"
-      ],
+      "fallbackModels": ["explore/gpt-5.4", "explore/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.1,
@@ -329,10 +320,7 @@
           }
         }
       ],
-      "fallbackModels": [
-        "prometheus/gpt-5.4",
-        "prometheus/gpt-5.3"
-      ],
+      "fallbackModels": ["prometheus/gpt-5.4", "prometheus/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.1,

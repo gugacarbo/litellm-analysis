@@ -17,9 +17,7 @@ export function AgentRoutingAgentsTab({
   onDeleteAgent,
 }: AgentRoutingAgentsTabProps) {
   const safeAgents = agents ?? [];
-  const configuredCount = safeAgents.filter(
-    (a) => a.model !== "" && (a.versions?.length ?? 0) > 0,
-  ).length;
+  const configuredCount = safeAgents.filter((a) => a.model !== "").length;
 
   return (
     <EntityRoutingCard

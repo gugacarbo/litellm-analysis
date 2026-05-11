@@ -87,6 +87,7 @@ export const pluginRoutingConfigSchema = z.object({
 });
 
 export const agentVersionSchema = z.object({
+  id: z.string().optional(),
   displayName: z.string(),
   modelIdStrategy: z.enum(["model-name", "prefix-version"]),
   limits: z.object({
@@ -112,6 +113,7 @@ export const agentExtraConfigSchema = z.object({
 });
 
 export const systemAgentSchema = z.object({
+  id: z.string().optional(),
   displayName: z.string(),
   icon: z.string(),
   description: z.string(),
@@ -140,7 +142,7 @@ export const dbConfigSchema = z
     }),
     models: z.record(z.string(), modelSpecSchema),
     agents: z.record(z.string(), systemAgentSchema),
-    categories: z.record(z.string(), systemAgentSchema),
+    categories: z.record(z.string(), categoryEntrySchema),
     globalFallbackModel: z.string().optional(),
     routing: pluginRoutingConfigSchema.optional(),
   })
