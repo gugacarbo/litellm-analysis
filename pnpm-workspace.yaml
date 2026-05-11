@@ -17,3 +17,8 @@ catalog:
   "@types/node": ^25.6.0
   zod: ^4.4.1
   vite: ^8.0.10
+
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
+  msw: true

@@ -17,7 +17,7 @@ export const serverSchema = {
   LITELLM_API_URL: z.string().url().default("http://localhost:4000"),
   LITELLM_API_KEY: z.string().min(1, "LITELLM_API_KEY is required"),
   HEALTH_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(120_000),
-  HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive().default(5_000),
+  HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
   HEALTH_CHECK_PROMPT: z
     .string()
     .default("Respond with ONLY your model name. Example: gpt-5.3-codex"),
