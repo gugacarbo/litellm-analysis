@@ -3,6 +3,7 @@
   "litellm": {
     "apiKey": "sk-123456789"
   },
+  "globalFallbackModel": "MiniMax-M2.7-highspeed",
   "models": {
     "glm-5": {
       "displayName": "GLM 5",
@@ -134,9 +135,7 @@
       }
     }
   },
-  "agents": {},
-  "globalFallbackModel": "MiniMax-M2.7-highspeed",
-  "systemAgents": {
+  "agents": {
     //* Main orchestrator — the primary user-facing interface that understands requests, routes work, and coordinates results
     "loom": {
       "id": "loom",
@@ -173,22 +172,56 @@
     },
     //* Execution Orchestrator — Manages todo-list driven execution of multi-step plans, focusing on sequential implementation without subagent spawning.
     "tapestry": {
-      "display_name": "Tapestry (Orquestrador de Execução)",
-      "model": "atlas/gpt-5.5",
+      "id": "tapestry",
+      "displayName": "Tapestry",
+      "icon": "🧶",
       "description": "Orquestrador focado em planos com múltiplas etapas: conduz execução sequencial com checklist e controle de progresso.",
-      "fallback_models": ["atlas/gpt-5.4", "atlas/gpt-5.3"],
-      "temperature": 0.2,
-      "color": "#D94A4A"
+      "versions": [
+        {
+          "id": "latest",
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "atlas/gpt-5.5",
+      "fallbackModels": ["atlas/gpt-5.4", "atlas/gpt-5.3"],
+      "enabledPlugins": ["opencode"],
+      "config": {
+        "mode": "subagent",
+        "temperature": 0.2,
+        "color": "#D94A4A"
+      }
     },
     //! Domain specialist worker — Worker with full tool access, dispatched dynamically via the category system.
     "shuttle": {
-      "display_name": "Shuttle (Especialista de Domínio)",
-      "model": "build/gpt-5.5",
+      "id": "shuttle",
+      "displayName": "Shuttle",
+      "icon": "🚀",
       "description": "Especialista técnico para tarefas delegadas: implementa, investiga e resolve demandas complexas com alta autonomia e uso intensivo de ferramentas.",
-      "fallback_models": ["build/gpt-5.4", "build/gpt-5.3"],
-      "category": "deep",
-      "temperature": 0.2,
-      "color": "#E67E22"
+      "versions": [
+        {
+          "id": "latest",
+          "displayName": "Latest",
+          "modelIdStrategy": "prefix-version",
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      ],
+      "model": "build/gpt-5.5",
+      "fallbackModels": ["build/gpt-5.4", "build/gpt-5.3"],
+      "enabledPlugins": ["opencode"],
+      "config": {
+        "mode": "subagent",
+        "category": "deep",
+        "temperature": 0.2,
+        "color": "#E67E22"
+      }
     },
     //| Strategic planner — Analyzes requirements and produces detailed implementation plans with research and dependency mapping.
     "planner": {
