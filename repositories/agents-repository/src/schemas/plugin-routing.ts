@@ -8,13 +8,10 @@ export const pluginRoutingRuleSchema = z.object({
 });
 
 export const pluginRoutingSchema = z.object({
-  enabled: z
-    .boolean()
-    .default(false)
-    .meta({
-      title: "Enabled",
-      description: "Whether plugin routing is enabled",
-    }),
+  enabled: z.boolean().default(false).meta({
+    title: "Enabled",
+    description: "Whether plugin routing is enabled",
+  }),
   outputFile: z
     .string()
     .default("")
@@ -50,17 +47,5 @@ export const pluginRoutingSchema = z.object({
     .default({ agents: {}, categories: {} }),
 });
 
-export const pluginRoutingConfigSchema = z.object({
-  version: z
-    .number()
-    .default(1)
-    .meta({ title: "Version", description: "Config version" }),
-  plugins: z
-    .record(z.string(), pluginRoutingSchema)
-    .default({})
-    .meta({ title: "Plugins", description: "Plugin configurations" }),
-});
-
 export type PluginRoutingRule = z.infer<typeof pluginRoutingRuleSchema>;
 export type PluginRouting = z.infer<typeof pluginRoutingSchema>;
-export type PluginRoutingConfig = z.infer<typeof pluginRoutingConfigSchema>;

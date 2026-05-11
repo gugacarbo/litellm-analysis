@@ -5,6 +5,7 @@
   "provider": {
     "litellm": {
       "name": "LiteLLM",
+      "ownedBy": "example-org",
       "apiKey": "{env:API_KEY}",
       "baseUrl": "{env:API_BASE_URL}"
     }
@@ -13,13 +14,15 @@
     "provider/model-name": {
       "displayName": "Model Name",
       "family": "model-family",
-      "contextLength": 200000,
-      "maxOutput": 128000,
       "cost": {
         "input": 1,
         "output": 2
       },
-      "enabled": true
+      "enabled": true,
+      "limits": {
+        "length": 200000,
+        "maxOutput": 128000
+      }
     }
   },
   "agents": {

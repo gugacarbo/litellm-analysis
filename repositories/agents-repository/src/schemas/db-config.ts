@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { categoryEntrySchema } from "./category.js";
 import { modelSpecSchema } from "./model.js";
-import { pluginRoutingConfigSchema } from "./plugin-routing.js";
+import { pluginRoutingSchema } from "./plugin-routing.js";
 import { systemAgentSchema } from "./system-agent.js";
 
 export const dbConfigSchema = z
@@ -23,6 +23,10 @@ export const dbConfigSchema = z
             .string()
             .default("")
             .meta({ title: "Name", description: "Provider display name" }),
+          ownedBy: z.string().default("").meta({
+            title: "Owned By",
+            description: "Organization that owns this provider",
+          }),
           baseUrl: z.string().default("").meta({
             title: "Base URL",
             description: "Provider API base URL",
@@ -58,9 +62,10 @@ export const dbConfigSchema = z
         description: "Default fallback model",
       })
       .optional(),
-    routing: pluginRoutingConfigSchema
-      .default({ version: 1, plugins: {} })
-      .meta({ title: "Routing", description: "Plugin routing configuration" })
+    plugins: z
+      .record(z.string(), pluginRoutingSchema)
+      .default({})
+      .meta({ title: "Plugins", description: "Plugin configurations" })
       .optional(),
   })
   .strict();

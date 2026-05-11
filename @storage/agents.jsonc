@@ -4,6 +4,7 @@
   "provider": {
     "litellm": {
       "name": "LiteLLM",
+      "ownedBy": "atplus",
       "apiKey": "sk-123456789",
       "baseUrl": "http://0.0.0.0:4000"
     }
@@ -12,131 +13,143 @@
   "models": {
     "glm-5": {
       "displayName": "GLM 5",
-      "ownedBy": "atplus",
       "family": "z.ai",
-      "contextLength": 200000,
-      "maxOutput": 128000,
       "cost": {
         "input": 1,
         "output": 3.2
+      },
+      "limits": {
+        "length": 200000,
+        "maxOutput": 128000
       }
     },
     "glm-5.1": {
       "displayName": "GLM 5.1",
-      "ownedBy": "atplus",
       "family": "z.ai",
-      "contextLength": 200000,
-      "maxOutput": 128000,
       "cost": {
         "input": 1.4,
         "output": 4.4
+      },
+      "limits": {
+        "length": 200000,
+        "maxOutput": 128000
       }
     },
     "glm-5-turbo": {
       "displayName": "GLM 5 Turbo",
-      "ownedBy": "atplus",
       "family": "z.ai",
-      "contextLength": 200000,
-      "maxOutput": 128000,
       "cost": {
         "input": 1.2,
         "output": 4
+      },
+      "limits": {
+        "length": 200000,
+        "maxOutput": 128000
       }
     },
     "MiniMax-M2.7-highspeed": {
       "displayName": "MiniMax M2.7 Hs",
-      "ownedBy": "atplus",
-      "contextLength": 204800,
-      "maxOutput": 128000,
       "cost": {
         "input": 0.3,
         "output": 1.2
+      },
+      "limits": {
+        "length": 204800,
+        "maxOutput": 128000
       }
     },
     "qwen3.5-plus": {
       "displayName": "Qwen 3.5+",
-      "ownedBy": "atplus",
-      "contextLength": 1000000,
-      "maxOutput": 64000,
       "cost": {
         "input": 0.4,
         "output": 2.4
+      },
+      "limits": {
+        "length": 1000000,
+        "maxOutput": 64000
       }
     },
     "qwen3-coder-plus": {
       "displayName": "Qwen 3 Coder+",
-      "ownedBy": "atplus",
-      "contextLength": 1000000,
-      "maxOutput": 64000,
       "cost": {
         "input": 0.65,
         "output": 3.25
+      },
+      "limits": {
+        "length": 1000000,
+        "maxOutput": 64000
       }
     },
     "deepseek-v4-flash": {
       "displayName": "Deepseek V4 Flash",
-      "ownedBy": "atplus",
       "family": "deepseek",
-      "contextLength": 1048576,
-      "maxOutput": 384000,
       "cost": {
         "input": 0.14,
         "output": 0.28
+      },
+      "limits": {
+        "length": 1048576,
+        "maxOutput": 384000
       }
     },
     "deepseek-v4-pro": {
       "displayName": "Deepseek V4 Pro",
-      "ownedBy": "atplus",
       "family": "deepseek",
-      "contextLength": 1048576,
-      "maxOutput": 384000,
       "cost": {
         "input": 1.74,
         "output": 3.48
+      },
+      "limits": {
+        "length": 1048576,
+        "maxOutput": 384000
       }
     },
     "glm-5.1:ollama": {
       "displayName": "Glm 5.1:ollama",
-      "ownedBy": "atplus",
       "family": "z.ai",
-      "contextLength": 200000,
-      "maxOutput": 32768,
       "cost": {
         "input": 1.2,
         "output": 4
+      },
+      "limits": {
+        "length": 200000,
+        "maxOutput": 32768
       }
     },
     "kimi-k2.6": {
       "displayName": "Kimi K2.6",
-      "ownedBy": "atplus",
       "family": "moonshot",
-      "contextLength": 262144,
-      "maxOutput": 32768,
       "cost": {
         "input": 0.95,
         "output": 4
+      },
+      "limits": {
+        "length": 262144,
+        "maxOutput": 32768
       }
     },
     "mimo-v2.5-pro": {
       "displayName": "Mimo V2.5 Pro",
-      "ownedBy": "atplus",
       "family": "xiaomi",
-      "contextLength": 1048576,
-      "maxOutput": 32768,
       "cost": {
         "input": 1,
         "output": 3
+      },
+      "limits": {
+        "length": 1048576,
+        "maxOutput": 32768
       }
     },
     "mimo-v2-pro": {
       "displayName": "Mimo V2 Pro",
-      "ownedBy": "atplus",
       "family": "xiaomi",
-      "contextLength": 1048576,
-      "maxOutput": 32768,
       "cost": {
         "input": 1,
         "output": 3
+      },
+      "limits": {
+        "length": 1048576,
+        "maxOutput": 32768
       }
     }
   },
@@ -145,7 +158,7 @@
       "displayName": "Loom",
       "icon": "🔧",
       "description": "Agente principal para atendimento geral: entende o pedido, organiza a execução e entrega soluções ponta a ponta.",
-      "model": "",
+      "model": "MiniMax-M2.7-highspeed",
       "config": {
         "mode": "all",
         "color": "#4A90D9"
@@ -190,7 +203,7 @@
       "displayName": "Planner",
       "icon": "📋",
       "description": "Planejador estratégico: transforma objetivos em planos executáveis, com etapas claras, riscos, dependências e critérios de sucesso.",
-      "model": "",
+      "model": "glm-5.1",
       "config": {
         "mode": "subagent",
         "color": "#9B59B6"
@@ -219,7 +232,7 @@
       "displayName": "Explorer",
       "icon": "🔍",
       "description": "Explorador de código e fontes externas: levanta evidências, mapeia estrutura e retorna insights acionáveis para apoiar decisões.",
-      "model": "",
+      "model": "glm-5-turbo",
       "config": {
         "mode": "subagent",
         "color": "#F39C12"
@@ -233,7 +246,7 @@
       "displayName": "Reviewer",
       "icon": "✅",
       "description": "Revisor de qualidade: verifica consistência técnica, identifica riscos e aponta melhorias antes da entrega final.",
-      "model": "",
+      "model": "glm-5.1",
       "config": {
         "mode": "subagent",
         "color": "#1ABC9C"
@@ -260,22 +273,11 @@
     }
   },
   "categories": {
-    "writer": {
-      "displayName": "Writer",
-      "icon": "✍️",
-      "description": "Categoria voltada à escrita: documentação, guias, explicações técnicas e comunicação clara para diferentes públicos.",
-      "model": "",
-      "config": {},
-      "limits": {
-        "context": 200000,
-        "output": 32768
-      }
-    },
-    "ultrabrain": {
-      "displayName": "Ultrabrain",
+    "writing": {
+      "displayName": "Writing",
       "icon": "🤖",
-      "description": "Raciocínio de alta profundidade para problemas complexos, decisões de alto impacto e análises com múltiplas variáveis.",
-      "model": "glm-5-turbo",
+      "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
+      "model": "MiniMax-M2.7-highspeed",
       "config": {},
       "limits": {
         "context": 200000,
@@ -325,78 +327,31 @@
         "context": 200000,
         "output": 32768
       }
-    },
-    "unspecified-low": {
-      "displayName": "Unspecified Low",
-      "icon": "🤖",
-      "description": "Fallback de baixo esforço para tarefas simples sem categoria específica, priorizando velocidade e custo controlado.",
-      "model": "MiniMax-M2.7-highspeed",
-      "config": {},
-      "limits": {
-        "context": 200000,
-        "output": 32768
-      }
-    },
-    "unspecified-high": {
-      "displayName": "Unspecified High",
-      "icon": "🤖",
-      "description": "Fallback de alto esforço para demandas sem categoria específica que exigem análise extensa e maior investimento de contexto.",
-      "model": "deepseek-v4-pro",
-      "config": {},
-      "limits": {
-        "context": 200000,
-        "output": 32768
-      }
-    },
-    "writing": {
-      "displayName": "Writing",
-      "icon": "🤖",
-      "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
-      "model": "MiniMax-M2.7-highspeed",
-      "config": {},
-      "limits": {
-        "context": 200000,
-        "output": 32768
-      }
-    },
-    "visual-engineering": {
-      "displayName": "Visual Engineering",
-      "icon": "🎨",
-      "description": "Categoria focada em frontend visual: UI/UX, design system, estilos, layout responsivo e animações com intenção de produto.",
-      "model": "",
-      "config": {},
-      "limits": {
-        "context": 200000,
-        "output": 32768
-      }
     }
   },
-  "routing": {
-    "version": 1,
-    "plugins": {
-      "opencode": {
-        "enabled": true,
-        "outputFile": "opencode.json",
-        "routing": {
-          "agents": {},
-          "categories": {}
-        }
-      },
-      "openagent": {
-        "enabled": false,
-        "outputFile": "oh-my-openagent.json",
-        "routing": {
-          "agents": {},
-          "categories": {}
-        }
-      },
-      "vscode": {
-        "enabled": false,
-        "outputFile": "vscode-oaicopilot.json",
-        "routing": {
-          "agents": {},
-          "categories": {}
-        }
+  "plugins": {
+    "opencode": {
+      "enabled": true,
+      "outputFile": "opencode.json",
+      "routing": {
+        "agents": {},
+        "categories": {}
+      }
+    },
+    "openagent": {
+      "enabled": false,
+      "outputFile": "oh-my-openagent.json",
+      "routing": {
+        "agents": {},
+        "categories": {}
+      }
+    },
+    "vscode": {
+      "enabled": false,
+      "outputFile": "vscode-oaicopilot.json",
+      "routing": {
+        "agents": {},
+        "categories": {}
       }
     }
   }

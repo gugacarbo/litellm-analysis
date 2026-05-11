@@ -16,11 +16,9 @@ export type { Permission } from "./permission.js";
 export { permissionSchema } from "./permission.js";
 export type {
   PluginRouting,
-  PluginRoutingConfig,
   PluginRoutingRule,
 } from "./plugin-routing.js";
 export {
-  pluginRoutingConfigSchema,
   pluginRoutingRuleSchema,
   pluginRoutingSchema,
 } from "./plugin-routing.js";

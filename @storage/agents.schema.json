@@ -31,6 +31,12 @@
             "description": "Provider display name",
             "type": "string"
           },
+          "ownedBy": {
+            "default": "",
+            "title": "Owned By",
+            "description": "Organization that owns this provider",
+            "type": "string"
+          },
           "baseUrl": {
             "default": "",
             "title": "Base URL",
@@ -46,6 +52,7 @@
         },
         "required": [
           "name",
+          "ownedBy",
           "baseUrl",
           "apiKey"
         ],
@@ -75,29 +82,39 @@
             "title": "Display Name",
             "description": "Human-readable name for the model"
           },
-          "ownedBy": {
-            "default": "",
-            "title": "Owned By",
-            "description": "Organization that owns the model",
-            "type": "string"
-          },
           "family": {
             "default": "",
             "title": "Family",
             "description": "Model family",
             "type": "string"
           },
-          "contextLength": {
-            "default": 200000,
-            "type": "number",
-            "title": "Context Length",
-            "description": "Maximum context window size in tokens"
-          },
-          "maxOutput": {
-            "default": 32768,
-            "type": "number",
-            "title": "Max Output",
-            "description": "Maximum output tokens"
+          "limits": {
+            "default": {
+              "length": 200000,
+              "maxOutput": 32768
+            },
+            "title": "Limits",
+            "description": "Model limits",
+            "type": "object",
+            "properties": {
+              "length": {
+                "default": 200000,
+                "type": "number",
+                "title": "Context Length",
+                "description": "Maximum context window size in tokens"
+              },
+              "maxOutput": {
+                "default": 32768,
+                "type": "number",
+                "title": "Max Output",
+                "description": "Maximum output tokens"
+              }
+            },
+            "required": [
+              "length",
+              "maxOutput"
+            ],
+            "additionalProperties": false
           },
           "cost": {
             "default": {},
@@ -123,8 +140,7 @@
         },
         "required": [
           "displayName",
-          "contextLength",
-          "maxOutput"
+          "limits"
         ],
         "additionalProperties": false
       }
@@ -641,105 +657,83 @@
       "description": "Default fallback model",
       "type": "string"
     },
-    "routing": {
-      "default": {
-        "version": 1,
-        "plugins": {}
-      },
-      "title": "Routing",
-      "description": "Plugin routing configuration",
+    "plugins": {
+      "default": {},
+      "title": "Plugins",
+      "description": "Plugin configurations",
       "type": "object",
-      "properties": {
-        "version": {
-          "default": 1,
-          "title": "Version",
-          "description": "Config version",
-          "type": "number"
-        },
-        "plugins": {
-          "default": {},
-          "title": "Plugins",
-          "description": "Plugin configurations",
-          "type": "object",
-          "propertyNames": {
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "description": "Whether plugin routing is enabled",
+            "type": "boolean"
+          },
+          "outputFile": {
+            "default": "",
+            "title": "Output File",
+            "description": "Output file path",
             "type": "string"
           },
-          "additionalProperties": {
+          "config": {
+            "default": {},
+            "title": "Config",
+            "description": "Plugin configuration",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "routing": {
+            "default": {
+              "agents": {},
+              "categories": {}
+            },
             "type": "object",
             "properties": {
-              "enabled": {
-                "default": false,
-                "title": "Enabled",
-                "description": "Whether plugin routing is enabled",
-                "type": "boolean"
-              },
-              "outputFile": {
-                "default": "",
-                "title": "Output File",
-                "description": "Output file path",
-                "type": "string"
-              },
-              "config": {
+              "agents": {
                 "default": {},
-                "title": "Config",
-                "description": "Plugin configuration",
+                "title": "Agents Routing",
+                "description": "System agent id to plugin agent id mapping",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
                 },
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "type": "string"
+                }
               },
-              "routing": {
-                "default": {
-                  "agents": {},
-                  "categories": {}
-                },
+              "categories": {
+                "default": {},
+                "title": "Categories Routing",
+                "description": "Category routing enablement by category id",
                 "type": "object",
-                "properties": {
-                  "agents": {
-                    "default": {},
-                    "title": "Agents Routing",
-                    "description": "System agent id to plugin agent id mapping",
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string"
-                    },
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  },
-                  "categories": {
-                    "default": {},
-                    "title": "Categories Routing",
-                    "description": "Category routing enablement by category id",
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string"
-                    },
-                    "additionalProperties": {
-                      "type": "boolean"
-                    }
-                  }
+                "propertyNames": {
+                  "type": "string"
                 },
-                "additionalProperties": false,
-                "title": "Routing",
-                "description": "Routing mappings for agents and categories"
+                "additionalProperties": {
+                  "type": "boolean"
+                }
               }
             },
-            "required": [
-              "enabled",
-              "outputFile",
-              "routing"
-            ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "title": "Routing",
+            "description": "Routing mappings for agents and categories"
           }
-        }
-      },
-      "required": [
-        "version",
-        "plugins"
-      ],
-      "additionalProperties": false
+        },
+        "required": [
+          "enabled",
+          "outputFile",
+          "routing"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
