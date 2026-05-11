@@ -54,16 +54,13 @@
       }
     }
   },
-  "routing": {
-    "version": 1,
-    "plugins": {
-      "opencode": {
-        "enabled": true,
-        "outputFile": "opencode.json",
-        "routing": {
-          "agents": {},
-          "categories": {}
-        }
+  "plugins": {
+    "opencode": {
+      "enabled": true,
+      "outputFile": "opencode.json",
+      "routing": {
+        "agents": {},
+        "categories": {}
       }
     }
   }
