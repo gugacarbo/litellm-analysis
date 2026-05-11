@@ -7,8 +7,8 @@ import {
   type ModelConfig,
   updateModel,
 } from "../../lib/api-client";
-import { queryKeys } from "../../lib/query-keys";
 import { getModelsHealth } from "../../lib/api-client/monitor";
+import { queryKeys } from "../../lib/query-keys";
 import { validateAndBuildModelParams } from "./models-form-utils";
 import { useModelsFormState } from "./use-models-form-state";
 
@@ -127,7 +127,10 @@ export function useModelsPage() {
     }
   }
 
-  console.log("[DEBUG] modelsHealth from hook:", modelsHealthQuery.data?.models);
+  console.log(
+    "[DEBUG] modelsHealth from hook:",
+    modelsHealthQuery.data?.models,
+  );
 
   return {
     addExtraParam,
