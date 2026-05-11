@@ -7,12 +7,10 @@ export const pluginRoutingRuleSchema = z.object({
 });
 
 export const pluginRoutingSchema = z.object({
-  enabled: z
-    .boolean()
-    .meta({
-      title: "Enabled",
-      description: "Whether plugin routing is enabled",
-    }),
+  enabled: z.boolean().meta({
+    title: "Enabled",
+    description: "Whether plugin routing is enabled",
+  }),
   outputFile: z
     .string()
     .meta({ title: "Output File", description: "Output file path" }),

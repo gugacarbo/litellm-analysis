@@ -161,10 +161,7 @@
       "icon": "🧶",
       "description": "Orquestrador focado em planos com múltiplas etapas: conduz execução sequencial com checklist e controle de progresso.",
       "model": "atlas/gpt-5.5",
-      "fallbackModels": [
-        "atlas/gpt-5.4",
-        "atlas/gpt-5.3"
-      ],
+      "fallbackModels": ["atlas/gpt-5.4", "atlas/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.2,
@@ -180,10 +177,7 @@
       "icon": "🚀",
       "description": "Especialista técnico para tarefas delegadas: implementa, investiga e resolve demandas complexas com alta autonomia e uso intensivo de ferramentas.",
       "model": "build/gpt-5.5",
-      "fallbackModels": [
-        "build/gpt-5.4",
-        "build/gpt-5.3"
-      ],
+      "fallbackModels": ["build/gpt-5.4", "build/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "category": "deep",
@@ -215,10 +209,7 @@
       "icon": "🧵",
       "model": "explore/gpt-5.5",
       "description": "Agente de contexto rápido: faz leitura exploratória da base, consolida informações e reduz incerteza antes da implementação.",
-      "fallbackModels": [
-        "explore/gpt-5.4",
-        "explore/gpt-5.3"
-      ],
+      "fallbackModels": ["explore/gpt-5.4", "explore/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.1,
@@ -264,10 +255,7 @@
       "icon": "🛡️",
       "model": "prometheus/gpt-5.5",
       "description": "Auditor de segurança: analisa vulnerabilidades, superfícies de ataque e práticas inseguras em código, configuração e fluxo operacional.",
-      "fallbackModels": [
-        "prometheus/gpt-5.4",
-        "prometheus/gpt-5.3"
-      ],
+      "fallbackModels": ["prometheus/gpt-5.4", "prometheus/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.1,
@@ -447,17 +435,17 @@
       "opencode": {
         "enabled": true,
         "outputFile": "opencode.json",
-        "routing": {"agents": {}, "categories": {}}
+        "routing": { "agents": {}, "categories": {} }
       },
       "openagent": {
         "enabled": false,
         "outputFile": "oh-my-openagent.json",
-        "routing": {"agents": {}, "categories": {}}
+        "routing": { "agents": {}, "categories": {} }
       },
       "vscode": {
         "enabled": false,
         "outputFile": "vscode-oaicopilot.json",
-        "routing": {"agents": {}, "categories": {}}
+        "routing": { "agents": {}, "categories": {} }
       }
     }
   }

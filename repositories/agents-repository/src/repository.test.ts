@@ -68,7 +68,13 @@ describe("AgentsRepository", () => {
     const storage = new MemoryStorage({
       [filePath]: JSON.stringify({
         version: 2,
-        provider: { litellm: { name: "LiteLLM", baseUrl: "http://localhost:4000", apiKey: "sk-test" } },
+        provider: {
+          litellm: {
+            name: "LiteLLM",
+            baseUrl: "http://localhost:4000",
+            apiKey: "sk-test",
+          },
+        },
         models: {},
         categories: {},
         agents: {
@@ -99,9 +105,25 @@ describe("AgentsRepository", () => {
 
     const config = {
       version: 2,
-      provider: { litellm: { name: "LiteLLM", baseUrl: "http://localhost:4000", apiKey: "sk-test" } },
-      models: {} as Record<string, { displayName: string; contextLength: number; maxOutput: number }>,
-      categories: {} as Record<string, { model: string; modelIdStrategy: "model-name" | "prefix-version"; limits: { context: number; output: number } }>,
+      provider: {
+        litellm: {
+          name: "LiteLLM",
+          baseUrl: "http://localhost:4000",
+          apiKey: "sk-test",
+        },
+      },
+      models: {} as Record<
+        string,
+        { displayName: string; contextLength: number; maxOutput: number }
+      >,
+      categories: {} as Record<
+        string,
+        {
+          model: string;
+          modelIdStrategy: "model-name" | "prefix-version";
+          limits: { context: number; output: number };
+        }
+      >,
       agents: {
         loom: {
           displayName: "Loom",

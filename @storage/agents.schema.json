@@ -36,11 +36,7 @@
             "description": "Provider API key"
           }
         },
-        "required": [
-          "name",
-          "baseUrl",
-          "apiKey"
-        ],
+        "required": ["name", "baseUrl", "apiKey"],
         "additionalProperties": false
       },
       "title": "Providers",
@@ -98,11 +94,7 @@
             "description": "Model pricing per million tokens"
           }
         },
-        "required": [
-          "displayName",
-          "contextLength",
-          "maxOutput"
-        ],
+        "required": ["displayName", "contextLength", "maxOutput"],
         "additionalProperties": false
       },
       "title": "Models",
@@ -145,10 +137,7 @@
                 "description": "Maximum output tokens"
               }
             },
-            "required": [
-              "context",
-              "output"
-            ],
+            "required": ["context", "output"],
             "additionalProperties": false,
             "title": "Limits",
             "description": "Model limits"
@@ -189,11 +178,7 @@
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": [
-                  "subagent",
-                  "primary",
-                  "all"
-                ],
+                "enum": ["subagent", "primary", "all"],
                 "title": "Mode",
                 "description": "Agent operating mode"
               },
@@ -322,10 +307,7 @@
                 "description": "Maximum output tokens"
               }
             },
-            "required": [
-              "context",
-              "output"
-            ],
+            "required": ["context", "output"],
             "additionalProperties": false,
             "title": "Limits",
             "description": "Model limits"
@@ -386,10 +368,7 @@
             "properties": {
               "type": {
                 "type": "string",
-                "enum": [
-                  "enabled",
-                  "disabled"
-                ],
+                "enum": ["enabled", "disabled"],
                 "title": "Type",
                 "description": "Thinking mode type"
               },
@@ -399,31 +378,20 @@
                 "description": "Token budget for thinking"
               }
             },
-            "required": [
-              "type"
-            ],
+            "required": ["type"],
             "additionalProperties": false,
             "title": "Thinking",
             "description": "Thinking configuration"
           },
           "reasoningEffort": {
             "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh"
-            ],
+            "enum": ["low", "medium", "high", "xhigh"],
             "title": "Reasoning Effort",
             "description": "Reasoning budget level"
           },
           "textVerbosity": {
             "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ],
+            "enum": ["low", "medium", "high"],
             "title": "Text Verbosity",
             "description": "Response verbosity level"
           },
@@ -455,11 +423,7 @@
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": [
-                  "subagent",
-                  "primary",
-                  "all"
-                ],
+                "enum": ["subagent", "primary", "all"],
                 "title": "Mode",
                 "description": "Agent operating mode"
               },
@@ -535,10 +499,7 @@
             "additionalProperties": false
           }
         },
-        "required": [
-          "model",
-          "limits"
-        ],
+        "required": ["model", "limits"],
         "additionalProperties": false
       },
       "title": "Categories",
@@ -615,31 +576,19 @@
                 "description": "Routing mappings for agents and categories"
               }
             },
-            "required": [
-              "enabled",
-              "outputFile"
-            ],
+            "required": ["enabled", "outputFile"],
             "additionalProperties": false
           },
           "title": "Plugins",
           "description": "Plugin configurations"
         }
       },
-      "required": [
-        "version",
-        "plugins"
-      ],
+      "required": ["version", "plugins"],
       "additionalProperties": false,
       "title": "Routing",
       "description": "Plugin routing configuration"
     }
   },
-  "required": [
-    "version",
-    "provider",
-    "models",
-    "agents",
-    "categories"
-  ],
+  "required": ["version", "provider", "models", "agents", "categories"],
   "additionalProperties": false
 }

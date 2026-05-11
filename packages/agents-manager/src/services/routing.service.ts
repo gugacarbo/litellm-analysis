@@ -209,8 +209,10 @@ export class RoutingService implements IRoutingService {
     pluginId: string,
   ): Promise<Record<string, boolean>> {
     const config = await this.getConfig();
-    return (config.plugins[pluginId]?.routing?.categories ??
-      {}) as Record<string, boolean>;
+    return (config.plugins[pluginId]?.routing?.categories ?? {}) as Record<
+      string,
+      boolean
+    >;
   }
 
   async saveCategoryMappings(

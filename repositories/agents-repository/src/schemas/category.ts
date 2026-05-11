@@ -17,12 +17,10 @@ export const categoryEntrySchema = z.object({
     .meta({ title: "Model", description: "Default model for category" }),
   limits: z
     .object({
-      context: z
-        .number()
-        .meta({
-          title: "Context Limit",
-          description: "Context window size in tokens",
-        }),
+      context: z.number().meta({
+        title: "Context Limit",
+        description: "Context window size in tokens",
+      }),
       output: z
         .number()
         .meta({ title: "Output Limit", description: "Maximum output tokens" }),
