@@ -11,11 +11,7 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
