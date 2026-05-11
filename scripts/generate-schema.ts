@@ -16,12 +16,15 @@ import {
   thinkingSchema,
 } from "../repositories/agents-repository/src/schema.ts";
 
-function extractDefinition(schema: any, name: string): any {
+function extractDefinition(
+  schema: Record<string, unknown>,
+  _name: string,
+): Record<string, unknown> {
   if (schema.$ref) {
     // Extract from definitions
     const refName = schema.$ref.split("/").pop();
-    if (schema.definitions && schema.definitions[refName]) {
-      return schema.definitions[refName];
+    if (schema.definitions && refName && refName in schema.definitions) {
+      return schema.definitions[refName] as Record<string, unknown>;
     }
   }
   return schema;

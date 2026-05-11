@@ -4,11 +4,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "declarationMap": true,
     "skipLibCheck": true,
+    "noEmit": true,
     "types": ["node", "vite/client"],
     "customConditions": ["development"]
   },

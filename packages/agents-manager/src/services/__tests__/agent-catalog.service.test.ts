@@ -16,9 +16,11 @@ function createMockRepo(
   const data = { ...store, ...overrides };
   return {
     read: async () => data,
-    write: async (config: Record<string, unknown>) => Object.assign(data, config),
+    write: async (config: Record<string, unknown>) =>
+      Object.assign(data, config),
     readSync: () => data,
-    validate: ((_config: unknown): _config is never => true) as IAgentsRepository["validate"],
+    validate: ((_config: unknown): _config is never =>
+      true) as IAgentsRepository["validate"],
     exists: async () => true,
     getPath: () => "/tmp/test.json",
   } as unknown as IAgentsRepository;

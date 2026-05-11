@@ -3,6 +3,6 @@
  * DO NOT EDIT MANUALLY
  */
 
-export { openCodeSchema, type OpenCode } from "./opencode.zod.js";
-export { openAgentSchema, type OpenAgent } from "./openagent.zod.js";
-export { vsCodeSchema, type VsCode } from "./vscode.zod.js";
+export { type OpenAgent, openAgentSchema } from "./openagent.zod.js";
+export { type OpenCode, openCodeSchema } from "./opencode.zod.js";
+export { type VsCode, vsCodeSchema } from "./vscode.zod.js";

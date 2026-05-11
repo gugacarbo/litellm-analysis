@@ -10,7 +10,8 @@ if (jsonSchema.$schema) {
   jsonSchema.$schema = "http://json-schema.org/draft-07/schema#";
 }
 
-const output = JSON.stringify(jsonSchema, null, 2) + "\n";
+const output = `${JSON.stringify(jsonSchema, null, 2)}
+`;
 
 // Write to @storage (for AJV validation)
 const storagePath = resolve(

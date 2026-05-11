@@ -165,7 +165,11 @@ describe("OpenAgentPlugin", () => {
           description: "Build stuff",
           model: "gpt-4",
           fallbackModels: ["gpt-3.5"],
-          config: { mode: "all", tools: { read: true, write: true }, color: "blue" },
+          config: {
+            mode: "all",
+            tools: { read: true, write: true },
+            color: "blue",
+          },
         }),
       ];
       const routing: PluginRoutingConfig = {

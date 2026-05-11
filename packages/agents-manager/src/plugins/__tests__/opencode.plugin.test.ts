@@ -103,9 +103,9 @@ describe("OpenCodePlugin", () => {
         },
       );
       expect(output).toHaveProperty("provider");
-      expect((output as unknown as Record<string, unknown>).provider).toHaveProperty(
-        "litellm",
-      );
+      expect(
+        (output as unknown as Record<string, unknown>).provider,
+      ).toHaveProperty("litellm");
     });
 
     it("inclui modelos litellm com limites corretos", () => {

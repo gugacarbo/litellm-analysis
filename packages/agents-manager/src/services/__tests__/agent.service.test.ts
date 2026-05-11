@@ -16,9 +16,11 @@ function createMockRepo(
   const data = { ...store, ...overrides };
   return {
     read: async () => data,
-    write: async (config: Record<string, unknown>) => Object.assign(data, config),
+    write: async (config: Record<string, unknown>) =>
+      Object.assign(data, config),
     readSync: () => data,
-    validate: ((_config: unknown): _config is never => true) as IAgentsRepository["validate"],
+    validate: ((_config: unknown): _config is never =>
+      true) as IAgentsRepository["validate"],
     exists: async () => true,
     getPath: () => "/tmp/test.json",
   } as unknown as IAgentsRepository;
@@ -26,6 +28,7 @@ function createMockRepo(
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
+    id: "test-agent",
     displayName: "Test Agent",
     icon: "🤖",
     description: "Test description",
@@ -98,7 +101,9 @@ describe("AgentService", () => {
   describe("update", () => {
     it("atualiza agente existente com merge parcial", async () => {
       const repo = createMockRepo({
-        agents: { coder: makeSystemAgent({ model: "gpt-4", description: "Code agent" }) },
+        agents: {
+          coder: makeSystemAgent({ model: "gpt-4", description: "Code agent" }),
+        },
       });
       const service = new AgentService({ repository: repo });
       await service.update("coder", { model: "gpt-3.5" });

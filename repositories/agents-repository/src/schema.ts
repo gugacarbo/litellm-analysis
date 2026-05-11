@@ -115,7 +115,7 @@ export const agentExtraConfigSchema = z.object({
 });
 
 export const systemAgentSchema = z.object({
-  id: z.string().optional(),
+  id: z.string(),
   displayName: z.string(),
   icon: z.string(),
   description: z.string(),

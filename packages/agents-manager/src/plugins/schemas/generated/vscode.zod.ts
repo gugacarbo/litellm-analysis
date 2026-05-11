@@ -8,128 +8,119 @@ import { z } from "zod";
 
 // Re-export the schema directly from JSON using z.fromJSONSchema
 export const vsCodeSchema = z.fromJSONSchema({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/schemas/vscode.schema.json",
-  "title": "VS Code OAICopilot Configuration",
-  "description": "JSON Schema for VS Code OAICopilot configuration",
-  "type": "object",
-  "required": [
+  $schema: "http://json-schema.org/draft-07/schema#",
+  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/schemas/vscode.schema.json",
+  title: "VS Code OAICopilot Configuration",
+  description: "JSON Schema for VS Code OAICopilot configuration",
+  type: "object",
+  required: [
     "oaicopilot.commitLanguage",
     "oaicopilot.baseUrl",
     "oaicopilot.delay",
     "oaicopilot.readFileLines",
     "oaicopilot.retry",
-    "oaicopilot.models"
+    "oaicopilot.models",
   ],
-  "properties": {
+  properties: {
     "oaicopilot.commitLanguage": {
-      "type": "string",
-      "description": "Language for commit messages"
+      type: "string",
+      description: "Language for commit messages",
     },
     "oaicopilot.baseUrl": {
-      "type": "string",
-      "description": "Base URL for the API"
+      type: "string",
+      description: "Base URL for the API",
     },
     "oaicopilot.delay": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Delay in milliseconds between requests"
+      type: "integer",
+      minimum: 0,
+      description: "Delay in milliseconds between requests",
     },
     "oaicopilot.readFileLines": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Number of lines to read from files"
+      type: "integer",
+      minimum: 0,
+      description: "Number of lines to read from files",
     },
     "oaicopilot.retry": {
-      "$ref": "#/definitions/RetryConfig"
+      $ref: "#/definitions/RetryConfig",
     },
     "oaicopilot.models": {
-      "type": "array",
-      "description": "List of available models",
-      "items": {
-        "$ref": "#/definitions/ModelDefinition"
-      }
-    }
-  },
-  "definitions": {
-    "RetryConfig": {
-      "type": "object",
-      "required": [
-        "enabled",
-        "max_attempts",
-        "interval_ms",
-        "status_codes"
-      ],
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Whether retry is enabled"
-        },
-        "max_attempts": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Maximum number of retry attempts"
-        },
-        "interval_ms": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Interval between retries in milliseconds"
-        },
-        "status_codes": {
-          "type": "array",
-          "items": {
-            "type": "integer"
-          },
-          "description": "HTTP status codes that trigger retry"
-        }
-      }
+      type: "array",
+      description: "List of available models",
+      items: {
+        $ref: "#/definitions/ModelDefinition",
+      },
     },
-    "ModelDefinition": {
-      "type": "object",
-      "required": [
-        "name",
-        "id",
-        "baseUrl"
-      ],
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Display name of the model"
+  },
+  definitions: {
+    RetryConfig: {
+      type: "object",
+      required: ["enabled", "max_attempts", "interval_ms", "status_codes"],
+      properties: {
+        enabled: {
+          type: "boolean",
+          description: "Whether retry is enabled",
         },
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the model"
+        max_attempts: {
+          type: "integer",
+          minimum: 1,
+          description: "Maximum number of retry attempts",
         },
-        "baseUrl": {
-          "type": "string",
-          "description": "Base URL for the model API"
+        interval_ms: {
+          type: "integer",
+          minimum: 0,
+          description: "Interval between retries in milliseconds",
+        },
+        status_codes: {
+          type: "array",
+          items: {
+            type: "integer",
+          },
+          description: "HTTP status codes that trigger retry",
+        },
+      },
+    },
+    ModelDefinition: {
+      type: "object",
+      required: ["name", "id", "baseUrl"],
+      properties: {
+        name: {
+          type: "string",
+          description: "Display name of the model",
+        },
+        id: {
+          type: "string",
+          description: "Unique identifier for the model",
+        },
+        baseUrl: {
+          type: "string",
+          description: "Base URL for the model API",
         },
         "request-options": {
-          "type": "object",
-          "description": "Request options for the model",
-          "properties": {
-            "headers": {
-              "type": "object",
-              "description": "Additional headers to include in requests",
-              "additionalProperties": {
-                "type": "string"
-              }
-            }
-          }
+          type: "object",
+          description: "Request options for the model",
+          properties: {
+            headers: {
+              type: "object",
+              description: "Additional headers to include in requests",
+              additionalProperties: {
+                type: "string",
+              },
+            },
+          },
         },
         "model-settings": {
-          "type": "object",
-          "description": "Model-specific settings",
-          "properties": {
+          type: "object",
+          description: "Model-specific settings",
+          properties: {
             "max-tokens": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "Maximum tokens in response"
-            }
-          }
-        }
-      }
-    }
-  }
+              type: "integer",
+              minimum: 1,
+              description: "Maximum tokens in response",
+            },
+          },
+        },
+      },
+    },
+  },
 } as const);
 export type VsCode = z.infer<typeof vsCodeSchema>;
