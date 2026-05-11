@@ -146,7 +146,6 @@
       "icon": "🔧",
       "description": "Agente principal para atendimento geral: entende o pedido, organiza a execução e entrega soluções ponta a ponta.",
       "model": "",
-      "fallbackModels": [],
       "config": {
         "mode": "all",
         "color": "#4A90D9"
@@ -160,8 +159,7 @@
       "displayName": "Tapestry",
       "icon": "🧶",
       "description": "Orquestrador focado em planos com múltiplas etapas: conduz execução sequencial com checklist e controle de progresso.",
-      "model": "atlas/gpt-5.5",
-      "fallbackModels": ["atlas/gpt-5.4", "atlas/gpt-5.3"],
+      "model": "glm-5.1",
       "config": {
         "mode": "subagent",
         "temperature": 0.2,
@@ -176,8 +174,7 @@
       "displayName": "Shuttle",
       "icon": "🚀",
       "description": "Especialista técnico para tarefas delegadas: implementa, investiga e resolve demandas complexas com alta autonomia e uso intensivo de ferramentas.",
-      "model": "build/gpt-5.5",
-      "fallbackModels": ["build/gpt-5.4", "build/gpt-5.3"],
+      "model": "deepseek-v4-pro",
       "config": {
         "mode": "subagent",
         "category": "deep",
@@ -194,7 +191,6 @@
       "icon": "📋",
       "description": "Planejador estratégico: transforma objetivos em planos executáveis, com etapas claras, riscos, dependências e critérios de sucesso.",
       "model": "",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "color": "#9B59B6"
@@ -207,9 +203,8 @@
     "thread": {
       "displayName": "Thread (Genérico de Contexto)",
       "icon": "🧵",
-      "model": "explore/gpt-5.5",
+      "model": "qwen3.5-plus",
       "description": "Agente de contexto rápido: faz leitura exploratória da base, consolida informações e reduz incerteza antes da implementação.",
-      "fallbackModels": ["explore/gpt-5.4", "explore/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.1,
@@ -225,7 +220,6 @@
       "icon": "🔍",
       "description": "Explorador de código e fontes externas: levanta evidências, mapeia estrutura e retorna insights acionáveis para apoiar decisões.",
       "model": "",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "color": "#F39C12"
@@ -240,7 +234,6 @@
       "icon": "✅",
       "description": "Revisor de qualidade: verifica consistência técnica, identifica riscos e aponta melhorias antes da entrega final.",
       "model": "",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "color": "#1ABC9C"
@@ -253,9 +246,8 @@
     "warp": {
       "displayName": "Warp (Auditor de Segurança)",
       "icon": "🛡️",
-      "model": "prometheus/gpt-5.5",
+      "model": "deepseek-v4-pro",
       "description": "Auditor de segurança: analisa vulnerabilidades, superfícies de ataque e práticas inseguras em código, configuração e fluxo operacional.",
-      "fallbackModels": ["prometheus/gpt-5.4", "prometheus/gpt-5.3"],
       "config": {
         "mode": "subagent",
         "temperature": 0.1,
@@ -273,7 +265,6 @@
       "icon": "✍️",
       "description": "Categoria voltada à escrita: documentação, guias, explicações técnicas e comunicação clara para diferentes públicos.",
       "model": "",
-      "fallbackModels": [],
       "config": {},
       "limits": {
         "context": 200000,
@@ -285,12 +276,6 @@
       "icon": "🤖",
       "description": "Raciocínio de alta profundidade para problemas complexos, decisões de alto impacto e análises com múltiplas variáveis.",
       "model": "glm-5-turbo",
-      "fallbackModels": [
-        "glm-5.1",
-        "qwen3.5-plus",
-        "kimi-k2.6",
-        "MiniMax-M2.7-highspeed"
-      ],
       "config": {},
       "limits": {
         "context": 200000,
@@ -302,12 +287,6 @@
       "icon": "🤖",
       "description": "Execução autônoma orientada a objetivos, ideal para tarefas de médio e grande porte com necessidade de continuidade e ownership.",
       "model": "deepseek-v4-pro",
-      "fallbackModels": [
-        "qwen3.5-plus",
-        "qwen3-coder-plus",
-        "mimo-v2.5-pro",
-        "MiniMax-M2.7-highspeed"
-      ],
       "config": {},
       "limits": {
         "context": 200000,
@@ -319,12 +298,6 @@
       "icon": "🤖",
       "description": "Engenharia de software geral: implementação, refatoração, debugging, testes e manutenção de código em produção.",
       "model": "glm-5-turbo",
-      "fallbackModels": [
-        "deepseek-v4-pro",
-        "deepseek-v4-flash",
-        "glm-5.1",
-        "MiniMax-M2.7-highspeed"
-      ],
       "config": {},
       "limits": {
         "context": 200000,
@@ -336,12 +309,6 @@
       "icon": "🤖",
       "description": "Categoria criativa para soluções fora do padrão: explora alternativas, protótipos e abordagens não convencionais com critério técnico.",
       "model": "kimi-k2.6",
-      "fallbackModels": [
-        "deepseek-v4-pro",
-        "kimi-k2.6",
-        "qwen3.5-plus",
-        "MiniMax-M2.7-highspeed"
-      ],
       "config": {},
       "limits": {
         "context": 200000,
@@ -353,12 +320,6 @@
       "icon": "🤖",
       "description": "Categoria de resposta rápida para ajustes pontuais: mudanças pequenas, baixo risco e escopo limitado.",
       "model": "deepseek-v4-flash",
-      "fallbackModels": [
-        "MiniMax-M2.7-highspeed",
-        "qwen3.5-plus",
-        "deepseek-v4-pro",
-        "MiniMax-M2.7-highspeed"
-      ],
       "config": {},
       "limits": {
         "context": 200000,
@@ -370,12 +331,6 @@
       "icon": "🤖",
       "description": "Fallback de baixo esforço para tarefas simples sem categoria específica, priorizando velocidade e custo controlado.",
       "model": "MiniMax-M2.7-highspeed",
-      "fallbackModels": [
-        "MiniMax-M2.7-highspeed",
-        "qwen3.5-plus",
-        "mimo-v2.5-pro",
-        "MiniMax-M2.7-highspeed"
-      ],
       "config": {},
       "limits": {
         "context": 200000,
@@ -387,12 +342,6 @@
       "icon": "🤖",
       "description": "Fallback de alto esforço para demandas sem categoria específica que exigem análise extensa e maior investimento de contexto.",
       "model": "deepseek-v4-pro",
-      "fallbackModels": [
-        "deepseek-v4-pro",
-        "glm-5.1",
-        "mimo-v2.5-pro",
-        "MiniMax-M2.7-highspeed"
-      ],
       "config": {},
       "limits": {
         "context": 200000,
@@ -404,12 +353,6 @@
       "icon": "🤖",
       "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
       "model": "MiniMax-M2.7-highspeed",
-      "fallbackModels": [
-        "qwen3.5-plus",
-        "deepseek-v4-flash",
-        "kimi-k2.6",
-        "MiniMax-M2.7-highspeed"
-      ],
       "config": {},
       "limits": {
         "context": 200000,
@@ -421,7 +364,6 @@
       "icon": "🎨",
       "description": "Categoria focada em frontend visual: UI/UX, design system, estilos, layout responsivo e animações com intenção de produto.",
       "model": "",
-      "fallbackModels": [],
       "config": {},
       "limits": {
         "context": 200000,
@@ -435,17 +377,26 @@
       "opencode": {
         "enabled": true,
         "outputFile": "opencode.json",
-        "routing": { "agents": {}, "categories": {} }
+        "routing": {
+          "agents": {},
+          "categories": {}
+        }
       },
       "openagent": {
         "enabled": false,
         "outputFile": "oh-my-openagent.json",
-        "routing": { "agents": {}, "categories": {} }
+        "routing": {
+          "agents": {},
+          "categories": {}
+        }
       },
       "vscode": {
         "enabled": false,
         "outputFile": "vscode-oaicopilot.json",
-        "routing": { "agents": {}, "categories": {} }
+        "routing": {
+          "agents": {},
+          "categories": {}
+        }
       }
     }
   }

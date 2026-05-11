@@ -18,7 +18,8 @@
       "cost": {
         "input": 1,
         "output": 2
-      }
+      },
+      "enabled": true
     }
   },
   "agents": {
@@ -27,7 +28,6 @@
       "icon": "🤖",
       "description": "Description of the agent's purpose and capabilities.",
       "model": "",
-      "fallbackModels": [],
       "config": {
         "mode": "all",
         "color": "#4A90D9"
@@ -44,7 +44,6 @@
       "icon": "📂",
       "description": "Description of the category.",
       "model": "",
-      "fallbackModels": [],
       "config": {},
       "limits": {
         "context": 200000,

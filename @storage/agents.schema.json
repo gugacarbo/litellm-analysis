@@ -3,16 +3,21 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string",
+      "default": "./agents.schema.json",
       "title": "Schema",
-      "description": "JSON Schema reference"
+      "description": "JSON Schema reference",
+      "type": "string"
     },
     "version": {
-      "type": "number",
+      "default": 1,
       "title": "Version",
-      "description": "Config version"
+      "description": "Config version",
+      "type": "number"
     },
     "provider": {
+      "default": {},
+      "title": "Providers",
+      "description": "Providers keyed by provider id",
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -21,28 +26,36 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
+            "default": "",
             "title": "Name",
-            "description": "Provider display name"
+            "description": "Provider display name",
+            "type": "string"
           },
           "baseUrl": {
-            "type": "string",
+            "default": "",
             "title": "Base URL",
-            "description": "Provider API base URL"
+            "description": "Provider API base URL",
+            "type": "string"
           },
           "apiKey": {
-            "type": "string",
+            "default": "",
             "title": "API Key",
-            "description": "Provider API key"
+            "description": "Provider API key",
+            "type": "string"
           }
         },
-        "required": ["name", "baseUrl", "apiKey"],
+        "required": [
+          "name",
+          "baseUrl",
+          "apiKey"
+        ],
         "additionalProperties": false
-      },
-      "title": "Providers",
-      "description": "Providers keyed by provider id"
+      }
     },
     "models": {
+      "default": {},
+      "title": "Models",
+      "description": "Model specifications",
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -50,57 +63,76 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "description": "Whether this model is enabled for routing and selection",
+            "type": "boolean"
+          },
           "displayName": {
+            "default": "",
             "type": "string",
             "title": "Display Name",
             "description": "Human-readable name for the model"
           },
           "ownedBy": {
-            "type": "string",
+            "default": "",
             "title": "Owned By",
-            "description": "Organization that owns the model"
+            "description": "Organization that owns the model",
+            "type": "string"
           },
           "family": {
-            "type": "string",
+            "default": "",
             "title": "Family",
-            "description": "Model family"
+            "description": "Model family",
+            "type": "string"
           },
           "contextLength": {
+            "default": 200000,
             "type": "number",
             "title": "Context Length",
             "description": "Maximum context window size in tokens"
           },
           "maxOutput": {
+            "default": 32768,
             "type": "number",
             "title": "Max Output",
             "description": "Maximum output tokens"
           },
           "cost": {
+            "default": {},
+            "title": "Cost",
+            "description": "Model pricing per million tokens",
             "type": "object",
             "properties": {
               "input": {
-                "type": "number",
+                "default": 0,
                 "title": "Input Cost",
-                "description": "Cost per million input tokens"
+                "description": "Cost per million input tokens",
+                "type": "number"
               },
               "output": {
-                "type": "number",
+                "default": 0,
                 "title": "Output Cost",
-                "description": "Cost per million output tokens"
+                "description": "Cost per million output tokens",
+                "type": "number"
               }
             },
-            "additionalProperties": false,
-            "title": "Cost",
-            "description": "Model pricing per million tokens"
+            "additionalProperties": false
           }
         },
-        "required": ["displayName", "contextLength", "maxOutput"],
+        "required": [
+          "displayName",
+          "contextLength",
+          "maxOutput"
+        ],
         "additionalProperties": false
-      },
-      "title": "Models",
-      "description": "Model specifications"
+      }
     },
     "agents": {
+      "default": {},
+      "title": "Agents",
+      "description": "System agents",
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -109,151 +141,185 @@
         "type": "object",
         "properties": {
           "displayName": {
-            "type": "string",
+            "default": "",
             "title": "Display Name",
-            "description": "Agent display name"
+            "description": "Agent display name",
+            "type": "string"
           },
           "icon": {
-            "type": "string",
+            "default": "🤖",
             "title": "Icon",
-            "description": "Icon identifier"
+            "description": "Icon identifier",
+            "type": "string"
           },
           "description": {
-            "type": "string",
+            "default": "",
             "title": "Description",
-            "description": "Agent description"
+            "description": "Agent description",
+            "type": "string"
           },
           "limits": {
+            "default": {
+              "context": 200000,
+              "output": 32768
+            },
+            "title": "Limits",
+            "description": "Model limits",
             "type": "object",
             "properties": {
               "context": {
-                "type": "number",
+                "default": 200000,
                 "title": "Context Limit",
-                "description": "Context window size"
+                "description": "Context window size",
+                "type": "number"
               },
               "output": {
-                "type": "number",
+                "default": 32768,
                 "title": "Output Limit",
-                "description": "Maximum output tokens"
+                "description": "Maximum output tokens",
+                "type": "number"
               }
             },
-            "required": ["context", "output"],
-            "additionalProperties": false,
-            "title": "Limits",
-            "description": "Model limits"
+            "required": [
+              "context",
+              "output"
+            ],
+            "additionalProperties": false
           },
           "cost": {
+            "default": {},
+            "title": "Cost",
+            "description": "Agent pricing",
             "type": "object",
             "properties": {
               "input": {
-                "type": "number",
+                "default": 0,
                 "title": "Input Cost",
-                "description": "Cost per million input tokens"
+                "description": "Cost per million input tokens",
+                "type": "number"
               },
               "output": {
-                "type": "number",
+                "default": 0,
                 "title": "Output Cost",
-                "description": "Cost per million output tokens"
+                "description": "Cost per million output tokens",
+                "type": "number"
               }
             },
-            "additionalProperties": false,
-            "title": "Cost",
-            "description": "Agent pricing"
+            "additionalProperties": false
           },
           "model": {
-            "type": "string",
+            "default": "",
             "title": "Model",
-            "description": "Model identifier"
+            "description": "Model identifier",
+            "type": "string"
           },
           "fallbackModels": {
+            "default": [],
+            "title": "Fallback Models",
+            "description": "Fallback models",
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "title": "Fallback Models",
-            "description": "Fallback models"
+            }
           },
           "config": {
+            "default": {},
+            "title": "Config",
+            "description": "Extra agent configuration",
             "type": "object",
             "properties": {
               "mode": {
-                "type": "string",
-                "enum": ["subagent", "primary", "all"],
+                "default": "all",
                 "title": "Mode",
-                "description": "Agent operating mode"
+                "description": "Agent operating mode",
+                "type": "string",
+                "enum": [
+                  "subagent",
+                  "primary",
+                  "all"
+                ]
               },
               "tools": {
+                "default": {},
+                "title": "Tools",
+                "description": "Tool enable/disable map",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
                 },
                 "additionalProperties": {
                   "type": "boolean"
-                },
-                "title": "Tools",
-                "description": "Tool enable/disable map"
+                }
               },
               "permissions": {
+                "default": {},
+                "title": "Permissions",
+                "description": "Permission overrides",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
                 },
-                "additionalProperties": {},
-                "title": "Permissions",
-                "description": "Permission overrides"
+                "additionalProperties": {}
               },
               "color": {
-                "type": "string",
+                "default": "",
                 "title": "Color",
-                "description": "Display color"
+                "description": "Display color",
+                "type": "string"
               },
               "disable": {
-                "type": "boolean",
+                "default": false,
                 "title": "Disable",
-                "description": "Whether agent is disabled"
+                "description": "Whether agent is disabled",
+                "type": "boolean"
               },
               "variant": {
-                "type": "string",
+                "default": "",
                 "title": "Variant",
-                "description": "Agent variant"
+                "description": "Agent variant",
+                "type": "string"
               },
               "category": {
-                "type": "string",
+                "default": "",
                 "title": "Category",
-                "description": "Agent category"
+                "description": "Agent category",
+                "type": "string"
               },
               "skills": {
+                "default": [],
+                "title": "Skills",
+                "description": "Enabled skills",
                 "type": "array",
                 "items": {
                   "type": "string"
-                },
-                "title": "Skills",
-                "description": "Enabled skills"
+                }
               },
               "temperature": {
-                "type": "number",
+                "default": 0,
                 "title": "Temperature",
-                "description": "Sampling temperature"
+                "description": "Sampling temperature",
+                "type": "number"
               },
               "topP": {
-                "type": "number",
+                "default": 1,
                 "title": "Top P",
-                "description": "Nucleus sampling"
+                "description": "Nucleus sampling",
+                "type": "number"
               },
               "prompt": {
-                "type": "string",
+                "default": "",
                 "title": "System Prompt",
-                "description": "System prompt override"
+                "description": "System prompt override",
+                "type": "string"
               },
               "promptAppend": {
-                "type": "string",
+                "default": "",
                 "title": "Prompt Append",
-                "description": "Text to append to prompts"
+                "description": "Text to append to prompts",
+                "type": "string"
               }
             },
-            "additionalProperties": false,
-            "title": "Config",
-            "description": "Extra agent configuration"
+            "additionalProperties": false
           }
         },
         "required": [
@@ -262,15 +328,15 @@
           "description",
           "limits",
           "model",
-          "fallbackModels",
           "config"
         ],
         "additionalProperties": false
-      },
-      "title": "Agents",
-      "description": "System agents"
+      }
     },
     "categories": {
+      "default": {},
+      "title": "Categories",
+      "description": "Agent categories",
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -279,246 +345,321 @@
         "type": "object",
         "properties": {
           "displayName": {
-            "type": "string",
+            "default": "",
             "title": "Display Name",
-            "description": "Category display name"
+            "description": "Category display name",
+            "type": "string"
           },
           "icon": {
-            "type": "string",
+            "default": "📂",
             "title": "Icon",
-            "description": "Icon identifier"
+            "description": "Icon identifier",
+            "type": "string"
           },
           "model": {
-            "type": "string",
+            "default": "",
             "title": "Model",
-            "description": "Default model for category"
+            "description": "Default model for category",
+            "type": "string"
           },
           "limits": {
+            "default": {
+              "context": 200000,
+              "output": 32768
+            },
+            "title": "Limits",
+            "description": "Model limits",
             "type": "object",
             "properties": {
               "context": {
+                "default": 200000,
                 "type": "number",
                 "title": "Context Limit",
                 "description": "Context window size in tokens"
               },
               "output": {
+                "default": 32768,
                 "type": "number",
                 "title": "Output Limit",
                 "description": "Maximum output tokens"
               }
             },
-            "required": ["context", "output"],
-            "additionalProperties": false,
-            "title": "Limits",
-            "description": "Model limits"
+            "required": [
+              "context",
+              "output"
+            ],
+            "additionalProperties": false
           },
           "cost": {
+            "default": {},
+            "title": "Cost",
+            "description": "Category pricing",
             "type": "object",
             "properties": {
               "input": {
-                "type": "number",
+                "default": 0,
                 "title": "Input Cost",
-                "description": "Cost per million input tokens"
+                "description": "Cost per million input tokens",
+                "type": "number"
               },
               "output": {
-                "type": "number",
+                "default": 0,
                 "title": "Output Cost",
-                "description": "Cost per million output tokens"
+                "description": "Cost per million output tokens",
+                "type": "number"
               }
             },
-            "additionalProperties": false,
-            "title": "Cost",
-            "description": "Category pricing"
+            "additionalProperties": false
           },
           "fallbackModels": {
+            "default": [],
+            "title": "Fallback Models",
+            "description": "Fallback models",
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "title": "Fallback Models",
-            "description": "Fallback models"
+            }
           },
           "description": {
-            "type": "string",
+            "default": "",
             "title": "Description",
-            "description": "Category description"
+            "description": "Category description",
+            "type": "string"
           },
           "variant": {
-            "type": "string",
+            "default": "",
             "title": "Variant",
-            "description": "Category variant"
+            "description": "Category variant",
+            "type": "string"
           },
           "temperature": {
-            "type": "number",
+            "default": 0,
             "title": "Temperature",
-            "description": "Sampling temperature"
+            "description": "Sampling temperature",
+            "type": "number"
           },
           "topP": {
-            "type": "number",
+            "default": 1,
             "title": "Top P",
-            "description": "Nucleus sampling threshold"
+            "description": "Nucleus sampling threshold",
+            "type": "number"
           },
           "maxTokens": {
-            "type": "number",
+            "default": 32768,
             "title": "Max Tokens",
-            "description": "Maximum tokens to generate"
+            "description": "Maximum tokens to generate",
+            "type": "number"
           },
           "thinking": {
+            "default": {
+              "type": "disabled",
+              "budgetTokens": 0
+            },
+            "title": "Thinking",
+            "description": "Thinking configuration",
             "type": "object",
             "properties": {
               "type": {
-                "type": "string",
-                "enum": ["enabled", "disabled"],
+                "default": "disabled",
                 "title": "Type",
-                "description": "Thinking mode type"
+                "description": "Thinking mode type",
+                "type": "string",
+                "enum": [
+                  "enabled",
+                  "disabled"
+                ]
               },
               "budgetTokens": {
-                "type": "number",
+                "default": 0,
                 "title": "Budget Tokens",
-                "description": "Token budget for thinking"
+                "description": "Token budget for thinking",
+                "type": "number"
               }
             },
-            "required": ["type"],
-            "additionalProperties": false,
-            "title": "Thinking",
-            "description": "Thinking configuration"
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
           },
           "reasoningEffort": {
-            "type": "string",
-            "enum": ["low", "medium", "high", "xhigh"],
+            "default": "medium",
             "title": "Reasoning Effort",
-            "description": "Reasoning budget level"
+            "description": "Reasoning budget level",
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh"
+            ]
           },
           "textVerbosity": {
-            "type": "string",
-            "enum": ["low", "medium", "high"],
+            "default": "medium",
             "title": "Text Verbosity",
-            "description": "Response verbosity level"
+            "description": "Response verbosity level",
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
           "tools": {
+            "default": {},
+            "title": "Tools",
+            "description": "Tool enable/disable map",
             "type": "object",
             "propertyNames": {
               "type": "string"
             },
             "additionalProperties": {
               "type": "boolean"
-            },
-            "title": "Tools",
-            "description": "Tool enable/disable map"
+            }
           },
           "promptAppend": {
-            "type": "string",
+            "default": "",
             "title": "Prompt Append",
-            "description": "Text to append to prompts"
+            "description": "Text to append to prompts",
+            "type": "string"
           },
           "isUnstableAgent": {
-            "type": "boolean",
+            "default": false,
             "title": "Unstable Agent",
-            "description": "Mark as experimental/unstable"
+            "description": "Mark as experimental/unstable",
+            "type": "boolean"
           },
           "config": {
+            "default": {},
             "title": "Config",
             "description": "Extra agent configuration",
             "type": "object",
             "properties": {
               "mode": {
-                "type": "string",
-                "enum": ["subagent", "primary", "all"],
+                "default": "all",
                 "title": "Mode",
-                "description": "Agent operating mode"
+                "description": "Agent operating mode",
+                "type": "string",
+                "enum": [
+                  "subagent",
+                  "primary",
+                  "all"
+                ]
               },
               "tools": {
+                "default": {},
+                "title": "Tools",
+                "description": "Tool enable/disable map",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
                 },
                 "additionalProperties": {
                   "type": "boolean"
-                },
-                "title": "Tools",
-                "description": "Tool enable/disable map"
+                }
               },
               "permissions": {
+                "default": {},
+                "title": "Permissions",
+                "description": "Permission overrides",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
                 },
-                "additionalProperties": {},
-                "title": "Permissions",
-                "description": "Permission overrides"
+                "additionalProperties": {}
               },
               "color": {
-                "type": "string",
+                "default": "",
                 "title": "Color",
-                "description": "Display color"
+                "description": "Display color",
+                "type": "string"
               },
               "disable": {
-                "type": "boolean",
+                "default": false,
                 "title": "Disable",
-                "description": "Whether agent is disabled"
+                "description": "Whether agent is disabled",
+                "type": "boolean"
               },
               "variant": {
-                "type": "string",
+                "default": "",
                 "title": "Variant",
-                "description": "Agent variant"
+                "description": "Agent variant",
+                "type": "string"
               },
               "category": {
-                "type": "string",
+                "default": "",
                 "title": "Category",
-                "description": "Agent category"
+                "description": "Agent category",
+                "type": "string"
               },
               "skills": {
+                "default": [],
+                "title": "Skills",
+                "description": "Enabled skills",
                 "type": "array",
                 "items": {
                   "type": "string"
-                },
-                "title": "Skills",
-                "description": "Enabled skills"
+                }
               },
               "temperature": {
-                "type": "number",
+                "default": 0,
                 "title": "Temperature",
-                "description": "Sampling temperature"
+                "description": "Sampling temperature",
+                "type": "number"
               },
               "topP": {
-                "type": "number",
+                "default": 1,
                 "title": "Top P",
-                "description": "Nucleus sampling"
+                "description": "Nucleus sampling",
+                "type": "number"
               },
               "prompt": {
-                "type": "string",
+                "default": "",
                 "title": "System Prompt",
-                "description": "System prompt override"
+                "description": "System prompt override",
+                "type": "string"
               },
               "promptAppend": {
-                "type": "string",
+                "default": "",
                 "title": "Prompt Append",
-                "description": "Text to append to prompts"
+                "description": "Text to append to prompts",
+                "type": "string"
               }
             },
             "additionalProperties": false
           }
         },
-        "required": ["model", "limits"],
+        "required": [
+          "model",
+          "limits"
+        ],
         "additionalProperties": false
-      },
-      "title": "Categories",
-      "description": "Agent categories"
+      }
     },
     "globalFallbackModel": {
-      "type": "string",
+      "default": "",
       "title": "Global Fallback Model",
-      "description": "Default fallback model"
+      "description": "Default fallback model",
+      "type": "string"
     },
     "routing": {
+      "default": {
+        "version": 1,
+        "plugins": {}
+      },
+      "title": "Routing",
+      "description": "Plugin routing configuration",
       "type": "object",
       "properties": {
         "version": {
-          "type": "number",
+          "default": 1,
           "title": "Version",
-          "description": "Config version"
+          "description": "Config version",
+          "type": "number"
         },
         "plugins": {
+          "default": {},
+          "title": "Plugins",
+          "description": "Plugin configurations",
           "type": "object",
           "propertyNames": {
             "type": "string"
@@ -527,48 +668,57 @@
             "type": "object",
             "properties": {
               "enabled": {
-                "type": "boolean",
+                "default": false,
                 "title": "Enabled",
-                "description": "Whether plugin routing is enabled"
+                "description": "Whether plugin routing is enabled",
+                "type": "boolean"
               },
               "outputFile": {
-                "type": "string",
+                "default": "",
                 "title": "Output File",
-                "description": "Output file path"
+                "description": "Output file path",
+                "type": "string"
               },
               "config": {
+                "default": {},
+                "title": "Config",
+                "description": "Plugin configuration",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
                 },
-                "additionalProperties": {},
-                "title": "Config",
-                "description": "Plugin configuration"
+                "additionalProperties": {}
               },
               "routing": {
+                "default": {
+                  "agents": {},
+                  "categories": {}
+                },
                 "type": "object",
                 "properties": {
                   "agents": {
+                    "default": {},
+                    "title": "Agents Routing",
+                    "description": "System agent id to plugin agent id mapping",
                     "type": "object",
                     "propertyNames": {
                       "type": "string"
                     },
                     "additionalProperties": {
                       "type": "string"
-                    },
-                    "title": "Agents Routing",
-                    "description": "System agent id to plugin agent id mapping"
+                    }
                   },
                   "categories": {
+                    "default": {},
+                    "title": "Categories Routing",
+                    "description": "Category routing enablement by category id",
                     "type": "object",
                     "propertyNames": {
                       "type": "string"
                     },
                     "additionalProperties": {
                       "type": "boolean"
-                    },
-                    "title": "Categories Routing",
-                    "description": "Category routing enablement by category id"
+                    }
                   }
                 },
                 "additionalProperties": false,
@@ -576,19 +726,28 @@
                 "description": "Routing mappings for agents and categories"
               }
             },
-            "required": ["enabled", "outputFile"],
+            "required": [
+              "enabled",
+              "outputFile",
+              "routing"
+            ],
             "additionalProperties": false
-          },
-          "title": "Plugins",
-          "description": "Plugin configurations"
+          }
         }
       },
-      "required": ["version", "plugins"],
-      "additionalProperties": false,
-      "title": "Routing",
-      "description": "Plugin routing configuration"
+      "required": [
+        "version",
+        "plugins"
+      ],
+      "additionalProperties": false
     }
   },
-  "required": ["version", "provider", "models", "agents", "categories"],
+  "required": [
+    "version",
+    "provider",
+    "models",
+    "agents",
+    "categories"
+  ],
   "additionalProperties": false
 }

@@ -8,10 +8,12 @@ export const dbConfigSchema = z
   .object({
     $schema: z
       .string()
+      .default("./agents.schema.json")
       .meta({ title: "Schema", description: "JSON Schema reference" })
       .optional(),
     version: z
       .number()
+      .default(1)
       .meta({ title: "Version", description: "Config version" }),
     provider: z
       .record(
@@ -19,37 +21,45 @@ export const dbConfigSchema = z
         z.object({
           name: z
             .string()
+            .default("")
             .meta({ title: "Name", description: "Provider display name" }),
-          baseUrl: z.string().meta({
+          baseUrl: z.string().default("").meta({
             title: "Base URL",
             description: "Provider API base URL",
           }),
           apiKey: z
             .string()
+            .default("")
             .meta({ title: "API Key", description: "Provider API key" }),
         }),
       )
+      .default({})
       .meta({
         title: "Providers",
         description: "Providers keyed by provider id",
       }),
     models: z
       .record(z.string(), modelSpecSchema)
+      .default({})
       .meta({ title: "Models", description: "Model specifications" }),
     agents: z
       .record(z.string(), systemAgentSchema)
+      .default({})
       .meta({ title: "Agents", description: "System agents" }),
     categories: z
       .record(z.string(), categoryEntrySchema)
+      .default({})
       .meta({ title: "Categories", description: "Agent categories" }),
     globalFallbackModel: z
       .string()
+      .default("")
       .meta({
         title: "Global Fallback Model",
         description: "Default fallback model",
       })
       .optional(),
     routing: pluginRoutingConfigSchema
+      .default({ version: 1, plugins: {} })
       .meta({ title: "Routing", description: "Plugin routing configuration" })
       .optional(),
   })

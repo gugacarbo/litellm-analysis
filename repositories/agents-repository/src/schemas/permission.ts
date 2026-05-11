@@ -3,6 +3,7 @@ import { z } from "zod";
 export const permissionSchema = z.object({
   edit: z
     .enum(["ask", "allow", "deny"])
+    .default("ask")
     .meta({ title: "Edit", description: "Permission to edit files" })
     .optional(),
   bash: z
@@ -10,10 +11,12 @@ export const permissionSchema = z.object({
       z.enum(["ask", "allow", "deny"]),
       z.record(z.string(), z.enum(["ask", "allow", "deny"])),
     ])
+    .default("ask")
     .meta({ title: "Bash", description: "Permission to run bash commands" })
     .optional(),
   webfetch: z
     .enum(["ask", "allow", "deny"])
+    .default("ask")
     .meta({
       title: "Web Fetch",
       description: "Permission to fetch web content",
@@ -21,6 +24,7 @@ export const permissionSchema = z.object({
     .optional(),
   doom_loop: z
     .enum(["ask", "allow", "deny"])
+    .default("ask")
     .meta({
       title: "Doom Loop",
       description: "Permission for doom loop detection",
@@ -28,6 +32,7 @@ export const permissionSchema = z.object({
     .optional(),
   external_directory: z
     .enum(["ask", "allow", "deny"])
+    .default("ask")
     .meta({
       title: "External Directory",
       description: "Permission to access external directories",

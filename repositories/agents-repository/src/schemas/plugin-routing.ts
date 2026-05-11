@@ -3,25 +3,32 @@ import { z } from "zod";
 export const pluginRoutingRuleSchema = z.object({
   enabled: z
     .boolean()
+    .default(true)
     .meta({ title: "Enabled", description: "Whether the rule is enabled" }),
 });
 
 export const pluginRoutingSchema = z.object({
-  enabled: z.boolean().meta({
-    title: "Enabled",
-    description: "Whether plugin routing is enabled",
-  }),
+  enabled: z
+    .boolean()
+    .default(false)
+    .meta({
+      title: "Enabled",
+      description: "Whether plugin routing is enabled",
+    }),
   outputFile: z
     .string()
+    .default("")
     .meta({ title: "Output File", description: "Output file path" }),
   config: z
     .record(z.string(), z.unknown())
+    .default({})
     .meta({ title: "Config", description: "Plugin configuration" })
     .optional(),
   routing: z
     .object({
       agents: z
         .record(z.string(), z.string())
+        .default({})
         .meta({
           title: "Agents Routing",
           description: "System agent id to plugin agent id mapping",
@@ -29,6 +36,7 @@ export const pluginRoutingSchema = z.object({
         .optional(),
       categories: z
         .record(z.string(), z.boolean())
+        .default({})
         .meta({
           title: "Categories Routing",
           description: "Category routing enablement by category id",
@@ -39,13 +47,17 @@ export const pluginRoutingSchema = z.object({
       title: "Routing",
       description: "Routing mappings for agents and categories",
     })
-    .optional(),
+    .default({ agents: {}, categories: {} }),
 });
 
 export const pluginRoutingConfigSchema = z.object({
-  version: z.number().meta({ title: "Version", description: "Config version" }),
+  version: z
+    .number()
+    .default(1)
+    .meta({ title: "Version", description: "Config version" }),
   plugins: z
     .record(z.string(), pluginRoutingSchema)
+    .default({})
     .meta({ title: "Plugins", description: "Plugin configurations" }),
 });
 
