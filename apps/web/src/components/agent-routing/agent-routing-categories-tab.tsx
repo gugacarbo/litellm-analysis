@@ -1,53 +1,57 @@
-import type { CategoryDefinition } from "@lite-llm/api-contracts/agent-routing";
-import { Database } from "lucide-react";
-import type { ConfigInfo } from "./agent-routing-types";
-import { CategoryFocusView } from "./category-focus-view";
+import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+import { Folder } from "lucide-react";
 import { EntityRoutingCard } from "./entity-routing-card";
 
-export type AgentRoutingCategoriesTabProps = {
+type AgentRoutingCategoriesTabProps = {
   loading: boolean;
-  categories: CategoryDefinition[];
-  models: string[];
-  onOpenCategoryConfig: (key: string) => void;
-  onQuickModelChange: (categoryKey: string, model: string) => void;
-  getCategoryConfigInfo: (key: string) => ConfigInfo | null;
+  categories: Record<string, CategoryEntry>;
 };
 
 export function AgentRoutingCategoriesTab({
   loading,
   categories,
-  models,
-  onOpenCategoryConfig,
-  onQuickModelChange,
-  getCategoryConfigInfo,
 }: AgentRoutingCategoriesTabProps) {
-  const configuredCategoriesCount = categories.filter((category) => {
-    const config = getCategoryConfigInfo(category.key);
-    return Boolean(config && config.model !== "Unassigned");
-  }).length;
-
-  const totalFallbacks = categories.reduce((sum, category) => {
-    const config = getCategoryConfigInfo(category.key);
-    return sum + (config?.fallbackCount ?? 0);
-  }, 0);
+  const safeCategories = categories ?? {};
+  const entries = Object.entries(safeCategories);
+  const configuredCount = entries.filter(
+    ([, cat]) => cat.model !== "" && cat.model !== undefined,
+  ).length;
 
   return (
     <EntityRoutingCard
-      icon={Database}
+      icon={Folder}
       title="Categories"
-      description="Category-level model distribution and execution defaults."
-      totalCount={categories.length}
-      configuredCount={configuredCategoriesCount}
-      totalFallbacks={totalFallbacks}
+      totalCount={entries.length}
+      configuredCount={configuredCount}
     >
-      <CategoryFocusView
-        loading={loading}
-        categories={categories}
-        models={models}
-        getCategoryConfigInfo={getCategoryConfigInfo}
-        onOpenCategoryConfig={onOpenCategoryConfig}
-        onQuickModelChange={onQuickModelChange}
-      />
+      {loading ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-32 animate-pulse rounded-xl bg-muted" />
+          ))}
+        </div>
+      ) : entries.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No categories configured.
+        </p>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {entries.map(([key, cat]) => (
+            <div
+              key={key}
+              className="rounded-lg border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className="flex items-center gap-2">
+                <Folder className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium text-sm">{key}</span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {cat.description || cat.model}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </EntityRoutingCard>
   );
 }

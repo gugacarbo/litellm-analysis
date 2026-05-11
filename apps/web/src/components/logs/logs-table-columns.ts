@@ -61,12 +61,6 @@ export const LOG_COLUMNS: LogColumn[] = [
   },
 ];
 
-export const ACTIONS_COLUMN: TableColumn = {
-  key: "actions",
-  label: "",
-  align: "right",
-};
-
 export const DEFAULT_VISIBLE_LOG_COLUMNS: LogColumnKey[] = LOG_COLUMNS.filter(
   (column) => column.defaultVisible !== false,
 ).map((column) => column.key);

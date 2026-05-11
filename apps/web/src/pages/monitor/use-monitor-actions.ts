@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { acknowledgeAlertById } from "../../lib/api-client/monitor";
 import type { MonitorAlert } from "./monitor-types";
 
-export interface UseMonitorActionsResult {
+interface UseMonitorActionsResult {
   acknowledgeAlert: (id: number) => Promise<void>;
   isAcknowledging: boolean;
   selectedAlert: MonitorAlert | null;

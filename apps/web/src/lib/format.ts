@@ -66,20 +66,6 @@ export function safeDivide(
   return numerator / denominator;
 }
 
-export function normalizePercent(value: number): number {
-  return Math.min(Math.max(value, 0), 100);
-}
-
-export function formatDate(date: string | Date): string {
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString(APP_LOCALE, {
-    month: "short",
-    day: "numeric",
-    timeZone: APP_TIMEZONE,
-  });
-}
-
 export function formatDateTime(date: string | Date): string {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return "";

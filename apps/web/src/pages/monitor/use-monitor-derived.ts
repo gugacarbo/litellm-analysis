@@ -13,13 +13,13 @@ export interface AlertsByTypeItem {
   count: number;
 }
 
-export interface HealthStatsSummary {
+interface HealthStatsSummary {
   avgP95Latency: number | null;
   totalRequests: number;
   avgSuccessRate: number | null;
 }
 
-export interface UseMonitorDerivedResult {
+interface UseMonitorDerivedResult {
   mergedAlertCount: number;
   sortedModels: ModelHealthEntry[];
   alertsBySeverity: Record<string, number>;

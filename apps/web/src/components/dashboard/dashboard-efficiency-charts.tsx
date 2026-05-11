@@ -47,6 +47,7 @@ export function DashboardEfficiencyCharts({
       dailyTokenTrend.map((item) => ({
         date: item.date,
         tokens_per_request: item.total_tokens / Math.max(item.request_count, 1),
+        request_count: item.request_count,
       })),
     [dailyTokenTrend],
   );
@@ -171,21 +172,40 @@ export function DashboardEfficiencyCharts({
                   interval="preserveStartEnd"
                   minTickGap={50}
                 />
-                <YAxis tickFormatter={formatNumber} />
+                <YAxis yAxisId="left" tickFormatter={formatNumber} />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tickFormatter={formatNumber}
+                />
                 <Tooltip
                   content={<ChartTooltipContent />}
-                  formatter={(v) => formatNumber(Number(v))}
+                  formatter={(v, name) =>
+                    name === "Requests"
+                      ? formatNumber(Number(v))
+                      : formatNumber(Number(v))
+                  }
                   labelFormatter={(label) =>
                     hasHourlyData ? formatDateTime(label) : formatDate(label)
                   }
                 />
                 <Legend />
                 <Bar
+                  yAxisId="left"
                   dataKey="tokens_per_request"
                   name="Tokens / Request"
                   fill="#8b5cf6"
                   barSize={barSize}
                   radius={[4, 4, 0, 0]}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="request_count"
+                  name="Requests"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  dot={false}
                 />
               </BarChart>
             </ResponsiveContainer>

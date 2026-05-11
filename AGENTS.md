@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-06
+**Generated:** 2026-05-09
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -17,8 +17,8 @@ lite-llm-analytics/
 │   │   └── src/
 │   │       ├── components/  # UI components (shadcn primitives + domain modules)
 │   │       ├── pages/       # Route pages + page-level hooks/types/utils
-│   │       ├── lib/         # API client (modular), utils, server-mode detection
-│   │       ├── hooks/       # use-dashboard-data, use-logs, use-server-mode
+│   │       ├── lib/         # API client (modular), utils
+│   │       ├── hooks/       # use-dashboard-data, use-logs
 │   │       ├── types/       # Shared TypeScript interfaces
 │   │       └── data/        # Static agent definition data
 │   └── server/             # Express.js entry point + monitor + WebSocket
@@ -46,19 +46,18 @@ lite-llm-analytics/
 
 ## WHERE TO LOOK
 
-| Task                     | Location                                                                           | Notes                                                |
-| ------------------------ | ---------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Add a page/route         | `apps/web/src/App.tsx` + `apps/web/src/pages/`                                     | Pages own their types, utils, and hooks              |
-| Add a UI component       | `apps/web/src/components/`                                                         | shadcn primitives at root, domain modules in subdirs |
-| Add an API endpoint      | `apps/server/src/api-server.ts`                                                    | All routes defined here                              |
-| Add a data-source method | `packages/analytics/src/data-source/database.ts`                                  | Must implement `AnalyticsDataSource` interface      |
-| Add a DB query           | `packages/analytics/src/queries/index.ts`                                           | Drizzle ORM queries, camelCase columns               |
-| Add a new data type      | `packages/analytics/src/types/index.ts`                                             | Add to interface or type exports                    |
-| Change feature gating    | `apps/web/src/components/feature-gate.tsx`                                         | Wraps destructive/limited features                   |
-| Change lint/format rules | `biome.json` (root)                                                               | Single quotes, 80 chars, import auto-organize       |
-| Change dev proxy         | `apps/web/vite.config.ts`                                                          | `/api` → `localhost:3008`                           |
-| Add agent config logic   | `packages/agents-manager/src/`                                                      | Adapters, transformers, CRUD, file generators       |
-| Modify agent API routes  | `apps/server/src/routes/agent-config-routes.ts`                                     | Express routes using agents-manager                 |
+| Task                     | Location                                         | Notes                                                |
+| ------------------------ | ------------------------------------------------ | ---------------------------------------------------- |
+| Add a page/route         | `apps/web/src/App.tsx` + `apps/web/src/pages/`   | Pages own their types, utils, and hooks              |
+| Add a UI component       | `apps/web/src/components/`                       | shadcn primitives at root, domain modules in subdirs |
+| Add an API endpoint      | `apps/server/src/api-server.ts`                  | All routes defined here                              |
+| Add a data-source method | `packages/analytics/src/data-source/database.ts` | Must implement `AnalyticsDataSource` interface       |
+| Add a DB query           | `packages/analytics/src/queries/`                | Drizzle ORM queries, camelCase columns               |
+| Add a new data type      | `packages/analytics/src/types/index.ts`          | Add to interface or type exports                     |
+| Change lint/format rules | `biome.json` (root)                              | Single quotes, 80 chars, import auto-organize        |
+| Change dev proxy         | `apps/web/vite.config.ts`                        | `/api` → `localhost:3008`                            |
+| Add agent config logic   | `packages/agents-manager/src/`                   | Adapters, transformers, CRUD, file generators        |
+| Modify agent API routes  | `apps/server/src/routes/agent-config-routes.ts`  | Express routes using agents-manager                  |
 
 ## CONVENTIONS
 
@@ -71,8 +70,6 @@ lite-llm-analytics/
 
 ### Architecture
 - **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (method implementations composed from 8 \*-methods.ts files, backed by 14 query files)
-- **No capability gating** — full access mode only (no Limited/Api modes implemented yet)
-- **FeatureUnavailableError / HTTP 501** pattern referenced in frontend but not yet active
 - **Page-level architecture**: Page subdirectories contain hooks/types/utils only (no JSX). Page root `.tsx` files contain JSX. Components live in `components/` and import from page directories
 - **State-Actions-Derived pattern**: Complex pages (agent-routing) split into `use-*-state.ts`, `use-*-actions.ts`, `use-*-derived.ts`, composed via `use-*-page.ts`
 
@@ -86,7 +83,6 @@ lite-llm-analytics/
 - `__tests__/` colocated with source inside `src/`
 - Web: jsdom + @testing-library/react, server: node + supertest
 - Mocking: `vi.mock()` hoisted, `vi.stubEnv()`, `createMockDataSource()` factory
-- Tests verify feature gates (capabilities matrix) explicitly
 - `passWithNoTests: true` at root
 - **⚠️ Dual test organization**: Both `__tests__/` directories AND `.test.ts` colocated files coexist — no single standard enforced
 - **⚠️ createMockDataSource() copy-pasted 3x** across server tests (79 methods each) — not extracted to shared helpers
@@ -95,153 +91,22 @@ lite-llm-analytics/
 
 ## PACKAGES
 
-### @lite-llm/agents-manager
-Manages agent and category configurations with file-based storage.
+Detailed documentation in each package's `AGENTS.md`:
 
-**Entry point:** `packages/agents-manager/src/index.ts`
-
-**Key exports:**
-- `createAgentsManager()` — initializes singleton with file paths
-- `readDb()` / `writeDb()` — raw JSON CRUD
-- `readConfigFile()` / `updateAgentInConfig()` / `updateCategoryInConfig()` — typed config CRUD
-- `writeProvidersFile()` — generates `data/opencode.json`
-- `writeVscodeModelsFile()` — generates `data/vscode-oaicopilot.json`
-- `syncOutputConfigFile()` — syncs `data/db.json` → `data/oh-my-openagent.json`
-
-**Data flow:**
-1. `db.json` is the source of truth (internal format)
-2. Transformers convert DB format → output config format
-3. Generators write provider files and VS Code model files
-
-**Dependencies:** `@litellm/shared` (workspace:*)
-
-**Build:** `tsc` → `dist/`, generates `.d.ts` declarations
-
-**⚠️ Documentation note:** The agents-manager AGENTS.md previously referenced a `.js` extension convention — now corrected; all source files are `.ts` (imports use `.js` extensions due to ESM/verbatimModuleSyntax)
-
-### @lite-llm/analytics
-DB queries + data source implementations (Database mode only; Api/Limited not yet implemented).
-
-**Structure:**
-```
-packages/analytics/src/
-├── data-source/
-│   ├── index.ts      # Factory: createDataSource()
-│   ├── database.ts   # DatabaseDataSource (direct Drizzle, composed from 14 *-queries.ts files)
-│   └── utils.ts      # Data source utilities
-├── queries/
-│   ├── index.ts      # All Drizzle ORM queries
-│   ├── schema.ts     # Table definitions (spendLogs, proxyModelTable, errorLogs, liteLLMConfig)
-│   └── client.ts     # DB connection
-├── types/
-│   └── index.ts      # AnalyticsDataSource interface (46 methods) + all data types + exports from @litellm/shared
-└── index.ts          # Barrel: exports from data-source, types
-```
-
-**Key patterns:**
-- `AnalyticsDataSource` interface has 46 methods — any implementation must implement all (no Api/Limited implementations exist yet)
-- Data source mode currently returns DatabaseDataSource unconditionally
-- Queries use camelCase column names mapped to snake_case DB columns via Drizzle ORM
-- All queries are async and return plain objects (not Drizzle row objects)
-
-**Package exports (from package.json):**
-- `import { createDataSource } from '@lite-llm/analytics'` → `packages/analytics/src/index.ts`
-- `import type { AnalyticsDataSource } from '@lite-llm/analytics/types'` → `src/types/index.ts`
-- `import { db, schema } from '@lite-llm/analytics/queries'` → `src/queries/client.ts`
-- `import type { AnalyticsDataSource } from '@lite-llm/analytics/data-source'` → `src/data-source/index.ts`
-
-**Adding a new query:**
-1. Add to `packages/analytics/src/queries/index.ts`
-2. Use `db.select({ ... }).from(schema.spendLogs)` pattern
-3. Export the function
-4. Call it from `data-source/database.ts` method
-
-**Adding a new data source method:**
-1. Add method signature to `AnalyticsDataSource` interface in `types/index.ts`
-2. Implement in `data-source/database.ts`
-3. Add corresponding query in `queries/` if new DB logic needed
-
-**CAUTION — Refactoring pitfalls:**
-- Do NOT use class inheritance to split large data source classes — TypeScript's strict mode requires all interface methods in each class
-- Large files (>500 lines) are acceptable here due to TypeScript constraints
-- Use composition or functional splitting instead of inheritance
-
-### @lite-llm/alias-router
-Resolves model aliases for LiteLLM routing. Pure functions — no I/O, no side effects.
-
-**Entry point:** `packages/alias-router/src/index.ts`
-
-**Key exports:**
-- `generateLitellmAliases()` — generates alias mapping
-- `resolveConfiguredModels()` / `resolveModelValue()` — maps agent names → model identifiers
-- `getExistingAliasesForAgent()` / `replaceAliasesForAgent()` — alias cleanup
-- `sortAliasesByDefinitionOrder()` — definition-order sorting
-- `AGENT_KEYS`, `CATEGORY_KEYS`, `MODEL_NAMES` — constants
-
-**Structure:** `alias/` (generate/resolve/cleanup), `constants/`, `sort/`, `utils/`
-
-**Dependencies:** None (standalone logic package)
-
-**Build:** `tsc` → `dist/`
-
-**⚠️ Test location:** Tests at `__tests__/` (package root), not `src/__tests__/` — deviates from stated convention
-
-### @litellm/shared
-Shared TypeScript types and Zod schemas for agent/category configuration.
-
-**Entry point:** `packages/shared/src/index.ts`
-
-**Key exports:**
-- Types: `AgentConfig`, `CategoryConfig`, `AgentConfigFile`, `OhMyOpenAgentConfig`, `Permission`, `Thinking`, `GitMaster`
-- Schemas: `agentConfigSchema`, `categoryConfigSchema`, `agentConfigFileSchema`, `ohMyOpenAgentConfigSchema`, `permissionSchema`, `thinkingSchema`
-
-**Data flow:**
-1. `@litellm/shared` defines types + Zod schemas
-2. `@lite-llm/agents-manager` imports and uses them for CRUD
-3. Consumer configs generated from internal format
-
-**Dependencies:** `zod` v3
-
-**Build:** `tsc` → `dist/`
-
-**⚠️ Package exports:** Uses glob pattern `"./types/*": "./src/types/*.ts"` — non-standard, may not work reliably across all tools
-
-### @lite-llm/server-core
-Orchestration layer connecting analytics, agents-manager, and alias-router.
-
-**Entry point:** `packages/server-core/src/index.ts`
-
-**Structure:**
-- `orchestration/` — `buildAliasMapFromDb`, `regenerateAllAliases`, `syncGeneratedArtifacts`, `syncModelsDirectlyToDatabase`, `buildLiteLLMParams`
-- `routes/` — `registerAllRoutes()` (spend, analytics, model, agent-routing, agent-config)
-- `types/` — `RouteOptions`, `OrchestrationServices`, `DbModelSpecLike`
-
-**Route registration:** `registerAllRoutes()` takes `RouteOptions` with `dataSource` + orchestration services. Monitor routes registered separately in `apps/server`.
-
-**Dependencies:** `@lite-llm/analytics`, `@lite-llm/agents-manager`, `@lite-llm/alias-router`
-
-### @lite-llm/monitor
-Model health monitoring with SQLite storage and anomaly detection.
-
-**Entry point:** `packages/monitor/src/index.ts`
-
-**Structure:**
-- `db/` — SQLite schema (alerts, alertRules), queries, client
-- `services/detectors/` — error-spike, model-offline, silent-failure, timeout-stuck detectors
-- `services/monitor-service.ts` — `MonitorService` class with periodic tick and WebSocket broadcast
-
-**Key exports:** `MonitorService`, `runAllDetectors`, `getMonitorDb`, alert CRUD functions
-
-**Dependencies:** `better-sqlite3`, `@lite-llm/analytics`
-
-**⚠️ Vitest version:** Uses `^2.1.8` while rest of repo uses `^4.1.5`
+| Package                    | Entry          | Key Responsibility                                           |
+| -------------------------- | -------------- | ------------------------------------------------------------ |
+| `@lite-llm/agents-manager` | `src/index.ts` | Agent/category CRUD, plugin system, config file generators   |
+| `@lite-llm/analytics`      | `src/index.ts` | 46-method AnalyticsDataSource interface, Drizzle ORM queries |
+| `@lite-llm/alias-router`   | `src/index.ts` | Pure alias resolution functions (no I/O)                     |
+| `@litellm/shared`          | `src/index.ts` | Types + Zod schemas for agent/category config                |
+| `@lite-llm/server-core`    | `src/index.ts` | Route registration + orchestration services                  |
+| `@lite-llm/monitor`        | `src/index.ts` | SQLite-based anomaly detection, WebSocket broadcast          |
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
 - No `as any`, `@ts-ignore`, or `@ts-expect-error` — use proper typing
 - No `TODO`/`FIXME`/`HACK` comments — resolve or track externally
 - No hardcoded secrets in source — use `.env` files
-- Dual linting exists (Biome root + ESLint web) — prefer Biome for new rules
 
 ## UNIQUE STYLES
 
@@ -250,7 +115,6 @@ Model health monitoring with SQLite storage and anomaly detection.
 - **Column schema system**: `MODEL_STATS_COLUMNS` declarative array drives table rendering in model-stats
 - **Alias resolution**: `resolveModelName()` in agent-routing maps configs through alias table via `useMemo`
 - **Collapsible sections**: `expandedSections: Record<string, boolean>` pattern in config editors
-- **Mode badge**: Sidebar shows "Full Access" / "Limited" / "API Mode" with emoji indicators
 
 ## COMMANDS
 
@@ -269,9 +133,17 @@ pnpm --filter @lite-llm/server-core typecheck
 pnpm --filter @lite-llm/monitor typecheck
 ```
 
-## NOTES
+## BUILD & CI (Gaps)
 
-- No CI/CD pipeline exists — all checks run manually
+- No GitHub Actions or CI pipeline — all checks run manually
 - No Docker/containerization — runs on Node.js >= 20 + PostgreSQL 14+
-- Web dev proxy strips `/api` prefix before forwarding to server
-- Server port defaults to 3000 (env) but `.env` uses 3008; Vite proxy targets 3008
+- No remote cache — Turborepo local cache only
+- Pre-commit hook runs `pnpm format` only — no lint/type-check
+- lint-staged command in scripts but no config file found
+
+## SUBPACKAGE DOCUMENTATION
+
+| Location                              | Coverage                            |
+| ------------------------------------- | ----------------------------------- |
+| `packages/analytics/src/queries/`     | Drizzle ORM query patterns, helpers |
+| `packages/analytics/src/data-source/` | DatabaseDataSource composition      |

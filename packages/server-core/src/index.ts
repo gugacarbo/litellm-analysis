@@ -15,6 +15,7 @@ export {
 export { registerAllRoutes } from "./routes/index.js";
 
 export type {
+  AgentsManager,
   DbModelSpecLike,
   OrchestrationServices,
   RouteOptions,

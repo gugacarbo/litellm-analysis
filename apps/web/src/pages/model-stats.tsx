@@ -139,5 +139,3 @@ export function ModelStatsPage() {
     </PageLayout>
   );
 }
-
-export default ModelStatsPage;

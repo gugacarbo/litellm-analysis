@@ -303,5 +303,3 @@ export function ModelDetailPage() {
     </PageLayout>
   );
 }
-
-export default ModelDetailPage;

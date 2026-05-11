@@ -1,7 +1,4 @@
-import type {
-  HealthCheckResultEntry,
-  HealthCheckStatus,
-} from "./health-status-types";
+import type { HealthCheckStatus } from "./health-status-types";
 
 export const STATUS_COLORS: Record<HealthCheckStatus, string> = {
   healthy: "#10b981",
@@ -15,13 +12,6 @@ export const STATUS_LABELS: Record<HealthCheckStatus, string> = {
   unhealthy: "Unhealthy",
   error: "Error",
   unknown: "Not tested",
-};
-
-export const STATUS_ORDER: Record<HealthCheckStatus, number> = {
-  unknown: 99,
-  error: 0,
-  unhealthy: 1,
-  healthy: 2,
 };
 
 export function formatResponseTime(ms: number | null): string {
@@ -49,37 +39,4 @@ export function formatRelativeTime(unixSeconds: number): string {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
-}
-
-export function sortByStatus(
-  entries: HealthCheckResultEntry[],
-): HealthCheckResultEntry[] {
-  return [...entries].sort(
-    (a, b) =>
-      (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99) ||
-      a.modelName.localeCompare(b.modelName),
-  );
-}
-
-export function getResponseTimeColor(
-  ms: number | null,
-): "green" | "yellow" | "red" | "muted" {
-  if (ms === null) return "muted";
-  if (ms < 300) return "green";
-  if (ms < 1000) return "yellow";
-  return "red";
-}
-
-export function getResponseTimeBarWidth(ms: number | null): number {
-  if (ms === null) return 0;
-  if (ms <= 100) return 10;
-  if (ms <= 300) return 30;
-  if (ms <= 500) return 50;
-  if (ms <= 1000) return 70;
-  return 100;
-}
-
-export function getHealthPercent(count: number, total: number): string {
-  if (total === 0) return "0%";
-  return `${Math.round((count / total) * 100)}%`;
 }

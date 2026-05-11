@@ -1,9 +1,11 @@
 {
-  "active_plan": "/home/gustavo_carbonera/Apps/litellm-analysis/.weave/plans/providers-reorganization.md",
-  "started_at": "2026-05-07T16:50:43.165Z",
-  "session_ids": ["ses_1fcb39005ffeoy4JTmoyBGpdbg"],
-  "plan_name": "providers-reorganization",
+  "active_plan": "/home/gustavo/Apps/lite-llm-analytics/.weave/plans/ui-agents-manager-migration.md",
+  "started_at": "2026-05-09T05:01:27.486Z",
+  "session_ids": [
+    "ses_1f52c90c0ffeWHL9tjKHq1Y9ef"
+  ],
+  "plan_name": "ui-agents-manager-migration",
   "agent": "tapestry",
-  "start_sha": "1473f942efa57ee60f552f035338731e71f46205",
+  "start_sha": "1779992620183933b6e81e1b3a7f7e0e17193491",
   "paused": true
 }

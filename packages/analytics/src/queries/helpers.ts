@@ -14,7 +14,7 @@ export function normalizeDays(
   return parsed;
 }
 
-export function getWindowStart(days: number): Date | null {
+function getWindowStart(days: number): Date | null {
   if (days <= 0) {
     return null;
   }

@@ -4,7 +4,7 @@ import { litellmDb, schema } from "./client";
 const { litellmCredentialsTable } = schema;
 
 // Credential type for model configuration
-export interface LiteLLMCredential {
+interface LiteLLMCredential {
   credentialId: string;
   credentialName: string;
   credentialValues: Record<string, unknown> | null;

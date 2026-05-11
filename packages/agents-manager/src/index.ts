@@ -25,6 +25,11 @@ import {
   type IAgentService,
 } from "./services/agent.service.js";
 import {
+  AgentCatalogService,
+  type AgentCatalogServiceOptions,
+  type IAgentCatalogService,
+} from "./services/agent-catalog.service.js";
+import {
   CategoryService,
   type CategoryServiceOptions,
   type ICategoryService,
@@ -34,32 +39,58 @@ import {
   ModelService,
   type ModelServiceOptions,
 } from "./services/model.service.js";
+import {
+  type IRoutingService,
+  RoutingService,
+  type RoutingServiceOptions,
+} from "./services/routing.service.js";
 
+// New types
 export type {
+  AgentExtraConfig,
+  AgentVersion,
+  PluginRoutingConfig,
+  PluginRoutingRule,
+  SystemAgent,
+} from "./types/index.js";
+export type {
+  AgentCatalogServiceOptions,
   AgentServiceOptions,
   CategoryServiceOptions,
+  IAgentCatalogService,
   IAgentService,
   ICategoryService,
   IModelService,
+  IRoutingService,
   ModelServiceOptions,
+  RoutingServiceOptions,
 };
-export { AgentService, CategoryService, ModelService };
+export {
+  AgentCatalogService,
+  AgentService,
+  CategoryService,
+  ModelService,
+  RoutingService,
+};
 
-import { OpenAgentPlugin } from "./plugins/builtins/openagent.plugin.js";
+// Plugins
 import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin.js";
-import { VsCodePlugin } from "./plugins/builtins/vscode.plugin.js";
+import { OpenAgentPlugin } from "./plugins/external/openagent.plugin.js";
+import { VsCodePlugin } from "./plugins/external/vscode.plugin.js";
 import type {
   IPlugin,
   IPluginRegistry,
   TransformContext,
 } from "./plugins/plugin.js";
-// Plugins
+import type { ConfigField, InternalAgent } from "./plugins/plugin-types.js";
 import {
   PluginRegistry,
   type PluginRegistryOptions,
 } from "./plugins/registry.js";
 
 export type {
+  ConfigField,
+  InternalAgent,
   IPlugin,
   IPluginRegistry,
   PluginRegistryOptions,
@@ -69,20 +100,18 @@ export { OpenAgentPlugin, OpenCodePlugin, PluginRegistry, VsCodePlugin };
 
 // Config
 import {
-  DEFAULT_FILE_PATHS,
-  type FilePaths,
-  getFilePaths,
+  DEFAULT_DB_PATH,
+  DEFAULT_ROUTING,
+  DEFAULT_SYSTEM_AGENTS,
 } from "./config/defaults.js";
 
-export type { FilePaths };
-export { DEFAULT_FILE_PATHS, getFilePaths };
+export { DEFAULT_DB_PATH, DEFAULT_ROUTING, DEFAULT_SYSTEM_AGENTS };
 
 // ── Factory ──
 
 export interface AgentsManagerFactoryOptions {
   dbPath?: string;
   outputDir?: string;
-  registerBuiltins?: boolean;
 }
 
 export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
@@ -90,20 +119,23 @@ export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
 
   const services = {
     agents: new AgentService({ repository }),
+    catalog: new AgentCatalogService({ repository }),
     categories: new CategoryService({ repository }),
     models: new ModelService({ repository }),
+    routing: new RoutingService({ repository }),
   };
+
+  const allPlugins: IPlugin[] = [
+    new OpenCodePlugin(),
+    new OpenAgentPlugin(),
+    new VsCodePlugin(),
+  ];
 
   const registry = new PluginRegistry({
     repository,
     outputDir: options.outputDir,
+    allPlugins,
   });
-
-  if (options.registerBuiltins !== false) {
-    registry.register(new OpenCodePlugin());
-    registry.register(new OpenAgentPlugin());
-    registry.register(new VsCodePlugin());
-  }
 
   return { repository, services, registry };
 }

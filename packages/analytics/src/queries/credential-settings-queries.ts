@@ -3,10 +3,6 @@ import { litellmDb } from "./client";
 
 const DEFAULT_CREDENTIAL_SETTING_NAME = "default_credential";
 
-export interface DefaultCredentialSetting {
-  defaultCredential: string | null;
-}
-
 export async function getDefaultCredential(): Promise<string | null> {
   const result = await litellmDb.execute(
     sql`SELECT param_value FROM "LiteLLM_Config" WHERE param_name = ${DEFAULT_CREDENTIAL_SETTING_NAME} LIMIT 1`,

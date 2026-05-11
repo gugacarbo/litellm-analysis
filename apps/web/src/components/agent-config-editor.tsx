@@ -1,25 +1,7 @@
-"use client";
-
-import type { AgentConfig } from "@lite-llm/api-contracts/agent-routing";
+import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AgentConfigEditorExecutionSection } from "./agent-config-editor/agent-config-editor-execution-section";
-import { AgentConfigEditorPermissionsSection } from "./agent-config-editor/agent-config-editor-permissions-section";
-import {
-  AgentConfigEditorBasicSection,
-  AgentConfigEditorModelSection,
-  AgentConfigEditorPromptsSection,
-} from "./agent-config-editor/agent-config-editor-primary-sections";
-import { normalizeAgentConfig } from "./agent-config-editor/normalize";
-import {
-  addSkill as addSkillFn,
-  removeSkill as removeSkillFn,
-} from "./agent-config-editor/skill-utils";
-import {
-  addTool as addToolFn,
-  removeTool as removeToolFn,
-  updateToolValue as updateToolValueFn,
-} from "./agent-config-editor/tool-utils";
+import { normalizeSystemAgent } from "./agent-config-editor/normalize";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -29,87 +11,51 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 
 interface AgentConfigEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  agentKey: string;
-  initialConfig?: AgentConfig;
-  onSave: (config: AgentConfig) => Promise<void>;
+  agent: SystemAgent | null;
+  onSave: (agent: SystemAgent) => Promise<void>;
   saving?: boolean;
-  error?: string | null;
 }
-
-type AgentEditorTab =
-  | "overview"
-  | "model"
-  | "prompts"
-  | "execution"
-  | "permissions";
 
 export function AgentConfigEditor({
   open,
   onOpenChange,
-  agentKey,
-  initialConfig = {},
+  agent,
   onSave,
   saving = false,
-  error,
 }: AgentConfigEditorProps) {
-  const [activeTab, setActiveTab] = useState<AgentEditorTab>("overview");
-  const [config, setConfig] = useState<AgentConfig>(() =>
-    normalizeAgentConfig(initialConfig),
+  const [config, setConfig] = useState<SystemAgent>(() =>
+    normalizeSystemAgent(agent ?? { id: "" }),
   );
-  const [newSkill, setNewSkill] = useState("");
-  const [newToolKey, setNewToolKey] = useState("");
-  const [newToolValue, setNewToolValue] = useState(true);
 
   useEffect(() => {
-    const normalized = normalizeAgentConfig(initialConfig);
-    setConfig((prev) => {
-      if (JSON.stringify(prev) !== JSON.stringify(normalized)) {
-        return normalized;
-      }
-      return prev;
-    });
-  }, [initialConfig]);
+    if (agent) {
+      setConfig(normalizeSystemAgent(agent));
+    }
+  }, [agent]);
 
-  useEffect(() => {
-    if (!open) return;
-    setActiveTab("overview");
-  }, [open]);
-
-  const updateConfig = <K extends keyof AgentConfig>(
+  const updateField = <K extends keyof SystemAgent>(
     field: K,
-    value: AgentConfig[K],
+    value: SystemAgent[K],
+  ) => {
+    setConfig((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateConfigField = <K extends keyof SystemAgent["config"]>(
+    field: K,
+    value: SystemAgent["config"][K],
   ) => {
     setConfig((prev) => ({
       ...prev,
-      [field]: value,
+      config: { ...prev.config, [field]: value },
     }));
   };
-
-  const addSkill = () =>
-    addSkillFn(config.skills, newSkill, updateConfig, setNewSkill);
-
-  const removeSkill = (index: number) =>
-    removeSkillFn(config.skills, index, updateConfig);
-
-  const addTool = () =>
-    addToolFn(
-      config.tools,
-      newToolKey,
-      newToolValue,
-      updateConfig,
-      setNewToolKey,
-    );
-
-  const removeTool = (key: string) =>
-    removeToolFn(config.tools, key, updateConfig);
-
-  const updateToolValue = (key: string, value: boolean) =>
-    updateToolValueFn(config.tools, key, value, updateConfig);
 
   const handleSave = async () => {
     await onSave(config);
@@ -117,92 +63,82 @@ export function AgentConfigEditor({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Agent Configuration: {agentKey}</DialogTitle>
+          <DialogTitle>
+            Edit Agent: {config.displayName || config.id}
+          </DialogTitle>
           <DialogDescription className="sr-only">
-            Edit configuration for {agentKey} agent
+            Edit configuration for {config.id}
           </DialogDescription>
         </DialogHeader>
 
-        {error && (
-          <div className="p-4 bg-destructive/10 border border-destructive rounded-md text-destructive">
-            {error}
+        <div className="space-y-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="agent-id">ID</Label>
+              <Input id="agent-id" value={config.id} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="agent-name">Display Name</Label>
+              <Input
+                id="agent-name"
+                value={config.displayName}
+                onChange={(e) => updateField("displayName", e.target.value)}
+              />
+            </div>
           </div>
-        )}
 
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as AgentEditorTab)}
-          className="py-4"
-        >
-          <TabsList
-            variant="line"
-            className="h-auto w-full flex-wrap justify-start rounded-xl bg-muted/35 p-1"
-          >
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="model">Model</TabsTrigger>
-            <TabsTrigger value="prompts">Prompts</TabsTrigger>
-            <TabsTrigger value="execution">Execution</TabsTrigger>
-            <TabsTrigger value="permissions">Permissions</TabsTrigger>
-          </TabsList>
+          <div className="space-y-2">
+            <Label htmlFor="agent-desc">Description</Label>
+            <Textarea
+              id="agent-desc"
+              value={config.description}
+              onChange={(e) => updateField("description", e.target.value)}
+              rows={2}
+            />
+          </div>
 
-          <TabsContent value="overview" className="mt-4">
-            <div className="rounded-xl border bg-card p-4">
-              <AgentConfigEditorBasicSection
-                config={config}
-                onUpdateConfig={updateConfig}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="agent-icon">Icon</Label>
+              <Input
+                id="agent-icon"
+                value={config.icon}
+                onChange={(e) => updateField("icon", e.target.value)}
               />
             </div>
-          </TabsContent>
-
-          <TabsContent value="model" className="mt-4">
-            <div className="rounded-xl border bg-card p-4">
-              <AgentConfigEditorModelSection
-                agentKey={agentKey}
-                config={config}
-                onUpdateConfig={updateConfig}
+            <div className="space-y-2">
+              <Label htmlFor="agent-color">Color</Label>
+              <Input
+                id="agent-color"
+                type="color"
+                value={config.config.color ?? "#555555"}
+                onChange={(e) => updateConfigField("color", e.target.value)}
+                className="h-9 w-full"
               />
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="prompts" className="mt-4">
-            <div className="rounded-xl border bg-card p-4">
-              <AgentConfigEditorPromptsSection
-                config={config}
-                onUpdateConfig={updateConfig}
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="execution" className="mt-4">
-            <div className="rounded-xl border bg-card p-4">
-              <AgentConfigEditorExecutionSection
-                config={config}
-                newSkill={newSkill}
-                newToolKey={newToolKey}
-                newToolValue={newToolValue}
-                onNewSkillChange={setNewSkill}
-                onNewToolKeyChange={setNewToolKey}
-                onNewToolValueChange={setNewToolValue}
-                onAddSkill={addSkill}
-                onRemoveSkill={removeSkill}
-                onAddTool={addTool}
-                onRemoveTool={removeTool}
-                onUpdateToolValue={updateToolValue}
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="permissions" className="mt-4">
-            <div className="rounded-xl border bg-card p-4">
-              <AgentConfigEditorPermissionsSection
-                config={config}
-                onUpdateConfig={updateConfig}
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
+          <div className="space-y-2">
+            <Label htmlFor="agent-mode">Mode</Label>
+            <select
+              id="agent-mode"
+              className="w-full rounded-md border px-3 py-2 text-sm"
+              value={config.config.mode ?? "subagent"}
+              onChange={(e) =>
+                updateConfigField(
+                  "mode",
+                  e.target.value as "subagent" | "primary" | "all",
+                )
+              }
+            >
+              <option value="subagent">Subagent</option>
+              <option value="primary">Primary</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+        </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -215,7 +151,7 @@ export function AgentConfigEditor({
                 Saving...
               </>
             ) : (
-              "Save Configuration"
+              "Save"
             )}
           </Button>
         </DialogFooter>

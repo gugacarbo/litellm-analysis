@@ -1,92 +1,139 @@
 import type {
-  AgentEntry,
-  CategoryEntry,
-  DbConfig,
+  AgentVersion,
   ModelSpec,
-} from "@lite-llm/agents-repository/repository";
-import type { IPlugin, PluginModel, TransformContext } from "../plugin";
+  PluginRoutingConfig,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schema";
+import type { IPlugin, TransformContext } from "../plugin.js";
+import type { ConfigField, InternalAgent } from "../plugin-types.js";
 
-const CURRENT_VERSION = 1;
-const LITELLM_API_KEY_REF = "{env:LITELLM_API_KEY}";
-
-const AGENT_VERSIONS = [
-  "gpt-5.5",
-  "gpt-5.4",
-  "gpt-5.3",
-  "gpt-5.2",
-  "gpt-5.1",
-] as const;
-
-export interface OpenCodeProviders {
+interface OpenCodeProviders {
   provider: Record<string, unknown>;
 }
 
 export class OpenCodePlugin implements IPlugin {
   readonly id = "opencode";
   readonly name = "OpenCode AI SDK";
-  readonly version = CURRENT_VERSION;
+  readonly version = 1;
   readonly outputFile = "opencode.json";
 
-  transformEntry(
-    _entry: AgentEntry | CategoryEntry,
+  getInternalAgents(): InternalAgent[] {
+    return [
+      {
+        id: "coder",
+        displayName: "Coder",
+        description: "General-purpose coding agent",
+      },
+      {
+        id: "planner",
+        displayName: "Planner",
+        description: "Planning and scoping agent",
+      },
+      {
+        id: "explorer",
+        displayName: "Explorer",
+        description: "Codebase exploration agent",
+      },
+      {
+        id: "reviewer",
+        displayName: "Reviewer",
+        description: "Code review agent",
+      },
+      {
+        id: "writer",
+        displayName: "Writer",
+        description: "Documentation and writing agent",
+      },
+      {
+        id: "architect",
+        displayName: "Architect",
+        description: "Architecture decisions agent",
+      },
+    ];
+  }
+
+  getConfigSchema(): ConfigField[] {
+    return [
+      {
+        key: "defaultVersion",
+        type: "select",
+        label: "Default Version",
+        required: false,
+        default: "latest",
+        options: [
+          { value: "latest", label: "Latest" },
+          { value: "stable", label: "Stable" },
+        ],
+        description: "Default version to use when no override is set",
+      },
+    ];
+  }
+
+  buildOutput(
+    agents: SystemAgent[],
+    routing: PluginRoutingConfig,
     ctx: TransformContext,
-  ): Record<string, unknown> {
-    return {
+  ): OpenCodeProviders {
+    const output: OpenCodeProviders = { provider: {} };
+
+    const litellmModels: Record<string, unknown> = {};
+    for (const [key, spec] of Object.entries(ctx.allModels)) {
+      litellmModels[key] = {
+        id: key,
+        name: (spec as ModelSpec).displayName,
+        limit: {
+          context: (spec as ModelSpec).contextLength,
+          output: (spec as ModelSpec).maxOutput,
+        },
+      };
+    }
+
+    output.provider.litellm = {
+      name: "LiteLLM",
       npm: "@ai-sdk/openai-compatible",
       options: {
         baseURL: ctx.litellmConfig.baseUrl,
-        apiKey: LITELLM_API_KEY_REF,
+        apiKey: ctx.litellmConfig.apiKey,
       },
-      models: this.buildAgentModels(ctx.entryKey),
+      models: litellmModels,
     };
-  }
 
-  transformModel(key: string, spec: ModelSpec): PluginModel {
-    return {
-      id: key,
-      name: spec.displayName,
-      limit: {
-        context: spec.contextLength,
-        output: spec.maxOutput,
-      },
-      cost: spec.cost,
-    };
-  }
+    const pluginRouting = routing.plugins[this.id];
+    const agentMappings = (pluginRouting?.agentMappings ?? {}) as Record<
+      string,
+      string
+    >;
 
-  preprocess(_config: DbConfig): unknown {
-    return { provider: {} };
-  }
+    for (const agent of agents) {
+      if (!agent.id) continue;
 
-  buildOutput(config: DbConfig, _context: TransformContext): OpenCodeProviders {
-    const output: OpenCodeProviders = { provider: {} };
+      const internalAgentId = agentMappings[agent.id];
+      if (!internalAgentId) continue;
 
-    // Build litellm provider with all models
-    output.provider.litellm = this.buildLitellmProvider(config);
+      const models: Record<string, unknown> = {};
+      for (const version of agent.versions) {
+        const resolvedVersion =
+          (pluginRouting?.agents[agent.id]?.versionOverrides?.[
+            version.id
+          ] as AgentVersion) ?? version;
+        models[version.id] = {
+          id: `${internalAgentId}/${version.id}`,
+          name: `${resolvedVersion.displayName} ${version.displayName}`,
+          limit: {
+            context: version.limits.context,
+            output: version.limits.output,
+          },
+        };
+      }
 
-    // Add agent providers
-    for (const [key, entry] of Object.entries(config.agents)) {
-      if (Object.keys(entry).length === 0) continue;
-      output.provider[key] = this.transformEntry(entry, {
-        entryKey: key,
-        entryType: "agent",
-        allModels: config.models,
-        globalFallbackModel: config.globalFallbackModel,
-        litellmConfig: config.litellm,
-        resolvedModels: new Map(),
-      });
-    }
-
-    // Add category providers
-    for (const [key, entry] of Object.entries(config.categories)) {
-      if (Object.keys(entry).length === 0) continue;
-      output.provider[key] = this.transformEntry(entry, {
-        entryKey: key,
-        entryType: "category",
-        allModels: config.models,
-        globalFallbackModel: config.globalFallbackModel,
-        litellmConfig: config.litellm,
-        resolvedModels: new Map(),
-      });
+      output.provider[internalAgentId] = {
+        npm: "@ai-sdk/openai-compatible",
+        options: {
+          baseURL: ctx.litellmConfig.baseUrl,
+          apiKey: ctx.litellmConfig.apiKey,
+        },
+        models,
+      };
     }
 
     return output;
@@ -94,41 +141,5 @@ export class OpenCodePlugin implements IPlugin {
 
   getOutputFile(): string {
     return this.outputFile;
-  }
-
-  private buildLitellmProvider(config: DbConfig): Record<string, unknown> {
-    const models: Record<string, PluginModel> = {};
-
-    for (const [key, spec] of Object.entries(config.models)) {
-      const model = this.transformModel(key, spec);
-      models[key] = model;
-    }
-
-    return {
-      name: "LiteLLM",
-      npm: "@ai-sdk/openai-compatible",
-      options: {
-        baseURL: config.litellm.baseUrl,
-        apiKey: config.litellm.apiKey,
-      },
-      models,
-    };
-  }
-
-  private buildAgentModels(prefix: string): Record<string, unknown> {
-    const models: Record<string, unknown> = {};
-
-    AGENT_VERSIONS.forEach((version, index) => {
-      models[version] = {
-        id: `${prefix}/${version}`,
-        name: `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} ${index + 1}`,
-        limit: {
-          output: 32768,
-          context: 200000,
-        },
-      };
-    });
-
-    return models;
   }
 }

@@ -1,5 +1,4 @@
 import { Settings } from "lucide-react";
-import { AgentRoutingAliasDialog } from "../components/agent-routing/agent-routing-alias-dialog";
 import { ModelFormDialog } from "../components/models/model-form-dialog";
 import { ModelsTableCard } from "../components/models/models-table-card";
 import { PageLayout } from "../components/ui/page-layout";
@@ -7,11 +6,8 @@ import { useModelsPage } from "./models/use-models-page";
 
 export function ModelsPage() {
   const {
-    aliasDialogKey,
-    aliasDialogMode,
-    aliasDialogOpen,
-    aliasDialogValue,
     deleteModelName,
+    setDeleteModelName,
     dialogOpen,
     editingModel,
     formData,
@@ -19,18 +15,12 @@ export function ModelsPage() {
     formLoading,
     modelsQuery,
     mutationError,
-    updateAgentRoutingMutation,
-    handleAliasSave,
     handleDelete,
     handleOpenCreateWithDefaultCredential,
     handleOpenEdit,
     handleSubmit,
     addExtraParam,
     removeExtraParam,
-    setAliasDialogKey,
-    setAliasDialogOpen,
-    setAliasDialogValue,
-    setDeleteModelName,
     setDialogOpen,
     setFormData,
     updateExtraParam,
@@ -75,20 +65,6 @@ export function ModelsPage() {
         onOpenEdit={handleOpenEdit}
         onDelete={handleDelete}
       />
-
-      <AgentRoutingAliasDialog
-        open={aliasDialogOpen}
-        mode={aliasDialogMode}
-        saving={updateAgentRoutingMutation.isPending}
-        aliasKey={aliasDialogKey}
-        aliasValue={aliasDialogValue}
-        onOpenChange={setAliasDialogOpen}
-        onAliasKeyChange={setAliasDialogKey}
-        onAliasValueChange={setAliasDialogValue}
-        onSave={handleAliasSave}
-      />
     </PageLayout>
   );
 }
-
-export default ModelsPage;

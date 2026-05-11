@@ -17,21 +17,41 @@ export function createRepositoryClient(
 ): IAgentsRepository {
   const filePath = options.filePath ?? DEFAULT_DB_PATH;
 
-  // Resolve special paths like @settings/agents.json
-  const resolvedPath = resolveDbPath(filePath);
+  // Resolve special paths like @settings/agents.json, with json/jsonc fallback.
+  const resolvedPath = resolveDbPathWithFallback(filePath);
 
   const repoOptions: RepositoryOptions = {
     filePath: resolvedPath,
-    validateOnRead: true,
+    validateOnRead: false,
   };
   return createRepository(repoOptions);
 }
 
+function resolveDbPathWithFallback(dbPath: string): string {
+  const resolvedPath = resolveDbPath(dbPath);
+  const ext = path.extname(resolvedPath).toLowerCase();
+
+  if (ext === ".json") {
+    const jsoncPath = `${resolvedPath}c`;
+    if (!existsSync(resolvedPath) && existsSync(jsoncPath)) {
+      return jsoncPath;
+    }
+  }
+
+  if (ext === ".jsonc") {
+    const jsonPath = resolvedPath.slice(0, -1);
+    if (!existsSync(resolvedPath) && existsSync(jsonPath)) {
+      return jsonPath;
+    }
+  }
+
+  return resolvedPath;
+}
+
 function resolveDbPath(dbPath: string): string {
-  // Handle special @db/ paths — resolve relative to monorepo root
-  if (dbPath.startsWith("@settings/")) {
+  // Handle special @storage/ and @db/ paths -- resolve relative to monorepo root
+  if (dbPath.startsWith("@storage/") || dbPath.startsWith("@db/")) {
     const monorepoRoot = findMonorepoRoot();
-    // @settings/agents.json stays as-is since @settings is the actual directory name
     return path.join(monorepoRoot, dbPath);
   }
 
@@ -40,7 +60,7 @@ function resolveDbPath(dbPath: string): string {
     return dbPath;
   }
 
-  // Handle relative paths — resolve from current working directory
+  // Handle relative paths -- resolve from current working directory
   return path.resolve(process.cwd(), dbPath);
 }
 

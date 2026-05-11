@@ -1,4 +1,7 @@
+import type { createAgentsManager } from "@lite-llm/agents-manager";
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
+
+export type AgentsManager = ReturnType<typeof createAgentsManager>;
 
 export interface DbModelSpecLike {
   contextLength: number;
@@ -22,4 +25,5 @@ export interface OrchestrationServices {
 export interface RouteOptions {
   dataSource: AnalyticsDataSource;
   orchestration: OrchestrationServices;
+  agentsManager?: AgentsManager;
 }

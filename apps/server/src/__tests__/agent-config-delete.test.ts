@@ -16,6 +16,7 @@ vi.mock("@lite-llm/agents-manager", async () => {
       services: {
         agents: { delete: mockDeleteAgent },
         categories: { delete: mockDeleteCategory },
+        routing: { getSyncAliases: vi.fn().mockResolvedValue(false) },
       },
     }),
   };

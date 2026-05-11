@@ -40,28 +40,6 @@ export async function getSpendLogs(
   return fetchApi(`/spend/logs?${searchParams}`, options);
 }
 
-export async function getSpendLogsCount(params: {
-  model?: string;
-  user?: string;
-  startDate?: string;
-  endDate?: string;
-}): Promise<number> {
-  const searchParams = new URLSearchParams();
-  if (params.model) searchParams.set("model", params.model);
-  if (params.user) searchParams.set("user", params.user);
-  if (params.startDate) searchParams.set("startDate", params.startDate);
-  if (params.endDate) searchParams.set("endDate", params.endDate);
-
-  const response = await fetchApi<{ count: number }>(
-    `/spend/logs/count?${searchParams}`,
-  );
-  return response.count;
-}
-
-export async function getSpendLogDetail(requestId: string): Promise<SpendLog> {
-  return fetchApi(`/spend/logs/${encodeURIComponent(requestId)}`);
-}
-
 export async function getSpendByUser(days?: number): Promise<
   {
     user: string;
@@ -71,12 +49,6 @@ export async function getSpendByUser(days?: number): Promise<
   }[]
 > {
   return fetchApi(withDays("/spend/user", days));
-}
-
-export async function getSpendByKey(
-  days?: number,
-): Promise<{ key: string; total_spend: number; total_tokens: number }[]> {
-  return fetchApi(withDays("/spend/key", days));
 }
 
 export async function getDailySpendTrend(

@@ -40,9 +40,6 @@ export const queryKeys = {
       params.startDate ?? "",
       params.endDate ?? "",
     ] as const,
-  agentRoutingData: ["agent-routing-data"] as const,
-  agentRoutingAliases: ["agent-routing-aliases"] as const,
-  agentDefinitions: ["agent-definitions"] as const,
   modelDetailDailySpend: (model: string, days: number) =>
     ["model-detail", "daily-spend", model, days] as const,
   modelDetailDailyTokens: (model: string, days: number) =>
@@ -83,4 +80,18 @@ export const queryKeys = {
     ] as const,
   healthCheckLatest: ["health-check", "latest"] as const,
   healthCheckSummary: ["health-check", "summary"] as const,
+  agentCatalog: {
+    all: ["agent-catalog"] as const,
+    detail: (id: string) => ["agent-catalog", id] as const,
+  },
+  categoryCatalog: {
+    all: ["category-catalog"] as const,
+    detail: (key: string) => ["category-catalog", key] as const,
+  },
+  pluginRouting: {
+    all: ["plugin-routing"] as const,
+    plugins: ["plugin-routing", "plugins"] as const,
+    pluginConfig: (pluginId: string) =>
+      ["plugin-routing", "config", pluginId] as const,
+  },
 };

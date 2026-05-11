@@ -24,6 +24,17 @@ out
 .out
 dist/**
 */dist
+
+# Stray tsc output (prevent in-place .js from "tsc" without -p)
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+__tests__/**/*.js
+__tests__/**/*.js.map
+__tests__/**/*.d.ts
+*.config.js
+!eslint.config.js
+!.lintstagedrc.js
 # Debug
 npm-debug.log*
 
@@ -31,23 +42,15 @@ npm-debug.log*
 .DS_Store
 *.pem
 
-# Monitor SQLite
-db/*.db
-db/*.sqlite
-db/*.sqlite3
-
 __pycache__
 .codex
-
 # CocoIndex Code (ccc)
 /.cocoindex_code/
-
-# Playwright MCP
 .playwright-mcp/
-
-# Agents
 .sisyphus
+
 .weave/*
 !.weave/plans/
 !.weave/designs/
 
+@db/*.db

@@ -1,12 +1,28 @@
 import * as fs from "node:fs";
+import { existsSync } from "node:fs";
 import * as path from "node:path";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema.js";
 
-const DB_PATH = path.resolve(process.cwd(), "db", "app.db");
+function findMonorepoRoot(): string {
+  let dir = process.cwd();
+  const root = path.parse(dir).root;
 
-const OLD_DB_PATH = path.resolve(process.cwd(), "db", "monitor.db");
+  while (dir !== root) {
+    const workspacePath = path.join(dir, "pnpm-workspace.yaml");
+    if (existsSync(workspacePath)) {
+      return dir;
+    }
+    dir = path.dirname(dir);
+  }
+
+  // Fallback
+  return process.cwd();
+}
+
+const MONOREPO_ROOT = findMonorepoRoot();
+const DB_PATH = path.resolve(MONOREPO_ROOT, "@db", "app.db");
 
 let dbInstance: ReturnType<typeof drizzle> | null = null;
 
@@ -41,19 +57,7 @@ function ensureHealthCheckColumns(sqlite: InstanceType<typeof Database>): void {
   }
 }
 
-function migrateFromOldDb(): void {
-  if (fs.existsSync(OLD_DB_PATH) && !fs.existsSync(DB_PATH)) {
-    const dbDir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
-    }
-    fs.renameSync(OLD_DB_PATH, DB_PATH);
-  }
-}
-
 function initDb(): ReturnType<typeof drizzle> {
-  migrateFromOldDb();
-
   const dbDir = path.dirname(DB_PATH);
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });

@@ -1,24 +1,25 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type {
-  DbConfig,
-  IAgentsRepository,
-} from "@lite-llm/agents-repository/repository";
+import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin.js";
+import type { ConfigField, InternalAgent } from "./plugin-types.js";
 
 export interface PluginRegistryOptions {
   repository: IAgentsRepository;
   outputDir?: string;
+  allPlugins: IPlugin[];
 }
 
 export class PluginRegistry implements IPluginRegistry {
-  private readonly plugins: Map<string, IPlugin> = new Map();
+  private readonly plugins = new Map<string, IPlugin>();
+  private readonly allPlugins: IPlugin[];
   private readonly repository: IAgentsRepository;
   private readonly outputDir: string;
 
   constructor(options: PluginRegistryOptions) {
     this.repository = options.repository;
     this.outputDir = options.outputDir ?? "data";
+    this.allPlugins = options.allPlugins;
   }
 
   register(plugin: IPlugin): void {
@@ -40,6 +41,19 @@ export class PluginRegistry implements IPluginRegistry {
     return Array.from(this.plugins.values());
   }
 
+  loadFromConfig(routing: {
+    version: number;
+    plugins: Record<string, { enabled: boolean }>;
+  }): void {
+    this.plugins.clear();
+    for (const plugin of this.allPlugins) {
+      const pluginConfig = routing.plugins[plugin.id];
+      if (pluginConfig?.enabled) {
+        this.register(plugin);
+      }
+    }
+  }
+
   async exportAll(): Promise<void> {
     for (const plugin of this.plugins.values()) {
       await this.exportOne(plugin.id);
@@ -53,39 +67,38 @@ export class PluginRegistry implements IPluginRegistry {
     }
 
     const config = await this.repository.read();
-    const context = this.buildContext(config);
-    const output = plugin.buildOutput(config, context);
+    const routing = config.routing ?? { version: 1, plugins: {} };
+    const ctx = this.buildContext(config);
 
-    if (plugin.validate) {
-      if (!plugin.validate(output)) {
-        throw new Error(`Plugin "${pluginId}" output validation failed`);
-      }
+    const agents = Object.values(config.systemAgents ?? {});
+    const output = plugin.buildOutput(agents, routing, ctx);
+
+    if (plugin.validate && !plugin.validate(output)) {
+      throw new Error(`Plugin "${pluginId}" output validation failed`);
     }
 
     await this.writePluginOutput(plugin, output);
   }
 
-  private buildContext(config: DbConfig): TransformContext {
-    const resolvedModels = new Map<string, string>();
+  getInternalAgents(pluginId: string): InternalAgent[] {
+    const plugin = this.allPlugins.find((p) => p.id === pluginId);
+    return plugin?.getInternalAgents() ?? [];
+  }
 
-    // Resolve all model references
-    for (const [key, entry] of Object.entries({
-      ...config.agents,
-      ...config.categories,
-    })) {
-      resolvedModels.set(key, entry.model);
-      entry.fallbackModels?.forEach((m: string) => {
-        resolvedModels.set(`${key}-fallback-${m}`, m);
-      });
-    }
+  getConfigSchema(pluginId: string): ConfigField[] {
+    const plugin = this.allPlugins.find((p) => p.id === pluginId);
+    return plugin?.getConfigSchema() ?? [];
+  }
 
+  private buildContext(config: {
+    models: Record<string, unknown>;
+    globalFallbackModel?: string;
+    litellm: { baseUrl: string; apiKey: string };
+  }): TransformContext {
     return {
-      entryKey: "",
-      entryType: "agent",
-      allModels: config.models,
+      allModels: config.models as TransformContext["allModels"],
       globalFallbackModel: config.globalFallbackModel,
       litellmConfig: config.litellm,
-      resolvedModels,
     };
   }
 

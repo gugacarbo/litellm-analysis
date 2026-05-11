@@ -16,7 +16,7 @@ const SUPPORTED_TIMEZONES = [
   "Australia/Sydney",
 ] as const;
 
-export type SupportedTimezone = (typeof SUPPORTED_TIMEZONES)[number];
+type SupportedTimezone = (typeof SUPPORTED_TIMEZONES)[number];
 
 export function getBrowserLocale(): string | undefined {
   if (typeof navigator === "undefined") {
@@ -29,7 +29,7 @@ export function getBrowserLocale(): string | undefined {
   return browserLocale || undefined;
 }
 
-export function getBrowserTimezone(): string {
+function getBrowserTimezone(): string {
   if (typeof Intl === "undefined") {
     return DEFAULT_TIMEZONE;
   }
@@ -40,11 +40,11 @@ export function getBrowserTimezone(): string {
   }
 }
 
-export function isValidTimezone(tz: string): tz is SupportedTimezone {
+function isValidTimezone(tz: string): tz is SupportedTimezone {
   return SUPPORTED_TIMEZONES.includes(tz as SupportedTimezone);
 }
 
-export function normalizeTimezone(tz: string | undefined): SupportedTimezone {
+function normalizeTimezone(tz: string | undefined): SupportedTimezone {
   if (!tz) return DEFAULT_TIMEZONE;
   return isValidTimezone(tz) ? tz : DEFAULT_TIMEZONE;
 }

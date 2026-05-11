@@ -1,0 +1,429 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lite-llm-analytics/schemas/agents.json",
+  "title": "LiteLLM Agents Configuration",
+  "description": "Configuration file for LiteLLM Analytics agents, models, and plugin routing",
+  "type": "object",
+  "required": ["version", "litellm", "models"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 2,
+      "description": "Configuration version. Must be 2."
+    },
+    "litellm": {
+      "$ref": "#/definitions/litellmConfig"
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/modelSpec"
+      },
+      "description": "Available LLM models indexed by model ID"
+    },
+    "agents": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/agentEntry"
+      },
+      "description": "Legacy agent definitions (v1 format). Empty in v2."
+    },
+    "categories": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/categoryEntry"
+      },
+      "description": "Legacy category definitions (v1 format). Empty in v2."
+    },
+    "globalFallbackModel": {
+      "type": "string",
+      "description": "Default fallback model ID when no model is specified"
+    },
+    "customAliases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Custom model aliases"
+    },
+    "systemAgents": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/systemAgent"
+      },
+      "description": "System agents (v2 format) indexed by agent ID"
+    },
+    "routing": {
+      "$ref": "#/definitions/pluginRoutingConfig"
+    }
+  },
+  "definitions": {
+    "litellmConfig": {
+      "type": "object",
+      "required": ["baseUrl", "apiKey"],
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+
+          "description": "LiteLLM server base URL"
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "LiteLLM API key"
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost per million input tokens"
+        },
+        "output": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost per million output tokens"
+        }
+      }
+    },
+    "modelSpec": {
+      "type": "object",
+      "required": ["displayName", "contextLength", "maxOutput"],
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable model name"
+        },
+        "ownedBy": {
+          "type": "string",
+          "description": "Model provider"
+        },
+        "family": {
+          "type": "string",
+          "description": "Model family"
+        },
+        "contextLength": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum context window size in tokens"
+        },
+        "maxOutput": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum output tokens"
+        },
+        "cost": {
+          "$ref": "#/definitions/cost"
+        }
+      }
+    },
+    "agentEntry": {
+      "type": "object",
+      "required": ["model"],
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Primary model ID"
+        },
+        "fallbackModels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fallback model IDs in priority order"
+        },
+        "description": {
+          "type": "string",
+          "description": "Agent description"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "Agent color hex code"
+        },
+        "disable": {
+          "type": "boolean",
+          "description": "Whether the agent is disabled"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["subagent", "primary", "all"],
+          "description": "Agent operation mode"
+        },
+        "tools": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "description": "Tool permissions"
+        }
+      }
+    },
+    "categoryEntry": {
+      "type": "object",
+      "required": ["model"],
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Primary model ID"
+        },
+        "fallbackModels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "topP": {
+          "type": "number"
+        },
+        "maxTokens": {
+          "type": "integer"
+        },
+        "thinking": {
+          "$ref": "#/definitions/thinking"
+        },
+        "reasoningEffort": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "xhigh"]
+        },
+        "textVerbosity": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "tools": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "thinking": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["enabled", "disabled"]
+        },
+        "budgetTokens": {
+          "type": "integer"
+        }
+      }
+    },
+    "agentVersion": {
+      "type": "object",
+      "required": ["id", "displayName", "modelIdStrategy", "limits"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Version identifier (e.g., 'v1', 'latest', 'stable')"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable version name"
+        },
+        "modelIdStrategy": {
+          "type": "string",
+          "enum": ["model-name", "prefix-version"],
+          "description": "How to generate model ID"
+        },
+        "limits": {
+          "$ref": "#/definitions/versionLimits"
+        },
+        "cost": {
+          "$ref": "#/definitions/cost"
+        }
+      }
+    },
+    "versionLimits": {
+      "type": "object",
+      "required": ["context", "output"],
+      "properties": {
+        "context": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Context window size"
+        },
+        "output": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum output tokens"
+        }
+      }
+    },
+    "agentExtraConfig": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["subagent", "primary", "all"]
+        },
+        "tools": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "permissions": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "disable": {
+          "type": "boolean"
+        },
+        "variant": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "topP": {
+          "type": "number"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "promptAppend": {
+          "type": "string"
+        }
+      }
+    },
+    "systemAgent": {
+      "type": "object",
+      "required": [
+        "displayName",
+        "icon",
+        "description",
+        "versions",
+        "model",
+        "fallbackModels",
+        "enabledPlugins",
+        "config"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique agent identifier"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable agent name"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Emoji or icon character"
+        },
+        "description": {
+          "type": "string",
+          "description": "Agent description and purpose"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/agentVersion"
+          },
+          "minItems": 1
+        },
+        "model": {
+          "type": "string",
+          "description": "Primary model ID"
+        },
+        "fallbackModels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fallback model IDs in priority order"
+        },
+        "enabledPlugins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Enabled plugin IDs"
+        },
+        "config": {
+          "$ref": "#/definitions/agentExtraConfig"
+        }
+      }
+    },
+    "pluginRoutingRule": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "versionOverrides": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/agentVersion"
+          }
+        }
+      }
+    },
+    "pluginRouting": {
+      "type": "object",
+      "required": ["enabled", "outputFile", "agents"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "outputFile": {
+          "type": "string",
+          "description": "Output filename for this plugin"
+        },
+        "agents": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/pluginRoutingRule"
+          },
+          "description": "Per-agent routing rules"
+        }
+      }
+    },
+    "pluginRoutingConfig": {
+      "type": "object",
+      "required": ["version", "plugins"],
+      "properties": {
+        "version": {
+          "type": "integer",
+          "description": "Routing config version"
+        },
+        "plugins": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/pluginRouting"
+          },
+          "description": "Plugin routing configurations"
+        },
+        "globalFallbackModel": {
+          "type": "string",
+          "description": "Global fallback model"
+        }
+      }
+    }
+  }
+}

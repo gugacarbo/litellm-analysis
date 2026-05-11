@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import * as path from "node:path";
 import { type DbConfig, dbConfigSchema } from "./schema.js";
 import { FileStorage, type IStorage } from "./storage.js";
 
@@ -41,12 +42,14 @@ export class AgentsRepository implements IAgentsRepository {
 
   async read(): Promise<DbConfig> {
     const content = await this.storage.read(this.filePath);
-    const parsed = JSON.parse(content);
+    const parsed = normalizeConfig(parseConfigContent(content, this.filePath));
 
     if (this.validateOnRead) {
       const result = dbConfigSchema.safeParse(parsed);
       if (!result.success) {
-        throw new Error(`Invalid agents.json: ${result.error.message}`);
+        throw new Error(
+          `Invalid config at ${this.filePath}: ${result.error.message}`,
+        );
       }
       return result.data;
     }
@@ -56,12 +59,14 @@ export class AgentsRepository implements IAgentsRepository {
 
   readSync(): DbConfig {
     const content = readFileSync(this.filePath, "utf-8");
-    const parsed = JSON.parse(content);
+    const parsed = normalizeConfig(parseConfigContent(content, this.filePath));
 
     if (this.validateOnRead) {
       const result = dbConfigSchema.safeParse(parsed);
       if (!result.success) {
-        throw new Error(`Invalid agents.json: ${result.error.message}`);
+        throw new Error(
+          `Invalid config at ${this.filePath}: ${result.error.message}`,
+        );
       }
       return result.data;
     }
@@ -70,7 +75,8 @@ export class AgentsRepository implements IAgentsRepository {
   }
 
   async write(config: DbConfig): Promise<void> {
-    const result = dbConfigSchema.safeParse(config);
+    const normalizedConfig = normalizeConfig(config);
+    const result = dbConfigSchema.safeParse(normalizedConfig);
     if (!result.success) {
       throw new Error(`Invalid config: ${result.error.message}`);
     }
@@ -99,4 +105,165 @@ export function createRepository(
   options: RepositoryOptions,
 ): IAgentsRepository {
   return new AgentsRepository(options);
+}
+
+function parseConfigContent(content: string, filePath: string): unknown {
+  const ext = path.extname(filePath).toLowerCase();
+
+  try {
+    if (ext === ".jsonc") {
+      return JSON.parse(normalizeJsonc(content));
+    }
+
+    return JSON.parse(content);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "unknown parse error";
+    throw new Error(`Failed to parse ${filePath}: ${message}`);
+  }
+}
+
+function normalizeJsonc(input: string): string {
+  const withoutComments = stripJsonComments(input);
+  return removeTrailingCommas(withoutComments);
+}
+
+function stripJsonComments(input: string): string {
+  let out = "";
+  let i = 0;
+  let inString = false;
+  let escaped = false;
+
+  while (i < input.length) {
+    const current = input[i];
+    const next = input[i + 1];
+
+    if (inString) {
+      out += current;
+      if (escaped) {
+        escaped = false;
+      } else if (current === "\\") {
+        escaped = true;
+      } else if (current === '"') {
+        inString = false;
+      }
+      i += 1;
+      continue;
+    }
+
+    if (current === '"') {
+      inString = true;
+      out += current;
+      i += 1;
+      continue;
+    }
+
+    if (current === "/" && next === "/") {
+      i += 2;
+      while (i < input.length && input[i] !== "\n") {
+        i += 1;
+      }
+      continue;
+    }
+
+    if (current === "/" && next === "*") {
+      i += 2;
+      while (i < input.length - 1) {
+        if (input[i] === "*" && input[i + 1] === "/") {
+          i += 2;
+          break;
+        }
+        i += 1;
+      }
+      continue;
+    }
+
+    out += current;
+    i += 1;
+  }
+
+  return out;
+}
+
+function removeTrailingCommas(input: string): string {
+  let out = "";
+  let i = 0;
+  let inString = false;
+  let escaped = false;
+
+  while (i < input.length) {
+    const current = input[i];
+
+    if (inString) {
+      out += current;
+      if (escaped) {
+        escaped = false;
+      } else if (current === "\\") {
+        escaped = true;
+      } else if (current === '"') {
+        inString = false;
+      }
+      i += 1;
+      continue;
+    }
+
+    if (current === '"') {
+      inString = true;
+      out += current;
+      i += 1;
+      continue;
+    }
+
+    if (current === ",") {
+      let j = i + 1;
+      while (j < input.length && /\s/.test(input[j])) {
+        j += 1;
+      }
+
+      if (input[j] === "}" || input[j] === "]") {
+        i += 1;
+        continue;
+      }
+    }
+
+    out += current;
+    i += 1;
+  }
+
+  return out;
+}
+
+function normalizeConfig(config: unknown): unknown {
+  if (!isRecord(config)) {
+    return config;
+  }
+
+  const systemAgents = config.systemAgents;
+  if (!isRecord(systemAgents)) {
+    return config;
+  }
+
+  for (const [key, value] of Object.entries(systemAgents)) {
+    if (!isRecord(value)) {
+      continue;
+    }
+
+    const explicitId = value.id;
+    if (explicitId === undefined) {
+      value.id = key;
+      continue;
+    }
+
+    if (typeof explicitId === "string" && explicitId !== key) {
+      throw new Error(
+        `Invalid systemAgents.${key}.id: expected "${key}", received "${explicitId}"`,
+      );
+    }
+  }
+
+  return config;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }

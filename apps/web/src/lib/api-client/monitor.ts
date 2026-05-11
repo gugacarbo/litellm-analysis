@@ -4,9 +4,7 @@ import type {
 } from "../../pages/monitor/monitor-types";
 import { fetchApi } from "./core";
 
-export type { ModelHealthEntry, MonitorAlert };
-
-export interface GetAlertsResponse {
+interface GetAlertsResponse {
   alerts: MonitorAlert[];
   total: number;
   limit: number;
@@ -21,7 +19,7 @@ export interface MonitorStats {
   last_24h_count: number;
 }
 
-export interface ModelHealthResponse {
+interface ModelHealthResponse {
   models: ModelHealthEntry[];
 }
 

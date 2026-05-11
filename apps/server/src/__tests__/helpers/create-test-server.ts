@@ -6,7 +6,7 @@ import type { AppContext } from "../../contexts";
 import type { DataSourceOverrides } from "./create-mock-data-source";
 import { createMockDataSource } from "./create-mock-data-source";
 
-export interface CreateTestServerResult {
+interface CreateTestServerResult {
   app: Application;
   dataSource: ReturnType<typeof createMockDataSource>;
   orchestration: RouteOptions["orchestration"];

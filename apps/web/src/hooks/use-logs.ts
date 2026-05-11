@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getSpendLogs } from "../lib/api-client/spend";
 import { queryKeys } from "../lib/query-keys";
 
-export type LogFilters = {
+type LogFilters = {
   model?: string;
   user?: string;
   startDate?: string;

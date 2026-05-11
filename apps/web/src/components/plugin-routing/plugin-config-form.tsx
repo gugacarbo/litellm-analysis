@@ -1,0 +1,93 @@
+import type { ConfigField } from "@lite-llm/api-contracts/agent-catalog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
+
+interface PluginConfigFormProps {
+  schema: ConfigField[];
+  values: Record<string, unknown>;
+  onChange: (key: string, value: unknown) => void;
+}
+
+export function PluginConfigForm({
+  schema,
+  values,
+  onChange,
+}: PluginConfigFormProps) {
+  if (schema.length === 0) return null;
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Plugin Options</h3>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {schema.map((field) => (
+          <div key={field.key} className="space-y-2">
+            <Label htmlFor={field.key}>
+              {field.label}
+              {field.required && <span className="text-destructive"> *</span>}
+            </Label>
+            {field.description && (
+              <p className="text-xs text-muted-foreground">
+                {field.description}
+              </p>
+            )}
+            {field.type === "string" || field.type === "password" ? (
+              <Input
+                id={field.key}
+                type={field.type}
+                placeholder={field.placeholder}
+                value={
+                  (values[field.key] as string) ??
+                  (field.default as string) ??
+                  ""
+                }
+                onChange={(e) => onChange(field.key, e.target.value)}
+              />
+            ) : field.type === "number" ? (
+              <Input
+                id={field.key}
+                type="number"
+                value={
+                  (values[field.key] as number) ??
+                  (field.default as number) ??
+                  ""
+                }
+                onChange={(e) => onChange(field.key, Number(e.target.value))}
+              />
+            ) : field.type === "boolean" ? (
+              <div className="flex items-center gap-2">
+                <Switch
+                  id={field.key}
+                  checked={
+                    (values[field.key] as boolean) ??
+                    (field.default as boolean) ??
+                    false
+                  }
+                  onCheckedChange={(checked) => onChange(field.key, checked)}
+                />
+                <Label htmlFor={field.key}>Enabled</Label>
+              </div>
+            ) : field.type === "select" && field.options ? (
+              <select
+                id={field.key}
+                className="flex h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                value={
+                  (values[field.key] as string) ??
+                  (field.default as string) ??
+                  ""
+                }
+                onChange={(e) => onChange(field.key, e.target.value)}
+              >
+                {field.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

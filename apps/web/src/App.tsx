@@ -2,14 +2,15 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "./components/error-boundary";
 import { Sidebar } from "./components/layout/sidebar";
 import { FilterProvider } from "./contexts/filter-context";
-import { AgentRoutingPage } from "./pages/agent-routing";
-import { AliasesPage } from "./pages/aliases";
+import { AgentsPage } from "./pages/agents";
 import { DashboardPage } from "./pages/dashboard";
 import { LogsPage } from "./pages/logs";
 import { ModelDetailPage } from "./pages/model-detail";
 import { ModelStatsPage } from "./pages/model-stats";
 import { ModelsPage } from "./pages/models";
 import { MonitorPage } from "./pages/monitor";
+import { PluginConfigPage } from "./pages/plugin-config";
+import { PluginsPage } from "./pages/plugins";
 
 function App() {
   return (
@@ -53,18 +54,26 @@ function App() {
                 }
               />
               <Route
-                path="/aliases"
+                path="/agents"
                 element={
                   <ErrorBoundary>
-                    <AliasesPage />
+                    <AgentsPage />
                   </ErrorBoundary>
                 }
               />
               <Route
-                path="/agent-routing"
+                path="/plugins"
                 element={
                   <ErrorBoundary>
-                    <AgentRoutingPage />
+                    <PluginsPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/plugins/:pluginId"
+                element={
+                  <ErrorBoundary>
+                    <PluginConfigPage />
                   </ErrorBoundary>
                 }
               />

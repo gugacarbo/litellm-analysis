@@ -39,5 +39,3 @@ export function createApiServer(
 
   return app;
 }
-
-export default createApiServer;

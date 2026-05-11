@@ -12,8 +12,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@lite-llm/alias-router": "workspace:*",
-    "@lite-llm/env": "workspace:*",
     "@lite-llm/agents-repository": "workspace:*"
   },
   "devDependencies": {
