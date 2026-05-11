@@ -76,7 +76,7 @@ describe("VsCodePlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       expect(output).toHaveProperty("oaicopilot.commitLanguage");
       expect(output).toHaveProperty("oaicopilot.baseUrl");
@@ -104,7 +104,7 @@ describe("VsCodePlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const models = output["oaicopilot.models"] as Array<
         Record<string, unknown>
@@ -125,7 +125,7 @@ describe("VsCodePlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       expect(output["oaicopilot.commitLanguage"]).toBe("Portuguese (Brazil)");
       const retry = output["oaicopilot.retry"] as Record<string, unknown>;
@@ -141,6 +141,8 @@ describe("VsCodePlugin", () => {
         plugins: {
           vscode: {
             enabled: true,
+            outputFile: "vscode-oaicopilot.json",
+            agents: {},
             config: {
               commitLanguage: "English",
               retryEnabled: false,
@@ -156,7 +158,7 @@ describe("VsCodePlugin", () => {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
-      }) as Record<string, unknown>;
+      }) as unknown as Record<string, unknown>;
 
       expect(output["oaicopilot.commitLanguage"]).toBe("English");
       const retry = output["oaicopilot.retry"] as Record<string, unknown>;
@@ -187,7 +189,7 @@ describe("VsCodePlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const models = output["oaicopilot.models"] as Array<
         Record<string, unknown>
@@ -221,7 +223,7 @@ describe("VsCodePlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const models = output["oaicopilot.models"] as Array<
         Record<string, unknown>
@@ -254,7 +256,7 @@ describe("VsCodePlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const models = output["oaicopilot.models"] as Array<
         Record<string, unknown>

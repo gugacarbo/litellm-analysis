@@ -100,12 +100,12 @@ export { OpenAgentPlugin, OpenCodePlugin, PluginRegistry, VsCodePlugin };
 
 // Config
 import {
+  DEFAULT_AGENTS,
   DEFAULT_DB_PATH,
   DEFAULT_ROUTING,
-  DEFAULT_SYSTEM_AGENTS,
 } from "./config/defaults.js";
 
-export { DEFAULT_DB_PATH, DEFAULT_ROUTING, DEFAULT_SYSTEM_AGENTS };
+export { DEFAULT_AGENTS, DEFAULT_DB_PATH, DEFAULT_ROUTING };
 
 // ── Factory ──
 

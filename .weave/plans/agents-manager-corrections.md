@@ -139,7 +139,7 @@ result.model = `${ctx.entryKey}/gpt-5.5`;
 
 **Onde:** `apps/server/src/runtime/app-runtime.ts` linhas 41-46
 
-**Problema:** `setupAgentsManager()` chama `createAgentsManager()` mas descarta o resultado. A função não faz nada útil — o dbPath é passado mas o `DEFAULT_DB_PATH` (`@storage/agents.jsonc`) é diferente do path passado aqui (`@settings/agents.json`).
+**Problema:** `setupAgentsManager()` chama `createAgentsManager()` mas descarta o resultado. A função não faz nada útil — o dbPath é passado mas o `DEFAULT_DB_PATH` (`@storage/agents.jsonc`) é diferente do path passado aqui (`@storage/agents.json`).
 
 ---
 
@@ -197,11 +197,11 @@ interface IPlugin {
 
 ### Plugins implementados
 
-| Plugin | ID | Tipo | Arquivo de saída | Usa v2? | validate? |
-|--------|----|------|-------------------|---------|-----------|
-| OpenCodePlugin | `opencode` | builtin | `opencode.json` | Sim | Não |
-| OpenAgentPlugin | `openagent` | external | `oh-my-openagent.json` | Não | Não |
-| VsCodePlugin | `vscode` | external | `vscode-oaicopilot.json` | Não | Não |
+| Plugin          | ID          | Tipo     | Arquivo de saída         | Usa v2? | validate? |
+| --------------- | ----------- | -------- | ------------------------ | ------- | --------- |
+| OpenCodePlugin  | `opencode`  | builtin  | `opencode.json`          | Sim     | Não       |
+| OpenAgentPlugin | `openagent` | external | `oh-my-openagent.json`   | Não     | Não       |
+| VsCodePlugin    | `vscode`    | external | `vscode-oaicopilot.json` | Não     | Não       |
 
 ### OpenCodePlugin (builtin)
 
@@ -496,30 +496,30 @@ interface IPluginRegistry {
 
 ### Plugins — agentes internos
 
-| Plugin | Agentes Internos |
-|--------|-----------------|
-| OpenCodePlugin | 6 agentes: coder, planner, explorer, reviewer, writer, architect |
+| Plugin          | Agentes Internos                                                   |
+| --------------- | ------------------------------------------------------------------ |
+| OpenCodePlugin  | 6 agentes: coder, planner, explorer, reviewer, writer, architect   |
 | OpenAgentPlugin | A definir durante implementação (vai para produção como 1ª classe) |
-| VsCodePlugin | Nenhum — cada plugin tem sua especificidade |
+| VsCodePlugin    | Nenhum — cada plugin tem sua especificidade                        |
 
 ### API Endpoints (novos/alterados)
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/plugin-routing/plugins` | Lista plugins + status enabled + internal agents + config schema |
-| PUT | `/plugin-routing` | Atualiza routing config completo |
-| GET | `/plugin-routing/:pluginId/config` | Config atual + schema + internal agents de um plugin |
-| PUT | `/plugin-routing/:pluginId/config` | Atualiza config, agentMappings, categoryMappings |
-| PATCH | `/plugin-routing/:pluginId/categories/:categoryId` | Toggle category export |
-| PATCH | `/plugin-routing/:pluginId/agents/:agentId` | Toggle agent routing (existente) |
+| Método | Endpoint                                           | Descrição                                                        |
+| ------ | -------------------------------------------------- | ---------------------------------------------------------------- |
+| GET    | `/plugin-routing/plugins`                          | Lista plugins + status enabled + internal agents + config schema |
+| PUT    | `/plugin-routing`                                  | Atualiza routing config completo                                 |
+| GET    | `/plugin-routing/:pluginId/config`                 | Config atual + schema + internal agents de um plugin             |
+| PUT    | `/plugin-routing/:pluginId/config`                 | Atualiza config, agentMappings, categoryMappings                 |
+| PATCH  | `/plugin-routing/:pluginId/categories/:categoryId` | Toggle category export                                           |
+| PATCH  | `/plugin-routing/:pluginId/agents/:agentId`        | Toggle agent routing (existente)                                 |
 
 ### Responsabilidade de cada Plugin (v2)
 
-| Plugin | Agentes internos | Output | Notas |
-|--------|-----------------|--------|-------|
-| OpenCodePlugin | 6 agentes (coder, planner, explorer, reviewer, writer, architect) | `{ provider: { litellm, agent1, agent2... } }` | Usa agentMappings para decidir quais SystemAgents virar providers |
-| OpenAgentPlugin | A definir | `{ $schema, agents: {...}, categories: {...} }` | Usa agent.model real + categoryMappings. Será registrado em produção como o OpenCode
-| VsCodePlugin | Nenhum (só models) | `{ oaicopilot: { models: [...] } }` | Usa models do ctx; ignora agents |
+| Plugin          | Agentes internos                                                  | Output                                          | Notas                                                                                |
+| --------------- | ----------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| OpenCodePlugin  | 6 agentes (coder, planner, explorer, reviewer, writer, architect) | `{ provider: { litellm, agent1, agent2... } }`  | Usa agentMappings para decidir quais SystemAgents virar providers                    |
+| OpenAgentPlugin | A definir                                                         | `{ $schema, agents: {...}, categories: {...} }` | Usa agent.model real + categoryMappings. Será registrado em produção como o OpenCode |
+| VsCodePlugin    | Nenhum (só models)                                                | `{ oaicopilot: { models: [...] } }`             | Usa models do ctx; ignora agents                                                     |
 
 ---
 
@@ -528,7 +528,7 @@ interface IPluginRegistry {
 1. O agents-manager, agents-repository e server-core podem ser modificados; as routes podem mudar internamente mas os endpoints HTTP existentes permanecem compatíveis (novos endpoints serão adicionados)
 2. `@lite-llm/agents-repository` pode ser modificado (schema passthrough, novos campos em PluginConfig)
 3. O frontend (`/plugins`) já existe parcialmente (PluginCard com enable/disable + agent routing) e será expandido com a página de configuração individual (`/plugins/:pluginId`)
-4. O db real é `@storage/agents.jsonc` (corrigir o `@settings/agents.json` que está sendo passado em `app-runtime.ts`)
+4. O db real é `@storage/agents.jsonc` (corrigir o `@storage/agents.json` que está sendo passado em `app-runtime.ts`)
 5. `systemAgents` e `categories` no DbConfig são os dados de entrada para os plugins
 6. Agentes internos de cada plugin são definidos no código do plugin (`getInternalAgents()`) e não no JSONC — apenas o mapeamento (SystemAgent → InternalAgent) é persistido
 7. A tela `/agents` já existe como `agent-routing` e será mantida; a aba de categorias será adicionada dentro dela

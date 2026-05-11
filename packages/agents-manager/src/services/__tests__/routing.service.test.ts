@@ -9,7 +9,7 @@ function createMockRepository(
   const defaults: Record<string, unknown> = {
     version: 2,
     models: {},
-    systemAgents: {},
+    agents: {},
     routing: { version: 1, plugins: {} },
   };
   let store = { ...defaults, ...data } as DbConfig;

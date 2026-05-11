@@ -16,9 +16,9 @@ function createMockRepo(
   const data = { ...store, ...overrides };
   return {
     read: async () => data,
-    write: async (config) => Object.assign(data, config),
+    write: async (config: Record<string, unknown>) => Object.assign(data, config),
     readSync: () => data,
-    validate: () => true,
+    validate: ((_config: unknown): _config is never => true) as IAgentsRepository["validate"],
     exists: async () => true,
     getPath: () => "/tmp/test.json",
   } as unknown as IAgentsRepository;
@@ -159,7 +159,7 @@ describe("ModelService", () => {
         contextLength: 128000,
         maxOutput: 8192,
       });
-      expect((await service.get("gpt-4")).displayName).toBe("GPT-4 Updated");
+      expect((await service.get("gpt-4"))?.displayName).toBe("GPT-4 Updated");
     });
   });
 

@@ -85,6 +85,9 @@ const fullSchema = {
   },
 };
 
-writeFileSync("./@storage/schema.json", JSON.stringify(fullSchema, null, 2));
+writeFileSync(
+  "./@storage/agents.schema.json",
+  JSON.stringify(fullSchema, null, 2),
+);
 
-console.log("Schema generated at @storage/schema.json");
+console.log("Schema generated at @storage/agents.schema.json");

@@ -1,9 +1,9 @@
 {
-  "$schema": "./schema.json",
+  "$schema": "./agents.schema.json",
   "version": 1,
   "litellm": {
-    "baseUrl": "http://localhost:4000",
-    "apiKey": "${LITELLM_API_KEY}"
+    "baseUrl": "http://0.0.0.0:4000",
+    "apiKey": "sk-123456789"
   },
   "models": {},
   "agents": {
@@ -17,19 +17,18 @@
           "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
-          "limits": { "context": 200000, "output": 32768 }
-        },
-        {
-          "id": "stable",
-          "displayName": "Stable",
-          "modelIdStrategy": "prefix-version",
-          "limits": { "context": 200000, "output": 32768 }
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
         }
       ],
       "model": "",
       "fallbackModels": [],
       "enabledPlugins": ["opencode"],
-      "config": { "mode": "all" }
+      "config": {
+        "mode": "all"
+      }
     },
     "planner": {
       "id": "planner",
@@ -41,13 +40,18 @@
           "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
-          "limits": { "context": 200000, "output": 32768 }
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
         }
       ],
       "model": "",
       "fallbackModels": [],
       "enabledPlugins": ["opencode"],
-      "config": { "mode": "subagent" }
+      "config": {
+        "mode": "subagent"
+      }
     },
     "explorer": {
       "id": "explorer",
@@ -59,13 +63,18 @@
           "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
-          "limits": { "context": 200000, "output": 32768 }
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
         }
       ],
       "model": "",
       "fallbackModels": [],
       "enabledPlugins": ["opencode"],
-      "config": { "mode": "subagent" }
+      "config": {
+        "mode": "subagent"
+      }
     },
     "reviewer": {
       "id": "reviewer",
@@ -77,13 +86,18 @@
           "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
-          "limits": { "context": 200000, "output": 32768 }
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
         }
       ],
       "model": "",
       "fallbackModels": [],
       "enabledPlugins": ["opencode"],
-      "config": { "mode": "subagent" }
+      "config": {
+        "mode": "subagent"
+      }
     },
     "architect": {
       "id": "architect",
@@ -95,13 +109,18 @@
           "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
-          "limits": { "context": 200000, "output": 32768 }
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
         }
       ],
       "model": "",
       "fallbackModels": [],
       "enabledPlugins": ["opencode"],
-      "config": { "mode": "subagent" }
+      "config": {
+        "mode": "subagent"
+      }
     },
     "writer": {
       "id": "writer",
@@ -113,7 +132,10 @@
           "id": "latest",
           "displayName": "Latest",
           "modelIdStrategy": "prefix-version",
-          "limits": { "context": 200000, "output": 32768 }
+          "limits": {
+            "context": 200000,
+            "output": 32768
+          }
         }
       ],
       "model": "",
@@ -122,25 +144,5 @@
       "config": {}
     }
   },
-  "categories": {},
-  "routing": {
-    "version": 1,
-    "plugins": {
-      "opencode": {
-        "enabled": true,
-        "outputFile": "opencode.json",
-        "agents": {}
-      },
-      "openagent": {
-        "enabled": false,
-        "outputFile": "oh-my-openagent.json",
-        "agents": {}
-      },
-      "vscode": {
-        "enabled": false,
-        "outputFile": "vscode-oaicopilot.json",
-        "agents": {}
-      }
-    }
-  }
+  "categories": {}
 }

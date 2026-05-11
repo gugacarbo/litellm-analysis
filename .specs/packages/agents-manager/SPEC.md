@@ -29,7 +29,7 @@ Sistema de gerenciamento de agentes de IA com arquitetura em camadas e roteament
                            │
 ┌──────────────────────────▼──────────────────────────────────────┐
 │                     Repository Layer                             │
-│  client.ts  — Leitura/escrita de @settings/agents.json          │
+│  client.ts  — Leitura/escrita de @storage/agents.json          │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────────────┐
@@ -43,7 +43,7 @@ Sistema de gerenciamento de agentes de IA com arquitetura em camadas e roteament
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  @settings/agents.json                                           │
+│  @storage/agents.json                                           │
 │  { catalog: AgentCatalog, routing: AgentRoutingConfig }          │
 └───────────────────────────────┬─────────────────────────────────┘
                                 │
@@ -160,7 +160,7 @@ import { createAgentsManager } from "@lite-llm/agents-manager";
 
 // Criar instância
 const { services, registry, routing } = createAgentsManager({
-  dbPath: "@settings/agents.json",
+  dbPath: "@storage/agents.json",
   outputDir: "data",
   registerBuiltins: true,
 });
@@ -196,20 +196,20 @@ await registry.exportAll();
 
 ## Plugins Builtin
 
-| Plugin | ID | Output | Pattern |
-|--------|-----|--------|---------|
-| OpenCodePlugin | `opencode` | `data/opencode.json` | `{agentId}/{version}` |
-| OpenAgentPlugin | `openagent` | `data/oh-my-openagent.json` | `{agentId}/{version}` |
-| VsCodePlugin | `vscode` | `data/vscode-oaicopilot.json` | `{agentId}-{version}` |
+| Plugin          | ID          | Output                        | Pattern               |
+| --------------- | ----------- | ----------------------------- | --------------------- |
+| OpenCodePlugin  | `opencode`  | `data/opencode.json`          | `{agentId}/{version}` |
+| OpenAgentPlugin | `openagent` | `data/oh-my-openagent.json`   | `{agentId}/{version}` |
+| VsCodePlugin    | `vscode`    | `data/vscode-oaicopilot.json` | `{agentId}-{version}` |
 
 ## Arquivos
 
-| Arquivo | Caminho Padrão | Propósito |
-|---------|---------------|-----------|
-| Configuração | `@settings/agents.json` | Fonte da verdade |
-| OpenCode | `data/opencode.json` | AI SDK providers |
-| OpenAgent | `data/oh-my-openagent.json` | Configuração Oh My OpenAgent |
-| VS Code | `data/vscode-oaicopilot.json` | Models para VS Code OAICopilot |
+| Arquivo      | Caminho Padrão                | Propósito                      |
+| ------------ | ----------------------------- | ------------------------------ |
+| Configuração | `@storage/agents.json`        | Fonte da verdade               |
+| OpenCode     | `data/opencode.json`          | AI SDK providers               |
+| OpenAgent    | `data/oh-my-openagent.json`   | Configuração Oh My OpenAgent   |
+| VS Code      | `data/vscode-oaicopilot.json` | Models para VS Code OAICopilot |
 
 ## Dependências
 

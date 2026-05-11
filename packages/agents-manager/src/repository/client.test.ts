@@ -13,7 +13,7 @@ describe("createRepositoryClient fallback", () => {
     originalCwd = process.cwd();
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "agents-manager-test-"));
     await fs.writeFile(path.join(tmpDir, "pnpm-workspace.yaml"), "\n");
-    await fs.mkdir(path.join(tmpDir, "@settings"), { recursive: true });
+    await fs.mkdir(path.join(tmpDir, "@storage"), { recursive: true });
     process.chdir(tmpDir);
   });
 
@@ -23,7 +23,7 @@ describe("createRepositoryClient fallback", () => {
   });
 
   it("uses .jsonc when .json is missing", async () => {
-    const jsoncPath = path.join(tmpDir, "@settings", "agents.jsonc");
+    const jsoncPath = path.join(tmpDir, "@storage", "agents.jsonc");
     await fs.writeFile(jsoncPath, "{}");
 
     const repository = createRepositoryClient();
@@ -31,8 +31,8 @@ describe("createRepositoryClient fallback", () => {
   });
 
   it("prefers .json when both files exist", async () => {
-    const jsonPath = path.join(tmpDir, "@settings", "agents.json");
-    const jsoncPath = path.join(tmpDir, "@settings", "agents.jsonc");
+    const jsonPath = path.join(tmpDir, "@storage", "agents.json");
+    const jsoncPath = path.join(tmpDir, "@storage", "agents.jsonc");
     await fs.writeFile(jsonPath, "{}");
     await fs.writeFile(jsoncPath, "{}");
 

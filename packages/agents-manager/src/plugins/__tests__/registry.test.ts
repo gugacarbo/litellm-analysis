@@ -11,7 +11,6 @@ function createMockRepository(): IAgentsRepository {
       models: {},
       agents: {},
       categories: {},
-      systemAgents: {},
       routing: { version: 1, plugins: {} },
     }),
     readSync: vi.fn(),
@@ -153,7 +152,7 @@ describe("PluginRegistry", () => {
   });
 
   describe("exportOne", () => {
-    it("chama buildOutput com systemAgents e routing", async () => {
+    it("chama buildOutput com agents e routing", async () => {
       const mockRepo = createMockRepository();
       (mockRepo.read as ReturnType<typeof vi.fn>).mockResolvedValue({
         version: 2,
@@ -165,9 +164,8 @@ describe("PluginRegistry", () => {
             maxOutput: 4096,
           },
         },
-        agents: {},
         categories: {},
-        systemAgents: {
+        agents: {
           builder: {
             displayName: "Builder",
             icon: "🔧",

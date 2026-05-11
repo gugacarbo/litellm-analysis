@@ -13,8 +13,9 @@
     "typecheck": "turbo typecheck",
     "lint-staged": "lint-staged",
     "prepare": "husky",
-    "validate:agents": "ajv validate -s @settings/agents.schema.json -d @settings/agents.json --spec=draft7",
-    "validate:agents:all": "ajv validate -s @settings/agents.schema.json -d @settings/agents.json --spec=draft7 --strict=true"
+    "generate:agents-schema": "tsx repositories/agents-repository/scripts/generate-json-schema.ts",
+    "validate:agents": "ajv validate -s @storage/agents.schema.json -d @storage/agents.json",
+    "validate:agents:all": "ajv validate -s @storage/agents.schema.json -d @storage/agents.json --strict=true"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

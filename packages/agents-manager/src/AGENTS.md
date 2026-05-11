@@ -68,7 +68,7 @@ data/opencode.json, data/oh-my-openagent.json, data/vscode-oaicopilot.json
 
 ## CONVENTIONS
 
-- Repository client handles `@settings/` path resolution from monorepo root
+- Repository client handles `@storage/` path resolution from monorepo root
 - JSON/JSONC fallback: `.json` → `.jsonc` if file not found
 
 
@@ -80,9 +80,9 @@ data/opencode.json, data/oh-my-openagent.json, data/vscode-oaicopilot.json
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Add agent CRUD logic | `services/agent.service.ts` | Uses repository client |
-| Add new plugin | `plugins/` | Implement `IPlugin` interface |
-| Change DB path resolution | `repository/client.ts` | Handles @settings/ paths |
-| Add routing config field | `services/routing.service.ts` | RoutingService |
+| Task                      | Location                      | Notes                         |
+| ------------------------- | ----------------------------- | ----------------------------- |
+| Add agent CRUD logic      | `services/agent.service.ts`   | Uses repository client        |
+| Add new plugin            | `plugins/`                    | Implement `IPlugin` interface |
+| Change DB path resolution | `repository/client.ts`        | Handles @storage/ paths       |
+| Add routing config field  | `services/routing.service.ts` | RoutingService                |

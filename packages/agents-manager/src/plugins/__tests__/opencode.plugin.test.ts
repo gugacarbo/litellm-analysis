@@ -103,7 +103,7 @@ describe("OpenCodePlugin", () => {
         },
       );
       expect(output).toHaveProperty("provider");
-      expect((output as Record<string, unknown>).provider).toHaveProperty(
+      expect((output as unknown as Record<string, unknown>).provider).toHaveProperty(
         "litellm",
       );
     });
@@ -126,7 +126,7 @@ describe("OpenCodePlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
       const litellm = provider.litellm as Record<string, unknown>;
@@ -149,7 +149,7 @@ describe("OpenCodePlugin", () => {
             {
               id: "fast",
               displayName: "Fast",
-              model: "gpt-3.5",
+              modelIdStrategy: "model-name",
               limits: { context: 16000, output: 2048 },
             },
           ],
@@ -160,8 +160,9 @@ describe("OpenCodePlugin", () => {
         plugins: {
           opencode: {
             enabled: true,
-            agentMappings: { builder: "coder" },
+            outputFile: "opencode.json",
             agents: {},
+            agentMappings: { builder: "coder" },
           },
         },
       };
@@ -172,7 +173,7 @@ describe("OpenCodePlugin", () => {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
-      }) as Record<string, unknown>;
+      }) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
       expect(provider).toHaveProperty("coder");
@@ -195,7 +196,7 @@ describe("OpenCodePlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
       expect(Object.keys(provider)).toEqual(["litellm"]);
@@ -213,7 +214,7 @@ describe("OpenCodePlugin", () => {
             apiKey: "secret-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
       const litellm = provider.litellm as Record<string, unknown>;

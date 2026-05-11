@@ -6,7 +6,7 @@ Este documento descreve a migração do formato atual (acoplado ao oh-my-opencod
 
 ## Formato Atual vs Novo
 
-### Formato Atual (`@settings/agents.json`)
+### Formato Atual (`@storage/agents.json`)
 
 ```json
 {
@@ -78,7 +78,7 @@ Este documento descreve a migração do formato atual (acoplado ao oh-my-opencod
 
 1. **Backup do arquivo atual**
    ```bash
-   cp @settings/agents.json @settings/agents.json.bak
+   cp @storage/agents.json @storage/agents.json.bak
    ```
 
 2. **Criar estrutura de diretórios**
@@ -274,7 +274,7 @@ export function toLegacyFormat(catalog: AgentCatalog): LegacyDbConfig {
 
 ## Critérios de Aceite
 
-1. ✅ Arquivo `@settings/agents.json` migrado para novo formato
+1. ✅ Arquivo `@storage/agents.json` migrado para novo formato
 2. ✅ `AGENT_VERSIONS` removido de plugins (config-driven)
 3. ✅ Limites hard-coded removidos (vem de `PluginRoutingRule.limits`)
 4. ✅ `RoutingService` implementado e testado
@@ -284,8 +284,8 @@ export function toLegacyFormat(catalog: AgentCatalog): LegacyDbConfig {
 
 ## Riscos e Mitigações
 
-| Risco | Mitigação |
-|--------|-----------|
-| Perda de dados na migração | Backup prévio + validação de schema |
+| Risco                           | Mitigação                                  |
+| ------------------------------- | ------------------------------------------ |
+| Perda de dados na migração      | Backup prévio + validação de schema        |
 | Breaking change em consumidores | Migration layer + backward compat optional |
-| Output diferente do esperado | Testes de regressão com snapshots |
+| Output diferente do esperado    | Testes de regressão com snapshots          |

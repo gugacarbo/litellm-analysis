@@ -22,64 +22,64 @@ export class AgentCatalogService implements IAgentCatalogService {
   }
 
   async getAll(): Promise<Record<string, SystemAgent>> {
-    const config = await this.readWithSystemAgents();
-    return config.systemAgents ?? {};
+    const config = await this.readWithAgents();
+    return config.agents ?? {};
   }
 
   async get(key: string): Promise<SystemAgent | undefined> {
-    const config = await this.readWithSystemAgents();
-    return config.systemAgents?.[key];
+    const config = await this.readWithAgents();
+    return config.agents?.[key];
   }
 
   async create(key: string, entry: SystemAgent): Promise<void> {
-    const config = await this.readWithSystemAgents();
+    const config = await this.readWithAgents();
 
-    if (config.systemAgents?.[key] !== undefined) {
+    if (config.agents?.[key] !== undefined) {
       throw new Error(`SystemAgent "${key}" already exists`);
     }
 
-    if (config.systemAgents === undefined) {
-      config.systemAgents = {};
+    if (config.agents === undefined) {
+      config.agents = {};
     }
 
-    config.systemAgents[key] = entry;
+    config.agents[key] = entry;
     await this.repository.write(config);
   }
 
   async update(key: string, entry: Partial<SystemAgent>): Promise<void> {
-    const config = await this.readWithSystemAgents();
+    const config = await this.readWithAgents();
 
-    if (config.systemAgents?.[key] === undefined) {
+    if (config.agents?.[key] === undefined) {
       throw new Error(`SystemAgent "${key}" not found`);
     }
 
-    config.systemAgents[key] = { ...config.systemAgents[key], ...entry };
+    config.agents[key] = { ...config.agents[key], ...entry };
     await this.repository.write(config);
   }
 
   async upsert(key: string, entry: SystemAgent): Promise<void> {
-    const config = await this.readWithSystemAgents();
+    const config = await this.readWithAgents();
 
-    if (config.systemAgents === undefined) {
-      config.systemAgents = {};
+    if (config.agents === undefined) {
+      config.agents = {};
     }
 
-    config.systemAgents[key] = entry;
+    config.agents[key] = entry;
     await this.repository.write(config);
   }
 
   async delete(key: string): Promise<void> {
-    const config = await this.readWithSystemAgents();
+    const config = await this.readWithAgents();
 
-    if (config.systemAgents?.[key] === undefined) {
+    if (config.agents?.[key] === undefined) {
       throw new Error(`SystemAgent "${key}" not found`);
     }
 
-    delete config.systemAgents[key];
+    delete config.agents[key];
     await this.repository.write(config);
   }
 
-  private async readWithSystemAgents(): Promise<DbConfig> {
+  private async readWithAgents(): Promise<DbConfig> {
     const config = await this.repository.read();
     return config as DbConfig;
   }

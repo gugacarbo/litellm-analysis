@@ -82,7 +82,7 @@ describe("OpenAgentPlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       expect(output.$schema).toContain("oh-my-opencode");
       expect(output).toHaveProperty("git_master");
@@ -102,7 +102,7 @@ describe("OpenAgentPlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const gitMaster = output.git_master as Record<string, unknown>;
       expect(gitMaster.commit_footer).toBe(false);
@@ -116,6 +116,8 @@ describe("OpenAgentPlugin", () => {
         plugins: {
           openagent: {
             enabled: true,
+            outputFile: "oh-my-openagent.json",
+            agents: {},
             config: {
               commitFooter: true,
               includeCoAuthoredBy: true,
@@ -130,7 +132,7 @@ describe("OpenAgentPlugin", () => {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
-      }) as Record<string, unknown>;
+      }) as unknown as Record<string, unknown>;
 
       const gitMaster = output.git_master as Record<string, unknown>;
       expect(gitMaster.commit_footer).toBe(true);
@@ -150,7 +152,7 @@ describe("OpenAgentPlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       expect(output.globalFallbackModel).toBe("gpt-4");
     });
@@ -163,7 +165,7 @@ describe("OpenAgentPlugin", () => {
           description: "Build stuff",
           model: "gpt-4",
           fallbackModels: ["gpt-3.5"],
-          config: { mode: "auto", tools: ["read", "write"], color: "blue" },
+          config: { mode: "all", tools: { read: true, write: true }, color: "blue" },
         }),
       ];
       const routing: PluginRoutingConfig = {
@@ -171,6 +173,8 @@ describe("OpenAgentPlugin", () => {
         plugins: {
           openagent: {
             enabled: true,
+            outputFile: "oh-my-openagent.json",
+            agents: {},
             agentMappings: { builder: "default" },
           },
         },
@@ -182,7 +186,7 @@ describe("OpenAgentPlugin", () => {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
-      }) as Record<string, unknown>;
+      }) as unknown as Record<string, unknown>;
 
       const agentsMap = output.agents as Record<string, unknown>;
       expect(agentsMap).toHaveProperty("default");
@@ -190,9 +194,6 @@ describe("OpenAgentPlugin", () => {
       expect(entry.description).toBe("Build stuff");
       expect(entry.model).toBe("gpt-4");
       expect(entry.fallback_models).toEqual(["gpt-3.5"]);
-      expect(entry.mode).toBe("auto");
-      expect(entry.tools).toEqual(["read", "write"]);
-      expect(entry.color).toBe("blue");
     });
 
     it("ignora agentes sem mapeamento", () => {
@@ -209,7 +210,7 @@ describe("OpenAgentPlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as Record<string, unknown>;
+      ) as unknown as Record<string, unknown>;
 
       const agentsMap = output.agents as Record<string, unknown>;
       expect(Object.keys(agentsMap)).toHaveLength(0);

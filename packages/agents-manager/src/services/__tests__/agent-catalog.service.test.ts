@@ -16,9 +16,9 @@ function createMockRepo(
   const data = { ...store, ...overrides };
   return {
     read: async () => data,
-    write: async (config) => Object.assign(data, config),
+    write: async (config: Record<string, unknown>) => Object.assign(data, config),
     readSync: () => data,
-    validate: () => true,
+    validate: ((_config: unknown): _config is never => true) as IAgentsRepository["validate"],
     exists: async () => true,
     getPath: () => "/tmp/test.json",
   } as unknown as IAgentsRepository;
@@ -41,18 +41,18 @@ function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
 
 describe("AgentCatalogService", () => {
   describe("getAll", () => {
-    it("retorna todos os systemAgents", async () => {
-      const systemAgents: Record<string, SystemAgent> = {
+    it("retorna todos os agents", async () => {
+      const agents: Record<string, SystemAgent> = {
         builder: makeSystemAgent({ id: "builder", displayName: "Builder" }),
         reviewer: makeSystemAgent({ id: "reviewer", displayName: "Reviewer" }),
       };
-      const repo = createMockRepo({ systemAgents });
+      const repo = createMockRepo({ agents });
       const service = new AgentCatalogService({ repository: repo });
       const result = await service.getAll();
-      expect(result).toEqual(systemAgents);
+      expect(result).toEqual(agents);
     });
 
-    it("retorna objeto vazio quando systemAgents é undefined", async () => {
+    it("retorna objeto vazio quando agents é undefined", async () => {
       const repo = createMockRepo({});
       const service = new AgentCatalogService({ repository: repo });
       expect(await service.getAll()).toEqual({});
@@ -62,19 +62,20 @@ describe("AgentCatalogService", () => {
   describe("get", () => {
     it("retorna systemAgent específico", async () => {
       const repo = createMockRepo({
-        systemAgents: { builder: makeSystemAgent() },
+        agents: { builder: makeSystemAgent() },
       });
       const service = new AgentCatalogService({ repository: repo });
-      expect((await service.get("builder")).displayName).toBe("Builder");
+      const result = await service.get("builder");
+      expect(result?.displayName).toBe("Builder");
     });
 
     it("retorna undefined para systemAgent inexistente", async () => {
-      const repo = createMockRepo({ systemAgents: {} });
+      const repo = createMockRepo({ agents: {} });
       const service = new AgentCatalogService({ repository: repo });
       expect(await service.get("nonexistent")).toBeUndefined();
     });
 
-    it("retorna undefined quando systemAgents é undefined", async () => {
+    it("retorna undefined quando agents é undefined", async () => {
       const repo = createMockRepo({});
       const service = new AgentCatalogService({ repository: repo });
       expect(await service.get("builder")).toBeUndefined();
@@ -83,24 +84,26 @@ describe("AgentCatalogService", () => {
 
   describe("create", () => {
     it("adiciona systemAgent ao repositório", async () => {
-      const repo = createMockRepo({ systemAgents: {} });
+      const repo = createMockRepo({ agents: {} });
       const service = new AgentCatalogService({ repository: repo });
       const entry = makeSystemAgent({ id: "builder" });
       await service.create("builder", entry);
-      expect((await service.get("builder")).displayName).toBe("Builder");
+      const result = await service.get("builder");
+      expect(result?.displayName).toBe("Builder");
     });
 
-    it("inicializa systemAgents como {} se undefined", async () => {
+    it("inicializa agents como {} se undefined", async () => {
       const repo = createMockRepo({});
       const service = new AgentCatalogService({ repository: repo });
       const entry = makeSystemAgent({ id: "builder" });
       await service.create("builder", entry);
-      expect((await service.get("builder")).displayName).toBe("Builder");
+      const result = await service.get("builder");
+      expect(result?.displayName).toBe("Builder");
     });
 
     it("lança erro se systemAgent já existe", async () => {
       const repo = createMockRepo({
-        systemAgents: { builder: makeSystemAgent() },
+        agents: { builder: makeSystemAgent() },
       });
       const service = new AgentCatalogService({ repository: repo });
       await expect(
@@ -112,7 +115,7 @@ describe("AgentCatalogService", () => {
   describe("update", () => {
     it("atualiza systemAgent existente com merge parcial", async () => {
       const repo = createMockRepo({
-        systemAgents: {
+        agents: {
           builder: makeSystemAgent({
             model: "gpt-4",
             description: "Build stuff",
@@ -122,12 +125,12 @@ describe("AgentCatalogService", () => {
       const service = new AgentCatalogService({ repository: repo });
       await service.update("builder", { model: "gpt-3.5" });
       const result = await service.get("builder");
-      expect(result.model).toBe("gpt-3.5");
-      expect(result.description).toBe("Build stuff");
+      expect(result?.model).toBe("gpt-3.5");
+      expect(result?.description).toBe("Build stuff");
     });
 
     it("lança erro se systemAgent não existe", async () => {
-      const repo = createMockRepo({ systemAgents: {} });
+      const repo = createMockRepo({ agents: {} });
       const service = new AgentCatalogService({ repository: repo });
       await expect(
         service.update("nonexistent", { model: "gpt-4" }),
@@ -137,33 +140,36 @@ describe("AgentCatalogService", () => {
 
   describe("upsert", () => {
     it("cria systemAgent se não existe", async () => {
-      const repo = createMockRepo({ systemAgents: {} });
+      const repo = createMockRepo({ agents: {} });
       const service = new AgentCatalogService({ repository: repo });
       await service.upsert("builder", makeSystemAgent());
-      expect((await service.get("builder")).displayName).toBe("Builder");
+      const result = await service.get("builder");
+      expect(result?.displayName).toBe("Builder");
     });
 
     it("atualiza systemAgent se já existe", async () => {
       const repo = createMockRepo({
-        systemAgents: { builder: makeSystemAgent() },
+        agents: { builder: makeSystemAgent() },
       });
       const service = new AgentCatalogService({ repository: repo });
       await service.upsert("builder", makeSystemAgent({ model: "claude-3.5" }));
-      expect((await service.get("builder")).model).toBe("claude-3.5");
+      const result = await service.get("builder");
+      expect(result?.model).toBe("claude-3.5");
     });
 
-    it("inicializa systemAgents como {} se undefined", async () => {
+    it("inicializa agents como {} se undefined", async () => {
       const repo = createMockRepo({});
       const service = new AgentCatalogService({ repository: repo });
       await service.upsert("builder", makeSystemAgent());
-      expect((await service.get("builder")).displayName).toBe("Builder");
+      const result = await service.get("builder");
+      expect(result?.displayName).toBe("Builder");
     });
   });
 
   describe("delete", () => {
     it("remove systemAgent existente", async () => {
       const repo = createMockRepo({
-        systemAgents: { builder: makeSystemAgent() },
+        agents: { builder: makeSystemAgent() },
       });
       const service = new AgentCatalogService({ repository: repo });
       await service.delete("builder");
@@ -171,7 +177,7 @@ describe("AgentCatalogService", () => {
     });
 
     it("lança erro se systemAgent não existe", async () => {
-      const repo = createMockRepo({ systemAgents: {} });
+      const repo = createMockRepo({ agents: {} });
       const service = new AgentCatalogService({ repository: repo });
       await expect(service.delete("nonexistent")).rejects.toThrow("not found");
     });

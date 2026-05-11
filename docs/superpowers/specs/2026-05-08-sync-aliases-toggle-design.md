@@ -16,7 +16,7 @@ uma forma de desabilitar essa sincronização automática.
 
 - Um interruptor (toggle switch) no cabeçalho da página de roteamento de agentes para controlar a sincronização de aliases
 - Padrão: desabilitado (`syncAliases: false`)
-- Configuração persistida em `@settings/agents.json` (server-side)
+- Configuração persistida em `@storage/agents.json` (server-side)
 - Configuração armazenada em `routing.syncAliases` no arquivo JSON
 
 ## Modelo de Dados

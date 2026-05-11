@@ -3,11 +3,11 @@ import type {
   SystemAgent,
 } from "@lite-llm/agents-repository/schema";
 
-export const DEFAULT_DB_PATH = "@storage/agents.jsonc";
+export const DEFAULT_DB_PATH = "@storage/agents.json";
 
 // ── Default System Agents ──
 
-export const DEFAULT_SYSTEM_AGENTS: SystemAgent[] = [
+export const DEFAULT_AGENTS: SystemAgent[] = [
   {
     id: "builder",
     displayName: "Builder",

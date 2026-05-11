@@ -21,7 +21,7 @@ export function useAgentRoutingDerived(agents: SystemAgent[]) {
       if (!agent) return null;
 
       return {
-        id: agent.id,
+        id: agent.id!,
         displayName: agent.displayName,
         icon: agent.icon,
         description: agent.description,

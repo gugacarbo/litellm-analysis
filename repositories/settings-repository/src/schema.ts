@@ -131,7 +131,7 @@ export const dbConfigSchema = z.object({
     apiKey: z.string(),
   }),
   models: z.record(z.string(), modelSpecSchema),
-  agents: z.record(z.string(), agentEntrySchema),
+  agents: z.record(z.string(), systemAgentSchema),
   categories: z.record(z.string(), categoryEntrySchema),
   globalFallbackModel: z.string().optional(),
   customAliases: z.record(z.string(), z.string()).optional(),

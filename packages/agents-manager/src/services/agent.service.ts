@@ -1,18 +1,16 @@
-import type {
-  AgentEntry,
-  IAgentsRepository,
-} from "@lite-llm/agents-repository/repository";
+import type { SystemAgent } from "@lite-llm/agents-repository/schema";
+import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 
 export interface AgentServiceOptions {
   repository: IAgentsRepository;
 }
 
 export interface IAgentService {
-  getAll(): Promise<Record<string, AgentEntry>>;
-  get(key: string): Promise<AgentEntry | undefined>;
-  create(key: string, entry: AgentEntry): Promise<void>;
-  update(key: string, entry: Partial<AgentEntry>): Promise<void>;
-  upsert(key: string, entry: AgentEntry): Promise<void>;
+  getAll(): Promise<Record<string, SystemAgent>>;
+  get(key: string): Promise<SystemAgent | undefined>;
+  create(key: string, entry: SystemAgent): Promise<void>;
+  update(key: string, entry: Partial<SystemAgent>): Promise<void>;
+  upsert(key: string, entry: SystemAgent): Promise<void>;
   delete(key: string): Promise<void>;
 }
 
@@ -23,17 +21,17 @@ export class AgentService implements IAgentService {
     this.repository = options.repository;
   }
 
-  async getAll(): Promise<Record<string, AgentEntry>> {
+  async getAll(): Promise<Record<string, SystemAgent>> {
     const config = await this.repository.read();
     return config.agents;
   }
 
-  async get(key: string): Promise<AgentEntry | undefined> {
+  async get(key: string): Promise<SystemAgent | undefined> {
     const config = await this.repository.read();
     return config.agents[key];
   }
 
-  async create(key: string, entry: AgentEntry): Promise<void> {
+  async create(key: string, entry: SystemAgent): Promise<void> {
     const config = await this.repository.read();
 
     if (config.agents[key] !== undefined) {
@@ -44,7 +42,7 @@ export class AgentService implements IAgentService {
     await this.repository.write(config);
   }
 
-  async update(key: string, entry: Partial<AgentEntry>): Promise<void> {
+  async update(key: string, entry: Partial<SystemAgent>): Promise<void> {
     const config = await this.repository.read();
 
     if (config.agents[key] === undefined) {
@@ -55,7 +53,7 @@ export class AgentService implements IAgentService {
     await this.repository.write(config);
   }
 
-  async upsert(key: string, entry: AgentEntry): Promise<void> {
+  async upsert(key: string, entry: SystemAgent): Promise<void> {
     const config = await this.repository.read();
     config.agents[key] = entry;
     await this.repository.write(config);

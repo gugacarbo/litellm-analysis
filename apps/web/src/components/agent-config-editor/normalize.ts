@@ -1,11 +1,12 @@
 import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 
 export function normalizeSystemAgent(
-  partial: Partial<SystemAgent> & { id: string },
+  partial: Partial<SystemAgent> & { id?: string },
 ): SystemAgent {
+  const id = partial.id ?? "default";
   return {
-    id: partial.id,
-    displayName: partial.displayName ?? partial.id,
+    id,
+    displayName: partial.displayName ?? id,
     icon: partial.icon ?? "🔧",
     description: partial.description ?? "",
     versions: partial.versions ?? [],
