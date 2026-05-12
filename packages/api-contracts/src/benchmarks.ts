@@ -15,6 +15,11 @@ export interface NormalizedModelBenchmark {
   scicode: number | null;
   math500: number | null;
   aime: number | null;
+  aime25: number | null;
+  tau2: number | null;
+  ifbench: number | null;
+  lcr: number | null;
+  terminalbenchHard: number | null;
   priceInput1mTokens: number | null;
   priceOutput1mTokens: number | null;
   priceBlended1mTokens: number | null;

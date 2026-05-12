@@ -108,6 +108,11 @@ const normalizedModelSchema = z.object({
   scicode: z.number().nullable(),
   math500: z.number().nullable(),
   aime: z.number().nullable(),
+  aime25: z.number().nullable(),
+  tau2: z.number().nullable(),
+  ifbench: z.number().nullable(),
+  lcr: z.number().nullable(),
+  terminalbenchHard: z.number().nullable(),
   priceInput1mTokens: z.number().nullable(),
   priceOutput1mTokens: z.number().nullable(),
   priceBlended1mTokens: z.number().nullable(),
@@ -237,6 +242,11 @@ function normalizeModel(
     scicode: getEvaluation(model.evaluations, "scicode"),
     math500: getEvaluation(model.evaluations, "math_500"),
     aime: getEvaluation(model.evaluations, "aime"),
+    aime25: getEvaluation(model.evaluations, "aime_25"),
+    tau2: getEvaluation(model.evaluations, "tau2"),
+    ifbench: getEvaluation(model.evaluations, "ifbench"),
+    lcr: getEvaluation(model.evaluations, "lcr"),
+    terminalbenchHard: getEvaluation(model.evaluations, "terminalbench_hard"),
     priceInput1mTokens: model.pricing?.price_1m_input_tokens ?? null,
     priceOutput1mTokens: model.pricing?.price_1m_output_tokens ?? null,
     priceBlended1mTokens: model.pricing?.price_1m_blended_3_to_1 ?? null,
@@ -434,6 +444,11 @@ export interface ArtificialAnalysisNormalizedModelBenchmark {
   scicode: number | null;
   math500: number | null;
   aime: number | null;
+  aime25: number | null;
+  tau2: number | null;
+  ifbench: number | null;
+  lcr: number | null;
+  terminalbenchHard: number | null;
   priceInput1mTokens: number | null;
   priceOutput1mTokens: number | null;
   priceBlended1mTokens: number | null;

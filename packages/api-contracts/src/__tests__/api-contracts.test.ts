@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type {
   AgentCatalogDetailResponse,
+  AgentCatalogEntry,
   AgentCatalogResponse,
   SystemAgent,
 } from "../agent-routing";
@@ -29,19 +30,33 @@ import type {
 describe("@lite-llm/api-contracts", () => {
   describe("type exports are importable (compile-time check)", () => {
     it("imports agent-routing types", () => {
-      const _agent: SystemAgent = {
+      const _agentEntry: AgentCatalogEntry = {
+        key: "test",
         displayName: "Test",
         icon: "T",
         description: "A test agent",
         limits: { context: 200000, output: 32768 },
         model: "gpt-4",
         fallbackModels: [],
+        enabledPlugins: [],
         config: {},
       };
-      const _catalogResp: AgentCatalogResponse = { agents: [_agent] };
-      const _detailResp: AgentCatalogDetailResponse = { agent: _agent };
-      expect(_agent.displayName).toBe("Test");
+      const _catalogResp: AgentCatalogResponse = { agents: [_agentEntry] };
+      const _detailResp: AgentCatalogDetailResponse = {
+        key: "test",
+        agent: {
+          displayName: "Test",
+          icon: "T",
+          description: "A test agent",
+          limits: { context: 200000, output: 32768 },
+          model: "gpt-4",
+          fallbackModels: [],
+          config: {},
+        },
+      };
+      expect(_agentEntry.displayName).toBe("Test");
       expect(_catalogResp.agents).toHaveLength(1);
+      expect(_detailResp.key).toBe("test");
       expect(_detailResp.agent.displayName).toBe("Test");
     });
 

@@ -7,7 +7,9 @@ import {
 } from "../../lib/api-client/agent-catalog";
 import { queryKeys } from "../../lib/query-keys";
 
-export function useAgentRoutingActions() {
+export function useAgentRoutingActions(
+  agentKeyByDisplayName: Record<string, string>,
+) {
   const queryClient = useQueryClient();
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -26,8 +28,10 @@ export function useAgentRoutingActions() {
 
   const handleSaveAgent = useCallback(
     async (agent: SystemAgent) => {
+      const catalogKey =
+        agentKeyByDisplayName[agent.displayName] ?? agent.displayName;
       await upsertMutation.mutateAsync({
-        id: agent.displayName,
+        id: catalogKey,
         agent,
       });
       setDialogOpen(false);
@@ -35,21 +39,22 @@ export function useAgentRoutingActions() {
         queryKey: queryKeys.agentCatalog.all,
       });
     },
-    [queryClient, upsertMutation],
+    [queryClient, upsertMutation, agentKeyByDisplayName],
   );
 
   const handleDeleteAgent = useCallback(
-    async (id: string) => {
-      await deleteMutation.mutateAsync(id);
+    async (displayName: string) => {
+      const catalogKey = agentKeyByDisplayName[displayName] ?? displayName;
+      await deleteMutation.mutateAsync(catalogKey);
       await queryClient.invalidateQueries({
         queryKey: queryKeys.agentCatalog.all,
       });
     },
-    [deleteMutation, queryClient],
+    [deleteMutation, queryClient, agentKeyByDisplayName],
   );
 
-  const openAgentEditor = useCallback((id: string) => {
-    setEditingAgentId(id);
+  const openAgentEditor = useCallback((displayName: string) => {
+    setEditingAgentId(displayName);
     setDialogOpen(true);
   }, []);
 

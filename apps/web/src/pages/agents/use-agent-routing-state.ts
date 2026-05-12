@@ -1,4 +1,7 @@
-import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
+import type {
+  AgentCatalogEntry,
+  SystemAgent,
+} from "@lite-llm/api-contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
 import { normalizeSystemAgent } from "../../components/agent-config-editor/normalize";
 import {
@@ -18,20 +21,22 @@ export function useAgentRoutingState() {
     queryFn: getCategoryCatalog,
   });
 
-  const rawAgents: unknown[] = catalogQuery.data?.agents ?? [];
-  const agents: SystemAgent[] = rawAgents
-    .filter(
-      (agent): agent is Partial<SystemAgent> & { id: string } =>
-        typeof agent === "object" &&
-        agent !== null &&
-        "id" in agent &&
-        typeof agent.id === "string" &&
-        agent.id.length > 0,
-    )
-    .map((agent) => normalizeSystemAgent(agent));
+  const rawAgents: AgentCatalogEntry[] = catalogQuery.data?.agents ?? [];
+
+  // Build map of displayName -> catalog key
+  const agentKeyByDisplayName: Record<string, string> = {};
+  const agents: SystemAgent[] = [];
+
+  for (const entry of rawAgents) {
+    if (entry.displayName) {
+      agentKeyByDisplayName[entry.displayName] = entry.key;
+      agents.push(normalizeSystemAgent(entry));
+    }
+  }
 
   return {
     agents,
+    agentKeyByDisplayName,
     loading: catalogQuery.isPending && !catalogQuery.data,
     error:
       catalogQuery.error instanceof Error ? catalogQuery.error.message : null,

@@ -1,4 +1,5 @@
 import type { SystemAgent } from "@lite-llm/agents-manager";
+import type { AgentCatalogEntry } from "@lite-llm/api-contracts/agent-routing";
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index.js";
 
@@ -15,7 +16,10 @@ export function registerAgentCatalogRoutes(
       }
       const { services } = manager;
       const agents = await services.catalog.getAll();
-      res.json({ agents: Object.values(agents) });
+      const agentsWithKeys = Object.entries(agents).map(
+        ([key, agent]) => ({ key, ...agent }) as AgentCatalogEntry,
+      );
+      res.json({ agents: agentsWithKeys });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

@@ -1,7 +1,9 @@
+import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import type {
   ModelBenchmarkApiResponse,
   ModelBenchmarkListItem,
@@ -15,6 +17,10 @@ import { createMonitorApplicationService } from "../application/monitor-applicat
 import type { AppContext } from "../contexts";
 import { createHealthCheckRouter } from "../routes/health-check-routes";
 import { createMonitorRouter } from "../routes/monitor-routes";
+
+const execFileAsync = promisify(execFile);
+const BENCHMARK_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+let benchmarkSyncInFlight: Promise<void> | null = null;
 
 function findWorkspaceRoot(startDir: string): string {
   let current = startDir;
@@ -54,6 +60,43 @@ function toMatchKeys(value: string): string[] {
   return Array.from(new Set([trimmed, lastSegment, compact, compactSegment]));
 }
 
+async function isBenchmarkFileFresh(filePath: string): Promise<boolean> {
+  try {
+    const metadata = await stat(filePath);
+    const ageMs = Date.now() - metadata.mtimeMs;
+    return ageMs <= BENCHMARK_TTL_MS;
+  } catch {
+    return false;
+  }
+}
+
+async function runBenchmarksSync(workspaceRoot: string): Promise<void> {
+  const args = ["sync:aa-benchmarks", "--force-refresh"];
+  await execFileAsync("pnpm", args, {
+    cwd: workspaceRoot,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+}
+
+function ensureBenchmarksReady(
+  workspaceRoot: string,
+  benchmarkFilePath: string,
+): Promise<void> {
+  if (benchmarkSyncInFlight) {
+    return benchmarkSyncInFlight;
+  }
+
+  benchmarkSyncInFlight = (async () => {
+    const isFresh = await isBenchmarkFileFresh(benchmarkFilePath);
+    if (isFresh) return;
+    await runBenchmarksSync(workspaceRoot);
+  })().finally(() => {
+    benchmarkSyncInFlight = null;
+  });
+
+  return benchmarkSyncInFlight;
+}
+
 export function createApiServer(
   opts: RouteOptions,
   ctx: AppContext,
@@ -86,6 +129,7 @@ export function createApiServer(
         "benchmarks",
         "artificial-analysis-models.json",
       );
+      await ensureBenchmarksReady(workspaceRoot, benchmarkFilePath);
       const raw = await readFile(benchmarkFilePath, "utf8");
       const dataset = JSON.parse(raw) as StoredModelBenchmarkDataset;
 
@@ -138,14 +182,26 @@ export function createApiServer(
       const message = String(error);
       if (message.includes("ENOENT")) {
         res.status(404).json({
-          error:
-            "Benchmark data file not found. Run `pnpm sync:aa-benchmarks`.",
+          error: "Benchmark data file not found after sync attempt.",
         });
         return;
       }
       res.status(500).json({ error: message });
     }
   });
+
+  const workspaceRoot = getWorkspaceRoot();
+  const benchmarkFilePath = path.join(
+    workspaceRoot,
+    "data",
+    "benchmarks",
+    "artificial-analysis-models.json",
+  );
+  void ensureBenchmarksReady(workspaceRoot, benchmarkFilePath).catch(
+    (error) => {
+      console.error("Failed to warm benchmark dataset:", error);
+    },
+  );
 
   registerAllRoutes(app, opts);
 
