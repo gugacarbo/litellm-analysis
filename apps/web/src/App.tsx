@@ -3,6 +3,7 @@ import { ErrorBoundary } from "./components/error-boundary";
 import { Sidebar } from "./components/layout/sidebar";
 import { FilterProvider } from "./contexts/filter-context";
 import { AgentsPage } from "./pages/agents";
+import { BenchmarksPage } from "./pages/benchmarks";
 import { DashboardPage } from "./pages/dashboard";
 import { LogsPage } from "./pages/logs";
 import { ModelDetailPage } from "./pages/model-detail";
@@ -50,6 +51,14 @@ function App() {
                 element={
                   <ErrorBoundary>
                     <ModelsPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/benchmarks"
+                element={
+                  <ErrorBoundary>
+                    <BenchmarksPage />
                   </ErrorBoundary>
                 }
               />

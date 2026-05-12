@@ -7,6 +7,7 @@ import {
   FileText,
   GitBranch,
   Radar,
+  Scale,
   Settings,
   TrendingUp,
 } from "lucide-react";
@@ -64,6 +65,7 @@ export function Sidebar() {
     { to: "/monitor", icon: Radar, label: "Monitor" },
     { to: "/model-stats", icon: TrendingUp, label: "Stats" },
     { to: "/logs", icon: FileText, label: "Logs" },
+    { to: "/benchmarks", icon: Scale, label: "Benchmarks" },
     {
       id: "agents",
       icon: Bot,
