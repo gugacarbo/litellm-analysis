@@ -19,7 +19,11 @@ const modelAdditionalProperties = models?.additionalProperties as
   | Record<string, unknown>
   | undefined;
 const modelRequired = modelAdditionalProperties?.required;
-if (Array.isArray(modelRequired)) {
+if (
+  Array.isArray(modelRequired) &&
+  modelRequired.includes("enabled") &&
+  modelAdditionalProperties?.required
+) {
   modelAdditionalProperties.required = modelRequired.filter(
     (key) => key !== "enabled",
   );
@@ -28,10 +32,10 @@ if (Array.isArray(modelRequired)) {
 const output = `${JSON.stringify(jsonSchema, null, 2)}
 `;
 
-// Write to @storage (for AJV validation)
+// Write to @agents (for AJV validation)
 const storagePath = resolve(
   import.meta.dirname,
-  "../../../@storage/agents.schema.json",
+  "../../../@agents/agents.schema.json",
 );
 writeFileSync(storagePath, output, "utf-8");
 console.log("Written:", storagePath);

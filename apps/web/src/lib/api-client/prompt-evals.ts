@@ -56,6 +56,10 @@ export async function startEval(
   cases: Array<{ id: string; input: string; expectedCategories: string[] }>,
   threshold?: number,
 ): Promise<{ id: string }> {
+  if (cases.length === 0) {
+    throw new Error("No eval cases configured. Add cases before running.");
+  }
+
   const res = await fetch(BASE, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

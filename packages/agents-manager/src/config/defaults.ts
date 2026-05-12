@@ -1,6 +1,6 @@
 import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 
-export const DEFAULT_DB_PATH = "@storage/agents.json";
+export const DEFAULT_DB_PATH = "@agents/agents.json";
 
 // ── Default System Agents ──
 

@@ -17,7 +17,7 @@ export function createRepositoryClient(
 ): IAgentsRepository {
   const filePath = options.filePath ?? DEFAULT_DB_PATH;
 
-  // Resolve special paths like @storage/agents.json, with json/jsonc fallback.
+  // Resolve special paths like @agents/agents.json, with json/jsonc fallback.
   const resolvedPath = resolveDbPathWithFallback(filePath);
   ensureConfigFileExists(resolvedPath);
 
@@ -65,14 +65,14 @@ function resolveDbPathWithFallback(dbPath: string): string {
 }
 
 function resolveDbPath(dbPath: string): string {
-  // Handle special @storage/ and @db/ paths -- resolve relative to monorepo root
-  if (dbPath.startsWith("@storage/") || dbPath.startsWith("@db/")) {
+  // Handle special @agents/ and @db/ paths -- resolve relative to monorepo root
+  if (dbPath.startsWith("@agents/") || dbPath.startsWith("@db/")) {
     const monorepoRoot = findMonorepoRoot();
     return path.join(monorepoRoot, dbPath);
   }
 
-  // Handle @storage/ path -- also resolve relative to monorepo root
-  if (dbPath.startsWith("@storage/")) {
+  // Handle @agents/ path -- also resolve relative to monorepo root
+  if (dbPath.startsWith("@agents/")) {
     const monorepoRoot = findMonorepoRoot();
     return path.join(monorepoRoot, dbPath);
   }

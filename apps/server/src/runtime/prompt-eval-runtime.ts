@@ -18,7 +18,7 @@ export function createPromptEvalRuntime(opts: PromptEvalRuntimeOptions) {
     baseUrl: process.env.EVAL_BASE_URL,
   });
 
-  const reportsDir = path.join(opts.projectRoot, "@storage", "reports");
+  const reportsDir = path.join(opts.projectRoot, "@agents", "reports");
 
   const service = createPromptEvalApplicationService({
     adapter,

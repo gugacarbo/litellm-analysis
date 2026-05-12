@@ -18,6 +18,7 @@ export function PromptEvalsPage() {
     total,
     startEval,
     isStarting,
+    startError,
     cancelEval,
     isCancelling,
     models,
@@ -121,6 +122,11 @@ export function PromptEvalsPage() {
           {isStarting ? "Starting..." : "Run Eval"}
         </Button>
       </div>
+      {startError ? (
+        <p className="mb-6 text-sm text-destructive">
+          {startError.message}
+        </p>
+      ) : null}
 
       {/* Run Cards */}
       <div className="space-y-4">

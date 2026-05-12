@@ -15,8 +15,8 @@
     "prepare": "husky",
     "generate:agents-schema": "tsx repositories/agents-repository/scripts/generate-json-schema.ts",
     "sync:aa-benchmarks": "tsx scripts/sync-aa-benchmarks.ts",
-    "validate:agents": "ajv validate -s @storage/agents.schema.json -d @storage/agents.json",
-    "validate:agents:all": "ajv validate -s @storage/agents.schema.json -d @storage/agents.json --strict=true"
+    "validate:agents": "ajv validate -s @agents/agents.schema.json -d @agents/agents.json",
+    "validate:agents:all": "ajv validate -s @agents/agents.schema.json -d @agents/agents.json --strict=true"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

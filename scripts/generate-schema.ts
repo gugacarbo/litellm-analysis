@@ -5,8 +5,8 @@ import { dbConfigSchema } from "../repositories/agents-repository/src/schemas/db
 const fullSchema = z.toJSONSchema(dbConfigSchema, { reused: "ref" });
 
 writeFileSync(
-  "./@storage/agents.schema.json",
+  "./@agents/agents.schema.json",
   JSON.stringify(fullSchema, null, 2),
 );
 
-console.log("Schema generated at @storage/agents.schema.json");
+console.log("Schema generated at @agents/agents.schema.json");

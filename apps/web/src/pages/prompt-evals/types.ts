@@ -10,6 +10,12 @@ export interface EvalFormState {
   threshold: number;
 }
 
+export interface EvalInputCase {
+  id: string;
+  input: string;
+  expectedCategories: string[];
+}
+
 export type SortField = "startedAt" | "macroF1" | "status" | "model";
 
 export type SortDirection = "asc" | "desc";
