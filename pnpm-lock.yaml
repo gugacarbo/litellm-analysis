@@ -93,6 +93,9 @@ importers:
       '@lite-llm/analytics':
         specifier: workspace:*
         version: link:../../packages/analytics
+      '@lite-llm/api-contracts':
+        specifier: workspace:^
+        version: link:../../packages/api-contracts
       '@lite-llm/env':
         specifier: workspace:*
         version: link:../../packages/env

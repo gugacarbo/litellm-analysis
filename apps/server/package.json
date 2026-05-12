@@ -13,6 +13,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@lite-llm/api-contracts": "workspace:^",
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
     "@lite-llm/env": "workspace:*",
