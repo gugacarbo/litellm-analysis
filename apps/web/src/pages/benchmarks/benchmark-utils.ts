@@ -89,9 +89,7 @@ export function calculateAgenticScore(
   );
   const coverage = nonNull.length;
   const agenticIndex =
-    coverage > 0
-      ? nonNull.reduce((sum, v) => sum + v, 0) / coverage
-      : null;
+    coverage > 0 ? nonNull.reduce((sum, v) => sum + v, 0) / coverage : null;
   return {
     tau2: model.tau2,
     ifbench: model.ifbench,
@@ -106,9 +104,7 @@ export function calculateAgenticScore(
  * Compute value-per-dollar metrics for a model.
  * Each metric is: benchmark_score / price_per_million_tokens.
  */
-export function calculateValueScore(
-  model: ModelBenchmarkListItem,
-): ValueScore {
+export function calculateValueScore(model: ModelBenchmarkListItem): ValueScore {
   const price = model.priceBlended1mTokens;
 
   const intelligencePerDollar =
@@ -153,9 +149,7 @@ export function calculateCompositeScore(
  * Compute 1-based ranks for each model across all benchmark dimensions.
  * 1 = best (highest score, or lowest for price).
  */
-export function calculateRankings(
-  rows: ModelBenchmarkListItem[],
-): Map<
+export function calculateRankings(rows: ModelBenchmarkListItem[]): Map<
   string,
   {
     intelligence: number;
@@ -330,10 +324,8 @@ export function calculateUseCaseScores(
   const normalizedSpeed = Math.min(speed / 2, 100);
   const priceScore = price > 0 ? Math.min(10 / price, 1) * 100 : 0;
 
-  const intelligenceScore =
-    intelligence * 0.6 + coding * 0.2 + math * 0.2;
-  const codingScore =
-    coding * 0.5 + intelligence * 0.3 + agenticScore * 0.2;
+  const intelligenceScore = intelligence * 0.6 + coding * 0.2 + math * 0.2;
+  const codingScore = coding * 0.5 + intelligence * 0.3 + agenticScore * 0.2;
   const agenticUseCaseScore =
     agenticScore * 0.6 + coding * 0.2 + intelligence * 0.2;
   const fastAndCheapScore =

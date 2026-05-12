@@ -525,7 +525,9 @@ describe("calculatePercentiles", () => {
     expect(percentiles.get("mathIndex")).toBeTypeOf("number");
     expect(percentiles.get("agenticIndex")).toBeTypeOf("number");
     expect(percentiles.get("medianOutputTokensPerSecond")).toBeTypeOf("number");
-    expect(percentiles.get("medianTimeToFirstTokenSeconds")).toBeTypeOf("number");
+    expect(percentiles.get("medianTimeToFirstTokenSeconds")).toBeTypeOf(
+      "number",
+    );
     expect(percentiles.get("priceBlended1mTokens")).toBeTypeOf("number");
   });
 });
