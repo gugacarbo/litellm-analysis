@@ -7,7 +7,12 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { PageLayout } from "../components/ui/page-layout";
 import { Separator } from "../components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { getEval } from "../lib/api-client/prompt-evals";
 import {
   formatDuration,
@@ -38,7 +43,9 @@ export function PromptEvalDetailPage() {
   if (!id) {
     return (
       <PageLayout title="Eval Detail" subtitle="Run not found">
-        <p className="text-sm text-muted-foreground">ID do eval não informado.</p>
+        <p className="text-sm text-muted-foreground">
+          ID do eval não informado.
+        </p>
       </PageLayout>
     );
   }
@@ -65,7 +72,9 @@ export function PromptEvalDetailPage() {
             </Link>
           </Button>
           {detail && (
-            <Badge variant={statusVariant(detail.status)}>{detail.status}</Badge>
+            <Badge variant={statusVariant(detail.status)}>
+              {detail.status}
+            </Badge>
           )}
           {detailQuery.isFetching && (
             <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -95,11 +104,15 @@ export function PromptEvalDetailPage() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-md border p-3">
                 <p className="text-xs text-muted-foreground">Status</p>
-                <Badge variant={statusVariant(detail.status)}>{detail.status}</Badge>
+                <Badge variant={statusVariant(detail.status)}>
+                  {detail.status}
+                </Badge>
               </div>
               <div className="rounded-md border p-3">
                 <p className="text-xs text-muted-foreground">Macro F1</p>
-                <p className="font-mono text-sm">{formatPrecision(detail.macroF1, 4)}</p>
+                <p className="font-mono text-sm">
+                  {formatPrecision(detail.macroF1, 4)}
+                </p>
               </div>
               <div className="rounded-md border p-3">
                 <p className="text-xs text-muted-foreground">Threshold</p>
@@ -116,7 +129,9 @@ export function PromptEvalDetailPage() {
             <div className="rounded-md border p-3 text-sm space-y-2">
               <p>
                 <span className="text-muted-foreground">Início:</span>{" "}
-                <span className="font-mono">{formatTimestamp(detail.startedAt)}</span>
+                <span className="font-mono">
+                  {formatTimestamp(detail.startedAt)}
+                </span>
               </p>
               <p>
                 <span className="text-muted-foreground">Fim:</span>{" "}
@@ -134,7 +149,10 @@ export function PromptEvalDetailPage() {
             <div className="space-y-2">
               <h4 className="text-sm font-medium">Métricas por Categoria</h4>
               {categories.length > 0 ? (
-                <CategoryTable categories={categories} threshold={detail.threshold} />
+                <CategoryTable
+                  categories={categories}
+                  threshold={detail.threshold}
+                />
               ) : (
                 <p className="text-sm text-muted-foreground">
                   Este eval não retornou métricas de categoria.
@@ -145,29 +163,44 @@ export function PromptEvalDetailPage() {
 
           <TabsContent value="steps" className="space-y-2">
             {detail.steps.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nenhum step registrado.</p>
+              <p className="text-sm text-muted-foreground">
+                Nenhum step registrado.
+              </p>
             ) : (
               detail.steps.map((step) => (
                 <div key={step.id} className="rounded-md border p-3 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-mono text-sm">{step.step}</p>
-                    <Badge variant={statusVariant(step.status)}>{step.status}</Badge>
+                    <Badge variant={statusVariant(step.status)}>
+                      {step.status}
+                    </Badge>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-1">
                     <p>
-                      Início: <span className="font-mono">{formatTimestamp(step.startedAt)}</span>
+                      Início:{" "}
+                      <span className="font-mono">
+                        {formatTimestamp(step.startedAt)}
+                      </span>
                     </p>
                     <p>
-                      Fim: <span className="font-mono">{step.finishedAt ? formatTimestamp(step.finishedAt) : "—"}</span>
+                      Fim:{" "}
+                      <span className="font-mono">
+                        {step.finishedAt
+                          ? formatTimestamp(step.finishedAt)
+                          : "—"}
+                      </span>
                     </p>
                     <p>
-                      Progresso: <span className="font-mono">{step.progressPct}%</span>
+                      Progresso:{" "}
+                      <span className="font-mono">{step.progressPct}%</span>
                     </p>
                   </div>
                   {step.message && (
                     <>
                       <Separator />
-                      <p className="text-sm whitespace-pre-wrap">{step.message}</p>
+                      <p className="text-sm whitespace-pre-wrap">
+                        {step.message}
+                      </p>
                     </>
                   )}
                 </div>
@@ -183,7 +216,8 @@ export function PromptEvalDetailPage() {
             ) : (
               <>
                 <p className="text-xs text-muted-foreground">
-                  Total: {cases.length} • Falhas: {cases.filter((c) => !c.passed).length}
+                  Total: {cases.length} • Falhas:{" "}
+                  {cases.filter((c) => !c.passed).length}
                 </p>
                 <FailedCasesList cases={cases} />
               </>
