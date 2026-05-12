@@ -40,6 +40,43 @@ interface ActiveRun {
   controller: AbortController;
 }
 
+function toTitleCase(value: string): string {
+  return value
+    .split(/[_\-\s]+/g)
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function resolveCategories(
+  baseCategories: CategoryDefinition[],
+  cases: CategoryEvalCase[],
+): CategoryDefinition[] {
+  const byId = new Map(baseCategories.map((category) => [category.id, category]));
+  const ordered = [...baseCategories];
+
+  const caseCategoryIds = new Set<string>();
+  for (const evalCase of cases) {
+    for (const categoryId of evalCase.expectedCategories) {
+      caseCategoryIds.add(categoryId);
+    }
+  }
+
+  for (const categoryId of caseCategoryIds) {
+    if (byId.has(categoryId)) {
+      continue;
+    }
+
+    ordered.push({
+      id: categoryId,
+      name: toTitleCase(categoryId),
+      description: `Auto-generated category for "${categoryId}".`,
+    });
+  }
+
+  return ordered;
+}
+
 export function createPromptEvalApplicationService(
   opts: PromptEvalAppServiceOptions,
 ) {
@@ -97,9 +134,10 @@ export function createPromptEvalApplicationService(
 
     const controller = new AbortController();
     activeRuns.set(runId, { runId, controller });
+    const categories = resolveCategories(opts.categories, cases);
 
     // Fire-and-forget the full pipeline
-    void executeRun(runId, model, threshold, cases, controller.signal);
+    void executeRun(runId, model, threshold, categories, cases, controller.signal);
 
     return { id: runId };
   }
@@ -108,6 +146,7 @@ export function createPromptEvalApplicationService(
     runId: string,
     model: string,
     threshold: number,
+    categories: CategoryDefinition[],
     cases: CategoryEvalCase[],
     signal: AbortSignal,
   ): Promise<void> {
@@ -118,7 +157,7 @@ export function createPromptEvalApplicationService(
       // Run evaluation with event bridge
       const report = await runCategoryEvaluation(
         {
-          categories: opts.categories,
+          categories,
           cases,
           model,
           threshold,
@@ -155,7 +194,7 @@ export function createPromptEvalApplicationService(
       const review = await runCategoryAiReview(
         {
           adapter: opts.adapter,
-          categories: opts.categories,
+          categories,
           predictions: report.predictions,
           model,
           signal,

@@ -6,12 +6,17 @@ import { RunCard } from "../components/prompt-evals/run-card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { PageLayout } from "../components/ui/page-layout";
+import { Textarea } from "../components/ui/textarea";
 import { usePromptEvalsPage } from "./prompt-evals/use-prompt-evals-page";
 
 export function PromptEvalsPage() {
   const {
     form,
     setForm,
+    casesText,
+    setCasesText,
+    parsedCases,
+    casesError,
     runsLoading,
     runsError,
     sortedRuns,
@@ -114,18 +119,39 @@ export function PromptEvalsPage() {
             startEval({
               model: form.model,
               threshold: form.threshold,
-              cases: [],
+              cases: parsedCases,
             })
           }
-          disabled={isStarting || !form.model}
+          disabled={
+            isStarting ||
+            !form.model ||
+            parsedCases.length === 0 ||
+            !!casesError
+          }
         >
           {isStarting ? "Starting..." : "Run Eval"}
         </Button>
       </div>
-      {startError ? (
-        <p className="mb-6 text-sm text-destructive">
-          {startError.message}
+      <div className="mb-6 rounded-lg border bg-card p-4">
+        <label className="mb-2 block text-sm font-medium">
+          Eval Cases (JSON)
+        </label>
+        <Textarea
+          value={casesText}
+          onChange={(event) => setCasesText(event.target.value)}
+          rows={12}
+          className="font-mono text-xs"
+        />
+        <p className="mt-2 text-xs text-muted-foreground">
+          Formato: array de objetos com {"{id, input, expectedCategories[]}"}.
+          Casos válidos: {parsedCases.length}.
         </p>
+        {casesError ? (
+          <p className="mt-1 text-xs text-destructive">{casesError}</p>
+        ) : null}
+      </div>
+      {startError ? (
+        <p className="mb-6 text-sm text-destructive">{startError.message}</p>
       ) : null}
 
       {/* Run Cards */}

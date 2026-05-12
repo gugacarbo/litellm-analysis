@@ -53,6 +53,7 @@ export function PromptEvalDetailPage() {
   const detail = detailQuery.data;
   const categories = detail?.categories ?? [];
   const cases = detail?.cases ?? [];
+  const steps = detail?.steps ?? [];
 
   return (
     <PageLayout
@@ -162,12 +163,12 @@ export function PromptEvalDetailPage() {
           </TabsContent>
 
           <TabsContent value="steps" className="space-y-2">
-            {detail.steps.length === 0 ? (
+            {steps.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Nenhum step registrado.
               </p>
             ) : (
-              detail.steps.map((step) => (
+              steps.map((step) => (
                 <div key={step.id} className="rounded-md border p-3 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-mono text-sm">{step.step}</p>

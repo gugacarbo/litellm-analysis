@@ -1,7 +1,94 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { listEvals } from "../../lib/api-client/prompt-evals.js";
-import type { EvalFormState, SortDirection, SortField } from "./types.js";
+import type {
+  EvalFormState,
+  EvalInputCase,
+  SortDirection,
+  SortField,
+} from "./types.js";
+
+const CASES_STORAGE_KEY = "prompt-evals-cases";
+
+const DEFAULT_CASES_TEXT = JSON.stringify(
+  [
+    {
+      id: "case-1",
+      input: "Classifique esta mensagem de suporte em billing.",
+      expectedCategories: ["billing"],
+    },
+  ],
+  null,
+  2,
+);
+
+function validateCasesShape(data: unknown): EvalInputCase[] | null {
+  if (!Array.isArray(data)) {
+    return null;
+  }
+
+  const parsed: EvalInputCase[] = [];
+  for (const item of data) {
+    if (typeof item !== "object" || item === null) {
+      return null;
+    }
+    const record = item as Record<string, unknown>;
+    if (typeof record.id !== "string" || record.id.trim() === "") {
+      return null;
+    }
+    if (typeof record.input !== "string" || record.input.trim() === "") {
+      return null;
+    }
+    if (
+      !Array.isArray(record.expectedCategories) ||
+      record.expectedCategories.length === 0 ||
+      record.expectedCategories.some(
+        (value) => typeof value !== "string" || value.trim() === "",
+      )
+    ) {
+      return null;
+    }
+
+    parsed.push({
+      id: record.id,
+      input: record.input,
+      expectedCategories: record.expectedCategories as string[],
+    });
+  }
+
+  return parsed;
+}
+
+function readInitialCasesText(): string {
+  if (typeof window === "undefined") {
+    return DEFAULT_CASES_TEXT;
+  }
+  const stored = window.localStorage.getItem(CASES_STORAGE_KEY);
+  return stored ?? DEFAULT_CASES_TEXT;
+}
+
+function parseCases(casesText: string): {
+  parsedCases: EvalInputCase[];
+  casesError: string | null;
+} {
+  try {
+    const parsedJson = JSON.parse(casesText) as unknown;
+    const parsedCases = validateCasesShape(parsedJson);
+    if (!parsedCases) {
+      return {
+        parsedCases: [],
+        casesError:
+          "Invalid cases JSON. Use an array of {id, input, expectedCategories}.",
+      };
+    }
+    return { parsedCases, casesError: null };
+  } catch {
+    return {
+      parsedCases: [],
+      casesError: "Invalid JSON format for cases.",
+    };
+  }
+}
 
 export function usePromptEvalsState() {
   const [page, setPage] = useState(1);
@@ -11,6 +98,7 @@ export function usePromptEvalsState() {
     model: "litellm/gpt-4o",
     threshold: 0.8,
   });
+  const [casesText, setCasesText] = useState<string>(readInitialCasesText);
 
   const runsQuery = useQuery({
     queryKey: ["prompt-evals", page],
@@ -36,6 +124,14 @@ export function usePromptEvalsState() {
     }
   }
 
+  const { parsedCases, casesError } = parseCases(casesText);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(CASES_STORAGE_KEY, casesText);
+    }
+  }, [casesText]);
+
   return {
     page,
     setPage,
@@ -45,6 +141,10 @@ export function usePromptEvalsState() {
     setSortDirection,
     form,
     setForm,
+    casesText,
+    setCasesText,
+    parsedCases,
+    casesError,
     runs: runsQuery.data?.runs ?? [],
     total: runsQuery.data?.total ?? 0,
     runsLoading: runsQuery.isLoading,
