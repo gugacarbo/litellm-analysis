@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { runCategoryAiReview } from "../review.js";
+import { describe, expect, it } from "vitest";
 import { createPromptfooAdapter } from "../adapter/promptfoo.js";
+import { runCategoryAiReview } from "../review.js";
 import type { CategoryDefinition, CategoryPrediction } from "../types/index.js";
 
 const categories: CategoryDefinition[] = [
@@ -10,8 +10,11 @@ const categories: CategoryDefinition[] = [
 
 const predictions: CategoryPrediction[] = [
   {
-    caseId: "1", input: "test", expected: ["cat_a"],
-    predicted: ["cat_b"], correct: false,
+    caseId: "1",
+    input: "test",
+    expected: ["cat_a"],
+    predicted: ["cat_b"],
+    correct: false,
   },
 ];
 
@@ -27,7 +30,9 @@ describe("runCategoryAiReview", () => {
 
     expect(report.findings).toHaveLength(predictions.length);
     expect(report.findings[0].caseId).toBe("1");
-    expect(["correct", "incorrect", "ambiguous"]).toContain(report.findings[0].assessment);
+    expect(["correct", "incorrect", "ambiguous"]).toContain(
+      report.findings[0].assessment,
+    );
   });
 
   it("emits review steps", async () => {
@@ -36,7 +41,9 @@ describe("runCategoryAiReview", () => {
 
     await runCategoryAiReview(
       { adapter, categories, predictions, model: "test" },
-      (event: any) => { events.push(event.type); },
+      (event: any) => {
+        events.push(event.type);
+      },
     );
 
     expect(events).toContain("step:start");

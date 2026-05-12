@@ -1,6 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { validateDataset } from "../dataset.js";
-import type { CategoryDefinition, CategoryEvalDataset } from "../types/index.js";
+import type {
+  CategoryDefinition,
+  CategoryEvalDataset,
+} from "../types/index.js";
 
 const categories: CategoryDefinition[] = [
   { id: "cat_a", name: "Category A", description: "desc a" },
@@ -37,9 +40,7 @@ describe("validateDataset", () => {
     const dataset: CategoryEvalDataset = {
       version: 1,
       description: "test",
-      cases: [
-        { id: "1", input: "hello", expectedCategories: ["cat_unknown"] },
-      ],
+      cases: [{ id: "1", input: "hello", expectedCategories: ["cat_unknown"] }],
     };
     const result = validateDataset(dataset, categories);
     expect(result.valid).toBe(false);
@@ -64,9 +65,7 @@ describe("validateDataset", () => {
     const dataset: CategoryEvalDataset = {
       version: 1,
       description: "test",
-      cases: [
-        { id: "1", input: "hello", expectedCategories: [] },
-      ],
+      cases: [{ id: "1", input: "hello", expectedCategories: [] }],
     };
     const result = validateDataset(dataset, categories);
     expect(result.valid).toBe(false);

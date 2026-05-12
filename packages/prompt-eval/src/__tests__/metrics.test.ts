@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { calculateMetrics } from "../metrics/index.js";
 import type { CategoryEvalCase, CategoryPrediction } from "../types/index.js";
 
@@ -10,8 +10,20 @@ describe("calculateMetrics", () => {
       { id: "2", input: "b", expectedCategories: ["cat_b"] },
     ];
     const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "a", expected: ["cat_a"], predicted: ["cat_a"], correct: true },
-      { caseId: "2", input: "b", expected: ["cat_b"], predicted: ["cat_b"], correct: true },
+      {
+        caseId: "1",
+        input: "a",
+        expected: ["cat_a"],
+        predicted: ["cat_a"],
+        correct: true,
+      },
+      {
+        caseId: "2",
+        input: "b",
+        expected: ["cat_b"],
+        predicted: ["cat_b"],
+        correct: true,
+      },
     ];
 
     const result = calculateMetrics(labels, cases, predictions);
@@ -30,8 +42,20 @@ describe("calculateMetrics", () => {
       { id: "2", input: "b", expectedCategories: ["cat_b"] },
     ];
     const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "a", expected: ["cat_a"], predicted: ["cat_b"], correct: false },
-      { caseId: "2", input: "b", expected: ["cat_b"], predicted: ["cat_a"], correct: false },
+      {
+        caseId: "1",
+        input: "a",
+        expected: ["cat_a"],
+        predicted: ["cat_b"],
+        correct: false,
+      },
+      {
+        caseId: "2",
+        input: "b",
+        expected: ["cat_b"],
+        predicted: ["cat_a"],
+        correct: false,
+      },
     ];
 
     const result = calculateMetrics(labels, cases, predictions);
@@ -48,8 +72,20 @@ describe("calculateMetrics", () => {
       { id: "2", input: "y", expectedCategories: ["cat_b"] },
     ];
     const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "x", expected: ["cat_a", "cat_b"], predicted: ["cat_a"], correct: false },
-      { caseId: "2", input: "y", expected: ["cat_b"], predicted: ["cat_b"], correct: true },
+      {
+        caseId: "1",
+        input: "x",
+        expected: ["cat_a", "cat_b"],
+        predicted: ["cat_a"],
+        correct: false,
+      },
+      {
+        caseId: "2",
+        input: "y",
+        expected: ["cat_b"],
+        predicted: ["cat_b"],
+        correct: true,
+      },
     ];
 
     const result = calculateMetrics(labels, cases, predictions);
@@ -73,7 +109,13 @@ describe("calculateMetrics", () => {
       { id: "1", input: "x", expectedCategories: ["cat_a"] },
     ];
     const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "x", expected: ["cat_a"], predicted: [], correct: false },
+      {
+        caseId: "1",
+        input: "x",
+        expected: ["cat_a"],
+        predicted: [],
+        correct: false,
+      },
     ];
 
     const result = calculateMetrics(labels, cases, predictions);

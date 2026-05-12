@@ -1,11 +1,11 @@
 {
-  "active_plan": "/home/gustavo/Apps/lite-llm-analytics/.weave/plans/ui-agents-manager-migration.md",
-  "started_at": "2026-05-09T05:01:27.486Z",
+  "active_plan": "/home/gustavo/.local/share/opencode/worktree/9352445eba19326cd2471a017eacec657b66edd0/neon-knight/.weave/plans/prompt-eval-webui.md",
+  "started_at": "2026-05-12T00:25:13.109Z",
   "session_ids": [
-    "ses_1f52c90c0ffeWHL9tjKHq1Y9ef"
+    "ses_1e6963a89ffe6j8NNBCLzxOkV0"
   ],
-  "plan_name": "ui-agents-manager-migration",
+  "plan_name": "prompt-eval-webui",
   "agent": "tapestry",
-  "start_sha": "1779992620183933b6e81e1b3a7f7e0e17193491",
+  "start_sha": "56f78e03482479daeb9c2aad2228909388b3b6cd",
   "paused": true
 }

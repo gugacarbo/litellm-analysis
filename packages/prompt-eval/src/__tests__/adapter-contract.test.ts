@@ -1,13 +1,15 @@
-import { describe, it, expect } from "vitest";
-import type { PromptEvalAdapter } from "../types/index.js";
+import { describe, expect, it } from "vitest";
 import { createPromptfooAdapter } from "../adapter/promptfoo.js";
+import type { PromptEvalAdapter } from "../types/index.js";
 
 function runAdapterContract(createAdapter: () => PromptEvalAdapter) {
   describe("PromptEvalAdapter contract", () => {
     it("classify returns predictedCategories array", async () => {
       const adapter = createAdapter();
       const result = await adapter.classify({
-        categories: [{ id: "test", name: "Test", description: "A test category" }],
+        categories: [
+          { id: "test", name: "Test", description: "A test category" },
+        ],
         prompt: "This is a test prompt",
         model: "test-model",
       });
@@ -38,16 +40,18 @@ function runAdapterContract(createAdapter: () => PromptEvalAdapter) {
     it("review returns findings and suggestions", async () => {
       const adapter = createAdapter();
       const result = await adapter.review({
-        cases: [{
-          caseId: "1",
-          input: "test",
-          expectedCategories: ["cat_a"],
-          predictedCategories: ["cat_b"],
-          categories: [
-            { id: "cat_a", name: "A", description: "Category A" },
-            { id: "cat_b", name: "B", description: "Category B" },
-          ],
-        }],
+        cases: [
+          {
+            caseId: "1",
+            input: "test",
+            expectedCategories: ["cat_a"],
+            predictedCategories: ["cat_b"],
+            categories: [
+              { id: "cat_a", name: "A", description: "Category A" },
+              { id: "cat_b", name: "B", description: "Category B" },
+            ],
+          },
+        ],
         model: "test-model",
       });
 

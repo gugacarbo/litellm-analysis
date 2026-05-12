@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { runCategoryEvaluation } from "../evaluation.js";
+import { describe, expect, it } from "vitest";
 import { createPromptfooAdapter } from "../adapter/promptfoo.js";
+import { runCategoryEvaluation } from "../evaluation.js";
 import type { CategoryDefinition, CategoryEvalCase } from "../types/index.js";
 
 const categories: CategoryDefinition[] = [
@@ -39,7 +39,9 @@ describe("runCategoryEvaluation", () => {
 
     const report = await runCategoryEvaluation(
       { categories, cases, model: "test", threshold: 0.8, adapter } as any,
-      (event: any) => { events.push(event.type); },
+      (event: any) => {
+        events.push(event.type);
+      },
     );
 
     expect(events).toContain("step:start");
@@ -54,9 +56,14 @@ describe("runCategoryEvaluation", () => {
     controller.abort();
 
     await expect(
-      runCategoryEvaluation(
-        { categories, cases, model: "test", threshold: 0.8, signal: controller.signal, adapter } as any,
-      ),
+      runCategoryEvaluation({
+        categories,
+        cases,
+        model: "test",
+        threshold: 0.8,
+        signal: controller.signal,
+        adapter,
+      } as any),
     ).rejects.toThrow();
   });
 });

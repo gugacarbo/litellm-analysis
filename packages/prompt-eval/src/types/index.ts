@@ -152,7 +152,12 @@ export type EvalRunStatus =
 
 export type EvalEvent =
   | { type: "step:start"; step: EvalStep; message: string }
-  | { type: "step:progress"; step: EvalStep; progressPct: number; message: string }
+  | {
+      type: "step:progress";
+      step: EvalStep;
+      progressPct: number;
+      message: string;
+    }
   | { type: "step:end"; step: EvalStep }
   | { type: "run:completed"; report: CategoryEvalReport }
   | { type: "run:failed"; error: string };
@@ -185,7 +190,11 @@ export interface EvalRunStep {
 export interface EvalRunArtifact {
   id: number;
   runId: string;
-  kind: "eval_report_json" | "eval_report_md" | "review_report_json" | "review_report_md";
+  kind:
+    | "eval_report_json"
+    | "eval_report_md"
+    | "review_report_json"
+    | "review_report_md";
   path: string;
   summaryJson: string | null;
 }

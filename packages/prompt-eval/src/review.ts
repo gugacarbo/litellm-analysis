@@ -1,9 +1,9 @@
 import type {
-  PromptEvalAdapter,
+  AiReviewReport,
   CategoryDefinition,
   CategoryPrediction,
-  AiReviewReport,
   EvalEvent,
+  PromptEvalAdapter,
 } from "./types/index.js";
 
 export interface AiReviewInput {
@@ -20,7 +20,11 @@ export async function runCategoryAiReview(
 ): Promise<AiReviewReport> {
   const { adapter, categories, predictions, model, signal } = input;
 
-  emit(onEvent, { type: "step:start", step: "reviewing", message: `Reviewing ${predictions.length} predictions...` });
+  emit(onEvent, {
+    type: "step:start",
+    step: "reviewing",
+    message: `Reviewing ${predictions.length} predictions...`,
+  });
   signal?.throwIfAborted();
 
   const reviewOutput = await adapter.review({
@@ -38,9 +42,10 @@ export async function runCategoryAiReview(
   const report: AiReviewReport = {
     findings: reviewOutput.findings,
     suggestions: reviewOutput.suggestions,
-    summary: reviewOutput.findings.length > 0
-      ? `Reviewed ${reviewOutput.findings.length} cases. ${reviewOutput.findings.filter((f) => f.assessment === "incorrect").length} incorrect, ${reviewOutput.suggestions.length} suggestions.`
-      : "No findings to review.",
+    summary:
+      reviewOutput.findings.length > 0
+        ? `Reviewed ${reviewOutput.findings.length} cases. ${reviewOutput.findings.filter((f) => f.assessment === "incorrect").length} incorrect, ${reviewOutput.suggestions.length} suggestions.`
+        : "No findings to review.",
   };
 
   emit(onEvent, { type: "step:end", step: "reviewing" });
@@ -48,8 +53,15 @@ export async function runCategoryAiReview(
   return report;
 }
 
-function emit(onEvent: ((event: EvalEvent) => void) | undefined, event: EvalEvent): void {
+function emit(
+  onEvent: ((event: EvalEvent) => void) | undefined,
+  event: EvalEvent,
+): void {
   if (onEvent) {
-    try { onEvent(event); } catch { /* swallow */ }
+    try {
+      onEvent(event);
+    } catch {
+      /* swallow */
+    }
   }
 }

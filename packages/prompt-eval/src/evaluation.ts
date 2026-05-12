@@ -1,13 +1,13 @@
 import { randomUUID } from "node:crypto";
+import { validateDataset } from "./dataset.js";
+import { calculateMetrics } from "./metrics/index.js";
 import type {
-  PromptEvalAdapter,
   CategoryEvalInput,
   CategoryEvalReport,
   CategoryPrediction,
   EvalEvent,
+  PromptEvalAdapter,
 } from "./types/index.js";
-import { calculateMetrics } from "./metrics/index.js";
-import { validateDataset } from "./dataset.js";
 
 export async function runCategoryEvaluation(
   input: CategoryEvalInput & { adapter: PromptEvalAdapter },
@@ -25,7 +25,11 @@ export async function runCategoryEvaluation(
     throw new Error(`Invalid dataset: ${validation.errors.join("; ")}`);
   }
 
-  emit(onEvent, { type: "step:start", step: "classifying", message: `Classifying ${cases.length} prompts...` });
+  emit(onEvent, {
+    type: "step:start",
+    step: "classifying",
+    message: `Classifying ${cases.length} prompts...`,
+  });
   signal?.throwIfAborted();
 
   const predictions: CategoryPrediction[] = [];
@@ -50,7 +54,10 @@ export async function runCategoryEvaluation(
       input: c.input,
       expected: c.expectedCategories,
       predicted: predictedCats,
-      correct: arraysEqual(new Set(c.expectedCategories), new Set(predictedCats)),
+      correct: arraysEqual(
+        new Set(c.expectedCategories),
+        new Set(predictedCats),
+      ),
     });
 
     emit(onEvent, {
@@ -62,7 +69,11 @@ export async function runCategoryEvaluation(
   }
   emit(onEvent, { type: "step:end", step: "classifying" });
 
-  emit(onEvent, { type: "step:start", step: "scoring", message: "Calculating metrics..." });
+  emit(onEvent, {
+    type: "step:start",
+    step: "scoring",
+    message: "Calculating metrics...",
+  });
   signal?.throwIfAborted();
 
   const labels = categories.map((c) => c.id);
@@ -70,7 +81,11 @@ export async function runCategoryEvaluation(
 
   emit(onEvent, { type: "step:end", step: "scoring" });
 
-  emit(onEvent, { type: "step:start", step: "reporting", message: "Generating report..." });
+  emit(onEvent, {
+    type: "step:start",
+    step: "reporting",
+    message: "Generating report...",
+  });
   signal?.throwIfAborted();
 
   const report: CategoryEvalReport = {
@@ -88,9 +103,16 @@ export async function runCategoryEvaluation(
   return report;
 }
 
-function emit(onEvent: ((event: EvalEvent) => void) | undefined, event: EvalEvent): void {
+function emit(
+  onEvent: ((event: EvalEvent) => void) | undefined,
+  event: EvalEvent,
+): void {
   if (onEvent) {
-    try { onEvent(event); } catch { /* swallow */ }
+    try {
+      onEvent(event);
+    } catch {
+      /* swallow */
+    }
   }
 }
 

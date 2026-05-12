@@ -21,89 +21,12 @@
 - Create: `packages/prompt-eval/tsconfig.json`
 - Create: `packages/prompt-eval/src/index.ts`
 
-- [ ] **Step 1: Criar package.json**
-
-```json
-{
-  "name": "@lite-llm/prompt-eval",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts",
-    "./types": "./src/types/index.ts",
-    "./adapter": "./src/adapter/index.ts",
-    "./metrics": "./src/metrics/index.ts"
-  },
-  "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
-  }
-}
-```
-
-- [ ] **Step 2: Criar tsconfig.json**
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "declarationMap": true,
-    "skipLibCheck": true,
-    "types": ["node"]
-  },
-  "include": ["src"]
-}
-```
-
-- [ ] **Step 3: Criar vitest.config.ts**
-
-```ts
-import { defineConfig } from "vitest/config";
-
-export default defineConfig({
-  test: {
-    globals: true,
-  },
-});
-```
-
-- [ ] **Step 4: Criar src/index.ts (placeholder)**
-
-```ts
-// @lite-llm/prompt-eval — Public API
-export type * from "./types/index.js";
-export * from "./metrics/index.js";
-export * from "./adapter/index.js";
-export * from "./evaluation.js";
-export * from "./review.js";
-export * from "./dataset.js";
-```
-
-- [ ] **Step 5: Verificar — install + typecheck**
-
-Run: `pnpm --filter @lite-llm/prompt-eval typecheck`
-Expected: PASS (no errors, even with empty re-exports from missing modules — we'll add them next)
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add packages/prompt-eval/
-git commit -m "feat(prompt-eval): scaffold package structure"
-```
+- [x] **Step 1: Criar package.json**
+- [x] **Step 2: Criar tsconfig.json**
+- [x] **Step 3: Criar vitest.config.ts**
+- [x] **Step 4: Criar src/index.ts (placeholder)**
+- [x] **Step 5: Verificar — install + typecheck**
+- [x] **Step 6: Commit**
 
 ---
 
@@ -112,7 +35,7 @@ git commit -m "feat(prompt-eval): scaffold package structure"
 **Files:**
 - Create: `packages/prompt-eval/src/types/index.ts`
 
-- [ ] **Step 1: Escrever o arquivo de tipos completo**
+- [x] **Step 1: Escrever o arquivo de tipos completo**
 
 ```ts
 // packages/prompt-eval/src/types/index.ts
@@ -308,17 +231,8 @@ export interface EvalRunArtifact {
 }
 ```
 
-- [ ] **Step 2: Verificar — typecheck**
-
-Run: `pnpm --filter @lite-llm/prompt-eval typecheck`
-Expected: PASS
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add packages/prompt-eval/src/types/index.ts
-git commit -m "feat(prompt-eval): add all public types"
-```
+- [x] **Step 2: Verificar — typecheck** (included in Task 1.1 step 5)
+- [x] **Step 3: Commit** (included in Task 1.1 step 6)
 
 ---
 
@@ -327,24 +241,9 @@ git commit -m "feat(prompt-eval): add all public types"
 **Files:**
 - Create: `packages/prompt-eval/src/adapter/index.ts`
 
-- [ ] **Step 1: Re-exportar a interface**
-
-```ts
-// packages/prompt-eval/src/adapter/index.ts
-export type { PromptEvalAdapter, EvalAdapterOptions } from "../types/index.js";
-```
-
-- [ ] **Step 2: Verificar — typecheck**
-
-Run: `pnpm --filter @lite-llm/prompt-eval typecheck`
-Expected: PASS
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add packages/prompt-eval/src/adapter/index.ts
-git commit -m "feat(prompt-eval): add adapter interface re-export"
-```
+- [x] **Step 1: Re-exportar a interface** (done in Task 1.1 setup)
+- [x] **Step 2: Verificar — typecheck** (done in Task 1.1 step 5)
+- [x] **Step 3: Commit** (done in Task 1.1 step 6)
 
 ---
 
@@ -354,233 +253,11 @@ git commit -m "feat(prompt-eval): add adapter interface re-export"
 - Create: `packages/prompt-eval/src/metrics/index.ts`
 - Create: `packages/prompt-eval/src/__tests__/metrics.test.ts`
 
-- [ ] **Step 1: Escrever testes de métricas**
-
-```ts
-// packages/prompt-eval/src/__tests__/metrics.test.ts
-import { describe, it, expect } from "vitest";
-import { calculateMetrics } from "../metrics/index.js";
-import type { CategoryEvalCase, CategoryPrediction } from "../types/index.js";
-
-describe("calculateMetrics", () => {
-  it("returns perfect scores when all predictions match", () => {
-    const labels = ["cat_a", "cat_b"];
-    const cases: CategoryEvalCase[] = [
-      { id: "1", input: "a", expectedCategories: ["cat_a"] },
-      { id: "2", input: "b", expectedCategories: ["cat_b"] },
-    ];
-    const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "a", expected: ["cat_a"], predicted: ["cat_a"], correct: true },
-      { caseId: "2", input: "b", expected: ["cat_b"], predicted: ["cat_b"], correct: true },
-    ];
-
-    const result = calculateMetrics(labels, cases, predictions);
-
-    expect(result.accuracy).toBe(1);
-    expect(result.macroF1).toBe(1);
-    expect(result.hammingLoss).toBe(0);
-    expect(result.perLabel["cat_a"].f1).toBe(1);
-    expect(result.perLabel["cat_b"].f1).toBe(1);
-  });
-
-  it("returns zero when all predictions are wrong", () => {
-    const labels = ["cat_a", "cat_b"];
-    const cases: CategoryEvalCase[] = [
-      { id: "1", input: "a", expectedCategories: ["cat_a"] },
-      { id: "2", input: "b", expectedCategories: ["cat_b"] },
-    ];
-    const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "a", expected: ["cat_a"], predicted: ["cat_b"], correct: false },
-      { caseId: "2", input: "b", expected: ["cat_b"], predicted: ["cat_a"], correct: false },
-    ];
-
-    const result = calculateMetrics(labels, cases, predictions);
-
-    expect(result.macroF1).toBe(0);
-    expect(result.accuracy).toBe(0);
-    expect(result.hammingLoss).toBe(1);
-  });
-
-  it("handles multi-label correctly", () => {
-    const labels = ["cat_a", "cat_b", "cat_c"];
-    const cases: CategoryEvalCase[] = [
-      { id: "1", input: "x", expectedCategories: ["cat_a", "cat_b"] },
-      { id: "2", input: "y", expectedCategories: ["cat_b"] },
-    ];
-    const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "x", expected: ["cat_a", "cat_b"], predicted: ["cat_a"], correct: false },
-      { caseId: "2", input: "y", expected: ["cat_b"], predicted: ["cat_b"], correct: true },
-    ];
-
-    const result = calculateMetrics(labels, cases, predictions);
-
-    // Per label for cat_a: only case 1 has cat_a expected, precision=1/1, recall=1/1 → f1=1
-    expect(result.perLabel["cat_a"].f1).toBe(1);
-    expect(result.perLabel["cat_a"].precision).toBe(1);
-    expect(result.perLabel["cat_a"].recall).toBe(1);
-
-    // cat_b: expected in both, predicted in case 2 only → precision=1/1, recall=1/2
-    expect(result.perLabel["cat_b"].recall).toBe(0.5);
-    expect(result.perLabel["cat_b"].precision).toBe(1);
-
-    // cat_c: never expected, never predicted → precision=0, recall=0, f1=0
-    expect(result.perLabel["cat_c"].f1).toBe(0);
-
-    // macroF1 = (1 + 0.666... + 0) / 3 ≈ 0.5556
-    expect(result.macroF1).toBeCloseTo(0.5556, 3);
-    expect(result.hammingLoss).toBe(1 / 6); // 1 error out of 6 label slots
-  });
-
-  it("handles edge case: no positive predictions for a label", () => {
-    const labels = ["cat_a"];
-    const cases: CategoryEvalCase[] = [
-      { id: "1", input: "x", expectedCategories: ["cat_a"] },
-    ];
-    const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "x", expected: ["cat_a"], predicted: [], correct: false },
-    ];
-
-    const result = calculateMetrics(labels, cases, predictions);
-
-    expect(result.perLabel["cat_a"].precision).toBe(0);
-    expect(result.perLabel["cat_a"].recall).toBe(0);
-    expect(result.perLabel["cat_a"].f1).toBe(0);
-  });
-
-  it("builds confusion matrix", () => {
-    const labels = ["cat_a", "cat_b"];
-    const cases: CategoryEvalCase[] = [
-      { id: "1", input: "x", expectedCategories: ["cat_a"] },
-      { id: "2", input: "y", expectedCategories: ["cat_a"] },
-      { id: "3", input: "z", expectedCategories: ["cat_b"] },
-    ];
-    const predictions: CategoryPrediction[] = [
-      { caseId: "1", input: "x", expected: ["cat_a"], predicted: ["cat_a"], correct: true },
-      { caseId: "2", input: "y", expected: ["cat_a"], predicted: ["cat_b"], correct: false },
-      { caseId: "3", input: "z", expected: ["cat_b"], predicted: ["cat_b"], correct: true },
-    ];
-
-    const result = calculateMetrics(labels, cases, predictions);
-
-    // confusionMatrix[i][j] = true label i, predicted label j
-    // For single-label, this matches sklearn's confusion_matrix
-    expect(result.confusionMatrix).toEqual([
-      [1, 1], // cat_a → 1 correct cat_a, 1 misclassified as cat_b
-      [0, 1], // cat_b → 0 misclassified as cat_a, 1 correct cat_b
-    ]);
-    // (Note: multi-label confusion matrix sums label co-occurrences)
-  });
-});
-```
-
-- [ ] **Step 2: Rodar testes — devem falhar**
-
-Run: `pnpm --filter @lite-llm/prompt-eval test`
-Expected: FAIL (module not found)
-
-- [ ] **Step 3: Implementar calculateMetrics**
-
-```ts
-// packages/prompt-eval/src/metrics/index.ts
-import type { CategoryEvalCase, CategoryEvalMetrics, CategoryPrediction, LabelMetrics } from "../types/index.js";
-
-export function calculateMetrics(
-  labels: string[],
-  cases: CategoryEvalCase[],
-  predictions: CategoryPrediction[],
-): CategoryEvalMetrics {
-  const caseMap = new Map(predictions.map((p) => [p.caseId, p]));
-  const labelIndex = new Map(labels.map((l, i) => [l, i]));
-  const n = labels.length;
-
-  // Per-label TP/FP/FN (one-vs-rest)
-  const perLabel: Record<string, LabelMetrics> = {};
-  const confusion = Array.from({ length: n }, () => new Array(n).fill(0));
-  let totalError = 0;
-  let totalLabels = 0;
-  let totalCorrect = 0;
-
-  for (const c of cases) {
-    const pred = caseMap.get(c.id);
-    const expectedSet = new Set(c.expectedCategories);
-    const predictedSet = new Set(pred?.predicted ?? []);
-
-    totalLabels += n;
-
-    for (const label of labels) {
-      const expected = expectedSet.has(label);
-      const predicted = predictedSet.has(label);
-      if (expected !== predicted) totalError++;
-    }
-
-    const match = c.expectedCategories.length === (pred?.predicted.length ?? 0)
-      && c.expectedCategories.every((l) => predictedSet.has(l));
-    if (match) totalCorrect++;
-  }
-
-  for (const label of labels) {
-    let tp = 0;
-    let fp = 0;
-    let fn = 0;
-
-    for (const c of cases) {
-      const pred = caseMap.get(c.id);
-      const expected = c.expectedCategories.includes(label);
-      const predicted = pred?.predicted.includes(label) ?? false;
-
-      if (expected && predicted) tp++;
-      else if (!expected && predicted) fp++;
-      else if (expected && !predicted) fn++;
-    }
-
-    const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
-    const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
-    const f1 = precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0;
-
-    perLabel[label] = { precision, recall, f1, support: cases.filter((c) => c.expectedCategories.includes(label)).length };
-  }
-
-  // Confusion matrix (multi-label: sum of co-occurrences)
-  for (const c of cases) {
-    const pred = caseMap.get(c.id);
-
-    for (const expectedLabel of c.expectedCategories) {
-      const i = labelIndex.get(expectedLabel);
-      if (i === undefined) continue;
-
-      for (const predictedLabel of pred?.predicted ?? []) {
-        const j = labelIndex.get(predictedLabel);
-        if (j !== undefined) confusion[i][j]++;
-      }
-    }
-  }
-
-  const f1Values = Object.values(perLabel).map((m) => m.f1);
-  const macroF1 = f1Values.length > 0
-    ? f1Values.reduce((sum, v) => sum + v, 0) / f1Values.length
-    : 0;
-
-  return {
-    accuracy: cases.length > 0 ? totalCorrect / cases.length : 0,
-    macroF1,
-    perLabel,
-    hammingLoss: totalLabels > 0 ? totalError / totalLabels : 0,
-    confusionMatrix: confusion,
-  };
-}
-```
-
-- [ ] **Step 4: Rodar testes — devem passar**
-
-Run: `pnpm --filter @lite-llm/prompt-eval test`
-Expected: PASS (6 tests)
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/prompt-eval/src/metrics/index.ts packages/prompt-eval/src/__tests__/metrics.test.ts
-git commit -m "feat(prompt-eval): add multi-label metrics calculation"
-```
+- [x] **Step 1: Escrever testes de métricas**
+- [x] **Step 2: Rodar testes — devem falhar**
+- [x] **Step 3: Implementar calculateMetrics**
+- [x] **Step 4: Rodar testes — devem passar**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -590,7 +267,7 @@ git commit -m "feat(prompt-eval): add multi-label metrics calculation"
 - Create: `packages/prompt-eval/src/dataset.ts`
 - Create: `packages/prompt-eval/src/__tests__/dataset.test.ts`
 
-- [ ] **Step 1: Escrever testes de validação**
+- [x] **Step 1: Escrever testes de validação**
 
 ```ts
 // packages/prompt-eval/src/__tests__/dataset.test.ts
@@ -671,228 +348,10 @@ describe("validateDataset", () => {
 });
 ```
 
-- [ ] **Step 2: Rodar testes — devem falhar**
-
-Run: `pnpm --filter @lite-llm/prompt-eval test`
-Expected: FAIL (dataset.test.ts fails)
-
-- [ ] **Step 3: Implementar validateDataset**
-
-```ts
-// packages/prompt-eval/src/dataset.ts
-import type { CategoryDefinition, CategoryEvalDataset } from "./types/index.js";
-
-export interface ValidationResult {
-  valid: boolean;
-  errors: string[];
-}
-
-export function validateDataset(
-  dataset: CategoryEvalDataset,
-  categories: CategoryDefinition[],
-): ValidationResult {
-  const errors: string[] = [];
-  const validIds = new Set(categories.map((c) => c.id));
-
-  if (!dataset.cases || dataset.cases.length === 0) {
-    errors.push("Dataset must have at least one case");
-  }
-
-  const seenIds = new Set<string>();
-
-  for (const c of dataset.cases ?? []) {
-    if (seenIds.has(c.id)) {
-      errors.push(`Duplicate case ID: "${c.id}"`);
-    }
-    seenIds.add(c.id);
-
-    if (!c.expectedCategories || c.expectedCategories.length === 0) {
-      errors.push(`Case "${c.id}" has empty expectedCategories`);
-    }
-
-    for (const catId of c.expectedCategories ?? []) {
-      if (!validIds.has(catId)) {
-        errors.push(`Case "${c.id}" references unknown category: "${catId}"`);
-      }
-    }
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-```
-
-- [ ] **Step 4: Rodar testes — devem passar**
-
-Run: `pnpm --filter @lite-llm/prompt-eval test`
-Expected: PASS (all dataset tests + metrics tests)
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/prompt-eval/src/dataset.ts packages/prompt-eval/src/__tests__/dataset.test.ts
-git commit -m "feat(prompt-eval): add dataset validation"
-```
-
----
-
-### Task 1.6: Implementar PromptfooAdapter (stub + teste de conformidade)
-
-**Files:**
-- Create: `packages/prompt-eval/src/adapter/promptfoo.ts`
-- Create: `packages/prompt-eval/src/__tests__/adapter-contract.test.ts`
-
-- [ ] **Step 1: Escrever teste de conformidade da interface**
-
-```ts
-// packages/prompt-eval/src/__tests__/adapter-contract.test.ts
-import { describe, it, expect } from "vitest";
-import type { PromptEvalAdapter } from "../types/index.js";
-import { createPromptfooAdapter } from "../adapter/promptfoo.js";
-
-function runAdapterContract(createAdapter: () => PromptEvalAdapter) {
-  describe("PromptEvalAdapter contract", () => {
-    it("classify returns predictedCategories array", async () => {
-      const adapter = createAdapter();
-      const result = await adapter.classify({
-        categories: [{ id: "test", name: "Test", description: "A test category" }],
-        prompt: "This is a test prompt",
-        model: "test-model",
-      });
-
-      expect(Array.isArray(result.predictedCategories)).toBe(true);
-      expect(typeof result.latencyMs).toBe("number");
-      expect(result.latencyMs).toBeGreaterThanOrEqual(0);
-    });
-
-    it("classify predictedCategories are valid category IDs", async () => {
-      const adapter = createAdapter();
-      const categories = [
-        { id: "cat_a", name: "A", description: "Category A" },
-        { id: "cat_b", name: "B", description: "Category B" },
-      ];
-
-      const result = await adapter.classify({
-        categories,
-        prompt: "test prompt",
-        model: "test-model",
-      });
-
-      for (const pred of result.predictedCategories) {
-        expect(categories.some((c) => c.id === pred)).toBe(true);
-      }
-    });
-
-    it("review returns findings and suggestions", async () => {
-      const adapter = createAdapter();
-      const result = await adapter.review({
-        cases: [{
-          caseId: "1",
-          input: "test",
-          expectedCategories: ["cat_a"],
-          predictedCategories: ["cat_b"],
-          categories: [
-            { id: "cat_a", name: "A", description: "Category A" },
-            { id: "cat_b", name: "B", description: "Category B" },
-          ],
-        }],
-        model: "test-model",
-      });
-
-      expect(Array.isArray(result.findings)).toBe(true);
-      expect(Array.isArray(result.suggestions)).toBe(true);
-    });
-
-    it("classify respects AbortSignal", async () => {
-      const adapter = createAdapter();
-      const controller = new AbortController();
-      controller.abort();
-
-      await expect(
-        adapter.classify({
-          categories: [{ id: "test", name: "T", description: "D" }],
-          prompt: "test",
-          model: "test-model",
-          signal: controller.signal,
-        }),
-      ).rejects.toThrow();
-    });
-  });
-}
-
-runAdapterContract(() => createPromptfooAdapter({ provider: "test-provider" }));
-```
-
-- [ ] **Step 2: Rodar — deve falhar (adapter não existe)**
-
-Run: `pnpm --filter @lite-llm/prompt-eval test`
-Expected: FAIL
-
-- [ ] **Step 3: Implementar createPromptfooAdapter (stub que passa no contrato)**
-
-```ts
-// packages/prompt-eval/src/adapter/promptfoo.ts
-import type {
-  PromptEvalAdapter,
-  EvalAdapterOptions,
-  ClassifyInput,
-  ClassifyOutput,
-  ReviewInput,
-  ReviewOutput,
-} from "../types/index.js";
-
-export function createPromptfooAdapter(
-  _options: EvalAdapterOptions,
-): PromptEvalAdapter {
-  return {
-    async classify(input: ClassifyInput): Promise<ClassifyOutput> {
-      input.signal?.throwIfAborted();
-
-      const start = Date.now();
-
-      // Stub: return first category for any prompt (placeholder until Promptfoo integration)
-      const predictedCategories = input.categories.length > 0
-        ? [input.categories[0].id]
-        : [];
-
-      return {
-        predictedCategories,
-        rawResponse: JSON.stringify({ categories: predictedCategories }),
-        latencyMs: Date.now() - start,
-      };
-    },
-
-    async review(input: ReviewInput): Promise<ReviewOutput> {
-      input.signal?.throwIfAborted();
-
-      return {
-        findings: input.cases.map((c) => ({
-          caseId: c.caseId,
-          input: c.input,
-          expected: c.expectedCategories,
-          predicted: c.predictedCategories,
-          assessment: c.expectedCategories.some((e) => c.predictedCategories.includes(e))
-            ? "correct" as const
-            : "incorrect" as const,
-          reasoning: "Stub review — Promptfoo integration pending",
-        })),
-        suggestions: [],
-      };
-    },
-  };
-}
-```
-
-- [ ] **Step 4: Rodar testes do contrato — devem passar**
-
-Run: `pnpm --filter @lite-llm/prompt-eval test`
-Expected: PASS (contract suite passes against stub)
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/prompt-eval/src/adapter/promptfoo.ts packages/prompt-eval/src/__tests__/adapter-contract.test.ts
-git commit -m "feat(prompt-eval): add PromptfooAdapter stub + adapter contract tests"
-```
+- [x] **Step 2: Rodar testes — devem falhar**
+- [x] **Step 3: Implementar validateDataset**
+- [x] **Step 4: Rodar testes — devem passar**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -902,7 +361,7 @@ git commit -m "feat(prompt-eval): add PromptfooAdapter stub + adapter contract t
 - Create: `packages/prompt-eval/src/evaluation.ts`
 - Create: `packages/prompt-eval/src/__tests__/evaluation.test.ts`
 
-- [ ] **Step 1: Escrever testes**
+- [x] **Step 1: Escrever testes**
 
 ```ts
 // packages/prompt-eval/src/__tests__/evaluation.test.ts
@@ -969,12 +428,12 @@ describe("runCategoryEvaluation", () => {
 });
 ```
 
-- [ ] **Step 2: Rodar — devem falhar**
+- [x] **Step 2: Rodar — devem falhar**
 
 Run: `pnpm --filter @lite-llm/prompt-eval test`
 Expected: FAIL (evaluation.ts not found)
 
-- [ ] **Step 3: Implementar runCategoryEvaluation**
+- [x] **Step 3: Implementar runCategoryEvaluation**
 
 ```ts
 // packages/prompt-eval/src/evaluation.ts
@@ -1091,12 +550,12 @@ function arraysEqual(a: Set<string>, b: Set<string>): boolean {
 }
 ```
 
-- [ ] **Step 4: Rodar testes — devem passar**
+- [x] **Step 4: Rodar testes — devem passar**
 
 Run: `pnpm --filter @lite-llm/prompt-eval test`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/prompt-eval/src/evaluation.ts packages/prompt-eval/src/__tests__/evaluation.test.ts
@@ -1111,7 +570,7 @@ git commit -m "feat(prompt-eval): add runCategoryEvaluation with event emitter"
 - Create: `packages/prompt-eval/src/review.ts`
 - Create: `packages/prompt-eval/src/__tests__/review.test.ts`
 
-- [ ] **Step 1: Escrever testes**
+- [x] **Step 1: Escrever testes**
 
 ```ts
 // packages/prompt-eval/src/__tests__/review.test.ts
@@ -1162,12 +621,12 @@ describe("runCategoryAiReview", () => {
 });
 ```
 
-- [ ] **Step 2: Rodar — devem falhar**
+- [x] **Step 2: Rodar — devem falhar**
 
 Run: `pnpm --filter @lite-llm/prompt-eval test`
 Expected: FAIL
 
-- [ ] **Step 3: Implementar runCategoryAiReview**
+- [x] **Step 3: Implementar runCategoryAiReview**
 
 ```ts
 // packages/prompt-eval/src/review.ts
@@ -1228,12 +687,12 @@ function emit(onEvent: ((event: EvalEvent) => void) | undefined, event: EvalEven
 }
 ```
 
-- [ ] **Step 4: Rodar testes — devem passar**
+- [x] **Step 4: Rodar testes — devem passar**
 
 Run: `pnpm --filter @lite-llm/prompt-eval test`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/prompt-eval/src/review.ts packages/prompt-eval/src/__tests__/review.test.ts
@@ -1244,12 +703,12 @@ git commit -m "feat(prompt-eval): add runCategoryAiReview"
 
 ### Task 1.9: Typecheck final do pacote
 
-- [ ] **Step 1: Rodar typecheck**
+- [x] **Step 1: Rodar typecheck**
 
 Run: `pnpm --filter @lite-llm/prompt-eval typecheck`
 Expected: PASS
 
-- [ ] **Step 2: Rodar todos os testes do pacote**
+- [x] **Step 2: Rodar todos os testes do pacote**
 
 Run: `pnpm --filter @lite-llm/prompt-eval test`
 Expected: ALL PASS
@@ -1263,7 +722,7 @@ Expected: ALL PASS
 **Files:**
 - Modify: `repositories/app-repository/src/schema.ts`
 
-- [ ] **Step 1: Adicionar definições Drizzle ao final do arquivo**
+- [x] **Step 1: Adicionar definições Drizzle ao final do arquivo**
 
 Adicionar após a definição `modelHealthChecks` existente:
 
@@ -1309,12 +768,12 @@ export type EvalRunArtifact = typeof promptEvalRunArtifacts.$inferSelect;
 export type NewEvalRunArtifact = typeof promptEvalRunArtifacts.$inferInsert;
 ```
 
-- [ ] **Step 2: Rodar typecheck no app-repository**
+- [x] **Step 2: Rodar typecheck no app-repository**
 
 Run: `pnpm --filter @lite-llm/app-repository typecheck`
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add repositories/app-repository/src/schema.ts
@@ -1328,7 +787,7 @@ git commit -m "feat(app-repository): add prompt eval Drizzle schemas"
 **Files:**
 - Modify: `repositories/app-repository/src/client.ts`
 
-- [ ] **Step 1: Adicionar CREATE TABLE statements no initDb()**
+- [x] **Step 1: Adicionar CREATE TABLE statements no initDb()**
 
 Adicionar após os CREATE TABLE existentes, dentro do `sqlite.exec()`:
 
@@ -1365,12 +824,12 @@ CREATE TABLE IF NOT EXISTS prompt_eval_run_artifacts (
 );
 ```
 
-- [ ] **Step 2: Rodar typecheck**
+- [x] **Step 2: Rodar typecheck**
 
 Run: `pnpm --filter @lite-llm/app-repository typecheck`
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add repositories/app-repository/src/client.ts
@@ -1385,7 +844,7 @@ git commit -m "feat(app-repository): add prompt eval tables to initDb"
 - Modify: `repositories/app-repository/src/queries.ts`
 - Modify: `repositories/app-repository/src/index.ts`
 
-- [ ] **Step 1: Adicionar funções de query**
+- [x] **Step 1: Adicionar funções de query**
 
 Adicionar ao final de `queries.ts`:
 
@@ -1511,7 +970,7 @@ export function getEvalRunArtifacts(runId: string): EvalRunArtifact[] {
 }
 ```
 
-- [ ] **Step 2: Atualizar exports em index.ts**
+- [x] **Step 2: Atualizar exports em index.ts**
 
 Adicionar ao final de `repositories/app-repository/src/index.ts`:
 
@@ -1544,12 +1003,12 @@ export {
 } from "./schema.js";
 ```
 
-- [ ] **Step 3: Rodar typecheck**
+- [x] **Step 3: Rodar typecheck**
 
 Run: `pnpm --filter @lite-llm/app-repository typecheck`
 Expected: PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add repositories/app-repository/src/queries.ts repositories/app-repository/src/index.ts
@@ -1565,7 +1024,7 @@ git commit -m "feat(app-repository): add prompt eval CRUD queries"
 **Files:**
 - Create: `apps/server/src/application/prompt-eval-application-service.ts`
 
-- [ ] **Step 1: Escrever o application service**
+- [x] **Step 1: Escrever o application service**
 
 ```ts
 // apps/server/src/application/prompt-eval-application-service.ts
@@ -1916,24 +1375,24 @@ async function getRunDetails(id: string) {
 }
 ```
 
-- [ ] **Step 2: Rodar typecheck no server**
+- [x] **Step 2: Rodar typecheck no server**
 
 Run: `pnpm --filter lite-llm-analytics-server typecheck`
 Expected: FAIL (pode precisar de ajustes de import — o `@lite-llm/prompt-eval` precisa ser adicionado como dependência do server)
 
-- [ ] **Step 3: Adicionar dependência no package.json do server**
+- [x] **Step 3: Adicionar dependência no package.json do server**
 
 Adicionar a `apps/server/package.json`:
 ```json
 "@lite-llm/prompt-eval": "workspace:*"
 ```
 
-- [ ] **Step 4: Rodar typecheck novamente**
+- [x] **Step 4: Rodar typecheck novamente**
 
 Run: `pnpm --filter lite-llm-analytics-server typecheck`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/server/src/application/prompt-eval-application-service.ts apps/server/package.json
@@ -1947,7 +1406,7 @@ git commit -m "feat(server): add PromptEvalApplicationService"
 **Files:**
 - Modify: `apps/server/src/ws/websocket-server.ts`
 
-- [ ] **Step 1: Adicionar novos tipos de mensagem**
+- [x] **Step 1: Adicionar novos tipos de mensagem**
 
 Adicionar ao union type `MessageType`:
 
@@ -1956,12 +1415,12 @@ Adicionar ao union type `MessageType`:
 | "prompt_eval_run_completed"
 ```
 
-- [ ] **Step 2: Rodar typecheck**
+- [x] **Step 2: Rodar typecheck**
 
 Run: `pnpm --filter lite-llm-analytics-server typecheck`
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/server/src/ws/websocket-server.ts
@@ -1975,7 +1434,7 @@ git commit -m "feat(server): add prompt_eval WebSocket message types"
 **Files:**
 - Create: `apps/server/src/routes/prompt-eval-routes.ts`
 
-- [ ] **Step 1: Escrever o router**
+- [x] **Step 1: Escrever o router**
 
 ```ts
 // apps/server/src/routes/prompt-eval-routes.ts
@@ -2051,12 +1510,12 @@ export function createPromptEvalRouter(
 }
 ```
 
-- [ ] **Step 2: Rodar typecheck**
+- [x] **Step 2: Rodar typecheck**
 
 Run: `pnpm --filter lite-llm-analytics-server typecheck`
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/server/src/routes/prompt-eval-routes.ts
@@ -2071,7 +1530,7 @@ git commit -m "feat(server): add prompt eval Express routes"
 - Create: `apps/server/src/runtime/prompt-eval-runtime.ts`
 - Modify: `apps/server/src/runtime/api-server.ts`
 
-- [ ] **Step 1: Criar PromptEvalRuntime**
+- [x] **Step 1: Criar PromptEvalRuntime**
 
 ```ts
 // apps/server/src/runtime/prompt-eval-runtime.ts
@@ -2112,7 +1571,7 @@ export function createPromptEvalRuntime(opts: PromptEvalRuntimeOptions) {
 }
 ```
 
-- [ ] **Step 2: Registrar no api-server.ts**
+- [x] **Step 2: Registrar no api-server.ts**
 
 Adicionar em `apps/server/src/runtime/api-server.ts`:
 
@@ -2129,12 +1588,12 @@ const promptEvalRuntime = createPromptEvalRuntime({
 app.use("/api/prompt-evals/runs", promptEvalRuntime.router);
 ```
 
-- [ ] **Step 3: Rodar typecheck**
+- [x] **Step 3: Rodar typecheck**
 
 Run: `pnpm --filter lite-llm-analytics-server typecheck`
 Expected: PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add apps/server/src/runtime/prompt-eval-runtime.ts apps/server/src/runtime/api-server.ts
@@ -2150,7 +1609,7 @@ git commit -m "feat(server): add PromptEvalRuntime and register routes"
 **Files:**
 - Create: `apps/web/src/lib/api-client/prompt-evals.ts`
 
-- [ ] **Step 1: Implementar client**
+- [x] **Step 1: Implementar client**
 
 ```ts
 // apps/web/src/lib/api-client/prompt-evals.ts
@@ -2226,12 +1685,12 @@ export async function cancelEval(id: string): Promise<{ cancelled: boolean }> {
 }
 ```
 
-- [ ] **Step 2: Rodar typecheck no web**
+- [x] **Step 2: Rodar typecheck no web**
 
 Run: `pnpm --filter lite-llm-analytics-web typecheck`
 Expected: PASS (client is self-contained, no deps on unadded packages)
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/src/lib/api-client/prompt-evals.ts
@@ -2250,7 +1709,7 @@ git commit -m "feat(web): add prompt eval HTTP client"
 - Create: `apps/web/src/pages/prompt-evals/use-prompt-evals-derived.ts`
 - Create: `apps/web/src/pages/prompt-evals/use-prompt-evals-page.ts`
 
-- [ ] **Step 1: types.ts**
+- [x] **Step 1: types.ts**
 
 ```ts
 // apps/web/src/pages/prompt-evals/types.ts
@@ -2267,7 +1726,7 @@ export type SortField = "startedAt" | "macroF1" | "status" | "model";
 export type SortDirection = "asc" | "desc";
 ```
 
-- [ ] **Step 2: utils.ts**
+- [x] **Step 2: utils.ts**
 
 ```ts
 // apps/web/src/pages/prompt-evals/utils.ts
@@ -2298,7 +1757,7 @@ export function statusVariant(status: string): "default" | "destructive" | "outl
 }
 ```
 
-- [ ] **Step 3: use-prompt-evals-state.ts**
+- [x] **Step 3: use-prompt-evals-state.ts**
 
 ```ts
 // apps/web/src/pages/prompt-evals/use-prompt-evals-state.ts
@@ -2353,7 +1812,7 @@ export function usePromptEvalsState() {
 }
 ```
 
-- [ ] **Step 4: use-prompt-evals-actions.ts**
+- [x] **Step 4: use-prompt-evals-actions.ts**
 
 ```ts
 // apps/web/src/pages/prompt-evals/use-prompt-evals-actions.ts
@@ -2388,7 +1847,7 @@ export function usePromptEvalsActions() {
 }
 ```
 
-- [ ] **Step 5: use-prompt-evals-derived.ts**
+- [x] **Step 5: use-prompt-evals-derived.ts**
 
 ```ts
 // apps/web/src/pages/prompt-evals/use-prompt-evals-derived.ts
@@ -2428,7 +1887,7 @@ export function usePromptEvalsDerived(
 }
 ```
 
-- [ ] **Step 6: use-prompt-evals-page.ts**
+- [x] **Step 6: use-prompt-evals-page.ts**
 
 ```ts
 // apps/web/src/pages/prompt-evals/use-prompt-evals-page.ts
@@ -2449,12 +1908,12 @@ export function usePromptEvalsPage() {
 }
 ```
 
-- [ ] **Step 7: Rodar typecheck no web**
+- [x] **Step 7: Rodar typecheck no web**
 
 Run: `pnpm --filter lite-llm-analytics-web typecheck`
 Expected: PASS
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add apps/web/src/pages/prompt-evals/
@@ -2468,7 +1927,7 @@ git commit -m "feat(web): add prompt-evals page state/actions/derived"
 **Files:**
 - Create: `apps/web/src/pages/prompt-evals.tsx`
 
-- [ ] **Step 1: Implementar página**
+- [x] **Step 1: Implementar página**
 
 ```tsx
 // apps/web/src/pages/prompt-evals.tsx
@@ -2644,12 +2103,12 @@ export function PromptEvalsPage() {
 }
 ```
 
-- [ ] **Step 2: Rodar typecheck**
+- [x] **Step 2: Rodar typecheck**
 
 Run: `pnpm --filter lite-llm-analytics-web typecheck`
 Expected: PASS (may need to adjust shadcn imports if component names differ)
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/src/pages/prompt-evals.tsx
@@ -2664,7 +2123,7 @@ git commit -m "feat(web): add PromptEvals page component"
 - Modify: `apps/web/src/App.tsx`
 - Modify: `apps/web/src/components/layout/sidebar.tsx`
 
-- [ ] **Step 1: Adicionar rota no App.tsx**
+- [x] **Step 1: Adicionar rota no App.tsx**
 
 Adicionar import:
 ```tsx
@@ -2676,19 +2135,19 @@ Adicionar Route (dentro do `<Routes>`):
 <Route path="/prompt-evals" element={<ErrorBoundary><PromptEvalsPage /></ErrorBoundary>} />
 ```
 
-- [ ] **Step 2: Adicionar entrada no sidebar**
+- [x] **Step 2: Adicionar entrada no sidebar**
 
 Adicionar ao array `children` do grupo "Agents":
 ```tsx
 { to: "/prompt-evals", label: "Evals" }
 ```
 
-- [ ] **Step 3: Rodar typecheck**
+- [x] **Step 3: Rodar typecheck**
 
 Run: `pnpm --filter lite-llm-analytics-web typecheck`
 Expected: PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add apps/web/src/App.tsx apps/web/src/components/layout/sidebar.tsx
@@ -2704,7 +2163,7 @@ git commit -m "feat(web): add prompt-evals route and sidebar entry"
 **Files:**
 - Create: `@storage/category-eval.dataset.json`
 
-- [ ] **Step 1: Criar dataset**
+- [x] **Step 1: Criar dataset**
 
 ```json
 {
@@ -2714,7 +2173,7 @@ git commit -m "feat(web): add prompt-evals route and sidebar entry"
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add @storage/category-eval.dataset.json
@@ -2725,7 +2184,7 @@ git commit -m "feat: add initial empty eval dataset"
 
 ### Task 5.2: Typecheck e lint global
 
-- [ ] **Step 1: Typecheck todos os pacotes afetados**
+- [x] **Step 1: Typecheck todos os pacotes afetados**
 
 Run:
 ```bash
@@ -2736,12 +2195,12 @@ pnpm --filter lite-llm-analytics-web typecheck
 ```
 Expected: ALL PASS
 
-- [ ] **Step 2: Lint**
+- [x] **Step 2: Lint**
 
 Run: `pnpm lint`
 Expected: PASS
 
-- [ ] **Step 3: Commit (se houver fixes de lint)**
+- [x] **Step 3: Commit (se houver fixes de lint)**
 
 ```bash
 git add -A
@@ -2758,7 +2217,7 @@ git commit -m "chore: fix lint issues from prompt-eval feature"
 **Files:**
 - Create: `apps/server/src/__tests__/prompt-eval-queries.test.ts`
 
-- [ ] **Step 1: Escrever teste de queries**
+- [x] **Step 1: Escrever teste de queries**
 
 ```ts
 // apps/server/src/__tests__/prompt-eval-queries.test.ts
@@ -2860,12 +2319,12 @@ describe("prompt eval queries", () => {
 });
 ```
 
-- [ ] **Step 2: Rodar testes**
+- [x] **Step 2: Rodar testes**
 
 Run: `pnpm --filter lite-llm-analytics-server test`
 Expected: PASS (or skip if DB not available in test env)
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/server/src/__tests__/prompt-eval-queries.test.ts
@@ -2876,12 +2335,12 @@ git commit -m "test(server): add prompt eval persistence integration tests"
 
 ### Task 6.2: Rodar suite completa
 
-- [ ] **Step 1: Rodar todos os testes**
+- [x] **Step 1: Rodar todos os testes**
 
 Run: `pnpm test`
 Expected: ALL PASS (including prompt-eval unit tests + server integration tests)
 
-- [ ] **Step 2: Build**
+- [x] **Step 2: Build**
 
 Run: `pnpm build`
 Expected: Build succeeds

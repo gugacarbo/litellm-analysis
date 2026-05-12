@@ -1,4 +1,9 @@
-import type { CategoryEvalCase, CategoryEvalMetrics, CategoryPrediction, LabelMetrics } from "../types/index.js";
+import type {
+  CategoryEvalCase,
+  CategoryEvalMetrics,
+  CategoryPrediction,
+  LabelMetrics,
+} from "../types/index.js";
 
 export function calculateMetrics(
   labels: string[],
@@ -29,8 +34,9 @@ export function calculateMetrics(
       if (expected !== predicted) totalError++;
     }
 
-    const match = c.expectedCategories.length === (pred?.predicted.length ?? 0)
-      && c.expectedCategories.every((l) => predictedSet.has(l));
+    const match =
+      c.expectedCategories.length === (pred?.predicted.length ?? 0) &&
+      c.expectedCategories.every((l) => predictedSet.has(l));
     if (match) totalCorrect++;
   }
 
@@ -51,9 +57,10 @@ export function calculateMetrics(
 
     const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
     const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
-    const f1 = precision + recall > 0
-      ? (2 * precision * recall) / (precision + recall)
-      : 0;
+    const f1 =
+      precision + recall > 0
+        ? (2 * precision * recall) / (precision + recall)
+        : 0;
 
     perLabel[label] = {
       precision,
@@ -77,9 +84,10 @@ export function calculateMetrics(
   }
 
   const f1Values = Object.values(perLabel).map((m) => m.f1);
-  const macroF1 = f1Values.length > 0
-    ? f1Values.reduce((sum, v) => sum + v, 0) / f1Values.length
-    : 0;
+  const macroF1 =
+    f1Values.length > 0
+      ? f1Values.reduce((sum, v) => sum + v, 0) / f1Values.length
+      : 0;
 
   return {
     accuracy: cases.length > 0 ? totalCorrect / cases.length : 0,

@@ -1,8 +1,8 @@
 import type {
-  PromptEvalAdapter,
-  EvalAdapterOptions,
   ClassifyInput,
   ClassifyOutput,
+  EvalAdapterOptions,
+  PromptEvalAdapter,
   ReviewInput,
   ReviewOutput,
 } from "../types/index.js";
@@ -17,9 +17,8 @@ export function createPromptfooAdapter(
       const start = Date.now();
 
       // Stub: return first category for any prompt (placeholder until Promptfoo integration)
-      const predictedCategories = input.categories.length > 0
-        ? [input.categories[0].id]
-        : [];
+      const predictedCategories =
+        input.categories.length > 0 ? [input.categories[0].id] : [];
 
       return {
         predictedCategories,
@@ -37,9 +36,11 @@ export function createPromptfooAdapter(
           input: c.input,
           expected: c.expectedCategories,
           predicted: c.predictedCategories,
-          assessment: c.expectedCategories.some((e) => c.predictedCategories.includes(e))
-            ? "correct" as const
-            : "incorrect" as const,
+          assessment: c.expectedCategories.some((e) =>
+            c.predictedCategories.includes(e),
+          )
+            ? ("correct" as const)
+            : ("incorrect" as const),
           reasoning: "Stub review — Promptfoo integration pending",
         })),
         suggestions: [],
