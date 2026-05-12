@@ -1,5 +1,5 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { SystemAgent } from "@lite-llm/agents-repository/schema";
+import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
 import { AgentService } from "../agent.service";
 
@@ -8,7 +8,7 @@ function createMockRepo(
 ): IAgentsRepository {
   const store: Record<string, unknown> = {
     version: 2,
-    litellm: { baseUrl: "", apiKey: "" },
+    provider: { litellm: { name: "", ownedBy: "", baseUrl: "", apiKey: "" } },
     models: {},
     agents: {},
     categories: {},
@@ -28,14 +28,12 @@ function createMockRepo(
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
-    id: "test-agent",
     displayName: "Test Agent",
     icon: "🤖",
     description: "Test description",
-    versions: [],
+    limits: { context: 200000, output: 32768 },
     model: "gpt-4",
     fallbackModels: [],
-    enabledPlugins: [],
     config: {},
     ...overrides,
   };

@@ -1,5 +1,5 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { SystemAgent } from "@lite-llm/agents-repository/schema";
+import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 
 export interface AgentServiceOptions {
   repository: IAgentsRepository;

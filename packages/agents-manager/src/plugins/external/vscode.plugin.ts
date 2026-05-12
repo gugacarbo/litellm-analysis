@@ -1,8 +1,7 @@
 import type {
-  ModelSpec,
-  PluginRoutingConfig,
+  PluginRouting,
   SystemAgent,
-} from "@lite-llm/agents-repository/schema";
+} from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin.js";
 import type { ConfigField, InternalAgent } from "../plugin-types.js";
 
@@ -67,13 +66,10 @@ export class VsCodePlugin implements IPlugin {
 
   buildOutput(
     _agents: SystemAgent[],
-    routing: PluginRoutingConfig,
+    routing: PluginRouting,
     ctx: TransformContext,
   ): VsCodeModelsOutput {
-    const pluginConfig = (routing.plugins[this.id]?.config ?? {}) as Record<
-      string,
-      unknown
-    >;
+    const pluginConfig = routing.config ?? {};
     const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
 
     const output: VsCodeModelsOutput = {
@@ -92,9 +88,8 @@ export class VsCodePlugin implements IPlugin {
     };
 
     for (const [key, spec] of Object.entries(ctx.allModels)) {
-      const model = spec as ModelSpec;
       output["oaicopilot.models"].push({
-        name: model.displayName,
+        name: spec.displayName,
         id: key,
         baseUrl,
         "request-options": {
@@ -103,7 +98,7 @@ export class VsCodePlugin implements IPlugin {
           },
         },
         "model-settings": {
-          "max-tokens": model.maxOutput,
+          "max-tokens": spec.limits.maxOutput,
         },
       });
     }

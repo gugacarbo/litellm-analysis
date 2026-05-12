@@ -1,5 +1,5 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { SystemAgent } from "@lite-llm/agents-repository/schema";
+import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
 import { AgentCatalogService } from "../agent-catalog.service";
 
@@ -8,7 +8,7 @@ function createMockRepo(
 ): IAgentsRepository {
   const store: Record<string, unknown> = {
     version: 2,
-    litellm: { baseUrl: "", apiKey: "" },
+    provider: { litellm: { name: "", ownedBy: "", baseUrl: "", apiKey: "" } },
     models: {},
     agents: {},
     categories: {},
@@ -28,14 +28,12 @@ function createMockRepo(
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
-    id: "builder",
     displayName: "Builder",
     icon: "🔧",
     description: "Build stuff",
-    versions: [],
+    limits: { context: 200000, output: 32768 },
     model: "gpt-4",
     fallbackModels: [],
-    enabledPlugins: [],
     config: {},
     ...overrides,
   };
@@ -45,8 +43,8 @@ describe("AgentCatalogService", () => {
   describe("getAll", () => {
     it("retorna todos os agents", async () => {
       const agents: Record<string, SystemAgent> = {
-        builder: makeSystemAgent({ id: "builder", displayName: "Builder" }),
-        reviewer: makeSystemAgent({ id: "reviewer", displayName: "Reviewer" }),
+        builder: makeSystemAgent({ displayName: "Builder" }),
+        reviewer: makeSystemAgent({ displayName: "Reviewer" }),
       };
       const repo = createMockRepo({ agents });
       const service = new AgentCatalogService({ repository: repo });
@@ -88,7 +86,7 @@ describe("AgentCatalogService", () => {
     it("adiciona systemAgent ao repositório", async () => {
       const repo = createMockRepo({ agents: {} });
       const service = new AgentCatalogService({ repository: repo });
-      const entry = makeSystemAgent({ id: "builder" });
+      const entry = makeSystemAgent({ displayName: "Builder" });
       await service.create("builder", entry);
       const result = await service.get("builder");
       expect(result?.displayName).toBe("Builder");
@@ -97,7 +95,7 @@ describe("AgentCatalogService", () => {
     it("inicializa agents como {} se undefined", async () => {
       const repo = createMockRepo({});
       const service = new AgentCatalogService({ repository: repo });
-      const entry = makeSystemAgent({ id: "builder" });
+      const entry = makeSystemAgent({ displayName: "Builder" });
       await service.create("builder", entry);
       const result = await service.get("builder");
       expect(result?.displayName).toBe("Builder");

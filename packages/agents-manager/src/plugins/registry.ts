@@ -1,6 +1,11 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
+import type {
+  DbConfig,
+  PluginRouting,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin.js";
 import type { ConfigField, InternalAgent } from "./plugin-types.js";
 
@@ -41,14 +46,11 @@ export class PluginRegistry implements IPluginRegistry {
     return Array.from(this.plugins.values());
   }
 
-  loadFromConfig(routing: {
-    version: number;
-    plugins: Record<string, { enabled: boolean }>;
-  }): void {
+  loadFromConfig(pluginConfigs: Record<string, PluginRouting>): void {
     this.plugins.clear();
     for (const plugin of this.allPlugins) {
-      const pluginConfig = routing.plugins[plugin.id];
-      if (pluginConfig?.enabled) {
+      const pc = pluginConfigs[plugin.id];
+      if (pc?.enabled) {
         this.register(plugin);
       }
     }
@@ -67,14 +69,22 @@ export class PluginRegistry implements IPluginRegistry {
     }
 
     const config = await this.repository.read();
-    const routing = config.routing ?? { version: 1, plugins: {} };
+    const pluginConfig: PluginRouting = config.plugins?.[pluginId] ?? {
+      enabled: true,
+      outputFile: plugin.getOutputFile(),
+      routing: { agents: {}, categories: {} },
+    };
     const ctx = this.buildContext(config);
 
     const agents = Object.entries(config.agents ?? {}).map(([id, agent]) => ({
       ...agent,
       id,
     }));
-    const output = plugin.buildOutput(agents, routing, ctx);
+    const output = plugin.buildOutput(
+      agents as unknown as SystemAgent[],
+      pluginConfig,
+      ctx,
+    );
 
     if (plugin.validate && !plugin.validate(output)) {
       throw new Error(`Plugin "${pluginId}" output validation failed`);
@@ -93,11 +103,7 @@ export class PluginRegistry implements IPluginRegistry {
     return plugin?.getConfigSchema() ?? [];
   }
 
-  private buildContext(config: {
-    models: Record<string, unknown>;
-    globalFallbackModel?: string;
-    provider: Record<string, { name: string; baseUrl: string; apiKey: string }>;
-  }): TransformContext {
+  private buildContext(config: DbConfig): TransformContext {
     const selectedProvider =
       config.provider.litellm ?? Object.values(config.provider)[0];
     if (!selectedProvider) {

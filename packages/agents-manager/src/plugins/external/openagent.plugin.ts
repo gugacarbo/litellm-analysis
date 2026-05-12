@@ -1,7 +1,7 @@
 import type {
-  PluginRoutingConfig,
+  PluginRouting,
   SystemAgent,
-} from "@lite-llm/agents-repository/schema";
+} from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin.js";
 import type { ConfigField, InternalAgent } from "../plugin-types.js";
 
@@ -55,11 +55,10 @@ export class OpenAgentPlugin implements IPlugin {
 
   buildOutput(
     agents: SystemAgent[],
-    routing: PluginRoutingConfig,
+    routing: PluginRouting,
     ctx: TransformContext,
   ): OpenAgentOutput {
-    const pluginRouting = routing.plugins[this.id];
-    const config = (pluginRouting?.config ?? {}) as Record<string, unknown>;
+    const config = routing.config ?? {};
 
     const output: OpenAgentOutput = {
       $schema:
@@ -74,14 +73,10 @@ export class OpenAgentPlugin implements IPlugin {
       categories: {},
     };
 
-    const agentMappings = (pluginRouting?.routing?.agents ?? {}) as Record<
-      string,
-      string
-    >;
+    const agentMappings = routing.routing?.agents ?? {};
+
     for (const agent of agents) {
-      const agentId =
-        (agent as SystemAgent & { id?: string }).id ?? agent.displayName;
-      const internalId = agentMappings[agentId];
+      const internalId = agentMappings[agent.displayName];
       if (!internalId) continue;
 
       const entry: Record<string, unknown> = {};

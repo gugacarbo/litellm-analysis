@@ -1,5 +1,5 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { ModelSpec } from "@lite-llm/agents-repository/schema";
+import type { ModelSpec } from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
 import { ModelService } from "../model.service";
 
@@ -8,7 +8,7 @@ function createMockRepo(
 ): IAgentsRepository {
   const store: Record<string, unknown> = {
     version: 2,
-    litellm: { baseUrl: "", apiKey: "" },
+    provider: { litellm: { name: "", ownedBy: "", baseUrl: "", apiKey: "" } },
     models: {},
     agents: {},
     categories: {},
@@ -31,9 +31,9 @@ describe("ModelService", () => {
     it("retorna todos os modelos", async () => {
       const models: Record<string, ModelSpec> = {
         "gpt-4": {
+          enabled: true,
           displayName: "GPT-4",
-          contextLength: 128000,
-          maxOutput: 4096,
+          limits: { length: 128000, maxOutput: 4096 },
         },
       };
       const repo = createMockRepo({ models });
@@ -53,9 +53,9 @@ describe("ModelService", () => {
       const repo = createMockRepo({
         models: {
           "gpt-4": {
+            enabled: true,
             displayName: "GPT-4",
-            contextLength: 128000,
-            maxOutput: 4096,
+            limits: { length: 128000, maxOutput: 4096 },
           },
         },
       });
@@ -76,9 +76,9 @@ describe("ModelService", () => {
       const repo = createMockRepo({ models: {} });
       const service = new ModelService({ repository: repo });
       const spec: ModelSpec = {
+        enabled: true,
         displayName: "Claude 3.5",
-        contextLength: 200000,
-        maxOutput: 8192,
+        limits: { length: 200000, maxOutput: 8192 },
       };
       await service.create("claude-3.5", spec);
       expect(await service.get("claude-3.5")).toEqual(spec);
@@ -88,18 +88,18 @@ describe("ModelService", () => {
       const repo = createMockRepo({
         models: {
           "gpt-4": {
+            enabled: true,
             displayName: "GPT-4",
-            contextLength: 128000,
-            maxOutput: 4096,
+            limits: { length: 128000, maxOutput: 4096 },
           },
         },
       });
       const service = new ModelService({ repository: repo });
       await expect(
         service.create("gpt-4", {
+          enabled: true,
           displayName: "GPT-4",
-          contextLength: 128000,
-          maxOutput: 4096,
+          limits: { length: 128000, maxOutput: 4096 },
         }),
       ).rejects.toThrow("already exists");
     });
@@ -110,24 +110,28 @@ describe("ModelService", () => {
       const repo = createMockRepo({
         models: {
           "gpt-4": {
+            enabled: true,
             displayName: "GPT-4",
-            contextLength: 128000,
-            maxOutput: 4096,
+            limits: { length: 128000, maxOutput: 4096 },
           },
         },
       });
       const service = new ModelService({ repository: repo });
-      await service.update("gpt-4", { maxOutput: 8192 });
+      await service.update("gpt-4", {
+        limits: { length: 128000, maxOutput: 8192 },
+      });
       const result = await service.get("gpt-4");
-      expect(result?.maxOutput).toBe(8192);
-      expect(result?.contextLength).toBe(128000);
+      expect(result?.limits.maxOutput).toBe(8192);
+      expect(result?.limits.length).toBe(128000);
     });
 
     it("lança erro se modelo não existe", async () => {
       const repo = createMockRepo({ models: {} });
       const service = new ModelService({ repository: repo });
       await expect(
-        service.update("nonexistent", { maxOutput: 8192 }),
+        service.update("nonexistent", {
+          limits: { length: 128000, maxOutput: 8192 },
+        }),
       ).rejects.toThrow("not found");
     });
   });
@@ -137,9 +141,9 @@ describe("ModelService", () => {
       const repo = createMockRepo({ models: {} });
       const service = new ModelService({ repository: repo });
       const spec: ModelSpec = {
+        enabled: true,
         displayName: "GPT-4o",
-        contextLength: 128000,
-        maxOutput: 16384,
+        limits: { length: 128000, maxOutput: 16384 },
       };
       await service.upsert("gpt-4o", spec);
       expect(await service.get("gpt-4o")).toEqual(spec);
@@ -149,17 +153,17 @@ describe("ModelService", () => {
       const repo = createMockRepo({
         models: {
           "gpt-4": {
+            enabled: true,
             displayName: "GPT-4",
-            contextLength: 128000,
-            maxOutput: 4096,
+            limits: { length: 128000, maxOutput: 4096 },
           },
         },
       });
       const service = new ModelService({ repository: repo });
       await service.upsert("gpt-4", {
+        enabled: true,
         displayName: "GPT-4 Updated",
-        contextLength: 128000,
-        maxOutput: 8192,
+        limits: { length: 128000, maxOutput: 8192 },
       });
       expect((await service.get("gpt-4"))?.displayName).toBe("GPT-4 Updated");
     });
@@ -170,9 +174,9 @@ describe("ModelService", () => {
       const repo = createMockRepo({
         models: {
           "gpt-4": {
+            enabled: true,
             displayName: "GPT-4",
-            contextLength: 128000,
-            maxOutput: 4096,
+            limits: { length: 128000, maxOutput: 4096 },
           },
         },
       });
@@ -189,22 +193,13 @@ describe("ModelService", () => {
   });
 
   describe("resolveModelName", () => {
-    it("retorna alias customizado se definido", async () => {
-      const repo = createMockRepo({
-        customAliases: { "my-model": "gpt-4-turbo" },
-        models: {},
-      });
-      const service = new ModelService({ repository: repo });
-      expect(await service.resolveModelName("my-model")).toBe("gpt-4-turbo");
-    });
-
     it("retorna key se for modelo direto", async () => {
       const repo = createMockRepo({
         models: {
           "gpt-4": {
+            enabled: true,
             displayName: "GPT-4",
-            contextLength: 128000,
-            maxOutput: 4096,
+            limits: { length: 128000, maxOutput: 4096 },
           },
         },
       });
@@ -216,21 +211,6 @@ describe("ModelService", () => {
       const repo = createMockRepo({});
       const service = new ModelService({ repository: repo });
       expect(await service.resolveModelName("unknown")).toBe("unknown");
-    });
-
-    it("prioriza alias customizado sobre modelo direto", async () => {
-      const repo = createMockRepo({
-        customAliases: { "gpt-4": "gpt-4-turbo-v2" },
-        models: {
-          "gpt-4": {
-            displayName: "GPT-4",
-            contextLength: 128000,
-            maxOutput: 4096,
-          },
-        },
-      });
-      const service = new ModelService({ repository: repo });
-      expect(await service.resolveModelName("gpt-4")).toBe("gpt-4-turbo-v2");
     });
   });
 });

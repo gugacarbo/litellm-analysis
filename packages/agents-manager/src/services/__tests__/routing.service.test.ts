@@ -1,101 +1,182 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { DbConfig } from "@lite-llm/agents-repository/schema";
+import type { PluginRouting } from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
 import { RoutingService } from "../routing.service";
 
-function createMockRepository(
-  data: Record<string, unknown> = {},
+function createMockRepo(
+  initial: Record<string, unknown> = {},
 ): IAgentsRepository {
-  const defaults: Record<string, unknown> = {
+  const store: Record<string, unknown> = {
     version: 2,
+    provider: { litellm: { name: "", ownedBy: "", baseUrl: "", apiKey: "" } },
     models: {},
     agents: {},
-    routing: { version: 1, plugins: {} },
+    categories: {},
+    plugins: {},
+    ...initial,
   };
-  let store = { ...defaults, ...data } as DbConfig;
-
   return {
     read: async () => store,
-    write: async (config: DbConfig) => {
-      store = config;
-    },
-  } as IAgentsRepository;
+    write: async (config: Record<string, unknown>) =>
+      Object.assign(store, config),
+    readSync: () => store,
+    validate: ((_config: unknown): _config is never =>
+      true) as IAgentsRepository["validate"],
+    exists: async () => true,
+    getPath: () => "/tmp/test.json",
+  } as unknown as IAgentsRepository;
 }
 
 describe("RoutingService", () => {
-  describe("syncAliases", () => {
-    it("retorna false quando syncAliases está ausente", async () => {
-      const repo = createMockRepository({
-        routing: { version: 1, plugins: {} },
+  describe("getPluginsForAgent", () => {
+    it("retorna plugins onde o agent tem routing", async () => {
+      const repo = createMockRepo({
+        plugins: {
+          opencode: {
+            enabled: true,
+            outputFile: "opencode.json",
+            routing: { agents: { loom: "loom" } },
+          },
+          vscode: {
+            enabled: false,
+            outputFile: "vscode.json",
+            routing: { agents: {} },
+          },
+        },
       });
       const service = new RoutingService({ repository: repo });
-      const result = await service.getSyncAliases();
+      const result = await service.getPluginsForAgent("loom");
+      expect(result).toEqual(["opencode"]);
+    });
+
+    it("retorna vazio se nenhum plugin tem routing pro agent", async () => {
+      const repo = createMockRepo({
+        plugins: {
+          opencode: {
+            enabled: true,
+            outputFile: "opencode.json",
+            routing: { agents: {} },
+          },
+        },
+      });
+      const service = new RoutingService({ repository: repo });
+      const result = await service.getPluginsForAgent("nonexistent");
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("setPluginsForAgent", () => {
+    it("adiciona mapeamento nos plugins especificados", async () => {
+      const repo = createMockRepo({});
+      const service = new RoutingService({ repository: repo });
+      await service.setPluginsForAgent("loom", ["opencode"]);
+      const result = await service.getPluginsForAgent("loom");
+      expect(result).toEqual(["opencode"]);
+    });
+
+    it("remove mapeamento de plugins não listados", async () => {
+      const repo = createMockRepo({
+        plugins: {
+          opencode: {
+            enabled: true,
+            outputFile: "opencode.json",
+            routing: { agents: { loom: "loom" } },
+          },
+          vscode: {
+            enabled: true,
+            outputFile: "vscode.json",
+            routing: { agents: { loom: "loom" } },
+          },
+        },
+      });
+      const service = new RoutingService({ repository: repo });
+      await service.setPluginsForAgent("loom", ["opencode"]);
+      const result = await service.getPluginsForAgent("loom");
+      expect(result).toEqual(["opencode"]);
+    });
+  });
+
+  describe("toggleAgentPlugin", () => {
+    it("ativa routing de agent em plugin", async () => {
+      const repo = createMockRepo({});
+      const service = new RoutingService({ repository: repo });
+      const result = await service.toggleAgentPlugin("opencode", "loom");
+      expect(result).toBe(true);
+      expect(await service.isPluginEnabled("opencode", "loom")).toBe(true);
+    });
+
+    it("desativa routing de agent em plugin", async () => {
+      const repo = createMockRepo({
+        plugins: {
+          opencode: {
+            enabled: true,
+            outputFile: "opencode.json",
+            routing: { agents: { loom: "loom" } },
+          },
+        },
+      });
+      const service = new RoutingService({ repository: repo });
+      const result = await service.toggleAgentPlugin("opencode", "loom");
       expect(result).toBe(false);
-    });
-
-    it("retorna o valor armazenado quando presente", async () => {
-      const repo = createMockRepository({
-        routing: { version: 1, plugins: {}, syncAliases: true },
-      });
-      const service = new RoutingService({ repository: repo });
-      const result = await service.getSyncAliases();
-      expect(result).toBe(true);
-    });
-
-    it("persiste o valor com setSyncAliases", async () => {
-      const repo = createMockRepository();
-      const service = new RoutingService({ repository: repo });
-      await service.setSyncAliases(true);
-      const result = await service.getSyncAliases();
-      expect(result).toBe(true);
-      await service.setSyncAliases(false);
-      const result2 = await service.getSyncAliases();
-      expect(result2).toBe(false);
+      expect(await service.isPluginEnabled("opencode", "loom")).toBe(false);
     });
   });
 
-  describe("pluginConfig", () => {
-    it("retorna {} quando plugin não existe", async () => {
-      const repo = createMockRepository();
+  describe("getPluginConfig / savePluginConfig", () => {
+    it("retorna undefined para plugin inexistente", async () => {
+      const repo = createMockRepo({});
       const service = new RoutingService({ repository: repo });
-      const config = await service.getPluginConfig("nonexistent");
-      expect(config).toEqual({});
+      const result = await service.getPluginConfig("nonexistent");
+      expect(result).toBeUndefined();
     });
 
-    it("persiste config do plugin", async () => {
-      const repo = createMockRepository();
+    it("salva e recupera config de plugin", async () => {
+      const repo = createMockRepo({});
       const service = new RoutingService({ repository: repo });
-      await service.savePluginConfig("opencode", { apiKey: "test" });
-      const config = await service.getPluginConfig("opencode");
-      expect(config).toEqual({ apiKey: "test" });
-    });
-  });
-
-  describe("agentMappings", () => {
-    it("retorna {} quando plugin não existe", async () => {
-      const repo = createMockRepository();
-      const service = new RoutingService({ repository: repo });
-      expect(await service.getAgentMappings("nonexistent")).toEqual({});
-    });
-
-    it("persiste agent mappings", async () => {
-      const repo = createMockRepository();
-      const service = new RoutingService({ repository: repo });
-      await service.saveAgentMappings("opencode", { builder: "coder" });
-      expect(await service.getAgentMappings("opencode")).toEqual({
-        builder: "coder",
-      });
+      const config: PluginRouting = {
+        enabled: true,
+        outputFile: "test.json",
+        routing: { agents: {}, categories: {} },
+      };
+      await service.savePluginConfig("test-plugin", config);
+      const result = await service.getPluginConfig("test-plugin");
+      expect(result).toEqual(config);
     });
   });
 
-  describe("categoryMappings", () => {
-    it("toggle alterna entre true e false", async () => {
-      const repo = createMockRepository();
+  describe("getAgentMappings / saveAgentMappings", () => {
+    it("retorna mappings vazios para plugin sem routing", async () => {
+      const repo = createMockRepo({});
       const service = new RoutingService({ repository: repo });
-      const result1 = await service.toggleCategoryMapping("opencode", "dev");
-      expect(result1).toBe(true);
-      const result2 = await service.toggleCategoryMapping("opencode", "dev");
-      expect(result2).toBe(false);
+      const result = await service.getAgentMappings("nonexistent");
+      expect(result).toEqual({});
+    });
+
+    it("salva e recupera agent mappings", async () => {
+      const repo = createMockRepo({});
+      const service = new RoutingService({ repository: repo });
+      await service.saveAgentMappings("opencode", { loom: "loom" });
+      const result = await service.getAgentMappings("opencode");
+      expect(result).toEqual({ loom: "loom" });
+    });
+  });
+
+  describe("getCategoryMappings / saveCategoryMappings / toggleCategoryMapping", () => {
+    it("salva e recupera category mappings", async () => {
+      const repo = createMockRepo({});
+      const service = new RoutingService({ repository: repo });
+      await service.saveCategoryMappings("opencode", { dev: true });
+      const result = await service.getCategoryMappings("opencode");
+      expect(result).toEqual({ dev: true });
+    });
+
+    it("toggle ativa e desativa categoria", async () => {
+      const repo = createMockRepo({});
+      const service = new RoutingService({ repository: repo });
+      expect(await service.toggleCategoryMapping("opencode", "dev")).toBe(true);
+      expect(await service.toggleCategoryMapping("opencode", "dev")).toBe(
+        false,
+      );
     });
   });
 });

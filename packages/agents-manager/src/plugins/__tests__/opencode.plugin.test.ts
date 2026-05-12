@@ -1,20 +1,18 @@
 import type {
-  PluginRoutingConfig,
+  PluginRouting,
   SystemAgent,
-} from "@lite-llm/agents-repository/schema";
+} from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
 import { OpenCodePlugin } from "../builtins/opencode.plugin";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
-    id: "builder",
     displayName: "Builder",
     icon: "🔧",
     description: "Build stuff",
-    versions: [],
+    limits: { context: 200000, output: 32768 },
     model: "gpt-4",
     fallbackModels: [],
-    enabledPlugins: [],
     config: {},
     ...overrides,
   };
@@ -60,18 +58,10 @@ describe("OpenCodePlugin", () => {
   });
 
   describe("getConfigSchema", () => {
-    it("retorna schema com campos", () => {
+    it("retorna schema vazio (sem configuração adicional)", () => {
       const plugin = new OpenCodePlugin();
       const schema = plugin.getConfigSchema();
-      expect(schema.length).toBeGreaterThan(0);
-    });
-
-    it("primeiro campo é defaultVersion do tipo select", () => {
-      const plugin = new OpenCodePlugin();
-      const schema = plugin.getConfigSchema();
-      expect(schema[0].key).toBe("defaultVersion");
-      expect(schema[0].type).toBe("select");
-      expect(schema[0].options).toHaveLength(2);
+      expect(schema).toHaveLength(0);
     });
   });
 
@@ -87,13 +77,17 @@ describe("OpenCodePlugin", () => {
       const plugin = new OpenCodePlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {
             "gpt-4": {
               displayName: "GPT-4",
-              contextLength: 128000,
-              maxOutput: 4096,
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
             },
           },
           litellmConfig: {
@@ -112,13 +106,17 @@ describe("OpenCodePlugin", () => {
       const plugin = new OpenCodePlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {
             "gpt-4": {
               displayName: "GPT-4",
-              contextLength: 128000,
-              maxOutput: 4096,
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
             },
           },
           litellmConfig: {
@@ -142,29 +140,21 @@ describe("OpenCodePlugin", () => {
 
     it("configura providers para agentes mapeados", () => {
       const plugin = new OpenCodePlugin();
-      const agents = [
-        makeSystemAgent({
-          id: "builder",
-          versions: [
-            {
-              id: "fast",
-              displayName: "Fast",
-              modelIdStrategy: "model-name",
-              limits: { context: 16000, output: 2048 },
-            },
-          ],
-        }),
-      ];
-      const routing: PluginRoutingConfig = {
-        version: 1,
-        plugins: {
-          opencode: {
-            enabled: true,
-            outputFile: "opencode.json",
-            agents: {},
-            agentMappings: { builder: "coder" },
-          },
+      const agents: SystemAgent[] = [
+        {
+          displayName: "Builder",
+          icon: "🔧",
+          description: "Build stuff",
+          model: "gpt-4",
+          fallbackModels: [],
+          limits: { context: 200000, output: 32768 },
+          config: {},
         },
+      ];
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "opencode.json",
+        routing: { agents: { Builder: "coder" }, categories: {} },
       };
 
       const output = plugin.buildOutput(agents, routing, {
@@ -177,18 +167,19 @@ describe("OpenCodePlugin", () => {
 
       const provider = output.provider as Record<string, unknown>;
       expect(provider).toHaveProperty("coder");
-      expect((provider.coder as Record<string, unknown>).models).toHaveProperty(
-        "fast",
-      );
     });
 
     it("ignora agentes sem mapeamento", () => {
       const plugin = new OpenCodePlugin();
-      const agents = [makeSystemAgent({ id: "builder" })];
+      const agents = [makeSystemAgent()];
 
       const output = plugin.buildOutput(
         agents,
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {},
           litellmConfig: {
@@ -206,7 +197,11 @@ describe("OpenCodePlugin", () => {
       const plugin = new OpenCodePlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {},
           litellmConfig: {

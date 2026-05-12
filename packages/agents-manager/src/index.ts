@@ -48,10 +48,10 @@ import {
 // New types
 export type {
   AgentExtraConfig,
-  PluginRoutingConfig,
+  PluginRouting,
   PluginRoutingRule,
   SystemAgent,
-} from "./types/index.js";
+} from "@lite-llm/agents-repository/schemas";
 export type {
   AgentCatalogServiceOptions,
   AgentServiceOptions,
@@ -98,13 +98,9 @@ export type {
 export { OpenAgentPlugin, OpenCodePlugin, PluginRegistry, VsCodePlugin };
 
 // Config
-import {
-  DEFAULT_AGENTS,
-  DEFAULT_DB_PATH,
-  DEFAULT_ROUTING,
-} from "./config/defaults.js";
+import { DEFAULT_AGENTS, DEFAULT_DB_PATH } from "./config/defaults.js";
 
-export { DEFAULT_AGENTS, DEFAULT_DB_PATH, DEFAULT_ROUTING };
+export { DEFAULT_AGENTS, DEFAULT_DB_PATH };
 
 // ── Factory ──
 
