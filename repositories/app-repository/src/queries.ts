@@ -1,11 +1,23 @@
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, notInArray, sql } from "drizzle-orm";
 import { getAppDb } from "./client.js";
-import type { Alert, ModelHealthCheck } from "./schema.js";
+import type {
+  Alert,
+  EvalRun,
+  EvalRunArtifact,
+  EvalRunStep,
+  ModelHealthCheck,
+  NewEvalRun,
+  NewEvalRunArtifact,
+  NewEvalRunStep,
+} from "./schema.js";
 import {
   alerts,
   modelHealthChecks,
   type NewAlert,
   type NewModelHealthCheck,
+  promptEvalRunArtifacts,
+  promptEvalRunSteps,
+  promptEvalRuns,
 } from "./schema.js";
 
 export interface GetAlertsOptions {
@@ -272,4 +284,128 @@ export function cleanupOldHealthChecks(retentionDays: number): {
     .run();
 
   return { deleted: result.changes };
+}
+
+// --- Prompt Eval Queries ---
+
+export function insertEvalRun(run: NewEvalRun): EvalRun {
+  const db = getAppDb();
+  return db.insert(promptEvalRuns).values(run).returning().get();
+}
+
+export function getEvalRun(id: string): EvalRun | undefined {
+  const db = getAppDb();
+  return db
+    .select()
+    .from(promptEvalRuns)
+    .where(eq(promptEvalRuns.id, id))
+    .get();
+}
+
+export function updateEvalRun(
+  id: string,
+  updates: Partial<
+    Pick<EvalRun, "status" | "macroF1" | "error" | "finishedAt">
+  >,
+): void {
+  const db = getAppDb();
+  db.update(promptEvalRuns).set(updates).where(eq(promptEvalRuns.id, id)).run();
+}
+
+export function listEvalRuns(
+  limit: number,
+  offset: number,
+): { runs: EvalRun[]; total: number } {
+  const db = getAppDb();
+  const runs = db
+    .select()
+    .from(promptEvalRuns)
+    .orderBy(desc(promptEvalRuns.startedAt))
+    .limit(limit)
+    .offset(offset)
+    .all();
+
+  const row = db
+    .select({ count: sql<number>`count(*)` })
+    .from(promptEvalRuns)
+    .get();
+  const total = row?.count ?? 0;
+
+  return { runs, total: Number(total) };
+}
+
+export function failOrphanedRuns(): number {
+  const db = getAppDb();
+  const now = Math.floor(Date.now() / 1000);
+  const result = db
+    .update(promptEvalRuns)
+    .set({
+      status: "failed",
+      error: "server restarted during run",
+      finishedAt: now,
+    })
+    .where(
+      notInArray(promptEvalRuns.status, ["succeeded", "failed", "cancelled"]),
+    )
+    .run();
+  return result.changes;
+}
+
+export function insertEvalRunStep(step: NewEvalRunStep): EvalRunStep {
+  const db = getAppDb();
+  return db.insert(promptEvalRunSteps).values(step).returning().get();
+}
+
+export function updateEvalRunStep(
+  id: number,
+  updates: Partial<
+    Pick<EvalRunStep, "status" | "progressPct" | "message" | "finishedAt">
+  >,
+): void {
+  const db = getAppDb();
+  db.update(promptEvalRunSteps)
+    .set(updates)
+    .where(eq(promptEvalRunSteps.id, id))
+    .run();
+}
+
+export function getEvalRunSteps(runId: string): EvalRunStep[] {
+  const db = getAppDb();
+  return db
+    .select()
+    .from(promptEvalRunSteps)
+    .where(eq(promptEvalRunSteps.runId, runId))
+    .orderBy(promptEvalRunSteps.id)
+    .all();
+}
+
+export function failOrphanedSteps(): number {
+  const db = getAppDb();
+  const now = Math.floor(Date.now() / 1000);
+  const result = db
+    .update(promptEvalRunSteps)
+    .set({
+      status: "failed",
+      message: "server restarted during step",
+      finishedAt: now,
+    })
+    .where(eq(promptEvalRunSteps.status, "running"))
+    .run();
+  return result.changes;
+}
+
+export function insertEvalRunArtifact(
+  artifact: NewEvalRunArtifact,
+): EvalRunArtifact {
+  const db = getAppDb();
+  return db.insert(promptEvalRunArtifacts).values(artifact).returning().get();
+}
+
+export function getEvalRunArtifacts(runId: string): EvalRunArtifact[] {
+  const db = getAppDb();
+  return db
+    .select()
+    .from(promptEvalRunArtifacts)
+    .where(eq(promptEvalRunArtifacts.runId, runId))
+    .all();
 }

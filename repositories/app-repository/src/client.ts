@@ -113,6 +113,43 @@ function initDb(): ReturnType<typeof drizzle> {
   ensureHealthCheckColumns(sqlite);
 
   sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS prompt_eval_runs (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      status TEXT NOT NULL,
+      model TEXT NOT NULL,
+      macro_f1 REAL,
+      threshold REAL NOT NULL,
+      error TEXT,
+      started_at INTEGER NOT NULL,
+      finished_at INTEGER
+    )
+  `);
+
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS prompt_eval_run_steps (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      run_id TEXT NOT NULL REFERENCES prompt_eval_runs(id),
+      step TEXT NOT NULL,
+      status TEXT NOT NULL,
+      started_at INTEGER NOT NULL,
+      finished_at INTEGER,
+      message TEXT,
+      progress_pct INTEGER NOT NULL DEFAULT 0
+    )
+  `);
+
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS prompt_eval_run_artifacts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      run_id TEXT NOT NULL REFERENCES prompt_eval_runs(id),
+      kind TEXT NOT NULL,
+      path TEXT NOT NULL,
+      summary_json TEXT
+    )
+  `);
+
+  sqlite.exec(`
     CREATE INDEX IF NOT EXISTS idx_health_checks_model_checked
     ON model_health_checks(model_name, checked_at DESC)
   `);

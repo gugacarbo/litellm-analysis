@@ -47,3 +47,47 @@ export const modelHealthChecks = sqliteTable("model_health_checks", {
 
 export type ModelHealthCheck = typeof modelHealthChecks.$inferSelect;
 export type NewModelHealthCheck = typeof modelHealthChecks.$inferInsert;
+
+// --- Prompt Eval tables ---
+
+export const promptEvalRuns = sqliteTable("prompt_eval_runs", {
+  id: text("id").primaryKey(),
+  type: text("type").notNull(),
+  status: text("status").notNull(),
+  model: text("model").notNull(),
+  macroF1: real("macro_f1"),
+  threshold: real("threshold").notNull(),
+  error: text("error"),
+  startedAt: integer("started_at").notNull(),
+  finishedAt: integer("finished_at"),
+});
+
+export const promptEvalRunSteps = sqliteTable("prompt_eval_run_steps", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  runId: text("run_id")
+    .notNull()
+    .references(() => promptEvalRuns.id),
+  step: text("step").notNull(),
+  status: text("status").notNull(),
+  startedAt: integer("started_at").notNull(),
+  finishedAt: integer("finished_at"),
+  message: text("message"),
+  progressPct: integer("progress_pct").notNull().default(0),
+});
+
+export const promptEvalRunArtifacts = sqliteTable("prompt_eval_run_artifacts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  runId: text("run_id")
+    .notNull()
+    .references(() => promptEvalRuns.id),
+  kind: text("kind").notNull(),
+  path: text("path").notNull(),
+  summaryJson: text("summary_json"),
+});
+
+export type EvalRun = typeof promptEvalRuns.$inferSelect;
+export type NewEvalRun = typeof promptEvalRuns.$inferInsert;
+export type EvalRunStep = typeof promptEvalRunSteps.$inferSelect;
+export type NewEvalRunStep = typeof promptEvalRunSteps.$inferInsert;
+export type EvalRunArtifact = typeof promptEvalRunArtifacts.$inferSelect;
+export type NewEvalRunArtifact = typeof promptEvalRunArtifacts.$inferInsert;
