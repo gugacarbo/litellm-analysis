@@ -96,7 +96,7 @@ export function registerPluginRoutingRoutes(
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
-      const { services, registry } = manager;
+      const { registry } = manager;
       const config = await manager.repository.read();
 
       const plugins: PluginInfoDTO[] = registry.list().map((p) => {
