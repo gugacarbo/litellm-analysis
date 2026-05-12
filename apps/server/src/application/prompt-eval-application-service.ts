@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { EventEmitter } from "node:events";
 import {
   failOrphanedRuns,
   failOrphanedSteps,
@@ -83,6 +82,7 @@ export function createPromptEvalApplicationService(
   opts: PromptEvalAppServiceOptions,
 ) {
   const activeRuns = new Map<string, ActiveRun>();
+  const stepIdsByRun = new Map<string, Map<string, number>>();
 
   // Fail orphaned runs from previous server instance
   failOrphanedRuns();
@@ -111,6 +111,50 @@ export function createPromptEvalApplicationService(
       type: "prompt_eval_run_completed",
       data: { runId, status, macroF1, error },
     });
+  }
+
+  function setStepId(runId: string, step: string, stepId: number): void {
+    const runSteps = stepIdsByRun.get(runId) ?? new Map<string, number>();
+    runSteps.set(step, stepId);
+    stepIdsByRun.set(runId, runSteps);
+  }
+
+  function getStepId(runId: string, step: string): number | undefined {
+    return stepIdsByRun.get(runId)?.get(step);
+  }
+
+  function clearStepId(runId: string, step: string): void {
+    const runSteps = stepIdsByRun.get(runId);
+    if (!runSteps) {
+      return;
+    }
+
+    runSteps.delete(step);
+    if (runSteps.size === 0) {
+      stepIdsByRun.delete(runId);
+    }
+  }
+
+  function finalizeRunningSteps(
+    runId: string,
+    status: "completed" | "failed",
+    message: string | null,
+  ): void {
+    const now = Math.floor(Date.now() / 1000);
+    const steps = getEvalRunSteps(runId);
+
+    for (const step of steps) {
+      if (step.status !== "running") {
+        continue;
+      }
+
+      updateEvalRunStep(step.id, {
+        status,
+        finishedAt: now,
+        progressPct: status === "completed" ? 100 : step.progressPct,
+        message: message ?? step.message,
+      });
+    }
   }
 
   async function startRun(
@@ -166,6 +210,7 @@ export function createPromptEvalApplicationService(
       // Run evaluation with event bridge
       const report = await runCategoryEvaluation(
         {
+          runId,
           categories,
           cases,
           model,
@@ -181,6 +226,7 @@ export function createPromptEvalApplicationService(
       // Gate: macroF1 >= threshold
       const passed = report.metrics.macroF1 >= threshold;
       if (!passed) {
+        finalizeRunningSteps(runId, "completed", null);
         updateEvalRun(runId, {
           status: "failed",
           macroF1: report.metrics.macroF1,
@@ -216,6 +262,7 @@ export function createPromptEvalApplicationService(
       await generateReports(runId, report, review);
 
       // Mark succeeded
+      finalizeRunningSteps(runId, "completed", null);
       updateEvalRun(runId, {
         status: "succeeded",
         macroF1: report.metrics.macroF1,
@@ -233,6 +280,11 @@ export function createPromptEvalApplicationService(
         error: isAbort ? "cancelled by user" : message,
         finishedAt: Math.floor(Date.now() / 1000),
       });
+      finalizeRunningSteps(
+        runId,
+        "failed",
+        isAbort ? "cancelled by user" : message,
+      );
       broadcastRunCompleted(
         runId,
         isAbort ? "cancelled" : "failed",
@@ -241,6 +293,7 @@ export function createPromptEvalApplicationService(
       );
     } finally {
       activeRuns.delete(runId);
+      stepIdsByRun.delete(runId);
     }
   }
 
@@ -258,11 +311,19 @@ export function createPromptEvalApplicationService(
           message: event.message,
           progressPct: 0,
         };
-        insertEvalRunStep(step);
+        const insertedStep = insertEvalRunStep(step);
+        setStepId(runId, event.step, insertedStep.id);
         broadcastRunUpdate(runId, event.step, "running", 0, event.message);
         break;
       }
       case "step:progress": {
+        const stepId = getStepId(runId, event.step);
+        if (stepId !== undefined) {
+          updateEvalRunStep(stepId, {
+            progressPct: event.progressPct,
+            message: event.message,
+          });
+        }
         broadcastRunUpdate(
           runId,
           event.step,
@@ -273,18 +334,21 @@ export function createPromptEvalApplicationService(
         break;
       }
       case "step:end": {
-        // Steps are tracked via step:start only
+        const stepId = getStepId(runId, event.step);
+        if (stepId !== undefined) {
+          updateEvalRunStep(stepId, {
+            status: "completed",
+            progressPct: 100,
+            finishedAt: now,
+          });
+        }
+        clearStepId(runId, event.step);
         break;
       }
       case "run:completed": {
-        updateEvalRun(runId, {
-          status: "succeeded",
-          macroF1: event.report.metrics.macroF1,
-        });
         break;
       }
       case "run:failed": {
-        updateEvalRun(runId, { status: "failed", error: event.error });
         break;
       }
     }
@@ -441,7 +505,7 @@ function listRuns(page: number, pageSize: number) {
   return listEvalRuns(pageSize, offset);
 }
 
-async function getRunDetails(id: string) {
+function getRunDetails(id: string) {
   const run = getEvalRun(id);
   if (!run) return null;
   const steps = getEvalRunSteps(id);

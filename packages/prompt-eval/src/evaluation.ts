@@ -13,7 +13,7 @@ export async function runCategoryEvaluation(
   input: CategoryEvalInput & { adapter: PromptEvalAdapter },
   onEvent?: (event: EvalEvent) => void,
 ): Promise<CategoryEvalReport> {
-  const runId = randomUUID();
+  const runId = input.runId ?? randomUUID();
   const { categories, cases, model, threshold, signal, adapter } = input;
 
   signal?.throwIfAborted();

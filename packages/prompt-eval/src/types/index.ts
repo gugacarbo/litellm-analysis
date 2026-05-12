@@ -67,6 +67,7 @@ export interface PromptEvalAdapter {
 // --- Input/Output types ---
 
 export interface CategoryEvalInput {
+  runId?: string;
   categories: CategoryDefinition[];
   cases: CategoryEvalCase[];
   model: string;

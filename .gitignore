@@ -55,3 +55,5 @@ __pycache__
 
 @db/*.db
 .worktrees/
+
+@storage/reports

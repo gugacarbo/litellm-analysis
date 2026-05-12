@@ -1,5 +1,4 @@
 import { Router } from "express";
-import type { PromptEvalAppServiceOptions } from "../application/prompt-eval-application-service.js";
 
 type PromptEvalService = ReturnType<
   typeof import("../application/prompt-eval-application-service.js").createPromptEvalApplicationService
