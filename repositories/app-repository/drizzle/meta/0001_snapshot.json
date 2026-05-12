@@ -1,1 +1,146 @@
-{"version":"6","dialect":"sqlite","id":"00000000-0000-0000-0000-000000000001","prevId":"00000000-0000-0000-0000-000000000000","tables":{"alert_rules":{"name":"alert_rules","columns":{"id":{"name":"id","type":"integer","primaryKey":true,"notNull":true,"autoincrement":true},"name":{"name":"name","type":"text","primaryKey":false,"notNull":true,"autoincrement":false},"anomaly_type":{"name":"anomaly_type","type":"text","primaryKey":false,"notNull":true,"autoincrement":false},"threshold_config":{"name":"threshold_config","type":"text","primaryKey":false,"notNull":false,"autoincrement":false},"enabled":{"name":"enabled","type":"integer","primaryKey":false,"notNull":true,"autoincrement":false,"default":1},"cooldown_seconds":{"name":"cooldown_seconds","type":"integer","primaryKey":false,"notNull":true,"autoincrement":false,"default":300},"created_at":{"name":"created_at","type":"integer","primaryKey":false,"notNull":true,"autoincrement":false}},"indexes":{},"foreignKeys":{},"compositePrimaryKeys":{},"uniqueConstraints":{},"checkConstraints":{}},"alerts":{"name":"alerts","columns":{"id":{"name":"id","type":"integer","primaryKey":true,"notNull":true,"autoincrement":true},"anomaly_type":{"name":"anomaly_type","type":"text","primaryKey":false,"notNull":true,"autoincrement":false},"model":{"name":"model","type":"text","primaryKey":false,"notNull":false,"autoincrement":false},"severity":{"name":"severity","type":"text","primaryKey":false,"notNull":true,"autoincrement":false},"message":{"name":"message","type":"text","primaryKey":false,"notNull":true,"autoincrement":false},"metadata":{"name":"metadata","type":"text","primaryKey":false,"notNull":false,"autoincrement":false},"detected_at":{"name":"detected_at","type":"integer","primaryKey":false,"notNull":true,"autoincrement":false},"acknowledged_at":{"name":"acknowledged_at","type":"integer","primaryKey":false,"notNull":false,"autoincrement":false},"created_at":{"name":"created_at","type":"integer","primaryKey":false,"notNull":true,"autoincrement":false}},"indexes":{},"foreignKeys":{},"compositePrimaryKeys":{},"uniqueConstraints":{},"checkConstraints":{}}},"views":{},"enums":{},"_meta":{"schemas":{},"tables":{},"columns":{}},"internal":{"indexes":{}}}
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "00000000-0000-0000-0000-000000000001",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "alert_rules": {
+      "name": "alert_rules",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "anomaly_type": {
+          "name": "anomaly_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "threshold_config": {
+          "name": "threshold_config",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "cooldown_seconds": {
+          "name": "cooldown_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 300
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "alerts": {
+      "name": "alerts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "anomaly_type": {
+          "name": "anomaly_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "severity": {
+          "name": "severity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "detected_at": {
+          "name": "detected_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "acknowledged_at": {
+          "name": "acknowledged_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": { "schemas": {}, "tables": {}, "columns": {} },
+  "internal": { "indexes": {} }
+}

@@ -1,1 +1,136 @@
-{"version":"6","dialect":"sqlite","id":"00000000-0000-0000-0000-000000000002","prevId":"00000000-0000-0000-0000-000000000001","tables":{"model_health_checks":{"name":"model_health_checks","columns":{"id":{"name":"id","type":"integer","primaryKey":true,"notNull":true,"autoincrement":true},"model_name":{"name":"model_name","type":"text","primaryKey":false,"notNull":true,"autoincrement":false},"status":{"name":"status","type":"text","primaryKey":false,"notNull":true,"autoincrement":false},"response_time_ms":{"name":"response_time_ms","type":"integer","primaryKey":false,"notNull":false,"autoincrement":false},"ttft_ms":{"name":"ttft_ms","type":"integer","primaryKey":false,"notNull":false,"autoincrement":false},"output_tokens":{"name":"output_tokens","type":"integer","primaryKey":false,"notNull":false,"autoincrement":false},"tokens_per_second":{"name":"tokens_per_second","type":"real","primaryKey":false,"notNull":false,"autoincrement":false},"status_code":{"name":"status_code","type":"integer","primaryKey":false,"notNull":false,"autoincrement":false},"prompt_sent":{"name":"prompt_sent","type":"text","primaryKey":false,"notNull":true,"autoincrement":false},"response_received":{"name":"response_received","type":"text","primaryKey":false,"notNull":false,"autoincrement":false},"request_payload":{"name":"request_payload","type":"text","primaryKey":false,"notNull":false,"autoincrement":false},"response_payload":{"name":"response_payload","type":"text","primaryKey":false,"notNull":false,"autoincrement":false},"error_message":{"name":"error_message","type":"text","primaryKey":false,"notNull":false,"autoincrement":false},"source":{"name":"source","type":"text","primaryKey":false,"notNull":true,"autoincrement":false,"default":"'scheduled'"},"checked_at":{"name":"checked_at","type":"integer","primaryKey":false,"notNull":true,"autoincrement":false}},"indexes":{"idx_health_checks_model_checked":{"name":"idx_health_checks_model_checked","columns":[{"name":"model_name"},{"name":"checked_at","desc":true}]}},"foreignKeys":{},"compositePrimaryKeys":{},"uniqueConstraints":{},"checkConstraints":{}}},"views":{},"enums":{},"_meta":{"schemas":{},"tables":{},"columns":{}},"internal":{"indexes":{}}}
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "00000000-0000-0000-0000-000000000002",
+  "prevId": "00000000-0000-0000-0000-000000000001",
+  "tables": {
+    "model_health_checks": {
+      "name": "model_health_checks",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "model_name": {
+          "name": "model_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "response_time_ms": {
+          "name": "response_time_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ttft_ms": {
+          "name": "ttft_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "output_tokens": {
+          "name": "output_tokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tokens_per_second": {
+          "name": "tokens_per_second",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status_code": {
+          "name": "status_code",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "prompt_sent": {
+          "name": "prompt_sent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "response_received": {
+          "name": "response_received",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "request_payload": {
+          "name": "request_payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "response_payload": {
+          "name": "response_payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "error_message": {
+          "name": "error_message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'scheduled'"
+        },
+        "checked_at": {
+          "name": "checked_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_health_checks_model_checked": {
+          "name": "idx_health_checks_model_checked",
+          "columns": [
+            { "name": "model_name" },
+            { "name": "checked_at", "desc": true }
+          ]
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": { "schemas": {}, "tables": {}, "columns": {} },
+  "internal": { "indexes": {} }
+}
