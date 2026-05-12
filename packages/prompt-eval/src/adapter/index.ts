@@ -1,2 +1,3 @@
 // @lite-llm/prompt-eval — adapter index
-export type { PromptEvalAdapter, EvalAdapterOptions } from "../types/index.js";
+export type { EvalAdapterOptions, PromptEvalAdapter } from "../types/index.js";
+export { createPromptfooAdapter } from "./promptfoo.js";
