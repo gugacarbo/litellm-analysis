@@ -5,6 +5,7 @@ import type {
 } from "../../pages/dashboard/dashboard-types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 const PRESET_BUTTON_LABELS: Record<string, string> = {
@@ -94,7 +95,7 @@ export function TimeRangePicker({
               <h4 className="text-sm font-medium">Custom Range</h4>
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">From</label>
+                  <Label className="text-xs text-muted-foreground">From</Label>
                   <Input
                     type="datetime-local"
                     value={customFrom}
@@ -102,7 +103,7 @@ export function TimeRangePicker({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">To</label>
+                  <Label className="text-xs text-muted-foreground">To</Label>
                   <Input
                     type="datetime-local"
                     value={customTo}

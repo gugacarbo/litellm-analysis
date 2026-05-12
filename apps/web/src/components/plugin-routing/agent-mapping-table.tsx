@@ -1,4 +1,11 @@
 import type { InternalAgent } from "@lite-llm/api-contracts/agent-catalog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 interface SystemAgentOption {
   key: string;
@@ -38,19 +45,29 @@ export function AgentMappingTable({
                 {agent.description}
               </p>
             </div>
-            <select
-              aria-label={`Map ${agent.displayName} to system agent`}
-              value={mappings[agent.id] ?? ""}
-              onChange={(e) => onChange(agent.id, e.target.value)}
-              className="h-8 w-40 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            <Select
+              value={mappings[agent.id] ?? "none"}
+              onValueChange={(value) =>
+                onChange(agent.id, value === "none" ? "" : value)
+              }
             >
-              <option value="">None</option>
-              {systemAgents.map((sa) => (
-                <option key={sa.key} value={sa.key}>
-                  {sa.displayName}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                className="h-8 w-40"
+                aria-label={`Map ${agent.displayName} to system agent`}
+              >
+                <SelectValue placeholder="None" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">
+                  <span className="text-muted-foreground">None</span>
+                </SelectItem>
+                {systemAgents.map((sa) => (
+                  <SelectItem key={sa.key} value={sa.key}>
+                    {sa.displayName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         ))}
       </div>

@@ -11,6 +11,7 @@ import {
 } from "../components/ui/card";
 import { EmptyState } from "../components/ui/empty-state";
 import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import { PageLayout } from "../components/ui/page-layout";
 import {
   Select,
@@ -156,13 +157,13 @@ export function BenchmarksPage() {
               </div>
             </div>
             <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2 text-sm">
+              <Label className="flex items-center gap-2">
                 <Switch
                   checked={showConfiguredOnly}
                   onCheckedChange={setShowConfiguredOnly}
                 />
                 Show configured models only
-              </label>
+              </Label>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Sort by</span>
                 <Select

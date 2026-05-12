@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
@@ -76,9 +77,9 @@ export function ModelFormDialog({
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <label htmlFor="model-name" className="text-sm font-medium">
+            <Label htmlFor="model-name" className="text-sm font-medium">
               Model Name
-            </label>
+            </Label>
             <Input
               id="model-name"
               value={formData.modelName}
@@ -91,9 +92,9 @@ export function ModelFormDialog({
           </div>
 
           <div className="grid gap-2">
-            <label htmlFor="api-base" className="text-sm font-medium">
+            <Label htmlFor="api-base" className="text-sm font-medium">
               API Base URL
-            </label>
+            </Label>
             <Input
               id="api-base"
               value={formData.apiBase}
@@ -105,12 +106,12 @@ export function ModelFormDialog({
           </div>
 
           <div className="grid gap-2">
-            <label htmlFor="credential" className="text-sm font-medium">
+            <Label htmlFor="credential" className="text-sm font-medium">
               Credential
               <span className="text-muted-foreground font-normal ml-1">
                 (LiteLLM virtual key)
               </span>
-            </label>
+            </Label>
             <Select
               value={formData.litellmCredentialName}
               onValueChange={(value) =>
@@ -153,12 +154,12 @@ export function ModelFormDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <label htmlFor="input-cost" className="text-sm font-medium">
+              <Label htmlFor="input-cost" className="text-sm font-medium">
                 Input Cost
                 <span className="text-muted-foreground font-normal ml-1">
                   ($/token)
                 </span>
-              </label>
+              </Label>
               <Input
                 id="input-cost"
                 type="number"
@@ -176,12 +177,12 @@ export function ModelFormDialog({
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="output-cost" className="text-sm font-medium">
+              <Label htmlFor="output-cost" className="text-sm font-medium">
                 Output Cost
                 <span className="text-muted-foreground font-normal ml-1">
                   ($/token)
                 </span>
-              </label>
+              </Label>
               <Input
                 id="output-cost"
                 type="number"
@@ -201,12 +202,12 @@ export function ModelFormDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <label htmlFor="context-window" className="text-sm font-medium">
+              <Label htmlFor="context-window" className="text-sm font-medium">
                 Context Window
                 <span className="text-muted-foreground font-normal ml-1">
                   (tokens)
                 </span>
-              </label>
+              </Label>
               <Input
                 id="context-window"
                 type="number"
@@ -224,12 +225,12 @@ export function ModelFormDialog({
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="max-tokens" className="text-sm font-medium">
+              <Label htmlFor="max-tokens" className="text-sm font-medium">
                 Max Output
                 <span className="text-muted-foreground font-normal ml-1">
                   (tokens)
                 </span>
-              </label>
+              </Label>
               <Input
                 id="max-tokens"
                 type="number"

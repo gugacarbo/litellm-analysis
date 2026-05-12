@@ -13,6 +13,13 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Textarea } from "./ui/textarea";
 
 interface AgentConfigEditorProps {
@@ -118,21 +125,24 @@ export function AgentConfigEditor({
 
           <div className="space-y-2">
             <Label htmlFor="agent-mode">Mode</Label>
-            <select
-              id="agent-mode"
-              className="w-full rounded-md border px-3 py-2 text-sm"
+            <Select
               value={config.config.mode ?? "subagent"}
-              onChange={(e) =>
+              onValueChange={(value) =>
                 updateConfigField(
                   "mode",
-                  e.target.value as "subagent" | "primary" | "all",
+                  value as "subagent" | "primary" | "all",
                 )
               }
             >
-              <option value="subagent">Subagent</option>
-              <option value="primary">Primary</option>
-              <option value="all">All</option>
-            </select>
+              <SelectTrigger id="agent-mode" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="subagent">Subagent</SelectItem>
+                <SelectItem value="primary">Primary</SelectItem>
+                <SelectItem value="all">All</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

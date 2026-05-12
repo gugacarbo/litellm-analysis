@@ -5,6 +5,7 @@ import { PollingIndicator } from "../components/prompt-evals/polling-indicator";
 import { RunCard } from "../components/prompt-evals/run-card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import { PageLayout } from "../components/ui/page-layout";
 import { Textarea } from "../components/ui/textarea";
 import { usePromptEvalsPage } from "./prompt-evals/use-prompt-evals-page";
@@ -86,7 +87,7 @@ export function PromptEvalsPage() {
       {/* New Run Form */}
       <div className="mb-6 flex gap-4 items-end rounded-lg border bg-card p-4">
         <div className="flex-1">
-          <label className="text-sm font-medium mb-2 block">Model</label>
+          <Label className="mb-2">Model</Label>
           {modelsLoading ? (
             <Input disabled placeholder="Carregando modelos..." />
           ) : (
@@ -99,7 +100,7 @@ export function PromptEvalsPage() {
           )}
         </div>
         <div className="w-32">
-          <label className="text-sm font-medium mb-2 block">Threshold</label>
+          <Label className="mb-2">Threshold</Label>
           <Input
             type="number"
             step={0.05}
@@ -133,9 +134,7 @@ export function PromptEvalsPage() {
         </Button>
       </div>
       <div className="mb-6 rounded-lg border bg-card p-4">
-        <label className="mb-2 block text-sm font-medium">
-          Eval Cases (JSON)
-        </label>
+        <Label className="mb-2">Eval Cases (JSON)</Label>
         <Textarea
           value={casesText}
           onChange={(event) => setCasesText(event.target.value)}

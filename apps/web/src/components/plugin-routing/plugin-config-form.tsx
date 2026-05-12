@@ -1,6 +1,13 @@
 import type { ConfigField } from "@lite-llm/api-contracts/agent-catalog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Switch } from "../ui/switch";
 
 interface PluginConfigFormProps {
@@ -68,22 +75,25 @@ export function PluginConfigForm({
                 <Label htmlFor={field.key}>Enabled</Label>
               </div>
             ) : field.type === "select" && field.options ? (
-              <select
-                id={field.key}
-                className="flex h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              <Select
                 value={
                   (values[field.key] as string) ??
                   (field.default as string) ??
                   ""
                 }
-                onChange={(e) => onChange(field.key, e.target.value)}
+                onValueChange={(value) => onChange(field.key, value)}
               >
-                {field.options.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id={field.key} className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {field.options.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             ) : null}
           </div>
         ))}
