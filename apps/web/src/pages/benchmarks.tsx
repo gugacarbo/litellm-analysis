@@ -80,6 +80,8 @@ function avg(values: number[]): number {
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
+const MAX_COMPARED_MODELS = 20;
+
 export function BenchmarksPage() {
   const state = useBenchmarksState();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -97,7 +99,9 @@ export function BenchmarksPage() {
   }, [selectedIds, state.rows]);
 
   const rowsForCompare = useMemo(() => {
-    if (selectedRows.length > 0) return selectedRows.slice(0, 6);
+    if (selectedRows.length > 0) {
+      return selectedRows.slice(0, MAX_COMPARED_MODELS);
+    }
     return compareCandidates.slice(0, 3);
   }, [compareCandidates, selectedRows]);
 
@@ -211,7 +215,7 @@ export function BenchmarksPage() {
       if (current.includes(id)) {
         return current.filter((item) => item !== id);
       }
-      if (current.length >= 6) {
+      if (current.length >= MAX_COMPARED_MODELS) {
         return [...current.slice(1), id];
       }
       return [...current, id];
@@ -460,13 +464,14 @@ export function BenchmarksPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">
-                  Selected models ({rowsForCompare.length}/6)
+                  Selected models ({rowsForCompare.length}/{MAX_COMPARED_MODELS}
+                  )
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-xs text-muted-foreground">
-                  Pick up to 6 models to compare. If none is selected, we use
-                  the first 3 models from your current filters.
+                  Pick up to {MAX_COMPARED_MODELS} models to compare. If none is
+                  selected, we use the first 3 models from your current filters.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {compareCandidates.map((row) => (
