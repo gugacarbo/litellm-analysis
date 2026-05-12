@@ -7,9 +7,7 @@ interface CategoryExportListProps {
 }
 
 function formatCategoryLabel(key: string): string {
-  return key
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return key.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function CategoryExportList({
@@ -31,9 +29,7 @@ export function CategoryExportList({
             key={category}
             className="flex items-center justify-between rounded-md border px-3 py-2"
           >
-            <span className="text-sm">
-              {formatCategoryLabel(category)}
-            </span>
+            <span className="text-sm">{formatCategoryLabel(category)}</span>
             <Switch
               checked={mappings[category] ?? false}
               onCheckedChange={() => onToggle(category)}

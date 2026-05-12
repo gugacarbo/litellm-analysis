@@ -103,9 +103,7 @@ export function registerPluginRoutingRoutes(
 
       const plugins: PluginInfoDTO[] = registry.list().map((p) => {
         const pc = config.plugins?.[p.id];
-        const mappedAgentCount = Object.keys(
-          pc?.routing?.agents ?? {},
-        ).length;
+        const mappedAgentCount = Object.keys(pc?.routing?.agents ?? {}).length;
 
         return {
           id: p.id,

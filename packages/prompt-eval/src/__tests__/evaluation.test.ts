@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createPromptfooAdapter } from "../adapter/promptfoo.js";
 import { runCategoryEvaluation } from "../evaluation.js";
-import type { CategoryDefinition, CategoryEvalCase } from "../types/index.js";
+import type {
+  CategoryDefinition,
+  CategoryEvalCase,
+  EvalEvent,
+} from "../types/index.js";
 
 const categories: CategoryDefinition[] = [
   { id: "cat_a", name: "Category A", description: "desc a" },
@@ -23,7 +27,7 @@ describe("runCategoryEvaluation", () => {
       model: "test-model",
       threshold: 0.8,
       adapter,
-    } as any);
+    });
 
     expect(report.runId).toBeDefined();
     expect(report.metrics).toBeDefined();
@@ -38,8 +42,8 @@ describe("runCategoryEvaluation", () => {
     const events: string[] = [];
 
     const _report = await runCategoryEvaluation(
-      { categories, cases, model: "test", threshold: 0.8, adapter } as any,
-      (event: any) => {
+      { categories, cases, model: "test", threshold: 0.8, adapter },
+      (event: EvalEvent) => {
         events.push(event.type);
       },
     );
@@ -63,7 +67,7 @@ describe("runCategoryEvaluation", () => {
         threshold: 0.8,
         signal: controller.signal,
         adapter,
-      } as any),
+      }),
     ).rejects.toThrow();
   });
 });

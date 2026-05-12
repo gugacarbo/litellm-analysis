@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { getAgentCatalog } from "@/lib/api-client/agent-catalog";
 import type { AgentCatalogEntry } from "@lite-llm/api-contracts/agent-routing";
-import { queryKeys } from "@/lib/query-keys";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   usePluginConfig,
   useSavePluginConfig,
   useToggleCategoryExport,
 } from "@/hooks/use-plugin-config";
 import { useAvailablePlugins } from "@/hooks/use-plugin-routing";
+import { getAgentCatalog } from "@/lib/api-client/agent-catalog";
+import { queryKeys } from "@/lib/query-keys";
 
 export interface SystemAgentOption {
   key: string;
@@ -18,14 +18,9 @@ export interface SystemAgentOption {
 
 export function usePluginConfigPage(pluginId: string) {
   const { data, isPending: loading, error } = usePluginConfig(pluginId);
-  const {
-    data: plugins = [],
-    isPending: pluginsLoading,
-  } = useAvailablePlugins();
-  const {
-    data: agentCatalog,
-    isPending: agentsLoading,
-  } = useQuery({
+  const { data: plugins = [], isPending: pluginsLoading } =
+    useAvailablePlugins();
+  const { data: agentCatalog, isPending: agentsLoading } = useQuery({
     queryKey: queryKeys.agentCatalog.all,
     queryFn: getAgentCatalog,
   });
@@ -43,6 +38,7 @@ export function usePluginConfigPage(pluginId: string) {
 
   // Reset local edit state when server data changes
   // (after save or external update)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — trigger reset on data refetch
   useEffect(() => {
     setConfigValues({});
     setAgentMappings({});
@@ -65,9 +61,11 @@ export function usePluginConfigPage(pluginId: string) {
   }, [agentCatalog]);
 
   // Plugin exists if it's in the available plugins registry
-  const notFound = !pluginsLoading && pluginId !== ""
-    && plugins.length > 0
-    && !plugins.some((p) => p.id === pluginId);
+  const notFound =
+    !pluginsLoading &&
+    pluginId !== "" &&
+    plugins.length > 0 &&
+    !plugins.some((p) => p.id === pluginId);
 
   const pluginName = plugins.find((p) => p.id === pluginId)?.name;
 

@@ -33,9 +33,7 @@ export function AgentMappingTable({
             className="flex items-center justify-between rounded-md border px-3 py-2"
           >
             <div className="min-w-0 flex-1 mr-3">
-              <span className="text-sm font-medium">
-                {agent.displayName}
-              </span>
+              <span className="text-sm font-medium">{agent.displayName}</span>
               <p className="text-xs text-muted-foreground truncate">
                 {agent.description}
               </p>

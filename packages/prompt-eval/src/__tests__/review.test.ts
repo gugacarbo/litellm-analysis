@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createPromptfooAdapter } from "../adapter/promptfoo.js";
 import { runCategoryAiReview } from "../review.js";
-import type { CategoryDefinition, CategoryPrediction } from "../types/index.js";
+import type {
+  CategoryDefinition,
+  CategoryPrediction,
+  EvalEvent,
+} from "../types/index.js";
 
 const categories: CategoryDefinition[] = [
   { id: "cat_a", name: "A", description: "desc a" },
@@ -41,7 +45,7 @@ describe("runCategoryAiReview", () => {
 
     await runCategoryAiReview(
       { adapter, categories, predictions, model: "test" },
-      (event: any) => {
+      (event: EvalEvent) => {
         events.push(event.type);
       },
     );
