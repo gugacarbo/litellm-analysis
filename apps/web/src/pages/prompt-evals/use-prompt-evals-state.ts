@@ -1,15 +1,10 @@
-import { type Query, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import {
-  type EvalRunDetail,
-  getEval,
-  listEvals,
-} from "../../lib/api-client/prompt-evals.js";
+import { listEvals } from "../../lib/api-client/prompt-evals.js";
 import type { EvalFormState, SortDirection, SortField } from "./types.js";
 
 export function usePromptEvalsState() {
   const [page, setPage] = useState(1);
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>("startedAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [form, setForm] = useState<EvalFormState>({
@@ -21,18 +16,6 @@ export function usePromptEvalsState() {
     queryKey: ["prompt-evals", page],
     queryFn: () => listEvals(page, 20),
     refetchInterval: 5000, // Poll for updates
-  });
-
-  const detailQuery = useQuery({
-    queryKey: ["prompt-eval-detail", selectedRunId],
-    queryFn: () => (selectedRunId ? getEval(selectedRunId) : null),
-    enabled: !!selectedRunId,
-    refetchInterval: (query: Query<EvalRunDetail | null, Error>) => {
-      const data = query.state.data;
-      if (!data) return 5000;
-      const terminal = ["succeeded", "failed", "cancelled"];
-      return terminal.includes(data.status) ? false : 2000;
-    },
   });
 
   const modelsQuery = useQuery({
@@ -56,8 +39,6 @@ export function usePromptEvalsState() {
   return {
     page,
     setPage,
-    selectedRunId,
-    setSelectedRunId,
     sortField,
     setSortField,
     sortDirection,
@@ -68,8 +49,6 @@ export function usePromptEvalsState() {
     total: runsQuery.data?.total ?? 0,
     runsLoading: runsQuery.isLoading,
     runsError: runsQuery.error,
-    detail: detailQuery.data ?? null,
-    detailLoading: detailQuery.isLoading,
     models: modelsQuery.data ?? [],
     modelsLoading: modelsQuery.isLoading,
   };

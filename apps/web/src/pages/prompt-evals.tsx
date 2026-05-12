@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { EvalDetailDialog } from "../components/prompt-evals/eval-detail-dialog";
 import { ModelSelect } from "../components/prompt-evals/model-select";
 import { PollingIndicator } from "../components/prompt-evals/polling-indicator";
 import { RunCard } from "../components/prompt-evals/run-card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { PageLayout } from "../components/ui/page-layout";
+import { useNavigate } from "react-router-dom";
 import { usePromptEvalsPage } from "./prompt-evals/use-prompt-evals-page";
 
 export function PromptEvalsPage() {
@@ -16,9 +16,6 @@ export function PromptEvalsPage() {
     runsError,
     sortedRuns,
     total,
-    detail,
-    detailLoading,
-    setSelectedRunId,
     startEval,
     isStarting,
     cancelEval,
@@ -26,11 +23,11 @@ export function PromptEvalsPage() {
     models,
     modelsLoading,
   } = usePromptEvalsPage();
+  const navigate = useNavigate();
 
   // Keyboard navigation state
   const runsRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   // Keyboard navigation handler
   useEffect(() => {
@@ -52,8 +49,7 @@ export function PromptEvalsPage() {
           break;
         case "Enter":
           if (selectedIndex !== null) {
-            setSelectedRunId(sortedRuns[selectedIndex].id);
-            setDetailDialogOpen(true);
+            navigate(`/prompt-evals/${sortedRuns[selectedIndex].id}`);
           }
           break;
         case "Escape":
@@ -64,7 +60,7 @@ export function PromptEvalsPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [sortedRuns, selectedIndex, setSelectedRunId]);
+  }, [navigate, sortedRuns, selectedIndex]);
 
   // Verificar se há runs em andamento
   const hasActiveRuns = sortedRuns.some(
@@ -155,32 +151,20 @@ export function PromptEvalsPage() {
                   macroF1: run.macroF1,
                   startedAt: run.startedAt,
                   finishedAt: run.finishedAt,
-                  error: run.id === detail?.id ? (detail.error ?? null) : null,
+                  error: run.error ?? null,
                   progressPct: run.progressPct,
-                  steps: run.id === detail?.id ? detail.steps : [],
-                  categories:
-                    run.id === detail?.id ? detail.categories : undefined,
-                  cases: run.id === detail?.id ? detail.cases : undefined,
+                  steps: [],
+                  categories: undefined,
+                  cases: undefined,
                 }}
-                loading={run.id === detail?.id && detailLoading}
                 onCancel={() => cancelEval(run.id)}
                 isCancelling={isCancelling}
-                onOpenDetails={() => {
-                  setSelectedRunId(run.id);
-                  setDetailDialogOpen(true);
-                }}
+                onOpenDetails={() => navigate(`/prompt-evals/${run.id}`)}
               />
             ))}
           </div>
         )}
       </div>
-
-      <EvalDetailDialog
-        detail={detail}
-        loading={detailLoading}
-        open={detailDialogOpen}
-        onOpenChange={setDetailDialogOpen}
-      />
     </PageLayout>
   );
 }
