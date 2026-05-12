@@ -10,7 +10,7 @@
     "./metrics": "./src/metrics/index.ts"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
