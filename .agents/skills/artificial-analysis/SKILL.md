@@ -20,40 +20,40 @@ This skill provides access to independent AI model benchmarks from [Artificial A
 
 ### Key endpoint for this skill
 
-| Endpoint | Description |
-|---|---|
+| Endpoint                | Description                                              |
+| ----------------------- | -------------------------------------------------------- |
 | `GET /data/llms/models` | All LLM models with evaluations, pricing, speed, latency |
 
 ### LLM response fields
 
 Each model in the response contains:
 
-| Field | Type | Description |
-|---|---|---|
-| `id` | string | Stable unique identifier |
-| `name` | string | Model display name |
-| `slug` | string | URL-friendly identifier |
-| `model_creator` | object | `{ id, name, slug }` — the lab/provider |
-| `evaluations` | object | Benchmark scores (intelligence index, coding, math, etc.) |
-| `pricing` | object | `{ price_1m_input_tokens, price_1m_output_tokens, price_1m_blended_3_to_1 }` in USD |
-| `median_output_tokens_per_second` | number | Speed |
-| `median_time_to_first_token_seconds` | number | Latency |
-| `median_time_to_first_answer_token` | number | Time to first answer token |
+| Field                                | Type   | Description                                                                         |
+| ------------------------------------ | ------ | ----------------------------------------------------------------------------------- |
+| `id`                                 | string | Stable unique identifier                                                            |
+| `name`                               | string | Model display name                                                                  |
+| `slug`                               | string | URL-friendly identifier                                                             |
+| `model_creator`                      | object | `{ id, name, slug }` — the lab/provider                                             |
+| `evaluations`                        | object | Benchmark scores (intelligence index, coding, math, etc.)                           |
+| `pricing`                            | object | `{ price_1m_input_tokens, price_1m_output_tokens, price_1m_blended_3_to_1 }` in USD |
+| `median_output_tokens_per_second`    | number | Speed                                                                               |
+| `median_time_to_first_token_seconds` | number | Latency                                                                             |
+| `median_time_to_first_answer_token`  | number | Time to first answer token                                                          |
 
 ### Evaluation fields (inside `evaluations`)
 
-| Field | Description |
-|---|---|
+| Field                                    | Description                                    |
+| ---------------------------------------- | ---------------------------------------------- |
 | `artificial_analysis_intelligence_index` | Composite intelligence score (higher = better) |
-| `artificial_analysis_coding_index` | Coding capability score |
-| `artificial_analysis_math_index` | Math capability score |
-| `mmlu_pro` | MMLU-Pro benchmark |
-| `gpqa` | GPQA Diamond benchmark |
-| `hle` | Humanity's Last Exam |
-| `livecodebench` | LiveCodeBench |
-| `scicode` | SciCode |
-| `math_500` | MATH-500 |
-| `aime` | AIME (math competition) |
+| `artificial_analysis_coding_index`       | Coding capability score                        |
+| `artificial_analysis_math_index`         | Math capability score                          |
+| `mmlu_pro`                               | MMLU-Pro benchmark                             |
+| `gpqa`                                   | GPQA Diamond benchmark                         |
+| `hle`                                    | Humanity's Last Exam                           |
+| `livecodebench`                          | LiveCodeBench                                  |
+| `scicode`                                | SciCode                                        |
+| `math_500`                               | MATH-500                                       |
+| `aime`                                   | AIME (math competition)                        |
 
 ## Setup
 
@@ -88,13 +88,32 @@ If no `.env` file exists, ask the user to provide their API key.
 ### Step 1: Fetch LLM data
 
 ```bash
-curl -s -X GET "https://artificialanalysis.ai/api/v2/data/llms/models" \
-  -H "x-api-key: $ARTIFICIAL_ANALYSIS_API_KEY"
+./scripts/fetch-models.sh > .cache/models.json
 ```
+
+This script:
+- loads `ARTIFICIAL_ANALYSIS_API_KEY` from `.env` (or env var),
+- enforces configurable local rate limiting,
+- enforces a minimum total response time,
+- reads/writes `.cache/models.json` by default.
 
 The API returns a JSON object with a `data` array containing all models.
 
-**Important:** The response can be large (500+ models). Cache the response to a temp file if doing multiple analyses, to avoid hitting rate limits.
+**Defaults:**
+- `RATE_LIMIT_QPM=5` (5 requests/minute)
+- `MIN_RESPONSE_SECONDS=1` (minimum total runtime per invocation)
+
+**Examples:**
+```bash
+# default behavior (uses cache if present)
+./scripts/fetch-models.sh > .cache/models.json
+
+# force API refresh (ignores existing cache)
+./scripts/fetch-models.sh --force-refresh > .cache/models.json
+
+# custom rate + minimum response time
+RATE_LIMIT_QPM=10 MIN_RESPONSE_SECONDS=1.5 ./scripts/fetch-models.sh --force-refresh > .cache/models.json
+```
 
 ### Step 2: Analyze the data
 
@@ -140,16 +159,17 @@ When presenting data to the user, always:
 
 ### Step 4: Handle errors
 
-| Error | Likely cause | Action |
-|---|---|---|
-| HTTP 401 | Invalid or missing API key | Check `.env` file, ask user to regenerate key |
-| HTTP 429 | Rate limit exhausted (1k/day) | **STOP retrying.** Use web search or cached data instead. The key will reset next day. |
-| HTTP 500 | Server error | Retry once, if persists notify user |
-| Empty `data` array | No models match filter | Broaden the search criteria |
+| Error              | Likely cause                  | Action                                                                                 |
+| ------------------ | ----------------------------- | -------------------------------------------------------------------------------------- |
+| HTTP 401           | Invalid or missing API key    | Check `.env` file, ask user to regenerate key                                          |
+| HTTP 429           | Rate limit exhausted (1k/day) | **STOP retrying.** Use web search or cached data instead. The key will reset next day. |
+| HTTP 500           | Server error                  | Retry once, if persists notify user                                                    |
+| Empty `data` array | No models match filter        | Broaden the search criteria                                                            |
 
 ## Rate limit best practices
 
-- **Cache aggressively.** On the first successful fetch, save the full response to a temp file (`mktemp`) or the skill's `.cache/` directory. Use cached data for all subsequent analysis in the same session.
+- **Use the built-in script limiter.** `scripts/fetch-models.sh` throttles locally by QPM and tracks request timestamps in `.cache/rate-limit-state.tsv`.
+- **Cache aggressively.** Use `.cache/models.json` for subsequent analysis in the same session.
 - Only re-fetch if the user explicitly asks for updated data.
 - The free tier allows **1,000 requests/day** — each full fetch counts as 1 request. If you get HTTP 429, do NOT keep retrying. Fall back immediately:
   1. Check if `.cache/models.json` exists and use it
