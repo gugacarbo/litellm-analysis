@@ -21,17 +21,17 @@ export class PluginRegistry implements IPluginRegistry {
   private readonly repository: IAgentsRepository;
   private readonly outputDir: string;
 
- constructor(options: PluginRegistryOptions) {
-   this.repository = options.repository;
-   this.outputDir = options.outputDir ?? "data";
-   this.allPlugins = options.allPlugins;
+  constructor(options: PluginRegistryOptions) {
+    this.repository = options.repository;
+    this.outputDir = options.outputDir ?? "data";
+    this.allPlugins = options.allPlugins;
     // Register all plugins by default so list() returns them
     for (const plugin of this.allPlugins) {
       this.register(plugin);
     }
- }
+  }
 
- register(plugin: IPlugin): void {
+  register(plugin: IPlugin): void {
     // Allow re-registration to support auto-registration in constructor
     if (this.plugins.has(plugin.id)) {
       return;

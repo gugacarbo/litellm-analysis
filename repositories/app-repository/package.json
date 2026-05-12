@@ -16,7 +16,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "prepare": "pnpm db:migrate"
+    "postinstall": "pnpm db:migrate"
   },
   "dependencies": {
     "better-sqlite3": "^12.9.0",

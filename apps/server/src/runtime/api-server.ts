@@ -19,7 +19,7 @@ import { createHealthCheckRouter } from "../routes/health-check-routes";
 import { createMonitorRouter } from "../routes/monitor-routes";
 
 const execFileAsync = promisify(execFile);
-const BENCHMARK_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const BENCHMARK_TTL_MS = 15 * 24 * 60 * 60 * 1000;
 let benchmarkSyncInFlight: Promise<void> | null = null;
 
 function findWorkspaceRoot(startDir: string): string {
@@ -97,6 +97,26 @@ function ensureBenchmarksReady(
   return benchmarkSyncInFlight;
 }
 
+async function loadBenchmarkDataset(
+  workspaceRoot: string,
+  benchmarkFilePath: string,
+): Promise<StoredModelBenchmarkDataset> {
+  const hasLocalData = existsSync(benchmarkFilePath);
+
+  if (!hasLocalData) {
+    await ensureBenchmarksReady(workspaceRoot, benchmarkFilePath);
+  } else {
+    void ensureBenchmarksReady(workspaceRoot, benchmarkFilePath).catch(
+      (error) => {
+        console.error("Failed to refresh benchmark dataset:", error);
+      },
+    );
+  }
+
+  const raw = await readFile(benchmarkFilePath, "utf8");
+  return JSON.parse(raw) as StoredModelBenchmarkDataset;
+}
+
 export function createApiServer(
   opts: RouteOptions,
   ctx: AppContext,
@@ -129,9 +149,10 @@ export function createApiServer(
         "benchmarks",
         "artificial-analysis-models.json",
       );
-      await ensureBenchmarksReady(workspaceRoot, benchmarkFilePath);
-      const raw = await readFile(benchmarkFilePath, "utf8");
-      const dataset = JSON.parse(raw) as StoredModelBenchmarkDataset;
+      const dataset = await loadBenchmarkDataset(
+        workspaceRoot,
+        benchmarkFilePath,
+      );
 
       const configuredModels = await opts.dataSource.getModels();
       const configuredModelNames = configuredModels
@@ -182,7 +203,8 @@ export function createApiServer(
       const message = String(error);
       if (message.includes("ENOENT")) {
         res.status(404).json({
-          error: "Benchmark data file not found after sync attempt.",
+          error:
+            "Benchmark data file not found. Automatic sync was attempted but no local dataset is available.",
         });
         return;
       }

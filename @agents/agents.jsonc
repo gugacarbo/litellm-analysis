@@ -5,151 +5,165 @@
     "litellm": {
       "name": "LiteLLM",
       "ownedBy": "atplus",
-      "apiKey": "sk-123456789",
-      "baseUrl": "http://0.0.0.0:4000"
+      "baseUrl": "http://0.0.0.0:4000",
+      "apiKey": "sk-123456789"
     }
   },
-  "globalFallbackModel": "MiniMax-M2.7-highspeed",
   "models": {
     "glm-5": {
+      "enabled": true,
       "displayName": "GLM 5",
       "family": "z.ai",
+      "limits": {
+        "length": 200000,
+        "maxOutput": 128000
+      },
       "cost": {
         "input": 1,
         "output": 3.2
-      },
-      "limits": {
-        "length": 200000,
-        "maxOutput": 128000
       }
     },
     "glm-5.1": {
+      "enabled": true,
       "displayName": "GLM 5.1",
       "family": "z.ai",
+      "limits": {
+        "length": 200000,
+        "maxOutput": 128000
+      },
       "cost": {
         "input": 1.4,
         "output": 4.4
-      },
-      "limits": {
-        "length": 200000,
-        "maxOutput": 128000
       }
     },
     "glm-5-turbo": {
+      "enabled": true,
       "displayName": "GLM 5 Turbo",
       "family": "z.ai",
-      "cost": {
-        "input": 1.2,
-        "output": 4
-      },
       "limits": {
         "length": 200000,
         "maxOutput": 128000
+      },
+      "cost": {
+        "input": 1.2,
+        "output": 4
       }
     },
     "MiniMax-M2.7-highspeed": {
+      "enabled": true,
       "displayName": "MiniMax M2.7 Hs",
-      "cost": {
-        "input": 0.3,
-        "output": 1.2
-      },
+      "family": "",
       "limits": {
         "length": 204800,
         "maxOutput": 128000
+      },
+      "cost": {
+        "input": 0.3,
+        "output": 1.2
       }
     },
     "qwen3.5-plus": {
+      "enabled": true,
       "displayName": "Qwen 3.5+",
+      "family": "",
+      "limits": {
+        "length": 1000000,
+        "maxOutput": 64000
+      },
       "cost": {
         "input": 0.4,
         "output": 2.4
-      },
-      "limits": {
-        "length": 1000000,
-        "maxOutput": 64000
       }
     },
     "qwen3-coder-plus": {
+      "enabled": true,
       "displayName": "Qwen 3 Coder+",
-      "cost": {
-        "input": 0.65,
-        "output": 3.25
-      },
+      "family": "",
       "limits": {
         "length": 1000000,
         "maxOutput": 64000
+      },
+      "cost": {
+        "input": 0.65,
+        "output": 3.25
       }
     },
     "deepseek-v4-flash": {
+      "enabled": true,
       "displayName": "Deepseek V4 Flash",
       "family": "deepseek",
+      "limits": {
+        "length": 1048576,
+        "maxOutput": 384000
+      },
       "cost": {
         "input": 0.14,
         "output": 0.28
-      },
-      "limits": {
-        "length": 1048576,
-        "maxOutput": 384000
       }
     },
     "deepseek-v4-pro": {
+      "enabled": true,
       "displayName": "Deepseek V4 Pro",
       "family": "deepseek",
-      "cost": {
-        "input": 1.74,
-        "output": 3.48
-      },
       "limits": {
         "length": 1048576,
         "maxOutput": 384000
+      },
+      "cost": {
+        "input": 1.74,
+        "output": 3.48
       }
     },
     "glm-5.1:ollama": {
+      "enabled": true,
       "displayName": "Glm 5.1:ollama",
       "family": "z.ai",
-      "cost": {
-        "input": 1.2,
-        "output": 4
-      },
       "limits": {
         "length": 200000,
         "maxOutput": 32768
+      },
+      "cost": {
+        "input": 1.2,
+        "output": 4
       }
     },
     "kimi-k2.6": {
+      "enabled": true,
       "displayName": "Kimi K2.6",
       "family": "moonshot",
-      "cost": {
-        "input": 0.95,
-        "output": 4
-      },
       "limits": {
         "length": 262144,
         "maxOutput": 32768
+      },
+      "cost": {
+        "input": 0.95,
+        "output": 4
       }
     },
     "mimo-v2.5-pro": {
+      "enabled": true,
       "displayName": "Mimo V2.5 Pro",
       "family": "xiaomi",
-      "cost": {
-        "input": 1,
-        "output": 3
-      },
       "limits": {
         "length": 1048576,
         "maxOutput": 32768
+      },
+      "cost": {
+        "input": 1,
+        "output": 3
       }
     },
     "mimo-v2-pro": {
+      "enabled": true,
       "displayName": "Mimo V2 Pro",
       "family": "xiaomi",
-      "cost": {
-        "input": 1,
-        "output": 3
-      },
       "limits": {
         "length": 1048576,
         "maxOutput": 32768
+      },
+      "cost": {
+        "input": 1,
+        "output": 3
       }
     }
   },
@@ -158,117 +172,232 @@
       "displayName": "Loom",
       "icon": "🔧",
       "description": "Agente principal para atendimento geral: entende o pedido, organiza a execução e entrega soluções ponta a ponta.",
-      "model": "MiniMax-M2.7-highspeed",
-      "config": {
-        "mode": "all",
-        "color": "#4A90D9"
-      },
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "model": "MiniMax-M2.7-highspeed",
+      "fallbackModels": [],
+      "config": {
+        "mode": "all",
+        "tools": {},
+        "permissions": {},
+        "color": "#4A90D9",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "tapestry": {
       "displayName": "Tapestry",
       "icon": "🧶",
       "description": "Orquestrador focado em planos com múltiplas etapas: conduz execução sequencial com checklist e controle de progresso.",
-      "model": "glm-5.1",
-      "config": {
-        "mode": "subagent",
-        "temperature": 0.2,
-        "color": "#D94A4A"
-      },
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "model": "glm-5.1",
+      "fallbackModels": [],
+      "config": {
+        "mode": "subagent",
+        "tools": {},
+        "permissions": {},
+        "color": "#D94A4A",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0.2,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "shuttle": {
       "displayName": "Shuttle",
       "icon": "🚀",
       "description": "Especialista técnico para tarefas delegadas: implementa, investiga e resolve demandas complexas com alta autonomia e uso intensivo de ferramentas.",
-      "model": "deepseek-v4-pro",
-      "config": {
-        "mode": "subagent",
-        "category": "deep",
-        "temperature": 0.2,
-        "color": "#E67E22"
-      },
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [],
+      "config": {
+        "mode": "subagent",
+        "tools": {},
+        "permissions": {},
+        "color": "#E67E22",
+        "disable": false,
+        "variant": "",
+        "category": "deep",
+        "skills": [],
+        "temperature": 0.2,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "planner": {
       "displayName": "Planner",
       "icon": "📋",
       "description": "Planejador estratégico: transforma objetivos em planos executáveis, com etapas claras, riscos, dependências e critérios de sucesso.",
-      "model": "glm-5.1",
-      "config": {
-        "mode": "subagent",
-        "color": "#9B59B6"
-      },
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "model": "glm-5.1",
+      "fallbackModels": [],
+      "config": {
+        "mode": "subagent",
+        "tools": {},
+        "permissions": {},
+        "color": "#9B59B6",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "thread": {
       "displayName": "Thread (Genérico de Contexto)",
       "icon": "🧵",
-      "model": "qwen3.5-plus",
       "description": "Agente de contexto rápido: faz leitura exploratória da base, consolida informações e reduz incerteza antes da implementação.",
-      "config": {
-        "mode": "subagent",
-        "temperature": 0.1,
-        "color": "#27AE60"
-      },
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "model": "qwen3.5-plus",
+      "fallbackModels": [],
+      "config": {
+        "mode": "subagent",
+        "tools": {},
+        "permissions": {},
+        "color": "#27AE60",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0.1,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "explorer": {
       "displayName": "Explorer",
       "icon": "🔍",
       "description": "Explorador de código e fontes externas: levanta evidências, mapeia estrutura e retorna insights acionáveis para apoiar decisões.",
-      "model": "glm-5-turbo",
-      "config": {
-        "mode": "subagent",
-        "color": "#F39C12"
-      },
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "model": "glm-5-turbo",
+      "fallbackModels": [],
+      "config": {
+        "mode": "subagent",
+        "tools": {},
+        "permissions": {},
+        "color": "#F39C12",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "reviewer": {
       "displayName": "Reviewer",
       "icon": "✅",
       "description": "Revisor de qualidade: verifica consistência técnica, identifica riscos e aponta melhorias antes da entrega final.",
-      "model": "glm-5.1",
-      "config": {
-        "mode": "subagent",
-        "color": "#1ABC9C"
-      },
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "model": "glm-5.1",
+      "fallbackModels": [],
+      "config": {
+        "mode": "subagent",
+        "tools": {},
+        "permissions": {},
+        "color": "#1ABC9C",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "warp": {
       "displayName": "Warp (Auditor de Segurança)",
       "icon": "🛡️",
-      "model": "deepseek-v4-pro",
       "description": "Auditor de segurança: analisa vulnerabilidades, superfícies de ataque e práticas inseguras em código, configuração e fluxo operacional.",
-      "config": {
-        "mode": "subagent",
-        "temperature": 0.1,
-        "color": "#E74C3C"
-      },
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "model": "deepseek-v4-pro",
+      "fallbackModels": [],
+      "config": {
+        "mode": "subagent",
+        "tools": {},
+        "permissions": {},
+        "color": "#E74C3C",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0.1,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     }
   },
@@ -276,63 +405,220 @@
     "writing": {
       "displayName": "Writing",
       "icon": "🤖",
-      "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
       "model": "MiniMax-M2.7-highspeed",
-      "config": {},
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "fallbackModels": [],
+      "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
+      "variant": "",
+      "temperature": 0,
+      "topP": 1,
+      "maxTokens": 32768,
+      "thinking": {
+        "type": "disabled",
+        "budgetTokens": 0
+      },
+      "reasoningEffort": "medium",
+      "textVerbosity": "medium",
+      "tools": {},
+      "promptAppend": "",
+      "isUnstableAgent": false,
+      "config": {
+        "mode": "all",
+        "tools": {},
+        "permissions": {},
+        "color": "",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "deep": {
       "displayName": "Deep",
       "icon": "🤖",
-      "description": "Execução autônoma orientada a objetivos, ideal para tarefas de médio e grande porte com necessidade de continuidade e ownership.",
       "model": "deepseek-v4-pro",
-      "config": {},
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "fallbackModels": [],
+      "description": "Execução autônoma orientada a objetivos, ideal para tarefas de médio e grande porte com necessidade de continuidade e ownership.",
+      "variant": "",
+      "temperature": 0,
+      "topP": 1,
+      "maxTokens": 32768,
+      "thinking": {
+        "type": "disabled",
+        "budgetTokens": 0
+      },
+      "reasoningEffort": "medium",
+      "textVerbosity": "medium",
+      "tools": {},
+      "promptAppend": "",
+      "isUnstableAgent": false,
+      "config": {
+        "mode": "all",
+        "tools": {},
+        "permissions": {},
+        "color": "",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "code": {
       "displayName": "Code",
       "icon": "🤖",
-      "description": "Engenharia de software geral: implementação, refatoração, debugging, testes e manutenção de código em produção.",
       "model": "glm-5-turbo",
-      "config": {},
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "fallbackModels": [],
+      "description": "Engenharia de software geral: implementação, refatoração, debugging, testes e manutenção de código em produção.",
+      "variant": "",
+      "temperature": 0,
+      "topP": 1,
+      "maxTokens": 32768,
+      "thinking": {
+        "type": "disabled",
+        "budgetTokens": 0
+      },
+      "reasoningEffort": "medium",
+      "textVerbosity": "medium",
+      "tools": {},
+      "promptAppend": "",
+      "isUnstableAgent": false,
+      "config": {
+        "mode": "all",
+        "tools": {},
+        "permissions": {},
+        "color": "",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "artistry": {
       "displayName": "Artistry",
       "icon": "🤖",
-      "description": "Categoria criativa para soluções fora do padrão: explora alternativas, protótipos e abordagens não convencionais com critério técnico.",
       "model": "kimi-k2.6",
-      "config": {},
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "fallbackModels": [],
+      "description": "Categoria criativa para soluções fora do padrão: explora alternativas, protótipos e abordagens não convencionais com critério técnico.",
+      "variant": "",
+      "temperature": 0,
+      "topP": 1,
+      "maxTokens": 32768,
+      "thinking": {
+        "type": "disabled",
+        "budgetTokens": 0
+      },
+      "reasoningEffort": "medium",
+      "textVerbosity": "medium",
+      "tools": {},
+      "promptAppend": "",
+      "isUnstableAgent": false,
+      "config": {
+        "mode": "all",
+        "tools": {},
+        "permissions": {},
+        "color": "",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     },
     "quick": {
       "displayName": "Quick",
       "icon": "🤖",
-      "description": "Categoria de resposta rápida para ajustes pontuais: mudanças pequenas, baixo risco e escopo limitado.",
       "model": "deepseek-v4-flash",
-      "config": {},
       "limits": {
         "context": 200000,
         "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "fallbackModels": [],
+      "description": "Categoria de resposta rápida para ajustes pontuais: mudanças pequenas, baixo risco e escopo limitado.",
+      "variant": "",
+      "temperature": 0,
+      "topP": 1,
+      "maxTokens": 32768,
+      "thinking": {
+        "type": "disabled",
+        "budgetTokens": 0
+      },
+      "reasoningEffort": "medium",
+      "textVerbosity": "medium",
+      "tools": {},
+      "promptAppend": "",
+      "isUnstableAgent": false,
+      "config": {
+        "mode": "all",
+        "tools": {},
+        "permissions": {},
+        "color": "",
+        "disable": false,
+        "variant": "",
+        "category": "",
+        "skills": [],
+        "temperature": 0,
+        "topP": 1,
+        "prompt": "",
+        "promptAppend": ""
       }
     }
   },
+  "globalFallbackModel": "MiniMax-M2.7-highspeed",
   "plugins": {
     "opencode": {
       "enabled": true,
       "outputFile": "opencode.json",
+      "config": {},
       "routing": {
         "agents": {},
         "categories": {}
@@ -341,6 +627,7 @@
     "openagent": {
       "enabled": false,
       "outputFile": "oh-my-openagent.json",
+      "config": {},
       "routing": {
         "agents": {},
         "categories": {}
@@ -349,6 +636,7 @@
     "vscode": {
       "enabled": false,
       "outputFile": "vscode-oaicopilot.json",
+      "config": {},
       "routing": {
         "agents": {},
         "categories": {}

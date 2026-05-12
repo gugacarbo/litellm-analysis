@@ -99,9 +99,13 @@ export function registerPluginRoutingRoutes(
       const { registry } = manager;
       const config = await manager.repository.read();
 
+      const totalAgentCount = Object.keys(config.agents ?? {}).length;
+
       const plugins: PluginInfoDTO[] = registry.list().map((p) => {
         const pc = config.plugins?.[p.id];
-        const agentIds = Object.keys(pc?.routing?.agents ?? {});
+        const mappedAgentCount = Object.keys(
+          pc?.routing?.agents ?? {},
+        ).length;
 
         return {
           id: p.id,
@@ -110,8 +114,8 @@ export function registerPluginRoutingRoutes(
           outputFile: pc?.outputFile ?? p.getOutputFile(),
           internalAgents: registry.getInternalAgents(p.id),
           configSchema: registry.getConfigSchema(p.id),
-          agentCount: agentIds.length,
-          enabledAgentCount: agentIds.length,
+          agentCount: totalAgentCount,
+          enabledAgentCount: mappedAgentCount,
         };
       });
 
