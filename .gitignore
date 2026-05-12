@@ -54,3 +54,4 @@ __pycache__
 !.weave/designs/
 
 @db/*.db
+.worktrees/
