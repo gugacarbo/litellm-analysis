@@ -107,7 +107,7 @@ export function startAppRuntime(): AppRuntime {
     projectRoot,
     categories: [],
   });
-  app.use("/api/prompt-evals/runs", promptEvalRuntime.router);
+  app.use("/prompt-evals/runs", promptEvalRuntime.router);
 
   monitorRuntime.start();
   healthCheckRuntime.start();
