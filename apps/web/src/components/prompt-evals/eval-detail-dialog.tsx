@@ -7,7 +7,12 @@ import {
   DialogTitle,
 } from "../../components/ui/dialog";
 import { Separator } from "../../components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
 import type { EvalRunDetail } from "../../pages/prompt-evals/types";
 import {
   formatDuration,
@@ -127,7 +132,10 @@ export function EvalDetailDialog({
                 </p>
               ) : (
                 detail.steps.map((step) => (
-                  <div key={step.id} className="rounded-md border p-3 space-y-2">
+                  <div
+                    key={step.id}
+                    className="rounded-md border p-3 space-y-2"
+                  >
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-mono text-sm">{step.step}</p>
                       <Badge variant={statusVariant(step.status)}>
@@ -136,19 +144,30 @@ export function EvalDetailDialog({
                     </div>
                     <div className="text-xs text-muted-foreground space-y-1">
                       <p>
-                        Início: <span className="font-mono">{formatTimestamp(step.startedAt)}</span>
+                        Início:{" "}
+                        <span className="font-mono">
+                          {formatTimestamp(step.startedAt)}
+                        </span>
                       </p>
                       <p>
-                        Fim: <span className="font-mono">{step.finishedAt ? formatTimestamp(step.finishedAt) : "—"}</span>
+                        Fim:{" "}
+                        <span className="font-mono">
+                          {step.finishedAt
+                            ? formatTimestamp(step.finishedAt)
+                            : "—"}
+                        </span>
                       </p>
                       <p>
-                        Progresso: <span className="font-mono">{step.progressPct}%</span>
+                        Progresso:{" "}
+                        <span className="font-mono">{step.progressPct}%</span>
                       </p>
                     </div>
                     {step.message && (
                       <>
                         <Separator />
-                        <p className="text-sm whitespace-pre-wrap">{step.message}</p>
+                        <p className="text-sm whitespace-pre-wrap">
+                          {step.message}
+                        </p>
                       </>
                     )}
                   </div>
@@ -164,7 +183,8 @@ export function EvalDetailDialog({
               ) : (
                 <>
                   <p className="text-xs text-muted-foreground">
-                    Total: {cases.length} • Falhas: {cases.filter((c) => !c.passed).length}
+                    Total: {cases.length} • Falhas:{" "}
+                    {cases.filter((c) => !c.passed).length}
                   </p>
                   <FailedCasesList cases={cases} />
                 </>
