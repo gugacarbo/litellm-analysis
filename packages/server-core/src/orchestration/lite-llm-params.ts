@@ -52,16 +52,15 @@ export function applyRequiredLiteLLMParams(
 export function buildLiteLLMParams(
   modelName: string,
   spec: {
-    contextLength: number;
-    maxOutput: number;
+    limits: { length: number; maxOutput: number };
     cost?: { input?: number; output?: number };
   },
 ): Record<string, unknown> {
   const litellmParams = applyRequiredLiteLLMParams(modelName, {
     model: modelName,
     model_name: modelName,
-    context_window_size: spec.contextLength,
-    max_tokens: spec.maxOutput,
+    context_window_size: spec.limits.length,
+    max_tokens: spec.limits.maxOutput,
   });
 
   const inputCostPerToken = toCostPerToken(spec.cost?.input);

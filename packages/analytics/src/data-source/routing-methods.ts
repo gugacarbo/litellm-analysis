@@ -28,11 +28,6 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
     // continue without it
   }
 
-  // Merge custom aliases from db.json
-  if (config.customAliases) {
-    Object.assign(allAliases, config.customAliases);
-  }
-
   // Generate aliases from agents (generated aliases override)
   for (const [key, agent] of Object.entries(config.agents || {})) {
     const agentAliases = generateLitellmAliases(
@@ -84,11 +79,6 @@ export async function updateAgentRoutingConfigImpl(
     }
   }
 
-  if (Object.keys(customAliases).length > 0) {
-    config.customAliases = customAliases;
-  } else {
-    delete config.customAliases;
-  }
   await repository.write(config);
 
   // Also write to LiteLLM_Config table

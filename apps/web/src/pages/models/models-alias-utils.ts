@@ -39,7 +39,7 @@ export function getAliasesGrouped(
   if (!aliases) return [];
 
   const agentIds = agents
-    .map((a) => a.id)
+    .map((a) => a.displayName)
     .filter((id): id is string => id !== undefined);
 
   const agentMap: Map<string, AliasEntry[]> = new Map();
@@ -69,7 +69,7 @@ export function getAliasesGrouped(
     for (const id of agentIds) {
       const entries = agentMap.get(id);
       if (!entries?.length) continue;
-      const agent = agents.find((a) => a.id === id);
+      const agent = agents.find((a) => a.displayName === id);
       const direct = entries.find((e) => e.key === id);
       const nested = entries
         .filter((e) => e.key !== id)
@@ -141,7 +141,7 @@ export function getAllAliasesSorted(
   if (!aliases) return [];
 
   const agentIds = agents
-    .map((a) => a.id)
+    .map((a) => a.displayName)
     .filter((id): id is string => id !== undefined);
 
   const agentEntries: [string, string][] = [];

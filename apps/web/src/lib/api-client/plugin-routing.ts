@@ -1,12 +1,13 @@
 import type {
   PluginConfigResponse,
   PluginInfo,
-  PluginRoutingConfig,
-  PluginRoutingResponse,
+  PluginRouting,
 } from "@lite-llm/api-contracts/agent-catalog";
 import { fetchApi } from "./core";
 
-export async function getPluginRouting(): Promise<PluginRoutingResponse> {
+export async function getPluginRouting(): Promise<
+  Record<string, PluginRouting>
+> {
   return fetchApi("/plugin-routing");
 }
 
@@ -53,7 +54,7 @@ export async function toggleCategoryExport(
 }
 
 export async function savePluginRouting(
-  config: PluginRoutingConfig,
+  config: Record<string, PluginRouting>,
 ): Promise<{ success: boolean }> {
   return fetchApi("/plugin-routing", {
     method: "PUT",

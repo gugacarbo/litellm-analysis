@@ -27,7 +27,7 @@ export function useAgentRoutingActions() {
   const handleSaveAgent = useCallback(
     async (agent: SystemAgent) => {
       await upsertMutation.mutateAsync({
-        id: agent.id,
+        id: agent.displayName,
         agent,
       });
       setDialogOpen(false);

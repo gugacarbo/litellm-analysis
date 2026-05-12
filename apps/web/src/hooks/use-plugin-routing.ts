@@ -43,15 +43,15 @@ export function useTogglePlugin() {
       pluginId: string;
       enabled: boolean;
     }) => {
-      const { config } = await getPluginRouting();
-      if (!config.plugins[pluginId]) {
-        config.plugins[pluginId] = {
+      const config = await getPluginRouting();
+      if (!config[pluginId]) {
+        config[pluginId] = {
           enabled: true,
           outputFile: "",
-          agents: {},
+          routing: { agents: {}, categories: {} },
         };
       }
-      config.plugins[pluginId].enabled = enabled;
+      config[pluginId].enabled = enabled;
       return savePluginRouting(config);
     },
     onSuccess: () => {

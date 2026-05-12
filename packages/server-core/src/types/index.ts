@@ -4,8 +4,13 @@ import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
 export type AgentsManager = ReturnType<typeof createAgentsManager>;
 
 export interface DbModelSpecLike {
-  contextLength: number;
-  maxOutput: number;
+  displayName?: string;
+  enabled?: boolean;
+  family?: string;
+  limits: {
+    length: number;
+    maxOutput: number;
+  };
   cost?: {
     input?: number;
     output?: number;

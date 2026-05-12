@@ -1,3 +1,4 @@
+import type { PluginRouting } from "@lite-llm/agents-manager";
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index.js";
 
@@ -29,6 +30,7 @@ export function registerPluginRoutingRoutes(
   app: Application,
   opts: RouteOptions,
 ): void {
+  // GET /plugin-routing — returns all plugin configs
   app.get("/plugin-routing", async (_req, res) => {
     try {
       const manager = opts.agentsManager;
@@ -36,13 +38,14 @@ export function registerPluginRoutingRoutes(
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
-      const config = await manager.services.routing.getConfig();
-      res.json(config);
+      const config = await manager.repository.read();
+      res.json(config.plugins ?? {});
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
+  // PUT /plugin-routing — saves the entire plugins map
   app.put("/plugin-routing", async (req, res) => {
     try {
       const manager = opts.agentsManager;
@@ -50,22 +53,23 @@ export function registerPluginRoutingRoutes(
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
-      const config = req.body;
+      const plugins = req.body as Record<string, PluginRouting>;
 
-      if (!config || typeof config !== "object") {
-        res
-          .status(400)
-          .json({ error: "PluginRoutingConfig object is required" });
+      if (!plugins || typeof plugins !== "object") {
+        res.status(400).json({ error: "Plugins map object is required" });
         return;
       }
 
-      await manager.services.routing.saveConfig(config);
+      const config = await manager.repository.read();
+      config.plugins = plugins;
+      await manager.repository.write(config);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
+  // PATCH /plugin-routing/:pluginId/agents/:agentId — toggles agent plugin
   app.patch("/plugin-routing/:pluginId/agents/:agentId", async (req, res) => {
     try {
       const manager = opts.agentsManager;
@@ -84,6 +88,7 @@ export function registerPluginRoutingRoutes(
     }
   });
 
+  // GET /plugin-routing/plugins — lists plugins with routing info
   app.get("/plugin-routing/plugins", async (_req, res) => {
     try {
       const manager = opts.agentsManager;
@@ -92,22 +97,21 @@ export function registerPluginRoutingRoutes(
         return;
       }
       const { services, registry } = manager;
-      const routing = await services.routing.getConfig();
+      const config = await manager.repository.read();
 
       const plugins: PluginInfoDTO[] = registry.list().map((p) => {
-        const routingPlugin = routing.plugins[p.id];
-        const agents = routingPlugin?.agents ?? {};
-        const agentEntries = Object.values(agents);
+        const pc = config.plugins?.[p.id];
+        const agentIds = Object.keys(pc?.routing?.agents ?? {});
 
         return {
           id: p.id,
           name: p.name,
-          enabled: routingPlugin?.enabled ?? false,
-          outputFile: routingPlugin?.outputFile ?? p.getOutputFile(),
+          enabled: pc?.enabled ?? false,
+          outputFile: pc?.outputFile ?? p.getOutputFile(),
           internalAgents: registry.getInternalAgents(p.id),
           configSchema: registry.getConfigSchema(p.id),
-          agentCount: Object.keys(agents).length,
-          enabledAgentCount: agentEntries.filter((a) => a.enabled).length,
+          agentCount: agentIds.length,
+          enabledAgentCount: agentIds.length,
         };
       });
 
@@ -117,6 +121,7 @@ export function registerPluginRoutingRoutes(
     }
   });
 
+  // GET /plugin-routing/:pluginId/config
   app.get("/plugin-routing/:pluginId/config", async (req, res) => {
     try {
       const manager = opts.agentsManager;
@@ -148,6 +153,7 @@ export function registerPluginRoutingRoutes(
     }
   });
 
+  // PUT /plugin-routing/:pluginId/config — saves plugin config with merge
   app.put("/plugin-routing/:pluginId/config", async (req, res) => {
     try {
       const manager = opts.agentsManager;
@@ -163,14 +169,37 @@ export function registerPluginRoutingRoutes(
         categoryMappings?: Record<string, boolean>;
       };
 
-      if (config !== undefined) {
-        await services.routing.savePluginConfig(pluginId, config);
-      }
-      if (agentMappings !== undefined) {
-        await services.routing.saveAgentMappings(pluginId, agentMappings);
-      }
-      if (categoryMappings !== undefined) {
-        await services.routing.saveCategoryMappings(pluginId, categoryMappings);
+      const current = await services.routing.getPluginConfig(pluginId);
+
+      if (!current) {
+        // Create new plugin config
+        const updated: PluginRouting = {
+          enabled: true,
+          outputFile: `${pluginId}.json`,
+          config: config ?? {},
+          routing: {
+            agents: agentMappings ?? {},
+            categories: categoryMappings ?? {},
+          },
+        };
+        await services.routing.savePluginConfig(pluginId, updated);
+      } else {
+        // Merge changes into existing config
+        const updated: PluginRouting = {
+          ...current,
+          config: config !== undefined ? config : current.config,
+          routing: {
+            agents:
+              agentMappings !== undefined
+                ? agentMappings
+                : (current.routing?.agents ?? {}),
+            categories:
+              categoryMappings !== undefined
+                ? categoryMappings
+                : (current.routing?.categories ?? {}),
+          },
+        };
+        await services.routing.savePluginConfig(pluginId, updated);
       }
 
       res.json({ success: true });
@@ -179,6 +208,7 @@ export function registerPluginRoutingRoutes(
     }
   });
 
+  // PATCH /plugin-routing/:pluginId/categories/:categoryId — toggles category mapping
   app.patch(
     "/plugin-routing/:pluginId/categories/:categoryId",
     async (req, res) => {

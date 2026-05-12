@@ -24,7 +24,7 @@ export function EntityFocusCard({
             <div>
               <CardTitle className="text-sm">{agent.displayName}</CardTitle>
               <p className="text-xs text-muted-foreground font-mono">
-                {agent.id}
+                {agent.displayName}
               </p>
             </div>
           </div>
@@ -33,7 +33,7 @@ export function EntityFocusCard({
               variant="ghost"
               size="icon"
               className="h-7 w-7"
-              onClick={() => onOpenConfig(agent.id)}
+              onClick={() => onOpenConfig(agent.displayName)}
             >
               <Pencil className="h-3.5 w-3.5" />
             </Button>
@@ -41,7 +41,7 @@ export function EntityFocusCard({
               variant="ghost"
               size="icon"
               className="h-7 w-7 text-destructive"
-              onClick={() => onDelete(agent.id)}
+              onClick={() => onDelete(agent.displayName)}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
