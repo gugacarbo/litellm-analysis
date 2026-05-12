@@ -10,10 +10,26 @@ export interface EvalRunListItem {
   startedAt: number;
   finishedAt: number | null;
   error: string | null;
+  progressPct?: number;
 }
 
 export interface EvalRunDetail extends EvalRunListItem {
   steps: EvalRunStepItem[];
+  categories?: Array<{
+    category: string;
+    precision: number | null;
+    recall: number | null;
+    f1: number | null;
+    totalCases: number;
+    matchedCases: number;
+  }>;
+  cases?: Array<{
+    id: string;
+    input: string;
+    expectedCategories: string[];
+    predictedCategories: string[];
+    passed: boolean;
+  }>;
 }
 
 export interface EvalRunStepItem {

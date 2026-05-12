@@ -1,29 +1,11 @@
-import { Badge } from "../components/ui/badge.js";
-import { Button } from "../components/ui/button.js";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card.js";
-import { Input } from "../components/ui/input.js";
-import { PageLayout } from "../components/ui/page-layout.js";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/table.js";
-import type { EvalRunListItem } from "./prompt-evals/types.js";
-import { usePromptEvalsPage } from "./prompt-evals/use-prompt-evals-page.js";
-import {
-  formatDuration,
-  formatF1,
-  formatTimestamp,
-  statusVariant,
-} from "./prompt-evals/utils.js";
+import { useEffect, useRef, useState } from "react";
+import { ModelSelect } from "../components/prompt-evals/model-select";
+import { PollingIndicator } from "../components/prompt-evals/polling-indicator";
+import { RunCard } from "../components/prompt-evals/run-card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { PageLayout } from "../components/ui/page-layout";
+import { usePromptEvalsPage } from "./prompt-evals/use-prompt-evals-page";
 
 export function PromptEvalsPage() {
   const {
@@ -40,183 +22,151 @@ export function PromptEvalsPage() {
     isStarting,
     cancelEval,
     isCancelling,
+    models,
+    modelsLoading,
   } = usePromptEvalsPage();
+
+  // Keyboard navigation state
+  const runsRef = useRef<HTMLDivElement>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  // Keyboard navigation handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!sortedRuns.length) return;
+
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setSelectedIndex((prev) =>
+            prev === null ? 0 : Math.min(prev + 1, sortedRuns.length - 1),
+          );
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setSelectedIndex((prev) =>
+            prev === null ? sortedRuns.length - 1 : Math.max(prev - 1, 0),
+          );
+          break;
+        case "Enter":
+          if (selectedIndex !== null) {
+            setSelectedRunId(sortedRuns[selectedIndex].id);
+          }
+          break;
+        case "Escape":
+          setSelectedIndex(null);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [sortedRuns, selectedIndex, setSelectedRunId]);
+
+  // Verificar se há runs em andamento
+  const hasActiveRuns = sortedRuns.some(
+    (run) => !["succeeded", "failed", "cancelled"].includes(run.status),
+  );
 
   return (
     <PageLayout
       title="Prompt Evals"
       subtitle="Evaluate category classification accuracy"
+      buttons={
+        hasActiveRuns && !runsLoading ? (
+          <PollingIndicator isFetching={runsLoading} />
+        ) : undefined
+      }
     >
       {/* New Run Form */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>New Evaluation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
-              <label className="text-sm font-medium">Model</label>
-              <Input
-                value={form.model}
-                onChange={(e) => setForm({ ...form, model: e.target.value })}
-                placeholder="litellm/gpt-4o"
-              />
-            </div>
-            <div className="w-32">
-              <label className="text-sm font-medium">Threshold</label>
-              <Input
-                type="number"
-                step={0.05}
-                min={0}
-                max={1}
-                value={form.threshold}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    threshold: parseFloat(e.target.value) || 0.8,
-                  })
-                }
-              />
-            </div>
-            <Button
-              onClick={() =>
-                startEval({
-                  model: form.model,
-                  threshold: form.threshold,
-                  cases: [],
-                })
-              }
-              disabled={isStarting}
-            >
-              {isStarting ? "Starting..." : "Run Eval"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Run List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>History ({total})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {runsLoading ? (
-            <p className="text-muted-foreground">Loading...</p>
-          ) : runsError ? (
-            <p className="text-destructive">Failed to load runs</p>
+      <div className="mb-6 flex gap-4 items-end rounded-lg border bg-card p-4">
+        <div className="flex-1">
+          <label className="text-sm font-medium mb-2 block">Model</label>
+          {modelsLoading ? (
+            <Input disabled placeholder="Carregando modelos..." />
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Model</TableHead>
-                  <TableHead>Macro F1</TableHead>
-                  <TableHead>Started</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedRuns.map((run: EvalRunListItem) => (
-                  <TableRow
-                    key={run.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => setSelectedRunId(run.id)}
-                  >
-                    <TableCell>
-                      <Badge variant={statusVariant(run.status)}>
-                        {run.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {run.model}
-                    </TableCell>
-                    <TableCell>{formatF1(run.macroF1)}</TableCell>
-                    <TableCell>{formatTimestamp(run.startedAt)}</TableCell>
-                    <TableCell>
-                      {formatDuration(run.startedAt, run.finishedAt)}
-                    </TableCell>
-                    <TableCell>
-                      {!["succeeded", "failed", "cancelled"].includes(
-                        run.status,
-                      ) && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={isCancelling}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            cancelEval(run.id);
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <ModelSelect
+              models={models}
+              value={form.model}
+              onChange={(model) => setForm({ ...form, model })}
+              placeholder="Selecione um modelo..."
+            />
           )}
-        </CardContent>
-      </Card>
+        </div>
+        <div className="w-32">
+          <label className="text-sm font-medium mb-2 block">Threshold</label>
+          <Input
+            type="number"
+            step={0.05}
+            min={0}
+            max={1}
+            value={form.threshold}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                threshold: parseFloat(e.target.value) || 0.8,
+              })
+            }
+          />
+        </div>
+        <Button
+          onClick={() =>
+            startEval({
+              model: form.model,
+              threshold: form.threshold,
+              cases: [],
+            })
+          }
+          disabled={isStarting || !form.model}
+        >
+          {isStarting ? "Starting..." : "Run Eval"}
+        </Button>
+      </div>
 
-      {/* Run Detail */}
-      {detail && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Run {detail.id.slice(0, 8)}...</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {detailLoading ? (
-              <p>Loading details...</p>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex gap-4">
-                  <Badge variant={statusVariant(detail.status)}>
-                    {detail.status}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    Macro F1: {formatF1(detail.macroF1)}
-                  </span>
-                  {detail.error && (
-                    <span className="text-sm text-destructive">
-                      {detail.error}
-                    </span>
-                  )}
-                </div>
+      {/* Run Cards */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-medium">History ({total})</h2>
+          <PollingIndicator isFetching={runsLoading} />
+        </div>
 
-                {/* Step Timeline */}
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold">Steps</h4>
-                  {detail.steps.map((step) => (
-                    <div
-                      key={step.id}
-                      className="flex items-center gap-3 text-sm"
-                    >
-                      <Badge
-                        variant={statusVariant(step.status)}
-                        className="w-20 justify-center"
-                      >
-                        {step.status}
-                      </Badge>
-                      <span className="font-mono text-xs">{step.step}</span>
-                      {step.message && (
-                        <span className="text-muted-foreground">
-                          {step.message}
-                        </span>
-                      )}
-                      {step.progressPct > 0 && (
-                        <span className="text-xs">{step.progressPct}%</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+        {runsLoading ? (
+          <p className="text-muted-foreground">Loading...</p>
+        ) : runsError ? (
+          <p className="text-destructive">Failed to load runs</p>
+        ) : sortedRuns.length === 0 ? (
+          <p className="text-muted-foreground py-8 text-center">
+            Nenhum eval encontrado. Execute o primeiro eval acima.
+          </p>
+        ) : (
+          <div ref={runsRef} className="space-y-4" tabIndex={-1}>
+            {sortedRuns.map((run) => (
+              <RunCard
+                key={run.id}
+                detail={{
+                  id: run.id,
+                  type: run.type,
+                  threshold: run.threshold,
+                  model: run.model,
+                  status: run.status,
+                  macroF1: run.macroF1,
+                  startedAt: run.startedAt,
+                  finishedAt: run.finishedAt,
+                  error: run.id === detail?.id ? (detail.error ?? null) : null,
+                  progressPct: run.progressPct,
+                  steps: detail?.steps ?? [],
+                  categories:
+                    run.id === detail?.id ? detail.categories : undefined,
+                  cases: run.id === detail?.id ? detail.cases : undefined,
+                }}
+                loading={run.id === detail?.id && detailLoading}
+                onCancel={() => cancelEval(run.id)}
+                isCancelling={isCancelling}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </PageLayout>
   );
 }

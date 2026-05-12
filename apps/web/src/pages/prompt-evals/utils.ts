@@ -2,6 +2,16 @@ export function formatTimestamp(seconds: number): string {
   return new Date(seconds * 1000).toLocaleString();
 }
 
+export function formatRelativeTime(seconds: number): string {
+  const now = Date.now() / 1000;
+  const diff = now - seconds;
+
+  if (diff < 60) return `${Math.floor(diff)}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return new Date(seconds * 1000).toLocaleDateString();
+}
+
 export function formatDuration(
   startSeconds: number,
   endSeconds: number | null,
@@ -16,6 +26,25 @@ export function formatDuration(
 export function formatF1(value: number | null): string {
   if (value === null) return "—";
   return value.toFixed(4);
+}
+
+export function formatPrecision(value: number | null, decimals = 4): string {
+  if (value === null) return "—";
+  return value.toFixed(decimals);
+}
+
+export function getScoreStroke(value: number | null): string {
+  if (value === null) return "#6b7280"; // muted
+  if (value >= 0.9) return "#22c55e"; // green
+  if (value >= 0.7) return "#eab308"; // yellow
+  return "#ef4444"; // red
+}
+
+export function getScoreColor(value: number | null): string {
+  if (value === null) return "text-muted-foreground";
+  if (value >= 0.9) return "text-green-500";
+  if (value >= 0.7) return "text-yellow-500";
+  return "text-red-500";
 }
 
 export function statusVariant(

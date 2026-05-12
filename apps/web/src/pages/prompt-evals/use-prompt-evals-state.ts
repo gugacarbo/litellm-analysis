@@ -35,6 +35,24 @@ export function usePromptEvalsState() {
     },
   });
 
+  const modelsQuery = useQuery({
+    queryKey: ["models"],
+    queryFn: () =>
+      import("../../lib/api-client/models.js").then((m) => m.getAllModels()),
+  });
+
+  // Update form default model when models load
+  if (
+    modelsQuery.data &&
+    form.model === "litellm/gpt-4o" &&
+    !modelsQuery.isLoading
+  ) {
+    const firstModel = modelsQuery.data[0]?.modelName;
+    if (firstModel && firstModel !== form.model) {
+      setForm((prev) => ({ ...prev, model: firstModel }));
+    }
+  }
+
   return {
     page,
     setPage,
@@ -52,5 +70,7 @@ export function usePromptEvalsState() {
     runsError: runsQuery.error,
     detail: detailQuery.data ?? null,
     detailLoading: detailQuery.isLoading,
+    models: modelsQuery.data ?? [],
+    modelsLoading: modelsQuery.isLoading,
   };
 }
