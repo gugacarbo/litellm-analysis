@@ -10,14 +10,12 @@ interface ComparisonDeckProps {
   cards: ComparisonCardData[];
   activeUseCase: UseCase;
   selectedIds: string[];
-  onToggleModel: (id: string) => void;
 }
 
 export function ComparisonDeck({
   cards,
   activeUseCase,
   selectedIds,
-  onToggleModel,
 }: ComparisonDeckProps) {
   if (cards.length === 0) {
     return (
@@ -38,7 +36,6 @@ export function ComparisonDeck({
               card={card}
               activeUseCase={activeUseCase}
               isSelected={selectedIds.includes(card.model.id)}
-              onToggleModel={onToggleModel}
             />
           </div>
         ))}

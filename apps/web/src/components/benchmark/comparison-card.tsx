@@ -1,19 +1,19 @@
 import { Badge } from "@/components/ui/badge";
-import { MiniRadarChart } from "./mini-radar-chart";
-import { MetricBar } from "./metric-bar";
-import { RawBenchmarkGrid } from "./raw-benchmark-grid";
-import { RankingList } from "./ranking-list";
-import { DataCoverageBar } from "./data-coverage-bar";
 import type {
   ComparisonCardData,
   UseCase,
 } from "@/pages/benchmarks/benchmark-types";
 import {
-  formatSpeed,
-  formatLatencySeconds,
   formatBenchmarkPrice,
+  formatLatencySeconds,
+  formatSpeed,
   formatValueScore,
 } from "@/pages/benchmarks/benchmark-utils";
+import { DataCoverageBar } from "./data-coverage-bar";
+import { MetricBar } from "./metric-bar";
+import { MiniRadarChart } from "./mini-radar-chart";
+import { RankingList } from "./ranking-list";
+import { RawBenchmarkGrid } from "./raw-benchmark-grid";
 
 const CHART_COLORS: Record<UseCase, string> = {
   intelligence: "#2563eb",
@@ -34,7 +34,6 @@ interface ComparisonCardProps {
   card: ComparisonCardData;
   activeUseCase: UseCase;
   isSelected: boolean;
-  onToggleModel: (id: string) => void;
 }
 
 function getScoreColor(score: number): string {
@@ -48,13 +47,14 @@ function getRankDisplay(
   rank: ComparisonCardData["rank"],
   useCase: UseCase,
 ): number | null {
-  const rankKeyMap: Partial<Record<UseCase, keyof ComparisonCardData["rank"]>> = {
-    intelligence: "intelligence",
-    coding: "coding",
-    agentic: "agentic",
-    fastAndCheap: "value",
-    balanced: "value",
-  };
+  const rankKeyMap: Partial<Record<UseCase, keyof ComparisonCardData["rank"]>> =
+    {
+      intelligence: "intelligence",
+      coding: "coding",
+      agentic: "agentic",
+      fastAndCheap: "value",
+      balanced: "value",
+    };
   const key = rankKeyMap[useCase];
   if (!key) return null;
   return rank[key] ?? null;
@@ -64,7 +64,6 @@ export function ComparisonCard({
   card,
   activeUseCase,
   isSelected,
-  onToggleModel,
 }: ComparisonCardProps) {
   const {
     model,
@@ -94,18 +93,10 @@ export function ComparisonCard({
             <p className="text-xs text-muted-foreground">{model.creatorName}</p>
           </div>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => onToggleModel(model.id)}
-              className="text-xs text-muted-foreground hover:text-foreground underline"
-            >
-              {isSelected ? "Remove" : "Compare"}
-            </button>
-            <Badge
-              variant="outline"
-              className="text-[10px] px-1.5 py-0"
-            >
-              #{rankDisplay ?? "-"} {activeUseCase === "fastAndCheap" ? "value" : activeUseCase}
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              {rankDisplay !== null
+                ? `#${rankDisplay} ${activeUseCase}`
+                : `- ${activeUseCase}`}
             </Badge>
             {model.isConfigured && (
               <Badge variant="success" className="text-[10px] px-1.5 py-0">
