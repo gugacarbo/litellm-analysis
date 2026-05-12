@@ -618,9 +618,34 @@
     "opencode": {
       "enabled": true,
       "outputFile": "opencode.json",
-      "config": {},
+      "config": {
+        "enabled": true,
+        "outputFile": "opencode.json",
+        "config": {
+          "enabled": true,
+          "outputFile": "opencode.json",
+          "config": {},
+          "routing": {
+            "agents": {},
+            "categories": {}
+          }
+        },
+        "routing": {
+          "agents": {
+            "coder": "loom"
+          },
+          "categories": {}
+        }
+      },
       "routing": {
-        "agents": {},
+        "agents": {
+          "coder": "loom",
+          "planner": "planner",
+          "explorer": "explorer",
+          "reviewer": "reviewer",
+          "writer": "thread",
+          "architect": "warp"
+        },
         "categories": {}
       }
     },

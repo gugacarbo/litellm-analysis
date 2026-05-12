@@ -2,6 +2,30 @@ import type { PluginRouting } from "@lite-llm/agents-manager";
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index.js";
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isWrappedPluginConfig = (value: Record<string, unknown>): boolean =>
+  "enabled" in value &&
+  "outputFile" in value &&
+  "routing" in value &&
+  "config" in value;
+
+const normalizePluginConfigPayload = (
+  value: Record<string, unknown>,
+): Record<string, unknown> => {
+  if (!isWrappedPluginConfig(value)) {
+    return value;
+  }
+
+  const nested = value.config;
+  if (!isRecord(nested)) {
+    return {};
+  }
+
+  return normalizePluginConfigPayload(nested);
+};
+
 interface PluginInfoDTO {
   id: string;
   name: string;
@@ -134,17 +158,26 @@ export function registerPluginRoutingRoutes(
       const { pluginId } = req.params;
       const { services, registry } = manager;
 
-      const [config, agentMappings, categoryMappings, schema, internalAgents] =
-        await Promise.all([
-          services.routing.getPluginConfig(pluginId),
-          services.routing.getAgentMappings(pluginId),
-          services.routing.getCategoryMappings(pluginId),
-          Promise.resolve(registry.getConfigSchema(pluginId)),
-          Promise.resolve(registry.getInternalAgents(pluginId)),
-        ]);
+      const [
+        pluginConfig,
+        agentMappings,
+        categoryMappings,
+        schema,
+        internalAgents,
+      ] = await Promise.all([
+        services.routing.getPluginConfig(pluginId),
+        services.routing.getAgentMappings(pluginId),
+        services.routing.getCategoryMappings(pluginId),
+        Promise.resolve(registry.getConfigSchema(pluginId)),
+        Promise.resolve(registry.getInternalAgents(pluginId)),
+      ]);
+
+      const normalizedCurrentConfig = isRecord(pluginConfig?.config)
+        ? normalizePluginConfigPayload(pluginConfig.config)
+        : {};
 
       res.json({
-        config,
+        config: normalizedCurrentConfig,
         agentMappings,
         categoryMappings,
         schema,
@@ -170,6 +203,8 @@ export function registerPluginRoutingRoutes(
         agentMappings?: Record<string, string>;
         categoryMappings?: Record<string, boolean>;
       };
+      const normalizedConfig =
+        config !== undefined ? normalizePluginConfigPayload(config) : undefined;
 
       const current = await services.routing.getPluginConfig(pluginId);
 
@@ -178,7 +213,7 @@ export function registerPluginRoutingRoutes(
         const updated: PluginRouting = {
           enabled: true,
           outputFile: `${pluginId}.json`,
-          config: config ?? {},
+          config: normalizedConfig ?? {},
           routing: {
             agents: agentMappings ?? {},
             categories: categoryMappings ?? {},
@@ -189,7 +224,8 @@ export function registerPluginRoutingRoutes(
         // Merge changes into existing config
         const updated: PluginRouting = {
           ...current,
-          config: config !== undefined ? config : current.config,
+          config:
+            normalizedConfig !== undefined ? normalizedConfig : current.config,
           routing: {
             agents:
               agentMappings !== undefined
