@@ -4,24 +4,24 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import type {
   CaseResult,
-  CategoryMetrics,
   EvalRunDetail,
 } from "../../pages/prompt-evals/types";
 import {
   formatDuration,
+  formatPrecision,
   formatRelativeTime,
   statusVariant,
 } from "../../pages/prompt-evals/utils";
 import { CategoryTable } from "./category-table";
 import { FailedCasesList } from "./failed-cases-list";
 import { ProgressBar } from "./progress-bar";
-import { ScoreGauge } from "./score-gauge";
 
 interface RunCardProps {
   detail: EvalRunDetail;
   loading?: boolean;
   onCancel?: () => void;
   isCancelling?: boolean;
+  onOpenDetails?: () => void;
 }
 
 export function RunCard({
@@ -29,59 +29,79 @@ export function RunCard({
   loading: _loading,
   onCancel,
   isCancelling,
+  onOpenDetails,
 }: RunCardProps) {
   const [expanded, setExpanded] = useState(true);
   const isTerminal = ["succeeded", "failed", "cancelled"].includes(
     detail.status,
   );
   const progressPct = detail.progressPct ?? (isTerminal ? 100 : 0);
+  const scorePct =
+    detail.status === "succeeded" && detail.macroF1 !== null
+      ? Math.round(detail.macroF1 * 100)
+      : null;
+  const headerBarValue = scorePct ?? progressPct;
+  const headerBarLabel = scorePct !== null ? `F1 ${scorePct}%` : undefined;
 
-  // Mock data para categories e cases (substituir quando API suportar)
-  const categories: CategoryMetrics[] = detail.categories ?? [
-    {
-      category: "coding",
-      precision: 0.92,
-      recall: 0.88,
-      f1: 0.9,
-      totalCases: 50,
-      matchedCases: 45,
-    },
-    {
-      category: "analysis",
-      precision: 0.78,
-      recall: 0.85,
-      f1: 0.81,
-      totalCases: 15,
-      matchedCases: 12,
-    },
-  ];
-
+  const categories = detail.categories ?? [];
   const cases: CaseResult[] = detail.cases ?? [];
+  const failedCount = cases.filter((item) => !item.passed).length;
+  const hasDetailData = detail.steps.length > 0 || categories.length > 0;
+  const passedCategories = categories.filter(
+    (item) => item.f1 !== null && item.f1 >= detail.threshold,
+  ).length;
 
   return (
     <div className="rounded-lg border bg-card">
-      {/* Header - sempre visível */}
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center gap-4 p-4 hover:bg-muted/30 transition-colors text-left"
-      >
-        <ScoreGauge value={detail.macroF1} size={64} />
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-sm truncate">{detail.model}</span>
-            <Badge variant={statusVariant(detail.status)}>
-              {detail.status}
-            </Badge>
+      <div className="flex items-center gap-4 p-4">
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="flex flex-1 min-w-0 items-center gap-3 text-left transition-colors hover:text-foreground"
+        >
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-sm truncate">{detail.model}</span>
+              <Badge variant={statusVariant(detail.status)}>
+                {detail.status}
+              </Badge>
+            </div>
+            <div className="mt-1">
+              <ProgressBar
+                value={headerBarValue}
+                showLabel
+                className="max-w-md"
+              />
+              {headerBarLabel && (
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {headerBarLabel}
+                </p>
+              )}
+            </div>
           </div>
-          <div className="mt-1">
-            <ProgressBar value={progressPct} showLabel={!isTerminal} />
-          </div>
-        </div>
 
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          {expanded ? (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          )}
+        </button>
+
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <span>{formatRelativeTime(detail.startedAt)}</span>
+          {detail.macroF1 !== null && (
+            <span className="hidden sm:inline">
+              F1 {formatPrecision(detail.macroF1, 3)}
+            </span>
+          )}
+          {categories.length > 0 && (
+            <span className="hidden sm:inline">
+              {categories.length} categorias
+            </span>
+          )}
+          {cases.length > 0 && (
+            <span className="hidden sm:inline">{failedCount} falhas</span>
+          )}
           {!isTerminal && (
             <span className="text-xs">
               {formatDuration(detail.startedAt, detail.finishedAt)}
@@ -92,26 +112,49 @@ export function RunCard({
               variant="outline"
               size="sm"
               disabled={isCancelling}
-              onClick={(e) => {
-                e.stopPropagation();
-                onCancel();
-              }}
+              onClick={onCancel}
             >
               Cancel
             </Button>
           )}
+          {onOpenDetails && (
+            <Button variant="secondary" size="sm" onClick={onOpenDetails}>
+              Ver detalhes
+            </Button>
+          )}
         </div>
-
-        {expanded ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-        ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        )}
-      </button>
+      </div>
 
       {/* Content - expandível */}
       {expanded && (
         <div className="border-t px-4 pb-4 space-y-4">
+          <div className="grid gap-2 pt-3 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-4">
+            <p>
+              Threshold:{" "}
+              <span className="font-mono text-foreground">
+                {detail.threshold}
+              </span>
+            </p>
+            <p>
+              Duração:{" "}
+              <span className="font-mono text-foreground">
+                {formatDuration(detail.startedAt, detail.finishedAt)}
+              </span>
+            </p>
+            <p>
+              Steps:{" "}
+              <span className="font-mono text-foreground">
+                {detail.steps.length}
+              </span>
+            </p>
+            <p>
+              Categorias aprovadas:{" "}
+              <span className="font-mono text-foreground">
+                {passedCategories}/{categories.length}
+              </span>
+            </p>
+          </div>
+
           {detail.error && (
             <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
               {detail.error}
@@ -144,16 +187,21 @@ export function RunCard({
             </div>
           </div>
 
-          {/* Category Metrics */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Métricas por Categoria</h4>
-            <CategoryTable categories={categories} />
-          </div>
-
-          {/* Failed Cases */}
-          <div className="space-y-2">
-            <FailedCasesList cases={cases} />
-          </div>
+          {hasDetailData ? (
+            <>
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Métricas por Categoria</h4>
+                <CategoryTable categories={categories} />
+              </div>
+              <div className="space-y-2">
+                <FailedCasesList cases={cases} />
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground py-1">
+              Abra "Ver detalhes" para carregar métricas completas deste run.
+            </p>
+          )}
         </div>
       )}
     </div>

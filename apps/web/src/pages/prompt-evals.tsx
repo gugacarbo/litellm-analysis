@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { EvalDetailDialog } from "../components/prompt-evals/eval-detail-dialog";
 import { ModelSelect } from "../components/prompt-evals/model-select";
 import { PollingIndicator } from "../components/prompt-evals/polling-indicator";
 import { RunCard } from "../components/prompt-evals/run-card";
@@ -29,6 +30,7 @@ export function PromptEvalsPage() {
   // Keyboard navigation state
   const runsRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   // Keyboard navigation handler
   useEffect(() => {
@@ -51,6 +53,7 @@ export function PromptEvalsPage() {
         case "Enter":
           if (selectedIndex !== null) {
             setSelectedRunId(sortedRuns[selectedIndex].id);
+            setDetailDialogOpen(true);
           }
           break;
         case "Escape":
@@ -154,7 +157,7 @@ export function PromptEvalsPage() {
                   finishedAt: run.finishedAt,
                   error: run.id === detail?.id ? (detail.error ?? null) : null,
                   progressPct: run.progressPct,
-                  steps: detail?.steps ?? [],
+                  steps: run.id === detail?.id ? detail.steps : [],
                   categories:
                     run.id === detail?.id ? detail.categories : undefined,
                   cases: run.id === detail?.id ? detail.cases : undefined,
@@ -162,11 +165,22 @@ export function PromptEvalsPage() {
                 loading={run.id === detail?.id && detailLoading}
                 onCancel={() => cancelEval(run.id)}
                 isCancelling={isCancelling}
+                onOpenDetails={() => {
+                  setSelectedRunId(run.id);
+                  setDetailDialogOpen(true);
+                }}
               />
             ))}
           </div>
         )}
       </div>
+
+      <EvalDetailDialog
+        detail={detail}
+        loading={detailLoading}
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+      />
     </PageLayout>
   );
 }
