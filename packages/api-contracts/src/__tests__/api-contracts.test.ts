@@ -3,7 +3,6 @@ import type {
   AgentCatalogDetailResponse,
   AgentCatalogEntry,
   AgentCatalogResponse,
-  SystemAgent,
 } from "../agent-routing";
 import type {
   CostEfficiency,

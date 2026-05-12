@@ -29,8 +29,8 @@ export function createPromptEvalRouter(service: PromptEvalService): Router {
 
   router.get("/", (_req, res) => {
     try {
-      const page = parseInt(_req.query.page as string) || 1;
-      const pageSize = parseInt(_req.query.pageSize as string) || 20;
+      const page = parseInt(_req.query.page as string, 10) || 1;
+      const pageSize = parseInt(_req.query.pageSize as string, 10) || 20;
       const result = service.listRuns(page, pageSize);
       res.json(result);
     } catch (err) {

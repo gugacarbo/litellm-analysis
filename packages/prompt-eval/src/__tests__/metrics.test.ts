@@ -31,8 +31,8 @@ describe("calculateMetrics", () => {
     expect(result.accuracy).toBe(1);
     expect(result.macroF1).toBe(1);
     expect(result.hammingLoss).toBe(0);
-    expect(result.perLabel["cat_a"].f1).toBe(1);
-    expect(result.perLabel["cat_b"].f1).toBe(1);
+    expect(result.perLabel.cat_a.f1).toBe(1);
+    expect(result.perLabel.cat_b.f1).toBe(1);
   });
 
   it("returns zero when all predictions are wrong", () => {
@@ -90,14 +90,14 @@ describe("calculateMetrics", () => {
 
     const result = calculateMetrics(labels, cases, predictions);
 
-    expect(result.perLabel["cat_a"].f1).toBe(1);
-    expect(result.perLabel["cat_a"].precision).toBe(1);
-    expect(result.perLabel["cat_a"].recall).toBe(1);
+    expect(result.perLabel.cat_a.f1).toBe(1);
+    expect(result.perLabel.cat_a.precision).toBe(1);
+    expect(result.perLabel.cat_a.recall).toBe(1);
 
-    expect(result.perLabel["cat_b"].recall).toBe(0.5);
-    expect(result.perLabel["cat_b"].precision).toBe(1);
+    expect(result.perLabel.cat_b.recall).toBe(0.5);
+    expect(result.perLabel.cat_b.precision).toBe(1);
 
-    expect(result.perLabel["cat_c"].f1).toBe(0);
+    expect(result.perLabel.cat_c.f1).toBe(0);
 
     expect(result.macroF1).toBeCloseTo(0.5556, 3);
     expect(result.hammingLoss).toBe(1 / 6);
@@ -120,8 +120,8 @@ describe("calculateMetrics", () => {
 
     const result = calculateMetrics(labels, cases, predictions);
 
-    expect(result.perLabel["cat_a"].precision).toBe(0);
-    expect(result.perLabel["cat_a"].recall).toBe(0);
-    expect(result.perLabel["cat_a"].f1).toBe(0);
+    expect(result.perLabel.cat_a.precision).toBe(0);
+    expect(result.perLabel.cat_a.recall).toBe(0);
+    expect(result.perLabel.cat_a.f1).toBe(0);
   });
 });

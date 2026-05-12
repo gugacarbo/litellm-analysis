@@ -37,7 +37,7 @@ describe("runCategoryEvaluation", () => {
     const adapter = createPromptfooAdapter({ provider: "test" });
     const events: string[] = [];
 
-    const report = await runCategoryEvaluation(
+    const _report = await runCategoryEvaluation(
       { categories, cases, model: "test", threshold: 0.8, adapter } as any,
       (event: any) => {
         events.push(event.type);
