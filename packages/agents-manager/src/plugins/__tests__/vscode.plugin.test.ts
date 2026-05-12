@@ -1,20 +1,18 @@
 import type {
-  PluginRoutingConfig,
+  PluginRouting,
   SystemAgent,
-} from "@lite-llm/agents-repository/schema";
+} from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
 import { VsCodePlugin } from "../external/vscode.plugin";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
-    id: "builder",
     displayName: "Builder",
     icon: "🔧",
     description: "Build stuff",
-    versions: [],
+    limits: { context: 200000, output: 32768 },
     model: "gpt-4",
     fallbackModels: [],
-    enabledPlugins: [],
     config: {},
     ...overrides,
   };
@@ -68,7 +66,11 @@ describe("VsCodePlugin", () => {
       const plugin = new VsCodePlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "vscode-oaicopilot.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {},
           litellmConfig: {
@@ -90,13 +92,17 @@ describe("VsCodePlugin", () => {
       const plugin = new VsCodePlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "vscode-oaicopilot.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {
             "gpt-4": {
               displayName: "GPT-4",
-              contextLength: 128000,
-              maxOutput: 4096,
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
             },
           },
           litellmConfig: {
@@ -117,7 +123,11 @@ describe("VsCodePlugin", () => {
       const plugin = new VsCodePlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "vscode-oaicopilot.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {},
           litellmConfig: {
@@ -136,20 +146,15 @@ describe("VsCodePlugin", () => {
 
     it("aplica config do plugin", () => {
       const plugin = new VsCodePlugin();
-      const routing: PluginRoutingConfig = {
-        version: 1,
-        plugins: {
-          vscode: {
-            enabled: true,
-            outputFile: "vscode-oaicopilot.json",
-            agents: {},
-            config: {
-              commitLanguage: "English",
-              retryEnabled: false,
-              maxRetryAttempts: 5,
-            },
-          },
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "vscode-oaicopilot.json",
+        config: {
+          commitLanguage: "English",
+          retryEnabled: false,
+          maxRetryAttempts: 5,
         },
+        routing: { agents: {}, categories: {} },
       };
 
       const output = plugin.buildOutput([], routing, {
@@ -170,18 +175,22 @@ describe("VsCodePlugin", () => {
       const plugin = new VsCodePlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "vscode-oaicopilot.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {
             "gpt-4": {
               displayName: "GPT-4",
-              contextLength: 128000,
-              maxOutput: 4096,
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
             },
             "claude-3.5": {
               displayName: "Claude 3.5 Sonnet",
-              contextLength: 200000,
-              maxOutput: 8192,
+              enabled: true,
+              limits: { length: 200000, maxOutput: 8192 },
             },
           },
           litellmConfig: {
@@ -209,13 +218,17 @@ describe("VsCodePlugin", () => {
       const plugin = new VsCodePlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "vscode-oaicopilot.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {
             "gpt-4": {
               displayName: "GPT-4",
-              contextLength: 128000,
-              maxOutput: 4096,
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
             },
           },
           litellmConfig: {
@@ -238,17 +251,21 @@ describe("VsCodePlugin", () => {
 
     it("ignora lista de agentes (usa apenas allModels)", () => {
       const plugin = new VsCodePlugin();
-      const agents = [makeSystemAgent(), makeSystemAgent({ id: "reviewer" })];
+      const agents = [makeSystemAgent(), makeSystemAgent()];
 
       const output = plugin.buildOutput(
         agents,
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "vscode-oaicopilot.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {
             "gpt-4": {
               displayName: "GPT-4",
-              contextLength: 128000,
-              maxOutput: 4096,
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
             },
           },
           litellmConfig: {

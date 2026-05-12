@@ -3,7 +3,7 @@
 // Use SystemAgent for both agents and categories.
 export type {
   AgentExtraConfig,
-  PluginRoutingConfig,
+  PluginRouting,
   PluginRoutingRule,
   SystemAgent,
 } from "@lite-llm/agents-manager";

@@ -1,10 +1,10 @@
 import type {
-  PluginRoutingConfig,
+  PluginRouting,
   PluginRoutingRule,
   SystemAgent,
 } from "@litellm/shared";
 
-export type { PluginRoutingConfig, PluginRoutingRule, SystemAgent };
+export type { PluginRouting, PluginRoutingRule, SystemAgent };
 
 export interface InternalAgent {
   id: string;
@@ -42,10 +42,7 @@ export interface PluginConfigResponse {
   internalAgents: InternalAgent[];
 }
 
-export interface PluginRoutingResponse {
-  config: PluginRoutingConfig;
-  plugins: PluginInfo[];
-}
+export type PluginRoutingResponse = Record<string, PluginRouting>;
 
 export interface PluginToggleResponse {
   pluginId: string;

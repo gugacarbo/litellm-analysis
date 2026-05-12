@@ -108,32 +108,22 @@ describe("AgentsRepository", () => {
       provider: {
         litellm: {
           name: "LiteLLM",
+          ownedBy: "",
           baseUrl: "http://localhost:4000",
           apiKey: "sk-test",
         },
       },
-      models: {} as Record<
-        string,
-        { displayName: string; contextLength: number; maxOutput: number }
-      >,
-      categories: {} as Record<
-        string,
-        {
-          model: string;
-          modelIdStrategy: "model-name" | "prefix-version";
-          limits: { context: number; output: number };
-        }
-      >,
+      models: {},
+      categories: {},
       agents: {
         loom: {
           displayName: "Loom",
           icon: "L",
           description: "Agent",
-          modelIdStrategy: "model-name" as const,
           limits: { context: 200000, output: 32768 },
           model: "gpt-4",
-          fallbackModels: [] as string[],
-          config: {} as Record<string, unknown>,
+          fallbackModels: [],
+          config: {},
         },
       },
     };

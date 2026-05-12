@@ -7,11 +7,17 @@ function createMockRepository(): IAgentsRepository {
   return {
     read: vi.fn().mockResolvedValue({
       version: 2,
-      litellm: { baseUrl: "http://localhost:4000", apiKey: "test" },
+      provider: {
+        litellm: {
+          name: "",
+          ownedBy: "",
+          baseUrl: "http://localhost:4000",
+          apiKey: "test",
+        },
+      },
       models: {},
       agents: {},
       categories: {},
-      routing: { version: 1, plugins: {} },
     }),
     readSync: vi.fn(),
     write: vi.fn(),
@@ -124,10 +130,15 @@ describe("PluginRegistry", () => {
         ],
       });
       registry.loadFromConfig({
-        version: 1,
-        plugins: {
-          p1: { enabled: true },
-          p2: { enabled: false },
+        p1: {
+          enabled: true,
+          outputFile: "test.json",
+          routing: { agents: {}, categories: {} },
+        },
+        p2: {
+          enabled: false,
+          outputFile: "test.json",
+          routing: { agents: {}, categories: {} },
         },
       });
       expect(registry.list()).toHaveLength(1);
@@ -142,9 +153,10 @@ describe("PluginRegistry", () => {
       });
       registry.register(createMockPlugin({ id: "p1" }));
       registry.loadFromConfig({
-        version: 1,
-        plugins: {
-          p1: { enabled: false },
+        p1: {
+          enabled: false,
+          outputFile: "test.json",
+          routing: { agents: {}, categories: {} },
         },
       });
       expect(registry.list()).toHaveLength(0);
@@ -156,12 +168,19 @@ describe("PluginRegistry", () => {
       const mockRepo = createMockRepository();
       (mockRepo.read as ReturnType<typeof vi.fn>).mockResolvedValue({
         version: 2,
-        litellm: { baseUrl: "http://localhost:4000", apiKey: "test" },
+        provider: {
+          litellm: {
+            name: "",
+            ownedBy: "",
+            baseUrl: "http://localhost:4000",
+            apiKey: "test",
+          },
+        },
         models: {
           "gpt-4": {
+            enabled: true,
             displayName: "GPT-4",
-            contextLength: 128000,
-            maxOutput: 4096,
+            limits: { length: 128000, maxOutput: 4096 },
           },
         },
         categories: {},
@@ -170,21 +189,16 @@ describe("PluginRegistry", () => {
             displayName: "Builder",
             icon: "🔧",
             description: "Build stuff",
-            versions: [],
             model: "gpt-4",
             fallbackModels: [],
-            enabledPlugins: [],
             config: {},
           },
         },
-        routing: {
-          version: 1,
-          plugins: {
-            "test-plugin": {
-              enabled: true,
-              outputFile: "test.json",
-              agents: {},
-            },
+        plugins: {
+          "test-plugin": {
+            enabled: true,
+            outputFile: "test.json",
+            routing: { agents: {}, categories: {} },
           },
         },
       });
@@ -208,7 +222,8 @@ describe("PluginRegistry", () => {
       const ctx = callArgs[2];
       expect(agents).toHaveLength(1);
       expect(agents[0].displayName).toBe("Builder");
-      expect(Object.keys(routing.plugins)).toContain("test-plugin");
+      expect(routing.enabled).toBe(true);
+      expect(routing.outputFile).toBe("test.json");
       expect(ctx.litellmConfig.baseUrl).toBe("http://localhost:4000");
     });
 

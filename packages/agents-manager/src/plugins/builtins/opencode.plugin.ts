@@ -1,8 +1,7 @@
 import type {
-  ModelSpec,
-  PluginRoutingConfig,
+  PluginRouting,
   SystemAgent,
-} from "@lite-llm/agents-repository/schema";
+} from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin.js";
 import type { ConfigField, InternalAgent } from "../plugin-types.js";
 
@@ -57,7 +56,7 @@ export class OpenCodePlugin implements IPlugin {
 
   buildOutput(
     agents: SystemAgent[],
-    routing: PluginRoutingConfig,
+    routing: PluginRouting,
     ctx: TransformContext,
   ): OpenCodeProviders {
     const output: OpenCodeProviders = { provider: {} };
@@ -66,10 +65,10 @@ export class OpenCodePlugin implements IPlugin {
     for (const [key, spec] of Object.entries(ctx.allModels)) {
       litellmModels[key] = {
         id: key,
-        name: (spec as ModelSpec).displayName,
+        name: spec.displayName,
         limit: {
-          context: (spec as ModelSpec).contextLength,
-          output: (spec as ModelSpec).maxOutput,
+          context: spec.limits.length,
+          output: spec.limits.maxOutput,
         },
       };
     }
@@ -84,15 +83,10 @@ export class OpenCodePlugin implements IPlugin {
       models: litellmModels,
     };
 
-    const pluginRouting = routing.plugins[this.id];
-    const agentMappings = (pluginRouting?.routing?.agents ?? {}) as Record<
-      string,
-      string
-    >;
+    const agentMappings = routing.routing?.agents ?? {};
 
     for (const agent of agents) {
-      const agentId =
-        (agent as SystemAgent & { id?: string }).id ?? agent.displayName;
+      const agentId = agent.displayName;
       const internalAgentId = agentMappings[agentId];
       if (!internalAgentId) continue;
 

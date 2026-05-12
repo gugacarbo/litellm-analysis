@@ -1,6 +1,6 @@
 export type {
   AgentExtraConfig,
-  PluginRoutingConfig,
+  PluginRouting,
   PluginRoutingRule,
   SystemAgent,
 } from "./types/agent-config.js";

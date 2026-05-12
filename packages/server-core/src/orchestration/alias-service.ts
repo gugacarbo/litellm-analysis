@@ -12,9 +12,7 @@ export async function buildAliasMapFromDb(
   const config = await repository.read();
   const globalFallback = config.globalFallbackModel;
 
-  const mergedAliases: Record<string, string> = {
-    ...(config.customAliases || {}),
-  };
+  const mergedAliases: Record<string, string> = {};
 
   for (const [key, agent] of Object.entries(config.agents || {})) {
     Object.assign(

@@ -31,7 +31,7 @@ export function AgentConfigEditor({
   saving = false,
 }: AgentConfigEditorProps) {
   const [config, setConfig] = useState<SystemAgent>(() =>
-    normalizeSystemAgent(agent ?? { id: "" }),
+    normalizeSystemAgent(agent ?? {}),
   );
 
   useEffect(() => {
@@ -66,19 +66,15 @@ export function AgentConfigEditor({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            Edit Agent: {config.displayName || config.id}
+            Edit Agent: {config.displayName || "Unknown"}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Edit configuration for {config.id}
+            Edit configuration for {config.displayName}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="agent-id">ID</Label>
-              <Input id="agent-id" value={config.id} disabled />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="agent-name">Display Name</Label>
               <Input

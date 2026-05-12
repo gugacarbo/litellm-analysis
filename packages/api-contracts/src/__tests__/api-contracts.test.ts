@@ -30,21 +30,19 @@ describe("@lite-llm/api-contracts", () => {
   describe("type exports are importable (compile-time check)", () => {
     it("imports agent-routing types", () => {
       const _agent: SystemAgent = {
-        id: "test",
         displayName: "Test",
         icon: "T",
         description: "A test agent",
-        versions: [],
+        limits: { context: 200000, output: 32768 },
         model: "gpt-4",
         fallbackModels: [],
-        enabledPlugins: [],
         config: {},
       };
       const _catalogResp: AgentCatalogResponse = { agents: [_agent] };
       const _detailResp: AgentCatalogDetailResponse = { agent: _agent };
-      expect(_agent.id).toBe("test");
+      expect(_agent.displayName).toBe("Test");
       expect(_catalogResp.agents).toHaveLength(1);
-      expect(_detailResp.agent.id).toBe("test");
+      expect(_detailResp.agent.displayName).toBe("Test");
     });
 
     it("imports analytics types", () => {

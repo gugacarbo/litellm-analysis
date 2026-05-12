@@ -16,11 +16,11 @@ export function useAgentRoutingDerived(agents: SystemAgent[]) {
 
   const getAgentSummary = useCallback(
     (id: string): AgentSummaryInfo | null => {
-      const agent = agentsList.find((a) => a.id === id);
+      const agent = agentsList.find((a) => a.displayName === id);
       if (!agent) return null;
 
       return {
-        id: agent.id,
+        id: agent.displayName,
         displayName: agent.displayName,
         icon: agent.icon,
         description: agent.description,

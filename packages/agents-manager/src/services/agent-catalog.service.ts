@@ -1,5 +1,8 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { DbConfig, SystemAgent } from "@lite-llm/agents-repository/schema";
+import type {
+  DbConfig,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schemas";
 
 export interface AgentCatalogServiceOptions {
   repository: IAgentsRepository;

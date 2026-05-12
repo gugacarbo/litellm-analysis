@@ -31,7 +31,8 @@ export function AgentsPage() {
     categoriesLoading,
   } = useAgentRoutingPageState();
 
-  const editingAgent = agents.find((a) => a.id === editingAgentId) ?? null;
+  const editingAgent =
+    agents.find((a) => a.displayName === editingAgentId) ?? null;
 
   return (
     <PageLayout

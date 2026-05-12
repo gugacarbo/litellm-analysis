@@ -1,20 +1,18 @@
 import type {
-  PluginRoutingConfig,
+  PluginRouting,
   SystemAgent,
-} from "@lite-llm/agents-repository/schema";
+} from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
 import { OpenAgentPlugin } from "../external/openagent.plugin";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
-    id: "builder",
     displayName: "Builder",
     icon: "🔧",
     description: "Build stuff",
-    versions: [],
+    limits: { context: 200000, output: 32768 },
     model: "gpt-4",
     fallbackModels: [],
-    enabledPlugins: [],
     config: {},
     ...overrides,
   };
@@ -74,7 +72,11 @@ describe("OpenAgentPlugin", () => {
       const plugin = new OpenAgentPlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "oh-my-openagent.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {},
           litellmConfig: {
@@ -94,7 +96,11 @@ describe("OpenAgentPlugin", () => {
       const plugin = new OpenAgentPlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "oh-my-openagent.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {},
           litellmConfig: {
@@ -111,19 +117,11 @@ describe("OpenAgentPlugin", () => {
 
     it("aplica config do plugin para git_master", () => {
       const plugin = new OpenAgentPlugin();
-      const routing: PluginRoutingConfig = {
-        version: 1,
-        plugins: {
-          openagent: {
-            enabled: true,
-            outputFile: "oh-my-openagent.json",
-            agents: {},
-            config: {
-              commitFooter: true,
-              includeCoAuthoredBy: true,
-            },
-          },
-        },
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "oh-my-openagent.json",
+        config: { commitFooter: true, includeCoAuthoredBy: true },
+        routing: { agents: {}, categories: {} },
       };
 
       const output = plugin.buildOutput([], routing, {
@@ -143,7 +141,11 @@ describe("OpenAgentPlugin", () => {
       const plugin = new OpenAgentPlugin();
       const output = plugin.buildOutput(
         [],
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "oh-my-openagent.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {},
           globalFallbackModel: "gpt-4",
@@ -161,7 +163,6 @@ describe("OpenAgentPlugin", () => {
       const plugin = new OpenAgentPlugin();
       const agents = [
         makeSystemAgent({
-          id: "builder",
           description: "Build stuff",
           model: "gpt-4",
           fallbackModels: ["gpt-3.5"],
@@ -172,16 +173,10 @@ describe("OpenAgentPlugin", () => {
           },
         }),
       ];
-      const routing: PluginRoutingConfig = {
-        version: 1,
-        plugins: {
-          openagent: {
-            enabled: true,
-            outputFile: "oh-my-openagent.json",
-            agents: {},
-            agentMappings: { builder: "default" },
-          },
-        },
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "oh-my-openagent.json",
+        routing: { agents: { Builder: "default" }, categories: {} },
       };
 
       const output = plugin.buildOutput(agents, routing, {
@@ -202,11 +197,15 @@ describe("OpenAgentPlugin", () => {
 
     it("ignora agentes sem mapeamento", () => {
       const plugin = new OpenAgentPlugin();
-      const agents = [makeSystemAgent({ id: "builder" })];
+      const agents = [makeSystemAgent()];
 
       const output = plugin.buildOutput(
         agents,
-        { version: 1, plugins: {} },
+        {
+          enabled: true,
+          outputFile: "oh-my-openagent.json",
+          routing: { agents: {}, categories: {} },
+        },
         {
           allModels: {},
           litellmConfig: {

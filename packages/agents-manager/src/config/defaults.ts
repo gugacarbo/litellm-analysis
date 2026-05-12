@@ -1,7 +1,4 @@
-import type {
-  PluginRoutingConfig,
-  SystemAgent,
-} from "@lite-llm/agents-repository/schema";
+import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 
 export const DEFAULT_DB_PATH = "@storage/agents.json";
 
@@ -63,26 +60,3 @@ export const DEFAULT_AGENTS: SystemAgent[] = [
     config: {},
   },
 ];
-
-// ── Default Plugin Routing ──
-
-export const DEFAULT_ROUTING: PluginRoutingConfig = {
-  version: 1,
-  plugins: {
-    opencode: {
-      enabled: true,
-      outputFile: "opencode.json",
-      agents: {},
-    },
-    openagent: {
-      enabled: false,
-      outputFile: "oh-my-openagent.json",
-      agents: {},
-    },
-    vscode: {
-      enabled: false,
-      outputFile: "vscode-oaicopilot.json",
-      agents: {},
-    },
-  },
-};

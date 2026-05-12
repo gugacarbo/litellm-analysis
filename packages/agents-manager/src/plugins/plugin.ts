@@ -1,8 +1,8 @@
 import type {
   ModelSpec,
-  PluginRoutingConfig,
+  PluginRouting,
   SystemAgent,
-} from "@lite-llm/agents-repository/schema";
+} from "@lite-llm/agents-repository/schemas";
 import type { ConfigField, InternalAgent } from "./plugin-types.js";
 
 export interface TransformContext {
@@ -21,7 +21,7 @@ export interface IPlugin {
 
   buildOutput(
     agents: SystemAgent[],
-    routing: PluginRoutingConfig,
+    routing: PluginRouting,
     ctx: TransformContext,
   ): unknown;
 
@@ -34,7 +34,7 @@ export interface IPluginRegistry {
   unregister(pluginId: string): void;
   get(pluginId: string): IPlugin | undefined;
   list(): IPlugin[];
-  loadFromConfig(routing: PluginRoutingConfig): void;
+  loadFromConfig(pluginConfigs: Record<string, PluginRouting>): void;
   exportAll(): Promise<void>;
   exportOne(pluginId: string): Promise<void>;
   getInternalAgents(pluginId: string): InternalAgent[];

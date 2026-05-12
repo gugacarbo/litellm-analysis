@@ -1,14 +1,20 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { CategoryEntry } from "@lite-llm/agents-repository/schema";
+import type { CategoryEntry } from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
 import { CategoryService } from "../category.service";
+
+const testEntry = (overrides: Partial<CategoryEntry> = {}): CategoryEntry => ({
+  model: "gpt-4",
+  limits: { context: 200000, output: 32768 },
+  ...overrides,
+});
 
 function createMockRepo(
   overrides: Record<string, unknown> = {},
 ): IAgentsRepository {
   const store: Record<string, unknown> = {
     version: 2,
-    litellm: { baseUrl: "", apiKey: "" },
+    provider: { litellm: { name: "", ownedBy: "", baseUrl: "", apiKey: "" } },
     models: {},
     agents: {},
     categories: {},
@@ -30,8 +36,8 @@ describe("CategoryService", () => {
   describe("getAll", () => {
     it("retorna todas as categorias", async () => {
       const categories: Record<string, CategoryEntry> = {
-        dev: { model: "gpt-4" },
-        review: { model: "gpt-3.5" },
+        dev: testEntry(),
+        review: testEntry({ model: "gpt-3.5" }),
       };
       const repo = createMockRepo({ categories });
       const service = new CategoryService({ repository: repo });
@@ -48,10 +54,10 @@ describe("CategoryService", () => {
   describe("get", () => {
     it("retorna categoria específica", async () => {
       const repo = createMockRepo({
-        categories: { dev: { model: "gpt-4" } },
+        categories: { dev: testEntry() },
       });
       const service = new CategoryService({ repository: repo });
-      expect(await service.get("dev")).toEqual({ model: "gpt-4" });
+      expect(await service.get("dev")).toEqual(testEntry());
     });
 
     it("retorna undefined para categoria inexistente", async () => {
@@ -65,16 +71,16 @@ describe("CategoryService", () => {
     it("adiciona categoria ao repositório", async () => {
       const repo = createMockRepo({ categories: {} });
       const service = new CategoryService({ repository: repo });
-      await service.create("dev", { model: "gpt-4" });
-      expect(await service.get("dev")).toEqual({ model: "gpt-4" });
+      await service.create("dev", testEntry());
+      expect(await service.get("dev")).toEqual(testEntry());
     });
 
     it("lança erro se categoria já existe", async () => {
       const repo = createMockRepo({
-        categories: { dev: { model: "gpt-4" } },
+        categories: { dev: testEntry() },
       });
       const service = new CategoryService({ repository: repo });
-      await expect(service.create("dev", { model: "gpt-4" })).rejects.toThrow(
+      await expect(service.create("dev", testEntry())).rejects.toThrow(
         "already exists",
       );
     });
@@ -83,7 +89,7 @@ describe("CategoryService", () => {
   describe("update", () => {
     it("atualiza categoria existente com merge parcial", async () => {
       const repo = createMockRepo({
-        categories: { dev: { model: "gpt-4", description: "Dev cat" } },
+        categories: { dev: testEntry({ description: "Dev cat" }) },
       });
       const service = new CategoryService({ repository: repo });
       await service.update("dev", { model: "gpt-3.5" });
@@ -105,16 +111,16 @@ describe("CategoryService", () => {
     it("cria categoria se não existe", async () => {
       const repo = createMockRepo({ categories: {} });
       const service = new CategoryService({ repository: repo });
-      await service.upsert("dev", { model: "gpt-4" });
-      expect(await service.get("dev")).toEqual({ model: "gpt-4" });
+      await service.upsert("dev", testEntry());
+      expect(await service.get("dev")).toEqual(testEntry());
     });
 
     it("atualiza categoria se já existe", async () => {
       const repo = createMockRepo({
-        categories: { dev: { model: "gpt-4" } },
+        categories: { dev: testEntry() },
       });
       const service = new CategoryService({ repository: repo });
-      await service.upsert("dev", { model: "gpt-3.5" });
+      await service.upsert("dev", testEntry({ model: "gpt-3.5" }));
       expect((await service.get("dev"))?.model).toBe("gpt-3.5");
     });
   });
@@ -122,7 +128,7 @@ describe("CategoryService", () => {
   describe("delete", () => {
     it("remove categoria existente", async () => {
       const repo = createMockRepo({
-        categories: { dev: { model: "gpt-4" } },
+        categories: { dev: testEntry() },
       });
       const service = new CategoryService({ repository: repo });
       await service.delete("dev");
