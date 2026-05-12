@@ -14,10 +14,12 @@
   },
   "dependencies": {
     "@lite-llm/api-contracts": "workspace:^",
+    "@lite-llm/app-repository": "workspace:*",
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
     "@lite-llm/env": "workspace:*",
     "@lite-llm/monitor": "workspace:^",
+    "@lite-llm/prompt-eval": "workspace:*",
     "@lite-llm/server-core": "workspace:*",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",

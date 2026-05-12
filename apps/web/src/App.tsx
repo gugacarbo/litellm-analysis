@@ -12,6 +12,7 @@ import { ModelsPage } from "./pages/models";
 import { MonitorPage } from "./pages/monitor";
 import { PluginConfigPage } from "./pages/plugin-config";
 import { PluginsPage } from "./pages/plugins";
+import { PromptEvalsPage } from "./pages/prompt-evals";
 
 function App() {
   return (
@@ -83,6 +84,14 @@ function App() {
                 element={
                   <ErrorBoundary>
                     <PluginConfigPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/prompt-evals"
+                element={
+                  <ErrorBoundary>
+                    <PromptEvalsPage />
                   </ErrorBoundary>
                 }
               />

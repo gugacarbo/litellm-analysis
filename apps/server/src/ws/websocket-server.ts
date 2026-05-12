@@ -5,7 +5,9 @@ type MessageType =
   | "alert"
   | "health_update"
   | "health_check_update"
-  | "connected";
+  | "connected"
+  | "prompt_eval_run_update"
+  | "prompt_eval_run_completed";
 
 interface WsMessage {
   type: MessageType;

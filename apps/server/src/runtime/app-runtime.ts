@@ -12,6 +12,7 @@ import {
   type HealthCheckRuntime,
 } from "./health-check-runtime";
 import { createMonitorRuntime, type MonitorRuntime } from "./monitor-runtime";
+import { createPromptEvalRuntime } from "./prompt-eval-runtime.js";
 
 interface AppRuntime {
   stop: () => void;
@@ -100,6 +101,13 @@ export function startAppRuntime(): AppRuntime {
       res.status(500).json({ error: "Failed to trigger health check" });
     }
   });
+
+  const promptEvalRuntime = createPromptEvalRuntime({
+    wsServer: monitorRuntime.wsServer,
+    projectRoot,
+    categories: [],
+  });
+  app.use("/api/prompt-evals/runs", promptEvalRuntime.router);
 
   monitorRuntime.start();
   healthCheckRuntime.start();

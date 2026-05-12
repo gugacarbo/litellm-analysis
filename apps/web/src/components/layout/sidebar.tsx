@@ -73,6 +73,7 @@ export function Sidebar() {
       children: [
         { to: "/agents", label: "Config", icon: Settings },
         { to: "/plugins", label: "Plugins + Routing", icon: GitBranch },
+        { to: "/prompt-evals", label: "Evals" },
       ],
     },
     { to: "/models", icon: Cpu, label: "Models" },
