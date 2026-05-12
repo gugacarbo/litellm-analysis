@@ -52,7 +52,9 @@ function resolveCategories(
   baseCategories: CategoryDefinition[],
   cases: CategoryEvalCase[],
 ): CategoryDefinition[] {
-  const byId = new Map(baseCategories.map((category) => [category.id, category]));
+  const byId = new Map(
+    baseCategories.map((category) => [category.id, category]),
+  );
   const ordered = [...baseCategories];
 
   const caseCategoryIds = new Set<string>();
@@ -137,7 +139,14 @@ export function createPromptEvalApplicationService(
     const categories = resolveCategories(opts.categories, cases);
 
     // Fire-and-forget the full pipeline
-    void executeRun(runId, model, threshold, categories, cases, controller.signal);
+    void executeRun(
+      runId,
+      model,
+      threshold,
+      categories,
+      cases,
+      controller.signal,
+    );
 
     return { id: runId };
   }
