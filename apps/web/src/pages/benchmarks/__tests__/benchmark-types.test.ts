@@ -1,3 +1,4 @@
+import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
 import { describe, expect, it } from "vitest";
 import type {
   AgenticScore,
@@ -7,7 +8,6 @@ import type {
   UseCaseScores,
   ValueScore,
 } from "../benchmark-types";
-import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
 
 describe("UseCase", () => {
   it("should accept all valid use case values", () => {

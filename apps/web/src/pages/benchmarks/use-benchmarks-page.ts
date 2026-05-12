@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { UseCase } from "./benchmark-types";
-import { useBenchmarksState } from "./use-benchmarks-state";
 import { useBenchmarksActions } from "./use-benchmarks-actions";
 import { useBenchmarksDerived } from "./use-benchmarks-derived";
+import { useBenchmarksState } from "./use-benchmarks-state";
 
 export interface UseBenchmarksPageResult
   extends ReturnType<typeof useBenchmarksState>,
@@ -21,11 +21,7 @@ export function useBenchmarksPage(): UseBenchmarksPageResult {
     setActiveUseCase,
   );
 
-  const derived = useBenchmarksDerived(
-    state.rows,
-    selectedIds,
-    activeUseCase,
-  );
+  const derived = useBenchmarksDerived(state.rows, selectedIds, activeUseCase);
 
   return {
     ...state,

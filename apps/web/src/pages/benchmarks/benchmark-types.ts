@@ -26,7 +26,12 @@ export interface BenchmarksDerivedState {
   configuredCount: number;
 }
 
-export type UseCase = "intelligence" | "coding" | "agentic" | "fastAndCheap" | "balanced";
+export type UseCase =
+  | "intelligence"
+  | "coding"
+  | "agentic"
+  | "fastAndCheap"
+  | "balanced";
 
 export type PercentileMap = Map<
   | "intelligenceIndex"
