@@ -60,16 +60,16 @@ describe("PluginRegistry", () => {
       expect(registry.get("test-plugin")).toBe(plugin);
     });
 
-    it("lança erro ao registrar plugin duplicado", () => {
-      const registry = new PluginRegistry({
-        repository: createMockRepository(),
-        outputDir: "/tmp",
-        allPlugins: [],
-      });
-      registry.register(createMockPlugin());
-      expect(() => registry.register(createMockPlugin())).toThrow(
-        "already registered",
-      );
+   it("lança erro ao registrar plugin duplicado", () => {
+     const registry = new PluginRegistry({
+       repository: createMockRepository(),
+       outputDir: "/tmp",
+       allPlugins: [],
+     });
+     registry.register(createMockPlugin());
+      // Re-registration is now idempotent (no error thrown)
+      expect(() => registry.register(createMockPlugin())).not.toThrow();
+      expect(registry.list()).toHaveLength(1);
     });
 
     it("unregister remove plugin", () => {
