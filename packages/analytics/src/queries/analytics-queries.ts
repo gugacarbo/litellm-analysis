@@ -1,49 +1,39 @@
-import { desc, sql } from "drizzle-orm";
-import { litellmDb, schema } from "./client";
-import {
-  combineConditions,
-  getFailedSpendLogsCondition,
-  getSpendLogsTimeCondition,
-  normalizeDays,
-} from "./helpers";
-
-const { spendLogs } = schema;
+import { prisma } from "./client";
+import { buildWhereClause, getTimeFilterWhere, normalizeDays } from "./helpers";
 
 export async function getMetricsSummary(days = 30) {
   const normalizedDays = normalizeDays(days, 30);
-  const spendLogsTimeCondition = getSpendLogsTimeCondition(normalizedDays);
+  const timeFilter = getTimeFilterWhere(normalizedDays);
+  const errorTimeFilter = timeFilter;
 
-  const [spendSummary, errorSummary] = await Promise.all([
-    litellmDb
-      .select({
-        totalSpend: sql<number>`COALESCE(SUM(${spendLogs.spend}), 0)`.mapWith(
-          Number,
-        ),
-        totalTokens:
-          sql<number>`COALESCE(SUM(${spendLogs.totalTokens}), 0)`.mapWith(
-            Number,
-          ),
-        activeModels: sql<number>`COUNT(DISTINCT ${spendLogs.model})`.mapWith(
-          Number,
-        ),
-      })
-      .from(spendLogs)
-      .where(spendLogsTimeCondition),
-    litellmDb
-      .select({
-        errorCount: sql<number>`COUNT(*)`.mapWith(Number),
-      })
-      .from(spendLogs)
-      .where(
-        combineConditions([
-          spendLogsTimeCondition,
-          getFailedSpendLogsCondition(),
-        ]),
-      ),
+  const [spendResult, errorResult] = await Promise.all([
+    prisma.$queryRawUnsafe<
+      Array<{
+        totalSpend: number;
+        totalTokens: number;
+        activeModels: number;
+      }>
+    >(`
+      SELECT
+        COALESCE(SUM("spend"), 0)::float as "totalSpend",
+        COALESCE(SUM("total_tokens"), 0)::int as "totalTokens",
+        COUNT(DISTINCT "model")::int as "activeModels"
+      FROM "LiteLLM_SpendLogs"
+      ${timeFilter ? `WHERE ${timeFilter}` : ""}
+    `),
+    prisma.$queryRawUnsafe<Array<{ errorCount: number }>>(`
+      SELECT COUNT(*)::int as "errorCount"
+      FROM "LiteLLM_SpendLogs"
+      ${
+        errorTimeFilter
+          ? `WHERE ${errorTimeFilter} AND LOWER(COALESCE("status", '')) != 'success'`
+          : `WHERE LOWER(COALESCE("status", '')) != 'success'`
+      }
+    `),
   ]);
 
-  const summary = spendSummary[0];
-  const errors = errorSummary[0];
+  const summary = spendResult[0];
+  const errors = errorResult[0];
 
   return {
     totalSpend: Number(summary?.totalSpend ?? 0),
@@ -55,42 +45,65 @@ export async function getMetricsSummary(days = 30) {
 
 export async function getPerformanceMetrics(days = 30) {
   const normalizedDays = normalizeDays(days, 30);
-  const whereClause = combineConditions([
-    getSpendLogsTimeCondition(normalizedDays),
-    sql`${spendLogs.endTime} IS NOT NULL`,
-    sql`EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.1`,
+  const where = buildWhereClause([
+    getTimeFilterWhere(normalizedDays),
+    `"endTime" IS NOT NULL`,
+    `EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.1`,
   ]);
 
-  const result = await litellmDb
-    .select({
-      total_requests: sql<number>`COUNT(*)`.mapWith(Number),
-      avg_duration_ms:
-        sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      success_rate: sql`SUM(CASE WHEN ${spendLogs.status} = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100`,
-    })
-    .from(spendLogs)
-    .where(whereClause);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      total_requests: number;
+      avg_duration_ms: number;
+      success_rate: number;
+    }>
+  >(`
+    SELECT
+      COUNT(*)::int as "total_requests",
+      AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_duration_ms",
+      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+  `);
+
   return (
-    result[0] || { total_requests: 0, avg_duration_ms: 0, success_rate: 0 }
+    result[0] || {
+      total_requests: 0,
+      avg_duration_ms: 0,
+      success_rate: 0,
+    }
   );
 }
 
 export async function getCostEfficiencyByModel(days = 30) {
-  const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
-  const result = await litellmDb
-    .select({
-      model: spendLogs.model,
-      total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
-      total_tokens: sql<number>`SUM(${spendLogs.totalTokens})`.mapWith(Number),
-      cost_per_1k_tokens: sql`CASE WHEN SUM(${spendLogs.totalTokens}) > 0 THEN SUM(${spendLogs.spend}) / SUM(${spendLogs.totalTokens}) * 1000 ELSE 0 END`,
-      request_count: sql<number>`COUNT(*)`.mapWith(Number),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(spendLogs.model)
-    .orderBy(desc(sql`SUM(${spendLogs.spend})`))
-    .limit(20);
+  const normalizedDays = normalizeDays(days, 30);
+  const where = buildWhereClause([getTimeFilterWhere(normalizedDays)]);
+
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      model: string;
+      total_spend: number;
+      total_tokens: number;
+      cost_per_1k_tokens: number;
+      request_count: number;
+    }>
+  >(`
+    SELECT
+      "model",
+      SUM("spend")::float as "total_spend",
+      SUM("total_tokens")::int as "total_tokens",
+      CASE
+        WHEN SUM("total_tokens") > 0
+        THEN SUM("spend") / SUM("total_tokens") * 1000
+        ELSE 0
+      END::float as "cost_per_1k_tokens",
+      COUNT(*)::int as "request_count"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY "model"
+    ORDER BY SUM("spend") DESC
+    LIMIT 20
+  `);
+
   return result;
 }

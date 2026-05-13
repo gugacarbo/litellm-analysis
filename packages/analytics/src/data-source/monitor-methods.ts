@@ -10,15 +10,19 @@ export async function getErrorsSinceImpl(
   since: Date,
   limit = 100,
 ): Promise<ErrorLogEntry[]> {
-  const result = await getErrorsSince(since, limit);
+  const result = (await getErrorsSince(since, limit)) as Array<
+    Record<string, unknown>
+  >;
   return result.map((item) => ({
-    id: item.id,
+    id: String(item.id ?? ""),
     error_type: String(item.error_type ?? ""),
     model: String(item.model ?? ""),
     user: String(item.user ?? ""),
     error_message: String(item.error_message ?? ""),
-    timestamp: item.timestamp ? new Date(item.timestamp).toISOString() : "",
-    status_code: item.status_code || 0,
+    timestamp: item.timestamp
+      ? new Date(item.timestamp as string | number | Date).toISOString()
+      : "",
+    status_code: Number(item.status_code || 0),
     litellm_model_name: item.litellm_model_name
       ? String(item.litellm_model_name)
       : null,
@@ -27,11 +31,15 @@ export async function getErrorsSinceImpl(
       : null,
     api_key: item.api_key ? String(item.api_key) : null,
     spend_status: item.spend_status ? String(item.spend_status) : null,
-    total_tokens: item.total_tokens ?? null,
-    prompt_tokens: item.prompt_tokens ?? null,
-    completion_tokens: item.completion_tokens ?? null,
-    spend: item.spend ?? null,
-    end_time: item.end_time ? new Date(item.end_time).toISOString() : null,
+    total_tokens: item.total_tokens != null ? Number(item.total_tokens) : null,
+    prompt_tokens:
+      item.prompt_tokens != null ? Number(item.prompt_tokens) : null,
+    completion_tokens:
+      item.completion_tokens != null ? Number(item.completion_tokens) : null,
+    spend: item.spend != null ? Number(item.spend) : null,
+    end_time: item.end_time
+      ? new Date(item.end_time as string | number | Date).toISOString()
+      : null,
   }));
 }
 
@@ -50,7 +58,11 @@ export async function getModelHealthSinceImpl(
   since: Date,
   baselineHours: number,
 ): Promise<ModelHealth> {
-  const rows = await getModelHealthSince({ model, since, baselineHours });
+  const rows = (await getModelHealthSince({
+    model,
+    since,
+    baselineHours,
+  })) as Array<Record<string, unknown>>;
   const row = rows[0];
   if (!row) {
     return {
@@ -67,14 +79,16 @@ export async function getModelHealthSinceImpl(
     total_requests: Number(row.total_requests),
     success_count: Number(row.success_count),
     error_count: Number(row.error_count),
-    avg_latency_ms: row.avg_latency_ms,
+    avg_latency_ms:
+      row.avg_latency_ms != null ? Number(row.avg_latency_ms) : null,
     last_success_at: row.last_success_at
-      ? new Date(row.last_success_at).toISOString()
+      ? new Date(row.last_success_at as string).toISOString()
       : null,
     last_error_at: row.last_error_at
-      ? new Date(row.last_error_at).toISOString()
+      ? new Date(row.last_error_at as string).toISOString()
       : null,
-    p95_latency_ms: row.p95_latency_ms,
+    p95_latency_ms:
+      row.p95_latency_ms != null ? Number(row.p95_latency_ms) : null,
   };
 }
 
@@ -83,11 +97,15 @@ export async function getStuckRequestsImpl(
 ): Promise<
   { request_id: string; model: string | null; startTime: string | null }[]
 > {
-  const result = await getStuckRequests(since);
+  const result = (await getStuckRequests(since)) as Array<
+    Record<string, unknown>
+  >;
   return result.map((item) => ({
     request_id: String(item.request_id),
-    model: item.model,
-    startTime: item.startTime ? new Date(item.startTime).toISOString() : null,
+    model: item.model as string | null,
+    startTime: item.startTime
+      ? new Date(item.startTime as string | number | Date).toISOString()
+      : null,
   }));
 }
 

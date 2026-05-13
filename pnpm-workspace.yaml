@@ -9,8 +9,6 @@ catalog:
   typescript: ^6.0.3
   vitest: ^4.1.5
   drizzle-orm: ^0.38.0
-  pg: ^8.13.0
-  "@types/pg": ^8.11.0
   dotenv: ^17.4.2
   express: ^4.21.0
   "@types/express": ^5.0.0

@@ -73,22 +73,26 @@ export async function getSpendLogsImpl(
     getSpendLogsCountFn(filters),
   ]);
 
-  const logs = result.map((item) => ({
-    request_id: item.request_id,
-    model: item.model,
-    user: item.user,
-    total_tokens: item.total_tokens,
-    prompt_tokens: item.prompt_tokens,
-    completion_tokens: item.completion_tokens,
+  const logs = (result as Array<Record<string, unknown>>).map((item) => ({
+    request_id: String(item.request_id ?? ""),
+    model: String(item.model ?? ""),
+    user: item.user as string | null,
+    total_tokens: item.total_tokens as number | null,
+    prompt_tokens: item.prompt_tokens as number | null,
+    completion_tokens: item.completion_tokens as number | null,
     spend: Number(item.spend),
     time_to_first_token_ms: toNullableNumber(item.time_to_first_token_ms),
-    start_time: item.startTime ? new Date(item.startTime).toISOString() : "",
-    end_time: item.endTime ? new Date(item.endTime).toISOString() : null,
-    api_key: item.api_key,
-    status: item.status,
-    call_type: item.call_type ?? null,
-    api_base: item.api_base ?? null,
-    cache_hit: item.cache_hit ?? null,
+    start_time: item.startTime
+      ? new Date(item.startTime as string | number | Date).toISOString()
+      : "",
+    end_time: item.endTime
+      ? new Date(item.endTime as string | number | Date).toISOString()
+      : null,
+    api_key: item.api_key as string | null,
+    status: item.status as string,
+    call_type: (item.call_type ?? null) as string | null,
+    api_base: (item.api_base ?? null) as string | null,
+    cache_hit: (item.cache_hit ?? null) as string | null,
     metadata: (item.metadata ?? null) as Record<string, unknown> | null,
     proxy_server_request: (item.proxy_server_request ?? null) as Record<
       string,
@@ -96,8 +100,8 @@ export async function getSpendLogsImpl(
     > | null,
     response: (item.response ?? null) as Record<string, unknown> | null,
     request_tags: (item.request_tags ?? null) as string[] | null,
-    model_group: item.model_group ?? null,
-    custom_llm_provider: item.custom_llm_provider ?? null,
+    model_group: (item.model_group ?? null) as string | null,
+    custom_llm_provider: (item.custom_llm_provider ?? null) as string | null,
     messages: (item.messages ?? null) as Array<{
       role: string;
       content: string;
@@ -118,34 +122,43 @@ export async function getSpendLogsImpl(
 export async function getSpendLogDetailImpl(
   requestId: string,
 ): Promise<SpendLogEntry> {
-  const item = await getSpendLogById(requestId);
-  if (!item) {
+  const rawItem = (await getSpendLogById(requestId)) as
+    | Record<string, unknown>
+    | undefined;
+  if (!rawItem) {
     throw new Error(`Spend log not found: ${requestId}`);
   }
+  const item = rawItem;
   return {
-    request_id: item.request_id,
-    model: item.model,
-    call_type: item.call_type ?? null,
-    api_base: item.api_base ?? null,
-    user: item.user ?? null,
-    team_id: item.team_id ?? null,
-    end_user: item.end_user ?? null,
-    organization_id: item.organization_id ?? null,
-    total_tokens: item.total_tokens ?? null,
-    prompt_tokens: item.prompt_tokens ?? null,
-    completion_tokens: item.completion_tokens ?? null,
+    request_id: String(item.request_id ?? ""),
+    model: String(item.model ?? ""),
+    call_type: (item.call_type ?? null) as string | null,
+    api_base: (item.api_base ?? null) as string | null,
+    user: (item.user ?? null) as string | null,
+    team_id: (item.team_id ?? null) as string | null,
+    end_user: (item.end_user ?? null) as string | null,
+    organization_id: (item.organization_id ?? null) as string | null,
+    total_tokens: (item.total_tokens ?? null) as number | null,
+    prompt_tokens: (item.prompt_tokens ?? null) as number | null,
+    completion_tokens: (item.completion_tokens ?? null) as number | null,
     spend: Number(item.spend),
     time_to_first_token_ms: toNullableNumber(item.time_to_first_token_ms),
-    start_time: item.start_time ? new Date(item.start_time).toISOString() : "",
-    end_time: item.end_time ? new Date(item.end_time).toISOString() : null,
-    completion_start_time: item.completion_start_time
-      ? new Date(item.completion_start_time).toISOString()
+    start_time: item.start_time
+      ? new Date(item.start_time as string | number | Date).toISOString()
+      : "",
+    end_time: item.end_time
+      ? new Date(item.end_time as string | number | Date).toISOString()
       : null,
-    request_duration_ms: item.request_duration_ms ?? null,
-    api_key: item.api_key ?? null,
-    status: item.status,
-    cache_hit: item.cache_hit ?? null,
-    cache_key: item.cache_key ?? null,
+    completion_start_time: item.completion_start_time
+      ? new Date(
+          item.completion_start_time as string | number | Date,
+        ).toISOString()
+      : null,
+    request_duration_ms: (item.request_duration_ms ?? null) as number | null,
+    api_key: (item.api_key ?? null) as string | null,
+    status: item.status as string,
+    cache_hit: (item.cache_hit ?? null) as string | null,
+    cache_key: (item.cache_key ?? null) as string | null,
     metadata: (item.metadata ?? null) as Record<string, unknown> | null,
     proxy_server_request: (item.proxy_server_request ?? null) as Record<
       string,
@@ -153,13 +166,15 @@ export async function getSpendLogDetailImpl(
     > | null,
     response: (item.response ?? null) as Record<string, unknown> | null,
     request_tags: (item.request_tags ?? null) as string[] | null,
-    requester_ip_address: item.requester_ip_address ?? null,
-    session_id: item.session_id ?? null,
-    agent_id: item.agent_id ?? null,
-    model_id: item.model_id ?? null,
-    model_group: item.model_group ?? null,
-    custom_llm_provider: item.custom_llm_provider ?? null,
-    mcp_namespaced_tool_name: item.mcp_namespaced_tool_name ?? null,
+    requester_ip_address: (item.requester_ip_address ?? null) as string | null,
+    session_id: (item.session_id ?? null) as string | null,
+    agent_id: (item.agent_id ?? null) as string | null,
+    model_id: (item.model_id ?? null) as string | null,
+    model_group: (item.model_group ?? null) as string | null,
+    custom_llm_provider: (item.custom_llm_provider ?? null) as string | null,
+    mcp_namespaced_tool_name: (item.mcp_namespaced_tool_name ?? null) as
+      | string
+      | null,
     messages: (item.messages ?? null) as Array<{
       role: string;
       content: string;

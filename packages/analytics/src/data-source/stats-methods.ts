@@ -68,9 +68,11 @@ export async function getDailyTokenTrendImpl(
 export async function getModelStatisticsImpl(
   days = 30,
 ): Promise<ModelStatistics[]> {
-  const result = await getModelStatistics(days);
+  const result = (await getModelStatistics(days)) as Array<
+    Record<string, unknown>
+  >;
   return result.map((item) => ({
-    model: item.model,
+    model: String(item.model ?? ""),
     request_count: Number(item.request_count),
     total_spend: Number(item.total_spend),
     total_tokens: Number(item.total_tokens),

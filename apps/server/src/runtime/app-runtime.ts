@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAgentsManager } from "@lite-llm/agents-manager";
-import { closePool } from "@lite-llm/analytics/queries";
+import { prisma } from "@lite-llm/analytics/queries/client";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
 import { AliasDbWriterImpl } from "@lite-llm/server-core/orchestration/alias-db-writer.js";
 import { createAppContext } from "../contexts";
@@ -123,7 +123,7 @@ export function startAppRuntime(): AppRuntime {
     healthCheckRuntime.stop();
     monitorRuntime.stop();
     httpServer.close(async () => {
-      await closePool();
+      await prisma.$disconnect();
       process.exit(0);
     });
   };

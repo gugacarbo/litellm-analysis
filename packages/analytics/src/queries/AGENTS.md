@@ -1,18 +1,17 @@
 ---
-description: Drizzle ORM queries for LiteLLM Analytics
+description: Raw SQL queries (via Prisma) for LiteLLM Analytics
 ---
 
 # packages/analytics/src/queries/
 
-Drizzle ORM queries backed by `litellmDb` connection. Pure I/O — no business logic transformation.
+Raw SQL queries backed by `prisma.$queryRawUnsafe`. Pure I/O — no business logic transformation.
 
 ## FILES (14)
 
 | File | Purpose |
 |------|---------|
-| `schema.ts` | Re-exports from `@lite-llm/litellm-repository/schema` |
-| `client.ts` | `litellmDb` connection + schema exports |
-| `helpers.ts` | Time condition builders (`normalizeDays`, `getSpendLogsTimeCondition`) |
+| `client.ts` | `prisma` client connection (re-exports from `@lite-llm/litellm-repository`) |
+| `helpers.ts` | Time condition builders (`normalizeDays`, `getTimeFilterWhere`, `buildWhereClause`) |
 | `analytics-queries.ts` | Cost efficiency, performance metrics, summary stats |
 | `credential-settings-queries.ts` | Default credential get/set |
 | `distribution-queries.ts` | Token/request distributions, API key stats |
@@ -28,32 +27,33 @@ Drizzle ORM queries backed by `litellmDb` connection. Pure I/O — no business l
 
 ### Time Conditions
 ```typescript
-const whereClause = getSpendLogsTimeCondition(normalizeDays(days, 30));
+const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
 ```
 `normalizeDays()` handles string/number, NaN, negative → fallback defaults.
 
 ### SQL Aggregations
-```typescript
-sql<number>`SUM(${spendLogs.spend})`.mapWith(Number)
+```sql
+SELECT SUM("spend")::float as "total_spend", COUNT(*)::int as "request_count"
+FROM "LiteLLM_SpendLogs"
 ```
-Always wrap aggregations with `.mapWith(Number)` for safe serialization.
+Use `::int` and `::float` casts in SQL for type-safe numerics.
 
 ### Column Mapping
-Query returns snake_case DB columns. Transformation happens in `*-methods.ts` files.
+Query returns DB columns directly. Column aliases (`as "camelCaseName"`) handle mapping.
 
 ### Conditions
 ```typescript
-combineConditions([getSpendLogsTimeCondition(days), sql`...`])
+buildWhereClause([timeCondition, modelCondition])
 ```
-`combineConditions()` filters undefined, returns single condition or `and(...)`.
+`buildWhereClause()` constructs `WHERE ...` from string conditions, returns empty string if none.
 
 ## SCHEMA TABLES
 
-Accessed via `schema.spendLogs`, `schema.errorLogs`, `schema.proxyModelTable`, etc.
-Schema defined in `@lite-llm/litellm-repository/schema` — re-exported here.
+Tables are accessed via raw SQL against `LiteLLM_SpendLogs`, `LiteLLM_ErrorLogs`, etc.
+Schema managed by Prisma via `repositories/litellm-repository/prisma/schema.prisma`.
 
 ## ANTI-PATTERNS
 
 - Don't transform data in queries — keep pure SQL
-- Don't use raw SQL strings — use Drizzle query builder
-- Don't forget `.mapWith(Number)` for aggregations
+- Don't use Drizzle query builder — this package uses raw SQL only
+- Don't forget `::int` / `::float` casts for numeric types

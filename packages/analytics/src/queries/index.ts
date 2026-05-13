@@ -3,7 +3,6 @@ export {
   getMetricsSummary,
   getPerformanceMetrics,
 } from "./analytics-queries";
-export { closePool, ensureConnected } from "./client";
 export {
   getDefaultCredential,
   setDefaultCredential,

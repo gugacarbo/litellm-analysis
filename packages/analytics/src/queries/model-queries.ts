@@ -1,100 +1,80 @@
 import { randomUUID } from "node:crypto";
-import { asc, desc, eq, type SQL, sql } from "drizzle-orm";
-import { litellmDb, schema } from "./client";
+import { prisma } from "./client";
 import {
-  combineConditions,
-  getSpendLogsTimeCondition,
+  combineSqlConditions,
+  getTimeFilterWhere,
   normalizeDays,
 } from "./helpers";
 
-const { spendLogs, proxyModelTable } = schema;
-
 export async function getModelDetails() {
-  const result = await litellmDb
-    .select({
-      model_name: proxyModelTable.modelName,
-      input_cost_per_token: sql`${proxyModelTable.litellmParams}->>'input_cost_per_token'`,
-      output_cost_per_token: sql`${proxyModelTable.litellmParams}->>'output_cost_per_token'`,
-    })
-    .from(proxyModelTable);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      model_name: string;
+      input_cost_per_token: string | null;
+      output_cost_per_token: string | null;
+    }>
+  >(`
+    SELECT
+      "model_name",
+      "litellm_params"->>'input_cost_per_token' as "input_cost_per_token",
+      "litellm_params"->>'output_cost_per_token' as "output_cost_per_token"
+    FROM "LiteLLM_ProxyModelTable"
+  `);
   return result;
 }
 
 export async function getModelStatistics(days = 30) {
   const normalizedDays = normalizeDays(days, 30);
-  const whereClause = combineConditions([
-    getSpendLogsTimeCondition(normalizedDays),
-    sql`${spendLogs.endTime} IS NOT NULL`,
-    sql`EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.1`,
-  ]);
+  const where = `WHERE ${combineSqlConditions([
+    getTimeFilterWhere(normalizedDays),
+    `"endTime" IS NOT NULL`,
+    `EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.1`,
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      model: spendLogs.model,
-      request_count: sql<number>`COUNT(*)`.mapWith(Number),
-      total_spend: sql<number>`SUM(${spendLogs.spend})`.mapWith(Number),
-      total_tokens: sql<number>`SUM(${spendLogs.totalTokens})`.mapWith(Number),
-      prompt_tokens: sql<number>`SUM(${spendLogs.promptTokens})`.mapWith(
-        Number,
-      ),
-      completion_tokens:
-        sql<number>`SUM(${spendLogs.completionTokens})`.mapWith(Number),
-      avg_tokens_per_request: sql`AVG(${spendLogs.totalTokens})`.mapWith(
-        Number,
-      ),
-      avg_latency_ms:
-        sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      success_rate: sql`SUM(CASE WHEN ${spendLogs.status} = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100`,
-      error_count: sql`SUM(CASE WHEN ${spendLogs.status} != 'success' THEN 1 ELSE 0 END)`,
-      avg_input_cost: sql`AVG(CASE WHEN ${spendLogs.promptTokens} > 0 THEN ${spendLogs.spend} * ${spendLogs.promptTokens}::float / NULLIF(${spendLogs.totalTokens}, 0) ELSE 0 END)`,
-      avg_output_cost: sql`AVG(CASE WHEN ${spendLogs.completionTokens} > 0 THEN ${spendLogs.spend} * ${spendLogs.completionTokens}::float / NULLIF(${spendLogs.totalTokens}, 0) ELSE 0 END)`,
-      p50_latency_ms:
-        sql`PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      p95_latency_ms:
-        sql`PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      p99_latency_ms:
-        sql`PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      first_seen: sql`MIN(${spendLogs.startTime})`,
-      last_seen: sql`MAX(${spendLogs.startTime})`,
-      unique_users: sql`COUNT(DISTINCT ${spendLogs.user})`.mapWith(Number),
-      unique_api_keys: sql`COUNT(DISTINCT ${spendLogs.apiKey})`.mapWith(Number),
-      avg_tokens_per_second:
-        sql`AVG(CASE WHEN EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.5 THEN ${spendLogs.completionTokens}::float / EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) ELSE NULL END)`.mapWith(
-          Number,
-        ),
-      p50_tokens_per_second:
-        sql`PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.5 THEN ${spendLogs.completionTokens}::float / EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) ELSE NULL END)`.mapWith(
-          Number,
-        ),
-      max_tokens_per_second:
-        sql`MAX(CASE WHEN EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0.5 THEN ${spendLogs.completionTokens}::float / EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) ELSE NULL END)`.mapWith(
-          Number,
-        ),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(spendLogs.model)
-    .orderBy(desc(sql`SUM(${spendLogs.spend})`))
-    .limit(50);
+  const result = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(`
+    SELECT
+      "model",
+      COUNT(*)::int as "request_count",
+      SUM("spend")::float as "total_spend",
+      SUM("total_tokens")::int as "total_tokens",
+      SUM("prompt_tokens")::int as "prompt_tokens",
+      SUM("completion_tokens")::int as "completion_tokens",
+      AVG("total_tokens")::float as "avg_tokens_per_request",
+      AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_latency_ms",
+      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
+      SUM(CASE WHEN "status" != 'success' THEN 1 ELSE 0 END)::int as "error_count",
+      AVG(CASE WHEN "prompt_tokens" > 0 THEN "spend" * "prompt_tokens"::float / NULLIF("total_tokens", 0) ELSE 0 END)::float as "avg_input_cost",
+      AVG(CASE WHEN "completion_tokens" > 0 THEN "spend" * "completion_tokens"::float / NULLIF("total_tokens", 0) ELSE 0 END)::float as "avg_output_cost",
+      PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p50_latency_ms",
+      PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p95_latency_ms",
+      PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p99_latency_ms",
+      MIN("startTime") as "first_seen",
+      MAX("startTime") as "last_seen",
+      COUNT(DISTINCT "user")::int as "unique_users",
+      COUNT(DISTINCT "api_key")::int as "unique_api_keys",
+      AVG(CASE WHEN EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.5 THEN "completion_tokens"::float / EXTRACT(EPOCH FROM ("endTime" - "startTime")) ELSE NULL END)::float as "avg_tokens_per_second",
+      PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.5 THEN "completion_tokens"::float / EXTRACT(EPOCH FROM ("endTime" - "startTime")) ELSE NULL END)::float as "p50_tokens_per_second",
+      MAX(CASE WHEN EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.5 THEN "completion_tokens"::float / EXTRACT(EPOCH FROM ("endTime" - "startTime")) ELSE NULL END)::float as "max_tokens_per_second"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY "model"
+    ORDER BY SUM("spend") DESC
+    LIMIT 50
+  `);
   return result;
 }
 
 export async function getAllModels() {
-  const result = await litellmDb
-    .select({
-      modelName: proxyModelTable.modelName,
-      litellmParams: proxyModelTable.litellmParams,
-    })
-    .from(proxyModelTable)
-    .orderBy(asc(proxyModelTable.modelName));
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      modelName: string;
+      litellmParams: unknown;
+    }>
+  >(`
+    SELECT "model_name" as "modelName", "litellm_params" as "litellmParams"
+    FROM "LiteLLM_ProxyModelTable"
+    ORDER BY "model_name" ASC
+  `);
   return result;
 }
 
@@ -104,24 +84,21 @@ export async function createModel(model: {
 }) {
   const modelId = randomUUID();
   const actor = "lite-llm-analytics";
-  const modelInfo = { id: modelId, db_model: true };
+  const modelInfo = JSON.stringify({ id: modelId, db_model: true });
+  const litellmParamsJson = JSON.stringify(model.litellmParams);
 
-  await litellmDb.execute(sql`
+  await prisma.$executeRawUnsafe(`
     INSERT INTO "LiteLLM_ProxyModelTable" (
-      model_id,
-      model_name,
-      litellm_params,
-      model_info,
-      created_by,
-      updated_by
+      model_id, model_name, litellm_params, model_info,
+      created_by, updated_by
     )
     VALUES (
-      ${modelId},
-      ${model.modelName},
-      ${JSON.stringify(model.litellmParams)}::jsonb,
-      ${JSON.stringify(modelInfo)}::jsonb,
-      ${actor},
-      ${actor}
+      '${modelId}',
+      '${model.modelName}',
+      '${litellmParamsJson}'::jsonb,
+      '${modelInfo}'::jsonb,
+      '${actor}',
+      '${actor}'
     )
   `);
 }
@@ -133,110 +110,136 @@ export async function updateModel(
     modelName?: string;
   },
 ) {
-  await litellmDb
-    .update(proxyModelTable)
-    .set(updates)
-    .where(eq(proxyModelTable.modelName, modelName));
+  const setClauses: string[] = [];
+  if (updates.litellmParams !== undefined) {
+    setClauses.push(
+      `"litellm_params" = '${JSON.stringify(updates.litellmParams)}'::jsonb`,
+    );
+  }
+  if (updates.modelName !== undefined) {
+    setClauses.push(`"model_name" = '${updates.modelName}'`);
+  }
+
+  if (setClauses.length === 0) return;
+
+  await prisma.$executeRawUnsafe(`
+    UPDATE "LiteLLM_ProxyModelTable"
+    SET ${setClauses.join(", ")}
+    WHERE "model_name" = '${modelName}'
+  `);
 }
 
 export async function deleteModel(modelName: string) {
-  await litellmDb.transaction(async (tx) => {
-    await tx
-      .delete(proxyModelTable)
-      .where(eq(proxyModelTable.modelName, modelName));
-  });
+  await prisma.$executeRawUnsafe(`
+    DELETE FROM "LiteLLM_ProxyModelTable"
+    WHERE "model_name" = '${modelName}'
+  `);
 }
 
 export async function mergeModels(sourceModel: string, targetModel: string) {
-  await litellmDb.transaction(async (tx) => {
-    await tx
-      .update(spendLogs)
-      .set({ model: targetModel })
-      .where(eq(spendLogs.model, sourceModel));
-  });
+  await prisma.$executeRawUnsafe(`
+    UPDATE "LiteLLM_SpendLogs"
+    SET "model" = '${targetModel}'
+    WHERE "model" = '${sourceModel}'
+  `);
 }
 
 export async function deleteModelLogs(modelName: string) {
-  await litellmDb.transaction(async (tx) => {
-    if (modelName.trim() === "") {
-      await tx
-        .delete(spendLogs)
-        .where(sql`NULLIF(BTRIM(${spendLogs.model}), '') IS NULL`);
-      return;
-    }
+  if (modelName.trim() === "") {
+    await prisma.$executeRawUnsafe(`
+      DELETE FROM "LiteLLM_SpendLogs"
+      WHERE NULLIF(BTRIM("model"), '') IS NULL
+    `);
+    return;
+  }
 
-    await tx.delete(spendLogs).where(eq(spendLogs.model, modelName));
-  });
+  await prisma.$executeRawUnsafe(`
+    DELETE FROM "LiteLLM_SpendLogs"
+    WHERE "model" = '${modelName}'
+  `);
 }
 
 export async function getDailySpendTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      date: sql`DATE(${spendLogs.startTime})`,
-      spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
-      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
-      request_count: sql`COUNT(*)`.mapWith(Number),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(sql`DATE(${spendLogs.startTime})`)
-    .orderBy(sql`DATE(${spendLogs.startTime})`);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      date: string;
+      spend: number;
+      total_tokens: number;
+      request_count: number;
+    }>
+  >(`
+    SELECT
+      DATE("startTime")::text as "date",
+      SUM("spend")::float as "spend",
+      SUM("total_tokens")::int as "total_tokens",
+      COUNT(*)::int as "request_count"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY DATE("startTime")
+    ORDER BY DATE("startTime")
+  `);
   return result;
 }
 
 export async function getDailyTokenTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      date: sql`DATE(${spendLogs.startTime})`,
-      prompt_tokens: sql`SUM(${spendLogs.promptTokens})`.mapWith(Number),
-      completion_tokens: sql`SUM(${spendLogs.completionTokens})`.mapWith(
-        Number,
-      ),
-      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(sql`DATE(${spendLogs.startTime})`)
-    .orderBy(sql`DATE(${spendLogs.startTime})`);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      date: string;
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+    }>
+  >(`
+    SELECT
+      DATE("startTime")::text as "date",
+      SUM("prompt_tokens")::int as "prompt_tokens",
+      SUM("completion_tokens")::int as "completion_tokens",
+      SUM("total_tokens")::int as "total_tokens"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY DATE("startTime")
+    ORDER BY DATE("startTime")
+  `);
   return result;
 }
 
 export async function getHourlyUsageByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 7);
-  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      hour: sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`.mapWith(Number),
-      request_count: sql`COUNT(*)`.mapWith(Number),
-      total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
-      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`)
-    .orderBy(sql`EXTRACT(HOUR FROM ${spendLogs.startTime})`);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      hour: number;
+      request_count: number;
+      total_spend: number;
+      total_tokens: number;
+    }>
+  >(`
+    SELECT
+      EXTRACT(HOUR FROM "startTime")::int as "hour",
+      COUNT(*)::int as "request_count",
+      SUM("spend")::float as "total_spend",
+      SUM("total_tokens")::int as "total_tokens"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY EXTRACT(HOUR FROM "startTime")
+    ORDER BY EXTRACT(HOUR FROM "startTime")
+  `);
   return result;
 }
 
@@ -245,143 +248,143 @@ export async function getDailyLatencyTrendByModel(
   days?: number,
 ) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [
-    eq(spendLogs.model, model),
-    sql`${spendLogs.endTime} IS NOT NULL`,
-    sql`EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) >= 0`,
-  ];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    `"endTime" IS NOT NULL`,
+    `EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      date: sql`DATE(${spendLogs.startTime})`,
-      avg_latency_ms:
-        sql`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      p50_latency_ms:
-        sql`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      p95_latency_ms:
-        sql`PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      p99_latency_ms:
-        sql`PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(sql`DATE(${spendLogs.startTime})`)
-    .orderBy(sql`DATE(${spendLogs.startTime})`);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      date: string;
+      avg_latency_ms: number;
+      p50_latency_ms: number;
+      p95_latency_ms: number;
+      p99_latency_ms: number;
+    }>
+  >(`
+    SELECT
+      DATE("startTime")::text as "date",
+      AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_latency_ms",
+      PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p50_latency_ms",
+      PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p95_latency_ms",
+      PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p99_latency_ms"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY DATE("startTime")
+    ORDER BY DATE("startTime")
+  `);
   return result;
 }
 
 export async function getErrorBreakdownByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [
-    eq(spendLogs.model, model),
-    sql`LOWER(COALESCE(${spendLogs.status}, '')) != 'success'`,
-  ];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    `LOWER(COALESCE("status", '')) != 'success'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      error_type: sql<string>`COALESCE(${spendLogs.status}, 'error')`,
-      count: sql`COUNT(*)`.mapWith(Number),
-      last_occurred: sql`MAX(${spendLogs.startTime})`,
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(sql`COALESCE(${spendLogs.status}, 'error')`)
-    .orderBy(desc(sql`COUNT(*)`))
-    .limit(10);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      error_type: string;
+      count: number;
+      last_occurred: Date;
+    }>
+  >(`
+    SELECT
+      COALESCE("status", 'error') as "error_type",
+      COUNT(*)::int as "count",
+      MAX("startTime") as "last_occurred"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY COALESCE("status", 'error')
+    ORDER BY COUNT(*) DESC
+    LIMIT 10
+  `);
   return result;
 }
 
 export async function getDailyErrorTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [
-    eq(spendLogs.model, model),
-    sql`LOWER(COALESCE(${spendLogs.status}, '')) != 'success'`,
-  ];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    `LOWER(COALESCE("status", '')) != 'success'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      date: sql`DATE(${spendLogs.startTime})`,
-      error_count: sql`COUNT(*)`.mapWith(Number),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(sql`DATE(${spendLogs.startTime})`)
-    .orderBy(sql`DATE(${spendLogs.startTime})`);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{ date: string; error_count: number }>
+  >(`
+    SELECT
+      DATE("startTime")::text as "date",
+      COUNT(*)::int as "error_count"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY DATE("startTime")
+    ORDER BY DATE("startTime")
+  `);
   return result;
 }
 
 export async function getTopUsersByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      user: spendLogs.user,
-      total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
-      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
-      request_count: sql`COUNT(*)`.mapWith(Number),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(spendLogs.user)
-    .orderBy(desc(sql`SUM(${spendLogs.spend})`))
-    .limit(20);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      user: string;
+      total_spend: number;
+      total_tokens: number;
+      request_count: number;
+    }>
+  >(`
+    SELECT
+      "user",
+      SUM("spend")::float as "total_spend",
+      SUM("total_tokens")::int as "total_tokens",
+      COUNT(*)::int as "request_count"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY "user"
+    ORDER BY SUM("spend") DESC
+    LIMIT 20
+  `);
   return result;
 }
 
 export async function getTopApiKeysByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      api_key: spendLogs.apiKey,
-      total_spend: sql`SUM(${spendLogs.spend})`.mapWith(Number),
-      total_tokens: sql`SUM(${spendLogs.totalTokens})`.mapWith(Number),
-      request_count: sql`COUNT(*)`.mapWith(Number),
-      success_rate:
-        sql`SUM(CASE WHEN ${spendLogs.status} = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100`.mapWith(
-          Number,
-        ),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(spendLogs.apiKey)
-    .orderBy(desc(sql`SUM(${spendLogs.spend})`))
-    .limit(20);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      api_key: string;
+      total_spend: number;
+      total_tokens: number;
+      request_count: number;
+      success_rate: number;
+    }>
+  >(`
+    SELECT
+      "api_key",
+      SUM("spend")::float as "total_spend",
+      SUM("total_tokens")::int as "total_tokens",
+      COUNT(*)::int as "request_count",
+      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY "api_key"
+    ORDER BY SUM("spend") DESC
+    LIMIT 20
+  `);
   return result;
 }
 
@@ -390,25 +393,29 @@ export async function getModelCacheHitRateByModel(
   days?: number,
 ) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      cache_hits: sql<number>`COUNT(*) FILTER (WHERE ${
-        spendLogs.cacheHit
-      } = 'true')`.mapWith(Number),
-      total_requests: sql<number>`COUNT(*)`.mapWith(Number),
-      cache_hit_rate: sql<number>`ROUND(COUNT(*) FILTER (WHERE ${
-        spendLogs.cacheHit
-      } = 'true') * 100.0 / NULLIF(COUNT(*), 0), 2)`.mapWith(Number),
-    })
-    .from(spendLogs)
-    .where(whereClause);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      cache_hits: number;
+      total_requests: number;
+      cache_hit_rate: number;
+    }>
+  >(`
+    SELECT
+      COUNT(*) FILTER (WHERE "cache_hit" = 'true')::int as "cache_hits",
+      COUNT(*)::int as "total_requests",
+      ROUND(
+        COUNT(*) FILTER (WHERE "cache_hit" = 'true') * 100.0
+        / NULLIF(COUNT(*), 0),
+        2
+      )::float as "cache_hit_rate"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+  `);
 
   return result[0] || { cache_hits: 0, total_requests: 0, cache_hit_rate: 0 };
 }
@@ -418,45 +425,32 @@ export async function getModelTTFTPercentilesByModel(
   days?: number,
 ) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [
-    eq(spendLogs.model, model),
-    sql`${spendLogs.completionStartTime} IS NOT NULL`,
-  ];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    `"completionStartTime" IS NOT NULL`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      avg_ttft_ms:
-        sql<number>`AVG(EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      p50_ttft_ms:
-        sql<number>`PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      p95_ttft_ms:
-        sql<number>`PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      p99_ttft_ms:
-        sql<number>`PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      min_ttft_ms:
-        sql<number>`MIN(EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-      max_ttft_ms:
-        sql<number>`MAX(EXTRACT(EPOCH FROM (${spendLogs.completionStartTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-    })
-    .from(spendLogs)
-    .where(whereClause);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      avg_ttft_ms: number;
+      p50_ttft_ms: number;
+      p95_ttft_ms: number;
+      p99_ttft_ms: number;
+      min_ttft_ms: number;
+      max_ttft_ms: number;
+    }>
+  >(`
+    SELECT
+      AVG(EXTRACT(EPOCH FROM ("completionStartTime" - "startTime")) * 1000)::float as "avg_ttft_ms",
+      PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("completionStartTime" - "startTime")) * 1000)::float as "p50_ttft_ms",
+      PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("completionStartTime" - "startTime")) * 1000)::float as "p95_ttft_ms",
+      PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("completionStartTime" - "startTime")) * 1000)::float as "p99_ttft_ms",
+      MIN(EXTRACT(EPOCH FROM ("completionStartTime" - "startTime")) * 1000)::float as "min_ttft_ms",
+      MAX(EXTRACT(EPOCH FROM ("completionStartTime" - "startTime")) * 1000)::float as "max_ttft_ms"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+  `);
 
   return (
     result[0] || {
@@ -475,27 +469,31 @@ export async function getModelStatusDistributionByModel(
   days?: number,
 ) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [eq(spendLogs.model, model)];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      status: sql<string>`COALESCE(${spendLogs.status}, 'pending')`,
-      count: sql<number>`COUNT(*)`.mapWith(Number),
-      percentage:
-        sql<number>`ROUND(COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER (), 0), 2)`.mapWith(
-          Number,
-        ),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(sql`COALESCE(${spendLogs.status}, 'pending')`)
-    .orderBy(desc(sql`COUNT(*)`))
-    .limit(20);
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      status: string;
+      count: number;
+      percentage: number;
+    }>
+  >(`
+    SELECT
+      COALESCE("status", 'pending') as "status",
+      COUNT(*)::int as "count",
+      ROUND(
+        COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER (), 0),
+        2
+      )::float as "percentage"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY COALESCE("status", 'pending')
+    ORDER BY COUNT(*) DESC
+    LIMIT 20
+  `);
 
   return result;
 }
@@ -505,30 +503,30 @@ export async function getModelProviderBreakdownByModel(
   days?: number,
 ) {
   const normalizedDays = normalizeDays(days, 30);
-  const conditions: Array<SQL | undefined> = [
-    eq(spendLogs.model, model),
-    sql`${spendLogs.endTime} IS NOT NULL`,
-  ];
-  const timeCondition = getSpendLogsTimeCondition(normalizedDays);
-  if (timeCondition) {
-    conditions.push(timeCondition);
-  }
-  const whereClause = combineConditions(conditions);
+  const where = `WHERE ${combineSqlConditions([
+    `"model" = '${model}'`,
+    `"endTime" IS NOT NULL`,
+    getTimeFilterWhere(normalizedDays),
+  ])}`;
 
-  const result = await litellmDb
-    .select({
-      provider: sql<string>`COALESCE(${spendLogs.customLlmProvider}, 'unknown')`,
-      request_count: sql<number>`COUNT(*)`.mapWith(Number),
-      total_spend: sql<number>`SUM(${spendLogs.spend})`.mapWith(Number),
-      avg_latency_ms:
-        sql<number>`AVG(EXTRACT(EPOCH FROM (${spendLogs.endTime} - ${spendLogs.startTime})) * 1000)`.mapWith(
-          Number,
-        ),
-    })
-    .from(spendLogs)
-    .where(whereClause)
-    .groupBy(sql`COALESCE(${spendLogs.customLlmProvider}, 'unknown')`)
-    .orderBy(desc(sql`SUM(${spendLogs.spend})`));
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      provider: string;
+      request_count: number;
+      total_spend: number;
+      avg_latency_ms: number;
+    }>
+  >(`
+    SELECT
+      COALESCE("custom_llm_provider", 'unknown') as "provider",
+      COUNT(*)::int as "request_count",
+      SUM("spend")::float as "total_spend",
+      AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_latency_ms"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+    GROUP BY COALESCE("custom_llm_provider", 'unknown')
+    ORDER BY SUM("spend") DESC
+  `);
 
   return result;
 }

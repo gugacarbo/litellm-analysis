@@ -1,15 +1,16 @@
 import { sortAliasesByDefinitionOrder } from "@lite-llm/alias-router";
-import { sql } from "drizzle-orm";
-import { litellmDb } from "./client";
+import { prisma } from "./client";
 
 export async function getRouterSettings(): Promise<Record<
   string,
   unknown
 > | null> {
-  const result = await litellmDb.execute(
-    sql`SELECT param_value FROM "LiteLLM_Config" WHERE param_name = 'router_settings' LIMIT 1`,
-  );
-  const row = result.rows[0] as { param_value: unknown } | undefined;
+  const result = await prisma.$queryRawUnsafe<Array<{ param_value: unknown }>>(`
+    SELECT "param_value" FROM "LiteLLM_Config"
+    WHERE "param_name" = 'router_settings'
+    LIMIT 1
+  `);
+  const row = result[0];
   return row?.param_value ? (row.param_value as Record<string, unknown>) : null;
 }
 
@@ -33,8 +34,9 @@ export async function updateRouterSettings(
   }
   merged.model_group_alias = sortAliasesByDefinitionOrder(existingAliases);
 
-  await litellmDb.execute(
-    sql`INSERT INTO "LiteLLM_Config" (param_name, param_value) VALUES ('router_settings', ${JSON.stringify(merged)})
-			ON CONFLICT (param_name) DO UPDATE SET param_value = EXCLUDED.param_value`,
-  );
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "LiteLLM_Config" ("param_name", "param_value")
+    VALUES ('router_settings', '${JSON.stringify(merged)}'::jsonb)
+    ON CONFLICT ("param_name") DO UPDATE SET "param_value" = EXCLUDED."param_value"
+  `);
 }

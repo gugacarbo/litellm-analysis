@@ -1,85 +1,75 @@
-import { desc, eq, sql } from "drizzle-orm";
-import { litellmDb, schema } from "./client";
+import { prisma } from "./client";
 import {
-  combineConditions,
-  getFailedSpendLogsCondition,
-  getSpendLogsTimeCondition,
+  combineSqlConditions,
+  getFailedSpendLogsFilter,
+  getTimeFilterWhere,
   normalizeDays,
 } from "./helpers";
 
-const { spendLogs, errorLogs } = schema;
-
 export async function getErrorLogs(limit = 50, days = 30) {
   const normalizedDays = normalizeDays(days, 30);
-  const whereClause = combineConditions([
-    getSpendLogsTimeCondition(normalizedDays),
-    getFailedSpendLogsCondition(),
-  ]);
+  const timeFilter = getTimeFilterWhere(normalizedDays);
+  const failedFilter = getFailedSpendLogsFilter();
+  const where = `WHERE ${combineSqlConditions([timeFilter, failedFilter])}`;
 
   try {
-    return await litellmDb
-      .select({
-        id: spendLogs.requestId,
-        error_type:
-          sql<string>`COALESCE(${errorLogs.exceptionType}, ${spendLogs.status}, 'error')`.mapWith(
-            String,
-          ),
-        model: spendLogs.model,
-        user: spendLogs.user,
-        error_message:
-          sql<string>`COALESCE(NULLIF(BTRIM(${errorLogs.exceptionString}), ''), ${spendLogs.status}, 'Request failed')`.mapWith(
-            String,
-          ),
-        timestamp: spendLogs.startTime,
-        status_code:
-          sql<number>`COALESCE(${errorLogs.statusCode}, 500)`.mapWith(Number),
-        litellm_model_name: errorLogs.litellmModelName,
-        request_kwargs: errorLogs.requestKwargs,
-        api_key: spendLogs.apiKey,
-        spend_status: spendLogs.status,
-        total_tokens: spendLogs.totalTokens,
-        prompt_tokens: spendLogs.promptTokens,
-        completion_tokens: spendLogs.completionTokens,
-        spend: spendLogs.spend,
-        end_time: spendLogs.endTime,
-      })
-      .from(spendLogs)
-      .leftJoin(errorLogs, eq(errorLogs.requestId, spendLogs.requestId))
-      .where(whereClause)
-      .orderBy(desc(spendLogs.startTime))
-      .limit(limit);
+    return await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(`
+      SELECT
+        sl."request_id" as "id",
+        COALESCE(el."exception_type", sl."status", 'error') as "error_type",
+        sl."model",
+        sl."user",
+        COALESCE(
+          NULLIF(BTRIM(el."exception_string"), ''),
+          sl."status",
+          'Request failed'
+        ) as "error_message",
+        sl."startTime" as "timestamp",
+        COALESCE(el."status_code", '500') as "status_code",
+        el."litellm_model_name",
+        el."request_kwargs",
+        sl."api_key",
+        sl."status" as "spend_status",
+        sl."total_tokens",
+        sl."prompt_tokens",
+        sl."completion_tokens",
+        sl."spend",
+        sl."endTime" as "end_time"
+      FROM "LiteLLM_SpendLogs" sl
+      LEFT JOIN "LiteLLM_ErrorLogs" el ON el."request_id" = sl."request_id"
+      ${where}
+      ORDER BY sl."startTime" DESC
+      LIMIT ${limit}
+    `);
   } catch {
-    return litellmDb
-      .select({
-        id: spendLogs.requestId,
-        error_type:
-          sql<string>`COALESCE(NULLIF(BTRIM(${spendLogs.status}), ''), 'error')`.mapWith(
-            String,
-          ),
-        model: spendLogs.model,
-        user: spendLogs.user,
-        error_message:
-          sql<string>`COALESCE(NULLIF(BTRIM(${spendLogs.status}), ''), 'Request failed')`.mapWith(
-            String,
-          ),
-        timestamp: spendLogs.startTime,
-        status_code: sql<number>`500`.mapWith(Number),
-        litellm_model_name: sql<string>`null`.mapWith(String),
-        request_kwargs: sql<string>`null`.mapWith(String),
-        api_key: spendLogs.apiKey,
-        spend_status:
-          sql<string>`COALESCE(NULLIF(BTRIM(${spendLogs.status}), ''), 'error')`.mapWith(
-            String,
-          ),
-        total_tokens: spendLogs.totalTokens,
-        prompt_tokens: spendLogs.promptTokens,
-        completion_tokens: spendLogs.completionTokens,
-        spend: spendLogs.spend,
-        end_time: spendLogs.endTime,
-      })
-      .from(spendLogs)
-      .where(whereClause)
-      .orderBy(desc(spendLogs.startTime))
-      .limit(limit);
+    return await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(`
+      SELECT
+        "request_id" as "id",
+        COALESCE(
+          NULLIF(BTRIM("status"), ''),
+          'error'
+        ) as "error_type",
+        "model",
+        "user",
+        COALESCE(
+          NULLIF(BTRIM("status"), ''),
+          'Request failed'
+        ) as "error_message",
+        "startTime" as "timestamp",
+        '500' as "status_code",
+        NULL as "litellm_model_name",
+        NULL as "request_kwargs",
+        "api_key",
+        COALESCE(NULLIF(BTRIM("status"), ''), 'error') as "spend_status",
+        "total_tokens",
+        "prompt_tokens",
+        "completion_tokens",
+        "spend",
+        "endTime" as "end_time"
+      FROM "LiteLLM_SpendLogs"
+      ${where}
+      ORDER BY "startTime" DESC
+      LIMIT ${limit}
+    `);
   }
 }

@@ -1,2 +1,1 @@
-export { closePool, ensureConnected, litellmDb, schema } from "./client.js";
-export * from "./schema.js";
+export { PrismaClient, prisma } from "./client.js";

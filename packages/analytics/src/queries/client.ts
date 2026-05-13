@@ -1,6 +1,1 @@
-export {
-  closePool,
-  ensureConnected,
-  litellmDb,
-  schema,
-} from "@lite-llm/litellm-repository/client";
+export { PrismaClient, prisma } from "@lite-llm/litellm-repository/client";

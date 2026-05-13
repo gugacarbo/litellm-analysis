@@ -1,8 +1,3 @@
-import { and, gte, type SQL, sql } from "drizzle-orm";
-import { schema } from "./client";
-
-const { spendLogs } = schema;
-
 export function normalizeDays(
   days: number | string | undefined,
   fallback: number,
@@ -22,42 +17,52 @@ function getWindowStart(days: number): Date | null {
   const now = new Date();
 
   if (days === 1) {
-    // "Today" — since midnight of the current day
     now.setHours(0, 0, 0, 0);
     return now;
   }
 
-  // Sub-day ranges (e.g. 0.0417 = 1h, 0.25 = 6h) and
-  // multi-day ranges (e.g. 7.5 = 7 days 12 hours):
-  // Use millisecond subtraction for sub-day precision.
-  // setDate() truncates to integers and loses hour-level accuracy.
   const ms = days * 24 * 60 * 60 * 1000;
   return new Date(now.getTime() - ms);
 }
 
-export function getSpendLogsTimeCondition(days: number): SQL | undefined {
+/**
+ * Returns a SQL WHERE clause fragment for time filtering,
+ * or empty string if no filtering needed (days <= 0).
+ */
+export function getTimeFilterWhere(days: number): string {
   const windowStart = getWindowStart(days);
-  return windowStart ? gte(spendLogs.startTime, windowStart) : undefined;
+  if (!windowStart) return "";
+  return `"startTime" >= '${windowStart.toISOString()}'`;
 }
 
-export function getFailedSpendLogsCondition(): SQL {
-  return sql`LOWER(COALESCE(${spendLogs.status}, '')) != 'success'`;
+export function getFailedSpendLogsFilter(): string {
+  return `LOWER(COALESCE("status", '')) != 'success'`;
 }
 
-export function combineConditions(
-  conditions: Array<SQL | undefined>,
-): SQL | undefined {
-  const validConditions = conditions.filter(
-    (condition): condition is SQL => condition !== undefined,
-  );
+/**
+ * Combine multiple SQL conditions with AND.
+ * Filters out empty strings, returns empty string if none.
+ */
+export function combineSqlConditions(conditions: Array<string>): string {
+  const valid = conditions.filter((c) => c.length > 0);
+  if (valid.length === 0) return "";
+  if (valid.length === 1) return valid[0];
+  return valid.map((c) => `(${c})`).join(" AND ");
+}
 
-  if (validConditions.length === 0) {
-    return undefined;
-  }
+/**
+ * Build a full WHERE clause from conditions.
+ * Returns "" if no conditions, or "WHERE ..." if there are.
+ */
+export function buildWhereClause(conditions: Array<string>): string {
+  const combined = combineSqlConditions(conditions);
+  return combined ? `WHERE ${combined}` : "";
+}
 
-  if (validConditions.length === 1) {
-    return validConditions[0];
-  }
-
-  return and(...validConditions);
+/**
+ * Get the window start Date for a given number of days.
+ * Returns null if days <= 0.
+ */
+export function getWindowStartDate(days: number): Date | null {
+  return getWindowStart(days);
 }

@@ -1,7 +1,6 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics/data-source";
 import { createDataSource } from "@lite-llm/analytics/data-source";
-import { litellmDb } from "@lite-llm/analytics/queries/client";
-import { sql } from "drizzle-orm";
+import { prisma } from "@lite-llm/analytics/queries/client";
 
 export interface AnalyticsProvider {
   dataSource: AnalyticsDataSource;
@@ -13,7 +12,7 @@ export function createAnalyticsProvider(): AnalyticsProvider {
   return {
     dataSource,
     async checkReadiness() {
-      await litellmDb.execute(sql`SELECT 1`);
+      await prisma.$queryRawUnsafe("SELECT 1");
     },
   };
 }

@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-13
+**Generated:** 2026-05-13 (updated 2026-05-13)
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -39,6 +39,8 @@ lite-llm-analytics/
 │   ├── config/             # Environment variable validation (t3-env, Zod)
 │   └── api-contracts/      # API type contracts (analytics, agent-routing)
 ├── data/                    # Generated JSON configs (OpenCode, VS Code, agent-routing)
+├── repositories/            # Database-specific repos (Prisma client, sync scripts)
+│   └── litellm-repository/   # LiteLLM DB access via Prisma (generated client + raw SQL queries)
 ├── biome.json               # Biome 2.x (replaces ESLint+Prettier)
 ├── turbo.json               # Turborepo task pipeline
 └── pnpm-workspace.yaml      # apps/* + packages/*
@@ -52,7 +54,7 @@ lite-llm-analytics/
 | Add a UI component       | `apps/web/src/components/`                       | shadcn primitives at root, domain modules in subdirs |
 | Add an API endpoint      | `apps/server/src/api-server.ts`                  | All routes defined here                              |
 | Add a data-source method | `packages/analytics/src/data-source/database.ts` | Must implement `AnalyticsDataSource` interface       |
-| Add a DB query           | `packages/analytics/src/queries/`                | Drizzle ORM queries, camelCase columns               |
+| Add a DB query           | `packages/analytics/src/queries/`                | Prisma raw SQL queries via `$queryRawUnsafe`         |
 | Add a new data type      | `packages/analytics/src/types/index.ts`          | Add to interface or type exports                     |
 | Change lint/format rules | `biome.json` (root)                              | Single quotes, 80 chars, import auto-organize        |
 | Change dev proxy         | `apps/web/vite.config.ts`                        | `/api` → `localhost:3008`                            |
@@ -69,7 +71,7 @@ lite-llm-analytics/
 - Import auto-organization on format (`organizeImports: "on"`)
 
 ### Architecture
-- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (method implementations composed from 8 \*-methods.ts files, backed by 14 query files)
+- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (method implementations composed from 8 \*-methods.ts files, backed by 14 query files via `prisma.$queryRawUnsafe`)
 - **Page-level architecture**: Page subdirectories contain hooks/types/utils only (no JSX). Page root `.tsx` files contain JSX. Components live in `components/` and import from page directories
 - **State-Actions-Derived pattern**: Complex pages (agent-routing) split into `use-*-state.ts`, `use-*-actions.ts`, `use-*-derived.ts`, composed via `use-*-page.ts`
 
@@ -96,7 +98,7 @@ Detailed documentation in each package's `AGENTS.md`:
 | Package                    | Entry          | Key Responsibility                                           |
 | -------------------------- | -------------- | ------------------------------------------------------------ |
 | `@lite-llm/agents-manager` | `src/index.ts` | Agent/category CRUD, plugin system, config file generators   |
-| `@lite-llm/analytics`      | `src/index.ts` | 46-method AnalyticsDataSource interface, Drizzle ORM queries |
+| `@lite-llm/analytics`      | `src/index.ts` | 46-method AnalyticsDataSource interface, Prisma raw SQL queries |
 | `@lite-llm/alias-router`   | `src/index.ts` | Pure alias resolution functions (no I/O)                     |
 | `@litellm/shared`          | `src/index.ts` | Types + Zod schemas for agent/category config                |
 | `@lite-llm/server-core`    | `src/index.ts` | Route registration + orchestration services                  |
@@ -131,6 +133,13 @@ pnpm --filter @lite-llm/analytics typecheck
 pnpm --filter @lite-llm/analytics build
 pnpm --filter @lite-llm/server-core typecheck
 pnpm --filter @lite-llm/monitor typecheck
+pnpm --filter @lite-llm/litellm-repository typecheck
+
+# Prisma / litellm-repository
+pnpm --filter @lite-llm/litellm-repository db:generate   # Generate Prisma client
+pnpm --filter @lite-llm/litellm-repository db:sync        # Sync Prisma schema from DB
+pnpm --filter @lite-llm/litellm-repository db:pull        # Introspect DB tables
+pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma schema
 ```
 
 ## BUILD & CI (Gaps)
@@ -145,5 +154,6 @@ pnpm --filter @lite-llm/monitor typecheck
 
 | Location                              | Coverage                            |
 | ------------------------------------- | ----------------------------------- |
-| `packages/analytics/src/queries/`     | Drizzle ORM query patterns, helpers |
+| `packages/analytics/src/queries/`     | Prisma raw SQL query patterns, helpers |
 | `packages/analytics/src/data-source/` | DatabaseDataSource composition      |
+| `repositories/litellm-repository/`    | Prisma client setup, schema sync scripts |
