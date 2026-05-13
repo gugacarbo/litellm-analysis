@@ -1,9 +1,16 @@
 import type { Application, Response } from "express";
 import {
   applyRequiredLiteLLMParams,
+  buildLiteLLMParams,
   isRecord,
 } from "../orchestration/lite-llm-params.js";
 import type { RouteOptions } from "../types/index.js";
+
+interface ConfigModelEntry {
+  modelName: string;
+  status: "synced" | "config-only" | "litellm-only";
+  litellmParams: Record<string, unknown>;
+}
 
 export function registerModelRoutes(
   app: Application,
@@ -111,6 +118,225 @@ export function registerModelRoutes(
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.post("/models/sync-from-config", async (_req, res) => {
+    try {
+      const manager = opts.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+
+      const [configModels, litellmModels] = await Promise.all([
+        manager.services.models.getAll(),
+        dataSource.getModels(),
+      ]);
+
+      const configNames = new Set(Object.keys(configModels || {}));
+      const litellmNames = new Set(
+        litellmModels.map((m) => m.modelName),
+      );
+
+      // 1. Push config → LiteLLM DB (create missing, update existing)
+      for (const [name, spec] of Object.entries(configModels || {})) {
+        const litellmParams = buildLiteLLMParams(name, spec);
+        if (litellmNames.has(name)) {
+          await dataSource.updateModel(name, { litellmParams });
+        } else {
+          await dataSource.createModel({ modelName: name, litellmParams });
+        }
+      }
+
+      // 2. Pull LiteLLM → config (add missing models to agents.jsonc)
+      for (const model of litellmModels) {
+        if (configNames.has(model.modelName)) continue;
+
+        const params = isRecord(model.litellmParams)
+          ? model.litellmParams
+          : {};
+        const inputCost = params.input_cost_per_token as number | undefined;
+        const outputCost = params.output_cost_per_token as number | undefined;
+
+        await manager.services.models.create(model.modelName, {
+          enabled: true,
+          displayName: "",
+          limits: {
+            length: (params.context_window_size as number) ?? 200_000,
+            maxOutput: (params.max_tokens as number) ?? 32_768,
+          },
+          cost: {
+            input:
+              inputCost != null
+                ? Math.round(inputCost * 1_000_000)
+                : undefined,
+            output:
+              outputCost != null
+                ? Math.round(outputCost * 1_000_000)
+                : undefined,
+          },
+        });
+      }
+
+      // 3. Regenerate plugin config files
+      await manager.registry.exportAll();
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  // ── Unified model list (config + LiteLLM) ──
+
+  app.get("/models/with-config", async (_req, res) => {
+    try {
+      const manager = opts.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+
+      const [configModels, litellmModels] = await Promise.all([
+        manager.services.models.getAll(),
+        dataSource.getModels(),
+      ]);
+
+      const configNames = new Set(Object.keys(configModels || {}));
+      const litellmNames = new Set(
+        litellmModels.map((m) => m.modelName),
+      );
+
+      const allNames = new Set([...configNames, ...litellmNames]);
+      const models: ConfigModelEntry[] = [];
+
+      for (const modelName of allNames) {
+        const inConfig = configNames.has(modelName);
+        const inLiteLLM = litellmNames.has(modelName);
+
+        let status: ConfigModelEntry["status"];
+        let litellmParams: Record<string, unknown>;
+
+        if (inConfig && inLiteLLM) {
+          status = "synced";
+          litellmParams =
+            litellmModels.find((m) => m.modelName === modelName)
+              ?.litellmParams ?? {};
+        } else if (inConfig) {
+          status = "config-only";
+          const spec = configModels[modelName];
+          litellmParams = {
+            context_window_size: spec.limits.length,
+            max_tokens: spec.limits.maxOutput,
+            input_cost_per_token:
+              spec.cost?.input != null
+                ? spec.cost.input / 1_000_000
+                : undefined,
+            output_cost_per_token:
+              spec.cost?.output != null
+                ? spec.cost.output / 1_000_000
+                : undefined,
+          };
+        } else {
+          status = "litellm-only";
+          litellmParams =
+            litellmModels.find((m) => m.modelName === modelName)
+              ?.litellmParams ?? {};
+        }
+
+        models.push({ modelName, status, litellmParams });
+      }
+
+      models.sort((a, b) => {
+        const order = { synced: 0, "config-only": 0, "litellm-only": 1 };
+        return (
+          (order[a.status] - order[b.status]) ||
+          a.modelName.localeCompare(b.modelName)
+        );
+      });
+
+      res.json({
+        models,
+        counts: {
+          synced: models.filter((m) => m.status === "synced").length,
+          configOnly: models.filter((m) => m.status === "config-only").length,
+          litellmOnly: models.filter((m) => m.status === "litellm-only").length,
+          total: models.length,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  // ── Add LiteLLM-only model to agents.jsonc ──
+
+  app.post("/models/add-to-config", async (req, res) => {
+    try {
+      const manager = opts.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+
+      const { modelName } = req.body as { modelName?: string };
+      if (!modelName) {
+        res.status(400).json({ error: "modelName is required" });
+        return;
+      }
+
+      const existing = await dataSource.getModels();
+      const model = existing.find((m) => m.modelName === modelName);
+      if (!model) {
+        res.status(404).json({
+          error: `Model "${modelName}" not found in LiteLLM`,
+        });
+        return;
+      }
+
+      // Prevent adding if already in config
+      const configModels = await manager.services.models.getAll();
+      if (configModels[modelName]) {
+        res.status(409).json({
+          error: `Model "${modelName}" already exists in config`,
+        });
+        return;
+      }
+
+      const params = isRecord(model.litellmParams)
+        ? model.litellmParams
+        : {};
+      const inputCost = params.input_cost_per_token as number | undefined;
+      const outputCost = params.output_cost_per_token as number | undefined;
+
+      await manager.services.models.create(modelName, {
+        enabled: true,
+        displayName: "",
+        limits: {
+          length: (params.context_window_size as number) ?? 200_000,
+          maxOutput: (params.max_tokens as number) ?? 32_768,
+        },
+        cost: {
+          input:
+            inputCost != null ? Math.round(inputCost * 1_000_000) : undefined,
+          output:
+            outputCost != null
+              ? Math.round(outputCost * 1_000_000)
+              : undefined,
+        },
+      });
+
+      await opts.orchestration.syncGeneratedArtifacts();
+
+      res.status(201).json({ success: true });
+    } catch (error) {
+      const message = String(error);
+      if (message.includes("already exists")) {
+        res.status(409).json({ error: message });
+        return;
+      }
+      res.status(500).json({ error: message });
     }
   });
 

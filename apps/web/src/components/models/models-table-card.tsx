@@ -1,5 +1,8 @@
-import { Database, Pencil, Trash2 } from "lucide-react";
-import type { ModelConfig } from "../../lib/api-client/models";
+import { Database, Pencil, Plus, Trash2 } from "lucide-react";
+import type {
+  ModelConfig,
+  ModelWithStatus,
+} from "../../lib/api-client/models";
 import {
   getContextWindow,
   getHealthStatusLabel,
@@ -32,15 +35,32 @@ import {
   TableRow,
 } from "../ui/table";
 
+const statusBadgeVariant: Record<
+  string,
+  "default" | "secondary" | "outline" | "success"
+> = {
+  synced: "success",
+  "config-only": "secondary",
+  "litellm-only": "outline",
+};
+
+const statusLabel: Record<string, string> = {
+  synced: "Synced",
+  "config-only": "Config Only",
+  "litellm-only": "LiteLLM Only",
+};
+
 type ModelsTableCardProps = {
-  models: ModelConfig[];
+  models: ModelWithStatus[];
   loading: boolean;
   error: string | null;
   deleteModelName: string | null;
   modelsHealth?: ModelHealthEntry[];
+  addToConfigPending: boolean;
   onDeleteModelNameChange: (value: string | null) => void;
   onOpenEdit: (model: ModelConfig) => void;
   onDelete: () => void;
+  onAddToConfig: (modelName: string) => void;
 };
 
 const statusConfig: Record<
@@ -61,9 +81,11 @@ export function ModelsTableCard({
   error,
   deleteModelName,
   modelsHealth = [],
+  addToConfigPending,
   onDeleteModelNameChange,
   onOpenEdit,
   onDelete,
+  onAddToConfig,
 }: ModelsTableCardProps) {
   return (
     <Card>
@@ -91,6 +113,7 @@ export function ModelsTableCard({
             <TableHeader>
               <TableRow>
                 <TableHead>Model Name</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Health</TableHead>
                 <TableHead className="text-right">Context</TableHead>
                 <TableHead className="text-right">Max Output</TableHead>
@@ -104,6 +127,9 @@ export function ModelsTableCard({
                 const health = modelsHealth.find(
                   (h) => h.model === model.modelName,
                 );
+                const inLiteLLM =
+                  model.status === "synced" ||
+                  model.status === "litellm-only";
 
                 return (
                   <TableRow key={model.modelName}>
@@ -111,14 +137,27 @@ export function ModelsTableCard({
                       {model.modelName}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={
-                          statusConfig[health?.status ?? "healthy"]?.variant ??
-                          "outline"
-                        }
-                      >
-                        {getHealthStatusLabel(health?.status ?? "healthy")}
+                      <Badge variant={statusBadgeVariant[model.status] ?? "outline"}>
+                        {statusLabel[model.status] ?? model.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {inLiteLLM ? (
+                        <Badge
+                          variant={
+                            statusConfig[health?.status ?? "healthy"]
+                              ?.variant ?? "outline"
+                          }
+                        >
+                          {getHealthStatusLabel(
+                            health?.status ?? "healthy",
+                          )}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">
+                          —
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       {getContextWindow(model.litellmParams)}
@@ -134,55 +173,82 @@ export function ModelsTableCard({
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => onOpenEdit(model)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
+                        {inLiteLLM ? (
+                          <>
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              onClick={() =>
-                                onDeleteModelNameChange(model.modelName)
-                              }
+                              onClick={() => onOpenEdit(model)}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Model</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete{" "}
-                                <span className="font-semibold">
-                                  {deleteModelName}
-                                </span>
-                                ? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel
-                                onClick={() => onDeleteModelNameChange(null)}
-                              >
-                                Cancel
-                              </AlertDialogCancel>
-                              <AlertDialogAction asChild>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
                                 <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={onDelete}
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  onClick={() =>
+                                    onDeleteModelNameChange(
+                                      model.modelName,
+                                    )
+                                  }
                                 >
-                                  Delete
+                                  <Trash2 className="h-4 w-4" />
                                 </Button>
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Delete Model
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete{" "}
+                                    <span className="font-semibold">
+                                      {deleteModelName}
+                                    </span>
+                                    ? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel
+                                    onClick={() =>
+                                      onDeleteModelNameChange(null)
+                                    }
+                                  >
+                                    Cancel
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction asChild>
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={onDelete}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">
+                            —
+                          </span>
+                        )}
+                        {model.status === "litellm-only" ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            disabled={addToConfigPending}
+                            onClick={() =>
+                              onAddToConfig(model.modelName)
+                            }
+                          >
+                            <Plus className="mr-1 h-3 w-3" />
+                            Add to Config
+                          </Button>
+                        ) : null}
                       </div>
                     </TableCell>
                   </TableRow>

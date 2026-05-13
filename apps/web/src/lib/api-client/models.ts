@@ -5,6 +5,20 @@ export type ModelConfig = {
   litellmParams: Record<string, unknown>;
 };
 
+export type ModelWithStatus = ModelConfig & {
+  status: "synced" | "config-only" | "litellm-only";
+};
+
+export type ModelsWithConfigResponse = {
+  models: ModelWithStatus[];
+  counts: {
+    synced: number;
+    configOnly: number;
+    litellmOnly: number;
+    total: number;
+  };
+};
+
 export async function getAllModels(): Promise<ModelConfig[]> {
   return fetchApi("/models");
 }
@@ -45,6 +59,25 @@ export async function deleteModelLogs(
 ): Promise<{ success: boolean }> {
   return fetchApi(`/models/logs/${encodeURIComponent(modelName)}`, {
     method: "DELETE",
+  });
+}
+
+export async function getModelsWithConfig(): Promise<ModelsWithConfigResponse> {
+  return fetchApi("/models/with-config");
+}
+
+export async function syncModelsFromConfig(): Promise<{ success: boolean }> {
+  return fetchApi("/models/sync-from-config", {
+    method: "POST",
+  });
+}
+
+export async function addModelToConfig(
+  modelName: string,
+): Promise<{ success: boolean }> {
+  return fetchApi("/models/add-to-config", {
+    method: "POST",
+    body: JSON.stringify({ modelName }),
   });
 }
 
