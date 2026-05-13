@@ -74,9 +74,9 @@ export {
 
 // Plugins
 import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin.js";
+import { LitellmAliasPlugin } from "./plugins/external/litellm-alias.plugin.js";
 import { OpenAgentPlugin } from "./plugins/external/openagent.plugin.js";
 import { VsCodePlugin } from "./plugins/external/vscode.plugin.js";
-import { LitellmAliasPlugin } from "./plugins/external/litellm-alias.plugin.js";
 import type {
   IPlugin,
   IPluginRegistry,
@@ -88,6 +88,7 @@ import {
   type PluginRegistryOptions,
 } from "./plugins/registry.js";
 
+export type { AliasDbWriter } from "./plugins/external/litellm-alias.plugin.js";
 export type {
   ConfigField,
   InternalAgent,
@@ -103,7 +104,6 @@ export {
   PluginRegistry,
   VsCodePlugin,
 };
-export type { AliasDbWriter } from "./plugins/external/litellm-alias.plugin.js";
 
 // Config
 import { DEFAULT_AGENTS, DEFAULT_DB_PATH } from "./config/defaults.js";

@@ -1,7 +1,8 @@
+import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Unlink } from "lucide-react";
 import { useState } from "react";
 import { getModelAliases, putModelAliases } from "../../lib/api-client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../ui/button";
 import {
   Command,
@@ -12,7 +13,6 @@ import {
   CommandList,
 } from "../ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
 
 interface AliasesButtonProps {
   configuredModels: string[];
@@ -111,7 +111,10 @@ export function AliasesButton({
                       const linkedTarget = existingAliases[model];
 
                       return (
-                        <div key={model} className="flex items-center gap-2 p-2">
+                        <div
+                          key={model}
+                          className="flex items-center gap-2 p-2"
+                        >
                           <span className="text-xs font-mono text-muted-foreground min-w-0 truncate flex-1">
                             {model}
                           </span>
@@ -176,10 +179,7 @@ export function AliasesButton({
                   const isUnmatched = unmatchedModels.includes(model);
 
                   return (
-                    <div
-                      key={model}
-                      className="flex items-center gap-2 p-2"
-                    >
+                    <div key={model} className="flex items-center gap-2 p-2">
                       <span className="text-xs font-mono text-muted-foreground min-w-0 truncate flex-1">
                         {model}
                       </span>
@@ -209,7 +209,10 @@ export function AliasesButton({
                             models={allModels}
                             selectedValue={selections[model] ?? ""}
                             onSelect={(value) =>
-                              setSelections((prev) => ({ ...prev, [model]: value }))
+                              setSelections((prev) => ({
+                                ...prev,
+                                [model]: value,
+                              }))
                             }
                           />
                           <Button

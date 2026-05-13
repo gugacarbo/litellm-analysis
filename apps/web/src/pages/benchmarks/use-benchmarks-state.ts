@@ -165,8 +165,7 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     totalCount: benchmarksQuery.data?.models.length ?? 0,
     unmatchedConfiguredModels:
       benchmarksQuery.data?.unmatchedConfiguredModels ?? [],
-    configuredModelNames:
-      benchmarksQuery.data?.configuredModelNames ?? [],
+    configuredModelNames: benchmarksQuery.data?.configuredModelNames ?? [],
     search,
     provider,
     showConfiguredOnly,

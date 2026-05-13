@@ -64,7 +64,10 @@ function toMatchKeys(value: string): string[] {
  * Extract a pure alphanumeric compact key from a string.
  */
 function toCompactKey(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 }
 
 interface ModelAliases {

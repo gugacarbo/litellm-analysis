@@ -1,6 +1,6 @@
 import { Filter, Scale } from "lucide-react";
-import { ComparisonDeck } from "../components/benchmark/comparison-deck";
 import { AliasesButton } from "../components/benchmark/aliases-button";
+import { ComparisonDeck } from "../components/benchmark/comparison-deck";
 import { UseCaseFilter } from "../components/benchmark/use-case-filter";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -24,12 +24,6 @@ import {
 import { Skeleton } from "../components/ui/skeleton";
 import { Switch } from "../components/ui/switch";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../components/ui/tooltip";
-import {
   Table,
   TableBody,
   TableCell,
@@ -43,6 +37,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../components/ui/tooltip";
 import { APP_LOCALE, APP_TIMEZONE } from "../lib/locale";
 import {
   formatBenchmarkPrice,
@@ -222,9 +222,7 @@ export function BenchmarksPage() {
                         local only
                       </Label>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      Show configured models only
-                    </TooltipContent>
+                    <TooltipContent>Show configured models only</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 <AliasesButton

@@ -1,14 +1,10 @@
+import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Unlink } from "lucide-react";
 import { useState } from "react";
 import { getModelAliases, putModelAliases } from "../../lib/api-client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Command,
   CommandEmpty,
@@ -18,7 +14,6 @@ import {
   CommandList,
 } from "../ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
 
 interface UnmatchedAliasCardProps {
   unmatchedModels: string[];
@@ -150,9 +145,7 @@ export function UnmatchedAliasCard({
                     variant="outline"
                     size="sm"
                     onClick={() => handleLink(model)}
-                    disabled={
-                      mutation.isPending || !selections[model]?.trim()
-                    }
+                    disabled={mutation.isPending || !selections[model]?.trim()}
                   >
                     Link
                   </Button>

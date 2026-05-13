@@ -1,11 +1,11 @@
-import {
-  generateLitellmAliases,
-  sortAliasesByDefinitionOrder,
-} from "@lite-llm/alias-router";
 import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import {
+  generateLitellmAliases,
+  sortAliasesByDefinitionOrder,
+} from "@lite-llm/alias-router";
 import type { IPlugin, TransformContext } from "../plugin.js";
 import type { ConfigField, InternalAgent } from "../plugin-types.js";
 
@@ -63,9 +63,7 @@ export class LitellmAliasPlugin implements IPlugin {
       );
     }
 
-    for (const [key, category] of Object.entries(
-      ctx.allCategories ?? {},
-    )) {
+    for (const [key, category] of Object.entries(ctx.allCategories ?? {})) {
       Object.assign(
         aliases,
         generateLitellmAliases(
