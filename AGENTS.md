@@ -137,7 +137,7 @@ pnpm --filter @lite-llm/litellm-repository typecheck
 
 # Prisma / litellm-repository
 pnpm --filter @lite-llm/litellm-repository db:generate   # Generate Prisma client
-pnpm --filter @lite-llm/litellm-repository db:sync        # Sync Prisma schema from DB
+pnpm --filter @lite-llm/litellm-repository db:sync        # Clone schema + migrations from upstream LiteLLM repo
 pnpm --filter @lite-llm/litellm-repository db:pull        # Introspect DB tables
 pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma schema
 ```
@@ -156,4 +156,4 @@ pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma sche
 | ------------------------------------- | ----------------------------------- |
 | `packages/analytics/src/queries/`     | Prisma raw SQL query patterns, helpers |
 | `packages/analytics/src/data-source/` | DatabaseDataSource composition      |
-| `repositories/litellm-repository/`    | Prisma client setup, schema sync scripts |
+| `repositories/litellm-repository/`    | Prisma client + upstream schema sync scripts |

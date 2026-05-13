@@ -1619,7 +1619,7 @@ export namespace Prisma {
 
 
   export type Datasources = {
-    db?: Datasource
+    client?: Datasource
   }
 
   interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
@@ -21183,6 +21183,7 @@ export namespace Prisma {
     registration_url: string | null
     allow_all_keys: boolean | null
     available_on_public_internet: boolean | null
+    delegate_auth_to_upstream: boolean | null
     is_byok: boolean | null
     byok_api_key_help_url: string | null
     source_url: string | null
@@ -21216,6 +21217,7 @@ export namespace Prisma {
     registration_url: string | null
     allow_all_keys: boolean | null
     available_on_public_internet: boolean | null
+    delegate_auth_to_upstream: boolean | null
     is_byok: boolean | null
     byok_api_key_help_url: string | null
     source_url: string | null
@@ -21259,6 +21261,7 @@ export namespace Prisma {
     registration_url: number
     allow_all_keys: number
     available_on_public_internet: number
+    delegate_auth_to_upstream: number
     is_byok: number
     byok_description: number
     byok_api_key_help_url: number
@@ -21295,6 +21298,7 @@ export namespace Prisma {
     registration_url?: true
     allow_all_keys?: true
     available_on_public_internet?: true
+    delegate_auth_to_upstream?: true
     is_byok?: true
     byok_api_key_help_url?: true
     source_url?: true
@@ -21328,6 +21332,7 @@ export namespace Prisma {
     registration_url?: true
     allow_all_keys?: true
     available_on_public_internet?: true
+    delegate_auth_to_upstream?: true
     is_byok?: true
     byok_api_key_help_url?: true
     source_url?: true
@@ -21371,6 +21376,7 @@ export namespace Prisma {
     registration_url?: true
     allow_all_keys?: true
     available_on_public_internet?: true
+    delegate_auth_to_upstream?: true
     is_byok?: true
     byok_description?: true
     byok_api_key_help_url?: true
@@ -21488,6 +21494,7 @@ export namespace Prisma {
     registration_url: string | null
     allow_all_keys: boolean
     available_on_public_internet: boolean
+    delegate_auth_to_upstream: boolean
     is_byok: boolean
     byok_description: string[]
     byok_api_key_help_url: string | null
@@ -21549,6 +21556,7 @@ export namespace Prisma {
     registration_url?: boolean
     allow_all_keys?: boolean
     available_on_public_internet?: boolean
+    delegate_auth_to_upstream?: boolean
     is_byok?: boolean
     byok_description?: boolean
     byok_api_key_help_url?: boolean
@@ -21593,6 +21601,7 @@ export namespace Prisma {
     registration_url?: boolean
     allow_all_keys?: boolean
     available_on_public_internet?: boolean
+    delegate_auth_to_upstream?: boolean
     is_byok?: boolean
     byok_description?: boolean
     byok_api_key_help_url?: boolean
@@ -21637,6 +21646,7 @@ export namespace Prisma {
     registration_url?: boolean
     allow_all_keys?: boolean
     available_on_public_internet?: boolean
+    delegate_auth_to_upstream?: boolean
     is_byok?: boolean
     byok_description?: boolean
     byok_api_key_help_url?: boolean
@@ -21681,6 +21691,7 @@ export namespace Prisma {
     registration_url?: boolean
     allow_all_keys?: boolean
     available_on_public_internet?: boolean
+    delegate_auth_to_upstream?: boolean
     is_byok?: boolean
     byok_description?: boolean
     byok_api_key_help_url?: boolean
@@ -21692,7 +21703,7 @@ export namespace Prisma {
     review_notes?: boolean
   }
 
-  export type LiteLLM_MCPServerTableOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"server_id" | "server_name" | "alias" | "description" | "instructions" | "url" | "spec_path" | "transport" | "auth_type" | "credentials" | "created_at" | "created_by" | "updated_at" | "updated_by" | "mcp_info" | "mcp_access_groups" | "allowed_tools" | "tool_name_to_display_name" | "tool_name_to_description" | "extra_headers" | "static_headers" | "status" | "last_health_check" | "health_check_error" | "command" | "args" | "env" | "authorization_url" | "token_url" | "registration_url" | "allow_all_keys" | "available_on_public_internet" | "is_byok" | "byok_description" | "byok_api_key_help_url" | "source_url" | "approval_status" | "submitted_by" | "submitted_at" | "reviewed_at" | "review_notes", ExtArgs["result"]["liteLLM_MCPServerTable"]>
+  export type LiteLLM_MCPServerTableOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"server_id" | "server_name" | "alias" | "description" | "instructions" | "url" | "spec_path" | "transport" | "auth_type" | "credentials" | "created_at" | "created_by" | "updated_at" | "updated_by" | "mcp_info" | "mcp_access_groups" | "allowed_tools" | "tool_name_to_display_name" | "tool_name_to_description" | "extra_headers" | "static_headers" | "status" | "last_health_check" | "health_check_error" | "command" | "args" | "env" | "authorization_url" | "token_url" | "registration_url" | "allow_all_keys" | "available_on_public_internet" | "delegate_auth_to_upstream" | "is_byok" | "byok_description" | "byok_api_key_help_url" | "source_url" | "approval_status" | "submitted_by" | "submitted_at" | "reviewed_at" | "review_notes", ExtArgs["result"]["liteLLM_MCPServerTable"]>
 
   export type $LiteLLM_MCPServerTablePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "LiteLLM_MCPServerTable"
@@ -21730,6 +21741,7 @@ export namespace Prisma {
       registration_url: string | null
       allow_all_keys: boolean
       available_on_public_internet: boolean
+      delegate_auth_to_upstream: boolean
       is_byok: boolean
       byok_description: string[]
       byok_api_key_help_url: string | null
@@ -22194,6 +22206,7 @@ export namespace Prisma {
     readonly registration_url: FieldRef<"LiteLLM_MCPServerTable", 'String'>
     readonly allow_all_keys: FieldRef<"LiteLLM_MCPServerTable", 'Boolean'>
     readonly available_on_public_internet: FieldRef<"LiteLLM_MCPServerTable", 'Boolean'>
+    readonly delegate_auth_to_upstream: FieldRef<"LiteLLM_MCPServerTable", 'Boolean'>
     readonly is_byok: FieldRef<"LiteLLM_MCPServerTable", 'Boolean'>
     readonly byok_description: FieldRef<"LiteLLM_MCPServerTable", 'String[]'>
     readonly byok_api_key_help_url: FieldRef<"LiteLLM_MCPServerTable", 'String'>
@@ -80914,6 +80927,7 @@ export namespace Prisma {
     registration_url: 'registration_url',
     allow_all_keys: 'allow_all_keys',
     available_on_public_internet: 'available_on_public_internet',
+    delegate_auth_to_upstream: 'delegate_auth_to_upstream',
     is_byok: 'is_byok',
     byok_description: 'byok_description',
     byok_api_key_help_url: 'byok_api_key_help_url',
@@ -83391,6 +83405,7 @@ export namespace Prisma {
     registration_url?: StringNullableFilter<"LiteLLM_MCPServerTable"> | string | null
     allow_all_keys?: BoolFilter<"LiteLLM_MCPServerTable"> | boolean
     available_on_public_internet?: BoolFilter<"LiteLLM_MCPServerTable"> | boolean
+    delegate_auth_to_upstream?: BoolFilter<"LiteLLM_MCPServerTable"> | boolean
     is_byok?: BoolFilter<"LiteLLM_MCPServerTable"> | boolean
     byok_description?: StringNullableListFilter<"LiteLLM_MCPServerTable">
     byok_api_key_help_url?: StringNullableFilter<"LiteLLM_MCPServerTable"> | string | null
@@ -83435,6 +83450,7 @@ export namespace Prisma {
     registration_url?: SortOrderInput | SortOrder
     allow_all_keys?: SortOrder
     available_on_public_internet?: SortOrder
+    delegate_auth_to_upstream?: SortOrder
     is_byok?: SortOrder
     byok_description?: SortOrder
     byok_api_key_help_url?: SortOrderInput | SortOrder
@@ -83482,6 +83498,7 @@ export namespace Prisma {
     registration_url?: StringNullableFilter<"LiteLLM_MCPServerTable"> | string | null
     allow_all_keys?: BoolFilter<"LiteLLM_MCPServerTable"> | boolean
     available_on_public_internet?: BoolFilter<"LiteLLM_MCPServerTable"> | boolean
+    delegate_auth_to_upstream?: BoolFilter<"LiteLLM_MCPServerTable"> | boolean
     is_byok?: BoolFilter<"LiteLLM_MCPServerTable"> | boolean
     byok_description?: StringNullableListFilter<"LiteLLM_MCPServerTable">
     byok_api_key_help_url?: StringNullableFilter<"LiteLLM_MCPServerTable"> | string | null
@@ -83526,6 +83543,7 @@ export namespace Prisma {
     registration_url?: SortOrderInput | SortOrder
     allow_all_keys?: SortOrder
     available_on_public_internet?: SortOrder
+    delegate_auth_to_upstream?: SortOrder
     is_byok?: SortOrder
     byok_description?: SortOrder
     byok_api_key_help_url?: SortOrderInput | SortOrder
@@ -83576,6 +83594,7 @@ export namespace Prisma {
     registration_url?: StringNullableWithAggregatesFilter<"LiteLLM_MCPServerTable"> | string | null
     allow_all_keys?: BoolWithAggregatesFilter<"LiteLLM_MCPServerTable"> | boolean
     available_on_public_internet?: BoolWithAggregatesFilter<"LiteLLM_MCPServerTable"> | boolean
+    delegate_auth_to_upstream?: BoolWithAggregatesFilter<"LiteLLM_MCPServerTable"> | boolean
     is_byok?: BoolWithAggregatesFilter<"LiteLLM_MCPServerTable"> | boolean
     byok_description?: StringNullableListFilter<"LiteLLM_MCPServerTable">
     byok_api_key_help_url?: StringNullableWithAggregatesFilter<"LiteLLM_MCPServerTable"> | string | null
@@ -89804,6 +89823,7 @@ export namespace Prisma {
     registration_url?: string | null
     allow_all_keys?: boolean
     available_on_public_internet?: boolean
+    delegate_auth_to_upstream?: boolean
     is_byok?: boolean
     byok_description?: LiteLLM_MCPServerTableCreatebyok_descriptionInput | string[]
     byok_api_key_help_url?: string | null
@@ -89848,6 +89868,7 @@ export namespace Prisma {
     registration_url?: string | null
     allow_all_keys?: boolean
     available_on_public_internet?: boolean
+    delegate_auth_to_upstream?: boolean
     is_byok?: boolean
     byok_description?: LiteLLM_MCPServerTableCreatebyok_descriptionInput | string[]
     byok_api_key_help_url?: string | null
@@ -89892,6 +89913,7 @@ export namespace Prisma {
     registration_url?: NullableStringFieldUpdateOperationsInput | string | null
     allow_all_keys?: BoolFieldUpdateOperationsInput | boolean
     available_on_public_internet?: BoolFieldUpdateOperationsInput | boolean
+    delegate_auth_to_upstream?: BoolFieldUpdateOperationsInput | boolean
     is_byok?: BoolFieldUpdateOperationsInput | boolean
     byok_description?: LiteLLM_MCPServerTableUpdatebyok_descriptionInput | string[]
     byok_api_key_help_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -89936,6 +89958,7 @@ export namespace Prisma {
     registration_url?: NullableStringFieldUpdateOperationsInput | string | null
     allow_all_keys?: BoolFieldUpdateOperationsInput | boolean
     available_on_public_internet?: BoolFieldUpdateOperationsInput | boolean
+    delegate_auth_to_upstream?: BoolFieldUpdateOperationsInput | boolean
     is_byok?: BoolFieldUpdateOperationsInput | boolean
     byok_description?: LiteLLM_MCPServerTableUpdatebyok_descriptionInput | string[]
     byok_api_key_help_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -89980,6 +90003,7 @@ export namespace Prisma {
     registration_url?: string | null
     allow_all_keys?: boolean
     available_on_public_internet?: boolean
+    delegate_auth_to_upstream?: boolean
     is_byok?: boolean
     byok_description?: LiteLLM_MCPServerTableCreatebyok_descriptionInput | string[]
     byok_api_key_help_url?: string | null
@@ -90024,6 +90048,7 @@ export namespace Prisma {
     registration_url?: NullableStringFieldUpdateOperationsInput | string | null
     allow_all_keys?: BoolFieldUpdateOperationsInput | boolean
     available_on_public_internet?: BoolFieldUpdateOperationsInput | boolean
+    delegate_auth_to_upstream?: BoolFieldUpdateOperationsInput | boolean
     is_byok?: BoolFieldUpdateOperationsInput | boolean
     byok_description?: LiteLLM_MCPServerTableUpdatebyok_descriptionInput | string[]
     byok_api_key_help_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90068,6 +90093,7 @@ export namespace Prisma {
     registration_url?: NullableStringFieldUpdateOperationsInput | string | null
     allow_all_keys?: BoolFieldUpdateOperationsInput | boolean
     available_on_public_internet?: BoolFieldUpdateOperationsInput | boolean
+    delegate_auth_to_upstream?: BoolFieldUpdateOperationsInput | boolean
     is_byok?: BoolFieldUpdateOperationsInput | boolean
     byok_description?: LiteLLM_MCPServerTableUpdatebyok_descriptionInput | string[]
     byok_api_key_help_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -96639,6 +96665,7 @@ export namespace Prisma {
     registration_url?: SortOrder
     allow_all_keys?: SortOrder
     available_on_public_internet?: SortOrder
+    delegate_auth_to_upstream?: SortOrder
     is_byok?: SortOrder
     byok_description?: SortOrder
     byok_api_key_help_url?: SortOrder
@@ -96673,6 +96700,7 @@ export namespace Prisma {
     registration_url?: SortOrder
     allow_all_keys?: SortOrder
     available_on_public_internet?: SortOrder
+    delegate_auth_to_upstream?: SortOrder
     is_byok?: SortOrder
     byok_api_key_help_url?: SortOrder
     source_url?: SortOrder
@@ -96706,6 +96734,7 @@ export namespace Prisma {
     registration_url?: SortOrder
     allow_all_keys?: SortOrder
     available_on_public_internet?: SortOrder
+    delegate_auth_to_upstream?: SortOrder
     is_byok?: SortOrder
     byok_api_key_help_url?: SortOrder
     source_url?: SortOrder
