@@ -50,12 +50,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "ownedBy",
-          "baseUrl",
-          "apiKey"
-        ],
+        "required": ["name", "ownedBy", "baseUrl", "apiKey"],
         "additionalProperties": false
       }
     },
@@ -110,10 +105,7 @@
                 "description": "Maximum output tokens"
               }
             },
-            "required": [
-              "length",
-              "maxOutput"
-            ],
+            "required": ["length", "maxOutput"],
             "additionalProperties": false
           },
           "cost": {
@@ -138,10 +130,7 @@
             "additionalProperties": false
           }
         },
-        "required": [
-          "displayName",
-          "limits"
-        ],
+        "required": ["displayName", "limits"],
         "additionalProperties": false
       }
     },
@@ -196,10 +185,7 @@
                 "type": "number"
               }
             },
-            "required": [
-              "context",
-              "output"
-            ],
+            "required": ["context", "output"],
             "additionalProperties": false
           },
           "cost": {
@@ -249,11 +235,7 @@
                 "title": "Mode",
                 "description": "Agent operating mode",
                 "type": "string",
-                "enum": [
-                  "subagent",
-                  "primary",
-                  "all"
-                ]
+                "enum": ["subagent", "primary", "all"]
               },
               "tools": {
                 "default": {},
@@ -400,10 +382,7 @@
                 "description": "Maximum output tokens"
               }
             },
-            "required": [
-              "context",
-              "output"
-            ],
+            "required": ["context", "output"],
             "additionalProperties": false
           },
           "cost": {
@@ -480,10 +459,7 @@
                 "title": "Type",
                 "description": "Thinking mode type",
                 "type": "string",
-                "enum": [
-                  "enabled",
-                  "disabled"
-                ]
+                "enum": ["enabled", "disabled"]
               },
               "budgetTokens": {
                 "default": 0,
@@ -492,9 +468,7 @@
                 "type": "number"
               }
             },
-            "required": [
-              "type"
-            ],
+            "required": ["type"],
             "additionalProperties": false
           },
           "reasoningEffort": {
@@ -502,23 +476,14 @@
             "title": "Reasoning Effort",
             "description": "Reasoning budget level",
             "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh"
-            ]
+            "enum": ["low", "medium", "high", "xhigh"]
           },
           "textVerbosity": {
             "default": "medium",
             "title": "Text Verbosity",
             "description": "Response verbosity level",
             "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
+            "enum": ["low", "medium", "high"]
           },
           "tools": {
             "default": {},
@@ -555,11 +520,7 @@
                 "title": "Mode",
                 "description": "Agent operating mode",
                 "type": "string",
-                "enum": [
-                  "subagent",
-                  "primary",
-                  "all"
-                ]
+                "enum": ["subagent", "primary", "all"]
               },
               "tools": {
                 "default": {},
@@ -644,10 +605,7 @@
             "additionalProperties": false
           }
         },
-        "required": [
-          "model",
-          "limits"
-        ],
+        "required": ["model", "limits"],
         "additionalProperties": false
       }
     },
@@ -727,21 +685,11 @@
             "description": "Routing mappings for agents and categories"
           }
         },
-        "required": [
-          "enabled",
-          "outputFile",
-          "routing"
-        ],
+        "required": ["enabled", "outputFile", "routing"],
         "additionalProperties": false
       }
     }
   },
-  "required": [
-    "version",
-    "provider",
-    "models",
-    "agents",
-    "categories"
-  ],
+  "required": ["version", "provider", "models", "agents", "categories"],
   "additionalProperties": false
 }

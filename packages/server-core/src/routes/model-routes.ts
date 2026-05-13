@@ -135,9 +135,7 @@ export function registerModelRoutes(
       ]);
 
       const configNames = new Set(Object.keys(configModels || {}));
-      const litellmNames = new Set(
-        litellmModels.map((m) => m.modelName),
-      );
+      const litellmNames = new Set(litellmModels.map((m) => m.modelName));
 
       // 1. Push config → LiteLLM DB (create missing, update existing)
       for (const [name, spec] of Object.entries(configModels || {})) {
@@ -153,9 +151,7 @@ export function registerModelRoutes(
       for (const model of litellmModels) {
         if (configNames.has(model.modelName)) continue;
 
-        const params = isRecord(model.litellmParams)
-          ? model.litellmParams
-          : {};
+        const params = isRecord(model.litellmParams) ? model.litellmParams : {};
         const inputCost = params.input_cost_per_token as number | undefined;
         const outputCost = params.output_cost_per_token as number | undefined;
 
@@ -168,9 +164,7 @@ export function registerModelRoutes(
           },
           cost: {
             input:
-              inputCost != null
-                ? Math.round(inputCost * 1_000_000)
-                : undefined,
+              inputCost != null ? Math.round(inputCost * 1_000_000) : undefined,
             output:
               outputCost != null
                 ? Math.round(outputCost * 1_000_000)
@@ -204,9 +198,7 @@ export function registerModelRoutes(
       ]);
 
       const configNames = new Set(Object.keys(configModels || {}));
-      const litellmNames = new Set(
-        litellmModels.map((m) => m.modelName),
-      );
+      const litellmNames = new Set(litellmModels.map((m) => m.modelName));
 
       const allNames = new Set([...configNames, ...litellmNames]);
       const models: ConfigModelEntry[] = [];
@@ -251,7 +243,7 @@ export function registerModelRoutes(
       models.sort((a, b) => {
         const order = { synced: 0, "config-only": 0, "litellm-only": 1 };
         return (
-          (order[a.status] - order[b.status]) ||
+          order[a.status] - order[b.status] ||
           a.modelName.localeCompare(b.modelName)
         );
       });
@@ -304,9 +296,7 @@ export function registerModelRoutes(
         return;
       }
 
-      const params = isRecord(model.litellmParams)
-        ? model.litellmParams
-        : {};
+      const params = isRecord(model.litellmParams) ? model.litellmParams : {};
       const inputCost = params.input_cost_per_token as number | undefined;
       const outputCost = params.output_cost_per_token as number | undefined;
 
@@ -321,9 +311,7 @@ export function registerModelRoutes(
           input:
             inputCost != null ? Math.round(inputCost * 1_000_000) : undefined,
           output:
-            outputCost != null
-              ? Math.round(outputCost * 1_000_000)
-              : undefined,
+            outputCost != null ? Math.round(outputCost * 1_000_000) : undefined,
         },
       });
 

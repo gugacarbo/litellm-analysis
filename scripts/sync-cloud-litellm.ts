@@ -160,7 +160,10 @@ async function cmdFetch(args: string[]): Promise<void> {
     );
     const totalTokens = logs.reduce(
       (acc: number, l: Record<string, unknown>) =>
-        acc + (typeof l.total_tokens === "number" ? l.total_tokens : Number(l.total_tokens) || 0),
+        acc +
+        (typeof l.total_tokens === "number"
+          ? l.total_tokens
+          : Number(l.total_tokens) || 0),
       0,
     );
     const dates = logs
@@ -286,7 +289,9 @@ async function cmdStats(args: string[]): Promise<void> {
   } else if (data && Array.isArray((data as Record<string, unknown>).logs)) {
     logs = (data as Record<string, unknown>).logs as unknown[];
   } else {
-    console.error("Formato de arquivo não reconhecido. Esperado array ou { logs: [...] }");
+    console.error(
+      "Formato de arquivo não reconhecido. Esperado array ou { logs: [...] }",
+    );
     process.exit(1);
   }
 
@@ -461,27 +466,52 @@ async function cmdImport(args: string[]): Promise<void> {
         push("organization_id", log.organization_id ?? log.organizationId);
         push("total_tokens", toInt(log.total_tokens ?? log.totalTokens));
         push("prompt_tokens", toInt(log.prompt_tokens ?? log.promptTokens));
-        push("completion_tokens", toInt(log.completion_tokens ?? log.completionTokens));
+        push(
+          "completion_tokens",
+          toInt(log.completion_tokens ?? log.completionTokens),
+        );
         push("spend", toFloat(log.spend));
         push("startTime", log.startTime);
         push("endTime", log.endTime);
         push("completionStartTime", log.completionStartTime);
-        push("request_duration_ms", toInt(log.request_duration_ms ?? log.requestDurationMs));
+        push(
+          "request_duration_ms",
+          toInt(log.request_duration_ms ?? log.requestDurationMs),
+        );
         push("api_key", log.api_key ?? log.apiKey);
         push("status", log.status);
         push("cache_hit", log.cache_hit ?? log.cacheHit);
         push("cache_key", log.cache_key ?? log.cacheKey);
         push("metadata", log.metadata ? JSON.stringify(log.metadata) : null);
-        push("proxy_server_request", log.proxy_server_request ?? log.proxyServerRequest ? JSON.stringify(log.proxy_server_request ?? log.proxyServerRequest) : null);
+        push(
+          "proxy_server_request",
+          (log.proxy_server_request ?? log.proxyServerRequest)
+            ? JSON.stringify(log.proxy_server_request ?? log.proxyServerRequest)
+            : null,
+        );
         push("response", log.response ? JSON.stringify(log.response) : null);
-        push("request_tags", log.request_tags ?? log.requestTags ? JSON.stringify(log.request_tags ?? log.requestTags) : null);
-        push("requester_ip_address", log.requester_ip_address ?? log.requesterIpAddress);
+        push(
+          "request_tags",
+          (log.request_tags ?? log.requestTags)
+            ? JSON.stringify(log.request_tags ?? log.requestTags)
+            : null,
+        );
+        push(
+          "requester_ip_address",
+          log.requester_ip_address ?? log.requesterIpAddress,
+        );
         push("session_id", log.session_id ?? log.sessionId);
         push("agent_id", log.agent_id ?? log.agentId);
         push("model_id", log.model_id ?? log.modelId);
         push("model_group", log.model_group ?? log.modelGroup);
-        push("custom_llm_provider", log.custom_llm_provider ?? log.customLlmProvider);
-        push("mcp_namespaced_tool_name", log.mcp_namespaced_tool_name ?? log.mcpNamespacedToolName);
+        push(
+          "custom_llm_provider",
+          log.custom_llm_provider ?? log.customLlmProvider,
+        );
+        push(
+          "mcp_namespaced_tool_name",
+          log.mcp_namespaced_tool_name ?? log.mcpNamespacedToolName,
+        );
         push("messages", log.messages ? JSON.stringify(log.messages) : null);
 
         const sql = `INSERT INTO "LiteLLM_SpendLogs" (${cols.join(", ")})
@@ -504,12 +534,19 @@ async function cmdImport(args: string[]): Promise<void> {
         }
       }
 
-      const pct = Math.min(100, Math.round(((i + batchSize) / logs.length) * 100));
-      console.log(`   📥  ${Math.min(i + batchSize, logs.length)}/${logs.length} (${pct}%) — inseridos: ${inserted}, pulados: ${skipped}, erros: ${errors_count}`);
+      const pct = Math.min(
+        100,
+        Math.round(((i + batchSize) / logs.length) * 100),
+      );
+      console.log(
+        `   📥  ${Math.min(i + batchSize, logs.length)}/${logs.length} (${pct}%) — inseridos: ${inserted}, pulados: ${skipped}, erros: ${errors_count}`,
+      );
     }
 
     // Restaura role
-    await client.query("SET session_replication_role = 'origin'").catch(() => {});
+    await client
+      .query("SET session_replication_role = 'origin'")
+      .catch(() => {});
 
     console.log("");
     console.log("━".repeat(40));
@@ -553,6 +590,8 @@ function sleep(ms: number): Promise<void> {
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 
 main().catch((error) => {
-  console.error(`\n❌  ERRO: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(
+    `\n❌  ERRO: ${error instanceof Error ? error.message : String(error)}`,
+  );
   process.exitCode = 1;
 });

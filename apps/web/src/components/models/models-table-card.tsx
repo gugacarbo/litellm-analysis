@@ -1,8 +1,5 @@
 import { Database, Pencil, Plus, Trash2 } from "lucide-react";
-import type {
-  ModelConfig,
-  ModelWithStatus,
-} from "../../lib/api-client/models";
+import type { ModelConfig, ModelWithStatus } from "../../lib/api-client/models";
 import {
   getContextWindow,
   getHealthStatusLabel,
@@ -128,8 +125,7 @@ export function ModelsTableCard({
                   (h) => h.model === model.modelName,
                 );
                 const inLiteLLM =
-                  model.status === "synced" ||
-                  model.status === "litellm-only";
+                  model.status === "synced" || model.status === "litellm-only";
 
                 return (
                   <TableRow key={model.modelName}>
@@ -137,7 +133,9 @@ export function ModelsTableCard({
                       {model.modelName}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusBadgeVariant[model.status] ?? "outline"}>
+                      <Badge
+                        variant={statusBadgeVariant[model.status] ?? "outline"}
+                      >
                         {statusLabel[model.status] ?? model.status}
                       </Badge>
                     </TableCell>
@@ -149,14 +147,10 @@ export function ModelsTableCard({
                               ?.variant ?? "outline"
                           }
                         >
-                          {getHealthStatusLabel(
-                            health?.status ?? "healthy",
-                          )}
+                          {getHealthStatusLabel(health?.status ?? "healthy")}
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground text-sm">
-                          —
-                        </span>
+                        <span className="text-muted-foreground text-sm">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -188,9 +182,7 @@ export function ModelsTableCard({
                                   variant="ghost"
                                   size="icon-sm"
                                   onClick={() =>
-                                    onDeleteModelNameChange(
-                                      model.modelName,
-                                    )
+                                    onDeleteModelNameChange(model.modelName)
                                   }
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -241,9 +233,7 @@ export function ModelsTableCard({
                             size="sm"
                             className="h-7 px-2 text-xs"
                             disabled={addToConfigPending}
-                            onClick={() =>
-                              onAddToConfig(model.modelName)
-                            }
+                            onClick={() => onAddToConfig(model.modelName)}
                           >
                             <Plus className="mr-1 h-3 w-3" />
                             Add to Config

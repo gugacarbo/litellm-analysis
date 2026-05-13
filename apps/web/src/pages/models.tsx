@@ -49,12 +49,12 @@ export function ModelsPage() {
             onClick={() => {
               void handleSyncFromConfig();
             }}
-            disabled={syncing}
+            disabled={syncing || (counts.configOnly === 0 && counts.litellmOnly === 0)}
           >
             <RefreshCw
               className={`mr-1.5 h-3 w-3 ${syncing ? "animate-spin" : ""}`}
             />
-            Sync from Config
+            Sync
             {counts.configOnly > 0 ? ` (${counts.configOnly})` : null}
           </Button>
           <ModelFormDialog
