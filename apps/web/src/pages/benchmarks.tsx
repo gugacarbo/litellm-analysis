@@ -1,5 +1,6 @@
 import { Filter, Scale } from "lucide-react";
 import { ComparisonDeck } from "../components/benchmark/comparison-deck";
+import { AliasesButton } from "../components/benchmark/aliases-button";
 import { UseCaseFilter } from "../components/benchmark/use-case-filter";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -22,6 +23,12 @@ import {
 } from "../components/ui/select";
 import { Skeleton } from "../components/ui/skeleton";
 import { Switch } from "../components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -90,6 +97,9 @@ export function BenchmarksPage() {
     setMaxBlendedPrice,
     setSortField,
     setSortDirection,
+    unmatchedConfiguredModels,
+    configuredModelNames,
+    allModels,
   } = page;
 
   return (
@@ -156,14 +166,7 @@ export function BenchmarksPage() {
                 />
               </div>
             </div>
-            <div className="flex flex-wrap gap-4">
-              <Label className="flex items-center gap-2">
-                <Switch
-                  checked={showConfiguredOnly}
-                  onCheckedChange={setShowConfiguredOnly}
-                />
-                Show configured models only
-              </Label>
+            <div className="flex flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Sort by</span>
                 <Select
@@ -206,6 +209,29 @@ export function BenchmarksPage() {
                     <SelectItem value="asc">Asc</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="flex items-center gap-2 ml-auto">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Label className="flex items-center gap-2 cursor-help">
+                        <Switch
+                          checked={showConfiguredOnly}
+                          onCheckedChange={setShowConfiguredOnly}
+                        />
+                        local only
+                      </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Show configured models only
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <AliasesButton
+                  configuredModels={configuredModelNames}
+                  unmatchedModels={unmatchedConfiguredModels}
+                  allModels={allModels}
+                />
               </div>
             </div>
           </CardContent>

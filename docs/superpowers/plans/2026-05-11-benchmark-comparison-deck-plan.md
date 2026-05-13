@@ -836,7 +836,7 @@ export function MiniRadarChart({
   }));
 
   return (
-    <div className="h-[120px] w-full">
+    <div className="h-30 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
           <PolarGrid stroke="hsl(var(--border))" />
@@ -1247,7 +1247,7 @@ export function ComparisonCard({ card, activeUseCase, isSelected }: ComparisonCa
 
   return (
     <div
-      className={`w-[320px] flex-shrink-0 rounded-lg border-2 bg-card p-4 space-y-4 flex flex-col ${borderColor}`}
+      className={`w-[320px] shrink-0 rounded-lg border-2 bg-card p-4 space-y-4 flex flex-col ${borderColor}`}
     >
       {/* Header */}
       <div className="space-y-1">
@@ -1256,7 +1256,7 @@ export function ComparisonCard({ card, activeUseCase, isSelected }: ComparisonCa
             <h3 className="font-semibold text-sm truncate">{model.name}</h3>
             <p className="text-xs text-muted-foreground">{model.creatorName}</p>
           </div>
-          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+          <div className="flex flex-col items-end gap-1 shrink-0">
             <Badge variant="outline" className="text-[10px] px-1.5 py-0">
               #{rank[activeUseCase] || "-"} {activeUseCase}
             </Badge>

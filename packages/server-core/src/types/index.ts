@@ -19,8 +19,6 @@ export interface DbModelSpecLike {
 
 export interface OrchestrationServices {
   dataSource: AnalyticsDataSource;
-  buildAliasMap: () => Promise<Record<string, string>>;
-  regenerateAllAliases: () => Promise<void>;
   syncGeneratedArtifacts: () => Promise<void>;
   syncModelsDirectlyToDatabase: (
     models: Record<string, DbModelSpecLike>,

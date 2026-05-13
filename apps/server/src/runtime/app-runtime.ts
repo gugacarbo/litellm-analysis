@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { closePool } from "@lite-llm/analytics/queries";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
+import { AliasDbWriterImpl } from "@lite-llm/server-core/orchestration/alias-db-writer.js";
 import { createAppContext } from "../contexts";
 import { env } from "../env";
 import { createApiServer } from "./api-server";
@@ -39,10 +40,14 @@ function findWorkspaceRoot(startDir: string): string {
   return startDir;
 }
 
-function setupAgentsManager(projectRoot: string) {
+function setupAgentsManager(
+  projectRoot: string,
+  aliasDbWriter?: import("@lite-llm/agents-manager").AliasDbWriter,
+) {
   return createAgentsManager({
     dbPath: path.join(projectRoot, "@agents", "agents.json"),
     outputDir: path.join(projectRoot, "data"),
+    aliasDbWriter,
   });
 }
 
@@ -53,9 +58,9 @@ function registerShutdownHooks(stop: () => void): void {
 
 export function startAppRuntime(): AppRuntime {
   const projectRoot = getProjectRoot();
-  const agentsManager = setupAgentsManager(projectRoot);
-
   const ctx = createAppContext();
+  const aliasDbWriter = new AliasDbWriterImpl(ctx.analytics.dataSource);
+  const agentsManager = setupAgentsManager(projectRoot, aliasDbWriter);
   const orchestration = createOrchestrationServices(
     ctx.analytics.dataSource,
     agentsManager,

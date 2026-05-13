@@ -175,7 +175,7 @@ function createAgentsManager(options: { ..., aliasDbWriter?: AliasDbWriter }) {
 | `server-core/src/orchestration/alias-service.ts` | **Entire file** | Logic moved to plugin |
 | `server-core/src/orchestration/index.ts` | `AliasService` export | No longer needed |
 | `server-core/src/types/index.ts` | `AliasService` in `OrchestrationServices` | Interface removed |
-| `analytics/src/data-source/routing-methods.ts` | `updateAgentRoutingConfigImpl` stays; `getAgentRoutingConfigImpl` simplified | Generation moves to plugin; DB write stays |
+| `analytics/src/data-source/routing-methods.ts` | `updateAgentRoutingConfigImpl` stays; `getAgentRoutingConfigImpl` keeps reading from DB but no longer generates fresh aliases (plugin handles that) | Generation moves to plugin; DB write stays |
 | `analytics/src/queries/router-queries.ts` | Unchanged | Still needed for DB I/O |
 
 ---

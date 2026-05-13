@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-09
+**Generated:** 2026-05-13
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -34,7 +34,7 @@ lite-llm-analytics/
 │   ├── alias-router/        # LiteLLM alias routing resolution
 │   ├── analytics/           # DB queries + data source implementation
 │   ├── monitor/             # Model health monitoring (SQLite, anomaly detection)
-│   ├── server-core/         # Orchestration layer (routes, alias service, artifact sync)
+│   ├── server-core/         # Orchestration layer (routes, alias db writer, artifact sync)
 │   ├── shared/             # Common types (AgentConfig, CategoryConfig)
 │   ├── config/             # Environment variable validation (t3-env, Zod)
 │   └── api-contracts/      # API type contracts (analytics, agent-routing)

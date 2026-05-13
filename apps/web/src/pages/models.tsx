@@ -49,7 +49,9 @@ export function ModelsPage() {
             onClick={() => {
               void handleSyncFromConfig();
             }}
-            disabled={syncing || (counts.configOnly === 0 && counts.litellmOnly === 0)}
+            disabled={
+              syncing || (counts.configOnly === 0 && counts.litellmOnly === 0)
+            }
           >
             <RefreshCw
               className={`mr-1.5 h-3 w-3 ${syncing ? "animate-spin" : ""}`}

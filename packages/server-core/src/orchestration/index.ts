@@ -4,13 +4,11 @@ import type {
   DbModelSpecLike,
   OrchestrationServices,
 } from "../types/index.js";
-import { buildAliasMapFromDb, regenerateAllAliases } from "./alias-service.js";
 import {
   syncGeneratedArtifacts,
   syncModelsDirectlyToDatabase,
 } from "./artifact-service.js";
 
-export { buildAliasMapFromDb, regenerateAllAliases } from "./alias-service.js";
 export {
   syncGeneratedArtifacts,
   syncModelsDirectlyToDatabase,
@@ -30,8 +28,6 @@ export function createOrchestrationServices(
 ): OrchestrationServices {
   return {
     dataSource,
-    buildAliasMap: () => buildAliasMapFromDb(agentsManager),
-    regenerateAllAliases: () => regenerateAllAliases(dataSource, agentsManager),
     syncGeneratedArtifacts: () =>
       syncGeneratedArtifacts(dataSource, agentsManager),
     syncModelsDirectlyToDatabase: (models: Record<string, DbModelSpecLike>) =>

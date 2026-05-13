@@ -96,6 +96,10 @@ export class PluginRegistry implements IPluginRegistry {
     }
 
     await this.writePluginOutput(plugin, output);
+
+    if (plugin.afterExport) {
+      await plugin.afterExport(output);
+    }
   }
 
   getInternalAgents(pluginId: string): InternalAgent[] {
@@ -122,6 +126,7 @@ export class PluginRegistry implements IPluginRegistry {
         baseUrl: selectedProvider.baseUrl,
         apiKey: selectedProvider.apiKey,
       },
+      allCategories: config.categories as TransformContext["allCategories"],
     };
   }
 

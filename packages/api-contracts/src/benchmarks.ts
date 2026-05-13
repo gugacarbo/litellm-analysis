@@ -47,5 +47,6 @@ export interface ModelBenchmarkApiResponse {
   fetchedAt: string;
   count: number;
   configuredModelNames: string[];
+  unmatchedConfiguredModels: string[];
   models: ModelBenchmarkListItem[];
 }

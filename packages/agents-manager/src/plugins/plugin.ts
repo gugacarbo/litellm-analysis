@@ -1,4 +1,5 @@
 import type {
+  CategoryEntry,
   ModelSpec,
   PluginRouting,
   SystemAgent,
@@ -9,6 +10,7 @@ export interface TransformContext {
   allModels: Record<string, ModelSpec>;
   globalFallbackModel?: string;
   litellmConfig: { baseUrl: string; apiKey: string };
+  allCategories?: Record<string, CategoryEntry>;
 }
 
 export interface IPlugin {
@@ -27,6 +29,7 @@ export interface IPlugin {
 
   getOutputFile(): string;
   validate?(output: unknown): boolean;
+  afterExport?(output: unknown): Promise<void>;
 }
 
 export interface IPluginRegistry {

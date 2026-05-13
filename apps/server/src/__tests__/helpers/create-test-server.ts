@@ -19,8 +19,6 @@ export async function createTestServer(
   const mockDs = createMockDataSource(overrides);
   const orchestration = {
     dataSource: mockDs,
-    buildAliasMap: vi.fn().mockResolvedValue({}),
-    regenerateAllAliases: vi.fn().mockResolvedValue(undefined),
     syncGeneratedArtifacts: vi.fn().mockResolvedValue(undefined),
     syncModelsDirectlyToDatabase: vi.fn().mockResolvedValue(undefined),
   };

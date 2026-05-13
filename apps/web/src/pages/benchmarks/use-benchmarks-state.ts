@@ -15,6 +15,9 @@ interface UseBenchmarksStateResult extends BenchmarksDerivedState {
   sourceUrl: string;
   fetchedAt: string;
   totalCount: number;
+  unmatchedConfiguredModels: string[];
+  configuredModelNames: string[];
+  allModels: ModelBenchmarkListItem[];
   search: string;
   provider: string;
   showConfiguredOnly: boolean;
@@ -149,6 +152,7 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     providers,
     rows: filtered,
     configuredCount,
+    allModels: rows,
     isLoading: benchmarksQuery.isPending && !benchmarksQuery.data,
     error:
       benchmarksQuery.error instanceof Error
@@ -159,6 +163,10 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
       benchmarksQuery.data?.sourceUrl ?? "https://artificialanalysis.ai/",
     fetchedAt: benchmarksQuery.data?.fetchedAt ?? "",
     totalCount: benchmarksQuery.data?.models.length ?? 0,
+    unmatchedConfiguredModels:
+      benchmarksQuery.data?.unmatchedConfiguredModels ?? [],
+    configuredModelNames:
+      benchmarksQuery.data?.configuredModelNames ?? [],
     search,
     provider,
     showConfiguredOnly,

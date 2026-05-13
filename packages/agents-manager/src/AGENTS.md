@@ -26,8 +26,9 @@ agents-manager/src/
 │   ├── builtins/
 │   │   └── opencode.plugin.ts   # OpenCode config generator
 │   └── external/
-│       ├── openagent.plugin.ts  # OpenAgent config generator
-│       └── vscode.plugin.ts     # VS Code models generator
+│       ├── litellm-alias.plugin.ts  # LiteLLM alias generation plugin
+│       ├── openagent.plugin.ts      # OpenAgent config generator
+│       └── vscode.plugin.ts         # VS Code models generator
 ├── types/
 │   ├── routing.ts               # PluginRoutingConfig, PluginRoutingRule
 │   └── system-agent.ts          # SystemAgent, AgentVersion, AgentExtraConfig

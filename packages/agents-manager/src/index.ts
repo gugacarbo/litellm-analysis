@@ -76,6 +76,7 @@ export {
 import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin.js";
 import { OpenAgentPlugin } from "./plugins/external/openagent.plugin.js";
 import { VsCodePlugin } from "./plugins/external/vscode.plugin.js";
+import { LitellmAliasPlugin } from "./plugins/external/litellm-alias.plugin.js";
 import type {
   IPlugin,
   IPluginRegistry,
@@ -95,7 +96,14 @@ export type {
   PluginRegistryOptions,
   TransformContext,
 };
-export { OpenAgentPlugin, OpenCodePlugin, PluginRegistry, VsCodePlugin };
+export {
+  LitellmAliasPlugin,
+  OpenAgentPlugin,
+  OpenCodePlugin,
+  PluginRegistry,
+  VsCodePlugin,
+};
+export type { AliasDbWriter } from "./plugins/external/litellm-alias.plugin.js";
 
 // Config
 import { DEFAULT_AGENTS, DEFAULT_DB_PATH } from "./config/defaults.js";
@@ -107,6 +115,7 @@ export { DEFAULT_AGENTS, DEFAULT_DB_PATH };
 export interface AgentsManagerFactoryOptions {
   dbPath?: string;
   outputDir?: string;
+  aliasDbWriter?: import("./plugins/external/litellm-alias.plugin.js").AliasDbWriter;
 }
 
 export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
@@ -124,6 +133,7 @@ export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
     new OpenCodePlugin(),
     new OpenAgentPlugin(),
     new VsCodePlugin(),
+    new LitellmAliasPlugin(options.aliasDbWriter),
   ];
 
   const registry = new PluginRegistry({

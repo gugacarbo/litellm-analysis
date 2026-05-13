@@ -3,8 +3,8 @@
 ## OVERVIEW
 
 Server orchestration layer. Contains business logic that coordinates between
-@lite-llm/analytics (data access), @lite-llm/agents-manager (config CRUD),
-and @lite-llm/alias-router (alias resolution).
+@lite-llm/analytics (data access) and @lite-llm/agents-manager (config CRUD + plugins).
+Alias generation is handled by the LitellmAliasPlugin in agents-manager.
 
 ## STRUCTURE
 
@@ -13,7 +13,7 @@ packages/server-core/src/
 ├── index.ts                    # Barrel exports
 ├── orchestration/
 │   ├── index.ts                # Factory + re-exports
-│   ├── alias-service.ts        # buildAliasMapFromDb, regenerateAllAliases
+│   ├── alias-db-writer.ts      # AliasDbWriterImpl — bridges plugin to dataSource
 │   ├── artifact-service.ts     # syncGeneratedArtifacts, syncModelsDirectlyToDatabase
 │   └── lite-llm-params.ts     # parseDays, toCostPerToken, buildLiteLLMParams, etc.
 ├── routes/
@@ -78,9 +78,8 @@ export function createOrchestrationServices(
 ): OrchestrationServices {
   return {
     dataSource,
-    buildAliasMap: () => buildAliasMapFromDb(),
-    regenerateAllAliases: () => regenerateAllAliases(dataSource),
-    // ...
+    syncGeneratedArtifacts: () => syncGeneratedArtifacts(dataSource, agentsManager),
+    syncModelsDirectlyToDatabase: (models) => syncModelsDirectlyToDatabase(dataSource, models),
   };
 }
 ```

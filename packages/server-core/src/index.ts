@@ -1,12 +1,10 @@
 export {
   applyRequiredLiteLLMParams,
-  buildAliasMapFromDb,
   buildLiteLLMParams,
   createOrchestrationServices,
   getLiteLLMCredentialName,
   isRecord,
   parseDays,
-  regenerateAllAliases,
   syncGeneratedArtifacts,
   syncModelsDirectlyToDatabase,
   toCostPerToken,
