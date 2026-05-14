@@ -4,3 +4,5 @@ export type { ModelsConfig } from "./models-config.js";
 export { modelsConfigSchema } from "./models-config.js";
 export type { Provider } from "./provider.js";
 export { providerSchema } from "./provider.js";
+export type { ThinkingConfig } from "./thinking.js";
+export { thinkingSchema } from "./thinking.js";
