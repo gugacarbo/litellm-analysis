@@ -84,43 +84,51 @@ export class LitellmAliasPlugin implements IPlugin {
     ctx: TransformContext,
   ): LitellmAliasOutput {
     const aliases: Record<string, string> = {};
-    const globalFallback = ctx.globalFallbackModel;
+    const config = _routing.config ?? {};
+    const aliasPrefix = (config.aliasPrefix as string) ?? "";
+    const includeAgents = (config.includeAgents as boolean) ?? true;
+    const includeCategories = (config.includeCategories as boolean) ?? true;
+    const globalFallbackOverride = (config.globalFallbackOverride as string) ?? "";
+    const effectiveFallback = globalFallbackOverride || ctx.globalFallbackModel;
 
-    for (const agent of agents as AgentWithId[]) {
-      Object.assign(
-        aliases,
-        generateLitellmAliases(
-          agent.id,
-          agent.model || "",
-          agent.fallbackModels,
-          globalFallback,
-        ),
-      );
+    if (includeAgents) {
+      for (const agent of agents as AgentWithId[]) {
+        Object.assign(
+          aliases,
+          generateLitellmAliases(
+            agent.id,
+            agent.model || "",
+            agent.fallbackModels,
+            effectiveFallback,
+          ),
+        );
+      }
     }
 
-    const enabledCategories = _routing.routing.categories ?? {};
-    for (const [key, category] of Object.entries(ctx.allCategories ?? {})) {
-      // Only process categories explicitly enabled in routing config
-      if (!enabledCategories[key]) {
-        continue;
-      }
+    if (includeCategories) {
+      const enabledCategories = _routing.routing.categories ?? {};
+      for (const [key, category] of Object.entries(ctx.allCategories ?? {})) {
+        if (!enabledCategories[key]) {
+          continue;
+        }
 
-      // Skip categories with no model and no fallback models configured
-      const hasModel = Boolean(category.model);
-      const hasFallbacks = (category.fallbackModels?.length ?? 0) > 0;
-      if (!hasModel && !hasFallbacks) {
-        continue;
-      }
+        const hasModel = Boolean(category.model);
+        const hasFallbacks = (category.fallbackModels?.length ?? 0) > 0;
+        if (!hasModel && !hasFallbacks) {
+          continue;
+        }
 
-      Object.assign(
-        aliases,
-        generateLitellmAliases(
-          key,
-          category.model || "",
-          category.fallbackModels,
-          globalFallback,
-        ),
-      );
+        const finalKey = aliasPrefix ? `${aliasPrefix}${key}` : key;
+        Object.assign(
+          aliases,
+          generateLitellmAliases(
+            finalKey,
+            category.model || "",
+            category.fallbackModels,
+            effectiveFallback,
+          ),
+        );
+      }
     }
 
     return {

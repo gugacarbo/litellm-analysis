@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add 4 configuration options to LitellmAliasPlugin (aliasPrefix, includeAgents, includeCategories, globalFallbackOverride) and update buildOutput to respect them.
+**Goal:** Add fine-grained agent/category selection to LitellmAliasPlugin with master toggles and per-item selection.
 
-**Architecture:** Plugin config is stored in `routing.config` (accessed as `routing.config ?? {}`) and read via `buildOutput()`. No new interfaces needed — existing `TransformContext` and `IPlugin` are sufficient.
+**Architecture:** Plugin config is stored in `routing.config` (accessed as `routing.config ?? {}`) and read via `buildOutput()`. No new interfaces needed.
 
 **Tech Stack:** TypeScript (agents-manager package)
 
@@ -16,9 +16,11 @@
 
 ---
 
-## Task 1: Add config schema
+## Task 1: Update config schema
 
-- [ ] **Step 1: Update `getConfigSchema()` to return 4 fields**
+**Files:** Modify: `packages/agents-manager/src/plugins/external/litellm-alias.plugin.ts:getConfigSchema`
+
+- [ ] **Step 1: Replace getConfigSchema() with 6 fields**
 
 ```typescript
 getConfigSchema(): ConfigField[] {
@@ -38,7 +40,16 @@ getConfigSchema(): ConfigField[] {
       label: "Include Agents",
       required: false,
       default: true,
-      description: "Include agent-based aliases in output",
+      description: "Master toggle for agent-based aliases",
+    },
+    {
+      key: "selectedAgents",
+      type: "string",
+      label: "Selected Agents",
+      required: false,
+      default: "",
+      placeholder: "Comma-separated agent IDs, e.g. coder,planner",
+      description: "Which agents to include (empty = all). Comma-separated list.",
     },
     {
       key: "includeCategories",
@@ -46,7 +57,16 @@ getConfigSchema(): ConfigField[] {
       label: "Include Categories",
       required: false,
       default: true,
-      description: "Include category-based aliases in output",
+      description: "Master toggle for category-based aliases",
+    },
+    {
+      key: "selectedCategories",
+      type: "string",
+      label: "Selected Categories",
+      required: false,
+      default: "",
+      placeholder: "Comma-separated category keys, e.g. coding,debugging",
+      description: "Which categories to include (empty = all). Comma-separated list.",
     },
     {
       key: "globalFallbackOverride",
@@ -61,49 +81,52 @@ getConfigSchema(): ConfigField[] {
 }
 ```
 
+**Note:** `selectedAgents` and `selectedCategories` use `type: "string"` with comma-separated values because the existing `PluginConfigForm` only supports single-select. The frontend will populate these fields using the agent/category catalog.
+
 ---
 
-## Task 2: Update buildOutput to respect config
+## Task 2: Update buildOutput to respect selected agents/categories
 
-- [ ] **Step 1: Read config from routing at start of buildOutput**
+**Files:** Modify: `packages/agents-manager/src/plugins/external/litellm-alias.plugin.ts:buildOutput`
 
-Add at the top of `buildOutput()`:
+- [ ] **Step 1: Read all config values at start of buildOutput**
+
+Add after the existing config reads:
 ```typescript
-const config = _routing.config ?? {};
-const aliasPrefix = (config.aliasPrefix as string) ?? "";
-const includeAgents = (config.includeAgents as boolean) ?? true;
-const includeCategories = (config.includeCategories as boolean) ?? true;
-const globalFallbackOverride = (config.globalFallbackOverride as string) ?? "";
-const effectiveFallback = globalFallbackOverride || globalFallback;
+// Parse comma-separated lists into arrays (empty string = all)
+const selectedAgentsRaw = (config.selectedAgents as string) ?? "";
+const selectedCategoriesRaw = (config.selectedCategories as string) ?? "";
+const selectedAgentsSet = selectedAgentsRaw
+  ? new Set(selectedAgentsRaw.split(",").map((s) => s.trim()).filter(Boolean))
+  : null; // null = all
+const selectedCategoriesSet = selectedCategoriesRaw
+  ? new Set(selectedCategoriesRaw.split(",").map((s) => s.trim()).filter(Boolean))
+  : null; // null = all
 ```
 
-- [ ] **Step 2: Conditionally skip agent loop when includeAgents is false**
+- [ ] **Step 2: Add agent filter condition in the agent loop**
 
-Wrap the agent alias loop with:
+Wrap the `for (const agent of agents...)` loop body with:
 ```typescript
-if (includeAgents) {
-  for (const agent of agents as AgentWithId[]) {
-    // ... existing alias generation, but use effectiveFallback instead of globalFallback
-  }
+// Skip agents not in selectedAgentsSet (when not null)
+if (selectedAgentsSet && !selectedAgentsSet.has(agent.id)) {
+  continue;
 }
 ```
 
-- [ ] **Step 3: Conditionally skip category loop when includeCategories is false**
+- [ ] **Step 3: Add category filter condition in the category loop**
 
-Wrap the category alias loop with:
+In the category loop, after checking `enabledCategories[key]`, add:
 ```typescript
-if (includeCategories) {
-  // ... existing category alias generation, but use effectiveFallback instead of globalFallback
+// Skip categories not in selectedCategoriesSet (when not null)
+if (selectedCategoriesSet && !selectedCategoriesSet.has(key)) {
+  continue;
 }
 ```
 
-- [ ] **Step 4: Apply aliasPrefix to generated aliases**
+- [ ] **Step 4: Verify effectiveFallback is used throughout**
 
-After generating aliases in each loop, apply the prefix before adding to the aliases object. For each alias key:
-```typescript
-const prefixedKey = aliasPrefix ? `${aliasPrefix}${key}` : key;
-aliases[prefixedKey] = value;
-```
+Ensure all `generateLitellmAliases` calls use `effectiveFallback` instead of `globalFallback`.
 
 ---
 
@@ -121,27 +144,20 @@ Expected: No TypeScript errors
 - [ ] **Step 2: Run lint**
 
 ```bash
-pnpm --filter @lite-llm/agents-manager lint
+npx biome check packages/agents-manager/src/plugins/external/litellm-alias.plugin.ts
 ```
 
 Expected: No lint errors
-
-- [ ] **Step 3: Run tests (if any exist for this plugin)**
-
-```bash
-pnpm --filter @lite-llm/agents-manager test
-```
-
-Expected: All tests pass (or `passWithNoTests`)
 
 ---
 
 ## Verification Checklist
 
-- [ ] `getConfigSchema()` returns 4 fields matching the spec
-- [ ] `buildOutput()` reads config from `routing.config`
-- [ ] `includeAgents: false` skips agent alias generation
-- [ ] `includeCategories: false` skips category alias generation
-- [ ] `aliasPrefix` is prepended to every alias key
-- [ ] `globalFallbackOverride` takes precedence over `ctx.globalFallbackModel`
+- [ ] `getConfigSchema()` returns 6 fields matching the spec
+- [ ] `buildOutput()` reads `selectedAgents` and `selectedCategories` from config
+- [ ] `selectedAgentsSet === null` means include all agents
+- [ ] `selectedAgentsSet` non-null filters to only those agent IDs
+- [ ] `selectedCategoriesSet === null` means include all categories
+- [ ] `selectedCategoriesSet` non-null filters to only those category keys
+- [ ] Master toggles (`includeAgents`, `includeCategories`) still work
 - [ ] TypeScript compiles without errors
