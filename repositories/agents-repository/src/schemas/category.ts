@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { agentExtraConfigSchema } from "./agent-extra-config.js";
-import { costSchema } from "./cost.js";
-import { thinkingSchema } from "./thinking.js";
+import { costSchema } from "@lite-llm/models-repository/schemas";
+import { thinkingSchema } from "@lite-llm/models-repository/schemas";
 
 export const categoryEntrySchema = z.object({
   displayName: z
