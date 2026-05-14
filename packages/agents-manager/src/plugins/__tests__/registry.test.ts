@@ -16,6 +16,7 @@ function createMockRepository(): IAgentsRepository {
       true) as IAgentsRepository["validate"],
     exists: vi.fn().mockResolvedValue(true),
     getPath: vi.fn().mockReturnValue("/tmp/test.json"),
+    getPluginsPath: vi.fn().mockReturnValue("/mock/plugins.jsonc"),
   };
 }
 
