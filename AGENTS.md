@@ -6,7 +6,7 @@
 
 ## OVERVIEW
 
-LiteLLM Analytics Dashboard — full-stack TypeScript monorepo for monitoring LLM API usage, costs, and errors via LiteLLM's PostgreSQL database. React 19 frontend + Express.js backend, deployed as a single web app with optional direct-DB or API-only data access modes. Includes a shared `agents-manager` package for agent configuration management.
+LiteLLM Analytics Dashboard — full-stack TypeScript monorepo for monitoring LLM API usage, costs, and errors via LiteLLM's PostgreSQL database. React 19 frontend + Express.js backend, deployed as a single web app with optional direct-DB or API-only data access modes. Configs split into `agents-manager` (agents/categories/plugins) and `models-manager` (providers/models + alias routing).
 
 ## STRUCTURE
 
@@ -29,18 +29,24 @@ lite-llm-analytics/
 │           ├── ws/              # WebSocket server for live data
 │           ├── __tests__/       # Integration tests
 │           └── env.ts           # Environment config re-export
-├── packages/               # Shared libraries
+  ├── packages/               # Shared libraries
 │   ├── agents-manager/     # Agent/category config CRUD, file generators
-│   ├── alias-router/        # LiteLLM alias routing resolution
+│   ├── models-manager/     # Provider/model CRUD + alias routing resolution
 │   ├── analytics/           # DB queries + data source implementation
 │   ├── monitor/             # Model health monitoring (SQLite, anomaly detection)
 │   ├── server-core/         # Orchestration layer (routes, alias db writer, artifact sync)
 │   ├── shared/             # Common types (AgentConfig, CategoryConfig)
 │   ├── config/             # Environment variable validation (t3-env, Zod)
 │   └── api-contracts/      # API type contracts (analytics, agent-routing)
+├── @agents/                 # Agent config source-of-truth (agents.jsonc + schema)
+├── @models/                 # Model/provider config source-of-truth (models.jsonc + schema)
 ├── data/                    # Generated JSON configs (OpenCode, VS Code, agent-routing)
-├── repositories/            # Database-specific repos (Prisma client, sync scripts)
-│   └── litellm-repository/   # LiteLLM DB access via Prisma (generated client + raw SQL queries)
+├── repositories/            # Config repositories + DB repos
+│   ├── agents-repository/  # Agents config persistence + validation
+│   ├── models-repository/  # Models config persistence + validation
+│   ├── repository-utils/   # Shared storage + JSONC parsing utilities
+│   ├── app-repository/     # App-specific DB (Drizzle ORM)
+│   └── litellm-repository/ # LiteLLM DB access via Prisma (generated client + raw SQL queries)
 ├── biome.json               # Biome 2.x (replaces ESLint+Prettier)
 ├── turbo.json               # Turborepo task pipeline
 └── pnpm-workspace.yaml      # apps/* + packages/*
@@ -60,6 +66,8 @@ lite-llm-analytics/
 | Change dev proxy         | `apps/web/vite.config.ts`                        | `/api` → `localhost:3008`                            |
 | Add agent config logic   | `packages/agents-manager/src/`                   | Adapters, transformers, CRUD, file generators        |
 | Modify agent API routes  | `apps/server/src/routes/agent-config-routes.ts`  | Express routes using agents-manager                  |
+| Add model config logic   | `packages/models-manager/src/`                   | Provider/model CRUD, alias routing                    |
+| Modify model API routes  | `packages/server-core/src/routes/model-routes.ts`| Express routes using models-manager                  |
 
 ## CONVENTIONS
 
@@ -98,8 +106,8 @@ Detailed documentation in each package's `AGENTS.md`:
 | Package                    | Entry          | Key Responsibility                                           |
 | -------------------------- | -------------- | ------------------------------------------------------------ |
 | `@lite-llm/agents-manager` | `src/index.ts` | Agent/category CRUD, plugin system, config file generators   |
+| `@lite-llm/models-manager` | `src/index.ts` | Provider/model CRUD, alias routing resolution               |
 | `@lite-llm/analytics`      | `src/index.ts` | 46-method AnalyticsDataSource interface, Prisma raw SQL queries |
-| `@lite-llm/alias-router`   | `src/index.ts` | Pure alias resolution functions (no I/O)                     |
 | `@litellm/shared`          | `src/index.ts` | Types + Zod schemas for agent/category config                |
 | `@lite-llm/server-core`    | `src/index.ts` | Route registration + orchestration services                  |
 | `@lite-llm/monitor`        | `src/index.ts` | SQLite-based anomaly detection, WebSocket broadcast          |
@@ -157,3 +165,4 @@ pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma sche
 | `packages/analytics/src/queries/`     | Prisma raw SQL query patterns, helpers |
 | `packages/analytics/src/data-source/` | DatabaseDataSource composition      |
 | `repositories/litellm-repository/`    | Prisma client + upstream schema sync scripts |
+| `packages/models-manager/src/alias-router/` | Alias resolution, generation, cleanup, sort |
