@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { thinkingSchema } from "./thinking.js";
 
 export const costSchema = z.object({
   input: z
@@ -51,6 +52,13 @@ export const modelSpecSchema = z
       title: "Cost",
       description: "Model pricing per million tokens",
     }),
+    thinking: thinkingSchema
+      .default({ type: "disabled", budgetTokens: 0 })
+      .optional()
+      .meta({
+        title: "Thinking",
+        description: "Extended thinking configuration for this model",
+      }),
   })
   .strict();
 
