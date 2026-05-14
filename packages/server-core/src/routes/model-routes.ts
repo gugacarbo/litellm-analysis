@@ -231,6 +231,7 @@ export function registerModelRoutes(
               spec.cost?.output != null
                 ? spec.cost.output / 1_000_000
                 : undefined,
+            enabled: spec.enabled ?? true,
           };
         } else {
           status = "litellm-only";
