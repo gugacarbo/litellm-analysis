@@ -7,6 +7,14 @@ import {
 } from "../../pages/health-status/health-status-utils";
 import type { ModelWithStatus } from "../../pages/health-status/use-health-status-state";
 import { Button } from "../ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 import { StatusBadge } from "./status-badge";
 
 interface ModelsTableProps {
@@ -56,31 +64,20 @@ export function ModelsTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-md border">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b bg-muted/30">
-            <th className="h-9 w-[130px] px-3 text-start text-xs font-medium text-muted-foreground">
-              Status
-            </th>
-            <th className="h-9 px-3 text-start text-xs font-medium text-muted-foreground">
-              Model
-            </th>
-            <th className="h-9 w-[170px] px-3 text-start text-xs font-medium text-muted-foreground">
-              Latency / HTTP
-            </th>
-            <th className="h-9 w-[180px] px-3 text-start text-xs font-medium text-muted-foreground">
-              TTFT / Tokens/s
-            </th>
-            <th className="h-9 w-[120px] px-3 text-start text-xs font-medium text-muted-foreground">
-              Last Check
-            </th>
-            <th className="h-9 w-[80px] px-3 text-center text-xs font-medium text-muted-foreground">
-              Test
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[130px]">Status</TableHead>
+            <TableHead>Model</TableHead>
+            <TableHead className="w-[170px]">Latency / HTTP</TableHead>
+            <TableHead className="w-[120px]">TTFT</TableHead>
+            <TableHead className="w-[100px]">Tokens/s</TableHead>
+            <TableHead className="w-[120px]">Last Check</TableHead>
+            <TableHead className="w-[80px] text-center">Test</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {models.map((model) => {
             const modelIsRunning = isModelRunning(model.modelName);
             const isIndividualButtonDisabled =
@@ -90,11 +87,8 @@ export function ModelsTable({
               : model.status;
 
             return (
-              <tr
-                key={model.modelName}
-                className="border-b transition-colors hover:bg-muted/20 last:border-0"
-              >
-                <td className="px-3 py-2">
+              <TableRow key={model.modelName}>
+                <TableCell>
                   <button
                     type="button"
                     className="rounded"
@@ -102,11 +96,11 @@ export function ModelsTable({
                   >
                     <StatusBadge status={displayStatus} />
                   </button>
-                </td>
-                <td className="max-w-[260px] truncate px-3 py-2 font-medium">
+                </TableCell>
+                <TableCell className="max-w-[260px] truncate font-medium">
                   {model.modelName}
-                </td>
-                <td className="px-3 py-2">
+                </TableCell>
+                <TableCell>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs tabular-nums">
                       {formatResponseTime(model.responseTimeMs)}
@@ -115,18 +109,14 @@ export function ModelsTable({
                       {model.statusCode ?? "—"}
                     </span>
                   </div>
-                </td>
-                <td className="px-3 py-2">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-mono text-xs tabular-nums">
-                      {formatResponseTime(model.ttftMs)}
-                    </span>
-                    <span className="font-mono text-[10px] text-muted-foreground tabular-nums">
-                      {formatTokensPerSecond(model.tokensPerSecond)}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">
+                </TableCell>
+                <TableCell className="font-mono text-xs tabular-nums">
+                  {formatResponseTime(model.ttftMs)}
+                </TableCell>
+                <TableCell className="font-mono text-xs tabular-nums whitespace-nowrap">
+                  {formatTokensPerSecond(model.tokensPerSecond)}
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">
                   {model.checkedAt ? (
                     <span title={formatTimestamp(model.checkedAt)}>
                       {formatRelativeTime(model.checkedAt)}
@@ -134,8 +124,8 @@ export function ModelsTable({
                   ) : (
                     "—"
                   )}
-                </td>
-                <td className="px-3 py-2 text-center">
+                </TableCell>
+                <TableCell className="text-center">
                   <Button
                     size="sm"
                     variant="ghost"
@@ -145,12 +135,12 @@ export function ModelsTable({
                   >
                     Test
                   </Button>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

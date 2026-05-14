@@ -6,7 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./orchestration": "./src/orchestration/index.ts",
-    "./orchestration/alias-db-writer.js": "./src/orchestration/alias-db-writer.ts",
+    "./orchestration/alias-db-writer": "./src/orchestration/alias-db-writer.ts",
     "./routes": "./src/routes/index.ts",
     "./types": "./src/types/index.ts"
   },

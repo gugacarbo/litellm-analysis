@@ -70,10 +70,7 @@ import type {
   TransformContext,
 } from "./plugins/plugin";
 import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
-import {
-  PluginRegistry,
-  type PluginRegistryOptions,
-} from "./plugins/registry";
+import { PluginRegistry, type PluginRegistryOptions } from "./plugins/registry";
 
 export type { AliasDbWriter } from "./plugins/external/litellm-alias.plugin";
 export type {

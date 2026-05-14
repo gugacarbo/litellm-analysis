@@ -1,6 +1,14 @@
 import { cn } from "../../lib/utils";
 import type { CategoryMetrics } from "../../pages/prompt-evals/types";
 import { formatPrecision, getScoreColor } from "../../pages/prompt-evals/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 
 interface CategoryTableProps {
   categories: CategoryMetrics[];
@@ -13,25 +21,22 @@ export function CategoryTable({
 }: CategoryTableProps) {
   return (
     <div className="rounded-md border">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b bg-muted/50">
-            <th className="px-3 py-2 text-left font-medium">Categoria</th>
-            <th className="px-3 py-2 text-right font-medium">P</th>
-            <th className="px-3 py-2 text-right font-medium">R</th>
-            <th className="px-3 py-2 text-right font-medium">F1</th>
-            <th className="px-3 py-2 text-right font-medium">Casos</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Categoria</TableHead>
+            <TableHead className="text-right">P</TableHead>
+            <TableHead className="text-right">R</TableHead>
+            <TableHead className="text-right">F1</TableHead>
+            <TableHead className="text-right">Casos</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {categories.map((cat) => {
             const passed = cat.f1 !== null && cat.f1 >= threshold;
             return (
-              <tr
-                key={cat.category}
-                className="border-b last:border-b-0 hover:bg-muted/30"
-              >
-                <td className="px-3 py-2">
+              <TableRow key={cat.category}>
+                <TableCell>
                   <span
                     className={cn(
                       "mr-2",
@@ -41,22 +46,22 @@ export function CategoryTable({
                     {passed ? "●" : "○"}
                   </span>
                   <span className="font-mono">{cat.category}</span>
-                </td>
-                <td className="px-3 py-2 text-right font-mono">
+                </TableCell>
+                <TableCell className="text-right font-mono">
                   {formatPrecision(cat.precision, 2)}
-                </td>
-                <td className="px-3 py-2 text-right font-mono">
+                </TableCell>
+                <TableCell className="text-right font-mono">
                   {formatPrecision(cat.recall, 2)}
-                </td>
-                <td
+                </TableCell>
+                <TableCell
                   className={cn(
-                    "px-3 py-2 text-right font-mono font-medium",
+                    "text-right font-mono font-medium",
                     getScoreColor(cat.f1),
                   )}
                 >
                   {formatPrecision(cat.f1, 2)}
-                </td>
-                <td className="px-3 py-2 text-right">
+                </TableCell>
+                <TableCell className="text-right">
                   <span
                     className={cn(
                       cat.matchedCases === cat.totalCases
@@ -66,12 +71,12 @@ export function CategoryTable({
                   >
                     {cat.matchedCases}/{cat.totalCases}
                   </span>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

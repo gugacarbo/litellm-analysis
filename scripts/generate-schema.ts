@@ -10,11 +10,5 @@ function generateSchema(schema: z.ZodType, outputPath: string): void {
   console.log(`Schema generated at ${outputPath}`);
 }
 
-generateSchema(
-  agentsConfigSchema,
-  "./@agents/agents.schema.json",
-);
-generateSchema(
-  pluginsConfigSchema,
-  "./@agents/plugins.schema.json",
-);
+generateSchema(agentsConfigSchema, "./@agents/agents.schema.json");
+generateSchema(pluginsConfigSchema, "./@agents/plugins.schema.json");

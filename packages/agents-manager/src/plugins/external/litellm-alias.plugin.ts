@@ -64,6 +64,13 @@ export class LitellmAliasPlugin implements IPlugin {
     }
 
     for (const [key, category] of Object.entries(ctx.allCategories ?? {})) {
+      // Skip categories with no model and no fallback models configured
+      const hasModel = Boolean(category.model);
+      const hasFallbacks = (category.fallbackModels?.length ?? 0) > 0;
+      if (!hasModel && !hasFallbacks) {
+        continue;
+      }
+
       Object.assign(
         aliases,
         generateLitellmAliases(

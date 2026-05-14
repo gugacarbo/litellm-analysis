@@ -1,6 +1,7 @@
+import type { ColumnDef, VisibilityState } from "@tanstack/react-table";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import type {
-  Column,
   ColumnKey,
   ModelStats,
   SortDirection,
@@ -17,20 +18,11 @@ import {
 } from "../../pages/model-stats/model-stats-utils";
 import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
+import { DataTable } from "../ui/data-table";
 
 type ModelStatsDataTableProps = {
   loading: boolean;
   data: ModelStats[];
-  columns: Column[];
   visibleColumns: ColumnKey[];
   sortField: SortField;
   sortDirection: SortDirection;
@@ -57,10 +49,43 @@ function SpendBar({ value, total }: { value: number; total: number }) {
   );
 }
 
+function SortHeader({
+  label,
+  sortField,
+  currentField,
+  currentDirection,
+  onSort,
+}: {
+  label: string;
+  sortField: SortField;
+  currentField: SortField;
+  currentDirection: SortDirection;
+  onSort: (field: SortField) => void;
+}) {
+  const isActive = currentField === sortField;
+  return (
+    <button
+      type="button"
+      className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+      onClick={() => onSort(sortField)}
+    >
+      {label}
+      {isActive ? (
+        currentDirection === "asc" ? (
+          <ArrowUp className="h-3 w-3" />
+        ) : (
+          <ArrowDown className="h-3 w-3" />
+        )
+      ) : (
+        <ArrowUpDown className="h-3 w-3 opacity-30" />
+      )}
+    </button>
+  );
+}
+
 export function ModelStatsDataTable({
   loading,
   data,
-  columns,
   visibleColumns,
   sortField,
   sortDirection,
@@ -69,201 +94,331 @@ export function ModelStatsDataTable({
   onSort,
   onDeleteClick,
 }: ModelStatsDataTableProps) {
+  // Build column definitions
+  const columns: ColumnDef<ModelStats>[] = [
+    {
+      id: "model",
+      accessorKey: "model",
+      header: () => "Model",
+      cell: ({ row }) => {
+        const modelName = row.original.model ?? "";
+        const modelLabel = modelName.trim() ? modelName : "(no model)";
+        return (
+          <div className="flex items-center gap-2">
+            <div
+              className={`h-2 w-2 rounded-full shrink-0 ${getHealthColor(row.original.success_rate)}`}
+            />
+            <Link
+              to={`/model-stats/${encodeURIComponent(modelName)}`}
+              className="font-medium font-mono text-xs whitespace-nowrap hover:underline"
+            >
+              {modelLabel}
+            </Link>
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "requests",
+      accessorKey: "request_count",
+      header: () => (
+        <SortHeader
+          label="Requests"
+          sortField="request_count"
+          currentField={sortField}
+          currentDirection={sortDirection}
+          onSort={onSort}
+        />
+      ),
+      cell: ({ row }) => formatNumber(row.original.request_count),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "spend",
+      accessorKey: "total_spend",
+      header: () => (
+        <SortHeader
+          label="Spend"
+          sortField="total_spend"
+          currentField={sortField}
+          currentDirection={sortDirection}
+          onSort={onSort}
+        />
+      ),
+      cell: ({ row }) => formatCurrency(row.original.total_spend),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "percent",
+      accessorFn: (row) =>
+        totalSpend > 0 ? (Number(row.total_spend) / totalSpend) * 100 : 0,
+      header: () => "% Total",
+      cell: ({ row }) => (
+        <SpendBar value={Number(row.original.total_spend)} total={totalSpend} />
+      ),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "tokens",
+      accessorKey: "total_tokens",
+      header: () => (
+        <SortHeader
+          label="Tokens"
+          sortField="total_tokens"
+          currentField={sortField}
+          currentDirection={sortDirection}
+          onSort={onSort}
+        />
+      ),
+      cell: ({ row }) => formatNumber(row.original.total_tokens),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "prompt",
+      accessorKey: "prompt_tokens",
+      header: () => "Prompt",
+      cell: ({ row }) => formatNumber(row.original.prompt_tokens),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "output",
+      accessorKey: "completion_tokens",
+      header: () => "Output",
+      cell: ({ row }) => formatNumber(row.original.completion_tokens),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "avgTok",
+      accessorKey: "avg_tokens_per_request",
+      header: () => (
+        <SortHeader
+          label="Avg Tok/Req"
+          sortField="avg_tokens_per_request"
+          currentField={sortField}
+          currentDirection={sortDirection}
+          onSort={onSort}
+        />
+      ),
+      cell: ({ row }) => formatNumber(row.original.avg_tokens_per_request),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "tokPerSec",
+      accessorKey: "p50_tokens_per_second",
+      header: () => "Out tok/s (p50)",
+      cell: ({ row }) =>
+        formatTokensPerSecond(row.original.p50_tokens_per_second),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "costPer1k",
+      accessorFn: (row) =>
+        Number(row.total_tokens) > 0
+          ? (Number(row.total_spend) / Number(row.total_tokens)) * 1000
+          : 0,
+      header: () => "$/1K tok",
+      cell: ({ row }) => {
+        const val = row.getValue("costPer1k") as number;
+        return val > 0 ? `$${val.toFixed(4)}` : "-";
+      },
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "latency",
+      accessorKey: "avg_latency_ms",
+      header: () => (
+        <SortHeader
+          label="Latency"
+          sortField="avg_latency_ms"
+          currentField={sortField}
+          currentDirection={sortDirection}
+          onSort={onSort}
+        />
+      ),
+      cell: ({ row }) => formatDuration(row.original.avg_latency_ms),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "p50",
+      accessorKey: "p50_latency_ms",
+      header: () => "Latency (p50)",
+      cell: ({ row }) => formatDuration(row.original.p50_latency_ms),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "p95",
+      accessorKey: "p95_latency_ms",
+      header: () => "Latency (p95)",
+      cell: ({ row }) => formatDuration(row.original.p95_latency_ms),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "p99",
+      accessorKey: "p99_latency_ms",
+      header: () => "Latency (p99)",
+      cell: ({ row }) => formatDuration(row.original.p99_latency_ms),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "success",
+      accessorKey: "success_rate",
+      header: () => (
+        <SortHeader
+          label="Success"
+          sortField="success_rate"
+          currentField={sortField}
+          currentDirection={sortDirection}
+          onSort={onSort}
+        />
+      ),
+      cell: ({ row }) => {
+        const rate = row.original.success_rate;
+        return (
+          <Badge
+            variant={
+              rate > 95 ? "default" : rate > 90 ? "secondary" : "destructive"
+            }
+          >
+            {formatPercent(rate)}
+          </Badge>
+        );
+      },
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "errors",
+      accessorKey: "error_count",
+      header: () => (
+        <SortHeader
+          label="Errors"
+          sortField="error_count"
+          currentField={sortField}
+          currentDirection={sortDirection}
+          onSort={onSort}
+        />
+      ),
+      cell: ({ row }) => {
+        const count = row.original.error_count;
+        return count > 0 ? (
+          <span className="text-red-600 dark:text-red-400 font-medium">
+            {formatNumber(count)}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">0</span>
+        );
+      },
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "errorRate",
+      accessorFn: (row) =>
+        row.request_count > 0
+          ? (Number(row.error_count) / Number(row.request_count)) * 100
+          : 0,
+      header: () => "Error Rate",
+      cell: ({ row }) => formatPercent(row.getValue("errorRate") as number),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "users",
+      accessorKey: "unique_users",
+      header: () => "Users",
+      cell: ({ row }) => formatNumber(row.original.unique_users),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "keys",
+      accessorKey: "unique_api_keys",
+      header: () => "API Keys",
+      cell: ({ row }) => formatNumber(row.original.unique_api_keys),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "first",
+      accessorKey: "first_seen",
+      header: () => "First Used",
+      cell: ({ row }) => formatDate(row.original.first_seen),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "last",
+      accessorKey: "last_seen",
+      header: () => "Last Used",
+      cell: ({ row }) => formatDate(row.original.last_seen),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      header: () => "",
+      cell: ({ row }) => {
+        const modelName = row.original.model ?? "";
+        const modelLabel = modelName.trim() ? modelName : "(no model)";
+        return (
+          <button
+            type="button"
+            className="inline-flex items-center justify-center h-6 w-6 rounded-md text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            disabled={deleting === modelName}
+            onClick={() => onDeleteClick(modelName)}
+            aria-label={`Delete ${modelLabel}`}
+          >
+            {deleting === modelName ? "⋯" : "✕"}
+          </button>
+        );
+      },
+    },
+  ];
+
+  // Map visible columns to VisibilityState
+  const visibilityState: VisibilityState = {};
+  for (const col of columns) {
+    if (col.id) {
+      visibilityState[col.id] = visibleColumns.includes(col.id as ColumnKey);
+    }
+  }
+
+  // Column alignment mapping
+  const align: Record<string, "left" | "right" | "center"> = {};
+  for (const col of columns) {
+    if (col.id && col.id !== "model" && col.id !== "actions") {
+      align[col.id] = "right";
+    }
+  }
+
   return (
     <Card>
       <CardContent>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {columns
-                  .filter((c) => visibleColumns.includes(c.key))
-                  .map((col) => (
-                    <TableHead
-                      key={col.key}
-                      className={
-                        col.align === "right"
-                          ? "cursor-pointer hover:text-primary text-right"
-                          : "cursor-pointer hover:text-primary"
-                      }
-                      onClick={() => col.sortable && onSort(col.sortable)}
-                    >
-                      {col.label}{" "}
-                      {col.sortable &&
-                        sortField === col.sortable &&
-                        (sortDirection === "asc" ? "↑" : "↓")}
-                    </TableHead>
-                  ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading
-                ? Array.from({ length: 10 }).map((_, i) => (
-                    <TableRow key={i}>
-                      {columns
-                        .filter((c) => visibleColumns.includes(c.key))
-                        .map((col) => (
-                          <TableCell
-                            key={col.key}
-                            className={
-                              col.align === "right" ? "text-right" : ""
-                            }
-                          >
-                            <Skeleton className="h-4 w-12 ml-auto" />
-                          </TableCell>
-                        ))}
-                    </TableRow>
-                  ))
-                : data.map((m, i) => {
-                    const modelName =
-                      typeof m.model === "string" ? m.model : "";
-                    const modelLabel = modelName.trim()
-                      ? modelName
-                      : "(no model)";
-
-                    return (
-                      <TableRow key={`${modelName}-${i}`}>
-                        {columns
-                          .filter((c) => visibleColumns.includes(c.key))
-                          .map((col) => {
-                            let value: React.ReactNode = null;
-
-                            switch (col.key) {
-                              case "model":
-                                value = (
-                                  <div className="flex items-center gap-2">
-                                    <div
-                                      className={`h-2 w-2 rounded-full shrink-0 ${getHealthColor(m.success_rate)}`}
-                                    />
-                                    <Link
-                                      to={`/model-stats/${encodeURIComponent(modelName)}`}
-                                      className="font-medium font-mono text-xs whitespace-nowrap hover:underline"
-                                    >
-                                      {modelLabel}
-                                    </Link>
-                                  </div>
-                                );
-                                break;
-                              case "requests":
-                                value = formatNumber(m.request_count);
-                                break;
-                              case "spend":
-                                value = formatCurrency(m.total_spend);
-                                break;
-                              case "percent":
-                                value = (
-                                  <SpendBar
-                                    value={Number(m.total_spend)}
-                                    total={totalSpend}
-                                  />
-                                );
-                                break;
-                              case "tokens":
-                                value = formatNumber(m.total_tokens);
-                                break;
-                              case "prompt":
-                                value = formatNumber(m.prompt_tokens);
-                                break;
-                              case "output":
-                                value = formatNumber(m.completion_tokens);
-                                break;
-                              case "avgTok":
-                                value = formatNumber(m.avg_tokens_per_request);
-                                break;
-                              case "tokPerSec":
-                                value = formatTokensPerSecond(
-                                  m.p50_tokens_per_second,
-                                );
-                                break;
-                              case "costPer1k":
-                                value =
-                                  Number(m.total_tokens) > 0
-                                    ? `$${((Number(m.total_spend) / Number(m.total_tokens)) * 1000).toFixed(4)}`
-                                    : "-";
-                                break;
-                              case "latency":
-                                value = formatDuration(m.avg_latency_ms);
-                                break;
-                              case "p50":
-                                value = formatDuration(m.p50_latency_ms);
-                                break;
-                              case "p95":
-                                value = formatDuration(m.p95_latency_ms);
-                                break;
-                              case "p99":
-                                value = formatDuration(m.p99_latency_ms);
-                                break;
-                              case "success":
-                                value = (
-                                  <Badge
-                                    variant={
-                                      Number(m.success_rate) > 95
-                                        ? "default"
-                                        : Number(m.success_rate) > 90
-                                          ? "secondary"
-                                          : "destructive"
-                                    }
-                                  >
-                                    {formatPercent(m.success_rate)}
-                                  </Badge>
-                                );
-                                break;
-                              case "errors":
-                                value =
-                                  Number(m.error_count) > 0 ? (
-                                    <span className="text-red-600 dark:text-red-400 font-medium">
-                                      {formatNumber(m.error_count)}
-                                    </span>
-                                  ) : (
-                                    <span className="text-muted-foreground">
-                                      0
-                                    </span>
-                                  );
-                                break;
-                              case "users":
-                                value = formatNumber(m.unique_users);
-                                break;
-                              case "keys":
-                                value = formatNumber(m.unique_api_keys);
-                                break;
-                              case "first":
-                                value = formatDate(m.first_seen);
-                                break;
-                              case "last":
-                                value = formatDate(m.last_seen);
-                                break;
-                              case "actions":
-                                value = (
-                                  <button
-                                    type="button"
-                                    className="inline-flex items-center justify-center h-6 w-6 rounded-md text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                                    disabled={deleting === modelName}
-                                    onClick={() => onDeleteClick(modelName)}
-                                    aria-label={`Delete ${modelLabel}`}
-                                  >
-                                    {deleting === modelName ? "⋯" : "✕"}
-                                  </button>
-                                );
-                                break;
-                            }
-
-                            return (
-                              <TableCell
-                                key={col.key}
-                                className={
-                                  col.align === "right" ? "text-right" : ""
-                                }
-                              >
-                                {value}
-                              </TableCell>
-                            );
-                          })}
-                      </TableRow>
-                    );
-                  })}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={columns}
+          data={data}
+          loading={loading}
+          emptyMessage="No model statistics found."
+          showPagination={false}
+          columnVisibility={visibilityState}
+          align={align}
+        />
       </CardContent>
     </Card>
   );

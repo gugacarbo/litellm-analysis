@@ -2,18 +2,28 @@ import type {
   PaginationMetadata,
   SpendLog,
 } from "@lite-llm/api-contracts/analytics";
+import type {
+  ColumnDef,
+  Updater,
+  VisibilityState,
+} from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "../ui/card";
-import { Table, TableHead, TableHeader, TableRow } from "../ui/table";
-import { LogsPaginationControls } from "./logs-pagination-controls";
-import { LogsTableBody } from "./logs-table-body";
+import { DataTable } from "../ui/data-table";
 import {
-  LOG_COLUMNS,
-  type LogColumnKey,
-  type TableColumn,
-} from "./logs-table-columns";
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { LogsPaginationControls } from "./logs-pagination-controls";
+import { renderLogCell } from "./logs-table-cell";
+import { LOG_COLUMNS, type LogColumnKey } from "./logs-table-columns";
+import { LogsTableGroupRenderer } from "./logs-table-group-renderer";
 import { LogsTableHeader } from "./logs-table-header";
-import { groupLogsByModel } from "./logs-table-utils";
+import { LogsTableSkeleton } from "./logs-table-skeleton";
+import { calculateGroupSummary, groupLogsByModel } from "./logs-table-utils";
 
 export { DEFAULT_VISIBLE_LOG_COLUMNS } from "./logs-table-columns";
 
@@ -57,9 +67,71 @@ export function LogsTable({
   const isFetching = loading || refreshing;
   const showGroupExpanderColumn = groupByModel;
 
-  const tableColumns: TableColumn[] = LOG_COLUMNS.filter((column) =>
-    visibleColumns.includes(column.key),
+  // Build ColumnDef array from LOG_COLUMNS
+  const columns: ColumnDef<SpendLog>[] = useMemo(
+    () =>
+      LOG_COLUMNS.map((col) => ({
+        id: col.key,
+        accessorKey: col.key,
+        header: () => col.label,
+        cell: ({ row }) =>
+          renderLogCell({
+            log: row.original,
+            columnKey: col.key,
+          }),
+        enableSorting: false,
+        enableHiding: true,
+      })),
+    [],
   );
+
+  // Map visible columns to VisibilityState
+  const visibilityState: VisibilityState = useMemo(() => {
+    const state: VisibilityState = {};
+    for (const col of LOG_COLUMNS) {
+      state[col.key] = visibleColumns.includes(col.key);
+    }
+    return state;
+  }, [visibleColumns]);
+
+  // Column alignment
+  const align: Record<string, "left" | "right" | "center"> = {
+    latencyHeat: "right",
+    promptTokens: "right",
+    completionTokens: "right",
+    totalTokens: "right",
+    duration: "right",
+    timeToFirstToken: "right",
+    tokensPerSecond: "right",
+    spend: "right",
+  };
+
+  // Column labels for visibility dropdown
+  const columnLabels = useMemo(() => {
+    const labels: Record<string, string> = {};
+    for (const col of LOG_COLUMNS) {
+      labels[col.key] = col.label;
+    }
+    return labels;
+  }, []);
+
+  const handleColumnVisibilityChange = (
+    updaterOrValue: Updater<VisibilityState>,
+  ) => {
+    const state =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(
+            Object.fromEntries(LOG_COLUMNS.map((c) => [c.key, true])),
+          )
+        : updaterOrValue;
+    for (const col of LOG_COLUMNS) {
+      const currentlyVisible = visibleColumns.includes(col.key);
+      const newVisible = state[col.key] !== false;
+      if (currentlyVisible !== newVisible) {
+        onToggleColumn(col.key);
+      }
+    }
+  };
 
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {},
@@ -91,6 +163,11 @@ export function LogsTable({
     }));
   };
 
+  // Filter columns for the header
+  const tableColumns = LOG_COLUMNS.filter((col) =>
+    visibleColumns.includes(col.key),
+  );
+
   return (
     <Card>
       <LogsTableHeader
@@ -106,35 +183,73 @@ export function LogsTable({
         onToggleColumn={onToggleColumn}
       />
       <CardContent className="space-y-4">
-        <div className="overflow-x-auto rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {showGroupExpanderColumn ? (
-                  <TableHead className="w-10" aria-label="Expand group" />
-                ) : null}
-                {tableColumns.map((column) => (
-                  <TableHead
-                    key={column.key}
-                    className={column.align === "right" ? "text-right" : ""}
-                  >
-                    {column.label}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <LogsTableBody
-              loading={loading}
-              logs={logs}
-              groupedLogs={groupedLogs}
-              expandedGroups={expandedGroups}
-              tableColumns={tableColumns}
-              showGroupExpanderColumn={showGroupExpanderColumn}
-              onToggleGroup={handleToggleGroup}
-              onSelectLog={onSelectLog}
-            />
-          </Table>
-        </div>
+        {groupedLogs ? (
+          /* Grouped view — custom rendering */
+          <div className="overflow-x-auto rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {showGroupExpanderColumn ? (
+                    <TableHead className="w-10" aria-label="Expand group" />
+                  ) : null}
+                  {tableColumns.map((column) => (
+                    <TableHead
+                      key={column.key}
+                      className={column.align === "right" ? "text-right" : ""}
+                    >
+                      {column.label}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              {loading && logs.length === 0 ? (
+                <TableBody>
+                  <LogsTableSkeleton
+                    showGroupExpanderColumn={showGroupExpanderColumn}
+                    tableColumns={tableColumns}
+                  />
+                </TableBody>
+              ) : (
+                <TableBody>
+                  {groupedLogs.map((group) => {
+                    const groupKey = `${group.model}-${group.logs[0].request_id}`;
+                    const isExpanded = expandedGroups[groupKey] ?? false;
+                    const summary = calculateGroupSummary(group);
+
+                    return (
+                      <LogsTableGroupRenderer
+                        key={groupKey}
+                        group={group}
+                        groupKey={groupKey}
+                        isExpanded={isExpanded}
+                        summary={summary}
+                        tableColumns={tableColumns}
+                        showGroupExpanderColumn={showGroupExpanderColumn}
+                        onToggleGroup={() => handleToggleGroup(groupKey)}
+                        onSelectLog={onSelectLog}
+                      />
+                    );
+                  })}
+                </TableBody>
+              )}
+            </Table>
+          </div>
+        ) : (
+          /* Flat view — DataTable */
+          <DataTable
+            columns={columns}
+            data={logs}
+            loading={loading && logs.length === 0}
+            loadingSkeletonRows={10}
+            emptyMessage="No logs found."
+            showPagination={false}
+            columnVisibility={visibilityState}
+            onColumnVisibilityChange={handleColumnVisibilityChange}
+            columnLabels={columnLabels}
+            align={align}
+            onRowClick={onSelectLog}
+          />
+        )}
 
         <LogsPaginationControls
           page={page}

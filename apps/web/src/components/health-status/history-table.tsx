@@ -8,6 +8,14 @@ import {
 } from "../../pages/health-status/health-status-utils";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 import { StatusBadge } from "./status-badge";
 
 interface HistoryTableProps {
@@ -67,43 +75,24 @@ export function HistoryTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-md border">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b bg-muted/30">
-            <th className="h-9 w-[130px] px-3 text-start text-xs font-medium text-muted-foreground">
-              Status
-            </th>
-            <th className="h-9 px-3 text-start text-xs font-medium text-muted-foreground">
-              Model
-            </th>
-            <th className="h-9 w-[120px] px-3 text-start text-xs font-medium text-muted-foreground">
-              Latency
-            </th>
-            <th className="h-9 w-[120px] px-3 text-start text-xs font-medium text-muted-foreground">
-              TTFT
-            </th>
-            <th className="h-9 w-[130px] px-3 text-start text-xs font-medium text-muted-foreground">
-              Tokens/s
-            </th>
-            <th className="h-9 w-[90px] px-3 text-start text-xs font-medium text-muted-foreground">
-              HTTP
-            </th>
-            <th className="h-9 w-[100px] px-3 text-start text-xs font-medium text-muted-foreground">
-              Source
-            </th>
-            <th className="h-9 px-3 text-start text-xs font-medium text-muted-foreground">
-              When
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[130px]">Status</TableHead>
+            <TableHead>Model</TableHead>
+            <TableHead className="w-[120px]">Latency</TableHead>
+            <TableHead className="w-[120px]">TTFT</TableHead>
+            <TableHead className="w-[130px]">Tokens/s</TableHead>
+            <TableHead className="w-[90px]">HTTP</TableHead>
+            <TableHead className="w-[100px]">Source</TableHead>
+            <TableHead>When</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {entries.map((entry) => (
-            <tr
-              key={entry.id}
-              className="border-b transition-colors hover:bg-muted/20 last:border-0"
-            >
-              <td className="px-3 py-2">
+            <TableRow key={entry.id}>
+              <TableCell>
                 <button
                   type="button"
                   className="rounded"
@@ -111,37 +100,37 @@ export function HistoryTable({
                 >
                   <StatusBadge status={entry.status} />
                 </button>
-              </td>
-              <td className="max-w-[260px] truncate px-3 py-2 font-medium">
+              </TableCell>
+              <TableCell className="max-w-[260px] truncate font-medium">
                 {entry.modelName}
-              </td>
-              <td className="px-3 py-2 font-mono text-xs tabular-nums">
+              </TableCell>
+              <TableCell className="font-mono text-xs tabular-nums">
                 {formatResponseTime(entry.responseTimeMs)}
-              </td>
-              <td className="px-3 py-2 font-mono text-xs tabular-nums">
+              </TableCell>
+              <TableCell className="font-mono text-xs tabular-nums">
                 {formatResponseTime(entry.ttftMs)}
-              </td>
-              <td className="px-3 py-2 font-mono text-xs tabular-nums">
+              </TableCell>
+              <TableCell className="font-mono text-xs tabular-nums">
                 {formatTokensPerSecond(entry.tokensPerSecond)}
-              </td>
-              <td className="px-3 py-2 text-xs tabular-nums">
+              </TableCell>
+              <TableCell className="text-xs tabular-nums">
                 {entry.statusCode ?? "—"}
-              </td>
-              <td className="px-3 py-2">
+              </TableCell>
+              <TableCell>
                 <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
                   {entry.source}
                 </Badge>
-              </td>
-              <td
-                className="px-3 py-2 text-xs text-muted-foreground"
+              </TableCell>
+              <TableCell
+                className="text-xs text-muted-foreground"
                 title={formatTimestamp(entry.checkedAt)}
               >
                 {formatRelativeTime(entry.checkedAt)}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
 
       <div className="flex items-center justify-between border-t bg-muted/20 px-3 py-2">
         <span className="text-xs text-muted-foreground tabular-nums">

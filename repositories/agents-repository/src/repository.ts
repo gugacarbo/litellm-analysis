@@ -5,8 +5,8 @@ import {
   parseConfigContent,
 } from "@lite-llm/repository-utils/jsonc";
 import {
-  type DbConfig,
   agentsConfigSchema,
+  type DbConfig,
   pluginsConfigSchema,
 } from "./schemas/index";
 import { FileStorage, type IStorage } from "./storage";
@@ -169,18 +169,14 @@ export class AgentsRepository implements IAgentsRepository {
       normalizeConfig(agentsPart),
     );
     if (!agentsResult.success) {
-      throw new Error(
-        `Invalid agents config: ${agentsResult.error.message}`,
-      );
+      throw new Error(`Invalid agents config: ${agentsResult.error.message}`);
     }
 
     const pluginsResult = pluginsConfigSchema.safeParse(
       normalizeConfig({ plugins }),
     );
     if (!pluginsResult.success) {
-      throw new Error(
-        `Invalid plugins config: ${pluginsResult.error.message}`,
-      );
+      throw new Error(`Invalid plugins config: ${pluginsResult.error.message}`);
     }
 
     await this.storage.write(

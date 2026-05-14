@@ -114,7 +114,6 @@ export function ModelStatsPage() {
         <ModelStatsDataTable
           loading={state.loading}
           data={state.sortedData}
-          columns={MODEL_STATS_COLUMNS}
           visibleColumns={state.visibleColumns}
           sortField={state.sortField}
           sortDirection={state.sortDirection}
