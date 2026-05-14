@@ -1,7 +1,10 @@
-import * as path from "node:path";
 import { existsSync } from "node:fs";
-import { createRepository, type IModelsRepository } from "@lite-llm/models-repository/repository";
+import * as path from "node:path";
 import type { RepositoryOptions } from "@lite-llm/models-repository/repository";
+import {
+  createRepository,
+  type IModelsRepository,
+} from "@lite-llm/models-repository/repository";
 
 export type { IModelsRepository, RepositoryOptions };
 

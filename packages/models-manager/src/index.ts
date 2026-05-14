@@ -1,4 +1,7 @@
 // Repository client
+
+// Alias router (pure functions)
+export * from "./alias-router/index.js";
 export {
   createRepositoryClient,
   type IModelsRepository,
@@ -6,18 +9,15 @@ export {
   type RepositoryOptions,
 } from "./repository/client.js";
 
-// Alias router (pure functions)
-export * from "./alias-router/index.js";
-
 // Services
 export {
-  ModelService,
   type IModelService,
+  ModelService,
   type ModelServiceOptions,
 } from "./services/model.service.js";
 
 export {
-  ProviderService,
   type IProviderService,
+  ProviderService,
   type ProviderServiceOptions,
 } from "./services/provider.service.js";

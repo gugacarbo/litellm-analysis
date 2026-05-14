@@ -1,6 +1,6 @@
-import { describe, expect, it, beforeEach } from "vitest";
-import { MemoryStorage } from "@lite-llm/repository-utils";
 import { createRepository } from "@lite-llm/models-repository/repository";
+import { MemoryStorage } from "@lite-llm/repository-utils";
+import { beforeEach, describe, expect, it } from "vitest";
 import { ProviderService } from "../provider.service.js";
 
 function createTestRepo(files: Record<string, string>) {
@@ -83,8 +83,6 @@ describe("ProviderService", () => {
   });
 
   it("throws on delete of missing provider", async () => {
-    await expect(service.delete("nonexistent")).rejects.toThrow(
-      /not found/,
-    );
+    await expect(service.delete("nonexistent")).rejects.toThrow(/not found/);
   });
 });

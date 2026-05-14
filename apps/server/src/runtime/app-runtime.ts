@@ -2,11 +2,11 @@ import { existsSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAgentsManager } from "@lite-llm/agents-manager";
+import { prisma } from "@lite-llm/analytics/queries/client";
 import {
   createRepositoryClient as createModelsRepositoryClient,
   ModelService,
 } from "@lite-llm/models-manager";
-import { prisma } from "@lite-llm/analytics/queries/client";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
 import { AliasDbWriterImpl } from "@lite-llm/server-core/orchestration/alias-db-writer.js";
 import { createAppContext } from "../contexts";

@@ -57,12 +57,7 @@ export type {
   IRoutingService,
   RoutingServiceOptions,
 };
-export {
-  AgentCatalogService,
-  AgentService,
-  CategoryService,
-  RoutingService,
-};
+export { AgentCatalogService, AgentService, CategoryService, RoutingService };
 
 // Plugins
 import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin.js";
