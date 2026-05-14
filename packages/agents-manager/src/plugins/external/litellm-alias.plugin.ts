@@ -56,13 +56,12 @@ export class LitellmAliasPlugin implements IPlugin {
       },
       {
         key: "selectedAgents",
-        type: "string",
+        type: "multiselect",
         label: "Selected Agents",
         required: false,
-        default: "",
-        placeholder: "Comma-separated agent IDs, e.g. coder,planner",
-        description:
-          "Which agents to include (empty = all). Comma-separated list.",
+        default: [],
+        description: "Which agents to include (empty = all).",
+        options: [],
       },
       {
         key: "includeCategories",
@@ -74,13 +73,12 @@ export class LitellmAliasPlugin implements IPlugin {
       },
       {
         key: "selectedCategories",
-        type: "string",
+        type: "multiselect",
         label: "Selected Categories",
         required: false,
-        default: "",
-        placeholder: "Comma-separated category keys, e.g. coding,debugging",
-        description:
-          "Which categories to include (empty = all). Comma-separated list.",
+        default: [],
+        description: "Which categories to include (empty = all).",
+        options: [],
       },
       {
         key: "globalFallbackOverride",
@@ -112,24 +110,14 @@ export class LitellmAliasPlugin implements IPlugin {
       (config.globalFallbackOverride as string) ?? "";
     const effectiveFallback = globalFallbackOverride || ctx.globalFallbackModel;
 
-    // Parse comma-separated selections into Sets (null = all)
-    const selectedAgentsRaw = (config.selectedAgents as string) ?? "";
-    const selectedCategoriesRaw = (config.selectedCategories as string) ?? "";
-    const selectedAgentsSet = selectedAgentsRaw
-      ? new Set(
-          selectedAgentsRaw
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
-        )
+    // Parse selections into Sets (empty array = all)
+    const selectedAgentsArr = (config.selectedAgents as string[]) ?? [];
+    const selectedCategoriesArr = (config.selectedCategories as string[]) ?? [];
+    const selectedAgentsSet = selectedAgentsArr.length
+      ? new Set(selectedAgentsArr)
       : null;
-    const selectedCategoriesSet = selectedCategoriesRaw
-      ? new Set(
-          selectedCategoriesRaw
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
-        )
+    const selectedCategoriesSet = selectedCategoriesArr.length
+      ? new Set(selectedCategoriesArr)
       : null;
 
     if (includeAgents) {

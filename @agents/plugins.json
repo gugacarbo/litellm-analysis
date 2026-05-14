@@ -1,5 +1,44 @@
 {
   "$schema": "./plugins.schema.json",
   "version": 2,
-  "plugins": {}
+  "plugins": {
+    "litellm-alias": {
+      "enabled": true,
+      "outputFile": "",
+      "config": {
+        "includeAgents": true
+      },
+      "routing": {
+        "agents": {},
+        "categories": {}
+      }
+    },
+    "opencode": {
+      "enabled": true,
+      "outputFile": "",
+      "config": {},
+      "routing": {
+        "agents": {},
+        "categories": {}
+      }
+    },
+    "openagent": {
+      "enabled": true,
+      "outputFile": "",
+      "config": {},
+      "routing": {
+        "agents": {},
+        "categories": {}
+      }
+    },
+    "vscode": {
+      "enabled": true,
+      "outputFile": "",
+      "config": {},
+      "routing": {
+        "agents": {},
+        "categories": {}
+      }
+    }
+  }
 }

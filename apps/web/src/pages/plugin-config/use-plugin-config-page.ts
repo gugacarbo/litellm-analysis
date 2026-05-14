@@ -60,6 +60,33 @@ export function usePluginConfigPage(pluginId: string) {
     return agents.map((a) => ({ key: a.key, displayName: a.displayName }));
   }, [agentCatalog]);
 
+  const categoryOptions = useMemo(() => {
+    return Object.keys(safeData.categoryMappings).map((key) => ({
+      value: key,
+      label: key.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    }));
+  }, [safeData.categoryMappings]);
+
+  // Inject dynamic options into multiselect schema fields
+  const resolvedSchema = useMemo(() => {
+    return safeData.schema.map((field) => {
+      if (field.type !== "multiselect") return field;
+      if (field.key === "selectedAgents") {
+        return {
+          ...field,
+          options: systemAgents.map((a) => ({
+            value: a.key,
+            label: a.displayName,
+          })),
+        };
+      }
+      if (field.key === "selectedCategories") {
+        return { ...field, options: categoryOptions };
+      }
+      return field;
+    });
+  }, [safeData.schema, systemAgents, categoryOptions]);
+
   // Plugin exists if it's in the available plugins registry
   const notFound =
     !pluginsLoading &&
@@ -128,7 +155,7 @@ export function usePluginConfigPage(pluginId: string) {
       ...safeData.categoryMappings,
       ...categoryMappings,
     },
-    schema: safeData.schema,
+    schema: resolvedSchema,
     internalAgents: safeData.internalAgents,
     systemAgents,
     categories: Object.keys(safeData.categoryMappings),

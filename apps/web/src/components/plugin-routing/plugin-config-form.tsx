@@ -1,4 +1,5 @@
 import type { ConfigField } from "@lite-llm/api-contracts/agent-catalog";
+import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {
@@ -22,6 +23,14 @@ export function PluginConfigForm({
   onChange,
 }: PluginConfigFormProps) {
   if (schema.length === 0) return null;
+
+  const toggleMultiSelectItem = (fieldKey: string, itemValue: string) => {
+    const current = ((values[fieldKey] as string[]) ?? []) as string[];
+    const next = current.includes(itemValue)
+      ? current.filter((v) => v !== itemValue)
+      : [...current, itemValue];
+    onChange(fieldKey, next);
+  };
 
   return (
     <div className="space-y-4">
@@ -94,6 +103,31 @@ export function PluginConfigForm({
                   ))}
                 </SelectContent>
               </Select>
+            ) : field.type === "multiselect" && field.options ? (
+              <div className="space-y-2 rounded-md border p-3">
+                {field.options.map((opt) => {
+                  const selected = ((values[field.key] as string[]) ??
+                    []) as string[];
+                  const checked = selected.includes(opt.value);
+                  return (
+                    <div key={opt.value} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`${field.key}-${opt.value}`}
+                        checked={checked}
+                        onCheckedChange={() =>
+                          toggleMultiSelectItem(field.key, opt.value)
+                        }
+                      />
+                      <Label
+                        htmlFor={`${field.key}-${opt.value}`}
+                        className="text-sm font-normal"
+                      >
+                        {opt.label}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
             ) : null}
           </div>
         ))}
