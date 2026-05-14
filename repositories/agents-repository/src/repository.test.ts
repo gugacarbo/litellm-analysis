@@ -29,11 +29,8 @@ describe("AgentsRepository", () => {
       [filePath]: `{
         // comment
         "version": 2,
-        "provider": { "litellm": { "name": "LiteLLM", "apiKey": "sk-test" } },
-        "models": {},
         "categories": {},
         "agents": {},
-        "routing": {},
       }`,
     });
     const repository = createRepository({
@@ -44,7 +41,6 @@ describe("AgentsRepository", () => {
 
     const config = await repository.read();
     expect(config.version).toBe(2);
-    expect(config.provider.litellm.apiKey).toBe("sk-test");
   });
 
   it("throws a parse error with file path context", async () => {
@@ -68,14 +64,6 @@ describe("AgentsRepository", () => {
     const storage = new MemoryStorage({
       [filePath]: JSON.stringify({
         version: 2,
-        provider: {
-          litellm: {
-            name: "LiteLLM",
-            baseUrl: "http://localhost:4000",
-            apiKey: "sk-test",
-          },
-        },
-        models: {},
         categories: {},
         agents: {
           loom: {
@@ -105,15 +93,6 @@ describe("AgentsRepository", () => {
 
     const config = {
       version: 2,
-      provider: {
-        litellm: {
-          name: "LiteLLM",
-          ownedBy: "",
-          baseUrl: "http://localhost:4000",
-          apiKey: "sk-test",
-        },
-      },
-      models: {},
       categories: {},
       agents: {
         loom: {

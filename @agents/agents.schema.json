@@ -14,126 +14,6 @@
       "description": "Config version",
       "type": "number"
     },
-    "provider": {
-      "default": {},
-      "title": "Providers",
-      "description": "Providers keyed by provider id",
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "default": "",
-            "title": "Name",
-            "description": "Provider display name",
-            "type": "string"
-          },
-          "ownedBy": {
-            "default": "",
-            "title": "Owned By",
-            "description": "Organization that owns this provider",
-            "type": "string"
-          },
-          "baseUrl": {
-            "default": "",
-            "title": "Base URL",
-            "description": "Provider API base URL",
-            "type": "string"
-          },
-          "apiKey": {
-            "default": "",
-            "title": "API Key",
-            "description": "Provider API key",
-            "type": "string"
-          }
-        },
-        "required": ["name", "ownedBy", "baseUrl", "apiKey"],
-        "additionalProperties": false
-      }
-    },
-    "models": {
-      "default": {},
-      "title": "Models",
-      "description": "Model specifications",
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "enabled": {
-            "default": true,
-            "title": "Enabled",
-            "description": "Whether this model is enabled for routing and selection",
-            "type": "boolean"
-          },
-          "displayName": {
-            "default": "",
-            "type": "string",
-            "title": "Display Name",
-            "description": "Human-readable name for the model"
-          },
-          "family": {
-            "default": "",
-            "title": "Family",
-            "description": "Model family",
-            "type": "string"
-          },
-          "limits": {
-            "default": {
-              "length": 200000,
-              "maxOutput": 32768
-            },
-            "title": "Limits",
-            "description": "Model limits",
-            "type": "object",
-            "properties": {
-              "length": {
-                "default": 200000,
-                "type": "number",
-                "title": "Context Length",
-                "description": "Maximum context window size in tokens"
-              },
-              "maxOutput": {
-                "default": 32768,
-                "type": "number",
-                "title": "Max Output",
-                "description": "Maximum output tokens"
-              }
-            },
-            "required": ["length", "maxOutput"],
-            "additionalProperties": false
-          },
-          "cost": {
-            "default": {},
-            "title": "Cost",
-            "description": "Model pricing per million tokens",
-            "type": "object",
-            "properties": {
-              "input": {
-                "default": 0,
-                "title": "Input Cost",
-                "description": "Cost per million input tokens",
-                "type": "number"
-              },
-              "output": {
-                "default": 0,
-                "title": "Output Cost",
-                "description": "Cost per million output tokens",
-                "type": "number"
-              }
-            },
-            "additionalProperties": false
-          }
-        },
-        "required": ["displayName", "limits"],
-        "additionalProperties": false
-      }
-    },
     "agents": {
       "default": {},
       "title": "Agents",
@@ -152,7 +32,7 @@
             "type": "string"
           },
           "icon": {
-            "default": "🤖",
+            "default": "\ud83e\udd16",
             "title": "Icon",
             "description": "Icon identifier",
             "type": "string"
@@ -349,7 +229,7 @@
             "type": "string"
           },
           "icon": {
-            "default": "📂",
+            "default": "\ud83d\udcc2",
             "title": "Icon",
             "description": "Icon identifier",
             "type": "string"
@@ -690,6 +570,6 @@
       }
     }
   },
-  "required": ["version", "provider", "models", "agents", "categories"],
+  "required": ["version", "agents", "categories"],
   "additionalProperties": false
 }
