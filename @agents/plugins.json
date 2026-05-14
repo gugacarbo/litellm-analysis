@@ -8,11 +8,7 @@
       "config": {
         "includeAgents": true,
         "includeCategories": true,
-        "selectedAgents": [
-          "shuttle",
-          "tapestry",
-          "loom"
-        ]
+        "selectedAgents": ["shuttle", "tapestry", "loom"]
       },
       "routing": {
         "agents": {},

@@ -7,6 +7,8 @@ import type { ConfigField, InternalAgent } from "../plugin-types";
 
 interface OpenCodeProviders {
   provider: Record<string, unknown>;
+  agent?: Record<string, unknown>;
+  category?: Record<string, unknown>;
 }
 
 export class OpenCodePlugin implements IPlugin {
@@ -111,6 +113,31 @@ export class OpenCodePlugin implements IPlugin {
           },
         },
       };
+    }
+
+    // Build agents section from routing configuration
+    if (routing.routing?.agents) {
+      output.agent = {};
+      for (const [agentName, agentId] of Object.entries(routing.routing.agents)) {
+        output.agent[agentName] = {
+          model: "litellm/MiniMax-M2.7-highspeed",
+          fallback_models: [],
+          temperature: 0.2,
+        };
+      }
+    }
+
+    // Build categories section from categories configuration
+    if (ctx.allCategories && Object.keys(ctx.allCategories).length > 0) {
+      output.category = {};
+      for (const [categoryName, category] of Object.entries(ctx.allCategories)) {
+        output.category[categoryName] = {
+          description: category.description ?? "",
+          model: category.model ?? "litellm/MiniMax-M2.7-highspeed",
+          fallback_models: category.fallbackModels ?? [],
+          temperature: category.temperature ?? 0.2,
+        };
+      }
     }
 
     return output;
