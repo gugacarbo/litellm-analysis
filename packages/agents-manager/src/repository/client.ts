@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
 import {
@@ -10,19 +10,27 @@ import { DEFAULT_DB_PATH } from "../config/defaults";
 
 export interface RepositoryClientOptions {
   filePath?: string;
+  pluginsFilePath?: string;
 }
+
+const DEFAULT_PLUGINS_PATH = "@agents/plugins.json";
 
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IAgentsRepository {
   const filePath = options.filePath ?? DEFAULT_DB_PATH;
+  const pluginsFilePath = options.pluginsFilePath ?? DEFAULT_PLUGINS_PATH;
 
   // Resolve special paths like @agents/agents.json, with json/jsonc fallback.
   const resolvedPath = resolveDbPathWithFallback(filePath);
+  const resolvedPluginsPath = resolveDbPathWithFallback(pluginsFilePath);
+
   ensureConfigFileExists(resolvedPath);
+  ensurePluginsFileExists(resolvedPluginsPath);
 
   const repoOptions: RepositoryOptions = {
     filePath: resolvedPath,
+    pluginsFilePath: resolvedPluginsPath,
     validateOnRead: false,
   };
   return createRepository(repoOptions);
@@ -41,6 +49,31 @@ function ensureConfigFileExists(targetPath: string): void {
 
   mkdirSync(path.dirname(targetPath), { recursive: true });
   copyFileSync(defaultPath, targetPath);
+}
+
+function ensurePluginsFileExists(targetPath: string): void {
+  if (existsSync(targetPath)) return;
+
+  const ext = path.extname(targetPath).toLowerCase();
+  const defaultPath =
+    ext === ".jsonc"
+      ? targetPath.replace(/\.jsonc$/i, ".default.json")
+      : targetPath.replace(/\.json$/i, ".default.json");
+
+  if (existsSync(defaultPath)) {
+    mkdirSync(path.dirname(targetPath), { recursive: true });
+    copyFileSync(defaultPath, targetPath);
+    return;
+  }
+
+  // No default file — create minimal plugins config
+  mkdirSync(path.dirname(targetPath), { recursive: true });
+  const minimalPlugins = {
+    $schema: "./plugins.schema.json",
+    version: 2,
+    plugins: {},
+  };
+  writeFileSync(targetPath, JSON.stringify(minimalPlugins, null, 2), "utf-8");
 }
 
 function resolveDbPathWithFallback(dbPath: string): string {
@@ -65,30 +98,19 @@ function resolveDbPathWithFallback(dbPath: string): string {
 }
 
 function resolveDbPath(dbPath: string): string {
-  // Handle special @agents/ and @db/ paths -- resolve relative to monorepo root
   if (dbPath.startsWith("@agents/") || dbPath.startsWith("@db/")) {
     const monorepoRoot = findMonorepoRoot();
     return path.join(monorepoRoot, dbPath);
   }
 
-  // Handle @agents/ path -- also resolve relative to monorepo root
-  if (dbPath.startsWith("@agents/")) {
-    const monorepoRoot = findMonorepoRoot();
-    return path.join(monorepoRoot, dbPath);
-  }
-
-  // Handle absolute paths
   if (path.isAbsolute(dbPath)) {
     return dbPath;
   }
 
-  // Handle relative paths -- resolve from current working directory
   return path.resolve(process.cwd(), dbPath);
 }
 
 function findMonorepoRoot(): string {
-  // Walk up from current directory to find pnpm-workspace.yaml
-  // (monorepo root marker). If not found, fall back to findProjectRoot.
   let dir = process.cwd();
   const root = path.parse(dir).root;
 
@@ -101,7 +123,6 @@ function findMonorepoRoot(): string {
     dir = path.dirname(dir);
   }
 
-  // Fallback: find closest package.json
   return findProjectRoot();
 }
 
