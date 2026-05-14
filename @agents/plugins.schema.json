@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "default": "./plugins.schema.json",
+      "title": "Schema",
+      "description": "JSON Schema reference",
+      "$ref": "#/$defs/__schema0"
+    },
+    "version": {
+      "default": 2,
+      "title": "Version",
+      "description": "Config version",
+      "$ref": "#/$defs/__schema1"
+    },
+    "plugins": {
+      "default": {},
+      "title": "Plugins",
+      "description": "Plugin configurations",
+      "$ref": "#/$defs/__schema2"
+    }
+  },
+  "required": [
+    "version",
+    "plugins"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "type": "string"
+    },
+    "__schema1": {
+      "type": "number"
+    },
+    "__schema2": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "description": "Whether plugin routing is enabled",
+            "$ref": "#/$defs/__schema3"
+          },
+          "outputFile": {
+            "default": "",
+            "title": "Output File",
+            "description": "Output file path",
+            "$ref": "#/$defs/__schema4"
+          },
+          "config": {
+            "default": {},
+            "title": "Config",
+            "description": "Plugin configuration",
+            "$ref": "#/$defs/__schema5"
+          },
+          "routing": {
+            "default": {
+              "agents": {},
+              "categories": {}
+            },
+            "type": "object",
+            "properties": {
+              "agents": {
+                "$ref": "#/$defs/__schema6"
+              },
+              "categories": {
+                "$ref": "#/$defs/__schema9"
+              }
+            },
+            "additionalProperties": false,
+            "title": "Routing",
+            "description": "Routing mappings for agents and categories"
+          }
+        },
+        "required": [
+          "enabled",
+          "outputFile",
+          "routing"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "__schema3": {
+      "type": "boolean"
+    },
+    "__schema4": {
+      "type": "string"
+    },
+    "__schema5": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "__schema6": {
+      "default": {},
+      "title": "Agents Routing",
+      "description": "System agent id to plugin agent id mapping",
+      "$ref": "#/$defs/__schema7"
+    },
+    "__schema7": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "default": "",
+        "title": "Plugin Agent",
+        "description": "Mapped plugin agent identifier",
+        "$ref": "#/$defs/__schema8"
+      }
+    },
+    "__schema8": {
+      "type": "string"
+    },
+    "__schema9": {
+      "default": {},
+      "title": "Categories Routing",
+      "description": "Category routing enablement by category id",
+      "$ref": "#/$defs/__schema10"
+    },
+    "__schema10": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "default": false,
+        "title": "Category Route",
+        "description": "Category routing enabled state",
+        "$ref": "#/$defs/__schema11"
+      }
+    },
+    "__schema11": {
+      "type": "boolean"
+    }
+  }
+}
