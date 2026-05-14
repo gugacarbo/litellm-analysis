@@ -30,7 +30,7 @@ const rateLimitStateFile =
   process.env.STATE_FILE ?? path.join(cacheDir, "rate-limit-state.json");
 
 const outputDir =
-  process.env.OUTPUT_DIR ?? path.join(rootDir, "data", "benchmarks");
+  process.env.OUTPUT_DIR ?? path.join(rootDir, "@storage", "benchmarks");
 const rawOutputFile = path.join(
   outputDir,
   "artificial-analysis-models.raw.json",
@@ -315,7 +315,7 @@ Env:
   CACHE_DIR               (default: .agents/skills/artificial-analysis/.cache)
   RAW_CACHE_FILE          (default: .agents/skills/artificial-analysis/.cache/models.json)
   STATE_FILE              (default: .agents/skills/artificial-analysis/.cache/rate-limit-state.json)
-  OUTPUT_DIR              (default: data/benchmarks)
+  OUTPUT_DIR              (default: @storage/benchmarks)
   RATE_LIMIT_QPM          (default: 5)
   MIN_RESPONSE_SECONDS    (default: 1)
 `);

@@ -64,7 +64,7 @@ RepositoryClient → Services (agent/category/model/routing)
     ↓
 PluginRegistry → OpenCodePlugin / OpenAgentPlugin / VsCodePlugin
     ↓
-data/opencode.json, data/oh-my-openagent.json, data/vscode-oaicopilot.json
+@storage/output/opencode.json, @storage/output/oh-my-openagent.json, @storage/output/vscode-oaicopilot.json
 ```
 
 ## CONVENTIONS

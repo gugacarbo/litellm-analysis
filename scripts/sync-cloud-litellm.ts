@@ -24,13 +24,13 @@
  *   DB_USER                 (default: llmproxy)
  */
 
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const DEFAULT_OUTPUT_DIR = path.join(ROOT, "data", "cloud-sync");
+const DEFAULT_OUTPUT_DIR = path.join(ROOT, "@storage", "output", "cloud-sync");
 const DEFAULT_DAYS = 30;
 const PAGE_SIZE = 100;
 
@@ -47,7 +47,7 @@ COMANDOS:
 
     Opções:
       --days N       Últimos N dias de dados (default: ${DEFAULT_DAYS})
-      --output FILE  Arquivo de saída (default: data/cloud-sync/spend-logs.json)
+      --output FILE  Arquivo de saída (default: @storage/output/cloud-sync/spend-logs.json)
 
     Env:
       LITELLM_CLOUD_URL      (obrigatório)
@@ -62,7 +62,7 @@ COMANDOS:
     Mostra estatísticas básicas do JSON baixado.
 
     Exemplo:
-      pnpm tsx scripts/sync-cloud-litellm.ts stats data/cloud-sync/spend-logs.json
+      pnpm tsx scripts/sync-cloud-litellm.ts stats @storage/output/cloud-sync/spend-logs.json
 
   import <arquivo>
     Importa o JSON para o PostgreSQL local usando a tabela LiteLLM_SpendLogs.
@@ -76,7 +76,7 @@ COMANDOS:
 
     Exemplo:
       DB_PASSWORD=minha-senha \\
-        pnpm tsx scripts/sync-cloud-litellm.ts import data/cloud-sync/spend-logs.json
+        pnpm tsx scripts/sync-cloud-litellm.ts import @storage/output/cloud-sync/spend-logs.json
 `);
 }
 

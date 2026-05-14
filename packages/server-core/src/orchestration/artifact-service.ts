@@ -70,7 +70,7 @@ export async function syncGeneratedArtifacts(
   agentsManager: AgentsManager,
   modelsService: IModelService,
 ): Promise<void> {
-  const { repository, registry } = agentsManager;
+  const { registry } = agentsManager;
 
   // Sync models to database
   const configModels = await modelsService.getAll();

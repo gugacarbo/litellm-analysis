@@ -195,7 +195,7 @@ describe("PluginRegistry", () => {
       const callArgs = buildOutputSpy.mock.calls[0];
       const agents = callArgs[0];
       const routing = callArgs[1];
-      const ctx = callArgs[2];
+      const _ctx = callArgs[2];
       expect(agents).toHaveLength(1);
       expect(agents[0].displayName).toBe("Builder");
       expect(routing.enabled).toBe(true);

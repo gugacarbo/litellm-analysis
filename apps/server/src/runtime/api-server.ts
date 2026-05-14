@@ -79,7 +79,7 @@ async function loadModelAliases(
 ): Promise<Record<string, string>> {
   const aliasesPath = path.join(
     workspaceRoot,
-    "data",
+    "@storage",
     "benchmarks",
     "model-aliases.json",
   );
@@ -205,7 +205,7 @@ export function createApiServer(
       const workspaceRoot = getWorkspaceRoot();
       const benchmarkFilePath = path.join(
         workspaceRoot,
-        "data",
+        "@storage",
         "benchmarks",
         "artificial-analysis-models.json",
       );
@@ -315,7 +315,12 @@ export function createApiServer(
   });
 
   function getAliasesFilePath(workspaceRoot: string): string {
-    return path.join(workspaceRoot, "data", "benchmarks", "model-aliases.json");
+    return path.join(
+      workspaceRoot,
+      "@storage",
+      "benchmarks",
+      "model-aliases.json",
+    );
   }
 
   // Get current aliases
@@ -364,7 +369,7 @@ export function createApiServer(
   const workspaceRoot = getWorkspaceRoot();
   const benchmarkFilePath = path.join(
     workspaceRoot,
-    "data",
+    "@storage",
     "benchmarks",
     "artificial-analysis-models.json",
   );
