@@ -53,15 +53,5 @@
         "output": 32768
       }
     }
-  },
-  "plugins": {
-    "opencode": {
-      "enabled": true,
-      "outputFile": "opencode.json",
-      "routing": {
-        "agents": {},
-        "categories": {}
-      }
-    }
   }
 }

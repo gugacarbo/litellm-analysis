@@ -1,0 +1,14 @@
+{
+  "$schema": "./plugins.schema.json",
+  "version": 2,
+  "plugins": {
+    "opencode": {
+      "enabled": true,
+      "outputFile": "opencode.json",
+      "routing": {
+        "agents": {},
+        "categories": {}
+      }
+    }
+  }
+}
