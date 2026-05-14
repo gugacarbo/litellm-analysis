@@ -36,7 +36,42 @@ export class LitellmAliasPlugin implements IPlugin {
   }
 
   getConfigSchema(): ConfigField[] {
-    return [];
+    return [
+      {
+        key: "aliasPrefix",
+        type: "string",
+        label: "Alias Prefix",
+        required: false,
+        default: "",
+        placeholder: "e.g. prod:",
+        description: "Text prepended to all generated alias names",
+      },
+      {
+        key: "includeAgents",
+        type: "boolean",
+        label: "Include Agents",
+        required: false,
+        default: true,
+        description: "Include agent-based aliases in output",
+      },
+      {
+        key: "includeCategories",
+        type: "boolean",
+        label: "Include Categories",
+        required: false,
+        default: true,
+        description: "Include category-based aliases in output",
+      },
+      {
+        key: "globalFallbackOverride",
+        type: "string",
+        label: "Global Fallback Override",
+        required: false,
+        default: "",
+        placeholder: "e.g. gpt-4o-mini",
+        description: "Override global fallback model (empty = use default)",
+      },
+    ];
   }
 
   getOutputFile(): string {
@@ -63,7 +98,13 @@ export class LitellmAliasPlugin implements IPlugin {
       );
     }
 
+    const enabledCategories = _routing.routing.categories ?? {};
     for (const [key, category] of Object.entries(ctx.allCategories ?? {})) {
+      // Only process categories explicitly enabled in routing config
+      if (!enabledCategories[key]) {
+        continue;
+      }
+
       // Skip categories with no model and no fallback models configured
       const hasModel = Boolean(category.model);
       const hasFallbacks = (category.fallbackModels?.length ?? 0) > 0;
