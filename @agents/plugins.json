@@ -6,7 +6,13 @@
       "enabled": true,
       "outputFile": "",
       "config": {
-        "includeAgents": true
+        "includeAgents": true,
+        "includeCategories": true,
+        "selectedAgents": [
+          "shuttle",
+          "tapestry",
+          "loom"
+        ]
       },
       "routing": {
         "agents": {},

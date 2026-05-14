@@ -1,4 +1,5 @@
 import type { AgentCatalogEntry } from "@lite-llm/api-contracts/agent-routing";
+import type { CategoryEntry } from "@lite-llm/api-contracts/category";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -8,7 +9,10 @@ import {
   useToggleCategoryExport,
 } from "@/hooks/use-plugin-config";
 import { useAvailablePlugins } from "@/hooks/use-plugin-routing";
-import { getAgentCatalog } from "@/lib/api-client/agent-catalog";
+import {
+  getAgentCatalog,
+  getCategoryCatalog,
+} from "@/lib/api-client/agent-catalog";
 import { queryKeys } from "@/lib/query-keys";
 
 export interface SystemAgentOption {
@@ -23,6 +27,10 @@ export function usePluginConfigPage(pluginId: string) {
   const { data: agentCatalog, isPending: agentsLoading } = useQuery({
     queryKey: queryKeys.agentCatalog.all,
     queryFn: getAgentCatalog,
+  });
+  const { data: categoryCatalog, isPending: categoriesLoading } = useQuery({
+    queryKey: queryKeys.categoryCatalog.all,
+    queryFn: getCategoryCatalog,
   });
   const saveConfig = useSavePluginConfig(pluginId);
   const toggleCategory = useToggleCategoryExport(pluginId);
@@ -61,11 +69,17 @@ export function usePluginConfigPage(pluginId: string) {
   }, [agentCatalog]);
 
   const categoryOptions = useMemo(() => {
-    return Object.keys(safeData.categoryMappings).map((key) => ({
+    const entries = categoryCatalog as
+      | Record<string, CategoryEntry>
+      | undefined;
+    if (!entries) return [];
+    return Object.entries(entries).map(([key, entry]) => ({
       value: key,
-      label: key.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      label:
+        entry.description ??
+        key.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
     }));
-  }, [safeData.categoryMappings]);
+  }, [categoryCatalog]);
 
   // Inject dynamic options into multiselect schema fields
   const resolvedSchema = useMemo(() => {
@@ -144,7 +158,7 @@ export function usePluginConfigPage(pluginId: string) {
   }, [saveConfig, safeData, configValues, agentMappings, categoryMappings]);
 
   return {
-    loading: loading || pluginsLoading || agentsLoading,
+    loading: loading || pluginsLoading || agentsLoading || categoriesLoading,
     error: error?.message ?? null,
     saving: saveConfig.isPending,
     notFound,
