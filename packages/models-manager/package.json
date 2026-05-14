@@ -1,0 +1,23 @@
+{
+  "name": "@lite-llm/models-manager",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lite-llm/models-repository": "workspace:*",
+    "@lite-llm/repository-utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
