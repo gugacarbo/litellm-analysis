@@ -118,7 +118,9 @@ export class OpenCodePlugin implements IPlugin {
     // Build agents section from routing configuration
     if (routing.routing?.agents) {
       output.agent = {};
-      for (const [agentName, agentId] of Object.entries(routing.routing.agents)) {
+      for (const [agentName, agentId] of Object.entries(
+        routing.routing.agents,
+      )) {
         output.agent[agentName] = {
           model: "litellm/MiniMax-M2.7-highspeed",
           fallback_models: [],
@@ -130,7 +132,9 @@ export class OpenCodePlugin implements IPlugin {
     // Build categories section from categories configuration
     if (ctx.allCategories && Object.keys(ctx.allCategories).length > 0) {
       output.category = {};
-      for (const [categoryName, category] of Object.entries(ctx.allCategories)) {
+      for (const [categoryName, category] of Object.entries(
+        ctx.allCategories,
+      )) {
         output.category[categoryName] = {
           description: category.description ?? "",
           model: category.model ?? "litellm/MiniMax-M2.7-highspeed",
