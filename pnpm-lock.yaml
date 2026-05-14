@@ -269,6 +269,9 @@ importers:
       '@lite-llm/agents-repository':
         specifier: workspace:*
         version: link:../../repositories/agents-repository
+      '@lite-llm/models-manager':
+        specifier: workspace:*
+        version: link:../models-manager
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -286,26 +289,17 @@ importers:
         specifier: 'catalog:'
         version: 4.4.3
 
-  packages/alias-router:
-    devDependencies:
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
-
   packages/analytics:
     dependencies:
       '@lite-llm/agents-manager':
         specifier: workspace:*
         version: link:../agents-manager
-      '@lite-llm/alias-router':
-        specifier: workspace:*
-        version: link:../alias-router
       '@lite-llm/litellm-repository':
         specifier: workspace:*
         version: link:../../repositories/litellm-repository
+      '@lite-llm/models-manager':
+        specifier: workspace:*
+        version: link:../models-manager
       '@litellm/shared':
         specifier: workspace:*
         version: link:../shared
@@ -355,6 +349,25 @@ importers:
         specifier: 'catalog:'
         version: 8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4)
 
+  packages/models-manager:
+    dependencies:
+      '@lite-llm/models-repository':
+        specifier: workspace:*
+        version: link:../../repositories/models-repository
+      '@lite-llm/repository-utils':
+        specifier: workspace:*
+        version: link:../../repositories/repository-utils
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+
   packages/monitor:
     dependencies:
       '@lite-llm/analytics':
@@ -391,9 +404,6 @@ importers:
       '@lite-llm/agents-manager':
         specifier: workspace:*
         version: link:../agents-manager
-      '@lite-llm/alias-router':
-        specifier: workspace:*
-        version: link:../alias-router
       '@lite-llm/analytics':
         specifier: workspace:*
         version: link:../analytics

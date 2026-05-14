@@ -15,7 +15,8 @@
     "generate:schemas": "tsx scripts/generate-zod-schemas.ts"
   },
   "dependencies": {
-    "@lite-llm/agents-repository": "workspace:*"
+    "@lite-llm/agents-repository": "workspace:*",
+    "@lite-llm/models-manager": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

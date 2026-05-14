@@ -17,7 +17,6 @@
   "dependencies": {
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/api-contracts": "workspace:*",
-    "@lite-llm/alias-router": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
     "@lite-llm/env": "workspace:*",
     "express": "catalog:"

@@ -1,4 +1,4 @@
-import { sortAliasesByDefinitionOrder } from "@lite-llm/alias-router";
+import { sortAliasesByDefinitionOrder } from "@lite-llm/models-manager";
 import { prisma } from "./client";
 
 export async function getRouterSettings(): Promise<Record<

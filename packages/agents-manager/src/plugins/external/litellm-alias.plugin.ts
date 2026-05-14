@@ -5,7 +5,7 @@ import type {
 import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
-} from "@lite-llm/alias-router";
+} from "@lite-llm/models-manager";
 import type { IPlugin, TransformContext } from "../plugin.js";
 import type { ConfigField, InternalAgent } from "../plugin-types.js";
 

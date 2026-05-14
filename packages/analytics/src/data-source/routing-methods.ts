@@ -2,7 +2,7 @@ import { createAgentsManager } from "@lite-llm/agents-manager";
 import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
-} from "@lite-llm/alias-router";
+} from "@lite-llm/models-manager";
 import { getRouterSettings, updateRouterSettings } from "../queries/index.js";
 
 export async function getAgentRoutingConfigImpl(): Promise<Record<

@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@lite-llm/agents-manager": "workspace:*",
-    "@lite-llm/alias-router": "workspace:*",
+    "@lite-llm/models-manager": "workspace:*",
     "@lite-llm/litellm-repository": "workspace:*",
     "@litellm/shared": "workspace:*"
   },
