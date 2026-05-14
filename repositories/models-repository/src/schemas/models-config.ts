@@ -13,13 +13,10 @@ export const modelsConfigSchema = z
       .number()
       .default(1)
       .meta({ title: "Version", description: "Config version" }),
-    provider: z
-      .record(z.string(), providerSchema)
-      .default({})
-      .meta({
-        title: "Providers",
-        description: "Providers keyed by provider id",
-      }),
+    provider: z.record(z.string(), providerSchema).default({}).meta({
+      title: "Providers",
+      description: "Providers keyed by provider id",
+    }),
     models: z
       .record(z.string(), modelSpecSchema)
       .default({})

@@ -1,9 +1,6 @@
 import * as path from "node:path";
 
-export function parseConfigContent(
-  content: string,
-  filePath: string,
-): unknown {
+export function parseConfigContent(content: string, filePath: string): unknown {
   const ext = path.extname(filePath).toLowerCase();
 
   try {
@@ -137,8 +134,6 @@ export function normalizeConfig(config: unknown): unknown {
   return config;
 }
 
-export function isRecord(
-  value: unknown,
-): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }

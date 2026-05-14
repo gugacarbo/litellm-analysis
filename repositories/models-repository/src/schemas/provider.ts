@@ -5,12 +5,10 @@ export const providerSchema = z
     name: z
       .string()
       .meta({ title: "Name", description: "Provider display name" }),
-    ownedBy: z
-      .string()
-      .meta({
-        title: "Owned By",
-        description: "Organization that owns this provider",
-      }),
+    ownedBy: z.string().meta({
+      title: "Owned By",
+      description: "Organization that owns this provider",
+    }),
     baseUrl: z
       .string()
       .meta({ title: "Base URL", description: "Provider API base URL" }),

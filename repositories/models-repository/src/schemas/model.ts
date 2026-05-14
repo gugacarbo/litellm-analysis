@@ -20,14 +20,10 @@ export type Cost = z.infer<typeof costSchema>;
 
 export const modelSpecSchema = z
   .object({
-    enabled: z
-      .boolean()
-      .optional()
-      .default(true)
-      .meta({
-        title: "Enabled",
-        description: "Whether this model is enabled for routing and selection",
-      }),
+    enabled: z.boolean().optional().default(true).meta({
+      title: "Enabled",
+      description: "Whether this model is enabled for routing and selection",
+    }),
     displayName: z.string().meta({
       title: "Display Name",
       description: "Human-readable name for the model",
@@ -51,12 +47,10 @@ export const modelSpecSchema = z
           .default(32768),
       })
       .meta({ title: "Limits", description: "Model limits" }),
-    cost: costSchema
-      .optional()
-      .meta({
-        title: "Cost",
-        description: "Model pricing per million tokens",
-      }),
+    cost: costSchema.optional().meta({
+      title: "Cost",
+      description: "Model pricing per million tokens",
+    }),
   })
   .strict();
 

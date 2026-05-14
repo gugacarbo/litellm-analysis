@@ -1,5 +1,8 @@
 import { readFileSync } from "node:fs";
-import { isRecord, normalizeConfig, parseConfigContent } from "@lite-llm/repository-utils/jsonc";
+import {
+  normalizeConfig,
+  parseConfigContent,
+} from "@lite-llm/repository-utils/jsonc";
 import { type ModelsConfig, modelsConfigSchema } from "./schemas/index.js";
 import { FileStorage, type IStorage } from "./storage.js";
 
@@ -100,5 +103,3 @@ export function createRepository(
 ): IModelsRepository {
   return new ModelsRepository(options);
 }
-
-
