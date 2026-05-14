@@ -10,6 +10,7 @@ interface ConfigModelEntry {
   modelName: string;
   status: "synced" | "config-only" | "litellm-only";
   litellmParams: Record<string, unknown>;
+  enabled?: boolean;
 }
 
 export function registerModelRoutes(
@@ -237,15 +238,18 @@ export function registerModelRoutes(
 
         let status: ConfigModelEntry["status"];
         let litellmParams: Record<string, unknown>;
+        let enabled = true;
 
         if (inConfig && inLiteLLM) {
+          const spec = configModels[modelName];
           status = "synced";
           litellmParams =
             litellmModels.find((m) => m.modelName === modelName)
               ?.litellmParams ?? {};
+          enabled = spec?.enabled ?? true;
         } else if (inConfig) {
-          status = "config-only";
           const spec = configModels[modelName];
+          status = "config-only";
           litellmParams = {
             context_window_size: spec.limits.length,
             max_tokens: spec.limits.maxOutput,
@@ -257,16 +261,18 @@ export function registerModelRoutes(
               spec.cost?.output != null
                 ? spec.cost.output / 1_000_000
                 : undefined,
-            enabled: spec.enabled ?? true,
           };
+          enabled = spec.enabled ?? true;
         } else {
           status = "litellm-only";
           litellmParams =
             litellmModels.find((m) => m.modelName === modelName)
               ?.litellmParams ?? {};
+          enabled =
+            (litellmParams.enabled as boolean | undefined) ?? true;
         }
 
-        models.push({ modelName, status, litellmParams });
+        models.push({ modelName, status, litellmParams, enabled });
       }
 
       models.sort((a, b) => {
