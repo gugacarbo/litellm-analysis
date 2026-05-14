@@ -20,6 +20,7 @@ export function mapModelToFormData(model: ModelConfig): ModelFormData {
     maxTokens: params.max_tokens?.toString() || "",
     litellmCredentialName: (params.litellm_credential_name as string) || "",
     extraParams,
+    enabled: true,
   };
 }
 

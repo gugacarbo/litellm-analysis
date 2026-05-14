@@ -7,6 +7,7 @@ export type ModelFormData = {
   maxTokens: string;
   litellmCredentialName: string;
   extraParams: Record<string, string>;
+  enabled: boolean;
 };
 
 export const FIXED_KEYS = [
@@ -27,4 +28,5 @@ export const EMPTY_MODEL_FORM_DATA: ModelFormData = {
   maxTokens: "",
   litellmCredentialName: "",
   extraParams: {},
+  enabled: true,
 };
