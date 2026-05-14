@@ -21,6 +21,10 @@
       "cost": {
         "input": 1,
         "output": 3.2
+      },
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 16000
       }
     },
     "glm-5.1": {
@@ -34,6 +38,10 @@
       "cost": {
         "input": 1.4,
         "output": 4.4
+      },
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 16000
       }
     },
     "glm-5-turbo": {
@@ -47,6 +55,10 @@
       "cost": {
         "input": 1.2,
         "output": 4
+      },
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 8000
       }
     },
     "MiniMax-M2.7-highspeed": {
@@ -99,6 +111,10 @@
       "cost": {
         "input": 0.14,
         "output": 0.28
+      },
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 32000
       }
     },
     "deepseek-v4-pro": {
@@ -112,6 +128,10 @@
       "cost": {
         "input": 1.74,
         "output": 3.48
+      },
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 32000
       }
     },
     "glm-5.1:ollama": {
@@ -138,6 +158,10 @@
       "cost": {
         "input": 0.95,
         "output": 4
+      },
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 32000
       }
     },
     "mimo-v2.5-pro": {
