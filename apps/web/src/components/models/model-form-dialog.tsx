@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Switch } from "../ui/switch";
 
 type ModelFormDialogProps = {
   open: boolean;
@@ -90,6 +91,22 @@ export function ModelFormDialog({
               disabled={Boolean(editingModel)}
             />
           </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="enabled"
+              checked={formData.enabled}
+              onCheckedChange={(checked) =>
+                onFormDataChange({ ...formData, enabled: checked })
+              }
+            />
+            <Label htmlFor="enabled" className="text-sm font-medium cursor-pointer">
+              Enabled for routing
+            </Label>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Disable to hide from routing and selection
+          </p>
 
           <div className="grid gap-2">
             <Label htmlFor="api-base" className="text-sm font-medium">
