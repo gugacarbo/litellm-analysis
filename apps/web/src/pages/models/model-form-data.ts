@@ -17,6 +17,7 @@ export const FIXED_KEYS = [
   "context_window_size",
   "max_tokens",
   "litellm_credential_name",
+  "enabled",
 ];
 
 export const EMPTY_MODEL_FORM_DATA: ModelFormData = {

@@ -20,7 +20,7 @@ export function mapModelToFormData(model: ModelConfig): ModelFormData {
     maxTokens: params.max_tokens?.toString() || "",
     litellmCredentialName: (params.litellm_credential_name as string) || "",
     extraParams,
-    enabled: true,
+    enabled: (params.enabled as boolean) ?? true,
   };
 }
 
@@ -84,6 +84,8 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
       params[key] = !Number.isNaN(num) ? num : value.trim();
     }
   });
+
+  params.enabled = formData.enabled;
 
   return { params };
 }
