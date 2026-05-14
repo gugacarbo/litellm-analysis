@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { categoryEntrySchema } from "./category";
-import { pluginRoutingSchema } from "./plugin-routing";
+import type { pluginRoutingSchema } from "./plugin-routing";
 import { systemAgentSchema } from "./system-agent";
 
 export const agentsConfigSchema = z

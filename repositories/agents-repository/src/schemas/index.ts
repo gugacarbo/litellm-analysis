@@ -16,13 +16,10 @@ export type { AgentExtraConfig } from "./agent-extra-config";
 export { agentExtraConfigSchema } from "./agent-extra-config";
 export type { CategoryEntry } from "./category";
 export { categoryEntrySchema } from "./category";
-export type { AgentsConfig } from "./db-config";
+export type { AgentsConfig, DbConfig } from "./db-config";
 export { agentsConfigSchema } from "./db-config";
-export type { DbConfig } from "./db-config";
 export type { Permission } from "./permission";
 export { permissionSchema } from "./permission";
-export type { PluginsConfig } from "./plugins-config";
-export { pluginsConfigSchema } from "./plugins-config";
 export type {
   PluginRouting,
   PluginRoutingRule,
@@ -31,5 +28,7 @@ export {
   pluginRoutingRuleSchema,
   pluginRoutingSchema,
 } from "./plugin-routing";
+export type { PluginsConfig } from "./plugins-config";
+export { pluginsConfigSchema } from "./plugins-config";
 export type { SystemAgent } from "./system-agent";
 export { systemAgentSchema } from "./system-agent";

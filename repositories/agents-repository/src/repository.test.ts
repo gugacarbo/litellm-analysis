@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRepository } from "./repository";
+import { createRepository, resolvePluginsPath } from "./repository";
 import type { IStorage } from "./storage";
 
 class MemoryStorage implements IStorage {
@@ -41,6 +41,7 @@ describe("AgentsRepository", () => {
 
     const config = await repository.read();
     expect(config.version).toBe(2);
+    expect(config.plugins).toEqual({});
   });
 
   it("throws a parse error with file path context", async () => {
@@ -61,6 +62,7 @@ describe("AgentsRepository", () => {
 
   it("reads agent configuration with all fields", async () => {
     const filePath = "/tmp/agents.json";
+    const pluginsFilePath = "/tmp/plugins.json";
     const storage = new MemoryStorage({
       [filePath]: JSON.stringify({
         version: 2,
@@ -78,18 +80,37 @@ describe("AgentsRepository", () => {
           },
         },
       }),
+      [pluginsFilePath]: JSON.stringify({
+        version: 2,
+        plugins: {
+          ohMyAgent: {
+            enabled: true,
+            outputFile: "output.json",
+          },
+        },
+      }),
     });
-    const repository = createRepository({ filePath, storage });
+    const repository = createRepository({
+      filePath,
+      pluginsFilePath,
+      storage,
+    });
 
     const config = await repository.read();
     expect(config.agents?.loom?.displayName).toBe("Loom");
     expect(config.agents?.loom?.model).toBe("gpt-4");
+    expect(config.plugins.ohMyAgent.enabled).toBe(true);
   });
 
-  it("validates and writes configuration", async () => {
+  it("validates and writes configuration to both files", async () => {
     const filePath = "/tmp/agents.json";
+    const pluginsFilePath = "/tmp/plugins.json";
     const storage = new MemoryStorage({});
-    const repository = createRepository({ filePath, storage });
+    const repository = createRepository({
+      filePath,
+      pluginsFilePath,
+      storage,
+    });
 
     const config = {
       version: 2,
@@ -105,12 +126,64 @@ describe("AgentsRepository", () => {
           config: {},
         },
       },
+      plugins: {},
     };
 
     await repository.write(config);
 
-    const stored = await storage.read(filePath);
-    const parsed = JSON.parse(stored);
-    expect(parsed.agents.loom.model).toBe("gpt-4");
+    const agentsStored = await storage.read(filePath);
+    const agentsParsed = JSON.parse(agentsStored);
+    expect(agentsParsed.agents.loom.model).toBe("gpt-4");
+    expect(agentsParsed.plugins).toBeUndefined();
+
+    const pluginsStored = await storage.read(pluginsFilePath);
+    const pluginsParsed = JSON.parse(pluginsStored);
+    expect(pluginsParsed.plugins).toEqual({});
+  });
+
+  it("resolves plugins path from agents file path", () => {
+    expect(resolvePluginsPath("/config/agents.jsonc")).toBe(
+      "/config/plugins.jsonc",
+    );
+    expect(resolvePluginsPath("/config/agents.json")).toBe(
+      "/config/plugins.json",
+    );
+  });
+
+  it("returns empty plugins when plugins file does not exist", async () => {
+    const filePath = "/tmp/agents.json";
+    const storage = new MemoryStorage({
+      [filePath]: JSON.stringify({
+        version: 1,
+        categories: {},
+        agents: {},
+      }),
+    });
+    const repository = createRepository({
+      filePath,
+      storage,
+      validateOnRead: false,
+    });
+
+    const config = await repository.read();
+    expect(config.plugins).toEqual({});
+  });
+
+  it("reports exists only when both files exist", async () => {
+    const filePath = "/tmp/agents.json";
+    const pluginsFilePath = "/tmp/plugins.json";
+    const storage = new MemoryStorage({
+      [filePath]: "{}",
+    });
+    const repository = createRepository({
+      filePath,
+      pluginsFilePath,
+      storage,
+    });
+
+    expect(await repository.exists()).toBe(false);
+
+    await storage.write(pluginsFilePath, "{}");
+    expect(await repository.exists()).toBe(true);
   });
 });

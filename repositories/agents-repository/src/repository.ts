@@ -1,108 +1,218 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import * as path from "node:path";
 import {
   normalizeConfig,
   parseConfigContent,
 } from "@lite-llm/repository-utils/jsonc";
 import {
-  type AgentsConfig,
+  type DbConfig,
   agentsConfigSchema,
+  pluginsConfigSchema,
 } from "./schemas/index";
 import { FileStorage, type IStorage } from "./storage";
 
 // Re-export types for convenience
 export type {
-  AgentsConfig,
   AgentEntry,
+  AgentsConfig,
   CategoryEntry,
   Cost,
   DbConfig,
   ModelSpec,
   Permission,
+  PluginsConfig,
   ThinkingConfig,
 } from "./schemas/index";
 
 export interface RepositoryOptions {
   filePath: string;
+  pluginsFilePath?: string;
   storage?: IStorage;
   validateOnRead?: boolean;
 }
 
+export function resolvePluginsPath(filePath: string): string {
+  const dir = path.dirname(filePath);
+  const ext = path.extname(filePath);
+  const base = ext === ".jsonc" ? "plugins.jsonc" : "plugins.json";
+  return path.join(dir, base);
+}
+
 export interface IAgentsRepository {
-  read(): Promise<AgentsConfig>;
-  readSync(): AgentsConfig;
-  write(config: AgentsConfig): Promise<void>;
-  validate(config: unknown): config is AgentsConfig;
+  read(): Promise<DbConfig>;
+  readSync(): DbConfig;
+  write(config: DbConfig): Promise<void>;
+  validate(config: unknown): config is DbConfig;
   exists(): Promise<boolean>;
   getPath(): string;
+  getPluginsPath(): string;
+}
+
+function parseAndValidateAgents(
+  content: string,
+  filePath: string,
+  validate: boolean,
+): DbConfig {
+  const parsed = normalizeConfig(parseConfigContent(content, filePath));
+
+  if (validate) {
+    const result = agentsConfigSchema.safeParse(parsed);
+    if (!result.success) {
+      throw new Error(
+        `Invalid agents config at ${filePath}: ${result.error.message}`,
+      );
+    }
+    return result.data as DbConfig;
+  }
+
+  return parsed as DbConfig;
+}
+
+function parseAndValidatePlugins(
+  content: string,
+  filePath: string,
+  validate: boolean,
+): Record<string, unknown> {
+  const parsed = normalizeConfig(parseConfigContent(content, filePath));
+
+  if (validate) {
+    const result = pluginsConfigSchema.safeParse(parsed);
+    if (!result.success) {
+      throw new Error(
+        `Invalid plugins config at ${filePath}: ${result.error.message}`,
+      );
+    }
+    return result.data.plugins;
+  }
+
+  return (parsed as Record<string, unknown>).plugins as Record<string, unknown>;
+}
+
+function mergeConfig(
+  agents: DbConfig,
+  plugins: Record<string, unknown>,
+): DbConfig {
+  return { ...agents, plugins: plugins as DbConfig["plugins"] };
+}
+
+function splitConfig(config: DbConfig): {
+  agents: Record<string, unknown>;
+  plugins: Record<string, unknown>;
+} {
+  const { plugins, ...agentsPart } = config;
+  return {
+    agents: agentsPart,
+    plugins: plugins ?? {},
+  };
 }
 
 export class AgentsRepository implements IAgentsRepository {
   private readonly filePath: string;
+  private readonly pluginsFilePath: string;
   private readonly storage: IStorage;
   private readonly validateOnRead: boolean;
 
   constructor(options: RepositoryOptions) {
     this.filePath = options.filePath;
+    this.pluginsFilePath =
+      options.pluginsFilePath ?? resolvePluginsPath(options.filePath);
     this.storage = options.storage ?? new FileStorage();
     this.validateOnRead = options.validateOnRead ?? true;
   }
 
-  async read(): Promise<AgentsConfig> {
-    const content = await this.storage.read(this.filePath);
-    const parsed = normalizeConfig(parseConfigContent(content, this.filePath));
+  async read(): Promise<DbConfig> {
+    const agentsContent = await this.storage.read(this.filePath);
+    const agents = parseAndValidateAgents(
+      agentsContent,
+      this.filePath,
+      this.validateOnRead,
+    );
 
-    if (this.validateOnRead) {
-      const result = agentsConfigSchema.safeParse(parsed);
-      if (!result.success) {
-        throw new Error(
-          `Invalid config at ${this.filePath}: ${result.error.message}`,
-        );
-      }
-      return result.data;
+    let plugins: Record<string, unknown> = {};
+    if (await this.storage.exists(this.pluginsFilePath)) {
+      const pluginsContent = await this.storage.read(this.pluginsFilePath);
+      plugins = parseAndValidatePlugins(
+        pluginsContent,
+        this.pluginsFilePath,
+        this.validateOnRead,
+      );
     }
 
-    return parsed as AgentsConfig;
+    return mergeConfig(agents, plugins);
   }
 
-  readSync(): AgentsConfig {
-    const content = readFileSync(this.filePath, "utf-8");
-    const parsed = normalizeConfig(parseConfigContent(content, this.filePath));
+  readSync(): DbConfig {
+    const agentsContent = readFileSync(this.filePath, "utf-8");
+    const agents = parseAndValidateAgents(
+      agentsContent,
+      this.filePath,
+      this.validateOnRead,
+    );
 
-    if (this.validateOnRead) {
-      const result = agentsConfigSchema.safeParse(parsed);
-      if (!result.success) {
-        throw new Error(
-          `Invalid config at ${this.filePath}: ${result.error.message}`,
-        );
-      }
-      return result.data;
+    let plugins: Record<string, unknown> = {};
+    if (existsSync(this.pluginsFilePath)) {
+      const pluginsContent = readFileSync(this.pluginsFilePath, "utf-8");
+      plugins = parseAndValidatePlugins(
+        pluginsContent,
+        this.pluginsFilePath,
+        this.validateOnRead,
+      );
     }
 
-    return parsed as AgentsConfig;
+    return mergeConfig(agents, plugins);
   }
 
-  async write(config: AgentsConfig): Promise<void> {
-    const normalizedConfig = normalizeConfig(config);
-    const result = agentsConfigSchema.safeParse(normalizedConfig);
-    if (!result.success) {
-      throw new Error(`Invalid config: ${result.error.message}`);
+  async write(config: DbConfig): Promise<void> {
+    const { agents: agentsPart, plugins } = splitConfig(config);
+
+    const agentsResult = agentsConfigSchema.safeParse(
+      normalizeConfig(agentsPart),
+    );
+    if (!agentsResult.success) {
+      throw new Error(
+        `Invalid agents config: ${agentsResult.error.message}`,
+      );
     }
 
-    const content = JSON.stringify(result.data, null, 2);
-    await this.storage.write(this.filePath, content);
+    const pluginsResult = pluginsConfigSchema.safeParse(
+      normalizeConfig({ plugins }),
+    );
+    if (!pluginsResult.success) {
+      throw new Error(
+        `Invalid plugins config: ${pluginsResult.error.message}`,
+      );
+    }
+
+    await this.storage.write(
+      this.filePath,
+      JSON.stringify(agentsResult.data, null, 2),
+    );
+    await this.storage.write(
+      this.pluginsFilePath,
+      JSON.stringify(pluginsResult.data, null, 2),
+    );
   }
 
-  validate(config: unknown): config is AgentsConfig {
-    const result = agentsConfigSchema.safeParse(config);
-    return result.success;
+  validate(config: unknown): config is DbConfig {
+    if (typeof config !== "object" || config === null) return false;
+    const { plugins, ...agentsPart } = config as Record<string, unknown>;
+    const agentsResult = agentsConfigSchema.safeParse(agentsPart);
+    const pluginsResult = pluginsConfigSchema.safeParse({ plugins });
+    return agentsResult.success && pluginsResult.success;
   }
 
   async exists(): Promise<boolean> {
-    return this.storage.exists(this.filePath);
+    const agentsExists = await this.storage.exists(this.filePath);
+    const pluginsExists = await this.storage.exists(this.pluginsFilePath);
+    return agentsExists && pluginsExists;
   }
 
   getPath(): string {
     return this.filePath;
+  }
+
+  getPluginsPath(): string {
+    return this.pluginsFilePath;
   }
 }
 
