@@ -118,9 +118,7 @@ export class OpenCodePlugin implements IPlugin {
     // Build agents section from routing configuration
     if (routing.routing?.agents) {
       output.agent = {};
-      for (const [agentName, agentId] of Object.entries(
-        routing.routing.agents,
-      )) {
+      for (const [agentName] of Object.entries(routing.routing.agents)) {
         output.agent[agentName] = {
           model: "litellm/MiniMax-M2.7-highspeed",
           fallback_models: [],

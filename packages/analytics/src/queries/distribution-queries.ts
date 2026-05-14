@@ -15,8 +15,8 @@ export async function getTokenDistribution(days = 30) {
   >(`
     SELECT
       "model",
-      SUM("prompt_tokens")::int as "prompt_tokens",
-      SUM("completion_tokens")::int as "completion_tokens",
+      SUM("prompt_tokens")::float as "prompt_tokens",
+      SUM("completion_tokens")::float as "completion_tokens",
       AVG("total_tokens")::float as "avg_tokens_per_request",
       CASE
         WHEN SUM("completion_tokens") > 0
@@ -48,9 +48,9 @@ export async function getApiKeyDetailedStats(days = 30) {
   >(`
     SELECT
       "api_key" as "key",
-      COUNT(*)::int as "request_count",
+      COUNT(*)::float as "request_count",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens",
+      SUM("total_tokens")::float as "total_tokens",
       AVG("total_tokens")::float as "avg_tokens_per_request",
       (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
       MAX("startTime") as "last_used"
@@ -67,7 +67,7 @@ export async function getModelRequestDistribution(days = 30) {
   const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
 
   const totalResult = await prisma.$queryRawUnsafe<Array<{ count: number }>>(`
-    SELECT COUNT(*)::int as "count"
+    SELECT COUNT(*)::float as "count"
     FROM "LiteLLM_SpendLogs"
     ${where}
   `);
@@ -82,7 +82,7 @@ export async function getModelRequestDistribution(days = 30) {
   >(`
     SELECT
       "model",
-      COUNT(*)::int as "request_count",
+      COUNT(*)::float as "request_count",
       (COUNT(*) * 100.0 / ${totalCount})::numeric(10, 2)::float as "percentage"
     FROM "LiteLLM_SpendLogs"
     ${where}
@@ -99,7 +99,7 @@ export async function getTopModelsByRequests(limit = 10, days = 30) {
   const result = await prisma.$queryRawUnsafe<
     Array<{ model: string; request_count: number }>
   >(`
-    SELECT "model", COUNT(*)::int as "request_count"
+    SELECT "model", COUNT(*)::float as "request_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY "model"

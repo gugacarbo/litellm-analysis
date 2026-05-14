@@ -125,7 +125,7 @@ export async function getSpendLogsCount(params: {
   const where = buildWhereClause(conditions);
 
   const result = await prisma.$queryRawUnsafe<Array<{ count: number }>>(`
-    SELECT COUNT(*)::int as "count"
+    SELECT COUNT(*)::float as "count"
     FROM "LiteLLM_SpendLogs"
     ${where}
   `);
@@ -147,8 +147,8 @@ export async function getSpendByUser(days = 30) {
     SELECT
       "user",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens",
-      COUNT(*)::int as "request_count"
+      SUM("total_tokens")::float as "total_tokens",
+      COUNT(*)::float as "request_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY "user"
@@ -172,7 +172,7 @@ export async function getSpendByKey(days = 30) {
     SELECT
       "api_key" as "key",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens"
+      SUM("total_tokens")::float as "total_tokens"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY "api_key"

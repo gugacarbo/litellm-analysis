@@ -86,10 +86,18 @@ const CUSTOM_OPTION: DashboardDateRangeOption = {
   description: "Período personalizado",
 };
 
+const LIFETIME_OPTION: DashboardDateRangeOption = {
+  key: "lifetime",
+  label: "Lifetime",
+  days: 0,
+  description: "Todos os dados desde sempre",
+};
+
 // Derive from HOURS_OPTIONS + DAYS_OPTIONS to avoid duplication
 export const DASHBOARD_DATE_RANGES: DashboardDateRangeOption[] = [
   ...HOURS_OPTIONS,
   ...DAYS_OPTIONS,
+  LIFETIME_OPTION,
   CUSTOM_OPTION,
 ];
 export function getDateRangeGroup(key: DashboardDateRangeKey): DateRangeGroup {

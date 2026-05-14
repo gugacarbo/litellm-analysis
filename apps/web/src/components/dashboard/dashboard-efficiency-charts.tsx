@@ -42,6 +42,17 @@ export function DashboardEfficiencyCharts({
   const hasHourlyData =
     dailyTokenTrend.length > 0 && dailyTokenTrend[0].date.includes(" ");
 
+  // Transform: invert so lower cost = higher bar (better efficiency)
+  const costEfficiencyData = useMemo(() => {
+    if (costEfficiency.length === 0) return [];
+    const items = costEfficiency.slice(0, 10);
+    const maxCost = Math.max(...items.map((i) => i.cost_per_1k_tokens));
+    return items.map((item) => ({
+      ...item,
+      efficiency_score: maxCost / Math.max(item.cost_per_1k_tokens, 0.0001),
+    }));
+  }, [costEfficiency]);
+
   const tokensPerRequestData = useMemo(
     () =>
       dailyTokenTrend.map((item) => ({
@@ -65,20 +76,23 @@ export function DashboardEfficiencyCharts({
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>
-            Cost Efficiency by Model ($/1K tokens, {rangeLabel})
-          </CardTitle>
+          <CardTitle>Model Efficiency ({rangeLabel})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <Skeleton className="h-64 w-full" />
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={costEfficiency.slice(0, 10)} layout="vertical">
+              <BarChart data={costEfficiencyData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   type="number"
-                  tickFormatter={(v) => `$${v.toFixed(2)}`}
+                  tickFormatter={(v) => `${v.toFixed(1)}x`}
+                  label={{
+                    value: "Efficiency (relative to most expensive)",
+                    position: "insideBottom",
+                    offset: -5,
+                  }}
                 />
                 <YAxis
                   dataKey="model"
@@ -88,9 +102,17 @@ export function DashboardEfficiencyCharts({
                 />
                 <Tooltip
                   content={<ChartTooltipContent />}
-                  formatter={(v) => `$${Number(v).toFixed(4)}`}
+                  formatter={(v, name) =>
+                    name === "Efficiency"
+                      ? `${Number(v).toFixed(2)}x ($${costEfficiencyData.find((d) => d.efficiency_score === Number(v))?.cost_per_1k_tokens.toFixed(4) ?? "?"}/1K tokens)`
+                      : v
+                  }
                 />
-                <Bar dataKey="cost_per_1k_tokens" fill="#f59e0b" />
+                <Bar
+                  dataKey="efficiency_score"
+                  fill="#10b981"
+                  name="Efficiency"
+                />
               </BarChart>
             </ResponsiveContainer>
           )}

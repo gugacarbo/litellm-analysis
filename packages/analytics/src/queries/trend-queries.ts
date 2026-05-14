@@ -61,10 +61,10 @@ export async function getDailyTokenTrend(days = 30) {
   >(`
     SELECT
       ${label} as "date",
-      SUM("prompt_tokens")::int as "prompt_tokens",
-      SUM("completion_tokens")::int as "completion_tokens",
-      SUM("total_tokens")::int as "total_tokens",
-      COUNT(*)::int as "request_count",
+      SUM("prompt_tokens")::float as "prompt_tokens",
+      SUM("completion_tokens")::float as "completion_tokens",
+      SUM("total_tokens")::float as "total_tokens",
+      COUNT(*)::float as "request_count",
       '${granularity}' as "granularity"
     FROM "LiteLLM_SpendLogs"
     ${where}
@@ -91,8 +91,8 @@ export async function getHourlySpendTrend(days = 1) {
       to_char(date_trunc('hour', "startTime"), 'YYYY-MM-DD HH24:MI') as "timestamp",
       EXTRACT(HOUR FROM date_trunc('hour', "startTime"))::int as "hour",
       SUM("spend")::float as "spend",
-      SUM("total_tokens")::int as "total_tokens",
-      COUNT(*)::int as "request_count"
+      SUM("total_tokens")::float as "total_tokens",
+      COUNT(*)::float as "request_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY date_trunc('hour', "startTime")
@@ -114,9 +114,9 @@ export async function getHourlyUsagePatterns(days = 7) {
   >(`
     SELECT
       EXTRACT(HOUR FROM "startTime")::int as "hour",
-      COUNT(*)::int as "request_count",
+      COUNT(*)::float as "request_count",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens"
+      SUM("total_tokens")::float as "total_tokens"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY EXTRACT(HOUR FROM "startTime")

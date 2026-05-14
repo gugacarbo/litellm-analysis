@@ -16,13 +16,13 @@ export async function getMetricsSummary(days = 30) {
     >(`
       SELECT
         COALESCE(SUM("spend"), 0)::float as "totalSpend",
-        COALESCE(SUM("total_tokens"), 0)::int as "totalTokens",
-        COUNT(DISTINCT "model")::int as "activeModels"
+        COALESCE(SUM("total_tokens"), 0)::float as "totalTokens",
+        COUNT(DISTINCT "model")::float as "activeModels"
       FROM "LiteLLM_SpendLogs"
       ${timeFilter ? `WHERE ${timeFilter}` : ""}
     `),
     prisma.$queryRawUnsafe<Array<{ errorCount: number }>>(`
-      SELECT COUNT(*)::int as "errorCount"
+      SELECT COUNT(*)::float as "errorCount"
       FROM "LiteLLM_SpendLogs"
       ${
         errorTimeFilter
@@ -59,7 +59,7 @@ export async function getPerformanceMetrics(days = 30) {
     }>
   >(`
     SELECT
-      COUNT(*)::int as "total_requests",
+      COUNT(*)::float as "total_requests",
       AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_duration_ms",
       (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate"
     FROM "LiteLLM_SpendLogs"
@@ -91,13 +91,13 @@ export async function getCostEfficiencyByModel(days = 30) {
     SELECT
       "model",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens",
+      SUM("total_tokens")::float as "total_tokens",
       CASE
         WHEN SUM("total_tokens") > 0
         THEN SUM("spend") / SUM("total_tokens") * 1000
         ELSE 0
       END::float as "cost_per_1k_tokens",
-      COUNT(*)::int as "request_count"
+      COUNT(*)::float as "request_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY "model"

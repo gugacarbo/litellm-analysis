@@ -7,6 +7,7 @@ export type DashboardDateRangeKey =
   | "7d"
   | "14d"
   | "30d"
+  | "lifetime"
   | "custom";
 export type DateRangeGroup = "hours" | "days" | "custom";
 

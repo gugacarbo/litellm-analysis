@@ -71,7 +71,7 @@ export async function getErrorCountByModelSince(since: Date) {
   const where = `WHERE ${combineSqlConditions([timeFilter, failedFilter])}`;
 
   return prisma.$queryRawUnsafe<Array<{ model: string; error_count: number }>>(`
-    SELECT "model", COUNT(*)::int as "error_count"
+    SELECT "model", COUNT(*)::float as "error_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY "model"
@@ -93,9 +93,9 @@ export async function getModelHealthSince(params: {
 
   const result = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(`
     SELECT
-      COUNT(*)::int as "total_requests",
-      SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::int as "success_count",
-      SUM(CASE WHEN "status" != 'success' THEN 1 ELSE 0 END)::int as "error_count",
+      COUNT(*)::float as "total_requests",
+      SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float as "success_count",
+      SUM(CASE WHEN "status" != 'success' THEN 1 ELSE 0 END)::float as "error_count",
       AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_latency_ms",
       MAX(CASE WHEN "status" = 'success' THEN "startTime"::text ELSE NULL END) as "last_success_at",
       MAX(CASE WHEN "status" != 'success' THEN "startTime"::text ELSE NULL END) as "last_error_at",
@@ -155,7 +155,7 @@ export async function getSpendByModelSince(since: Date) {
     SELECT
       "model",
       COALESCE(SUM("spend"), 0)::float as "total_spend",
-      COUNT("request_id")::int as "request_count",
+      COUNT("request_id")::float as "request_count",
       COALESCE(AVG("spend"), 0)::float as "avg_spend"
     FROM "LiteLLM_SpendLogs"
     WHERE "startTime" > '${since.toISOString()}'
@@ -210,7 +210,7 @@ export async function getNonSuccessCountByModelSince(since: Date) {
       non_success_count: number;
     }>
   >(`
-    SELECT "model", COUNT("request_id")::int as "non_success_count"
+    SELECT "model", COUNT("request_id")::float as "non_success_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY "model"

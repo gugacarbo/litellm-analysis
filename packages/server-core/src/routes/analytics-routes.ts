@@ -283,7 +283,13 @@ export function registerAnalyticsRoutes(
   app.get("/metrics", async (req, res) => {
     try {
       const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getMetricsSummary(days);
+      const [metrics, configuredModels] = await Promise.all([
+        dataSource.getMetricsSummary(days),
+        opts.modelsService.getAll(),
+      ]);
+      // Use configured models count instead of distinct models from DB
+      metrics.active_models = Object.keys(configuredModels).length;
+      const data = metrics;
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });

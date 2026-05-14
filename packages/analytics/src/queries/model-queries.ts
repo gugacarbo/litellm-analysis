@@ -34,15 +34,15 @@ export async function getModelStatistics(days = 30) {
   const result = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(`
     SELECT
       "model",
-      COUNT(*)::int as "request_count",
+      COUNT(*)::float as "request_count",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens",
-      SUM("prompt_tokens")::int as "prompt_tokens",
-      SUM("completion_tokens")::int as "completion_tokens",
+      SUM("total_tokens")::float as "total_tokens",
+      SUM("prompt_tokens")::float as "prompt_tokens",
+      SUM("completion_tokens")::float as "completion_tokens",
       AVG("total_tokens")::float as "avg_tokens_per_request",
       AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_latency_ms",
       (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
-      SUM(CASE WHEN "status" != 'success' THEN 1 ELSE 0 END)::int as "error_count",
+      SUM(CASE WHEN "status" != 'success' THEN 1 ELSE 0 END)::float as "error_count",
       AVG(CASE WHEN "prompt_tokens" > 0 THEN "spend" * "prompt_tokens"::float / NULLIF("total_tokens", 0) ELSE 0 END)::float as "avg_input_cost",
       AVG(CASE WHEN "completion_tokens" > 0 THEN "spend" * "completion_tokens"::float / NULLIF("total_tokens", 0) ELSE 0 END)::float as "avg_output_cost",
       PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p50_latency_ms",
@@ -50,8 +50,8 @@ export async function getModelStatistics(days = 30) {
       PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p99_latency_ms",
       MIN("startTime") as "first_seen",
       MAX("startTime") as "last_seen",
-      COUNT(DISTINCT "user")::int as "unique_users",
-      COUNT(DISTINCT "api_key")::int as "unique_api_keys",
+      COUNT(DISTINCT "user")::float as "unique_users",
+      COUNT(DISTINCT "api_key")::float as "unique_api_keys",
       AVG(CASE WHEN EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.5 THEN "completion_tokens"::float / EXTRACT(EPOCH FROM ("endTime" - "startTime")) ELSE NULL END)::float as "avg_tokens_per_second",
       PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.5 THEN "completion_tokens"::float / EXTRACT(EPOCH FROM ("endTime" - "startTime")) ELSE NULL END)::float as "p50_tokens_per_second",
       MAX(CASE WHEN EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.5 THEN "completion_tokens"::float / EXTRACT(EPOCH FROM ("endTime" - "startTime")) ELSE NULL END)::float as "max_tokens_per_second"
@@ -177,8 +177,8 @@ export async function getDailySpendTrendByModel(model: string, days?: number) {
     SELECT
       DATE("startTime")::text as "date",
       SUM("spend")::float as "spend",
-      SUM("total_tokens")::int as "total_tokens",
-      COUNT(*)::int as "request_count"
+      SUM("total_tokens")::float as "total_tokens",
+      COUNT(*)::float as "request_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY DATE("startTime")
@@ -204,9 +204,9 @@ export async function getDailyTokenTrendByModel(model: string, days?: number) {
   >(`
     SELECT
       DATE("startTime")::text as "date",
-      SUM("prompt_tokens")::int as "prompt_tokens",
-      SUM("completion_tokens")::int as "completion_tokens",
-      SUM("total_tokens")::int as "total_tokens"
+      SUM("prompt_tokens")::float as "prompt_tokens",
+      SUM("completion_tokens")::float as "completion_tokens",
+      SUM("total_tokens")::float as "total_tokens"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY DATE("startTime")
@@ -232,9 +232,9 @@ export async function getHourlyUsageByModel(model: string, days?: number) {
   >(`
     SELECT
       EXTRACT(HOUR FROM "startTime")::int as "hour",
-      COUNT(*)::int as "request_count",
+      COUNT(*)::float as "request_count",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens"
+      SUM("total_tokens")::float as "total_tokens"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY EXTRACT(HOUR FROM "startTime")
@@ -295,7 +295,7 @@ export async function getErrorBreakdownByModel(model: string, days?: number) {
   >(`
     SELECT
       COALESCE("status", 'error') as "error_type",
-      COUNT(*)::int as "count",
+      COUNT(*)::float as "count",
       MAX("startTime") as "last_occurred"
     FROM "LiteLLM_SpendLogs"
     ${where}
@@ -319,7 +319,7 @@ export async function getDailyErrorTrendByModel(model: string, days?: number) {
   >(`
     SELECT
       DATE("startTime")::text as "date",
-      COUNT(*)::int as "error_count"
+      COUNT(*)::float as "error_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY DATE("startTime")
@@ -346,8 +346,8 @@ export async function getTopUsersByModel(model: string, days?: number) {
     SELECT
       "user",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens",
-      COUNT(*)::int as "request_count"
+      SUM("total_tokens")::float as "total_tokens",
+      COUNT(*)::float as "request_count"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY "user"
@@ -376,8 +376,8 @@ export async function getTopApiKeysByModel(model: string, days?: number) {
     SELECT
       "api_key",
       SUM("spend")::float as "total_spend",
-      SUM("total_tokens")::int as "total_tokens",
-      COUNT(*)::int as "request_count",
+      SUM("total_tokens")::float as "total_tokens",
+      COUNT(*)::float as "request_count",
       (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate"
     FROM "LiteLLM_SpendLogs"
     ${where}
@@ -406,8 +406,8 @@ export async function getModelCacheHitRateByModel(
     }>
   >(`
     SELECT
-      COUNT(*) FILTER (WHERE "cache_hit" = 'true')::int as "cache_hits",
-      COUNT(*)::int as "total_requests",
+      COUNT(*) FILTER (WHERE "cache_hit" = 'true')::float as "cache_hits",
+      COUNT(*)::float as "total_requests",
       ROUND(
         COUNT(*) FILTER (WHERE "cache_hit" = 'true') * 100.0
         / NULLIF(COUNT(*), 0),
@@ -483,7 +483,7 @@ export async function getModelStatusDistributionByModel(
   >(`
     SELECT
       COALESCE("status", 'pending') as "status",
-      COUNT(*)::int as "count",
+      COUNT(*)::float as "count",
       ROUND(
         COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER (), 0),
         2
@@ -519,7 +519,7 @@ export async function getModelProviderBreakdownByModel(
   >(`
     SELECT
       COALESCE("custom_llm_provider", 'unknown') as "provider",
-      COUNT(*)::int as "request_count",
+      COUNT(*)::float as "request_count",
       SUM("spend")::float as "total_spend",
       AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_latency_ms"
     FROM "LiteLLM_SpendLogs"
