@@ -163,19 +163,21 @@ describe("ModelsRepository", () => {
         const storage = new MemoryStorage({});
         const repo = createRepository({ filePath, storage });
 
-        await expect(repo.write({
-          $schema: "",
-          version: 1,
-          provider: {},
-          models: {
-            test: {
-              enabled: true,
-              displayName: "Test Model",
-              limits: { length: 4096, maxOutput: 1024 },
-              thinking: { type: "invalid", budgetTokens: 100 },
+        await expect(
+          repo.write({
+            $schema: "",
+            version: 1,
+            provider: {},
+            models: {
+              test: {
+                enabled: true,
+                displayName: "Test Model",
+                limits: { length: 4096, maxOutput: 1024 },
+                thinking: { type: "invalid", budgetTokens: 100 },
+              },
             },
-          },
-        } as never)).rejects.toThrow();
+          } as never),
+        ).rejects.toThrow();
       });
 
       it("accepts model without thinking (uses default)", async () => {
