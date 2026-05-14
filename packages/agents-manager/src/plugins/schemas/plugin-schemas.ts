@@ -10,9 +10,9 @@
  *   const zodSchema = pluginSchemas.opencode.zod;
  */
 
-import { type OpenAgent, openAgentSchema } from "./generated/openagent.zod.js";
-import { type OpenCode, openCodeSchema } from "./generated/opencode.zod.js";
-import { type VsCode, vsCodeSchema } from "./generated/vscode.zod.js";
+import { type OpenAgent, openAgentSchema } from "./generated/openagent.zod";
+import { type OpenCode, openCodeSchema } from "./generated/opencode.zod";
+import { type VsCode, vsCodeSchema } from "./generated/vscode.zod";
 import openagentJsonSchema from "./openagent.schema.json";
 import opencodeJsonSchema from "./opencode.schema.json";
 import vscodeJsonSchema from "./vscode.schema.json";

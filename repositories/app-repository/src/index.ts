@@ -1,12 +1,12 @@
-export type { AppDb } from "./client.js";
-export { getAppDb } from "./client.js";
+export type { AppDb } from "./client";
+export { getAppDb } from "./client";
 export type {
   GetAlertsOptions,
   GetAlertsResult,
   GetHealthChecksOptions,
   GetHealthChecksResult,
   HealthCheckSummaryResult,
-} from "./queries.js";
+} from "./queries";
 export {
   acknowledgeAlert,
   cleanupOldHealthChecks,
@@ -29,7 +29,7 @@ export {
   listEvalRuns,
   updateEvalRun,
   updateEvalRunStep,
-} from "./queries.js";
+} from "./queries";
 export type {
   Alert,
   AlertRule,
@@ -43,7 +43,7 @@ export type {
   NewEvalRunArtifact,
   NewEvalRunStep,
   NewModelHealthCheck,
-} from "./schema.js";
+} from "./schema";
 export {
   alertRules,
   alerts,
@@ -51,4 +51,4 @@ export {
   promptEvalRunArtifacts,
   promptEvalRunSteps,
   promptEvalRuns,
-} from "./schema.js";
+} from "./schema";

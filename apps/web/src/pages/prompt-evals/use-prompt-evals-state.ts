@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { listEvals } from "../../lib/api-client/prompt-evals.js";
+import { listEvals } from "../../lib/api-client/prompt-evals";
 import type {
   EvalFormState,
   EvalInputCase,
   SortDirection,
   SortField,
-} from "./types.js";
+} from "./types";
 
 const CASES_STORAGE_KEY = "prompt-evals-cases";
 

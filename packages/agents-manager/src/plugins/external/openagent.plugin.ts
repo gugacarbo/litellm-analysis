@@ -2,8 +2,8 @@ import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
-import type { IPlugin, TransformContext } from "../plugin.js";
-import type { ConfigField, InternalAgent } from "../plugin-types.js";
+import type { IPlugin, TransformContext } from "../plugin";
+import type { ConfigField, InternalAgent } from "../plugin-types";
 
 interface OpenAgentOutput {
   $schema: string;

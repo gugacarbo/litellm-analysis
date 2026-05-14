@@ -1,10 +1,10 @@
 import path from "node:path";
 import type { CategoryDefinition } from "@lite-llm/prompt-eval";
 import { createPromptfooAdapter } from "@lite-llm/prompt-eval/adapter";
-import { createPromptEvalApplicationService } from "../application/prompt-eval-application-service.js";
-import { env } from "../env.js";
-import { createPromptEvalRouter } from "../routes/prompt-eval-routes.js";
-import type { WebSocketServer } from "../ws/websocket-server.js";
+import { createPromptEvalApplicationService } from "../application/prompt-eval-application-service";
+import { env } from "../env";
+import { createPromptEvalRouter } from "../routes/prompt-eval-routes";
+import type { WebSocketServer } from "../ws/websocket-server";
 
 export interface PromptEvalRuntimeOptions {
   wsServer: WebSocketServer;

@@ -7,7 +7,7 @@ import type {
   PromptEvalAdapter,
   ReviewInput,
   ReviewOutput,
-} from "../types/index.js";
+} from "../types/index";
 
 type ChatRole = "system" | "user";
 

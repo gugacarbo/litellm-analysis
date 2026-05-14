@@ -2,7 +2,7 @@
 
 ## OVERVIEW
 
-Manages agent and category configurations with a repository client, 5 domain services, and a plugin system for generating consumer configs (OpenCode, OpenAgent, VS Code).
+Manages agent and category configurations with a repository client, 4 domain services, and a plugin system for generating consumer configs (OpenCode, OpenAgent, VS Code).
 
 ## STRUCTURE
 
@@ -17,7 +17,6 @@ agents-manager/src/
 │   ├── agent.service.ts         # Agent CRUD operations
 │   ├── agent-catalog.service.ts # Agent catalog queries
 │   ├── category.service.ts      # Category CRUD operations
-│   ├── model.service.ts         # Model spec operations
 │   ├── routing.service.ts       # Routing config operations
 │   └── index.ts                # Barrel exports
 ├── plugins/
@@ -42,7 +41,6 @@ agents-manager/src/
 ### Services
 - `AgentService` — CRUD for agents
 - `CategoryService` — CRUD for categories
-- `ModelService` — model spec operations
 - `RoutingService` — routing config operations
 - `AgentCatalogService` — catalog queries
 
@@ -60,7 +58,7 @@ agents-manager/src/
 ```
 db.json (source of truth via @lite-llm/agents-repository)
     ↓
-RepositoryClient → Services (agent/category/model/routing)
+RepositoryClient → Services (agent/category/routing)
     ↓
 PluginRegistry → OpenCodePlugin / OpenAgentPlugin / VsCodePlugin
     ↓

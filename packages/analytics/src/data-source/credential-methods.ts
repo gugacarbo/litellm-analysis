@@ -2,8 +2,8 @@ import {
   getAllCredentials,
   getDefaultCredential,
   setDefaultCredential,
-} from "../queries/index.js";
-import type { LiteLLMCredential } from "../types/index.js";
+} from "../queries/index";
+import type { LiteLLMCredential } from "../types/index";
 
 export async function getCredentialsImpl(): Promise<LiteLLMCredential[]> {
   const result = await getAllCredentials();

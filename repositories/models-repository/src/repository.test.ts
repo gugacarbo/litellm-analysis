@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createRepository } from "./repository.js";
-import type { IStorage } from "./storage.js";
+import { createRepository } from "./repository";
+import type { IStorage } from "./storage";
 
 class MemoryStorage implements IStorage {
   constructor(private readonly files: Record<string, string>) {}
@@ -158,7 +158,7 @@ describe("ModelsRepository", () => {
     });
 
     describe("model thinking config", () => {
-      it("rejects thinking with invalid type", async () => {
+      it("rejects thinking with non-array levels", async () => {
         const filePath = "/tmp/bad-thinking.json";
         const storage = new MemoryStorage({});
         const repo = createRepository({ filePath, storage });
@@ -173,7 +173,7 @@ describe("ModelsRepository", () => {
                 enabled: true,
                 displayName: "Test Model",
                 limits: { length: 4096, maxOutput: 1024 },
-                thinking: { type: "invalid", budgetTokens: 100 },
+                thinking: { levels: "not-an-array" as never },
               },
             },
           } as never),
@@ -200,13 +200,12 @@ describe("ModelsRepository", () => {
 
         const config = await repo.read();
         expect(config.models.test?.thinking).toEqual({
-          type: "disabled",
-          budgetTokens: 0,
+          levels: [],
         });
       });
 
-      it("accepts model with thinking enabled", async () => {
-        const filePath = "/tmp/thinking-enabled.json";
+      it("accepts model with thinking levels configured", async () => {
+        const filePath = "/tmp/thinking-levels.json";
         const storage = new MemoryStorage({});
         const repo = createRepository({ filePath, storage });
 
@@ -219,15 +218,14 @@ describe("ModelsRepository", () => {
               enabled: true,
               displayName: "Test Model",
               limits: { length: 4096, maxOutput: 1024 },
-              thinking: { type: "enabled", budgetTokens: 8000 },
+              thinking: { levels: ["low", "medium", "high"] },
             },
           },
         });
 
         const config = await repo.read();
         expect(config.models.test?.thinking).toEqual({
-          type: "enabled",
-          budgetTokens: 8000,
+          levels: ["low", "medium", "high"],
         });
       });
     });

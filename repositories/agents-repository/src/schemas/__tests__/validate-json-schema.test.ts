@@ -19,7 +19,11 @@ function validateJsonSchemaNodes(node: Record<string, unknown>, path = "$") {
   if (node && typeof node === "object") {
     // If it has properties it's an object node.
     if ("type" in node && path !== "$") {
-      if (!path.includes("$defs")) {
+      if (
+        !path.includes("$defs") &&
+        !path.includes("additionalProperties") &&
+        !path.includes("items")
+      ) {
         const result = StrictMetaSchema.safeParse(node);
         if (!result.success) {
           throw new Error(

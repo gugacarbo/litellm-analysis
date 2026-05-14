@@ -7,7 +7,13 @@ export const agentExtraConfigSchema = z.object({
     .meta({ title: "Mode", description: "Agent operating mode" })
     .optional(),
   tools: z
-    .record(z.string(), z.boolean())
+    .record(
+      z.string(),
+      z
+        .boolean()
+        .default(false)
+        .meta({ title: "Tool", description: "Tool enabled state" }),
+    )
     .default({})
     .meta({ title: "Tools", description: "Tool enable/disable map" })
     .optional(),

@@ -1,8 +1,8 @@
-export type { Cost, ModelSpec } from "./model.js";
-export { costSchema, modelSpecSchema } from "./model.js";
-export type { ModelsConfig } from "./models-config.js";
-export { modelsConfigSchema } from "./models-config.js";
-export type { Provider } from "./provider.js";
-export { providerSchema } from "./provider.js";
-export type { ThinkingConfig } from "./thinking.js";
-export { thinkingSchema } from "./thinking.js";
+export type { Cost, ModelSpec } from "./model";
+export { costSchema, modelSpecSchema } from "./model";
+export type { ModelsConfig } from "./models-config";
+export { modelsConfigSchema } from "./models-config";
+export type { Provider } from "./provider";
+export { providerSchema } from "./provider";
+export type { ThinkingConfig } from "./thinking";
+export { thinkingSchema } from "./thinking";

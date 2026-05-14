@@ -3,15 +3,15 @@ import {
   normalizeConfig,
   parseConfigContent,
 } from "@lite-llm/repository-utils/jsonc";
-import { type ModelsConfig, modelsConfigSchema } from "./schemas/index.js";
-import { FileStorage, type IStorage } from "./storage.js";
+import { type ModelsConfig, modelsConfigSchema } from "./schemas/index";
+import { FileStorage, type IStorage } from "./storage";
 
 export type {
   Cost,
   ModelSpec,
   ModelsConfig,
   Provider,
-} from "./schemas/index.js";
+} from "./schemas/index";
 
 export interface RepositoryOptions {
   filePath: string;

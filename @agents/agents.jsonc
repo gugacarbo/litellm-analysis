@@ -255,8 +255,7 @@
       "topP": 1,
       "maxTokens": 32768,
       "thinking": {
-        "type": "disabled",
-        "budgetTokens": 0
+        "levels": []
       },
       "reasoningEffort": "medium",
       "textVerbosity": "medium",
@@ -297,8 +296,7 @@
       "topP": 1,
       "maxTokens": 32768,
       "thinking": {
-        "type": "disabled",
-        "budgetTokens": 0
+        "levels": []
       },
       "reasoningEffort": "medium",
       "textVerbosity": "medium",
@@ -339,8 +337,7 @@
       "topP": 1,
       "maxTokens": 32768,
       "thinking": {
-        "type": "disabled",
-        "budgetTokens": 0
+        "levels": []
       },
       "reasoningEffort": "medium",
       "textVerbosity": "medium",
@@ -381,8 +378,7 @@
       "topP": 1,
       "maxTokens": 32768,
       "thinking": {
-        "type": "disabled",
-        "budgetTokens": 0
+        "levels": []
       },
       "reasoningEffort": "medium",
       "textVerbosity": "medium",
@@ -423,8 +419,7 @@
       "topP": 1,
       "maxTokens": 32768,
       "thinking": {
-        "type": "disabled",
-        "budgetTokens": 0
+        "levels": []
       },
       "reasoningEffort": "medium",
       "textVerbosity": "medium",
@@ -450,7 +445,7 @@
   "globalFallbackModel": "MiniMax-M2.7-highspeed",
   "plugins": {
     "opencode": {
-      "enabled": true,
+      "enabled": false,
       "outputFile": "opencode.json",
       "config": {
         "enabled": true,
@@ -498,6 +493,22 @@
       "config": {},
       "routing": {
         "agents": {},
+        "categories": {}
+      }
+    },
+    "litellm-alias": {
+      "enabled": false,
+      "outputFile": "",
+      "config": {},
+      "routing": {
+        "agents": {
+          "coder": "loom",
+          "planner": "planner",
+          "explorer": "explorer",
+          "reviewer": "reviewer",
+          "writer": "thread",
+          "architect": "warp"
+        },
         "categories": {}
       }
     }

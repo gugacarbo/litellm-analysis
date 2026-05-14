@@ -1,8 +1,8 @@
 // @lite-llm/prompt-eval — Public API
 
-export * from "./adapter/index.js";
-export * from "./dataset.js";
-export * from "./evaluation.js";
-export * from "./metrics/index.js";
-export * from "./review.js";
-export type * from "./types/index.js";
+export * from "./adapter/index";
+export * from "./dataset";
+export * from "./evaluation";
+export * from "./metrics/index";
+export * from "./review";
+export type * from "./types/index";

@@ -3,4 +3,4 @@ export type {
   PluginRouting,
   PluginRoutingRule,
   SystemAgent,
-} from "./types/agent-config.js";
+} from "./types/agent-config";

@@ -3,8 +3,8 @@ import {
   getErrorsSince,
   getModelHealthSince,
   getStuckRequests,
-} from "../queries/index.js";
-import type { ErrorLogEntry, ModelHealth } from "../types/index.js";
+} from "../queries/index";
+import type { ErrorLogEntry, ModelHealth } from "../types/index";
 
 export async function getErrorsSinceImpl(
   since: Date,

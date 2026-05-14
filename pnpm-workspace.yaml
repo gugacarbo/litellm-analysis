@@ -2,7 +2,6 @@ packages:
   - "apps/*"
   - "packages/*"
   - "repositories/*"
-  - "scripts/*"
 
 catalog:
   "@biomejs/biome": ^2.4.13

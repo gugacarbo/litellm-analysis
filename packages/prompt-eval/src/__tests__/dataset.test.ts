@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { validateDataset } from "../dataset.js";
+import { validateDataset } from "../dataset";
 import type {
   CategoryDefinition,
   CategoryEvalDataset,
-} from "../types/index.js";
+} from "../types/index";
 
 const categories: CategoryDefinition[] = [
   { id: "cat_a", name: "Category A", description: "desc a" },

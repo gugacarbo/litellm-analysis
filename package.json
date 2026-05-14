@@ -16,8 +16,8 @@
     "generate:agents-schema": "tsx repositories/agents-repository/scripts/generate-json-schema.ts",
     "sync:aa-benchmarks": "tsx scripts/sync-aa-benchmarks.ts",
     "sync:cloud": "tsx scripts/sync-cloud-litellm.ts",
-    "validate:agents": "ajv validate -s @agents/agents.schema.json -d @agents/agents.json",
-    "validate:agents:all": "ajv validate -s @agents/agents.schema.json -d @agents/agents.json --strict=true"
+    "validate:agents": "ajv validate -s @agents/agents.schema.json -d @agents/agents.jsonc",
+    "validate:agents:all": "ajv validate -s @agents/agents.schema.json -d @agents/agents.jsonc --strict=true"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

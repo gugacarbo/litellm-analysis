@@ -1,6 +1,6 @@
-import { usePromptEvalsActions } from "./use-prompt-evals-actions.js";
-import { usePromptEvalsDerived } from "./use-prompt-evals-derived.js";
-import { usePromptEvalsState } from "./use-prompt-evals-state.js";
+import { usePromptEvalsActions } from "./use-prompt-evals-actions";
+import { usePromptEvalsDerived } from "./use-prompt-evals-derived";
+import { usePromptEvalsState } from "./use-prompt-evals-state";
 
 export function usePromptEvalsPage() {
   const state = usePromptEvalsState();

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { permissionSchema } from "./permission.js";
+import { permissionSchema } from "./permission";
 
 export const agentEntrySchema = z.object({
   model: z
@@ -68,7 +68,13 @@ export const agentEntrySchema = z.object({
     })
     .optional(),
   tools: z
-    .record(z.string(), z.boolean())
+    .record(
+      z.string(),
+      z
+        .boolean()
+        .default(false)
+        .meta({ title: "Tool", description: "Tool enabled state" }),
+    )
     .default({})
     .meta({ title: "Tools", description: "Tool enable/disable map" })
     .optional(),

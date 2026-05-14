@@ -19,8 +19,7 @@ lite-llm-analytics/
 │   │       ├── pages/       # Route pages + page-level hooks/types/utils
 │   │       ├── lib/         # API client (modular), utils
 │   │       ├── hooks/       # use-dashboard-data, use-logs
-│   │       ├── types/       # Shared TypeScript interfaces
-│   │       └── @storage/output/        # Static agent definition data
+│   │       └── types/       # Shared TypeScript interfaces
 │   └── server/             # Express.js entry point + monitor + WebSocket
 │       └── src/
 │           ├── runtime/         # Express app factory, server bootstrap, monitor runtime
@@ -36,7 +35,7 @@ lite-llm-analytics/
 │   ├── monitor/             # Model health monitoring (SQLite, anomaly detection)
 │   ├── server-core/         # Orchestration layer (routes, alias db writer, artifact sync)
 │   ├── shared/             # Common types (AgentConfig, CategoryConfig)
-│   ├── config/             # Environment variable validation (t3-env, Zod)
+│   ├── env/                # Environment variable validation (t3-env, Zod)
 │   └── api-contracts/      # API type contracts (analytics, agent-routing)
 ├── @agents/                 # Agent config source-of-truth (agents.jsonc + schema)
 ├── @models/                 # Model/provider config source-of-truth (models.jsonc + schema)
@@ -48,7 +47,7 @@ lite-llm-analytics/
 ├── @storage/benchmarks/    # Artificial Analysis benchmark data
 │   ├── artificial-analysis-models.json
 │   └── model-aliases.json
-├── @storage/reports/       # Prompt evaluation reports
+├── @storage/reports/       # Prompt evaluation reports (runtime-created)
 ├── repositories/            # Config repositories + DB repos
 │   ├── agents-repository/  # Agents config persistence + validation
 │   ├── models-repository/  # Models config persistence + validation
@@ -57,7 +56,7 @@ lite-llm-analytics/
 │   └── litellm-repository/ # LiteLLM DB access via Prisma (generated client + raw SQL queries)
 ├── biome.json               # Biome 2.x (replaces ESLint+Prettier)
 ├── turbo.json               # Turborepo task pipeline
-└── pnpm-workspace.yaml      # apps/* + packages/*
+└── pnpm-workspace.yaml      # apps/* + packages/* + repositories/*
 ```
 
 ## WHERE TO LOOK
@@ -66,14 +65,14 @@ lite-llm-analytics/
 | ------------------------ | ------------------------------------------------ | ---------------------------------------------------- |
 | Add a page/route         | `apps/web/src/App.tsx` + `apps/web/src/pages/`   | Pages own their types, utils, and hooks              |
 | Add a UI component       | `apps/web/src/components/`                       | shadcn primitives at root, domain modules in subdirs |
-| Add an API endpoint      | `apps/server/src/api-server.ts`                  | All routes defined here                              |
+| Add an API endpoint      | `apps/server/src/runtime/api-server.ts`          | All routes defined here                              |
 | Add a data-source method | `packages/analytics/src/data-source/database.ts` | Must implement `AnalyticsDataSource` interface       |
 | Add a DB query           | `packages/analytics/src/queries/`                | Prisma raw SQL queries via `$queryRawUnsafe`         |
 | Add a new data type      | `packages/analytics/src/types/index.ts`          | Add to interface or type exports                     |
 | Change lint/format rules | `biome.json` (root)                              | Single quotes, 80 chars, import auto-organize        |
 | Change dev proxy         | `apps/web/vite.config.ts`                        | `/api` → `localhost:3008`                            |
 | Add agent config logic   | `packages/agents-manager/src/`                   | Adapters, transformers, CRUD, file generators        |
-| Modify agent API routes  | `apps/server/src/routes/agent-config-routes.ts`  | Express routes using agents-manager                  |
+| Modify agent API routes  | `packages/server-core/src/routes/agent-config-routes.ts` | Express routes using agents-manager                  |
 | Add model config logic   | `packages/models-manager/src/`                   | Provider/model CRUD, alias routing                    |
 | Modify model API routes  | `packages/server-core/src/routes/model-routes.ts`| Express routes using models-manager                  |
 
@@ -87,7 +86,7 @@ lite-llm-analytics/
 - Import auto-organization on format (`organizeImports: "on"`)
 
 ### Architecture
-- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (method implementations composed from 8 \*-methods.ts files, backed by 14 query files via `prisma.$queryRawUnsafe`)
+- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (method implementations composed from 9 \*-methods.ts files, backed by 13 query files via `prisma.$queryRawUnsafe`)
 - **Page-level architecture**: Page subdirectories contain hooks/types/utils only (no JSX). Page root `.tsx` files contain JSX. Components live in `components/` and import from page directories
 - **State-Actions-Derived pattern**: Complex pages (agent-routing) split into `use-*-state.ts`, `use-*-actions.ts`, `use-*-derived.ts`, composed via `use-*-page.ts`
 

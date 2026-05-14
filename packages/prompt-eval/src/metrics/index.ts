@@ -3,7 +3,7 @@ import type {
   CategoryEvalMetrics,
   CategoryPrediction,
   LabelMetrics,
-} from "../types/index.js";
+} from "../types/index";
 
 export function calculateMetrics(
   labels: string[],

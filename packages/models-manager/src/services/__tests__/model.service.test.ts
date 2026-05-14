@@ -1,7 +1,7 @@
 import { createRepository } from "@lite-llm/models-repository/repository";
 import { MemoryStorage } from "@lite-llm/repository-utils";
 import { beforeEach, describe, expect, it } from "vitest";
-import { ModelService } from "../model.service.js";
+import { ModelService } from "../model.service";
 
 function createTestRepo(files: Record<string, string>) {
   return createRepository({

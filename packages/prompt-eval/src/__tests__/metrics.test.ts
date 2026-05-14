@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { calculateMetrics } from "../metrics/index.js";
-import type { CategoryEvalCase, CategoryPrediction } from "../types/index.js";
+import { calculateMetrics } from "../metrics/index";
+import type { CategoryEvalCase, CategoryPrediction } from "../types/index";
 
 describe("calculateMetrics", () => {
   it("returns perfect scores when all predictions match", () => {

@@ -3,8 +3,8 @@ import {
   applyRequiredLiteLLMParams,
   buildLiteLLMParams,
   isRecord,
-} from "../orchestration/lite-llm-params.js";
-import type { RouteOptions } from "../types/index.js";
+} from "../orchestration/lite-llm-params";
+import type { RouteOptions } from "../types/index";
 
 interface ConfigModelEntry {
   modelName: string;

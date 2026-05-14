@@ -1,5 +1,5 @@
-import { getErrorLogs } from "../queries/index.js";
-import type { ErrorLogEntry } from "../types/index.js";
+import { getErrorLogs } from "../queries/index";
+import type { ErrorLogEntry } from "../types/index";
 
 interface RawErrorLog {
   id: unknown;

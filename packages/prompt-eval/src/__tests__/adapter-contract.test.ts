@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createPromptfooAdapter } from "../adapter/promptfoo.js";
-import type { PromptEvalAdapter } from "../types/index.js";
+import { createPromptfooAdapter } from "../adapter/promptfoo";
+import type { PromptEvalAdapter } from "../types/index";
 
 function runAdapterContract(createAdapter: () => PromptEvalAdapter) {
   describe("PromptEvalAdapter contract", () => {

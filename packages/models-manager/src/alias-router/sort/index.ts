@@ -1,4 +1,4 @@
-import { AGENT_KEYS, CATEGORY_KEYS } from "../constants/model-names.js";
+import { AGENT_KEYS, CATEGORY_KEYS } from "../constants/model-names";
 
 /**
  * Sort aliases so that:

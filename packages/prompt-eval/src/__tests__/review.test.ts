@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createPromptfooAdapter } from "../adapter/promptfoo.js";
-import { runCategoryAiReview } from "../review.js";
+import { createPromptfooAdapter } from "../adapter/promptfoo";
+import { runCategoryAiReview } from "../review";
 import type {
   CategoryDefinition,
   CategoryPrediction,
   EvalEvent,
-} from "../types/index.js";
+} from "../types/index";
 
 const categories: CategoryDefinition[] = [
   { id: "cat_a", name: "A", description: "desc a" },

@@ -4,16 +4,16 @@ import type {
   AgentsManager,
   DbModelSpecLike,
   OrchestrationServices,
-} from "../types/index.js";
+} from "../types/index";
 import {
   syncGeneratedArtifacts,
   syncModelsDirectlyToDatabase,
-} from "./artifact-service.js";
+} from "./artifact-service";
 
 export {
   syncGeneratedArtifacts,
   syncModelsDirectlyToDatabase,
-} from "./artifact-service.js";
+} from "./artifact-service";
 export {
   applyRequiredLiteLLMParams,
   buildLiteLLMParams,
@@ -21,7 +21,7 @@ export {
   isRecord,
   parseDays,
   toCostPerToken,
-} from "./lite-llm-params.js";
+} from "./lite-llm-params";
 
 export function createOrchestrationServices(
   dataSource: AnalyticsDataSource,

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import type { EvalRunListItem } from "../../lib/api-client/prompt-evals.js";
-import type { SortDirection, SortField } from "./types.js";
+import type { EvalRunListItem } from "../../lib/api-client/prompt-evals";
+import type { SortDirection, SortField } from "./types";
 
 export function usePromptEvalsDerived(
   runs: EvalRunListItem[],

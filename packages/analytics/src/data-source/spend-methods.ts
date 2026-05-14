@@ -5,7 +5,7 @@ import {
   getSpendLogById,
   getSpendLogs,
   getSpendLogsCount,
-} from "../queries/index.js";
+} from "../queries/index";
 import type {
   SpendByKey,
   SpendByModel,
@@ -13,8 +13,8 @@ import type {
   SpendLogEntry,
   SpendLogsFilters,
   SpendLogsResponse,
-} from "../types/index.js";
-import { toNullableNumber } from "./utils.js";
+} from "../types/index";
+import { toNullableNumber } from "./utils";
 
 export async function getSpendByModelImpl(days = 30): Promise<SpendByModel[]> {
   const result = await getSpendByModel(days);

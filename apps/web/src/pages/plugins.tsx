@@ -2,6 +2,7 @@
 
 import { Settings } from "lucide-react";
 import { PluginRoutingGrid } from "../components/plugin-routing/plugin-routing-grid";
+import { Button } from "../components/ui/button";
 import { PageLayout } from "../components/ui/page-layout";
 import { usePluginRoutingPage } from "./plugin-routing/use-plugin-routing-page";
 
@@ -13,6 +14,14 @@ export function PluginsPage() {
       title="Plugins & Routing"
       subtitle="Configure plugin routing and model aliases"
       icon={Settings}
+      buttons={
+        <Button
+          onClick={pluginState.handleSave}
+          disabled={pluginState.saving || pluginState.loading}
+        >
+          {pluginState.saving ? "Saving..." : "Save"}
+        </Button>
+      }
     >
       <PluginRoutingGrid
         plugins={pluginState.plugins}

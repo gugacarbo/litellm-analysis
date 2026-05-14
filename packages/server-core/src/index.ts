@@ -8,13 +8,13 @@ export {
   syncGeneratedArtifacts,
   syncModelsDirectlyToDatabase,
   toCostPerToken,
-} from "./orchestration/index.js";
+} from "./orchestration/index";
 
-export { registerAllRoutes } from "./routes/index.js";
+export { registerAllRoutes } from "./routes/index";
 
 export type {
   AgentsManager,
   DbModelSpecLike,
   OrchestrationServices,
   RouteOptions,
-} from "./types/index.js";
+} from "./types/index";

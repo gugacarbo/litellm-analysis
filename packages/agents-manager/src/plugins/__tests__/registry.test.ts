@@ -1,7 +1,7 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import { describe, expect, it, vi } from "vitest";
-import type { IPlugin } from "../plugin.js";
-import { PluginRegistry } from "../registry.js";
+import type { IPlugin } from "../plugin";
+import { PluginRegistry } from "../registry";
 
 function createMockRepository(): IAgentsRepository {
   return {

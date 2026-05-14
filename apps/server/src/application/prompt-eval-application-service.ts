@@ -25,7 +25,7 @@ import {
   runCategoryAiReview,
   runCategoryEvaluation,
 } from "@lite-llm/prompt-eval";
-import type { WebSocketServer } from "../ws/websocket-server.js";
+import type { WebSocketServer } from "../ws/websocket-server";
 
 export interface PromptEvalAppServiceOptions {
   adapter: PromptEvalAdapter;

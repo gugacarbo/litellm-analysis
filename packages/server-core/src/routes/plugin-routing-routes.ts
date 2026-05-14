@@ -1,6 +1,6 @@
 import type { PluginRouting } from "@lite-llm/agents-manager";
 import type { Application } from "express";
-import type { RouteOptions } from "../types/index.js";
+import type { RouteOptions } from "../types/index";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -87,6 +87,8 @@ export function registerPluginRoutingRoutes(
       const config = await manager.repository.read();
       config.plugins = plugins;
       await manager.repository.write(config);
+      manager.registry.loadFromConfig(plugins);
+      await manager.registry.exportAll();
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -106,6 +108,7 @@ export function registerPluginRoutingRoutes(
         pluginId,
         agentId,
       );
+      await manager.registry.exportAll();
       res.json({ enabled: newEnabled });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -125,7 +128,7 @@ export function registerPluginRoutingRoutes(
 
       const totalAgentCount = Object.keys(config.agents ?? {}).length;
 
-      const plugins: PluginInfoDTO[] = registry.list().map((p) => {
+      const plugins: PluginInfoDTO[] = registry.listAll().map((p) => {
         const pc = config.plugins?.[p.id];
         const mappedAgentCount = Object.keys(pc?.routing?.agents ?? {}).length;
 
@@ -240,6 +243,10 @@ export function registerPluginRoutingRoutes(
         await services.routing.savePluginConfig(pluginId, updated);
       }
 
+      const fullConfig = await manager.repository.read();
+      manager.registry.loadFromConfig(fullConfig.plugins ?? {});
+      await manager.registry.exportAll();
+
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -262,6 +269,7 @@ export function registerPluginRoutingRoutes(
           pluginId,
           categoryId,
         );
+        await manager.registry.exportAll();
         res.json({ categoryId, enabled });
       } catch (error) {
         res.status(500).json({ error: String(error) });

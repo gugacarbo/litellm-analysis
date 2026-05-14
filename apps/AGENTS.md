@@ -33,7 +33,7 @@ apps/
 | `apps/web/src/pages/AGENTS.md`      | Route pages, State-Actions-Derived pattern |
 | `apps/web/src/hooks/AGENTS.md`      | React Query hooks, WebSocket               |
 | `apps/web/src/lib/AGENTS.md`        | API client, React Query setup              |
-| `apps/web/src/types/AGENTS.md`      | Agent/category types, AGENT_DEFINITIONS    |
+| `apps/web/src/types/AGENTS.md`      | Agent/category types                       |
 
 ## WHERE TO LOOK
 

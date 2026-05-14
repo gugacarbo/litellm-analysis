@@ -24,7 +24,13 @@ export const pluginRoutingSchema = z.object({
   routing: z
     .object({
       agents: z
-        .record(z.string(), z.string())
+        .record(
+          z.string(),
+          z.string().default("").meta({
+            title: "Plugin Agent",
+            description: "Mapped plugin agent identifier",
+          }),
+        )
         .default({})
         .meta({
           title: "Agents Routing",
@@ -32,7 +38,13 @@ export const pluginRoutingSchema = z.object({
         })
         .optional(),
       categories: z
-        .record(z.string(), z.boolean())
+        .record(
+          z.string(),
+          z.boolean().default(false).meta({
+            title: "Category Route",
+            description: "Category routing enabled state",
+          }),
+        )
         .default({})
         .meta({
           title: "Categories Routing",

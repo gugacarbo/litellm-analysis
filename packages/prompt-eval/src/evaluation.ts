@@ -1,13 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { validateDataset } from "./dataset.js";
-import { calculateMetrics } from "./metrics/index.js";
+import { validateDataset } from "./dataset";
+import { calculateMetrics } from "./metrics/index";
 import type {
   CategoryEvalInput,
   CategoryEvalReport,
   CategoryPrediction,
   EvalEvent,
   PromptEvalAdapter,
-} from "./types/index.js";
+} from "./types/index";
 
 export async function runCategoryEvaluation(
   input: CategoryEvalInput & { adapter: PromptEvalAdapter },

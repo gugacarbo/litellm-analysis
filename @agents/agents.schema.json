@@ -32,7 +32,7 @@
             "type": "string"
           },
           "icon": {
-            "default": "\ud83e\udd16",
+            "default": "🤖",
             "title": "Icon",
             "description": "Icon identifier",
             "type": "string"
@@ -126,6 +126,9 @@
                   "type": "string"
                 },
                 "additionalProperties": {
+                  "default": false,
+                  "title": "Tool",
+                  "description": "Tool enabled state",
                   "type": "boolean"
                 }
               },
@@ -229,7 +232,7 @@
             "type": "string"
           },
           "icon": {
-            "default": "\ud83d\udcc2",
+            "default": "📂",
             "title": "Icon",
             "description": "Icon identifier",
             "type": "string"
@@ -327,28 +330,23 @@
           },
           "thinking": {
             "default": {
-              "type": "disabled",
-              "budgetTokens": 0
+              "levels": []
             },
             "title": "Thinking",
             "description": "Thinking configuration",
             "type": "object",
             "properties": {
-              "type": {
-                "default": "disabled",
-                "title": "Type",
-                "description": "Thinking mode type",
-                "type": "string",
-                "enum": ["enabled", "disabled"]
-              },
-              "budgetTokens": {
-                "default": 0,
-                "title": "Budget Tokens",
-                "description": "Token budget for thinking",
-                "type": "number"
+              "levels": {
+                "default": [],
+                "title": "Levels",
+                "description": "Available thinking levels for this model",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             },
-            "required": ["type"],
+            "required": ["levels"],
             "additionalProperties": false
           },
           "reasoningEffort": {
@@ -374,6 +372,9 @@
               "type": "string"
             },
             "additionalProperties": {
+              "default": false,
+              "title": "Tool",
+              "description": "Tool enabled state",
               "type": "boolean"
             }
           },
@@ -411,6 +412,9 @@
                   "type": "string"
                 },
                 "additionalProperties": {
+                  "default": false,
+                  "title": "Tool",
+                  "description": "Tool enabled state",
                   "type": "boolean"
                 }
               },
@@ -544,6 +548,9 @@
                   "type": "string"
                 },
                 "additionalProperties": {
+                  "default": "",
+                  "title": "Plugin Agent",
+                  "description": "Mapped plugin agent identifier",
                   "type": "string"
                 }
               },
@@ -556,6 +563,9 @@
                   "type": "string"
                 },
                 "additionalProperties": {
+                  "default": false,
+                  "title": "Category Route",
+                  "description": "Category routing enabled state",
                   "type": "boolean"
                 }
               }

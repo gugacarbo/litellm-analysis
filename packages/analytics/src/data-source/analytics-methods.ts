@@ -2,12 +2,12 @@ import {
   getHourlyUsagePatterns,
   getPerformanceMetrics,
   getTokenDistribution,
-} from "../queries/index.js";
+} from "../queries/index";
 import type {
   HourlyUsagePattern,
   PerformanceMetrics,
   TokenDistribution,
-} from "../types/index.js";
+} from "../types/index";
 
 export async function getTokenDistributionImpl(
   days = 30,

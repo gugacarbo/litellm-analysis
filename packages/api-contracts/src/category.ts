@@ -7,8 +7,7 @@ export interface CategoryEntry {
   top_p?: number;
   maxTokens?: number;
   thinking?: {
-    type: "enabled" | "disabled";
-    budgetTokens?: number;
+    levels: string[];
   };
   reasoningEffort?: "low" | "medium" | "high" | "xhigh";
   textVerbosity?: "low" | "medium" | "high";

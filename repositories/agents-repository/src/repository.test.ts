@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createRepository } from "./repository.js";
-import type { IStorage } from "./storage.js";
+import { createRepository } from "./repository";
+import type { IStorage } from "./storage";
 
 class MemoryStorage implements IStorage {
   constructor(private readonly files: Record<string, string>) {}

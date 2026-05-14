@@ -1,10 +1,10 @@
-import type { AnalyticsDataSource } from "../types/index.js";
+import type { AnalyticsDataSource } from "../types/index";
 
-import { DatabaseDataSource } from "./database.js";
+import { DatabaseDataSource } from "./database";
 
 export function createDataSource(): AnalyticsDataSource {
   return new DatabaseDataSource();
 }
 
-export type { AnalyticsDataSource } from "../types/index.js";
+export type { AnalyticsDataSource } from "../types/index";
 export { DatabaseDataSource };

@@ -3,7 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as process from "node:process";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createRepositoryClient } from "./client.js";
+import { createRepositoryClient } from "./client";
 
 describe("createRepositoryClient fallback", () => {
   let tmpDir: string;

@@ -1,7 +1,7 @@
 import type { SystemAgent } from "@lite-llm/agents-manager";
 import type { AgentCatalogEntry } from "@lite-llm/api-contracts/agent-routing";
 import type { Application } from "express";
-import type { RouteOptions } from "../types/index.js";
+import type { RouteOptions } from "../types/index";
 
 export function registerAgentCatalogRoutes(
   app: Application,

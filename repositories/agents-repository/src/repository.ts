@@ -3,8 +3,8 @@ import {
   normalizeConfig,
   parseConfigContent,
 } from "@lite-llm/repository-utils/jsonc";
-import { type DbConfig, dbConfigSchema } from "./schemas/index.js";
-import { FileStorage, type IStorage } from "./storage.js";
+import { type DbConfig, dbConfigSchema } from "./schemas/index";
+import { FileStorage, type IStorage } from "./storage";
 
 // Re-export types for convenience
 export type {
@@ -15,7 +15,7 @@ export type {
   ModelSpec,
   Permission,
   ThinkingConfig,
-} from "./schemas/index.js";
+} from "./schemas/index";
 
 export interface RepositoryOptions {
   filePath: string;

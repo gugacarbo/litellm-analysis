@@ -1,13 +1,13 @@
 import type { Application } from "express";
-import type { RouteOptions } from "../types/index.js";
-import { registerAgentCatalogRoutes } from "./agent-catalog-routes.js";
-import { registerAgentConfigRoutes } from "./agent-config-routes.js";
-import { registerAnalyticsRoutes } from "./analytics-routes.js";
-import { registerCategoryCatalogRoutes } from "./category-catalog-routes.js";
-import { registerCredentialRoutes } from "./credential-routes.js";
-import { registerModelRoutes } from "./model-routes.js";
-import { registerPluginRoutingRoutes } from "./plugin-routing-routes.js";
-import { registerSpendRoutes } from "./spend-routes.js";
+import type { RouteOptions } from "../types/index";
+import { registerAgentCatalogRoutes } from "./agent-catalog-routes";
+import { registerAgentConfigRoutes } from "./agent-config-routes";
+import { registerAnalyticsRoutes } from "./analytics-routes";
+import { registerCategoryCatalogRoutes } from "./category-catalog-routes";
+import { registerCredentialRoutes } from "./credential-routes";
+import { registerModelRoutes } from "./model-routes";
+import { registerPluginRoutingRoutes } from "./plugin-routing-routes";
+import { registerSpendRoutes } from "./spend-routes";
 
 export type { RouteOptions };
 

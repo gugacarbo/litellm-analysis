@@ -4,7 +4,7 @@ import type {
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
-import type { ConfigField, InternalAgent } from "./plugin-types.js";
+import type { ConfigField, InternalAgent } from "./plugin-types";
 
 export interface TransformContext {
   allModels: Record<string, ModelSpec>;
@@ -37,6 +37,7 @@ export interface IPluginRegistry {
   unregister(pluginId: string): void;
   get(pluginId: string): IPlugin | undefined;
   list(): IPlugin[];
+  listAll(): IPlugin[];
   loadFromConfig(pluginConfigs: Record<string, PluginRouting>): void;
   exportAll(): Promise<void>;
   exportOne(pluginId: string): Promise<void>;

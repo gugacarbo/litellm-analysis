@@ -14,7 +14,7 @@ export type {
 import {
   createRepositoryClient,
   type RepositoryClientOptions,
-} from "./repository/client.js";
+} from "./repository/client";
 
 export { createRepositoryClient, type RepositoryClientOptions };
 
@@ -23,22 +23,22 @@ import {
   AgentService,
   type AgentServiceOptions,
   type IAgentService,
-} from "./services/agent.service.js";
+} from "./services/agent.service";
 import {
   AgentCatalogService,
   type AgentCatalogServiceOptions,
   type IAgentCatalogService,
-} from "./services/agent-catalog.service.js";
+} from "./services/agent-catalog.service";
 import {
   CategoryService,
   type CategoryServiceOptions,
   type ICategoryService,
-} from "./services/category.service.js";
+} from "./services/category.service";
 import {
   type IRoutingService,
   RoutingService,
   type RoutingServiceOptions,
-} from "./services/routing.service.js";
+} from "./services/routing.service";
 
 // New types
 export type {
@@ -60,22 +60,22 @@ export type {
 export { AgentCatalogService, AgentService, CategoryService, RoutingService };
 
 // Plugins
-import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin.js";
-import { LitellmAliasPlugin } from "./plugins/external/litellm-alias.plugin.js";
-import { OpenAgentPlugin } from "./plugins/external/openagent.plugin.js";
-import { VsCodePlugin } from "./plugins/external/vscode.plugin.js";
+import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin";
+import { LitellmAliasPlugin } from "./plugins/external/litellm-alias.plugin";
+import { OpenAgentPlugin } from "./plugins/external/openagent.plugin";
+import { VsCodePlugin } from "./plugins/external/vscode.plugin";
 import type {
   IPlugin,
   IPluginRegistry,
   TransformContext,
-} from "./plugins/plugin.js";
-import type { ConfigField, InternalAgent } from "./plugins/plugin-types.js";
+} from "./plugins/plugin";
+import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
 import {
   PluginRegistry,
   type PluginRegistryOptions,
-} from "./plugins/registry.js";
+} from "./plugins/registry";
 
-export type { AliasDbWriter } from "./plugins/external/litellm-alias.plugin.js";
+export type { AliasDbWriter } from "./plugins/external/litellm-alias.plugin";
 export type {
   ConfigField,
   InternalAgent,
@@ -93,7 +93,7 @@ export {
 };
 
 // Config
-import { DEFAULT_AGENTS, DEFAULT_DB_PATH } from "./config/defaults.js";
+import { DEFAULT_AGENTS, DEFAULT_DB_PATH } from "./config/defaults";
 
 export { DEFAULT_AGENTS, DEFAULT_DB_PATH };
 

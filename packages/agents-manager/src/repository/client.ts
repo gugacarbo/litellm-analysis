@@ -6,7 +6,7 @@ import {
   type IAgentsRepository,
   type RepositoryOptions,
 } from "@lite-llm/agents-repository/repository";
-import { DEFAULT_DB_PATH } from "../config/defaults.js";
+import { DEFAULT_DB_PATH } from "../config/defaults";
 
 export interface RepositoryClientOptions {
   filePath?: string;

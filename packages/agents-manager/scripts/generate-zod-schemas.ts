@@ -85,9 +85,9 @@ const indexContent = `/**
  * DO NOT EDIT MANUALLY
  */
 
-export { openCodeSchema, type OpenCode } from "./opencode.zod.js";
-export { openAgentSchema, type OpenAgent } from "./openagent.zod.js";
-export { vsCodeSchema, type VsCode } from "./vscode.zod.js";
+export { openCodeSchema, type OpenCode } from "./opencode.zod";
+export { openAgentSchema, type OpenAgent } from "./openagent.zod";
+export { vsCodeSchema, type VsCode } from "./vscode.zod";
 `;
 
 fs.writeFileSync(path.join(OUTPUT_DIR, "index.ts"), indexContent, "utf-8");

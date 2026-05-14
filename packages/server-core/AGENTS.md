@@ -21,7 +21,7 @@ packages/server-core/src/
 │   ├── spend-routes.ts         # GET /spend/*
 │   ├── analytics-routes.ts     # GET /analytics/*
 │   ├── model-routes.ts         # CRUD /models/*
-│   ├── agent-routing-routes.ts # GET/PUT /agent-routing
+│   ├── plugin-routing-routes.ts # GET/PUT /agent-routing
 │   ├── agent-config-routes.ts  # CRUD /agent-config/*
 │   ├── agent-config/           # Sub-routes: agent + category CRUD
 │   ├── agent-definitions-routes.ts # Agent definitions endpoints
@@ -35,7 +35,7 @@ packages/server-core/src/
 
 | Task | Location | Notes |
 |------|----------|-------|
-| Add orchestration function | `orchestration/` | Depends on analytics + agents-manager + alias-router |
+| Add orchestration function | `orchestration/` | Depends on analytics + agents-manager |
 | Add route handler | `routes/` | Uses RouteOptions with dataSource + orchestration |
 | Add shared type | `types/index.ts` | DbModelSpecLike, RouteOptions |
 | Change route registration | `routes/index.ts` | registerAllRoutes() convenience |
@@ -66,7 +66,7 @@ export async function orchestrationFunction(
   param: SomeType,
 ): Promise<void> {
   // 1. Read from dataSource
-  // 2. Process with agents-manager or alias-router
+  // 2. Process with agents-manager or models-manager alias-router
   // 3. Write back to dataSource
 }
 ```

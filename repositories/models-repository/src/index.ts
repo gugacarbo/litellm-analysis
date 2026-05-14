@@ -1,3 +1,3 @@
-export * from "./repository.js";
-export * from "./schemas/index.js";
-export * from "./storage.js";
+export * from "./repository";
+export * from "./schemas/index";
+export * from "./storage";

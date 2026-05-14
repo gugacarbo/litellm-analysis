@@ -1,1 +1,1 @@
-export { PrismaClient, prisma } from "./client.js";
+export { PrismaClient, prisma } from "./client";

@@ -1,5 +1,5 @@
-import { MODEL_NAMES } from "../constants/model-names.js";
-import { stripLitellmPrefix } from "../utils/strip-prefix.js";
+import { MODEL_NAMES } from "../constants/model-names";
+import { stripLitellmPrefix } from "../utils/strip-prefix";
 
 function normalizeModel(value: string | undefined): string {
   const trimmed = (value || "").trim();

@@ -3,7 +3,7 @@ import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
 } from "@lite-llm/models-manager";
-import { getRouterSettings, updateRouterSettings } from "../queries/index.js";
+import { getRouterSettings, updateRouterSettings } from "../queries/index";
 
 export async function getAgentRoutingConfigImpl(): Promise<Record<
   string,

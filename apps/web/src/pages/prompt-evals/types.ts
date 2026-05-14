@@ -1,7 +1,7 @@
 import type {
   EvalRunDetail,
   EvalRunListItem,
-} from "../../lib/api-client/prompt-evals.js";
+} from "../../lib/api-client/prompt-evals";
 
 export type { EvalRunDetail, EvalRunListItem };
 

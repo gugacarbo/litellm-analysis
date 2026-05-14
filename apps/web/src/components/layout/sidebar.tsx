@@ -6,6 +6,7 @@ import {
   Cpu,
   FileText,
   GitBranch,
+  ListChecks,
   Radar,
   Scale,
   Settings,
@@ -72,8 +73,8 @@ export function Sidebar() {
       label: "Agents",
       children: [
         { to: "/agents", label: "Config", icon: Settings },
-        { to: "/plugins", label: "Plugins + Routing", icon: GitBranch },
-        { to: "/prompt-evals", label: "Evals" },
+        { to: "/plugins", label: "Plugins", icon: GitBranch },
+        { to: "/prompt-evals", label: "Evals", icon: ListChecks },
       ],
     },
     { to: "/models", icon: Cpu, label: "Models" },

@@ -1,7 +1,7 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
 import type { IModelService } from "@lite-llm/models-manager";
-import type { AgentsManager, DbModelSpecLike } from "../types/index.js";
-import { buildLiteLLMParams } from "./lite-llm-params.js";
+import type { AgentsManager, DbModelSpecLike } from "../types/index";
+import { buildLiteLLMParams } from "./lite-llm-params";
 
 export async function syncModelsDirectlyToDatabase(
   dataSource: AnalyticsDataSource,

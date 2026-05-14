@@ -61,3 +61,18 @@ export function useTogglePlugin() {
     },
   });
 }
+
+export function useSavePlugins() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const config = await getPluginRouting();
+      return savePluginRouting(config);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.pluginRouting.all,
+      });
+    },
+  });
+}

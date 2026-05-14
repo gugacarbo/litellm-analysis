@@ -18,7 +18,7 @@ import {
   getTopUsersByModel,
   mergeModels,
   updateModel,
-} from "../queries/index.js";
+} from "../queries/index";
 import type {
   ModelCacheHitRate,
   ModelDailyErrorTrend,
@@ -32,7 +32,7 @@ import type {
   ModelProviderBreakdown,
   ModelStatusDistribution,
   ModelTTFTPercentiles,
-} from "../types/index.js";
+} from "../types/index";
 
 export async function getModelsImpl(): Promise<ModelEntry[]> {
   const result = await getAllModels();

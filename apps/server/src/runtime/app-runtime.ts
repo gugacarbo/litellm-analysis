@@ -8,7 +8,7 @@ import {
   ModelService,
 } from "@lite-llm/models-manager";
 import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
-import { AliasDbWriterImpl } from "@lite-llm/server-core/orchestration/alias-db-writer.js";
+import { AliasDbWriterImpl } from "@lite-llm/server-core/orchestration/alias-db-writer";
 import { createAppContext } from "../contexts";
 import { env } from "../env";
 import { createApiServer } from "./api-server";
@@ -17,7 +17,7 @@ import {
   type HealthCheckRuntime,
 } from "./health-check-runtime";
 import { createMonitorRuntime, type MonitorRuntime } from "./monitor-runtime";
-import { createPromptEvalRuntime } from "./prompt-eval-runtime.js";
+import { createPromptEvalRuntime } from "./prompt-eval-runtime";
 
 interface AppRuntime {
   stop: () => void;
@@ -50,7 +50,7 @@ function setupAgentsManager(
 ) {
   return createAgentsManager({
     dbPath: path.join(projectRoot, "@agents", "agents.json"),
-    outputDir: path.join(projectRoot, "data"),
+    outputDir: path.join(projectRoot, "@storage", "output"),
     aliasDbWriter,
   });
 }

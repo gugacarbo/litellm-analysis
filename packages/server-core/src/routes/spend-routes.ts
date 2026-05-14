@@ -1,6 +1,6 @@
 import type { Application } from "express";
-import { parseDays } from "../orchestration/lite-llm-params.js";
-import type { RouteOptions } from "../types/index.js";
+import { parseDays } from "../orchestration/lite-llm-params";
+import type { RouteOptions } from "../types/index";
 
 export function registerSpendRoutes(
   app: Application,

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { categoryEntrySchema } from "./category.js";
-import { pluginRoutingSchema } from "./plugin-routing.js";
-import { systemAgentSchema } from "./system-agent.js";
+import { categoryEntrySchema } from "./category";
+import { pluginRoutingSchema } from "./plugin-routing";
+import { systemAgentSchema } from "./system-agent";
 
 export const dbConfigSchema = z
   .object({

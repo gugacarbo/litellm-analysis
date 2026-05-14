@@ -1,6 +1,6 @@
 import type { SystemAgent } from "@lite-llm/agents-manager";
 import type { Application } from "express";
-import type { RouteOptions } from "../../types/index.js";
+import type { RouteOptions } from "../../types/index";
 
 export function registerConfigRoutes(
   app: Application,

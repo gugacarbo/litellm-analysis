@@ -1,4 +1,4 @@
-import { escapeRegExp } from "../utils/regex.js";
+import { escapeRegExp } from "../utils/regex";
 
 /**
  * Check if a model string is a logical model reference for the given key.

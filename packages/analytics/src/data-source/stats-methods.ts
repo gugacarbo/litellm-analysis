@@ -4,14 +4,14 @@ import {
   getDailyTokenTrend,
   getModelRequestDistribution,
   getModelStatistics,
-} from "../queries/index.js";
+} from "../queries/index";
 import type {
   ApiKeyStats,
   CostEfficiency,
   DailyTokenTrend,
   ModelRequestDistribution,
   ModelStatistics,
-} from "../types/index.js";
+} from "../types/index";
 
 export async function getApiKeyStatsImpl(days = 30): Promise<ApiKeyStats[]> {
   const result = await getApiKeyDetailedStats(days);

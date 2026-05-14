@@ -1,5 +1,5 @@
 import { and, desc, eq, isNull, notInArray, sql } from "drizzle-orm";
-import { getAppDb } from "./client.js";
+import { getAppDb } from "./client";
 import type {
   Alert,
   EvalRun,
@@ -9,7 +9,7 @@ import type {
   NewEvalRun,
   NewEvalRunArtifact,
   NewEvalRunStep,
-} from "./schema.js";
+} from "./schema";
 import {
   alerts,
   modelHealthChecks,
@@ -18,7 +18,7 @@ import {
   promptEvalRunArtifacts,
   promptEvalRunSteps,
   promptEvalRuns,
-} from "./schema.js";
+} from "./schema";
 
 export interface GetAlertsOptions {
   anomalyType?: string;

@@ -1,4 +1,4 @@
-import type { CategoryDefinition, CategoryEvalDataset } from "./types/index.js";
+import type { CategoryDefinition, CategoryEvalDataset } from "./types/index";
 
 export interface ValidationResult {
   valid: boolean;

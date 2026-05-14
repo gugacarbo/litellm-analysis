@@ -6,8 +6,8 @@ import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
-import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin.js";
-import type { ConfigField, InternalAgent } from "./plugin-types.js";
+import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin";
+import type { ConfigField, InternalAgent } from "./plugin-types";
 
 export interface PluginRegistryOptions {
   repository: IAgentsRepository;
@@ -49,6 +49,10 @@ export class PluginRegistry implements IPluginRegistry {
 
   list(): IPlugin[] {
     return Array.from(this.plugins.values());
+  }
+
+  listAll(): IPlugin[] {
+    return [...this.allPlugins];
   }
 
   loadFromConfig(pluginConfigs: Record<string, PluginRouting>): void {

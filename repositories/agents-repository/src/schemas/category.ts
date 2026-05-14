@@ -3,7 +3,7 @@ import {
   thinkingSchema,
 } from "@lite-llm/models-repository/schemas";
 import { z } from "zod";
-import { agentExtraConfigSchema } from "./agent-extra-config.js";
+import { agentExtraConfigSchema } from "./agent-extra-config";
 
 export const categoryEntrySchema = z.object({
   displayName: z
@@ -71,7 +71,7 @@ export const categoryEntrySchema = z.object({
     .meta({ title: "Max Tokens", description: "Maximum tokens to generate" })
     .optional(),
   thinking: thinkingSchema
-    .default({ type: "disabled", budgetTokens: 0 })
+    .default({ levels: [] })
     .meta({ title: "Thinking", description: "Thinking configuration" })
     .optional(),
   reasoningEffort: z
@@ -85,7 +85,13 @@ export const categoryEntrySchema = z.object({
     .meta({ title: "Text Verbosity", description: "Response verbosity level" })
     .optional(),
   tools: z
-    .record(z.string(), z.boolean())
+    .record(
+      z.string(),
+      z
+        .boolean()
+        .default(false)
+        .meta({ title: "Tool", description: "Tool enabled state" }),
+    )
     .default({})
     .meta({ title: "Tools", description: "Tool enable/disable map" })
     .optional(),

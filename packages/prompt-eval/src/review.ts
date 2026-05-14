@@ -4,7 +4,7 @@ import type {
   CategoryPrediction,
   EvalEvent,
   PromptEvalAdapter,
-} from "./types/index.js";
+} from "./types/index";
 
 export interface AiReviewInput {
   adapter: PromptEvalAdapter;

@@ -131,28 +131,23 @@
           },
           "thinking": {
             "default": {
-              "type": "disabled",
-              "budgetTokens": 0
+              "levels": []
             },
             "title": "Thinking",
             "description": "Extended thinking configuration for this model",
             "type": "object",
             "properties": {
-              "type": {
-                "default": "disabled",
-                "title": "Type",
-                "description": "Thinking mode type",
-                "type": "string",
-                "enum": ["enabled", "disabled"]
-              },
-              "budgetTokens": {
-                "default": 0,
-                "title": "Budget Tokens",
-                "description": "Token budget for thinking",
-                "type": "number"
+              "levels": {
+                "default": [],
+                "title": "Levels",
+                "description": "Available thinking levels for this model",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             },
-            "required": ["type"],
+            "required": ["levels"],
             "additionalProperties": false
           }
         },

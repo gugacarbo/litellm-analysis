@@ -1,18 +1,18 @@
 export {
   getExistingAliasesForAgent,
   replaceAliasesForAgent,
-} from "./alias/cleanup.js";
-export { generateLitellmAliases } from "./alias/generate.js";
+} from "./alias/cleanup";
+export { generateLitellmAliases } from "./alias/generate";
 export {
   isLogicalModelForKey,
   resolveConfiguredModels,
   resolveModelValue,
-} from "./alias/resolve.js";
+} from "./alias/resolve";
 export {
   AGENT_KEYS,
   CATEGORY_KEYS,
   MODEL_NAMES,
-} from "./constants/model-names.js";
-export { sortAliasesByDefinitionOrder } from "./sort/index.js";
-export { escapeRegExp, generateAliasCleanupPattern } from "./utils/regex.js";
-export { stripLitellmPrefix } from "./utils/strip-prefix.js";
+} from "./constants/model-names";
+export { sortAliasesByDefinitionOrder } from "./sort/index";
+export { escapeRegExp, generateAliasCleanupPattern } from "./utils/regex";
+export { stripLitellmPrefix } from "./utils/strip-prefix";

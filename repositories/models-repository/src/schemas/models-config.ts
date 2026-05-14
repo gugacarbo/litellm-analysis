@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { modelSpecSchema } from "./model.js";
-import { providerSchema } from "./provider.js";
+import { modelSpecSchema } from "./model";
+import { providerSchema } from "./provider";
 
 export const modelsConfigSchema = z
   .object({

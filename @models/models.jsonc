@@ -23,8 +23,7 @@
         "output": 3.2
       },
       "thinking": {
-        "type": "enabled",
-        "budgetTokens": 16000
+        "levels": ["low", "medium", "high", "xHigh"]
       }
     },
     "glm-5.1": {
@@ -40,8 +39,7 @@
         "output": 4.4
       },
       "thinking": {
-        "type": "enabled",
-        "budgetTokens": 16000
+        "levels": ["low", "medium", "high", "xHigh"]
       }
     },
     "glm-5-turbo": {
@@ -57,8 +55,7 @@
         "output": 4
       },
       "thinking": {
-        "type": "enabled",
-        "budgetTokens": 8000
+        "levels": ["low", "medium", "high"]
       }
     },
     "MiniMax-M2.7-highspeed": {
@@ -113,8 +110,7 @@
         "output": 0.28
       },
       "thinking": {
-        "type": "enabled",
-        "budgetTokens": 32000
+        "levels": ["low", "medium", "high", "xHigh"]
       }
     },
     "deepseek-v4-pro": {
@@ -130,8 +126,7 @@
         "output": 3.48
       },
       "thinking": {
-        "type": "enabled",
-        "budgetTokens": 32000
+        "levels": ["low", "medium", "high", "xHigh"]
       }
     },
     "glm-5.1:ollama": {
@@ -160,8 +155,7 @@
         "output": 4
       },
       "thinking": {
-        "type": "enabled",
-        "budgetTokens": 32000
+        "levels": ["low", "medium", "high", "xHigh"]
       }
     },
     "mimo-v2.5-pro": {

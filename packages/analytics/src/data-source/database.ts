@@ -1,20 +1,20 @@
-import type { AnalyticsDataSource, SpendLogsFilters } from "../types/index.js";
+import type { AnalyticsDataSource, SpendLogsFilters } from "../types/index";
 import {
   getHourlyUsagePatternsImpl,
   getPerformanceMetricsImpl,
   getTokenDistributionImpl,
-} from "./analytics-methods.js";
+} from "./analytics-methods";
 import {
   getCredentialsImpl,
   getDefaultCredentialImpl,
   setDefaultCredentialImpl,
-} from "./credential-methods.js";
-import { getErrorLogsImpl } from "./error-methods.js";
+} from "./credential-methods";
+import { getErrorLogsImpl } from "./error-methods";
 import {
   getDailySpendTrendImpl,
   getHourlySpendTrendImpl,
   getMetricsSummaryImpl,
-} from "./metrics-methods.js";
+} from "./metrics-methods";
 import {
   createModelImpl,
   deleteModelImpl,
@@ -35,7 +35,7 @@ import {
   getTTFTPercentilesByModelImpl,
   mergeModelsImpl,
   updateModelImpl,
-} from "./model-methods.js";
+} from "./model-methods";
 import {
   getErrorCountByModelSinceImpl,
   getErrorsSinceImpl,
@@ -46,11 +46,11 @@ import {
   getSpendAnomaliesSinceImpl,
   getSpendByModelSinceImpl,
   getStuckRequestsImpl,
-} from "./monitor-methods.js";
+} from "./monitor-methods";
 import {
   getAgentRoutingConfigImpl,
   updateAgentRoutingConfigImpl,
-} from "./routing-methods.js";
+} from "./routing-methods";
 import {
   getSpendByKeyImpl,
   getSpendByModelImpl,
@@ -58,14 +58,14 @@ import {
   getSpendLogDetailImpl,
   getSpendLogsCountImpl,
   getSpendLogsImpl,
-} from "./spend-methods.js";
+} from "./spend-methods";
 import {
   getApiKeyStatsImpl,
   getCostEfficiencyImpl,
   getDailyTokenTrendImpl,
   getModelDistributionImpl,
   getModelStatisticsImpl,
-} from "./stats-methods.js";
+} from "./stats-methods";
 
 export class DatabaseDataSource implements AnalyticsDataSource {
   getMetricsSummary = getMetricsSummaryImpl;

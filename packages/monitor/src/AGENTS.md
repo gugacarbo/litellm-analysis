@@ -13,11 +13,12 @@ monitor/src/
 │   └── monitor-schema.ts    # SQLite schema (alerts, alertRules tables)
 ├── services/
 │   ├── detectors/
-│   │   ├── error-spike-detector.ts     # Sudden error rate increases
-│   │   ├── model-offline-detector.ts   # Zero throughput models
-│   │   ├── silent-failure-detector.ts  # Models returning errors silently
-│   │   └── timeout-stuck-detector.ts   # Requests stuck in pending
-│   │   └── index.ts                    # runAllDetectors() orchestration
+│   │   ├── error-spike-detector.ts         # Sudden error rate increases
+│   │   ├── model-offline-detector.ts       # Zero throughput models
+│   │   ├── non-success-spike-detector.ts   # Non-success status code spike detection
+│   │   ├── silent-failure-detector.ts      # Models returning errors silently
+│   │   ├── timeout-stuck-detector.ts       # Requests stuck in pending
+│   │   └── index.ts                        # runAllDetectors() orchestration
 │   ├── monitor-service.ts   # MonitorService class (periodic tick + WS broadcast)
 │   └── monitor-types.ts     # Alert types, MonitorServiceOptions
 └── index.ts                 # Barrel: 15+ named exports

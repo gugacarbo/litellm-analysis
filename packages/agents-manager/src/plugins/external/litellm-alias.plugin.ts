@@ -6,8 +6,8 @@ import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
 } from "@lite-llm/models-manager";
-import type { IPlugin, TransformContext } from "../plugin.js";
-import type { ConfigField, InternalAgent } from "../plugin-types.js";
+import type { IPlugin, TransformContext } from "../plugin";
+import type { ConfigField, InternalAgent } from "../plugin-types";
 
 export interface AliasDbWriter {
   updateAliases(aliases: Record<string, string>): Promise<void>;
