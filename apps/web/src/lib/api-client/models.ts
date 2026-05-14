@@ -3,6 +3,7 @@ import { fetchApi } from "./core";
 export type ModelConfig = {
   modelName: string;
   litellmParams: Record<string, unknown>;
+  enabled?: boolean;
 };
 
 export type ModelWithStatus = ModelConfig & {
