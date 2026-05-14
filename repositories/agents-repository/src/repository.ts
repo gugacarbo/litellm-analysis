@@ -3,11 +3,15 @@ import {
   normalizeConfig,
   parseConfigContent,
 } from "@lite-llm/repository-utils/jsonc";
-import { type DbConfig, dbConfigSchema } from "./schemas/index";
+import {
+  type AgentsConfig,
+  agentsConfigSchema,
+} from "./schemas/index";
 import { FileStorage, type IStorage } from "./storage";
 
 // Re-export types for convenience
 export type {
+  AgentsConfig,
   AgentEntry,
   CategoryEntry,
   Cost,
@@ -24,10 +28,10 @@ export interface RepositoryOptions {
 }
 
 export interface IAgentsRepository {
-  read(): Promise<DbConfig>;
-  readSync(): DbConfig;
-  write(config: DbConfig): Promise<void>;
-  validate(config: unknown): config is DbConfig;
+  read(): Promise<AgentsConfig>;
+  readSync(): AgentsConfig;
+  write(config: AgentsConfig): Promise<void>;
+  validate(config: unknown): config is AgentsConfig;
   exists(): Promise<boolean>;
   getPath(): string;
 }
@@ -43,12 +47,12 @@ export class AgentsRepository implements IAgentsRepository {
     this.validateOnRead = options.validateOnRead ?? true;
   }
 
-  async read(): Promise<DbConfig> {
+  async read(): Promise<AgentsConfig> {
     const content = await this.storage.read(this.filePath);
     const parsed = normalizeConfig(parseConfigContent(content, this.filePath));
 
     if (this.validateOnRead) {
-      const result = dbConfigSchema.safeParse(parsed);
+      const result = agentsConfigSchema.safeParse(parsed);
       if (!result.success) {
         throw new Error(
           `Invalid config at ${this.filePath}: ${result.error.message}`,
@@ -57,15 +61,15 @@ export class AgentsRepository implements IAgentsRepository {
       return result.data;
     }
 
-    return parsed as DbConfig;
+    return parsed as AgentsConfig;
   }
 
-  readSync(): DbConfig {
+  readSync(): AgentsConfig {
     const content = readFileSync(this.filePath, "utf-8");
     const parsed = normalizeConfig(parseConfigContent(content, this.filePath));
 
     if (this.validateOnRead) {
-      const result = dbConfigSchema.safeParse(parsed);
+      const result = agentsConfigSchema.safeParse(parsed);
       if (!result.success) {
         throw new Error(
           `Invalid config at ${this.filePath}: ${result.error.message}`,
@@ -74,12 +78,12 @@ export class AgentsRepository implements IAgentsRepository {
       return result.data;
     }
 
-    return parsed as DbConfig;
+    return parsed as AgentsConfig;
   }
 
-  async write(config: DbConfig): Promise<void> {
+  async write(config: AgentsConfig): Promise<void> {
     const normalizedConfig = normalizeConfig(config);
-    const result = dbConfigSchema.safeParse(normalizedConfig);
+    const result = agentsConfigSchema.safeParse(normalizedConfig);
     if (!result.success) {
       throw new Error(`Invalid config: ${result.error.message}`);
     }
@@ -88,8 +92,8 @@ export class AgentsRepository implements IAgentsRepository {
     await this.storage.write(this.filePath, content);
   }
 
-  validate(config: unknown): config is DbConfig {
-    const result = dbConfigSchema.safeParse(config);
+  validate(config: unknown): config is AgentsConfig {
+    const result = agentsConfigSchema.safeParse(config);
     return result.success;
   }
 

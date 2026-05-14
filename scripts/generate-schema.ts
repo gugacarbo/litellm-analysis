@@ -1,8 +1,8 @@
 import { writeFileSync } from "node:fs";
 import { z } from "zod";
-import { dbConfigSchema } from "../repositories/agents-repository/src/schemas/db-config";
+import { agentsConfigSchema } from "../repositories/agents-repository/src/schemas/db-config";
 
-const fullSchema = z.toJSONSchema(dbConfigSchema, { reused: "ref" });
+const fullSchema = z.toJSONSchema(agentsConfigSchema, { reused: "ref" });
 
 writeFileSync(
   "./@agents/agents.schema.json",

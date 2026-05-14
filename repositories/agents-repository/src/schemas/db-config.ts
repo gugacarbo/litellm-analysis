@@ -3,7 +3,7 @@ import { categoryEntrySchema } from "./category";
 import { pluginRoutingSchema } from "./plugin-routing";
 import { systemAgentSchema } from "./system-agent";
 
-export const dbConfigSchema = z
+export const agentsConfigSchema = z
   .object({
     $schema: z
       .string()
@@ -30,12 +30,12 @@ export const dbConfigSchema = z
         description: "Default fallback model",
       })
       .optional(),
-    plugins: z
-      .record(z.string(), pluginRoutingSchema)
-      .default({})
-      .meta({ title: "Plugins", description: "Plugin configurations" })
-      .optional(),
   })
   .strict();
 
-export type DbConfig = z.infer<typeof dbConfigSchema>;
+export type AgentsConfig = z.infer<typeof agentsConfigSchema>;
+
+// DbConfig is the merged type used by consumers — agents config + plugins
+export type DbConfig = AgentsConfig & {
+  plugins: Record<string, z.infer<typeof pluginRoutingSchema>>;
+};
