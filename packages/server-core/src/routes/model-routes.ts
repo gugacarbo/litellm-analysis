@@ -124,13 +124,14 @@ export function registerModelRoutes(
   app.post("/models/sync-from-config", async (_req, res) => {
     try {
       const manager = opts.agentsManager;
+      const modelsService = opts.modelsService;
       if (!manager) {
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
 
       const [configModels, litellmModels] = await Promise.all([
-        manager.services.models.getAll(),
+        modelsService.getAll(),
         dataSource.getModels(),
       ]);
 
@@ -155,7 +156,7 @@ export function registerModelRoutes(
         const inputCost = params.input_cost_per_token as number | undefined;
         const outputCost = params.output_cost_per_token as number | undefined;
 
-        await manager.services.models.create(model.modelName, {
+        await modelsService.create(model.modelName, {
           enabled: true,
           displayName: "",
           limits: {
@@ -187,13 +188,14 @@ export function registerModelRoutes(
   app.get("/models/with-config", async (_req, res) => {
     try {
       const manager = opts.agentsManager;
+      const modelsService = opts.modelsService;
       if (!manager) {
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
 
       const [configModels, litellmModels] = await Promise.all([
-        manager.services.models.getAll(),
+        modelsService.getAll(),
         dataSource.getModels(),
       ]);
 
@@ -267,6 +269,7 @@ export function registerModelRoutes(
   app.post("/models/add-to-config", async (req, res) => {
     try {
       const manager = opts.agentsManager;
+      const modelsService = opts.modelsService;
       if (!manager) {
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
@@ -288,7 +291,7 @@ export function registerModelRoutes(
       }
 
       // Prevent adding if already in config
-      const configModels = await manager.services.models.getAll();
+      const configModels = await modelsService.getAll();
       if (configModels[modelName]) {
         res.status(409).json({
           error: `Model "${modelName}" already exists in config`,
@@ -300,7 +303,7 @@ export function registerModelRoutes(
       const inputCost = params.input_cost_per_token as number | undefined;
       const outputCost = params.output_cost_per_token as number | undefined;
 
-      await manager.services.models.create(modelName, {
+      await modelsService.create(modelName, {
         enabled: true,
         displayName: "",
         limits: {

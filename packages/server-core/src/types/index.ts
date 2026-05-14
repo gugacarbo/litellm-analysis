@@ -1,5 +1,6 @@
 import type { createAgentsManager } from "@lite-llm/agents-manager";
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
+import type { IModelService } from "@lite-llm/models-manager";
 
 export type AgentsManager = ReturnType<typeof createAgentsManager>;
 
@@ -28,5 +29,6 @@ export interface OrchestrationServices {
 export interface RouteOptions {
   dataSource: AnalyticsDataSource;
   orchestration: OrchestrationServices;
+  modelsService: IModelService;
   agentsManager?: AgentsManager;
 }

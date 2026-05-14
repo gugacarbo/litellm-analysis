@@ -113,18 +113,12 @@ export class PluginRegistry implements IPluginRegistry {
   }
 
   private buildContext(config: DbConfig): TransformContext {
-    const selectedProvider =
-      config.provider.litellm ?? Object.values(config.provider)[0];
-    if (!selectedProvider) {
-      throw new Error("At least one provider must be configured");
-    }
-
     return {
-      allModels: config.models as TransformContext["allModels"],
+      allModels: {},
       globalFallbackModel: config.globalFallbackModel,
       litellmConfig: {
-        baseUrl: selectedProvider.baseUrl,
-        apiKey: selectedProvider.apiKey,
+        baseUrl: "",
+        apiKey: "",
       },
       allCategories: config.categories as TransformContext["allCategories"],
     };

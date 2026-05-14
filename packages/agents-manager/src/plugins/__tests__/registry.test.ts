@@ -7,15 +7,6 @@ function createMockRepository(): IAgentsRepository {
   return {
     read: vi.fn().mockResolvedValue({
       version: 2,
-      provider: {
-        litellm: {
-          name: "",
-          ownedBy: "",
-          baseUrl: "http://localhost:4000",
-          apiKey: "test",
-        },
-      },
-      models: {},
       agents: {},
       categories: {},
     }),
@@ -168,21 +159,6 @@ describe("PluginRegistry", () => {
       const mockRepo = createMockRepository();
       (mockRepo.read as ReturnType<typeof vi.fn>).mockResolvedValue({
         version: 2,
-        provider: {
-          litellm: {
-            name: "",
-            ownedBy: "",
-            baseUrl: "http://localhost:4000",
-            apiKey: "test",
-          },
-        },
-        models: {
-          "gpt-4": {
-            enabled: true,
-            displayName: "GPT-4",
-            limits: { length: 128000, maxOutput: 4096 },
-          },
-        },
         categories: {},
         agents: {
           builder: {
@@ -224,7 +200,6 @@ describe("PluginRegistry", () => {
       expect(agents[0].displayName).toBe("Builder");
       expect(routing.enabled).toBe(true);
       expect(routing.outputFile).toBe("test.json");
-      expect(ctx.litellmConfig.baseUrl).toBe("http://localhost:4000");
     });
 
     it("lança erro para plugin não registrado", async () => {

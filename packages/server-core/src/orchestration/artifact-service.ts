@@ -1,4 +1,5 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
+import type { IModelService } from "@lite-llm/models-manager";
 import type { AgentsManager, DbModelSpecLike } from "../types/index.js";
 import { buildLiteLLMParams } from "./lite-llm-params.js";
 
@@ -67,12 +68,13 @@ export async function syncModelsDirectlyToDatabase(
 export async function syncGeneratedArtifacts(
   dataSource: AnalyticsDataSource,
   agentsManager: AgentsManager,
+  modelsService: IModelService,
 ): Promise<void> {
   const { repository, registry } = agentsManager;
 
   // Sync models to database
-  const config = await repository.read();
-  await syncModelsDirectlyToDatabase(dataSource, config.models || {});
+  const configModels = await modelsService.getAll();
+  await syncModelsDirectlyToDatabase(dataSource, configModels);
 
   // Export config files via all registered plugins.
   // Only built-in + any plugins explicitly registered elsewhere will produce output.

@@ -35,11 +35,6 @@ import {
   type ICategoryService,
 } from "./services/category.service.js";
 import {
-  type IModelService,
-  ModelService,
-  type ModelServiceOptions,
-} from "./services/model.service.js";
-import {
   type IRoutingService,
   RoutingService,
   type RoutingServiceOptions,
@@ -59,16 +54,13 @@ export type {
   IAgentCatalogService,
   IAgentService,
   ICategoryService,
-  IModelService,
   IRoutingService,
-  ModelServiceOptions,
   RoutingServiceOptions,
 };
 export {
   AgentCatalogService,
   AgentService,
   CategoryService,
-  ModelService,
   RoutingService,
 };
 
@@ -125,7 +117,6 @@ export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
     agents: new AgentService({ repository }),
     catalog: new AgentCatalogService({ repository }),
     categories: new CategoryService({ repository }),
-    models: new ModelService({ repository }),
     routing: new RoutingService({ repository }),
   };
 

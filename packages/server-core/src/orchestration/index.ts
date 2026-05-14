@@ -1,4 +1,5 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics/types";
+import type { IModelService } from "@lite-llm/models-manager";
 import type {
   AgentsManager,
   DbModelSpecLike,
@@ -25,11 +26,12 @@ export {
 export function createOrchestrationServices(
   dataSource: AnalyticsDataSource,
   agentsManager: AgentsManager,
+  modelsService: IModelService,
 ): OrchestrationServices {
   return {
     dataSource,
     syncGeneratedArtifacts: () =>
-      syncGeneratedArtifacts(dataSource, agentsManager),
+      syncGeneratedArtifacts(dataSource, agentsManager, modelsService),
     syncModelsDirectlyToDatabase: (models: Record<string, DbModelSpecLike>) =>
       syncModelsDirectlyToDatabase(dataSource, models),
   };

@@ -18,6 +18,7 @@
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
     "@lite-llm/env": "workspace:*",
+    "@lite-llm/models-manager": "workspace:*",
     "@lite-llm/monitor": "workspace:^",
     "@lite-llm/prompt-eval": "workspace:*",
     "@lite-llm/server-core": "workspace:*",

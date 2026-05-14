@@ -96,6 +96,9 @@ importers:
       '@lite-llm/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@lite-llm/models-manager':
+        specifier: workspace:*
+        version: link:../../packages/models-manager
       '@lite-llm/monitor':
         specifier: workspace:^
         version: link:../../packages/monitor
@@ -413,6 +416,9 @@ importers:
       '@lite-llm/env':
         specifier: workspace:*
         version: link:../env
+      '@lite-llm/models-manager':
+        specifier: workspace:*
+        version: link:../models-manager
       express:
         specifier: 'catalog:'
         version: 4.22.2
