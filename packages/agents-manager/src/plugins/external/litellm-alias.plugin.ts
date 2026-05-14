@@ -55,12 +55,32 @@ export class LitellmAliasPlugin implements IPlugin {
         description: "Include agent-based aliases in output",
       },
       {
+        key: "selectedAgents",
+        type: "string",
+        label: "Selected Agents",
+        required: false,
+        default: "",
+        placeholder: "Comma-separated agent IDs, e.g. coder,planner",
+        description:
+          "Which agents to include (empty = all). Comma-separated list.",
+      },
+      {
         key: "includeCategories",
         type: "boolean",
         label: "Include Categories",
         required: false,
         default: true,
         description: "Include category-based aliases in output",
+      },
+      {
+        key: "selectedCategories",
+        type: "string",
+        label: "Selected Categories",
+        required: false,
+        default: "",
+        placeholder: "Comma-separated category keys, e.g. coding,debugging",
+        description:
+          "Which categories to include (empty = all). Comma-separated list.",
       },
       {
         key: "globalFallbackOverride",
@@ -88,15 +108,42 @@ export class LitellmAliasPlugin implements IPlugin {
     const aliasPrefix = (config.aliasPrefix as string) ?? "";
     const includeAgents = (config.includeAgents as boolean) ?? true;
     const includeCategories = (config.includeCategories as boolean) ?? true;
-    const globalFallbackOverride = (config.globalFallbackOverride as string) ?? "";
+    const globalFallbackOverride =
+      (config.globalFallbackOverride as string) ?? "";
     const effectiveFallback = globalFallbackOverride || ctx.globalFallbackModel;
+
+    // Parse comma-separated selections into Sets (null = all)
+    const selectedAgentsRaw = (config.selectedAgents as string) ?? "";
+    const selectedCategoriesRaw = (config.selectedCategories as string) ?? "";
+    const selectedAgentsSet = selectedAgentsRaw
+      ? new Set(
+          selectedAgentsRaw
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        )
+      : null;
+    const selectedCategoriesSet = selectedCategoriesRaw
+      ? new Set(
+          selectedCategoriesRaw
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        )
+      : null;
 
     if (includeAgents) {
       for (const agent of agents as AgentWithId[]) {
+        // Filter by selectedAgentsSet when not null
+        if (selectedAgentsSet && !selectedAgentsSet.has(agent.id)) {
+          continue;
+        }
+
+        const finalKey = aliasPrefix ? `${aliasPrefix}${agent.id}` : agent.id;
         Object.assign(
           aliases,
           generateLitellmAliases(
-            agent.id,
+            finalKey,
             agent.model || "",
             agent.fallbackModels,
             effectiveFallback,
@@ -109,6 +156,11 @@ export class LitellmAliasPlugin implements IPlugin {
       const enabledCategories = _routing.routing.categories ?? {};
       for (const [key, category] of Object.entries(ctx.allCategories ?? {})) {
         if (!enabledCategories[key]) {
+          continue;
+        }
+
+        // Filter by selectedCategoriesSet when not null
+        if (selectedCategoriesSet && !selectedCategoriesSet.has(key)) {
           continue;
         }
 
