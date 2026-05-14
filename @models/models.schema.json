@@ -128,6 +128,32 @@
               }
             },
             "additionalProperties": false
+          },
+          "thinking": {
+            "default": {
+              "type": "disabled",
+              "budgetTokens": 0
+            },
+            "title": "Thinking",
+            "description": "Extended thinking configuration for this model",
+            "type": "object",
+            "properties": {
+              "type": {
+                "default": "disabled",
+                "title": "Type",
+                "description": "Thinking mode type",
+                "type": "string",
+                "enum": ["enabled", "disabled"]
+              },
+              "budgetTokens": {
+                "default": 0,
+                "title": "Budget Tokens",
+                "description": "Token budget for thinking",
+                "type": "number"
+              }
+            },
+            "required": ["type"],
+            "additionalProperties": false
           }
         },
         "required": ["displayName", "limits"],
