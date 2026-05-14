@@ -1233,7 +1233,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/gustavo_carbonera/.local/share/opencode/worktree/9352445eba19326cd2471a017eacec657b66edd0/calm-wolf/repositories/litellm-repository/src/generated/prisma",
+      "value": "/home/gustavo/Apps/lite-llm-analytics/repositories/litellm-repository/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -1242,12 +1242,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "rhel-openssl-3.0.x",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/gustavo_carbonera/.local/share/opencode/worktree/9352445eba19326cd2471a017eacec657b66edd0/calm-wolf/repositories/litellm-repository/prisma/schema.prisma",
+    "sourceFilePath": "/home/gustavo/Apps/lite-llm-analytics/repositories/litellm-repository/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

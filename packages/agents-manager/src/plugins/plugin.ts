@@ -1,9 +1,9 @@
 import type {
   CategoryEntry,
-  ModelSpec,
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import type { ConfigField, InternalAgent } from "./plugin-types.js";
 
 export interface TransformContext {

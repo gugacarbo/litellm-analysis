@@ -1,6 +1,6 @@
+import { costSchema } from "@lite-llm/models-repository/schemas";
 import { z } from "zod";
 import { agentExtraConfigSchema } from "./agent-extra-config.js";
-import { costSchema } from "./cost.js";
 
 export const systemAgentSchema = z.object({
   displayName: z

@@ -275,6 +275,9 @@ importers:
       '@lite-llm/models-manager':
         specifier: workspace:*
         version: link:../models-manager
+      '@lite-llm/models-repository':
+        specifier: workspace:*
+        version: link:../../repositories/models-repository
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -454,6 +457,9 @@ importers:
 
   repositories/agents-repository:
     dependencies:
+      '@lite-llm/models-repository':
+        specifier: workspace:*
+        version: link:../models-repository
       '@lite-llm/repository-utils':
         specifier: workspace:*
         version: link:../repository-utils

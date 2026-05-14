@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@lite-llm/agents-repository": "workspace:*",
-    "@lite-llm/models-manager": "workspace:*"
+    "@lite-llm/models-manager": "workspace:*",
+    "@lite-llm/models-repository": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
