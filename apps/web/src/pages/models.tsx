@@ -26,6 +26,7 @@ export function ModelsPage() {
     handleSyncFromConfig,
     syncing,
     handleOpenEdit,
+    handleToggleEnabled,
     handleSubmit,
     addExtraParam,
     removeExtraParam,
@@ -94,6 +95,7 @@ export function ModelsPage() {
         onOpenEdit={handleOpenEdit}
         onDelete={handleDelete}
         onAddToConfig={handleAddToConfig}
+        onToggleEnabled={handleToggleEnabled}
       />
     </PageLayout>
   );

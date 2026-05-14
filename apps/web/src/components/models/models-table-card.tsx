@@ -23,6 +23,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
+import { Switch } from "../ui/switch";
 import {
   Table,
   TableBody,
@@ -58,6 +59,7 @@ type ModelsTableCardProps = {
   onOpenEdit: (model: ModelConfig) => void;
   onDelete: () => void;
   onAddToConfig: (modelName: string) => void;
+  onToggleEnabled: (modelName: string, enabled: boolean) => void;
 };
 
 const statusConfig: Record<
@@ -83,6 +85,7 @@ export function ModelsTableCard({
   onOpenEdit,
   onDelete,
   onAddToConfig,
+  onToggleEnabled,
 }: ModelsTableCardProps) {
   return (
     <Card>
@@ -110,6 +113,7 @@ export function ModelsTableCard({
             <TableHeader>
               <TableRow>
                 <TableHead>Model Name</TableHead>
+                <TableHead>Enabled</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Health</TableHead>
                 <TableHead className="text-right">Context</TableHead>
@@ -128,16 +132,36 @@ export function ModelsTableCard({
                   model.status === "synced" || model.status === "litellm-only";
 
                 return (
-                  <TableRow key={model.modelName}>
+                  <TableRow
+                    key={model.modelName}
+                    className={
+                      model.enabled === false ? "opacity-50" : undefined
+                    }
+                  >
                     <TableCell className="font-medium">
                       {model.modelName}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={statusBadgeVariant[model.status] ?? "outline"}
-                      >
-                        {statusLabel[model.status] ?? model.status}
-                      </Badge>
+                      <Switch
+                        checked={model.enabled !== false}
+                        onCheckedChange={(checked) =>
+                          onToggleEnabled(model.modelName, checked)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {model.enabled === false ? (
+                        <Badge variant="destructive">Disabled</Badge>
+                      ) : (
+                        <Badge
+                          variant={
+                            statusBadgeVariant[model.status] ?? "outline"
+                          }
+                        >
+                          {statusLabel[model.status] ?? model.status}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       {inLiteLLM ? (

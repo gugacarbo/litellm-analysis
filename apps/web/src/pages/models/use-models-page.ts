@@ -7,6 +7,7 @@ import {
   getModelsWithConfig,
   type ModelConfig,
   syncModelsFromConfig,
+  toggleModelEnabled,
   updateModel,
 } from "../../lib/api-client";
 import { getModelsHealth } from "../../lib/api-client/monitor";
@@ -146,6 +147,17 @@ export function useModelsPage() {
     }
   }
 
+  async function handleToggleEnabled(modelName: string, enabled: boolean) {
+    try {
+      await toggleModelEnabled(modelName, enabled);
+      await queryClient.invalidateQueries({
+        queryKey: ["models-with-config"],
+      });
+    } catch (e) {
+      setMutationError(String(e));
+    }
+  }
+
   console.log(
     "[DEBUG] modelsHealth from hook:",
     modelsHealthQuery.data?.models,
@@ -179,6 +191,7 @@ export function useModelsPage() {
     },
     handleOpenCreateWithDefaultCredential,
     handleOpenEdit,
+    handleToggleEnabled,
     handleSubmit,
     modelsQuery,
     mutationError,

@@ -82,6 +82,16 @@ export async function addModelToConfig(
   });
 }
 
+export async function toggleModelEnabled(
+  modelName: string,
+  enabled: boolean,
+): Promise<{ success: boolean }> {
+  return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
+    method: "PUT",
+    body: JSON.stringify({ litellmParams: { enabled } }),
+  });
+}
+
 export async function mergeModels(
   sourceModel: string,
   targetModel: string,
