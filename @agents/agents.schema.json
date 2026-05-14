@@ -1,52 +1,23 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "$schema": {
       "default": "./agents.schema.json",
       "title": "Schema",
       "description": "JSON Schema reference",
-      "$ref": "#/$defs/__schema0"
+      "type": "string"
     },
     "version": {
       "default": 1,
       "title": "Version",
       "description": "Config version",
-      "$ref": "#/$defs/__schema1"
+      "type": "number"
     },
     "agents": {
       "default": {},
       "title": "Agents",
       "description": "System agents",
-      "$ref": "#/$defs/__schema2"
-    },
-    "categories": {
-      "default": {},
-      "title": "Categories",
-      "description": "Agent categories",
-      "$ref": "#/$defs/__schema28"
-    },
-    "globalFallbackModel": {
-      "default": "",
-      "title": "Global Fallback Model",
-      "description": "Default fallback model",
-      "$ref": "#/$defs/__schema48"
-    }
-  },
-  "required": [
-    "version",
-    "agents",
-    "categories"
-  ],
-  "additionalProperties": false,
-  "$defs": {
-    "__schema0": {
-      "type": "string"
-    },
-    "__schema1": {
-      "type": "number"
-    },
-    "__schema2": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -58,19 +29,19 @@
             "default": "",
             "title": "Display Name",
             "description": "Agent display name",
-            "$ref": "#/$defs/__schema3"
+            "type": "string"
           },
           "icon": {
             "default": "🤖",
             "title": "Icon",
             "description": "Icon identifier",
-            "$ref": "#/$defs/__schema4"
+            "type": "string"
           },
           "description": {
             "default": "",
             "title": "Description",
             "description": "Agent description",
-            "$ref": "#/$defs/__schema5"
+            "type": "string"
           },
           "limits": {
             "default": {
@@ -79,31 +50,157 @@
             },
             "title": "Limits",
             "description": "Model limits",
-            "$ref": "#/$defs/__schema6"
+            "type": "object",
+            "properties": {
+              "context": {
+                "default": 200000,
+                "title": "Context Limit",
+                "description": "Context window size",
+                "type": "number"
+              },
+              "output": {
+                "default": 32768,
+                "title": "Output Limit",
+                "description": "Maximum output tokens",
+                "type": "number"
+              }
+            },
+            "required": ["context", "output"],
+            "additionalProperties": false
           },
           "cost": {
             "default": {},
             "title": "Cost",
             "description": "Agent pricing",
-            "$ref": "#/$defs/__schema9"
+            "type": "object",
+            "properties": {
+              "input": {
+                "default": 0,
+                "title": "Input Cost",
+                "description": "Cost per million input tokens",
+                "type": "number"
+              },
+              "output": {
+                "default": 0,
+                "title": "Output Cost",
+                "description": "Cost per million output tokens",
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
           },
           "model": {
             "default": "",
             "title": "Model",
             "description": "Model identifier",
-            "$ref": "#/$defs/__schema12"
+            "type": "string"
           },
           "fallbackModels": {
             "default": [],
             "title": "Fallback Models",
             "description": "Fallback models",
-            "$ref": "#/$defs/__schema13"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "config": {
             "default": {},
             "title": "Config",
             "description": "Extra agent configuration",
-            "$ref": "#/$defs/__schema14"
+            "type": "object",
+            "properties": {
+              "mode": {
+                "default": "all",
+                "title": "Mode",
+                "description": "Agent operating mode",
+                "type": "string",
+                "enum": ["subagent", "primary", "all"]
+              },
+              "tools": {
+                "default": {},
+                "title": "Tools",
+                "description": "Tool enable/disable map",
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "default": false,
+                  "title": "Tool",
+                  "description": "Tool enabled state",
+                  "type": "boolean"
+                }
+              },
+              "permissions": {
+                "default": {},
+                "title": "Permissions",
+                "description": "Permission overrides",
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              },
+              "color": {
+                "default": "",
+                "title": "Color",
+                "description": "Display color",
+                "type": "string"
+              },
+              "disable": {
+                "default": false,
+                "title": "Disable",
+                "description": "Whether agent is disabled",
+                "type": "boolean"
+              },
+              "variant": {
+                "default": "",
+                "title": "Variant",
+                "description": "Agent variant",
+                "type": "string"
+              },
+              "category": {
+                "default": "",
+                "title": "Category",
+                "description": "Agent category",
+                "type": "string"
+              },
+              "skills": {
+                "default": [],
+                "title": "Skills",
+                "description": "Enabled skills",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "temperature": {
+                "default": 0,
+                "title": "Temperature",
+                "description": "Sampling temperature",
+                "type": "number"
+              },
+              "topP": {
+                "default": 1,
+                "title": "Top P",
+                "description": "Nucleus sampling",
+                "type": "number"
+              },
+              "prompt": {
+                "default": "",
+                "title": "System Prompt",
+                "description": "System prompt override",
+                "type": "string"
+              },
+              "promptAppend": {
+                "default": "",
+                "title": "Prompt Append",
+                "description": "Text to append to prompts",
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
           }
         },
         "required": [
@@ -117,215 +214,10 @@
         "additionalProperties": false
       }
     },
-    "__schema3": {
-      "type": "string"
-    },
-    "__schema4": {
-      "type": "string"
-    },
-    "__schema5": {
-      "type": "string"
-    },
-    "__schema6": {
-      "type": "object",
-      "properties": {
-        "context": {
-          "default": 200000,
-          "title": "Context Limit",
-          "description": "Context window size",
-          "$ref": "#/$defs/__schema7"
-        },
-        "output": {
-          "default": 32768,
-          "title": "Output Limit",
-          "description": "Maximum output tokens",
-          "$ref": "#/$defs/__schema8"
-        }
-      },
-      "required": [
-        "context",
-        "output"
-      ],
-      "additionalProperties": false
-    },
-    "__schema7": {
-      "type": "number"
-    },
-    "__schema8": {
-      "type": "number"
-    },
-    "__schema9": {
-      "type": "object",
-      "properties": {
-        "input": {
-          "default": 0,
-          "title": "Input Cost",
-          "description": "Cost per million input tokens",
-          "$ref": "#/$defs/__schema10"
-        },
-        "output": {
-          "default": 0,
-          "title": "Output Cost",
-          "description": "Cost per million output tokens",
-          "$ref": "#/$defs/__schema11"
-        }
-      },
-      "additionalProperties": false
-    },
-    "__schema10": {
-      "type": "number"
-    },
-    "__schema11": {
-      "type": "number"
-    },
-    "__schema12": {
-      "type": "string"
-    },
-    "__schema13": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "__schema14": {
-      "type": "object",
-      "properties": {
-        "mode": {
-          "default": "all",
-          "title": "Mode",
-          "description": "Agent operating mode",
-          "$ref": "#/$defs/__schema15"
-        },
-        "tools": {
-          "default": {},
-          "title": "Tools",
-          "description": "Tool enable/disable map",
-          "$ref": "#/$defs/__schema16"
-        },
-        "permissions": {
-          "default": {},
-          "title": "Permissions",
-          "description": "Permission overrides",
-          "$ref": "#/$defs/__schema18"
-        },
-        "color": {
-          "default": "",
-          "title": "Color",
-          "description": "Display color",
-          "$ref": "#/$defs/__schema19"
-        },
-        "disable": {
-          "default": false,
-          "title": "Disable",
-          "description": "Whether agent is disabled",
-          "$ref": "#/$defs/__schema20"
-        },
-        "variant": {
-          "default": "",
-          "title": "Variant",
-          "description": "Agent variant",
-          "$ref": "#/$defs/__schema21"
-        },
-        "category": {
-          "default": "",
-          "title": "Category",
-          "description": "Agent category",
-          "$ref": "#/$defs/__schema22"
-        },
-        "skills": {
-          "default": [],
-          "title": "Skills",
-          "description": "Enabled skills",
-          "$ref": "#/$defs/__schema23"
-        },
-        "temperature": {
-          "default": 0,
-          "title": "Temperature",
-          "description": "Sampling temperature",
-          "$ref": "#/$defs/__schema24"
-        },
-        "topP": {
-          "default": 1,
-          "title": "Top P",
-          "description": "Nucleus sampling",
-          "$ref": "#/$defs/__schema25"
-        },
-        "prompt": {
-          "default": "",
-          "title": "System Prompt",
-          "description": "System prompt override",
-          "$ref": "#/$defs/__schema26"
-        },
-        "promptAppend": {
-          "default": "",
-          "title": "Prompt Append",
-          "description": "Text to append to prompts",
-          "$ref": "#/$defs/__schema27"
-        }
-      },
-      "additionalProperties": false
-    },
-    "__schema15": {
-      "type": "string",
-      "enum": [
-        "subagent",
-        "primary",
-        "all"
-      ]
-    },
-    "__schema16": {
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "default": false,
-        "title": "Tool",
-        "description": "Tool enabled state",
-        "$ref": "#/$defs/__schema17"
-      }
-    },
-    "__schema17": {
-      "type": "boolean"
-    },
-    "__schema18": {
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {}
-    },
-    "__schema19": {
-      "type": "string"
-    },
-    "__schema20": {
-      "type": "boolean"
-    },
-    "__schema21": {
-      "type": "string"
-    },
-    "__schema22": {
-      "type": "string"
-    },
-    "__schema23": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "__schema24": {
-      "type": "number"
-    },
-    "__schema25": {
-      "type": "number"
-    },
-    "__schema26": {
-      "type": "string"
-    },
-    "__schema27": {
-      "type": "string"
-    },
-    "__schema28": {
+    "categories": {
+      "default": {},
+      "title": "Categories",
+      "description": "Agent categories",
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -337,19 +229,19 @@
             "default": "",
             "title": "Display Name",
             "description": "Category display name",
-            "$ref": "#/$defs/__schema29"
+            "type": "string"
           },
           "icon": {
             "default": "📂",
             "title": "Icon",
             "description": "Icon identifier",
-            "$ref": "#/$defs/__schema30"
+            "type": "string"
           },
           "model": {
             "default": "",
             "title": "Model",
             "description": "Default model for category",
-            "$ref": "#/$defs/__schema31"
+            "type": "string"
           },
           "limits": {
             "default": {
@@ -358,49 +250,83 @@
             },
             "title": "Limits",
             "description": "Model limits",
-            "$ref": "#/$defs/__schema32"
+            "type": "object",
+            "properties": {
+              "context": {
+                "default": 200000,
+                "type": "number",
+                "title": "Context Limit",
+                "description": "Context window size in tokens"
+              },
+              "output": {
+                "default": 32768,
+                "type": "number",
+                "title": "Output Limit",
+                "description": "Maximum output tokens"
+              }
+            },
+            "required": ["context", "output"],
+            "additionalProperties": false
           },
           "cost": {
             "default": {},
             "title": "Cost",
             "description": "Category pricing",
-            "$ref": "#/$defs/__schema9"
+            "type": "object",
+            "properties": {
+              "input": {
+                "default": 0,
+                "title": "Input Cost",
+                "description": "Cost per million input tokens",
+                "type": "number"
+              },
+              "output": {
+                "default": 0,
+                "title": "Output Cost",
+                "description": "Cost per million output tokens",
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
           },
           "fallbackModels": {
             "default": [],
             "title": "Fallback Models",
             "description": "Fallback models",
-            "$ref": "#/$defs/__schema33"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "description": {
             "default": "",
             "title": "Description",
             "description": "Category description",
-            "$ref": "#/$defs/__schema34"
+            "type": "string"
           },
           "variant": {
             "default": "",
             "title": "Variant",
             "description": "Category variant",
-            "$ref": "#/$defs/__schema35"
+            "type": "string"
           },
           "temperature": {
             "default": 0,
             "title": "Temperature",
             "description": "Sampling temperature",
-            "$ref": "#/$defs/__schema36"
+            "type": "number"
           },
           "topP": {
             "default": 1,
             "title": "Top P",
             "description": "Nucleus sampling threshold",
-            "$ref": "#/$defs/__schema37"
+            "type": "number"
           },
           "maxTokens": {
             "default": 32768,
             "title": "Max Tokens",
             "description": "Maximum tokens to generate",
-            "$ref": "#/$defs/__schema38"
+            "type": "number"
           },
           "thinking": {
             "default": {
@@ -408,168 +334,172 @@
             },
             "title": "Thinking",
             "description": "Thinking configuration",
-            "$ref": "#/$defs/__schema39"
+            "type": "object",
+            "properties": {
+              "levels": {
+                "default": [],
+                "title": "Levels",
+                "description": "Available thinking levels for this model",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["levels"],
+            "additionalProperties": false
           },
           "reasoningEffort": {
             "default": "medium",
             "title": "Reasoning Effort",
             "description": "Reasoning budget level",
-            "$ref": "#/$defs/__schema41"
+            "type": "string",
+            "enum": ["low", "medium", "high", "xhigh"]
           },
           "textVerbosity": {
             "default": "medium",
             "title": "Text Verbosity",
             "description": "Response verbosity level",
-            "$ref": "#/$defs/__schema42"
+            "type": "string",
+            "enum": ["low", "medium", "high"]
           },
           "tools": {
             "default": {},
             "title": "Tools",
             "description": "Tool enable/disable map",
-            "$ref": "#/$defs/__schema43"
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "default": false,
+              "title": "Tool",
+              "description": "Tool enabled state",
+              "type": "boolean"
+            }
           },
           "promptAppend": {
             "default": "",
             "title": "Prompt Append",
             "description": "Text to append to prompts",
-            "$ref": "#/$defs/__schema45"
+            "type": "string"
           },
           "isUnstableAgent": {
             "default": false,
             "title": "Unstable Agent",
             "description": "Mark as experimental/unstable",
-            "$ref": "#/$defs/__schema46"
+            "type": "boolean"
           },
           "config": {
             "default": {},
             "title": "Config",
             "description": "Extra agent configuration",
-            "$ref": "#/$defs/__schema47"
+            "type": "object",
+            "properties": {
+              "mode": {
+                "default": "all",
+                "title": "Mode",
+                "description": "Agent operating mode",
+                "type": "string",
+                "enum": ["subagent", "primary", "all"]
+              },
+              "tools": {
+                "default": {},
+                "title": "Tools",
+                "description": "Tool enable/disable map",
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "default": false,
+                  "title": "Tool",
+                  "description": "Tool enabled state",
+                  "type": "boolean"
+                }
+              },
+              "permissions": {
+                "default": {},
+                "title": "Permissions",
+                "description": "Permission overrides",
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              },
+              "color": {
+                "default": "",
+                "title": "Color",
+                "description": "Display color",
+                "type": "string"
+              },
+              "disable": {
+                "default": false,
+                "title": "Disable",
+                "description": "Whether agent is disabled",
+                "type": "boolean"
+              },
+              "variant": {
+                "default": "",
+                "title": "Variant",
+                "description": "Agent variant",
+                "type": "string"
+              },
+              "category": {
+                "default": "",
+                "title": "Category",
+                "description": "Agent category",
+                "type": "string"
+              },
+              "skills": {
+                "default": [],
+                "title": "Skills",
+                "description": "Enabled skills",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "temperature": {
+                "default": 0,
+                "title": "Temperature",
+                "description": "Sampling temperature",
+                "type": "number"
+              },
+              "topP": {
+                "default": 1,
+                "title": "Top P",
+                "description": "Nucleus sampling",
+                "type": "number"
+              },
+              "prompt": {
+                "default": "",
+                "title": "System Prompt",
+                "description": "System prompt override",
+                "type": "string"
+              },
+              "promptAppend": {
+                "default": "",
+                "title": "Prompt Append",
+                "description": "Text to append to prompts",
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
           }
         },
-        "required": [
-          "model",
-          "limits"
-        ],
+        "required": ["model", "limits"],
         "additionalProperties": false
       }
     },
-    "__schema29": {
-      "type": "string"
-    },
-    "__schema30": {
-      "type": "string"
-    },
-    "__schema31": {
-      "type": "string"
-    },
-    "__schema32": {
-      "type": "object",
-      "properties": {
-        "context": {
-          "default": 200000,
-          "type": "number",
-          "title": "Context Limit",
-          "description": "Context window size in tokens"
-        },
-        "output": {
-          "default": 32768,
-          "type": "number",
-          "title": "Output Limit",
-          "description": "Maximum output tokens"
-        }
-      },
-      "required": [
-        "context",
-        "output"
-      ],
-      "additionalProperties": false
-    },
-    "__schema33": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "__schema34": {
-      "type": "string"
-    },
-    "__schema35": {
-      "type": "string"
-    },
-    "__schema36": {
-      "type": "number"
-    },
-    "__schema37": {
-      "type": "number"
-    },
-    "__schema38": {
-      "type": "number"
-    },
-    "__schema39": {
-      "type": "object",
-      "properties": {
-        "levels": {
-          "default": [],
-          "title": "Levels",
-          "description": "Available thinking levels for this model",
-          "$ref": "#/$defs/__schema40"
-        }
-      },
-      "required": [
-        "levels"
-      ],
-      "additionalProperties": false
-    },
-    "__schema40": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "__schema41": {
-      "type": "string",
-      "enum": [
-        "low",
-        "medium",
-        "high",
-        "xhigh"
-      ]
-    },
-    "__schema42": {
-      "type": "string",
-      "enum": [
-        "low",
-        "medium",
-        "high"
-      ]
-    },
-    "__schema43": {
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "default": false,
-        "title": "Tool",
-        "description": "Tool enabled state",
-        "$ref": "#/$defs/__schema44"
-      }
-    },
-    "__schema44": {
-      "type": "boolean"
-    },
-    "__schema45": {
-      "type": "string"
-    },
-    "__schema46": {
-      "type": "boolean"
-    },
-    "__schema47": {
-      "$ref": "#/$defs/__schema14"
-    },
-    "__schema48": {
+    "globalFallbackModel": {
+      "default": "",
+      "title": "Global Fallback Model",
+      "description": "Default fallback model",
       "type": "string"
     }
-  }
+  },
+  "required": ["version", "agents", "categories"],
+  "additionalProperties": false
 }
