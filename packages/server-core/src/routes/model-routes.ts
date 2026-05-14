@@ -91,9 +91,35 @@ export function registerModelRoutes(
           normalizedNewName,
           mergedParams,
         );
+
+        // Also sync enabled to config JSONC
+        if (typeof incomingParams.enabled === "boolean") {
+          try {
+            await opts.modelsService.update(name, {
+              enabled: incomingParams.enabled,
+            });
+          } catch (configErr) {
+            // If model doesn't exist in config, that's fine — it may be litellm-only
+            if (!String(configErr).includes("not found")) {
+              throw configErr;
+            }
+          }
+        }
       }
       if (modelName !== undefined) updates.modelName = normalizedNewName;
-      await dataSource.updateModel(name, updates);
+      try {
+        if (Object.keys(updates).length > 0) {
+          await dataSource.updateModel(name, updates);
+        }
+      } catch (dbErr) {
+        // If model doesn't exist in LiteLLM DB, that's fine for config-only models
+        if (
+          !String(dbErr).includes("not found") &&
+          !String(dbErr).includes("No row")
+        ) {
+          throw dbErr;
+        }
+      }
       res.json({ success: true });
     } catch (error) {
       const msg = String(error);
