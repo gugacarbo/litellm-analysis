@@ -1,4 +1,21 @@
 // Analytics Data Source Interface
+// Granularity identifiers for time-series bucketing
+export type TimeGranularity =
+  | "30s"
+  | "1m"
+  | "1h"
+  | "1d"
+  | "2d"
+  | "1w"
+  | "2w"
+  | "1mo";
+
+/** Base type for all time-series data points with adaptive granularity */
+export interface TimeSeriesPoint {
+  date: string;
+  granularity: TimeGranularity;
+}
+
 export interface AnalyticsDataSource {
   getMetricsSummary(days?: number): Promise<MetricsSummary>;
   getDailySpendTrend(days?: number): Promise<DailySpendTrend[]>;
@@ -193,7 +210,7 @@ export type MetricsSummary = MetricsSummaryResult;
 export interface DailySpendTrend {
   date: string;
   spend: number;
-  granularity?: "hour" | "day";
+  granularity?: TimeGranularity;
 }
 
 /**
@@ -269,7 +286,7 @@ export interface DailyTokenTrend {
   completion_tokens: number;
   total_tokens: number;
   request_count: number;
-  granularity?: "hour" | "day";
+  granularity?: TimeGranularity;
 }
 
 export interface ModelStatistics {
@@ -340,6 +357,7 @@ export interface ModelDailySpendTrend {
   spend: number;
   total_tokens: number;
   request_count: number;
+  granularity?: TimeGranularity;
 }
 
 export interface ModelDailyTokenTrend {
@@ -347,6 +365,7 @@ export interface ModelDailyTokenTrend {
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
+  granularity?: TimeGranularity;
 }
 
 export interface ModelHourlyUsage {
@@ -362,6 +381,7 @@ export interface ModelDailyLatencyTrend {
   p50_latency_ms: number;
   p95_latency_ms: number;
   p99_latency_ms: number;
+  granularity?: TimeGranularity;
 }
 
 export interface ModelErrorBreakdown {
@@ -374,6 +394,7 @@ export interface ModelDailyErrorTrend {
   date: string;
   error_count: number;
   distinct_models?: string[];
+  granularity?: TimeGranularity;
 }
 
 export interface ModelTopUser {

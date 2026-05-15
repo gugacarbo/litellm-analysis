@@ -7,6 +7,7 @@ import type {
   DailySpendTrend,
   HourlySpendTrend,
   MetricsSummary,
+  TimeGranularity,
 } from "../types/index";
 
 export async function getMetricsSummaryImpl(
@@ -20,7 +21,6 @@ export async function getMetricsSummaryImpl(
     error_count: result.errorCount,
     prompt_tokens: result.promptTokens,
     completion_tokens: result.completionTokens,
-    distinct_models: result.distinctModels,
   };
 }
 
@@ -31,7 +31,7 @@ export async function getDailySpendTrendImpl(
   return result.map((item) => ({
     date: String(item.date),
     spend: item.spend,
-    granularity: item.granularity as "hour" | "day" | undefined,
+    granularity: item.granularity as TimeGranularity | undefined,
   }));
 }
 
