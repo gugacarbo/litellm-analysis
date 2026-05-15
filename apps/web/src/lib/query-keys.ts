@@ -23,6 +23,8 @@ export const queryKeys = {
     ["dashboard", "model-distribution", days] as const,
   dashboardDailyTokenTrend: (days: number) =>
     ["dashboard", "daily-token-trend", days] as const,
+  dashboardModelStatistics: (days: number) =>
+    ["dashboard", "model-statistics", days] as const,
   spendLogs: (params: {
     page: number;
     pageSize: number;

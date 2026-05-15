@@ -43,6 +43,7 @@ export async function getApiKeyDetailedStats(days = 30) {
       total_tokens: number;
       avg_tokens_per_request: number;
       success_rate: number;
+      avg_tokens_per_second: number;
       last_used: Date;
     }>
   >(`

@@ -178,6 +178,8 @@ export interface MetricsSummaryResult {
   total_tokens: number;
   active_models: number;
   error_count: number;
+  prompt_tokens: number;
+  completion_tokens: number;
 }
 
 export type MetricsSummary = MetricsSummaryResult;
@@ -217,6 +219,7 @@ export interface PerformanceMetricsResult {
   total_requests: number;
   avg_duration_ms: number;
   success_rate: number;
+  avg_tokens_per_second: number;
 }
 
 export type PerformanceMetrics = PerformanceMetricsResult;
@@ -440,7 +443,6 @@ export interface ModelProviderBreakdown {
   avg_latency_ms: number;
 }
 
-// Credentials types
 // Credentials types
 export interface LiteLLMCredential {
   credentialId: string;

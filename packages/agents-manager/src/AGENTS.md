@@ -69,6 +69,10 @@ PluginRegistry → OpenCodePlugin / OpenAgentPlugin / VsCodePlugin
 
 - Repository client handles `@agents/` path resolution from monorepo root
 - JSON/JSONC fallback: `.json` → `.jsonc` if file not found
+- Plugin schemas are generated artifacts:
+  - `src/plugins/schemas/*.schema.json` must be generated from Zod schemas
+  - `src/plugins/schemas/generated/*` is also generated
+  - Do not edit generated schema files manually; update the Zod source and regenerate
 
 
 ## ANTI-PATTERNS

@@ -54,6 +54,7 @@ export type PerformanceMetrics = {
   total_requests: number;
   avg_duration_ms: number;
   success_rate: number;
+  avg_tokens_per_second: number;
 };
 
 export type HourlyPatternItem = {
@@ -70,6 +71,7 @@ export type ApiKeyStatItem = {
   total_tokens: number;
   avg_tokens_per_request: number;
   success_rate: number;
+  avg_tokens_per_second: number;
   last_used: string;
 };
 

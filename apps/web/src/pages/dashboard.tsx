@@ -47,6 +47,7 @@ export function DashboardPage() {
     costEfficiency,
     modelDistribution,
     dailyTokenTrend,
+    modelStatistics,
     lastUpdatedAt,
     insights,
     refetch,
@@ -161,6 +162,7 @@ export function DashboardPage() {
               rangeLabel={rangeLabel}
               costEfficiency={costEfficiency}
               dailyTokenTrend={dailyTokenTrend}
+              modelStatistics={modelStatistics}
             />
           </TabsContent>
         </Tabs>

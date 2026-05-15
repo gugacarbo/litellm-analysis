@@ -100,7 +100,10 @@ export function ModelFormDialog({
                 onFormDataChange({ ...formData, enabled: checked })
               }
             />
-            <Label htmlFor="enabled" className="text-sm font-medium cursor-pointer">
+            <Label
+              htmlFor="enabled"
+              className="text-sm font-medium cursor-pointer"
+            >
               Enabled for routing
             </Label>
           </div>

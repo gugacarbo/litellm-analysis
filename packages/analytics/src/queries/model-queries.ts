@@ -371,6 +371,7 @@ export async function getTopApiKeysByModel(model: string, days?: number) {
       total_tokens: number;
       request_count: number;
       success_rate: number;
+      avg_tokens_per_second: number;
     }>
   >(`
     SELECT
@@ -378,7 +379,8 @@ export async function getTopApiKeysByModel(model: string, days?: number) {
       SUM("spend")::float as "total_spend",
       SUM("total_tokens")::float as "total_tokens",
       COUNT(*)::float as "request_count",
-      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate"
+            (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
+      AVG(CASE WHEN EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.5 THEN "completion_tokens"::float / EXTRACT(EPOCH FROM ("endTime" - "startTime")) ELSE NULL END)::float as "avg_tokens_per_second"
     FROM "LiteLLM_SpendLogs"
     ${where}
     GROUP BY "api_key"

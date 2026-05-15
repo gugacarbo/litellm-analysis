@@ -23,7 +23,12 @@
         "output": 3.2
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xHigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "glm-5.1": {
@@ -39,7 +44,12 @@
         "output": 4.4
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xHigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "glm-5-turbo": {
@@ -55,7 +65,11 @@
         "output": 4
       },
       "thinking": {
-        "levels": ["low", "medium", "high"]
+        "levels": [
+          "low",
+          "medium",
+          "high"
+        ]
       }
     },
     "MiniMax-M2.7-highspeed": {
@@ -69,10 +83,13 @@
       "cost": {
         "input": 0.3,
         "output": 1.2
+      },
+      "thinking": {
+        "levels": []
       }
     },
     "qwen3.5-plus": {
-      "enabled": true,
+      "enabled": false,
       "displayName": "Qwen 3.5+",
       "family": "",
       "limits": {
@@ -82,10 +99,13 @@
       "cost": {
         "input": 0.4,
         "output": 2.4
+      },
+      "thinking": {
+        "levels": []
       }
     },
     "qwen3-coder-plus": {
-      "enabled": true,
+      "enabled": false,
       "displayName": "Qwen 3 Coder+",
       "family": "",
       "limits": {
@@ -95,6 +115,9 @@
       "cost": {
         "input": 0.65,
         "output": 3.25
+      },
+      "thinking": {
+        "levels": []
       }
     },
     "deepseek-v4-flash": {
@@ -110,7 +133,12 @@
         "output": 0.28
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xHigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "deepseek-v4-pro": {
@@ -126,7 +154,12 @@
         "output": 3.48
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xHigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "glm-5.1:ollama": {
@@ -140,6 +173,9 @@
       "cost": {
         "input": 1.2,
         "output": 4
+      },
+      "thinking": {
+        "levels": []
       }
     },
     "kimi-k2.6": {
@@ -155,11 +191,16 @@
         "output": 4
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xHigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "mimo-v2.5-pro": {
-      "enabled": true,
+      "enabled": false,
       "displayName": "Mimo V2.5 Pro",
       "family": "xiaomi",
       "limits": {
@@ -169,10 +210,13 @@
       "cost": {
         "input": 1,
         "output": 3
+      },
+      "thinking": {
+        "levels": []
       }
     },
     "mimo-v2-pro": {
-      "enabled": true,
+      "enabled": false,
       "displayName": "Mimo V2 Pro",
       "family": "xiaomi",
       "limits": {
@@ -182,6 +226,9 @@
       "cost": {
         "input": 1,
         "output": 3
+      },
+      "thinking": {
+        "levels": []
       }
     }
   }

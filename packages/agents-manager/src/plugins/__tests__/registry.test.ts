@@ -1,4 +1,5 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
+import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import { describe, expect, it, vi } from "vitest";
 import type { IPlugin } from "../plugin";
 import { PluginRegistry } from "../registry";
@@ -34,6 +35,38 @@ function createMockPlugin(overrides: Partial<IPlugin> = {}): IPlugin {
     buildOutput: () => ({ output: true }),
     getOutputFile: () => "test.json",
     validate: (output) => typeof output === "object" && output !== null,
+    ...overrides,
+  };
+}
+
+function createMockModelsRepository(
+  overrides: Partial<IModelsRepository> = {},
+): IModelsRepository {
+  return {
+    read: vi.fn().mockResolvedValue({
+      $schema: "./models.schema.json",
+      version: 1,
+      provider: {
+        litellm: {
+          name: "LiteLLM",
+          ownedBy: "team",
+          baseUrl: "http://localhost:4000/v1",
+          apiKey: "sk-test",
+        },
+      },
+      models: {
+        "gpt-5": {
+          displayName: "GPT-5",
+          limits: { length: 200000, maxOutput: 32768 },
+        },
+      },
+    }),
+    readSync: vi.fn(),
+    write: vi.fn(),
+    validate: ((_config: unknown): _config is never =>
+      true) as IModelsRepository["validate"],
+    exists: vi.fn().mockResolvedValue(true),
+    getPath: vi.fn().mockReturnValue("/tmp/models.jsonc"),
     ...overrides,
   };
 }
@@ -213,6 +246,30 @@ describe("PluginRegistry", () => {
       await expect(registry.exportOne("nonexistent")).rejects.toThrow(
         "not found",
       );
+    });
+
+    it("carrega allModels e litellmConfig do models repository", async () => {
+      const mockRepo = createMockRepository();
+      const buildOutputSpy = vi.fn().mockReturnValue({ result: true });
+      const plugin = createMockPlugin({ buildOutput: buildOutputSpy });
+
+      const registry = new PluginRegistry({
+        repository: mockRepo,
+        modelsRepository: createMockModelsRepository(),
+        outputDir: "/tmp/test-registry-output",
+        allPlugins: [plugin],
+      });
+
+      await registry.exportOne("test-plugin");
+
+      const ctx = buildOutputSpy.mock.calls[0][2] as {
+        allModels: Record<string, unknown>;
+        litellmConfig: { baseUrl: string; apiKey: string };
+      };
+
+      expect(Object.keys(ctx.allModels)).toEqual(["gpt-5"]);
+      expect(ctx.litellmConfig.baseUrl).toBe("http://localhost:4000/v1");
+      expect(ctx.litellmConfig.apiKey).toBe("sk-test");
     });
   });
 });

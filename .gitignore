@@ -53,6 +53,7 @@ __pycache__
 !.weave/plans/
 !.weave/designs/
 
-@db/*.db
 .worktrees/
+.superpowers/brainstorm
 
+@db/*.db

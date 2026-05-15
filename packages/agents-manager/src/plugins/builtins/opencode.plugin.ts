@@ -2,6 +2,7 @@ import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
 
@@ -9,6 +10,56 @@ interface OpenCodeProviders {
   provider: Record<string, unknown>;
   agent?: Record<string, unknown>;
   category?: Record<string, unknown>;
+}
+
+const OPENCODE_REASONING_EFFORT_LEVELS = new Set([
+  "none",
+  "minimal",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+]);
+
+function normalizeThinkingLevel(level: string): string | null {
+  const normalized = level
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]/g, "");
+  if (!normalized) return null;
+
+  if (normalized === "off" || normalized === "disabled") {
+    return "none";
+  }
+
+  if (OPENCODE_REASONING_EFFORT_LEVELS.has(normalized)) {
+    return normalized;
+  }
+
+  return null;
+}
+
+function buildThinkingVariants(
+  model: ModelSpec,
+): Record<string, { reasoningEffort: string }> | undefined {
+  const levels = model.thinking?.levels ?? [];
+  if (levels.length === 0) return undefined;
+
+  const variants: Record<string, { reasoningEffort: string }> = {};
+  for (const level of levels) {
+    const normalizedLevel = normalizeThinkingLevel(level);
+    if (!normalizedLevel) continue;
+
+    variants[normalizedLevel] = {
+      reasoningEffort: normalizedLevel,
+    };
+  }
+
+  if (Object.keys(variants).length === 0) {
+    return undefined;
+  }
+
+  return variants;
 }
 
 export class OpenCodePlugin implements IPlugin {
@@ -65,7 +116,7 @@ export class OpenCodePlugin implements IPlugin {
 
     const litellmModels: Record<string, unknown> = {};
     for (const [key, spec] of Object.entries(ctx.allModels)) {
-      litellmModels[key] = {
+      const modelOutput: Record<string, unknown> = {
         id: key,
         name: spec.displayName,
         limit: {
@@ -73,6 +124,20 @@ export class OpenCodePlugin implements IPlugin {
           output: spec.limits.maxOutput,
         },
       };
+
+      if (spec.cost?.input != null || spec.cost?.output != null) {
+        modelOutput.cost = {
+          ...(spec.cost?.input != null ? { input: spec.cost.input } : {}),
+          ...(spec.cost?.output != null ? { output: spec.cost.output } : {}),
+        };
+      }
+
+      const thinkingVariants = buildThinkingVariants(spec);
+      if (thinkingVariants) {
+        modelOutput.variants = thinkingVariants;
+      }
+
+      litellmModels[key] = modelOutput;
     }
 
     output.provider.litellm = {

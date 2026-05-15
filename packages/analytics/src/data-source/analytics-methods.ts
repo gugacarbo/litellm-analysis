@@ -29,6 +29,7 @@ export async function getPerformanceMetricsImpl(
   return {
     total_requests: Number(result.total_requests),
     avg_duration_ms: Number(result.avg_duration_ms || 0),
+    avg_tokens_per_second: Number(result.avg_tokens_per_second || 0),
     success_rate: Number(result.success_rate || 0),
   };
 }

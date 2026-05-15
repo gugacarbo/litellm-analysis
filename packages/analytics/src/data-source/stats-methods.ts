@@ -22,6 +22,7 @@ export async function getApiKeyStatsImpl(days = 30): Promise<ApiKeyStats[]> {
     total_tokens: Number(item.total_tokens),
     avg_tokens_per_request: Number(item.avg_tokens_per_request),
     success_rate: Number(item.success_rate || 0),
+    avg_tokens_per_second: Number(item.avg_tokens_per_second || 0),
     last_used: item.last_used
       ? new Date(item.last_used as Date).toISOString()
       : "",
@@ -81,6 +82,7 @@ export async function getModelStatisticsImpl(
     avg_tokens_per_request: Number(item.avg_tokens_per_request),
     avg_latency_ms: Number(item.avg_latency_ms || 0),
     success_rate: Number(item.success_rate || 0),
+    avg_tokens_per_second: Number(item.avg_tokens_per_second || 0),
     error_count: Number(item.error_count || 0),
     avg_input_cost: Number(item.avg_input_cost || 0),
     avg_output_cost: Number(item.avg_output_cost || 0),
@@ -96,7 +98,6 @@ export async function getModelStatisticsImpl(
     unique_users: Number(item.unique_users || 0),
     unique_api_keys: Number(item.unique_api_keys || 0),
     p50_tokens_per_second: Number(item.p50_tokens_per_second || 0),
-    avg_tokens_per_second: Number(item.avg_tokens_per_second || 0),
     max_tokens_per_second: Number(item.max_tokens_per_second || 0),
   }));
 }

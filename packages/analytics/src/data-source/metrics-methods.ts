@@ -18,6 +18,8 @@ export async function getMetricsSummaryImpl(
     total_tokens: result.totalTokens,
     active_models: result.activeModels,
     error_count: result.errorCount,
+    prompt_tokens: result.promptTokens,
+    completion_tokens: result.completionTokens,
   };
 }
 

@@ -12,12 +12,16 @@ export async function getMetricsSummary(days = 30) {
         totalSpend: number;
         totalTokens: number;
         activeModels: number;
+        promptTokens: number;
+        completionTokens: number;
       }>
     >(`
       SELECT
         COALESCE(SUM("spend"), 0)::float as "totalSpend",
         COALESCE(SUM("total_tokens"), 0)::float as "totalTokens",
-        COUNT(DISTINCT "model")::float as "activeModels"
+        COUNT(DISTINCT "model")::float as "activeModels",
+        COALESCE(SUM("prompt_tokens"), 0)::float as "promptTokens",
+        COALESCE(SUM("completion_tokens"), 0)::float as "completionTokens"
       FROM "LiteLLM_SpendLogs"
       ${timeFilter ? `WHERE ${timeFilter}` : ""}
     `),
@@ -40,6 +44,8 @@ export async function getMetricsSummary(days = 30) {
     totalTokens: Number(summary?.totalTokens ?? 0),
     activeModels: Number(summary?.activeModels ?? 0),
     errorCount: Number(errors?.errorCount ?? 0),
+    promptTokens: Number(summary?.promptTokens ?? 0),
+    completionTokens: Number(summary?.completionTokens ?? 0),
   };
 }
 
@@ -56,12 +62,14 @@ export async function getPerformanceMetrics(days = 30) {
       total_requests: number;
       avg_duration_ms: number;
       success_rate: number;
+      avg_tokens_per_second: number;
     }>
   >(`
     SELECT
       COUNT(*)::float as "total_requests",
       AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_duration_ms",
-      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate"
+      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
+      AVG(CASE WHEN EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.5 THEN "completion_tokens"::float / EXTRACT(EPOCH FROM ("endTime" - "startTime")) ELSE NULL END)::float as "avg_tokens_per_second"
     FROM "LiteLLM_SpendLogs"
     ${where}
   `);
@@ -71,6 +79,7 @@ export async function getPerformanceMetrics(days = 30) {
       total_requests: 0,
       avg_duration_ms: 0,
       success_rate: 0,
+      avg_tokens_per_second: 0,
     }
   );
 }

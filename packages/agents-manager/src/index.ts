@@ -59,6 +59,7 @@ export type {
 };
 export { AgentCatalogService, AgentService, CategoryService, RoutingService };
 
+import { createRepositoryClient as createModelsRepositoryClient } from "@lite-llm/models-manager";
 // Plugins
 import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin";
 import { LitellmAliasPlugin } from "./plugins/external/litellm-alias.plugin";
@@ -98,12 +99,16 @@ export { DEFAULT_AGENTS, DEFAULT_DB_PATH };
 
 export interface AgentsManagerFactoryOptions {
   dbPath?: string;
+  modelsDbPath?: string;
   outputDir?: string;
   aliasDbWriter?: import("./plugins/external/litellm-alias.plugin.js").AliasDbWriter;
 }
 
 export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
   const repository = createRepositoryClient({ filePath: options.dbPath });
+  const modelsRepository = createModelsRepositoryClient({
+    filePath: options.modelsDbPath,
+  });
 
   const services = {
     agents: new AgentService({ repository }),
@@ -121,6 +126,7 @@ export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
 
   const registry = new PluginRegistry({
     repository,
+    modelsRepository,
     outputDir: options.outputDir,
     allPlugins,
   });

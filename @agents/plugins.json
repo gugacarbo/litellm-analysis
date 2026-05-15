@@ -20,7 +20,14 @@
       "outputFile": "",
       "config": {},
       "routing": {
-        "agents": {},
+        "agents": {
+          "coder": "loom",
+          "planner": "planner",
+          "explorer": "explorer",
+          "architect": "tapestry",
+          "writer": "thread",
+          "reviewer": "reviewer"
+        },
         "categories": {}
       }
     },

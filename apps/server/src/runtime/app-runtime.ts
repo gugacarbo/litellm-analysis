@@ -50,6 +50,7 @@ function setupAgentsManager(
 ) {
   return createAgentsManager({
     dbPath: path.join(projectRoot, "@agents", "agents.json"),
+    modelsDbPath: path.join(projectRoot, "@models", "models.json"),
     outputDir: path.join(projectRoot, "@storage", "output"),
     aliasDbWriter,
   });

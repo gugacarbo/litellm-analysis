@@ -177,6 +177,7 @@ export async function getTopApiKeysByModelImpl(model: string, days?: number) {
     total_tokens: Number(item.total_tokens),
     request_count: Number(item.request_count),
     success_rate: Number(item.success_rate),
+    avg_tokens_per_second: Number(item.avg_tokens_per_second || 0),
   }));
 }
 

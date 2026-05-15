@@ -138,6 +138,49 @@ describe("OpenCodePlugin", () => {
       });
     });
 
+    it("mapeia thinking.levels para variants com reasoningEffort", () => {
+      const plugin = new OpenCodePlugin();
+      const output = plugin.buildOutput(
+        [],
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "gpt-5": {
+              displayName: "GPT-5",
+              enabled: true,
+              limits: { length: 200000, maxOutput: 8192 },
+              thinking: {
+                levels: ["low", "medium", "high", "xHigh", "off", "invalid"],
+              },
+            },
+          },
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const litellm = provider.litellm as Record<string, unknown>;
+      const models = litellm.models as Record<string, unknown>;
+      const gpt5 = models["gpt-5"] as Record<string, unknown>;
+      const variants = gpt5.variants as Record<string, unknown>;
+
+      expect(Object.keys(variants)).toEqual([
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "none",
+      ]);
+      expect(variants.xhigh).toEqual({ reasoningEffort: "xhigh" });
+    });
+
     it("configura providers para agentes mapeados", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [

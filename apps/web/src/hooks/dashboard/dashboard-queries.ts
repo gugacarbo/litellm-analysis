@@ -7,6 +7,7 @@ import {
   getHourlyUsagePatterns,
   getMetricsSummary,
   getModelRequestDistribution,
+  getModelStatistics,
   getPerformanceMetrics,
   getSpendByModel,
   getSpendByUser,
@@ -105,6 +106,14 @@ function useDailyTokenTrendQuery(days: number = DEFAULT_DAYS) {
   });
 }
 
+function useModelStatisticsQuery(days: number = DEFAULT_DAYS) {
+  return useQuery({
+    queryKey: queryKeys.dashboardModelStatistics(days),
+    queryFn: () => getModelStatistics(days),
+    refetchInterval: AUTO_REFRESH_MS,
+  });
+}
+
 export function useAllDashboardQueries(options: { days?: number } = {}) {
   const days = options.days ?? 30;
 
@@ -119,6 +128,7 @@ export function useAllDashboardQueries(options: { days?: number } = {}) {
   const costEfficiencyQuery = useCostEfficiencyQuery(days);
   const modelDistributionQuery = useModelDistributionQuery(days);
   const dailyTokenTrendQuery = useDailyTokenTrendQuery(days);
+  const modelStatisticsQuery = useModelStatisticsQuery(days);
 
   return {
     metricsQuery,
@@ -132,5 +142,6 @@ export function useAllDashboardQueries(options: { days?: number } = {}) {
     costEfficiencyQuery,
     modelDistributionQuery,
     dailyTokenTrendQuery,
+    modelStatisticsQuery,
   };
 }

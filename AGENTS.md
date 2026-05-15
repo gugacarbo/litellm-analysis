@@ -84,6 +84,7 @@ lite-llm-analytics/
 - **erasableSyntaxOnly** — only TS features that erase at compile time
 - **noUnusedLocals / noUnusedParameters** enforced (web app tsconfig)
 - Import auto-organization on format (`organizeImports: "on"`)
+- **Generated schemas are read-only** — do not edit generated JSON/Zod schema files manually; update the canonical Zod source and regenerate
 
 ### Architecture
 - **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (method implementations composed from 9 \*-methods.ts files, backed by 13 query files via `prisma.$queryRawUnsafe`)

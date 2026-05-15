@@ -2,13 +2,18 @@ type ChartTooltipEntry = {
   color?: string;
   name?: string | number;
   value?: number | string;
+  payload?: Record<string, unknown>;
 };
 
 interface ChartTooltipContentProps {
   active?: boolean;
   payload?: ChartTooltipEntry[];
   label?: string | number;
-  formatter?: (value: number) => string;
+  formatter?: (
+    value: number,
+    name: string,
+    props: { payload?: Record<string, unknown> },
+  ) => string;
   labelFormatter?: (label: string) => string;
 }
 
@@ -37,7 +42,9 @@ export function ChartTooltipContent({
             />
             <span className="text-muted-foreground">{entry.name}:</span>
             <span className="font-medium text-foreground">
-              {formatter(entry.value as number)}
+              {formatter(entry.value as number, String(entry.name ?? ""), {
+                payload: entry.payload,
+              })}
             </span>
           </div>
         ))}

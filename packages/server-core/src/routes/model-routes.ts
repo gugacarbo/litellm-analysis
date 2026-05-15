@@ -268,8 +268,7 @@ export function registerModelRoutes(
           litellmParams =
             litellmModels.find((m) => m.modelName === modelName)
               ?.litellmParams ?? {};
-          enabled =
-            (litellmParams.enabled as boolean | undefined) ?? true;
+          enabled = (litellmParams.enabled as boolean | undefined) ?? true;
         }
 
         models.push({ modelName, status, litellmParams, enabled });

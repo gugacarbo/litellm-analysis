@@ -6,11 +6,13 @@ import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin";
 import type { ConfigField, InternalAgent } from "./plugin-types";
 
 export interface PluginRegistryOptions {
   repository: IAgentsRepository;
+  modelsRepository?: IModelsRepository;
   outputDir?: string;
   allPlugins: IPlugin[];
 }
@@ -19,10 +21,12 @@ export class PluginRegistry implements IPluginRegistry {
   private readonly plugins = new Map<string, IPlugin>();
   private readonly allPlugins: IPlugin[];
   private readonly repository: IAgentsRepository;
+  private readonly modelsRepository?: IModelsRepository;
   private readonly outputDir: string;
 
   constructor(options: PluginRegistryOptions) {
     this.repository = options.repository;
+    this.modelsRepository = options.modelsRepository;
     this.outputDir = options.outputDir ?? "data";
     this.allPlugins = options.allPlugins;
     // Register all plugins by default so list() returns them
@@ -83,7 +87,7 @@ export class PluginRegistry implements IPluginRegistry {
       outputFile: plugin.getOutputFile(),
       routing: { agents: {}, categories: {} },
     };
-    const ctx = this.buildContext(config);
+    const ctx = await this.buildContext(config);
 
     const agents = Object.entries(config.agents ?? {}).map(([id, agent]) => ({
       ...agent,
@@ -116,8 +120,8 @@ export class PluginRegistry implements IPluginRegistry {
     return plugin?.getConfigSchema() ?? [];
   }
 
-  private buildContext(config: DbConfig): TransformContext {
-    return {
+  private async buildContext(config: DbConfig): Promise<TransformContext> {
+    const context: TransformContext = {
       allModels: {},
       globalFallbackModel: config.globalFallbackModel,
       litellmConfig: {
@@ -126,6 +130,25 @@ export class PluginRegistry implements IPluginRegistry {
       },
       allCategories: config.categories as TransformContext["allCategories"],
     };
+
+    if (!this.modelsRepository) {
+      return context;
+    }
+
+    try {
+      const modelsConfig = await this.modelsRepository.read();
+      context.allModels = modelsConfig.models ?? {};
+
+      const litellmProvider = modelsConfig.provider?.litellm;
+      context.litellmConfig = {
+        baseUrl: litellmProvider?.baseUrl ?? "",
+        apiKey: litellmProvider?.apiKey ?? "",
+      };
+    } catch {
+      // Keep default empty models/provider context when models config isn't available.
+    }
+
+    return context;
   }
 
   private async writePluginOutput(

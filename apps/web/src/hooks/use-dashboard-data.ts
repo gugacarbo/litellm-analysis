@@ -39,6 +39,7 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
     costEfficiencyQuery,
     modelDistributionQuery,
     dailyTokenTrendQuery,
+    modelStatisticsQuery,
   } = useAllDashboardQueries({ days });
 
   const dashboardQueries = [
@@ -53,6 +54,7 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
     costEfficiencyQuery,
     modelDistributionQuery,
     dailyTokenTrendQuery,
+    modelStatisticsQuery,
   ];
 
   const metrics =
@@ -72,6 +74,7 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
   const costEfficiency = costEfficiencyQuery.data ?? [];
   const modelDistribution = modelDistributionQuery.data ?? [];
   const dailyTokenTrend = dailyTokenTrendQuery.data ?? [];
+  const modelStatistics = modelStatisticsQuery.data ?? [];
 
   const successfulCount = dashboardQueries.filter(
     (query) => query.data !== undefined,
@@ -108,6 +111,7 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
         costEfficiencyQuery.refetch(),
         modelDistributionQuery.refetch(),
         dailyTokenTrendQuery.refetch(),
+        modelStatisticsQuery.refetch(),
       ]);
     },
     [
@@ -122,6 +126,7 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
       costEfficiencyQuery,
       modelDistributionQuery,
       dailyTokenTrendQuery,
+      modelStatisticsQuery,
     ],
   );
 
@@ -157,6 +162,7 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
     costEfficiency,
     modelDistribution,
     dailyTokenTrend,
+    modelStatistics,
     lastUpdatedAt,
     insights,
     refetch,

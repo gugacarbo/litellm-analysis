@@ -36,6 +36,7 @@ export function normalizePerformance(
     total_requests: Number(raw?.total_requests ?? 0),
     avg_duration_ms: Number(raw?.avg_duration_ms ?? 0),
     success_rate: normalizePercent(Number(raw?.success_rate ?? 0)),
+    avg_tokens_per_second: Number(raw?.avg_tokens_per_second ?? 0),
   };
 }
 
