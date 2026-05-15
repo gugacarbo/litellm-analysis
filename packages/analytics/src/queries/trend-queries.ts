@@ -4,7 +4,8 @@ import { resolveTimeBucket } from "./time-buckets";
 
 export async function getDailySpendTrend(days = 30) {
   const normalizedDays = normalizeDays(days, 30);
-  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
+  const { sqlBucket, sqlLabel, granularity } =
+    await resolveTimeBucket(normalizedDays);
   const where = buildWhereClause([getTimeFilterWhere(normalizedDays)]);
 
   const result = await prisma.$queryRawUnsafe<
@@ -28,7 +29,8 @@ export async function getDailySpendTrend(days = 30) {
 
 export async function getDailyTokenTrend(days = 30) {
   const normalizedDays = normalizeDays(days, 30);
-  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
+  const { sqlBucket, sqlLabel, granularity } =
+    await resolveTimeBucket(normalizedDays);
   const where = buildWhereClause([getTimeFilterWhere(normalizedDays)]);
 
   const result = await prisma.$queryRawUnsafe<

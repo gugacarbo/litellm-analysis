@@ -12,10 +12,14 @@ export type RawMetrics = {
   totalTokens?: number;
   activeModels?: number;
   errorCount?: number;
+  promptTokens?: number;
+  completionTokens?: number;
   total_spend?: number;
   total_tokens?: number;
   active_models?: number;
   error_count?: number;
+  prompt_tokens?: number;
+  completion_tokens?: number;
 };
 
 export function normalizeMetrics(
@@ -26,6 +30,10 @@ export function normalizeMetrics(
     totalTokens: Number(raw?.totalTokens ?? raw?.total_tokens ?? 0),
     activeModels: Number(raw?.activeModels ?? raw?.active_models ?? 0),
     errorCount: Number(raw?.errorCount ?? raw?.error_count ?? 0),
+    promptTokens: Number(raw?.promptTokens ?? raw?.prompt_tokens ?? 0),
+    completionTokens: Number(
+      raw?.completionTokens ?? raw?.completion_tokens ?? 0,
+    ),
   };
 }
 

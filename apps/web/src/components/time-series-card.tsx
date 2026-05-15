@@ -9,7 +9,13 @@ import {
   YAxis,
 } from "recharts";
 import { useTimeSeriesFormat } from "../hooks/use-time-series-format";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 import { ChartTooltipContent } from "./ui/chart-tooltip";
 import { Skeleton } from "./ui/skeleton";
 

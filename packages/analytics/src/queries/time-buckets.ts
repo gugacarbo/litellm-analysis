@@ -22,8 +22,7 @@ export const GRANULARITY_TIERS: TimeBucketConfig[] = [
     minDays: 0,
     maxDays: 0.021, // ~30 minutes
     granularity: "30s",
-    sqlBucket:
-      "to_timestamp(floor(extract(epoch from \"startTime\") / 30) * 30)",
+    sqlBucket: 'to_timestamp(floor(extract(epoch from "startTime") / 30) * 30)',
     sqlLabel:
       "to_char(to_timestamp(floor(extract(epoch from \"startTime\") / 30) * 30), 'HH24:MI:SS')",
     displayFormat: "HH:mm:ss",
@@ -58,7 +57,7 @@ export const GRANULARITY_TIERS: TimeBucketConfig[] = [
     maxDays: 90,
     granularity: "2d",
     sqlBucket:
-      "to_timestamp(floor(extract(epoch from \"startTime\") / 172800) * 172800)",
+      'to_timestamp(floor(extract(epoch from "startTime") / 172800) * 172800)',
     sqlLabel:
       "to_char(to_timestamp(floor(extract(epoch from \"startTime\") / 172800) * 172800), 'YYYY-MM-DD')",
     displayFormat: "MMM dd",
@@ -76,7 +75,7 @@ export const GRANULARITY_TIERS: TimeBucketConfig[] = [
     maxDays: 365,
     granularity: "2w",
     sqlBucket:
-      "to_timestamp(floor(extract(epoch from \"startTime\") / 1209600) * 1209600)",
+      'to_timestamp(floor(extract(epoch from "startTime") / 1209600) * 1209600)',
     sqlLabel:
       "to_char(to_timestamp(floor(extract(epoch from \"startTime\") / 1209600) * 1209600), 'YYYY-MM-DD')",
     displayFormat: "MMM yyyy",
@@ -106,9 +105,7 @@ export async function getDateRange(): Promise<{
   if (_rangeCache && Date.now() - _rangeCache.ts < CACHE_TTL) {
     return { min: _rangeCache.min, max: _rangeCache.max };
   }
-  const result = await prisma.$queryRawUnsafe<
-    Array<{ min: Date; max: Date }>
-  >(
+  const result = await prisma.$queryRawUnsafe<Array<{ min: Date; max: Date }>>(
     'SELECT MIN("startTime") as min, MAX("startTime") as max FROM "LiteLLM_SpendLogs"',
   );
   _rangeCache = {
@@ -128,8 +125,7 @@ export async function resolveTimeBucket(
 ): Promise<TimeBucketConfig> {
   if (days === 0) {
     const { min, max } = await getDateRange();
-    const actualDays =
-      (max.getTime() - min.getTime()) / (1000 * 60 * 60 * 24);
+    const actualDays = (max.getTime() - min.getTime()) / (1000 * 60 * 60 * 24);
     return resolveTimeBucketForDays(actualDays);
   }
   return resolveTimeBucketForDays(days);

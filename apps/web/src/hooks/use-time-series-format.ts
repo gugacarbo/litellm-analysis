@@ -1,15 +1,7 @@
 // apps/web/src/hooks/use-time-series-format.ts
 import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
-type TimeGranularity =
-  | "30s"
-  | "1m"
-  | "1h"
-  | "1d"
-  | "2d"
-  | "1w"
-  | "2w"
-  | "1mo";
+type TimeGranularity = "30s" | "1m" | "1h" | "1d" | "2d" | "1w" | "2w" | "1mo";
 
 export interface TimeSeriesFormat {
   /** Format X-axis tick labels */
@@ -63,10 +55,7 @@ const TICK_INTERVAL_MAP: Record<TimeGranularity, number> = {
 
 const FALLBACK_FORMAT: IntlOpts = { month: "short", day: "numeric" };
 
-function safeFormat(
-  value: string,
-  opts: Intl.DateTimeFormatOptions,
-): string {
+function safeFormat(value: string, opts: Intl.DateTimeFormatOptions): string {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
   return d.toLocaleString(APP_LOCALE, {
@@ -75,17 +64,14 @@ function safeFormat(
   });
 }
 
-export function useTimeSeriesFormat(
-  granularity?: string,
-): TimeSeriesFormat {
+export function useTimeSeriesFormat(granularity?: string): TimeSeriesFormat {
   const key = (granularity ?? "1d") as TimeGranularity;
   const xOpts = key in X_FORMAT_MAP ? X_FORMAT_MAP[key] : FALLBACK_FORMAT;
   const tooltipOpts =
     key in TOOLTIP_FORMAT_MAP
       ? TOOLTIP_FORMAT_MAP[key]
       : { ...FALLBACK_FORMAT, year: "numeric" as const };
-  const tickInterval =
-    key in TICK_INTERVAL_MAP ? TICK_INTERVAL_MAP[key] : 1;
+  const tickInterval = key in TICK_INTERVAL_MAP ? TICK_INTERVAL_MAP[key] : 1;
 
   const formatX = (value: string): string => safeFormat(value, xOpts);
 

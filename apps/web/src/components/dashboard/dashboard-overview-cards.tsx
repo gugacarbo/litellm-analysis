@@ -1,3 +1,4 @@
+import { ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import type {
   DashboardMetrics,
   PerformanceMetrics,
@@ -5,11 +6,17 @@ import type {
 import {
   formatCurrency,
   formatNumber,
-  formatPercent,
 } from "../../pages/dashboard/dashboard-utils";
 import { Card } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
+
+type KpiItem = {
+  label: string;
+  value: React.ReactNode;
+  className: string;
+  icon?: typeof ArrowDownToLine;
+};
 
 type DashboardOverviewCardsProps = {
   loading: boolean;
@@ -24,14 +31,6 @@ export function DashboardOverviewCards({
   metrics,
   performance,
 }: DashboardOverviewCardsProps) {
-  const successRate = performance?.success_rate ?? 0;
-  const successRateColor =
-    successRate > 95
-      ? "text-emerald-500"
-      : successRate > 90
-        ? "text-amber-500"
-        : "text-red-500";
-
   const errorCount = metrics?.errorCount ?? 0;
   const errorColor =
     errorCount === 0
@@ -44,7 +43,7 @@ export function DashboardOverviewCards({
     <Skeleton className={className} />
   );
 
-  const kpis = [
+  const kpis: KpiItem[] = [
     {
       label: `Total Spend (${rangeLabel})`,
       value: loading
@@ -58,16 +57,20 @@ export function DashboardOverviewCards({
       className: "text-foreground",
     },
     {
-      label: "Success Rate",
-      value: loading ? skeleton("h-7 w-16") : formatPercent(successRate),
-      className: successRateColor,
+      label: "Input Tokens",
+      value: loading
+        ? skeleton("h-7 w-20")
+        : formatNumber(metrics?.promptTokens ?? 0),
+      className: "text-foreground",
+      icon: ArrowDownToLine,
     },
     {
-      label: "Active Models",
+      label: "Output Tokens",
       value: loading
-        ? skeleton("h-7 w-12")
-        : String(metrics?.activeModels ?? 0),
+        ? skeleton("h-7 w-20")
+        : formatNumber(metrics?.completionTokens ?? 0),
       className: "text-foreground",
+      icon: ArrowUpFromLine,
     },
     {
       label: "Errors",
@@ -99,6 +102,11 @@ export function DashboardOverviewCards({
             >
               {kpi.value}
             </span>
+            {kpi.icon && (
+              <span className="absolute right-4 top-4 opacity-30">
+                <kpi.icon className="h-5 w-5" />
+              </span>
+            )}
             {index < kpis.length - 1 && (
               <Separator
                 orientation="vertical"

@@ -29,6 +29,8 @@ export type DashboardMetrics = {
   totalTokens: number;
   activeModels: number;
   errorCount: number;
+  promptTokens: number;
+  completionTokens: number;
 };
 
 /**
@@ -39,7 +41,7 @@ export type DashboardMetrics = {
 export type DailyTrendItem = {
   date: string;
   spend: number;
-  granularity?: "hour" | "day";
+granularity?: "30s" | "1m" | "1h" | "1d" | "2d" | "1w" | "2w" | "1mo";
 };
 
 export type TokenDistributionItem = {
@@ -95,7 +97,7 @@ export type DailyTokenTrendItem = {
   completion_tokens: number;
   total_tokens: number;
   request_count: number;
-  granularity?: "hour" | "day";
+granularity?: "30s" | "1m" | "1h" | "1d" | "2d" | "1w" | "2w" | "1mo";
 };
 
 export type SpendByUserItem = {

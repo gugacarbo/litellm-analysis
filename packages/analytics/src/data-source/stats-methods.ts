@@ -11,6 +11,7 @@ import type {
   DailyTokenTrend,
   ModelRequestDistribution,
   ModelStatistics,
+  TimeGranularity,
 } from "../types/index";
 
 export async function getApiKeyStatsImpl(days = 30): Promise<ApiKeyStats[]> {
@@ -63,6 +64,7 @@ export async function getDailyTokenTrendImpl(
     completion_tokens: Number(item.completion_tokens),
     total_tokens: Number(item.total_tokens),
     request_count: Number(item.request_count),
+    granularity: item.granularity as TimeGranularity | undefined,
   }));
 }
 

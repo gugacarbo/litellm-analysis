@@ -35,6 +35,8 @@ export async function getMetricsSummary(days?: number): Promise<{
   totalTokens: number;
   activeModels: number;
   errorCount: number;
+  promptTokens: number;
+  completionTokens: number;
 }> {
   return fetchApi(withDays("/metrics", days));
 }
@@ -55,6 +57,7 @@ export async function getPerformanceMetrics(days?: number): Promise<{
   total_requests: number;
   avg_duration_ms: number;
   success_rate: number;
+  avg_tokens_per_second: number;
 }> {
   return fetchApi(withDays("/analytics/performance", days));
 }
@@ -78,6 +81,7 @@ export async function getApiKeyDetailedStats(days?: number): Promise<
     total_tokens: number;
     avg_tokens_per_request: number;
     success_rate: number;
+    avg_tokens_per_second: number;
     last_used: string;
   }[]
 > {

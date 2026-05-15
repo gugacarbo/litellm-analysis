@@ -162,7 +162,8 @@ export async function deleteModelLogs(modelName: string) {
 
 export async function getDailySpendTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
+  const { sqlBucket, sqlLabel, granularity } =
+    await resolveTimeBucket(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
     `"model" = '${model}'`,
     getTimeFilterWhere(normalizedDays),
@@ -193,7 +194,8 @@ export async function getDailySpendTrendByModel(model: string, days?: number) {
 
 export async function getDailyTokenTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
+  const { sqlBucket, sqlLabel, granularity } =
+    await resolveTimeBucket(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
     `"model" = '${model}'`,
     getTimeFilterWhere(normalizedDays),
@@ -255,7 +257,8 @@ export async function getDailyLatencyTrendByModel(
   days?: number,
 ) {
   const normalizedDays = normalizeDays(days, 30);
-  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
+  const { sqlBucket, sqlLabel, granularity } =
+    await resolveTimeBucket(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
     `"model" = '${model}'`,
     `"endTime" IS NOT NULL`,
@@ -318,7 +321,8 @@ export async function getErrorBreakdownByModel(model: string, days?: number) {
 
 export async function getDailyErrorTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
-  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
+  const { sqlBucket, sqlLabel, granularity } =
+    await resolveTimeBucket(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
     `"model" = '${model}'`,
     `LOWER(COALESCE("status", '')) != 'success'`,

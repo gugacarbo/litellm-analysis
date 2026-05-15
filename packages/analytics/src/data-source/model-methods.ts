@@ -32,6 +32,7 @@ import type {
   ModelProviderBreakdown,
   ModelStatusDistribution,
   ModelTTFTPercentiles,
+  TimeGranularity,
 } from "../types/index";
 
 export async function getModelsImpl(): Promise<ModelEntry[]> {
@@ -93,6 +94,7 @@ export async function getDailySpendTrendByModelImpl(
     spend: Number(item.spend),
     total_tokens: Number(item.total_tokens),
     request_count: Number(item.request_count),
+    granularity: item.granularity as TimeGranularity | undefined,
   }));
 }
 
@@ -106,6 +108,7 @@ export async function getDailyTokenTrendByModelImpl(
     prompt_tokens: Number(item.prompt_tokens),
     completion_tokens: Number(item.completion_tokens),
     total_tokens: Number(item.total_tokens),
+    granularity: item.granularity as TimeGranularity | undefined,
   }));
 }
 
@@ -133,6 +136,7 @@ export async function getDailyLatencyTrendByModelImpl(
     p50_latency_ms: Number(item.p50_latency_ms),
     p95_latency_ms: Number(item.p95_latency_ms),
     p99_latency_ms: Number(item.p99_latency_ms),
+    granularity: item.granularity as TimeGranularity | undefined,
   }));
 }
 
@@ -156,6 +160,7 @@ export async function getDailyErrorTrendByModelImpl(
   return result.map((item) => ({
     date: String(item.date),
     error_count: Number(item.error_count),
+    granularity: item.granularity as TimeGranularity | undefined,
   }));
 }
 

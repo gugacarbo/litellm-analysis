@@ -25,6 +25,7 @@ export interface ModelDailySpendTrend {
   spend: number;
   totalTokens: number;
   requestCount: number;
+granularity?: string;
 }
 
 export interface ModelDailyTokenTrend {
@@ -32,6 +33,7 @@ export interface ModelDailyTokenTrend {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
+granularity?: string;
 }
 
 export interface ModelDailyLatencyTrend {
@@ -40,6 +42,7 @@ export interface ModelDailyLatencyTrend {
   p50LatencyMs: number;
   p95LatencyMs: number;
   p99LatencyMs: number;
+granularity?: string;
 }
 
 export interface ModelHourlyUsage {
@@ -58,6 +61,7 @@ export interface ModelErrorBreakdown {
 export interface ModelDailyErrorTrend {
   date: string;
   errorCount: number;
+granularity?: string;
 }
 
 export interface ModelUser {
