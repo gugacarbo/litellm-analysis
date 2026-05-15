@@ -5,6 +5,7 @@ import {
   getTimeFilterWhere,
   normalizeDays,
 } from "./helpers";
+import { resolveTimeBucket } from "./time-buckets";
 
 export async function getModelDetails() {
   const result = await prisma.$queryRawUnsafe<
@@ -161,6 +162,7 @@ export async function deleteModelLogs(modelName: string) {
 
 export async function getDailySpendTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
+  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
     `"model" = '${model}'`,
     getTimeFilterWhere(normalizedDays),
@@ -172,23 +174,26 @@ export async function getDailySpendTrendByModel(model: string, days?: number) {
       spend: number;
       total_tokens: number;
       request_count: number;
+      granularity: string;
     }>
   >(`
     SELECT
-      DATE("startTime")::text as "date",
+      ${sqlLabel} as "date",
       SUM("spend")::float as "spend",
       SUM("total_tokens")::float as "total_tokens",
-      COUNT(*)::float as "request_count"
+      COUNT(*)::float as "request_count",
+      '${granularity}' as "granularity"
     FROM "LiteLLM_SpendLogs"
     ${where}
-    GROUP BY DATE("startTime")
-    ORDER BY DATE("startTime")
+    GROUP BY ${sqlBucket}
+    ORDER BY MIN("startTime") ASC
   `);
   return result;
 }
 
 export async function getDailyTokenTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
+  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
     `"model" = '${model}'`,
     getTimeFilterWhere(normalizedDays),
@@ -200,17 +205,19 @@ export async function getDailyTokenTrendByModel(model: string, days?: number) {
       prompt_tokens: number;
       completion_tokens: number;
       total_tokens: number;
+      granularity: string;
     }>
   >(`
     SELECT
-      DATE("startTime")::text as "date",
+      ${sqlLabel} as "date",
       SUM("prompt_tokens")::float as "prompt_tokens",
       SUM("completion_tokens")::float as "completion_tokens",
-      SUM("total_tokens")::float as "total_tokens"
+      SUM("total_tokens")::float as "total_tokens",
+      '${granularity}' as "granularity"
     FROM "LiteLLM_SpendLogs"
     ${where}
-    GROUP BY DATE("startTime")
-    ORDER BY DATE("startTime")
+    GROUP BY ${sqlBucket}
+    ORDER BY MIN("startTime") ASC
   `);
   return result;
 }
@@ -248,6 +255,7 @@ export async function getDailyLatencyTrendByModel(
   days?: number,
 ) {
   const normalizedDays = normalizeDays(days, 30);
+  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
     `"model" = '${model}'`,
     `"endTime" IS NOT NULL`,
@@ -262,18 +270,20 @@ export async function getDailyLatencyTrendByModel(
       p50_latency_ms: number;
       p95_latency_ms: number;
       p99_latency_ms: number;
+      granularity: string;
     }>
   >(`
     SELECT
-      DATE("startTime")::text as "date",
+      ${sqlLabel} as "date",
       AVG(EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "avg_latency_ms",
       PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p50_latency_ms",
       PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p95_latency_ms",
-      PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p99_latency_ms"
+      PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("endTime" - "startTime")) * 1000)::float as "p99_latency_ms",
+      '${granularity}' as "granularity"
     FROM "LiteLLM_SpendLogs"
     ${where}
-    GROUP BY DATE("startTime")
-    ORDER BY DATE("startTime")
+    GROUP BY ${sqlBucket}
+    ORDER BY MIN("startTime") ASC
   `);
   return result;
 }
@@ -308,6 +318,7 @@ export async function getErrorBreakdownByModel(model: string, days?: number) {
 
 export async function getDailyErrorTrendByModel(model: string, days?: number) {
   const normalizedDays = normalizeDays(days, 30);
+  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
     `"model" = '${model}'`,
     `LOWER(COALESCE("status", '')) != 'success'`,
@@ -315,15 +326,16 @@ export async function getDailyErrorTrendByModel(model: string, days?: number) {
   ])}`;
 
   const result = await prisma.$queryRawUnsafe<
-    Array<{ date: string; error_count: number }>
+    Array<{ date: string; error_count: number; granularity: string }>
   >(`
     SELECT
-      DATE("startTime")::text as "date",
-      COUNT(*)::float as "error_count"
+      ${sqlLabel} as "date",
+      COUNT(*)::float as "error_count",
+      '${granularity}' as "granularity"
     FROM "LiteLLM_SpendLogs"
     ${where}
-    GROUP BY DATE("startTime")
-    ORDER BY DATE("startTime")
+    GROUP BY ${sqlBucket}
+    ORDER BY MIN("startTime") ASC
   `);
   return result;
 }
