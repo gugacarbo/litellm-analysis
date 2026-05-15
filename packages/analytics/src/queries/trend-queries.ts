@@ -1,27 +1,10 @@
 import { prisma } from "./client";
 import { buildWhereClause, getTimeFilterWhere, normalizeDays } from "./helpers";
-
-function getTimeGranularity(days: number): "hour" | "day" {
-  return days < 1 ? "hour" : "day";
-}
-
-function getTimeBucketExpressions(granularity: "hour" | "day") {
-  if (granularity === "hour") {
-    return {
-      bucket: `date_trunc('hour', "startTime")`,
-      label: `to_char(date_trunc('hour', "startTime"), 'YYYY-MM-DD HH24:MI')`,
-    };
-  }
-  return {
-    bucket: `DATE("startTime")`,
-    label: `CAST(DATE("startTime") AS TEXT)`,
-  };
-}
+import { resolveTimeBucket } from "./time-buckets";
 
 export async function getDailySpendTrend(days = 30) {
   const normalizedDays = normalizeDays(days, 30);
-  const granularity = getTimeGranularity(normalizedDays);
-  const { bucket, label } = getTimeBucketExpressions(granularity);
+  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
   const where = buildWhereClause([getTimeFilterWhere(normalizedDays)]);
 
   const result = await prisma.$queryRawUnsafe<
@@ -32,21 +15,20 @@ export async function getDailySpendTrend(days = 30) {
     }>
   >(`
     SELECT
-      ${label} as "date",
-      SUM("spend")::float as "spend",
+      ${sqlLabel} as "date",
+      COALESCE(SUM("spend"), 0)::float as "spend",
       '${granularity}' as "granularity"
     FROM "LiteLLM_SpendLogs"
     ${where}
-    GROUP BY ${bucket}
-    ORDER BY ${bucket} ASC
+    GROUP BY ${sqlBucket}
+    ORDER BY MIN("startTime") ASC
   `);
   return result;
 }
 
 export async function getDailyTokenTrend(days = 30) {
   const normalizedDays = normalizeDays(days, 30);
-  const granularity = getTimeGranularity(normalizedDays);
-  const { bucket, label } = getTimeBucketExpressions(granularity);
+  const { sqlBucket, sqlLabel, granularity } = await resolveTimeBucket(normalizedDays);
   const where = buildWhereClause([getTimeFilterWhere(normalizedDays)]);
 
   const result = await prisma.$queryRawUnsafe<
@@ -60,7 +42,7 @@ export async function getDailyTokenTrend(days = 30) {
     }>
   >(`
     SELECT
-      ${label} as "date",
+      ${sqlLabel} as "date",
       SUM("prompt_tokens")::float as "prompt_tokens",
       SUM("completion_tokens")::float as "completion_tokens",
       SUM("total_tokens")::float as "total_tokens",
@@ -68,8 +50,8 @@ export async function getDailyTokenTrend(days = 30) {
       '${granularity}' as "granularity"
     FROM "LiteLLM_SpendLogs"
     ${where}
-    GROUP BY ${bucket}
-    ORDER BY ${bucket} ASC
+    GROUP BY ${sqlBucket}
+    ORDER BY MIN("startTime") ASC
   `);
   return result;
 }
