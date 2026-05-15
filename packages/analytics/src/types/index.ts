@@ -178,6 +178,7 @@ export interface MetricsSummaryResult {
   total_tokens: number;
   active_models: number;
   error_count: number;
+  distinct_models?: string[];
   prompt_tokens: number;
   completion_tokens: number;
 }
@@ -282,6 +283,7 @@ export interface ModelStatistics {
   avg_latency_ms: number | null;
   success_rate: number | null;
   error_count: number;
+  distinct_models?: string[];
   avg_input_cost: number | null;
   avg_output_cost: number | null;
   p50_latency_ms: number | null;
@@ -371,6 +373,7 @@ export interface ModelErrorBreakdown {
 export interface ModelDailyErrorTrend {
   date: string;
   error_count: number;
+  distinct_models?: string[];
 }
 
 export interface ModelTopUser {
@@ -392,6 +395,7 @@ export interface ModelTopApiKey {
 export interface ModelErrorCountSince {
   model: string;
   error_count: number;
+  distinct_models?: string[];
 }
 
 export interface NonSuccessCountByModel {
@@ -403,6 +407,7 @@ export interface ModelHealth {
   total_requests: number;
   success_count: number;
   error_count: number;
+  distinct_models?: string[];
   avg_latency_ms: number | null;
   last_success_at: string | null;
   last_error_at: string | null;

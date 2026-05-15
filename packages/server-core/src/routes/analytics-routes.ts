@@ -281,27 +281,28 @@ export function registerAnalyticsRoutes(
   );
 
   app.get("/metrics", async (req, res) => {
-   try {
-     const days = parseDays(req.query.days, 30);
-     const [metrics, allConfiguredModels] = await Promise.all([
-       dataSource.getMetricsSummary(days),
-       opts.modelsService.getAll(),
-     ]);
-     // Filter to only enabled models
-     const enabledModels = Object.entries(allConfiguredModels)
-       .filter(([, spec]) => spec.enabled !== false)
-       .map(([name]) => name);
-     // Count only enabled models that have requests in the period
-     const enabledModelNames = new Set(enabledModels);
-     const activeEnabledModels = metrics.distinct_models?.filter(
-       (model) => enabledModelNames.has(model as string),
-     ) ?? enabledModels.length;
-     metrics.active_models = Array.isArray(activeEnabledModels)
-       ? activeEnabledModels.length
-       : activeEnabledModels;
-     res.json(metrics);
-   } catch (error) {
-     res.status(500).json({ error: String(error) });
-   }
- });
+    try {
+      const days = parseDays(req.query.days, 30);
+      const [metrics, allConfiguredModels] = await Promise.all([
+        dataSource.getMetricsSummary(days),
+        opts.modelsService.getAll(),
+      ]);
+      // Filter to only enabled models
+      const enabledModels = Object.entries(allConfiguredModels)
+        .filter(([, spec]) => spec.enabled !== false)
+        .map(([name]) => name);
+      // Count only enabled models that have requests in the period
+      const enabledModelNames = new Set(enabledModels);
+      const activeEnabledModels =
+        metrics.distinct_models?.filter((model) =>
+          enabledModelNames.has(model as string),
+        ) ?? enabledModels.length;
+      metrics.active_models = Array.isArray(activeEnabledModels)
+        ? activeEnabledModels.length
+        : activeEnabledModels;
+      res.json(metrics);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
 }

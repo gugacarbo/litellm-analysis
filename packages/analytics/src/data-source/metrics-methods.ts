@@ -20,6 +20,7 @@ export async function getMetricsSummaryImpl(
     error_count: result.errorCount,
     prompt_tokens: result.promptTokens,
     completion_tokens: result.completionTokens,
+    distinct_models: result.distinctModels,
   };
 }
 

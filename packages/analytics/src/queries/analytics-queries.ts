@@ -6,7 +6,7 @@ export async function getMetricsSummary(days = 30) {
   const timeFilter = getTimeFilterWhere(normalizedDays);
   const errorTimeFilter = timeFilter;
 
-  const [spendResult, errorResult] = await Promise.all([
+  const [spendResult, errorResult, distinctModelsResult] = await Promise.all([
     prisma.$queryRawUnsafe<
       Array<{
         totalSpend: number;
@@ -34,10 +34,16 @@ export async function getMetricsSummary(days = 30) {
           : `WHERE LOWER(COALESCE("status", '')) != 'success'`
       }
     `),
+    prisma.$queryRawUnsafe<Array<{ model: string }>>(`
+      SELECT DISTINCT "model"
+      FROM "LiteLLM_SpendLogs"
+      ${timeFilter ? `WHERE ${timeFilter}` : ""}
+    `),
   ]);
 
   const summary = spendResult[0];
   const errors = errorResult[0];
+  const distinctModels = distinctModelsResult.map((r) => r.model);
 
   return {
     totalSpend: Number(summary?.totalSpend ?? 0),
@@ -46,6 +52,7 @@ export async function getMetricsSummary(days = 30) {
     errorCount: Number(errors?.errorCount ?? 0),
     promptTokens: Number(summary?.promptTokens ?? 0),
     completionTokens: Number(summary?.completionTokens ?? 0),
+    distinctModels,
   };
 }
 
