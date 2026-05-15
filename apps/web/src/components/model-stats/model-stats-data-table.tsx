@@ -103,6 +103,7 @@ export function ModelStatsDataTable({
       cell: ({ row }) => {
         const modelName = row.original.model ?? "";
         const modelLabel = modelName.trim() ? modelName : "(no model)";
+        const isDisabled = row.original.enabled === false;
         return (
           <div className="flex items-center gap-2">
             <div
@@ -110,10 +111,15 @@ export function ModelStatsDataTable({
             />
             <Link
               to={`/model-stats/${encodeURIComponent(modelName)}`}
-              className="font-medium font-mono text-xs whitespace-nowrap hover:underline"
+              className={`font-medium font-mono text-xs whitespace-nowrap hover:underline ${isDisabled ? "opacity-50" : ""}`}
             >
               {modelLabel}
             </Link>
+            {isDisabled && (
+              <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                Disabled
+              </Badge>
+            )}
           </div>
         );
       },

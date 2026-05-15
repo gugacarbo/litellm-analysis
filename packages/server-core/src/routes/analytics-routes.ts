@@ -12,7 +12,7 @@ export function registerAnalyticsRoutes(
   app: Application,
   opts: RouteOptions,
 ): void {
-  const { dataSource } = opts;
+  const { dataSource, modelsService } = opts;
 
   function requireModelParam(
     req: Request,
@@ -102,7 +102,15 @@ export function registerAnalyticsRoutes(
     try {
       const days = parseDays(_req.query.days, 30);
       const data = await dataSource.getModelStatistics(days);
-      res.json(data);
+
+      // Attach enabled status from config
+      const allModels = await modelsService.getAll();
+      const withEnabled = data.map((row) => ({
+        ...row,
+        enabled: allModels[row.model]?.enabled,
+      }));
+
+      res.json(withEnabled);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

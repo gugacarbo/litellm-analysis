@@ -19,6 +19,12 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { PageLayout } from "../components/ui/page-layout";
 import { Separator } from "../components/ui/separator";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { TimeRangePicker } from "../components/ui/time-range-picker";
 import { useModelDetailData } from "../hooks/use-model-detail-data";
 import type {
@@ -26,6 +32,8 @@ import type {
   TimeRangeValue,
 } from "./dashboard/dashboard-types";
 import { getDateRangeDays } from "./dashboard/dashboard-utils";
+import { ModelDetailLogsTab } from "./model-detail/model-detail-logs-tab";
+import { useModelDetailLogs } from "./model-detail/use-model-detail-logs";
 
 function getRangeLabel(
   rangeKey: string,
@@ -123,6 +131,19 @@ export function ModelDetailPage() {
     error,
   } = useModelDetailData(modelName ?? "", days);
 
+  const {
+    logs,
+    pagination: logsPagination,
+    loading: logsLoading,
+    refreshing: logsRefreshing,
+    error: logsError,
+    page: logsPage,
+    pageSize: logsPageSize,
+    setPage: setLogsPage,
+    setPageSize: setLogsPageSize,
+    refetch: logsRefetch,
+  } = useModelDetailLogs(modelName ?? "");
+
   if (!modelName) {
     return (
       <div className="p-6">
@@ -171,135 +192,165 @@ export function ModelDetailPage() {
         </div>
       )}
 
-      {/*** KPI ROWS ***/}
-      <ModelDetailSummaryCards
-        summary={summary}
-        cacheHitRate={cacheHitRate}
-        ttft={ttft}
-        loading={loading}
-        days={Math.max(1, days)}
-      />
+      <Tabs defaultValue="overview">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="logs">Logs</TabsTrigger>
+        </TabsList>
 
-      {/*** COST ANALYSIS ***/}
-      <section>
-        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-          Cost Analysis
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ModelDetailCostChart
-            data={dailySpendTrend}
+        <TabsContent value="overview" className="mt-6">
+          {/*** KPI ROWS ***/}
+          <ModelDetailSummaryCards
+            summary={summary}
+            cacheHitRate={cacheHitRate}
+            ttft={ttft}
             loading={loading}
-            rangeLabel={rangeLabel}
+            days={Math.max(1, days)}
           />
-        </div>
-      </section>
 
-      <Separator />
+          {/*** COST ANALYSIS ***/}
+          <section>
+            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+              Cost Analysis
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ModelDetailCostChart
+                data={dailySpendTrend}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+            </div>
+          </section>
 
-      {/*** TOKEN ANALYTICS ***/}
-      <section>
-        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-          Token Analytics
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ModelDetailTokenEfficiency
-            data={dailyTokenTrend}
-            loading={loading}
-            rangeLabel={rangeLabel}
+          <Separator />
+
+          {/*** TOKEN ANALYTICS ***/}
+          <section>
+            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+              Token Analytics
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ModelDetailTokenEfficiency
+                data={dailyTokenTrend}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+            </div>
+          </section>
+
+          <Separator />
+
+          {/*** LATENCY ***/}
+          <section>
+            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+              Latency
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ModelDetailLatencyChart
+                data={latencyTrend}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+              <ModelDetailTTFTChart data={ttft} loading={loading} />
+            </div>
+          </section>
+
+          <Separator />
+
+          {/*** RELIABILITY ***/}
+          <section>
+            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+              Reliability
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <ModelDetailErrorBreakdown
+                data={errorBreakdown}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+              <ModelDetailErrorTrendChart
+                data={dailyErrorTrend}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+              <ModelDetailStatusChart
+                data={statusDistribution}
+                loading={loading}
+              />
+            </div>
+          </section>
+
+          <Separator />
+
+          {/*** USAGE PATTERNS ***/}
+          <section>
+            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+              Usage Patterns
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ModelDetailHourlyChart
+                data={hourlyUsage}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+              <ModelDetailTrendChart
+                data={dailySpendTrend}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+            </div>
+          </section>
+
+          <Separator />
+
+          {/*** PROVIDER BREAKDOWN ***/}
+          <section>
+            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+              Provider Breakdown
+            </h2>
+            <ModelDetailProviderChart
+              data={providerBreakdown}
+              loading={loading}
+            />
+          </section>
+
+          <Separator />
+
+          {/*** TOP ENTITIES ***/}
+          <section>
+            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+              Top Entities
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ModelDetailUserTable
+                users={topUsers}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+              <ModelDetailApiKeyTable
+                apiKeys={topApiKeys}
+                loading={loading}
+                rangeLabel={rangeLabel}
+              />
+            </div>
+          </section>
+        </TabsContent>
+
+        <TabsContent value="logs" className="mt-6">
+          <ModelDetailLogsTab
+            logs={logs}
+            pagination={logsPagination}
+            loading={logsLoading}
+            refreshing={logsRefreshing}
+            error={logsError}
+            page={logsPage}
+            pageSize={logsPageSize}
+            setPage={setLogsPage}
+            setPageSize={setLogsPageSize}
+            refetch={logsRefetch}
           />
-        </div>
-      </section>
-
-      <Separator />
-
-      {/*** LATENCY ***/}
-      <section>
-        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-          Latency
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ModelDetailLatencyChart
-            data={latencyTrend}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-          <ModelDetailTTFTChart data={ttft} loading={loading} />
-        </div>
-      </section>
-
-      <Separator />
-
-      {/*** RELIABILITY ***/}
-      <section>
-        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-          Reliability
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <ModelDetailErrorBreakdown
-            data={errorBreakdown}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-          <ModelDetailErrorTrendChart
-            data={dailyErrorTrend}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-          <ModelDetailStatusChart data={statusDistribution} loading={loading} />
-        </div>
-      </section>
-
-      <Separator />
-
-      {/*** USAGE PATTERNS ***/}
-      <section>
-        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-          Usage Patterns
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ModelDetailHourlyChart
-            data={hourlyUsage}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-          <ModelDetailTrendChart
-            data={dailySpendTrend}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-        </div>
-      </section>
-
-      <Separator />
-
-      {/*** PROVIDER BREAKDOWN ***/}
-      <section>
-        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-          Provider Breakdown
-        </h2>
-        <ModelDetailProviderChart data={providerBreakdown} loading={loading} />
-      </section>
-
-      <Separator />
-
-      {/*** TOP ENTITIES ***/}
-      <section>
-        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-          Top Entities
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ModelDetailUserTable
-            users={topUsers}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-          <ModelDetailApiKeyTable
-            apiKeys={topApiKeys}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-        </div>
-      </section>
+        </TabsContent>
+      </Tabs>
     </PageLayout>
   );
 }

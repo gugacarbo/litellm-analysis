@@ -61,7 +61,7 @@ function registerShutdownHooks(stop: () => void): void {
   process.on("SIGINT", stop);
 }
 
-export function startAppRuntime(): AppRuntime {
+export async function startAppRuntime(): Promise<AppRuntime> {
   const projectRoot = getProjectRoot();
   const ctx = createAppContext();
   const aliasDbWriter = new AliasDbWriterImpl(ctx.analytics.dataSource);
@@ -99,6 +99,8 @@ export function startAppRuntime(): AppRuntime {
     pollIntervalMs: env.MONITOR_POLL_INTERVAL_MS,
   });
 
+  const enabledModelNames = await modelsService.getEnabledModelNames();
+
   const healthCheckRuntime: HealthCheckRuntime = createHealthCheckRuntime({
     ctx,
     httpServer,
@@ -109,6 +111,7 @@ export function startAppRuntime(): AppRuntime {
     maxConcurrency: 6,
     litellmApiUrl: env.LITELLM_API_URL,
     litellmApiKey: env.LITELLM_API_KEY,
+    enabledModelNames: [...enabledModelNames],
   });
 
   app.post("/health-check/run", async (req, res) => {

@@ -20,6 +20,7 @@ function BarRow({
   max,
   color,
   href,
+  disabled,
 }: {
   label: string;
   value: number;
@@ -27,6 +28,7 @@ function BarRow({
   max: number;
   color: string;
   href: string;
+  disabled?: boolean;
 }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
@@ -34,7 +36,7 @@ function BarRow({
       <div className="flex items-center justify-between text-xs">
         <Link
           to={href}
-          className="font-mono text-xs hover:underline truncate max-w-[60%]"
+          className={`font-mono text-xs hover:underline truncate max-w-[60%] ${disabled ? "opacity-50" : ""}`}
         >
           {label || "(no model)"}
         </Link>
@@ -91,6 +93,7 @@ export function ModelStatsTopTables({
                   max={maxSpend}
                   color="bg-blue-500"
                   href={`/model-stats/${encodeURIComponent(m.model)}`}
+                  disabled={m.enabled === false}
                 />
               ))}
         </CardContent>
@@ -117,6 +120,7 @@ export function ModelStatsTopTables({
                   max={maxRequests}
                   color="bg-emerald-500"
                   href={`/model-stats/${encodeURIComponent(m.model)}`}
+                  disabled={m.enabled === false}
                 />
               ))}
         </CardContent>

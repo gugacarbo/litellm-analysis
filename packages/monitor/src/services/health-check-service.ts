@@ -739,11 +739,18 @@ export class HealthCheckService {
   }
 
   private async getConfiguredModels(): Promise<string[]> {
-    const { analyticsDataSource } = this.options;
+    const { analyticsDataSource, enabledModelNames } = this.options;
     const models = await analyticsDataSource
       .getModels()
       .catch(() => [] as { modelName: string }[]);
-    return models.map((m) => m.modelName).filter(Boolean);
+    const names = models.map((m) => m.modelName).filter(Boolean);
+
+    if (enabledModelNames?.length) {
+      const enabledSet = new Set(enabledModelNames);
+      return names.filter((n) => enabledSet.has(n));
+    }
+
+    return names;
   }
 
   private async probeAndEmit(

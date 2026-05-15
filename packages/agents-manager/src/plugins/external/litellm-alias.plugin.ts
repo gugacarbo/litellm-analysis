@@ -108,7 +108,17 @@ export class LitellmAliasPlugin implements IPlugin {
     const includeCategories = (config.includeCategories as boolean) ?? true;
     const globalFallbackOverride =
       (config.globalFallbackOverride as string) ?? "";
-    const effectiveFallback = globalFallbackOverride || ctx.globalFallbackModel;
+    const rawFallback = globalFallbackOverride || ctx.globalFallbackModel;
+
+    // Build set of enabled model names
+    const enabledSet = new Set(
+      Object.entries(ctx.allModels)
+        .filter(([, spec]) => spec.enabled !== false)
+        .map(([name]) => name),
+    );
+
+    const effectiveFallback =
+      rawFallback && enabledSet.has(rawFallback) ? rawFallback : undefined;
 
     // Parse selections into Sets (empty array = all)
     const selectedAgentsArr = (config.selectedAgents as string[]) ?? [];
@@ -127,13 +137,24 @@ export class LitellmAliasPlugin implements IPlugin {
           continue;
         }
 
+        const agentModel =
+          agent.model && enabledSet.has(agent.model) ? agent.model : "";
+        const agentFallbacks = (agent.fallbackModels ?? []).filter((m) =>
+          enabledSet.has(m),
+        );
+
+        // Skip if no enabled model or fallbacks
+        if (!agentModel && agentFallbacks.length === 0) {
+          continue;
+        }
+
         const finalKey = aliasPrefix ? `${aliasPrefix}${agent.id}` : agent.id;
         Object.assign(
           aliases,
           generateLitellmAliases(
             finalKey,
-            agent.model || "",
-            agent.fallbackModels,
+            agentModel,
+            agentFallbacks,
             effectiveFallback,
           ),
         );
@@ -152,8 +173,13 @@ export class LitellmAliasPlugin implements IPlugin {
           continue;
         }
 
-        const hasModel = Boolean(category.model);
-        const hasFallbacks = (category.fallbackModels?.length ?? 0) > 0;
+        const hasModel = Boolean(
+          category.model && enabledSet.has(category.model),
+        );
+        const catFallbacks = (category.fallbackModels ?? []).filter((m) =>
+          enabledSet.has(m),
+        );
+        const hasFallbacks = catFallbacks.length > 0;
         if (!hasModel && !hasFallbacks) {
           continue;
         }
@@ -163,8 +189,10 @@ export class LitellmAliasPlugin implements IPlugin {
           aliases,
           generateLitellmAliases(
             finalKey,
-            category.model || "",
-            category.fallbackModels,
+            category.model && enabledSet.has(category.model)
+              ? category.model
+              : "",
+            catFallbacks,
             effectiveFallback,
           ),
         );

@@ -80,7 +80,7 @@ export function LogsTable({
             columnKey: col.key,
           }),
         enableSorting: false,
-        enableHiding: true,
+        enableHiding: false,
       })),
     [],
   );

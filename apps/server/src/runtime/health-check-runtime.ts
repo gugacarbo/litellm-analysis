@@ -13,6 +13,7 @@ interface HealthCheckRuntimeOptions {
   maxConcurrency: number;
   litellmApiUrl: string;
   litellmApiKey: string;
+  enabledModelNames?: string[];
 }
 
 export interface HealthCheckRuntime {
@@ -33,6 +34,7 @@ export function createHealthCheckRuntime(
     litellmApiKey: options.litellmApiKey,
     analyticsDataSource: options.ctx.analytics.dataSource,
     monitorDb: options.ctx.monitor.monitorDb,
+    enabledModelNames: options.enabledModelNames,
   });
 
   healthCheckService.on("health_check_update", (data) => {

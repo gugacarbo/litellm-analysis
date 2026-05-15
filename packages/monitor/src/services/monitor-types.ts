@@ -102,6 +102,7 @@ export interface HealthCheckServiceOptions {
   litellmApiKey: string;
   analyticsDataSource: import("@lite-llm/analytics/data-source").AnalyticsDataSource;
   monitorDb: ReturnType<typeof import("../db/monitor-client").getMonitorDb>;
+  enabledModelNames?: string[];
 }
 
 export type HealthCheckServiceEvents = {

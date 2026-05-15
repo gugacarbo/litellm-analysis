@@ -10,6 +10,7 @@ export interface ModelServiceOptions {
 export interface IModelService {
   getAll(): Promise<Record<string, ModelSpec>>;
   get(key: string): Promise<ModelSpec | undefined>;
+  getEnabledModelNames(): Promise<Set<string>>;
   create(key: string, spec: ModelSpec): Promise<void>;
   update(key: string, spec: Partial<ModelSpec>): Promise<void>;
   upsert(key: string, spec: ModelSpec): Promise<void>;
@@ -26,6 +27,15 @@ export class ModelService implements IModelService {
   async getAll(): Promise<Record<string, ModelSpec>> {
     const config = await this.repository.read();
     return config.models;
+  }
+
+  async getEnabledModelNames(): Promise<Set<string>> {
+    const config = await this.repository.read();
+    return new Set(
+      Object.entries(config.models)
+        .filter(([, spec]) => spec.enabled !== false)
+        .map(([name]) => name),
+    );
   }
 
   async get(key: string): Promise<ModelSpec | undefined> {
