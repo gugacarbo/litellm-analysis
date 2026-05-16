@@ -25,15 +25,27 @@ interface PluginSchemaMapping {
 
 const pluginMappings: PluginSchemaMapping[] = [
   { pluginDir: "opencode", schemaVar: "openCodeSchema", typeName: "OpenCode" },
-  { pluginDir: "openagent", schemaVar: "openAgentSchema", typeName: "OpenAgent" },
+  {
+    pluginDir: "openagent",
+    schemaVar: "openAgentSchema",
+    typeName: "OpenAgent",
+  },
   { pluginDir: "vscode", schemaVar: "vsCodeSchema", typeName: "VsCode" },
 ];
 
 console.log("Schema Generator using z.fromJSONSchema() (Zod v4)\n");
 
 for (const mapping of pluginMappings) {
-  const pluginSchemaDir = path.join(rootDir, "src/plugins", mapping.pluginDir, "schemas");
-  const schemaPath = path.join(pluginSchemaDir, `${mapping.pluginDir}.schema.json`);
+  const pluginSchemaDir = path.join(
+    rootDir,
+    "src/plugins",
+    mapping.pluginDir,
+    "schemas",
+  );
+  const schemaPath = path.join(
+    pluginSchemaDir,
+    `${mapping.pluginDir}.schema.json`,
+  );
   const outputDir = path.join(pluginSchemaDir, "generated");
   const outputFile = path.join(outputDir, `${mapping.pluginDir}.zod.ts`);
 
@@ -42,7 +54,9 @@ for (const mapping of pluginMappings) {
 
   const schema = JSON.parse(fs.readFileSync(schemaPath, "utf-8"));
 
-  console.log(`Processing: ${mapping.pluginDir}/${mapping.pluginDir}.schema.json`);
+  console.log(
+    `Processing: ${mapping.pluginDir}/${mapping.pluginDir}.schema.json`,
+  );
 
   // Generate Zod schema code using z.fromJSONSchema
   const outputContent = `/**
@@ -59,7 +73,9 @@ export type ${mapping.typeName} = z.infer<typeof ${mapping.schemaVar}>;
 `;
 
   fs.writeFileSync(outputFile, outputContent, "utf-8");
-  console.log(`  ✓ Generated: ${mapping.pluginDir}/schemas/generated/${mapping.pluginDir}.zod.ts`);
+  console.log(
+    `  ✓ Generated: ${mapping.pluginDir}/schemas/generated/${mapping.pluginDir}.zod.ts`,
+  );
 }
 
 console.log(

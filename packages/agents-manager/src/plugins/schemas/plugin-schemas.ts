@@ -10,11 +10,20 @@
  *   const zodSchema = pluginSchemas.opencode.zod;
  */
 
-import { type OpenAgent, openAgentSchema } from "../openagent/schemas/generated/openagent.zod";
-import { type OpenCode, openCodeSchema } from "../opencode/schemas/generated/opencode.zod";
-import { type VsCode, vsCodeSchema } from "../vscode/schemas/generated/vscode.zod";
+import {
+  type OpenAgent,
+  openAgentSchema,
+} from "../openagent/schemas/generated/openagent.zod";
 import openagentJsonSchema from "../openagent/schemas/openagent.schema.json";
+import {
+  type OpenCode,
+  openCodeSchema,
+} from "../opencode/schemas/generated/opencode.zod";
 import opencodeJsonSchema from "../opencode/schemas/opencode.schema.json";
+import {
+  type VsCode,
+  vsCodeSchema,
+} from "../vscode/schemas/generated/vscode.zod";
 import vscodeJsonSchema from "../vscode/schemas/vscode.schema.json";
 
 export interface PluginSchemas {

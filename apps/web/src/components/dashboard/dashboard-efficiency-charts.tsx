@@ -20,8 +20,7 @@ import type {
   DailyTokenTrendItem,
 } from "../../pages/dashboard/dashboard-types";
 import {
-  formatDate,
-  formatDateTime,
+  formatDateRange,
   formatNumber,
 } from "../../pages/dashboard/dashboard-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -66,9 +65,7 @@ export function DashboardEfficiencyCharts({
   dailyTokenTrend,
   modelStatistics,
 }: DashboardEfficiencyChartsProps) {
-  // Check if data has hourly granularity
-  const hasHourlyData =
-    dailyTokenTrend.length > 0 && dailyTokenTrend[0].date.includes(" ");
+  const granularity = dailyTokenTrend[0]?.granularity ?? "1d";
 
   // Transform: invert so lower cost = higher bar (better efficiency)
   const costEfficiencyData = useMemo(() => {
@@ -220,7 +217,7 @@ export function DashboardEfficiencyCharts({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={formatDate}
+                  tickFormatter={(date) => formatDateRange(date, granularity)}
                   interval="preserveStartEnd"
                   minTickGap={50}
                 />
@@ -229,7 +226,7 @@ export function DashboardEfficiencyCharts({
                   content={<ChartTooltipContent />}
                   formatter={(v) => formatNumber(Number(v))}
                   labelFormatter={(label) =>
-                    hasHourlyData ? formatDateTime(label) : formatDate(label)
+                    formatDateRange(label, granularity)
                   }
                 />
                 <Legend />
@@ -278,7 +275,7 @@ export function DashboardEfficiencyCharts({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={formatDate}
+                  tickFormatter={(date) => formatDateRange(date, granularity)}
                   interval="preserveStartEnd"
                   minTickGap={50}
                 />
@@ -296,7 +293,7 @@ export function DashboardEfficiencyCharts({
                       : formatNumber(Number(v))
                   }
                   labelFormatter={(label) =>
-                    hasHourlyData ? formatDateTime(label) : formatDate(label)
+                    formatDateRange(label, granularity)
                   }
                 />
                 <Legend />

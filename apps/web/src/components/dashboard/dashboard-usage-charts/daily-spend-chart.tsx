@@ -10,8 +10,7 @@ import {
 import type { DailyTrendItem } from "../../../pages/dashboard/dashboard-types";
 import {
   formatCurrency,
-  formatDate,
-  formatDateTime,
+  formatDateRange,
 } from "../../../pages/dashboard/dashboard-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { ChartTooltipContent } from "../../ui/chart-tooltip";
@@ -28,8 +27,7 @@ export function DailySpendChart({
   loading,
   rangeLabel,
 }: DailySpendChartProps) {
-  // Check if data has hourly granularity (contains space in date strings)
-  const hasHourlyData = data.length > 0 && data[0].date.includes(" ");
+  const granularity = data[0]?.granularity ?? "1d";
 
   return (
     <Card>
@@ -45,7 +43,7 @@ export function DailySpendChart({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
-                tickFormatter={formatDate}
+                tickFormatter={(date) => formatDateRange(date, granularity)}
                 interval="preserveStartEnd"
                 minTickGap={50}
               />
@@ -53,9 +51,7 @@ export function DailySpendChart({
               <Tooltip
                 content={<ChartTooltipContent />}
                 formatter={(v) => formatCurrency(Number(v))}
-                labelFormatter={(label) =>
-                  hasHourlyData ? formatDateTime(label) : formatDate(label)
-                }
+                labelFormatter={(label) => formatDateRange(label, granularity)}
               />
               <Line
                 type="monotone"

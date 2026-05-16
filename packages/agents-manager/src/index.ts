@@ -60,11 +60,10 @@ export type {
 export { AgentCatalogService, AgentService, CategoryService, RoutingService };
 
 import { createRepositoryClient as createModelsRepositoryClient } from "@lite-llm/models-manager";
-// Plugins
-import { OpenCodePlugin } from "./plugins/opencode/plugin";
 import { LitellmAliasPlugin } from "./plugins/litellm-alias/plugin";
 import { OpenAgentPlugin } from "./plugins/openagent/plugin";
-import { VsCodePlugin } from "./plugins/vscode/plugin";
+// Plugins
+import { OpenCodePlugin } from "./plugins/opencode/plugin";
 import type {
   IPlugin,
   IPluginRegistry,
@@ -72,6 +71,7 @@ import type {
 } from "./plugins/plugin";
 import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
 import { PluginRegistry, type PluginRegistryOptions } from "./plugins/registry";
+import { VsCodePlugin } from "./plugins/vscode/plugin";
 
 export type { AliasDbWriter } from "./plugins/litellm-alias/plugin";
 export type {
