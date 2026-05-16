@@ -1,3 +1,4 @@
+import * as Collapsible from "@radix-ui/react-collapsible";
 import {
   Activity,
   Bot,
@@ -7,6 +8,7 @@ import {
   FileText,
   GitBranch,
   ListChecks,
+  PanelLeftIcon,
   Radar,
   Scale,
   Settings,
@@ -14,7 +16,20 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Card, CardContent } from "../ui/card";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail,
+} from "../ui/sidebar";
 
 interface NavLeaf {
   id?: string;
@@ -36,31 +51,56 @@ function isBranch(item: NavItem): item is NavBranch {
   return "children" in item;
 }
 
-function getExpandedState(
-  id: string,
-  monitoringExpanded: boolean,
-  agentsExpanded: boolean,
-): boolean {
-  if (id === "monitoring") return monitoringExpanded;
-  if (id === "agents") return agentsExpanded;
-  return false;
+function NavItemLeaf({ item }: { item: NavLeaf }) {
+  return (
+    <SidebarMenuItem key={item.to}>
+      <SidebarMenuButton asChild tooltip={item.label}>
+        <NavLink to={item.to}>
+          {item.icon && <item.icon className="h-4 w-4" />}
+          <span>{item.label}</span>
+        </NavLink>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
 }
 
-function toggleExpanded(
-  id: string,
-  setMonitoring: (v: boolean) => void,
-  setAgents: (v: boolean) => void,
-  currentMonitoring: boolean,
-  currentAgents: boolean,
-): void {
-  if (id === "monitoring") setMonitoring(!currentMonitoring);
-  if (id === "agents") setAgents(!currentAgents);
+function NavItemBranch({ item }: { item: NavBranch }) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <Collapsible.Root open={isOpen} onOpenChange={setIsOpen}>
+      <SidebarMenuItem>
+        <Collapsible.Trigger asChild>
+          <SidebarMenuButton>
+            {item.icon && <item.icon className="h-4 w-4" />}
+            <span className="flex-1">{item.label}</span>
+            {isOpen ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </SidebarMenuButton>
+        </Collapsible.Trigger>
+      </SidebarMenuItem>
+      <Collapsible.Content>
+        <SidebarMenuSub>
+          {item.children.map((child) => (
+            <SidebarMenuSubItem key={child.to}>
+              <SidebarMenuSubButton asChild>
+                <NavLink to={child.to}>
+                  {child.icon && <child.icon className="h-4 w-4" />}
+                  <span>{child.label}</span>
+                </NavLink>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          ))}
+        </SidebarMenuSub>
+      </Collapsible.Content>
+    </Collapsible.Root>
+  );
 }
 
-export function Sidebar() {
-  const [monitoringExpanded, setMonitoringExpanded] = useState(false);
-  const [agentsExpanded, setAgentsExpanded] = useState(true);
-
+export function AppSidebar() {
   const navItems: NavItem[] = [
     { to: "/", icon: Activity, label: "Dashboard" },
     { to: "/monitor", icon: Radar, label: "Monitor" },
@@ -81,89 +121,29 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 min-h-screen border-l bg-muted/10 p-4">
-      <Card>
-        <CardContent className="px-3 py-0 gap-4 flex flex-col">
-          <div className="flex gap-1 flex-col">
-            <h2 className="font-bold text-lg">LiteLLM Stats</h2>
-          </div>
-          <nav className="space-y-1">
-            {navItems.map((item) => {
-              if (isBranch(item)) {
-                const expanded = getExpandedState(
-                  item.id,
-                  monitoringExpanded,
-                  agentsExpanded,
-                );
-                return (
-                  <div key={item.id}>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toggleExpanded(
-                          item.id,
-                          setMonitoringExpanded,
-                          setAgentsExpanded,
-                          monitoringExpanded,
-                          agentsExpanded,
-                        )
-                      }
-                      className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors w-full text-left ${
-                        expanded ? "bg-muted" : "hover:bg-muted"
-                      }`}
-                    >
-                      {item.icon && <item.icon className="h-4 w-4" />}
-                      <span className="flex-1">{item.label}</span>
-                      {expanded ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                    </button>
-                    {expanded && (
-                      <div className="ml-4 mt-1 space-y-1">
-                        {item.children.map((child) => (
-                          <NavLink
-                            key={child.to}
-                            to={child.to}
-                            className={({ isActive }) =>
-                              `flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors text-sm ${
-                                isActive
-                                  ? "bg-primary text-primary-foreground"
-                                  : "hover:bg-muted"
-                              }`
-                            }
-                          >
-                            {child.icon && <child.icon className="h-4 w-4" />}
-                            <span>{child.label}</span>
-                          </NavLink>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-muted"
-                    }`
-                  }
-                >
-                  {item.icon && <item.icon className="h-4 w-4" />}
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
-        </CardContent>
-      </Card>
-    </aside>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2 py-1">
+          <PanelLeftIcon className="h-5 w-5" />
+          <span className="font-semibold text-sm">LiteLLM Stats</span>
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) =>
+                isBranch(item) ? (
+                  <NavItemBranch key={item.id} item={item} />
+                ) : (
+                  <NavItemLeaf key={item.to} item={item} />
+                )
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarRail />
+    </Sidebar>
   );
 }
