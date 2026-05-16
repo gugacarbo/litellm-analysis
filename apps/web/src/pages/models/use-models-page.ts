@@ -5,10 +5,11 @@ import {
   createModel,
   deleteModel,
   getModelsWithConfig,
-  type ModelConfig,
+  mergeModels,
   syncModelsFromConfig,
   toggleModelEnabled,
   updateModel,
+  type ModelConfig,
 } from "../../lib/api-client";
 import { getModelsHealth } from "../../lib/api-client/monitor";
 import { validateAndBuildModelParams } from "./models-form-utils";
@@ -63,6 +64,11 @@ export function useModelsPage() {
     mutationFn: (modelName: string) => deleteModel(modelName),
   });
 
+  const mergeModelsMutation = useMutation({
+    mutationFn: (params: { sourceModel: string; targetModel: string }) =>
+      mergeModels(params.sourceModel, params.targetModel),
+  });
+
   const syncMutation = useMutation({
     mutationFn: syncModelsFromConfig,
     onSuccess: () => {
@@ -77,6 +83,13 @@ export function useModelsPage() {
     },
   });
 
+  // Merge state
+  const [mergeMode, setMergeMode] = useState(false);
+  const [sourceModel, setSourceModel] = useState("");
+  const [targetModel, setTargetModel] = useState("");
+  const [merging, setMerging] = useState(false);
+  const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
+
   const {
     deleteModelName,
     dialogOpen,
@@ -86,7 +99,6 @@ export function useModelsPage() {
     setFormError,
     handleOpenCreate,
     handleOpenCreateWithDefaultCredential,
-    handleOpenEdit,
     addExtraParam,
     removeExtraParam,
     updateExtraParam,
@@ -158,6 +170,34 @@ export function useModelsPage() {
     }
   }
 
+  function handleMerge() {
+    if (!sourceModel || !targetModel) {
+      return;
+    }
+    if (sourceModel === targetModel) {
+      return;
+    }
+    setMergeDialogOpen(true);
+  }
+
+  async function confirmMerge() {
+    setMergeDialogOpen(false);
+    setMerging(true);
+    try {
+      await mergeModelsMutation.mutateAsync({ sourceModel, targetModel });
+      await queryClient.invalidateQueries({
+        queryKey: ["models-with-config"],
+      });
+      setMergeMode(false);
+      setSourceModel("");
+      setTargetModel("");
+    } catch (e) {
+      setMutationError(String(e));
+    } finally {
+      setMerging(false);
+    }
+  }
+
   console.log(
     "[DEBUG] modelsHealth from hook:",
     modelsHealthQuery.data?.models,
@@ -178,6 +218,8 @@ export function useModelsPage() {
     handleAddToConfig: (modelName: string) =>
       addToConfigMutation.mutateAsync(modelName),
     handleDelete,
+    handleMerge,
+    confirmMerge,
     handleOpenCreate,
     handleSyncFromConfig: () => syncMutation.mutateAsync(),
     syncing: syncMutation.isPending,
@@ -190,15 +232,23 @@ export function useModelsPage() {
       total: 0,
     },
     handleOpenCreateWithDefaultCredential,
-    handleOpenEdit,
     handleToggleEnabled,
     handleSubmit,
     modelsQuery,
     mutationError,
+    mergeDialogOpen,
+    mergeMode,
+    merging,
     removeExtraParam,
     setDeleteModelName,
     setDialogOpen,
     setFormData,
+    setMergeDialogOpen,
+    setMergeMode,
+    setSourceModel,
+    setTargetModel,
+    sourceModel,
+    targetModel,
     updateExtraParam,
   };
 }

@@ -17,24 +17,15 @@ export function useModelStatsPageState() {
     toggleColumn,
     openDeleteDialog,
     handleDelete,
-    handleMerge,
-    confirmMerge,
   } = useModelStatsActions(
     state.rangeDays,
     state.sortField,
     state.setSortField,
     state.sortDirection,
     state.setSortDirection,
-    state.sourceModel,
-    state.setSourceModel,
-    state.targetModel,
-    state.setTargetModel,
-    state.setMerging,
     state.deleting,
     state.setDeleting,
     state.setDeleteDialogOpen,
-    state.setMergeDialogOpen,
-    state.setMergeMode,
     state.setVisibleColumns,
   );
 
@@ -45,7 +36,5 @@ export function useModelStatsPageState() {
     toggleColumn,
     openDeleteDialog,
     handleDelete,
-    handleMerge,
-    confirmMerge,
   };
 }

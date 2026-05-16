@@ -10,6 +10,7 @@ import { queryKeys } from "../../lib/query-keys";
 import { getDateRangeLabel } from "../dashboard/dashboard-utils";
 import type { ColumnKey, SortDirection, SortField } from "./model-stats-types";
 import { MODEL_STATS_COLUMNS } from "./model-stats-types";
+import { useFilter } from "../../contexts/filter-context";
 
 export function useModelStatsState() {
   const {
@@ -25,13 +26,8 @@ export function useModelStatsState() {
   const [visibleColumns, setVisibleColumns] = useState<ColumnKey[]>(() =>
     MODEL_STATS_COLUMNS.filter((c) => c.default).map((c) => c.key),
   );
-  const [mergeMode, setMergeMode] = useState(false);
-  const [sourceModel, setSourceModel] = useState("");
-  const [targetModel, setTargetModel] = useState("");
-  const [merging, setMerging] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
 
   const modelStatsQuery = useQuery({
     queryKey: queryKeys.modelStatistics(rangeDays),
@@ -70,20 +66,10 @@ export function useModelStatsState() {
     setSearchQuery,
     visibleColumns,
     setVisibleColumns,
-    mergeMode,
-    setMergeMode,
-    sourceModel,
-    setSourceModel,
-    targetModel,
-    setTargetModel,
-    merging,
-    setMerging,
     deleting,
     setDeleting,
     deleteDialogOpen,
     setDeleteDialogOpen,
-    mergeDialogOpen,
-    setMergeDialogOpen,
     data: modelStatsQuery.data ?? [],
     loading: modelStatsQuery.isPending && !modelStatsQuery.data,
     error:
@@ -95,5 +81,3 @@ export function useModelStatsState() {
     costEfficiency: costEffQuery.data ?? [],
   };
 }
-
-import { useFilter } from "../../contexts/filter-context";

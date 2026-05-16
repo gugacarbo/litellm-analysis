@@ -1,5 +1,6 @@
 import { Database, Pencil, Plus, Trash2 } from "lucide-react";
-import type { ModelConfig, ModelWithStatus } from "../../lib/api-client/models";
+import { Link } from "react-router-dom";
+import type { ModelWithStatus } from "../../lib/api-client/models";
 import {
   getContextWindow,
   getHealthStatusLabel,
@@ -56,7 +57,6 @@ type ModelsTableCardProps = {
   modelsHealth?: ModelHealthEntry[];
   addToConfigPending: boolean;
   onDeleteModelNameChange: (value: string | null) => void;
-  onOpenEdit: (model: ModelConfig) => void;
   onDelete: () => void;
   onAddToConfig: (modelName: string) => void;
   onToggleEnabled: (modelName: string, enabled: boolean) => void;
@@ -82,7 +82,6 @@ export function ModelsTableCard({
   modelsHealth = [],
   addToConfigPending,
   onDeleteModelNameChange,
-  onOpenEdit,
   onDelete,
   onAddToConfig,
   onToggleEnabled,
@@ -139,7 +138,12 @@ export function ModelsTableCard({
                     }
                   >
                     <TableCell className="font-medium">
-                      {model.modelName}
+                      <Link
+                        to={`/models/${encodeURIComponent(model.modelName)}`}
+                        className="hover:underline"
+                      >
+                        {model.modelName}
+                      </Link>
                     </TableCell>
                     <TableCell>
                       <Switch
@@ -196,9 +200,13 @@ export function ModelsTableCard({
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              onClick={() => onOpenEdit(model)}
+                              asChild
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Link
+                                to={`/models/${encodeURIComponent(model.modelName)}`}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Link>
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>

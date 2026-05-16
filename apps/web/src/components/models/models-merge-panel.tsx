@@ -1,4 +1,4 @@
-import type { ModelStats } from "../../pages/model-stats/model-stats-types";
+import type { ModelWithStatus } from "../../lib/api-client/models";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import {
@@ -9,8 +9,8 @@ import {
   SelectValue,
 } from "../ui/select";
 
-type ModelStatsMergePanelProps = {
-  data: ModelStats[];
+type ModelsMergePanelProps = {
+  models: ModelWithStatus[];
   sourceModel: string;
   targetModel: string;
   merging: boolean;
@@ -19,16 +19,16 @@ type ModelStatsMergePanelProps = {
   onMerge: () => void;
 };
 
-export function ModelStatsMergePanel({
-  data,
+export function ModelsMergePanel({
+  models,
   sourceModel,
   targetModel,
   merging,
   onSourceModelChange,
   onTargetModelChange,
   onMerge,
-}: ModelStatsMergePanelProps) {
-  const models = data.filter((m) => m.model);
+}: ModelsMergePanelProps) {
+  const modelNames = models.map((m) => m.modelName).sort();
 
   return (
     <Card>
@@ -38,13 +38,13 @@ export function ModelStatsMergePanel({
             <SelectValue placeholder="Source model" />
           </SelectTrigger>
           <SelectContent>
-            {models.map((m) => (
+            {modelNames.map((name) => (
               <SelectItem
-                key={m.model}
-                value={m.model}
-                disabled={m.model === targetModel}
+                key={name}
+                value={name}
+                disabled={name === targetModel}
               >
-                {m.model}
+                {name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -57,13 +57,13 @@ export function ModelStatsMergePanel({
             <SelectValue placeholder="Target model" />
           </SelectTrigger>
           <SelectContent>
-            {models.map((m) => (
+            {modelNames.map((name) => (
               <SelectItem
-                key={m.model}
-                value={m.model}
-                disabled={m.model === sourceModel}
+                key={name}
+                value={name}
+                disabled={name === sourceModel}
               >
-                {m.model}
+                {name}
               </SelectItem>
             ))}
           </SelectContent>

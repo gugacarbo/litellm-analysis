@@ -25,7 +25,6 @@ export function ModelsPage() {
     handleOpenCreateWithDefaultCredential,
     handleSyncFromConfig,
     syncing,
-    handleOpenEdit,
     handleToggleEnabled,
     handleSubmit,
     addExtraParam,
@@ -92,7 +91,6 @@ export function ModelsPage() {
         deleteModelName={deleteModelName}
         addToConfigPending={addToConfigPending}
         onDeleteModelNameChange={setDeleteModelName}
-        onOpenEdit={handleOpenEdit}
         onDelete={handleDelete}
         onAddToConfig={handleAddToConfig}
         onToggleEnabled={handleToggleEnabled}

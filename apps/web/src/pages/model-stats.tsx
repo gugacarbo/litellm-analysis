@@ -1,13 +1,10 @@
 import { BarChart3 } from "lucide-react";
 import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
-import { MergeModelLogsDialog } from "../components/model-stats/merge-model-logs-dialog";
 import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
 import { ModelStatsHeader } from "../components/model-stats/model-stats-header";
-import { ModelStatsMergePanel } from "../components/model-stats/model-stats-merge-panel";
 import { ModelStatsMiniCharts } from "../components/model-stats/model-stats-mini-charts";
 import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
 import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
-import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { PageLayout } from "../components/ui/page-layout";
 import { Toaster } from "../components/ui/sonner";
@@ -42,15 +39,6 @@ export function ModelStatsPage() {
           setSelectedDateRange={state.setSelectedDateRange}
         />
       }
-      buttons={
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => state.setMergeMode((prev) => !prev)}
-        >
-          {state.mergeMode ? "Cancel" : "Merge Models"}
-        </Button>
-      }
     >
       <Toaster position="bottom-right" />
 
@@ -61,30 +49,6 @@ export function ModelStatsPage() {
         onCancel={() => state.setDeleting(null)}
         onConfirm={state.handleDelete}
       />
-
-      <MergeModelLogsDialog
-        open={state.mergeDialogOpen}
-        sourceModel={state.sourceModel}
-        targetModel={state.targetModel}
-        sourceModelCount={
-          state.data.find((m) => m.model === state.sourceModel)
-            ?.request_count || 0
-        }
-        onOpenChange={state.setMergeDialogOpen}
-        onConfirm={state.confirmMerge}
-      />
-
-      {state.mergeMode && (
-        <ModelStatsMergePanel
-          data={state.data}
-          sourceModel={state.sourceModel}
-          targetModel={state.targetModel}
-          merging={state.merging}
-          onSourceModelChange={state.setSourceModel}
-          onTargetModelChange={state.setTargetModel}
-          onMerge={state.handleMerge}
-        />
-      )}
 
       <div className="mt-6">
         <ModelStatsSummaryCards

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { deleteModelLogs, mergeModels } from "../../lib/api-client/models";
+import { deleteModelLogs } from "../../lib/api-client/models";
 import { queryKeys } from "../../lib/query-keys";
 import type {
   ColumnKey,
@@ -12,7 +12,6 @@ import type {
 
 type SetSortField = (f: SortField) => void;
 type SetSortDirection = (d: SortDirection) => void;
-type SetString = (v: string) => void;
 type SetBoolean = (v: boolean) => void;
 type SetDeleting = (v: string | null) => void;
 
@@ -22,16 +21,9 @@ export function useModelStatsActions(
   setSortField: SetSortField,
   sortDirection: SortDirection,
   setSortDirection: SetSortDirection,
-  sourceModel: string,
-  setSourceModel: SetString,
-  targetModel: string,
-  setTargetModel: SetString,
-  setMerging: SetBoolean,
   deleting: string | null,
   setDeleting: SetDeleting,
   setDeleteDialogOpen: SetBoolean,
-  setMergeDialogOpen: SetBoolean,
-  setMergeMode: SetBoolean,
   setVisibleColumns: (
     fn: ColumnKey[] | ((prev: ColumnKey[]) => ColumnKey[]),
   ) => void,
@@ -40,11 +32,6 @@ export function useModelStatsActions(
 
   const deleteModelLogsMutation = useMutation({
     mutationFn: (modelName: string) => deleteModelLogs(modelName),
-  });
-
-  const mergeModelsMutation = useMutation({
-    mutationFn: (params: { sourceModel: string; targetModel: string }) =>
-      mergeModels(params.sourceModel, params.targetModel),
   });
 
   const handleSort = useCallback(
@@ -112,54 +99,10 @@ export function useModelStatsActions(
     rangeDays,
   ]);
 
-  const handleMerge = useCallback(() => {
-    if (!sourceModel || !targetModel) {
-      toast.warning("Please select both source and target models");
-      return;
-    }
-    if (sourceModel === targetModel) {
-      toast.warning("Source and target models must be different");
-      return;
-    }
-    setMergeDialogOpen(true);
-  }, [sourceModel, targetModel, setMergeDialogOpen]);
-
-  const confirmMerge = useCallback(async () => {
-    setMergeDialogOpen(false);
-    setMerging(true);
-    try {
-      await mergeModelsMutation.mutateAsync({ sourceModel, targetModel });
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.modelStatistics(rangeDays),
-      });
-      setMergeMode(false);
-      setSourceModel("");
-      setTargetModel("");
-      toast.success(`Merged logs from "${sourceModel}" into "${targetModel}"`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to merge");
-    } finally {
-      setMerging(false);
-    }
-  }, [
-    setMerging,
-    mergeModelsMutation,
-    queryClient,
-    rangeDays,
-    setMergeMode,
-    setMergeDialogOpen,
-    setSourceModel,
-    setTargetModel,
-    sourceModel,
-    targetModel,
-  ]);
-
   return {
     handleSort,
     toggleColumn,
     openDeleteDialog,
     handleDelete,
-    handleMerge,
-    confirmMerge,
   };
 }
