@@ -55,30 +55,12 @@ export class LitellmAliasPlugin implements IPlugin {
         description: "Include agent-based aliases in output",
       },
       {
-        key: "selectedAgents",
-        type: "multiselect",
-        label: "Selected Agents",
-        required: false,
-        default: [],
-        description: "Which agents to include (empty = all).",
-        options: [],
-      },
-      {
         key: "includeCategories",
         type: "boolean",
         label: "Include Categories",
         required: false,
         default: true,
         description: "Include category-based aliases in output",
-      },
-      {
-        key: "selectedCategories",
-        type: "multiselect",
-        label: "Selected Categories",
-        required: false,
-        default: [],
-        description: "Which categories to include (empty = all).",
-        options: [],
       },
       {
         key: "globalFallbackOverride",
@@ -102,12 +84,12 @@ export class LitellmAliasPlugin implements IPlugin {
     ctx: TransformContext,
   ): LitellmAliasOutput {
     const aliases: Record<string, string> = {};
-    const config = _routing.config ?? {};
-    const aliasPrefix = (config.aliasPrefix as string) ?? "";
-    const includeAgents = (config.includeAgents as boolean) ?? true;
-    const includeCategories = (config.includeCategories as boolean) ?? true;
+    const aliasPrefix = (_routing.config?.aliasPrefix as string) ?? "";
+    const includeAgents = (_routing.config?.includeAgents as boolean) ?? true;
+    const includeCategories =
+      (_routing.config?.includeCategories as boolean) ?? true;
     const globalFallbackOverride =
-      (config.globalFallbackOverride as string) ?? "";
+      (_routing.config?.globalFallbackOverride as string) ?? "";
     const rawFallback = globalFallbackOverride || ctx.globalFallbackModel;
 
     // Build set of enabled model names
@@ -120,20 +102,16 @@ export class LitellmAliasPlugin implements IPlugin {
     const effectiveFallback =
       rawFallback && enabledSet.has(rawFallback) ? rawFallback : undefined;
 
-    // Parse selections into Sets (empty array = all)
-    const selectedAgentsArr = (config.selectedAgents as string[]) ?? [];
-    const selectedCategoriesArr = (config.selectedCategories as string[]) ?? [];
-    const selectedAgentsSet = selectedAgentsArr.length
-      ? new Set(selectedAgentsArr)
-      : null;
-    const selectedCategoriesSet = selectedCategoriesArr.length
-      ? new Set(selectedCategoriesArr)
-      : null;
+    // Read routing mappings (empty object = all enabled)
+    const routingAgents = _routing.routing?.agents ?? {};
+    const routingCategories = _routing.routing?.categories ?? {};
+    const hasAgentRouting = Object.keys(routingAgents).length > 0;
+    const hasCategoryRouting = Object.keys(routingCategories).length > 0;
 
     if (includeAgents) {
       for (const agent of agents as AgentWithId[]) {
-        // Filter by selectedAgentsSet when not null
-        if (selectedAgentsSet && !selectedAgentsSet.has(agent.id)) {
+        // Filter by routing.agents when present (empty routing = all enabled)
+        if (hasAgentRouting && !routingAgents[agent.id]) {
           continue;
         }
 
@@ -162,14 +140,10 @@ export class LitellmAliasPlugin implements IPlugin {
     }
 
     if (includeCategories) {
-      const enabledCategories = _routing.routing.categories ?? {};
       for (const [key, category] of Object.entries(ctx.allCategories ?? {})) {
-        if (!enabledCategories[key]) {
-          continue;
-        }
-
-        // Filter by selectedCategoriesSet when not null
-        if (selectedCategoriesSet && !selectedCategoriesSet.has(key)) {
+        // Filter by routing.categories when present (empty routing = all enabled)
+        // Only include categories that are explicitly enabled in routing
+        if (hasCategoryRouting && !routingCategories[key]) {
           continue;
         }
 

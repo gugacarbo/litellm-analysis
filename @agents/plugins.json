@@ -3,12 +3,13 @@
   "version": 2,
   "plugins": {
     "litellm-alias": {
-      "enabled": true,
+      "enabled": false,
       "outputFile": "",
       "config": {
-        "includeAgents": true,
-        "includeCategories": true,
-        "selectedAgents": ["shuttle", "tapestry", "loom"]
+        "selectedAgents": [
+          "loom",
+          "tapestry"
+        ]
       },
       "routing": {
         "agents": {},

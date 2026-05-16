@@ -8,8 +8,8 @@ import type { ConfigField, InternalAgent } from "../plugin-types";
 
 interface OpenCodeProviders {
   provider: Record<string, unknown>;
-  agent?: Record<string, unknown>;
-  category?: Record<string, unknown>;
+  agents?: Record<string, unknown>;
+  categories?: Record<string, unknown>;
 }
 
 const OPENCODE_REASONING_EFFORT_LEVELS = new Set([
@@ -69,42 +69,31 @@ export class OpenCodePlugin implements IPlugin {
   readonly outputFile = "opencode.json";
 
   getInternalAgents(): InternalAgent[] {
-    return [
-      {
-        id: "coder",
-        displayName: "Coder",
-        description: "General-purpose coding agent",
-      },
-      {
-        id: "planner",
-        displayName: "Planner",
-        description: "Planning and scoping agent",
-      },
-      {
-        id: "explorer",
-        displayName: "Explorer",
-        description: "Codebase exploration agent",
-      },
-      {
-        id: "reviewer",
-        displayName: "Reviewer",
-        description: "Code review agent",
-      },
-      {
-        id: "writer",
-        displayName: "Writer",
-        description: "Documentation and writing agent",
-      },
-      {
-        id: "architect",
-        displayName: "Architect",
-        description: "Architecture decisions agent",
-      },
-    ];
+    return [];
   }
 
   getConfigSchema(): ConfigField[] {
-    return [];
+    return [
+      {
+        key: "defaultModel",
+        type: "string",
+        label: "Default Model",
+        required: false,
+        default: "",
+        placeholder: "e.g. gpt-4",
+        description:
+          "Model to use when a system agent has no model configured",
+      },
+      {
+        key: "defaultTemperature",
+        type: "number",
+        label: "Default Temperature",
+        required: false,
+        default: 0.2,
+        description:
+          "Default sampling temperature for agents without one configured",
+      },
+    ];
   }
 
   buildOutput(
@@ -150,60 +139,56 @@ export class OpenCodePlugin implements IPlugin {
       models: litellmModels,
     };
 
-    const agentMappings = routing.routing?.agents ?? {};
-
-    for (const agent of agents) {
-      const agentId = agent.displayName;
-      const internalAgentId = agentMappings[agentId];
-      if (!internalAgentId) continue;
-
-      const limits = agent.limits;
-      const modelKey = "default";
-      const modelLabel = "Default";
-
-      output.provider[internalAgentId] = {
-        npm: "@ai-sdk/openai-compatible",
-        options: {
-          baseURL: ctx.litellmConfig.baseUrl,
-          apiKey: ctx.litellmConfig.apiKey,
-        },
-        models: {
-          [modelKey]: {
-            id: `${internalAgentId}/${modelKey}`,
-            name: `${agent.displayName} ${modelLabel}`,
-            limit: {
-              context: limits.context,
-              output: limits.output,
-            },
-          },
-        },
-      };
-    }
+    const enabledAgents = routing.routing?.agents ?? {};
+    const config = routing.config ?? {};
+    const configDefaultModel = (config.defaultModel as string) || "";
+    const configDefaultTemp =
+      (config.defaultTemperature as number) ?? 0.2;
 
     // Build agents section from routing configuration
-    if (routing.routing?.agents) {
-      output.agent = {};
-      for (const [agentName] of Object.entries(routing.routing.agents)) {
-        output.agent[agentName] = {
-          model: "litellm/MiniMax-M2.7-highspeed",
-          fallback_models: [],
-          temperature: 0.2,
+    if (Object.keys(enabledAgents).length > 0) {
+      output.agents = {};
+      for (const agent of agents) {
+        const agentId = agent.displayName;
+        if (!(agentId in enabledAgents)) continue;
+
+        const model = agent.model
+          ? `litellm/${agent.model}`
+          : configDefaultModel
+            ? `litellm/${configDefaultModel}`
+            : `litellm/${agentId}`;
+
+        output.agents[agentId] = {
+          description: agent.description,
+          model,
+          fallback_models: agent.fallbackModels ?? [],
+          temperature: agent.config?.temperature ?? configDefaultTemp,
         };
       }
     }
 
     // Build categories section from categories configuration
+    const categoryRouting = routing.routing?.categories ?? {};
     if (ctx.allCategories && Object.keys(ctx.allCategories).length > 0) {
-      output.category = {};
+      const enabledCategories: Record<string, unknown> = {};
       for (const [categoryName, category] of Object.entries(
         ctx.allCategories,
       )) {
-        output.category[categoryName] = {
+        if (!categoryRouting[categoryName]) continue;
+
+        enabledCategories[categoryName] = {
           description: category.description ?? "",
-          model: category.model ?? "litellm/MiniMax-M2.7-highspeed",
+          model:
+            category.model ||
+            (configDefaultModel
+              ? `litellm/${configDefaultModel}`
+              : "litellm/default"),
           fallback_models: category.fallbackModels ?? [],
-          temperature: category.temperature ?? 0.2,
+          temperature: category.temperature ?? configDefaultTemp,
         };
+      }
+      if (Object.keys(enabledCategories).length > 0) {
+        output.categories = enabledCategories;
       }
     }
 
