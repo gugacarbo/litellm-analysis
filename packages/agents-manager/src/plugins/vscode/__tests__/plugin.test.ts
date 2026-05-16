@@ -3,7 +3,7 @@ import type {
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
-import { VsCodePlugin } from "../external/vscode.plugin";
+import { VsCodePlugin } from "../plugin";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {

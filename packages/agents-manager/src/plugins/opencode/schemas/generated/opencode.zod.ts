@@ -9,7 +9,7 @@ import { z } from "zod";
 // Re-export the schema directly from JSON using z.fromJSONSchema
 export const openCodeSchema = z.fromJSONSchema({
   $schema: "http://json-schema.org/draft-07/schema#",
-  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/schemas/opencode.schema.json",
+  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/opencode/schemas/opencode.schema.json",
   title: "OpenCode Provider Configuration",
   description: "JSON Schema for OpenCode AI SDK provider configuration",
   type: "object",

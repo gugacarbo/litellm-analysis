@@ -3,7 +3,7 @@ import type {
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import { describe, expect, it } from "vitest";
-import { OpenAgentPlugin } from "../external/openagent.plugin";
+import { OpenAgentPlugin } from "../plugin";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {

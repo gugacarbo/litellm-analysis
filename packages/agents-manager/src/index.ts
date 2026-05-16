@@ -61,10 +61,10 @@ export { AgentCatalogService, AgentService, CategoryService, RoutingService };
 
 import { createRepositoryClient as createModelsRepositoryClient } from "@lite-llm/models-manager";
 // Plugins
-import { OpenCodePlugin } from "./plugins/builtins/opencode.plugin";
-import { LitellmAliasPlugin } from "./plugins/external/litellm-alias.plugin";
-import { OpenAgentPlugin } from "./plugins/external/openagent.plugin";
-import { VsCodePlugin } from "./plugins/external/vscode.plugin";
+import { OpenCodePlugin } from "./plugins/opencode/plugin";
+import { LitellmAliasPlugin } from "./plugins/litellm-alias/plugin";
+import { OpenAgentPlugin } from "./plugins/openagent/plugin";
+import { VsCodePlugin } from "./plugins/vscode/plugin";
 import type {
   IPlugin,
   IPluginRegistry,
@@ -73,7 +73,7 @@ import type {
 import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
 import { PluginRegistry, type PluginRegistryOptions } from "./plugins/registry";
 
-export type { AliasDbWriter } from "./plugins/external/litellm-alias.plugin";
+export type { AliasDbWriter } from "./plugins/litellm-alias/plugin";
 export type {
   ConfigField,
   InternalAgent,
@@ -101,7 +101,7 @@ export interface AgentsManagerFactoryOptions {
   dbPath?: string;
   modelsDbPath?: string;
   outputDir?: string;
-  aliasDbWriter?: import("./plugins/external/litellm-alias.plugin.js").AliasDbWriter;
+  aliasDbWriter?: import("./plugins/litellm-alias/plugin.js").AliasDbWriter;
 }
 
 export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {

@@ -9,7 +9,7 @@ import { z } from "zod";
 // Re-export the schema directly from JSON using z.fromJSONSchema
 export const vsCodeSchema = z.fromJSONSchema({
   $schema: "http://json-schema.org/draft-07/schema#",
-  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/schemas/vscode.schema.json",
+  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/vscode/schemas/vscode.schema.json",
   title: "VS Code OAICopilot Configuration",
   description: "JSON Schema for VS Code OAICopilot configuration",
   type: "object",
