@@ -7,6 +7,7 @@ import {
   formatTokensPerSecond,
 } from "../../pages/health-status/health-status-utils";
 import type { ModelWithStatus } from "../../pages/health-status/use-health-status-state";
+import { DetailRow } from "../ui/detail-row";
 import {
   DialogContent,
   DialogDescription,
@@ -61,44 +62,34 @@ export function StatusDetailsDialog({
       </DialogHeader>
 
       <div className="space-y-3 text-sm">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-          <div className="rounded-md border bg-muted/20 p-3">
-            <div className="text-xs text-muted-foreground">Latency</div>
-            <div className="mt-1 font-mono text-sm">
-              {formatResponseTime(selected.responseTimeMs)}
-            </div>
-          </div>
-          <div className="rounded-md border bg-muted/20 p-3">
-            <div className="text-xs text-muted-foreground">TTFT</div>
-            <div className="mt-1 font-mono text-sm">
-              {formatResponseTime(selected.ttftMs)}
-            </div>
-          </div>
-          <div className="rounded-md border bg-muted/20 p-3">
-            <div className="text-xs text-muted-foreground">Tokens/s</div>
-            <div className="mt-1 font-mono text-sm">
-              {formatTokensPerSecond(selected.tokensPerSecond)}
-            </div>
-          </div>
-          <div className="rounded-md border bg-muted/20 p-3">
-            <div className="text-xs text-muted-foreground">Output tokens</div>
-            <div className="mt-1 font-mono text-sm tabular-nums">
-              {selected.outputTokens ?? "—"}
-            </div>
-          </div>
-          <div className="rounded-md border bg-muted/20 p-3">
-            <div className="text-xs text-muted-foreground">HTTP</div>
-            <div className="mt-1 font-mono text-sm">
-              {selected.statusCode ?? "—"}
-            </div>
-          </div>
-          <div className="rounded-md border bg-muted/20 p-3">
-            <div className="text-xs text-muted-foreground">Source</div>
-            <div className="mt-1 font-mono text-sm uppercase">
-              {selected.source ?? "—"}
-            </div>
-          </div>
-        </div>
+        <dl className="divide-y divide-border rounded-lg border bg-muted/20">
+          <DetailRow
+            label="Latency"
+            value={formatResponseTime(selected.responseTimeMs)}
+            mono
+          />
+          <DetailRow
+            label="TTFT"
+            value={formatResponseTime(selected.ttftMs)}
+            mono
+          />
+          <DetailRow
+            label="Tokens/s"
+            value={formatTokensPerSecond(selected.tokensPerSecond)}
+            mono
+          />
+          <DetailRow
+            label="Output tokens"
+            value={selected.outputTokens ?? "—"}
+            mono
+          />
+          <DetailRow label="HTTP" value={selected.statusCode ?? "—"} mono />
+          <DetailRow
+            label="Source"
+            value={<span className="uppercase">{selected.source ?? "—"}</span>}
+            mono
+          />
+        </dl>
 
         <div className="rounded-md border bg-muted/20 p-3">
           <div className="mb-1 text-xs text-muted-foreground">Prompt sent</div>

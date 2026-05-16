@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { WsClient } from "../../lib/api-client/ws-client";
 import type {
   ConnectionState,
   HealthCheckResultEntry,
   HealthCheckUpdatePayload,
-  HealthCheckWsMessage,
 } from "./health-status-types";
 
 function getWsUrl(): string {
@@ -24,65 +24,24 @@ export function useHealthStatusWebSocket(): UseHealthStatusWebSocketResult {
   const [latestResults, setLatestResults] = useState<
     HealthCheckResultEntry[] | null
   >(null);
-  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
-  const destroyedRef = useRef(false);
+  const clientRef = useRef<WsClient | null>(null);
 
   useEffect(() => {
-    let shouldReconnect = true;
-    let attempt = 0;
+    const client = new WsClient(getWsUrl());
+    clientRef.current = client;
 
-    function scheduleReconnect(): void {
-      if (!shouldReconnect || destroyedRef.current) return;
-      const delay = Math.min(1000 * 2 ** attempt, 30_000);
-      attempt++;
-      setStatus("reconnecting");
-      reconnectTimer.current = setTimeout(connect, delay);
-    }
-
-    function connect(): void {
-      if (destroyedRef.current) return;
-      setStatus("connecting");
-
-      try {
-        wsRef.current = new WebSocket(getWsUrl());
-      } catch {
-        scheduleReconnect();
-        return;
+    client.onMessage((message) => {
+      if (message.type === "health_check_update") {
+        const payload = message.data as HealthCheckUpdatePayload;
+        setLatestResults(payload.results);
       }
+    });
+    client.onStatusChange(setStatus);
 
-      const ws = wsRef.current;
-      ws.onopen = () => {
-        attempt = 0;
-        setStatus("connected");
-      };
-
-      ws.onmessage = (event: MessageEvent) => {
-        try {
-          const message = JSON.parse(event.data) as HealthCheckWsMessage;
-          if (message.type === "health_check_update") {
-            const payload = message.data as HealthCheckUpdatePayload;
-            setLatestResults(payload.results);
-          }
-        } catch {}
-      };
-
-      ws.onclose = () => {
-        wsRef.current = null;
-        if (shouldReconnect && !destroyedRef.current) {
-          scheduleReconnect();
-        } else {
-          setStatus("disconnected");
-        }
-      };
-    }
-
-    connect();
+    client.connect();
 
     return () => {
-      shouldReconnect = false;
-      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
-      if (wsRef.current) wsRef.current.close();
+      client.destroy();
     };
   }, []);
 

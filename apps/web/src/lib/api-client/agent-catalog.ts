@@ -6,6 +6,11 @@ import type {
 import type { CategoryEntry } from "@lite-llm/api-contracts/category";
 import { fetchApi } from "./core";
 
+export interface SystemAgentOption {
+  key: string;
+  displayName: string;
+}
+
 export async function getAgentCatalog(): Promise<AgentCatalogResponse> {
   return fetchApi("/agent-catalog");
 }

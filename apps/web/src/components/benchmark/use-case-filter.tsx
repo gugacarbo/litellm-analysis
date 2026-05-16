@@ -1,6 +1,8 @@
 import { Bot, Brain, Code, Scale, Zap } from "lucide-react";
 import type { UseCase } from "@/pages/benchmarks/benchmark-types";
 
+import { CHART_COLORS } from "./benchmark-colors";
+
 interface UseCaseFilterProps {
   activeUseCase: UseCase;
   onUseCaseChange: (useCase: UseCase) => void;
@@ -25,14 +27,6 @@ const USE_CASES: { value: UseCase; label: string; icon: React.ReactNode }[] = [
   },
   { value: "balanced", label: "Balanced", icon: <Scale className="h-3 w-3" /> },
 ];
-
-const CHART_COLORS: Record<UseCase, string> = {
-  intelligence: "#2563eb",
-  coding: "#059669",
-  agentic: "#7c3aed",
-  fastAndCheap: "#d97706",
-  balanced: "#0f766e",
-};
 
 export function UseCaseFilter({
   activeUseCase,

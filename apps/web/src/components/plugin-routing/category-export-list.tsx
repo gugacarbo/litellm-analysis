@@ -1,13 +1,10 @@
+import { formatCategoryLabel } from "../agent-routing/utils";
 import { Switch } from "../ui/switch";
 
 interface CategoryExportListProps {
   categories: string[];
   mappings: Record<string, boolean>;
   onToggle: (categoryId: string) => void;
-}
-
-function formatCategoryLabel(key: string): string {
-  return key.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function CategoryExportList({

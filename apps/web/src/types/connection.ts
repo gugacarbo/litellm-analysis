@@ -3,3 +3,8 @@ export type ConnectionState =
   | "connected"
   | "disconnected"
   | "reconnecting";
+
+export interface WsMessage {
+  type: "alert" | "health_update" | "connected" | "health_check_update";
+  data: unknown;
+}

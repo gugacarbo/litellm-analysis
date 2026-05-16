@@ -1,12 +1,4 @@
-import { fetchApi } from "./core";
-
-function withDays(endpoint: string, days?: number): string {
-  if (days === undefined) {
-    return endpoint;
-  }
-  const separator = endpoint.includes("?") ? "&" : "?";
-  return `${endpoint}${separator}days=${days}`;
-}
+import { fetchApi, withDays } from "./core";
 
 export async function getErrorLogs(
   limit = 50,

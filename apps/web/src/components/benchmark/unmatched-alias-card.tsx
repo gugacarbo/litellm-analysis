@@ -14,26 +14,11 @@ import {
   CommandList,
 } from "../ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { filterModels } from "./filter-models";
 
 interface UnmatchedAliasCardProps {
   unmatchedModels: string[];
   allModels: ModelBenchmarkListItem[];
-}
-
-function filterModels(
-  query: string,
-  allModels: ModelBenchmarkListItem[],
-): ModelBenchmarkListItem[] {
-  const needle = query.trim().toLowerCase();
-  if (!needle) return allModels.slice(0, 20);
-  return allModels
-    .filter(
-      (m) =>
-        m.name.toLowerCase().includes(needle) ||
-        (m.slug ?? "").toLowerCase().includes(needle) ||
-        m.creatorName.toLowerCase().includes(needle),
-    )
-    .slice(0, 20);
 }
 
 export function UnmatchedAliasCard({
@@ -181,7 +166,7 @@ function ModelSearchCommand({
 }) {
   const [search, setSearch] = useState(selectedValue);
 
-  const filtered = filterModels(search, models);
+  const filtered = filterModels(search, models, { includeCreatorName: true });
 
   return (
     <Command>

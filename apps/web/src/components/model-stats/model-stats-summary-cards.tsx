@@ -1,16 +1,10 @@
-import {
-  Activity,
-  CheckCircle,
-  Clock,
-  DollarSign,
-  Gauge,
-  Sparkles,
-} from "lucide-react";
+import { Clock, DollarSign, Gauge, Sparkles } from "lucide-react";
 import {
   formatCompactNumber,
   formatCurrency,
   formatDuration,
   formatPercent,
+  formatTokensPerSecond,
 } from "../../pages/model-stats/model-stats-utils";
 import { MetricCard } from "../metric-card";
 
@@ -19,13 +13,12 @@ type ModelStatsSummaryCardsProps = {
   totalSpend: number;
   totalRequests: number;
   totalTokens: number;
+  totalPromptTokens: number;
   avgSuccessRate: number;
-  totalErrors: number;
   avgLatency: number;
+  avgTokensPerSecond: number;
   avgCostPerRequest: number;
-  uniqueModels: number;
-  maxTokensPerSecond: number;
-  rangeLabel: string;
+  avgCostPer1kTokens: number;
 };
 
 export function ModelStatsSummaryCards({
@@ -33,13 +26,12 @@ export function ModelStatsSummaryCards({
   totalSpend,
   totalRequests,
   totalTokens,
+  totalPromptTokens,
   avgSuccessRate,
-  totalErrors,
   avgLatency,
+  avgTokensPerSecond,
   avgCostPerRequest,
-  uniqueModels,
-  maxTokensPerSecond,
-  rangeLabel,
+  avgCostPer1kTokens,
 }: ModelStatsSummaryCardsProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
@@ -64,8 +56,8 @@ export function ModelStatsSummaryCards({
         value={formatCompactNumber(totalTokens)}
         description={
           <span>
-            <span>{formatCompactNumber(totalRequests)}</span>
-            <small> requests</small>
+            <span>{formatCompactNumber(totalPromptTokens)}</span>
+            <small> input tokens</small>
           </span>
         }
         colorScheme="blue"
@@ -89,28 +81,13 @@ export function ModelStatsSummaryCards({
         loading={loading}
       />
       <MetricCard
-        icon={CheckCircle}
-        title="Success Rate"
-        value={formatPercent(avgSuccessRate)}
-        description={
-          <span>
-            <span>{formatCompactNumber(totalErrors)}</span>
-            <small> errors</small>
-          </span>
-        }
-        colorScheme="green"
-        variant="gradient"
-        size="sm"
-        loading={loading}
-      />
-      <MetricCard
         icon={Clock}
-        title="Avg Latency"
-        value={formatDuration(avgLatency)}
+        title="Avg Tokens/s"
+        value={formatTokensPerSecond(avgTokensPerSecond)}
         description={
           <span>
-            <span>{formatCompactNumber(maxTokensPerSecond)}</span>
-            <small> max tok/s</small>
+            <span>{formatDuration(avgLatency)}</span>
+            <small> avg latency</small>
           </span>
         }
         colorScheme="neutral"
@@ -119,10 +96,14 @@ export function ModelStatsSummaryCards({
         loading={loading}
       />
       <MetricCard
-        icon={Activity}
-        title="Models"
-        value={formatCompactNumber(uniqueModels)}
-        description={rangeLabel}
+        icon={Gauge}
+        title="Efficiency"
+        value={`${formatCurrency(avgCostPer1kTokens)}/1K`}
+        description={
+          <span>
+            <small>cost per 1K tokens</small>
+          </span>
+        }
         colorScheme="cyan"
         variant="gradient"
         size="sm"

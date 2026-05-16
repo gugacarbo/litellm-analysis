@@ -1,11 +1,12 @@
 {
-  "active_plan": "/home/gustavo/.local/share/opencode/worktree/9352445eba19326cd2471a017eacec657b66edd0/neon-knight/.weave/plans/prompt-eval-webui.md",
-  "started_at": "2026-05-12T00:25:13.109Z",
+  "active_plan": "/home/gustavo/Apps/lite-llm-analytics/.weave/plans/prompt-eval-ui-refactor.md",
+  "started_at": "2026-05-16T22:26:45.790Z",
   "session_ids": [
-    "ses_1e6963a89ffe6j8NNBCLzxOkV0"
+    "ses_1cd33e3b2ffeBgzMwKJBTK4bLr",
+    "ses_1cd11e1e7ffecAu5XV15zFo78P"
   ],
-  "plan_name": "prompt-eval-webui",
+  "plan_name": "prompt-eval-ui-refactor",
   "agent": "tapestry",
-  "start_sha": "56f78e03482479daeb9c2aad2228909388b3b6cd",
+  "start_sha": "1912bff0414313c7f4d686d70ea46d7dda107375",
   "paused": true
 }

@@ -1,57 +1,14 @@
 import type { ModelStatistics } from "@lite-llm/api-contracts/analytics";
-import { Link } from "react-router-dom";
 import { APP_LOCALE } from "@/lib/locale";
 import { formatCurrency, formatDuration } from "../../lib/spend-log-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
+import { BarRow } from "./bar-row";
 
 type ModelStatsMiniChartsProps = {
   data: ModelStatistics[];
   loading: boolean;
 };
-
-function BarRow({
-  label,
-  value,
-  formatted,
-  max,
-  color,
-  href,
-}: {
-  label: string;
-  value: number;
-  formatted: string;
-  max: number;
-  color: string;
-  href?: string;
-}) {
-  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-xs">
-        {href ? (
-          <Link
-            to={href}
-            className="font-mono text-xs hover:underline truncate max-w-[60%]"
-          >
-            {label || "(no model)"}
-          </Link>
-        ) : (
-          <span className="font-mono text-xs truncate max-w-[60%]">
-            {label || "(no model)"}
-          </span>
-        )}
-        <span className="text-muted-foreground tabular-nums">{formatted}</span>
-      </div>
-      <div className="h-2 bg-muted rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all ${color}`}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-    </div>
-  );
-}
 
 export function ModelStatsMiniCharts({
   data,

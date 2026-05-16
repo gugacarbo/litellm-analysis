@@ -13,26 +13,12 @@ import {
   CommandList,
 } from "../ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { filterModels } from "./filter-models";
 
 interface AliasesButtonProps {
   configuredModels: string[];
   unmatchedModels: string[];
   allModels: ModelBenchmarkListItem[];
-}
-
-function filterModels(
-  query: string,
-  allModels: ModelBenchmarkListItem[],
-): ModelBenchmarkListItem[] {
-  const needle = query.trim().toLowerCase();
-  if (!needle) return allModels.slice(0, 20);
-  return allModels
-    .filter(
-      (m) =>
-        (m.slug ?? "").toLowerCase().includes(needle) ||
-        m.name.toLowerCase().includes(needle),
-    )
-    .slice(0, 20);
 }
 
 export function AliasesButton({

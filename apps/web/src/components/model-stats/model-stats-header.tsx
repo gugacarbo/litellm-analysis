@@ -1,25 +1,10 @@
-import { ChevronDownIcon, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { DASHBOARD_DATE_RANGES } from "@/pages/dashboard/dashboard-utils";
-import type {
-  Column,
-  ColumnKey,
-} from "../../pages/model-stats/model-stats-types";
 import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 
 type ModelStatsHeaderProps = {
-  columns: Column[];
-  visibleColumns: ColumnKey[];
   searchQuery: string;
   selectedDateRange: (typeof DASHBOARD_DATE_RANGES)[number]["key"];
-  onToggleColumn: (key: ColumnKey) => void;
   onSearchChange: (query: string) => void;
   setSelectedDateRange: (
     range: (typeof DASHBOARD_DATE_RANGES)[number]["key"],
@@ -27,10 +12,7 @@ type ModelStatsHeaderProps = {
 };
 
 export function ModelStatsHeader({
-  columns,
-  visibleColumns,
   searchQuery,
-  onToggleColumn,
   onSearchChange,
   selectedDateRange,
   setSelectedDateRange,
@@ -62,27 +44,6 @@ export function ModelStatsHeader({
             </Button>
           ))}
         </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="ml-auto">
-              Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {columns.map((col) => (
-              <DropdownMenuCheckboxItem
-                key={col.key}
-                checked={visibleColumns.includes(col.key)}
-                onCheckedChange={() => onToggleColumn(col.key)}
-              >
-                {col.label}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
     </div>
   );

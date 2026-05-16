@@ -9,9 +9,10 @@ import {
   calculateUseCaseScores,
   calculateValueScore,
   getCoverageCount,
+  RAW_BENCHMARK_KEYS,
 } from "./benchmark-utils";
 
-const RAW_BENCHMARK_TOTAL = 12; // mmluPro, gpqa, hle, livecodebench, scicode, math500, aime, aime25, tau2, ifbench, lcr, terminalbenchHard
+const RAW_BENCHMARK_TOTAL = RAW_BENCHMARK_KEYS.length;
 
 export interface UseBenchmarksDerivedResult {
   cardData: ComparisonCardData[];

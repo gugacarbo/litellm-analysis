@@ -1,3 +1,4 @@
+import { ANOMALY_TYPE_LABELS } from "@/pages/monitor/monitor-utils";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -24,12 +25,9 @@ type AlertFiltersProps = {
 const ALL_TYPES_VALUE = "__all_types__";
 const ALL_SEVERITIES_VALUE = "__all_severities__";
 
-const ANOMALY_TYPES = [
-  { value: "model_offline", label: "Model Offline" },
-  { value: "error_spike", label: "Error Spike" },
-  { value: "timeout_stuck", label: "Timeout/Stuck" },
-  { value: "silent_failure", label: "Silent Failure" },
-];
+const ANOMALY_TYPES = Object.entries(ANOMALY_TYPE_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
 
 const SEVERITIES = [
   { value: "critical", label: "Critical" },

@@ -69,9 +69,7 @@ export function EvalDetailTabs({ detail }: EvalDetailTabsProps) {
           <p>
             <span className="text-muted-foreground">Fim:</span>{" "}
             <span className="font-mono">
-              {detail.finishedAt
-                ? formatTimestamp(detail.finishedAt)
-                : "—"}
+              {detail.finishedAt ? formatTimestamp(detail.finishedAt) : "—"}
             </span>
           </p>
           {detail.error && (
@@ -103,10 +101,7 @@ export function EvalDetailTabs({ detail }: EvalDetailTabsProps) {
           </p>
         ) : (
           steps.map((step) => (
-            <div
-              key={step.id}
-              className="rounded-md border p-3 space-y-2"
-            >
+            <div key={step.id} className="rounded-md border p-3 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-mono text-sm">{step.step}</p>
                 <Badge variant={statusVariant(step.status)}>
@@ -123,9 +118,7 @@ export function EvalDetailTabs({ detail }: EvalDetailTabsProps) {
                 <p>
                   Fim:{" "}
                   <span className="font-mono">
-                    {step.finishedAt
-                      ? formatTimestamp(step.finishedAt)
-                      : "—"}
+                    {step.finishedAt ? formatTimestamp(step.finishedAt) : "—"}
                   </span>
                 </p>
                 <p>
@@ -136,9 +129,7 @@ export function EvalDetailTabs({ detail }: EvalDetailTabsProps) {
               {step.message && (
                 <>
                   <Separator />
-                  <p className="text-sm whitespace-pre-wrap">
-                    {step.message}
-                  </p>
+                  <p className="text-sm whitespace-pre-wrap">{step.message}</p>
                 </>
               )}
             </div>

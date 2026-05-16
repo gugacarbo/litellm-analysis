@@ -7,18 +7,16 @@ import {
   getTokenDistribution,
 } from "../../lib/api-client";
 import { queryKeys } from "../../lib/query-keys";
-import type { DashboardDateRangeKey } from "../dashboard/dashboard-types";
-import {
-  getDateRangeDays,
-  getDateRangeLabel,
-} from "../dashboard/dashboard-utils";
+import { getDateRangeLabel } from "../dashboard/dashboard-utils";
 import type { ColumnKey, SortDirection, SortField } from "./model-stats-types";
 import { MODEL_STATS_COLUMNS } from "./model-stats-types";
 
 export function useModelStatsState() {
-  const [selectedDateRange, setSelectedDateRange] =
-    useState<DashboardDateRangeKey>("30d");
-  const rangeDays = getDateRangeDays(selectedDateRange);
+  const {
+    dateRange: selectedDateRange,
+    setDateRange: setSelectedDateRange,
+    rangeDays,
+  } = useFilter();
   const rangeLabel = getDateRangeLabel(selectedDateRange);
 
   const [sortField, setSortField] = useState<SortField>("total_spend");
@@ -97,3 +95,5 @@ export function useModelStatsState() {
     costEfficiency: costEffQuery.data ?? [],
   };
 }
+
+import { useFilter } from "../../contexts/filter-context";

@@ -1,14 +1,11 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useFilter } from "@/contexts/filter-context";
-import type {
-  DashboardDateRangeKey,
-  DateRangeGroup,
-} from "@/pages/dashboard/dashboard-types";
+import type { DashboardDateRangeKey, DateRangeGroup } from "@/lib/date-ranges";
 import {
   DAYS_OPTIONS,
   getDateRangeGroup,
   HOURS_OPTIONS,
-} from "@/pages/dashboard/dashboard-utils";
+} from "@/lib/date-ranges";
 import { Button } from "./button";
 import {
   DropdownMenu,

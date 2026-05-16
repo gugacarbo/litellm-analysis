@@ -1,7 +1,4 @@
-import type {
-  ConnectionState,
-  WsMessage,
-} from "../../pages/monitor/monitor-types";
+import type { ConnectionState, WsMessage } from "@/types/connection";
 
 type MessageCallback = (message: WsMessage) => void;
 type StatusCallback = (status: ConnectionState) => void;

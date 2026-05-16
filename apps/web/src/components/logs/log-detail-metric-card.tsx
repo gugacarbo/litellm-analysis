@@ -7,7 +7,7 @@ type MetricCardProps = {
   accent: string;
 };
 
-export function MetricCard({
+export function MiniMetricCard({
   icon: Icon,
   label,
   value,

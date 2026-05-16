@@ -1,25 +1,11 @@
 import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import { BENCHMARK_CONFIG } from "@/pages/benchmarks/benchmark-utils";
 
 interface RawBenchmarkGridProps {
   model: ModelBenchmarkListItem;
 }
-
-const BENCHMARK_CONFIG = [
-  { key: "mmluPro", label: "MMLU-Pro" },
-  { key: "gpqa", label: "GPQA" },
-  { key: "hle", label: "HLE" },
-  { key: "livecodebench", label: "LiveCode" },
-  { key: "scicode", label: "SciCode" },
-  { key: "math500", label: "MATH-500" },
-  { key: "aime", label: "AIME" },
-  { key: "aime25", label: "AIME-2025" },
-  { key: "tau2", label: "TAU2" },
-  { key: "ifbench", label: "IfBench" },
-  { key: "lcr", label: "LCR" },
-  { key: "terminalbenchHard", label: "Terminal" },
-] as const;
 
 function formatRawValue(value: number | null): string {
   if (value === null) return "\u2014";

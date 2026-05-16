@@ -155,6 +155,7 @@ export function useModelStatsDerived(
         sums.totalCompletionTokens += Number(m.completion_tokens);
         sums.weightedSuccessRate += Number(m.success_rate) * reqs;
         sums.weightedLatency += Number(m.avg_latency_ms) * reqs;
+        sums.weightedTokensPerSecond += Number(m.avg_tokens_per_second) * reqs;
         return sums;
       },
       {
@@ -166,6 +167,7 @@ export function useModelStatsDerived(
         totalCompletionTokens: 0,
         weightedSuccessRate: 0,
         weightedLatency: 0,
+        weightedTokensPerSecond: 0,
       },
     );
 
@@ -174,6 +176,10 @@ export function useModelStatsDerived(
 
     const avgLatency =
       acc.totalRequests > 0 ? acc.weightedLatency / acc.totalRequests : 0;
+    const avgTokensPerSecond =
+      acc.totalRequests > 0
+        ? acc.weightedTokensPerSecond / acc.totalRequests
+        : 0;
 
     const avgCostPerRequest = safeDivide(acc.totalSpend, acc.totalRequests);
     const avgCostPer1kTokens = safeDivide(
@@ -197,6 +203,7 @@ export function useModelStatsDerived(
       totalPromptTokens: acc.totalPromptTokens,
       totalCompletionTokens: acc.totalCompletionTokens,
       avgLatency,
+      avgTokensPerSecond,
       avgCostPerRequest,
       avgCostPer1kTokens,
       inputOutputRatio,

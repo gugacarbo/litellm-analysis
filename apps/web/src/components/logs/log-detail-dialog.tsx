@@ -22,6 +22,7 @@ import {
   formatNumber,
 } from "../../lib/spend-log-utils";
 import { Badge } from "../ui/badge";
+import { CollapsibleSection } from "../ui/collapsible-section";
 import {
   Dialog,
   DialogContent,
@@ -29,11 +30,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { CollapsibleSection } from "./log-detail-collapsible-section";
+import { JsonViewer } from "../ui/json-viewer";
 import { ContextBadge } from "./log-detail-context-badge";
 import { LogDetailInfoSections } from "./log-detail-info-section";
-import { JsonViewer } from "./log-detail-json-viewer";
-import { MetricCard } from "./log-detail-metric-card";
+import { MiniMetricCard } from "./log-detail-metric-card";
 
 type LogDetailDialogProps = {
   log: SpendLog | null;
@@ -194,31 +194,31 @@ export function LogDetailDialog({
         )}
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <MetricCard
+          <MiniMetricCard
             icon={DollarSign}
             label="Total Spend"
             value={formatCurrency(log.spend)}
             accent="text-emerald-500"
           />
-          <MetricCard
+          <MiniMetricCard
             icon={Timer}
             label="Duration"
             value={formatDuration(durationMs)}
             accent="text-blue-500"
           />
-          <MetricCard
+          <MiniMetricCard
             icon={Zap}
             label="Total Tokens"
             value={formatNumber(log.total_tokens)}
             accent="text-amber-500"
           />
-          <MetricCard
+          <MiniMetricCard
             icon={TrendingUp}
             label="Speed"
             value={`${tokensPerSec} tok/s`}
             accent="text-purple-500"
           />
-          <MetricCard
+          <MiniMetricCard
             icon={Zap}
             label="Time to First Token"
             value={

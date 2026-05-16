@@ -1,7 +1,6 @@
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index";
 import { registerAgentCatalogRoutes } from "./agent-catalog-routes";
-import { registerAgentConfigRoutes } from "./agent-config-routes";
 import { registerAnalyticsRoutes } from "./analytics-routes";
 import { registerCategoryCatalogRoutes } from "./category-catalog-routes";
 import { registerCredentialRoutes } from "./credential-routes";
@@ -18,6 +17,5 @@ export function registerAllRoutes(app: Application, opts: RouteOptions): void {
   registerAnalyticsRoutes(app, opts);
   registerModelRoutes(app, opts);
   registerPluginRoutingRoutes(app, opts);
-  registerAgentConfigRoutes(app, opts);
   registerCredentialRoutes(app, opts);
 }

@@ -3,7 +3,6 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  Copy,
   Globe,
   Key,
   Shield,
@@ -14,74 +13,15 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import type { ReactNode } from "react";
-import { useState } from "react";
 import {
   formatDuration,
   formatFullDateTime,
   maskApiKey,
 } from "../../lib/spend-log-utils";
 import { Badge } from "../ui/badge";
-import { CollapsibleSection } from "./log-detail-collapsible-section";
+import { CollapsibleSection } from "../ui/collapsible-section";
+import { DetailRow, InfoSection } from "../ui/detail-row";
 import { ContextBadge } from "./log-detail-context-badge";
-
-type DetailRowProps = {
-  icon: typeof User;
-  label: string;
-  value: ReactNode;
-  mono?: boolean;
-  copyable?: boolean;
-  copyValue?: string;
-};
-
-function DetailRow({
-  icon: Icon,
-  label,
-  value,
-  mono = false,
-  copyable = false,
-  copyValue,
-}: DetailRowProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    if (copyValue) {
-      await navigator.clipboard.writeText(copyValue);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  return (
-    <div className="grid grid-cols-[120px_1fr] gap-3 px-3 py-2.5">
-      <dt className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Icon className="h-3.5 w-3.5 shrink-0" />
-        {label}
-      </dt>
-      <dd
-        className={`text-sm font-medium break-words flex items-center gap-2 ${
-          mono ? "font-mono text-xs" : ""
-        }`}
-      >
-        <span className="flex-1">{value}</span>
-        {copyable && copyValue && (
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="shrink-0 text-muted-foreground/50 hover:text-foreground transition-colors"
-            title="Copy to clipboard"
-          >
-            {copied ? (
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-            ) : (
-              <Copy className="h-3.5 w-3.5" />
-            )}
-          </button>
-        )}
-      </dd>
-    </div>
-  );
-}
 
 type LogDetailInfoSectionsProps = {
   log: SpendLog;
@@ -185,136 +125,128 @@ export function LogDetailInfoSections({
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <section className="overflow-hidden rounded-lg border">
-        <div className="border-b bg-muted/30 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Request Info
-        </div>
-        <dl className="divide-y divide-border">
-          <DetailRow icon={User} label="User" value={log.user || "N/A"} />
-          <DetailRow icon={Key} label="Model" value={log.model} mono />
+      <InfoSection title="Request Info">
+        <DetailRow icon={User} label="User" value={log.user || "N/A"} />
+        <DetailRow icon={Key} label="Model" value={log.model} mono />
+        <DetailRow
+          icon={Key}
+          label="API Key"
+          value={maskApiKey(log.api_key)}
+          mono
+          copyValue={log.api_key}
+        />
+        <DetailRow
+          icon={isSuccess ? CheckCircle2 : AlertCircle}
+          label="Status"
+          value={
+            <Badge
+              variant={isSuccess ? "secondary" : "destructive"}
+              className={statusConfig.badge}
+            >
+              {log.status}
+            </Badge>
+          }
+        />
+        {log.call_type && (
           <DetailRow
-            icon={Key}
-            label="API Key"
-            value={maskApiKey(log.api_key)}
-            mono
-            copyable
-            copyValue={log.api_key}
-          />
-          <DetailRow
-            icon={isSuccess ? CheckCircle2 : AlertCircle}
-            label="Status"
+            icon={Tag}
+            label="Call Type"
             value={
-              <Badge
-                variant={isSuccess ? "secondary" : "destructive"}
-                className={statusConfig.badge}
-              >
-                {log.status}
-              </Badge>
+              <ContextBadge
+                label={log.call_type.replace(/_/g, " ").replace(/\./g, " ")}
+                variant="info"
+              />
             }
           />
-          {log.call_type && (
-            <DetailRow
-              icon={Tag}
-              label="Call Type"
-              value={
-                <ContextBadge
-                  label={log.call_type.replace(/_/g, " ").replace(/\./g, " ")}
-                  variant="info"
-                />
-              }
-            />
-          )}
-          {log.cache_hit && (
-            <DetailRow
-              icon={Zap}
-              label="Cache"
-              value={
-                <ContextBadge
-                  label={log.cache_hit === "true" ? "Cache Hit" : "Cache Miss"}
-                  variant={log.cache_hit === "true" ? "success" : "warning"}
-                />
-              }
-            />
-          )}
-          {hasAdditionalFields && (
-            <CollapsibleSection
-              title="Additional Details"
-              icon={Shield}
-              defaultOpen={false}
-            >
-              <dl className="divide-y divide-border -my-2">
-                {additionalFields.map((field) => (
-                  <DetailRow
-                    key={field.label}
-                    icon={field.icon}
-                    label={field.label}
-                    value={field.value}
-                    mono={field.label !== "End User"}
-                    copyable={[
+        )}
+        {log.cache_hit && (
+          <DetailRow
+            icon={Zap}
+            label="Cache"
+            value={
+              <ContextBadge
+                label={log.cache_hit === "true" ? "Cache Hit" : "Cache Miss"}
+                variant={log.cache_hit === "true" ? "success" : "warning"}
+              />
+            }
+          />
+        )}
+        {hasAdditionalFields && (
+          <CollapsibleSection
+            title="Additional Details"
+            icon={Shield}
+            defaultOpen={false}
+          >
+            <dl className="divide-y divide-border -my-2">
+              {additionalFields.map((field) => (
+                <DetailRow
+                  key={field.label}
+                  icon={field.icon}
+                  label={field.label}
+                  value={field.value}
+                  mono={field.label !== "End User"}
+                  copyValue={
+                    [
                       "Team ID",
                       "Session ID",
                       "Agent ID",
                       "Organization",
-                    ].includes(field.label)}
-                    copyValue={field.value}
-                  />
-                ))}
-              </dl>
-            </CollapsibleSection>
-          )}
-        </dl>
-      </section>
+                    ].includes(field.label)
+                      ? field.value
+                      : undefined
+                  }
+                />
+              ))}
+            </dl>
+          </CollapsibleSection>
+        )}
+      </InfoSection>
 
-      <section className="overflow-hidden rounded-lg border">
-        <div className="border-b bg-muted/30 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Timing Details
-        </div>
-        <dl className="divide-y divide-border">
+      <InfoSection title="Timing Details">
+        <DetailRow
+          icon={Clock}
+          label="Start Time"
+          value={formatFullDateTime(log.start_time)}
+        />
+        <DetailRow
+          icon={Clock}
+          label="End Time"
+          value={formatFullDateTime(log.end_time)}
+        />
+        <DetailRow
+          icon={Timer}
+          label="Duration"
+          value={formatDuration(durationMs)}
+        />
+        <DetailRow
+          icon={TrendingUp}
+          label="Tokens/Second"
+          value={tokensPerSec}
+        />
+        <DetailRow
+          icon={Zap}
+          label="Time to 1st Token"
+          value={
+            log.time_to_first_token_ms != null
+              ? `${Math.round(log.time_to_first_token_ms)}ms`
+              : "-"
+          }
+        />
+        {log.completion_start_time && (
           <DetailRow
             icon={Clock}
-            label="Start Time"
-            value={formatFullDateTime(log.start_time)}
+            label="Completion Start"
+            value={formatFullDateTime(log.completion_start_time)}
           />
-          <DetailRow
-            icon={Clock}
-            label="End Time"
-            value={formatFullDateTime(log.end_time)}
-          />
+        )}
+        {log.request_duration_ms != null && (
           <DetailRow
             icon={Timer}
-            label="Duration"
-            value={formatDuration(durationMs)}
+            label="Request Duration"
+            value={`${log.request_duration_ms}ms`}
           />
-          <DetailRow
-            icon={TrendingUp}
-            label="Tokens/Second"
-            value={tokensPerSec}
-          />
-          <DetailRow
-            icon={Zap}
-            label="Time to 1st Token"
-            value={
-              log.time_to_first_token_ms != null
-                ? `${Math.round(log.time_to_first_token_ms)}ms`
-                : "-"
-            }
-          />
-          {log.completion_start_time && (
-            <DetailRow
-              icon={Clock}
-              label="Completion Start"
-              value={formatFullDateTime(log.completion_start_time)}
-            />
-          )}
-          {log.request_duration_ms != null && (
-            <DetailRow
-              icon={Timer}
-              label="Request Duration"
-              value={`${log.request_duration_ms}ms`}
-            />
-          )}
-        </dl>
-      </section>
+        )}
+      </InfoSection>
     </div>
   );
 }

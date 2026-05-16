@@ -16,22 +16,23 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import { useFilter } from "../contexts/filter-context";
 import { useDashboardData } from "../hooks/use-dashboard-data";
-import type { DashboardDateRangeKey } from "./dashboard/dashboard-types";
 import {
   DASHBOARD_DATE_RANGES,
-  getDateRangeDays,
   getDateRangeLabel,
 } from "./dashboard/dashboard-utils";
 
 type ChartTabKey = "usage" | "models" | "efficiency";
 
 export function DashboardPage() {
-  const [selectedDateRange, setSelectedDateRange] =
-    useState<DashboardDateRangeKey>("30d");
-  const [chartTab, setChartTab] = useState<ChartTabKey>("usage");
-  const rangeDays = getDateRangeDays(selectedDateRange);
+  const {
+    dateRange: selectedDateRange,
+    setDateRange: setSelectedDateRange,
+    rangeDays,
+  } = useFilter();
   const rangeLabel = getDateRangeLabel(selectedDateRange);
+  const [chartTab, setChartTab] = useState<ChartTabKey>("usage");
 
   const {
     metrics,

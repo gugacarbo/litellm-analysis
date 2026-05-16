@@ -22,27 +22,13 @@ import { EmptyState } from "../components/ui/empty-state";
 import { PageLayout } from "../components/ui/page-layout";
 import { Skeleton } from "../components/ui/skeleton";
 import { getModelBenchmarks } from "../lib/api-client/benchmarks";
-import { APP_LOCALE, APP_TIMEZONE } from "../lib/locale";
 import {
   formatBenchmarkPrice,
+  formatFetchedAt,
   formatLatencySeconds,
   formatNullableNumber,
   formatSpeed,
 } from "./benchmarks/benchmark-utils";
-
-function formatFetchedAt(value: string): string {
-  if (!value) return "N/A";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "N/A";
-  return date.toLocaleString(APP_LOCALE, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: APP_TIMEZONE,
-  });
-}
 
 export function BenchmarkDetailPage() {
   const { id = "" } = useParams<{ id: string }>();

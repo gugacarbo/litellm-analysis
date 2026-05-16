@@ -9,19 +9,12 @@ import {
   formatSpeed,
   formatValueScore,
 } from "@/pages/benchmarks/benchmark-utils";
+import { CHART_COLORS } from "./benchmark-colors";
 import { DataCoverageBar } from "./data-coverage-bar";
 import { MetricBar } from "./metric-bar";
 import { MiniRadarChart } from "./mini-radar-chart";
 import { RankingList } from "./ranking-list";
 import { RawBenchmarkGrid } from "./raw-benchmark-grid";
-
-const CHART_COLORS: Record<UseCase, string> = {
-  intelligence: "#2563eb",
-  coding: "#059669",
-  agentic: "#7c3aed",
-  fastAndCheap: "#d97706",
-  balanced: "#0f766e",
-};
 
 const CORE_METRICS = [
   { key: "intelligenceIndex", label: "Intelligence", color: "bg-blue-500" },

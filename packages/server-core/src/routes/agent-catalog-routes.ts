@@ -42,7 +42,7 @@ export function registerAgentCatalogRoutes(
         return;
       }
 
-      res.json(agent);
+      res.json({ key: req.params.id, agent });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
@@ -129,6 +129,9 @@ export function registerAgentCatalogRoutes(
       }
 
       await services.catalog.delete(req.params.id);
+      if (opts?.orchestration) {
+        await opts.orchestration.syncGeneratedArtifacts();
+      }
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });

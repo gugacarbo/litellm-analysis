@@ -2,6 +2,7 @@ import {
   formatCompactNumber,
   formatCostPer1k,
   formatCurrency,
+  formatDuration,
   formatNumber,
   safeDivide,
 } from "@/lib/format";
@@ -11,15 +12,10 @@ export {
   formatCompactNumber,
   formatCostPer1k,
   formatCurrency,
+  formatDuration,
   formatNumber,
   safeDivide,
 };
-
-export function formatDuration(ms: number): string {
-  if (!ms || Number.isNaN(ms)) return "-";
-  if (ms < 1000) return `${Math.round(ms)}ms`;
-  return `${(ms / 1000).toFixed(1)}s`;
-}
 
 export function formatTokensPerSecond(value: number): string {
   if (value === null || value === undefined || Number.isNaN(value)) return "-";

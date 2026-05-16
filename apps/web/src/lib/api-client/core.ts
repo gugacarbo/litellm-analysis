@@ -1,5 +1,13 @@
 const API_BASE = "/api";
 
+export function withDays(endpoint: string, days?: number): string {
+  if (days === undefined) {
+    return endpoint;
+  }
+  const separator = endpoint.includes("?") ? "&" : "?";
+  return `${endpoint}${separator}days=${days}`;
+}
+
 export async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit,

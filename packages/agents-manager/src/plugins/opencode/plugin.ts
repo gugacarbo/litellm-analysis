@@ -81,8 +81,7 @@ export class OpenCodePlugin implements IPlugin {
         required: false,
         default: "",
         placeholder: "e.g. gpt-4",
-        description:
-          "Model to use when a system agent has no model configured",
+        description: "Model to use when a system agent has no model configured",
       },
       {
         key: "defaultTemperature",
@@ -142,8 +141,7 @@ export class OpenCodePlugin implements IPlugin {
     const enabledAgents = routing.routing?.agents ?? {};
     const config = routing.config ?? {};
     const configDefaultModel = (config.defaultModel as string) || "";
-    const configDefaultTemp =
-      (config.defaultTemperature as number) ?? 0.2;
+    const configDefaultTemp = (config.defaultTemperature as number) ?? 0.2;
 
     // Build agents section from routing configuration
     if (Object.keys(enabledAgents).length > 0) {

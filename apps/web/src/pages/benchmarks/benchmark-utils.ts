@@ -1,5 +1,6 @@
 import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
 import { formatCurrency, formatNumber } from "../../lib/format";
+import { APP_LOCALE, APP_TIMEZONE } from "../../lib/locale";
 import type {
   AgenticScore,
   PercentileMap,
@@ -51,22 +52,46 @@ export function formatValueScore(value: number | null): string {
 }
 
 /**
- * Raw benchmark metric keys that appear on ModelBenchmarkListItem.
+ * Format a fetched-at timestamp into a human-readable date string.
  */
-const RAW_BENCHMARK_KEYS = [
-  "mmluPro",
-  "gpqa",
-  "hle",
-  "livecodebench",
-  "scicode",
-  "math500",
-  "aime",
-  "aime25",
-  "tau2",
-  "ifbench",
-  "lcr",
-  "terminalbenchHard",
+export function formatFetchedAt(value: string): string {
+  if (!value) return "N/A";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "N/A";
+  return date.toLocaleString(APP_LOCALE, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: APP_TIMEZONE,
+  });
+}
+
+/**
+ * Raw benchmark metric config with display labels.
+ * Single source of truth — RAW_BENCHMARK_KEYS derived from this.
+ */
+export const BENCHMARK_CONFIG = [
+  { key: "mmluPro", label: "MMLU-Pro" },
+  { key: "gpqa", label: "GPQA" },
+  { key: "hle", label: "HLE" },
+  { key: "livecodebench", label: "LiveCode" },
+  { key: "scicode", label: "SciCode" },
+  { key: "math500", label: "MATH-500" },
+  { key: "aime", label: "AIME" },
+  { key: "aime25", label: "AIME-2025" },
+  { key: "tau2", label: "TAU2" },
+  { key: "ifbench", label: "IfBench" },
+  { key: "lcr", label: "LCR" },
+  { key: "terminalbenchHard", label: "Terminal" },
 ] as const;
+
+/**
+ * Raw benchmark metric keys that appear on ModelBenchmarkListItem.
+ * Derived from BENCHMARK_CONFIG single source of truth.
+ */
+const RAW_BENCHMARK_KEYS = BENCHMARK_CONFIG.map((b) => b.key);
 
 export { RAW_BENCHMARK_KEYS };
 

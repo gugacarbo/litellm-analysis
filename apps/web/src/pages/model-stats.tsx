@@ -17,11 +17,6 @@ import { useModelStatsPageState } from "./model-stats/use-model-stats-page";
 export function ModelStatsPage() {
   const state = useModelStatsPageState();
 
-  const maxTokensPerSecond = Math.max(
-    ...state.data.map((m) => Number(m.max_tokens_per_second || 0)),
-    0,
-  );
-
   if (state.error) {
     return (
       <div className="p-6">
@@ -41,10 +36,7 @@ export function ModelStatsPage() {
       showFilters
       filters={
         <ModelStatsHeader
-          columns={MODEL_STATS_COLUMNS}
-          visibleColumns={state.visibleColumns}
           searchQuery={state.searchQuery}
-          onToggleColumn={state.toggleColumn}
           onSearchChange={state.setSearchQuery}
           selectedDateRange={state.selectedDateRange}
           setSelectedDateRange={state.setSelectedDateRange}
@@ -97,16 +89,15 @@ export function ModelStatsPage() {
       <div className="mt-6">
         <ModelStatsSummaryCards
           loading={state.loading}
-          rangeLabel={state.rangeLabel}
           totalSpend={state.totalSpend}
           totalRequests={state.totalRequests}
           totalTokens={state.totalTokens}
+          totalPromptTokens={state.totalPromptTokens}
           avgSuccessRate={state.avgSuccessRate}
-          totalErrors={state.totalErrors}
           avgLatency={state.avgLatency}
+          avgTokensPerSecond={state.avgTokensPerSecond}
           avgCostPerRequest={state.avgCostPerRequest}
-          uniqueModels={state.uniqueModels}
-          maxTokensPerSecond={maxTokensPerSecond}
+          avgCostPer1kTokens={state.avgCostPer1kTokens}
         />
       </div>
 
@@ -115,6 +106,8 @@ export function ModelStatsPage() {
           loading={state.loading}
           data={state.sortedData}
           visibleColumns={state.visibleColumns}
+          columnConfig={MODEL_STATS_COLUMNS}
+          onToggleColumn={state.toggleColumn}
           sortField={state.sortField}
           sortDirection={state.sortDirection}
           totalSpend={state.totalSpend}

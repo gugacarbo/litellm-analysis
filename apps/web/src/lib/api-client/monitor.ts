@@ -1,7 +1,4 @@
-import type {
-  ModelHealthEntry,
-  MonitorAlert,
-} from "../../pages/monitor/monitor-types";
+import type { ModelHealthEntry, MonitorAlert } from "@/types/monitor";
 import { fetchApi } from "./core";
 
 interface GetAlertsResponse {

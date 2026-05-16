@@ -2,15 +2,7 @@ import type {
   PaginationMetadata,
   SpendLog,
 } from "@lite-llm/api-contracts/analytics";
-import { fetchApi } from "./core";
-
-function withDays(endpoint: string, days?: number): string {
-  if (days === undefined) {
-    return endpoint;
-  }
-  const separator = endpoint.includes("?") ? "&" : "?";
-  return `${endpoint}${separator}days=${days}`;
-}
+import { fetchApi, withDays } from "./core";
 
 export async function getSpendByModel(
   days?: number,

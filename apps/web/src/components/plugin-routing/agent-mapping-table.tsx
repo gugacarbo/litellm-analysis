@@ -1,4 +1,5 @@
 import type { InternalAgent } from "@lite-llm/api-contracts/agent-catalog";
+import type { SystemAgentOption } from "@/lib/api-client/agent-catalog";
 import {
   Select,
   SelectContent,
@@ -6,11 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-
-interface SystemAgentOption {
-  key: string;
-  displayName: string;
-}
 
 interface AgentMappingTableProps {
   internalAgents: InternalAgent[];

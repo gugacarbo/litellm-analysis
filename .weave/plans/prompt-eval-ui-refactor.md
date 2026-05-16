@@ -38,7 +38,7 @@ apps/web/src/
 - Create: `apps/web/src/components/prompt-evals/model-select.tsx`
 - Modify: `apps/web/src/pages/prompt-evals.tsx`
 
-- [ ] **Step 1: Criar types para ModelSelect**
+- [x] **Step 1: Criar types para ModelSelect**
 
 Adicionar em `apps/web/src/pages/prompt-evals/types.ts`:
 
@@ -49,7 +49,7 @@ export interface ModelOption {
 }
 ```
 
-- [ ] **Step 2: Criar ModelSelect component**
+- [x] **Step 2: Criar ModelSelect component**
 
 ```typescript
 // apps/web/src/components/prompt-evals/model-select.tsx
@@ -136,7 +136,7 @@ export function ModelSelect({ models, value, onChange, placeholder = "Selecione 
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/src/components/prompt-evals/model-select.tsx apps/web/src/pages/prompt-evals/types.ts
@@ -151,7 +151,7 @@ git commit -m "feat(prompt-evals): add ModelSelect combobox component"
 - Create: `apps/web/src/components/prompt-evals/score-gauge.tsx`
 - Modify: `apps/web/src/pages/prompt-evals/utils.ts`
 
-- [ ] **Step 1: Adicionar utilitários de formatação**
+- [x] **Step 1: Adicionar utilitários de formatação**
 
 Em `apps/web/src/pages/prompt-evals/utils.ts`, adicionar:
 
@@ -176,7 +176,7 @@ export function getScoreStroke(value: number | null): string {
 }
 ```
 
-- [ ] **Step 2: Criar ScoreGauge component**
+- [x] **Step 2: Criar ScoreGauge component**
 
 ```typescript
 // apps/web/src/components/prompt-evals/score-gauge.tsx
@@ -234,7 +234,7 @@ export function ScoreGauge({ value, size = 80, strokeWidth = 6, className }: Sco
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/src/components/prompt-evals/score-gauge.tsx apps/web/src/pages/prompt-evals/utils.ts
@@ -248,7 +248,7 @@ git commit -m "feat(prompt-evals): add ScoreGauge SVG component"
 **Files:**
 - Create: `apps/web/src/components/prompt-evals/progress-bar.tsx`
 
-- [ ] **Step 1: Criar ProgressBar component**
+- [x] **Step 1: Criar ProgressBar component**
 
 ```typescript
 // apps/web/src/components/prompt-evals/progress-bar.tsx
@@ -292,7 +292,7 @@ export function ProgressBar({ value, className, showLabel = true }: ProgressBarP
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/web/src/components/prompt-evals/progress-bar.tsx
@@ -307,7 +307,7 @@ git commit -m "feat(prompt-evals): add ProgressBar component"
 - Create: `apps/web/src/components/prompt-evals/category-table.tsx`
 - Modify: `apps/web/src/pages/prompt-evals/types.ts`
 
-- [ ] **Step 1: Adicionar tipos CategoryMetrics**
+- [x] **Step 1: Adicionar tipos CategoryMetrics**
 
 Em `apps/web/src/pages/prompt-evals/types.ts`:
 
@@ -322,7 +322,7 @@ export interface CategoryMetrics {
 }
 ```
 
-- [ ] **Step 2: Criar CategoryTable component**
+- [x] **Step 2: Criar CategoryTable component**
 
 ```typescript
 // apps/web/src/components/prompt-evals/category-table.tsx
@@ -383,7 +383,7 @@ export function CategoryTable({ categories, threshold = 0.8 }: CategoryTableProp
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/src/components/prompt-evals/category-table.tsx apps/web/src/pages/prompt-evals/types.ts
@@ -398,7 +398,7 @@ git commit -m "feat(prompt-evals): add CategoryTable component"
 - Create: `apps/web/src/components/prompt-evals/failed-cases-list.tsx`
 - Modify: `apps/web/src/pages/prompt-evals/types.ts`
 
-- [ ] **Step 1: Adicionar tipo CaseResult**
+- [x] **Step 1: Adicionar tipo CaseResult**
 
 Em `apps/web/src/pages/prompt-evals/types.ts`:
 
@@ -419,7 +419,7 @@ export interface CaseMetrics {
 }
 ```
 
-- [ ] **Step 2: Criar FailedCasesList component**
+- [x] **Step 2: Criar FailedCasesList component**
 
 ```typescript
 // apps/web/src/components/prompt-evals/failed-cases-list.tsx
@@ -509,7 +509,7 @@ export function FailedCasesList({ cases, threshold = 0.8 }: FailedCasesListProps
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/src/components/prompt-evals/failed-cases-list.tsx apps/web/src/pages/prompt-evals/types.ts
@@ -524,7 +524,7 @@ git commit -m "feat(prompt-evals): add FailedCasesList component"
 - Create: `apps/web/src/components/prompt-evals/run-card.tsx`
 - Modify: `apps/web/src/pages/prompt-evals/utils.ts`
 
-- [ ] **Step 1: Adicionar utilitário de tempo relativo**
+- [x] **Step 1: Adicionar utilitário de tempo relativo**
 
 Em `apps/web/src/pages/prompt-evals/utils.ts`:
 
@@ -540,7 +540,7 @@ export function formatRelativeTime(seconds: number): string {
 }
 ```
 
-- [ ] **Step 2: Criar RunCard component**
+- [x] **Step 2: Criar RunCard component**
 
 ```typescript
 // apps/web/src/components/prompt-evals/run-card.tsx
@@ -678,7 +678,7 @@ export function RunCard({ detail, loading, onCancel, isCancelling }: RunCardProp
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/src/components/prompt-evals/run-card.tsx apps/web/src/pages/prompt-evals/utils.ts
@@ -692,7 +692,7 @@ git commit -m "feat(prompt-evals): add RunCard component"
 **Files:**
 - Create: `apps/web/src/components/prompt-evals/polling-indicator.tsx`
 
-- [ ] **Step 1: Criar PollingIndicator component**
+- [x] **Step 1: Criar PollingIndicator component**
 
 ```typescript
 // apps/web/src/components/prompt-evals/polling-indicator.tsx
@@ -716,7 +716,7 @@ export function PollingIndicator({ isFetching, className }: PollingIndicatorProp
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/web/src/components/prompt-evals/polling-indicator.tsx
@@ -731,7 +731,7 @@ git commit -m "feat(prompt-evals): add PollingIndicator component"
 - Modify: `apps/web/src/pages/prompt-evals/use-prompt-evals-state.ts`
 - Modify: `apps/web/src/pages/prompt-evals.tsx`
 
-- [ ] **Step 1: Atualizar use-prompt-evals-state.ts para incluir modelsQuery**
+- [x] **Step 1: Atualizar use-prompt-evals-state.ts para incluir modelsQuery**
 
 ```typescript
 // Em use-prompt-evals-state.ts, adicionar:
@@ -756,7 +756,7 @@ const [form, setForm] = useState<EvalFormState>({
 });
 ```
 
-- [ ] **Step 2: Refatorar prompt-evals.tsx**
+- [x] **Step 2: Refatorar prompt-evals.tsx**
 
 Substituir o conteúdo do arquivo por:
 
@@ -894,7 +894,7 @@ export function PromptEvalsPage() {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/src/pages/prompt-evals.tsx apps/web/src/pages/prompt-evals/use-prompt-evals-state.ts
@@ -909,7 +909,7 @@ git commit -m "refactor(prompt-evals): use new components in page"
 - Modify: `apps/web/src/components/prompt-evals/run-card.tsx`
 - Modify: `apps/web/src/pages/prompt-evals.tsx`
 
-- [ ] **Step 1: Adicionar keyboard navigation**
+- [x] **Step 1: Adicionar keyboard navigation**
 
 Em `apps/web/src/pages/prompt-evals.tsx`, wrappear a lista de runs com keyboard handler:
 
@@ -955,7 +955,7 @@ useEffect(() => {
 <div ref={runsRef} className="space-y-4" tabIndex={-1}>
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/web/src/pages/prompt-evals.tsx
@@ -969,25 +969,25 @@ git commit -m "feat(prompt-evals): add keyboard navigation"
 **Files:**
 - Test: `apps/web/src/pages/__tests__/prompt-evals.test.tsx`
 
-- [ ] **Step 1: Verificar se há testes existentes e rodar**
+- [x] **Step 1: Verificar se há testes existentes e rodar**
 
 ```bash
 pnpm --filter @lite-llm/web test --run
 ```
 
-- [ ] **Step 2: Rodar typecheck**
+- [x] **Step 2: Rodar typecheck**
 
 ```bash
 pnpm typecheck
 ```
 
-- [ ] **Step 3: Rodar build**
+- [x] **Step 3: Rodar build**
 
 ```bash
 pnpm build
 ```
 
-- [ ] **Step 4: Commit final**
+- [x] **Step 4: Commit final**
 
 ```bash
 git add -A

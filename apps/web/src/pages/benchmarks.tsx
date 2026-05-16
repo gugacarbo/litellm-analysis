@@ -43,28 +43,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../components/ui/tooltip";
-import { APP_LOCALE, APP_TIMEZONE } from "../lib/locale";
 import {
   formatBenchmarkPrice,
+  formatFetchedAt,
   formatLatencySeconds,
   formatNullableNumber,
   formatSpeed,
 } from "./benchmarks/benchmark-utils";
 import { useBenchmarksPage } from "./benchmarks/use-benchmarks-page";
-
-function formatFetchedAt(value: string): string {
-  if (!value) return "N/A";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "N/A";
-  return date.toLocaleString(APP_LOCALE, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: APP_TIMEZONE,
-  });
-}
 
 export function BenchmarksPage() {
   const page = useBenchmarksPage();

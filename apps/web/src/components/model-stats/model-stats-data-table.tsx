@@ -1,7 +1,8 @@
 import type { ColumnDef, VisibilityState } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Settings2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type {
+  Column,
   ColumnKey,
   ModelStats,
   SortDirection,
@@ -17,13 +18,24 @@ import {
   getHealthColor,
 } from "../../pages/model-stats/model-stats-utils";
 import { Badge } from "../ui/badge";
-import { Card, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { DataTable } from "../ui/data-table";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 type ModelStatsDataTableProps = {
   loading: boolean;
   data: ModelStats[];
   visibleColumns: ColumnKey[];
+  columnConfig: Column[];
+  onToggleColumn: (key: ColumnKey) => void;
   sortField: SortField;
   sortDirection: SortDirection;
   totalSpend: number;
@@ -87,6 +99,8 @@ export function ModelStatsDataTable({
   loading,
   data,
   visibleColumns,
+  columnConfig,
+  onToggleColumn,
   sortField,
   sortDirection,
   totalSpend,
@@ -399,22 +413,45 @@ export function ModelStatsDataTable({
 
   // Map visible columns to VisibilityState
   const visibilityState: VisibilityState = {};
-  for (const col of columns) {
-    if (col.id) {
-      visibilityState[col.id] = visibleColumns.includes(col.id as ColumnKey);
+  for (const col of columnConfig) {
+    if (col.key) {
+      visibilityState[col.key] = visibleColumns.includes(col.key);
     }
   }
 
   // Column alignment mapping
   const align: Record<string, "left" | "right" | "center"> = {};
-  for (const col of columns) {
-    if (col.id && col.id !== "model" && col.id !== "actions") {
-      align[col.id] = "right";
+  for (const col of columnConfig) {
+    if (col.key && col.key !== "model" && col.key !== "actions") {
+      align[col.key] = "right";
     }
   }
 
   return (
     <Card>
+      <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
+        <div className="text-sm font-medium">Model Statistics</div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Settings2 className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {columnConfig.map((col) => (
+              <DropdownMenuCheckboxItem
+                key={col.key}
+                checked={visibleColumns.includes(col.key)}
+                onCheckedChange={() => onToggleColumn(col.key)}
+              >
+                {col.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardHeader>
       <CardContent>
         <DataTable
           columns={columns}

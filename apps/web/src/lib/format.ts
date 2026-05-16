@@ -39,11 +39,25 @@ export function formatCostPer1k(value: number): string {
   return `$${value.toFixed(2)}`;
 }
 
-export function formatDuration(ms: number | null | undefined): string {
+export function formatDuration(
+  ms: number | null | undefined,
+  maxUnit: "seconds" | "minutes" | "hours" | "days" = "seconds",
+): string {
   if (ms === null || ms === undefined) return "N/A";
   if (!Number.isFinite(ms)) return "0ms";
   if (ms < 1000) return `${Math.round(ms)}ms`;
-  return `${(ms / 1000).toFixed(1)}s`;
+  const sec = ms / 1000;
+  if (maxUnit === "seconds") return `${sec.toFixed(1)}s`;
+  if (maxUnit === "minutes" && sec < 60) return `${sec.toFixed(1)}s`;
+  if (maxUnit === "minutes") return `${(sec / 60).toFixed(1)}m`;
+  if (maxUnit === "hours" && sec < 60) return `${sec.toFixed(1)}s`;
+  if (maxUnit === "hours" && sec < 3600) return `${(sec / 60).toFixed(1)}m`;
+  if (maxUnit === "hours") return `${(sec / 3600).toFixed(1)}h`;
+  // days
+  if (sec < 60) return `${sec.toFixed(1)}s`;
+  if (sec < 3600) return `${(sec / 60).toFixed(1)}m`;
+  if (sec < 86400) return `${(sec / 3600).toFixed(1)}h`;
+  return `${(sec / 86400).toFixed(1)}d`;
 }
 
 export function formatPercent(value: number | null | undefined): string {

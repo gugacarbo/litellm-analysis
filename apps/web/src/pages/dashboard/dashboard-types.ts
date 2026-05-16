@@ -1,28 +1,9 @@
-export type DashboardDateRangeKey =
-  | "15m"
-  | "1h"
-  | "5h"
-  | "12h"
-  | "24h"
-  | "7d"
-  | "14d"
-  | "30d"
-  | "lifetime"
-  | "custom";
-export type DateRangeGroup = "hours" | "days" | "custom";
-
-export type TimeRangeValue = {
-  preset?: DashboardDateRangeKey;
-  from?: Date;
-  to?: Date;
-};
-
-export type DashboardDateRangeOption = {
-  key: DashboardDateRangeKey;
-  label: string;
-  days: number;
-  description: string;
-};
+export type {
+  DashboardDateRangeKey,
+  DashboardDateRangeOption,
+  DateRangeGroup,
+  TimeRangeValue,
+} from "@/lib/date-ranges";
 
 export type DashboardMetrics = {
   totalSpend: number;

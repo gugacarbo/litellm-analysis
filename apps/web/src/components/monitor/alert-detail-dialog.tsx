@@ -15,6 +15,7 @@ import {
 } from "../../pages/monitor/monitor-utils";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { DetailRow } from "../ui/detail-row";
 import {
   Dialog,
   DialogContent,
@@ -216,16 +217,16 @@ export function AlertDetailDialog({
 
         <section className="space-y-2">
           <h4 className="text-sm font-medium text-foreground">Timeline</h4>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <MetricCard
+          <dl className="divide-y divide-border rounded-lg border">
+            <DetailRow
               label="Detected"
               value={formatTimestamp(alert.detectedAt)}
             />
-            <MetricCard
+            <DetailRow
               label="Created"
               value={formatTimestamp(alert.createdAt)}
             />
-            <MetricCard
+            <DetailRow
               label="Acknowledged"
               value={
                 alert.acknowledgedAt
@@ -233,7 +234,7 @@ export function AlertDetailDialog({
                   : "\u2014"
               }
             />
-          </div>
+          </dl>
         </section>
 
         <DialogFooter>
