@@ -3,6 +3,10 @@ import { z } from "zod";
 import { agentExtraConfigSchema } from "./agent-extra-config";
 
 export const systemAgentSchema = z.object({
+  id: z
+    .string()
+    .optional()
+    .meta({ title: "ID", description: "Agent slug identifier" }),
   displayName: z
     .string()
     .default("")

@@ -26,6 +26,8 @@ export function EntityFocusCard({
   onOpenConfig,
   onDelete,
 }: EntityFocusCardProps) {
+  const agentId = agent.id || agent.displayName;
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
@@ -35,7 +37,7 @@ export function EntityFocusCard({
             <div>
               <CardTitle className="text-sm">{agent.displayName}</CardTitle>
               <p className="text-xs text-muted-foreground font-mono">
-                {agent.displayName}
+                {agentId}
               </p>
             </div>
           </div>
@@ -44,7 +46,7 @@ export function EntityFocusCard({
               variant="ghost"
               size="icon"
               className="h-7 w-7"
-              onClick={() => onOpenConfig(agent.displayName)}
+              onClick={() => onOpenConfig(agentId)}
             >
               <Pencil className="h-3.5 w-3.5" />
             </Button>
@@ -69,7 +71,7 @@ export function EntityFocusCard({
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() => onDelete(agent.displayName)}
+                    onClick={() => onDelete(agentId)}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     Delete
@@ -85,6 +87,11 @@ export function EntityFocusCard({
           {agent.description}
         </p>
         <div className="flex flex-wrap gap-1">
+          {agent.model && (
+            <Badge variant="outline" className="text-xs font-mono">
+              {agent.model}
+            </Badge>
+          )}
           <Badge variant="outline" className="text-xs">
             {agent.limits.context.toLocaleString()} ctx
           </Badge>

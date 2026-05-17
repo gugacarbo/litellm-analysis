@@ -28,7 +28,7 @@ export function AgentFocusView({
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {agents.map((agent) => (
         <EntityFocusCard
-          key={agent.displayName}
+          key={agent.id || agent.displayName}
           agent={agent}
           onOpenConfig={onOpenAgentConfig}
           onDelete={onDeleteAgent}

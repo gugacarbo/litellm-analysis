@@ -21,6 +21,17 @@ export async function getSystemAgent(
   return fetchApi(`/agent-catalog/${id}`);
 }
 
+export async function createSystemAgent(
+  agent: SystemAgent,
+): Promise<{ key: string }> {
+  const key = agent.id ?? agent.displayName;
+  return fetchApi("/agent-catalog", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, ...agent }),
+  });
+}
+
 export async function upsertSystemAgent(
   id: string,
   agent: SystemAgent,

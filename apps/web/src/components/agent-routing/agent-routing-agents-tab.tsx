@@ -1,5 +1,6 @@
 import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
-import { Zap } from "lucide-react";
+import { Plus, Zap } from "lucide-react";
+import { Button } from "../ui/button";
 import { AgentFocusView } from "./agent-focus-view";
 import { EntityRoutingCard } from "./entity-routing-card";
 
@@ -8,6 +9,7 @@ type AgentRoutingAgentsTabProps = {
   agents: SystemAgent[];
   onOpenAgentConfig: (id: string) => void;
   onDeleteAgent: (id: string) => void;
+  onAddAgent: () => void;
 };
 
 export function AgentRoutingAgentsTab({
@@ -15,6 +17,7 @@ export function AgentRoutingAgentsTab({
   agents,
   onOpenAgentConfig,
   onDeleteAgent,
+  onAddAgent,
 }: AgentRoutingAgentsTabProps) {
   const safeAgents = agents ?? [];
   const configuredCount = safeAgents.filter((a) => a.model !== "").length;
@@ -25,6 +28,12 @@ export function AgentRoutingAgentsTab({
       title="Agents"
       totalCount={safeAgents.length}
       configuredCount={configuredCount}
+      headerAction={
+        <Button size="sm" onClick={onAddAgent}>
+          <Plus className="h-4 w-4 mr-1" />
+          Add Agent
+        </Button>
+      }
     >
       <AgentFocusView
         loading={loading}

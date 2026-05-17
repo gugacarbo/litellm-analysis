@@ -1,12 +1,18 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { ErrorBoundary } from "./components/error-boundary";
 import { AppSidebar } from "./components/layout/sidebar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { FilterProvider } from "./contexts/filter-context";
+import { AgentConfigPage } from "./pages/agent-config";
 import { AgentsPage } from "./pages/agents";
 import { BenchmarksPage } from "./pages/benchmarks";
 import { DashboardPage } from "./pages/dashboard";
 import { LogsPage } from "./pages/logs";
+import { ModelConfigPage } from "./pages/model-config";
 import { ModelDetailPage } from "./pages/model-detail";
 import { ModelStatsPage } from "./pages/model-stats";
 import { ModelsPage } from "./pages/models";
@@ -62,6 +68,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/models/:modelName"
+                  element={
+                    <ErrorBoundary>
+                      <ModelConfigPage />
+                    </ErrorBoundary>
+                  }
+                />
+                <Route
                   path="/benchmarks"
                   element={
                     <ErrorBoundary>
@@ -74,6 +88,14 @@ function App() {
                   element={
                     <ErrorBoundary>
                       <AgentsPage />
+                    </ErrorBoundary>
+                  }
+                />
+                <Route
+                  path="/agents/:id"
+                  element={
+                    <ErrorBoundary>
+                      <AgentConfigPage />
                     </ErrorBoundary>
                   }
                 />
