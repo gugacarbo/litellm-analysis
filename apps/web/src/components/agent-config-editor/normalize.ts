@@ -1,9 +1,31 @@
 import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 
+/**
+ * Generate a slug from a display name
+ */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Generate a slug from displayName, used when creating new agents
+ */
+export function generateId(displayName: string): string {
+  return slugify(displayName) || "agent";
+}
+
 export function normalizeSystemAgent(
   partial: Partial<SystemAgent>,
 ): SystemAgent {
   return {
+    id:
+      partial.id ??
+      (partial.displayName ? generateId(partial.displayName) : ""),
     displayName: partial.displayName ?? "default",
     icon: partial.icon ?? "🔧",
     description: partial.description ?? "",

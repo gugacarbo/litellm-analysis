@@ -1,7 +1,11 @@
 import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 import { RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { AdvancedSection } from "./agent-config-editor/advanced-section";
+import { GeneralSection } from "./agent-config-editor/general-section";
+import { ModelSection } from "./agent-config-editor/model-section";
 import { normalizeSystemAgent } from "./agent-config-editor/normalize";
+import { ToolsSection } from "./agent-config-editor/tools-section";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -11,16 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { Textarea } from "./ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface AgentConfigEditorProps {
   open: boolean;
@@ -47,22 +42,21 @@ export function AgentConfigEditor({
     }
   }, [agent]);
 
-  const updateField = <K extends keyof SystemAgent>(
-    field: K,
-    value: SystemAgent[K],
-  ) => {
-    setConfig((prev) => ({ ...prev, [field]: value }));
-  };
+  const updateField = useCallback((field: string, value: unknown) => {
+    setConfig((prev) => {
+      if (field === "config") {
+        return { ...prev, config: { ...prev.config, ...(value as object) } };
+      }
+      return { ...prev, [field]: value };
+    });
+  }, []);
 
-  const updateConfigField = <K extends keyof SystemAgent["config"]>(
-    field: K,
-    value: SystemAgent["config"][K],
-  ) => {
+  const updateConfigField = useCallback((field: string, value: unknown) => {
     setConfig((prev) => ({
       ...prev,
       config: { ...prev.config, [field]: value },
     }));
-  };
+  }, []);
 
   const handleSave = async () => {
     await onSave(config);
@@ -70,7 +64,7 @@ export function AgentConfigEditor({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
             Edit Agent: {config.displayName || "Unknown"}
@@ -80,71 +74,38 @@ export function AgentConfigEditor({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="agent-name">Display Name</Label>
-              <Input
-                id="agent-name"
-                value={config.displayName}
-                onChange={(e) => updateField("displayName", e.target.value)}
-              />
-            </div>
-          </div>
+        <Tabs defaultValue="general" className="flex-1 overflow-hidden">
+          <TabsList className="mb-4">
+            <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="model">Model</TabsTrigger>
+            <TabsTrigger value="tools">Tools & Skills</TabsTrigger>
+            <TabsTrigger value="advanced">Advanced</TabsTrigger>
+          </TabsList>
 
-          <div className="space-y-2">
-            <Label htmlFor="agent-desc">Description</Label>
-            <Textarea
-              id="agent-desc"
-              value={config.description}
-              onChange={(e) => updateField("description", e.target.value)}
-              rows={2}
-            />
-          </div>
+          <div className="flex-1 overflow-y-auto">
+            <TabsContent value="general" className="mt-0">
+              <GeneralSection config={config} onFieldChange={updateField} />
+            </TabsContent>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="agent-icon">Icon</Label>
-              <Input
-                id="agent-icon"
-                value={config.icon}
-                onChange={(e) => updateField("icon", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="agent-color">Color</Label>
-              <Input
-                id="agent-color"
-                type="color"
-                value={config.config.color ?? "#555555"}
-                onChange={(e) => updateConfigField("color", e.target.value)}
-                className="h-9 w-full"
-              />
-            </div>
-          </div>
+            <TabsContent value="model" className="mt-0">
+              <ModelSection config={config} onFieldChange={updateField} />
+            </TabsContent>
 
-          <div className="space-y-2">
-            <Label htmlFor="agent-mode">Mode</Label>
-            <Select
-              value={config.config.mode ?? "subagent"}
-              onValueChange={(value) =>
-                updateConfigField(
-                  "mode",
-                  value as "subagent" | "primary" | "all",
-                )
-              }
-            >
-              <SelectTrigger id="agent-mode" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="subagent">Subagent</SelectItem>
-                <SelectItem value="primary">Primary</SelectItem>
-                <SelectItem value="all">All</SelectItem>
-              </SelectContent>
-            </Select>
+            <TabsContent value="tools" className="mt-0">
+              <ToolsSection
+                config={config}
+                onConfigFieldChange={updateConfigField}
+              />
+            </TabsContent>
+
+            <TabsContent value="advanced" className="mt-0">
+              <AdvancedSection
+                config={config}
+                onConfigFieldChange={updateConfigField}
+              />
+            </TabsContent>
           </div>
-        </div>
+        </Tabs>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
