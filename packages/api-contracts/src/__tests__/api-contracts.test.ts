@@ -37,7 +37,6 @@ describe("@lite-llm/api-contracts", () => {
         limits: { context: 200000, output: 32768 },
         model: "gpt-4",
         fallbackModels: [],
-        enabledPlugins: [],
         config: {},
       };
       const _catalogResp: AgentCatalogResponse = { agents: [_agentEntry] };

@@ -173,9 +173,9 @@ export function GeneralSection({
             type="number"
             step="0.05"
             min="0"
-            max="1"
-            value={category.top_p ?? 1}
-            onChange={(e) => onUpdate("top_p", parseFloat(e.target.value) || 1)}
+           max="1"
+            value={category.topP ?? 1}
+            onChange={(e) => onUpdate("topP", parseFloat(e.target.value) || 1)}
           />
         </div>
       </div>
