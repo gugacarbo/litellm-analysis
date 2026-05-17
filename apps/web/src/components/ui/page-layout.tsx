@@ -26,7 +26,7 @@ export function PageLayout({
   const hasRightContent = (showFilters && filters) || buttons;
 
   return (
-    <div className={`p-2 ${containerClass}`}>
+    <div className={`min-w-0 p-2 ${containerClass}`}>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex-1 min-w-0 p-2">
           <h1 className="text-2xl font-bold flex items-center gap-2 p-2">

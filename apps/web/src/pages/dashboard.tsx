@@ -18,16 +18,12 @@ import {
 } from "../components/ui/tabs";
 import { useFilter } from "../contexts/filter-context";
 import { useDashboardData } from "../hooks/use-dashboard-data";
-import {
-  DASHBOARD_DATE_RANGES,
-  getDateRangeLabel,
-} from "./dashboard/dashboard-utils";
+import { getDateRangeLabel } from "./dashboard/dashboard-utils";
 
 type ChartTabKey = "usage" | "models" | "efficiency";
 
 export function DashboardPage() {
-  const { dateRange: selectedDateRange, setDateRange: setSelectedDateRange } =
-    useFilter();
+  const { dateRange: selectedDateRange } = useFilter();
   const rangeLabel = getDateRangeLabel(selectedDateRange);
   const [chartTab, setChartTab] = useState<ChartTabKey>("usage");
 
@@ -68,21 +64,6 @@ export function DashboardPage() {
       title="Dashboard"
       subtitle="Usage, cost, reliability, and model behavior."
       icon={Activity}
-      filters={
-        <div className="flex flex-wrap items-center gap-1.5">
-          {DASHBOARD_DATE_RANGES.map((option) => (
-            <Button
-              key={option.key}
-              variant={option.key === selectedDateRange ? "default" : "outline"}
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setSelectedDateRange(option.key)}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-      }
       buttons={
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge variant="outline" className="text-xs px-2 py-0.5">

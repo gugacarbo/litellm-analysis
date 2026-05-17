@@ -42,6 +42,7 @@ export function ModelConfigPage() {
         icon={Settings}
         buttons={
           <button
+            type="button"
             onClick={onBack}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
@@ -63,6 +64,7 @@ export function ModelConfigPage() {
         icon={Settings}
         buttons={
           <button
+            type="button"
             onClick={onBack}
             className="text-sm text-muted-foreground hover:text-foreground"
           >

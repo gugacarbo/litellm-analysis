@@ -125,7 +125,9 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1">
           <PanelLeftIcon className="h-5 w-5" />
-          <span className="font-semibold text-sm">LiteLLM Stats</span>
+          <span className="font-semibold text-sm group-data-[collapsible=icon]:hidden">
+            LiteLLM Stats
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent>

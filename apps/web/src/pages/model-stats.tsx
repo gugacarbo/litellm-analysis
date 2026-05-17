@@ -35,8 +35,6 @@ export function ModelStatsPage() {
         <ModelStatsHeader
           searchQuery={state.searchQuery}
           onSearchChange={state.setSearchQuery}
-          selectedDateRange={state.selectedDateRange}
-          setSelectedDateRange={state.setSelectedDateRange}
         />
       }
     >

@@ -40,6 +40,7 @@ export function AgentConfigPage() {
         icon={Settings}
         buttons={
           <button
+            type="button"
             onClick={onBack}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
@@ -61,6 +62,7 @@ export function AgentConfigPage() {
         icon={Settings}
         buttons={
           <button
+            type="button"
             onClick={onBack}
             className="text-sm text-muted-foreground hover:text-foreground"
           >

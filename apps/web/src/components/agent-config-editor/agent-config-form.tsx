@@ -41,7 +41,10 @@ function Section({
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
-        <button className="flex items-center justify-between w-full p-4 text-left hover:bg-muted/50 rounded-lg transition-colors">
+        <button
+          type="button"
+          className="flex items-center justify-between w-full p-4 text-left hover:bg-muted/50 rounded-lg transition-colors"
+        >
           <div>
             <h3 className="font-medium">{title}</h3>
             {description && (
