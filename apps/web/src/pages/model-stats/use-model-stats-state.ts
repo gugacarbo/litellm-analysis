@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useFilter } from "../../contexts/filter-context";
 import {
   getCostEfficiencyByModel,
   getModelRequestDistribution,
@@ -10,7 +11,6 @@ import { queryKeys } from "../../lib/query-keys";
 import { getDateRangeLabel } from "../dashboard/dashboard-utils";
 import type { ColumnKey, SortDirection, SortField } from "./model-stats-types";
 import { MODEL_STATS_COLUMNS } from "./model-stats-types";
-import { useFilter } from "../../contexts/filter-context";
 
 export function useModelStatsState() {
   const {
@@ -31,25 +31,25 @@ export function useModelStatsState() {
 
   const modelStatsQuery = useQuery({
     queryKey: queryKeys.modelStatistics(rangeDays),
-    queryFn: () => getModelStatistics(rangeDays),
+    queryFn: () => getModelStatistics({ days: rangeDays }),
     refetchInterval: 30_000,
   });
 
   const tokenDistQuery = useQuery({
     queryKey: queryKeys.dashboardTokenDistribution(rangeDays),
-    queryFn: () => getTokenDistribution(rangeDays),
+    queryFn: () => getTokenDistribution({ days: rangeDays }),
     refetchInterval: 30_000,
   });
 
   const modelDistQuery = useQuery({
     queryKey: queryKeys.dashboardModelDistribution(rangeDays),
-    queryFn: () => getModelRequestDistribution(rangeDays),
+    queryFn: () => getModelRequestDistribution({ days: rangeDays }),
     refetchInterval: 30_000,
   });
 
   const costEffQuery = useQuery({
     queryKey: queryKeys.dashboardCostEfficiency(rangeDays),
-    queryFn: () => getCostEfficiencyByModel(rangeDays),
+    queryFn: () => getCostEfficiencyByModel({ days: rangeDays }),
     refetchInterval: 30_000,
   });
 

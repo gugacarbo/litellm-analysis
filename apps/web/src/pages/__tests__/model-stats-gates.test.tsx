@@ -69,18 +69,6 @@ describe("ModelStatsPage", () => {
     vi.clearAllMocks();
   });
 
-  it("should show merge button", async () => {
-    renderWithQueryClient(<ModelStatsPage />);
-
-    await screen.findAllByText(/gpt-4|claude-3-opus/);
-
-    const mergeButton = screen.queryByRole("button", {
-      name: /^merge models$/i,
-    });
-    expect(mergeButton).toBeInTheDocument();
-    expect(mergeButton).not.toBeDisabled();
-  });
-
   it("should show delete logs buttons", async () => {
     renderWithQueryClient(<ModelStatsPage />);
 

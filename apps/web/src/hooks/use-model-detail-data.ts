@@ -43,9 +43,11 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
     };
   }, []);
 
+  const queryParams = { days };
+
   const modelStatsQuery = useQuery({
     queryKey: queryKeys.modelStatistics(days),
-    queryFn: () => getModelStatistics(days),
+    queryFn: () => getModelStatistics(queryParams),
     refetchInterval: AUTO_REFRESH_MS,
     enabled: !!modelName,
   });
@@ -94,21 +96,21 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
 
   const tokenDistQuery = useQuery({
     queryKey: queryKeys.dashboardTokenDistribution(days),
-    queryFn: () => getTokenDistribution(days),
+    queryFn: () => getTokenDistribution(queryParams),
     refetchInterval: AUTO_REFRESH_MS,
     enabled: !!modelName,
   });
 
   const modelDistQuery = useQuery({
     queryKey: queryKeys.dashboardModelDistribution(days),
-    queryFn: () => getModelRequestDistribution(days),
+    queryFn: () => getModelRequestDistribution(queryParams),
     refetchInterval: AUTO_REFRESH_MS,
     enabled: !!modelName,
   });
 
   const costEffQuery = useQuery({
     queryKey: queryKeys.dashboardCostEfficiency(days),
-    queryFn: () => getCostEfficiencyByModel(days),
+    queryFn: () => getCostEfficiencyByModel(queryParams),
     refetchInterval: AUTO_REFRESH_MS,
     enabled: !!modelName,
   });

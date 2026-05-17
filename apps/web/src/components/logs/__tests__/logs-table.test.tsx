@@ -1,4 +1,5 @@
 import type { SpendLog } from "@lite-llm/api-contracts/analytics";
+import { BrowserRouter } from "react-router-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -42,29 +43,31 @@ describe("LogsTable", () => {
   it("keeps grouped rows aligned when some columns are hidden", async () => {
     const onSelectLog = vi.fn();
     const { container } = render(
-      <LogsTable
-        logs={SAMPLE_LOGS}
-        loading={false}
-        refreshing={false}
-        page={1}
-        pageSize={20}
-        pagination={{
-          total: SAMPLE_LOGS.length,
-          page: 1,
-          page_size: 20,
-          total_pages: 1,
-        }}
-        visibleColumns={VISIBLE_COLUMNS}
-        autoRefetchEnabled={false}
-        groupByModel={true}
-        onSelectLog={onSelectLog}
-        onToggleColumn={vi.fn()}
-        onAutoRefetchChange={vi.fn()}
-        onGroupByModelChange={vi.fn()}
-        onRefetch={vi.fn()}
-        onPageChange={vi.fn()}
-        onPageSizeChange={vi.fn()}
-      />,
+      <BrowserRouter>
+        <LogsTable
+          logs={SAMPLE_LOGS}
+          loading={false}
+          refreshing={false}
+          page={1}
+          pageSize={20}
+          pagination={{
+            total: SAMPLE_LOGS.length,
+            page: 1,
+            page_size: 20,
+            total_pages: 1,
+          }}
+          visibleColumns={VISIBLE_COLUMNS}
+          autoRefetchEnabled={false}
+          groupByModel={true}
+          onSelectLog={onSelectLog}
+          onToggleColumn={vi.fn()}
+          onAutoRefetchChange={vi.fn()}
+          onGroupByModelChange={vi.fn()}
+          onRefetch={vi.fn()}
+          onPageChange={vi.fn()}
+          onPageSizeChange={vi.fn()}
+        />
+      </BrowserRouter>,
     );
 
     const headerCellCount = container.querySelectorAll("thead tr th").length;
@@ -89,58 +92,60 @@ describe("LogsTable", () => {
 
   it("shows average tokens/s for grouped rows", () => {
     const { container } = render(
-      <LogsTable
-        logs={[
-          {
-            request_id: "tps-1",
-            model: "gpt-4.1-mini",
-            user: "alice",
-            total_tokens: 30,
-            prompt_tokens: 20,
-            completion_tokens: 10,
-            spend: 0.001,
-            time_to_first_token_ms: null,
-            start_time: "2026-04-24T10:00:00.000Z",
-            end_time: "2026-04-24T10:00:02.000Z",
-            api_key: "key-1",
-            status: "200",
-          },
-          {
-            request_id: "tps-2",
-            model: "gpt-4.1-mini",
-            user: "alice",
-            total_tokens: 40,
-            prompt_tokens: 10,
-            completion_tokens: 30,
-            spend: 0.0012,
-            time_to_first_token_ms: null,
-            start_time: "2026-04-24T10:01:00.000Z",
-            end_time: "2026-04-24T10:01:03.000Z",
-            api_key: "key-1",
-            status: "200",
-          },
-        ]}
-        loading={false}
-        refreshing={false}
-        page={1}
-        pageSize={20}
-        pagination={{
-          total: 2,
-          page: 1,
-          page_size: 20,
-          total_pages: 1,
-        }}
-        visibleColumns={["model", "tokensPerSecond"]}
-        autoRefetchEnabled={false}
-        groupByModel={true}
-        onSelectLog={vi.fn()}
-        onToggleColumn={vi.fn()}
-        onAutoRefetchChange={vi.fn()}
-        onGroupByModelChange={vi.fn()}
-        onRefetch={vi.fn()}
-        onPageChange={vi.fn()}
-        onPageSizeChange={vi.fn()}
-      />,
+      <BrowserRouter>
+        <LogsTable
+          logs={[
+            {
+              request_id: "tps-1",
+              model: "gpt-4.1-mini",
+              user: "alice",
+              total_tokens: 30,
+              prompt_tokens: 20,
+              completion_tokens: 10,
+              spend: 0.001,
+              time_to_first_token_ms: null,
+              start_time: "2026-04-24T10:00:00.000Z",
+              end_time: "2026-04-24T10:00:02.000Z",
+              api_key: "key-1",
+              status: "200",
+            },
+            {
+              request_id: "tps-2",
+              model: "gpt-4.1-mini",
+              user: "alice",
+              total_tokens: 40,
+              prompt_tokens: 10,
+              completion_tokens: 30,
+              spend: 0.0012,
+              time_to_first_token_ms: null,
+              start_time: "2026-04-24T10:01:00.000Z",
+              end_time: "2026-04-24T10:01:03.000Z",
+              api_key: "key-1",
+              status: "200",
+            },
+          ]}
+          loading={false}
+          refreshing={false}
+          page={1}
+          pageSize={20}
+          pagination={{
+            total: 2,
+            page: 1,
+            page_size: 20,
+            total_pages: 1,
+          }}
+          visibleColumns={["model", "tokensPerSecond"]}
+          autoRefetchEnabled={false}
+          groupByModel={true}
+          onSelectLog={vi.fn()}
+          onToggleColumn={vi.fn()}
+          onAutoRefetchChange={vi.fn()}
+          onGroupByModelChange={vi.fn()}
+          onRefetch={vi.fn()}
+          onPageChange={vi.fn()}
+          onPageSizeChange={vi.fn()}
+        />
+      </BrowserRouter>,
     );
 
     const headerCellCount = container.querySelectorAll("thead tr th").length;
@@ -150,58 +155,60 @@ describe("LogsTable", () => {
 
   it("shows average ttft for grouped rows", () => {
     render(
-      <LogsTable
-        logs={[
-          {
-            request_id: "ttft-1",
-            model: "gpt-4.1-mini",
-            user: "alice",
-            total_tokens: 30,
-            prompt_tokens: 20,
-            completion_tokens: 10,
-            spend: 0.001,
-            time_to_first_token_ms: 250,
-            start_time: "2026-04-24T10:00:00.000Z",
-            end_time: "2026-04-24T10:00:02.000Z",
-            api_key: "key-1",
-            status: "200",
-          },
-          {
-            request_id: "ttft-2",
-            model: "gpt-4.1-mini",
-            user: "alice",
-            total_tokens: 40,
-            prompt_tokens: 10,
-            completion_tokens: 30,
-            spend: 0.0012,
-            time_to_first_token_ms: 350,
-            start_time: "2026-04-24T10:01:00.000Z",
-            end_time: "2026-04-24T10:01:03.000Z",
-            api_key: "key-1",
-            status: "200",
-          },
-        ]}
-        loading={false}
-        refreshing={false}
-        page={1}
-        pageSize={20}
-        pagination={{
-          total: 2,
-          page: 1,
-          page_size: 20,
-          total_pages: 1,
-        }}
-        visibleColumns={["model", "timeToFirstToken"]}
-        autoRefetchEnabled={false}
-        groupByModel={true}
-        onSelectLog={vi.fn()}
-        onToggleColumn={vi.fn()}
-        onAutoRefetchChange={vi.fn()}
-        onGroupByModelChange={vi.fn()}
-        onRefetch={vi.fn()}
-        onPageChange={vi.fn()}
-        onPageSizeChange={vi.fn()}
-      />,
+      <BrowserRouter>
+        <LogsTable
+          logs={[
+            {
+              request_id: "ttft-1",
+              model: "gpt-4.1-mini",
+              user: "alice",
+              total_tokens: 30,
+              prompt_tokens: 20,
+              completion_tokens: 10,
+              spend: 0.001,
+              time_to_first_token_ms: 250,
+              start_time: "2026-04-24T10:00:00.000Z",
+              end_time: "2026-04-24T10:00:02.000Z",
+              api_key: "key-1",
+              status: "200",
+            },
+            {
+              request_id: "ttft-2",
+              model: "gpt-4.1-mini",
+              user: "alice",
+              total_tokens: 40,
+              prompt_tokens: 10,
+              completion_tokens: 30,
+              spend: 0.0012,
+              time_to_first_token_ms: 350,
+              start_time: "2026-04-24T10:01:00.000Z",
+              end_time: "2026-04-24T10:01:03.000Z",
+              api_key: "key-1",
+              status: "200",
+            },
+          ]}
+          loading={false}
+          refreshing={false}
+          page={1}
+          pageSize={20}
+          pagination={{
+            total: 2,
+            page: 1,
+            page_size: 20,
+            total_pages: 1,
+          }}
+          visibleColumns={["model", "timeToFirstToken"]}
+          autoRefetchEnabled={false}
+          groupByModel={true}
+          onSelectLog={vi.fn()}
+          onToggleColumn={vi.fn()}
+          onAutoRefetchChange={vi.fn()}
+          onGroupByModelChange={vi.fn()}
+          onRefetch={vi.fn()}
+          onPageChange={vi.fn()}
+          onPageSizeChange={vi.fn()}
+        />
+      </BrowserRouter>,
     );
 
     expect(screen.getByText("300")).toBeInTheDocument();
@@ -209,58 +216,60 @@ describe("LogsTable", () => {
 
   it("shows partial status badge on grouped rows when any request fails", () => {
     render(
-      <LogsTable
-        logs={[
-          {
-            request_id: "status-1",
-            model: "gpt-4.1-mini",
-            user: "alice",
-            total_tokens: 30,
-            prompt_tokens: 20,
-            completion_tokens: 10,
-            spend: 0.001,
-            time_to_first_token_ms: 200,
-            start_time: "2026-04-24T10:00:00.000Z",
-            end_time: "2026-04-24T10:00:02.000Z",
-            api_key: "key-1",
-            status: "200",
-          },
-          {
-            request_id: "status-2",
-            model: "gpt-4.1-mini",
-            user: "alice",
-            total_tokens: 40,
-            prompt_tokens: 10,
-            completion_tokens: 30,
-            spend: 0.0012,
-            time_to_first_token_ms: 300,
-            start_time: "2026-04-24T10:01:00.000Z",
-            end_time: "2026-04-24T10:01:03.000Z",
-            api_key: "key-1",
-            status: "500",
-          },
-        ]}
-        loading={false}
-        refreshing={false}
-        page={1}
-        pageSize={20}
-        pagination={{
-          total: 2,
-          page: 1,
-          page_size: 20,
-          total_pages: 1,
-        }}
-        visibleColumns={["model", "status"]}
-        autoRefetchEnabled={false}
-        groupByModel={true}
-        onSelectLog={vi.fn()}
-        onToggleColumn={vi.fn()}
-        onAutoRefetchChange={vi.fn()}
-        onGroupByModelChange={vi.fn()}
-        onRefetch={vi.fn()}
-        onPageChange={vi.fn()}
-        onPageSizeChange={vi.fn()}
-      />,
+      <BrowserRouter>
+        <LogsTable
+          logs={[
+            {
+              request_id: "status-1",
+              model: "gpt-4.1-mini",
+              user: "alice",
+              total_tokens: 30,
+              prompt_tokens: 20,
+              completion_tokens: 10,
+              spend: 0.001,
+              time_to_first_token_ms: 200,
+              start_time: "2026-04-24T10:00:00.000Z",
+              end_time: "2026-04-24T10:00:02.000Z",
+              api_key: "key-1",
+              status: "200",
+            },
+            {
+              request_id: "status-2",
+              model: "gpt-4.1-mini",
+              user: "alice",
+              total_tokens: 40,
+              prompt_tokens: 10,
+              completion_tokens: 30,
+              spend: 0.0012,
+              time_to_first_token_ms: 300,
+              start_time: "2026-04-24T10:01:00.000Z",
+              end_time: "2026-04-24T10:01:03.000Z",
+              api_key: "key-1",
+              status: "500",
+            },
+          ]}
+          loading={false}
+          refreshing={false}
+          page={1}
+          pageSize={20}
+          pagination={{
+            total: 2,
+            page: 1,
+            page_size: 20,
+            total_pages: 1,
+          }}
+          visibleColumns={["model", "status"]}
+          autoRefetchEnabled={false}
+          groupByModel={true}
+          onSelectLog={vi.fn()}
+          onToggleColumn={vi.fn()}
+          onAutoRefetchChange={vi.fn()}
+          onGroupByModelChange={vi.fn()}
+          onRefetch={vi.fn()}
+          onPageChange={vi.fn()}
+          onPageSizeChange={vi.fn()}
+        />
+      </BrowserRouter>,
     );
 
     expect(screen.getByText("partial")).toBeInTheDocument();
