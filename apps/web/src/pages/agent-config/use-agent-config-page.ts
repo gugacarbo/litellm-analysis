@@ -142,7 +142,7 @@ export function useAgentConfigPage(): {
       setFormData(getInitialFormData());
       setIsDirty(false);
     }
-  }, [agent, isNew, getInitialFormData]);
+  }, [isNew, getInitialFormData]);
 
   const handleFormDataChange = useCallback(
     (next: Partial<AgentConfigFormData>) => {

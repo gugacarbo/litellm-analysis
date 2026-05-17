@@ -127,7 +127,7 @@ export function useModelConfigPage(): UseModelConfigPageResult {
       setFormData(modelToFormData(model));
       setIsDirty(false);
     }
-  }, [model, credentialsQuery.data]);
+  }, [model]);
 
   const handleFormDataChange = useCallback((next: ModelConfigFormData) => {
     setFormData(next);

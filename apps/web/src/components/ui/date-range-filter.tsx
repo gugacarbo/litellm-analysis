@@ -174,7 +174,11 @@ function CustomRangePicker() {
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Até</Label>
               <div className="rounded-md border">
-                <Calendar mode="single" selected={toDate} onSelect={setToDate} />
+                <Calendar
+                  mode="single"
+                  selected={toDate}
+                  onSelect={setToDate}
+                />
               </div>
               <Select value={toTime} onValueChange={setToTime}>
                 <SelectTrigger className="w-full" size="sm">
