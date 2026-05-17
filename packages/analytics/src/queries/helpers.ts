@@ -1,3 +1,5 @@
+import type { TimeRangeParams } from "../types/index";
+
 export function normalizeDays(
   days: number | string | undefined,
   fallback: number,
@@ -33,6 +35,39 @@ export function getTimeFilterWhere(days: number): string {
   const windowStart = getWindowStart(days);
   if (!windowStart) return "";
   return `"startTime" >= '${windowStart.toISOString()}'`;
+}
+
+/**
+ * Returns a SQL WHERE clause fragment for time filtering using absolute dates.
+ * If startDate is provided, filters from that date.
+ * If endDate is provided, filters up to that date (inclusive).
+ */
+export function getDateRangeFilterWhere(params: TimeRangeParams): string {
+  const conditions: string[] = [];
+
+  if (params.startDate) {
+    conditions.push(`"startTime" >= '${params.startDate}'`);
+  }
+
+  if (params.endDate) {
+    conditions.push(`"startTime" <= '${params.endDate}'`);
+  }
+
+  return conditions.join(" AND ");
+}
+
+/**
+ * Returns the appropriate time filter based on params.
+ * If startDate/endDate are provided, uses absolute dates.
+ * Otherwise, calculates from days parameter.
+ */
+export function getTimeRangeFilterWhere(params: TimeRangeParams): string {
+  if (params.startDate || params.endDate) {
+    return getDateRangeFilterWhere(params);
+  }
+
+  const days = params.days ?? 30;
+  return getTimeFilterWhere(days);
 }
 
 export function getFailedSpendLogsFilter(): string {

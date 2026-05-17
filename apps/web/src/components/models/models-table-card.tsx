@@ -197,11 +197,7 @@ export function ModelsTableCard({
                       <div className="flex justify-end gap-2">
                         {inLiteLLM ? (
                           <>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              asChild
-                            >
+                            <Button variant="ghost" size="icon-sm" asChild>
                               <Link
                                 to={`/models/${encodeURIComponent(model.modelName)}`}
                               >

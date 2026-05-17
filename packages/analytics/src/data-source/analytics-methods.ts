@@ -6,13 +6,14 @@ import {
 import type {
   HourlyUsagePattern,
   PerformanceMetrics,
+  TimeRangeParams,
   TokenDistribution,
 } from "../types/index";
 
 export async function getTokenDistributionImpl(
-  days = 30,
+  params: TimeRangeParams = {},
 ): Promise<TokenDistribution[]> {
-  const result = await getTokenDistribution(days);
+  const result = await getTokenDistribution(params);
   return result.map((item) => ({
     model: item.model,
     prompt_tokens: Number(item.prompt_tokens),
@@ -23,9 +24,9 @@ export async function getTokenDistributionImpl(
 }
 
 export async function getPerformanceMetricsImpl(
-  days = 30,
+  params: TimeRangeParams = {},
 ): Promise<PerformanceMetrics> {
-  const result = await getPerformanceMetrics(days);
+  const result = await getPerformanceMetrics(params);
   return {
     total_requests: Number(result.total_requests),
     avg_duration_ms: Number(result.avg_duration_ms || 0),
@@ -35,9 +36,9 @@ export async function getPerformanceMetricsImpl(
 }
 
 export async function getHourlyUsagePatternsImpl(
-  days = 7,
+  params: TimeRangeParams = {},
 ): Promise<HourlyUsagePattern[]> {
-  const result = await getHourlyUsagePatterns(days);
+  const result = await getHourlyUsagePatterns(params);
   return result.map((item) => ({
     hour: Number(item.hour),
     request_count: Number(item.request_count),

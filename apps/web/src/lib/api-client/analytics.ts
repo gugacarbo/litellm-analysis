@@ -1,4 +1,32 @@
-import { fetchApi, withDays } from "./core";
+import {
+  type DateRangeParams,
+  fetchApi,
+  withDateRange,
+  withDays,
+} from "./core";
+
+export type AnalyticsQueryParams = {
+  days?: number;
+  startDate?: string;
+  endDate?: string;
+};
+
+function buildAnalyticsEndpoint(
+  base: string,
+  params: AnalyticsQueryParams,
+): string {
+  let endpoint = base;
+  if (params.startDate || params.endDate) {
+    const dateRange: DateRangeParams = {
+      startDate: params.startDate,
+      endDate: params.endDate,
+    };
+    endpoint = withDateRange(endpoint, dateRange);
+  } else if (params.days !== undefined) {
+    endpoint = withDays(endpoint, params.days);
+  }
+  return endpoint;
+}
 
 export async function getErrorLogs(
   limit = 50,
@@ -22,7 +50,9 @@ export async function getErrorLogs(
   return fetchApi(withDays(`/errors?limit=${limit}`, days), options);
 }
 
-export async function getMetricsSummary(days?: number): Promise<{
+export async function getMetricsSummary(
+  params: AnalyticsQueryParams = {},
+): Promise<{
   totalSpend: number;
   totalTokens: number;
   activeModels: number;
@@ -30,10 +60,12 @@ export async function getMetricsSummary(days?: number): Promise<{
   promptTokens: number;
   completionTokens: number;
 }> {
-  return fetchApi(withDays("/metrics", days));
+  return fetchApi(buildAnalyticsEndpoint("/metrics", params));
 }
 
-export async function getTokenDistribution(days?: number): Promise<
+export async function getTokenDistribution(
+  params: AnalyticsQueryParams = {},
+): Promise<
   {
     model: string;
     prompt_tokens: number;
@@ -42,19 +74,23 @@ export async function getTokenDistribution(days?: number): Promise<
     input_output_ratio: number;
   }[]
 > {
-  return fetchApi(withDays("/analytics/tokens", days));
+  return fetchApi(buildAnalyticsEndpoint("/analytics/tokens", params));
 }
 
-export async function getPerformanceMetrics(days?: number): Promise<{
+export async function getPerformanceMetrics(
+  params: AnalyticsQueryParams = {},
+): Promise<{
   total_requests: number;
   avg_duration_ms: number;
   success_rate: number;
   avg_tokens_per_second: number;
 }> {
-  return fetchApi(withDays("/analytics/performance", days));
+  return fetchApi(buildAnalyticsEndpoint("/analytics/performance", params));
 }
 
-export async function getHourlyUsagePatterns(days?: number): Promise<
+export async function getHourlyUsagePatterns(
+  params: AnalyticsQueryParams = {},
+): Promise<
   {
     hour: number;
     request_count: number;
@@ -62,10 +98,12 @@ export async function getHourlyUsagePatterns(days?: number): Promise<
     total_tokens: number;
   }[]
 > {
-  return fetchApi(withDays("/analytics/temporal", days));
+  return fetchApi(buildAnalyticsEndpoint("/analytics/temporal", params));
 }
 
-export async function getApiKeyDetailedStats(days?: number): Promise<
+export async function getApiKeyDetailedStats(
+  params: AnalyticsQueryParams = {},
+): Promise<
   {
     key: string;
     request_count: number;
@@ -77,10 +115,12 @@ export async function getApiKeyDetailedStats(days?: number): Promise<
     last_used: string;
   }[]
 > {
-  return fetchApi(withDays("/analytics/keys", days));
+  return fetchApi(buildAnalyticsEndpoint("/analytics/keys", params));
 }
 
-export async function getCostEfficiencyByModel(days?: number): Promise<
+export async function getCostEfficiencyByModel(
+  params: AnalyticsQueryParams = {},
+): Promise<
   {
     model: string;
     total_spend: number;
@@ -89,16 +129,20 @@ export async function getCostEfficiencyByModel(days?: number): Promise<
     request_count: number;
   }[]
 > {
-  return fetchApi(withDays("/analytics/cost-efficiency", days));
+  return fetchApi(buildAnalyticsEndpoint("/analytics/cost-efficiency", params));
 }
 
 export async function getModelRequestDistribution(
-  days?: number,
+  params: AnalyticsQueryParams = {},
 ): Promise<{ model: string; request_count: number; percentage: number }[]> {
-  return fetchApi(withDays("/analytics/model-distribution", days));
+  return fetchApi(
+    buildAnalyticsEndpoint("/analytics/model-distribution", params),
+  );
 }
 
-export async function getDailyTokenTrend(days = 30): Promise<
+export async function getDailyTokenTrend(
+  params: AnalyticsQueryParams = {},
+): Promise<
   {
     date: string;
     prompt_tokens: number;
@@ -107,10 +151,16 @@ export async function getDailyTokenTrend(days = 30): Promise<
     request_count: number;
   }[]
 > {
+  if (params.startDate || params.endDate) {
+    return fetchApi(buildAnalyticsEndpoint("/analytics/token-trend", params));
+  }
+  const days = params.days ?? 30;
   return fetchApi(`/analytics/token-trend?days=${days}`);
 }
 
-export async function getModelStatistics(days?: number): Promise<
+export async function getModelStatistics(
+  params: AnalyticsQueryParams = {},
+): Promise<
   {
     model: string;
     request_count: number;
@@ -137,7 +187,7 @@ export async function getModelStatistics(days?: number): Promise<
     enabled?: boolean;
   }[]
 > {
-  return fetchApi(withDays("/analytics/model-stats", days));
+  return fetchApi(buildAnalyticsEndpoint("/analytics/model-stats", params));
 }
 
 export async function getModelDailySpend(

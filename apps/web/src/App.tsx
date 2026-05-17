@@ -4,6 +4,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "./components/error-boundary";
 import { AppSidebar } from "./components/layout/sidebar";
 import { FilterProvider } from "./contexts/filter-context";
@@ -25,126 +26,128 @@ import { PromptEvalsPage } from "./pages/prompt-evals";
 function App() {
   return (
     <BrowserRouter>
-      <FilterProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-              <SidebarTrigger />
-            </header>
-            <main className="flex-1 overflow-auto">
-              <Routes>
-                <Route path="/" element={<DashboardPage />} />
-                <Route
-                  path="/logs"
-                  element={
-                    <ErrorBoundary>
-                      <LogsPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/model-stats/:modelName"
-                  element={
-                    <ErrorBoundary>
-                      <ModelDetailPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/model-stats"
-                  element={
-                    <ErrorBoundary>
-                      <ModelStatsPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/models"
-                  element={
-                    <ErrorBoundary>
-                      <ModelsPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/models/:modelName"
-                  element={
-                    <ErrorBoundary>
-                      <ModelConfigPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/benchmarks"
-                  element={
-                    <ErrorBoundary>
-                      <BenchmarksPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/agents"
-                  element={
-                    <ErrorBoundary>
-                      <AgentsPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/agents/:id"
-                  element={
-                    <ErrorBoundary>
-                      <AgentConfigPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/plugins"
-                  element={
-                    <ErrorBoundary>
-                      <PluginsPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/plugins/:pluginId"
-                  element={
-                    <ErrorBoundary>
-                      <PluginConfigPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/prompt-evals"
-                  element={
-                    <ErrorBoundary>
-                      <PromptEvalsPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/prompt-evals/:id"
-                  element={
-                    <ErrorBoundary>
-                      <PromptEvalDetailPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path="/monitor"
-                  element={
-                    <ErrorBoundary>
-                      <MonitorPage />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
-      </FilterProvider>
+      <TooltipProvider>
+        <FilterProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger />
+              </header>
+              <main className="flex-1 overflow-auto">
+                <Routes>
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route
+                    path="/logs"
+                    element={
+                      <ErrorBoundary>
+                        <LogsPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/model-stats/:modelName"
+                    element={
+                      <ErrorBoundary>
+                        <ModelDetailPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/model-stats"
+                    element={
+                      <ErrorBoundary>
+                        <ModelStatsPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/models"
+                    element={
+                      <ErrorBoundary>
+                        <ModelsPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/models/:modelName"
+                    element={
+                      <ErrorBoundary>
+                        <ModelConfigPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/benchmarks"
+                    element={
+                      <ErrorBoundary>
+                        <BenchmarksPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/agents"
+                    element={
+                      <ErrorBoundary>
+                        <AgentsPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/agents/:id"
+                    element={
+                      <ErrorBoundary>
+                        <AgentConfigPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/plugins"
+                    element={
+                      <ErrorBoundary>
+                        <PluginsPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/plugins/:pluginId"
+                    element={
+                      <ErrorBoundary>
+                        <PluginConfigPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/prompt-evals"
+                    element={
+                      <ErrorBoundary>
+                        <PromptEvalsPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/prompt-evals/:id"
+                    element={
+                      <ErrorBoundary>
+                        <PromptEvalDetailPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/monitor"
+                    element={
+                      <ErrorBoundary>
+                        <MonitorPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        </FilterProvider>
+      </TooltipProvider>
     </BrowserRouter>
   );
 }

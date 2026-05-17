@@ -76,14 +76,14 @@ describe("ModelsPage", () => {
     expect(deleteButtons.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("should show edit button", async () => {
+  it("should show edit link", async () => {
     renderWithQueryClient(<ModelsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    const editButtons = screen
-      .getAllByRole("button")
-      .filter((btn) => btn.querySelector("svg.lucide-pencil"));
-    expect(editButtons.length).toBe(2);
+    const editLinks = screen
+      .getAllByRole("link")
+      .filter((link) => link.querySelector("svg.lucide-pencil"));
+    expect(editLinks.length).toBe(2);
   });
 });

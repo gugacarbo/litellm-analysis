@@ -12,22 +12,18 @@ export function useModelStatsPageState() {
     state.sortDirection,
   );
 
-  const {
-    handleSort,
-    toggleColumn,
-    openDeleteDialog,
-    handleDelete,
-  } = useModelStatsActions(
-    state.rangeDays,
-    state.sortField,
-    state.setSortField,
-    state.sortDirection,
-    state.setSortDirection,
-    state.deleting,
-    state.setDeleting,
-    state.setDeleteDialogOpen,
-    state.setVisibleColumns,
-  );
+  const { handleSort, toggleColumn, openDeleteDialog, handleDelete } =
+    useModelStatsActions(
+      state.rangeDays,
+      state.sortField,
+      state.setSortField,
+      state.sortDirection,
+      state.setSortDirection,
+      state.deleting,
+      state.setDeleting,
+      state.setDeleteDialogOpen,
+      state.setVisibleColumns,
+    );
 
   return {
     ...state,

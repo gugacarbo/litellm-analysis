@@ -12,10 +12,13 @@ import type {
   ModelRequestDistribution,
   ModelStatistics,
   TimeGranularity,
+  TimeRangeParams,
 } from "../types/index";
 
-export async function getApiKeyStatsImpl(days = 30): Promise<ApiKeyStats[]> {
-  const result = await getApiKeyDetailedStats(days);
+export async function getApiKeyStatsImpl(
+  params: TimeRangeParams = {},
+): Promise<ApiKeyStats[]> {
+  const result = await getApiKeyDetailedStats(params);
   return result.map((item) => ({
     key: item.key,
     request_count: Number(item.request_count),
@@ -31,9 +34,9 @@ export async function getApiKeyStatsImpl(days = 30): Promise<ApiKeyStats[]> {
 }
 
 export async function getCostEfficiencyImpl(
-  days = 30,
+  params: TimeRangeParams = {},
 ): Promise<CostEfficiency[]> {
-  const result = await getCostEfficiencyByModel(days);
+  const result = await getCostEfficiencyByModel(params);
   return result.map((item) => ({
     model: item.model,
     total_spend: Number(item.total_spend),
@@ -44,9 +47,9 @@ export async function getCostEfficiencyImpl(
 }
 
 export async function getModelDistributionImpl(
-  days = 30,
+  params: TimeRangeParams = {},
 ): Promise<ModelRequestDistribution[]> {
-  const result = await getModelRequestDistribution(days);
+  const result = await getModelRequestDistribution(params);
   return result.map((item) => ({
     model: item.model,
     request_count: Number(item.request_count),
@@ -55,9 +58,9 @@ export async function getModelDistributionImpl(
 }
 
 export async function getDailyTokenTrendImpl(
-  days = 30,
+  params: TimeRangeParams = {},
 ): Promise<DailyTokenTrend[]> {
-  const result = await getDailyTokenTrend(days);
+  const result = await getDailyTokenTrend(params);
   return result.map((item) => ({
     date: String(item.date),
     prompt_tokens: Number(item.prompt_tokens),
@@ -69,9 +72,9 @@ export async function getDailyTokenTrendImpl(
 }
 
 export async function getModelStatisticsImpl(
-  days = 30,
+  params: TimeRangeParams = {},
 ): Promise<ModelStatistics[]> {
-  const result = (await getModelStatistics(days)) as Array<
+  const result = (await getModelStatistics(params)) as Array<
     Record<string, unknown>
   >;
   return result.map((item) => ({

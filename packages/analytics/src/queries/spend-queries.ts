@@ -1,5 +1,11 @@
+import type { TimeRangeParams } from "../types/index";
 import { prisma } from "./client";
-import { buildWhereClause, getTimeFilterWhere, normalizeDays } from "./helpers";
+import {
+  buildWhereClause,
+  getTimeFilterWhere,
+  getTimeRangeFilterWhere,
+  normalizeDays,
+} from "./helpers";
 
 const TTFT_SQL = `CASE
   WHEN COALESCE(
@@ -22,8 +28,12 @@ const TTFT_SQL = `CASE
     ) * 1000
 END`;
 
-export async function getSpendByModel(days = 30) {
-  const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
+function getTimeCondition(params: TimeRangeParams): string {
+  return getTimeRangeFilterWhere(params);
+}
+
+export async function getSpendByModel(params: TimeRangeParams = {}) {
+  const where = buildWhereClause([getTimeCondition(params)]);
 
   const result = await prisma.$queryRawUnsafe<
     Array<{ model: string; total_spend: number }>
@@ -133,8 +143,8 @@ export async function getSpendLogsCount(params: {
   return result[0]?.count || 0;
 }
 
-export async function getSpendByUser(days = 30) {
-  const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
+export async function getSpendByUser(params: TimeRangeParams = {}) {
+  const where = buildWhereClause([getTimeCondition(params)]);
 
   const result = await prisma.$queryRawUnsafe<
     Array<{

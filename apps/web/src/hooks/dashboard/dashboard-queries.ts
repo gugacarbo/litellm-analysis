@@ -1,134 +1,134 @@
 import { useQuery } from "@tanstack/react-query";
+import type { AnalyticsQueryParams } from "../../lib/api-client/analytics";
 import {
   getApiKeyDetailedStats,
   getCostEfficiencyByModel,
-  getDailySpendTrend,
   getDailyTokenTrend,
   getHourlyUsagePatterns,
   getMetricsSummary,
   getModelRequestDistribution,
   getModelStatistics,
   getPerformanceMetrics,
+  getTokenDistribution,
+} from "../../lib/api-client/analytics";
+import {
+  getDailySpendTrend,
   getSpendByModel,
   getSpendByUser,
-  getTokenDistribution,
-} from "../../lib/api-client";
+} from "../../lib/api-client/spend";
 import { queryKeys } from "../../lib/query-keys";
 
-const DEFAULT_DAYS = 30;
 const AUTO_REFRESH_MS = 30_000;
 
-function useDashboardMetricsQuery(days: number = DEFAULT_DAYS) {
+function useDashboardMetricsQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardMetrics(days),
-    queryFn: () => getMetricsSummary(days),
+    queryKey: queryKeys.dashboardMetrics(params.days ?? 30),
+    queryFn: () => getMetricsSummary(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useSpendByModelQuery(days: number = DEFAULT_DAYS) {
+function useSpendByModelQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardSpendByModel(days),
-    queryFn: () => getSpendByModel(days),
+    queryKey: queryKeys.dashboardSpendByModel(params.days ?? 30),
+    queryFn: () => getSpendByModel(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useSpendByUserQuery(days: number = DEFAULT_DAYS) {
+function useSpendByUserQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardSpendByUser(days),
-    queryFn: () => getSpendByUser(days),
+    queryKey: queryKeys.dashboardSpendByUser(params.days ?? 30),
+    queryFn: () => getSpendByUser(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useDailyTrendQuery(days: number = DEFAULT_DAYS) {
+function useDailyTrendQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardDailySpendTrend(days),
-    queryFn: () => getDailySpendTrend(days),
+    queryKey: queryKeys.dashboardDailySpendTrend(params.days ?? 30),
+    queryFn: () => getDailySpendTrend(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useTokenDistributionQuery(days: number = DEFAULT_DAYS) {
+function useTokenDistributionQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardTokenDistribution(days),
-    queryFn: () => getTokenDistribution(days),
+    queryKey: queryKeys.dashboardTokenDistribution(params.days ?? 30),
+    queryFn: () => getTokenDistribution(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function usePerformanceQuery(days: number = DEFAULT_DAYS) {
+function usePerformanceQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardPerformance(days),
-    queryFn: () => getPerformanceMetrics(days),
+    queryKey: queryKeys.dashboardPerformance(params.days ?? 30),
+    queryFn: () => getPerformanceMetrics(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useHourlyPatternsQuery(days: number = DEFAULT_DAYS) {
+function useHourlyPatternsQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardHourlyPatterns(days),
-    queryFn: () => getHourlyUsagePatterns(days),
+    queryKey: queryKeys.dashboardHourlyPatterns(params.days ?? 30),
+    queryFn: () => getHourlyUsagePatterns(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useApiKeyStatsQuery(days: number = DEFAULT_DAYS) {
+function useApiKeyStatsQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardApiKeyStats(days),
-    queryFn: () => getApiKeyDetailedStats(days),
+    queryKey: queryKeys.dashboardApiKeyStats(params.days ?? 30),
+    queryFn: () => getApiKeyDetailedStats(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useCostEfficiencyQuery(days: number = DEFAULT_DAYS) {
+function useCostEfficiencyQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardCostEfficiency(days),
-    queryFn: () => getCostEfficiencyByModel(days),
+    queryKey: queryKeys.dashboardCostEfficiency(params.days ?? 30),
+    queryFn: () => getCostEfficiencyByModel(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useModelDistributionQuery(days: number = DEFAULT_DAYS) {
+function useModelDistributionQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardModelDistribution(days),
-    queryFn: () => getModelRequestDistribution(days),
+    queryKey: queryKeys.dashboardModelDistribution(params.days ?? 30),
+    queryFn: () => getModelRequestDistribution(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useDailyTokenTrendQuery(days: number = DEFAULT_DAYS) {
+function useDailyTokenTrendQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardDailyTokenTrend(days),
-    queryFn: () => getDailyTokenTrend(days),
+    queryKey: queryKeys.dashboardDailyTokenTrend(params.days ?? 30),
+    queryFn: () => getDailyTokenTrend(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-function useModelStatisticsQuery(days: number = DEFAULT_DAYS) {
+function useModelStatisticsQuery(params: AnalyticsQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboardModelStatistics(days),
-    queryFn: () => getModelStatistics(days),
+    queryKey: queryKeys.dashboardModelStatistics(params.days ?? 30),
+    queryFn: () => getModelStatistics(params),
     refetchInterval: AUTO_REFRESH_MS,
   });
 }
 
-export function useAllDashboardQueries(options: { days?: number } = {}) {
-  const days = options.days ?? 30;
-
-  const metricsQuery = useDashboardMetricsQuery(days);
-  const spendByModelQuery = useSpendByModelQuery(days);
-  const spendByUserQuery = useSpendByUserQuery(days);
-  const dailyTrendQuery = useDailyTrendQuery(days);
-  const tokenDistributionQuery = useTokenDistributionQuery(days);
-  const performanceQuery = usePerformanceQuery(days);
-  const hourlyPatternsQuery = useHourlyPatternsQuery(days);
-  const apiKeyStatsQuery = useApiKeyStatsQuery(days);
-  const costEfficiencyQuery = useCostEfficiencyQuery(days);
-  const modelDistributionQuery = useModelDistributionQuery(days);
-  const dailyTokenTrendQuery = useDailyTokenTrendQuery(days);
-  const modelStatisticsQuery = useModelStatisticsQuery(days);
+export function useAllDashboardQueries(params: AnalyticsQueryParams = {}) {
+  const metricsQuery = useDashboardMetricsQuery(params);
+  const spendByModelQuery = useSpendByModelQuery(params);
+  const spendByUserQuery = useSpendByUserQuery(params);
+  const dailyTrendQuery = useDailyTrendQuery(params);
+  const tokenDistributionQuery = useTokenDistributionQuery(params);
+  const performanceQuery = usePerformanceQuery(params);
+  const hourlyPatternsQuery = useHourlyPatternsQuery(params);
+  const apiKeyStatsQuery = useApiKeyStatsQuery(params);
+  const costEfficiencyQuery = useCostEfficiencyQuery(params);
+  const modelDistributionQuery = useModelDistributionQuery(params);
+  const dailyTokenTrendQuery = useDailyTokenTrendQuery(params);
+  const modelStatisticsQuery = useModelStatisticsQuery(params);
 
   return {
     metricsQuery,

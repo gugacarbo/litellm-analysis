@@ -8,6 +8,24 @@ function getModel(req: Request): string {
   return modelStore.get(req)?.model ?? "";
 }
 
+type TimeRangeParams = {
+  days?: number;
+  startDate?: string;
+  endDate?: string;
+};
+
+function getTimeRangeParams(
+  req: Request & { query: Record<string, unknown> },
+  defaultDays: number,
+): TimeRangeParams {
+  const startDate = req.query.startDate as string | undefined;
+  const endDate = req.query.endDate as string | undefined;
+  if (startDate || endDate) {
+    return { startDate, endDate };
+  }
+  return { days: parseDays(req.query.days, defaultDays) };
+}
+
 export function registerAnalyticsRoutes(
   app: Application,
   opts: RouteOptions,
@@ -30,8 +48,11 @@ export function registerAnalyticsRoutes(
 
   app.get("/analytics/tokens", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getTokenDistribution(days);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        30,
+      );
+      const data = await dataSource.getTokenDistribution(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -40,8 +61,11 @@ export function registerAnalyticsRoutes(
 
   app.get("/analytics/performance", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getPerformanceMetrics(days);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        30,
+      );
+      const data = await dataSource.getPerformanceMetrics(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -50,8 +74,11 @@ export function registerAnalyticsRoutes(
 
   app.get("/analytics/temporal", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 7);
-      const data = await dataSource.getHourlyUsagePatterns(days);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        7,
+      );
+      const data = await dataSource.getHourlyUsagePatterns(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -60,8 +87,11 @@ export function registerAnalyticsRoutes(
 
   app.get("/analytics/keys", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getApiKeyStats(days);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        30,
+      );
+      const data = await dataSource.getApiKeyStats(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -70,8 +100,11 @@ export function registerAnalyticsRoutes(
 
   app.get("/analytics/cost-efficiency", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getCostEfficiency(days);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        30,
+      );
+      const data = await dataSource.getCostEfficiency(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -80,8 +113,11 @@ export function registerAnalyticsRoutes(
 
   app.get("/analytics/model-distribution", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getModelDistribution(days);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        30,
+      );
+      const data = await dataSource.getModelDistribution(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -90,18 +126,24 @@ export function registerAnalyticsRoutes(
 
   app.get("/analytics/token-trend", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getDailyTokenTrend(days);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        30,
+      );
+      const data = await dataSource.getDailyTokenTrend(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  app.get("/analytics/model-stats", async (_req, res) => {
+  app.get("/analytics/model-stats", async (req, res) => {
     try {
-      const days = parseDays(_req.query.days, 30);
-      const data = await dataSource.getModelStatistics(days);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        30,
+      );
+      const data = await dataSource.getModelStatistics(params);
 
       // Attach enabled status from config
       const allModels = await modelsService.getAll();
@@ -290,9 +332,12 @@ export function registerAnalyticsRoutes(
 
   app.get("/metrics", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
+      const params = getTimeRangeParams(
+        req as Request & { query: Record<string, unknown> },
+        30,
+      );
       const [metrics, allConfiguredModels] = await Promise.all([
-        dataSource.getMetricsSummary(days),
+        dataSource.getMetricsSummary(params),
         opts.modelsService.getAll(),
       ]);
       // Filter to only enabled models

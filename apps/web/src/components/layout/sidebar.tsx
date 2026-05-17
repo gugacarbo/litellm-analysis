@@ -137,7 +137,7 @@ export function AppSidebar() {
                   <NavItemBranch key={item.id} item={item} />
                 ) : (
                   <NavItemLeaf key={item.to} item={item} />
-                )
+                ),
               )}
             </SidebarMenu>
           </SidebarGroupContent>

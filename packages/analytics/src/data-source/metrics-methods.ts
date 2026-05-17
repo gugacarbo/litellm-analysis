@@ -8,12 +8,13 @@ import type {
   HourlySpendTrend,
   MetricsSummary,
   TimeGranularity,
+  TimeRangeParams,
 } from "../types/index";
 
 export async function getMetricsSummaryImpl(
-  days = 30,
+  params: TimeRangeParams = {},
 ): Promise<MetricsSummary> {
-  const result = await getMetricsSummary(days);
+  const result = await getMetricsSummary(params);
   return {
     total_spend: result.totalSpend,
     total_tokens: result.totalTokens,
@@ -25,9 +26,9 @@ export async function getMetricsSummaryImpl(
 }
 
 export async function getDailySpendTrendImpl(
-  days = 30,
+  params: TimeRangeParams = {},
 ): Promise<DailySpendTrend[]> {
-  const result = await getDailySpendTrend(days);
+  const result = await getDailySpendTrend(params);
   return result.map((item) => ({
     date: String(item.date),
     spend: item.spend,

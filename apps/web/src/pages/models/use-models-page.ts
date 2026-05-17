@@ -5,11 +5,11 @@ import {
   createModel,
   deleteModel,
   getModelsWithConfig,
+  type ModelConfig,
   mergeModels,
   syncModelsFromConfig,
   toggleModelEnabled,
   updateModel,
-  type ModelConfig,
 } from "../../lib/api-client";
 import { getModelsHealth } from "../../lib/api-client/monitor";
 import { validateAndBuildModelParams } from "./models-form-utils";

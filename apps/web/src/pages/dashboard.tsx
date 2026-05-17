@@ -26,11 +26,8 @@ import {
 type ChartTabKey = "usage" | "models" | "efficiency";
 
 export function DashboardPage() {
-  const {
-    dateRange: selectedDateRange,
-    setDateRange: setSelectedDateRange,
-    rangeDays,
-  } = useFilter();
+  const { dateRange: selectedDateRange, setDateRange: setSelectedDateRange } =
+    useFilter();
   const rangeLabel = getDateRangeLabel(selectedDateRange);
   const [chartTab, setChartTab] = useState<ChartTabKey>("usage");
 
@@ -52,7 +49,7 @@ export function DashboardPage() {
     lastUpdatedAt,
     insights,
     refetch,
-  } = useDashboardData({ days: rangeDays });
+  } = useDashboardData();
 
   const lastUpdatedLabel = useMemo(() => {
     if (!lastUpdatedAt) {

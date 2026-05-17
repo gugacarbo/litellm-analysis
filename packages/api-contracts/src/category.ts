@@ -4,9 +4,9 @@ export interface CategoryEntry {
   description?: string;
   variant?: string;
   icon?: string;
- temperature?: number;
+  temperature?: number;
   topP?: number;
- maxTokens?: number;
+  maxTokens?: number;
   thinking?: {
     levels: string[];
   };

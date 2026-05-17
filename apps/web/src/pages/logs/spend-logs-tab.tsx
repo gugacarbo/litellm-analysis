@@ -1,6 +1,5 @@
 import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { APP_LOCALE } from "@/lib/locale";
-import { LogDetailDialog } from "../../components/logs/log-detail-dialog";
 import { LogsFilterCard } from "../../components/logs/logs-filter-card";
 import { LogsSummaryCards } from "../../components/logs/logs-summary-cards";
 import { LogsTable } from "../../components/logs/logs-table";
@@ -99,7 +98,6 @@ export function SpendLogsTab({
         autoRefetchEnabled={state.autoRefetchEnabled}
         groupByModel={state.groupByModel}
         refreshing={refreshing}
-        onSelectLog={state.setSelectedLog}
         onToggleColumn={state.handleToggleColumn}
         onAutoRefetchChange={state.setAutoRefetchEnabled}
         onGroupByModelChange={state.setGroupByModel}
@@ -108,14 +106,6 @@ export function SpendLogsTab({
         }}
         onPageChange={state.handlePageChange}
         onPageSizeChange={state.handlePageSizeChange}
-      />
-
-      <LogDetailDialog
-        log={state.selectedLog}
-        open={state.selectedLog !== null}
-        onOpenChange={(open) => {
-          if (!open) state.setSelectedLog(null);
-        }}
       />
     </div>
   );

@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
+import type { TimeRangeParams } from "../types/index";
 import { prisma } from "./client";
 import {
   combineSqlConditions,
   getTimeFilterWhere,
+  getTimeRangeFilterWhere,
   normalizeDays,
 } from "./helpers";
 import { resolveTimeBucket } from "./time-buckets";
@@ -24,10 +26,15 @@ export async function getModelDetails() {
   return result;
 }
 
-export async function getModelStatistics(days = 30) {
+export async function getModelStatistics(params: TimeRangeParams = {}) {
+  const days = params.days ?? 30;
   const normalizedDays = normalizeDays(days, 30);
+  const timeCondition =
+    params.startDate || params.endDate
+      ? getTimeRangeFilterWhere(params)
+      : getTimeFilterWhere(normalizedDays);
   const where = `WHERE ${combineSqlConditions([
-    getTimeFilterWhere(normalizedDays),
+    timeCondition,
     `"endTime" IS NOT NULL`,
     `EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.1`,
   ])}`;

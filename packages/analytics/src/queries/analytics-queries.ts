@@ -1,9 +1,22 @@
+import type { TimeRangeParams } from "../types/index";
 import { prisma } from "./client";
-import { buildWhereClause, getTimeFilterWhere, normalizeDays } from "./helpers";
+import {
+  buildWhereClause,
+  getTimeRangeFilterWhere,
+  normalizeDays,
+} from "./helpers";
 
-export async function getMetricsSummary(days = 30) {
+function getTimeCondition(params: TimeRangeParams): string {
+  return getTimeRangeFilterWhere(params);
+}
+
+export async function getMetricsSummary(params: TimeRangeParams = {}) {
+  const days = params.days ?? 30;
   const normalizedDays = normalizeDays(days, 30);
-  const timeFilter = getTimeFilterWhere(normalizedDays);
+  const timeFilter =
+    params.startDate || params.endDate
+      ? getTimeCondition(params)
+      : getTimeRangeFilterWhere({ days: normalizedDays });
   const errorTimeFilter = timeFilter;
 
   const [spendResult, errorResult] = await Promise.all([
@@ -49,10 +62,13 @@ export async function getMetricsSummary(days = 30) {
   };
 }
 
-export async function getPerformanceMetrics(days = 30) {
+export async function getPerformanceMetrics(params: TimeRangeParams = {}) {
+  const days = params.days ?? 30;
   const normalizedDays = normalizeDays(days, 30);
+  const timeParams =
+    params.startDate || params.endDate ? params : { days: normalizedDays };
   const where = buildWhereClause([
-    getTimeFilterWhere(normalizedDays),
+    getTimeCondition(timeParams),
     `"endTime" IS NOT NULL`,
     `EXTRACT(EPOCH FROM ("endTime" - "startTime")) >= 0.1`,
   ]);
@@ -84,9 +100,12 @@ export async function getPerformanceMetrics(days = 30) {
   );
 }
 
-export async function getCostEfficiencyByModel(days = 30) {
+export async function getCostEfficiencyByModel(params: TimeRangeParams = {}) {
+  const days = params.days ?? 30;
   const normalizedDays = normalizeDays(days, 30);
-  const where = buildWhereClause([getTimeFilterWhere(normalizedDays)]);
+  const timeParams =
+    params.startDate || params.endDate ? params : { days: normalizedDays };
+  const where = buildWhereClause([getTimeCondition(timeParams)]);
 
   const result = await prisma.$queryRawUnsafe<
     Array<{

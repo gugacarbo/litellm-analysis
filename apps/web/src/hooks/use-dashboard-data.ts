@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useFilter } from "@/contexts/filter-context";
 import { useAllDashboardQueries } from "./dashboard/dashboard-queries";
 import { computeInsights } from "./use-dashboard-data/insights";
 import type { RawMetrics } from "./use-dashboard-data/normalizers";
@@ -9,14 +10,13 @@ import {
   normalizeSpendByUser,
 } from "./use-dashboard-data/normalizers";
 
-const DEFAULT_DAYS = 30;
+function toISODateString(date: Date | undefined): string | undefined {
+  if (!date) return undefined;
+  return date.toISOString();
+}
 
-type DashboardDataOptions = {
-  days?: number;
-};
-
-export function useDashboardData(options: DashboardDataOptions = {}) {
-  const days = options.days ?? DEFAULT_DAYS;
+export function useDashboardData() {
+  const { dateRange, customFrom, customTo, rangeDays } = useFilter();
   const abortRef = useRef<AbortController>(null);
 
   useEffect(() => {
@@ -26,6 +26,16 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
       controller.abort();
     };
   }, []);
+
+  const queryParams = useMemo(() => {
+    if (dateRange === "custom" && customFrom && customTo) {
+      return {
+        startDate: toISODateString(customFrom),
+        endDate: toISODateString(customTo),
+      };
+    }
+    return { days: rangeDays };
+  }, [dateRange, customFrom, customTo, rangeDays]);
 
   const {
     metricsQuery,
@@ -40,7 +50,7 @@ export function useDashboardData(options: DashboardDataOptions = {}) {
     modelDistributionQuery,
     dailyTokenTrendQuery,
     modelStatisticsQuery,
-  } = useAllDashboardQueries({ days });
+  } = useAllDashboardQueries(queryParams);
 
   const dashboardQueries = [
     metricsQuery,

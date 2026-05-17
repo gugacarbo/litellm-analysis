@@ -42,6 +42,7 @@ export const queryKeys = {
       params.startDate ?? "",
       params.endDate ?? "",
     ] as const,
+  spendLogDetail: (requestId: string) => ["spend-log", requestId] as const,
   modelDetailDailySpend: (model: string, days: number) =>
     ["model-detail", "daily-spend", model, days] as const,
   modelDetailDailyTokens: (model: string, days: number) =>

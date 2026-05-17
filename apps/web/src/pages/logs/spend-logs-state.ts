@@ -1,4 +1,3 @@
-import type { SpendLog } from "@lite-llm/api-contracts/analytics";
 import { useEffect, useMemo, useState } from "react";
 import type { LogsFilterValues } from "../../components/logs/logs-filter-card";
 import { DEFAULT_VISIBLE_LOG_COLUMNS } from "../../components/logs/logs-table";
@@ -14,8 +13,6 @@ export type SpendLogFilters = {
 };
 
 export interface SpendLogsState {
-  selectedLog: SpendLog | null;
-  setSelectedLog: (log: SpendLog | null) => void;
   autoRefetchEnabled: boolean;
   setAutoRefetchEnabled: (v: boolean) => void;
   visibleColumns: LogColumnKey[];
@@ -46,7 +43,6 @@ export function useSpendLogsState(params: {
     [params.modelsQuery.data],
   );
 
-  const [selectedLog, setSelectedLog] = useState<SpendLog | null>(null);
   const [autoRefetchEnabled, setAutoRefetchEnabled] = useState(true);
   const [visibleColumns, setVisibleColumns] = useState<LogColumnKey[]>(
     DEFAULT_VISIBLE_LOG_COLUMNS,
@@ -118,8 +114,6 @@ export function useSpendLogsState(params: {
   );
 
   return {
-    selectedLog,
-    setSelectedLog,
     autoRefetchEnabled,
     setAutoRefetchEnabled,
     visibleColumns,

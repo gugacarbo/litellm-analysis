@@ -1,6 +1,10 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useFilter } from "@/contexts/filter-context";
-import type { DashboardDateRangeKey, DateRangeGroup } from "@/lib/date-ranges";
+import type {
+  DashboardDateRangeKey,
+  DateRangeGroup,
+  TimeRangeValue,
+} from "@/lib/date-ranges";
 import {
   DAYS_OPTIONS,
   getDateRangeGroup,
@@ -13,6 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { TimeRangePicker } from "./time-range-picker";
 
 const GROUP_LABELS: Record<DateRangeGroup, string> = {
   hours: "Horas",
@@ -35,16 +41,7 @@ function DateRangeGroupButton({
   const currentOption = options.find((o) => o.key === selectedKey);
 
   if (group === "custom") {
-    return (
-      <Button
-        variant={selectedKey === "custom" ? "default" : "outline"}
-        size="sm"
-        className="h-7 px-2 text-xs"
-        onClick={() => onSelect("custom")}
-      >
-        {groupLabel}
-      </Button>
-    );
+    return null; // Custom is handled by CustomRangePicker
   }
 
   return (
@@ -74,6 +71,46 @@ function DateRangeGroupButton({
   );
 }
 
+function CustomRangePicker() {
+  const { dateRange, customFrom, customTo, setCustomRange } = useFilter();
+
+  const timeRangeValue: TimeRangeValue = {
+    preset: dateRange === "custom" ? "custom" : undefined,
+    from: customFrom,
+    to: customTo,
+  };
+
+  const isCustomActive = dateRange === "custom" && !!customFrom && !!customTo;
+
+  const handleChange = (value: TimeRangeValue) => {
+    if (value.from && value.to) {
+      setCustomRange(value.from, value.to);
+    }
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={isCustomActive ? "default" : "outline"}
+          size="sm"
+          className="h-7 px-2 text-xs"
+        >
+          {isCustomActive ? "Personalizado" : GROUP_LABELS.custom}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="end">
+        <TimeRangePicker
+          value={timeRangeValue}
+          onChange={handleChange}
+          presets={["15m", "1h", "5h", "12h", "24h", "7d", "14d", "30d"]}
+          showCustom={true}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function DateRangeFilter() {
   const { dateRange, setDateRange } = useFilter();
 
@@ -89,11 +126,7 @@ export function DateRangeFilter() {
         selectedKey={dateRange}
         onSelect={setDateRange}
       />
-      <DateRangeGroupButton
-        group="custom"
-        selectedKey={dateRange}
-        onSelect={setDateRange}
-      />
+      <CustomRangePicker />
     </div>
   );
 }

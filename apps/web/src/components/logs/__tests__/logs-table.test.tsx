@@ -1,7 +1,7 @@
 import type { SpendLog } from "@lite-llm/api-contracts/analytics";
-import { BrowserRouter } from "react-router-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { LogsTable } from "../logs-table";
 import type { LogColumnKey } from "../logs-table-columns";

@@ -5,6 +5,9 @@ import { getDateRangeDays } from "@/lib/date-ranges";
 type FilterContextValue = {
   dateRange: DashboardDateRangeKey;
   setDateRange: (range: DashboardDateRangeKey) => void;
+  customFrom?: Date;
+  customTo?: Date;
+  setCustomRange: (from: Date, to: Date) => void;
   rangeDays: number;
 };
 
@@ -17,19 +20,36 @@ const FilterContext = React.createContext<FilterContextValue | undefined>(
 export function FilterProvider({ children }: { children: React.ReactNode }) {
   const [dateRange, setDateRange] =
     React.useState<DashboardDateRangeKey>(DEFAULT_DATE_RANGE);
-
-  const rangeDays = React.useMemo(
-    () => getDateRangeDays(dateRange),
-    [dateRange],
+  const [customFrom, setCustomFrom] = React.useState<Date | undefined>(
+    undefined,
   );
+  const [customTo, setCustomTo] = React.useState<Date | undefined>(undefined);
+
+  const setCustomRange = React.useCallback((from: Date, to: Date) => {
+    setDateRange("custom");
+    setCustomFrom(from);
+    setCustomTo(to);
+  }, []);
+
+  const rangeDays = React.useMemo(() => {
+    if (dateRange === "custom") {
+      if (!customFrom || !customTo) return 0;
+      const diffMs = customTo.getTime() - customFrom.getTime();
+      return diffMs / (1000 * 60 * 60 * 24);
+    }
+    return getDateRangeDays(dateRange);
+  }, [dateRange, customFrom, customTo]);
 
   const value = React.useMemo(
     () => ({
       dateRange,
       setDateRange,
+      customFrom,
+      customTo,
+      setCustomRange,
       rangeDays,
     }),
-    [dateRange, rangeDays],
+    [dateRange, customFrom, customTo, setCustomRange, rangeDays],
   );
 
   return (

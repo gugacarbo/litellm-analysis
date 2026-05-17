@@ -16,24 +16,41 @@ export interface TimeSeriesPoint {
   granularity: TimeGranularity;
 }
 
+/**
+ * Time range parameters for queries.
+ * Use either days (relative) OR startDate/endDate (absolute).
+ */
+export type TimeRangeParams = {
+  days?: number;
+  startDate?: string;
+  endDate?: string;
+};
+
+/** @deprecated Use TimeRangeParams instead */
+export type LegacyTimeRangeParams = number | undefined;
+
 export interface AnalyticsDataSource {
-  getMetricsSummary(days?: number): Promise<MetricsSummary>;
-  getDailySpendTrend(days?: number): Promise<DailySpendTrend[]>;
+  getMetricsSummary(params?: TimeRangeParams): Promise<MetricsSummary>;
+  getDailySpendTrend(params?: TimeRangeParams): Promise<DailySpendTrend[]>;
   getHourlySpendTrend(days?: number): Promise<HourlySpendTrend[]>;
-  getSpendByModel(days?: number): Promise<SpendByModel[]>;
-  getSpendByUser(days?: number): Promise<SpendByUser[]>;
+  getSpendByModel(params?: TimeRangeParams): Promise<SpendByModel[]>;
+  getSpendByUser(params?: TimeRangeParams): Promise<SpendByUser[]>;
   getSpendByKey(days?: number): Promise<SpendByKey[]>;
   getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse>;
   getSpendLogsCount(filters: SpendLogsFilters): Promise<number>;
   getSpendLogDetail(requestId: string): Promise<SpendLogEntry>;
-  getTokenDistribution(days?: number): Promise<TokenDistribution[]>;
-  getPerformanceMetrics(days?: number): Promise<PerformanceMetrics>;
-  getHourlyUsagePatterns(days?: number): Promise<HourlyUsagePattern[]>;
-  getApiKeyStats(days?: number): Promise<ApiKeyStats[]>;
-  getCostEfficiency(days?: number): Promise<CostEfficiency[]>;
-  getModelDistribution(days?: number): Promise<ModelRequestDistribution[]>;
-  getDailyTokenTrend(days?: number): Promise<DailyTokenTrend[]>;
-  getModelStatistics(days?: number): Promise<ModelStatistics[]>;
+  getTokenDistribution(params?: TimeRangeParams): Promise<TokenDistribution[]>;
+  getPerformanceMetrics(params?: TimeRangeParams): Promise<PerformanceMetrics>;
+  getHourlyUsagePatterns(
+    params?: TimeRangeParams,
+  ): Promise<HourlyUsagePattern[]>;
+  getApiKeyStats(params?: TimeRangeParams): Promise<ApiKeyStats[]>;
+  getCostEfficiency(params?: TimeRangeParams): Promise<CostEfficiency[]>;
+  getModelDistribution(
+    params?: TimeRangeParams,
+  ): Promise<ModelRequestDistribution[]>;
+  getDailyTokenTrend(params?: TimeRangeParams): Promise<DailyTokenTrend[]>;
+  getModelStatistics(params?: TimeRangeParams): Promise<ModelStatistics[]>;
   getDailySpendTrendByModel(
     model: string,
     days?: number,

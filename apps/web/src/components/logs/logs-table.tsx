@@ -8,6 +8,7 @@ import type {
   VisibilityState,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../ui/card";
 import { DataTable } from "../ui/data-table";
 import {
@@ -37,7 +38,7 @@ type LogsTableProps = {
   visibleColumns: LogColumnKey[];
   autoRefetchEnabled: boolean;
   groupByModel: boolean;
-  onSelectLog: (log: SpendLog) => void;
+  onSelectLog?: (log: SpendLog) => void;
   onToggleColumn: (column: LogColumnKey) => void;
   onAutoRefetchChange: (enabled: boolean) => void;
   onGroupByModelChange: (enabled: boolean) => void;
@@ -64,10 +65,17 @@ export function LogsTable({
   onPageChange,
   onPageSizeChange,
 }: LogsTableProps) {
+  const navigate = useNavigate();
   const isFetching = loading || refreshing;
   const showGroupExpanderColumn = groupByModel;
 
-  // Build ColumnDef array from LOG_COLUMNS
+  const handleRowClick = (log: SpendLog) => {
+    if (onSelectLog) {
+      onSelectLog(log);
+    }
+    navigate(`/logs/${encodeURIComponent(log.request_id)}`);
+  };
+
   const columns: ColumnDef<SpendLog>[] = useMemo(
     () =>
       LOG_COLUMNS.map((col) => ({
@@ -85,7 +93,6 @@ export function LogsTable({
     [],
   );
 
-  // Map visible columns to VisibilityState
   const visibilityState: VisibilityState = useMemo(() => {
     const state: VisibilityState = {};
     for (const col of LOG_COLUMNS) {
@@ -94,7 +101,6 @@ export function LogsTable({
     return state;
   }, [visibleColumns]);
 
-  // Column alignment
   const align: Record<string, "left" | "right" | "center"> = {
     latencyHeat: "right",
     promptTokens: "right",
@@ -106,7 +112,6 @@ export function LogsTable({
     spend: "right",
   };
 
-  // Column labels for visibility dropdown
   const columnLabels = useMemo(() => {
     const labels: Record<string, string> = {};
     for (const col of LOG_COLUMNS) {
@@ -163,7 +168,6 @@ export function LogsTable({
     }));
   };
 
-  // Filter columns for the header
   const tableColumns = LOG_COLUMNS.filter((col) =>
     visibleColumns.includes(col.key),
   );
@@ -184,7 +188,6 @@ export function LogsTable({
       />
       <CardContent className="space-y-4">
         {groupedLogs ? (
-          /* Grouped view — custom rendering */
           <div className="overflow-x-auto rounded-lg border">
             <Table>
               <TableHeader>
@@ -226,7 +229,7 @@ export function LogsTable({
                         tableColumns={tableColumns}
                         showGroupExpanderColumn={showGroupExpanderColumn}
                         onToggleGroup={() => handleToggleGroup(groupKey)}
-                        onSelectLog={onSelectLog}
+                        onSelectLog={handleRowClick}
                       />
                     );
                   })}
@@ -235,7 +238,6 @@ export function LogsTable({
             </Table>
           </div>
         ) : (
-          /* Flat view — DataTable */
           <DataTable
             columns={columns}
             data={logs}
@@ -247,7 +249,7 @@ export function LogsTable({
             onColumnVisibilityChange={handleColumnVisibilityChange}
             columnLabels={columnLabels}
             align={align}
-            onRowClick={onSelectLog}
+            onRowClick={handleRowClick}
           />
         )}
 

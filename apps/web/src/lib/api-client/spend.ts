@@ -2,12 +2,29 @@ import type {
   PaginationMetadata,
   SpendLog,
 } from "@lite-llm/api-contracts/analytics";
-import { fetchApi, withDays } from "./core";
+import type { AnalyticsQueryParams } from "./analytics";
+import { fetchApi, withDateRange, withDays } from "./core";
+
+function buildAnalyticsEndpoint(
+  base: string,
+  params: AnalyticsQueryParams,
+): string {
+  let endpoint = base;
+  if (params.startDate || params.endDate) {
+    endpoint = withDateRange(endpoint, {
+      startDate: params.startDate,
+      endDate: params.endDate,
+    });
+  } else if (params.days !== undefined) {
+    endpoint = withDays(endpoint, params.days);
+  }
+  return endpoint;
+}
 
 export async function getSpendByModel(
-  days?: number,
+  params: AnalyticsQueryParams = {},
 ): Promise<{ model: string; total_spend: number }[]> {
-  return fetchApi(withDays("/spend/model", days));
+  return fetchApi(buildAnalyticsEndpoint("/spend/model", params));
 }
 
 export async function getSpendLogs(
@@ -32,7 +49,16 @@ export async function getSpendLogs(
   return fetchApi(`/spend/logs?${searchParams}`, options);
 }
 
-export async function getSpendByUser(days?: number): Promise<
+export async function getSpendLogById(
+  requestId: string,
+  options?: RequestInit,
+): Promise<SpendLog | null> {
+  return fetchApi(`/spend/logs/${encodeURIComponent(requestId)}`, options);
+}
+
+export async function getSpendByUser(
+  params: AnalyticsQueryParams = {},
+): Promise<
   {
     user: string;
     total_spend: number;
@@ -40,11 +66,15 @@ export async function getSpendByUser(days?: number): Promise<
     request_count: number;
   }[]
 > {
-  return fetchApi(withDays("/spend/user", days));
+  return fetchApi(buildAnalyticsEndpoint("/spend/user", params));
 }
 
 export async function getDailySpendTrend(
-  days = 30,
+  params: AnalyticsQueryParams = {},
 ): Promise<{ date: string; spend: number }[]> {
+  if (params.startDate || params.endDate) {
+    return fetchApi(buildAnalyticsEndpoint("/spend/trend", params));
+  }
+  const days = params.days ?? 30;
   return fetchApi(`/spend/trend?days=${days}`);
 }

@@ -1,6 +1,24 @@
-import type { Application } from "express";
+import type { Application, Request } from "express";
 import { parseDays } from "../orchestration/lite-llm-params";
 import type { RouteOptions } from "../types/index";
+
+type TimeRangeParams = {
+  days?: number;
+  startDate?: string;
+  endDate?: string;
+};
+
+function getTimeRangeParams(
+  req: Request,
+  defaultDays: number,
+): TimeRangeParams {
+  const startDate = req.query.startDate as string | undefined;
+  const endDate = req.query.endDate as string | undefined;
+  if (startDate || endDate) {
+    return { startDate, endDate };
+  }
+  return { days: parseDays(req.query.days, defaultDays) };
+}
 
 export function registerSpendRoutes(
   app: Application,
@@ -10,8 +28,8 @@ export function registerSpendRoutes(
 
   app.get("/spend/model", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getSpendByModel(days);
+      const params = getTimeRangeParams(req as Request, 30);
+      const data = await dataSource.getSpendByModel(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -70,8 +88,8 @@ export function registerSpendRoutes(
 
   app.get("/spend/user", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getSpendByUser(days);
+      const params = getTimeRangeParams(req as Request, 30);
+      const data = await dataSource.getSpendByUser(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -90,8 +108,8 @@ export function registerSpendRoutes(
 
   app.get("/spend/trend", async (req, res) => {
     try {
-      const days = parseDays(req.query.days, 30);
-      const data = await dataSource.getDailySpendTrend(days);
+      const params = getTimeRangeParams(req as Request, 30);
+      const data = await dataSource.getDailySpendTrend(params);
       res.json(data);
     } catch (error) {
       res.status(500).json({ error: String(error) });

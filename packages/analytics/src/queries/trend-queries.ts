@@ -1,12 +1,42 @@
+import type { TimeRangeParams } from "../types/index";
 import { prisma } from "./client";
-import { buildWhereClause, getTimeFilterWhere, normalizeDays } from "./helpers";
+import {
+  buildWhereClause,
+  getTimeFilterWhere,
+  getTimeRangeFilterWhere,
+  normalizeDays,
+} from "./helpers";
 import { resolveTimeBucket } from "./time-buckets";
 
-export async function getDailySpendTrend(days = 30) {
+function getTimeCondition(params: TimeRangeParams): string {
+  return getTimeRangeFilterWhere(params);
+}
+
+function calculateDaysFromDateRange(params: TimeRangeParams): number {
+  if (params.days !== undefined) {
+    return params.days;
+  }
+  if (params.startDate && params.endDate) {
+    const start = new Date(params.startDate);
+    const end = new Date(params.endDate);
+    const diffMs = end.getTime() - start.getTime();
+    return Math.max(0, diffMs / (1000 * 60 * 60 * 24));
+  }
+  if (params.startDate) {
+    const start = new Date(params.startDate);
+    const now = new Date();
+    const diffMs = now.getTime() - start.getTime();
+    return Math.max(0, diffMs / (1000 * 60 * 60 * 24));
+  }
+  return 30;
+}
+
+export async function getDailySpendTrend(params: TimeRangeParams = {}) {
+  const days = calculateDaysFromDateRange(params);
   const normalizedDays = normalizeDays(days, 30);
   const { sqlBucket, sqlLabel, granularity } =
     await resolveTimeBucket(normalizedDays);
-  const where = buildWhereClause([getTimeFilterWhere(normalizedDays)]);
+  const where = buildWhereClause([getTimeCondition(params)]);
 
   const result = await prisma.$queryRawUnsafe<
     Array<{
@@ -27,11 +57,12 @@ export async function getDailySpendTrend(days = 30) {
   return result;
 }
 
-export async function getDailyTokenTrend(days = 30) {
+export async function getDailyTokenTrend(params: TimeRangeParams = {}) {
+  const days = calculateDaysFromDateRange(params);
   const normalizedDays = normalizeDays(days, 30);
   const { sqlBucket, sqlLabel, granularity } =
     await resolveTimeBucket(normalizedDays);
-  const where = buildWhereClause([getTimeFilterWhere(normalizedDays)]);
+  const where = buildWhereClause([getTimeCondition(params)]);
 
   const result = await prisma.$queryRawUnsafe<
     Array<{
@@ -85,8 +116,8 @@ export async function getHourlySpendTrend(days = 1) {
   return result;
 }
 
-export async function getHourlyUsagePatterns(days = 7) {
-  const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 7))]);
+export async function getHourlyUsagePatterns(params: TimeRangeParams = {}) {
+  const where = buildWhereClause([getTimeCondition(params)]);
 
   const result = await prisma.$queryRawUnsafe<
     Array<{

@@ -13,19 +13,24 @@ import type {
   SpendLogEntry,
   SpendLogsFilters,
   SpendLogsResponse,
+  TimeRangeParams,
 } from "../types/index";
 import { toNullableNumber } from "./utils";
 
-export async function getSpendByModelImpl(days = 30): Promise<SpendByModel[]> {
-  const result = await getSpendByModel(days);
+export async function getSpendByModelImpl(
+  params: TimeRangeParams = {},
+): Promise<SpendByModel[]> {
+  const result = await getSpendByModel(params);
   return result.map((item) => ({
     model: item.model,
     total_spend: Number(item.total_spend),
   }));
 }
 
-export async function getSpendByUserImpl(days = 30): Promise<SpendByUser[]> {
-  const result = await getSpendByUser(days);
+export async function getSpendByUserImpl(
+  params: TimeRangeParams = {},
+): Promise<SpendByUser[]> {
+  const result = await getSpendByUser(params);
   return result.map((item) => ({
     user: item.user,
     total_spend: Number(item.total_spend),

@@ -552,60 +552,60 @@ Todas as perguntas abertas foram resolvidas. Decisões integradas nas seções r
 
 ### Fase 1: Baixo Risco, Fundação (1-3 dias)
 
-1. **Global: Conectar FilterContext às páginas** (Requisitos 1.1, 1.2)
-2. **Model Stats: Cards de métricas** (Requisitos 2.2)
+1. [x] **Global: Conectar FilterContext às páginas** (Requisitos 1.1, 1.2)
+2. [x] **Model Stats: Cards de métricas** (Requisitos 2.2)
    - Eficiência usar `(total_spend / total_tokens) * 1000` (Q19)
    - Avg Tokens/s usar média ponderada por request_count (Q18)
-3. **Model Stats: Remover seletor de colunas do header, realocar no CardHeader da tabela** (Requisitos 2.1.1, Q20)
-4. **Agents: AlertDialog para confirmação de exclusão** (Requisito 4.1.3)
-5. **Agents: Consolidar duplicate routes** (Q11)
+3. [x] **Model Stats: Remover seletor de colunas do header, realocar no CardHeader da tabela** (Requisitos 2.1.1, Q20)
+4. [ ] **Agents: AlertDialog para confirmação de exclusão** (Requisito 4.1.3)
+5. [ ] **Agents: Consolidar duplicate routes** (Q11)
    - Consolidar em `agent-catalog-routes.ts`, remover `config-routes.ts` e `agent-config-routes.ts`
    - Adicionar `syncGeneratedArtifacts()` no handler DELETE
    - Corrigir `GET /agent-catalog/:id` para responder `{ key, agent }`
 
 ### Fase 2: Médio Risco, Reestruturação (3-5 dias)
 
-6. **Global: Sidebar shadcn/ui** (Requisito 1.4)
-7. **Global: Modo "Personalizado" no filtro** (Requisito 1.3)
+6. [ ] **Global: Sidebar shadcn/ui** (Requisito 1.4)
+7. [ ] **Global: Modo "Personalizado" no filtro** (Requisito 1.3)
    - Propagar `startDate`/`endDate` aos endpoints de analytics (Q16)
    - Sem URL sync na v1 (Q15)
-8. **Models: Página dedicada de config** (Requisitos 5.1, Q4, Q5, Q12, Q13)
+8. [ ] **Models: Página dedicada de config** (Requisitos 5.1, Q4, Q5, Q12, Q13)
    - Campos globais: `displayName` e `family` editáveis (Q12)
    - `thinking.levels` editável como multi-select (Q13)
    - Unidade: `$/Mi` no form, converter para `$/token` ao salvar no DB (Q5)
    - Sync: config é source of truth; push config → DB no save (Q4)
    - Manter dialog de criação rápida, redirecionar para página após criar (Q14)
-9. **Models: Migrar Merge Models** (Requisitos 2.1.2, 5.3, Q6, Q7)
+9. [ ] **Models: Migrar Merge Models** (Requisitos 2.1.2, 5.3, Q6, Q7)
    - Remover completamente de `/model-stats`
    - Sem request count no diálogo de confirmação
 
 ### Fase 3: Alto Risco, Novas Features (5-8 dias)
 
-9. **Logs: Explorar dados reais** (Q1-Q3, pré-requisito)
+9. [ ] **Logs: Explorar dados reais** (Q1-Q3, pré-requisito)
    - `SELECT response, messages, proxy_server_request FROM "LiteLLM_SpendLogs" WHERE response IS NOT NULL LIMIT 5`
    - Mapear formato de tool calls, tool results, completude de messages
    - Ajustar design do parser baseado nos dados reais
-10. **Logs: Página dedicada + Chat Details tab** (Requisitos 3.1, 3.2)
+10. [ ] **Logs: Página dedicada + Chat Details tab** (Requisitos 3.1, 3.2)
     - Navegação direta `/logs/:requestId`, sem modal intermediário (Q17)
     - Parser de mensagens: priorizar `messages`, fallback `proxy_server_request.messages` (Q3)
-11. **Logs: Metrics & Cost tab** (Requisito 3.3)
-12. **Agents: Adicionar campo `id` ao schema** (Q8)
+11. [ ] **Logs: Metrics & Cost tab** (Requisito 3.3)
+12. [ ] **Agents: Adicionar campo `id` ao schema** (Q8)
     - Gerar slugs para agents existentes a partir de `displayName`
     - Nova rota: `/agents/:id`
-13. **Agents: Página dedicada + Add/Edit** (Requisitos 4.1.1, 4.1.2, 4.1.4, 4.1.5)
+13. [ ] **Agents: Página dedicada + Add/Edit** (Requisitos 4.1.1, 4.1.2, 4.1.4, 4.1.5)
     - Model selector usa `GET /models/with-config`
-14. **Agents: Tools, skills, opções avançadas** (Requisito 4.1.6)
+14. [ ] **Agents: Tools, skills, opções avançadas** (Requisito 4.1.6)
     - Tools: toggle booleano (nome + switch); Skills: tag input freeform (Q10)
-15. **Agents: Categories CRUD** (Requisito 4.2)
+15. [ ] **Agents: Categories CRUD** (Requisito 4.2)
     - Seção General + seção Advanced colapsável (Q9)
 
 ### Fase 4: Polish & Bug Fixes (1-2 dias)
 
-16. **Agents: Normalizar type inconsistencies**
+16. [ ] **Agents: Normalizar type inconsistencies**
    - `topP` vs `top_p` — padronizar camelCase
    - `AgentCatalogEntry.config` inline vs `SystemAgent.config` aninhado
    - Campo `enabledPlugins` — verificar se é legacy ou necessário
-17. **Testes integrados e revisão**
+17. [ ] **Testes integrados e revisão**
 
 ---
 

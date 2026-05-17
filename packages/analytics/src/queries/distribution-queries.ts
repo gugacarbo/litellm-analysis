@@ -1,8 +1,22 @@
+import type { TimeRangeParams } from "../types/index";
 import { prisma } from "./client";
-import { buildWhereClause, getTimeFilterWhere, normalizeDays } from "./helpers";
+import {
+  buildWhereClause,
+  getTimeFilterWhere,
+  getTimeRangeFilterWhere,
+  normalizeDays,
+} from "./helpers";
 
-export async function getTokenDistribution(days = 30) {
-  const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
+function getTimeCondition(params: TimeRangeParams): string {
+  return getTimeRangeFilterWhere(params);
+}
+
+export async function getTokenDistribution(params: TimeRangeParams = {}) {
+  const days = params.days ?? 30;
+  const normalizedDays = normalizeDays(days, 30);
+  const timeParams =
+    params.startDate || params.endDate ? params : { days: normalizedDays };
+  const where = buildWhereClause([getTimeCondition(timeParams)]);
 
   const result = await prisma.$queryRawUnsafe<
     Array<{
@@ -32,8 +46,12 @@ export async function getTokenDistribution(days = 30) {
   return result;
 }
 
-export async function getApiKeyDetailedStats(days = 30) {
-  const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
+export async function getApiKeyDetailedStats(params: TimeRangeParams = {}) {
+  const days = params.days ?? 30;
+  const normalizedDays = normalizeDays(days, 30);
+  const timeParams =
+    params.startDate || params.endDate ? params : { days: normalizedDays };
+  const where = buildWhereClause([getTimeCondition(timeParams)]);
 
   const result = await prisma.$queryRawUnsafe<
     Array<{
@@ -64,8 +82,14 @@ export async function getApiKeyDetailedStats(days = 30) {
   return result;
 }
 
-export async function getModelRequestDistribution(days = 30) {
-  const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
+export async function getModelRequestDistribution(
+  params: TimeRangeParams = {},
+) {
+  const days = params.days ?? 30;
+  const normalizedDays = normalizeDays(days, 30);
+  const timeParams =
+    params.startDate || params.endDate ? params : { days: normalizedDays };
+  const where = buildWhereClause([getTimeCondition(timeParams)]);
 
   const totalResult = await prisma.$queryRawUnsafe<Array<{ count: number }>>(`
     SELECT COUNT(*)::float as "count"
