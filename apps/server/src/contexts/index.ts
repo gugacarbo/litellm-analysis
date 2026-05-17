@@ -13,6 +13,3 @@ export function createAppContext(): AppContext {
   const monitor = createMonitorProvider();
   return { analytics, monitor };
 }
-
-export type { AnalyticsProvider } from "./analytics-context";
-export type { MonitorProvider } from "./monitor-context";

@@ -4,7 +4,6 @@ import type {
 } from "@/lib/api-client/health-check";
 
 export type { ConnectionState } from "@/types/connection";
-export type { HealthCheckResult, HealthCheckSummary };
 
 export type HealthCheckStatus = "healthy" | "unhealthy" | "error" | "unknown";
 

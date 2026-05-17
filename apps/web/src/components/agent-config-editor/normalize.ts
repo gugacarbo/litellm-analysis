@@ -3,7 +3,7 @@ import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
 /**
  * Generate a slug from a display name
  */
-export function slugify(text: string): string {
+function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
@@ -15,7 +15,7 @@ export function slugify(text: string): string {
 /**
  * Generate a slug from displayName, used when creating new agents
  */
-export function generateId(displayName: string): string {
+function generateId(displayName: string): string {
   return slugify(displayName) || "agent";
 }
 

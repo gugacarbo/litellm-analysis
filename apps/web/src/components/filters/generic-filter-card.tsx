@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export type GenericFilterValues = {
+type GenericFilterValues = {
   model: string;
   user: string;
   startDate: string;

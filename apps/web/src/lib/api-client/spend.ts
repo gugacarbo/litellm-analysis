@@ -49,13 +49,6 @@ export async function getSpendLogs(
   return fetchApi(`/spend/logs?${searchParams}`, options);
 }
 
-export async function getSpendLogById(
-  requestId: string,
-  options?: RequestInit,
-): Promise<SpendLog | null> {
-  return fetchApi(`/spend/logs/${encodeURIComponent(requestId)}`, options);
-}
-
 export async function getSpendByUser(
   params: AnalyticsQueryParams = {},
 ): Promise<

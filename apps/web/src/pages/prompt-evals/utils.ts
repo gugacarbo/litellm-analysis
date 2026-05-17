@@ -23,24 +23,12 @@ export function formatDuration(
   return `${Math.floor(diff / 3600)}h ${Math.floor((diff % 3600) / 60)}m`;
 }
 
-export function formatF1(value: number | null | undefined): string {
-  if (value == null) return "—";
-  return value.toFixed(4);
-}
-
 export function formatPrecision(
   value: number | null | undefined,
   decimals = 4,
 ): string {
   if (value == null) return "—";
   return value.toFixed(decimals);
-}
-
-export function getScoreStroke(value: number | null | undefined): string {
-  if (value == null) return "#6b7280"; // muted
-  if (value >= 0.9) return "#22c55e"; // green
-  if (value >= 0.7) return "#eab308"; // yellow
-  return "#ef4444"; // red
 }
 
 export function getScoreColor(value: number | null | undefined): string {

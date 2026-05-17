@@ -1,6 +1,9 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "ignore": ["**/components/ui/*"],
-  "ignoreFiles": [],
-  "ignoreDependencies": ["@radix-ui/react-collapsible"]
+  "ignoreFiles": [
+    "repositories/litellm-repository/src/generated/prisma/schema.prisma",
+    "repositories/litellm-repository/src/generated/prisma/wasm-edge-light-loader.mjs",
+    "repositories/litellm-repository/src/generated/prisma/wasm-worker-loader.mjs"
+  ]
 }

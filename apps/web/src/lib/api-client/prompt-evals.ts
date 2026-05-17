@@ -32,7 +32,7 @@ export interface EvalRunDetail extends EvalRunListItem {
   }>;
 }
 
-export interface EvalRunStepItem {
+interface EvalRunStepItem {
   id: number;
   runId: string;
   step: string;
@@ -41,14 +41,6 @@ export interface EvalRunStepItem {
   finishedAt: number | null;
   message: string | null;
   progressPct: number;
-}
-
-export interface EvalRunArtifactItem {
-  id: number;
-  runId: string;
-  kind: string;
-  path: string;
-  summaryJson: string | null;
 }
 
 export async function startEval(
@@ -80,14 +72,6 @@ export async function listEvals(
 
 export async function getEval(id: string): Promise<EvalRunDetail> {
   const res = await fetch(`${BASE}/${id}`);
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-
-export async function getEvalArtifacts(
-  id: string,
-): Promise<EvalRunArtifactItem[]> {
-  const res = await fetch(`${BASE}/${id}/artifacts`);
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }

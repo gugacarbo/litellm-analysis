@@ -64,7 +64,7 @@ const LIFETIME_OPTION: DashboardDateRangeOption = {
   description: "Todos os dados desde sempre",
 };
 
-export const DASHBOARD_DATE_RANGES: DashboardDateRangeOption[] = [
+const DASHBOARD_DATE_RANGES: DashboardDateRangeOption[] = [
   ...HOURS_OPTIONS,
   ...DAYS_OPTIONS,
   LIFETIME_OPTION,

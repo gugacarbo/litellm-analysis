@@ -347,6 +347,9 @@ importers:
       '@lite-llm/models-repository':
         specifier: workspace:*
         version: link:../../repositories/models-repository
+      '@lite-llm/repository-utils':
+        specifier: workspace:*
+        version: link:../../repositories/repository-utils
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -368,7 +371,7 @@ importers:
         version: link:../../repositories/app-repository
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.38.4(@prisma/client@6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3))(@types/better-sqlite3@7.6.13)(@types/react@19.2.14)(better-sqlite3@12.9.0)(prisma@6.19.3(typescript@6.0.3))(react@19.2.6)
+        version: 0.38.4(@types/better-sqlite3@7.6.13)(@types/react@19.2.14)(better-sqlite3@12.9.0)(react@19.2.6)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -465,7 +468,7 @@ importers:
         version: 12.9.0
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.38.4(@prisma/client@6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3))(@types/better-sqlite3@7.6.13)(@types/react@19.2.14)(better-sqlite3@12.9.0)(prisma@6.19.3(typescript@6.0.3))(react@19.2.6)
+        version: 0.38.4(@types/better-sqlite3@7.6.13)(@types/react@19.2.14)(better-sqlite3@12.9.0)(react@19.2.6)
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.12
@@ -485,9 +488,6 @@ importers:
       '@lite-llm/env':
         specifier: workspace:*
         version: link:../../packages/env
-      '@prisma/client':
-        specifier: 6.19.3
-        version: 6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1634,18 +1634,6 @@ packages:
     resolution: {integrity: sha512-6hIU3RQu45B+VNTY4Ru8ppFwjVS/S5qwYyGhBotmjxfEKk41I2DlGtRfGJndZ5+6lneE2pwloqunlOyZuX/XAw==}
     cpu: [x64]
     os: [win32]
-
-  '@prisma/client@6.19.3':
-    resolution: {integrity: sha512-mKq3jQFhjvko5LTJFHGilsuQs+W+T3Gm451NzuTDGQxwCzwXHYnIu2zGkRoW+Exq3Rob7yp2MfzSrdIiZVhrBg==}
-    engines: {node: '>=18.18'}
-    peerDependencies:
-      prisma: '*'
-      typescript: '>=5.1.0'
-    peerDependenciesMeta:
-      prisma:
-        optional: true
-      typescript:
-        optional: true
 
   '@prisma/config@6.19.3':
     resolution: {integrity: sha512-CBPT44BjlQxEt8kiMEauji2WHTDoVBOKl7UlewXmUgBPnr/oPRZC3psci5chJnYmH0ivEIog2OU9PGWoki3DLQ==}
@@ -6085,11 +6073,6 @@ snapshots:
   '@oxc-resolver/binding-win32-x64-msvc@11.19.1':
     optional: true
 
-  '@prisma/client@6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3)':
-    optionalDependencies:
-      prisma: 6.19.3(typescript@6.0.3)
-      typescript: 6.0.3
-
   '@prisma/config@6.19.3':
     dependencies:
       c12: 3.1.0
@@ -7764,13 +7747,11 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.21.0
 
-  drizzle-orm@0.38.4(@prisma/client@6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3))(@types/better-sqlite3@7.6.13)(@types/react@19.2.14)(better-sqlite3@12.9.0)(prisma@6.19.3(typescript@6.0.3))(react@19.2.6):
+  drizzle-orm@0.38.4(@types/better-sqlite3@7.6.13)(@types/react@19.2.14)(better-sqlite3@12.9.0)(react@19.2.6):
     optionalDependencies:
-      '@prisma/client': 6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3)
       '@types/better-sqlite3': 7.6.13
       '@types/react': 19.2.14
       better-sqlite3: 12.9.0
-      prisma: 6.19.3(typescript@6.0.3)
       react: 19.2.6
 
   dunder-proto@1.0.1:

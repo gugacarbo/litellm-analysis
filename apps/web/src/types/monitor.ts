@@ -50,7 +50,7 @@ export type AlertMetadata =
 
 export type ModelHealthStatus = "healthy" | "degraded" | "offline" | "unknown";
 
-export interface ModelHealthStats {
+interface ModelHealthStats {
   total_requests: number;
   success_count: number;
   error_count: number;

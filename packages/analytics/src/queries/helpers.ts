@@ -42,7 +42,7 @@ export function getTimeFilterWhere(days: number): string {
  * If startDate is provided, filters from that date.
  * If endDate is provided, filters up to that date (inclusive).
  */
-export function getDateRangeFilterWhere(params: TimeRangeParams): string {
+function getDateRangeFilterWhere(params: TimeRangeParams): string {
   const conditions: string[] = [];
 
   if (params.startDate) {
@@ -92,12 +92,4 @@ export function combineSqlConditions(conditions: Array<string>): string {
 export function buildWhereClause(conditions: Array<string>): string {
   const combined = combineSqlConditions(conditions);
   return combined ? `WHERE ${combined}` : "";
-}
-
-/**
- * Get the window start Date for a given number of days.
- * Returns null if days <= 0.
- */
-export function getWindowStartDate(days: number): Date | null {
-  return getWindowStart(days);
 }

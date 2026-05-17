@@ -16,8 +16,7 @@
     "db:validate": "prisma validate"
   },
   "dependencies": {
-    "@lite-llm/env": "workspace:*",
-    "@prisma/client": "6.19.3"
+    "@lite-llm/env": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

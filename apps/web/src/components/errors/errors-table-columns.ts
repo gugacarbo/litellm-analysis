@@ -52,12 +52,6 @@ export const ERROR_COLUMNS: ErrorColumn[] = [
   },
 ];
 
-export const ACTIONS_COLUMN: TableColumn = {
-  key: "actions",
-  label: "",
-  align: "right",
-};
-
 export const DEFAULT_VISIBLE_ERROR_COLUMNS: ErrorColumnKey[] =
   ERROR_COLUMNS.filter((column) => column.defaultVisible !== false).map(
     (column) => column.key,

@@ -1,15 +1,6 @@
-import type {
-  DashboardDateRangeKey,
-  DashboardDateRangeOption,
-  DateRangeGroup,
-} from "@/lib/date-ranges";
 import {
-  DASHBOARD_DATE_RANGES,
-  DAYS_OPTIONS,
   getDateRangeDays,
-  getDateRangeGroup,
   getDateRangeLabel,
-  HOURS_OPTIONS,
 } from "@/lib/date-ranges";
 import {
   formatCurrency,
@@ -19,46 +10,14 @@ import {
 } from "@/lib/format";
 import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
 
-export type { DashboardDateRangeKey, DashboardDateRangeOption, DateRangeGroup };
 export {
-  DASHBOARD_DATE_RANGES,
-  DAYS_OPTIONS,
   formatCurrency,
   formatNumber,
   formatPercent,
   getDateRangeDays,
-  getDateRangeGroup,
   getDateRangeLabel,
-  HOURS_OPTIONS,
   safeDivide,
 };
-
-/**
- * Format a date string for display.
- * - For "YYYY-MM-DD HH24:MI" format (hourly): shows time only
- * - For "YYYY-MM-DD" format (daily): shows month and day
- */
-export function formatDate(date: string | Date): string {
-  const d = new Date(date);
-
-  // Check if the date string contains time component (hourly granularity)
-  const dateStr = String(date);
-  if (dateStr.includes(" ")) {
-    // Hourly format: "2024-01-15 14:00" -> show time
-    return d.toLocaleTimeString(APP_LOCALE, {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: APP_TIMEZONE,
-    });
-  }
-
-  // Daily format: "2024-01-15" -> show month and day
-  return d.toLocaleDateString(APP_LOCALE, {
-    month: "short",
-    day: "numeric",
-    timeZone: APP_TIMEZONE,
-  });
-}
 
 type Granularity = "30s" | "1m" | "1h" | "1d" | "2d" | "1w" | "2w" | "1mo";
 

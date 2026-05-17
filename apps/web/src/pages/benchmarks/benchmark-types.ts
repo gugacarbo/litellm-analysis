@@ -10,16 +10,6 @@ export type BenchmarkSortField =
 
 export type BenchmarkSortDirection = "asc" | "desc";
 
-export interface BenchmarksFilterState {
-  search: string;
-  provider: string;
-  showConfiguredOnly: boolean;
-  minIntelligence: string;
-  maxBlendedPrice: string;
-  sortField: BenchmarkSortField;
-  sortDirection: BenchmarkSortDirection;
-}
-
 export interface BenchmarksDerivedState {
   providers: string[];
   rows: ModelBenchmarkListItem[];

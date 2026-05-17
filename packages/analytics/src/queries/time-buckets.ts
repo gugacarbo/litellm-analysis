@@ -17,7 +17,7 @@ export interface TimeBucketConfig {
  *
  * For lifetime (days=0), the actual range is auto-detected via MIN/MAX query.
  */
-export const GRANULARITY_TIERS: TimeBucketConfig[] = [
+const GRANULARITY_TIERS: TimeBucketConfig[] = [
   {
     minDays: 0,
     maxDays: 0.021, // ~30 minutes
@@ -98,7 +98,7 @@ const CACHE_TTL = 300_000; // 5 minutes
  * Get the actual date range of data in LiteLLM_SpendLogs.
  * Result is cached for 5 minutes.
  */
-export async function getDateRange(): Promise<{
+async function getDateRange(): Promise<{
   min: Date;
   max: Date;
 }> {

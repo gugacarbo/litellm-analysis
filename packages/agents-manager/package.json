@@ -5,8 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./schemas": "./src/plugins/schemas/index.ts",
-    "./schemas/generated": "./src/plugins/schemas/generated/index.ts"
+    "./schemas": "./src/plugins/schemas/index.ts"
   },
   "scripts": {
     "build": "tsc",

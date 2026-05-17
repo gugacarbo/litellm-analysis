@@ -12,7 +12,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@lite-llm/models-repository": "workspace:*"
+    "@lite-llm/models-repository": "workspace:*",
+    "@lite-llm/repository-utils": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
