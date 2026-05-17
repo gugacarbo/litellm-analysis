@@ -20,7 +20,6 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@lite-llm/agents-manager": "workspace:*",
-    "zod": "catalog:"
+    "@lite-llm/agents-manager": "workspace:*"
   }
 }

@@ -13,17 +13,16 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@lite-llm/api-contracts": "workspace:^",
-    "@lite-llm/app-repository": "workspace:*",
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/analytics": "workspace:*",
+    "@lite-llm/api-contracts": "workspace:^",
+    "@lite-llm/app-repository": "workspace:*",
     "@lite-llm/env": "workspace:*",
     "@lite-llm/models-manager": "workspace:*",
     "@lite-llm/monitor": "workspace:^",
     "@lite-llm/prompt-eval": "workspace:*",
     "@lite-llm/server-core": "workspace:*",
     "dotenv": "catalog:",
-    "drizzle-orm": "catalog:",
     "express": "catalog:",
     "ws": "^8.20.0"
   },
@@ -31,9 +30,7 @@
     "@biomejs/biome": "catalog:",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
-    "@types/supertest": "^7.2.0",
     "@types/ws": "^8.18.1",
-    "supertest": "^7.2.2",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

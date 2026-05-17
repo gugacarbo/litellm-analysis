@@ -1,30 +1,16 @@
+import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { type RenderResult, render } from "@testing-library/react";
-import type { ReactElement } from "react";
-import { MemoryRouter } from "react-router-dom";
-import { TooltipProvider } from "../components/ui/tooltip";
-import { FilterProvider } from "../contexts/filter-context";
+import { render } from "@testing-library/react";
 
-function createTestQueryClient(): QueryClient {
-  return new QueryClient({
+export function renderWithQueryClient(ui: ReactNode) {
+  const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         retry: false,
       },
     },
   });
-}
-
-export function renderWithQueryClient(ui: ReactElement): RenderResult {
-  const queryClient = createTestQueryClient();
-
   return render(
-    <MemoryRouter>
-      <QueryClientProvider client={queryClient}>
-        <FilterProvider>
-          <TooltipProvider>{ui}</TooltipProvider>
-        </FilterProvider>
-      </QueryClientProvider>
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
   );
 }
