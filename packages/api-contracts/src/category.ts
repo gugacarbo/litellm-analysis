@@ -3,6 +3,7 @@ export interface CategoryEntry {
   fallbackModels?: string[];
   description?: string;
   variant?: string;
+  icon?: string;
   temperature?: number;
   top_p?: number;
   maxTokens?: number;
@@ -14,4 +15,14 @@ export interface CategoryEntry {
   tools?: Record<string, boolean>;
   prompt_append?: string;
   is_unstable_agent?: boolean;
+  limits?: {
+    context?: number;
+    output?: number;
+  };
+  cost?: {
+    input?: number;
+    output?: number;
+  };
+  promptAppend?: string;
+  isUnstableAgent?: boolean;
 }

@@ -2,9 +2,11 @@
 
 import { Settings } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AgentConfigEditor } from "../components/agent-config-editor";
 import { AgentRoutingAgentsTab } from "../components/agent-routing/agent-routing-agents-tab";
 import { AgentRoutingCategoriesTab } from "../components/agent-routing/agent-routing-categories-tab";
+import { CategoryConfigEditor } from "../components/category-config-editor/category-config-editor";
 import { PageLayout } from "../components/ui/page-layout";
 import {
   Tabs,
@@ -15,6 +17,7 @@ import {
 import { useAgentRoutingPageState } from "./agents/use-agent-routing-page";
 
 export function AgentsPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"agents" | "categories">("agents");
 
   const {
@@ -29,10 +32,25 @@ export function AgentsPage() {
     openAgentEditor,
     categories,
     categoriesLoading,
+    categoryDialogOpen,
+    editingCategoryKey,
+    setCategoryDialogOpen,
+    handleSaveCategory,
+    handleDeleteCategory,
+    openCategoryEditor,
   } = useAgentRoutingPageState();
 
   const editingAgent =
-    agents.find((a) => a.displayName === editingAgentId) ?? null;
+    agents.find(
+      (a) => a.id === editingAgentId || a.displayName === editingAgentId,
+    ) ?? null;
+  const editingCategory = editingCategoryKey
+    ? categories[editingCategoryKey]
+    : null;
+
+  const handleAddAgent = () => {
+    navigate("/agents/new");
+  };
 
   return (
     <PageLayout
@@ -56,12 +74,16 @@ export function AgentsPage() {
             agents={agents}
             onOpenAgentConfig={openAgentEditor}
             onDeleteAgent={handleDeleteAgent}
+            onAddAgent={handleAddAgent}
           />
         </TabsContent>
         <TabsContent value="categories">
           <AgentRoutingCategoriesTab
             loading={categoriesLoading}
             categories={categories}
+            onCreateCategory={() => openCategoryEditor(null)}
+            onEditCategory={openCategoryEditor}
+            onDeleteCategory={handleDeleteCategory}
           />
         </TabsContent>
       </Tabs>
@@ -72,6 +94,16 @@ export function AgentsPage() {
         agent={editingAgent}
         onSave={handleSaveAgent}
         saving={saving}
+      />
+
+      <CategoryConfigEditor
+        open={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+        categoryKey={editingCategoryKey}
+        category={editingCategory}
+        onSave={handleSaveCategory}
+        saving={saving}
+        isNew={editingCategoryKey === null}
       />
     </PageLayout>
   );
