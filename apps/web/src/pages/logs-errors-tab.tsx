@@ -5,7 +5,9 @@ import type {
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import type { ErrorColumnKey } from "@/components/errors/errors-table-columns";
+import { getAllModels } from "@/shared/lib/api-client/models";
 import { APP_LOCALE } from "@/shared/lib/locale";
+import { queryKeys } from "@/shared/lib/query-keys";
 import { ErrorDetailDialog } from "../components/errors/error-detail-dialog";
 import { ErrorsDistributionChart } from "../components/errors/errors-distribution-chart";
 import {
@@ -19,8 +21,6 @@ import {
 } from "../components/errors/errors-table";
 import { Badge } from "../components/ui/badge";
 import { useErrors } from "../hooks/use-errors";
-import { getAllModels } from "@/shared/lib/api-client/models";
-import { queryKeys } from "@/shared/lib/query-keys";
 import {
   AUTO_REFETCH_INTERVAL_MS,
   applyErrorFilters,

@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useMonitorWebSocket } from "../../hooks/use-monitor-websocket";
 import {
   getActiveAlerts,
   getModelsHealth,
   getMonitorStats,
   type MonitorStats,
 } from "@/shared/lib/api-client/monitor";
+import { useMonitorWebSocket } from "../../hooks/use-monitor-websocket";
 import type {
   ConnectionState,
   HealthUpdateData,

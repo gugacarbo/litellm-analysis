@@ -19,7 +19,7 @@ export function createPromptEvalRuntime(opts: PromptEvalRuntimeOptions) {
     baseUrl: process.env.EVAL_BASE_URL ?? env.LITELLM_API_URL,
   });
 
-  const reportsDir = path.join(opts.projectRoot, "@storage", "reports");
+  const reportsDir = path.join(opts.projectRoot, env.STORAGE_PATH, "reports");
 
   const service = createPromptEvalApplicationService({
     adapter,

@@ -18,6 +18,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@lite-llm/config": "workspace:*",
     "better-sqlite3": "^12.9.0",
     "drizzle-orm": "catalog:"
   },

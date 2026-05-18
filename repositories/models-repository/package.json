@@ -17,6 +17,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@lite-llm/config": "workspace:*",
     "@lite-llm/repository-utils": "workspace:*",
     "zod": "catalog:"
   },

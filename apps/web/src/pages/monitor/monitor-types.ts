@@ -1,6 +1,4 @@
-export type {
-  ConnectionState,
-} from "@/shared/types/connection";
+export type { ConnectionState } from "@/shared/types/connection";
 export type {
   AlertMetadata,
   AnomalyType,

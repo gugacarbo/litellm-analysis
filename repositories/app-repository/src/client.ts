@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import { existsSync } from "node:fs";
 import * as path from "node:path";
+import { serverEnv } from "@lite-llm/config/server";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema";
@@ -22,7 +23,7 @@ function findMonorepoRoot(): string {
 }
 
 const MONOREPO_ROOT = findMonorepoRoot();
-const APP_DB_PATH = process.env.APP_DB_PATH ?? "@storage/app.db";
+const APP_DB_PATH = serverEnv.APP_DB_PATH;
 const DB_PATH = path.resolve(MONOREPO_ROOT, APP_DB_PATH);
 
 let dbInstance: ReturnType<typeof drizzle> | null = null;

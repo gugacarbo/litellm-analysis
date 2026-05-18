@@ -7,7 +7,6 @@ export const webEnv = createEnv({
   client: {
     VITE_APP_LOCALE: z.string().trim().optional(),
     VITE_APP_TIMEZONE: z.string().trim().optional(),
-    VITE_DEBUG_LOCALE: z.string().trim().optional(),
   },
   runtimeEnv: import.meta.env,
   emptyStringAsUndefined: true,

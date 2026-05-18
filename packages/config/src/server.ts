@@ -20,6 +20,7 @@ export const serverSchema = {
   HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive(),
 
   APP_DB_PATH: z.string(),
+  STORAGE_PATH: z.string().default("@storage"),
   SETTINGS_PATH: z.string().default("@settings"),
 };
 

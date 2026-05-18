@@ -60,18 +60,16 @@ function setupAgentPluginsOrchestrator(
   },
 ) {
   const agentsManager = createAgentsManager({
-    dbPath: path.join(projectRoot, "@agents", "agents.json"),
+    dbPath: `${env.SETTINGS_PATH}/agents/agents.json`,
   });
 
-  const modelsRepository = createModelsRepositoryClient({
-    filePath: path.join(projectRoot, "@models", "models.json"),
-  });
+  const modelsRepository = createModelsRepositoryClient();
 
   return createAgentPluginsOrchestrator({
     repository: agentsManager.repository,
     modelsRepository,
     services: agentsManager.services,
-    outputDir: path.join(projectRoot, "@storage", "output"),
+    outputDir: path.join(projectRoot, env.STORAGE_PATH, "output"),
     allPlugins: [
       new OpenCodePlugin(),
       new OpenAgentPlugin(),
@@ -96,13 +94,11 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     },
   };
 
-  const agentPlugins = setupAgentPluginsOrchestrator(
+  const agentPlugins = await setupAgentPluginsOrchestrator(
     projectRoot,
     aliasDbWriter,
   );
-  const modelsRepository = createModelsRepositoryClient({
-    filePath: path.join(projectRoot, "@models", "models.json"),
-  });
+  const modelsRepository = createModelsRepositoryClient();
   const modelsService = new ModelService({ repository: modelsRepository });
   const orchestration = createOrchestrationServices(
     ctx.analytics.dataSource,

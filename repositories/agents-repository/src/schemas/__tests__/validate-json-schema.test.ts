@@ -1,9 +1,8 @@
-// Require 'zod' and dynamic toJSONSchema
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { serverEnv } from "@lite-llm/config/server";
 import { test } from "vitest";
 import { z } from "zod";
-import schemaJson from "../../../../../@settings/agents/agents.schema.json" with {
-  type: "json",
-};
 
 const StrictMetaSchema = z
   .object({
@@ -63,6 +62,32 @@ function validateJsonSchemaNodes(node: Record<string, unknown>, path = "$") {
   }
 }
 
+function findWorkspaceRoot(startDir: string): string {
+  let dir = startDir;
+  const root = path.parse(dir).root;
+
+  while (dir !== root) {
+    if (existsSync(path.join(dir, "pnpm-workspace.yaml"))) {
+      return dir;
+    }
+    dir = path.dirname(dir);
+  }
+
+  return startDir;
+}
+
+function loadSchemaFromEnv(): Record<string, unknown> {
+  const workspaceRoot = findWorkspaceRoot(process.cwd());
+  const schemaPath = path.join(
+    workspaceRoot,
+    serverEnv.SETTINGS_PATH,
+    "agents",
+    "agents.schema.json",
+  );
+  const content = readFileSync(schemaPath, "utf-8");
+  return JSON.parse(content) as Record<string, unknown>;
+}
+
 test("JSON schema definitions should have default, title, and description", () => {
-  validateJsonSchemaNodes(schemaJson as Record<string, unknown>);
+  validateJsonSchemaNodes(loadSchemaFromEnv());
 });

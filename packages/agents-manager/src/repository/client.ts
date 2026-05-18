@@ -1,12 +1,12 @@
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
-import { serverEnv } from "@lite-llm/config/server";
 import {
   createRepository,
   type IAgentsRepository,
   type RepositoryOptions,
 } from "@lite-llm/agents-repository/repository";
+import { serverEnv } from "@lite-llm/config/server";
 
 export interface RepositoryClientOptions {
   agentsFilePath?: string;
@@ -16,9 +16,11 @@ export interface RepositoryClientOptions {
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IAgentsRepository {
-  const settingsBase = serverEnv.SETTINGS_PATH.replace("@settings", "@settings/agents");
-  const agentsFilePath = options.agentsFilePath ?? `${settingsBase}/agents.jsonc`;
-  const pluginsFilePath = options.pluginsFilePath ?? `${settingsBase}/plugins.json`;
+  const settingsBase = `${serverEnv.SETTINGS_PATH}/agents`;
+  const agentsFilePath =
+    options.agentsFilePath ?? `${settingsBase}/agents.jsonc`;
+  const pluginsFilePath =
+    options.pluginsFilePath ?? `${settingsBase}/plugins.json`;
 
   // Resolve special paths like @settings/agents/, with json/jsonc fallback.
   const resolvedPath = resolveDbPathWithFallback(agentsFilePath);
@@ -97,7 +99,7 @@ function resolveDbPathWithFallback(dbPath: string): string {
 }
 
 function resolveDbPath(dbPath: string): string {
-  if (dbPath.startsWith("@settings/")) {
+  if (dbPath.startsWith(`${serverEnv.SETTINGS_PATH}/`)) {
     const monorepoRoot = findMonorepoRoot();
     return path.join(monorepoRoot, dbPath);
   }

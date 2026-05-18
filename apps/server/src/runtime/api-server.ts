@@ -15,6 +15,7 @@ import express, { type Application } from "express";
 import { createHealthCheckApplicationService } from "../application/health-check-application-service";
 import { createMonitorApplicationService } from "../application/monitor-application-service";
 import type { AppContext } from "../contexts";
+import { env } from "../env";
 import { createHealthCheckRouter } from "../routes/health-check-routes";
 import { createMonitorRouter } from "../routes/monitor-routes";
 
@@ -74,12 +75,19 @@ interface ModelAliases {
   aliases: Record<string, string>;
 }
 
+function resolveStoragePath(workspaceRoot: string): string {
+  if (path.isAbsolute(env.STORAGE_PATH)) {
+    return env.STORAGE_PATH;
+  }
+  return path.join(workspaceRoot, env.STORAGE_PATH);
+}
+
 async function loadModelAliases(
   workspaceRoot: string,
 ): Promise<Record<string, string>> {
+  const storagePath = resolveStoragePath(workspaceRoot);
   const aliasesPath = path.join(
-    workspaceRoot,
-    "@storage",
+    storagePath,
     "benchmarks",
     "model-aliases.json",
   );
@@ -203,9 +211,9 @@ export function createApiServer(
     try {
       const configuredOnly = parseBooleanQuery(req.query.configuredOnly, false);
       const workspaceRoot = getWorkspaceRoot();
+      const storagePath = resolveStoragePath(workspaceRoot);
       const benchmarkFilePath = path.join(
-        workspaceRoot,
-        "@storage",
+        storagePath,
         "benchmarks",
         "artificial-analysis-models.json",
       );
@@ -315,12 +323,8 @@ export function createApiServer(
   });
 
   function getAliasesFilePath(workspaceRoot: string): string {
-    return path.join(
-      workspaceRoot,
-      "@storage",
-      "benchmarks",
-      "model-aliases.json",
-    );
+    const storagePath = resolveStoragePath(workspaceRoot);
+    return path.join(storagePath, "benchmarks", "model-aliases.json");
   }
 
   // Get current aliases
@@ -367,9 +371,9 @@ export function createApiServer(
   });
 
   const workspaceRoot = getWorkspaceRoot();
+  const storagePath = resolveStoragePath(workspaceRoot);
   const benchmarkFilePath = path.join(
-    workspaceRoot,
-    "@storage",
+    storagePath,
     "benchmarks",
     "artificial-analysis-models.json",
   );

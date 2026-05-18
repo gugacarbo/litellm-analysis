@@ -1,5 +1,5 @@
-import { serverEnv } from "@lite-llm/config/server";
 import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
+import { serverEnv } from "@lite-llm/config/server";
 
 export const DEFAULT_AGENTS_PATH = `${serverEnv.SETTINGS_PATH}/agents/agents.jsonc`;
 
@@ -23,41 +23,5 @@ export const DEFAULT_AGENTS: SystemAgent[] = [
     model: "",
     fallbackModels: [],
     config: { mode: "subagent" },
-  },
-  {
-    displayName: "Explorer",
-    icon: "🔍",
-    description: "Explorador — navega e mapeia a base de código",
-    limits: { context: 200000, output: 32768 },
-    model: "",
-    fallbackModels: [],
-    config: { mode: "subagent" },
-  },
-  {
-    displayName: "Reviewer",
-    icon: "✅",
-    description: "Revisor — auditoria de qualidade e consistência",
-    limits: { context: 200000, output: 32768 },
-    model: "",
-    fallbackModels: [],
-    config: { mode: "subagent" },
-  },
-  {
-    displayName: "Architect",
-    icon: "🏛️",
-    description: "Arquiteto — decisões de arquitetura e design",
-    limits: { context: 200000, output: 32768 },
-    model: "",
-    fallbackModels: [],
-    config: { mode: "subagent" },
-  },
-  {
-    displayName: "Writer",
-    icon: "✍️",
-    description: "Escritor — documentação, textos e prosa técnica",
-    limits: { context: 200000, output: 32768 },
-    model: "",
-    fallbackModels: [],
-    config: {},
   },
 ];

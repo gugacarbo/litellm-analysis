@@ -7,6 +7,7 @@ import { OpenCodePlugin } from "../plugin";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
+    id: "Builder",
     displayName: "Builder",
     icon: "🔧",
     description: "Build stuff",
@@ -41,19 +42,17 @@ describe("OpenCodePlugin", () => {
     it("retorna 2 campos de configuração", () => {
       const plugin = new OpenCodePlugin();
       const schema = plugin.getConfigSchema();
-      expect(schema).toHaveLength(3);
+      expect(schema).toHaveLength(2);
     });
 
     it("campos tem key, type e label", () => {
       const plugin = new OpenCodePlugin();
       const schema = plugin.getConfigSchema();
+      expect(schema).toHaveLength(2);
       expect(schema[0].key).toBe("defaultModel");
       expect(schema[0].type).toBe("string");
       expect(schema[1].key).toBe("defaultTemperature");
       expect(schema[1].type).toBe("number");
-      expect(schema[2].key).toBe("selectedAgents");
-      expect(schema[2].type).toBe("switch-group");
-      expect(schema[2].label).toBe("System Agents");
     });
   });
 
@@ -177,6 +176,7 @@ describe("OpenCodePlugin", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
         {
+          id: "Builder",
           displayName: "Builder",
           icon: "🔧",
           description: "Build stuff",
@@ -257,6 +257,7 @@ describe("OpenCodePlugin", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
         {
+          id: "Loom",
           displayName: "Loom",
           icon: "🧵",
           description: "Coordinator",
@@ -292,6 +293,7 @@ describe("OpenCodePlugin", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
         {
+          id: "Loom",
           displayName: "Loom",
           icon: "🧵",
           description: "Coordinator agent",
@@ -548,6 +550,7 @@ describe("OpenCodePlugin", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
         {
+          id: "Loom",
           displayName: "Loom",
           icon: "🧵",
           description: "Coordinator",
@@ -557,6 +560,7 @@ describe("OpenCodePlugin", () => {
           config: {},
         },
         {
+          id: "Tapestry",
           displayName: "Tapestry",
           icon: "🧶",
           description: "Architect",
@@ -566,6 +570,7 @@ describe("OpenCodePlugin", () => {
           config: {},
         },
         {
+          id: "Thread",
           displayName: "Thread",
           icon: "🧵",
           description: "Writer",

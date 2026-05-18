@@ -33,8 +33,14 @@
       "type": "object",
       "required": ["npm", "options", "models"],
       "properties": {
-        "name": { "type": "string", "description": "Display name of the provider" },
-        "npm": { "type": "string", "description": "NPM package name for the provider" },
+        "name": {
+          "type": "string",
+          "description": "Display name of the provider"
+        },
+        "npm": {
+          "type": "string",
+          "description": "NPM package name for the provider"
+        },
         "options": { "$ref": "#/definitions/ProviderOptions" },
         "models": {
           "type": "object",
@@ -47,23 +53,43 @@
       "type": "object",
       "required": ["baseURL", "apiKey"],
       "properties": {
-        "baseURL": { "type": "string", "description": "Base URL for the API endpoint" },
-        "apiKey": { "type": "string", "description": "API key for authentication" }
+        "baseURL": {
+          "type": "string",
+          "description": "Base URL for the API endpoint"
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "API key for authentication"
+        }
       }
     },
     "ModelConfig": {
       "type": "object",
       "required": ["id", "name", "limit"],
       "properties": {
-        "id": { "type": "string", "description": "Unique identifier for the model" },
-        "name": { "type": "string", "description": "Display name of the model" },
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the model"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the model"
+        },
         "limit": { "$ref": "#/definitions/ModelLimits" },
         "cost": {
           "type": "object",
           "description": "Cost configuration per million tokens",
           "properties": {
-            "input": { "type": "number", "minimum": 0, "description": "Input cost per million tokens" },
-            "output": { "type": "number", "minimum": 0, "description": "Output cost per million tokens" }
+            "input": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Input cost per million tokens"
+            },
+            "output": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Output cost per million tokens"
+            }
           }
         },
         "variants": {
@@ -77,29 +103,49 @@
       "type": "object",
       "required": ["context", "output"],
       "properties": {
-        "context": { "type": "integer", "minimum": 1, "description": "Maximum context window size in tokens" },
-        "output": { "type": "integer", "minimum": 1, "description": "Maximum output tokens" }
+        "context": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum context window size in tokens"
+        },
+        "output": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum output tokens"
+        }
       }
     },
     "ModelVariant": {
       "type": "object",
       "required": ["reasoningEffort"],
       "properties": {
-        "reasoningEffort": { "type": "string", "description": "Reasoning effort level for this variant" }
+        "reasoningEffort": {
+          "type": "string",
+          "description": "Reasoning effort level for this variant"
+        }
       }
     },
     "OpenCodeAgentConfig": {
       "type": "object",
       "required": ["model"],
       "properties": {
-        "description": { "type": "string", "description": "Human-readable description of the agent" },
-        "model": { "type": "string", "description": "Primary model identifier (prefixed with provider/)" },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the agent"
+        },
+        "model": {
+          "type": "string",
+          "description": "Primary model identifier (prefixed with provider/)"
+        },
         "fallback_models": {
-          "type": "array", "items": { "type": "string" },
+          "type": "array",
+          "items": { "type": "string" },
           "description": "List of fallback model identifiers"
         },
         "temperature": {
-          "type": "number", "minimum": 0, "maximum": 2,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
           "description": "Sampling temperature for the agent"
         }
       }
@@ -108,14 +154,23 @@
       "type": "object",
       "required": ["model"],
       "properties": {
-        "description": { "type": "string", "description": "Human-readable description of the category" },
-        "model": { "type": "string", "description": "Primary model identifier (prefixed with provider/)" },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the category"
+        },
+        "model": {
+          "type": "string",
+          "description": "Primary model identifier (prefixed with provider/)"
+        },
         "fallback_models": {
-          "type": "array", "items": { "type": "string" },
+          "type": "array",
+          "items": { "type": "string" },
           "description": "List of fallback model identifiers"
         },
         "temperature": {
-          "type": "number", "minimum": 0, "maximum": 2,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
           "description": "Sampling temperature for the category"
         }
       }

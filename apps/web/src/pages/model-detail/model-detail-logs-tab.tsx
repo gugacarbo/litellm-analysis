@@ -3,13 +3,13 @@ import type {
   SpendLog,
 } from "@lite-llm/contracts/analytics";
 import { useState } from "react";
-import { LogDetailDialog } from "@/components/logs/log-detail-dialog";
-import { LogsSummaryCards } from "@/components/logs/logs-summary-cards";
+import { LogDetailDialog } from "@/features/logs/components/log-detail-dialog";
+import { LogsSummaryCards } from "@/features/logs/components/logs-summary-cards";
 import {
   DEFAULT_VISIBLE_LOG_COLUMNS,
   LogsTable,
-} from "@/components/logs/logs-table";
-import type { LogColumnKey } from "@/components/logs/logs-table-columns";
+} from "@/features/logs/components/logs-table";
+import type { LogColumnKey } from "@/features/logs/components/logs-table-columns";
 
 interface ModelDetailLogsTabProps {
   logs: SpendLog[];

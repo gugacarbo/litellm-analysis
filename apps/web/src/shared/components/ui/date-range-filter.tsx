@@ -1,12 +1,15 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useMemo, useState } from "react";
-import type { DashboardDateRangeKey, DateRangeGroup } from "@/shared/lib/date-ranges";
+import { useFilter } from "@/shared/contexts/filter-context";
+import type {
+  DashboardDateRangeKey,
+  DateRangeGroup,
+} from "@/shared/lib/date-ranges";
 import {
   DAYS_OPTIONS,
   getDateRangeGroup,
   HOURS_OPTIONS,
 } from "@/shared/lib/date-ranges";
-import { useFilter } from "@/shared/contexts/filter-context";
 import { Button } from "./button";
 import { Calendar } from "./calendar";
 import {
