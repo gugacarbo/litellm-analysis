@@ -13,7 +13,7 @@ type ModelStatsSummaryCardsProps = {
   totalSpend: number;
   totalRequests: number;
   totalTokens: number;
-  totalPromptTokens: number;
+  totalCompletionTokens: number;
   avgSuccessRate: number;
   avgLatency: number;
   avgTokensPerSecond: number;
@@ -31,7 +31,7 @@ export function ModelStatsSummaryCards({
   totalSpend,
   totalRequests,
   totalTokens,
-  totalPromptTokens,
+  totalCompletionTokens,
   avgSuccessRate,
   avgLatency,
   avgTokensPerSecond,
@@ -66,7 +66,7 @@ export function ModelStatsSummaryCards({
         value={formatCompactNumber(totalTokens)}
         description={
           <span>
-            <span>{formatCompactNumber(totalPromptTokens)}</span>
+            <span>{formatCompactNumber(totalCompletionTokens)}</span>
             <small> output tokens</small>
           </span>
         }

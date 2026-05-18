@@ -14,7 +14,14 @@ export interface InternalAgent {
 
 export interface ConfigField {
   key: string;
-  type: "string" | "number" | "boolean" | "select" | "password" | "multiselect" | "switch-group";
+  type:
+    | "string"
+    | "number"
+    | "boolean"
+    | "select"
+    | "password"
+    | "multiselect"
+    | "switch-group";
   label: string;
   required?: boolean;
   default?: unknown;

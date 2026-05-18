@@ -54,7 +54,7 @@ export function ModelStatsPage() {
           totalSpend={state.totalSpend}
           totalRequests={state.totalRequests}
           totalTokens={state.totalTokens}
-          totalPromptTokens={state.totalPromptTokens}
+          totalCompletionTokens={state.totalCompletionTokens}
           avgSuccessRate={state.avgSuccessRate}
           avgLatency={state.avgLatency}
           avgTokensPerSecond={state.avgTokensPerSecond}

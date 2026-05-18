@@ -6,7 +6,10 @@
       "enabled": false,
       "outputFile": "",
       "config": {
-        "selectedAgents": ["loom", "tapestry"]
+        "selectedAgents": [
+          "loom",
+          "tapestry"
+        ]
       },
       "routing": {
         "agents": {},
@@ -16,7 +19,18 @@
     "opencode": {
       "enabled": true,
       "outputFile": "",
-      "config": {},
+      "config": {
+        "selectedAgents": [
+          "loom",
+          "tapestry",
+          "shuttle",
+          "planner",
+          "thread",
+          "explorer",
+          "reviewer",
+          "warp"
+        ]
+      },
       "routing": {
         "agents": {
           "coder": "loom",

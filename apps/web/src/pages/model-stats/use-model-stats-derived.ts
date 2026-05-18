@@ -207,8 +207,14 @@ export function useModelStatsDerived(
         : 0;
 
     const byEfficiency = [...data].sort((a, b) => {
-      const costA = safeDivide(Number(a.total_spend), safeDivide(Number(a.total_tokens), 1000));
-      const costB = safeDivide(Number(b.total_spend), safeDivide(Number(b.total_tokens), 1000));
+      const costA = safeDivide(
+        Number(a.total_spend),
+        safeDivide(Number(a.total_tokens), 1000),
+      );
+      const costB = safeDivide(
+        Number(b.total_spend),
+        safeDivide(Number(b.total_tokens), 1000),
+      );
       return costA - costB;
     });
     const topEfficiencyModel =

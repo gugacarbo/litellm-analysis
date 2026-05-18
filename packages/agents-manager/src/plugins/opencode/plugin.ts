@@ -96,7 +96,8 @@ export class OpenCodePlugin implements IPlugin {
         key: "selectedAgents",
         type: "switch-group",
         label: "System Agents",
-        description: "Select which system agents to include in the generated config",
+        description:
+          "Select which system agents to include in the generated config",
         options: [],
       },
     ];
