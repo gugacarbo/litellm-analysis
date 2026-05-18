@@ -1,11 +1,6 @@
 import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { AdvancedSection } from "./advanced-section";
-import { GeneralSection } from "./general-section";
-import { ModelSection } from "./model-section";
-import { normalizeSystemAgent } from "./normalize";
-import { ToolsSection } from "./tools-section";
 import { Button } from "../../../components/ui/button";
 import {
   Dialog,
@@ -15,7 +10,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../../components/ui/tabs";
+import { AdvancedSection } from "./advanced-section";
+import { GeneralSection } from "./general-section";
+import { ModelSection } from "./model-section";
+import { normalizeSystemAgent } from "./normalize";
+import { ToolsSection } from "./tools-section";
 
 interface AgentConfigEditorProps {
   open: boolean;

@@ -8,8 +8,8 @@ import {
   getSystemAgent,
   upsertSystemAgent,
 } from "@/shared/lib/api-client/agent-catalog";
-import { normalizeSystemAgent } from "./components/normalize";
 import type { AgentConfigFormData } from "./agent-config-types";
+import { normalizeSystemAgent } from "./components/normalize";
 
 function systemAgentToFormData(agent: SystemAgent): AgentConfigFormData {
   return {

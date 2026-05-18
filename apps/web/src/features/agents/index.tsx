@@ -2,9 +2,9 @@
 
 import { Settings } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { AgentConfigForm } from "./components/agent-config-form";
 import { PageLayout } from "../../components/ui/page-layout";
 import { Skeleton } from "../../components/ui/skeleton";
+import { AgentConfigForm } from "./components/agent-config-form";
 import { useAgentConfigPage } from "./use-agent-config-page";
 
 export function AgentConfigPage() {
