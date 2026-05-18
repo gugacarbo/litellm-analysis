@@ -1,4 +1,4 @@
-import { Clock, DollarSign, Gauge, Sparkles } from "lucide-react";
+import { Clock, DollarSign, Gauge, Sparkles, TrendingUp } from "lucide-react";
 import {
   formatCompactNumber,
   formatCurrency,
@@ -19,6 +19,11 @@ type ModelStatsSummaryCardsProps = {
   avgTokensPerSecond: number;
   avgCostPerRequest: number;
   avgCostPer1kTokens: number;
+  topSpendModel: string;
+  topSpendValue: number;
+  maxTokensPerSecond: number;
+  topEfficiencyModel: string;
+  bestCostPer1k: number;
 };
 
 export function ModelStatsSummaryCards({
@@ -32,9 +37,14 @@ export function ModelStatsSummaryCards({
   avgTokensPerSecond,
   avgCostPerRequest,
   avgCostPer1kTokens,
+  topSpendModel,
+  topSpendValue,
+  maxTokensPerSecond,
+  topEfficiencyModel,
+  bestCostPer1k,
 }: ModelStatsSummaryCardsProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3">
       <MetricCard
         icon={DollarSign}
         title="Total Spend"
@@ -57,7 +67,7 @@ export function ModelStatsSummaryCards({
         description={
           <span>
             <span>{formatCompactNumber(totalPromptTokens)}</span>
-            <small> input tokens</small>
+            <small> output tokens</small>
           </span>
         }
         colorScheme="blue"
@@ -98,13 +108,27 @@ export function ModelStatsSummaryCards({
       <MetricCard
         icon={Gauge}
         title="Efficiency"
-        value={`${formatCurrency(avgCostPer1kTokens)}/1K`}
+        value={`$${bestCostPer1k.toFixed(6)}/1K`}
         description={
           <span>
-            <small>cost per 1K tokens</small>
+            <small>{topEfficiencyModel || "-"}</small>
           </span>
         }
         colorScheme="cyan"
+        variant="gradient"
+        size="sm"
+        loading={loading}
+      />
+      <MetricCard
+        icon={TrendingUp}
+        title="Top Spender"
+        value={formatCurrency(topSpendValue)}
+        description={
+          <span>
+            <small>{topSpendModel || "-"}</small>
+          </span>
+        }
+        colorScheme="amber"
         variant="gradient"
         size="sm"
         loading={loading}

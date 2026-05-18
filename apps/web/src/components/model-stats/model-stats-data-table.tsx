@@ -428,9 +428,9 @@ export function ModelStatsDataTable({
   }
 
   return (
-    <Card>
+    <Card className="gap-0">
       <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
-        <div className="text-sm font-medium">Model Statistics</div>
+        <div className="font-medium">Model Statistics</div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -454,6 +454,7 @@ export function ModelStatsDataTable({
       </CardHeader>
       <CardContent>
         <DataTable
+          showColumnsSelector={false}
           columns={columns}
           data={data}
           loading={loading}

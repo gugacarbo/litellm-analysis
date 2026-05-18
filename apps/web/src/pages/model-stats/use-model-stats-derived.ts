@@ -194,6 +194,33 @@ export function useModelStatsDerived(
 
     const insights = computeInsights(data, acc.totalSpend, acc.totalRequests);
 
+    const bySpend = [...data].sort(
+      (a, b) => Number(b.total_spend) - Number(a.total_spend),
+    );
+    const topSpendModel =
+      bySpend.length > 0 ? bySpend[0].model || "(unknown)" : "";
+    const topSpendValue =
+      bySpend.length > 0 ? Number(bySpend[0].total_spend) : 0;
+    const maxTokensPerSecond =
+      data.length > 0
+        ? Math.max(...data.map((m) => Number(m.max_tokens_per_second) || 0))
+        : 0;
+
+    const byEfficiency = [...data].sort((a, b) => {
+      const costA = safeDivide(Number(a.total_spend), safeDivide(Number(a.total_tokens), 1000));
+      const costB = safeDivide(Number(b.total_spend), safeDivide(Number(b.total_tokens), 1000));
+      return costA - costB;
+    });
+    const topEfficiencyModel =
+      byEfficiency.length > 0 ? byEfficiency[0].model || "(unknown)" : "";
+    const bestCostPer1k =
+      byEfficiency.length > 0
+        ? safeDivide(
+            Number(byEfficiency[0].total_spend),
+            safeDivide(Number(byEfficiency[0].total_tokens), 1000),
+          )
+        : 0;
+
     return {
       totalSpend: acc.totalSpend,
       totalRequests: acc.totalRequests,
@@ -210,6 +237,11 @@ export function useModelStatsDerived(
       errorRate,
       insights,
       uniqueModels: data.length,
+      topSpendModel,
+      topSpendValue,
+      maxTokensPerSecond,
+      topEfficiencyModel,
+      bestCostPer1k,
     };
   }, [data]);
 
