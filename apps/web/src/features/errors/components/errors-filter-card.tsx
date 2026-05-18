@@ -1,4 +1,4 @@
-import { GenericFilterCard } from "../filters/generic-filter-card";
+import { GenericFilterCard } from "@/components/filters/generic-filter-card";
 
 export type ErrorsFilterValues = {
   model: string;

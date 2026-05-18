@@ -4,28 +4,28 @@ import type {
 } from "@lite-llm/contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import type { ErrorColumnKey } from "@/components/errors/errors-table-columns";
+import { Badge } from "@/shared/components/ui/badge";
 import { getAllModels } from "@/shared/lib/api-client/models";
 import { APP_LOCALE } from "@/shared/lib/locale";
 import { queryKeys } from "@/shared/lib/query-keys";
-import { ErrorDetailDialog } from "../components/errors/error-detail-dialog";
-import { ErrorsDistributionChart } from "../components/errors/errors-distribution-chart";
+import { ErrorDetailDialog } from "./components/error-detail-dialog";
+import { ErrorsDistributionChart } from "./components/errors-distribution-chart";
 import {
   ErrorsFilterCard,
   type ErrorsFilterValues,
-} from "../components/errors/errors-filter-card";
-import { ErrorsSummaryCards } from "../components/errors/errors-summary-cards";
+} from "./components/errors-filter-card";
+import { ErrorsSummaryCards } from "./components/errors-summary-cards";
 import {
   DEFAULT_VISIBLE_ERROR_COLUMNS,
   ErrorsTable,
-} from "../components/errors/errors-table";
-import { Badge } from "../components/ui/badge";
-import { useErrors } from "../hooks/use-errors";
+} from "./components/errors-table";
+import { useErrors } from "./hooks/use-errors";
+import type { ErrorColumnKey } from "./types/errors-table-columns";
 import {
   AUTO_REFETCH_INTERVAL_MS,
   applyErrorFilters,
   type ErrorFilters,
-} from "./errors-utils";
+} from "./utils/errors-page-utils";
 
 export function LogsErrorsTab() {
   const { errors, loading, refreshing, error, refetch } = useErrors();
