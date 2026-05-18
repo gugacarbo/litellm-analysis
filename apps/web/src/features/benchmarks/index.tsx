@@ -1,28 +1,25 @@
 import { Filter, Scale } from "lucide-react";
-import { AliasesButton } from "./components/aliases-button";
-import { ComparisonDeck } from "./components/comparison-deck";
-import { UseCaseFilter } from "./components/use-case-filter";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
-import { EmptyState } from "../components/ui/empty-state";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { PageLayout } from "../components/ui/page-layout";
+} from "../../components/ui/card";
+import { EmptyState } from "../../components/ui/empty-state";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { PageLayout } from "../../components/ui/page-layout";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/select";
-import { Skeleton } from "../components/ui/skeleton";
-import { Switch } from "../components/ui/switch";
+} from "../../components/ui/select";
+import { Skeleton } from "../../components/ui/skeleton";
+import { Switch } from "../../components/ui/switch";
 import {
   Table,
   TableBody,
@@ -30,19 +27,23 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table";
+} from "../../components/ui/table";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../components/ui/tabs";
+} from "../../components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../components/ui/tooltip";
+} from "../../components/ui/tooltip";
+import { AliasesButton } from "./components/aliases-button";
+import { ComparisonDeck } from "./components/comparison-deck";
+import { UseCaseFilter } from "./components/use-case-filter";
+import { useBenchmarksPage } from "./hooks/use-benchmarks-page";
 import {
   formatBenchmarkPrice,
   formatFetchedAt,
@@ -50,7 +51,6 @@ import {
   formatNullableNumber,
   formatSpeed,
 } from "./utils/benchmark-utils";
-import { useBenchmarksPage } from "./hooks/use-benchmarks-page";
 
 export function BenchmarksPage() {
   const page = useBenchmarksPage();

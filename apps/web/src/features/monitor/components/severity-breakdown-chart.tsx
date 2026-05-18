@@ -6,11 +6,16 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import type { SeveritySlice } from "use-monitor-derived";
 import { cn } from "@/shared/lib/utils";
-import type { SeveritySlice } from "../../pages/monitor/use-monitor-derived";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ChartTooltipContent } from "../ui/chart-tooltip";
-import { Skeleton } from "../ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import { ChartTooltipContent } from "../../../components/ui/chart-tooltip";
+import { Skeleton } from "../../../components/ui/skeleton";
 
 interface SeverityBreakdownChartProps {
   data: SeveritySlice[];

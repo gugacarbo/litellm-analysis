@@ -1,5 +1,5 @@
 import { Bot, Brain, Code, Scale, Zap } from "lucide-react";
-import type { UseCase } from "@/pages/benchmarks/benchmark-types";
+import type { UseCase } from "@/features/benchmarks/types/benchmark-types";
 
 import { CHART_COLORS } from "./benchmark-colors";
 
@@ -87,3 +87,4 @@ export function UseCaseFilter({
     </div>
   );
 }
+

@@ -14,7 +14,7 @@ import {
   formatValueScore,
   getCoverageCount,
   RAW_BENCHMARK_KEYS,
-} from "../benchmark-utils";
+} from "../utils/benchmark-utils";
 
 function createMockModel(
   overrides: Partial<ModelBenchmarkListItem> = {},

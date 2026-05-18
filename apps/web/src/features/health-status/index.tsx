@@ -1,21 +1,21 @@
 import { Activity, History, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { HistoryTable } from "../components/health-status/history-table";
-import { ModelsTable } from "../components/health-status/models-table";
-import { StatusDetailsDialog } from "../components/health-status/status-details-dialog";
-import { Button } from "../components/ui/button";
-import { Dialog } from "../components/ui/dialog";
-import { PageLayout } from "../components/ui/page-layout";
+import { Button } from "../../components/ui/button";
+import { Dialog } from "../../components/ui/dialog";
+import { PageLayout } from "../../components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../components/ui/tabs";
-import type { HealthCheckResultEntry } from "./health-status/health-status-types";
-import { STATUS_COLORS } from "./health-status/health-status-utils";
-import { useHealthStatusPage } from "./health-status/use-health-status-page";
-import type { ModelWithStatus } from "./health-status/use-health-status-state";
+} from "../../components/ui/tabs";
+import { HistoryTable } from "./components/history-table";
+import { ModelsTable } from "./components/models-table";
+import { StatusDetailsDialog } from "./components/status-details-dialog";
+import { useHealthStatusPage } from "./hooks/use-health-status-page";
+import type { ModelWithStatus } from "./hooks/use-health-status-state";
+import type { HealthCheckResultEntry } from "./types/health-status-types";
+import { STATUS_COLORS } from "./utils/health-status-utils";
 
 interface HealthStatusContentProps {
   embedded?: boolean;

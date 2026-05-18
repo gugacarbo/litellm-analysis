@@ -5,7 +5,7 @@ import {
   RadarChart,
   ResponsiveContainer,
 } from "recharts";
-import type { PercentileMap } from "@/pages/benchmarks/benchmark-types";
+import type { PercentileMap } from "@/features/benchmarks/types/benchmark-types";
 
 interface MiniRadarChartProps {
   percentiles: PercentileMap;

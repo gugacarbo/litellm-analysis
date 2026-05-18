@@ -1,7 +1,7 @@
 import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
-import { BENCHMARK_CONFIG } from "@/pages/benchmarks/benchmark-utils";
+import { BENCHMARK_CONFIG } from "@/features/benchmarks/utils/benchmark-utils";
 
 interface RawBenchmarkGridProps {
   model: ModelBenchmarkListItem;
@@ -56,3 +56,4 @@ export function RawBenchmarkGrid({ model }: RawBenchmarkGridProps) {
     </div>
   );
 }
+

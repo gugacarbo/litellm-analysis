@@ -1,21 +1,18 @@
+import type { ModelHealthEntry, MonitorAlert } from "monitor-types";
 import { useCallback, useEffect, useState } from "react";
 import { getMonitorAlerts } from "@/shared/lib/api-client/monitor";
 import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 import { formatDateTime } from "@/shared/lib/spend-log-utils";
 import { cn } from "@/shared/lib/utils";
-import type {
-  ModelHealthEntry,
-  MonitorAlert,
-} from "../../pages/monitor/monitor-types";
-import { Button } from "../ui/button";
+import { Button } from "../../../components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
+} from "../../../components/ui/card";
+import { Skeleton } from "../../../components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -23,7 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "../../../components/ui/table";
 import { AlertFilters, type AlertFiltersState } from "./alert-filters";
 import { AlertSeverityBadge } from "./alert-severity-badge";
 import { AlertTypeBadge } from "./alert-type-badge";

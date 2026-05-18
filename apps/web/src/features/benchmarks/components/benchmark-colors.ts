@@ -1,4 +1,4 @@
-import type { UseCase } from "@/pages/benchmarks/benchmark-types";
+import type { UseCase } from "@/features/benchmarks/types/benchmark-types";
 
 export const CHART_COLORS: Record<UseCase, string> = {
   intelligence: "#2563eb",

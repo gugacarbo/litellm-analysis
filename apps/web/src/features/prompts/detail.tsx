@@ -2,11 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { getEval } from "@/shared/lib/api-client/prompt-evals";
-import { EvalDetailTabs } from "../components/prompt-evals/eval-detail-tabs";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
-import { PageLayout } from "../components/ui/page-layout";
-import { formatRelativeTime, statusVariant } from "./prompt-evals/utils";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { PageLayout } from "../../components/ui/page-layout";
+import { EvalDetailTabs } from "./components/eval-detail-tabs";
+import { formatRelativeTime, statusVariant } from "./utils";
 
 export function PromptEvalDetailPage() {
   const { id } = useParams<{ id: string }>();

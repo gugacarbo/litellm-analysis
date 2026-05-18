@@ -1,13 +1,6 @@
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import type { HealthCheckResultEntry } from "../../pages/health-status/health-status-types";
-import {
-  formatRelativeTime,
-  formatResponseTime,
-  formatTimestamp,
-  formatTokensPerSecond,
-} from "../../pages/health-status/health-status-utils";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
 import {
   Table,
   TableBody,
@@ -15,7 +8,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "../../../components/ui/table";
+import type { HealthCheckResultEntry } from "../types/health-status-types";
+import {
+  formatRelativeTime,
+  formatResponseTime,
+  formatTimestamp,
+  formatTokensPerSecond,
+} from "../utils/health-status-utils";
 import { StatusBadge } from "./status-badge";
 
 interface HistoryTableProps {

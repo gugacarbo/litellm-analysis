@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Unlink } from "lucide-react";
 import { useState } from "react";
 import { getModelAliases, putModelAliases } from "@/shared/lib/api-client";
-import { Button } from "../ui/button";
+import { Button } from "../../../components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -11,8 +11,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "../ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+} from "../../../components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../../components/ui/popover";
 import { filterModels } from "./filter-models";
 
 interface AliasesButtonProps {

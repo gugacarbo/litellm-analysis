@@ -1,12 +1,5 @@
 import { Loader2 } from "lucide-react";
-import {
-  formatRelativeTime,
-  formatResponseTime,
-  formatTimestamp,
-  formatTokensPerSecond,
-} from "../../pages/health-status/health-status-utils";
-import type { ModelWithStatus } from "../../pages/health-status/use-health-status-state";
-import { Button } from "../ui/button";
+import { Button } from "../../../components/ui/button";
 import {
   Table,
   TableBody,
@@ -14,7 +7,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "../../../components/ui/table";
+import type { ModelWithStatus } from "../hooks/use-health-status-state";
+import {
+  formatRelativeTime,
+  formatResponseTime,
+  formatTimestamp,
+  formatTokensPerSecond,
+} from "../utils/health-status-utils";
 import { StatusBadge } from "./status-badge";
 
 interface ModelsTableProps {

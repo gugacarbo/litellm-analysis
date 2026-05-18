@@ -1,21 +1,21 @@
 import { AlertTriangle, BarChart3, Clock, Radar, Radio } from "lucide-react";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MetricCard } from "../components/metric-card";
-import { AlertDetailDialog } from "../components/monitor/alert-detail-dialog";
-import { AlertHistoryTable } from "../components/monitor/alert-history-table";
-import { AlertsByTypeChart } from "../components/monitor/alerts-by-type-chart";
-import { ConnectionBadge } from "../components/monitor/connection-badge";
-import { SeverityBreakdownChart } from "../components/monitor/severity-breakdown-chart";
-import { PageLayout } from "../components/ui/page-layout";
+import { PageLayout } from "../../components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../components/ui/tabs";
-import { HealthStatusContent } from "./health-status";
-import { useMonitorPageState } from "./monitor/use-monitor-page";
+} from "../../components/ui/tabs";
+import { MetricCard } from "../components/metric-card";
+import { HealthStatusContent } from "../health-status";
+import { AlertDetailDialog } from "./components/alert-detail-dialog";
+import { AlertHistoryTable } from "./components/alert-history-table";
+import { AlertsByTypeChart } from "./components/alerts-by-type-chart";
+import { ConnectionBadge } from "./components/connection-badge";
+import { SeverityBreakdownChart } from "./components/severity-breakdown-chart";
+import { useMonitorPageState } from "./hooks/use-monitor-page";
 
 export function MonitorPage() {
   const state = useMonitorPageState();

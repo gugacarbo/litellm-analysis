@@ -7,7 +7,7 @@ import type {
   UseCase,
   UseCaseScores,
   ValueScore,
-} from "../benchmark-types";
+} from "../types/benchmark-types";
 
 describe("UseCase", () => {
   it("should accept all valid use case values", () => {

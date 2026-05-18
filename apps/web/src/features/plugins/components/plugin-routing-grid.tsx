@@ -1,7 +1,7 @@
 import { Plug } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PluginCard } from "./plugin-card";
 import type { PluginRoutingGridProps } from "../types/plugin-routing-types";
+import { PluginCard } from "./plugin-card";
 
 export function PluginRoutingGrid({
   plugins,

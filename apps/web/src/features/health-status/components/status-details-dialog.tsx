@@ -1,19 +1,19 @@
 import { MessageSquareText } from "lucide-react";
-import type { HealthCheckResultEntry } from "../../pages/health-status/health-status-types";
-import {
-  formatRelativeTime,
-  formatResponseTime,
-  formatTimestamp,
-  formatTokensPerSecond,
-} from "../../pages/health-status/health-status-utils";
-import type { ModelWithStatus } from "../../pages/health-status/use-health-status-state";
-import { DetailRow } from "../ui/detail-row";
+import { DetailRow } from "../../../components/ui/detail-row";
 import {
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "../../../components/ui/dialog";
+import type { ModelWithStatus } from "../hooks/use-health-status-state";
+import type { HealthCheckResultEntry } from "../types/health-status-types";
+import {
+  formatRelativeTime,
+  formatResponseTime,
+  formatTimestamp,
+  formatTokensPerSecond,
+} from "../utils/health-status-utils";
 import { StatusBadge } from "./status-badge";
 
 function formatPayload(payload: string | null): string {

@@ -1,14 +1,14 @@
 import type { SpendLog } from "@lite-llm/contracts/analytics";
-import { APP_LOCALE } from "@/shared/lib/locale";
-import { LogsFilterCard } from "./logs-filter-card";
-import { LogsSummaryCards } from "./logs-summary-cards";
-import { LogsTable } from "./logs-table";
 import { Badge } from "@/components/ui/badge";
+import { APP_LOCALE } from "@/shared/lib/locale";
 import {
   type SpendLogFilters,
   type SpendLogsState,
   useSpendLogsState,
 } from "../utils/spend-logs-state";
+import { LogsFilterCard } from "./logs-filter-card";
+import { LogsSummaryCards } from "./logs-summary-cards";
+import { LogsTable } from "./logs-table";
 
 interface SpendLogsTabProps {
   logs: SpendLog[];

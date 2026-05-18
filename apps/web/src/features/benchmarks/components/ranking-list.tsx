@@ -1,4 +1,4 @@
-import type { ComparisonCardData } from "@/pages/benchmarks/benchmark-types";
+import type { ComparisonCardData } from "@/features/benchmarks/types/benchmark-types";
 
 interface RankingListProps {
   rank: ComparisonCardData["rank"];
@@ -38,3 +38,4 @@ export function RankingList({ rank, topN = 3 }: RankingListProps) {
     </div>
   );
 }
+

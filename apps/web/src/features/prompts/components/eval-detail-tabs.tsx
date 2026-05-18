@@ -1,3 +1,10 @@
+import type { EvalRunDetail } from "types";
+import {
+  formatDuration,
+  formatPrecision,
+  formatTimestamp,
+  statusVariant,
+} from "utils";
 import { Badge } from "../../components/ui/badge";
 import { Separator } from "../../components/ui/separator";
 import {
@@ -6,13 +13,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "../../components/ui/tabs";
-import type { EvalRunDetail } from "../../pages/prompt-evals/types";
-import {
-  formatDuration,
-  formatPrecision,
-  formatTimestamp,
-  statusVariant,
-} from "../../pages/prompt-evals/utils";
 import { CategoryTable } from "./category-table";
 import { FailedCasesList } from "./failed-cases-list";
 

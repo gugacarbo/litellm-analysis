@@ -1,9 +1,9 @@
 "use client";
 
 import { Settings } from "lucide-react";
-import { PluginRoutingGrid } from "./components/plugin-routing-grid";
 import { Button } from "@/components/ui/button";
 import { PageLayout } from "@/components/ui/page-layout";
+import { PluginRoutingGrid } from "./components/plugin-routing-grid";
 import { usePluginRoutingPage } from "./use-plugin-routing-page";
 
 export function PluginsPage() {

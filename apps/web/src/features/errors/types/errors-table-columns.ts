@@ -61,7 +61,6 @@ export const DEFAULT_VISIBLE_ERROR_COLUMNS: ErrorColumnKey[] =
     (column) => column.key,
   );
 
-
 export function buildErrorTableColumns(
   onSelectError: (errorLog: ErrorLog) => void,
 ): ColumnDef<ErrorLog>[] {

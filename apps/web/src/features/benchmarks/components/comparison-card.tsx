@@ -1,14 +1,14 @@
-import { Badge } from "@/components/ui/badge";
 import type {
   ComparisonCardData,
   UseCase,
-} from "@/pages/benchmarks/benchmark-types";
+} from "@/features/benchmarks/types/benchmark-types";
 import {
   formatBenchmarkPrice,
   formatLatencySeconds,
   formatSpeed,
   formatValueScore,
-} from "@/pages/benchmarks/benchmark-utils";
+} from "@/features/benchmarks/utils/benchmark-utils";
+import { Badge } from "../../../components/ui/badge";
 import { CHART_COLORS } from "./benchmark-colors";
 import { DataCoverageBar } from "./data-coverage-bar";
 import { MetricBar } from "./metric-bar";

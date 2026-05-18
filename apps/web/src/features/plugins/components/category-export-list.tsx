@@ -1,5 +1,5 @@
-import { formatCategoryLabel } from "@/features/agent-routing/utils";
 import { Switch } from "@/components/ui/switch";
+import { formatCategoryLabel } from "@/features/agent-routing/utils";
 
 interface CategoryExportListProps {
   categories: string[];

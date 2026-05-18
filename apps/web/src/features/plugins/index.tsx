@@ -1,11 +1,11 @@
 import { AlertTriangle, ArrowLeft, Plug, Save, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AgentMappingTable } from "./components/agent-mapping-table";
-import { CategoryExportList } from "./components/category-export-list";
-import { PluginConfigForm } from "./components/plugin-config-form";
 import { Button } from "@/components/ui/button";
 import { PageLayout } from "@/components/ui/page-layout";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AgentMappingTable } from "./components/agent-mapping-table";
+import { CategoryExportList } from "./components/category-export-list";
+import { PluginConfigForm } from "./components/plugin-config-form";
 import { usePluginConfigPage } from "./use-plugin-config-page";
 
 export function PluginConfigPage() {

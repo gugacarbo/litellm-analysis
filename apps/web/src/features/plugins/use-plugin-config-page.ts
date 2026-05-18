@@ -3,18 +3,18 @@ import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import {
-  usePluginConfig,
-  useSavePluginConfig,
-  useToggleCategoryExport,
-} from "./hooks/use-plugin-config";
-import { useAvailablePlugins } from "./hooks/use-plugin-routing";
 import type { SystemAgentOption } from "@/shared/lib/api-client/agent-catalog";
 import {
   getAgentCatalog,
   getCategoryCatalog,
 } from "@/shared/lib/api-client/agent-catalog";
 import { queryKeys } from "@/shared/lib/query-keys";
+import {
+  usePluginConfig,
+  useSavePluginConfig,
+  useToggleCategoryExport,
+} from "./hooks/use-plugin-config";
+import { useAvailablePlugins } from "./hooks/use-plugin-routing";
 
 export function usePluginConfigPage(pluginId: string) {
   const { data, isPending: loading, error } = usePluginConfig(pluginId);
@@ -62,7 +62,9 @@ export function usePluginConfigPage(pluginId: string) {
   }, [agentCatalog]);
 
   const categoryOptions = useMemo(() => {
-    const entries = categoryCatalog as Record<string, CategoryEntry> | undefined;
+    const entries = categoryCatalog as
+      | Record<string, CategoryEntry>
+      | undefined;
     if (!entries) return [];
     return Object.entries(entries).map(([key, entry]) => ({
       value: key,

@@ -7,7 +7,9 @@ type ErrorDetailPartialUsageProps = {
   errorLog: ErrorLog;
 };
 
-export function ErrorDetailPartialUsage({ errorLog }: ErrorDetailPartialUsageProps) {
+export function ErrorDetailPartialUsage({
+  errorLog,
+}: ErrorDetailPartialUsageProps) {
   if (errorLog.total_tokens == null || errorLog.total_tokens <= 0) {
     return null;
   }
@@ -34,9 +36,7 @@ export function ErrorDetailPartialUsage({ errorLog }: ErrorDetailPartialUsagePro
               Spend Incurred
             </div>
             <div className="mt-1 text-sm font-medium text-amber-600">
-              {errorLog.spend != null
-                ? `$${errorLog.spend.toFixed(4)}`
-                : "-"}
+              {errorLog.spend != null ? `$${errorLog.spend.toFixed(4)}` : "-"}
             </div>
           </div>
           <div className="rounded-lg border bg-muted/20 px-3 py-2.5">
@@ -76,31 +76,30 @@ export function ErrorDetailPartialUsage({ errorLog }: ErrorDetailPartialUsagePro
               </div>
             </div>
             <div className="h-1.5 rounded-full bg-muted overflow-hidden flex">
-              {errorLog.total_tokens != null &&
-                errorLog.total_tokens > 0 && (
-                  <>
-                    <div
-                      className="bg-blue-500 h-full transition-all"
-                      style={{
-                        width: `${
-                          ((errorLog.prompt_tokens || 0) /
-                            errorLog.total_tokens) *
-                          100
-                        }%`,
-                      }}
-                    />
-                    <div
-                      className="bg-amber-500 h-full transition-all"
-                      style={{
-                        width: `${
-                          ((errorLog.completion_tokens || 0) /
-                            errorLog.total_tokens) *
-                          100
-                        }%`,
-                      }}
-                    />
-                  </>
-                )}
+              {errorLog.total_tokens != null && errorLog.total_tokens > 0 && (
+                <>
+                  <div
+                    className="bg-blue-500 h-full transition-all"
+                    style={{
+                      width: `${
+                        ((errorLog.prompt_tokens || 0) /
+                          errorLog.total_tokens) *
+                        100
+                      }%`,
+                    }}
+                  />
+                  <div
+                    className="bg-amber-500 h-full transition-all"
+                    style={{
+                      width: `${
+                        ((errorLog.completion_tokens || 0) /
+                          errorLog.total_tokens) *
+                        100
+                      }%`,
+                    }}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}

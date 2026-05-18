@@ -1,6 +1,6 @@
+import type { CategoryMetrics } from "types";
+import { formatPrecision, getScoreColor } from "utils";
 import { cn } from "@/shared/lib/utils";
-import type { CategoryMetrics } from "../../pages/prompt-evals/types";
-import { formatPrecision, getScoreColor } from "../../pages/prompt-evals/utils";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "../../../components/ui/table";
 
 interface CategoryTableProps {
   categories: CategoryMetrics[];

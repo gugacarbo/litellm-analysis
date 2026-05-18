@@ -1,5 +1,5 @@
-import type { ModelHealthStatus } from "../../pages/monitor/monitor-types";
-import { Badge } from "../ui/badge";
+import type { ModelHealthStatus } from "monitor-types";
+import { Badge } from "../../../components/ui/badge";
 
 type HealthStatusBadgeProps = {
   status: ModelHealthStatus;

@@ -1,9 +1,9 @@
 import { Scale } from "lucide-react";
-import { EmptyState } from "@/components/ui/empty-state";
 import type {
   ComparisonCardData,
   UseCase,
-} from "@/pages/benchmarks/benchmark-types";
+} from "@/features/benchmarks/types/benchmark-types";
+import { EmptyState } from "../../../components/ui/empty-state";
 import { ComparisonCard } from "./comparison-card";
 
 interface ComparisonDeckProps {

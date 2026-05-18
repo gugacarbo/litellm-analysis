@@ -5,11 +5,8 @@ import {
   Loader2,
   XCircle,
 } from "lucide-react";
-import {
-  STATUS_COLORS,
-  STATUS_LABELS,
-} from "../../pages/health-status/health-status-utils";
-import { Badge } from "../ui/badge";
+import { Badge } from "../../../components/ui/badge";
+import { STATUS_COLORS, STATUS_LABELS } from "../utils/health-status-utils";
 
 export function StatusBadge({ status }: { status: string }) {
   const colorMap: Record<string, string> = {

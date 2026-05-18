@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ModelSelect } from "../components/prompt-evals/model-select";
-import { PollingIndicator } from "../components/prompt-evals/polling-indicator";
-import { RunCard } from "../components/prompt-evals/run-card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { PageLayout } from "../components/ui/page-layout";
-import { Textarea } from "../components/ui/textarea";
-import { usePromptEvalsPage } from "./prompt-evals/use-prompt-evals-page";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { PageLayout } from "../../components/ui/page-layout";
+import { Textarea } from "../../components/ui/textarea";
+import { ModelSelect } from "./components/model-select";
+import { PollingIndicator } from "./components/polling-indicator";
+import { RunCard } from "./components/run-card";
+import { usePromptEvalsPage } from "./use-prompt-evals-page";
 
 export function PromptEvalsPage() {
   const {

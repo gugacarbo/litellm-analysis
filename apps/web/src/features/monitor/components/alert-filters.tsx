@@ -1,13 +1,13 @@
-import { ANOMALY_TYPE_LABELS } from "@/pages/monitor/monitor-utils";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { ANOMALY_TYPE_LABELS } from "@/features/monitor/monitor-utils";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../../../components/ui/select";
 
 export type AlertFiltersState = {
   anomalyType: string;

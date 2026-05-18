@@ -1,5 +1,12 @@
-import type { ErrorLog, PaginationMetadata } from "@lite-llm/contracts/analytics";
-import type { ColumnDef, Updater, VisibilityState } from "@tanstack/react-table";
+import type {
+  ErrorLog,
+  PaginationMetadata,
+} from "@lite-llm/contracts/analytics";
+import type {
+  ColumnDef,
+  Updater,
+  VisibilityState,
+} from "@tanstack/react-table";
 import { RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { LogsPaginationControls } from "@/features/logs/components/logs-pagination-controls";

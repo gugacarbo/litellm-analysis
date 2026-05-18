@@ -1,5 +1,3 @@
-import { APP_LOCALE } from "@/shared/lib/locale";
-import { cn } from "@/shared/lib/utils";
 import type {
   AlertMetadata,
   AnomalyType,
@@ -8,14 +6,13 @@ import type {
   MonitorAlert,
   SilentFailureMetadata,
   TimeoutStuckMetadata,
-} from "../../pages/monitor/monitor-types";
-import {
-  formatTimestamp,
-  parseAlertMetadata,
-} from "../../pages/monitor/monitor-utils";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { DetailRow } from "../ui/detail-row";
+} from "monitor-types";
+import { formatTimestamp, parseAlertMetadata } from "monitor-utils";
+import { APP_LOCALE } from "@/shared/lib/locale";
+import { cn } from "@/shared/lib/utils";
+import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
+import { DetailRow } from "../../../components/ui/detail-row";
 import {
   Dialog,
   DialogContent,
@@ -23,7 +20,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "../../../components/ui/dialog";
 import { AlertSeverityBadge } from "./alert-severity-badge";
 import { AlertTypeBadge } from "./alert-type-badge";
 
