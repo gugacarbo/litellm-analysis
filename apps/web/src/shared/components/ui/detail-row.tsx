@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { CheckCircle2, Copy } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { cn } from "../../lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 interface DetailRowProps {
   label: string;
