@@ -92,6 +92,13 @@ export class OpenCodePlugin implements IPlugin {
         description:
           "Default sampling temperature for agents without one configured",
       },
+      {
+        key: "selectedAgents",
+        type: "switch-group",
+        label: "System Agents",
+        description: "Select which system agents to include in the generated config",
+        options: [],
+      },
     ];
   }
 
