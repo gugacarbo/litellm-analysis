@@ -20,7 +20,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/features/*": ["src/features/*"],
+      "@/shared/*": ["src/shared/*"]
     }
   },
   "include": ["src", "vite.config.ts"]
