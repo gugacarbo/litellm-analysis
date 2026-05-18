@@ -62,4 +62,3 @@ export async function getMonitorStats(): Promise<MonitorStats> {
 export async function getModelsHealth(): Promise<ModelHealthResponse> {
   return fetchApi("/monitor/models/health");
 }
-
