@@ -1,4 +1,4 @@
-export type { ConnectionState } from "@/types/connection";
+export type { ConnectionState } from "@/shared/types/connection";
 export type {
   AlertMetadata,
   AnomalyType,
@@ -10,4 +10,5 @@ export type {
   MonitorAlert,
   SilentFailureMetadata,
   TimeoutStuckMetadata,
-} from "@/types/monitor";
+} from "@/shared/types/monitor";
+export type { ConnectionState } from "@/types/connection";

@@ -4,8 +4,8 @@ import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { createRoot } from "react-dom/client";
 
 import "./styles/globals.css";
-import { ThemeProvider } from "@/components/theme-provider.tsx";
 import { Toaster } from "@/components/ui/sonner.tsx";
+import { ThemeProvider } from "@/shared/contexts/theme-provider";
 import { queryClient } from "@/lib/query-client";
 import App from "./App.tsx";
 

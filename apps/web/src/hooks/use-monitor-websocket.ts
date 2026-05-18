@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import type { HealthUpdateData, MonitorAlert } from "@/shared/types/monitor";
 import type { ConnectionState, WsMessage } from "@/types/connection";
-import type { HealthUpdateData, MonitorAlert } from "@/types/monitor";
 import { getActiveAlerts } from "../lib/api-client/monitor";
 import { WsClient } from "../lib/api-client/ws-client";
 

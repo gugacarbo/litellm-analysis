@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useFilter } from "@/contexts/filter-context";
 import { useAllDashboardQueries } from "./dashboard/dashboard-queries";
+import { useFilter } from "@/shared/contexts/filter-context";
 import { computeInsights } from "./use-dashboard-data/insights";
 import type { RawMetrics } from "./use-dashboard-data/normalizers";
 import {

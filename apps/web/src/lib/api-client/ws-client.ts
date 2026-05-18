@@ -127,3 +127,5 @@ export class WsClient {
     }
   }
 }
+
+import type { ConnectionState, WsMessage } from "@/shared/types/connection";

@@ -62,3 +62,5 @@ export async function getMonitorStats(): Promise<MonitorStats> {
 export async function getModelsHealth(): Promise<ModelHealthResponse> {
   return fetchApi("/monitor/models/health");
 }
+
+import type { ModelHealthEntry, MonitorAlert } from "@/shared/types/monitor";
