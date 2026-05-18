@@ -1,19 +1,19 @@
 import { existsSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  createAgentPluginsOrchestrator,
+  LitellmAliasPlugin,
+  OpenAgentPlugin,
+  OpenCodePlugin,
+  VsCodePlugin,
+} from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { prisma } from "@lite-llm/analytics-service/queries/client";
 import {
   createRepositoryClient as createModelsRepositoryClient,
   ModelService,
 } from "@lite-llm/models-service";
-import {
-  createAgentPluginsOrchestrator,
-  OpenCodePlugin,
-  OpenAgentPlugin,
-  VsCodePlugin,
-  LitellmAliasPlugin,
-} from "@lite-llm/agent-plugins";
 import { createOrchestrationServices } from "@lite-llm/server/orchestration";
 import { createAppContext } from "../contexts";
 import { env } from "../env";
@@ -28,6 +28,9 @@ import { createPromptEvalRuntime } from "./prompt-eval-runtime";
 interface AppRuntime {
   stop: () => void;
 }
+
+const DEFAULT_HEALTH_CHECK_PROMPT =
+  "Respond with ONLY your model name. Example: gpt-5.3-codex";
 
 function getProjectRoot(): string {
   // Resolve workspace root by walking up to the pnpm workspace marker.
@@ -52,7 +55,9 @@ function findWorkspaceRoot(startDir: string): string {
 
 function setupAgentPluginsOrchestrator(
   projectRoot: string,
-  aliasDbWriter?: { updateAliases(aliases: Record<string, string>): Promise<void> },
+  aliasDbWriter?: {
+    updateAliases(aliases: Record<string, string>): Promise<void>;
+  },
 ) {
   const agentsManager = createAgentsManager({
     dbPath: path.join(projectRoot, "@agents", "agents.json"),
@@ -91,7 +96,10 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     },
   };
 
-  const agentPlugins = setupAgentPluginsOrchestrator(projectRoot, aliasDbWriter);
+  const agentPlugins = setupAgentPluginsOrchestrator(
+    projectRoot,
+    aliasDbWriter,
+  );
   const modelsRepository = createModelsRepositoryClient({
     filePath: path.join(projectRoot, "@models", "models.json"),
   });
@@ -122,10 +130,13 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   const monitorRuntime: MonitorRuntime = createMonitorRuntime({
     ctx,
     httpServer,
-    pollIntervalMs: env.MONITOR_POLL_INTERVAL_MS,
+    pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
   });
 
   const enabledModelNames = await modelsService.getEnabledModelNames();
+  const healthCheckPrompt =
+    (await ctx.analytics.dataSource.getHealthCheckPrompt()) ??
+    DEFAULT_HEALTH_CHECK_PROMPT;
 
   const healthCheckRuntime: HealthCheckRuntime = createHealthCheckRuntime({
     ctx,
@@ -133,7 +144,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     wsServer: monitorRuntime.wsServer,
     pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
     timeoutMs: env.HEALTH_CHECK_TIMEOUT_MS,
-    prompt: env.HEALTH_CHECK_PROMPT,
+    prompt: healthCheckPrompt,
     maxConcurrency: 6,
     litellmApiUrl: env.LITELLM_API_URL,
     litellmApiKey: env.LITELLM_API_KEY,

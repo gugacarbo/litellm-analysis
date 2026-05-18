@@ -12,7 +12,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@lite-llm/agents-repository": "workspace:*"
+    "@lite-llm/agents-repository": "workspace:*",
+    "@lite-llm/config": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

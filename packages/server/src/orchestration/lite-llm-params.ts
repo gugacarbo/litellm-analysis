@@ -1,5 +1,3 @@
-import { serverEnv } from "@lite-llm/config/server";
-
 export function parseDays(rawValue: unknown, fallback: number): number {
   if (typeof rawValue !== "string") {
     return fallback;
@@ -20,9 +18,15 @@ export function toCostPerToken(costPerMillion?: number): number | undefined {
   return costPerMillion / 1_000_000;
 }
 
-export function getLiteLLMCredentialName(): string | undefined {
-  const credentialName = serverEnv.LITELLM_CREDENTIAL_NAME?.trim();
-  return credentialName ? credentialName : undefined;
+function normalizeCredentialName(
+  credentialName?: string | null,
+): string | undefined {
+  if (typeof credentialName !== "string") {
+    return undefined;
+  }
+
+  const normalized = credentialName.trim();
+  return normalized ? normalized : undefined;
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
@@ -32,6 +36,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 export function applyRequiredLiteLLMParams(
   modelName: string,
   litellmParams: Record<string, unknown>,
+  credentialName?: string | null,
 ): Record<string, unknown> {
   const nextParams: Record<string, unknown> = { ...litellmParams };
   nextParams.model = modelName;
@@ -41,7 +46,7 @@ export function applyRequiredLiteLLMParams(
   nextParams.use_in_pass_through = false;
   nextParams.merge_reasoning_content_in_choices = false;
 
-  const litellmCredentialName = getLiteLLMCredentialName();
+  const litellmCredentialName = normalizeCredentialName(credentialName);
   if (litellmCredentialName) {
     nextParams.litellm_credential_name = litellmCredentialName;
   }
@@ -55,13 +60,18 @@ export function buildLiteLLMParams(
     limits: { length: number; maxOutput: number };
     cost?: { input?: number; output?: number };
   },
+  credentialName?: string | null,
 ): Record<string, unknown> {
-  const litellmParams = applyRequiredLiteLLMParams(modelName, {
-    model: modelName,
-    model_name: modelName,
-    context_window_size: spec.limits.length,
-    max_tokens: spec.limits.maxOutput,
-  });
+  const litellmParams = applyRequiredLiteLLMParams(
+    modelName,
+    {
+      model: modelName,
+      model_name: modelName,
+      context_window_size: spec.limits.length,
+      max_tokens: spec.limits.maxOutput,
+    },
+    credentialName,
+  );
 
   const inputCostPerToken = toCostPerToken(spec.cost?.input);
   const outputCostPerToken = toCostPerToken(spec.cost?.output);

@@ -1,5 +1,10 @@
 // JSON Schema exports
 
+export {
+  type LitellmAliasOutput,
+  litellmAliasSchema,
+} from "../litellm-alias/schemas/generated/litellm-alias.zod";
+export { default as litellmAliasJsonSchema } from "../litellm-alias/schemas/litellm-alias.schema.json";
 // Generated Zod schemas
 export {
   type OpenAgent,

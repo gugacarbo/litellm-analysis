@@ -21,7 +21,7 @@ function createMockRepository(): IAgentsRepository {
   };
 }
 
-function createMockPlugin(overrides: Partial<IPlugin> = {}): IPlugin {
+function createMockPlugin(overrides: Partial<IPlugin<any>> = {}): IPlugin<any> {
   return {
     id: "test-plugin",
     name: "Test Plugin",

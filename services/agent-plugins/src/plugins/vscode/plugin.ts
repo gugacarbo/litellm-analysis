@@ -4,6 +4,8 @@ import type {
 } from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
+import { vsCodeSchema } from "./schemas/generated/vscode.zod";
+import type { VsCodeConfig } from "./schemas/generated/vscode-config";
 
 interface VsCodeModelsOutput {
   "oaicopilot.commitLanguage": string;
@@ -25,7 +27,7 @@ interface VsCodeModelsOutput {
   }>;
 }
 
-export class VsCodePlugin implements IPlugin {
+export class VsCodePlugin implements IPlugin<"vscode"> {
   readonly id = "vscode";
   readonly name = "VS Code OAICopilot";
   readonly version = 1;
@@ -69,7 +71,7 @@ export class VsCodePlugin implements IPlugin {
     routing: PluginRouting,
     ctx: TransformContext,
   ): VsCodeModelsOutput {
-    const pluginConfig = routing.config ?? {};
+    const pluginConfig: VsCodeConfig = (routing.config ?? {}) as VsCodeConfig;
     const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
 
     const output: VsCodeModelsOutput = {
@@ -108,5 +110,13 @@ export class VsCodePlugin implements IPlugin {
 
   getOutputFile(): string {
     return this.outputFile;
+  }
+
+  validate(output: unknown): boolean {
+    const result = vsCodeSchema.safeParse(output);
+    if (!result.success) {
+      console.error("[VsCodePlugin] Validation failed:", result.error.issues);
+    }
+    return result.success;
   }
 }

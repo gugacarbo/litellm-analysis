@@ -2,7 +2,6 @@ export {
   applyRequiredLiteLLMParams,
   buildLiteLLMParams,
   createOrchestrationServices,
-  getLiteLLMCredentialName,
   isRecord,
   parseDays,
   syncGeneratedArtifacts,

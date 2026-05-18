@@ -1,5 +1,8 @@
 import { EventEmitter } from "node:events";
-import type { ErrorLogEntry, ModelHealth } from "@lite-llm/analytics-service/types";
+import type {
+  ErrorLogEntry,
+  ModelHealth,
+} from "@lite-llm/analytics-service/types";
 import { alerts } from "../db/monitor-schema";
 import { runAllDetectors } from "./detectors";
 import type {

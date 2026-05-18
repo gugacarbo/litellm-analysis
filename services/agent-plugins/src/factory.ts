@@ -1,8 +1,11 @@
 // ── Factory: Combines agents-manager services with plugin registry ──
 
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
+import type {
+  PluginRouting,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
-import type { PluginRouting, SystemAgent } from "@lite-llm/agents-repository/schemas";
 import type { IPlugin } from "./plugins/plugin";
 import { PluginRegistry } from "./plugins/registry";
 
@@ -32,26 +35,52 @@ export interface AgentServices {
     delete(key: string): Promise<void>;
   };
   categories: {
-    getAll(): Promise<Record<string, { description?: string; [key: string]: unknown }>>;
-    get(key: string): Promise<{ description?: string; [key: string]: unknown } | undefined>;
-    create(key: string, entry: { description?: string; [key: string]: unknown }): Promise<void>;
-    update(key: string, entry: Partial<{ description?: string; [key: string]: unknown }>): Promise<void>;
+    getAll(): Promise<
+      Record<string, { description?: string; [key: string]: unknown }>
+    >;
+    get(
+      key: string,
+    ): Promise<{ description?: string; [key: string]: unknown } | undefined>;
+    create(
+      key: string,
+      entry: { description?: string; [key: string]: unknown },
+    ): Promise<void>;
+    update(
+      key: string,
+      entry: Partial<{ description?: string; [key: string]: unknown }>,
+    ): Promise<void>;
     delete(key: string): Promise<void>;
   };
   routing: {
-    getPluginConfig(pluginId: string): Promise<PluginRoutingInput | null | undefined>;
+    getPluginConfig(
+      pluginId: string,
+    ): Promise<PluginRoutingInput | null | undefined>;
     getAgentMappings(pluginId: string): Promise<Record<string, string>>;
     getCategoryMappings(pluginId: string): Promise<Record<string, boolean>>;
     toggleAgentPlugin(pluginId: string, agentId: string): Promise<boolean>;
-    toggleCategoryMapping(pluginId: string, categoryId: string): Promise<boolean>;
-    savePluginConfig(pluginId: string, config: PluginRoutingInput): Promise<void>;
+    toggleCategoryMapping(
+      pluginId: string,
+      categoryId: string,
+    ): Promise<boolean>;
+    savePluginConfig(
+      pluginId: string,
+      config: PluginRoutingInput,
+    ): Promise<void>;
   };
 }
 
 // Repository interface for plugin config
 export interface AgentRepository {
-  read(): Promise<{ plugins?: Record<string, PluginRoutingInput>; agents?: Record<string, SystemAgent>; [key: string]: unknown }>;
-  write(config: { plugins?: Record<string, PluginRoutingInput>; agents?: Record<string, SystemAgent>; [key: string]: unknown }): Promise<void>;
+  read(): Promise<{
+    plugins?: Record<string, PluginRoutingInput>;
+    agents?: Record<string, SystemAgent>;
+    [key: string]: unknown;
+  }>;
+  write(config: {
+    plugins?: Record<string, PluginRoutingInput>;
+    agents?: Record<string, SystemAgent>;
+    [key: string]: unknown;
+  }): Promise<void>;
 }
 
 // Result type combining services + registry + repository
@@ -76,9 +105,9 @@ export interface AgentPluginsOrchestratorOptions {
  * - Services from @lite-llm/agents-manager (for routing/config management)
  * - Registry from @lite-llm/agent-plugins (for config file generation)
  */
-export function createAgentPluginsOrchestrator(
+export async function createAgentPluginsOrchestrator(
   options: AgentPluginsOrchestratorOptions,
-): AgentPluginsOrchestrator {
+): Promise<AgentPluginsOrchestrator> {
   const registry = new PluginRegistry({
     repository: options.repository,
     modelsRepository: options.modelsRepository,
@@ -86,10 +115,25 @@ export function createAgentPluginsOrchestrator(
     allPlugins: options.allPlugins,
   });
 
+  const config = await options.repository.read();
+  const pluginConfigs = (config.plugins ?? {}) as Record<
+    string,
+    PluginRoutingInput
+  >;
+  registry.loadFromConfig(pluginConfigs);
+
   // Wrap repository to expose only what's needed for plugin config
   const wrappedRepository: AgentRepository = {
-    read: () => options.repository.read() as Promise<{ plugins?: Record<string, PluginRoutingInput>; agents?: Record<string, SystemAgent>; [key: string]: unknown }>,
-    write: (config) => options.repository.write(config as Parameters<typeof options.repository.write>[0]),
+    read: () =>
+      options.repository.read() as Promise<{
+        plugins?: Record<string, PluginRoutingInput>;
+        agents?: Record<string, SystemAgent>;
+        [key: string]: unknown;
+      }>,
+    write: (config) =>
+      options.repository.write(
+        config as Parameters<typeof options.repository.write>[0],
+      ),
   };
 
   return {

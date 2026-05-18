@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import * as path from "node:path";
+import { serverEnv } from "@lite-llm/config/server";
 import type { RepositoryOptions } from "@lite-llm/models-repository/repository";
 import {
   createRepository,
@@ -12,21 +13,25 @@ export interface RepositoryClientOptions {
   filePath?: string;
 }
 
-const DEFAULT_FILE_PATH = "@settings/models/models.jsonc";
-
 function resolveFilePath(filePath: string): string {
+  const monorepoRoot = path.resolve(import.meta.dirname ?? process.cwd(), "../../..");
+  
   if (filePath.startsWith("@settings/models/")) {
     const rest = filePath.slice("@settings/models/".length);
-    const base = path.resolve(import.meta.dirname ?? process.cwd(), "../../..");
-    return path.join(base, "@settings/models", rest);
+    return path.join(monorepoRoot, "@settings/models", rest);
   }
-  return filePath;
+  
+  if (path.isAbsolute(filePath)) {
+    return filePath;
+  }
+  
+  return path.resolve(process.cwd(), filePath);
 }
 
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IModelsRepository {
-  const rawPath = options.filePath ?? DEFAULT_FILE_PATH;
+  const rawPath = options.filePath ?? serverEnv.MODELS_CONFIG_PATH;
   let resolved = resolveFilePath(rawPath);
 
   if (!existsSync(resolved)) {

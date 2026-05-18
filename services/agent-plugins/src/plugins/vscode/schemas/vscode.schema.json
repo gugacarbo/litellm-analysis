@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/schemas/vscode.schema.json",
+  "$id": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
   "title": "VS Code OAICopilot Configuration",
   "description": "JSON Schema for VS Code OAICopilot configuration",
   "type": "object",

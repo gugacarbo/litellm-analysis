@@ -97,6 +97,11 @@ export class PluginRegistry implements IPluginRegistry {
       outputFile: plugin.getOutputFile(),
       routing: { agents: {}, categories: {} },
     };
+
+    if (pluginConfig.enabled === false) {
+      return;
+    }
+
     const ctx = await this.buildContext(config);
 
     const agents = Object.entries(config.agents ?? {}).map(([id, agent]) => ({

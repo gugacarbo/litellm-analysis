@@ -278,6 +278,9 @@ importers:
       '@lite-llm/agents-repository':
         specifier: workspace:*
         version: link:../../repositories/agents-repository
+      '@lite-llm/config':
+        specifier: workspace:*
+        version: link:../config
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -538,6 +541,9 @@ importers:
 
   services/models-service:
     dependencies:
+      '@lite-llm/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@lite-llm/models-repository':
         specifier: workspace:*
         version: link:../../repositories/models-repository

@@ -47,11 +47,13 @@ export function registerModelRoutes(
       }
 
       const baseParams = isRecord(litellmParams) ? litellmParams : {};
+      const credentialName = await dataSource.getDefaultCredential();
       await dataSource.createModel({
         modelName: normalizedModelName,
         litellmParams: applyRequiredLiteLLMParams(
           normalizedModelName,
           baseParams,
+          credentialName,
         ),
       });
       res.status(201).json({ success: true });
@@ -81,6 +83,7 @@ export function registerModelRoutes(
       const existingParams = isRecord(existingModel?.litellmParams)
         ? existingModel.litellmParams
         : {};
+      const credentialName = await dataSource.getDefaultCredential();
 
       if (litellmParams !== undefined || modelName !== undefined) {
         const incomingParams = isRecord(litellmParams) ? litellmParams : {};
@@ -91,6 +94,7 @@ export function registerModelRoutes(
         updates.litellmParams = applyRequiredLiteLLMParams(
           normalizedNewName,
           mergedParams,
+          credentialName,
         );
 
         // Also sync enabled to config JSONC
@@ -161,13 +165,14 @@ export function registerModelRoutes(
         modelsService.getAll(),
         dataSource.getModels(),
       ]);
+      const credentialName = await dataSource.getDefaultCredential();
 
       const configNames = new Set(Object.keys(configModels || {}));
       const litellmNames = new Set(litellmModels.map((m) => m.modelName));
 
       // 1. Push config → LiteLLM DB (create missing, update existing)
       for (const [name, spec] of Object.entries(configModels || {})) {
-        const litellmParams = buildLiteLLMParams(name, spec);
+        const litellmParams = buildLiteLLMParams(name, spec, credentialName);
         if (litellmNames.has(name)) {
           await dataSource.updateModel(name, { litellmParams });
         } else {

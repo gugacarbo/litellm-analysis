@@ -5,6 +5,8 @@ import type {
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
+import { openCodeSchema } from "./schemas/generated/opencode.zod";
+import type { OpenCodeConfig } from "./schemas/generated/opencode-config";
 
 interface OpenCodeProviders {
   provider: Record<string, unknown>;
@@ -62,7 +64,7 @@ function buildThinkingVariants(
   return variants;
 }
 
-export class OpenCodePlugin implements IPlugin {
+export class OpenCodePlugin implements IPlugin<"opencode"> {
   readonly id = "opencode";
   readonly name = "OpenCode AI SDK";
   readonly version = 1;
@@ -91,14 +93,6 @@ export class OpenCodePlugin implements IPlugin {
         default: 0.2,
         description:
           "Default sampling temperature for agents without one configured",
-      },
-      {
-        key: "selectedAgents",
-        type: "switch-group",
-        label: "System Agents",
-        description:
-          "Select which system agents to include in the generated config",
-        options: [],
       },
     ];
   }
@@ -147,24 +141,26 @@ export class OpenCodePlugin implements IPlugin {
     };
 
     const enabledAgents = routing.routing?.agents ?? {};
-    const config = routing.config ?? {};
-    const configDefaultModel = (config.defaultModel as string) || "";
-    const configDefaultTemp = (config.defaultTemperature as number) ?? 0.2;
+    const config: OpenCodeConfig = (routing.config ?? {}) as OpenCodeConfig;
+    const configDefaultModel = config.defaultModel || "";
+    const configDefaultTemp = config.defaultTemperature ?? 0.2;
 
     // Build agents section from routing configuration
     if (Object.keys(enabledAgents).length > 0) {
       output.agents = {};
       for (const agent of agents) {
-        const agentId = agent.displayName;
-        if (!(agentId in enabledAgents)) continue;
+        const agentRole = Object.entries(enabledAgents).find(
+          ([, agentId]) => agentId === agent.id,
+        )?.[0];
+        if (!agentRole) continue;
 
         const model = agent.model
           ? `litellm/${agent.model}`
           : configDefaultModel
             ? `litellm/${configDefaultModel}`
-            : `litellm/${agentId}`;
+            : `litellm/${agent.id}`;
 
-        output.agents[agentId] = {
+        output.agents[agentRole] = {
           description: agent.description,
           model,
           fallback_models: agent.fallbackModels ?? [],
@@ -203,5 +199,13 @@ export class OpenCodePlugin implements IPlugin {
 
   getOutputFile(): string {
     return this.outputFile;
+  }
+
+  validate(output: unknown): boolean {
+    const result = openCodeSchema.safeParse(output);
+    if (!result.success) {
+      console.error("[OpenCodePlugin] Validation failed:", result.error.issues);
+    }
+    return result.success;
   }
 }

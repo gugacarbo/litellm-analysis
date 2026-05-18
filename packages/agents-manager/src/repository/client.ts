@@ -1,25 +1,23 @@
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
+import { serverEnv } from "@lite-llm/config/server";
 import {
   createRepository,
   type IAgentsRepository,
   type RepositoryOptions,
 } from "@lite-llm/agents-repository/repository";
-import { DEFAULT_DB_PATH } from "../config/defaults";
 
 export interface RepositoryClientOptions {
   filePath?: string;
   pluginsFilePath?: string;
 }
 
-const DEFAULT_PLUGINS_PATH = "@settings/agents/plugins.json";
-
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IAgentsRepository {
-  const filePath = options.filePath ?? DEFAULT_DB_PATH;
-  const pluginsFilePath = options.pluginsFilePath ?? DEFAULT_PLUGINS_PATH;
+  const filePath = options.filePath ?? serverEnv.AGENTS_CONFIG_PATH;
+  const pluginsFilePath = options.pluginsFilePath ?? "@settings/agents/plugins.json";
 
   // Resolve special paths like @settings/agents/agents.json, with json/jsonc fallback.
   const resolvedPath = resolveDbPathWithFallback(filePath);

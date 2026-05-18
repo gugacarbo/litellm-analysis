@@ -21,3 +21,18 @@ export interface ConfigField {
   placeholder?: string;
   description?: string;
 }
+
+import type { LitellmAliasConfig } from "./litellm-alias/schemas/generated/litellm-alias-config";
+import type { OpenAgentConfig } from "./openagent/schemas/generated/openagent-config";
+import type { OpenCodeConfig } from "./opencode/schemas/generated/opencode-config";
+import type { VsCodeConfig } from "./vscode/schemas/generated/vscode-config";
+
+export interface PluginConfigMap {
+  opencode: OpenCodeConfig;
+  openagent: OpenAgentConfig;
+  vscode: VsCodeConfig;
+  "litellm-alias": LitellmAliasConfig;
+}
+
+export type PluginConfigFor<TId extends keyof PluginConfigMap> =
+  PluginConfigMap[TId];

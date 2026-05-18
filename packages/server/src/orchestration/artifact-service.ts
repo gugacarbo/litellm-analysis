@@ -7,6 +7,7 @@ export async function syncModelsDirectlyToDatabase(
   dataSource: AnalyticsDataSource,
   models: Record<string, DbModelSpecLike>,
 ): Promise<void> {
+  const credentialName = await dataSource.getDefaultCredential();
   const desiredEntries = Object.entries(models || {});
   const desiredNames = new Set(desiredEntries.map(([name]) => name));
   const existing = await dataSource.getModels();
@@ -41,7 +42,7 @@ export async function syncModelsDirectlyToDatabase(
   }
 
   for (const [modelName, spec] of desiredEntries) {
-    const litellmParams = buildLiteLLMParams(modelName, spec);
+    const litellmParams = buildLiteLLMParams(modelName, spec, credentialName);
 
     if (existingCounts.has(modelName)) {
       await dataSource.updateModel(modelName, { litellmParams });

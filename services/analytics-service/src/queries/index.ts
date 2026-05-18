@@ -14,6 +14,7 @@ export {
   getTopModelsByRequests,
 } from "./distribution-queries";
 export { getErrorLogs } from "./error-queries";
+export { getHealthCheckPrompt } from "./health-check-settings-queries";
 export { getAllCredentials } from "./key-queries";
 export {
   createModel,

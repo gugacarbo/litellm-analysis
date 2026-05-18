@@ -124,6 +124,7 @@ export interface AnalyticsDataSource {
   // Credentials — LiteLLM virtual key management
   getCredentials(): Promise<LiteLLMCredential[]>;
   getDefaultCredential(): Promise<string | null>;
+  getHealthCheckPrompt(): Promise<string | null>;
   setDefaultCredential(credentialAlias: string | null): Promise<void>;
 }
 

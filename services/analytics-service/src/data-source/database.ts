@@ -7,6 +7,7 @@ import {
 import {
   getCredentialsImpl,
   getDefaultCredentialImpl,
+  getHealthCheckPromptImpl,
   setDefaultCredentialImpl,
 } from "./credential-methods";
 import { getErrorLogsImpl } from "./error-methods";
@@ -119,5 +120,6 @@ export class DatabaseDataSource implements AnalyticsDataSource {
   getProviderBreakdownByModel = getProviderBreakdownByModelImpl;
   getCredentials = getCredentialsImpl;
   getDefaultCredential = getDefaultCredentialImpl;
+  getHealthCheckPrompt = getHealthCheckPromptImpl;
   setDefaultCredential = setDefaultCredentialImpl;
 }

@@ -5,30 +5,22 @@ import { z } from "zod";
 dotenv.config({ path: ["../../.env.local", "../../.env"] });
 
 export const serverSchema = {
-  PORT: z.coerce.number().int().positive().default(3000),
-  MONITOR_POLL_INTERVAL_MS: z.coerce
-    .number()
-    .int()
-    .positive()
-    .default(3_600_000),
-  DB_HOST: z.string().default("localhost"),
-  DB_PORT: z.coerce.number().int().positive().default(5432),
-  DB_NAME: z.string().default("litellm"),
-  DB_USER: z.string().default("llmproxy"),
+  PORT: z.coerce.number().int().positive(),
 
+  DB_HOST: z.string(),
+  DB_PORT: z.coerce.number().int().positive(),
+  DB_NAME: z.string(),
+  DB_USER: z.string(),
   DB_PASSWORD: z.string().min(1, "DB_PASSWORD is required"),
-  LITELLM_CREDENTIAL_NAME: z.string().trim().optional(),
-  LITELLM_API_URL: z.string().url().default("http://localhost:4000"),
+
+  LITELLM_API_URL: z.url(),
   LITELLM_API_KEY: z.string().min(1, "LITELLM_API_KEY is required"),
-  HEALTH_CHECK_INTERVAL_MS: z.coerce
-    .number()
-    .int()
-    .positive()
-    .default(3_600_000),
-  HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
-  HEALTH_CHECK_PROMPT: z
-    .string()
-    .default("Respond with ONLY your model name. Example: gpt-5.3-codex"),
+
+  HEALTH_CHECK_INTERVAL_MS: z.coerce.number().int().positive(),
+  HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive(),
+
+  AGENTS_CONFIG_PATH: z.string().default("@settings/agents/agents.jsonc"),
+  MODELS_CONFIG_PATH: z.string().default("@settings/models/models.jsonc"),
 };
 
 export const serverEnv = createEnv({

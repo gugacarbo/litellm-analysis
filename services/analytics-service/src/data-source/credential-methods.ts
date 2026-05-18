@@ -1,6 +1,7 @@
 import {
   getAllCredentials,
   getDefaultCredential,
+  getHealthCheckPrompt,
   setDefaultCredential,
 } from "../queries/index";
 import type { LiteLLMCredential } from "../types/index";
@@ -27,4 +28,8 @@ export async function setDefaultCredentialImpl(
   credentialAlias: string | null,
 ): Promise<void> {
   await setDefaultCredential(credentialAlias);
+}
+
+export async function getHealthCheckPromptImpl(): Promise<string | null> {
+  return getHealthCheckPrompt();
 }

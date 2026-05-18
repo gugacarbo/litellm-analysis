@@ -4,7 +4,12 @@ import type {
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
-import type { ConfigField, InternalAgent } from "./plugin-types";
+import type {
+  ConfigField,
+  InternalAgent,
+  PluginConfigFor,
+  PluginConfigMap,
+} from "./plugin-types";
 
 export interface TransformContext {
   allModels: Record<string, ModelSpec>;
@@ -13,8 +18,14 @@ export interface TransformContext {
   allCategories?: Record<string, CategoryEntry>;
 }
 
-export interface IPlugin {
-  readonly id: string;
+export type TypedPluginRouting<TConfig> = Omit<PluginRouting, "config"> & {
+  config?: TConfig;
+};
+
+export interface IPlugin<
+  TId extends keyof PluginConfigMap = keyof PluginConfigMap,
+> {
+  readonly id: TId;
   readonly name: string;
   readonly version: number;
 
@@ -23,7 +34,7 @@ export interface IPlugin {
 
   buildOutput(
     agents: SystemAgent[],
-    routing: PluginRouting,
+    routing: TypedPluginRouting<PluginConfigFor<TId>>,
     ctx: TransformContext,
   ): unknown;
 
@@ -33,11 +44,11 @@ export interface IPlugin {
 }
 
 export interface IPluginRegistry {
-  register(plugin: IPlugin): void;
+  register(plugin: IPlugin | IPlugin<any>): void;
   unregister(pluginId: string): void;
-  get(pluginId: string): IPlugin | undefined;
-  list(): IPlugin[];
-  listAll(): IPlugin[];
+  get(pluginId: string): IPlugin | IPlugin<any> | undefined;
+  list(): Array<IPlugin | IPlugin<any>>;
+  listAll(): Array<IPlugin | IPlugin<any>>;
   loadFromConfig(pluginConfigs: Record<string, PluginRouting>): void;
   exportAll(): Promise<void>;
   exportOne(pluginId: string): Promise<void>;

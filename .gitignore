@@ -50,7 +50,8 @@ __pycache__
 .sisyphus
 
 .weave/*
-!.weave/plans/
+.weave/plans/
+.weave/specs/
 !.weave/designs/
 
 .worktrees/

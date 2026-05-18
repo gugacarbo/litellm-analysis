@@ -4,6 +4,8 @@ import type {
 } from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
+import { openAgentSchema } from "./schemas/generated/openagent.zod";
+import type { OpenAgentConfig } from "./schemas/generated/openagent-config";
 
 interface OpenAgentOutput {
   $schema: string;
@@ -16,7 +18,7 @@ interface OpenAgentOutput {
   categories: Record<string, Record<string, unknown>>;
 }
 
-export class OpenAgentPlugin implements IPlugin {
+export class OpenAgentPlugin implements IPlugin<"openagent"> {
   readonly id = "openagent";
   readonly name = "Oh My OpenAgent";
   readonly version = 1;
@@ -58,16 +60,15 @@ export class OpenAgentPlugin implements IPlugin {
     routing: PluginRouting,
     ctx: TransformContext,
   ): OpenAgentOutput {
-    const config = routing.config ?? {};
+    const config: OpenAgentConfig = (routing.config ?? {}) as OpenAgentConfig;
 
     const output: OpenAgentOutput = {
       $schema:
         "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
       globalFallbackModel: ctx.globalFallbackModel,
       git_master: {
-        commit_footer: (config.commitFooter as boolean) ?? false,
-        include_co_authored_by:
-          (config.includeCoAuthoredBy as boolean) ?? false,
+        commit_footer: config.commitFooter ?? false,
+        include_co_authored_by: config.includeCoAuthoredBy ?? false,
       },
       agents: {},
       categories: {},
@@ -92,7 +93,38 @@ export class OpenAgentPlugin implements IPlugin {
       output.agents[internalId] = entry;
     }
 
+    const categoryRouting = routing.routing?.categories ?? {};
+    if (ctx.allCategories) {
+      for (const [categoryName, category] of Object.entries(
+        ctx.allCategories,
+      )) {
+        if (!categoryRouting[categoryName]) continue;
+
+        const catEntry: Record<string, unknown> = {};
+        if (category.description) catEntry.description = category.description;
+        if (category.model) catEntry.model = category.model;
+        if (category.fallbackModels?.length) {
+          catEntry.fallback_models = category.fallbackModels;
+        }
+
+        if (Object.keys(catEntry).length > 0) {
+          output.categories[categoryName] = catEntry;
+        }
+      }
+    }
+
     return output;
+  }
+
+  validate(output: unknown): boolean {
+    const result = openAgentSchema.safeParse(output);
+    if (!result.success) {
+      console.error(
+        "[OpenAgentPlugin] Validation failed:",
+        result.error.issues,
+      );
+    }
+    return result.success;
   }
 
   getOutputFile(): string {

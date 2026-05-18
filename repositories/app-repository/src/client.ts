@@ -22,7 +22,8 @@ function findMonorepoRoot(): string {
 }
 
 const MONOREPO_ROOT = findMonorepoRoot();
-const DB_PATH = path.resolve(MONOREPO_ROOT, "@db", "app.db");
+const APP_DB_PATH = process.env.APP_DB_PATH ?? "@storage/app.db";
+const DB_PATH = path.resolve(MONOREPO_ROOT, APP_DB_PATH);
 
 let dbInstance: ReturnType<typeof drizzle> | null = null;
 

@@ -17,7 +17,6 @@ export {
 export {
   applyRequiredLiteLLMParams,
   buildLiteLLMParams,
-  getLiteLLMCredentialName,
   isRecord,
   parseDays,
   toCostPerToken,

@@ -1,12 +1,11 @@
 {
-  "active_plan": "/home/gustavo/Apps/lite-llm-analytics/.weave/plans/prompt-eval-ui-refactor.md",
-  "started_at": "2026-05-16T22:26:45.790Z",
+  "active_plan": "/home/gustavo/Apps/lite-llm-analytics/.weave/plans/2026-05-18-plugin-config-typing-validation.md",
+  "started_at": "2026-05-18T22:48:42.178Z",
   "session_ids": [
-    "ses_1cd33e3b2ffeBgzMwKJBTK4bLr",
-    "ses_1cd11e1e7ffecAu5XV15zFo78P"
+    "ses_1c2cc451affe3CNQHlrvOCbhM0"
   ],
-  "plan_name": "prompt-eval-ui-refactor",
+  "plan_name": "2026-05-18-plugin-config-typing-validation",
   "agent": "tapestry",
-  "start_sha": "1912bff0414313c7f4d686d70ea46d7dda107375",
+  "start_sha": "f259276757f381e04ad11d4b3a9ad98359857b1b",
   "paused": true
 }

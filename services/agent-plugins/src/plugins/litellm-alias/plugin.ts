@@ -8,6 +8,8 @@ import {
 } from "@lite-llm/models-service";
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
+import { litellmAliasSchema } from "./schemas/generated/litellm-alias.zod";
+import type { LitellmAliasConfig } from "./schemas/generated/litellm-alias-config";
 
 export interface AliasDbWriter {
   updateAliases(aliases: Record<string, string>): Promise<void>;
@@ -19,7 +21,7 @@ interface LitellmAliasOutput {
 
 type AgentWithId = SystemAgent & { id: string };
 
-export class LitellmAliasPlugin implements IPlugin {
+export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
   readonly id = "litellm-alias";
   readonly name = "LiteLLM Router Aliases";
   readonly version = 1;
@@ -84,12 +86,12 @@ export class LitellmAliasPlugin implements IPlugin {
     ctx: TransformContext,
   ): LitellmAliasOutput {
     const aliases: Record<string, string> = {};
-    const aliasPrefix = (_routing.config?.aliasPrefix as string) ?? "";
-    const includeAgents = (_routing.config?.includeAgents as boolean) ?? true;
-    const includeCategories =
-      (_routing.config?.includeCategories as boolean) ?? true;
-    const globalFallbackOverride =
-      (_routing.config?.globalFallbackOverride as string) ?? "";
+    const config: LitellmAliasConfig = (_routing.config ??
+      {}) as LitellmAliasConfig;
+    const aliasPrefix = config.aliasPrefix ?? "";
+    const includeAgents = config.includeAgents ?? true;
+    const includeCategories = config.includeCategories ?? true;
+    const globalFallbackOverride = config.globalFallbackOverride ?? "";
     const rawFallback = globalFallbackOverride || ctx.globalFallbackModel;
 
     // Build set of enabled model names
@@ -176,6 +178,17 @@ export class LitellmAliasPlugin implements IPlugin {
     return {
       model_group_alias: sortAliasesByDefinitionOrder(aliases),
     };
+  }
+
+  validate(output: unknown): boolean {
+    const result = litellmAliasSchema.safeParse(output);
+    if (!result.success) {
+      console.error(
+        "[LitellmAliasPlugin] Validation failed:",
+        result.error.issues,
+      );
+    }
+    return result.success;
   }
 
   async afterExport(output: unknown): Promise<void> {
