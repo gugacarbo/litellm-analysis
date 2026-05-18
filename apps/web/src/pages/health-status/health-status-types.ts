@@ -17,4 +17,3 @@ export interface HealthCheckUpdatePayload {
   results: HealthCheckResultEntry[];
   timestamp: number;
 }
-export type { ConnectionState } from "@/shared/types/connection";
