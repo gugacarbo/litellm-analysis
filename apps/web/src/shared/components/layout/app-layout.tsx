@@ -6,7 +6,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { FilterProvider } from "@/contexts/filter-context";
+import { FilterProvider } from "@/shared/contexts/filter-context";
 import { AppSidebar } from "./sidebar";
 
 export function AppLayout() {
