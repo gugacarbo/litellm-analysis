@@ -1,1 +1,1 @@
-export { webEnv as env } from "@lite-llm/env/web";
+export { webEnv as env } from "@lite-llm/config/web";

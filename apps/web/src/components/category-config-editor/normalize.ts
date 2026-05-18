@@ -1,4 +1,4 @@
-import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 
 // Normalize a partial CategoryEntry with defaults
 export function normalizeCategoryEntry(

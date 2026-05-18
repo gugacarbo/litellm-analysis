@@ -1,7 +1,7 @@
 import type {
   PaginationMetadata,
   SpendLog,
-} from "@lite-llm/api-contracts/analytics";
+} from "@lite-llm/contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getSpendLogs } from "../lib/api-client/spend";

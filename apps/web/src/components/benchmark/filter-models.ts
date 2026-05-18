@@ -1,4 +1,4 @@
-import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
+import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 
 export function filterModels(
   query: string,

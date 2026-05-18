@@ -52,7 +52,7 @@ export function detectSilentFailure(
   // Group recent errors by model
   const errorsByModel = new Map<
     string,
-    import("@lite-llm/analytics/types").ErrorLogEntry[]
+    import("@lite-llm/analytics-service/types").ErrorLogEntry[]
   >();
 
   for (const error of input.recentErrors) {

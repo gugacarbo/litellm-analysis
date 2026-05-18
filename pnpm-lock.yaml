@@ -74,33 +74,36 @@ importers:
 
   apps/server:
     dependencies:
+      '@lite-llm/agent-plugins':
+        specifier: workspace:*
+        version: link:../../services/agent-plugins
       '@lite-llm/agents-manager':
         specifier: workspace:*
         version: link:../../packages/agents-manager
-      '@lite-llm/analytics':
+      '@lite-llm/analytics-service':
         specifier: workspace:*
-        version: link:../../packages/analytics
-      '@lite-llm/api-contracts':
-        specifier: workspace:^
-        version: link:../../packages/api-contracts
+        version: link:../../services/analytics-service
       '@lite-llm/app-repository':
         specifier: workspace:*
         version: link:../../repositories/app-repository
-      '@lite-llm/env':
+      '@lite-llm/config':
         specifier: workspace:*
-        version: link:../../packages/env
-      '@lite-llm/models-manager':
+        version: link:../../packages/config
+      '@lite-llm/contracts':
+        specifier: workspace:^
+        version: link:../../packages/contracts
+      '@lite-llm/models-service':
         specifier: workspace:*
-        version: link:../../packages/models-manager
+        version: link:../../services/models-service
       '@lite-llm/monitor':
         specifier: workspace:^
         version: link:../../packages/monitor
       '@lite-llm/prompt-eval':
         specifier: workspace:*
         version: link:../../packages/prompt-eval
-      '@lite-llm/server-core':
+      '@lite-llm/server':
         specifier: workspace:*
-        version: link:../../packages/server-core
+        version: link:../../packages/server
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
@@ -138,12 +141,12 @@ importers:
       '@fontsource-variable/inter':
         specifier: ^5.2.8
         version: 5.2.8
-      '@lite-llm/api-contracts':
-        specifier: workspace:^
-        version: link:../../packages/api-contracts
-      '@lite-llm/env':
+      '@lite-llm/config':
         specifier: workspace:*
-        version: link:../../packages/env
+        version: link:../../packages/config
+      '@lite-llm/contracts':
+        specifier: workspace:^
+        version: link:../../packages/contracts
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -254,61 +257,27 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
+  packages/agent-schemas:
+    dependencies:
+      '@lite-llm/agents-repository':
+        specifier: workspace:*
+        version: link:../../repositories/agents-repository
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+
   packages/agents-manager:
     dependencies:
       '@lite-llm/agents-repository':
         specifier: workspace:*
         version: link:../../repositories/agents-repository
-      '@lite-llm/models-manager':
-        specifier: workspace:*
-        version: link:../models-manager
-      '@lite-llm/models-repository':
-        specifier: workspace:*
-        version: link:../../repositories/models-repository
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 25.6.2
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
-      zod:
-        specifier: 'catalog:'
-        version: 4.4.3
-
-  packages/analytics:
-    dependencies:
-      '@lite-llm/agents-manager':
-        specifier: workspace:*
-        version: link:../agents-manager
-      '@lite-llm/litellm-repository':
-        specifier: workspace:*
-        version: link:../../repositories/litellm-repository
-      '@lite-llm/models-manager':
-        specifier: workspace:*
-        version: link:../models-manager
-      '@litellm/shared':
-        specifier: workspace:*
-        version: link:../shared
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 25.6.2
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-
-  packages/api-contracts:
-    dependencies:
-      '@litellm/shared':
-        specifier: workspace:^
-        version: link:../shared
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -320,7 +289,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/env:
+  packages/config:
     dependencies:
       '@t3-oss/env-core':
         specifier: ^0.13.11
@@ -342,14 +311,11 @@ importers:
         specifier: 'catalog:'
         version: 8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4)
 
-  packages/models-manager:
+  packages/contracts:
     dependencies:
-      '@lite-llm/models-repository':
-        specifier: workspace:*
-        version: link:../../repositories/models-repository
-      '@lite-llm/repository-utils':
-        specifier: workspace:*
-        version: link:../../repositories/repository-utils
+      '@lite-llm/agent-schemas':
+        specifier: workspace:^
+        version: link:../agent-schemas
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -363,9 +329,9 @@ importers:
 
   packages/monitor:
     dependencies:
-      '@lite-llm/analytics':
+      '@lite-llm/analytics-service':
         specifier: workspace:*
-        version: link:../analytics
+        version: link:../../services/analytics-service
       '@lite-llm/app-repository':
         specifier: workspace:*
         version: link:../../repositories/app-repository
@@ -392,23 +358,29 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/server-core:
+  packages/server:
     dependencies:
+      '@lite-llm/agent-plugins':
+        specifier: workspace:*
+        version: link:../../services/agent-plugins
       '@lite-llm/agents-manager':
         specifier: workspace:*
         version: link:../agents-manager
-      '@lite-llm/analytics':
+      '@lite-llm/agents-repository':
         specifier: workspace:*
-        version: link:../analytics
-      '@lite-llm/api-contracts':
+        version: link:../../repositories/agents-repository
+      '@lite-llm/analytics-service':
         specifier: workspace:*
-        version: link:../api-contracts
-      '@lite-llm/env':
+        version: link:../../services/analytics-service
+      '@lite-llm/config':
         specifier: workspace:*
-        version: link:../env
-      '@lite-llm/models-manager':
+        version: link:../config
+      '@lite-llm/contracts':
         specifier: workspace:*
-        version: link:../models-manager
+        version: link:../contracts
+      '@lite-llm/models-service':
+        specifier: workspace:*
+        version: link:../../services/models-service
       express:
         specifier: 'catalog:'
         version: 4.22.2
@@ -422,22 +394,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
-
-  packages/shared:
-    dependencies:
-      '@lite-llm/agents-manager':
-        specifier: workspace:*
-        version: link:../agents-manager
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 25.6.2
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
   repositories/agents-repository:
     dependencies:
@@ -485,9 +441,9 @@ importers:
 
   repositories/litellm-repository:
     dependencies:
-      '@lite-llm/env':
+      '@lite-llm/config':
         specifier: workspace:*
-        version: link:../../packages/env
+        version: link:../../packages/config
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -529,6 +485,75 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  services/agent-plugins:
+    dependencies:
+      '@lite-llm/agents-repository':
+        specifier: workspace:*
+        version: link:../../repositories/agents-repository
+      '@lite-llm/models-repository':
+        specifier: workspace:*
+        version: link:../../repositories/models-repository
+      '@lite-llm/models-service':
+        specifier: workspace:*
+        version: link:../models-service
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+
+  services/analytics-service:
+    dependencies:
+      '@lite-llm/agent-schemas':
+        specifier: workspace:*
+        version: link:../../packages/agent-schemas
+      '@lite-llm/agents-manager':
+        specifier: workspace:*
+        version: link:../../packages/agents-manager
+      '@lite-llm/litellm-repository':
+        specifier: workspace:*
+        version: link:../../repositories/litellm-repository
+      '@lite-llm/models-service':
+        specifier: workspace:*
+        version: link:../models-service
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+
+  services/models-service:
+    dependencies:
+      '@lite-llm/models-repository':
+        specifier: workspace:*
+        version: link:../../repositories/models-repository
+      '@lite-llm/repository-utils':
+        specifier: workspace:*
+        version: link:../../repositories/repository-utils
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
 packages:
 

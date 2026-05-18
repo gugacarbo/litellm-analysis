@@ -1,4 +1,4 @@
-import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
+import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { formatCurrency, formatNumber } from "../../lib/format";
 import { APP_LOCALE, APP_TIMEZONE } from "../../lib/locale";
 import type {

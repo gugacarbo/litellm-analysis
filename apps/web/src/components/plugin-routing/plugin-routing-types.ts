@@ -1,4 +1,4 @@
-import type { PluginInfo } from "@lite-llm/api-contracts/agent-catalog";
+import type { PluginInfo } from "@lite-llm/contracts/agent-catalog";
 
 export type PluginCardProps = {
   plugin: PluginInfo;

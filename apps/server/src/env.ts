@@ -1,1 +1,1 @@
-export { serverEnv as env } from "@lite-llm/env/server";
+export { serverEnv as env } from "@lite-llm/config/server";

@@ -1,4 +1,4 @@
-import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
+import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { describe, expect, it } from "vitest";
 import type {
   AgenticScore,

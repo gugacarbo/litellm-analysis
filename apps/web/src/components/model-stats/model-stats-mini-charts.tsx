@@ -1,4 +1,4 @@
-import type { ModelStatistics } from "@lite-llm/api-contracts/analytics";
+import type { ModelStatistics } from "@lite-llm/contracts/analytics";
 import { APP_LOCALE } from "@/lib/locale";
 import { formatCurrency, formatDuration } from "../../lib/spend-log-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";

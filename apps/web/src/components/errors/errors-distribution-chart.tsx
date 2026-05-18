@@ -1,4 +1,4 @@
-import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
+import type { ErrorLog } from "@lite-llm/contracts/analytics";
 import { useMemo } from "react";
 import {
   Bar,

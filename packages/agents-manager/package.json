@@ -4,25 +4,19 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./schemas": "./src/plugins/schemas/index.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "generate:schemas": "tsx scripts/generate-zod-schemas.ts"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@lite-llm/agents-repository": "workspace:*",
-    "@lite-llm/models-manager": "workspace:*",
-    "@lite-llm/models-repository": "workspace:*"
+    "@lite-llm/agents-repository": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:",
-    "zod": "catalog:"
+    "vitest": "catalog:"
   }
 }

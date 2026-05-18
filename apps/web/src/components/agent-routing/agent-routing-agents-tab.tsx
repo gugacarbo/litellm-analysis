@@ -1,4 +1,4 @@
-import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
+import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { Plus, Zap } from "lucide-react";
 import { Button } from "../ui/button";
 import { AgentFocusView } from "./agent-focus-view";

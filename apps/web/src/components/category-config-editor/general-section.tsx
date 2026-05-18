@@ -1,4 +1,4 @@
-import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";

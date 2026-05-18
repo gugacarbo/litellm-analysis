@@ -1,4 +1,4 @@
-import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
+import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { BENCHMARK_CONFIG } from "@/pages/benchmarks/benchmark-utils";

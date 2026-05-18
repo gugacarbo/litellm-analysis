@@ -1,7 +1,7 @@
 import type {
   ErrorLog,
   PaginationMetadata,
-} from "@lite-llm/api-contracts/analytics";
+} from "@lite-llm/contracts/analytics";
 import type {
   ColumnDef,
   Updater,

@@ -12,7 +12,7 @@ This skill helps you understand how to access the `lite-llm-analytics` database,
 - **Database**: PostgreSQL
 - **ORM**: Drizzle ORM
 - **Location**: Database logic lives entirely within `packages/analytics/src/queries/`.
-- **Client**: `import { db, schema } from "@lite-llm/analytics/queries"`
+- **Client**: `import { db, schema } from "@lite-llm/analytics-service/queries"`
 - **Architecture**: Always respect the Strategy Pattern (`AnalyticsDataSource`). You shouldn't call Drizzle queries directly from HTTP routes (`apps/server/src/api-server.ts`); they should be accessed via `DatabaseDataSource` (`packages/analytics/src/data-source/database.ts`).
 
 ### Schema Definitions
@@ -26,7 +26,7 @@ The Drizzle schemas are defined in `packages/analytics/src/queries/schema.ts`. N
 To query the database when developing new features or performing data analysis, follow this pattern:
 
 ```typescript
-import { db, schema } from "@lite-llm/analytics/queries";
+import { db, schema } from "@lite-llm/analytics-service/queries";
 import { eq, desc, sum } from "drizzle-orm";
 
 // Example: Fetching 5 recent spend logs

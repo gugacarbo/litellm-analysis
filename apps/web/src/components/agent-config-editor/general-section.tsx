@@ -1,4 +1,4 @@
-import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
+import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";

@@ -1,4 +1,4 @@
-import type { ErrorLog } from "@lite-llm/api-contracts/analytics";
+import type { ErrorLog } from "@lite-llm/contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import { getErrorLogs } from "../lib/api-client/analytics";

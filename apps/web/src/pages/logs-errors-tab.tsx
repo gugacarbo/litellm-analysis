@@ -1,7 +1,7 @@
 import type {
   ErrorLog,
   PaginationMetadata,
-} from "@lite-llm/api-contracts/analytics";
+} from "@lite-llm/contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import type { ErrorColumnKey } from "@/components/errors/errors-table-columns";

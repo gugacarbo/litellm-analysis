@@ -1,4 +1,4 @@
-import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
+import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
 import { Input } from "../ui/input";

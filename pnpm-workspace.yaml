@@ -1,5 +1,7 @@
 packages:
   - "apps/*"
+  - "services/*-service"
+  - "services/agent-plugins"
   - "packages/*"
   - "repositories/*"
 

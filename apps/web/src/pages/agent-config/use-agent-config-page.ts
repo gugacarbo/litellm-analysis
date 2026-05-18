@@ -1,4 +1,4 @@
-import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
+import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";

@@ -1,4 +1,4 @@
-import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
+import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
 import { getCategoryCatalog } from "../../lib/api-client/agent-catalog";
 import { Label } from "../ui/label";

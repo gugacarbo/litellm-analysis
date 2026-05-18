@@ -1,4 +1,4 @@
-import type { ModelBenchmarkListItem } from "@lite-llm/api-contracts";
+import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { useMemo } from "react";
 import type { ComparisonCardData, UseCase } from "./benchmark-types";
 import {

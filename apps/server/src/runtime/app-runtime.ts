@@ -2,13 +2,19 @@ import { existsSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAgentsManager } from "@lite-llm/agents-manager";
-import { prisma } from "@lite-llm/analytics/queries/client";
+import { prisma } from "@lite-llm/analytics-service/queries/client";
 import {
   createRepositoryClient as createModelsRepositoryClient,
   ModelService,
-} from "@lite-llm/models-manager";
-import { createOrchestrationServices } from "@lite-llm/server-core/orchestration";
-import { AliasDbWriterImpl } from "@lite-llm/server-core/orchestration/alias-db-writer";
+} from "@lite-llm/models-service";
+import {
+  createAgentPluginsOrchestrator,
+  OpenCodePlugin,
+  OpenAgentPlugin,
+  VsCodePlugin,
+  LitellmAliasPlugin,
+} from "@lite-llm/agent-plugins";
+import { createOrchestrationServices } from "@lite-llm/server/orchestration";
 import { createAppContext } from "../contexts";
 import { env } from "../env";
 import { createApiServer } from "./api-server";
@@ -44,15 +50,29 @@ function findWorkspaceRoot(startDir: string): string {
   return startDir;
 }
 
-function setupAgentsManager(
+function setupAgentPluginsOrchestrator(
   projectRoot: string,
-  aliasDbWriter?: import("@lite-llm/agents-manager").AliasDbWriter,
+  aliasDbWriter?: { updateAliases(aliases: Record<string, string>): Promise<void> },
 ) {
-  return createAgentsManager({
+  const agentsManager = createAgentsManager({
     dbPath: path.join(projectRoot, "@agents", "agents.json"),
-    modelsDbPath: path.join(projectRoot, "@models", "models.json"),
+  });
+
+  const modelsRepository = createModelsRepositoryClient({
+    filePath: path.join(projectRoot, "@models", "models.json"),
+  });
+
+  return createAgentPluginsOrchestrator({
+    repository: agentsManager.repository,
+    modelsRepository,
+    services: agentsManager.services,
     outputDir: path.join(projectRoot, "@storage", "output"),
-    aliasDbWriter,
+    allPlugins: [
+      new OpenCodePlugin(),
+      new OpenAgentPlugin(),
+      new VsCodePlugin(),
+      new LitellmAliasPlugin(aliasDbWriter),
+    ],
   });
 }
 
@@ -64,15 +84,21 @@ function registerShutdownHooks(stop: () => void): void {
 export async function startAppRuntime(): Promise<AppRuntime> {
   const projectRoot = getProjectRoot();
   const ctx = createAppContext();
-  const aliasDbWriter = new AliasDbWriterImpl(ctx.analytics.dataSource);
-  const agentsManager = setupAgentsManager(projectRoot, aliasDbWriter);
+
+  const aliasDbWriter = {
+    updateAliases: async (aliases: Record<string, string>) => {
+      await ctx.analytics.dataSource.updateAgentRoutingConfig(aliases);
+    },
+  };
+
+  const agentPlugins = setupAgentPluginsOrchestrator(projectRoot, aliasDbWriter);
   const modelsRepository = createModelsRepositoryClient({
     filePath: path.join(projectRoot, "@models", "models.json"),
   });
   const modelsService = new ModelService({ repository: modelsRepository });
   const orchestration = createOrchestrationServices(
     ctx.analytics.dataSource,
-    agentsManager,
+    agentPlugins,
     modelsService,
   );
 
@@ -80,7 +106,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     {
       dataSource: ctx.analytics.dataSource,
       orchestration,
-      agentsManager,
+      agentsManager: agentPlugins,
       modelsService,
     },
     ctx,

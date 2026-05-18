@@ -2,8 +2,8 @@ import type {
   AgentCatalogDetailResponse,
   AgentCatalogResponse,
   SystemAgent,
-} from "@lite-llm/api-contracts/agent-routing";
-import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+} from "@lite-llm/contracts/agent-routing";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { fetchApi } from "./core";
 
 export interface SystemAgentOption {

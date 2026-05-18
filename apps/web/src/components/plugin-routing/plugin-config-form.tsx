@@ -1,4 +1,4 @@
-import type { ConfigField } from "@lite-llm/api-contracts/agent-catalog";
+import type { ConfigField } from "@lite-llm/contracts/agent-catalog";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";

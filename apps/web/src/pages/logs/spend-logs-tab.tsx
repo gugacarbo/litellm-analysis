@@ -1,4 +1,4 @@
-import type { SpendLog } from "@lite-llm/api-contracts/analytics";
+import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { APP_LOCALE } from "@/lib/locale";
 import { LogsFilterCard } from "../../components/logs/logs-filter-card";
 import { LogsSummaryCards } from "../../components/logs/logs-summary-cards";

@@ -8,9 +8,9 @@ import type {
   ModelBenchmarkApiResponse,
   ModelBenchmarkListItem,
   StoredModelBenchmarkDataset,
-} from "@lite-llm/api-contracts/benchmarks";
-import { registerAllRoutes } from "@lite-llm/server-core/routes";
-import type { RouteOptions } from "@lite-llm/server-core/types";
+} from "@lite-llm/contracts/benchmarks";
+import { registerAllRoutes } from "@lite-llm/server/routes";
+import type { RouteOptions } from "@lite-llm/server/types";
 import express, { type Application } from "express";
 import { createHealthCheckApplicationService } from "../application/health-check-application-service";
 import { createMonitorApplicationService } from "../application/monitor-application-service";

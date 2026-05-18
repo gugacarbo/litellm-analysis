@@ -1,4 +1,4 @@
-import type { SpendLog } from "@lite-llm/api-contracts/analytics";
+import type { SpendLog } from "@lite-llm/contracts/analytics";
 import {
   AlertCircle,
   AlertTriangle,

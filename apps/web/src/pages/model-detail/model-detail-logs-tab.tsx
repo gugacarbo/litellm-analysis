@@ -1,7 +1,7 @@
 import type {
   PaginationMetadata,
   SpendLog,
-} from "@lite-llm/api-contracts/analytics";
+} from "@lite-llm/contracts/analytics";
 import { useState } from "react";
 import { LogDetailDialog } from "@/components/logs/log-detail-dialog";
 import { LogsSummaryCards } from "@/components/logs/logs-summary-cards";

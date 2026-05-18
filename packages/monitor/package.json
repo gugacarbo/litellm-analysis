@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lite-llm/analytics": "workspace:*",
+    "@lite-llm/analytics-service": "workspace:*",
     "@lite-llm/app-repository": "workspace:*",
     "drizzle-orm": "catalog:"
   },

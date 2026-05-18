@@ -1,7 +1,7 @@
 import type {
   PaginationMetadata,
   SpendLog,
-} from "@lite-llm/api-contracts/analytics";
+} from "@lite-llm/contracts/analytics";
 import type {
   ColumnDef,
   Updater,

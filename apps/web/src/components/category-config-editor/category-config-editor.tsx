@@ -1,4 +1,4 @@
-import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";

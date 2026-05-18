@@ -1,4 +1,4 @@
-import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { ChevronDown } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";

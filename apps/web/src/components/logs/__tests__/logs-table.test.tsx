@@ -1,4 +1,4 @@
-import type { SpendLog } from "@lite-llm/api-contracts/analytics";
+import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";

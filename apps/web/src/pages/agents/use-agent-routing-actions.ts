@@ -1,5 +1,5 @@
-import type { SystemAgent } from "@lite-llm/api-contracts/agent-routing";
-import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import {

@@ -1,4 +1,4 @@
-import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { Folder, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   AlertDialog,

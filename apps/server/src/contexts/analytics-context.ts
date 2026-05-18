@@ -1,6 +1,6 @@
-import type { AnalyticsDataSource } from "@lite-llm/analytics/data-source";
-import { createDataSource } from "@lite-llm/analytics/data-source";
-import { prisma } from "@lite-llm/analytics/queries/client";
+import type { AnalyticsDataSource } from "@lite-llm/analytics-service/data-source";
+import { createDataSource } from "@lite-llm/analytics-service/data-source";
+import { prisma } from "@lite-llm/analytics-service/queries/client";
 
 export interface AnalyticsProvider {
   dataSource: AnalyticsDataSource;

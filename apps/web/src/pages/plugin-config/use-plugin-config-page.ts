@@ -1,5 +1,5 @@
-import type { AgentCatalogEntry } from "@lite-llm/api-contracts/agent-routing";
-import type { CategoryEntry } from "@lite-llm/api-contracts/category";
+import type { AgentCatalogEntry } from "@lite-llm/contracts/agent-routing";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";

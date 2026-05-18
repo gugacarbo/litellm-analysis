@@ -66,14 +66,14 @@ lite-llm-analytics/
 | Add a page/route         | `apps/web/src/App.tsx` + `apps/web/src/pages/`   | Pages own their types, utils, and hooks              |
 | Add a UI component       | `apps/web/src/components/`                       | shadcn primitives at root, domain modules in subdirs |
 | Add an API endpoint      | `apps/server/src/runtime/api-server.ts`          | All routes defined here                              |
-| Add a data-source method | `packages/analytics/src/data-source/database.ts` | Must implement `AnalyticsDataSource` interface       |
-| Add a DB query           | `packages/analytics/src/queries/`                | Prisma raw SQL queries via `$queryRawUnsafe`         |
-| Add a new data type      | `packages/analytics/src/types/index.ts`          | Add to interface or type exports                     |
+| Add a data-source method | `services/analytics-service/src/data-source/database.ts` | Must implement `AnalyticsDataSource` interface       |
+| Add a DB query           | `services/analytics-service/src/queries/`                | Prisma raw SQL queries via `$queryRawUnsafe`         |
+| Add a new data type      | `services/analytics-service/src/types/index.ts`          | Add to interface or type exports                     |
 | Change lint/format rules | `biome.json` (root)                              | Single quotes, 80 chars, import auto-organize        |
 | Change dev proxy         | `apps/web/vite.config.ts`                        | `/api` → `localhost:3008`                            |
-| Add agent config logic   | `packages/agents-manager/src/`                   | Adapters, transformers, CRUD, file generators        |
+| Add agent config logic   | `services/agent-plugins/src/`                   | Adapters, transformers, CRUD, file generators        |
 | Modify agent API routes  | `packages/server-core/src/routes/agent-config-routes.ts` | Express routes using agents-manager                  |
-| Add model config logic   | `packages/models-manager/src/`                   | Provider/model CRUD, alias routing                    |
+| Add model config logic   | `services/models-service/src/`                   | Provider/model CRUD, alias routing                    |
 | Modify model API routes  | `packages/server-core/src/routes/model-routes.ts`| Express routes using models-manager                  |
 
 ## CONVENTIONS
@@ -95,7 +95,7 @@ lite-llm-analytics/
 - Root targets ES2025, apps target ES2022
 - Web app: path alias `@/` → `./src/`
 - Server: `declaration: true`, emits `.d.ts`
-- Types duplicated in apps/web/src/types/ (imported from @litellm/shared in packages)
+- Types duplicated in apps/web/src/types/ (imported from @lite-llm/agent-schemas in packages)
 
 ### Testing (Vitest 4.x)
 - `__tests__/` colocated with source inside `src/`
@@ -111,14 +111,31 @@ lite-llm-analytics/
 
 Detailed documentation in each package's `AGENTS.md`:
 
+### /services (*-service packages)
+
+| Package                      | Entry          | Key Responsibility                                           |
+| ---------------------------- | -------------- | ------------------------------------------------------------ |
+| `@lite-llm/agent-plugins`   | `src/index.ts` | Plugin system: OpenCode, OpenAgent, VS Code, LiteLLM aliases |
+| `@lite-llm/analytics-service`| `src/index.ts` | 46-method AnalyticsDataSource, Prisma raw SQL queries          |
+| `@lite-llm/models-service`   | `src/index.ts` | Provider/model CRUD, alias routing resolution                 |
+
+### /packages (shared libraries)
+
 | Package                    | Entry          | Key Responsibility                                           |
 | -------------------------- | -------------- | ------------------------------------------------------------ |
-| `@lite-llm/agents-manager` | `src/index.ts` | Agent/category CRUD, plugin system, config file generators   |
-| `@lite-llm/models-manager` | `src/index.ts` | Provider/model CRUD, alias routing resolution               |
-| `@lite-llm/analytics`      | `src/index.ts` | 46-method AnalyticsDataSource interface, Prisma raw SQL queries |
-| `@litellm/shared`          | `src/index.ts` | Types + Zod schemas for agent/category config                |
-| `@lite-llm/server-core`    | `src/index.ts` | Route registration + orchestration services                  |
-| `@lite-llm/monitor`        | `src/index.ts` | SQLite-based anomaly detection, WebSocket broadcast          |
+| `@lite-llm/agents-manager` | `src/index.ts` | Agent/category CRUD, routing services (coordena múltiplos)    |
+| `@lite-llm/server`         | `src/index.ts` | Express routes + orchestration services                      |
+| `@lite-llm/monitor`        | `src/index.ts` | SQLite-based anomaly detection, WebSocket broadcast           |
+| `@lite-llm/contracts`      | `src/index.ts` | API type contracts                                           |
+| `@lite-llm/config`         | `src/index.ts` | Environment variable validation (t3-env, Zod)                 |
+| `@lite-llm/prompt-eval`    | `src/index.ts` | Prompt evaluation via promptfoo                               |
+
+### /shared
+
+| Package                    | Entry          | Key Responsibility                                           |
+| -------------------------- | -------------- | ------------------------------------------------------------ |
+| `@lite-llm/agent-schemas`        | `src/index.ts` | Common types + Zod schemas                                   |
+
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
@@ -128,7 +145,7 @@ Detailed documentation in each package's `AGENTS.md`:
 
 ## UNIQUE STYLES
 
-- **Three consumer configs**: `@storage/output/` contains `oh-my-openagent.json`, `opencode.json`, `vscode-oaicopilot.json` — all generated by `packages/agents-manager` from `db.json`
+- **Three consumer configs**: `@storage/output/` contains `oh-my-openagent.json`, `opencode.json`, `vscode-oaicopilot.json` — all generated by `services/agent-plugins` from `db.json`
 - **Cost formatting**: `$X.XX/Mi` (per million tokens) via `getInputCost()`/`getOutputCost()`
 - **Column schema system**: `MODEL_STATS_COLUMNS` declarative array drives table rendering in model-stats
 - **Alias resolution**: `resolveModelName()` in agent-routing maps configs through alias table via `useMemo`
@@ -145,9 +162,9 @@ pnpm format       # turbo format (biome check --write)
 pnpm typecheck    # turbo typecheck (tsc --noEmit)
 
 # Single package (faster for iteration)
-pnpm --filter @lite-llm/analytics typecheck
-pnpm --filter @lite-llm/analytics build
-pnpm --filter @lite-llm/server-core typecheck
+pnpm --filter @lite-llm/analytics-service typecheck
+pnpm --filter @lite-llm/analytics-service build
+pnpm --filter @lite-llm/server typecheck
 pnpm --filter @lite-llm/monitor typecheck
 pnpm --filter @lite-llm/litellm-repository typecheck
 
@@ -170,7 +187,7 @@ pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma sche
 
 | Location                              | Coverage                            |
 | ------------------------------------- | ----------------------------------- |
-| `packages/analytics/src/queries/`     | Prisma raw SQL query patterns, helpers |
-| `packages/analytics/src/data-source/` | DatabaseDataSource composition      |
+| `services/analytics-service/src/queries/`     | Prisma raw SQL query patterns, helpers |
+| `services/analytics-service/src/data-source/` | DatabaseDataSource composition      |
 | `repositories/litellm-repository/`    | Prisma client + upstream schema sync scripts |
-| `packages/models-manager/src/alias-router/` | Alias resolution, generation, cleanup, sort |
+| `services/models-service/src/alias-router/` | Alias resolution, generation, cleanup, sort |

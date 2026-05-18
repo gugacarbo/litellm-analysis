@@ -1,4 +1,5 @@
 // ── Main export file ──
+// Services for agent, category, and routing management
 
 // Re-export types from agents-repository
 export type {
@@ -40,13 +41,15 @@ import {
   type RoutingServiceOptions,
 } from "./services/routing.service";
 
-// New types
+// Types from agents-repository
 export type {
   AgentExtraConfig,
   PluginRouting,
   PluginRoutingRule,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+
+// Service interfaces and implementations
 export type {
   AgentCatalogServiceOptions,
   AgentServiceOptions,
@@ -59,37 +62,6 @@ export type {
 };
 export { AgentCatalogService, AgentService, CategoryService, RoutingService };
 
-import { createRepositoryClient as createModelsRepositoryClient } from "@lite-llm/models-manager";
-import { LitellmAliasPlugin } from "./plugins/litellm-alias/plugin";
-import { OpenAgentPlugin } from "./plugins/openagent/plugin";
-// Plugins
-import { OpenCodePlugin } from "./plugins/opencode/plugin";
-import type {
-  IPlugin,
-  IPluginRegistry,
-  TransformContext,
-} from "./plugins/plugin";
-import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
-import { PluginRegistry, type PluginRegistryOptions } from "./plugins/registry";
-import { VsCodePlugin } from "./plugins/vscode/plugin";
-
-export type { AliasDbWriter } from "./plugins/litellm-alias/plugin";
-export type {
-  ConfigField,
-  InternalAgent,
-  IPlugin,
-  IPluginRegistry,
-  PluginRegistryOptions,
-  TransformContext,
-};
-export {
-  LitellmAliasPlugin,
-  OpenAgentPlugin,
-  OpenCodePlugin,
-  PluginRegistry,
-  VsCodePlugin,
-};
-
 // Config
 import { DEFAULT_AGENTS, DEFAULT_DB_PATH } from "./config/defaults";
 
@@ -99,16 +71,10 @@ export { DEFAULT_AGENTS, DEFAULT_DB_PATH };
 
 export interface AgentsManagerFactoryOptions {
   dbPath?: string;
-  modelsDbPath?: string;
-  outputDir?: string;
-  aliasDbWriter?: import("./plugins/litellm-alias/plugin.js").AliasDbWriter;
 }
 
 export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
   const repository = createRepositoryClient({ filePath: options.dbPath });
-  const modelsRepository = createModelsRepositoryClient({
-    filePath: options.modelsDbPath,
-  });
 
   const services = {
     agents: new AgentService({ repository }),
@@ -117,19 +83,5 @@ export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
     routing: new RoutingService({ repository }),
   };
 
-  const allPlugins: IPlugin[] = [
-    new OpenCodePlugin(),
-    new OpenAgentPlugin(),
-    new VsCodePlugin(),
-    new LitellmAliasPlugin(options.aliasDbWriter),
-  ];
-
-  const registry = new PluginRegistry({
-    repository,
-    modelsRepository,
-    outputDir: options.outputDir,
-    allPlugins,
-  });
-
-  return { repository, services, registry };
+  return { repository, services };
 }

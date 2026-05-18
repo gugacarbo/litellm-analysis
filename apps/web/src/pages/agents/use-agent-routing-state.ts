@@ -1,7 +1,7 @@
 import type {
   AgentCatalogEntry,
   SystemAgent,
-} from "@lite-llm/api-contracts/agent-routing";
+} from "@lite-llm/contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
 import { normalizeSystemAgent } from "../../components/agent-config-editor/normalize";
 import {

@@ -18,7 +18,7 @@ export interface AnomalyAlert {
 }
 
 export interface DetectorInput {
-  recentErrors: import("@lite-llm/analytics/types").ErrorLogEntry[];
+  recentErrors: import("@lite-llm/analytics-service/types").ErrorLogEntry[];
   errorCountsByModel: { model: string; error_count: number }[];
   nonSuccessCountsByModel: {
     model: string;
@@ -59,7 +59,7 @@ export interface ModelHealthUpdate {
 
 export interface MonitorServiceOptions {
   pollIntervalMs: number;
-  analyticsDataSource: import("@lite-llm/analytics/data-source").AnalyticsDataSource;
+  analyticsDataSource: import("@lite-llm/analytics-service/data-source").AnalyticsDataSource;
   monitorDb: ReturnType<typeof import("../db/monitor-client").getMonitorDb>;
 }
 
@@ -100,7 +100,7 @@ export interface HealthCheckServiceOptions {
   maxConcurrency: number;
   litellmApiUrl: string;
   litellmApiKey: string;
-  analyticsDataSource: import("@lite-llm/analytics/data-source").AnalyticsDataSource;
+  analyticsDataSource: import("@lite-llm/analytics-service/data-source").AnalyticsDataSource;
   monitorDb: ReturnType<typeof import("../db/monitor-client").getMonitorDb>;
   enabledModelNames?: string[];
 }

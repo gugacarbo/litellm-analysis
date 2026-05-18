@@ -1,0 +1,31 @@
+{
+  "name": "@lite-llm/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./orchestration": "./src/orchestration/index.ts",
+    "./routes": "./src/routes/index.ts",
+    "./types": "./src/types/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lite-llm/agent-plugins": "workspace:*",
+    "@lite-llm/agents-manager": "workspace:*",
+    "@lite-llm/agents-repository": "workspace:*",
+    "@lite-llm/contracts": "workspace:*",
+    "@lite-llm/analytics-service": "workspace:*",
+    "@lite-llm/config": "workspace:*",
+    "@lite-llm/models-service": "workspace:*",
+    "express": "catalog:"
+  },
+  "devDependencies": {
+    "@types/express": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

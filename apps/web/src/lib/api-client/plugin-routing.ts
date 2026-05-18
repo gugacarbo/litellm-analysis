@@ -2,7 +2,7 @@ import type {
   PluginConfigResponse,
   PluginInfo,
   PluginRouting,
-} from "@lite-llm/api-contracts/agent-catalog";
+} from "@lite-llm/contracts/agent-catalog";
 import { fetchApi } from "./core";
 
 export async function getPluginRouting(): Promise<

@@ -43,7 +43,7 @@ monitor/src/
 
 ## ANTI-PATTERNS
 
-- Don't call LiteLLM PostgreSQL directly — use `@lite-llm/analytics` data source
+- Don't call LiteLLM PostgreSQL directly — use `@lite-llm/queries` data source
 - Don't add async DB operations — `better-sqlite3` is synchronous
 - Don't import from `apps/server/` — this package is standalone
 - Don't upgrade vitest to ^4.1.5 without verifying test compatibility (breaking changes in v3/v4)
