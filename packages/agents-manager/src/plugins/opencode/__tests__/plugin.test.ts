@@ -41,7 +41,7 @@ describe("OpenCodePlugin", () => {
     it("retorna 2 campos de configuração", () => {
       const plugin = new OpenCodePlugin();
       const schema = plugin.getConfigSchema();
-      expect(schema).toHaveLength(2);
+      expect(schema).toHaveLength(3);
     });
 
     it("campos tem key, type e label", () => {
@@ -51,6 +51,9 @@ describe("OpenCodePlugin", () => {
       expect(schema[0].type).toBe("string");
       expect(schema[1].key).toBe("defaultTemperature");
       expect(schema[1].type).toBe("number");
+      expect(schema[2].key).toBe("selectedAgents");
+      expect(schema[2].type).toBe("switch-group");
+      expect(schema[2].label).toBe("System Agents");
     });
   });
 
@@ -539,6 +542,97 @@ describe("OpenCodePlugin", () => {
       }) as unknown as Record<string, unknown>;
 
       expect(output).not.toHaveProperty("categories");
+    });
+
+    it("só inclui agentes whose displayName is a key in routing.agents", () => {
+      const plugin = new OpenCodePlugin();
+      const agents: SystemAgent[] = [
+        {
+          displayName: "Loom",
+          icon: "🧵",
+          description: "Coordinator",
+          model: "gpt-4",
+          fallbackModels: [],
+          limits: { context: 100000, output: 16000 },
+          config: {},
+        },
+        {
+          displayName: "Tapestry",
+          icon: "🧶",
+          description: "Architect",
+          model: "claude-3",
+          fallbackModels: [],
+          limits: { context: 100000, output: 16000 },
+          config: {},
+        },
+        {
+          displayName: "Thread",
+          icon: "🧵",
+          description: "Writer",
+          model: "gpt-3.5",
+          fallbackModels: [],
+          limits: { context: 100000, output: 16000 },
+          config: {},
+        },
+      ];
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "opencode.json",
+        routing: { agents: { Loom: "Loom", Thread: "Thread" }, categories: {} },
+      };
+
+      const output = plugin.buildOutput(agents, routing, {
+        allModels: {},
+        litellmConfig: {
+          baseUrl: "http://localhost:4000",
+          apiKey: "test-key",
+        },
+      }) as unknown as Record<string, unknown>;
+
+      const agentsOut = output.agents as Record<string, unknown>;
+      expect(Object.keys(agentsOut)).toEqual(["Loom", "Thread"]);
+      expect(agentsOut).toHaveProperty("Loom");
+      expect(agentsOut).toHaveProperty("Thread");
+      expect(agentsOut).not.toHaveProperty("Tapestry");
+    });
+
+    it("routing.agents vazio não gera seção agents (sem retrocompatibilidade)", () => {
+      const plugin = new OpenCodePlugin();
+      const agents: SystemAgent[] = [
+        {
+          displayName: "Loom",
+          icon: "🧵",
+          description: "Coordinator",
+          model: "gpt-4",
+          fallbackModels: [],
+          limits: { context: 100000, output: 16000 },
+          config: {},
+        },
+        {
+          displayName: "Tapestry",
+          icon: "🧶",
+          description: "Architect",
+          model: "claude-3",
+          fallbackModels: [],
+          limits: { context: 100000, output: 16000 },
+          config: {},
+        },
+      ];
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "opencode.json",
+        routing: { agents: {}, categories: {} },
+      };
+
+      const output = plugin.buildOutput(agents, routing, {
+        allModels: {},
+        litellmConfig: {
+          baseUrl: "http://localhost:4000",
+          apiKey: "test-key",
+        },
+      }) as unknown as Record<string, unknown>;
+
+      expect(output).not.toHaveProperty("agents");
     });
   });
 });
