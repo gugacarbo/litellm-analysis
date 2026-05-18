@@ -1,6 +1,6 @@
 import * as React from "react";
-import type { DashboardDateRangeKey } from "@/lib/date-ranges";
-import { getDateRangeDays } from "@/lib/date-ranges";
+import type { DashboardDateRangeKey } from "@/shared/lib/date-ranges";
+import { getDateRangeDays } from "@/shared/lib/date-ranges";
 
 type FilterContextValue = {
   dateRange: DashboardDateRangeKey;
