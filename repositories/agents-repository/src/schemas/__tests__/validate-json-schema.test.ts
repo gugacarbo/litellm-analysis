@@ -1,7 +1,7 @@
 // Require 'zod' and dynamic toJSONSchema
 import { test } from "vitest";
 import { z } from "zod";
-import schemaJson from "../../../../../@agents/agents.schema.json" with {
+import schemaJson from "../../../../../@settings/agents/agents.schema.json" with {
   type: "json",
 };
 

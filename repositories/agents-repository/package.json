@@ -15,8 +15,8 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "test": "vitest run",
-    "validate:agents": "ajv validate -s ../../@agents/agents.schema.json -d ../../@agents/agents.jsonc",
-    "validate:plugins": "ajv validate -s ../../@agents/plugins.schema.json -d ../../@agents/plugins.jsonc"
+    "validate:agents": "ajv validate -s ../../@settings/agents/agents.schema.json -d ../../@settings/agents/agents.jsonc",
+    "validate:plugins": "ajv validate -s ../../@settings/agents/plugins.schema.json -d ../../@settings/agents/plugins.jsonc"
   },
   "dependencies": {
     "@lite-llm/models-repository": "workspace:*",

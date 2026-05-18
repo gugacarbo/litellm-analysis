@@ -6,23 +6,8 @@
       "enabled": true,
       "outputFile": "opencode.json",
       "config": {
-        "enabled": true,
-        "outputFile": "opencode.json",
-        "config": {
-          "enabled": true,
-          "outputFile": "opencode.json",
-          "config": {},
-          "routing": {
-            "agents": {},
-            "categories": {}
-          }
-        },
-        "routing": {
-          "agents": {
-            "coder": "loom"
-          },
-          "categories": {}
-        }
+        "defaultModel": "",
+        "defaultTemperature": 0.2
       },
       "routing": {
         "agents": {

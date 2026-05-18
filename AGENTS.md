@@ -37,8 +37,8 @@ lite-llm-analytics/
 │   ├── shared/             # Common types (AgentConfig, CategoryConfig)
 │   ├── env/                # Environment variable validation (t3-env, Zod)
 │   └── api-contracts/      # API type contracts (analytics, agent-routing)
-├── @agents/                 # Agent config source-of-truth (agents.jsonc + schema)
-├── @models/                 # Model/provider config source-of-truth (models.jsonc + schema)
+├── @settings/agents/                 # Agent config source-of-truth (agents.jsonc + schema)
+├── @settings/models/                 # Model/provider config source-of-truth (models.jsonc + schema)
 ├── @storage/output/         # Generated JSON configs (OpenCode, VS Code, agent-routing)
 │   ├── oh-my-openagent.json
 │   ├── opencode.json

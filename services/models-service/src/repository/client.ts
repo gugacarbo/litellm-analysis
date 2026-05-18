@@ -12,13 +12,13 @@ export interface RepositoryClientOptions {
   filePath?: string;
 }
 
-const DEFAULT_FILE_PATH = "@models/models.jsonc";
+const DEFAULT_FILE_PATH = "@settings/models/models.jsonc";
 
 function resolveFilePath(filePath: string): string {
-  if (filePath.startsWith("@models/")) {
-    const rest = filePath.slice("@models/".length);
+  if (filePath.startsWith("@settings/models/")) {
+    const rest = filePath.slice("@settings/models/".length);
     const base = path.resolve(import.meta.dirname ?? process.cwd(), "../../..");
-    return path.join(base, "@models", rest);
+    return path.join(base, "@settings/models", rest);
   }
   return filePath;
 }

@@ -50,7 +50,7 @@ RepositoryClient → Services (agent/category/routing)
 
 ## CONVENTIONS
 
-- Repository client handles `@agents/` path resolution from monorepo root
+- Repository client handles `@settings/agents/` path resolution from monorepo root
 - JSON/JSONC fallback: `.json` → `.jsonc` if file not found
 
 ## ANTI-PATTERNS
@@ -63,5 +63,5 @@ RepositoryClient → Services (agent/category/routing)
 | Task                      | Location                      | Notes                         |
 | ------------------------- | ----------------------------- | ----------------------------- |
 | Add agent CRUD logic      | `services/agent.service.ts`   | Uses repository client        |
-| Change DB path resolution | `repository/client.ts`        | Handles @agents/ paths        |
+| Change DB path resolution | `repository/client.ts`        | Handles @settings/agents/ paths        |
 | Add routing config field  | `services/routing.service.ts` | RoutingService                |

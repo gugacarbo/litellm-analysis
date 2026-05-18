@@ -13,7 +13,7 @@ export interface RepositoryClientOptions {
   pluginsFilePath?: string;
 }
 
-const DEFAULT_PLUGINS_PATH = "@agents/plugins.json";
+const DEFAULT_PLUGINS_PATH = "@settings/agents/plugins.json";
 
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
@@ -21,7 +21,7 @@ export function createRepositoryClient(
   const filePath = options.filePath ?? DEFAULT_DB_PATH;
   const pluginsFilePath = options.pluginsFilePath ?? DEFAULT_PLUGINS_PATH;
 
-  // Resolve special paths like @agents/agents.json, with json/jsonc fallback.
+  // Resolve special paths like @settings/agents/agents.json, with json/jsonc fallback.
   const resolvedPath = resolveDbPathWithFallback(filePath);
   const resolvedPluginsPath = resolveDbPathWithFallback(pluginsFilePath);
 
@@ -98,7 +98,7 @@ function resolveDbPathWithFallback(dbPath: string): string {
 }
 
 function resolveDbPath(dbPath: string): string {
-  if (dbPath.startsWith("@agents/") || dbPath.startsWith("@db/")) {
+  if (dbPath.startsWith("@settings/agents/") || dbPath.startsWith("@db/")) {
     const monorepoRoot = findMonorepoRoot();
     return path.join(monorepoRoot, dbPath);
   }
