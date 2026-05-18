@@ -128,6 +128,31 @@ export function PluginConfigForm({
                   );
                 })}
               </div>
+            ) : field.type === "switch-group" && field.options ? (
+              <div className="space-y-2 rounded-md border p-3">
+                {field.options.map((opt) => {
+                  const selected = ((values[field.key] as string[]) ??
+                    []) as string[];
+                  const checked = selected.includes(opt.value);
+                  return (
+                    <div key={opt.value} className="flex items-center gap-2">
+                      <Switch
+                        id={`${field.key}-${opt.value}`}
+                        checked={checked}
+                        onCheckedChange={() =>
+                          toggleMultiSelectItem(field.key, opt.value)
+                        }
+                      />
+                      <Label
+                        htmlFor={`${field.key}-${opt.value}`}
+                        className="text-sm font-normal"
+                      >
+                        {opt.label}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
             ) : null}
           </div>
         ))}
