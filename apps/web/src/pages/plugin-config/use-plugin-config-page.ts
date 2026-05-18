@@ -79,7 +79,7 @@ export function usePluginConfigPage(pluginId: string) {
   // Inject dynamic options into multiselect schema fields
   const resolvedSchema = useMemo(() => {
     return safeData.schema.map((field) => {
-      if (field.type !== "multiselect") return field;
+      if (field.type !== "multiselect" && field.type !== "switch-group") return field;
       if (field.key === "selectedAgents") {
         return {
           ...field,
