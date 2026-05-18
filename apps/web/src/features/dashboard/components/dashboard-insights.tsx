@@ -1,7 +1,12 @@
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
-import type { DashboardInsight } from "../../pages/dashboard/dashboard-types";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
+import type { DashboardInsight } from "../types/dashboard-types";
 
 type DashboardInsightsProps = {
   loading: boolean;

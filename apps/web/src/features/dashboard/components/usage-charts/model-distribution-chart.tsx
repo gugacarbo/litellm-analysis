@@ -1,9 +1,14 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import type { ModelDistributionItem } from "../../../pages/dashboard/dashboard-types";
-import { formatNumber } from "../../../pages/dashboard/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import { ChartTooltipContent } from "../../ui/chart-tooltip";
-import { Skeleton } from "../../ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import type { ModelDistributionItem } from "../../types/dashboard-types";
+import { formatNumber } from "../../utils/dashboard-utils";
 
 const COLORS = [
   "#3b82f6",

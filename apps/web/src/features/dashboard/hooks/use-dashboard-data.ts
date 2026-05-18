@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useFilter } from "@/shared/contexts/filter-context";
-import { useAllDashboardQueries } from "./use-dashboard-queries";
 import { computeInsights } from "./compute-insights";
 import type { RawMetrics } from "./normalizers";
 import {
@@ -9,6 +8,7 @@ import {
   normalizePerformance,
   normalizeSpendByUser,
 } from "./normalizers";
+import { useAllDashboardQueries } from "./use-dashboard-queries";
 
 function toISODateString(date: Date | undefined): string | undefined {
   if (!date) return undefined;

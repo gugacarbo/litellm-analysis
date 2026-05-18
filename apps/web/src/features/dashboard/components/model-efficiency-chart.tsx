@@ -10,7 +10,12 @@ import {
   YAxis,
 } from "recharts";
 import type { CostEfficiencyItem } from "@/features/dashboard/types/dashboard-types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 

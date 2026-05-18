@@ -1,15 +1,11 @@
 import { useState } from "react";
-import type {
-  ApiKeyStatItem,
-  SpendByUserItem,
-} from "../../pages/dashboard/dashboard-types";
 import {
-  formatCurrency,
-  formatNumber,
-  formatPercent,
-} from "../../pages/dashboard/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -17,8 +13,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+} from "@/shared/components/ui/table";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
+import type { ApiKeyStatItem, SpendByUserItem } from "../types/dashboard-types";
+import {
+  formatCurrency,
+  formatNumber,
+  formatPercent,
+} from "../utils/dashboard-utils";
 
 type DashboardTopEntitiesProps = {
   loading: boolean;

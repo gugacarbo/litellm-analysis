@@ -1,11 +1,5 @@
 import { Activity, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
-import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
-import { DashboardEfficiencyCharts } from "./components/dashboard-efficiency-charts";
-import { DashboardInsights } from "./components/dashboard-insights";
-import { DashboardOverviewCards } from "./components/dashboard-overview-cards";
-import { DashboardTopEntities } from "./components/dashboard-top-entities";
-import { DashboardUsageCharts } from "./components/dashboard-usage-charts";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -17,6 +11,12 @@ import {
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
 import { useFilter } from "@/shared/contexts/filter-context";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
+import { DashboardEfficiencyCharts } from "./components/dashboard-efficiency-charts";
+import { DashboardInsights } from "./components/dashboard-insights";
+import { DashboardOverviewCards } from "./components/dashboard-overview-cards";
+import { DashboardTopEntities } from "./components/dashboard-top-entities";
+import { DashboardUsageCharts } from "./components/dashboard-usage-charts";
 import { useDashboardData } from "./hooks/use-dashboard-data";
 import { getDateRangeLabel } from "./utils/dashboard-utils";
 

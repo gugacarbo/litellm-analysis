@@ -1,6 +1,7 @@
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { getDateRangeDays } from "@/features/dashboard/utils/dashboard-utils";
 import type {
   DashboardDateRangeKey,
   TimeRangeValue,
@@ -31,7 +32,6 @@ import {
 } from "../components/ui/tabs";
 import { TimeRangePicker } from "../components/ui/time-range-picker";
 import { useModelDetailData } from "../hooks/use-model-detail-data";
-import { getDateRangeDays } from "./dashboard/dashboard-utils";
 import { ModelDetailLogsTab } from "./model-detail/model-detail-logs-tab";
 import { useModelDetailLogs } from "./model-detail/use-model-detail-logs";
 

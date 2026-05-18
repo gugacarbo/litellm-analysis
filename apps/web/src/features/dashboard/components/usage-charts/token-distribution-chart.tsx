@@ -8,11 +8,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { TokenDistributionItem } from "../../../pages/dashboard/dashboard-types";
-import { formatNumber } from "../../../pages/dashboard/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import { ChartTooltipContent } from "../../ui/chart-tooltip";
-import { Skeleton } from "../../ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import type { TokenDistributionItem } from "../../types/dashboard-types";
+import { formatNumber } from "../../utils/dashboard-utils";
 
 type TokenDistributionChartProps = {
   data: TokenDistributionItem[];

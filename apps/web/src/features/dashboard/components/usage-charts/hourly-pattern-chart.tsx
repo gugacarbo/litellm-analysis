@@ -9,14 +9,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { HourlyPatternItem } from "../../../pages/dashboard/dashboard-types";
 import {
-  formatCurrency,
-  formatNumber,
-} from "../../../pages/dashboard/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import { ChartTooltipContent } from "../../ui/chart-tooltip";
-import { Skeleton } from "../../ui/skeleton";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import type { HourlyPatternItem } from "../../types/dashboard-types";
+import { formatCurrency, formatNumber } from "../../utils/dashboard-utils";
 
 type HourlyPatternChartProps = {
   data: HourlyPatternItem[];

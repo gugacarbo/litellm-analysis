@@ -7,14 +7,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { DailyTrendItem } from "../../../pages/dashboard/dashboard-types";
 import {
-  formatCurrency,
-  formatDateRange,
-} from "../../../pages/dashboard/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import { ChartTooltipContent } from "../../ui/chart-tooltip";
-import { Skeleton } from "../../ui/skeleton";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import type { DailyTrendItem } from "../../types/dashboard-types";
+import { formatCurrency, formatDateRange } from "../../utils/dashboard-utils";
 
 type DailySpendChartProps = {
   data: DailyTrendItem[];

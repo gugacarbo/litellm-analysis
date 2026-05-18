@@ -9,8 +9,13 @@ import {
   YAxis,
 } from "recharts";
 import type { CostEfficiencyItem } from "@/features/dashboard/types/dashboard-types";
-import { formatDateRange, formatNumber } from "@/features/dashboard/utils/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { formatNumber } from "@/features/dashboard/utils/dashboard-utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
 /** Format cost per 1K tokens with 4-5 decimal places and at most 1 trailing zero */
@@ -48,8 +53,6 @@ export function EfficiencyVsSpeedChart({
   costEfficiency,
   modelStatistics,
 }: EfficiencyVsSpeedChartProps) {
-  const granularity = modelStatistics[0]?.granularity ?? "1d";
-
   const chartData = useMemo((): EfficiencyVsSpeedItem[] => {
     const statsByName = new Map(modelStatistics.map((s) => [s.model, s]));
     return costEfficiency
@@ -84,9 +87,7 @@ export function EfficiencyVsSpeedChart({
           </p>
         ) : (
           <ResponsiveContainer width="100%" height={400}>
-            <ScatterChart
-              margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-            >
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
               <CartesianGrid />
               <XAxis
                 type="number"
@@ -111,8 +112,7 @@ export function EfficiencyVsSpeedChart({
               <Tooltip
                 content={({ active, payload }) => {
                   if (!active || !payload?.length) return null;
-                  const d = payload[0]
-                    ?.payload as EfficiencyVsSpeedItem | null;
+                  const d = payload[0]?.payload as EfficiencyVsSpeedItem | null;
                   if (!d) return null;
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm text-xs">
@@ -130,11 +130,7 @@ export function EfficiencyVsSpeedChart({
                   );
                 }}
               />
-              <Scatter
-                name="Models"
-                data={chartData}
-                fill="#8b5cf6"
-              />
+              <Scatter name="Models" data={chartData} fill="#8b5cf6" />
             </ScatterChart>
           </ResponsiveContainer>
         )}

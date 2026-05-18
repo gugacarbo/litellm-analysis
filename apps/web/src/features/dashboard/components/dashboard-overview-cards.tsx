@@ -1,15 +1,12 @@
 import { ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { Card } from "@/shared/components/ui/card";
+import { Separator } from "@/shared/components/ui/separator";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import type {
   DashboardMetrics,
   PerformanceMetrics,
-} from "../../pages/dashboard/dashboard-types";
-import {
-  formatCurrency,
-  formatNumber,
-} from "../../pages/dashboard/dashboard-utils";
-import { Card } from "../ui/card";
-import { Separator } from "../ui/separator";
-import { Skeleton } from "../ui/skeleton";
+} from "../types/dashboard-types";
+import { formatCurrency, formatNumber } from "../utils/dashboard-utils";
 
 type KpiItem = {
   label: string;

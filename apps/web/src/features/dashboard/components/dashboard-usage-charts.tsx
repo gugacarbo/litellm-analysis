@@ -3,11 +3,11 @@ import type {
   HourlyPatternItem,
   ModelDistributionItem,
   TokenDistributionItem,
-} from "../../pages/dashboard/dashboard-types";
-import { DailySpendChart } from "./dashboard-usage-charts/daily-spend-chart";
-import { HourlyPatternChart } from "./dashboard-usage-charts/hourly-pattern-chart";
-import { ModelDistributionChart } from "./dashboard-usage-charts/model-distribution-chart";
-import { TokenDistributionChart } from "./dashboard-usage-charts/token-distribution-chart";
+} from "../types/dashboard-types";
+import { DailySpendChart } from "./usage-charts/daily-spend-chart";
+import { HourlyPatternChart } from "./usage-charts/hourly-pattern-chart";
+import { ModelDistributionChart } from "./usage-charts/model-distribution-chart";
+import { TokenDistributionChart } from "./usage-charts/token-distribution-chart";
 
 type DashboardUsageChartsProps = {
   loading: boolean;

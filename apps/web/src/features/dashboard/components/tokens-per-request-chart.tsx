@@ -11,8 +11,16 @@ import {
   YAxis,
 } from "recharts";
 import type { DailyTokenTrendItem } from "@/features/dashboard/types/dashboard-types";
-import { formatDateRange, formatNumber } from "@/features/dashboard/utils/dashboard-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  formatDateRange,
+  formatNumber,
+} from "@/features/dashboard/utils/dashboard-utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
@@ -81,9 +89,7 @@ export function TokensPerRequestChart({
                     ? formatNumber(Number(v))
                     : formatNumber(Number(v))
                 }
-                labelFormatter={(label) =>
-                  formatDateRange(label, granularity)
-                }
+                labelFormatter={(label) => formatDateRange(label, granularity)}
               />
               <Legend />
               <Bar

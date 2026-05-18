@@ -5,13 +5,13 @@ import type {
   DashboardMetrics,
   HourlyPatternItem,
   PerformanceMetrics,
-} from "../../pages/dashboard/dashboard-types";
+} from "../types/dashboard-types";
 import {
   formatCurrency,
   formatNumber,
   formatPercent,
   safeDivide,
-} from "../../pages/dashboard/dashboard-utils";
+} from "../utils/dashboard-utils";
 import { getToneByDelta } from "./normalizers";
 
 export function computeInsights(
