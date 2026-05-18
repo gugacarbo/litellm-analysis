@@ -19,8 +19,8 @@ export const serverSchema = {
   HEALTH_CHECK_INTERVAL_MS: z.coerce.number().int().positive(),
   HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive(),
 
-  AGENTS_CONFIG_PATH: z.string().default("@settings/agents/agents.jsonc"),
-  MODELS_CONFIG_PATH: z.string().default("@settings/models/models.jsonc"),
+  APP_DB_PATH: z.string(),
+  SETTINGS_PATH: z.string().default("@settings"),
 };
 
 export const serverEnv = createEnv({

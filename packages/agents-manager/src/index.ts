@@ -63,9 +63,9 @@ export type {
 export { AgentCatalogService, AgentService, CategoryService, RoutingService };
 
 // Config
-import { DEFAULT_AGENTS, DEFAULT_DB_PATH } from "./config/defaults";
+import { DEFAULT_AGENTS, DEFAULT_AGENTS_PATH } from "./config/defaults";
 
-export { DEFAULT_AGENTS, DEFAULT_DB_PATH };
+export { DEFAULT_AGENTS, DEFAULT_AGENTS_PATH };
 
 // ── Factory ──
 
@@ -74,7 +74,7 @@ export interface AgentsManagerFactoryOptions {
 }
 
 export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
-  const repository = createRepositoryClient({ filePath: options.dbPath });
+  const repository = createRepositoryClient({ agentsFilePath: options.dbPath });
 
   const services = {
     agents: new AgentService({ repository }),

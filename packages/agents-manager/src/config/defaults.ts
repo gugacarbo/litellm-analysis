@@ -1,7 +1,7 @@
 import { serverEnv } from "@lite-llm/config/server";
 import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 
-export const DEFAULT_DB_PATH = serverEnv.AGENTS_CONFIG_PATH;
+export const DEFAULT_AGENTS_PATH = `${serverEnv.SETTINGS_PATH}/agents/agents.jsonc`;
 
 // ── Default System Agents ──
 

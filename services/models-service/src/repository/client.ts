@@ -10,15 +10,14 @@ import {
 export type { IModelsRepository, RepositoryOptions };
 
 export interface RepositoryClientOptions {
-  filePath?: string;
+  modelsFilePath?: string;
 }
 
 function resolveFilePath(filePath: string): string {
   const monorepoRoot = path.resolve(import.meta.dirname ?? process.cwd(), "../../..");
   
-  if (filePath.startsWith("@settings/models/")) {
-    const rest = filePath.slice("@settings/models/".length);
-    return path.join(monorepoRoot, "@settings/models", rest);
+  if (filePath.startsWith("@settings/")) {
+    return path.join(monorepoRoot, filePath);
   }
   
   if (path.isAbsolute(filePath)) {
@@ -31,8 +30,10 @@ function resolveFilePath(filePath: string): string {
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IModelsRepository {
-  const rawPath = options.filePath ?? serverEnv.MODELS_CONFIG_PATH;
-  let resolved = resolveFilePath(rawPath);
+  const settingsBase = serverEnv.SETTINGS_PATH.replace("@settings", "@settings/models");
+  const modelsFilePath = options.modelsFilePath ?? `${settingsBase}/models.jsonc`;
+  
+  let resolved = resolveFilePath(modelsFilePath);
 
   if (!existsSync(resolved)) {
     const jsoncPath = resolved.replace(/\.json$/, ".jsonc");

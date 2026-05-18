@@ -9,18 +9,19 @@ import {
 } from "@lite-llm/agents-repository/repository";
 
 export interface RepositoryClientOptions {
-  filePath?: string;
+  agentsFilePath?: string;
   pluginsFilePath?: string;
 }
 
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IAgentsRepository {
-  const filePath = options.filePath ?? serverEnv.AGENTS_CONFIG_PATH;
-  const pluginsFilePath = options.pluginsFilePath ?? "@settings/agents/plugins.json";
+  const settingsBase = serverEnv.SETTINGS_PATH.replace("@settings", "@settings/agents");
+  const agentsFilePath = options.agentsFilePath ?? `${settingsBase}/agents.jsonc`;
+  const pluginsFilePath = options.pluginsFilePath ?? `${settingsBase}/plugins.json`;
 
-  // Resolve special paths like @settings/agents/agents.json, with json/jsonc fallback.
-  const resolvedPath = resolveDbPathWithFallback(filePath);
+  // Resolve special paths like @settings/agents/, with json/jsonc fallback.
+  const resolvedPath = resolveDbPathWithFallback(agentsFilePath);
   const resolvedPluginsPath = resolveDbPathWithFallback(pluginsFilePath);
 
   ensureConfigFileExists(resolvedPath);
@@ -96,7 +97,7 @@ function resolveDbPathWithFallback(dbPath: string): string {
 }
 
 function resolveDbPath(dbPath: string): string {
-  if (dbPath.startsWith("@settings/agents/") || dbPath.startsWith("@db/")) {
+  if (dbPath.startsWith("@settings/")) {
     const monorepoRoot = findMonorepoRoot();
     return path.join(monorepoRoot, dbPath);
   }
