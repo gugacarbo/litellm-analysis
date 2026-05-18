@@ -1,7 +1,4 @@
-import {
-  getDateRangeDays,
-  getDateRangeLabel,
-} from "@/lib/date-ranges";
+import { getDateRangeDays, getDateRangeLabel } from "@/lib/date-ranges";
 import {
   formatCurrency,
   formatNumber,
