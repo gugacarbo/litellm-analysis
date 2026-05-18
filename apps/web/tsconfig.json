@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.web.tsbuildinfo",
     "target": "ES2023",
     "useDefineForClassFields": true,
@@ -22,7 +24,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/features/*": ["src/features/*"],
-      "@/shared/*": ["src/shared/*"]
+      "@/shared/*": ["src/shared/*"],
+      "@/shared/lib/*": ["../../shared/lib/*"]
     }
   },
   "include": ["src", "vite.config.ts"]

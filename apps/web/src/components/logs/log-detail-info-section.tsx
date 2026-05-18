@@ -17,7 +17,7 @@ import {
   formatDuration,
   formatFullDateTime,
   maskApiKey,
-} from "../../lib/spend-log-utils";
+} from "@/shared/lib/spend-log-utils";
 import { Badge } from "../ui/badge";
 import { CollapsibleSection } from "../ui/collapsible-section";
 import { DetailRow, InfoSection } from "../ui/detail-row";

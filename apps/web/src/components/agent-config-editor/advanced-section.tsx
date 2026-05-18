@@ -1,6 +1,6 @@
 import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
-import { getCategoryCatalog } from "../../lib/api-client/agent-catalog";
+import { getCategoryCatalog } from "@/shared/lib/api-client/agent-catalog";
 import { Label } from "../ui/label";
 import {
   Select,

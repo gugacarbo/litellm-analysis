@@ -5,8 +5,8 @@ import {
   formatDuration,
   formatNumber,
   safeDivide,
-} from "@/lib/format";
-import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
+} from "@/shared/lib/format";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 
 export {
   formatCompactNumber,

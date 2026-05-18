@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { FileText } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import { getAllModels } from "@/shared/lib/api-client/models";
+import { queryKeys } from "@/shared/lib/query-keys";
 import { PageLayout } from "../components/ui/page-layout";
 import {
   Tabs,
@@ -9,8 +11,6 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { useLogs } from "../hooks/use-logs";
-import { getAllModels } from "../lib/api-client/models";
-import { queryKeys } from "../lib/query-keys";
 import { SpendLogsTab } from "./logs/spend-logs-tab";
 import { LogsErrorsTab } from "./logs-errors-tab";
 
@@ -51,15 +51,6 @@ export function LogsPage() {
       title="Logs & Errors"
       subtitle="Request-level costs, usage, and latency diagnostics."
       icon={FileText}
-      filters={
-        DEBUG_LOCALE ? (
-          <div className="rounded-lg border border-dashed border-amber-500/50 bg-amber-500/10 px-3 py-1.5 text-xs font-mono text-amber-700 dark:text-amber-400">
-            <span className="font-semibold">DEBUG:</span>{" "}
-            <span className="mr-3">locale={APP_LOCALE}</span>
-            <span>tz={APP_TIMEZONE}</span>
-          </div>
-        ) : undefined
-      }
     >
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
@@ -92,5 +83,3 @@ export function LogsPage() {
     </PageLayout>
   );
 }
-
-import { APP_LOCALE, APP_TIMEZONE, DEBUG_LOCALE } from "@/lib/locale";

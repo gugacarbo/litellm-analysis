@@ -50,8 +50,8 @@ vi.mock("sonner", async (importOriginal) => {
   };
 });
 
-import { getModelStatistics } from "../../lib/api-client/analytics";
-import { deleteModelLogs } from "../../lib/api-client/models";
+import { getModelStatistics } from "@/shared/lib/api-client/analytics";
+import { deleteModelLogs } from "@/shared/lib/api-client/models";
 import { ModelStatsPage } from "../model-stats";
 
 describe("ModelStatsPage", () => {

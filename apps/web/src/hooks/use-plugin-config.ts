@@ -3,8 +3,8 @@ import {
   getPluginConfig,
   savePluginConfig,
   toggleCategoryExport,
-} from "@/lib/api-client/plugin-routing";
-import { queryKeys } from "@/lib/query-keys";
+} from "@/shared/lib/api-client/plugin-routing";
+import { queryKeys } from "@/shared/lib/query-keys";
 
 export function usePluginConfig(pluginId: string) {
   return useQuery({

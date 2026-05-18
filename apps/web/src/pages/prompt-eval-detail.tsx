@@ -5,7 +5,7 @@ import { EvalDetailTabs } from "../components/prompt-evals/eval-detail-tabs";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { PageLayout } from "../components/ui/page-layout";
-import { getEval } from "../lib/api-client/prompt-evals";
+import { getEval } from "@/shared/lib/api-client/prompt-evals";
 import { formatRelativeTime, statusVariant } from "./prompt-evals/utils";
 
 export function PromptEvalDetailPage() {

@@ -1,4 +1,4 @@
-import type { ModelHealthEntry, MonitorAlert } from "@/types/monitor";
+import type { ModelHealthEntry, MonitorAlert } from "@/shared/types/monitor";
 import { fetchApi } from "./core";
 
 interface GetAlertsResponse {
@@ -63,4 +63,3 @@ export async function getModelsHealth(): Promise<ModelHealthResponse> {
   return fetchApi("/monitor/models/health");
 }
 
-import type { ModelHealthEntry, MonitorAlert } from "@/shared/types/monitor";

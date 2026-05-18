@@ -1,8 +1,8 @@
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import type { DashboardDateRangeKey, TimeRangeValue } from "@/lib/date-ranges";
-import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
+import type { DashboardDateRangeKey, TimeRangeValue } from "@/shared/lib/date-ranges";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 import { ModelDetailApiKeyTable } from "../components/model-detail/model-detail-api-key-table";
 import { ModelDetailCostChart } from "../components/model-detail/model-detail-cost-chart";
 import { ModelDetailErrorBreakdown } from "../components/model-detail/model-detail-error-breakdown";

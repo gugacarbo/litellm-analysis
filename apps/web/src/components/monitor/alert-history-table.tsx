@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
-import { getMonitorAlerts } from "../../lib/api-client/monitor";
-import { formatDateTime } from "../../lib/spend-log-utils";
-import { cn } from "../../lib/utils";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
+import { getMonitorAlerts } from "@/shared/lib/api-client/monitor";
+import { formatDateTime } from "@/shared/lib/spend-log-utils";
+import { cn } from "@/shared/lib/utils";
 import type {
   ModelHealthEntry,
   MonitorAlert,

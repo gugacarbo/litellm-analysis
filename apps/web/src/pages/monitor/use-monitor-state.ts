@@ -6,7 +6,7 @@ import {
   getModelsHealth,
   getMonitorStats,
   type MonitorStats,
-} from "../../lib/api-client/monitor";
+} from "@/shared/lib/api-client/monitor";
 import type {
   ConnectionState,
   HealthUpdateData,

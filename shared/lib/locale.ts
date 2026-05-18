@@ -1,4 +1,4 @@
-import { env } from "../env";
+import { env } from "../../apps/web/src/env";
 
 const DEFAULT_LOCALE = "en-US";
 const DEFAULT_TIMEZONE = "UTC";
@@ -54,5 +54,3 @@ export const APP_LOCALE =
 
 export const APP_TIMEZONE =
   normalizeTimezone(env.VITE_APP_TIMEZONE) || getBrowserTimezone();
-
-export const DEBUG_LOCALE = env.VITE_DEBUG_LOCALE === "true";

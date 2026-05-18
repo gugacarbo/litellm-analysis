@@ -7,8 +7,8 @@ import { normalizeSystemAgent } from "../../components/agent-config-editor/norma
 import {
   getAgentCatalog,
   getCategoryCatalog,
-} from "../../lib/api-client/agent-catalog";
-import { queryKeys } from "../../lib/query-keys";
+} from "@/shared/lib/api-client/agent-catalog";
+import { queryKeys } from "@/shared/lib/query-keys";
 
 export function useAgentRoutingState() {
   const catalogQuery = useQuery({

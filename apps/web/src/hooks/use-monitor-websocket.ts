@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { HealthUpdateData, MonitorAlert } from "@/shared/types/monitor";
-import type { ConnectionState, WsMessage } from "@/types/connection";
-import { getActiveAlerts } from "../lib/api-client/monitor";
-import { WsClient } from "../lib/api-client/ws-client";
+import type { ConnectionState, WsMessage } from "@/shared/types/connection";
+import { getActiveAlerts } from "@/shared/lib/api-client/monitor";
+import { WsClient } from "@/shared/lib/api-client/ws-client";
 
 const MAX_BUFFERED_ALERTS = 50;
 

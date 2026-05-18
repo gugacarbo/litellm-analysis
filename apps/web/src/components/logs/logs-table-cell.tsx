@@ -5,7 +5,7 @@ import {
   formatDuration,
   formatNumber,
   formatTimeRelative,
-} from "../../lib/spend-log-utils";
+} from "@/shared/lib/spend-log-utils";
 import { Badge } from "../ui/badge";
 import type { TableColumn } from "./logs-table-columns";
 
@@ -23,20 +23,7 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
     case "time":
       return (
         <span className="text-xs whitespace-nowrap text-muted-foreground">
-          {DEBUG_LOCALE && (
-            <span className="mr-2">
-              <span className="text-amber-500">
-                [{new Date(log.start_time).toISOString()}]
-              </span>{" "}
-              <span className="text-blue-500">
-                [local: {new Date(log.start_time).toLocaleString()}]
-              </span>{" "}
-            </span>
-          )}
           <span>{formatTimeRelative(log.start_time)}</span>
-          {DEBUG_LOCALE && (
-            <span className="ml-2 text-red-500">tz={APP_TIMEZONE}</span>
-          )}
         </span>
       );
     case "model":
@@ -124,5 +111,3 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
     }
   }
 }
-
-import { APP_TIMEZONE, DEBUG_LOCALE } from "@/lib/locale";

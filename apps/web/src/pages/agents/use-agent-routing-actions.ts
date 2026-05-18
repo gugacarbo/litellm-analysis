@@ -7,8 +7,8 @@ import {
   deleteSystemAgent,
   upsertCategory,
   upsertSystemAgent,
-} from "../../lib/api-client/agent-catalog";
-import { queryKeys } from "../../lib/query-keys";
+} from "@/shared/lib/api-client/agent-catalog";
+import { queryKeys } from "@/shared/lib/query-keys";
 
 export function useAgentRoutingActions(
   _agentKeyByDisplayName?: Record<string, string>,

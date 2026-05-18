@@ -9,8 +9,8 @@ import type {
 } from "@tanstack/react-table";
 import { RefreshCw } from "lucide-react";
 import { useMemo } from "react";
-import { APP_LOCALE } from "@/lib/locale";
-import { cn } from "../../lib/utils";
+import { APP_LOCALE } from "@/shared/lib/locale";
+import { cn } from "@/shared/lib/utils";
 import { LogsPaginationControls } from "../logs/logs-pagination-controls";
 import { Button } from "../ui/button";
 import {

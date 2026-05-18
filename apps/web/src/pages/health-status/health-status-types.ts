@@ -1,9 +1,9 @@
 import type {
   HealthCheckResult,
   HealthCheckSummary,
-} from "@/lib/api-client/health-check";
+} from "@/shared/lib/api-client/health-check";
 
-export type { ConnectionState } from "@/types/connection";
+export type { ConnectionState } from "@/shared/types/connection";
 
 export type HealthCheckStatus = "healthy" | "unhealthy" | "error" | "unknown";
 

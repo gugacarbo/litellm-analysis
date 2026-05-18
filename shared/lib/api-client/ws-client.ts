@@ -1,4 +1,4 @@
-import type { ConnectionState, WsMessage } from "@/types/connection";
+import type { ConnectionState, WsMessage } from "@/shared/types/connection";
 
 type MessageCallback = (message: WsMessage) => void;
 type StatusCallback = (status: ConnectionState) => void;
@@ -128,4 +128,3 @@ export class WsClient {
   }
 }
 
-import type { ConnectionState, WsMessage } from "@/shared/types/connection";

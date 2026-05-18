@@ -8,7 +8,7 @@ import {
   createSystemAgent,
   getSystemAgent,
   upsertSystemAgent,
-} from "../../lib/api-client/agent-catalog";
+} from "@/shared/lib/api-client/agent-catalog";
 import type { AgentConfigFormData } from "./agent-config-types";
 
 function systemAgentToFormData(agent: SystemAgent): AgentConfigFormData {

@@ -9,12 +9,12 @@ import {
   useToggleCategoryExport,
 } from "@/hooks/use-plugin-config";
 import { useAvailablePlugins } from "@/hooks/use-plugin-routing";
-import type { SystemAgentOption } from "@/lib/api-client/agent-catalog";
+import type { SystemAgentOption } from "@/shared/lib/api-client/agent-catalog";
 import {
   getAgentCatalog,
   getCategoryCatalog,
-} from "@/lib/api-client/agent-catalog";
-import { queryKeys } from "@/lib/query-keys";
+} from "@/shared/lib/api-client/agent-catalog";
+import { queryKeys } from "@/shared/lib/query-keys";
 export function usePluginConfigPage(pluginId: string) {
   const { data, isPending: loading, error } = usePluginConfig(pluginId);
   const { data: plugins = [], isPending: pluginsLoading } =

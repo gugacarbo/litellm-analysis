@@ -12,7 +12,7 @@ import {
   formatCurrency,
   formatDuration,
   formatNumber,
-} from "../../lib/spend-log-utils";
+} from "@/shared/lib/spend-log-utils";
 import { MetricCard } from "../metric-card";
 
 type LogsSummaryCardsProps = {

@@ -1,7 +1,7 @@
 import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { getModelBenchmarks } from "../../lib/api-client/benchmarks";
+import { getModelBenchmarks } from "@/shared/lib/api-client/benchmarks";
 import type {
   BenchmarkSortDirection,
   BenchmarkSortField,

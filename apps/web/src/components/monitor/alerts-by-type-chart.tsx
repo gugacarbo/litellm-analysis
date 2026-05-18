@@ -7,7 +7,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CHART_COLORS } from "../../lib/chart-colors";
+import { CHART_COLORS } from "@/shared/lib/chart-colors";
 import type { AlertsByTypeItem } from "../../pages/monitor/use-monitor-derived";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChartTooltipContent } from "../ui/chart-tooltip";

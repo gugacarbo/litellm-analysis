@@ -4,9 +4,9 @@ import {
   getHealthCheckResults,
   getHealthCheckSummary,
   getLatestHealthChecks,
-} from "../../lib/api-client/health-check";
-import { getAllModels } from "../../lib/api-client/models";
-import { queryKeys } from "../../lib/query-keys";
+} from "@/shared/lib/api-client/health-check";
+import { getAllModels } from "@/shared/lib/api-client/models";
+import { queryKeys } from "@/shared/lib/query-keys";
 import type {
   HealthCheckResultEntry,
   HealthCheckSummaryData,

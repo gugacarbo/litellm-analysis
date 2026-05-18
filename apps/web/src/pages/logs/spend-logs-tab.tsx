@@ -1,5 +1,5 @@
 import type { SpendLog } from "@lite-llm/contracts/analytics";
-import { APP_LOCALE } from "@/lib/locale";
+import { APP_LOCALE } from "@/shared/lib/locale";
 import { LogsFilterCard } from "../../components/logs/logs-filter-card";
 import { LogsSummaryCards } from "../../components/logs/logs-summary-cards";
 import { LogsTable } from "../../components/logs/logs-table";

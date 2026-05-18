@@ -1,4 +1,4 @@
-import { cn } from "../../lib/utils";
+import { cn } from "@/shared/lib/utils";
 import type { DashboardInsight } from "../../pages/dashboard/dashboard-types";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";

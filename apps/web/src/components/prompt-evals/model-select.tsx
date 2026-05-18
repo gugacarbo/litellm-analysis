@@ -1,6 +1,6 @@
 import { ChevronDown, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "../../lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 interface ModelSelectProps {
   models: Array<{ modelName: string; litellmParams: Record<string, unknown> }>;

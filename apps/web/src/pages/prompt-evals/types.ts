@@ -1,4 +1,4 @@
-import type { EvalRunDetail } from "../../lib/api-client/prompt-evals";
+import type { EvalRunDetail } from "@/shared/lib/api-client/prompt-evals";
 
 export type { EvalRunDetail };
 

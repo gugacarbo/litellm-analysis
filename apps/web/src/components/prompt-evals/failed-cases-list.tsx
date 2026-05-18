@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import { cn } from "../../lib/utils";
+import { cn } from "@/shared/lib/utils";
 import type { CaseResult } from "../../pages/prompt-evals/types";
 
 interface FailedCasesListProps {

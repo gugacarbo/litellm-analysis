@@ -3,8 +3,8 @@ import {
   getErrorTypeBadgeClass,
   getStatusBadgeClass,
 } from "@/components/errors/errors-utils";
-import { APP_LOCALE } from "@/lib/locale";
-import { formatDateTime } from "../../lib/spend-log-utils";
+import { APP_LOCALE } from "@/shared/lib/locale";
+import { formatDateTime } from "@/shared/lib/spend-log-utils";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import type { TableColumn } from "./errors-table-columns";

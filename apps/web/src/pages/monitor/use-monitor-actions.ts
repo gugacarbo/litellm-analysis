@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { acknowledgeAlertById } from "../../lib/api-client/monitor";
+import { acknowledgeAlertById } from "@/shared/lib/api-client/monitor";
 import type { MonitorAlert } from "./monitor-types";
 
 interface UseMonitorActionsResult {

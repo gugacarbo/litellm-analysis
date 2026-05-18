@@ -1,4 +1,4 @@
-import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 import type { AlertMetadata } from "./monitor-types";
 
 export function formatTimestamp(unixSeconds: number): string {

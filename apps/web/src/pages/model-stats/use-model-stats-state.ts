@@ -6,8 +6,8 @@ import {
   getModelRequestDistribution,
   getModelStatistics,
   getTokenDistribution,
-} from "../../lib/api-client";
-import { queryKeys } from "../../lib/query-keys";
+} from "@/shared/lib/api-client";
+import { queryKeys } from "@/shared/lib/query-keys";
 import { getDateRangeLabel } from "../dashboard/dashboard-utils";
 import type { ColumnKey, SortDirection, SortField } from "./model-stats-types";
 import { MODEL_STATS_COLUMNS } from "./model-stats-types";

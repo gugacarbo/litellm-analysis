@@ -13,12 +13,12 @@ import {
   getErrorTypeBadgeClass,
   getStatusBadgeClass,
 } from "@/components/errors/errors-utils";
-import { APP_LOCALE } from "../../lib/locale";
+import { APP_LOCALE } from "@/shared/lib/locale";
 import {
   formatDateTime,
   formatDuration,
   formatFullDateTime,
-} from "../../lib/spend-log-utils";
+} from "@/shared/lib/spend-log-utils";
 import { Badge } from "../ui/badge";
 import {
   Dialog,

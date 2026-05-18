@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { AnalyticsQueryParams } from "../../lib/api-client/analytics";
+import type { AnalyticsQueryParams } from "@/shared/lib/api-client/analytics";
 import {
   getApiKeyDetailedStats,
   getCostEfficiencyByModel,
@@ -10,13 +10,13 @@ import {
   getModelStatistics,
   getPerformanceMetrics,
   getTokenDistribution,
-} from "../../lib/api-client/analytics";
+} from "@/shared/lib/api-client/analytics";
 import {
   getDailySpendTrend,
   getSpendByModel,
   getSpendByUser,
-} from "../../lib/api-client/spend";
-import { queryKeys } from "../../lib/query-keys";
+} from "@/shared/lib/api-client/spend";
+import { queryKeys } from "@/shared/lib/query-keys";
 
 const AUTO_REFRESH_MS = 30_000;
 

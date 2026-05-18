@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ERROR_COLOR } from "../../lib/chart-colors";
+import { ERROR_COLOR } from "@/shared/lib/chart-colors";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChartTooltipContent } from "../ui/chart-tooltip";
 import { Skeleton } from "../ui/skeleton";

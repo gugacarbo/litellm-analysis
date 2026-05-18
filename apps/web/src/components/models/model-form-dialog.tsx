@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from "lucide-react";
-import type { LiteLLMCredential } from "../../lib/api-client/credentials";
-import type { ModelConfig } from "../../lib/api-client/models";
+import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
+import type { ModelConfig } from "@/shared/lib/api-client/models";
 import type { ModelFormData } from "../../pages/models/model-form-data";
 import { Button } from "../ui/button";
 import {

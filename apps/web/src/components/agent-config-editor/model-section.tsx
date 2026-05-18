@@ -1,7 +1,7 @@
 import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { getModelsWithConfig } from "../../lib/api-client/models";
+import { getModelsWithConfig } from "@/shared/lib/api-client/models";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 

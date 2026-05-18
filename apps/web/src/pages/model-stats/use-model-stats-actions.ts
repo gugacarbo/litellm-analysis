@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { deleteModelLogs } from "../../lib/api-client/models";
-import { queryKeys } from "../../lib/query-keys";
+import { deleteModelLogs } from "@/shared/lib/api-client/models";
+import { queryKeys } from "@/shared/lib/query-keys";
 import type {
   ColumnKey,
   ModelStats,

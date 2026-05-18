@@ -11,4 +11,4 @@ export type {
   SilentFailureMetadata,
   TimeoutStuckMetadata,
 } from "@/shared/types/monitor";
-export type { ConnectionState } from "@/types/connection";
+export type { ConnectionState } from "@/shared/types/connection";

@@ -1,5 +1,5 @@
 import type { InternalAgent } from "@lite-llm/contracts/agent-catalog";
-import type { SystemAgentOption } from "@/lib/api-client/agent-catalog";
+import type { SystemAgentOption } from "@/shared/lib/api-client/agent-catalog";
 import {
   Select,
   SelectContent,

@@ -1,4 +1,4 @@
-import { cn } from "../../lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 interface ProgressBarProps {
   value: number; // 0-100

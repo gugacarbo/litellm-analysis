@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { runHealthCheck } from "../../lib/api-client/health-check";
-import { queryKeys } from "../../lib/query-keys";
+import { runHealthCheck } from "@/shared/lib/api-client/health-check";
+import { queryKeys } from "@/shared/lib/query-keys";
 
 interface UseHealthStatusActionsResult {
   triggerRun: (models?: string[]) => void;

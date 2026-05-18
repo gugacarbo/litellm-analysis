@@ -1,6 +1,6 @@
 import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
-import { formatCurrency, formatNumber } from "../../lib/format";
-import { APP_LOCALE, APP_TIMEZONE } from "../../lib/locale";
+import { formatCurrency, formatNumber } from "@/shared/lib/format";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 import type {
   AgenticScore,
   PercentileMap,

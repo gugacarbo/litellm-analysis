@@ -3,7 +3,7 @@ import {
   formatDuration,
   formatNumber,
   formatPercent,
-} from "@/lib/format";
+} from "@/shared/lib/format";
 
 export { formatCurrency, formatDuration, formatNumber, formatPercent };
 

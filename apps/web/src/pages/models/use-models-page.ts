@@ -10,8 +10,8 @@ import {
   syncModelsFromConfig,
   toggleModelEnabled,
   updateModel,
-} from "../../lib/api-client";
-import { getModelsHealth } from "../../lib/api-client/monitor";
+} from "@/shared/lib/api-client";
+import { getModelsHealth } from "@/shared/lib/api-client/monitor";
 import { validateAndBuildModelParams } from "./models-form-utils";
 import { useModelsFormState } from "./use-models-form-state";
 

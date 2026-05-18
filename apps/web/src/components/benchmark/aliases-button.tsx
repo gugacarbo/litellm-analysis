@@ -2,7 +2,7 @@ import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Unlink } from "lucide-react";
 import { useState } from "react";
-import { getModelAliases, putModelAliases } from "../../lib/api-client";
+import { getModelAliases, putModelAliases } from "@/shared/lib/api-client";
 import { Button } from "../ui/button";
 import {
   Command,

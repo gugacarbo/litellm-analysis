@@ -1,5 +1,5 @@
-import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
-import { cn } from "../../lib/utils";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
+import { cn } from "@/shared/lib/utils";
 import type { ModelHealthEntry } from "../../pages/monitor/monitor-types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { HealthStatusBadge } from "./health-status-badge";

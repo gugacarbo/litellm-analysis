@@ -2,12 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import type { LiteLLMCredential } from "../../lib/api-client/credentials";
+import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
 import {
   getModelsWithConfig,
   type ModelWithStatus,
   updateModel,
-} from "../../lib/api-client/models";
+} from "@/shared/lib/api-client/models";
 
 export interface ModelConfigFormData {
   displayName: string;

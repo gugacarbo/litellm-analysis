@@ -6,7 +6,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { cn } from "../../lib/utils";
+import { cn } from "@/shared/lib/utils";
 import type { SeveritySlice } from "../../pages/monitor/use-monitor-derived";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChartTooltipContent } from "../ui/chart-tooltip";

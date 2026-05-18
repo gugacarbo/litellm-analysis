@@ -4,8 +4,8 @@ import type {
 } from "@lite-llm/contracts/analytics";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getSpendLogs } from "@/lib/api-client/spend";
-import { queryKeys } from "@/lib/query-keys";
+import { getSpendLogs } from "@/shared/lib/api-client/spend";
+import { queryKeys } from "@/shared/lib/query-keys";
 
 type RefetchOptions = {
   background?: boolean;

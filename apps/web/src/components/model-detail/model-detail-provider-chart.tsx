@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CHART_COLORS } from "../../lib/chart-colors";
+import { CHART_COLORS } from "@/shared/lib/chart-colors";
 import type { ModelProviderBreakdown } from "../../pages/model-detail/model-detail-types";
 import {
   CHART_HEIGHT,

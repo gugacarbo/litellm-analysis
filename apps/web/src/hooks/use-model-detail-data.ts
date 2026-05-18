@@ -17,8 +17,8 @@ import {
   getModelTopUsers,
   getModelTTFT,
   getTokenDistribution,
-} from "../lib/api-client";
-import { queryKeys } from "../lib/query-keys";
+} from "@/shared/lib/api-client";
+import { queryKeys } from "@/shared/lib/query-keys";
 import type {
   ModelDailyErrorTrend,
   ModelDailyLatencyTrend,

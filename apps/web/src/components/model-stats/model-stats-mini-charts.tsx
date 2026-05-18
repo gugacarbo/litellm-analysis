@@ -1,6 +1,6 @@
 import type { ModelStatistics } from "@lite-llm/contracts/analytics";
-import { APP_LOCALE } from "@/lib/locale";
-import { formatCurrency, formatDuration } from "../../lib/spend-log-utils";
+import { APP_LOCALE } from "@/shared/lib/locale";
+import { formatCurrency, formatDuration } from "@/shared/lib/spend-log-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 import { BarRow } from "./bar-row";

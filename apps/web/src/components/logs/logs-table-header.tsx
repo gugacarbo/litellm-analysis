@@ -1,6 +1,6 @@
 import { ChevronDownIcon, RefreshCw, SlidersHorizontal } from "lucide-react";
-import { APP_LOCALE } from "@/lib/locale";
-import { cn } from "../../lib/utils";
+import { APP_LOCALE } from "@/shared/lib/locale";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "../ui/button";
 import { CardDescription, CardHeader, CardTitle } from "../ui/card";
 import {

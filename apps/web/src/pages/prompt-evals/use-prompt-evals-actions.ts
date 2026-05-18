@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { cancelEval, startEval } from "../../lib/api-client/prompt-evals";
+import { cancelEval, startEval } from "@/shared/lib/api-client/prompt-evals";
 
 export function usePromptEvalsActions() {
   const queryClient = useQueryClient();

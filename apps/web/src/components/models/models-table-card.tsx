@@ -1,6 +1,6 @@
 import { Database, Pencil, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { ModelWithStatus } from "../../lib/api-client/models";
+import type { ModelWithStatus } from "@/shared/lib/api-client/models";
 import {
   getContextWindow,
   getHealthStatusLabel,

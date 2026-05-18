@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { DashboardDateRangeKey, TimeRangeValue } from "@/lib/date-ranges";
+import type { DashboardDateRangeKey, TimeRangeValue } from "@/shared/lib/date-ranges";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";

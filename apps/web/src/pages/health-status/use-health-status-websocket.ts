@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { WsClient } from "../../lib/api-client/ws-client";
+import { WsClient } from "@/shared/lib/api-client/ws-client";
 import type {
   ConnectionState,
   HealthCheckResultEntry,

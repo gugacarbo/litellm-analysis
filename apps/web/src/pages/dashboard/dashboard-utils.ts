@@ -1,11 +1,11 @@
-import { getDateRangeDays, getDateRangeLabel } from "@/lib/date-ranges";
+import { getDateRangeDays, getDateRangeLabel } from "@/shared/lib/date-ranges";
 import {
   formatCurrency,
   formatNumber,
   formatPercent,
   safeDivide,
-} from "@/lib/format";
-import { APP_LOCALE, APP_TIMEZONE } from "@/lib/locale";
+} from "@/shared/lib/format";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 
 export {
   formatCurrency,
