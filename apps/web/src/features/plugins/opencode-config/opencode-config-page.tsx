@@ -1,4 +1,3 @@
-import { useCallback, useMemo, useState } from "react";
 import {
   Check,
   ChevronDown,
@@ -8,6 +7,7 @@ import {
   Info,
   Server,
 } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Collapsible,
@@ -168,7 +168,10 @@ export function OpenCodeConfigPage({
         <p className="text-sm text-muted-foreground">
           Model to use when a system agent has no model configured.
         </p>
-        <Select value={defaultModel || "__none"} onValueChange={handleModelChange}>
+        <Select
+          value={defaultModel || "__none"}
+          onValueChange={handleModelChange}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a model..." />
           </SelectTrigger>

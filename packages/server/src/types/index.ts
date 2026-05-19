@@ -1,9 +1,6 @@
 import type { AgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
-import type {
-  IModelService,
-  IProviderService,
-} from "@lite-llm/models-service";
+import type { IModelService, IProviderService } from "@lite-llm/models-service";
 
 export type AgentsManager = AgentPluginsOrchestrator;
 
