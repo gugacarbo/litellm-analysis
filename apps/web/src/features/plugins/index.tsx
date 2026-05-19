@@ -1,11 +1,13 @@
 import { AlertTriangle, ArrowLeft, Plug, Save, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { JsonSchemaForm } from "@/shared/components/json-schema-form";
 import { Button } from "@/shared/components/ui/button";
 import { PageLayout } from "@/shared/components/ui/page-layout";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { AgentMappingTable } from "./components/agent-mapping-table";
 import { CategoryExportList } from "./components/category-export-list";
 import { PluginConfigForm } from "./components/plugin-config-form";
+import { OpenCodeConfigPage } from "./opencode-config";
 import { usePluginConfigPage } from "./use-plugin-config-page";
 
 export function PluginConfigPage() {
@@ -69,11 +71,31 @@ export function PluginConfigPage() {
               You have unsaved changes.
             </div>
           )}
-          <PluginConfigForm
-            schema={state.schema}
-            values={state.configValues}
-            onChange={state.handleConfigChange}
-          />
+          {state.pluginId === "opencode" ? (
+            <OpenCodeConfigPage
+              config={state.configValues}
+              availableModels={[]}
+              onChange={state.handleConfigChange}
+            />
+          ) : state.jsonSchema ? (
+            <div className="space-y-4">
+              <JsonSchemaForm
+                schema={state.jsonSchema}
+                formData={state.configValues}
+                onChange={(data) => {
+                  for (const [key, value] of Object.entries(data.formData)) {
+                    state.handleConfigChange(key, value);
+                  }
+                }}
+              />
+            </div>
+          ) : (
+            <PluginConfigForm
+              schema={state.schema}
+              values={state.configValues}
+              onChange={state.handleConfigChange}
+            />
+          )}
           <AgentMappingTable
             internalAgents={state.internalAgents}
             mappings={state.agentMappings}

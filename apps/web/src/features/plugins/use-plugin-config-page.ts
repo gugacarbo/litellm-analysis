@@ -155,6 +155,8 @@ export function usePluginConfigPage(pluginId: string) {
     saving: saveConfig.isPending,
     notFound,
     pluginName,
+    pluginId,
+    jsonSchema: undefined as unknown | undefined,
     configValues: { ...safeData.config, ...configValues },
     agentMappings: { ...safeData.agentMappings, ...agentMappings },
     categoryMappings: {
