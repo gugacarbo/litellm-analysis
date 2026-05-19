@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "backup": "tsx scripts/litellm-backup/index.ts"
+    "backup": "tsx litellm-backup/index.ts"
   },
   "dependencies": {
     "listr2": "^10.2.1",
