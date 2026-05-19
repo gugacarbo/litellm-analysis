@@ -1,10 +1,7 @@
 // ── Factory: Combines agents-manager services with plugin registry ──
 
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type {
-  PluginRouting,
-  SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
+import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import type { IPlugin } from "./plugins/plugin";
 import { PluginRegistry } from "./plugins/registry";

@@ -45,7 +45,7 @@ export function usePluginConfigPage(pluginId: string) {
     setAgentMappings({});
     setCategoryMappings({});
     setIsDirty(false);
-  }, [data]);
+  }, []);
 
   const safeData = data ?? {
     config: {},

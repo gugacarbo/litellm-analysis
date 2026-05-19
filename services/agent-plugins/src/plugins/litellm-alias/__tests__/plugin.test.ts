@@ -147,16 +147,16 @@ describe("LitellmAliasPlugin", () => {
 
   it("should validate output correctly", () => {
     const validOutput = { model_group_alias: { "test/alias": "real-model" } };
-    expect(plugin.validate!(validOutput)).toBe(true);
+    expect(plugin.validate?.(validOutput)).toBe(true);
 
     const invalidOutput = { not_alias: true };
-    expect(plugin.validate!(invalidOutput)).toBe(false);
+    expect(plugin.validate?.(invalidOutput)).toBe(false);
   });
 
   it("should not throw when afterExport with no dbWriter", async () => {
     const pluginNoDb = new LitellmAliasPlugin();
     await expect(
-      pluginNoDb.afterExport!({ model_group_alias: {} }),
+      pluginNoDb.afterExport?.({ model_group_alias: {} }),
     ).resolves.toBeUndefined();
   });
 });
