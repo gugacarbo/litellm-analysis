@@ -146,6 +146,30 @@ describe("PluginRegistry", () => {
     });
   });
 
+  describe("getJsonSchema", () => {
+    it("should return JSON schema for a known plugin", () => {
+      const registry = new PluginRegistry({
+        repository: createMockRepository(),
+        outputDir: "/tmp",
+        allPlugins: [],
+      });
+      const schema = registry.getJsonSchema("opencode");
+      expect(schema).not.toBeNull();
+      expect(schema).toHaveProperty("type", "object");
+      expect(schema).toHaveProperty("properties");
+    });
+
+    it("should return null for an unknown plugin", () => {
+      const registry = new PluginRegistry({
+        repository: createMockRepository(),
+        outputDir: "/tmp",
+        allPlugins: [],
+      });
+      const schema = registry.getJsonSchema("nonexistent");
+      expect(schema).toBeNull();
+    });
+  });
+
   describe("loadFromConfig", () => {
     it("registra plugins com enabled: true", () => {
       const registry = new PluginRegistry({

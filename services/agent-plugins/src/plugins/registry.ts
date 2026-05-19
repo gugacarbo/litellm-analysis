@@ -1,9 +1,10 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type {
-  DbConfig,
-  SystemAgent,
+import {
+  type DbConfig,
+  getPluginConfigJsonSchema,
+  type SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin";
@@ -134,6 +135,10 @@ export class PluginRegistry implements IPluginRegistry {
   getConfigSchema(pluginId: string): ConfigField[] {
     const plugin = this.allPlugins.find((p) => p.id === pluginId);
     return plugin?.getConfigSchema() ?? [];
+  }
+
+  getJsonSchema(pluginId: string): Record<string, unknown> | null {
+    return getPluginConfigJsonSchema(pluginId);
   }
 
   private async buildContext(config: DbConfig): Promise<TransformContext> {
