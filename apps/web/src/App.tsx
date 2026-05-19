@@ -4,24 +4,22 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
-import { ErrorBoundary } from "./components/error-boundary";
-import { AppLayout } from "./components/layout/app-layout";
-import {
-  AgentConfigPage,
-  AgentsPage,
-  BenchmarksPage,
-  DashboardPage,
-  LogsPage,
-  ModelConfigPage,
-  ModelDetailPage,
-  ModelStatsPage,
-  ModelsPage,
-  MonitorPage,
-  PluginConfigPage,
-  PluginsPage,
-  PromptEvalDetailPage,
-  PromptEvalsPage,
-} from "./pages";
+import { ErrorBoundary } from "@/shared/components/error-boundary";
+import { AppLayout } from "@/shared/components/layout/app-layout";
+import { AgentConfigPage } from "@/features/agents";
+import { AgentsPage } from "@/features/agents/list-index";
+import { BenchmarksPage } from "@/features/benchmarks";
+import { DashboardPage } from "@/features/dashboard";
+import { MonitorPage } from "@/features/monitor";
+import { PluginConfigPage } from "@/features/plugins";
+import { PluginsPage } from "@/features/plugins/list-index";
+import { PromptEvalDetailPage } from "@/features/prompts/detail";
+import { PromptEvalsPage } from "@/features/prompts/list-index";
+import { LogsPage } from "./pages/logs";
+import { ModelConfigPage } from "./pages/model-config";
+import { ModelDetailPage } from "./pages/model-detail";
+import { ModelStatsPage } from "./pages/model-stats";
+import { ModelsPage } from "./pages/models";
 
 interface RouteConfig {
   path: string;
