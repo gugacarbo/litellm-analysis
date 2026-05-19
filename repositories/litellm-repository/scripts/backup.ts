@@ -5,14 +5,22 @@
  * Creates compressed SQL dumps with configurable retention
  *
  * Usage:
- *   DATABASE_URL="postgresql://..." pnpm backup
+ *   pnpm backup
  *   BACKUP_DIR="./backups" RETENTION_DAYS=14 pnpm backup
+ *   DATABASE_URL="postgresql://..." pnpm backup
  */
 
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+  unlinkSync,
+} from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
+import { serverEnv } from "@lite-llm/config/server";
 
 interface CliOptions {
   retention: number;
@@ -41,7 +49,7 @@ function showHelp(): void {
 LiteLLM PostgreSQL Backup Script
 
 Usage:
-  DATABASE_URL="postgresql://..." pnpm backup [options]
+  pnpm backup [options]
 
 Options:
   -r, --retention <days>    Number of days to retain backups (default: 7)
@@ -49,11 +57,13 @@ Options:
   -h, --help                Show this help message
 
 Environment Variables:
-  DATABASE_URL    PostgreSQL connection string (required)
+  DATABASE_URL    PostgreSQL connection string (optional override)
+                 By default uses DB_* values from @lite-llm/config
 
 Examples:
-  DATABASE_URL="postgresql://user:pass@localhost:5432/litellm" pnpm backup
+  pnpm backup
   RETENTION_DAYS=14 pnpm backup -o ./backups
+  DATABASE_URL="postgresql://user:pass@localhost:5432/litellm" pnpm backup
 `);
 }
 
@@ -65,6 +75,16 @@ function extractDbName(databaseUrl: string): string {
 function extractHost(databaseUrl: string): string {
   const match = databaseUrl.match(/@([^:]+):/);
   return match ? match[1] : "unknown";
+}
+
+function buildDatabaseUrlFromConfig(): string {
+  const user = encodeURIComponent(serverEnv.DB_USER);
+  const password = encodeURIComponent(serverEnv.DB_PASSWORD);
+  const host = serverEnv.DB_HOST;
+  const port = serverEnv.DB_PORT;
+  const dbName = encodeURIComponent(serverEnv.DB_NAME);
+
+  return `postgresql://${user}:${password}@${host}:${port}/${dbName}`;
 }
 
 function getOldBackups(
@@ -92,7 +112,8 @@ function getOldBackups(
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes}B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}K`;
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)}M`;
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024)).toFixed(1)}M`;
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)}G`;
 }
 
@@ -104,17 +125,10 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = process.env.DATABASE_URL ?? buildDatabaseUrlFromConfig();
   const retentionDays =
     parseInt(process.env.RETENTION_DAYS ?? "", 10) || options.retention;
   const backupDir = process.env.BACKUP_DIR ?? options.outputDir;
-
-  if (!databaseUrl) {
-    console.error("ERROR: DATABASE_URL environment variable is not set");
-    console.error("\nUsage: DATABASE_URL='postgresql://...' pnpm backup");
-    console.error("       pnpm backup --help for all options");
-    process.exit(1);
-  }
 
   const dbName = extractDbName(databaseUrl);
   const host = extractHost(databaseUrl);
@@ -143,7 +157,10 @@ async function main(): Promise<void> {
     const fileSize = formatBytes(statSync(backupFile).size);
     console.log(`\nBackup created: ${backupFile} (${fileSize})`);
   } catch (error) {
-    console.error("\nBackup failed:", error instanceof Error ? error.message : error);
+    console.error(
+      "\nBackup failed:",
+      error instanceof Error ? error.message : error,
+    );
     process.exit(1);
   }
 
