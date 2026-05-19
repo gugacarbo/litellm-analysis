@@ -3,14 +3,15 @@ import * as path from "node:path";
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type {
   DbConfig,
+  PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin";
 import type { ConfigField, InternalAgent } from "./plugin-types";
 
-// Plugin routing config (flexible version with optional fields)
-export interface PluginConfig {
+/** Flexible plugin config used for loading from repository (all fields optional). */
+export interface PluginConfigInput {
   enabled?: boolean;
   outputFile?: string;
   config?: Record<string, unknown>;
@@ -69,7 +70,7 @@ export class PluginRegistry implements IPluginRegistry {
     return [...this.allPlugins];
   }
 
-  loadFromConfig(pluginConfigs: Record<string, PluginConfig>): void {
+  loadFromConfig(pluginConfigs: Record<string, PluginConfigInput>): void {
     this.plugins.clear();
     for (const plugin of this.allPlugins) {
       const pc = pluginConfigs[plugin.id];
@@ -92,9 +93,10 @@ export class PluginRegistry implements IPluginRegistry {
     }
 
     const config = await this.repository.read();
-    const pluginConfig: PluginConfig = config.plugins?.[pluginId] ?? {
+    const pluginConfig: PluginConfigInput = config.plugins?.[pluginId] ?? {
       enabled: true,
       outputFile: plugin.getOutputFile(),
+      config: {},
       routing: { agents: {}, categories: {} },
     };
 

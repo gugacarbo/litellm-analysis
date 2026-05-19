@@ -4,8 +4,12 @@
   "title": "LiteLLM Router Aliases Configuration",
   "description": "JSON Schema for LiteLLM model_group_alias configuration",
   "type": "object",
-  "required": ["model_group_alias"],
+  "required": ["$schema", "model_group_alias"],
   "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference URL"
+    },
     "model_group_alias": {
       "type": "object",
       "description": "Map of virtual model names to real model names for routing",

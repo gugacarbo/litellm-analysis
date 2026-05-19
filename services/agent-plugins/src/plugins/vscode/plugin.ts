@@ -1,13 +1,17 @@
 import type {
-  PluginRouting,
   SystemAgent,
+  VsCodePluginConfig,
 } from "@lite-llm/agents-repository/schemas";
-import type { VsCodePluginConfig } from "@lite-llm/agents-repository/schemas";
-import type { IPlugin, TransformContext } from "../plugin";
-import type { ConfigField, InternalAgent } from "../plugin-types";
+import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
+import type {
+  ConfigField,
+  InternalAgent,
+  PluginConfigFor,
+} from "../plugin-types";
 import { vsCodeSchema } from "./schemas/generated/vscode.zod";
 
 interface VsCodeModelsOutput {
+  $schema: string;
   "oaicopilot.commitLanguage": string;
   "oaicopilot.baseUrl": string;
   "oaicopilot.delay": number;
@@ -68,14 +72,18 @@ export class VsCodePlugin implements IPlugin<"vscode"> {
 
   buildOutput(
     _agents: SystemAgent[],
-    routing: PluginRouting,
+    routing: TypedPluginRouting<PluginConfigFor<"vscode">>,
     ctx: TransformContext,
   ): VsCodeModelsOutput {
-    const pluginConfig: VsCodePluginConfig = (routing.config ?? {}) as VsCodePluginConfig;
+    const pluginConfig: VsCodePluginConfig = (routing.config ??
+      {}) as VsCodePluginConfig;
     const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
 
     const output: VsCodeModelsOutput = {
-      "oaicopilot.commitLanguage": pluginConfig.commitLanguage ?? "Portuguese (Brazil)",
+      $schema:
+        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
+      "oaicopilot.commitLanguage":
+        pluginConfig.commitLanguage ?? "Portuguese (Brazil)",
       "oaicopilot.baseUrl": "",
       "oaicopilot.delay": 0,
       "oaicopilot.readFileLines": 0,

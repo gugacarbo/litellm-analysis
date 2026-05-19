@@ -44,11 +44,11 @@ export interface IPlugin<
 }
 
 export interface IPluginRegistry {
-  register(plugin: IPlugin | IPlugin<any>): void;
+  register(plugin: IPlugin): void;
   unregister(pluginId: string): void;
-  get(pluginId: string): IPlugin | IPlugin<any> | undefined;
-  list(): Array<IPlugin | IPlugin<any>>;
-  listAll(): Array<IPlugin | IPlugin<any>>;
+  get(pluginId: string): IPlugin | undefined;
+  list(): IPlugin[];
+  listAll(): IPlugin[];
   loadFromConfig(pluginConfigs: Record<string, PluginRouting>): void;
   exportAll(): Promise<void>;
   exportOne(pluginId: string): Promise<void>;

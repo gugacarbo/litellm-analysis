@@ -1,14 +1,17 @@
 import type {
-  PluginRouting,
+  LitellmAliasPluginConfig,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
-import type { LitellmAliasPluginConfig } from "@lite-llm/agents-repository/schemas";
 import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
 } from "@lite-llm/models-service";
-import type { IPlugin, TransformContext } from "../plugin";
-import type { ConfigField, InternalAgent } from "../plugin-types";
+import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
+import type {
+  ConfigField,
+  InternalAgent,
+  PluginConfigFor,
+} from "../plugin-types";
 import { litellmAliasSchema } from "./schemas/generated/litellm-alias.zod";
 
 export interface AliasDbWriter {
@@ -16,6 +19,7 @@ export interface AliasDbWriter {
 }
 
 interface LitellmAliasOutput {
+  $schema: string;
   model_group_alias: Record<string, string>;
 }
 
@@ -82,11 +86,12 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
 
   buildOutput(
     agents: SystemAgent[],
-    _routing: PluginRouting,
+    _routing: TypedPluginRouting<PluginConfigFor<"litellm-alias">>,
     ctx: TransformContext,
   ): LitellmAliasOutput {
     const aliases: Record<string, string> = {};
-    const config: LitellmAliasPluginConfig = (_routing.config ?? {}) as LitellmAliasPluginConfig;
+    const config: LitellmAliasPluginConfig = (_routing.config ??
+      {}) as LitellmAliasPluginConfig;
     const aliasPrefix = config.aliasPrefix ?? "";
     const includeAgents = config.includeAgents ?? true;
     const includeCategories = config.includeCategories ?? true;
@@ -175,6 +180,8 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     }
 
     return {
+      $schema:
+        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
       model_group_alias: sortAliasesByDefinitionOrder(aliases),
     };
   }

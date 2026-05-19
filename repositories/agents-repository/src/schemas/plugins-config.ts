@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { pluginRoutingSchema } from "./plugin-routing";
 import {
   litellmAliasPluginConfigSchema,
   openAgentPluginConfigSchema,
   openCodePluginConfigSchema,
   vsCodePluginConfigSchema,
 } from "./plugin-configs";
+import { pluginRoutingSchema } from "./plugin-routing";
 
 /** Build a plugin routing schema with a typed `config` field. */
 function pluginRoutingWithConfig(configSchema: z.ZodType) {
@@ -28,16 +28,28 @@ export const pluginsConfigSchema = z
     plugins: z
       .object({
         opencode: pluginRoutingWithConfig(openCodePluginConfigSchema)
-          .meta({ title: "OpenCode", description: "OpenCode AI SDK plugin configuration" })
+          .meta({
+            title: "OpenCode",
+            description: "OpenCode AI SDK plugin configuration",
+          })
           .optional(),
         openagent: pluginRoutingWithConfig(openAgentPluginConfigSchema)
-          .meta({ title: "OpenAgent", description: "Oh My OpenAgent plugin configuration" })
+          .meta({
+            title: "OpenAgent",
+            description: "Oh My OpenAgent plugin configuration",
+          })
           .optional(),
         vscode: pluginRoutingWithConfig(vsCodePluginConfigSchema)
-          .meta({ title: "VSCode", description: "VS Code OAICopilot plugin configuration" })
+          .meta({
+            title: "VSCode",
+            description: "VS Code OAICopilot plugin configuration",
+          })
           .optional(),
         "litellm-alias": pluginRoutingWithConfig(litellmAliasPluginConfigSchema)
-          .meta({ title: "LiteLLM Alias", description: "LiteLLM Router Aliases plugin configuration" })
+          .meta({
+            title: "LiteLLM Alias",
+            description: "LiteLLM Router Aliases plugin configuration",
+          })
           .optional(),
       })
       .partial()

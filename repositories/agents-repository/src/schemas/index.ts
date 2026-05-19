@@ -21,14 +21,6 @@ export { agentsConfigSchema } from "./db-config";
 export type { Permission } from "./permission";
 export { permissionSchema } from "./permission";
 export type {
-  PluginRouting,
-  PluginRoutingRule,
-} from "./plugin-routing";
-export {
-  pluginRoutingRuleSchema,
-  pluginRoutingSchema,
-} from "./plugin-routing";
-export type {
   LitellmAliasPluginConfig,
   OpenAgentPluginConfig,
   OpenCodePluginConfig,
@@ -40,6 +32,14 @@ export {
   openCodePluginConfigSchema,
   vsCodePluginConfigSchema,
 } from "./plugin-configs";
+export type {
+  PluginRouting,
+  PluginRoutingRule,
+} from "./plugin-routing";
+export {
+  pluginRoutingRuleSchema,
+  pluginRoutingSchema,
+} from "./plugin-routing";
 export type { PluginsConfig } from "./plugins-config";
 export { pluginsConfigSchema } from "./plugins-config";
 export type { SystemAgent } from "./system-agent";

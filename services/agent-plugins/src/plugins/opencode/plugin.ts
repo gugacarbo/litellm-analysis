@@ -1,14 +1,18 @@
 import type {
-  PluginRouting,
+  OpenCodePluginConfig,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
-import type { OpenCodePluginConfig } from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
-import type { IPlugin, TransformContext } from "../plugin";
-import type { ConfigField, InternalAgent } from "../plugin-types";
+import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
+import type {
+  ConfigField,
+  InternalAgent,
+  PluginConfigFor,
+} from "../plugin-types";
 import { openCodeSchema } from "./schemas/generated/opencode.zod";
 
 interface OpenCodeProviders {
+  $schema: string;
   provider: Record<string, unknown>;
   agents?: Record<string, unknown>;
   categories?: Record<string, unknown>;
@@ -99,10 +103,14 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
 
   buildOutput(
     agents: SystemAgent[],
-    routing: PluginRouting,
+    routing: TypedPluginRouting<PluginConfigFor<"opencode">>,
     ctx: TransformContext,
   ): OpenCodeProviders {
-    const output: OpenCodeProviders = { provider: {} };
+    const output: OpenCodeProviders = {
+      $schema:
+        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/opencode/schemas/opencode.schema.json",
+      provider: {},
+    };
 
     const litellmModels: Record<string, unknown> = {};
     for (const [key, spec] of Object.entries(ctx.allModels)) {
@@ -141,7 +149,8 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
     };
 
     const enabledAgents = routing.routing?.agents ?? {};
-    const config: OpenCodePluginConfig = (routing.config ?? {}) as OpenCodePluginConfig;
+    const config: OpenCodePluginConfig = (routing.config ??
+      {}) as OpenCodePluginConfig;
     const configDefaultModel = config.defaultModel || "";
     const configDefaultTemp = config.defaultTemperature ?? 0.2;
 
