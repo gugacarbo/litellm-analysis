@@ -3,7 +3,6 @@ import * as path from "node:path";
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type {
   DbConfig,
-  PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
