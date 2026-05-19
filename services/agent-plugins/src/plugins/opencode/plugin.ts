@@ -106,9 +106,16 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
     routing: TypedPluginRouting<PluginConfigFor<"opencode">>,
     ctx: TransformContext,
   ): OpenCodeProviders {
+    const config: OpenCodePluginConfig = (routing.config ??
+      {}) as OpenCodePluginConfig;
+    const configDefaultModel = config.defaultModel || "";
+    const configDefaultTemp = config.defaultTemperature ?? 0.2;
+    const schemaUrl =
+      config.$schema ??
+      "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/opencode/schemas/opencode.schema.json";
+
     const output: OpenCodeProviders = {
-      $schema:
-        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/opencode/schemas/opencode.schema.json",
+      $schema: schemaUrl,
       provider: {},
     };
 
@@ -149,10 +156,6 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
     };
 
     const enabledAgents = routing.routing?.agents ?? {};
-    const config: OpenCodePluginConfig = (routing.config ??
-      {}) as OpenCodePluginConfig;
-    const configDefaultModel = config.defaultModel || "";
-    const configDefaultTemp = config.defaultTemperature ?? 0.2;
 
     // Build agents section from routing configuration
     if (Object.keys(enabledAgents).length > 0) {

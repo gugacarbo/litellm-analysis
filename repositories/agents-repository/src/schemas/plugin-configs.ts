@@ -3,6 +3,14 @@ import { z } from "zod";
 /** Configurable parameters for the OpenCode plugin. */
 export const openCodePluginConfigSchema = z
   .object({
+    $schema: z
+      .string()
+      .default("https://opencode.ai/config.json")
+      .meta({
+        title: "Schema URL",
+        description: "Official OpenCode config schema URL",
+      })
+      .optional(),
     defaultModel: z
       .string()
       .default("")
@@ -31,6 +39,16 @@ export type OpenCodePluginConfig = z.infer<typeof openCodePluginConfigSchema>;
 /** Configurable parameters for the OpenAgent plugin. */
 export const openAgentPluginConfigSchema = z
   .object({
+    $schema: z
+      .string()
+      .default(
+        "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
+      )
+      .meta({
+        title: "Schema URL",
+        description: "Official Oh My OpenAgent config schema URL",
+      })
+      .optional(),
     commitFooter: z
       .boolean()
       .default(false)
@@ -58,6 +76,16 @@ export type OpenAgentPluginConfig = z.infer<typeof openAgentPluginConfigSchema>;
 /** Configurable parameters for the VSCode plugin. */
 export const vsCodePluginConfigSchema = z
   .object({
+    $schema: z
+      .string()
+      .default(
+        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
+      )
+      .meta({
+        title: "Schema URL",
+        description: "VS Code OAICopilot config schema URL",
+      })
+      .optional(),
     commitLanguage: z
       .string()
       .default("Portuguese (Brazil)")
@@ -90,6 +118,16 @@ export type VsCodePluginConfig = z.infer<typeof vsCodePluginConfigSchema>;
 /** Configurable parameters for the LiteLLM Alias plugin. */
 export const litellmAliasPluginConfigSchema = z
   .object({
+    $schema: z
+      .string()
+      .default(
+        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
+      )
+      .meta({
+        title: "Schema URL",
+        description: "LiteLLM Router Aliases config schema URL",
+      })
+      .optional(),
     aliasPrefix: z
       .string()
       .default("")

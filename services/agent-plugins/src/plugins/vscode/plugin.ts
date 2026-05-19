@@ -77,11 +77,13 @@ export class VsCodePlugin implements IPlugin<"vscode"> {
   ): VsCodeModelsOutput {
     const pluginConfig: VsCodePluginConfig = (routing.config ??
       {}) as VsCodePluginConfig;
+    const schemaUrl =
+      pluginConfig.$schema ??
+      "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json";
     const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
 
     const output: VsCodeModelsOutput = {
-      $schema:
-        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
+      $schema: schemaUrl,
       "oaicopilot.commitLanguage":
         pluginConfig.commitLanguage ?? "Portuguese (Brazil)",
       "oaicopilot.baseUrl": "",

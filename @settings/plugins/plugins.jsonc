@@ -6,6 +6,7 @@
       "enabled": true,
       "outputFile": "opencode.json",
       "config": {
+        "$schema": "https://opencode.ai/config.json",
         "defaultModel": "",
         "defaultTemperature": 0.2
       },
@@ -24,7 +25,9 @@
     "openagent": {
       "enabled": true,
       "outputFile": "oh-my-openagent.json",
-      "config": {},
+      "config": {
+        "$schema": "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json"
+      },
       "routing": {
         "agents": {},
         "categories": {}
@@ -33,7 +36,9 @@
     "vscode": {
       "enabled": true,
       "outputFile": "vscode-oaicopilot.json",
-      "config": {},
+      "config": {
+        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json"
+      },
       "routing": {
         "agents": {},
         "categories": {}
@@ -41,8 +46,10 @@
     },
     "litellm-alias": {
       "enabled": true,
-      "outputFile": "",
-      "config": {},
+      "outputFile": "litellm-aliases.json",
+      "config": {
+        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json"
+      },
       "routing": {
         "agents": {
           "coder": "loom",

@@ -65,10 +65,12 @@ export class OpenAgentPlugin implements IPlugin<"openagent"> {
   ): OpenAgentOutput {
     const config: OpenAgentPluginConfig = (routing.config ??
       {}) as OpenAgentPluginConfig;
+    const schemaUrl =
+      config.$schema ??
+      "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json";
 
     const output: OpenAgentOutput = {
-      $schema:
-        "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
+      $schema: schemaUrl,
       globalFallbackModel: ctx.globalFallbackModel,
       git_master: {
         commit_footer: config.commitFooter ?? false,

@@ -92,6 +92,9 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     const aliases: Record<string, string> = {};
     const config: LitellmAliasPluginConfig = (_routing.config ??
       {}) as LitellmAliasPluginConfig;
+    const schemaUrl =
+      config.$schema ??
+      "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json";
     const aliasPrefix = config.aliasPrefix ?? "";
     const includeAgents = config.includeAgents ?? true;
     const includeCategories = config.includeCategories ?? true;
@@ -180,8 +183,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     }
 
     return {
-      $schema:
-        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
+      $schema: schemaUrl,
       model_group_alias: sortAliasesByDefinitionOrder(aliases),
     };
   }
