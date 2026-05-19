@@ -3,7 +3,7 @@ import { parseArgs } from "node:util";
 
 import type { CliOptions } from "../types/backup";
 
-const PROJECT_ROOT = path.resolve(import.meta.dirname, "../..");
+const PROJECT_ROOT = path.resolve(import.meta.dirname, "../../../..");
 
 export function parseCliArgs(): CliOptions {
   const { values } = parseArgs({
