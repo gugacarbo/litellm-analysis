@@ -146,7 +146,10 @@ describe("LitellmAliasPlugin", () => {
   });
 
   it("should validate output correctly", () => {
-    const validOutput = { model_group_alias: { "test/alias": "real-model" } };
+    const validOutput = {
+      $schema: "https://example.com/schema.json",
+      model_group_alias: { "test/alias": "real-model" },
+    };
     expect(plugin.validate?.(validOutput)).toBe(true);
 
     const invalidOutput = { not_alias: true };
