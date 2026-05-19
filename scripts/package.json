@@ -13,13 +13,12 @@
     "dotenv": "catalog:",
     "listr2": "^10.2.1",
     "pg": "^8.16.3",
-    "progress-stream": "^2.0.0",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
     "@types/node": "catalog:",
     "@types/pg": "*",
-    "@types/progress-stream": "^2.0.5",
     "typescript": "catalog:"
   }
 }
