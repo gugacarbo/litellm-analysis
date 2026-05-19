@@ -1,11 +1,11 @@
 import { Outlet } from "react-router-dom";
-import { DateRangeFilter } from "@/components/ui/date-range-filter";
+import { DateRangeFilter } from "@/shared/components/ui/date-range-filter";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { TooltipProvider } from "@/components/ui/tooltip";
+} from "@/shared/components/ui/sidebar";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { FilterProvider } from "@/shared/contexts/filter-context";
 import { AppSidebar } from "./sidebar";
 

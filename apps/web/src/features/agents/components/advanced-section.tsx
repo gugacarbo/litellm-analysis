@@ -1,151 +1,182 @@
-import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
-import { useQuery } from "@tanstack/react-query";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
+import { ChevronDown } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
-import { Slider } from "@/shared/components/ui/slider";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { getCategoryCatalog } from "@/shared/lib/api-client/agent-catalog";
 
-interface AdvancedSectionProps {
-  config: SystemAgent;
-  onConfigFieldChange: (field: string, value: unknown) => void;
-}
+type AdvancedSectionProps = {
+  category: CategoryEntry;
+  expandedSections: Record<string, boolean>;
+  onToggleSection: (section: string) => void;
+  onUpdate: <K extends keyof CategoryEntry>(
+    field: K,
+    value: CategoryEntry[K],
+  ) => void;
+};
 
 export function AdvancedSection({
-  config,
-  onConfigFieldChange,
+  category,
+  expandedSections,
+  onToggleSection,
+  onUpdate,
 }: AdvancedSectionProps) {
-  const { data: categoriesData } = useQuery({
-    queryKey: ["category-catalog"],
-    queryFn: getCategoryCatalog,
-  });
-
-  const categories = Object.keys(categoriesData ?? {});
-  const temperature = config.config.temperature ?? 0;
-  const topP = config.config.topP ?? 1;
+  const renderSection = (
+    id: string,
+    title: string,
+    content: React.ReactNode,
+  ) => (
+    <div className="border rounded-lg">
+      <Button
+        variant="ghost"
+        className="w-full justify-between px-4 py-2 h-auto font-medium"
+        onClick={() => onToggleSection(id)}
+      >
+        {title}
+        <ChevronDown
+          className={`h-4 w-4 transition-transform ${
+            expandedSections[id] ? "rotate-180" : ""
+          }`}
+        />
+      </Button>
+      {expandedSections[id] && (
+        <div className="px-4 pb-4 space-y-3">{content}</div>
+      )}
+    </div>
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Mode and Category */}
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-muted-foreground">Advanced</h4>
+
+      {renderSection(
+        "thinking",
+        "Thinking Configuration",
         <div className="space-y-2">
-          <Label htmlFor="agent-mode">Mode</Label>
-          <Select
-            value={config.config.mode ?? "subagent"}
-            onValueChange={(value) =>
-              onConfigFieldChange(
-                "mode",
-                value as "subagent" | "primary" | "all",
-              )
+          <Label htmlFor="cat-thinking-levels">Thinking Levels</Label>
+          <Input
+            id="cat-thinking-levels"
+            value={category.thinking?.levels?.join(", ") ?? ""}
+            onChange={(e) =>
+              onUpdate("thinking", {
+                levels: e.target.value
+                  .split(",")
+                  .map((l) => l.trim())
+                  .filter(Boolean),
+              })
             }
-          >
-            <SelectTrigger id="agent-mode" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="subagent">Subagent</SelectItem>
-              <SelectItem value="primary">Primary</SelectItem>
-              <SelectItem value="all">All</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            placeholder="comma-separated levels"
+          />
+          <p className="text-xs text-muted-foreground">
+            Configure thinking levels for this category
+          </p>
+        </div>,
+      )}
 
+      {renderSection(
+        "reasoning",
+        "Reasoning & Verbosity",
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="cat-reasoning">Reasoning Effort</Label>
+            <select
+              id="cat-reasoning"
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+              value={category.reasoningEffort ?? "medium"}
+              onChange={(e) =>
+                onUpdate(
+                  "reasoningEffort",
+                  e.target.value as "low" | "medium" | "high" | "xhigh",
+                )
+              }
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="xhigh">Extra High</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cat-verbosity">Text Verbosity</Label>
+            <select
+              id="cat-verbosity"
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+              value={category.textVerbosity ?? "medium"}
+              onChange={(e) =>
+                onUpdate(
+                  "textVerbosity",
+                  e.target.value as "low" | "medium" | "high",
+                )
+              }
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+        </div>,
+      )}
+
+      {renderSection(
+        "flags",
+        "Flags & Stability",
+        <div className="space-y-3">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={category.is_unstable_agent ?? false}
+              onChange={(e) => onUpdate("is_unstable_agent", e.target.checked)}
+              className="h-4 w-4 rounded border-input"
+            />
+            <span className="text-sm">Unstable Agent</span>
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Mark as experimental or unstable
+          </p>
+        </div>,
+      )}
+
+      {renderSection(
+        "prompt",
+        "Prompt Configuration",
         <div className="space-y-2">
-          <Label htmlFor="agent-category">Category</Label>
-          <Select
-            value={config.config.category ?? ""}
-            onValueChange={(value) =>
-              onConfigFieldChange("category", value || undefined)
+          <Label htmlFor="cat-prompt-append">Prompt Append</Label>
+          <Textarea
+            id="cat-prompt-append"
+            value={category.prompt_append ?? ""}
+            onChange={(e) => onUpdate("prompt_append", e.target.value)}
+            rows={3}
+            placeholder="Text to append to all prompts"
+          />
+        </div>,
+      )}
+
+      {renderSection(
+        "tools",
+        "Tools Configuration",
+        <div className="space-y-2">
+          <Label htmlFor="cat-tools">Tools (JSON)</Label>
+          <Textarea
+            id="cat-tools"
+            value={
+              category.tools ? JSON.stringify(category.tools, null, 2) : "{}"
             }
-          >
-            <SelectTrigger id="agent-category" className="w-full">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">None</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Temperature */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="temperature">Temperature</Label>
-          <span className="text-sm text-muted-foreground font-mono">
-            {temperature.toFixed(1)}
-          </span>
-        </div>
-        <Slider
-          id="temperature"
-          min={0}
-          max={2}
-          step={0.1}
-          value={[temperature]}
-          onValueChange={([value]) => onConfigFieldChange("temperature", value)}
-        />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Precise (0.0)</span>
-          <span>Creative (2.0)</span>
-        </div>
-      </div>
-
-      {/* Top P */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="top-p">Top P</Label>
-          <span className="text-sm text-muted-foreground font-mono">
-            {topP.toFixed(2)}
-          </span>
-        </div>
-        <Slider
-          id="top-p"
-          min={0}
-          max={1}
-          step={0.05}
-          value={[topP]}
-          onValueChange={([value]) => onConfigFieldChange("topP", value)}
-        />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Focused (0.0)</span>
-          <span>Diverse (1.0)</span>
-        </div>
-      </div>
-
-      {/* System Prompt */}
-      <div className="space-y-2">
-        <Label htmlFor="prompt">System Prompt Override</Label>
-        <Textarea
-          id="prompt"
-          value={config.config.prompt ?? ""}
-          onChange={(e) => onConfigFieldChange("prompt", e.target.value)}
-          placeholder="Custom system prompt for this agent..."
-          rows={4}
-        />
-      </div>
-
-      {/* Prompt Append */}
-      <div className="space-y-2">
-        <Label htmlFor="prompt-append">Prompt Append</Label>
-        <Textarea
-          id="prompt-append"
-          value={config.config.promptAppend ?? ""}
-          onChange={(e) => onConfigFieldChange("promptAppend", e.target.value)}
-          placeholder="Text to append to all prompts..."
-          rows={2}
-        />
-      </div>
+            onChange={(e) => {
+              try {
+                const parsed = JSON.parse(e.target.value || "{}");
+                onUpdate("tools", parsed);
+              } catch {
+                // Invalid JSON, ignore
+              }
+            }}
+            rows={4}
+            placeholder='{"tool_name": true}'
+          />
+          <p className="text-xs text-muted-foreground">
+            Enable/disable tools for this category
+          </p>
+        </div>,
+      )}
     </div>
   );
 }

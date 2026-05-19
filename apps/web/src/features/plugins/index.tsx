@@ -1,8 +1,8 @@
 import { AlertTriangle, ArrowLeft, Plug, Save, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { PageLayout } from "@/components/ui/page-layout";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/shared/components/ui/button";
+import { PageLayout } from "@/shared/components/ui/page-layout";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { AgentMappingTable } from "./components/agent-mapping-table";
 import { CategoryExportList } from "./components/category-export-list";
 import { PluginConfigForm } from "./components/plugin-config-form";

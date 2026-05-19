@@ -8,7 +8,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { MetricCard } from "../components/metric-card";
+import { MetricCard } from "@/shared/componen@/shared/components/metric-card";
 import { HealthStatusContent } from "../health-status";
 import { AlertDetailDialog } from "./components/alert-detail-dialog";
 import { AlertHistoryTable } from "./components/alert-history-table";

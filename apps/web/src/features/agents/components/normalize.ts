@@ -1,50 +1,23 @@
-import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
+import type { CategoryEntry } from "@lite-llm/contracts/category";
 
-/**
- * Generate a slug from a display name
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-/**
- * Generate a slug from displayName, used when creating new agents
- */
-function generateId(displayName: string): string {
-  return slugify(displayName) || "agent";
-}
-
-export function normalizeSystemAgent(
-  partial: Partial<SystemAgent>,
-): SystemAgent {
+// Normalize a partial CategoryEntry with defaults
+export function normalizeCategoryEntry(
+  partial: Partial<CategoryEntry>,
+): CategoryEntry {
   return {
-    id:
-      partial.id ??
-      (partial.displayName ? generateId(partial.displayName) : ""),
-    displayName: partial.displayName ?? "default",
-    icon: partial.icon ?? "🔧",
-    description: partial.description ?? "",
-    limits: partial.limits ?? { context: 200000, output: 32768 },
     model: partial.model ?? "",
     fallbackModels: partial.fallbackModels ?? [],
-    config: {
-      mode: partial.config?.mode ?? "subagent",
-      tools: partial.config?.tools ?? {},
-      permissions: partial.config?.permissions ?? {},
-      color: partial.config?.color ?? "#555555",
-      disable: partial.config?.disable ?? false,
-      variant: partial.config?.variant,
-      category: partial.config?.category,
-      skills: partial.config?.skills ?? [],
-      temperature: partial.config?.temperature,
-      topP: partial.config?.topP,
-      prompt: partial.config?.prompt,
-      promptAppend: partial.config?.promptAppend,
-    },
+    description: partial.description ?? "",
+    variant: partial.variant ?? "",
+    icon: partial.icon ?? "📂",
+    temperature: partial.temperature ?? 0,
+    topP: partial.topP ?? 1,
+    maxTokens: partial.maxTokens ?? 32768,
+    thinking: partial.thinking ?? { levels: [] },
+    reasoningEffort: partial.reasoningEffort ?? "medium",
+    textVerbosity: partial.textVerbosity ?? "medium",
+    tools: partial.tools ?? {},
+    prompt_append: partial.prompt_append ?? "",
+    is_unstable_agent: partial.is_unstable_agent ?? false,
   };
 }

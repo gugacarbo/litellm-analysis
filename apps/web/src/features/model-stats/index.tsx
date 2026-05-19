@@ -1,10 +1,10 @@
 import { BarChart3 } from "lucide-react";
-import { DeleteModelLogsDialog } from "@/components/model-stats/delete-model-logs-dialog";
-import { ModelStatsDataTable } from "@/components/model-stats/model-stats-data-table";
-import { ModelStatsHeader } from "@/components/model-stats/model-stats-header";
-import { ModelStatsMiniCharts } from "@/components/model-stats/model-stats-mini-charts";
-import { ModelStatsSummaryCards } from "@/components/model-stats/model-stats-summary-cards";
-import { ModelStatsTopTables } from "@/components/model-stats/model-stats-top-tables";
+import { DeleteModelLogsDialog } from "@/features/model-stats/components/delete-model-logs-dialog";
+import { ModelStatsDataTable } from "@/features/model-stats/components/model-stats-data-table";
+import { ModelStatsHeader } from "@/features/model-stats/components/model-stats-header";
+import { ModelStatsMiniCharts } from "@/features/model-stats/components/model-stats-mini-charts";
+import { ModelStatsSummaryCards } from "@/features/model-stats/components/model-stats-summary-cards";
+import { ModelStatsTopTables } from "@/features/model-stats/components/model-stats-top-tables";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { PageLayout } from "@/shared/components/ui/page-layout";
 import { Toaster } from "@/shared/components/ui/sonner";

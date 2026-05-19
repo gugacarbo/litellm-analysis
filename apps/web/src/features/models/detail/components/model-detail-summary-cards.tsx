@@ -21,7 +21,7 @@ import {
   formatNumber,
   formatPercent,
 } from "@/features/models/detail/model-detail-utils";
-import { MetricCard } from "../metric-card";
+import { MetricCard } from "@/shared/components/metric-card";
 
 type Props = {
   summary: ModelDetailSummary | null;

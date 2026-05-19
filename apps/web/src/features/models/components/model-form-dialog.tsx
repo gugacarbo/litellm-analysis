@@ -1,8 +1,6 @@
 import { Plus, Trash2 } from "lucide-react";
-import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
-import type { ModelConfig } from "@/shared/lib/api-client/models";
-import type { ModelFormData } from "../../pages/models/model-form-data";
-import { Button } from "../ui/button";
+import type { ModelFormData } from "@/features/models/model-form-data";
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,17 +9,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+} from "@/shared/components/ui/dialog";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Switch } from "../ui/switch";
+} from "@/shared/components/ui/select";
+import { Switch } from "@/shared/components/ui/switch";
+import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
+import type { ModelConfig } from "@/shared/lib/api-client/models";
 
 type ModelFormDialogProps = {
   open: boolean;

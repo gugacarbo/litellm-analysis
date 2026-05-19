@@ -1,5 +1,5 @@
-import { Skeleton } from "../ui/skeleton";
-import { TableCell, TableRow } from "../ui/table";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { TableCell, TableRow } from "@/shared/components/ui/table";
 import type { TableColumn } from "./logs-table-columns";
 
 type LogsTableSkeletonProps = {

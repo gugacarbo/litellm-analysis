@@ -18,9 +18,9 @@ import {
   formatFullDateTime,
   maskApiKey,
 } from "@/shared/lib/spend-log-utils";
-import { Badge } from "../ui/badge";
-import { CollapsibleSection } from "../ui/collapsible-section";
-import { DetailRow, InfoSection } from "../ui/detail-row";
+import { Badge } from "@/shared/components/ui/badge";
+import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
+import { DetailRow, InfoSection } from "@/shared/components/ui/detail-row";
 import { ContextBadge } from "./log-detail-context-badge";
 
 type LogDetailInfoSectionsProps = {

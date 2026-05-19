@@ -1,5 +1,5 @@
 import type { SpendLog } from "@lite-llm/contracts/analytics";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import { APP_LOCALE } from "@/shared/lib/locale";
 import {
   type SpendLogFilters,

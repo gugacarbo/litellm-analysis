@@ -6,7 +6,7 @@ import {
   formatNumber,
   formatTimeRelative,
 } from "@/shared/lib/spend-log-utils";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import type { TableColumn } from "./logs-table-columns";
 
 type RenderLogCellParams = {

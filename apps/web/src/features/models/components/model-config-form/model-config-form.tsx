@@ -1,6 +1,6 @@
 import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
 import type { ModelConfigFormData } from "../../../pages/model-config/use-model-config-page";
-import { Button } from "../../ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { DatabaseSettingsSection } from "./database-settings-section";
 import { GlobalSettingsSection } from "./global-settings-section";
 

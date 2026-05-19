@@ -1,14 +1,14 @@
 import { Plug, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+} from "@/shared/components/ui/card";
+import { Switch } from "@/shared/components/ui/switch";
 import type { PluginCardProps } from "../types/plugin-routing-types";
 
 export function PluginCard({ plugin, onToggle }: PluginCardProps) {

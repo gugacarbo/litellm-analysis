@@ -1,15 +1,15 @@
 import type { ConfigField } from "@lite-llm/contracts/agent-catalog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+} from "@/shared/components/ui/select";
+import { Switch } from "@/shared/components/ui/switch";
 
 interface PluginConfigFormProps {
   schema: ConfigField[];

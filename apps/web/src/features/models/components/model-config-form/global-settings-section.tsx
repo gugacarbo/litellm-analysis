@@ -1,16 +1,16 @@
 import { Settings } from "lucide-react";
 import type { ModelConfigFormData } from "../../../pages/model-config/use-model-config-page";
-import { Button } from "../../ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../ui/card";
-import { Input } from "../../ui/input";
-import { Label } from "../../ui/label";
-import { Switch } from "../../ui/switch";
+} from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { Switch } from "@/shared/components/ui/switch";
 
 interface GlobalSettingsSectionProps {
   modelName: string;

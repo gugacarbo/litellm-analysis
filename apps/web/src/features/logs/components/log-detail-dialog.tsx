@@ -21,16 +21,16 @@ import {
   formatFullDateTime,
   formatNumber,
 } from "@/shared/lib/spend-log-utils";
-import { Badge } from "../ui/badge";
-import { CollapsibleSection } from "../ui/collapsible-section";
+import { Badge } from "@/shared/components/ui/badge";
+import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
-import { JsonViewer } from "../ui/json-viewer";
+} from "@/shared/components/ui/dialog";
+import { JsonViewer } from "@/shared/components/ui/json-viewer";
 import { ContextBadge } from "./log-detail-context-badge";
 import { LogDetailInfoSections } from "./log-detail-info-section";
 import { MiniMetricCard } from "./log-detail-metric-card";

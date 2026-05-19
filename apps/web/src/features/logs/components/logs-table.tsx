@@ -9,15 +9,15 @@ import type {
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "../ui/card";
-import { DataTable } from "../ui/data-table";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/shared/components/ui/table";
 import { LogsPaginationControls } from "./logs-pagination-controls";
 import { renderLogCell } from "./logs-table-cell";
 import { LOG_COLUMNS, type LogColumnKey } from "./logs-table-columns";

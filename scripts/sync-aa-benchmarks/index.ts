@@ -19,6 +19,7 @@ interface RateLimitState {
 const rootDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
+  "..",
 );
 const skillDir = path.join(rootDir, ".agents", "skills", "artificial-analysis");
 
@@ -223,30 +224,21 @@ function normalizeModel(
     creatorId: model.model_creator.id ?? null,
     creatorName: model.model_creator.name,
     creatorSlug: model.model_creator.slug ?? null,
-    intelligenceIndex: getEvaluation(
-      model.evaluations,
-      "artificial_analysis_intelligence_index",
-    ),
-    codingIndex: getEvaluation(
-      model.evaluations,
-      "artificial_analysis_coding_index",
-    ),
-    mathIndex: getEvaluation(
-      model.evaluations,
-      "artificial_analysis_math_index",
-    ),
-    mmluPro: getEvaluation(model.evaluations, "mmlu_pro"),
-    gpqa: getEvaluation(model.evaluations, "gpqa"),
-    hle: getEvaluation(model.evaluations, "hle"),
-    livecodebench: getEvaluation(model.evaluations, "livecodebench"),
-    scicode: getEvaluation(model.evaluations, "scicode"),
-    math500: getEvaluation(model.evaluations, "math_500"),
-    aime: getEvaluation(model.evaluations, "aime"),
-    aime25: getEvaluation(model.evaluations, "aime_25"),
-    tau2: getEvaluation(model.evaluations, "tau2"),
-    ifbench: getEvaluation(model.evaluations, "ifbench"),
-    lcr: getEvaluation(model.evaluations, "lcr"),
-    terminalbenchHard: getEvaluation(model.evaluations, "terminalbench_hard"),
+    intelligenceIndex: getNumber(model.evaluations, "intelligence_index"),
+    codingIndex: getNumber(model.evaluations, "coding_index"),
+    mathIndex: getNumber(model.evaluations, "math_index"),
+    mmluPro: getNumber(model.evaluations, "mmlu_pro"),
+    gpqa: getNumber(model.evaluations, "gpqa"),
+    hle: getNumber(model.evaluations, "hle"),
+    livecodebench: getNumber(model.evaluations, "livecodebench"),
+    scicode: getNumber(model.evaluations, "scicode"),
+    math500: getNumber(model.evaluations, "math500"),
+    aime: getNumber(model.evaluations, "aime"),
+    aime25: getNumber(model.evaluations, "aime25"),
+    tau2: getNumber(model.evaluations, "tau2"),
+    ifbench: getNumber(model.evaluations, "ifbench"),
+    lcr: getNumber(model.evaluations, "lcr"),
+    terminalbenchHard: getNumber(model.evaluations, "terminalbench_hard"),
     priceInput1mTokens: model.pricing?.price_1m_input_tokens ?? null,
     priceOutput1mTokens: model.pricing?.price_1m_output_tokens ?? null,
     priceBlended1mTokens: model.pricing?.price_1m_blended_3_to_1 ?? null,
@@ -258,136 +250,85 @@ function normalizeModel(
   };
 }
 
-function getEvaluation(
-  evaluations: Record<string, unknown> | undefined,
+function getNumber(
+  source: Record<string, unknown> | undefined,
   key: string,
 ): number | null {
-  const value = evaluations?.[key];
+  if (!source) {
+    return null;
+  }
+
+  const value = source[key];
   return typeof value === "number" ? value : null;
 }
 
 function sortByIntelligenceThenName(
-  a: z.infer<typeof normalizedModelSchema>,
-  b: z.infer<typeof normalizedModelSchema>,
+  left: z.infer<typeof normalizedModelSchema>,
+  right: z.infer<typeof normalizedModelSchema>,
 ): number {
-  const ai = a.intelligenceIndex ?? Number.NEGATIVE_INFINITY;
-  const bi = b.intelligenceIndex ?? Number.NEGATIVE_INFINITY;
-  if (bi !== ai) return bi - ai;
-  return a.name.localeCompare(b.name);
-}
+  const leftScore = left.intelligenceIndex ?? -Infinity;
+  const rightScore = right.intelligenceIndex ?? -Infinity;
 
-function parseOptions(args: string[]): Options {
-  const options: Options = {
-    forceRefresh: false,
-    useCache: true,
-  };
-
-  for (const arg of args) {
-    if (arg === "--force-refresh") {
-      options.forceRefresh = true;
-      continue;
-    }
-    if (arg === "--no-cache") {
-      options.useCache = false;
-      continue;
-    }
-    if (arg === "-h" || arg === "--help") {
-      printHelp();
-      process.exit(0);
-    }
-    throw new Error(`Unknown option: ${arg}`);
+  if (rightScore !== leftScore) {
+    return rightScore - leftScore;
   }
 
-  return options;
+  return left.name.localeCompare(right.name);
 }
 
-function printHelp(): void {
-  console.log(`
-Usage: tsx scripts/sync-aa-benchmarks.ts [--force-refresh] [--no-cache]
-
-Options:
-  --force-refresh  ignore cache and fetch from API
-  --no-cache       disable cache read/write
-
-Env:
-  ARTIFICIAL_ANALYSIS_API_KEY
-  ENV_FILE                (default: .agents/skills/artificial-analysis/.env)
-  CACHE_DIR               (default: .agents/skills/artificial-analysis/.cache)
-  RAW_CACHE_FILE          (default: .agents/skills/artificial-analysis/.cache/models.json)
-  STATE_FILE              (default: .agents/skills/artificial-analysis/.cache/rate-limit-state.json)
-  OUTPUT_DIR              (default: @storage/benchmarks)
-  RATE_LIMIT_QPM          (default: 5)
-  MIN_RESPONSE_SECONDS    (default: 1)
-`);
-}
-
-async function loadEnvFile(filePath: string): Promise<void> {
-  const content = await readTextIfExists(filePath);
-  if (!content) return;
-
-  for (const line of content.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-    const separator = trimmed.indexOf("=");
-    if (separator <= 0) continue;
-    const key = trimmed.slice(0, separator).trim();
-    const value = trimmed.slice(separator + 1).trim();
-    if (!process.env[key]) {
-      process.env[key] = stripWrappingQuotes(value);
+async function readTextIfExists(filePath: string): Promise<string | null> {
+  try {
+    return await readFile(filePath, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return null;
     }
-  }
-}
 
-function stripWrappingQuotes(value: string): string {
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
-    return value.slice(1, -1);
+    throw error;
   }
-  return value;
 }
 
 async function applyLocalRateLimit(
   qpm: number,
-  stateFile: string,
+  stateFilePath: string,
 ): Promise<void> {
+  const state = await readRateLimitState(stateFilePath);
   const now = Date.now();
-  const oneMinuteAgo = now - 60_000;
+  const windowStart = now - 60_000;
 
-  const state = await readRateLimitState(stateFile);
-  const recent = state.timestamps.filter((ts) => ts >= oneMinuteAgo);
+  state.timestamps = state.timestamps.filter(
+    (timestamp) => timestamp >= windowStart,
+  );
 
-  if (recent.length >= qpm) {
-    const oldest = recent[0];
-    const waitMs = Math.max(0, 60_000 - (now - oldest));
-    if (waitMs > 0) {
-      await sleep(waitMs);
+  if (state.timestamps.length >= qpm) {
+    const oldest = state.timestamps[0];
+    if (oldest !== undefined) {
+      const waitMs = Math.max(0, 60_000 - (now - oldest));
+      if (waitMs > 0) {
+        await wait(waitMs);
+      }
     }
   }
 
-  const afterWaitNow = Date.now();
-  const refreshed = (await readRateLimitState(stateFile)).timestamps.filter(
-    (ts) => ts >= afterWaitNow - 60_000,
-  );
-  refreshed.push(afterWaitNow);
-  await writeRateLimitState(stateFile, { timestamps: refreshed });
+  state.timestamps.push(Date.now());
+  await writeRateLimitState(stateFilePath, state);
 }
 
 async function readRateLimitState(filePath: string): Promise<RateLimitState> {
-  const text = await readTextIfExists(filePath);
-  if (!text) return { timestamps: [] };
+  const raw = await readTextIfExists(filePath);
+  if (!raw) {
+    return { timestamps: [] };
+  }
 
   try {
-    const parsed = JSON.parse(text);
-    if (!Array.isArray(parsed.timestamps)) {
-      return { timestamps: [] };
-    }
-    const timestamps = parsed.timestamps.filter(
-      (value: unknown): value is number =>
-        typeof value === "number" && Number.isFinite(value),
-    );
-    return { timestamps };
+    const parsed = JSON.parse(raw) as Partial<RateLimitState>;
+    return {
+      timestamps: Array.isArray(parsed.timestamps)
+        ? parsed.timestamps.filter(
+            (value): value is number => typeof value === "number",
+          )
+        : [],
+    };
   } catch {
     return { timestamps: [] };
   }
@@ -400,95 +341,79 @@ async function writeRateLimitState(
   await writeFile(filePath, JSON.stringify(state, null, 2), "utf8");
 }
 
-async function enforceMinResponseTime(
-  startedAtMs: number,
-  minSeconds: number,
-): Promise<void> {
-  const elapsedMs = Date.now() - startedAtMs;
-  const minMs = Math.round(minSeconds * 1000);
-  const remaining = minMs - elapsedMs;
-  if (remaining > 0) {
-    await sleep(remaining);
+async function wait(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function parseOptions(args: string[]): Options {
+  let forceRefresh = false;
+  let useCache = true;
+
+  for (const arg of args) {
+    if (arg === "--force-refresh") {
+      forceRefresh = true;
+    } else if (arg === "--no-cache") {
+      useCache = false;
+    } else {
+      console.error(`Unknown option: ${arg}`);
+      process.exit(1);
+    }
   }
-}
 
-async function readTextIfExists(filePath: string): Promise<string | null> {
-  try {
-    await stat(filePath);
-    return await readFile(filePath, "utf8");
-  } catch {
-    return null;
-  }
-}
-
-function buildInterfacesFile(): string {
-  return `/**
- * Auto-generated by scripts/sync-aa-benchmarks.ts
- * Source: ${SOURCE_NAME} (${SOURCE_URL})
- */
-
-export interface ArtificialAnalysisNormalizedModelBenchmark {
-  id: string;
-  name: string;
-  slug: string | null;
-  creatorId: string | null;
-  creatorName: string;
-  creatorSlug: string | null;
-  intelligenceIndex: number | null;
-  codingIndex: number | null;
-  mathIndex: number | null;
-  mmluPro: number | null;
-  gpqa: number | null;
-  hle: number | null;
-  livecodebench: number | null;
-  scicode: number | null;
-  math500: number | null;
-  aime: number | null;
-  aime25: number | null;
-  tau2: number | null;
-  ifbench: number | null;
-  lcr: number | null;
-  terminalbenchHard: number | null;
-  priceInput1mTokens: number | null;
-  priceOutput1mTokens: number | null;
-  priceBlended1mTokens: number | null;
-  medianOutputTokensPerSecond: number | null;
-  medianTimeToFirstTokenSeconds: number | null;
-  medianTimeToFirstAnswerTokenSeconds: number | null;
-}
-
-export interface ArtificialAnalysisModelsDataset {
-  source: string;
-  sourceUrl: string;
-  fetchedAt: string;
-  count: number;
-  models: ArtificialAnalysisNormalizedModelBenchmark[];
-}
-`;
+  return { forceRefresh, useCache };
 }
 
 function parsePositiveInt(value: string | undefined, fallback: number): number {
-  if (!value) return fallback;
-  const parsed = Number.parseInt(value, 10);
-  if (Number.isNaN(parsed) || parsed <= 0) return fallback;
-  return parsed;
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 function parsePositiveFloat(
   value: string | undefined,
   fallback: number,
 ): number {
-  if (!value) return fallback;
-  const parsed = Number.parseFloat(value);
-  if (Number.isNaN(parsed) || parsed < 0) return fallback;
-  return parsed;
+  const parsed = Number.parseFloat(value ?? "");
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+async function enforceMinResponseTime(
+  startedAt: number,
+  minSeconds: number,
+): Promise<void> {
+  const elapsed = Date.now() - startedAt;
+  const target = minSeconds * 1000;
+  if (elapsed < target) {
+    await wait(target - elapsed);
+  }
 }
 
-main().catch((error) => {
-  console.error(String(error));
-  process.exitCode = 1;
-});
+async function loadEnvFile(filePath: string): Promise<void> {
+  const content = await readTextIfExists(filePath);
+  if (!content) {
+    return;
+  }
+
+  for (const line of content.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const index = trimmed.indexOf("=");
+    if (index === -1) {
+      continue;
+    }
+
+    const key = trimmed.slice(0, index).trim();
+    const value = trimmed.slice(index + 1).trim();
+    if (!process.env[key]) {
+      process.env[key] = value;
+    }
+  }
+}
+
+function buildInterfacesFile(): string {
+  return "";
+}
+
+void main();

@@ -1,12 +1,12 @@
 import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
-import { Button } from "../ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/shared/components/ui/select";
 
 type LogsPaginationControlsProps = {
   page: number;

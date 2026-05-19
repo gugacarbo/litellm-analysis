@@ -5,7 +5,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import type { SystemAgentOption } from "@/shared/lib/api-client/agent-catalog";
 
 interface AgentMappingTableProps {

@@ -13,7 +13,7 @@ import {
   formatDuration,
   formatNumber,
 } from "@/shared/lib/spend-log-utils";
-import { MetricCard } from "../metric-card";
+import { MetricCard } from "@/shared/components/metric-card";
 
 type LogsSummaryCardsProps = {
   logs: SpendLog[];

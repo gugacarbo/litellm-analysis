@@ -6,7 +6,7 @@ import {
   formatPercent,
   formatTokensPerSecond,
 } from "@/features/model-stats/model-stats-utils";
-import { MetricCard } from "../metric-card";
+import { MetricCard } from "@/shared/components/metric-card";
 
 type ModelStatsSummaryCardsProps = {
   loading: boolean;

@@ -1,4 +1,4 @@
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/shared/components/ui/switch";
 import { formatCategoryLabel } from "@/features/agent-routing/utils";
 
 interface CategoryExportListProps {

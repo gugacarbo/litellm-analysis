@@ -1,4 +1,4 @@
-import { GenericFilterCard } from "../filters/generic-filter-card";
+import { GenericFilterCard } from "@/features/models/components/generic-filter-card";
 
 export type LogsFilterValues = {
   model: string;

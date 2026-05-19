@@ -5,7 +5,7 @@ import {
   formatTimeRelative,
 } from "@/shared/lib/spend-log-utils";
 import { cn } from "@/shared/lib/utils";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import type { TableColumn } from "./logs-table-columns";
 import type { GroupSummary } from "./logs-table-utils";
 

@@ -1,5 +1,5 @@
 import { AlertTriangle, DollarSign, Hash, Server } from "lucide-react";
-import { MetricCard } from "@/components/metric-card";
+import { MetricCard } from "@/shared/components/metric-card";
 import { APP_LOCALE } from "@/shared/lib/locale";
 
 type ErrorsTotals = {

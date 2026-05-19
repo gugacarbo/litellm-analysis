@@ -13,11 +13,11 @@
     "typecheck": "turbo typecheck",
     "lint-staged": "lint-staged",
     "prepare": "husky",
-    "generate:agents-schema": "tsx repositories/agents-repository/scripts/generate-json-schema.ts",
-    "sync:aa-benchmarks": "tsx scripts/sync-aa-benchmarks.ts",
-    "sync:cloud": "tsx scripts/sync-cloud-litellm.ts",
-    "validate:agents": "ajv validate -s ${SETTINGS_PATH:-@settings}/agents/agents.schema.json -d ${SETTINGS_PATH:-@settings}/agents/agents.jsonc",
-    "validate:agents:all": "ajv validate -s ${SETTINGS_PATH:-@settings}/agents/agents.schema.json -d ${SETTINGS_PATH:-@settings}/agents/agents.jsonc --strict=true"
+    "generate:agents-schema": "tsx scripts/generate-schema/index.ts",
+    "sync:aa-benchmarks": "tsx scripts/sync-aa-benchmarks/index.ts",
+    "sync:cloud": "tsx scripts/sync-cloud-litellm/index.ts",
+    "validate:agents": "tsx scripts/validate-agents/index.ts",
+    "validate:agents:all": "tsx scripts/validate-agents/index.ts --strict"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

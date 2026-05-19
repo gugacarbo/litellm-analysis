@@ -1,23 +1,46 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
     "$schema": {
       "default": "./models.schema.json",
       "title": "Schema",
       "description": "JSON Schema reference",
-      "type": "string"
+      "$ref": "#/$defs/__schema0"
     },
     "version": {
       "default": 1,
       "title": "Version",
       "description": "Config version",
-      "type": "number"
+      "$ref": "#/$defs/__schema1"
     },
     "provider": {
       "default": {},
       "title": "Providers",
       "description": "Providers keyed by provider id",
+      "$ref": "#/$defs/__schema2"
+    },
+    "models": {
+      "default": {},
+      "title": "Models",
+      "description": "Model specifications",
+      "$ref": "#/$defs/__schema3"
+    }
+  },
+  "required": [
+    "version",
+    "provider",
+    "models"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "type": "string"
+    },
+    "__schema1": {
+      "type": "number"
+    },
+    "__schema2": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -26,38 +49,36 @@
         "type": "object",
         "properties": {
           "name": {
-            "default": "",
+            "type": "string",
             "title": "Name",
-            "description": "Provider display name",
-            "type": "string"
+            "description": "Provider display name"
           },
           "ownedBy": {
-            "default": "",
+            "type": "string",
             "title": "Owned By",
-            "description": "Organization that owns this provider",
-            "type": "string"
+            "description": "Organization that owns this provider"
           },
           "baseUrl": {
-            "default": "",
+            "type": "string",
             "title": "Base URL",
-            "description": "Provider API base URL",
-            "type": "string"
+            "description": "Provider API base URL"
           },
           "apiKey": {
-            "default": "",
+            "type": "string",
             "title": "API Key",
-            "description": "Provider API key",
-            "type": "string"
+            "description": "Provider API key"
           }
         },
-        "required": ["name", "ownedBy", "baseUrl", "apiKey"],
+        "required": [
+          "name",
+          "ownedBy",
+          "baseUrl",
+          "apiKey"
+        ],
         "additionalProperties": false
       }
     },
-    "models": {
-      "default": {},
-      "title": "Models",
-      "description": "Model specifications",
+    "__schema3": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -69,93 +90,120 @@
             "default": true,
             "title": "Enabled",
             "description": "Whether this model is enabled for routing and selection",
-            "type": "boolean"
+            "$ref": "#/$defs/__schema4"
           },
           "displayName": {
-            "default": "",
             "type": "string",
             "title": "Display Name",
             "description": "Human-readable name for the model"
           },
           "family": {
-            "default": "",
             "title": "Family",
             "description": "Model family",
-            "type": "string"
+            "$ref": "#/$defs/__schema5"
           },
           "limits": {
-            "default": {
-              "length": 200000,
-              "maxOutput": 32768
-            },
-            "title": "Limits",
-            "description": "Model limits",
             "type": "object",
             "properties": {
               "length": {
-                "default": 200000,
-                "type": "number",
-                "title": "Context Length",
-                "description": "Maximum context window size in tokens"
+                "$ref": "#/$defs/__schema6"
               },
               "maxOutput": {
-                "default": 32768,
-                "type": "number",
-                "title": "Max Output",
-                "description": "Maximum output tokens"
+                "$ref": "#/$defs/__schema7"
               }
             },
-            "required": ["length", "maxOutput"],
-            "additionalProperties": false
+            "required": [
+              "length",
+              "maxOutput"
+            ],
+            "additionalProperties": false,
+            "title": "Limits",
+            "description": "Model limits"
           },
           "cost": {
-            "default": {},
             "title": "Cost",
             "description": "Model pricing per million tokens",
-            "type": "object",
-            "properties": {
-              "input": {
-                "default": 0,
-                "title": "Input Cost",
-                "description": "Cost per million input tokens",
-                "type": "number"
-              },
-              "output": {
-                "default": 0,
-                "title": "Output Cost",
-                "description": "Cost per million output tokens",
-                "type": "number"
-              }
-            },
-            "additionalProperties": false
+            "$ref": "#/$defs/__schema8"
           },
           "thinking": {
-            "default": {
-              "levels": []
-            },
             "title": "Thinking",
             "description": "Extended thinking configuration for this model",
-            "type": "object",
-            "properties": {
-              "levels": {
-                "default": [],
-                "title": "Levels",
-                "description": "Available thinking levels for this model",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            },
-            "required": ["levels"],
-            "additionalProperties": false
+            "$ref": "#/$defs/__schema11"
           }
         },
-        "required": ["displayName", "limits"],
+        "required": [
+          "enabled",
+          "displayName",
+          "limits"
+        ],
         "additionalProperties": false
       }
+    },
+    "__schema4": {
+      "type": "boolean"
+    },
+    "__schema5": {
+      "type": "string"
+    },
+    "__schema6": {
+      "default": 200000,
+      "type": "number",
+      "title": "Context Length",
+      "description": "Maximum context window size in tokens"
+    },
+    "__schema7": {
+      "default": 32768,
+      "type": "number",
+      "title": "Max Output",
+      "description": "Maximum output tokens"
+    },
+    "__schema8": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "default": 0,
+          "title": "Input Cost",
+          "description": "Cost per million input tokens",
+          "$ref": "#/$defs/__schema9"
+        },
+        "output": {
+          "default": 0,
+          "title": "Output Cost",
+          "description": "Cost per million output tokens",
+          "$ref": "#/$defs/__schema10"
+        }
+      },
+      "additionalProperties": false
+    },
+    "__schema9": {
+      "type": "number"
+    },
+    "__schema10": {
+      "type": "number"
+    },
+    "__schema11": {
+      "default": {
+        "levels": []
+      },
+      "type": "object",
+      "properties": {
+        "levels": {
+          "default": [],
+          "title": "Levels",
+          "description": "Available thinking levels for this model",
+          "$ref": "#/$defs/__schema12"
+        }
+      },
+      "required": [
+        "levels"
+      ],
+      "additionalProperties": false
+    },
+    "__schema12": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
-  },
-  "required": ["$schema", "version", "provider", "models"],
-  "additionalProperties": false
+  }
 }
