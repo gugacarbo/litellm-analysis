@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getPluginConfig,
+  getPluginSchema,
   savePluginConfig,
   toggleCategoryExport,
 } from "@/shared/lib/api-client/plugin-routing";
@@ -43,5 +44,13 @@ export function useToggleCategoryExport(pluginId: string) {
         queryKey: queryKeys.pluginRouting.pluginConfig(pluginId),
       });
     },
+  });
+}
+
+export function usePluginSchema(pluginId: string) {
+  return useQuery({
+    queryKey: queryKeys.pluginRouting.pluginSchema(pluginId),
+    queryFn: () => getPluginSchema(pluginId),
+    enabled: !!pluginId,
   });
 }

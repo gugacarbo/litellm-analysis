@@ -96,5 +96,7 @@ export const queryKeys = {
     plugins: ["plugin-routing", "plugins"] as const,
     pluginConfig: (pluginId: string) =>
       ["plugin-routing", "config", pluginId] as const,
+    pluginSchema: (pluginId: string) =>
+      ["plugin-routing", "schema", pluginId] as const,
   },
 };

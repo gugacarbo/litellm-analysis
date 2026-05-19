@@ -11,6 +11,7 @@ import {
 import { queryKeys } from "@/shared/lib/query-keys";
 import {
   usePluginConfig,
+  usePluginSchema,
   useSavePluginConfig,
   useToggleCategoryExport,
 } from "./hooks/use-plugin-config";
@@ -28,6 +29,7 @@ export function usePluginConfigPage(pluginId: string) {
     queryKey: queryKeys.categoryCatalog.all,
     queryFn: getCategoryCatalog,
   });
+  const { data: schemaData } = usePluginSchema(pluginId);
   const saveConfig = useSavePluginConfig(pluginId);
   const toggleCategory = useToggleCategoryExport(pluginId);
 
@@ -156,7 +158,6 @@ export function usePluginConfigPage(pluginId: string) {
     notFound,
     pluginName,
     pluginId,
-    jsonSchema: undefined as unknown | undefined,
     configValues: { ...safeData.config, ...configValues },
     agentMappings: { ...safeData.agentMappings, ...agentMappings },
     categoryMappings: {
@@ -172,5 +173,6 @@ export function usePluginConfigPage(pluginId: string) {
     handleAgentMappingChange,
     handleCategoryToggle,
     handleSave,
+    jsonSchema: schemaData?.schema ?? null,
   };
 }

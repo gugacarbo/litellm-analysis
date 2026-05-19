@@ -52,3 +52,9 @@ export async function savePluginRouting(
     body: JSON.stringify(config),
   });
 }
+
+export async function getPluginSchema(
+  pluginId: string,
+): Promise<{ schema: Record<string, unknown> }> {
+  return fetchApi(`/plugin-routing/${pluginId}/schema`);
+}
