@@ -18,7 +18,7 @@
     "sync:cloud": "tsx scripts/sync-cloud-litellm/index.ts",
     "validate:agents": "tsx scripts/validate-agents/index.ts",
     "validate:agents:all": "tsx scripts/validate-agents/index.ts --strict",
-    "backup": "tsx scripts/litellm-backup/index.ts",
+    "backup": "pnpm --filter @lite-llm/scripts backup",
     "backup:list": "ls -lh backups/*.sql.gz 2>/dev/null || echo 'No backups found'"
   },
   "devDependencies": {
