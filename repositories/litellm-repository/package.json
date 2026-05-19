@@ -12,8 +12,11 @@
     "typecheck": "tsc --noEmit",
     "db:sync": "tsx scripts/sync-schema.ts",
     "db:generate": "prisma generate",
-    "db:pull": "prisma db pull --force",
-    "db:validate": "prisma validate"
+   "db:pull": "prisma db pull --force",
+    "db:validate": "prisma validate",
+    "backup": "bash scripts/backup.sh",
+    "backup:list": "ls -lh backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
+    "backup:restore": "bash scripts/restore.sh"
   },
   "dependencies": {
     "@lite-llm/config": "workspace:*"
