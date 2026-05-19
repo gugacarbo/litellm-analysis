@@ -83,6 +83,7 @@ export function PluginConfigPage() {
                 schema={state.jsonSchema}
                 formData={state.configValues}
                 onChange={(data) => {
+                  if (!data.formData) return;
                   for (const [key, value] of Object.entries(data.formData)) {
                     state.handleConfigChange(key, value);
                   }
