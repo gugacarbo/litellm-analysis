@@ -9,6 +9,7 @@
     "backup": "tsx litellm-backup/index.ts"
   },
   "dependencies": {
+    "dotenv": "catalog:",
     "listr2": "^10.2.1",
     "pg": "^8.16.3",
     "zod": "catalog:"

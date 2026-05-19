@@ -503,6 +503,9 @@ importers:
 
   scripts:
     dependencies:
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
       listr2:
         specifier: ^10.2.1
         version: 10.2.1
