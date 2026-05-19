@@ -1,6 +1,7 @@
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { getDateRangeDays } from "@/features/dashboard/utils/dashboard-utils";
 import { ModelDetailApiKeyTable } from "@/features/models/detail/components/model-detail-api-key-table";
 import { ModelDetailCostChart } from "@/features/models/detail/components/model-detail-cost-chart";
 import { ModelDetailErrorBreakdown } from "@/features/models/detail/components/model-detail-error-breakdown";
@@ -14,7 +15,6 @@ import { ModelDetailTokenEfficiency } from "@/features/models/detail/components/
 import { ModelDetailTrendChart } from "@/features/models/detail/components/model-detail-trend-chart";
 import { ModelDetailTTFTChart } from "@/features/models/detail/components/model-detail-ttft-chart";
 import { ModelDetailUserTable } from "@/features/models/detail/components/model-detail-user-table";
-import { getDateRangeDays } from "@/features/dashboard/utils/dashboard-utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { PageLayout } from "@/shared/components/ui/page-layout";

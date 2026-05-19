@@ -1,4 +1,3 @@
-import { ANOMALY_TYPE_LABELS } from "../utils/monitor-utils";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import {
@@ -8,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { ANOMALY_TYPE_LABELS } from "../utils/monitor-utils";
 
 export type AlertFiltersState = {
   anomalyType: string;

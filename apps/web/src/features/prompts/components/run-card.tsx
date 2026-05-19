@@ -1,5 +1,7 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import type { CaseResult, EvalRunDetail } from "../types";
 import {
   formatDuration,
@@ -7,8 +9,6 @@ import {
   formatRelativeTime,
   statusVariant,
 } from "../utils";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import { CategoryTable } from "./category-table";
 import { FailedCasesList } from "./failed-cases-list";
 import { ProgressBar } from "./progress-bar";

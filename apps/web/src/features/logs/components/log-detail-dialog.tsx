@@ -14,13 +14,6 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  calculateTokensPerSecond,
-  formatCurrency,
-  formatDuration,
-  formatFullDateTime,
-  formatNumber,
-} from "@/shared/lib/spend-log-utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
 import {
@@ -31,6 +24,13 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { JsonViewer } from "@/shared/components/ui/json-viewer";
+import {
+  calculateTokensPerSecond,
+  formatCurrency,
+  formatDuration,
+  formatFullDateTime,
+  formatNumber,
+} from "@/shared/lib/spend-log-utils";
 import { ContextBadge } from "./log-detail-context-badge";
 import { LogDetailInfoSections } from "./log-detail-info-section";
 import { MiniMetricCard } from "./log-detail-metric-card";

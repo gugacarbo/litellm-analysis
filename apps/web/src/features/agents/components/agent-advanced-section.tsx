@@ -45,7 +45,9 @@ export function AgentAdvancedSection({
           <Textarea
             id="agent-prompt-append"
             value={extraConfig.promptAppend ?? ""}
-            onChange={(e) => onConfigFieldChange("promptAppend", e.target.value)}
+            onChange={(e) =>
+              onConfigFieldChange("promptAppend", e.target.value)
+            }
             rows={3}
             placeholder="Text to append to all prompts"
           />
@@ -60,7 +62,9 @@ export function AgentAdvancedSection({
           <Textarea
             id="agent-tools"
             value={
-              extraConfig.tools ? JSON.stringify(extraConfig.tools, null, 2) : "{}"
+              extraConfig.tools
+                ? JSON.stringify(extraConfig.tools, null, 2)
+                : "{}"
             }
             onChange={(e) => {
               try {

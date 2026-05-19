@@ -8,12 +8,12 @@ import {
   Zap,
 } from "lucide-react";
 import { useMemo } from "react";
+import { MetricCard } from "@/shared/components/metric-card";
 import {
   formatCurrency,
   formatDuration,
   formatNumber,
 } from "@/shared/lib/spend-log-utils";
-import { MetricCard } from "@/shared/components/metric-card";
 
 type LogsSummaryCardsProps = {
   logs: SpendLog[];

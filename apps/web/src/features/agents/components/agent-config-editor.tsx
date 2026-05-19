@@ -89,7 +89,10 @@ export function AgentConfigEditor({
 
           <div className="flex-1 overflow-y-auto">
             <TabsContent value="general" className="mt-0">
-              <AgentGeneralSection config={config} onFieldChange={updateField} />
+              <AgentGeneralSection
+                config={config}
+                onFieldChange={updateField}
+              />
             </TabsContent>
 
             <TabsContent value="model" className="mt-0">

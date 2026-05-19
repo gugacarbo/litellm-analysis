@@ -21,10 +21,7 @@
       "$ref": "#/$defs/__schema2"
     }
   },
-  "required": [
-    "version",
-    "plugins"
-  ],
+  "required": ["version", "plugins"],
   "additionalProperties": false,
   "$defs": {
     "__schema0": {
@@ -78,11 +75,7 @@
             "description": "Routing mappings for agents and categories"
           }
         },
-        "required": [
-          "enabled",
-          "outputFile",
-          "routing"
-        ],
+        "required": ["enabled", "outputFile", "routing"],
         "additionalProperties": false
       }
     },

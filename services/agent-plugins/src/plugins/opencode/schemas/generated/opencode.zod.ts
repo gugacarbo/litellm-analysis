@@ -9,7 +9,7 @@ import { z } from "zod";
 // Re-export the schema directly from JSON using z.fromJSONSchema
 export const openCodeSchema = z.fromJSONSchema({
   $schema: "http://json-schema.org/draft-07/schema#",
-  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/opencode/schemas/opencode.schema.json",
+  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/opencode/schemas/opencode.schema.json",
   title: "OpenCode Provider Configuration",
   description: "JSON Schema for OpenCode AI SDK provider configuration",
   type: "object",
@@ -20,6 +20,20 @@ export const openCodeSchema = z.fromJSONSchema({
       description: "Map of provider names to their configurations",
       additionalProperties: {
         $ref: "#/definitions/ProviderConfig",
+      },
+    },
+    agents: {
+      type: "object",
+      description: "Map of agent role names to their configurations",
+      additionalProperties: {
+        $ref: "#/definitions/OpenCodeAgentConfig",
+      },
+    },
+    categories: {
+      type: "object",
+      description: "Map of category names to their configurations",
+      additionalProperties: {
+        $ref: "#/definitions/OpenCodeCategoryConfig",
       },
     },
   },
@@ -93,6 +107,13 @@ export const openCodeSchema = z.fromJSONSchema({
             },
           },
         },
+        variants: {
+          type: "object",
+          description: "Model variants with different reasoning effort levels",
+          additionalProperties: {
+            $ref: "#/definitions/ModelVariant",
+          },
+        },
       },
     },
     ModelLimits: {
@@ -108,6 +129,66 @@ export const openCodeSchema = z.fromJSONSchema({
           type: "integer",
           minimum: 1,
           description: "Maximum output tokens",
+        },
+      },
+    },
+    ModelVariant: {
+      type: "object",
+      required: ["reasoningEffort"],
+      properties: {
+        reasoningEffort: {
+          type: "string",
+          description: "Reasoning effort level for this variant",
+        },
+      },
+    },
+    OpenCodeAgentConfig: {
+      type: "object",
+      required: ["model"],
+      properties: {
+        description: {
+          type: "string",
+          description: "Human-readable description of the agent",
+        },
+        model: {
+          type: "string",
+          description: "Primary model identifier (prefixed with provider/)",
+        },
+        fallback_models: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of fallback model identifiers",
+        },
+        temperature: {
+          type: "number",
+          minimum: 0,
+          maximum: 2,
+          description: "Sampling temperature for the agent",
+        },
+      },
+    },
+    OpenCodeCategoryConfig: {
+      type: "object",
+      required: ["model"],
+      properties: {
+        description: {
+          type: "string",
+          description: "Human-readable description of the category",
+        },
+        model: {
+          type: "string",
+          description: "Primary model identifier (prefixed with provider/)",
+        },
+        fallback_models: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of fallback model identifiers",
+        },
+        temperature: {
+          type: "number",
+          minimum: 0,
+          maximum: 2,
+          description: "Sampling temperature for the category",
         },
       },
     },

@@ -85,7 +85,12 @@ export function AgentGeneralSection({
           <Input
             id="agent-variant"
             value={config.config?.variant ?? ""}
-            onChange={(e) => onFieldChange("config", { ...config.config, variant: e.target.value })}
+            onChange={(e) =>
+              onFieldChange("config", {
+                ...config.config,
+                variant: e.target.value,
+              })
+            }
             placeholder="optional variant"
           />
         </div>
@@ -148,7 +153,10 @@ export function AgentGeneralSection({
             max="2"
             value={config.config?.temperature ?? 0}
             onChange={(e) =>
-              onFieldChange("config", { ...config.config, temperature: parseFloat(e.target.value) || 0 })
+              onFieldChange("config", {
+                ...config.config,
+                temperature: parseFloat(e.target.value) || 0,
+              })
             }
           />
         </div>
@@ -161,7 +169,12 @@ export function AgentGeneralSection({
             min="0"
             max="1"
             value={config.config?.topP ?? 1}
-            onChange={(e) => onFieldChange("config", { ...config.config, topP: parseFloat(e.target.value) || 1 })}
+            onChange={(e) =>
+              onFieldChange("config", {
+                ...config.config,
+                topP: parseFloat(e.target.value) || 1,
+              })
+            }
           />
         </div>
       </div>

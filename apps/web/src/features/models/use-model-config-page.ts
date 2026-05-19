@@ -99,7 +99,9 @@ export function useModelConfigPage(): UseModelConfigPageResult {
   const credentialsQuery = useQuery({
     queryKey: ["credentials"],
     queryFn: () =>
-      import("@/shared/lib/api-client/credentials").then((m) => m.getAllCredentials()),
+      import("@/shared/lib/api-client/credentials").then((m) =>
+        m.getAllCredentials(),
+      ),
   });
 
   const updateMutation = useMutation({

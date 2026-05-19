@@ -241,11 +241,11 @@ export function DataTable<TData, TValue>({
 
   // -- Render ---------------------------------------------------------------
 
-    showFilterInput && filterColumn
+  showFilterInput && filterColumn
+    ? true
+    : toolbar
       ? true
-      : toolbar
-        ? true
-        : columns.some((c) => c.enableHiding !== false);
+      : columns.some((c) => c.enableHiding !== false);
 
   return (
     <div className={cn("w-full", className)}>

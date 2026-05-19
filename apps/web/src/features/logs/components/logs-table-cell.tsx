@@ -1,4 +1,5 @@
 import type { SpendLog } from "@lite-llm/contracts/analytics";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   calculateTokensPerSecond,
   formatCurrency,
@@ -6,7 +7,6 @@ import {
   formatNumber,
   formatTimeRelative,
 } from "@/shared/lib/spend-log-utils";
-import { Badge } from "@/shared/components/ui/badge";
 import type { TableColumn } from "./logs-table-columns";
 
 type RenderLogCellParams = {

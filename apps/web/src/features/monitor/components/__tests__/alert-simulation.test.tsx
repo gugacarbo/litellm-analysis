@@ -1,9 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type {
-  ModelHealthEntry,
-  MonitorAlert,
-} from "../../types/monitor-types";
+import type { ModelHealthEntry, MonitorAlert } from "../../types/monitor-types";
 import { AlertHistoryTable } from "../alert-history-table";
 
 function createMockAlert(overrides: Partial<MonitorAlert> = {}): MonitorAlert {

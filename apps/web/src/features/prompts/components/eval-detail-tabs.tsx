@@ -1,10 +1,3 @@
-import type { EvalRunDetail } from "../types";
-import {
-  formatDuration,
-  formatPrecision,
-  formatTimestamp,
-  statusVariant,
-} from "../utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Separator } from "@/shared/components/ui/separator";
 import {
@@ -13,6 +6,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
+import type { EvalRunDetail } from "../types";
+import {
+  formatDuration,
+  formatPrecision,
+  formatTimestamp,
+  statusVariant,
+} from "../utils";
 import { CategoryTable } from "./category-table";
 import { FailedCasesList } from "./failed-cases-list";
 

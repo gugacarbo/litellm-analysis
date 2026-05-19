@@ -10,10 +10,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { CategoryConfigEditor } from "./components/category-config-editor";
 import { AgentRoutingAgentsTab } from "../agent-routing/components/agent-routing-agents-tab";
 import { AgentRoutingCategoriesTab } from "../agent-routing/components/agent-routing-categories-tab";
 import { AgentConfigEditor } from "./components/agent-config-editor";
+import { CategoryConfigEditor } from "./components/category-config-editor";
 import { useAgentRoutingPageState } from "./use-agent-routing-page";
 
 export function AgentsPage() {

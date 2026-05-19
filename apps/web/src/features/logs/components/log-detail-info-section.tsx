@@ -13,14 +13,14 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { Badge } from "@/shared/components/ui/badge";
+import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
+import { DetailRow, InfoSection } from "@/shared/components/ui/detail-row";
 import {
   formatDuration,
   formatFullDateTime,
   maskApiKey,
 } from "@/shared/lib/spend-log-utils";
-import { Badge } from "@/shared/components/ui/badge";
-import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
-import { DetailRow, InfoSection } from "@/shared/components/ui/detail-row";
 import { ContextBadge } from "./log-detail-context-badge";
 
 type LogDetailInfoSectionsProps = {

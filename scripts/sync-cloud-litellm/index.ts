@@ -27,6 +27,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { Client } from "pg";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..", "..");
@@ -220,7 +221,6 @@ async function fetchAllSpendLogs(
 
   const allLogs: unknown[] = [];
   let page = 1;
-  let totalFetched = 0;
 
   while (true) {
     const params = new URLSearchParams({
@@ -265,7 +265,6 @@ async function fetchAllSpendLogs(
     }
 
     allLogs.push(...items);
-    totalFetched += items.length;
     console.log(`   ✅  ${items.length} registros`);
 
     if (items.length < PAGE_SIZE) {
@@ -277,3 +276,238 @@ async function fetchAllSpendLogs(
 
   return allLogs;
 }
+
+// ─── Stats ───────────────────────────────────────────────────────────────────
+
+interface SpendLogFile {
+  logs?: unknown[];
+}
+
+async function cmdStats(args: string[]): Promise<void> {
+  const file = getRequiredFileArg(args, "stats");
+  const absoluteFile = path.resolve(ROOT, file);
+  const raw = await readFile(absoluteFile, "utf-8");
+  const parsed = JSON.parse(raw) as SpendLogFile;
+  const logs = Array.isArray(parsed.logs) ? parsed.logs : [];
+
+  console.log(`📄  Arquivo: ${absoluteFile}`);
+  console.log(`📦  Registros: ${logs.length}`);
+
+  if (logs.length === 0) {
+    return;
+  }
+
+  const records = logs as Record<string, unknown>[];
+  const uniqueModels = new Set(
+    records.map((record) => String(record.model ?? "")).filter(Boolean),
+  );
+  const totalSpend = records.reduce(
+    (accumulator: number, record: Record<string, unknown>) =>
+      accumulator +
+      (typeof record.spend === "number"
+        ? record.spend
+        : Number(record.spend) || 0),
+    0,
+  );
+  const totalTokens = records.reduce(
+    (accumulator: number, record: Record<string, unknown>) =>
+      accumulator +
+      (typeof record.total_tokens === "number"
+        ? record.total_tokens
+        : Number(record.total_tokens) || 0),
+    0,
+  );
+
+  const sortedDates = records
+    .map((record) => String(record.startTime ?? ""))
+    .filter(Boolean)
+    .sort();
+  const firstDate = sortedDates[0] ?? "?";
+  const lastDate = sortedDates[sortedDates.length - 1] ?? "?";
+
+  console.log(`🤖  Modelos únicos: ${uniqueModels.size}`);
+  console.log(
+    `💸  Spend total: $${totalSpend.toFixed(6)} (${(
+      totalSpend / logs.length
+    ).toFixed(6)} por registro)`,
+  );
+  console.log(`🔢  Tokens totais: ${totalTokens.toLocaleString()}`);
+  console.log(`🕒  Período: ${firstDate} → ${lastDate}`);
+}
+
+// ─── Import ──────────────────────────────────────────────────────────────────
+
+interface DbConfig {
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+  database: string;
+}
+
+function getDbConfig(): DbConfig {
+  const host = process.env.DB_HOST ?? "localhost";
+  const port = Number.parseInt(process.env.DB_PORT ?? "5432", 10);
+  const user = process.env.DB_USER ?? "llmproxy";
+  const database = process.env.DB_NAME ?? "litellm";
+  const password = process.env.DB_PASSWORD;
+
+  if (!password) {
+    console.error("ERRO: DB_PASSWORD não definida");
+    process.exit(1);
+  }
+
+  return { host, port, user, password, database };
+}
+
+async function cmdImport(args: string[]): Promise<void> {
+  const file = getRequiredFileArg(args, "import");
+  const absoluteFile = path.resolve(ROOT, file);
+  const raw = await readFile(absoluteFile, "utf-8");
+  const parsed = JSON.parse(raw) as SpendLogFile;
+  const logs = Array.isArray(parsed.logs) ? parsed.logs : [];
+
+  console.log(`📄  Lendo arquivo: ${absoluteFile}`);
+  console.log(`📦  Registros para importar: ${logs.length}`);
+
+  if (logs.length === 0) {
+    console.log("Nenhum registro para importar.");
+    return;
+  }
+
+  const db = getDbConfig();
+  const client = new Client(db);
+  await client.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    let imported = 0;
+    for (const rawLog of logs) {
+      const log = rawLog as Record<string, unknown>;
+      const requestId = String(log.request_id ?? "");
+      if (!requestId) {
+        continue;
+      }
+
+      await client.query(
+        `
+          INSERT INTO "LiteLLM_SpendLogs" (
+            "request_id", "call_type", "api_key", "spend", "total_tokens",
+            "prompt_tokens", "completion_tokens", "startTime", "endTime",
+            "request_duration_ms", "completionStartTime", "model", "model_id",
+            "model_group", "custom_llm_provider", "api_base", "user",
+            "metadata", "cache_hit", "cache_key", "request_tags", "team_id",
+            "organization_id", "end_user", "requester_ip_address", "messages",
+            "response", "session_id", "status", "mcp_namespaced_tool_name",
+            "agent_id", "proxy_server_request"
+          ) VALUES (
+            $1, $2, $3, $4, $5,
+            $6, $7, $8, $9,
+            $10, $11, $12, $13,
+            $14, $15, $16, $17,
+            $18, $19, $20, $21, $22,
+            $23, $24, $25, $26,
+            $27, $28, $29, $30,
+            $31, $32
+          )
+          ON CONFLICT ("request_id") DO NOTHING
+        `,
+        [
+          requestId,
+          String(log.call_type ?? ""),
+          String(log.api_key ?? ""),
+          Number(log.spend ?? 0),
+          Number(log.total_tokens ?? 0),
+          Number(log.prompt_tokens ?? 0),
+          Number(log.completion_tokens ?? 0),
+          toDate(log.startTime) ?? new Date(0),
+          toDate(log.endTime) ?? new Date(0),
+          toIntOrNull(log.request_duration_ms),
+          toDate(log.completionStartTime),
+          String(log.model ?? ""),
+          toStringOrNull(log.model_id),
+          toStringOrNull(log.model_group),
+          toStringOrNull(log.custom_llm_provider),
+          toStringOrNull(log.api_base),
+          toStringOrNull(log.user),
+          toJsonValue(log.metadata, "{}"),
+          toStringOrNull(log.cache_hit),
+          toStringOrNull(log.cache_key),
+          toJsonValue(log.request_tags, "[]"),
+          toStringOrNull(log.team_id),
+          toStringOrNull(log.organization_id),
+          toStringOrNull(log.end_user),
+          toStringOrNull(log.requester_ip_address),
+          toJsonValue(log.messages, "{}"),
+          toJsonValue(log.response, "{}"),
+          toStringOrNull(log.session_id),
+          toStringOrNull(log.status),
+          toStringOrNull(log.mcp_namespaced_tool_name),
+          toStringOrNull(log.agent_id),
+          toJsonValue(log.proxy_server_request, "{}"),
+        ],
+      );
+
+      imported += 1;
+      if (imported % 500 === 0) {
+        console.log(`   ✅  ${imported}/${logs.length} processados`);
+      }
+    }
+
+    await client.query("COMMIT");
+    console.log(`✅  Import finalizado. Registros processados: ${imported}`);
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    await client.end();
+  }
+}
+
+function getRequiredFileArg(args: string[], command: string): string {
+  const file = args[0];
+  if (!file) {
+    console.error(`Uso: ${command} <arquivo>`);
+    process.exit(1);
+  }
+  return file;
+}
+
+function toStringOrNull(value: unknown): string | null {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (value === null || value === undefined) {
+    return null;
+  }
+  return String(value);
+}
+
+function toIntOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.trunc(number) : null;
+}
+
+function toDate(value: unknown): Date | null {
+  if (typeof value !== "string" || value.length === 0) {
+    return null;
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function toJsonValue(value: unknown, fallback: string): unknown {
+  if (value === null || value === undefined) {
+    return JSON.parse(fallback);
+  }
+  return value;
+}
+
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exit(1);
+});

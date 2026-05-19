@@ -14,8 +14,8 @@ import {
 import { Label } from "@/shared/components/ui/label";
 import { Switch } from "@/shared/components/ui/switch";
 import { APP_LOCALE } from "@/shared/lib/locale";
-import { LOG_COLUMNS, type LogColumnKey } from "./logs-table-columns";
 import { cn } from "@/shared/lib/utils";
+import { LOG_COLUMNS, type LogColumnKey } from "./logs-table-columns";
 
 type LogsTableHeaderProps = {
   loading: boolean;
@@ -94,7 +94,10 @@ export function LogsTableHeader({
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="max-h-80 overflow-y-auto">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-80 overflow-y-auto"
+            >
               {LOG_COLUMNS.map((col) => (
                 <DropdownMenuCheckboxItem
                   key={col.key}

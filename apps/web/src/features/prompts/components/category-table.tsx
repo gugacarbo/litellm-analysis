@@ -1,5 +1,3 @@
-import type { CategoryMetrics } from "../types";
-import { formatPrecision, getScoreColor } from "../utils";
 import {
   Table,
   TableBody,
@@ -9,6 +7,8 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { cn } from "@/shared/lib/utils";
+import type { CategoryMetrics } from "../types";
+import { formatPrecision, getScoreColor } from "../utils";
 
 interface CategoryTableProps {
   categories: CategoryMetrics[];

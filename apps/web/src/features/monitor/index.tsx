@@ -1,6 +1,7 @@
 import { AlertTriangle, BarChart3, Clock, Radar, Radio } from "lucide-react";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { MetricCard } from "@/shared/components/metric-card";
 import { PageLayout } from "@/shared/components/ui/page-layout";
 import {
   Tabs,
@@ -8,7 +9,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { MetricCard } from "@/shared/components/metric-card";
 import { HealthStatusContent } from "../health-status";
 import { AlertDetailDialog } from "./components/alert-detail-dialog";
 import { AlertHistoryTable } from "./components/alert-history-table";

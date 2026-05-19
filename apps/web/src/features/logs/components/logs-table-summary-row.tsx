@@ -1,11 +1,11 @@
 import type { SpendLog } from "@lite-llm/contracts/analytics";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   formatCurrency,
   formatNumber,
   formatTimeRelative,
 } from "@/shared/lib/spend-log-utils";
 import { cn } from "@/shared/lib/utils";
-import { Badge } from "@/shared/components/ui/badge";
 import type { TableColumn } from "./logs-table-columns";
 import type { GroupSummary } from "./logs-table-utils";
 
