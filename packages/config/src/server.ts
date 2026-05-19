@@ -1,6 +1,6 @@
+import { resolve } from "node:path";
 import { createEnv } from "@t3-oss/env-core";
 import dotenv from "dotenv";
-import { resolve } from "node:path";
 import { z } from "zod";
 
 const packageRoot = resolve(import.meta.dirname, "..");
