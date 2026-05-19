@@ -8,12 +8,13 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "listr2": "^10.2.1",
     "pg": "^8.16.3",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/pg": "*",
     "@types/node": "catalog:",
+    "@types/pg": "*",
     "typescript": "catalog:"
   }
 }

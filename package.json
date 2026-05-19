@@ -17,7 +17,9 @@
     "sync:aa-benchmarks": "tsx scripts/sync-aa-benchmarks/index.ts",
     "sync:cloud": "tsx scripts/sync-cloud-litellm/index.ts",
     "validate:agents": "tsx scripts/validate-agents/index.ts",
-    "validate:agents:all": "tsx scripts/validate-agents/index.ts --strict"
+    "validate:agents:all": "tsx scripts/validate-agents/index.ts --strict",
+    "backup": "tsx scripts/litellm-backup/index.ts",
+    "backup:list": "ls -lh backups/*.sql.gz 2>/dev/null || echo 'No backups found'"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

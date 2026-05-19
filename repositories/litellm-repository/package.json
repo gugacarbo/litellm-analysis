@@ -16,9 +16,7 @@
     "db:sync": "tsx scripts/sync-schema.ts",
     "db:generate": "prisma generate",
     "db:pull": "prisma db pull --force",
-    "db:validate": "prisma validate",
-    "backup": "tsx scripts/backup.ts",
-    "backup:list": "ls -lh backups/*.sql.gz 2>/dev/null || echo 'No backups found'"
+    "db:validate": "prisma validate"
   },
   "dependencies": {
     "@lite-llm/config": "workspace:*"

@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-13 (updated 2026-05-13)
+**Generated:** 2026-05-13 (updated 2026-05-18)
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -174,6 +174,10 @@ pnpm --filter @lite-llm/litellm-repository db:generate   # Generate Prisma clien
 pnpm --filter @lite-llm/litellm-repository db:sync        # Clone schema + migrations from upstream LiteLLM repo
 pnpm --filter @lite-llm/litellm-repository db:pull        # Introspect DB tables
 pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma schema
+
+# LiteLLM database backup
+pnpm backup           # Run LiteLLM database backup with progress display
+pnpm backup:list      # List available backup files in backups/
 ```
 
 ## BUILD & CI (Gaps)
