@@ -74,7 +74,6 @@ export function PluginConfigPage() {
           {state.pluginId === "opencode" ? (
             <OpenCodeConfigPage
               config={state.configValues}
-              availableModels={[]}
               onChange={state.handleConfigChange}
             />
           ) : state.jsonSchema ? (
