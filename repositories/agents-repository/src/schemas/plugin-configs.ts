@@ -131,3 +131,39 @@ export const litellmAliasPluginConfigSchema = z
 export type LitellmAliasPluginConfig = z.infer<
   typeof litellmAliasPluginConfigSchema
 >;
+
+/** JSON Schema for the OpenCode plugin config. */
+export const openCodePluginJsonSchema = z.toJSONSchema(
+  openCodePluginConfigSchema,
+);
+
+/** JSON Schema for the OpenAgent plugin config. */
+export const openAgentPluginJsonSchema = z.toJSONSchema(
+  openAgentPluginConfigSchema,
+);
+
+/** JSON Schema for the VSCode plugin config. */
+export const vsCodePluginJsonSchema = z.toJSONSchema(vsCodePluginConfigSchema);
+
+/** JSON Schema for the LiteLLM Alias plugin config. */
+export const litellmAliasPluginJsonSchema = z.toJSONSchema(
+  litellmAliasPluginConfigSchema,
+);
+
+/** Map of plugin ID to its JSON Schema for config validation. */
+export const pluginConfigJsonSchemas: Record<
+  string,
+  Record<string, unknown>
+> = {
+  opencode: openCodePluginJsonSchema,
+  openagent: openAgentPluginJsonSchema,
+  vscode: vsCodePluginJsonSchema,
+  "litellm-alias": litellmAliasPluginJsonSchema,
+};
+
+/** Get the JSON Schema for a plugin's config by ID. */
+export function getPluginConfigJsonSchema(
+  pluginId: string,
+): Record<string, unknown> | null {
+  return pluginConfigJsonSchemas[pluginId] ?? null;
+}

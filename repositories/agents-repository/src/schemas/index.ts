@@ -27,9 +27,11 @@ export type {
   VsCodePluginConfig,
 } from "./plugin-configs";
 export {
+  getPluginConfigJsonSchema,
   litellmAliasPluginConfigSchema,
   openAgentPluginConfigSchema,
   openCodePluginConfigSchema,
+  pluginConfigJsonSchemas,
   vsCodePluginConfigSchema,
 } from "./plugin-configs";
 export type {
