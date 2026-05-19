@@ -57,4 +57,4 @@ __pycache__
 .worktrees/
 .superpowers/brainstorm
 
-@db/*.db
+.backups
