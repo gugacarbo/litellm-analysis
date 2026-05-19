@@ -1,8 +1,14 @@
 import { createEnv } from "@t3-oss/env-core";
 import dotenv from "dotenv";
+import { resolve } from "node:path";
 import { z } from "zod";
 
-dotenv.config({ path: ["../../.env.local", "../../.env"] });
+const packageRoot = resolve(import.meta.dirname, "..");
+const repoRoot = resolve(packageRoot, "..", "..");
+
+dotenv.config({
+  path: [resolve(repoRoot, ".env.local"), resolve(repoRoot, ".env")],
+});
 
 export const serverSchema = {
   PORT: z.coerce.number().int().positive(),
@@ -29,5 +35,26 @@ export const serverEnv = createEnv({
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });
+
+const backupDbSchema = z.object({
+  DB_HOST: z.string().min(1, "DB_HOST is required"),
+  DB_PORT: z.coerce.number().int().positive(),
+  DB_NAME: z.string().min(1, "DB_NAME is required"),
+  DB_USER: z.string().min(1, "DB_USER is required"),
+  DB_PASSWORD: z.string().min(1, "DB_PASSWORD is required"),
+});
+
+export function getBackupDatabaseUrlFromEnv(): string {
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
+
+  const env = backupDbSchema.parse(process.env);
+  const user = encodeURIComponent(env.DB_USER);
+  const password = encodeURIComponent(env.DB_PASSWORD);
+  const dbName = encodeURIComponent(env.DB_NAME);
+
+  return `postgresql://${user}:${password}@${env.DB_HOST}:${env.DB_PORT}/${dbName}`;
+}
 
 export type ServerEnv = typeof serverEnv;
