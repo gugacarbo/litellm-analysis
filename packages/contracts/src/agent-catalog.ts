@@ -51,6 +51,10 @@ export interface PluginConfigResponse {
 
 export type PluginRoutingResponse = Record<string, PluginRouting>;
 
+export interface PluginSchemaResponse {
+  schema: Record<string, unknown>;
+}
+
 export interface PluginToggleResponse {
   pluginId: string;
   agentId: string;

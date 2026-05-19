@@ -151,6 +151,30 @@ export function registerPluginRoutingRoutes(
     }
   });
 
+  // GET /plugin-routing/:pluginId/schema
+  app.get("/plugin-routing/:pluginId/schema", async (req, res) => {
+    try {
+      const manager = opts.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+      const { pluginId } = req.params;
+      const schema = manager.registry.getJsonSchema(pluginId);
+
+      if (!schema) {
+        res
+          .status(404)
+          .json({ error: `Schema for plugin "${pluginId}" not found` });
+        return;
+      }
+
+      res.json({ schema });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
   // GET /plugin-routing/:pluginId/config
   app.get("/plugin-routing/:pluginId/config", async (req, res) => {
     try {
