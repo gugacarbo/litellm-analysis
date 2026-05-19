@@ -21,11 +21,18 @@ function createMockRepository(): IAgentsRepository {
   };
 }
 
+// Create mock plugin - uses type assertion for flexible ID testing
 function createMockPlugin(
-  overrides: Partial<IPlugin<"opencode">> = {},
-): IPlugin<"opencode"> {
+  overrides: {
+    id?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    buildOutput?: (...args: any[]) => any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    validate?: (output: any) => boolean;
+  } = {},
+): IPlugin {
   return {
-    id: "test-plugin",
+    id: overrides.id ?? "test-plugin",
     name: "Test Plugin",
     version: 1,
     getInternalAgents: () => [
@@ -34,11 +41,12 @@ function createMockPlugin(
     getConfigSchema: () => [
       { key: "apiKey", type: "string", label: "API Key", required: true },
     ],
-    buildOutput: () => ({ output: true }),
+    buildOutput: overrides.buildOutput ?? (() => ({ output: true })),
     getOutputFile: () => "test.json",
-    validate: (output) => typeof output === "object" && output !== null,
-    ...overrides,
-  };
+    validate:
+      overrides.validate ??
+      ((output: unknown) => typeof output === "object" && output !== null),
+  } as unknown as IPlugin;
 }
 
 function createMockModelsRepository(
@@ -245,7 +253,8 @@ describe("PluginRegistry", () => {
         allPlugins: [],
       });
 
-      const buildOutputSpy = vi.fn().mockReturnValue({ result: true });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const buildOutputSpy = vi.fn().mockReturnValue({ result: true }) as any;
       const plugin = createMockPlugin({ buildOutput: buildOutputSpy });
       registry.register(plugin);
 
@@ -255,7 +264,6 @@ describe("PluginRegistry", () => {
       const callArgs = buildOutputSpy.mock.calls[0];
       const agents = callArgs[0];
       const routing = callArgs[1];
-      const _ctx = callArgs[2];
       expect(agents).toHaveLength(1);
       expect(agents[0].displayName).toBe("Builder");
       expect(routing.enabled).toBe(true);
@@ -276,7 +284,8 @@ describe("PluginRegistry", () => {
 
     it("carrega allModels e litellmConfig do models repository", async () => {
       const mockRepo = createMockRepository();
-      const buildOutputSpy = vi.fn().mockReturnValue({ result: true });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const buildOutputSpy = vi.fn().mockReturnValue({ result: true }) as any;
       const plugin = createMockPlugin({ buildOutput: buildOutputSpy });
 
       const registry = new PluginRegistry({
