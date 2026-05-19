@@ -18,10 +18,8 @@ type ModelStatsSummaryCardsProps = {
   avgLatency: number;
   avgTokensPerSecond: number;
   avgCostPerRequest: number;
-  avgCostPer1kTokens: number;
   topSpendModel: string;
   topSpendValue: number;
-  maxTokensPerSecond: number;
   topEfficiencyModel: string;
   bestCostPer1k: number;
 };
@@ -36,10 +34,8 @@ export function ModelStatsSummaryCards({
   avgLatency,
   avgTokensPerSecond,
   avgCostPerRequest,
-  avgCostPer1kTokens,
   topSpendModel,
   topSpendValue,
-  maxTokensPerSecond,
   topEfficiencyModel,
   bestCostPer1k,
 }: ModelStatsSummaryCardsProps) {

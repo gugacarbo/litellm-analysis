@@ -1,12 +1,12 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import type { CaseResult, EvalRunDetail } from "types";
+import type { CaseResult, EvalRunDetail } from "../types";
 import {
   formatDuration,
   formatPrecision,
   formatRelativeTime,
   statusVariant,
-} from "utils";
+} from "../utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { CategoryTable } from "./category-table";

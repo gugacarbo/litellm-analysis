@@ -97,7 +97,7 @@ export function AgentConfigForm({
           description="Basic agent information"
           defaultOpen={true}
         >
-          <GeneralSection
+          <AgentGeneralSection
             config={{
               id: formData.id,
               displayName: formData.displayName,
@@ -171,7 +171,7 @@ export function AgentConfigForm({
           description="Mode, temperature, prompts"
           defaultOpen={false}
         >
-          <AdvancedSection
+          <AgentAdvancedSection
             config={{
               id: formData.id,
               displayName: formData.displayName,
@@ -259,3 +259,9 @@ export function AgentConfigForm({
     </div>
   );
 }
+
+import type { AgentConfigFormData } from "../agent-config-types";
+import { AgentAdvancedSection } from "./agent-advanced-section";
+import { AgentGeneralSection } from "./agent-general-section";
+import { ModelSection } from "./model-section";
+import { ToolsSection } from "./tools-section";

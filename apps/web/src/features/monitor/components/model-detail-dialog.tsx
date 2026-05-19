@@ -1,4 +1,3 @@
-import type { ModelHealthEntry } from "monitor-types";
 import {
   Dialog,
   DialogContent,
@@ -7,6 +6,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 import { cn } from "@/shared/lib/utils";
+import type { ModelHealthEntry } from "../types/monitor-types";
 import { HealthStatusBadge } from "./health-status-badge";
 
 function getSuccessRateColor(rate: number): string {

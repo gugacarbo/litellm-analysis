@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
-import type { ModelConfigFormData } from "../../../pages/model-config/use-model-config-page";
+import type { ModelConfigFormData } from "../../use-model-config-page";
 
 interface DatabaseSettingsSectionProps {
   formData: ModelConfigFormData;

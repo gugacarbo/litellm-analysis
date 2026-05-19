@@ -59,10 +59,8 @@ export function ModelStatsPage() {
           avgLatency={state.avgLatency}
           avgTokensPerSecond={state.avgTokensPerSecond}
           avgCostPerRequest={state.avgCostPerRequest}
-          avgCostPer1kTokens={state.avgCostPer1kTokens}
           topSpendModel={state.topSpendModel}
           topSpendValue={state.topSpendValue}
-          maxTokensPerSecond={state.maxTokensPerSecond}
           topEfficiencyModel={state.topEfficiencyModel}
           bestCostPer1k={state.bestCostPer1k}
         />

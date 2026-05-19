@@ -1,13 +1,3 @@
-import type {
-  AlertMetadata,
-  AnomalyType,
-  ErrorSpikeMetadata,
-  ModelOfflineMetadata,
-  MonitorAlert,
-  SilentFailureMetadata,
-  TimeoutStuckMetadata,
-} from "monitor-types";
-import { formatTimestamp, parseAlertMetadata } from "monitor-utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DetailRow } from "@/shared/components/ui/detail-row";
@@ -21,6 +11,16 @@ import {
 } from "@/shared/components/ui/dialog";
 import { APP_LOCALE } from "@/shared/lib/locale";
 import { cn } from "@/shared/lib/utils";
+import type {
+  AlertMetadata,
+  AnomalyType,
+  ErrorSpikeMetadata,
+  ModelOfflineMetadata,
+  MonitorAlert,
+  SilentFailureMetadata,
+  TimeoutStuckMetadata,
+} from "../types/monitor-types";
+import { formatTimestamp, parseAlertMetadata } from "../utils/monitor-utils";
 import { AlertSeverityBadge } from "./alert-severity-badge";
 import { AlertTypeBadge } from "./alert-type-badge";
 

@@ -1,4 +1,3 @@
-import type { ModelHealthEntry, MonitorAlert } from "monitor-types";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -21,6 +20,7 @@ import { getMonitorAlerts } from "@/shared/lib/api-client/monitor";
 import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 import { formatDateTime } from "@/shared/lib/spend-log-utils";
 import { cn } from "@/shared/lib/utils";
+import type { ModelHealthEntry, MonitorAlert } from "../types/monitor-types";
 import { AlertFilters, type AlertFiltersState } from "./alert-filters";
 import { AlertSeverityBadge } from "./alert-severity-badge";
 import { AlertTypeBadge } from "./alert-type-badge";

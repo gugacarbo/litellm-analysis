@@ -8,7 +8,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { ModelSelect } from "./components/model-select";
 import { PollingIndicator } from "./components/polling-indicator";
 import { RunCard } from "./components/run-card";
-import { usePromptEvalsPage } from "./use-prompt-evals-page";
+import { usePromptEvalsPage } from "./hooks/use-prompt-evals-page";
 
 export function PromptEvalsPage() {
   const {

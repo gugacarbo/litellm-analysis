@@ -15,17 +15,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDownIcon } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "./button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "./dropdown-menu";
-import { Input } from "./input";
+
 import { Skeleton } from "./skeleton";
 import {
   Table,
@@ -129,7 +122,6 @@ export function DataTable<TData, TValue>({
   columnVisibility: externalColumnVisibility,
   onColumnVisibilityChange,
   filterColumn,
-  filterPlaceholder = "Filter...",
   showFilterInput = true,
   sortStatus,
   onSortChange,
@@ -146,8 +138,6 @@ export function DataTable<TData, TValue>({
   align,
   onRowClick,
   className,
-  columnLabels,
-  showColumnsSelector = true,
 }: DataTableProps<TData, TValue>) {
   // -- Internal state (used when not controlled) --
   const [internalSorting, setInternalSorting] = React.useState<SortingState>(
@@ -251,7 +241,6 @@ export function DataTable<TData, TValue>({
 
   // -- Render ---------------------------------------------------------------
 
-  const showToolbar =
     showFilterInput && filterColumn
       ? true
       : toolbar

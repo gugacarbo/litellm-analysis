@@ -62,7 +62,7 @@ vi.mock("sonner", async (importOriginal) => {
   };
 });
 
-import { ModelStatsPage } from "../model-stats";
+import { ModelStatsPage } from "@/features/model-stats/index";
 
 describe("ModelStatsPage", () => {
   beforeEach(() => {

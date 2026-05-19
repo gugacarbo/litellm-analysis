@@ -1,5 +1,5 @@
 import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
-import type { AlertMetadata } from "./monitor-types";
+import type { AlertMetadata } from "../types/monitor-types";
 
 export function formatTimestamp(unixSeconds: number): string {
   return new Date(unixSeconds * 1000).toLocaleString(APP_LOCALE, {

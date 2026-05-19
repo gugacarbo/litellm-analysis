@@ -29,7 +29,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-} from "../../ui/sidebar";
+} from "@/shared/components/ui/sidebar";
 
 interface NavLeaf {
   id?: string;

@@ -16,8 +16,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { AdvancedSection } from "./advanced-section";
-import { GeneralSection } from "./general-section";
+import { AgentAdvancedSection } from "./agent-advanced-section";
+import { AgentGeneralSection } from "./agent-general-section";
 import { ModelSection } from "./model-section";
 import { normalizeSystemAgent } from "./normalize";
 import { ToolsSection } from "./tools-section";
@@ -89,7 +89,7 @@ export function AgentConfigEditor({
 
           <div className="flex-1 overflow-y-auto">
             <TabsContent value="general" className="mt-0">
-              <GeneralSection config={config} onFieldChange={updateField} />
+              <AgentGeneralSection config={config} onFieldChange={updateField} />
             </TabsContent>
 
             <TabsContent value="model" className="mt-0">
@@ -104,7 +104,7 @@ export function AgentConfigEditor({
             </TabsContent>
 
             <TabsContent value="advanced" className="mt-0">
-              <AdvancedSection
+              <AgentAdvancedSection
                 config={config}
                 onConfigFieldChange={updateConfigField}
               />

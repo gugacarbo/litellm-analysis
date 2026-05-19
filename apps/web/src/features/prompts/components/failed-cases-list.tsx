@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import type { CaseResult } from "types";
+import type { CaseResult } from "../types";
 import { cn } from "@/shared/lib/utils";
 
 interface FailedCasesListProps {

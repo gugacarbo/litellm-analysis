@@ -47,7 +47,7 @@ vi.mock("../../lib/api-client", () => {
   };
 });
 
-import { ModelsPage } from "../models";
+import { ModelsPage } from "@/features/models/list-index";
 
 describe("ModelsPage", () => {
   beforeEach(() => {

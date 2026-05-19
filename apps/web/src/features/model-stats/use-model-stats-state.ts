@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { useFilter } from "@/contexts/filter-context";
+import { useFilter } from "@/shared/contexts/filter-context";
 import { getDateRangeLabel } from "@/features/dashboard/utils/dashboard-utils";
 import {
   getCostEfficiencyByModel,

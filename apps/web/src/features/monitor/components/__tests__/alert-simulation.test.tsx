@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type {
   ModelHealthEntry,
   MonitorAlert,
-} from "@/features/monitor/monitor-types";
+} from "../../types/monitor-types";
 import { AlertHistoryTable } from "../alert-history-table";
 
 function createMockAlert(overrides: Partial<MonitorAlert> = {}): MonitorAlert {

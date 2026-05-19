@@ -1,10 +1,10 @@
-import type { EvalRunDetail } from "types";
+import type { EvalRunDetail } from "../types";
 import {
   formatDuration,
   formatPrecision,
   formatTimestamp,
   statusVariant,
-} from "utils";
+} from "../utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Separator } from "@/shared/components/ui/separator";
 import {

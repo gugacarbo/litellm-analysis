@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import type { ModelHealthEntry, MonitorAlert } from "./monitor-types";
-import { formatAnomalyType } from "./monitor-utils";
+import type { ModelHealthEntry, MonitorAlert } from "../types/monitor-types";
+import { formatAnomalyType } from "../utils/monitor-utils";
 
 export interface SeveritySlice {
   name: string;

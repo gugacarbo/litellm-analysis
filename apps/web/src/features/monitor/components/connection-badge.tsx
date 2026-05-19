@@ -1,4 +1,4 @@
-import type { ConnectionState } from "monitor-types";
+import type { ConnectionState } from "../types/monitor-types";
 
 interface ConnectionBadgeProps {
   status: ConnectionState;

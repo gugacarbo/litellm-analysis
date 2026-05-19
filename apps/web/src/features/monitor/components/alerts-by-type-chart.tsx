@@ -7,7 +7,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { AlertsByTypeItem } from "use-monitor-derived";
 import {
   Card,
   CardContent,
@@ -17,6 +16,7 @@ import {
 import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { CHART_COLORS } from "@/shared/lib/chart-colors";
+import type { AlertsByTypeItem } from "../hooks/use-monitor-derived";
 
 type AlertsByTypeChartProps = {
   data: AlertsByTypeItem[];
@@ -31,9 +31,9 @@ export function AlertsByTypeChart({ data, loading }: AlertsByTypeChartProps) {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <Skeleton className="h-[240px] w-full" />
+          <Skeleton className="h-60 w-full" />
         ) : !data || data.length === 0 ? (
-          <div className="flex h-[240px] items-center justify-center text-sm text-muted-foreground">
+          <div className="flex h-60 items-center justify-center text-sm text-muted-foreground">
             No alerts
           </div>
         ) : (

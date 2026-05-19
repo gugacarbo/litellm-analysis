@@ -52,7 +52,7 @@ vi.mock("sonner", async (importOriginal) => {
 
 import { getModelStatistics } from "@/shared/lib/api-client/analytics";
 import { deleteModelLogs } from "@/shared/lib/api-client/models";
-import { ModelStatsPage } from "../model-stats";
+import { ModelStatsPage } from "@/features/model-stats/index";
 
 describe("ModelStatsPage", () => {
   beforeEach(() => {

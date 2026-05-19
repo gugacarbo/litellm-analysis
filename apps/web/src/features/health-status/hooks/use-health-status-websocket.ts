@@ -4,7 +4,7 @@ import type {
   ConnectionState,
   HealthCheckResultEntry,
   HealthCheckUpdatePayload,
-} from "./health-status-types";
+} from "../health-status-types";
 
 function getWsUrl(): string {
   if (import.meta.env.PROD) {

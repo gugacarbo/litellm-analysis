@@ -1,5 +1,5 @@
-import type { CategoryMetrics } from "types";
-import { formatPrecision, getScoreColor } from "utils";
+import type { CategoryMetrics } from "../types";
+import { formatPrecision, getScoreColor } from "../utils";
 import {
   Table,
   TableBody,

@@ -6,7 +6,7 @@ import type {
   EvalInputCase,
   SortDirection,
   SortField,
-} from "./types";
+} from "../types";
 
 const CASES_STORAGE_KEY = "prompt-evals-cases";
 
@@ -109,7 +109,7 @@ export function usePromptEvalsState() {
   const modelsQuery = useQuery({
     queryKey: ["models"],
     queryFn: () =>
-      import("../../lib/api-client/models.js").then((m) => m.getAllModels()),
+      import("@/shared/lib/api-client/models").then((m) => m.getAllModels()),
   });
 
   // Update form default model when models load

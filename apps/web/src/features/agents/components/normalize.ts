@@ -1,3 +1,38 @@
+import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
+
+const DEFAULT_SYSTEM_AGENT: SystemAgent = {
+  displayName: "",
+  icon: "🤖",
+  description: "",
+  model: "",
+  fallbackModels: [],
+  limits: { context: 200000, output: 32768 },
+  config: {
+    mode: "primary",
+    tools: {},
+    permissions: {},
+    color: "",
+    disable: false,
+    category: "",
+    skills: [],
+    temperature: 0,
+    topP: 1,
+    prompt: "",
+    promptAppend: "",
+  },
+};
+
+export function normalizeSystemAgent(
+  partial: Partial<SystemAgent>,
+): SystemAgent {
+  return {
+    ...DEFAULT_SYSTEM_AGENT,
+    ...partial,
+    limits: { ...DEFAULT_SYSTEM_AGENT.limits, ...partial.limits },
+    config: { ...DEFAULT_SYSTEM_AGENT.config, ...partial.config },
+  };
+}
+
 import type { CategoryEntry } from "@lite-llm/contracts/category";
 
 // Normalize a partial CategoryEntry with defaults

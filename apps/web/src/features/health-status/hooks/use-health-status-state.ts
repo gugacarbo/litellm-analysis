@@ -10,7 +10,7 @@ import { queryKeys } from "@/shared/lib/query-keys";
 import type {
   HealthCheckResultEntry,
   HealthCheckSummaryData,
-} from "./health-status-types";
+} from "../health-status-types";
 import { useHealthStatusWebSocket } from "./use-health-status-websocket";
 
 const REFETCH_INTERVAL = 30_000;

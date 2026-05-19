@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { acknowledgeAlertById } from "@/shared/lib/api-client/monitor";
-import type { MonitorAlert } from "./monitor-types";
+import type { MonitorAlert } from "../types/monitor-types";
 
 interface UseMonitorActionsResult {
   acknowledgeAlert: (id: number) => Promise<void>;

@@ -1,4 +1,4 @@
-import { ANOMALY_TYPE_LABELS } from "@/features/monitor/monitor-utils";
+import { ANOMALY_TYPE_LABELS } from "../utils/monitor-utils";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import {

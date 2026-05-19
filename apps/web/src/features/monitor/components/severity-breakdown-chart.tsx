@@ -6,7 +6,6 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import type { SeveritySlice } from "use-monitor-derived";
 import {
   Card,
   CardContent,
@@ -16,6 +15,7 @@ import {
 import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
+import type { SeveritySlice } from "../hooks/use-monitor-derived";
 
 interface SeverityBreakdownChartProps {
   data: SeveritySlice[];
@@ -29,7 +29,7 @@ export function SeverityBreakdownChart({
   if (loading) {
     return (
       <Card>
-        <Skeleton className="h-[240px] w-full" />
+        <Skeleton className="h-60 w-full" />
       </Card>
     );
   }
@@ -37,9 +37,7 @@ export function SeverityBreakdownChart({
   if (data.length === 0) {
     return (
       <Card>
-        <CardContent
-          className={cn("flex items-center justify-center h-[240px]")}
-        >
+        <CardContent className={cn("flex items-center justify-center h-60")}>
           <p className="text-sm text-muted-foreground">No alerts</p>
         </CardContent>
       </Card>

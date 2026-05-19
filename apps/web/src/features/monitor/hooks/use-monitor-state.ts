@@ -6,13 +6,13 @@ import {
   getMonitorStats,
   type MonitorStats,
 } from "@/shared/lib/api-client/monitor";
-import { useMonitorWebSocket } from "../../hooks/use-monitor-websocket";
 import type {
   ConnectionState,
   HealthUpdateData,
   ModelHealthEntry,
   MonitorAlert,
-} from "./monitor-types";
+} from "../types/monitor-types";
+import { useMonitorWebSocket } from "./use-monitor-websocket";
 
 interface UseMonitorStateResult {
   websocketStatus: ConnectionState;

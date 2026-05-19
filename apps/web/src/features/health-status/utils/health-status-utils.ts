@@ -1,4 +1,4 @@
-import type { HealthCheckStatus } from "./health-status-types";
+import type { HealthCheckStatus } from "../health-status-types";
 
 export const STATUS_COLORS: Record<HealthCheckStatus, string> = {
   healthy: "#10b981",
