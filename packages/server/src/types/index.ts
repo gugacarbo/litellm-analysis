@@ -1,6 +1,9 @@
 import type { AgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
-import type { IModelService } from "@lite-llm/models-service";
+import type {
+  IModelService,
+  IProviderService,
+} from "@lite-llm/models-service";
 
 export type AgentsManager = AgentPluginsOrchestrator;
 
@@ -16,6 +19,22 @@ export interface DbModelSpecLike {
     input?: number;
     output?: number;
   };
+}
+
+export interface OrchestrationServices {
+  dataSource: AnalyticsDataSource;
+  syncGeneratedArtifacts: () => Promise<void>;
+  syncModelsDirectlyToDatabase(
+    models: Record<string, DbModelSpecLike>,
+  ): Promise<void>;
+}
+
+export interface RouteOptions {
+  dataSource: AnalyticsDataSource;
+  orchestration: OrchestrationServices;
+  modelsService: IModelService;
+  providerService: IProviderService;
+  agentsManager?: AgentsManager;
 }
 
 export interface OrchestrationServices {

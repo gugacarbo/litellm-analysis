@@ -13,6 +13,7 @@ import { prisma } from "@lite-llm/analytics-service/queries/client";
 import {
   createRepositoryClient as createModelsRepositoryClient,
   ModelService,
+  ProviderService,
 } from "@lite-llm/models-service";
 import { createOrchestrationServices } from "@lite-llm/server/orchestration";
 import { createAppContext } from "../contexts";
@@ -100,6 +101,9 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   );
   const modelsRepository = createModelsRepositoryClient();
   const modelsService = new ModelService({ repository: modelsRepository });
+  const providerService = new ProviderService({
+    repository: modelsRepository,
+  });
   const orchestration = createOrchestrationServices(
     ctx.analytics.dataSource,
     agentPlugins,
@@ -112,6 +116,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       orchestration,
       agentsManager: agentPlugins,
       modelsService,
+      providerService,
     },
     ctx,
   );

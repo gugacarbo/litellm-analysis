@@ -174,5 +174,13 @@ export function usePluginConfigPage(pluginId: string) {
     handleCategoryToggle,
     handleSave,
     jsonSchema: schemaData?.schema ?? null,
+    allModels: (safeData as Record<string, unknown>).allModels as Record<
+      string,
+      unknown
+    >,
+    litellmProvider: (safeData as Record<string, unknown>).litellmProvider as {
+      baseUrl: string;
+      name: string;
+    },
   };
 }

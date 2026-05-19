@@ -227,7 +227,13 @@ async function runParallelDirectoryDump(
     clearInterval(interval);
   });
 
-  await packDirectoryDump(dumpDir, config.backupFile, config.gzipEnabled, task);
+  await packDirectoryDump(
+    dumpDir,
+    config.backupFile,
+    config.gzipEnabled,
+    config.parallelJobs,
+    task,
+  );
   rmSync(dumpDir, { recursive: true, force: true });
 }
 
@@ -235,19 +241,43 @@ async function packDirectoryDump(
   dumpDir: string,
   backupFile: string,
   gzipEnabled: boolean,
+  parallelJobs: number,
   task: ListrTaskLike,
 ): Promise<void> {
   const estimatedTotalBytes = Math.max(1, getDirectorySize(dumpDir));
+  const canUsePigz = gzipEnabled && isCommandAvailable("pigz");
   task.output = gzipEnabled
-    ? "Packaging parallel dump (.tar.gz)..."
+    ? canUsePigz
+      ? `Packaging parallel dump (.tar.gz) with pigz (${parallelJobs} threads)...`
+      : "Packaging parallel dump (.tar.gz)..."
     : "Packaging parallel dump (.tar)...";
+  if (gzipEnabled && !canUsePigz) {
+    console.log(
+      "Warning: `pigz` not found. Install it for faster parallel packing " +
+        "(Ubuntu/Debian: `sudo apt install pigz`, macOS: `brew install pigz`).",
+    );
+  }
 
   const parentDir = dirname(dumpDir);
   const dirName = basename(dumpDir);
-  const tarArgs = gzipEnabled
-    ? ["-czf", backupFile, "-C", parentDir, dirName]
-    : ["-cf", backupFile, "-C", parentDir, dirName];
-  const tar = spawn("tar", tarArgs, { stdio: ["ignore", "ignore", "pipe"] });
+  const tar = canUsePigz
+    ? spawn(
+        "bash",
+        [
+          "-o",
+          "pipefail",
+          "-c",
+          `tar -cf - -C "${parentDir}" "${dirName}" | pigz -p ${parallelJobs} > "${backupFile}"`,
+        ],
+        { stdio: ["ignore", "ignore", "pipe"] },
+      )
+    : spawn(
+        "tar",
+        gzipEnabled
+          ? ["-czf", backupFile, "-C", parentDir, dirName]
+          : ["-cf", backupFile, "-C", parentDir, dirName],
+        { stdio: ["ignore", "ignore", "pipe"] },
+      );
 
   let lastError = "";
   const speedSamples = Array<number>(20).fill(1);
@@ -432,6 +462,15 @@ function getFileSize(path: string): number {
     return statSync(path).size;
   } catch {
     return 0;
+  }
+}
+
+function isCommandAvailable(command: string): boolean {
+  try {
+    execSync(`command -v ${command}`, { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
   }
 }
 

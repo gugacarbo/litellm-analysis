@@ -204,12 +204,36 @@ export function registerPluginRoutingRoutes(
         ? normalizePluginConfigPayload(pluginConfig.config)
         : {};
 
+      // Fetch models context for plugins that need it (e.g. OpenCode)
+      let allModels: Record<string, unknown> = {};
+      let litellmProvider: { baseUrl: string; name: string } = {
+        baseUrl: "",
+        name: "",
+      };
+      try {
+        const [models, provider] = await Promise.all([
+          opts.modelsService.getAll(),
+          opts.providerService.get("litellm"),
+        ]);
+        allModels = models ?? {};
+        if (provider) {
+          litellmProvider = {
+            baseUrl: provider.baseUrl ?? "",
+            name: provider.name ?? "LiteLLM",
+          };
+        }
+      } catch {
+        // Keep empty context when models service isn't available
+      }
+
       res.json({
         config: normalizedCurrentConfig,
         agentMappings,
         categoryMappings,
         schema,
         internalAgents,
+        allModels,
+        litellmProvider,
       });
     } catch (error) {
       res.status(500).json({ error: String(error) });

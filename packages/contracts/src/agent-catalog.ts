@@ -47,6 +47,8 @@ export interface PluginConfigResponse {
   categoryMappings: Record<string, boolean>;
   schema: ConfigField[];
   internalAgents: InternalAgent[];
+  allModels: Record<string, unknown>;
+  litellmProvider: { baseUrl: string; name: string };
 }
 
 export type PluginRoutingResponse = Record<string, PluginRouting>;

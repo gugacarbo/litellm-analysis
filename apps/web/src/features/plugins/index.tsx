@@ -75,6 +75,8 @@ export function PluginConfigPage() {
             <OpenCodeConfigPage
               config={state.configValues}
               onChange={state.handleConfigChange}
+              allModels={state.allModels}
+              litellmProvider={state.litellmProvider}
             />
           ) : state.jsonSchema ? (
             <div className="space-y-4">
