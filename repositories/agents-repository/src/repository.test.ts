@@ -83,9 +83,11 @@ describe("AgentsRepository", () => {
       [pluginsFilePath]: JSON.stringify({
         version: 2,
         plugins: {
-          ohMyAgent: {
+          opencode: {
             enabled: true,
             outputFile: "output.json",
+            config: {},
+            routing: { agents: {}, categories: {} },
           },
         },
       }),
@@ -99,7 +101,7 @@ describe("AgentsRepository", () => {
     const config = await repository.read();
     expect(config.agents?.loom?.displayName).toBe("Loom");
     expect(config.agents?.loom?.model).toBe("gpt-4");
-    expect(config.plugins.ohMyAgent.enabled).toBe(true);
+    expect(config.plugins?.opencode?.enabled).toBe(true);
   });
 
   it("validates and writes configuration to both files", async () => {

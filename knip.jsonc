@@ -1,9 +1,18 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignore": ["**/components/ui/*"],
+  "ignore": [
+    "**/components/ui/*",
+    "shared/lib/**",
+    "shared/hooks/**"
+  ],
   "ignoreFiles": [
     "repositories/litellm-repository/src/generated/prisma/schema.prisma",
     "repositories/litellm-repository/src/generated/prisma/wasm-edge-light-loader.mjs",
-    "repositories/litellm-repository/src/generated/prisma/wasm-worker-loader.mjs"
+    "repositories/litellm-repository/src/generated/prisma/wasm-worker-loader.mjs",
+    "**/generated/**"
+  ],
+  "ignoreDependencies": [
+    "@lite-llm/agents-manager",
+    "@lite-llm/config"
   ]
 }

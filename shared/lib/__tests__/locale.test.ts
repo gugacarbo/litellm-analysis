@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getBrowserLocale } from "@/lib/locale";
+import { getBrowserLocale } from "@/shared/lib/locale";
 
 describe("locale detection", () => {
   afterEach(() => {

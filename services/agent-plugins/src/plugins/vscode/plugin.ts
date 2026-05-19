@@ -2,10 +2,10 @@ import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import type { VsCodePluginConfig } from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
 import { vsCodeSchema } from "./schemas/generated/vscode.zod";
-import type { VsCodeConfig } from "./schemas/generated/vscode-config";
 
 interface VsCodeModelsOutput {
   "oaicopilot.commitLanguage": string;
@@ -71,18 +71,17 @@ export class VsCodePlugin implements IPlugin<"vscode"> {
     routing: PluginRouting,
     ctx: TransformContext,
   ): VsCodeModelsOutput {
-    const pluginConfig: VsCodeConfig = (routing.config ?? {}) as VsCodeConfig;
+    const pluginConfig: VsCodePluginConfig = (routing.config ?? {}) as VsCodePluginConfig;
     const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
 
     const output: VsCodeModelsOutput = {
-      "oaicopilot.commitLanguage":
-        (pluginConfig.commitLanguage as string) ?? "Portuguese (Brazil)",
+      "oaicopilot.commitLanguage": pluginConfig.commitLanguage ?? "Portuguese (Brazil)",
       "oaicopilot.baseUrl": "",
       "oaicopilot.delay": 0,
       "oaicopilot.readFileLines": 0,
       "oaicopilot.retry": {
-        enabled: (pluginConfig.retryEnabled as boolean) ?? true,
-        max_attempts: (pluginConfig.maxRetryAttempts as number) ?? 3,
+        enabled: pluginConfig.retryEnabled ?? true,
+        max_attempts: pluginConfig.maxRetryAttempts ?? 3,
         interval_ms: 2000,
         status_codes: [],
       },

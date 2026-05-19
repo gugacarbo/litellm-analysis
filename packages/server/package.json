@@ -15,11 +15,9 @@
   },
   "dependencies": {
     "@lite-llm/agent-plugins": "workspace:*",
-    "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/agents-repository": "workspace:*",
     "@lite-llm/contracts": "workspace:*",
     "@lite-llm/analytics-service": "workspace:*",
-    "@lite-llm/config": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
     "express": "catalog:"
   },

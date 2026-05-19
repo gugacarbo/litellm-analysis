@@ -9,7 +9,7 @@ import { z } from "zod";
 // Re-export the schema directly from JSON using z.fromJSONSchema
 export const openAgentSchema = z.fromJSONSchema({
   $schema: "http://json-schema.org/draft-07/schema#",
-  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/packages/agents-manager/src/plugins/openagent/schemas/openagent.schema.json",
+  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/openagent/schemas/openagent.schema.json",
   title: "Oh My OpenAgent Configuration",
   description: "JSON Schema for Oh My OpenAgent configuration",
   type: "object",

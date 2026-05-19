@@ -28,6 +28,18 @@ export {
   pluginRoutingRuleSchema,
   pluginRoutingSchema,
 } from "./plugin-routing";
+export type {
+  LitellmAliasPluginConfig,
+  OpenAgentPluginConfig,
+  OpenCodePluginConfig,
+  VsCodePluginConfig,
+} from "./plugin-configs";
+export {
+  litellmAliasPluginConfigSchema,
+  openAgentPluginConfigSchema,
+  openCodePluginConfigSchema,
+  vsCodePluginConfigSchema,
+} from "./plugin-configs";
 export type { PluginsConfig } from "./plugins-config";
 export { pluginsConfigSchema } from "./plugins-config";
 export type { SystemAgent } from "./system-agent";

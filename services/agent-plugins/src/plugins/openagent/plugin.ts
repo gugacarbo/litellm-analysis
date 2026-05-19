@@ -2,10 +2,10 @@ import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import type { OpenAgentPluginConfig } from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
 import { openAgentSchema } from "./schemas/generated/openagent.zod";
-import type { OpenAgentConfig } from "./schemas/generated/openagent-config";
 
 interface OpenAgentOutput {
   $schema: string;
@@ -60,7 +60,7 @@ export class OpenAgentPlugin implements IPlugin<"openagent"> {
     routing: PluginRouting,
     ctx: TransformContext,
   ): OpenAgentOutput {
-    const config: OpenAgentConfig = (routing.config ?? {}) as OpenAgentConfig;
+    const config: OpenAgentPluginConfig = (routing.config ?? {}) as OpenAgentPluginConfig;
 
     const output: OpenAgentOutput = {
       $schema:

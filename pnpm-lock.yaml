@@ -366,18 +366,12 @@ importers:
       '@lite-llm/agent-plugins':
         specifier: workspace:*
         version: link:../../services/agent-plugins
-      '@lite-llm/agents-manager':
-        specifier: workspace:*
-        version: link:../agents-manager
       '@lite-llm/agents-repository':
         specifier: workspace:*
         version: link:../../repositories/agents-repository
       '@lite-llm/analytics-service':
         specifier: workspace:*
         version: link:../../services/analytics-service
-      '@lite-llm/config':
-        specifier: workspace:*
-        version: link:../config
       '@lite-llm/contracts':
         specifier: workspace:*
         version: link:../contracts
@@ -513,9 +507,6 @@ importers:
       '@types/pg':
         specifier: '*'
         version: 8.20.0
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -535,9 +526,6 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.6.2
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -572,9 +560,6 @@ importers:
 
   services/models-service:
     dependencies:
-      '@lite-llm/config':
-        specifier: workspace:*
-        version: link:../../packages/config
       '@lite-llm/models-repository':
         specifier: workspace:*
         version: link:../../repositories/models-repository

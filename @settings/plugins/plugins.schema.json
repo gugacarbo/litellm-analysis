@@ -21,7 +21,10 @@
       "$ref": "#/$defs/__schema2"
     }
   },
-  "required": ["version", "plugins"],
+  "required": [
+    "version",
+    "plugins"
+  ],
   "additionalProperties": false,
   "$defs": {
     "__schema0": {
@@ -32,73 +35,190 @@
     },
     "__schema2": {
       "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "enabled": {
-            "default": false,
-            "title": "Enabled",
-            "description": "Whether plugin routing is enabled",
-            "$ref": "#/$defs/__schema3"
-          },
-          "outputFile": {
-            "default": "",
-            "title": "Output File",
-            "description": "Output file path",
-            "$ref": "#/$defs/__schema4"
-          },
-          "config": {
-            "default": {},
-            "title": "Config",
-            "description": "Plugin configuration",
-            "$ref": "#/$defs/__schema5"
-          },
-          "routing": {
-            "default": {
-              "agents": {},
-              "categories": {}
+      "properties": {
+        "opencode": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "$ref": "#/$defs/__schema3"
             },
-            "type": "object",
-            "properties": {
-              "agents": {
-                "$ref": "#/$defs/__schema6"
-              },
-              "categories": {
-                "$ref": "#/$defs/__schema9"
-              }
+            "outputFile": {
+              "$ref": "#/$defs/__schema5"
             },
-            "additionalProperties": false,
-            "title": "Routing",
-            "description": "Routing mappings for agents and categories"
-          }
+            "config": {
+              "$ref": "#/$defs/__schema7"
+            },
+            "routing": {
+              "$ref": "#/$defs/__schema12"
+            }
+          },
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
+          "additionalProperties": false,
+          "title": "OpenCode",
+          "description": "OpenCode AI SDK plugin configuration"
         },
-        "required": ["enabled", "outputFile", "routing"],
-        "additionalProperties": false
-      }
+        "openagent": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "$ref": "#/$defs/__schema3"
+            },
+            "outputFile": {
+              "$ref": "#/$defs/__schema5"
+            },
+            "config": {
+              "$ref": "#/$defs/__schema19"
+            },
+            "routing": {
+              "$ref": "#/$defs/__schema12"
+            }
+          },
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
+          "additionalProperties": false,
+          "title": "OpenAgent",
+          "description": "Oh My OpenAgent plugin configuration"
+        },
+        "vscode": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "$ref": "#/$defs/__schema3"
+            },
+            "outputFile": {
+              "$ref": "#/$defs/__schema5"
+            },
+            "config": {
+              "$ref": "#/$defs/__schema24"
+            },
+            "routing": {
+              "$ref": "#/$defs/__schema12"
+            }
+          },
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
+          "additionalProperties": false,
+          "title": "VSCode",
+          "description": "VS Code OAICopilot plugin configuration"
+        },
+        "litellm-alias": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "$ref": "#/$defs/__schema3"
+            },
+            "outputFile": {
+              "$ref": "#/$defs/__schema5"
+            },
+            "config": {
+              "$ref": "#/$defs/__schema31"
+            },
+            "routing": {
+              "$ref": "#/$defs/__schema12"
+            }
+          },
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
+          "additionalProperties": false,
+          "title": "LiteLLM Alias",
+          "description": "LiteLLM Router Aliases plugin configuration"
+        }
+      },
+      "additionalProperties": false
     },
     "__schema3": {
-      "type": "boolean"
+      "default": false,
+      "title": "Enabled",
+      "description": "Whether plugin routing is enabled",
+      "$ref": "#/$defs/__schema4"
     },
     "__schema4": {
-      "type": "string"
+      "type": "boolean"
     },
     "__schema5": {
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {}
+      "default": "",
+      "title": "Output File",
+      "description": "Output file path",
+      "$ref": "#/$defs/__schema6"
     },
     "__schema6": {
+      "type": "string"
+    },
+    "__schema7": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "defaultModel": {
+          "$ref": "#/$defs/__schema8"
+        },
+        "defaultTemperature": {
+          "$ref": "#/$defs/__schema10"
+        }
+      },
+      "additionalProperties": false,
+      "title": "OpenCode Config",
+      "description": "OpenCode AI SDK plugin configuration"
+    },
+    "__schema8": {
+      "default": "",
+      "title": "Default Model",
+      "description": "Model to use when a system agent has no model configured",
+      "$ref": "#/$defs/__schema9"
+    },
+    "__schema9": {
+      "type": "string"
+    },
+    "__schema10": {
+      "default": 0.2,
+      "title": "Default Temperature",
+      "description": "Default sampling temperature for agents without one configured",
+      "$ref": "#/$defs/__schema11"
+    },
+    "__schema11": {
+      "type": "number"
+    },
+    "__schema12": {
+      "default": {
+        "agents": {},
+        "categories": {}
+      },
+      "type": "object",
+      "properties": {
+        "agents": {
+          "$ref": "#/$defs/__schema13"
+        },
+        "categories": {
+          "$ref": "#/$defs/__schema16"
+        }
+      },
+      "additionalProperties": false,
+      "title": "Routing",
+      "description": "Routing mappings for agents and categories"
+    },
+    "__schema13": {
       "default": {},
       "title": "Agents Routing",
       "description": "System agent id to plugin agent id mapping",
-      "$ref": "#/$defs/__schema7"
+      "$ref": "#/$defs/__schema14"
     },
-    "__schema7": {
+    "__schema14": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -107,19 +227,19 @@
         "default": "",
         "title": "Plugin Agent",
         "description": "Mapped plugin agent identifier",
-        "$ref": "#/$defs/__schema8"
+        "$ref": "#/$defs/__schema15"
       }
     },
-    "__schema8": {
+    "__schema15": {
       "type": "string"
     },
-    "__schema9": {
+    "__schema16": {
       "default": {},
       "title": "Categories Routing",
       "description": "Category routing enablement by category id",
-      "$ref": "#/$defs/__schema10"
+      "$ref": "#/$defs/__schema17"
     },
-    "__schema10": {
+    "__schema17": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -128,11 +248,146 @@
         "default": false,
         "title": "Category Route",
         "description": "Category routing enabled state",
-        "$ref": "#/$defs/__schema11"
+        "$ref": "#/$defs/__schema18"
       }
     },
-    "__schema11": {
+    "__schema18": {
       "type": "boolean"
+    },
+    "__schema19": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "commitFooter": {
+          "$ref": "#/$defs/__schema20"
+        },
+        "includeCoAuthoredBy": {
+          "$ref": "#/$defs/__schema22"
+        }
+      },
+      "additionalProperties": false,
+      "title": "OpenAgent Config",
+      "description": "Oh My OpenAgent plugin configuration"
+    },
+    "__schema20": {
+      "default": false,
+      "title": "Commit Footer",
+      "description": "Add footer to commit messages",
+      "$ref": "#/$defs/__schema21"
+    },
+    "__schema21": {
+      "type": "boolean"
+    },
+    "__schema22": {
+      "default": false,
+      "title": "Include Co-Authored-By",
+      "description": "Include co-authored-by trailer in commits",
+      "$ref": "#/$defs/__schema23"
+    },
+    "__schema23": {
+      "type": "boolean"
+    },
+    "__schema24": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "commitLanguage": {
+          "$ref": "#/$defs/__schema25"
+        },
+        "retryEnabled": {
+          "$ref": "#/$defs/__schema27"
+        },
+        "maxRetryAttempts": {
+          "$ref": "#/$defs/__schema29"
+        }
+      },
+      "additionalProperties": false,
+      "title": "VSCode Config",
+      "description": "VS Code OAICopilot plugin configuration"
+    },
+    "__schema25": {
+      "default": "Portuguese (Brazil)",
+      "title": "Commit Language",
+      "description": "Language for commit messages",
+      "$ref": "#/$defs/__schema26"
+    },
+    "__schema26": {
+      "type": "string"
+    },
+    "__schema27": {
+      "default": true,
+      "title": "Retry Enabled",
+      "description": "Enable retry on failure",
+      "$ref": "#/$defs/__schema28"
+    },
+    "__schema28": {
+      "type": "boolean"
+    },
+    "__schema29": {
+      "default": 3,
+      "title": "Max Retry Attempts",
+      "description": "Maximum number of retry attempts",
+      "$ref": "#/$defs/__schema30"
+    },
+    "__schema30": {
+      "type": "number"
+    },
+    "__schema31": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "aliasPrefix": {
+          "$ref": "#/$defs/__schema32"
+        },
+        "includeAgents": {
+          "$ref": "#/$defs/__schema34"
+        },
+        "includeCategories": {
+          "$ref": "#/$defs/__schema36"
+        },
+        "globalFallbackOverride": {
+          "$ref": "#/$defs/__schema38"
+        }
+      },
+      "additionalProperties": false,
+      "title": "LiteLLM Alias Config",
+      "description": "LiteLLM Router Aliases plugin configuration"
+    },
+    "__schema32": {
+      "default": "",
+      "title": "Alias Prefix",
+      "description": "Text prepended to all generated alias names",
+      "$ref": "#/$defs/__schema33"
+    },
+    "__schema33": {
+      "type": "string"
+    },
+    "__schema34": {
+      "default": true,
+      "title": "Include Agents",
+      "description": "Include agent-based aliases in output",
+      "$ref": "#/$defs/__schema35"
+    },
+    "__schema35": {
+      "type": "boolean"
+    },
+    "__schema36": {
+      "default": true,
+      "title": "Include Categories",
+      "description": "Include category-based aliases in output",
+      "$ref": "#/$defs/__schema37"
+    },
+    "__schema37": {
+      "type": "boolean"
+    },
+    "__schema38": {
+      "default": "",
+      "title": "Global Fallback Override",
+      "description": "Override global fallback model (empty = use default)",
+      "$ref": "#/$defs/__schema39"
+    },
+    "__schema39": {
+      "type": "string"
     }
   }
 }

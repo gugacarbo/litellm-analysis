@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@lite-llm/models-repository": "workspace:*",
-    "@lite-llm/config": "workspace:*",
     "@lite-llm/repository-utils": "workspace:*"
   },
   "devDependencies": {

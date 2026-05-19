@@ -2,11 +2,11 @@ import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import type { OpenCodePluginConfig } from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
 import { openCodeSchema } from "./schemas/generated/opencode.zod";
-import type { OpenCodeConfig } from "./schemas/generated/opencode-config";
 
 interface OpenCodeProviders {
   provider: Record<string, unknown>;
@@ -141,7 +141,7 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
     };
 
     const enabledAgents = routing.routing?.agents ?? {};
-    const config: OpenCodeConfig = (routing.config ?? {}) as OpenCodeConfig;
+    const config: OpenCodePluginConfig = (routing.config ?? {}) as OpenCodePluginConfig;
     const configDefaultModel = config.defaultModel || "";
     const configDefaultTemp = config.defaultTemperature ?? 0.2;
 

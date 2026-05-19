@@ -2,6 +2,7 @@ import type {
   PluginRouting,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import type { LitellmAliasPluginConfig } from "@lite-llm/agents-repository/schemas";
 import {
   generateLitellmAliases,
   sortAliasesByDefinitionOrder,
@@ -9,7 +10,6 @@ import {
 import type { IPlugin, TransformContext } from "../plugin";
 import type { ConfigField, InternalAgent } from "../plugin-types";
 import { litellmAliasSchema } from "./schemas/generated/litellm-alias.zod";
-import type { LitellmAliasConfig } from "./schemas/generated/litellm-alias-config";
 
 export interface AliasDbWriter {
   updateAliases(aliases: Record<string, string>): Promise<void>;
@@ -86,8 +86,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     ctx: TransformContext,
   ): LitellmAliasOutput {
     const aliases: Record<string, string> = {};
-    const config: LitellmAliasConfig = (_routing.config ??
-      {}) as LitellmAliasConfig;
+    const config: LitellmAliasPluginConfig = (_routing.config ?? {}) as LitellmAliasPluginConfig;
     const aliasPrefix = config.aliasPrefix ?? "";
     const includeAgents = config.includeAgents ?? true;
     const includeCategories = config.includeCategories ?? true;
