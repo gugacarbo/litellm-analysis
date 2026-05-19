@@ -35,15 +35,13 @@ export function useModelsPage() {
   const credentialsQuery = useQuery({
     queryKey: ["credentials"],
     queryFn: () =>
-      import("../../lib/api-client/credentials").then((m) =>
-        m.getAllCredentials(),
-      ),
+      import("@/lib/api-client/credentials").then((m) => m.getAllCredentials()),
   });
 
   const defaultCredentialQuery = useQuery({
     queryKey: ["default-credential"],
     queryFn: () =>
-      import("../../lib/api-client/credentials").then((m) =>
+      import("@/lib/api-client/credentials").then((m) =>
         m.getDefaultCredential(),
       ),
   });

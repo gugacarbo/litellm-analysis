@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { Badge } from "../../../components/ui/badge";
-import { Button } from "../../../components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table";
+} from "@/shared/components/ui/table";
 import type { HealthCheckResultEntry } from "../types/health-status-types";
 import {
   formatRelativeTime,

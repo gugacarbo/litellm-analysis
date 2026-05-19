@@ -1,11 +1,11 @@
 import { MessageSquareText } from "lucide-react";
-import { DetailRow } from "../../../components/ui/detail-row";
+import { DetailRow } from "@/shared/components/ui/detail-row";
 import {
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../../../components/ui/dialog";
+} from "@/shared/components/ui/dialog";
 import type { ModelWithStatus } from "../hooks/use-health-status-state";
 import type { HealthCheckResultEntry } from "../types/health-status-types";
 import {

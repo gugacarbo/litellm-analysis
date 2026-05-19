@@ -7,15 +7,15 @@ import {
   Tooltip,
 } from "recharts";
 import type { SeveritySlice } from "use-monitor-derived";
-import { cn } from "@/shared/lib/utils";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
-import { ChartTooltipContent } from "../../../components/ui/chart-tooltip";
-import { Skeleton } from "../../../components/ui/skeleton";
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { cn } from "@/shared/lib/utils";
 
 interface SeverityBreakdownChartProps {
   data: SeveritySlice[];

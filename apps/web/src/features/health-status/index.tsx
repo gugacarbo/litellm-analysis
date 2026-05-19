@@ -1,14 +1,14 @@
 import { Activity, History, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { Button } from "../../components/ui/button";
-import { Dialog } from "../../components/ui/dialog";
-import { PageLayout } from "../../components/ui/page-layout";
+import { Button } from "@/shared/components/ui/button";
+import { Dialog } from "@/shared/components/ui/dialog";
+import { PageLayout } from "@/shared/components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../../components/ui/tabs";
+} from "@/shared/components/ui/tabs";
 import { HistoryTable } from "./components/history-table";
 import { ModelsTable } from "./components/models-table";
 import { StatusDetailsDialog } from "./components/status-details-dialog";

@@ -1,7 +1,7 @@
 import type { CategoryEntry } from "@lite-llm/contracts/category";
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "@/shared/components/ui/dialog";
 import { AdvancedSection } from "./advanced-section";
 import { GeneralSection } from "./general-section";
 import { normalizeCategoryEntry } from "./normalize";

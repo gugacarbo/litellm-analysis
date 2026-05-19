@@ -1,16 +1,16 @@
 import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
-import { getCategoryCatalog } from "@/shared/lib/api-client/agent-catalog";
-import { Label } from "../../../components/ui/label";
+import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../components/ui/select";
-import { Slider } from "../../../components/ui/slider";
-import { Textarea } from "../../../components/ui/textarea";
+} from "@/shared/components/ui/select";
+import { Slider } from "@/shared/components/ui/slider";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { getCategoryCatalog } from "@/shared/lib/api-client/agent-catalog";
 
 interface AdvancedSectionProps {
   config: SystemAgent;

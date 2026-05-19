@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { PageLayout } from "@/shared/components/ui/page-layout";
 import { getEval } from "@/shared/lib/api-client/prompt-evals";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
-import { PageLayout } from "../../components/ui/page-layout";
 import { EvalDetailTabs } from "./components/eval-detail-tabs";
 import { formatRelativeTime, statusVariant } from "./utils";
 

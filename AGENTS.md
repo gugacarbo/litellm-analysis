@@ -6,7 +6,7 @@
 
 ## OVERVIEW
 
-LiteLLM Analytics Dashboard — full-stack TypeScript monorepo for monitoring LLM API usage, costs, and errors via LiteLLM's PostgreSQL database. React 19 frontend + Express.js backend, deployed as a single web app with optional direct-DB or API-only data access modes. Configs split into `agents-manager` (agents/categories/plugins) and `models-manager` (providers/models + alias routing).
+LiteLLM Analytics Dashboard — full-stack TypeScript monorepo for monitoring LLM API usage, costs, and errors via LiteLLM's PostgreSQL database. React 19 frontend + Express.js backend, deployed as a single web app with optional direct-DB or API-only data access modes. Configs split into `agents-manager` (agents/categories + plugin routing) and `models-manager` (providers/models + alias routing).
 
 ## STRUCTURE
 
@@ -38,6 +38,7 @@ lite-llm-analytics/
 │   ├── env/                # Environment variable validation (t3-env, Zod)
 │   └── api-contracts/      # API type contracts (analytics, agent-routing)
 ├── @settings/agents/                 # Agent config source-of-truth (agents.jsonc + schema)
+├── @settings/plugins/                # Plugin config source-of-truth (plugins.jsonc + schema)
 ├── @settings/models/                 # Model/provider config source-of-truth (models.jsonc + schema)
 ├── @storage/output/         # Generated JSON configs (OpenCode, VS Code, agent-routing)
 │   ├── oh-my-openagent.json

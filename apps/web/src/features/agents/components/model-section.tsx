@@ -1,9 +1,9 @@
 import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import { getModelsWithConfig } from "@/shared/lib/api-client/models";
-import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui/label";
 
 interface ModelSectionProps {
   config: SystemAgent;

@@ -5,7 +5,7 @@ import {
   formatDuration,
   formatPercent,
   formatTokensPerSecond,
-} from "../../pages/model-stats/model-stats-utils";
+} from "@/features/model-stats/model-stats-utils";
 import { MetricCard } from "../metric-card";
 
 type ModelStatsSummaryCardsProps = {

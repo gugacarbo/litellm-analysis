@@ -1,9 +1,9 @@
 import { RefreshCw, Settings } from "lucide-react";
-import { ModelFormDialog } from "../components/models/model-form-dialog";
-import { ModelsTableCard } from "../components/models/models-table-card";
-import { Button } from "../components/ui/button";
-import { PageLayout } from "../components/ui/page-layout";
-import { useModelsPage } from "./models/use-models-page";
+import { Button } from "@/shared/components/ui/button";
+import { PageLayout } from "@/shared/components/ui/page-layout";
+import { ModelFormDialog } from "./components/model-form-dialog";
+import { ModelsTableCard } from "./components/models-table-card";
+import { useModelsPage } from "./use-models-page";
 
 export function ModelsPage() {
   const {

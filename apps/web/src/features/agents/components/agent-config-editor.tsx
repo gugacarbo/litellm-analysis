@@ -1,7 +1,7 @@
 import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,13 +9,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../../components/ui/dialog";
+} from "@/shared/components/ui/dialog";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../../../components/ui/tabs";
+} from "@/shared/components/ui/tabs";
 import { AdvancedSection } from "./advanced-section";
 import { GeneralSection } from "./general-section";
 import { ModelSection } from "./model-section";

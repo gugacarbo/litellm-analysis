@@ -1,18 +1,14 @@
 import type { ModelHealthEntry, MonitorAlert } from "monitor-types";
 import { useCallback, useEffect, useState } from "react";
-import { getMonitorAlerts } from "@/shared/lib/api-client/monitor";
-import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
-import { formatDateTime } from "@/shared/lib/spend-log-utils";
-import { cn } from "@/shared/lib/utils";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
-import { Skeleton } from "../../../components/ui/skeleton";
+} from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -20,7 +16,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table";
+} from "@/shared/components/ui/table";
+import { getMonitorAlerts } from "@/shared/lib/api-client/monitor";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
+import { formatDateTime } from "@/shared/lib/spend-log-utils";
+import { cn } from "@/shared/lib/utils";
 import { AlertFilters, type AlertFiltersState } from "./alert-filters";
 import { AlertSeverityBadge } from "./alert-severity-badge";
 import { AlertTypeBadge } from "./alert-type-badge";

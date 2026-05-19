@@ -5,7 +5,7 @@ import {
   Loader2,
   XCircle,
 } from "lucide-react";
-import { Badge } from "../../../components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import { STATUS_COLORS, STATUS_LABELS } from "../utils/health-status-utils";
 
 export function StatusBadge({ status }: { status: string }) {

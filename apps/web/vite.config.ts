@@ -7,7 +7,11 @@ export default defineConfig({
   envDir: "../../",
   plugins: [react(), tailwindcss()],
   resolve: {
-    tsconfigPaths: true,
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "@/features": path.resolve(__dirname, "./src/features"),
+      "@/shared": path.resolve(__dirname, "./src/shared"),
+    },
   },
   server: {
     port: 5178,

@@ -1,9 +1,9 @@
 import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
-import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui/label";
-import { Switch } from "../../../components/ui/switch";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { Switch } from "@/shared/components/ui/switch";
 
 interface ToolsSectionProps {
   config: SystemAgent;

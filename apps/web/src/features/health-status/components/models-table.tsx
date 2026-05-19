@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table";
+} from "@/shared/components/ui/table";
 import type { ModelWithStatus } from "../hooks/use-health-status-state";
 import {
   formatRelativeTime,

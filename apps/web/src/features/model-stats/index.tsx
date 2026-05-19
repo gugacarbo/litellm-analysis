@@ -1,15 +1,15 @@
 import { BarChart3 } from "lucide-react";
-import { DeleteModelLogsDialog } from "../components/model-stats/delete-model-logs-dialog";
-import { ModelStatsDataTable } from "../components/model-stats/model-stats-data-table";
-import { ModelStatsHeader } from "../components/model-stats/model-stats-header";
-import { ModelStatsMiniCharts } from "../components/model-stats/model-stats-mini-charts";
-import { ModelStatsSummaryCards } from "../components/model-stats/model-stats-summary-cards";
-import { ModelStatsTopTables } from "../components/model-stats/model-stats-top-tables";
-import { Card, CardContent } from "../components/ui/card";
-import { PageLayout } from "../components/ui/page-layout";
-import { Toaster } from "../components/ui/sonner";
-import { MODEL_STATS_COLUMNS } from "./model-stats/model-stats-types";
-import { useModelStatsPageState } from "./model-stats/use-model-stats-page";
+import { DeleteModelLogsDialog } from "@/components/model-stats/delete-model-logs-dialog";
+import { ModelStatsDataTable } from "@/components/model-stats/model-stats-data-table";
+import { ModelStatsHeader } from "@/components/model-stats/model-stats-header";
+import { ModelStatsMiniCharts } from "@/components/model-stats/model-stats-mini-charts";
+import { ModelStatsSummaryCards } from "@/components/model-stats/model-stats-summary-cards";
+import { ModelStatsTopTables } from "@/components/model-stats/model-stats-top-tables";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { PageLayout } from "@/shared/components/ui/page-layout";
+import { Toaster } from "@/shared/components/ui/sonner";
+import { MODEL_STATS_COLUMNS } from "./model-stats-types";
+import { useModelStatsPageState } from "./use-model-stats-page";
 
 export function ModelStatsPage() {
   const state = useModelStatsPageState();

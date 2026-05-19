@@ -9,17 +9,22 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CHART_COLORS } from "@/shared/lib/chart-colors";
-import type { ModelProviderBreakdown } from "../../pages/model-detail/model-detail-types";
+import type { ModelProviderBreakdown } from "@/features/models/detail/model-detail-types";
 import {
   CHART_HEIGHT,
   formatCurrency,
   formatDuration,
   formatNumber,
-} from "../../pages/model-detail/model-detail-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ChartTooltipContent } from "../ui/chart-tooltip";
-import { Skeleton } from "../ui/skeleton";
+} from "@/features/models/detail/model-detail-utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { CHART_COLORS } from "@/shared/lib/chart-colors";
 
 type Props = {
   data: ModelProviderBreakdown[];

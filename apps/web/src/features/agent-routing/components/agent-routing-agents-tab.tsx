@@ -1,6 +1,6 @@
 import type { SystemAgent } from "@lite-llm/contracts/agent-routing";
 import { Plus, Zap } from "lucide-react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { AgentFocusView } from "./agent-focus-view";
 import { EntityRoutingCard } from "./entity-routing-card";
 

@@ -2,8 +2,7 @@ import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Unlink } from "lucide-react";
 import { useState } from "react";
-import { getModelAliases, putModelAliases } from "@/shared/lib/api-client";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -11,12 +10,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "../../../components/ui/command";
+} from "@/shared/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../../components/ui/popover";
+} from "@/shared/components/ui/popover";
+import { getModelAliases, putModelAliases } from "@/shared/lib/api-client";
 import { filterModels } from "./filter-models";
 
 interface AliasesButtonProps {

@@ -35,9 +35,9 @@ export function getMaxOutput(params: Record<string, unknown>): string {
 }
 
 // Re-export the type from monitor-types for use in the models table
-export type { ModelHealthEntry } from "../monitor/monitor-types";
+export type { ModelHealthEntry } from "@/features/monitor/monitor-types";
 
-import type { ModelHealthStatus } from "../monitor/monitor-types";
+import type { ModelHealthStatus } from "@/features/monitor/monitor-types";
 
 export function getHealthStatusLabel(status: ModelHealthStatus): string {
   return status.charAt(0).toUpperCase() + status.slice(1);

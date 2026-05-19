@@ -1,11 +1,16 @@
-import type { ModelApiKey } from "../../pages/model-detail/model-detail-types";
+import type { ModelApiKey } from "@/features/models/detail/model-detail-types";
 import {
   formatCurrency,
   formatNumber,
   formatPercent,
-} from "../../pages/model-detail/model-detail-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
+} from "@/features/models/detail/model-detail-utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -13,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/shared/components/ui/table";
 
 type Props = {
   apiKeys: ModelApiKey[];

@@ -1,7 +1,7 @@
 import type { CategoryEntry } from "@lite-llm/contracts/category";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 type GeneralSectionProps = {
   categoryKey: string;

@@ -1,6 +1,10 @@
 export { AgentConfigPage } from "@/features/agents/index";
 export { AgentsPage } from "@/features/agents/list-index";
 export { DashboardPage } from "@/features/dashboard";
+export { ModelStatsPage } from "@/features/model-stats/index";
+export { ModelDetailPage } from "@/features/models/detail-index";
+export { ModelConfigPage } from "@/features/models/index";
+export { ModelsPage } from "@/features/models/list-index";
 export { PluginConfigPage } from "@/features/plugins";
 export { PluginsPage } from "@/features/plugins/list-index";
 export { BenchmarksPage } from "../features/benchmarks";
@@ -8,7 +12,3 @@ export { LogsPage } from "../features/logs";
 export { MonitorPage } from "../features/monitor";
 export { PromptEvalDetailPage } from "../features/prompts/detail";
 export { PromptEvalsPage } from "../features/prompts/list-index";
-export { ModelConfigPage } from "./model-config";
-export { ModelDetailPage } from "./model-detail";
-export { ModelStatsPage } from "./model-stats";
-export { ModelsPage } from "./models";

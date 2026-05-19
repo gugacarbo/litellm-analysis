@@ -7,14 +7,19 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { ModelDailyErrorTrend } from "../../pages/model-detail/model-detail-types";
+import type { ModelDailyErrorTrend } from "@/features/models/detail/model-detail-types";
 import {
   CHART_HEIGHT,
   formatNumber,
-} from "../../pages/model-detail/model-detail-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ChartTooltipContent } from "../ui/chart-tooltip";
-import { Skeleton } from "../ui/skeleton";
+} from "@/features/models/detail/model-detail-utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 type Props = {
   data: ModelDailyErrorTrend[];

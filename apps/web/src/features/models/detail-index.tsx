@@ -1,39 +1,39 @@
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { ModelDetailApiKeyTable } from "@/components/model-detail/model-detail-api-key-table";
+import { ModelDetailCostChart } from "@/components/model-detail/model-detail-cost-chart";
+import { ModelDetailErrorBreakdown } from "@/components/model-detail/model-detail-error-breakdown";
+import { ModelDetailErrorTrendChart } from "@/components/model-detail/model-detail-error-trend-chart";
+import { ModelDetailHourlyChart } from "@/components/model-detail/model-detail-hourly-chart";
+import { ModelDetailLatencyChart } from "@/components/model-detail/model-detail-latency-chart";
+import { ModelDetailProviderChart } from "@/components/model-detail/model-detail-provider-chart";
+import { ModelDetailStatusChart } from "@/components/model-detail/model-detail-status-chart";
+import { ModelDetailSummaryCards } from "@/components/model-detail/model-detail-summary-cards";
+import { ModelDetailTokenEfficiency } from "@/components/model-detail/model-detail-token-efficiency";
+import { ModelDetailTrendChart } from "@/components/model-detail/model-detail-trend-chart";
+import { ModelDetailTTFTChart } from "@/components/model-detail/model-detail-ttft-chart";
+import { ModelDetailUserTable } from "@/components/model-detail/model-detail-user-table";
 import { getDateRangeDays } from "@/features/dashboard/utils/dashboard-utils";
-import type {
-  DashboardDateRangeKey,
-  TimeRangeValue,
-} from "@/shared/lib/date-ranges";
-import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
-import { ModelDetailApiKeyTable } from "../components/model-detail/model-detail-api-key-table";
-import { ModelDetailCostChart } from "../components/model-detail/model-detail-cost-chart";
-import { ModelDetailErrorBreakdown } from "../components/model-detail/model-detail-error-breakdown";
-import { ModelDetailErrorTrendChart } from "../components/model-detail/model-detail-error-trend-chart";
-import { ModelDetailHourlyChart } from "../components/model-detail/model-detail-hourly-chart";
-import { ModelDetailLatencyChart } from "../components/model-detail/model-detail-latency-chart";
-import { ModelDetailProviderChart } from "../components/model-detail/model-detail-provider-chart";
-import { ModelDetailStatusChart } from "../components/model-detail/model-detail-status-chart";
-import { ModelDetailSummaryCards } from "../components/model-detail/model-detail-summary-cards";
-import { ModelDetailTokenEfficiency } from "../components/model-detail/model-detail-token-efficiency";
-import { ModelDetailTrendChart } from "../components/model-detail/model-detail-trend-chart";
-import { ModelDetailTTFTChart } from "../components/model-detail/model-detail-ttft-chart";
-import { ModelDetailUserTable } from "../components/model-detail/model-detail-user-table";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
-import { PageLayout } from "../components/ui/page-layout";
-import { Separator } from "../components/ui/separator";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { PageLayout } from "@/shared/components/ui/page-layout";
+import { Separator } from "@/shared/components/ui/separator";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../components/ui/tabs";
-import { TimeRangePicker } from "../components/ui/time-range-picker";
-import { useModelDetailData } from "../hooks/use-model-detail-data";
-import { ModelDetailLogsTab } from "./model-detail/model-detail-logs-tab";
-import { useModelDetailLogs } from "./model-detail/use-model-detail-logs";
+} from "@/shared/components/ui/tabs";
+import { TimeRangePicker } from "@/shared/components/ui/time-range-picker";
+import type {
+  DashboardDateRangeKey,
+  TimeRangeValue,
+} from "@/shared/lib/date-ranges";
+import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
+import { ModelDetailLogsTab } from "./detail/model-detail-logs-tab";
+import { useModelDetailLogs } from "./detail/use-model-detail-logs";
+import { useModelDetailData } from "./hooks/use-model-detail-data";
 
 function getRangeLabel(
   rangeKey: string,

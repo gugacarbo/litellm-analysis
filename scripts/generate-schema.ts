@@ -4,9 +4,12 @@ import { agentsConfigSchema } from "../repositories/agents-repository/src/schema
 import { pluginsConfigSchema } from "../repositories/agents-repository/src/schemas/plugins-config";
 
 const agentsSchemaOutputPath =
-  process.env.AGENTS_SCHEMA_OUTPUT_PATH ?? "./@agents/agents.schema.json";
+  process.env.AGENTS_SCHEMA_OUTPUT_PATH ??
+  "./@settings/agents/agents.schema.json";
+
 const pluginsSchemaOutputPath =
-  process.env.PLUGINS_SCHEMA_OUTPUT_PATH ?? "./@agents/plugins.schema.json";
+  process.env.PLUGINS_SCHEMA_OUTPUT_PATH ??
+  "./@settings/plugins/plugins.schema.json";
 
 function generateSchema(schema: z.ZodType, outputPath: string): void {
   const fullSchema = z.toJSONSchema(schema, { reused: "ref" });

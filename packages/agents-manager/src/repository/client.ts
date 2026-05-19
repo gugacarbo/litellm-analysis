@@ -16,11 +16,12 @@ export interface RepositoryClientOptions {
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IAgentsRepository {
-  const settingsBase = `${serverEnv.SETTINGS_PATH}/agents`;
+  const agentsSettingsBase = `${serverEnv.SETTINGS_PATH}/agents`;
+  const pluginsSettingsBase = `${serverEnv.SETTINGS_PATH}/plugins`;
   const agentsFilePath =
-    options.agentsFilePath ?? `${settingsBase}/agents.jsonc`;
+    options.agentsFilePath ?? `${agentsSettingsBase}/agents.jsonc`;
   const pluginsFilePath =
-    options.pluginsFilePath ?? `${settingsBase}/plugins.json`;
+    options.pluginsFilePath ?? `${pluginsSettingsBase}/plugins.json`;
 
   // Resolve special paths like @settings/agents/, with json/jsonc fallback.
   const resolvedPath = resolveDbPathWithFallback(agentsFilePath);

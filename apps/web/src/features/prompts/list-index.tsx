@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import { PageLayout } from "../../components/ui/page-layout";
-import { Textarea } from "../../components/ui/textarea";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { PageLayout } from "@/shared/components/ui/page-layout";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { ModelSelect } from "./components/model-select";
 import { PollingIndicator } from "./components/polling-indicator";
 import { RunCard } from "./components/run-card";

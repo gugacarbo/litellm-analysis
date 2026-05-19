@@ -38,4 +38,3 @@ export function RankingList({ rank, topN = 3 }: RankingListProps) {
     </div>
   );
 }
-

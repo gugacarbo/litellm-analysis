@@ -56,4 +56,3 @@ export function RawBenchmarkGrid({ model }: RawBenchmarkGridProps) {
     </div>
   );
 }
-

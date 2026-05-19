@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useFilter } from "@/contexts/filter-context";
 import { getDateRangeLabel } from "@/features/dashboard/utils/dashboard-utils";
 import {
   getCostEfficiencyByModel,
@@ -8,7 +9,6 @@ import {
   getTokenDistribution,
 } from "@/shared/lib/api-client";
 import { queryKeys } from "@/shared/lib/query-keys";
-import { useFilter } from "../../contexts/filter-context";
 import type { ColumnKey, SortDirection, SortField } from "./model-stats-types";
 import { MODEL_STATS_COLUMNS } from "./model-stats-types";
 

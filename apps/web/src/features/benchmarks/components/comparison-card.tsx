@@ -8,7 +8,7 @@ import {
   formatSpeed,
   formatValueScore,
 } from "@/features/benchmarks/utils/benchmark-utils";
-import { Badge } from "../../../components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import { CHART_COLORS } from "./benchmark-colors";
 import { DataCoverageBar } from "./data-coverage-bar";
 import { MetricBar } from "./metric-bar";

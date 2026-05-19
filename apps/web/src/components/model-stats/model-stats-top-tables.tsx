@@ -1,10 +1,15 @@
-import type { ModelStats } from "../../pages/model-stats/model-stats-types";
+import type { ModelStats } from "@/features/model-stats/model-stats-types";
 import {
   formatCompactNumber,
   formatCurrency,
-} from "../../pages/model-stats/model-stats-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
+} from "@/features/model-stats/model-stats-utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { BarRow } from "./bar-row";
 
 type ModelStatsTopTablesProps = {

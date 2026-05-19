@@ -1,9 +1,9 @@
 import { Settings } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { ModelConfigForm } from "../components/models/model-config-form";
-import { PageLayout } from "../components/ui/page-layout";
-import { Skeleton } from "../components/ui/skeleton";
-import { useModelConfigPage } from "./model-config/use-model-config-page";
+import { PageLayout } from "@/shared/components/ui/page-layout";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { ModelConfigForm } from "./components/model-config-form";
+import { useModelConfigPage } from "./use-model-config-page";
 
 export function ModelConfigPage() {
   const { modelName } = useParams() as { modelName: string };

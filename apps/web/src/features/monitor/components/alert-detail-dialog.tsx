@@ -8,11 +8,9 @@ import type {
   TimeoutStuckMetadata,
 } from "monitor-types";
 import { formatTimestamp, parseAlertMetadata } from "monitor-utils";
-import { APP_LOCALE } from "@/shared/lib/locale";
-import { cn } from "@/shared/lib/utils";
-import { Badge } from "../../../components/ui/badge";
-import { Button } from "../../../components/ui/button";
-import { DetailRow } from "../../../components/ui/detail-row";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { DetailRow } from "@/shared/components/ui/detail-row";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +18,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../../components/ui/dialog";
+} from "@/shared/components/ui/dialog";
+import { APP_LOCALE } from "@/shared/lib/locale";
+import { cn } from "@/shared/lib/utils";
 import { AlertSeverityBadge } from "./alert-severity-badge";
 import { AlertTypeBadge } from "./alert-type-badge";
 

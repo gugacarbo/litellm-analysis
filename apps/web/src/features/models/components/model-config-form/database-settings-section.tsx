@@ -1,23 +1,23 @@
 import { Database, Plus, Trash2 } from "lucide-react";
-import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
-import type { ModelConfigFormData } from "../../../pages/model-config/use-model-config-page";
-import { Button } from "../../ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../ui/card";
-import { Input } from "../../ui/input";
-import { Label } from "../../ui/label";
+} from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../ui/select";
+} from "@/shared/components/ui/select";
+import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
+import type { ModelConfigFormData } from "../../../pages/model-config/use-model-config-page";
 
 interface DatabaseSettingsSectionProps {
   formData: ModelConfigFormData;

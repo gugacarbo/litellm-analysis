@@ -1,6 +1,5 @@
 import { Database, Pencil, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { ModelWithStatus } from "@/shared/lib/api-client/models";
 import {
   getContextWindow,
   getHealthStatusLabel,
@@ -8,7 +7,7 @@ import {
   getMaxOutput,
   getOutputCost,
   type ModelHealthEntry,
-} from "../../pages/models/models-utils";
+} from "@/features/models/models-utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,12 +18,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
-import { Switch } from "../ui/switch";
+} from "@/shared/components/ui/alert-dialog";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Switch } from "@/shared/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -32,7 +36,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/shared/components/ui/table";
+import type { ModelWithStatus } from "@/shared/lib/api-client/models";
 
 const statusBadgeVariant: Record<
   string,

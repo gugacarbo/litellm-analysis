@@ -10,15 +10,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../../../components/ui/alert-dialog";
-import { Badge } from "../../../components/ui/badge";
-import { Button } from "../../../components/ui/button";
+} from "@/shared/components/ui/alert-dialog";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
+} from "@/shared/components/ui/card";
 import { EntityRoutingCard } from "./entity-routing-card";
 
 type AgentRoutingCategoriesTabProps = {

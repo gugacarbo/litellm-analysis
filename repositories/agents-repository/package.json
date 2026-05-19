@@ -16,7 +16,7 @@
     "build": "tsc",
     "test": "vitest run",
     "validate:agents": "ajv validate -s ../../${SETTINGS_PATH:-@settings}/agents/agents.schema.json -d ../../${SETTINGS_PATH:-@settings}/agents/agents.jsonc",
-    "validate:plugins": "ajv validate -s ../../${SETTINGS_PATH:-@settings}/agents/plugins.schema.json -d ../../${SETTINGS_PATH:-@settings}/agents/plugins.jsonc"
+    "validate:plugins": "ajv validate -s ../../${SETTINGS_PATH:-@settings}/plugins/plugins.schema.json -d ../../${SETTINGS_PATH:-@settings}/plugins/plugins.jsonc"
   },
   "dependencies": {
     "@lite-llm/config": "workspace:*",

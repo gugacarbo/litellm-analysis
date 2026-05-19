@@ -2,7 +2,7 @@ import {
   ANOMALY_TYPE_COLORS,
   ANOMALY_TYPE_LABELS,
 } from "@/features/monitor/monitor-utils";
-import { Badge } from "../../../components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 
 type AlertTypeBadgeProps = {
   type: string;

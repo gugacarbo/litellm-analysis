@@ -8,15 +8,15 @@ import {
   YAxis,
 } from "recharts";
 import type { AlertsByTypeItem } from "use-monitor-derived";
-import { CHART_COLORS } from "@/shared/lib/chart-colors";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
-import { ChartTooltipContent } from "../../../components/ui/chart-tooltip";
-import { Skeleton } from "../../../components/ui/skeleton";
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { CHART_COLORS } from "@/shared/lib/chart-colors";
 
 type AlertsByTypeChartProps = {
   data: AlertsByTypeItem[];

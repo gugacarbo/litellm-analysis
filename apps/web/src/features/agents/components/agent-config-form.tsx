@@ -1,12 +1,12 @@
 import { ChevronDown, RefreshCw } from "lucide-react";
 import { useState } from "react";
-import { Button } from "../../../components/ui/button";
-import { Card } from "../../../components/ui/card";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../../../components/ui/collapsible";
+} from "@/shared/components/ui/collapsible";
 
 interface AgentConfigFormProps {
   formData: AgentConfigFormData;

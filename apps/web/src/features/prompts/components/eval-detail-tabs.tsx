@@ -5,14 +5,14 @@ import {
   formatTimestamp,
   statusVariant,
 } from "utils";
-import { Badge } from "../../components/ui/badge";
-import { Separator } from "../../components/ui/separator";
+import { Badge } from "@/shared/components/ui/badge";
+import { Separator } from "@/shared/components/ui/separator";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../../components/ui/tabs";
+} from "@/shared/components/ui/tabs";
 import { CategoryTable } from "./category-table";
 import { FailedCasesList } from "./failed-cases-list";
 

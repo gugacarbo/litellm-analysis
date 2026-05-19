@@ -7,7 +7,7 @@ import type {
   ModelStats,
   SortDirection,
   SortField,
-} from "../../pages/model-stats/model-stats-types";
+} from "@/features/model-stats/model-stats-types";
 import {
   formatCurrency,
   formatDate,
@@ -16,11 +16,11 @@ import {
   formatPercent,
   formatTokensPerSecond,
   getHealthColor,
-} from "../../pages/model-stats/model-stats-utils";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader } from "../ui/card";
-import { DataTable } from "../ui/data-table";
+} from "@/features/model-stats/model-stats-utils";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
+import { DataTable } from "@/shared/components/ui/data-table";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -28,7 +28,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 
 type ModelStatsDataTableProps = {
   loading: boolean;

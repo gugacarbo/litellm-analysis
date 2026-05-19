@@ -3,14 +3,14 @@
 import { Settings } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CategoryConfigEditor } from "../../components/category-config-editor/category-config-editor";
-import { PageLayout } from "../../components/ui/page-layout";
+import { PageLayout } from "@/shared/components/ui/page-layout";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../../components/ui/tabs";
+} from "@/shared/components/ui/tabs";
+import { CategoryConfigEditor } from "../../components/category-config-editor/category-config-editor";
 import { AgentRoutingAgentsTab } from "../agent-routing/components/agent-routing-agents-tab";
 import { AgentRoutingCategoriesTab } from "../agent-routing/components/agent-routing-categories-tab";
 import { AgentConfigEditor } from "./components/agent-config-editor";

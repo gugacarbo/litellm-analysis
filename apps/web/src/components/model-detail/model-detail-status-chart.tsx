@@ -7,15 +7,20 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import type { ModelStatusDistribution } from "../../pages/model-detail/model-detail-types";
+import type { ModelStatusDistribution } from "@/features/models/detail/model-detail-types";
 import {
   CHART_HEIGHT,
   formatNumber,
   formatPercent,
-} from "../../pages/model-detail/model-detail-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ChartTooltipContent } from "../ui/chart-tooltip";
-import { Skeleton } from "../ui/skeleton";
+} from "@/features/models/detail/model-detail-utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 type Props = {
   data: ModelStatusDistribution[];

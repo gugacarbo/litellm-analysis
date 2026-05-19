@@ -1,25 +1,25 @@
 import { Filter, Scale } from "lucide-react";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card";
-import { EmptyState } from "../../components/ui/empty-state";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import { PageLayout } from "../../components/ui/page-layout";
+} from "@/shared/components/ui/card";
+import { EmptyState } from "@/shared/components/ui/empty-state";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { PageLayout } from "@/shared/components/ui/page-layout";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../components/ui/select";
-import { Skeleton } from "../../components/ui/skeleton";
-import { Switch } from "../../components/ui/switch";
+} from "@/shared/components/ui/select";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Switch } from "@/shared/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -27,19 +27,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../components/ui/table";
+} from "@/shared/components/ui/table";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../../components/ui/tabs";
+} from "@/shared/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../../components/ui/tooltip";
+} from "@/shared/components/ui/tooltip";
 import { AliasesButton } from "./components/aliases-button";
 import { ComparisonDeck } from "./components/comparison-deck";
 import { UseCaseFilter } from "./components/use-case-filter";

@@ -1,8 +1,13 @@
 import type { ModelStatistics } from "@lite-llm/contracts/analytics";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { APP_LOCALE } from "@/shared/lib/locale";
 import { formatCurrency, formatDuration } from "@/shared/lib/spend-log-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
 import { BarRow } from "./bar-row";
 
 type ModelStatsMiniChartsProps = {

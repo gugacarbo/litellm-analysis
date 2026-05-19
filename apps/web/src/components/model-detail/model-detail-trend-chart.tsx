@@ -9,15 +9,20 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { ModelDailySpendTrend } from "../../pages/model-detail/model-detail-types";
+import type { ModelDailySpendTrend } from "@/features/models/detail/model-detail-types";
 import {
   CHART_HEIGHT,
   formatCurrency,
   formatNumber,
-} from "../../pages/model-detail/model-detail-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ChartTooltipContent } from "../ui/chart-tooltip";
-import { Skeleton } from "../ui/skeleton";
+} from "@/features/models/detail/model-detail-utils";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ChartTooltipContent } from "@/shared/components/ui/chart-tooltip";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 type Props = {
   data: ModelDailySpendTrend[];

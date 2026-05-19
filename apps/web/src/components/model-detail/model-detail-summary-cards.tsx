@@ -14,13 +14,13 @@ import type {
   ModelCacheHitRate,
   ModelDetailSummary,
   ModelTTFTPercentiles,
-} from "../../pages/model-detail/model-detail-types";
+} from "@/features/models/detail/model-detail-types";
 import {
   formatCurrency,
   formatDuration,
   formatNumber,
   formatPercent,
-} from "../../pages/model-detail/model-detail-utils";
+} from "@/features/models/detail/model-detail-utils";
 import { MetricCard } from "../metric-card";
 
 type Props = {

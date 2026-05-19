@@ -27,7 +27,7 @@ import type {
   ModelDetailSummary,
   ModelErrorBreakdown,
   ModelHourlyUsage,
-} from "../../../pages/model-detail/model-detail-types";
+} from "../detail/model-detail-types";
 
 const DEFAULT_DAYS = 30;
 const AUTO_REFRESH_MS = 30_000;

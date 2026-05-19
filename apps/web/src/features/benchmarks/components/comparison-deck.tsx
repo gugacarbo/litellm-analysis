@@ -3,7 +3,7 @@ import type {
   ComparisonCardData,
   UseCase,
 } from "@/features/benchmarks/types/benchmark-types";
-import { EmptyState } from "../../../components/ui/empty-state";
+import { EmptyState } from "@/shared/components/ui/empty-state";
 import { ComparisonCard } from "./comparison-card";
 
 interface ComparisonDeckProps {

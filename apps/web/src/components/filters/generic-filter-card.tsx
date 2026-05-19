@@ -1,15 +1,15 @@
 import { AlertCircle } from "lucide-react";
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/shared/components/ui/select";
 
 type GenericFilterValues = {
   model: string;
