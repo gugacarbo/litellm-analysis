@@ -40,11 +40,6 @@ export const systemAgentSchema = z.object({
     .string()
     .default("")
     .meta({ title: "Model", description: "Model identifier" }),
-  fallbackModels: z
-    .array(z.string())
-    .default([])
-    .meta({ title: "Fallback Models", description: "Fallback models" })
-    .optional(),
   config: agentExtraConfigSchema.default({}).meta({
     title: "Config",
     description: "Extra agent configuration",

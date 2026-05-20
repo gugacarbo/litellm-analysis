@@ -15,7 +15,6 @@
         "output": 0
       },
       "model": "MiniMax-M2.7-highspeed",
-      "fallbackModels": [],
       "config": {
         "mode": "all",
         "tools": {},
@@ -44,7 +43,6 @@
         "output": 0
       },
       "model": "glm-5.1",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "tools": {},
@@ -73,7 +71,6 @@
         "output": 0
       },
       "model": "deepseek-v4-pro",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "tools": {},
@@ -102,7 +99,6 @@
         "output": 0
       },
       "model": "glm-5.1",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "tools": {},
@@ -131,7 +127,6 @@
         "output": 0
       },
       "model": "qwen3.5-plus",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "tools": {},
@@ -160,7 +155,6 @@
         "output": 0
       },
       "model": "glm-5-turbo",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "tools": {},
@@ -189,7 +183,6 @@
         "output": 0
       },
       "model": "glm-5.1",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "tools": {},
@@ -218,7 +211,6 @@
         "output": 0
       },
       "model": "deepseek-v4-pro",
-      "fallbackModels": [],
       "config": {
         "mode": "subagent",
         "tools": {},
@@ -248,7 +240,6 @@
         "input": 0,
         "output": 0
       },
-      "fallbackModels": [],
       "description": "Categoria especializada em documentação técnica: README, changelog, AGENTS.md, padrões internos e materiais de onboarding.",
       "variant": "",
       "temperature": 0,
@@ -289,7 +280,6 @@
         "input": 0,
         "output": 0
       },
-      "fallbackModels": [],
       "description": "Execução autônoma orientada a objetivos, ideal para tarefas de médio e grande porte com necessidade de continuidade e ownership.",
       "variant": "",
       "temperature": 0,
@@ -330,7 +320,6 @@
         "input": 0,
         "output": 0
       },
-      "fallbackModels": [],
       "description": "Categoria de resposta rápida para ajustes pontuais: mudanças pequenas, baixo risco e escopo limitado.",
       "variant": "",
       "temperature": 0,

@@ -155,8 +155,7 @@ function parseToolCalls(msg: Message): ToolInfo[] {
 
 function parseTaggedText(content: string): TaggedTextPiece[] {
   const pieces: TaggedTextPiece[] = [];
-  const tagRegex =
-    /<([a-zA-Z_][\w-]*)(\s+[^>]*)?>([\s\S]*?)<\/\1>/g;
+  const tagRegex = /<([a-zA-Z_][\w-]*)(\s+[^>]*)?>([\s\S]*?)<\/\1>/g;
   const attrRegex = /([\w-]+)="([^"]*)"/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -202,6 +201,16 @@ function parseTaggedText(content: string): TaggedTextPiece[] {
   return pieces;
 }
 
+function extractSkillName(
+  value: string,
+  attributes: Record<string, string>,
+): string | undefined {
+  if (attributes.name) return attributes.name;
+  const nameMatch = value.match(/<name>([^<]*)<\/name>/);
+  if (nameMatch) return nameMatch[1].trim();
+  return undefined;
+}
+
 function TaggedSectionCard({
   tag,
   value,
@@ -214,10 +223,11 @@ function TaggedSectionCard({
   const [open, setOpen] = useState(false);
 
   let headerLabel: string;
-  if (tag === "skill_content" && attributes.name) {
-    headerLabel = `Skill: ${attributes.name}`;
+  if (tag === "skill_content") {
+    const name = extractSkillName(value, attributes);
+    headerLabel = name ? `Skill: ${name}` : tag;
   } else if (tag === "name") {
-    headerLabel = `Skill: ${value.trim() || "unknown"}`;
+    headerLabel = `Skill: ${value.trim()}`;
   } else {
     headerLabel = tag;
   }
@@ -279,12 +289,12 @@ function MessageContent({ content }: { content: string }) {
                     {piece.value}
                   </p>
                 ) : (
-                    <TaggedSectionCard
-                      key={`${idx}-tag-${pieceIdx}`}
-                      tag={piece.tag}
-                      value={piece.value}
-                      attributes={piece.attributes}
-                    />
+                  <TaggedSectionCard
+                    key={`${idx}-tag-${pieceIdx}`}
+                    tag={piece.tag}
+                    value={piece.value}
+                    attributes={piece.attributes}
+                  />
                 ),
               )
             ) : (
@@ -355,7 +365,10 @@ function ToolCallCard({
           {openResults && (
             <div className="mt-1.5 space-y-1.5">
               {linkedResults.map((result) => (
-                <RawMessageBlock key={result.key} rawMessage={result.rawMessage} />
+                <RawMessageBlock
+                  key={result.key}
+                  rawMessage={result.rawMessage}
+                />
               ))}
             </div>
           )}
@@ -647,9 +660,7 @@ function AssistantMessage({
             )}
             <MessageDetails meta={meta} flags={flags} />
             {!content && toolCalls.length === 0 && (
-              <p className="text-sm text-muted-foreground italic">
-                No content
-              </p>
+              <p className="text-sm text-muted-foreground italic">No content</p>
             )}
           </>
         )}
@@ -759,136 +770,139 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
               }
 
               const msg = messages[index];
-            const contentMeta = getContentMeta(msg.content);
-            const normalizedContent = contentMeta.text;
-            const toolCalls = parseToolCalls(msg);
-            const role = msg.role;
-            const rawMessage = JSON.stringify(msg, null, 2);
-            const delayStyle = { animationDelay: `${index * 50}ms` };
+              const contentMeta = getContentMeta(msg.content);
+              const normalizedContent = contentMeta.text;
+              const toolCalls = parseToolCalls(msg);
+              const role = msg.role;
+              const rawMessage = JSON.stringify(msg, null, 2);
+              const delayStyle = { animationDelay: `${index * 50}ms` };
 
-            const flags: string[] = [];
-            if (toolCalls.length > 0) {
-              flags.push(`tool-calls:${toolCalls.length}`);
-            }
-            if (role === "tool") {
-              flags.push("tool-result");
-            }
-            if (!normalizedContent.trim()) {
-              flags.push("no-text");
-            }
-            if (
-              contentMeta.hasImagePart ||
-              contentMeta.unknownPartTypes.length > 0
-            ) {
-              flags.push("multimodal");
-            }
-
-            const toolResultsByCallId = new Map<string, LinkedToolResult[]>();
-
-            if (role === "assistant" && toolCalls.length > 0) {
-              const toolIds = new Set(toolCalls.map((tool) => tool.id));
-
-              for (let nextIndex = index + 1; nextIndex < messages.length; nextIndex++) {
-                const candidate = messages[nextIndex];
-
-                if (
-                  candidate.role === "assistant" ||
-                  candidate.role === "user" ||
-                  candidate.role === "system"
-                ) {
-                  break;
-                }
-
-                if (candidate.role !== "tool") {
-                  continue;
-                }
-
-                const toolCallId = candidate.tool_call_id;
-                if (!toolCallId || !toolIds.has(toolCallId)) {
-                  continue;
-                }
-
-                consumedToolIndexes.add(nextIndex);
-
-                const candidateMeta = getContentMeta(candidate.content);
-                const candidateContent = candidateMeta.text || "No content";
-                const candidateRaw = JSON.stringify(candidate, null, 2);
-                const linkedResult: LinkedToolResult = {
-                  key: `${nextIndex}-${toolCallId}`,
-                  content: candidateContent,
-                  rawMessage: candidateRaw,
-                };
-
-                const previous = toolResultsByCallId.get(toolCallId) ?? [];
-                previous.push(linkedResult);
-                toolResultsByCallId.set(toolCallId, previous);
+              const flags: string[] = [];
+              if (toolCalls.length > 0) {
+                flags.push(`tool-calls:${toolCalls.length}`);
               }
-            }
+              if (role === "tool") {
+                flags.push("tool-result");
+              }
+              if (!normalizedContent.trim()) {
+                flags.push("no-text");
+              }
+              if (
+                contentMeta.hasImagePart ||
+                contentMeta.unknownPartTypes.length > 0
+              ) {
+                flags.push("multimodal");
+              }
 
-            rows.push(
-              <div
-                key={index}
-                className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-                style={delayStyle}
-              >
-                {role === "system" && (
-                  <SystemMessage
-                    content={normalizedContent}
-                    meta={contentMeta}
-                    flags={flags}
-                    rawMessage={rawMessage}
-                  />
-                )}
+              const toolResultsByCallId = new Map<string, LinkedToolResult[]>();
 
-                {role === "user" && (
-                  <UserMessage
-                    content={normalizedContent}
-                    meta={contentMeta}
-                    flags={flags}
-                    rawMessage={rawMessage}
-                  />
-                )}
+              if (role === "assistant" && toolCalls.length > 0) {
+                const toolIds = new Set(toolCalls.map((tool) => tool.id));
 
-                {role === "assistant" && (
-                  <AssistantMessage
-                    content={normalizedContent}
-                    meta={contentMeta}
-                    toolCalls={toolCalls}
-                    toolResultsByCallId={toolResultsByCallId}
-                    flags={flags}
-                    rawMessage={rawMessage}
-                  />
-                )}
+                for (
+                  let nextIndex = index + 1;
+                  nextIndex < messages.length;
+                  nextIndex++
+                ) {
+                  const candidate = messages[nextIndex];
 
-                {role === "tool" && !consumedToolIndexes.has(index) && (
-                  <ToolResponse
-                    content={normalizedContent}
-                    meta={contentMeta}
-                    toolName={
-                      msg.tool_call_id
-                        ? toolNameById.get(msg.tool_call_id)
-                        : undefined
-                    }
-                    flags={flags}
-                    rawMessage={rawMessage}
-                  />
-                )}
+                  if (
+                    candidate.role === "assistant" ||
+                    candidate.role === "user" ||
+                    candidate.role === "system"
+                  ) {
+                    break;
+                  }
 
-                {role !== "system" &&
-                  role !== "user" &&
-                  role !== "assistant" &&
-                  role !== "tool" && (
-                    <ToolResponse
+                  if (candidate.role !== "tool") {
+                    continue;
+                  }
+
+                  const toolCallId = candidate.tool_call_id;
+                  if (!toolCallId || !toolIds.has(toolCallId)) {
+                    continue;
+                  }
+
+                  consumedToolIndexes.add(nextIndex);
+
+                  const candidateMeta = getContentMeta(candidate.content);
+                  const candidateContent = candidateMeta.text || "No content";
+                  const candidateRaw = JSON.stringify(candidate, null, 2);
+                  const linkedResult: LinkedToolResult = {
+                    key: `${nextIndex}-${toolCallId}`,
+                    content: candidateContent,
+                    rawMessage: candidateRaw,
+                  };
+
+                  const previous = toolResultsByCallId.get(toolCallId) ?? [];
+                  previous.push(linkedResult);
+                  toolResultsByCallId.set(toolCallId, previous);
+                }
+              }
+
+              rows.push(
+                <div
+                  key={index}
+                  className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                  style={delayStyle}
+                >
+                  {role === "system" && (
+                    <SystemMessage
                       content={normalizedContent}
                       meta={contentMeta}
-                      toolName={msg.name ?? role}
                       flags={flags}
                       rawMessage={rawMessage}
                     />
                   )}
-              </div>
-            );
 
+                  {role === "user" && (
+                    <UserMessage
+                      content={normalizedContent}
+                      meta={contentMeta}
+                      flags={flags}
+                      rawMessage={rawMessage}
+                    />
+                  )}
+
+                  {role === "assistant" && (
+                    <AssistantMessage
+                      content={normalizedContent}
+                      meta={contentMeta}
+                      toolCalls={toolCalls}
+                      toolResultsByCallId={toolResultsByCallId}
+                      flags={flags}
+                      rawMessage={rawMessage}
+                    />
+                  )}
+
+                  {role === "tool" && !consumedToolIndexes.has(index) && (
+                    <ToolResponse
+                      content={normalizedContent}
+                      meta={contentMeta}
+                      toolName={
+                        msg.tool_call_id
+                          ? toolNameById.get(msg.tool_call_id)
+                          : undefined
+                      }
+                      flags={flags}
+                      rawMessage={rawMessage}
+                    />
+                  )}
+
+                  {role !== "system" &&
+                    role !== "user" &&
+                    role !== "assistant" &&
+                    role !== "tool" && (
+                      <ToolResponse
+                        content={normalizedContent}
+                        meta={contentMeta}
+                        toolName={msg.name ?? role}
+                        flags={flags}
+                        rawMessage={rawMessage}
+                      />
+                    )}
+                </div>,
+              );
             }
 
             return rows;

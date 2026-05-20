@@ -18,7 +18,6 @@ function systemAgentToFormData(agent: SystemAgent): AgentConfigFormData {
     icon: agent.icon ?? "🤖",
     description: agent.description ?? "",
     model: agent.model ?? "",
-    fallbackModels: agent.fallbackModels ?? [],
     limits: agent.limits ?? { context: 200000, output: 32768 },
     config: {
       mode: agent.config?.mode ?? "subagent",
@@ -44,7 +43,6 @@ function formDataToSystemAgent(formData: AgentConfigFormData): SystemAgent {
     icon: formData.icon,
     description: formData.description,
     model: formData.model,
-    fallbackModels: formData.fallbackModels,
     limits: formData.limits,
     config: {
       mode: formData.config.mode,
@@ -114,7 +112,6 @@ export function useAgentConfigPage(): {
       icon: "🤖",
       description: "",
       model: "",
-      fallbackModels: [],
       limits: { context: 200000, output: 32768 },
       config: {
         mode: "subagent",

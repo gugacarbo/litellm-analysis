@@ -36,7 +36,6 @@ describe("@lite-llm/api-contracts", () => {
         description: "A test agent",
         limits: { context: 200000, output: 32768 },
         model: "gpt-4",
-        fallbackModels: [],
         config: {},
       };
       const _catalogResp: AgentCatalogResponse = { agents: [_agentEntry] };
@@ -48,7 +47,6 @@ describe("@lite-llm/api-contracts", () => {
           description: "A test agent",
           limits: { context: 200000, output: 32768 },
           model: "gpt-4",
-          fallbackModels: [],
           config: {},
         },
       };

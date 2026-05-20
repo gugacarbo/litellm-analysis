@@ -38,7 +38,6 @@ describe("LitellmAliasPlugin", () => {
     icon: "🤖",
     description: `Agent ${id}`,
     model: "gpt-4",
-    fallbackModels: [],
     limits: { context: 128000, output: 4096 },
     config: {},
     ...overrides,
@@ -50,10 +49,8 @@ describe("LitellmAliasPlugin", () => {
     expect(plugin.getOutputFile()).toBe("litellm-aliases.json");
   });
 
-  it("should generate aliases from agents with model and fallbacks", () => {
-    const agents = [
-      makeAgent("coder", { model: "gpt-4", fallbackModels: ["gpt-3.5"] }),
-    ];
+  it("should generate aliases from agents with model", () => {
+    const agents = [makeAgent("coder", { model: "gpt-4" })];
     const routing: PluginRouting = {
       enabled: true,
       outputFile: "litellm-aliases.json",
@@ -131,7 +128,6 @@ describe("LitellmAliasPlugin", () => {
         reasoning: {
           description: "Reasoning tasks",
           model: "gpt-4",
-          fallbackModels: ["gpt-3.5"],
           limits: { context: 128000, output: 4096 },
         },
       },

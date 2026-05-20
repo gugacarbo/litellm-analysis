@@ -10,7 +10,6 @@ export interface AgentCatalogEntry {
   description: string;
   limits: { context: number; output: number };
   model: string;
-  fallbackModels: string[];
   config: AgentExtraConfig;
 }
 

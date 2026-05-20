@@ -68,13 +68,6 @@ export const openAgentSchema = z.fromJSONSchema({
           type: "string",
           description: "Human-readable description of the agent",
         },
-        fallback_models: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-          description: "List of fallback model identifiers",
-        },
         color: {
           type: "string",
           pattern: "^#[0-9A-Fa-f]{6}$",
@@ -107,13 +100,6 @@ export const openAgentSchema = z.fromJSONSchema({
         description: {
           type: "string",
           description: "Human-readable description of the category",
-        },
-        fallback_models: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-          description: "List of fallback model identifiers",
         },
         color: {
           type: "string",

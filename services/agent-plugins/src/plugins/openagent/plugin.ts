@@ -89,9 +89,6 @@ export class OpenAgentPlugin implements IPlugin<"openagent"> {
       const entry: Record<string, unknown> = {};
       if (agent.description) entry.description = agent.description;
       if (agent.model) entry.model = agent.model;
-      if (agent.fallbackModels?.length) {
-        entry.fallback_models = agent.fallbackModels;
-      }
       if (agent.config?.mode) entry.mode = agent.config.mode;
       if (agent.config?.tools) entry.tools = agent.config.tools;
       if (agent.config?.color) entry.color = agent.config.color;
@@ -109,9 +106,6 @@ export class OpenAgentPlugin implements IPlugin<"openagent"> {
         const catEntry: Record<string, unknown> = {};
         if (category.description) catEntry.description = category.description;
         if (category.model) catEntry.model = category.model;
-        if (category.fallbackModels?.length) {
-          catEntry.fallback_models = category.fallbackModels;
-        }
 
         if (Object.keys(catEntry).length > 0) {
           output.categories[categoryName] = catEntry;

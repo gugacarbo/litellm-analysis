@@ -45,21 +45,22 @@ export function resolveModelValue(
   return trimmed;
 }
 
-/**
- * Resolve configured models (primary and fallbacks) using aliases.
- * If any model is a logical reference (e.g., "sisyphus/gpt-5.5"), resolve it.
- * Filter out empty values from the resolved fallbacks.
- */
+/** Resolve configured primary and global fallback model aliases. */
 export function resolveConfiguredModels(
   key: string,
   model: string,
-  fallbackModels: string[] | undefined,
+  globalFallbackModel: string | undefined,
   existingAliases: Record<string, string>,
-): { actualModel: string; actualFallbacks: string[] } {
+): {
+  actualModel: string;
+  actualGlobalFallbackModel: string;
+} {
   const actualModel = resolveModelValue(key, model, existingAliases);
-  const actualFallbacks = (fallbackModels || [])
-    .map((fallback) => resolveModelValue(key, fallback, existingAliases))
-    .filter((fallback) => Boolean(fallback));
+  const actualGlobalFallbackModel = resolveModelValue(
+    key,
+    globalFallbackModel || "",
+    existingAliases,
+  );
 
-  return { actualModel, actualFallbacks };
+  return { actualModel, actualGlobalFallbackModel };
 }

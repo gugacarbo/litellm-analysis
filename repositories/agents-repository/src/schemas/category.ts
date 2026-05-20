@@ -40,11 +40,6 @@ export const categoryEntrySchema = z.object({
     .default({})
     .meta({ title: "Cost", description: "Category pricing" })
     .optional(),
-  fallbackModels: z
-    .array(z.string())
-    .default([])
-    .meta({ title: "Fallback Models", description: "Fallback models" })
-    .optional(),
   description: z
     .string()
     .default("")

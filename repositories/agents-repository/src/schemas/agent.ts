@@ -6,14 +6,6 @@ export const agentEntrySchema = z.object({
     .string()
     .default("")
     .meta({ title: "Model", description: "Model identifier" }),
-  fallbackModels: z
-    .array(z.string())
-    .default([])
-    .meta({
-      title: "Fallback Models",
-      description: "Models to use as fallback",
-    })
-    .optional(),
   description: z
     .string()
     .default("")

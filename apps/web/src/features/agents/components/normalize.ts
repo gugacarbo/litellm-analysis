@@ -5,7 +5,6 @@ const DEFAULT_SYSTEM_AGENT: SystemAgent = {
   icon: "🤖",
   description: "",
   model: "",
-  fallbackModels: [],
   limits: { context: 200000, output: 32768 },
   config: {
     mode: "primary",
@@ -41,7 +40,6 @@ export function normalizeCategoryEntry(
 ): CategoryEntry {
   return {
     model: partial.model ?? "",
-    fallbackModels: partial.fallbackModels ?? [],
     description: partial.description ?? "",
     variant: partial.variant ?? "",
     icon: partial.icon ?? "📂",

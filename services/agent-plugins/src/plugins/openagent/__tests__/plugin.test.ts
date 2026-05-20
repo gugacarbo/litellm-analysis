@@ -12,7 +12,6 @@ function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
     description: "Build stuff",
     limits: { context: 200000, output: 32768 },
     model: "gpt-4",
-    fallbackModels: [],
     config: {},
     ...overrides,
   };
@@ -165,7 +164,6 @@ describe("OpenAgentPlugin", () => {
         makeSystemAgent({
           description: "Build stuff",
           model: "gpt-4",
-          fallbackModels: ["gpt-3.5"],
           config: {
             mode: "all",
             tools: { read: true, write: true },
@@ -192,7 +190,7 @@ describe("OpenAgentPlugin", () => {
       const entry = agentsMap.default as Record<string, unknown>;
       expect(entry.description).toBe("Build stuff");
       expect(entry.model).toBe("gpt-4");
-      expect(entry.fallback_models).toEqual(["gpt-3.5"]);
+      expect(entry).not.toHaveProperty("fallback_models");
     });
 
     it("ignora agentes sem mapeamento", () => {

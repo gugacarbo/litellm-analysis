@@ -1,6 +1,5 @@
 export interface CategoryEntry {
   model: string;
-  fallbackModels?: string[];
   description?: string;
   variant?: string;
   icon?: string;

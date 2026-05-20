@@ -13,7 +13,6 @@ function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
     description: "Build stuff",
     limits: { context: 200000, output: 32768 },
     model: "gpt-4",
-    fallbackModels: [],
     config: {},
     ...overrides,
   };
@@ -242,13 +241,12 @@ describe("OpenCodePlugin", () => {
       expect(primaryModel.limit).toEqual({ context: 128000, output: 4096 });
     });
 
-    it("inclui fallback models com aliases gpt-5.4, gpt-5.3, gpt-5.2", () => {
+    it("nao inclui aliases locais de fallback para agentes", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({
           id: "sisyphus",
           model: "gpt-4",
-          fallbackModels: ["gpt-3.5", "claude-3"],
         }),
       ];
       const routing: PluginRouting = {
@@ -264,16 +262,6 @@ describe("OpenCodePlugin", () => {
             enabled: true,
             limits: { length: 128000, maxOutput: 4096 },
           },
-          "gpt-3.5": {
-            displayName: "GPT-3.5",
-            enabled: true,
-            limits: { length: 16000, maxOutput: 4096 },
-          },
-          "claude-3": {
-            displayName: "Claude 3",
-            enabled: true,
-            limits: { length: 200000, maxOutput: 8192 },
-          },
         },
         litellmConfig: {
           baseUrl: "http://localhost:4000",
@@ -285,26 +273,18 @@ describe("OpenCodePlugin", () => {
       const llmAgents = provider["llm-agents"] as Record<string, unknown>;
       const models = llmAgents.models as Record<string, unknown>;
 
-      // gpt-5.4 → first fallback (gpt-3.5)
-      expect(models).toHaveProperty("sisyphus/gpt-5.4");
-      const fb1 = models["sisyphus/gpt-5.4"] as Record<string, unknown>;
-      expect(fb1.id).toBe("sisyphus/gpt-5.4");
-      expect(fb1.name).toBe("Builder Fb");
-      expect(fb1.limit).toEqual({ context: 16000, output: 4096 });
-
-      // gpt-5.3 should NOT exist (only 1 fallback slot with 3 model names)
+      expect(models).toHaveProperty("sisyphus/gpt-5.5");
+      expect(models).not.toHaveProperty("sisyphus/gpt-5.4");
       expect(models).not.toHaveProperty("sisyphus/gpt-5.3");
-      // gpt-5.2 should NOT exist
       expect(models).not.toHaveProperty("sisyphus/gpt-5.2");
     });
 
-    it("skips fallback model not found in ctx.allModels", () => {
+    it("nao depende de fallback local ausente para gerar modelo principal", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({
           id: "sisyphus",
           model: "gpt-4",
-          fallbackModels: ["unknown-model"],
         }),
       ];
       const routing: PluginRouting = {

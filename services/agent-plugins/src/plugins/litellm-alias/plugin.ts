@@ -133,12 +133,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
 
         const agentModel =
           agent.model && enabledSet.has(agent.model) ? agent.model : "";
-        const agentFallbacks = (agent.fallbackModels ?? []).filter((m) =>
-          enabledSet.has(m),
-        );
-
-        // Skip if no enabled model or fallbacks
-        if (!agentModel && agentFallbacks.length === 0) {
+        if (!agentModel) {
           continue;
         }
 
@@ -148,7 +143,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
           generateLitellmAliases(
             finalKey,
             agentModel,
-            agentFallbacks,
+            [],
             effectiveFallback,
             modelNames,
           ),
@@ -164,14 +159,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
           continue;
         }
 
-        const hasModel = Boolean(
-          category.model && enabledSet.has(category.model),
-        );
-        const catFallbacks = (category.fallbackModels ?? []).filter((m) =>
-          enabledSet.has(m),
-        );
-        const hasFallbacks = catFallbacks.length > 0;
-        if (!hasModel && !hasFallbacks) {
+        if (!(category.model && enabledSet.has(category.model))) {
           continue;
         }
 
@@ -180,10 +168,10 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
           aliases,
           generateLitellmAliases(
             finalKey,
-            category.model && enabledSet.has(category.model)
-              ? category.model
-              : "",
-            catFallbacks,
+              category.model && enabledSet.has(category.model)
+                ? category.model
+                : "",
+            [],
             effectiveFallback,
             modelNames,
           ),

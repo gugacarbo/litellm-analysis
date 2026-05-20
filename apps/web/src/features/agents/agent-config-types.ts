@@ -4,7 +4,6 @@ export interface AgentConfigFormData {
   icon: string;
   description: string;
   model: string;
-  fallbackModels: string[];
   limits: {
     context: number;
     output: number;

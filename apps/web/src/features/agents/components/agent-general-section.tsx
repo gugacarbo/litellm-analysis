@@ -52,24 +52,6 @@ export function AgentGeneralSection({
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="agent-fallbacks">Fallback Models</Label>
-        <Input
-          id="agent-fallbacks"
-          value={config.fallbackModels?.join(", ") ?? ""}
-          onChange={(e) =>
-            onFieldChange(
-              "fallbackModels",
-              e.target.value
-                .split(",")
-                .map((m) => m.trim())
-                .filter(Boolean),
-            )
-          }
-          placeholder="comma-separated model names"
-        />
-      </div>
-
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="agent-icon">Icon</Label>

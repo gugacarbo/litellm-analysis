@@ -218,25 +218,6 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
         );
       }
 
-      // Fallback models → gpt-5.4, gpt-5.3, gpt-5.2
-      const fallbacks = agent.fallbackModels ?? [];
-      for (
-        let fbIdx = 0;
-        fbIdx < Math.min(fallbacks.length, modelNames.length - 2);
-        fbIdx++
-      ) {
-        const fbModelId = fallbacks[fbIdx];
-        if (!fbModelId) continue;
-        const fbSpec = ctx.allModels[fbModelId];
-        if (!fbSpec) continue;
-        const aliasKey = modelNames[fbIdx + 1];
-        llmAgentsModels[`${agentRole}/${aliasKey}`] = buildModelEntry(
-          agentRole,
-          aliasKey,
-          `${agent.displayName || fbSpec.displayName} Fb`,
-          fbSpec,
-        );
-      }
     }
 
     if (Object.keys(llmAgentsModels).length > 0) {
@@ -275,25 +256,6 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
             );
         }
 
-        // Fallback models → gpt-5.4, gpt-5.3, gpt-5.2
-        const fallbacks = category.fallbackModels ?? [];
-        for (
-          let fbIdx = 0;
-          fbIdx < Math.min(fallbacks.length, modelNames.length - 2);
-          fbIdx++
-        ) {
-          const fbModelId = fallbacks[fbIdx];
-          if (!fbModelId) continue;
-          const fbSpec = ctx.allModels[fbModelId];
-          if (!fbSpec) continue;
-          const aliasKey = modelNames[fbIdx + 1];
-          llmCategoriesModels[`${categoryName}/${aliasKey}`] = buildModelEntry(
-            categoryName,
-            aliasKey,
-            `${categoryName} Fb`,
-            fbSpec,
-          );
-        }
       }
 
       if (Object.keys(llmCategoriesModels).length > 0) {
