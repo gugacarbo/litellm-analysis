@@ -1,6 +1,9 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
+import type {
+  ChatMessageContentPart,
+  SpendLog,
+} from "@lite-llm/contracts/analytics";
 import { ChevronDown, ChevronRight, Wrench } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/shared/lib/utils";
 
 type Message = NonNullable<SpendLog["messages"]>[number];
@@ -22,10 +25,27 @@ type CodeSegment = {
 
 type Segment = TextSegment | CodeSegment;
 
+type TaggedTextPiece =
+  | {
+      type: "text";
+      value: string;
+    }
+  | {
+      type: "tag";
+      tag: string;
+      value: string;
+    };
+
 type ToolInfo = {
   id: string;
   name: string;
   argumentsText: string | null;
+};
+
+type ContentMeta = {
+  text: string;
+  hasImagePart: boolean;
+  unknownPartTypes: string[];
 };
 
 /* ────────────────────────────────────────────── helpers */
@@ -63,20 +83,50 @@ function parseContent(content: string): Segment[] {
 
 function isContentPartArray(
   content: Message["content"],
-): content is Array<{ type?: string; text?: string }> {
+): content is ChatMessageContentPart[] {
   return Array.isArray(content);
 }
 
-function normalizeContent(content: Message["content"]): string {
-  if (typeof content === "string") return content;
-  if (content == null) return "";
-  if (!isContentPartArray(content)) return "";
+function getContentMeta(content: Message["content"]): ContentMeta {
+  if (typeof content === "string") {
+    return {
+      text: content,
+      hasImagePart: false,
+      unknownPartTypes: [],
+    };
+  }
 
-  const textParts = content
-    .map((part) => (part?.type === "text" ? (part.text ?? "") : ""))
-    .filter(Boolean);
+  if (content == null || !isContentPartArray(content)) {
+    return {
+      text: "",
+      hasImagePart: false,
+      unknownPartTypes: [],
+    };
+  }
 
-  return textParts.join("\n");
+  const textParts: string[] = [];
+  let hasImagePart = false;
+  const unknownPartTypes = new Set<string>();
+
+  for (const part of content) {
+    if (part?.type === "text") {
+      if (part.text) textParts.push(part.text);
+      continue;
+    }
+
+    if (part?.type === "image_url" && part.image_url?.url) {
+      hasImagePart = true;
+      continue;
+    }
+
+    unknownPartTypes.add(part?.type ?? "unknown");
+  }
+
+  return {
+    text: textParts.join("\n"),
+    hasImagePart,
+    unknownPartTypes: [...unknownPartTypes],
+  };
 }
 
 function parseToolCalls(msg: Message): ToolInfo[] {
@@ -87,6 +137,42 @@ function parseToolCalls(msg: Message): ToolInfo[] {
     name: toolCall?.function?.name ?? "unknown_tool",
     argumentsText: toolCall?.function?.arguments ?? null,
   }));
+}
+
+function parseTaggedText(content: string): TaggedTextPiece[] {
+  const pieces: TaggedTextPiece[] = [];
+  const tagRegex = /<([a-zA-Z_][\w-]*)(?:\s+[^>]*)?>([\s\S]*?)<\/\1>/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while (true) {
+    match = tagRegex.exec(content);
+    if (match === null) break;
+
+    if (match.index > lastIndex) {
+      pieces.push({
+        type: "text",
+        value: content.slice(lastIndex, match.index),
+      });
+    }
+
+    pieces.push({
+      type: "tag",
+      tag: match[1],
+      value: match[2] ?? "",
+    });
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < content.length) {
+    pieces.push({
+      type: "text",
+      value: content.slice(lastIndex),
+    });
+  }
+
+  return pieces;
 }
 
 /* ────────────────────────────────────────────── message parts */
@@ -104,16 +190,39 @@ function MessageContent({ content }: { content: string }) {
                 {segment.lang}
               </span>
             )}
-            <pre className="bg-muted/50 p-2.5 rounded-md font-mono text-xs overflow-x-auto">
+            <pre className="overflow-x-hidden whitespace-pre-wrap break-words rounded-md bg-muted/50 p-2.5 font-mono text-xs">
               <code>{segment.value}</code>
             </pre>
           </div>
         ) : (
-          <p key={idx} className="text-sm whitespace-pre-wrap leading-relaxed">
-            {segment.value || (
+          <div key={idx} className="space-y-2">
+            {segment.value ? (
+              parseTaggedText(segment.value).map((piece, pieceIdx) =>
+                piece.type === "text" ? (
+                  <p
+                    key={`${idx}-text-${pieceIdx}`}
+                    className="text-sm whitespace-pre-wrap break-words leading-relaxed"
+                  >
+                    {piece.value}
+                  </p>
+                ) : (
+                  <div
+                    key={`${idx}-tag-${pieceIdx}`}
+                    className="overflow-hidden rounded-md border bg-background/40"
+                  >
+                    <div className="border-b bg-muted/50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {piece.tag}
+                    </div>
+                    <pre className="whitespace-pre-wrap break-words px-2.5 py-2 text-[12px] font-mono leading-relaxed text-foreground/90">
+                      {piece.value.trim()}
+                    </pre>
+                  </div>
+                ),
+              )
+            ) : (
               <span className="text-muted-foreground italic">No content</span>
             )}
-          </p>
+          </div>
         ),
       )}
     </div>
@@ -134,7 +243,9 @@ function ToolCallCard({ tool }: { tool: ToolInfo }) {
         <span className="text-xs font-medium text-muted-foreground">
           Tool call:
         </span>
-        <span className="text-xs font-mono font-medium">{tool.name}</span>
+        <span className="text-left text-xs font-mono font-medium break-all">
+          {tool.name}
+        </span>
         <span className="ml-auto">
           {open ? (
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -145,7 +256,7 @@ function ToolCallCard({ tool }: { tool: ToolInfo }) {
       </button>
       {open && tool.argumentsText && (
         <div className="px-2.5 pb-2.5 pt-1">
-          <pre className="text-[11px] font-mono bg-background/80 rounded px-2 py-1.5 overflow-x-auto text-muted-foreground">
+          <pre className="overflow-x-hidden whitespace-pre-wrap break-all rounded bg-background/80 px-2 py-1.5 font-mono text-[11px] text-muted-foreground">
             {tool.argumentsText}
           </pre>
         </div>
@@ -154,29 +265,134 @@ function ToolCallCard({ tool }: { tool: ToolInfo }) {
   );
 }
 
+function MessageFlags({ flags }: { flags: string[] }) {
+  if (flags.length === 0) return null;
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {flags.map((flag) => (
+        <span
+          key={flag}
+          className="rounded-full border border-border/70 bg-muted/50 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+        >
+          {flag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ContentPartHints({ meta }: { meta: ContentMeta }) {
+  if (!meta.hasImagePart && meta.unknownPartTypes.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {meta.hasImagePart && (
+        <span className="rounded-md border border-border bg-background/70 px-2 py-0.5 text-[11px] text-muted-foreground">
+          Image attachment
+        </span>
+      )}
+      {meta.unknownPartTypes.map((partType) => (
+        <span
+          key={partType}
+          className="rounded-md border border-dashed border-border bg-background/70 px-2 py-0.5 text-[11px] text-muted-foreground"
+        >
+          Part: {partType}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function MessageDetails({
+  meta,
+  flags,
+}: {
+  meta: ContentMeta;
+  flags: string[];
+}) {
+  const [open, setOpen] = useState(false);
+  const hasDetails =
+    flags.length > 0 || meta.hasImagePart || meta.unknownPartTypes.length > 0;
+
+  if (!hasDetails) return null;
+
+  return (
+    <div className="mt-2">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {open ? (
+          <ChevronDown className="h-3 w-3" />
+        ) : (
+          <ChevronRight className="h-3 w-3" />
+        )}
+        Detalhes
+      </button>
+
+      {open && (
+        <div className="mt-1.5">
+          <ContentPartHints meta={meta} />
+          <MessageFlags flags={flags} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ────────────────────────────────────────────── role messages */
 
-function SystemMessage({ content }: { content: string }) {
+function SystemMessage({
+  content,
+  meta,
+  flags,
+}: {
+  content: string;
+  meta: ContentMeta;
+  flags: string[];
+}) {
   return (
     <div className="w-full">
       <span className="text-[10px] uppercase tracking-wide font-semibold text-purple-700 dark:text-purple-400 mb-1 block">
         System
       </span>
       <div className="rounded-md bg-purple-500/[0.04] border border-purple-500/10 px-3 py-2">
-        <MessageContent content={content} />
+        {content ? (
+          <MessageContent content={content} />
+        ) : (
+          <p className="text-sm text-muted-foreground italic">No content</p>
+        )}
+        <MessageDetails meta={meta} flags={flags} />
       </div>
     </div>
   );
 }
 
-function UserMessage({ content }: { content: string }) {
+function UserMessage({
+  content,
+  meta,
+  flags,
+}: {
+  content: string;
+  meta: ContentMeta;
+  flags: string[];
+}) {
   return (
     <div className="flex flex-col items-end gap-1 ml-auto max-w-[80%]">
       <span className="text-[10px] uppercase tracking-wide font-semibold text-blue-700 dark:text-blue-400 mr-1">
         You
       </span>
       <div className="rounded-xl rounded-tr-sm border border-blue-500/15 bg-blue-500/[0.05] px-3.5 py-2.5">
-        <MessageContent content={content} />
+        {content ? (
+          <MessageContent content={content} />
+        ) : (
+          <p className="text-sm text-muted-foreground italic">No content</p>
+        )}
+        <MessageDetails meta={meta} flags={flags} />
       </div>
     </div>
   );
@@ -184,10 +400,14 @@ function UserMessage({ content }: { content: string }) {
 
 function AssistantMessage({
   content,
+  meta,
   toolCalls,
+  flags,
 }: {
   content: string;
+  meta: ContentMeta;
   toolCalls: ToolInfo[];
+  flags: string[];
 }) {
   return (
     <div className="flex flex-col items-start gap-1 mr-auto max-w-[80%]">
@@ -203,6 +423,7 @@ function AssistantMessage({
             ))}
           </div>
         )}
+        <MessageDetails meta={meta} flags={flags} />
         {!content && toolCalls.length === 0 && (
           <p className="text-sm text-muted-foreground italic">No content</p>
         )}
@@ -213,10 +434,14 @@ function AssistantMessage({
 
 function ToolResponse({
   content,
+  meta,
   toolName,
+  flags,
 }: {
   content: string;
+  meta: ContentMeta;
   toolName?: string;
+  flags: string[];
 }) {
   return (
     <div className="flex flex-col items-start gap-1 mr-auto max-w-[80%]">
@@ -230,7 +455,12 @@ function ToolResponse({
         )}
       </span>
       <div className="rounded-xl rounded-tl-sm border border-border bg-muted/40 px-3.5 py-2.5">
-        <MessageContent content={content} />
+        {content ? (
+          <MessageContent content={content} />
+        ) : (
+          <p className="text-sm text-muted-foreground italic">No content</p>
+        )}
+        <MessageDetails meta={meta} flags={flags} />
       </div>
     </div>
   );
@@ -239,6 +469,19 @@ function ToolResponse({
 /* ────────────────────────────────────────────── main */
 
 export function ChatSimulation({ messages }: ChatSimulationProps) {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const element = scrollContainerRef.current;
+    if (!element) return;
+
+    const rafId = requestAnimationFrame(() => {
+      element.scrollTop = element.scrollHeight;
+    });
+
+    return () => cancelAnimationFrame(rafId);
+  });
+
   /* Build a map from tool_call_id → tool name so tool responses show cleanly */
   const toolNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -259,46 +502,96 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
   }
 
   return (
-    <div className="space-y-5 py-2">
-      {messages.map((msg, index) => {
-        const normalizedContent = normalizeContent(msg.content);
-        const role = msg.role;
-        const delayStyle = { animationDelay: `${index * 50}ms` };
+    <div className="rounded-lg border bg-muted/10 p-2">
+      <div
+        ref={scrollContainerRef}
+        className="h-[460px] max-h-[70vh] overflow-y-auto overflow-x-hidden rounded-md bg-background/60 px-2 py-3"
+      >
+        <div className="space-y-5">
+          {messages.map((msg, index) => {
+            const contentMeta = getContentMeta(msg.content);
+            const normalizedContent = contentMeta.text;
+            const toolCalls = parseToolCalls(msg);
+            const role = msg.role;
+            const delayStyle = { animationDelay: `${index * 50}ms` };
 
-        return (
-          <div
-            key={index}
-            className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-            style={delayStyle}
-          >
-            {role === "system" && normalizedContent && (
-              <SystemMessage content={normalizedContent} />
-            )}
+            const flags: string[] = [];
+            if (toolCalls.length > 0) {
+              flags.push(`tool-calls:${toolCalls.length}`);
+            }
+            if (role === "tool") {
+              flags.push("tool-result");
+            }
+            if (!normalizedContent.trim()) {
+              flags.push("no-text");
+            }
+            if (
+              contentMeta.hasImagePart ||
+              contentMeta.unknownPartTypes.length > 0
+            ) {
+              flags.push("multimodal");
+            }
 
-            {role === "user" && (
-              <UserMessage content={normalizedContent || "No content"} />
-            )}
+            return (
+              <div
+                key={index}
+                className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                style={delayStyle}
+              >
+                {role === "system" && (
+                  <SystemMessage
+                    content={normalizedContent}
+                    meta={contentMeta}
+                    flags={flags}
+                  />
+                )}
 
-            {role === "assistant" && (
-              <AssistantMessage
-                content={normalizedContent}
-                toolCalls={parseToolCalls(msg)}
-              />
-            )}
+                {role === "user" && (
+                  <UserMessage
+                    content={normalizedContent}
+                    meta={contentMeta}
+                    flags={flags}
+                  />
+                )}
 
-            {role === "tool" && (
-              <ToolResponse
-                content={normalizedContent || "No content"}
-                toolName={
-                  msg.tool_call_id
-                    ? toolNameById.get(msg.tool_call_id)
-                    : undefined
-                }
-              />
-            )}
-          </div>
-        );
-      })}
+                {role === "assistant" && (
+                  <AssistantMessage
+                    content={normalizedContent}
+                    meta={contentMeta}
+                    toolCalls={toolCalls}
+                    flags={flags}
+                  />
+                )}
+
+                {role === "tool" && (
+                  <ToolResponse
+                    content={normalizedContent}
+                    meta={contentMeta}
+                    toolName={
+                      msg.tool_call_id
+                        ? toolNameById.get(msg.tool_call_id)
+                        : undefined
+                    }
+                    flags={flags}
+                  />
+                )}
+
+                {role !== "system" &&
+                  role !== "user" &&
+                  role !== "assistant" &&
+                  role !== "tool" && (
+                    <ToolResponse
+                      content={normalizedContent}
+                      meta={contentMeta}
+                      toolName={msg.name ?? role}
+                      flags={flags}
+                    />
+                  )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
