@@ -3,7 +3,7 @@ import type {
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
-import { DEFAULT_MODEL_NAMES } from "@lite-llm/models-service";
+import { DEFAULT_MODEL_NAMES } from "../litellm-alias/plugin";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import type {
   ConfigField,

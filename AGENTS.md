@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-13 (updated 2026-05-18)
+**Generated:** 2026-05-13 (updated 2026-05-20)
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -74,7 +74,7 @@ lite-llm-analytics/
 | Change dev proxy         | `apps/web/vite.config.ts`                        | `/api` → `localhost:3008`                            |
 | Add agent config logic   | `services/agent-plugins/src/`                   | Adapters, transformers, CRUD, file generators        |
 | Modify agent API routes  | `packages/server-core/src/routes/agent-config-routes.ts` | Express routes using agents-manager                  |
-| Add model config logic   | `services/models-service/src/`                   | Provider/model CRUD, alias routing                    |
+| Add model config logic   | `services/models-service/src/`                   | Provider/model CRUD, alias management                 |
 | Modify model API routes  | `packages/server-core/src/routes/model-routes.ts`| Express routes using models-manager                  |
 
 ## CONVENTIONS
@@ -118,7 +118,7 @@ Detailed documentation in each package's `AGENTS.md`:
 | ---------------------------- | -------------- | ------------------------------------------------------------ |
 | `@lite-llm/agent-plugins`   | `src/index.ts` | Plugin system: OpenCode, OpenAgent, VS Code, LiteLLM aliases |
 | `@lite-llm/analytics-service`| `src/index.ts` | 46-method AnalyticsDataSource, Prisma raw SQL queries          |
-| `@lite-llm/models-service`   | `src/index.ts` | Provider/model CRUD, alias routing resolution                 |
+| `@lite-llm/models-service`   | `src/index.ts` | Provider/model CRUD, alias DB management                      |
 
 ### /packages (shared libraries)
 
@@ -195,4 +195,4 @@ pnpm backup:list      # List available backup files in backups/
 | `services/analytics-service/src/queries/`     | Prisma raw SQL query patterns, helpers |
 | `services/analytics-service/src/data-source/` | DatabaseDataSource composition      |
 | `repositories/litellm-repository/`    | Prisma client + upstream schema sync scripts |
-| `services/models-service/src/alias-router/` | Alias resolution, generation, cleanup, sort |
+| `services/models-service/src/alias-router/` | Managed alias reconciliation (DB) |

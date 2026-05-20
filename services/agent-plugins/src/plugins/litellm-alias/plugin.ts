@@ -2,17 +2,18 @@ import type {
   LitellmAliasPluginConfig,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
-import {
-  generateLitellmAliases,
-  sortAliasesByDefinitionOrder,
-} from "@lite-llm/models-service";
+import { sortAliasesByDefinitionOrder } from "@lite-llm/models-service";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import type {
   ConfigField,
   InternalAgent,
   PluginConfigFor,
 } from "../plugin-types";
+import { generateLitellmAliases } from "./generate";
 import { litellmAliasSchema } from "./schemas/generated/litellm-alias.zod";
+
+/** Logical slot names for primary + fallback aliases (default: gpt-5.5..gpt-5.1). */
+export const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4", "gpt-5.3"] as const;
 
 export interface AliasDbWriter {
   updateAliases(aliases: Record<string, string>): Promise<void>;
@@ -111,8 +112,8 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     const effectiveFallback =
       rawFallback && enabledSet.has(rawFallback) ? rawFallback : undefined;
 
-    // Model slot names from plugin context (default from generateLitellmAliases).
-    const modelNames: readonly string[] | undefined = ctx.modelNames;
+    // Model slot names from plugin context, fallback to DEFAULT_MODEL_NAMES.
+    const modelNames: readonly string[] = ctx.modelNames ?? DEFAULT_MODEL_NAMES;
 
     // Agent/category keys in definition order (from plugin context).
     const agentKeys = agents.map((a) => (a as AgentWithId).id);
