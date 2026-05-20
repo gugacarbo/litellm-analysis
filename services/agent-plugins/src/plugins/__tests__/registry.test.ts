@@ -1,8 +1,13 @@
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
+import { randomUUID } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
 import type { IPlugin } from "../plugin";
 import { PluginRegistry } from "../registry";
+
+function createUniqueOutputDir(): string {
+  return `/tmp/test-registry-output-${randomUUID()}`;
+}
 
 function createMockRepository(): IAgentsRepository {
   return {
@@ -249,7 +254,7 @@ describe("PluginRegistry", () => {
 
       const registry = new PluginRegistry({
         repository: mockRepo,
-        outputDir: "/tmp/test-registry-output",
+        outputDir: createUniqueOutputDir(),
         allPlugins: [],
       });
 
@@ -291,7 +296,7 @@ describe("PluginRegistry", () => {
       const registry = new PluginRegistry({
         repository: mockRepo,
         modelsRepository: createMockModelsRepository(),
-        outputDir: "/tmp/test-registry-output",
+        outputDir: createUniqueOutputDir(),
         allPlugins: [plugin],
       });
 
