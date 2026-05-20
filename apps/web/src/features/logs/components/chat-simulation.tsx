@@ -109,10 +109,7 @@ function MessageContent({ content }: { content: string }) {
             </pre>
           </div>
         ) : (
-          <p
-            key={idx}
-            className="text-sm whitespace-pre-wrap leading-relaxed"
-          >
+          <p key={idx} className="text-sm whitespace-pre-wrap leading-relaxed">
             {segment.value || (
               <span className="text-muted-foreground italic">No content</span>
             )}
@@ -137,9 +134,7 @@ function ToolCallCard({ tool }: { tool: ToolInfo }) {
         <span className="text-xs font-medium text-muted-foreground">
           Tool call:
         </span>
-        <span className="text-xs font-mono font-medium">
-          {tool.name}
-        </span>
+        <span className="text-xs font-mono font-medium">{tool.name}</span>
         <span className="ml-auto">
           {open ? (
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -209,9 +204,7 @@ function AssistantMessage({
           </div>
         )}
         {!content && toolCalls.length === 0 && (
-          <p className="text-sm text-muted-foreground italic">
-            No content
-          </p>
+          <p className="text-sm text-muted-foreground italic">No content</p>
         )}
       </div>
     </div>
@@ -245,9 +238,7 @@ function ToolResponse({
 
 /* ────────────────────────────────────────────── main */
 
-export function ChatSimulation({
-  messages,
-}: ChatSimulationProps) {
+export function ChatSimulation({ messages }: ChatSimulationProps) {
   /* Build a map from tool_call_id → tool name so tool responses show cleanly */
   const toolNameById = useMemo(() => {
     const map = new Map<string, string>();

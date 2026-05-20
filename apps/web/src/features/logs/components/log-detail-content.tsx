@@ -362,10 +362,7 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
   );
 
   const chatTab = hasMessages ? (
-    <ChatSimulation
-      messages={rawMessages}
-
-    />
+    <ChatSimulation messages={rawMessages} />
   ) : (
     <div className="flex flex-col items-center justify-center h-48 text-sm text-muted-foreground gap-2">
       <MessageCircle className="h-8 w-8 text-muted-foreground/40" />

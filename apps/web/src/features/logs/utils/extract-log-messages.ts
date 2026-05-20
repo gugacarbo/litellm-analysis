@@ -16,15 +16,6 @@ function isChatMessageArray(value: unknown): value is ChatMessage[] {
   });
 }
 
-function isChatMessageArray(value: unknown): value is ChatMessage[] {
-  if (!Array.isArray(value)) return false;
-  return value.every((item) => {
-    if (item == null || typeof item !== "object") return false;
-    const role = (item as Record<string, unknown>).role;
-    return typeof role === "string";
-  });
-}
-
 /* ────────────────────────────────────────────── helpers */
 
 function normalizeText(content: ChatMessage["content"]): string {
@@ -32,7 +23,9 @@ function normalizeText(content: ChatMessage["content"]): string {
   if (content == null) return "";
   if (!Array.isArray(content)) return "";
   return content
-    .filter((p): p is ChatMessageContentPart => p != null && typeof p === "object")
+    .filter(
+      (p): p is ChatMessageContentPart => p != null && typeof p === "object",
+    )
     .map((p) => (p.type === "text" ? (p.text ?? "") : ""))
     .join("")
     .trim();
