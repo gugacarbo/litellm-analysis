@@ -1,6 +1,6 @@
+import { randomUUID } from "node:crypto";
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
-import { randomUUID } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
 import type { IPlugin } from "../plugin";
 import { PluginRegistry } from "../registry";
@@ -239,7 +239,6 @@ describe("PluginRegistry", () => {
             icon: "🔧",
             description: "Build stuff",
             model: "gpt-4",
-            fallbackModels: [],
             config: {},
           },
         },
