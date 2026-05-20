@@ -1,4 +1,7 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
+import type {
+  ChatMessageContentPart,
+  SpendLog,
+} from "@lite-llm/contracts/analytics";
 import {
   AlertCircle,
   AlertTriangle,
@@ -6,6 +9,7 @@ import {
   Copy,
   DollarSign,
   FileText,
+  MessageCircle,
   MessageSquare,
   type Sparkles,
   Timer,
@@ -14,7 +18,9 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
 import {
   Dialog,
@@ -40,6 +46,18 @@ type LogDetailDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
+
+function getMessageText(
+  content: string | ChatMessageContentPart[] | null | undefined,
+): string {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+
+  return content
+    .map((part) => (part?.type === "text" ? (part.text ?? "") : ""))
+    .filter(Boolean)
+    .join("\n");
+}
 
 export function LogDetailDialog({
   log,
@@ -177,6 +195,12 @@ export function LogDetailDialog({
                 <Copy className="h-3.5 w-3.5" />
               )}
             </button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to={`/logs/${log.request_id}/chat`}>
+                <MessageCircle className="h-4 w-4" />
+                Chat Simulation
+              </Link>
+            </Button>
           </div>
         </DialogHeader>
 
@@ -328,7 +352,13 @@ export function LogDetailDialog({
                       {msg.role}
                     </span>
                   </div>
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">
+                    {getMessageText(msg.content) || (
+                      <span className="text-muted-foreground italic">
+                        No content
+                      </span>
+                    )}
+                  </p>
                 </div>
               ))}
             </div>

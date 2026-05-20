@@ -14,6 +14,10 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
 
   const allAliases: Record<string, string> = {};
 
+  // Agent/category keys in definition order
+  const agentKeys = Object.keys(config.agents || {});
+  const categoryKeys = Object.keys(config.categories || {});
+
   // Read existing aliases from LiteLLM_Config (router_settings)
   try {
     const routerSettings = await getRouterSettings();
@@ -51,7 +55,11 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
   }
 
   // Sort aliases by definition order
-  const sortedAliases = sortAliasesByDefinitionOrder(allAliases);
+  const sortedAliases = sortAliasesByDefinitionOrder(
+    allAliases,
+    agentKeys,
+    categoryKeys,
+  );
 
   return { model_group_alias: sortedAliases };
 }
@@ -63,17 +71,17 @@ export async function updateAgentRoutingConfigImpl(
   const config = await repository.read();
 
   // Remove agent/category generated aliases, keep only custom
-  const agentKeys = new Set(Object.keys(config.agents || {}));
-  const categoryKeys = new Set(Object.keys(config.categories || {}));
+  const agentKeysSet = new Set(Object.keys(config.agents || {}));
+  const categoryKeysSet = new Set(Object.keys(config.categories || {}));
 
   const customAliases: Record<string, string> = {};
   for (const [key, value] of Object.entries(modelGroupAlias)) {
     const prefix = key.includes("/") ? key.split("/")[0] : key;
     if (
-      !agentKeys.has(key) &&
-      !categoryKeys.has(key) &&
-      !agentKeys.has(prefix) &&
-      !categoryKeys.has(prefix)
+      !agentKeysSet.has(key) &&
+      !categoryKeysSet.has(key) &&
+      !agentKeysSet.has(prefix) &&
+      !categoryKeysSet.has(prefix)
     ) {
       customAliases[key] = value;
     }
@@ -82,5 +90,9 @@ export async function updateAgentRoutingConfigImpl(
   await repository.write(config);
 
   // Also write to LiteLLM_Config table
-  await updateRouterSettings(modelGroupAlias);
+  await updateRouterSettings(
+    modelGroupAlias,
+    [...agentKeysSet],
+    [...categoryKeysSet],
+  );
 }

@@ -22,13 +22,6 @@ export const openCodeSchema = z.fromJSONSchema({
         $ref: "#/definitions/ProviderConfig",
       },
     },
-    agents: {
-      type: "object",
-      description: "Map of agent role names to their configurations",
-      additionalProperties: {
-        $ref: "#/definitions/OpenCodeAgentConfig",
-      },
-    },
     categories: {
       type: "object",
       description: "Map of category names to their configurations",
@@ -139,31 +132,6 @@ export const openCodeSchema = z.fromJSONSchema({
         reasoningEffort: {
           type: "string",
           description: "Reasoning effort level for this variant",
-        },
-      },
-    },
-    OpenCodeAgentConfig: {
-      type: "object",
-      required: ["model"],
-      properties: {
-        description: {
-          type: "string",
-          description: "Human-readable description of the agent",
-        },
-        model: {
-          type: "string",
-          description: "Primary model identifier (prefixed with provider/)",
-        },
-        fallback_models: {
-          type: "array",
-          items: { type: "string" },
-          description: "List of fallback model identifiers",
-        },
-        temperature: {
-          type: "number",
-          minimum: 0,
-          maximum: 2,
-          description: "Sampling temperature for the agent",
         },
       },
     },

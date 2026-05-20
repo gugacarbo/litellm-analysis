@@ -16,6 +16,8 @@ export async function getRouterSettings(): Promise<Record<
 
 export async function updateRouterSettings(
   modelGroupAlias: Record<string, string>,
+  agentKeys: readonly string[] = [],
+  categoryKeys: readonly string[] = [],
 ): Promise<void> {
   const existing = await getRouterSettings();
   const merged: Record<string, unknown> = existing ? { ...existing } : {};
@@ -32,7 +34,11 @@ export async function updateRouterSettings(
       existingAliases[key] = value;
     }
   }
-  merged.model_group_alias = sortAliasesByDefinitionOrder(existingAliases);
+  merged.model_group_alias = sortAliasesByDefinitionOrder(
+    existingAliases,
+    agentKeys,
+    categoryKeys,
+  );
 
   await prisma.$executeRawUnsafe(`
     INSERT INTO "LiteLLM_Config" ("param_name", "param_value")

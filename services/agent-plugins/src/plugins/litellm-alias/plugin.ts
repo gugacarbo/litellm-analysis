@@ -111,6 +111,13 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     const effectiveFallback =
       rawFallback && enabledSet.has(rawFallback) ? rawFallback : undefined;
 
+    // Model slot names from plugin context (default from generateLitellmAliases).
+    const modelNames: readonly string[] | undefined = ctx.modelNames;
+
+    // Agent/category keys in definition order (from plugin context).
+    const agentKeys = agents.map((a) => (a as AgentWithId).id);
+    const categoryKeys = Object.keys(ctx.allCategories ?? {});
+
     // Read routing mappings (empty object = all enabled)
     const routingAgents = _routing.routing?.agents ?? {};
     const routingCategories = _routing.routing?.categories ?? {};
@@ -143,6 +150,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
             agentModel,
             agentFallbacks,
             effectiveFallback,
+            modelNames,
           ),
         );
       }
@@ -177,6 +185,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
               : "",
             catFallbacks,
             effectiveFallback,
+            modelNames,
           ),
         );
       }
@@ -184,7 +193,11 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
 
     return {
       $schema: schemaUrl,
-      model_group_alias: sortAliasesByDefinitionOrder(aliases),
+      model_group_alias: sortAliasesByDefinitionOrder(
+        aliases,
+        agentKeys,
+        categoryKeys,
+      ),
     };
   }
 

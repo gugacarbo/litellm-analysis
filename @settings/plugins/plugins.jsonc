@@ -26,7 +26,9 @@
       "enabled": true,
       "outputFile": "oh-my-openagent.json",
       "config": {
-        "$schema": "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json"
+        "$schema": "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
+        "commitFooter": false,
+        "includeCoAuthoredBy": false
       },
       "routing": {
         "agents": {},
@@ -37,7 +39,10 @@
       "enabled": true,
       "outputFile": "vscode-oaicopilot.json",
       "config": {
-        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json"
+        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
+        "commitLanguage": "Portuguese (Brazil)",
+        "retryEnabled": true,
+        "maxRetryAttempts": 3
       },
       "routing": {
         "agents": {},
@@ -48,7 +53,11 @@
       "enabled": true,
       "outputFile": "litellm-aliases.json",
       "config": {
-        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json"
+        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
+        "aliasPrefix": "",
+        "includeAgents": true,
+        "includeCategories": true,
+        "globalFallbackOverride": ""
       },
       "routing": {
         "agents": {

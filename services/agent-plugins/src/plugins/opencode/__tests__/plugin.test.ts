@@ -64,6 +64,8 @@ describe("OpenCodePlugin", () => {
   });
 
   describe("buildOutput", () => {
+    // ── LiteLLM provider ──
+
     it("gera estrutura com provider litellm", () => {
       const plugin = new OpenCodePlugin();
       const output = plugin.buildOutput(
@@ -172,62 +174,6 @@ describe("OpenCodePlugin", () => {
       expect(variants.xhigh).toEqual({ reasoningEffort: "xhigh" });
     });
 
-    it("inclui agentes habilitados no routing na seção agents", () => {
-      const plugin = new OpenCodePlugin();
-      const agents: SystemAgent[] = [
-        {
-          id: "Builder",
-          displayName: "Builder",
-          icon: "🔧",
-          description: "Build stuff",
-          model: "gpt-4",
-          fallbackModels: [],
-          limits: { context: 200000, output: 32768 },
-          config: {},
-        },
-      ];
-      const routing: PluginRouting = {
-        enabled: true,
-        outputFile: "opencode.json",
-        routing: { agents: { Builder: "Builder" }, categories: {} },
-      };
-
-      const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
-        litellmConfig: {
-          baseUrl: "http://localhost:4000",
-          apiKey: "test-key",
-        },
-      }) as unknown as Record<string, unknown>;
-
-      const agentsOut = output.agents as Record<string, unknown>;
-      expect(agentsOut).toHaveProperty("Builder");
-    });
-
-    it("ignora agentes sem mapeamento", () => {
-      const plugin = new OpenCodePlugin();
-      const agents = [makeSystemAgent()];
-
-      const output = plugin.buildOutput(
-        agents,
-        {
-          enabled: true,
-          outputFile: "opencode.json",
-          routing: { agents: {}, categories: {} },
-        },
-        {
-          allModels: {},
-          litellmConfig: {
-            baseUrl: "http://localhost:4000",
-            apiKey: "test-key",
-          },
-        },
-      ) as unknown as Record<string, unknown>;
-
-      const provider = output.provider as Record<string, unknown>;
-      expect(Object.keys(provider)).toEqual(["litellm"]);
-    });
-
     it("configura baseURL e apiKey do litellm", () => {
       const plugin = new OpenCodePlugin();
       const output = plugin.buildOutput(
@@ -253,194 +199,460 @@ describe("OpenCodePlugin", () => {
       expect(options.apiKey).toBe("secret-key");
     });
 
-    it("usa displayName como chave na seção agents com modelo litellm", () => {
+    // ── Per-agent providers ──
+
+    it("gera provider por agente com modelo principal (gpt-5.5)", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
-        {
-          id: "Loom",
-          displayName: "Loom",
-          icon: "🧵",
-          description: "Coordinator",
-          model: "",
-          fallbackModels: [],
-          limits: { context: 100000, output: 16000 },
-          config: {},
-        },
+        makeSystemAgent({ id: "sisyphus", model: "gpt-4" }),
       ];
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
-        routing: { agents: { Loom: "Loom" }, categories: {} },
+        routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
       const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+        },
         litellmConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
       }) as unknown as Record<string, unknown>;
 
-      const agentsOut = output.agents as Record<string, unknown>;
-      const loomAgent = agentsOut.Loom as Record<string, unknown>;
+      const provider = output.provider as Record<string, unknown>;
+      expect(provider).toHaveProperty("sisyphus");
 
-      expect(loomAgent.description).toBe("Coordinator");
-      expect(loomAgent.model).toBe("litellm/Loom");
-      expect(loomAgent.temperature).toBe(0.2);
+      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
+      expect(sisyphusProvider.npm).toBe("@ai-sdk/openai-compatible");
+
+      const models = sisyphusProvider.models as Record<string, unknown>;
+      expect(models).toHaveProperty("gpt-5.5");
+
+      const primaryModel = models["gpt-5.5"] as Record<string, unknown>;
+      expect(primaryModel.id).toBe("sisyphus/gpt-5.5");
+      expect(primaryModel.name).toBe("Builder");
+      expect(primaryModel.limit).toEqual({ context: 128000, output: 4096 });
     });
 
-    it("gera seção agents com dados do sistema", () => {
+    it("inclui fallback models com aliases gpt-5.4, gpt-5.3, gpt-5.2", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
-        {
-          id: "Loom",
-          displayName: "Loom",
-          icon: "🧵",
-          description: "Coordinator agent",
+        makeSystemAgent({
+          id: "sisyphus",
           model: "gpt-4",
-          fallbackModels: ["gpt-3.5-turbo"],
-          limits: { context: 200000, output: 32768 },
-          config: { temperature: 0.7 },
-        },
+          fallbackModels: ["gpt-3.5", "claude-3"],
+        }),
       ];
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
-        routing: { agents: { Loom: "Loom" }, categories: {} },
+        routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
       const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+          "gpt-3.5": {
+            displayName: "GPT-3.5",
+            enabled: true,
+            limits: { length: 16000, maxOutput: 4096 },
+          },
+          "claude-3": {
+            displayName: "Claude 3",
+            enabled: true,
+            limits: { length: 200000, maxOutput: 8192 },
+          },
+        },
         litellmConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
       }) as unknown as Record<string, unknown>;
 
-      const agentsOut = output.agents as Record<string, unknown>;
-      const loomAgent = agentsOut.Loom as Record<string, unknown>;
+      const provider = output.provider as Record<string, unknown>;
+      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
+      const models = sisyphusProvider.models as Record<string, unknown>;
 
-      expect(loomAgent.description).toBe("Coordinator agent");
-      expect(loomAgent.model).toBe("litellm/gpt-4");
-      expect(loomAgent.fallback_models).toEqual(["gpt-3.5-turbo"]);
-      expect(loomAgent.temperature).toBe(0.7);
+      // gpt-5.4 → first fallback (gpt-3.5)
+      expect(models).toHaveProperty("gpt-5.4");
+      const fb1 = models["gpt-5.4"] as Record<string, unknown>;
+      expect(fb1.id).toBe("sisyphus/gpt-5.4");
+      expect(fb1.name).toBe("Builder Fb");
+      expect(fb1.limit).toEqual({ context: 16000, output: 4096 });
+
+      // gpt-5.3 → second fallback (claude-3)
+      expect(models).toHaveProperty("gpt-5.3");
+      const fb2 = models["gpt-5.3"] as Record<string, unknown>;
+      expect(fb2.id).toBe("sisyphus/gpt-5.3");
+      expect(fb2.name).toBe("Builder Fb");
+      expect(fb2.limit).toEqual({ context: 200000, output: 8192 });
+
+      // gpt-5.2 should NOT exist (only 2 fallbacks)
+      expect(models).not.toHaveProperty("gpt-5.2");
     });
 
-    it("agent sem model usa litellm/displayName como fallback", () => {
-      const plugin = new OpenCodePlugin();
-      const agents: SystemAgent[] = [makeSystemAgent({ model: "" })];
-      const routing: PluginRouting = {
-        enabled: true,
-        outputFile: "opencode.json",
-        routing: { agents: { Builder: "Builder" }, categories: {} },
-      };
-
-      const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
-        litellmConfig: {
-          baseUrl: "http://localhost:4000",
-          apiKey: "test-key",
-        },
-      }) as unknown as Record<string, unknown>;
-
-      const agentsOut = output.agents as Record<string, unknown>;
-      const builderAgent = agentsOut.Builder as Record<string, unknown>;
-      expect(builderAgent.model).toBe("litellm/Builder");
-    });
-
-    it("usa defaultModel do config como fallback quando agent não tem model", () => {
-      const plugin = new OpenCodePlugin();
-      const agents: SystemAgent[] = [makeSystemAgent({ model: "" })];
-      const routing: PluginRouting = {
-        enabled: true,
-        outputFile: "opencode.json",
-        config: { defaultModel: "gpt-4" },
-        routing: { agents: { Builder: "Builder" }, categories: {} },
-      };
-
-      const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
-        litellmConfig: {
-          baseUrl: "http://localhost:4000",
-          apiKey: "test-key",
-        },
-      }) as unknown as Record<string, unknown>;
-
-      const agentsOut = output.agents as Record<string, unknown>;
-      const builderAgent = agentsOut.Builder as Record<string, unknown>;
-      expect(builderAgent.model).toBe("litellm/gpt-4");
-    });
-
-    it("agent com model próprio ignora defaultModel do config", () => {
-      const plugin = new OpenCodePlugin();
-      const agents: SystemAgent[] = [makeSystemAgent({ model: "claude-3" })];
-      const routing: PluginRouting = {
-        enabled: true,
-        outputFile: "opencode.json",
-        config: { defaultModel: "gpt-4" },
-        routing: { agents: { Builder: "Builder" }, categories: {} },
-      };
-
-      const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
-        litellmConfig: {
-          baseUrl: "http://localhost:4000",
-          apiKey: "test-key",
-        },
-      }) as unknown as Record<string, unknown>;
-
-      const agentsOut = output.agents as Record<string, unknown>;
-      const builderAgent = agentsOut.Builder as Record<string, unknown>;
-      expect(builderAgent.model).toBe("litellm/claude-3");
-    });
-
-    it("usa defaultTemperature do config quando agent não tem", () => {
-      const plugin = new OpenCodePlugin();
-      const agents: SystemAgent[] = [makeSystemAgent({ config: {} })];
-      const routing: PluginRouting = {
-        enabled: true,
-        outputFile: "opencode.json",
-        config: { defaultTemperature: 0.9 },
-        routing: { agents: { Builder: "Builder" }, categories: {} },
-      };
-
-      const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
-        litellmConfig: {
-          baseUrl: "http://localhost:4000",
-          apiKey: "test-key",
-        },
-      }) as unknown as Record<string, unknown>;
-
-      const agentsOut = output.agents as Record<string, unknown>;
-      const builderAgent = agentsOut.Builder as Record<string, unknown>;
-      expect(builderAgent.temperature).toBe(0.9);
-    });
-
-    it("agent com temperature próprio ignora defaultTemperature do config", () => {
+    it("skips fallback model not found in ctx.allModels", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
-        makeSystemAgent({ config: { temperature: 0.3 } }),
+        makeSystemAgent({
+          id: "sisyphus",
+          model: "gpt-4",
+          fallbackModels: ["unknown-model"],
+        }),
       ];
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
-        config: { defaultTemperature: 0.9 },
-        routing: { agents: { Builder: "Builder" }, categories: {} },
+        routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
       const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+        },
         litellmConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
       }) as unknown as Record<string, unknown>;
 
-      const agentsOut = output.agents as Record<string, unknown>;
-      const builderAgent = agentsOut.Builder as Record<string, unknown>;
-      expect(builderAgent.temperature).toBe(0.3);
+      const provider = output.provider as Record<string, unknown>;
+      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
+      const models = sisyphusProvider.models as Record<string, unknown>;
+
+      expect(models).toHaveProperty("gpt-5.5");
+      expect(models).not.toHaveProperty("gpt-5.4");
     });
+
+    it("agent sem model usa defaultModel do config", () => {
+      const plugin = new OpenCodePlugin();
+      const agents: SystemAgent[] = [
+        makeSystemAgent({ id: "sisyphus", model: "" }),
+      ];
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "opencode.json",
+        config: { defaultModel: "gpt-4" },
+        routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
+      };
+
+      const output = plugin.buildOutput(agents, routing, {
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+        },
+        litellmConfig: {
+          baseUrl: "http://localhost:4000",
+          apiKey: "test-key",
+        },
+      }) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
+      const models = sisyphusProvider.models as Record<string, unknown>;
+      expect(models).toHaveProperty("gpt-5.5");
+    });
+
+    it("agent com model proprio ignora defaultModel do config", () => {
+      const plugin = new OpenCodePlugin();
+      const agents: SystemAgent[] = [
+        makeSystemAgent({ id: "sisyphus", model: "claude-3" }),
+      ];
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "opencode.json",
+        config: { defaultModel: "gpt-4" },
+        routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
+      };
+
+      const output = plugin.buildOutput(agents, routing, {
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+          "claude-3": {
+            displayName: "Claude 3",
+            enabled: true,
+            limits: { length: 200000, maxOutput: 8192 },
+          },
+        },
+        litellmConfig: {
+          baseUrl: "http://localhost:4000",
+          apiKey: "test-key",
+        },
+      }) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
+      const models = sisyphusProvider.models as Record<string, unknown>;
+      const primary = models["gpt-5.5"] as Record<string, unknown>;
+      expect(primary.id).toBe("sisyphus/gpt-5.5");
+      expect(primary.name).toBe("Builder");
+    });
+
+    it("inclui cost e variants no modelo do agente quando disponivel", () => {
+      const plugin = new OpenCodePlugin();
+      const agents: SystemAgent[] = [
+        makeSystemAgent({ id: "sisyphus", model: "gpt-5" }),
+      ];
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "opencode.json",
+        routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
+      };
+
+      const output = plugin.buildOutput(agents, routing, {
+        allModels: {
+          "gpt-5": {
+            displayName: "GPT-5",
+            enabled: true,
+            limits: { length: 200000, maxOutput: 8192 },
+            cost: { input: 15, output: 60 },
+            thinking: { levels: ["high"] },
+          },
+        },
+        litellmConfig: {
+          baseUrl: "http://localhost:4000",
+          apiKey: "test-key",
+        },
+      }) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
+      const models = sisyphusProvider.models as Record<string, unknown>;
+      const primary = models["gpt-5.5"] as Record<string, unknown>;
+
+      expect(primary.cost).toEqual({ input: 15, output: 60 });
+      expect(primary.variants).toEqual({
+        high: { reasoningEffort: "high" },
+      });
+    });
+
+    it("ignora agentes sem mapeamento no routing", () => {
+      const plugin = new OpenCodePlugin();
+      const agents: SystemAgent[] = [makeSystemAgent({ id: "unused" })];
+
+      const output = plugin.buildOutput(
+        agents,
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "gpt-4": {
+              displayName: "GPT-4",
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
+            },
+          },
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      // Only litellm provider should exist
+      expect(Object.keys(provider)).toEqual(["litellm"]);
+    });
+
+    it("filtra agentes pelo routing (so inclui mapeados)", () => {
+      const plugin = new OpenCodePlugin();
+      const agents: SystemAgent[] = [
+        makeSystemAgent({ id: "sisyphus", model: "gpt-4" }),
+        makeSystemAgent({ id: "oracle", model: "claude-3" }),
+        makeSystemAgent({ id: "unused", model: "gpt-3.5" }),
+      ];
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "opencode.json",
+        routing: {
+          agents: { sisyphus: "sisyphus", oracle: "oracle" },
+          categories: {},
+        },
+      };
+
+      const output = plugin.buildOutput(agents, routing, {
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+          "claude-3": {
+            displayName: "Claude 3",
+            enabled: true,
+            limits: { length: 200000, maxOutput: 8192 },
+          },
+          "gpt-3.5": {
+            displayName: "GPT-3.5",
+            enabled: true,
+            limits: { length: 16000, maxOutput: 4096 },
+          },
+        },
+        litellmConfig: {
+          baseUrl: "http://localhost:4000",
+          apiKey: "test-key",
+        },
+      }) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const providerKeys = Object.keys(provider);
+      expect(providerKeys).toContain("litellm");
+      expect(providerKeys).toContain("sisyphus");
+      expect(providerKeys).toContain("oracle");
+      expect(providerKeys).not.toContain("unused");
+    });
+
+    it("routing agents vazio nao gera per-agent providers", () => {
+      const plugin = new OpenCodePlugin();
+      const agents: SystemAgent[] = [
+        makeSystemAgent({ id: "sisyphus", model: "gpt-4" }),
+      ];
+      const routing: PluginRouting = {
+        enabled: true,
+        outputFile: "opencode.json",
+        routing: { agents: {}, categories: {} },
+      };
+
+      const output = plugin.buildOutput(agents, routing, {
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+        },
+        litellmConfig: {
+          baseUrl: "http://localhost:4000",
+          apiKey: "test-key",
+        },
+      }) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      expect(Object.keys(provider)).toEqual(["litellm"]);
+    });
+
+    // ── Global fallback provider ──
+
+    it("gera global-fallback provider quando globalFallbackModel definido", () => {
+      const plugin = new OpenCodePlugin();
+      const output = plugin.buildOutput(
+        [],
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "gpt-4": {
+              displayName: "GPT-4",
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
+            },
+          },
+          globalFallbackModel: "gpt-4",
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      expect(provider).toHaveProperty("global-fallback");
+
+      const fallbackProvider = provider["global-fallback"] as Record<
+        string,
+        unknown
+      >;
+      expect(fallbackProvider.npm).toBe("@ai-sdk/openai-compatible");
+
+      const models = fallbackProvider.models as Record<string, unknown>;
+      expect(models).toHaveProperty("gpt-5.5");
+
+      const model = models["gpt-5.5"] as Record<string, unknown>;
+      expect(model.id).toBe("global-fallback/gpt-5.5");
+      expect(model.name).toBe("Global Fallback");
+      expect(model.limit).toEqual({ context: 128000, output: 4096 });
+    });
+
+    it("nao gera global-fallback provider sem globalFallbackModel", () => {
+      const plugin = new OpenCodePlugin();
+      const output = plugin.buildOutput(
+        [],
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "gpt-4": {
+              displayName: "GPT-4",
+              enabled: true,
+              limits: { length: 128000, maxOutput: 4096 },
+            },
+          },
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      expect(provider).not.toHaveProperty("global-fallback");
+    });
+
+    it("nao gera global-fallback provider se modelo nao existe em allModels", () => {
+      const plugin = new OpenCodePlugin();
+      const output = plugin.buildOutput(
+        [],
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {},
+          globalFallbackModel: "unknown-model",
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      expect(provider).not.toHaveProperty("global-fallback");
+    });
+
+    // ── Categories ──
 
     it("usa defaultModel do config em categorias sem model", () => {
       const plugin = new OpenCodePlugin();
@@ -519,7 +731,7 @@ describe("OpenCodePlugin", () => {
       expect(categories).not.toHaveProperty("docs");
     });
 
-    it("sem routing de categorias, não gera seção category", () => {
+    it("sem routing de categorias, não gera seção categories", () => {
       const plugin = new OpenCodePlugin();
       const routing: PluginRouting = {
         enabled: true,
@@ -546,91 +758,27 @@ describe("OpenCodePlugin", () => {
       expect(output).not.toHaveProperty("categories");
     });
 
-    it("só inclui agentes whose displayName is a key in routing.agents", () => {
+    // ── No agents section ──
+
+    it("nao gera secao agents (deprecated)", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
-        {
-          id: "Loom",
-          displayName: "Loom",
-          icon: "🧵",
-          description: "Coordinator",
-          model: "gpt-4",
-          fallbackModels: [],
-          limits: { context: 100000, output: 16000 },
-          config: {},
-        },
-        {
-          id: "Tapestry",
-          displayName: "Tapestry",
-          icon: "🧶",
-          description: "Architect",
-          model: "claude-3",
-          fallbackModels: [],
-          limits: { context: 100000, output: 16000 },
-          config: {},
-        },
-        {
-          id: "Thread",
-          displayName: "Thread",
-          icon: "🧵",
-          description: "Writer",
-          model: "gpt-3.5",
-          fallbackModels: [],
-          limits: { context: 100000, output: 16000 },
-          config: {},
-        },
+        makeSystemAgent({ id: "sisyphus", model: "gpt-4" }),
       ];
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
-        routing: { agents: { Loom: "Loom", Thread: "Thread" }, categories: {} },
+        routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
       const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
-        litellmConfig: {
-          baseUrl: "http://localhost:4000",
-          apiKey: "test-key",
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
         },
-      }) as unknown as Record<string, unknown>;
-
-      const agentsOut = output.agents as Record<string, unknown>;
-      expect(Object.keys(agentsOut)).toEqual(["Loom", "Thread"]);
-      expect(agentsOut).toHaveProperty("Loom");
-      expect(agentsOut).toHaveProperty("Thread");
-      expect(agentsOut).not.toHaveProperty("Tapestry");
-    });
-
-    it("routing.agents vazio não gera seção agents (sem retrocompatibilidade)", () => {
-      const plugin = new OpenCodePlugin();
-      const agents: SystemAgent[] = [
-        {
-          displayName: "Loom",
-          icon: "🧵",
-          description: "Coordinator",
-          model: "gpt-4",
-          fallbackModels: [],
-          limits: { context: 100000, output: 16000 },
-          config: {},
-        },
-        {
-          displayName: "Tapestry",
-          icon: "🧶",
-          description: "Architect",
-          model: "claude-3",
-          fallbackModels: [],
-          limits: { context: 100000, output: 16000 },
-          config: {},
-        },
-      ];
-      const routing: PluginRouting = {
-        enabled: true,
-        outputFile: "opencode.json",
-        routing: { agents: {}, categories: {} },
-      };
-
-      const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
         litellmConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
@@ -638,6 +786,9 @@ describe("OpenCodePlugin", () => {
       }) as unknown as Record<string, unknown>;
 
       expect(output).not.toHaveProperty("agents");
+      // Agent should appear as provider instead
+      const provider = output.provider as Record<string, unknown>;
+      expect(provider).toHaveProperty("sisyphus");
     });
   });
 });

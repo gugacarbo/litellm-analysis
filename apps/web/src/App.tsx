@@ -9,6 +9,7 @@ import { AgentsPage } from "@/features/agents/list-index";
 import { BenchmarksPage } from "@/features/benchmarks";
 import { DashboardPage } from "@/features/dashboard";
 import { LogsPage } from "@/features/logs";
+import { LogChatSimulationPage } from "@/features/logs/chat-simulation";
 import { LogDetailPage } from "@/features/logs/detail";
 import { ModelStatsPage } from "@/features/model-stats/index";
 import { ModelDetailPage } from "@/features/models/detail-index";
@@ -41,6 +42,12 @@ export const routes: RouteConfig[] = [
     path: "/logs/:requestId",
     title: "Log Detail",
     component: LogDetailPage,
+    withErrorBoundary: true,
+  },
+  {
+    path: "/logs/:requestId/chat",
+    title: "Chat Simulation",
+    component: LogChatSimulationPage,
     withErrorBoundary: true,
   },
   {

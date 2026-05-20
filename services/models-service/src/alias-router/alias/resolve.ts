@@ -1,12 +1,26 @@
+import { DEFAULT_MODEL_NAMES } from "./generate";
+import type { ModelSlotNames } from "./generate";
 import { escapeRegExp } from "../utils/regex";
 
 /**
  * Check if a model string is a logical model reference for the given key.
- * A logical model reference has the format "key/gpt-5.X" where X is 1-5.
+ * A logical model reference has the format "key/<slotName>" where slotName
+ * is one of the modelNames (e.g. "key/gpt-5.5").
+ *
+ * @param modelNames Logical slot names the caller is using (defaults to gpt-5.5..gpt-5.1).
+ *        Must come from the caller's context.
  */
-export function isLogicalModelForKey(key: string, model: string): boolean {
-  const pattern = new RegExp(`^${escapeRegExp(key)}/gpt-5\\.[1-5]$`);
-  return pattern.test(model);
+export function isLogicalModelForKey(
+  key: string,
+  model: string,
+  modelNames: ModelSlotNames = DEFAULT_MODEL_NAMES,
+): boolean {
+  const prefix = `${key}/`;
+  if (!model.startsWith(prefix)) {
+    return false;
+  }
+  const suffix = model.slice(prefix.length);
+  return (modelNames as readonly string[]).includes(suffix);
 }
 
 /**

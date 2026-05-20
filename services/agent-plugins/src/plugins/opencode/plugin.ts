@@ -2,6 +2,7 @@ import type {
   OpenCodePluginConfig,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import { DEFAULT_MODEL_NAMES } from "@lite-llm/models-service";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import type {
@@ -14,7 +15,6 @@ import { openCodeSchema } from "./schemas/generated/opencode.zod";
 interface OpenCodeProviders {
   $schema: string;
   provider: Record<string, unknown>;
-  agents?: Record<string, unknown>;
   categories?: Record<string, unknown>;
 }
 
@@ -68,6 +68,36 @@ function buildThinkingVariants(
   return variants;
 }
 
+function buildModelEntry(
+  agentRole: string,
+  aliasKey: string,
+  displayName: string,
+  spec: ModelSpec,
+): Record<string, unknown> {
+  const entry: Record<string, unknown> = {
+    id: `${agentRole}/${aliasKey}`,
+    name: displayName,
+    limit: {
+      context: spec.limits.length,
+      output: spec.limits.maxOutput,
+    },
+  };
+
+  if (spec.cost?.input != null || spec.cost?.output != null) {
+    entry.cost = {
+      ...(spec.cost?.input != null ? { input: spec.cost.input } : {}),
+      ...(spec.cost?.output != null ? { output: spec.cost.output } : {}),
+    };
+  }
+
+  const thinkingVariants = buildThinkingVariants(spec);
+  if (thinkingVariants) {
+    entry.variants = thinkingVariants;
+  }
+
+  return entry;
+}
+
 export class OpenCodePlugin implements IPlugin<"opencode"> {
   readonly id = "opencode";
   readonly name = "OpenCode AI SDK";
@@ -114,11 +144,23 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
       config.$schema ??
       "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/opencode/schemas/opencode.schema.json";
 
+    // Model slot names from plugin context
+    const modelNames = ctx.modelNames ?? DEFAULT_MODEL_NAMES;
+
     const output: OpenCodeProviders = {
       $schema: schemaUrl,
       provider: {},
     };
 
+    const providerOpts = {
+      npm: "@ai-sdk/openai-compatible",
+      options: {
+        baseURL: ctx.litellmConfig.baseUrl,
+        apiKey: ctx.litellmConfig.apiKey,
+      },
+    };
+
+    // ── LiteLLM provider (all models from ctx.allModels) ──
     const litellmModels: Record<string, unknown> = {};
     for (const [key, spec] of Object.entries(ctx.allModels)) {
       const modelOutput: Record<string, unknown> = {
@@ -147,41 +189,85 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
 
     output.provider.litellm = {
       name: "LiteLLM",
-      npm: "@ai-sdk/openai-compatible",
-      options: {
-        baseURL: ctx.litellmConfig.baseUrl,
-        apiKey: ctx.litellmConfig.apiKey,
-      },
+      ...providerOpts,
       models: litellmModels,
     };
 
     const enabledAgents = routing.routing?.agents ?? {};
 
-    // Build agents section from routing configuration
-    if (Object.keys(enabledAgents).length > 0) {
-      output.agents = {};
-      for (const agent of agents) {
-        const agentRole = Object.entries(enabledAgents).find(
-          ([, agentId]) => agentId === agent.id,
-        )?.[0];
-        if (!agentRole) continue;
+    // ── Per-agent providers ──
+    for (const agent of agents) {
+      const agentRole = Object.entries(enabledAgents).find(
+        ([, agentId]) => agentId === agent.id,
+      )?.[0];
+      if (!agentRole) continue;
 
-        const model = agent.model
-          ? `litellm/${agent.model}`
-          : configDefaultModel
-            ? `litellm/${configDefaultModel}`
-            : `litellm/${agent.id}`;
+      const primaryModelId: string =
+        agent.model || configDefaultModel || agent.id || "";
+      const primarySpec = primaryModelId
+        ? ctx.allModels[primaryModelId]
+        : undefined;
 
-        output.agents[agentRole] = {
-          description: agent.description,
-          model,
-          fallback_models: agent.fallbackModels ?? [],
-          temperature: agent.config?.temperature ?? configDefaultTemp,
+      const agentModels: Record<string, unknown> = {};
+
+      // Primary model → gpt-5.5
+      if (primarySpec) {
+        agentModels[modelNames[0]] = buildModelEntry(
+          agentRole,
+          modelNames[0],
+          agent.displayName || primarySpec.displayName,
+          primarySpec,
+        );
+      }
+
+      // Fallback models → gpt-5.4, gpt-5.3, gpt-5.2
+      const fallbacks = agent.fallbackModels ?? [];
+      for (
+        let fbIdx = 0;
+        fbIdx < Math.min(fallbacks.length, modelNames.length - 2);
+        fbIdx++
+      ) {
+        const fbModelId = fallbacks[fbIdx];
+        if (!fbModelId) continue;
+        const fbSpec = ctx.allModels[fbModelId];
+        if (!fbSpec) continue;
+        const aliasKey = modelNames[fbIdx + 1];
+        agentModels[aliasKey] = buildModelEntry(
+          agentRole,
+          aliasKey,
+          `${agent.displayName || fbSpec.displayName} Fb`,
+          fbSpec,
+        );
+      }
+
+      if (Object.keys(agentModels).length > 0) {
+        output.provider[agentRole] = {
+          ...providerOpts,
+          models: agentModels,
         };
       }
     }
 
-    // Build categories section from categories configuration
+    // ── Global fallback provider ──
+    const globalFallbackId = ctx.globalFallbackModel;
+    if (globalFallbackId) {
+      const globalSpec = ctx.allModels[globalFallbackId];
+      if (globalSpec) {
+        const globalModels: Record<string, unknown> = {};
+        globalModels[modelNames[0]] = buildModelEntry(
+          "global-fallback",
+          modelNames[0],
+          "Global Fallback",
+          globalSpec,
+        );
+        output.provider["global-fallback"] = {
+          ...providerOpts,
+          models: globalModels,
+        };
+      }
+    }
+
+    // ── Categories section ──
     const categoryRouting = routing.routing?.categories ?? {};
     if (ctx.allCategories && Object.keys(ctx.allCategories).length > 0) {
       const enabledCategories: Record<string, unknown> = {};

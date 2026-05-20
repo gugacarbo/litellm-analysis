@@ -116,8 +116,15 @@ export function AppSidebar() {
         { to: "/prompt-evals", label: "Evals", icon: ListChecks },
       ],
     },
-    { to: "/models", icon: Cpu, label: "Models" },
-    { to: "/benchmarks", icon: Scale, label: "Benchmarks" },
+    {
+      to: "/models",
+      icon: Cpu,
+      label: "Models",
+      children: [
+        { to: "/models", icon: Cpu, label: "Models" },
+        { to: "/benchmarks", icon: Scale, label: "Benchmarks" },
+      ],
+    },
   ];
 
   return (

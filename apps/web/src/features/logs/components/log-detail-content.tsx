@@ -29,6 +29,7 @@ import {
   formatFullDateTime,
   formatNumber,
 } from "@/shared/lib/spend-log-utils";
+import { extractLogMessages } from "../utils/extract-log-messages";
 import { ChatSimulation } from "./chat-simulation";
 import { ContextBadge } from "./log-detail-context-badge";
 import { LogDetailInfoSections } from "./log-detail-info-section";
@@ -111,7 +112,7 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
   }
 
   const hasContextBadges = contextBadges.length > 0;
-  const rawMessages = log.messages;
+  const rawMessages = extractLogMessages(log);
   const hasMessages = rawMessages != null && rawMessages.length > 0;
 
   const detailsTab = (
@@ -283,48 +284,6 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
         </div>
       </div>
 
-      {hasMessages && (
-        <CollapsibleSection
-          title={`Messages (${rawMessages.length})`}
-          icon={MessageSquare}
-          defaultOpen={true}
-        >
-          <div className="space-y-3">
-            {rawMessages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`rounded-lg border p-3 ${
-                  msg.role === "user"
-                    ? "bg-blue-500/5 border-blue-500/20"
-                    : msg.role === "assistant"
-                      ? "bg-green-500/5 border-green-500/20"
-                      : msg.role === "system"
-                        ? "bg-purple-500/5 border-purple-500/20"
-                        : "bg-muted/50 border-border"
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span
-                    className={`text-xs font-medium uppercase tracking-wide ${
-                      msg.role === "user"
-                        ? "text-blue-600 dark:text-blue-400"
-                        : msg.role === "assistant"
-                          ? "text-green-600 dark:text-green-400"
-                          : msg.role === "system"
-                            ? "text-purple-600 dark:text-purple-400"
-                            : "text-muted-foreground"
-                    }`}
-                  >
-                    {msg.role}
-                  </span>
-                </div>
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-              </div>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-
       {log.metadata && Object.keys(log.metadata).length > 0 && (
         <CollapsibleSection
           title="Metadata"
@@ -403,7 +362,10 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
   );
 
   const chatTab = hasMessages ? (
-    <ChatSimulation messages={rawMessages} />
+    <ChatSimulation
+      messages={rawMessages}
+      mcpNamespacedToolName={log.mcp_namespaced_tool_name}
+    />
   ) : (
     <div className="flex flex-col items-center justify-center h-48 text-sm text-muted-foreground gap-2">
       <MessageCircle className="h-8 w-8 text-muted-foreground/40" />
@@ -418,7 +380,7 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
           <FileText className="h-4 w-4" />
           Details
         </TabsTrigger>
-        <TabsTrigger value="chat" disabled={!hasMessages}>
+        <TabsTrigger value="chat">
           <MessageCircle className="h-4 w-4" />
           Chat
           {hasMessages && (

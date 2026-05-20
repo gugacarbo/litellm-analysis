@@ -6,6 +6,7 @@ type Message = NonNullable<SpendLog["messages"]>[number];
 
 type ChatSimulationProps = {
   messages: Message[];
+  mcpNamespacedToolName?: string | null;
 };
 
 type TextSegment = {
@@ -20,6 +21,12 @@ type CodeSegment = {
 };
 
 type Segment = TextSegment | CodeSegment;
+
+type ToolInfo = {
+  id: string;
+  name: string;
+  argumentsText: string | null;
+};
 
 const roleConfig: Record<
   string,
@@ -101,6 +108,54 @@ function parseContent(content: string): Segment[] {
   return parts.length > 0 ? parts : [{ type: "text", value: content }];
 }
 
+function isContentPartArray(
+  content: Message["content"],
+): content is Array<{ type?: string; text?: string }> {
+  return Array.isArray(content);
+}
+
+function normalizeContent(content: Message["content"]): string {
+  if (typeof content === "string") return content;
+  if (content == null) return "";
+  if (!isContentPartArray(content)) return "";
+
+  const textParts = content
+    .map((part) => (part?.type === "text" ? (part.text ?? "") : ""))
+    .filter(Boolean);
+
+  return textParts.join("\n");
+}
+
+function parseToolCalls(msg: Message): ToolInfo[] {
+  if (!Array.isArray(msg.tool_calls)) return [];
+
+  return msg.tool_calls.map((toolCall, index) => ({
+    id: toolCall?.id ?? `tool-${index}`,
+    name: toolCall?.function?.name ?? "unknown_tool",
+    argumentsText: toolCall?.function?.arguments ?? null,
+  }));
+}
+
+function collectUsedTools(
+  messages: Message[],
+  mcpNamespacedToolName?: string | null,
+): string[] {
+  const tools = new Set<string>();
+
+  for (const msg of messages) {
+    const msgTools = parseToolCalls(msg);
+    for (const tool of msgTools) {
+      tools.add(tool.name);
+    }
+  }
+
+  if (mcpNamespacedToolName) {
+    tools.add(mcpNamespacedToolName);
+  }
+
+  return Array.from(tools);
+}
+
 function MessageContent({ content }: { content: string }) {
   const segments = useMemo(() => parseContent(content), [content]);
 
@@ -130,7 +185,15 @@ function MessageContent({ content }: { content: string }) {
   );
 }
 
-export function ChatSimulation({ messages }: ChatSimulationProps) {
+export function ChatSimulation({
+  messages,
+  mcpNamespacedToolName,
+}: ChatSimulationProps) {
+  const usedTools = useMemo(
+    () => collectUsedTools(messages, mcpNamespacedToolName),
+    [messages, mcpNamespacedToolName],
+  );
+
   if (!messages || messages.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
@@ -140,10 +203,32 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
   }
 
   return (
-    <div className="max-h-[600px] overflow-y-auto space-y-4 p-4 bg-muted/20 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+    <div className="space-y-3">
+      {usedTools.length > 0 && (
+        <div className="rounded-lg border bg-muted/20 p-3">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+            Tools utilizadas
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {usedTools.map((tool) => (
+              <span
+                key={tool}
+                className="rounded-md border bg-background px-2 py-1 text-xs font-mono"
+              >
+                {tool}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="max-h-[600px] overflow-y-auto space-y-4 p-4 bg-muted/20 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
       {messages.map((msg, index) => {
         const config = getRoleConfig(msg.role);
         const isRight = config.align === "right";
+        const normalizedContent = normalizeContent(msg.content);
+        const toolCalls = parseToolCalls(msg);
+        const hasToolCalls = toolCalls.length > 0;
 
         return (
           <div
@@ -191,12 +276,45 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
                     #{index + 1}
                   </span>
                 </div>
-                <MessageContent content={msg.content} />
+                {hasToolCalls && (
+                  <div className="mb-3 space-y-2">
+                    {toolCalls.map((tool) => (
+                      <div
+                        key={tool.id}
+                        className="rounded-md border bg-background/80 p-2"
+                      >
+                        <p className="text-xs font-medium">
+                          Tool call: <span className="font-mono">{tool.name}</span>
+                        </p>
+                        {tool.argumentsText && (
+                          <pre className="mt-1 text-xs font-mono overflow-x-auto text-muted-foreground">
+                            {tool.argumentsText}
+                          </pre>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {normalizedContent ? (
+                  <MessageContent content={normalizedContent} />
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    {hasToolCalls
+                      ? "Mensagem com tool call (sem conteúdo textual)"
+                      : "No content"}
+                  </p>
+                )}
+                {msg.role === "tool" && msg.tool_call_id && (
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    tool_call_id: <span className="font-mono">{msg.tool_call_id}</span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

@@ -147,6 +147,31 @@ export interface SpendByKey {
   total_tokens: number;
 }
 
+export interface ChatToolCall {
+  id: string;
+  type: string;
+  function?: {
+    name?: string;
+    arguments?: string;
+  };
+}
+
+export type ChatMessageContentPart = {
+  type?: string;
+  text?: string;
+  image_url?: {
+    url?: string;
+  };
+};
+
+export interface ChatMessage {
+  role: string;
+  content?: string | ChatMessageContentPart[] | null;
+  tool_calls?: ChatToolCall[];
+  tool_call_id?: string;
+  name?: string;
+}
+
 export interface SpendLogEntry {
   request_id: string;
   model: string;
@@ -180,7 +205,7 @@ export interface SpendLogEntry {
   model_group?: string | null;
   custom_llm_provider?: string | null;
   mcp_namespaced_tool_name?: string | null;
-  messages?: Array<{ role: string; content: string }> | null;
+  messages?: ChatMessage[] | null;
 }
 
 export interface ErrorLogEntry {

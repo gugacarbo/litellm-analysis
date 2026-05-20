@@ -7,6 +7,7 @@ import {
   getSpendLogsCount,
 } from "../queries/index";
 import type {
+  ChatMessage,
   SpendByKey,
   SpendByModel,
   SpendByUser,
@@ -107,10 +108,7 @@ export async function getSpendLogsImpl(
     request_tags: (item.request_tags ?? null) as string[] | null,
     model_group: (item.model_group ?? null) as string | null,
     custom_llm_provider: (item.custom_llm_provider ?? null) as string | null,
-    messages: (item.messages ?? null) as Array<{
-      role: string;
-      content: string;
-    }> | null,
+    messages: (item.messages ?? null) as ChatMessage[] | null,
   }));
 
   return {
@@ -180,9 +178,6 @@ export async function getSpendLogDetailImpl(
     mcp_namespaced_tool_name: (item.mcp_namespaced_tool_name ?? null) as
       | string
       | null,
-    messages: (item.messages ?? null) as Array<{
-      role: string;
-      content: string;
-    }> | null,
+    messages: (item.messages ?? null) as ChatMessage[] | null,
   };
 }
