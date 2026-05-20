@@ -12,7 +12,6 @@ export const DEFAULT_AGENTS: SystemAgent[] = [
     description: "Agente padrão — execução geral de tarefas e construção",
     limits: { context: 200000, output: 32768 },
     model: "",
-    fallbackModels: [],
     config: { mode: "all" },
   },
   {
@@ -21,7 +20,6 @@ export const DEFAULT_AGENTS: SystemAgent[] = [
     description: "Modo planejamento — sem ferramentas de edição",
     limits: { context: 200000, output: 32768 },
     model: "",
-    fallbackModels: [],
     config: { mode: "subagent" },
   },
 ];

@@ -17,20 +17,10 @@ function normalizeModel(value: string | undefined): string {
   return stripLitellmPrefix(trimmed);
 }
 
-function getLastDefinedFallback(fallbackModels: string[]): string {
-  for (let i = fallbackModels.length - 1; i >= 0; i--) {
-    if (fallbackModels[i]) {
-      return fallbackModels[i];
-    }
-  }
-  return "";
-}
-
 function resolveSlotModel(
   slotIndex: number,
   slotCount: number,
   primaryModel: string,
-  fallbackModels: string[],
   globalFallbackModel: string,
 ): string {
   // Primary alias: prefer explicit model, then global fallback.
@@ -40,13 +30,11 @@ function resolveSlotModel(
 
   // Global fallback alias (last slot): global fallback always wins.
   if (slotIndex === slotCount - 1) {
-    return globalFallbackModel || getLastDefinedFallback(fallbackModels);
+    return globalFallbackModel;
   }
 
-  // Middle fallback slots:
-  // use explicit fallback by index, otherwise global fallback.
-  const fallbackByIndex = fallbackModels[slotIndex - 1] || "";
-  return fallbackByIndex || globalFallbackModel;
+  // Middle fallback slots always point to the global fallback.
+  return globalFallbackModel;
 }
 
 /**
@@ -59,13 +47,11 @@ function resolveSlotModel(
 export function generateLitellmAliases(
   key: string,
   model: string,
-  fallback_models?: string[],
   globalFallbackModel?: string,
   modelNames: ModelSlotNames = DEFAULT_MODEL_NAMES,
 ): Record<string, string> {
   const aliases: Record<string, string> = {};
   const normalizedModel = normalizeModel(model);
-  const normalizedFallbacks = (fallback_models || []).map(normalizeModel);
   const normalizedGlobalFallback = normalizeModel(globalFallbackModel);
 
   for (let i = 0; i < modelNames.length; i++) {
@@ -73,7 +59,6 @@ export function generateLitellmAliases(
       i,
       modelNames.length,
       normalizedModel,
-      normalizedFallbacks,
       normalizedGlobalFallback,
     );
     if (!resolvedModel) {

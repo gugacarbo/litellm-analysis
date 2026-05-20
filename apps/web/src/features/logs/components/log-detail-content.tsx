@@ -6,7 +6,6 @@ import {
   Copy,
   DollarSign,
   FileText,
-  MessageCircle,
   MessageSquare,
   Timer,
   TrendingUp,
@@ -17,20 +16,12 @@ import { Badge } from "@/shared/components/ui/badge";
 import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
 import { JsonViewer } from "@/shared/components/ui/json-viewer";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
-import {
   calculateTokensPerSecond,
   formatCurrency,
   formatDuration,
   formatFullDateTime,
   formatNumber,
 } from "@/shared/lib/spend-log-utils";
-import { extractLogMessages } from "../utils/extract-log-messages";
-import { ChatSimulation } from "./chat-simulation";
 import { ContextBadge } from "./log-detail-context-badge";
 import { LogDetailInfoSections } from "./log-detail-info-section";
 import { MiniMetricCard } from "./log-detail-metric-card";
@@ -112,9 +103,6 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
   }
 
   const hasContextBadges = contextBadges.length > 0;
-  const rawMessages = extractLogMessages(log);
-  const hasMessages = rawMessages != null && rawMessages.length > 0;
-
   const detailsTab = (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
@@ -361,34 +349,5 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
     </div>
   );
 
-  const chatTab = hasMessages ? (
-    <ChatSimulation messages={rawMessages} />
-  ) : (
-    <div className="flex flex-col items-center justify-center h-48 text-sm text-muted-foreground gap-2">
-      <MessageCircle className="h-8 w-8 text-muted-foreground/40" />
-      <p>No messages available for this log</p>
-    </div>
-  );
-
-  return (
-    <Tabs defaultValue="details" className="w-full">
-      <TabsList>
-        <TabsTrigger value="details">
-          <FileText className="h-4 w-4" />
-          Details
-        </TabsTrigger>
-        <TabsTrigger value="chat">
-          <MessageCircle className="h-4 w-4" />
-          Chat
-          {hasMessages && (
-            <span className="ml-1 text-[10px] text-muted-foreground">
-              ({rawMessages.length})
-            </span>
-          )}
-        </TabsTrigger>
-      </TabsList>
-      <TabsContent value="details">{detailsTab}</TabsContent>
-      <TabsContent value="chat">{chatTab}</TabsContent>
-    </Tabs>
-  );
+  return detailsTab;
 }

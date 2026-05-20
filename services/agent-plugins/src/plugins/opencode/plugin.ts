@@ -217,7 +217,6 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
           primarySpec,
         );
       }
-
     }
 
     if (Object.keys(llmAgentsModels).length > 0) {
@@ -255,7 +254,6 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
               primarySpec,
             );
         }
-
       }
 
       if (Object.keys(llmCategoriesModels).length > 0) {

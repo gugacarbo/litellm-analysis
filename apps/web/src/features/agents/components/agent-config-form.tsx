@@ -104,7 +104,6 @@ export function AgentConfigForm({
               icon: formData.icon,
               description: formData.description,
               model: formData.model,
-              fallbackModels: formData.fallbackModels,
               limits: formData.limits,
               cost: undefined,
               config: {
@@ -141,7 +140,6 @@ export function AgentConfigForm({
               icon: formData.icon,
               description: formData.description,
               model: formData.model,
-              fallbackModels: formData.fallbackModels,
               limits: formData.limits,
               cost: undefined,
               config: {
@@ -178,7 +176,6 @@ export function AgentConfigForm({
               icon: formData.icon,
               description: formData.description,
               model: formData.model,
-              fallbackModels: formData.fallbackModels,
               limits: formData.limits,
               cost: undefined,
               config: {
@@ -215,7 +212,6 @@ export function AgentConfigForm({
               icon: formData.icon,
               description: formData.description,
               model: formData.model,
-              fallbackModels: formData.fallbackModels,
               limits: formData.limits,
               cost: undefined,
               config: {

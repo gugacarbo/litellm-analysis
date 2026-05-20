@@ -66,24 +66,6 @@ export function GeneralSection({
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="cat-fallbacks">Fallback Models</Label>
-        <Input
-          id="cat-fallbacks"
-          value={category.fallbackModels?.join(", ") ?? ""}
-          onChange={(e) =>
-            onUpdate(
-              "fallbackModels",
-              e.target.value
-                .split(",")
-                .map((m) => m.trim())
-                .filter(Boolean),
-            )
-          }
-          placeholder="comma-separated model names"
-        />
-      </div>
-
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="cat-icon">Icon</Label>

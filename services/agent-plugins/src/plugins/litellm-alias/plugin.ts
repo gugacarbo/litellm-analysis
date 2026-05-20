@@ -143,7 +143,6 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
           generateLitellmAliases(
             finalKey,
             agentModel,
-            [],
             effectiveFallback,
             modelNames,
           ),
@@ -168,10 +167,9 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
           aliases,
           generateLitellmAliases(
             finalKey,
-              category.model && enabledSet.has(category.model)
-                ? category.model
-                : "",
-            [],
+            category.model && enabledSet.has(category.model)
+              ? category.model
+              : "",
             effectiveFallback,
             modelNames,
           ),

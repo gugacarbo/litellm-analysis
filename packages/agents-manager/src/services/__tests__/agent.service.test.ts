@@ -33,7 +33,6 @@ function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
     description: "Test description",
     limits: { context: 200000, output: 32768 },
     model: "gpt-4",
-    fallbackModels: [],
     config: {},
     ...overrides,
   };
