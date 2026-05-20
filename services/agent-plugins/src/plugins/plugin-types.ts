@@ -27,6 +27,7 @@ import type {
   OpenAgentPluginConfig,
   OpenCodePluginConfig,
   VsCodePluginConfig,
+  WeavePluginConfig,
 } from "@lite-llm/agents-repository/schemas";
 
 export interface PluginConfigMap {
@@ -34,6 +35,7 @@ export interface PluginConfigMap {
   openagent: OpenAgentPluginConfig;
   vscode: VsCodePluginConfig;
   "litellm-alias": LitellmAliasPluginConfig;
+  weave: WeavePluginConfig;
 }
 
 export type PluginConfigFor<TId extends keyof PluginConfigMap> =

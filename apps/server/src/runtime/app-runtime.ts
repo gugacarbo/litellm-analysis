@@ -7,6 +7,7 @@ import {
   OpenAgentPlugin,
   OpenCodePlugin,
   VsCodePlugin,
+  WeavePlugin,
 } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { prisma } from "@lite-llm/analytics-service/queries/client";
@@ -76,6 +77,7 @@ function setupAgentPluginsOrchestrator(
       new OpenAgentPlugin(),
       new VsCodePlugin(),
       new LitellmAliasPlugin(aliasDbWriter),
+      new WeavePlugin(),
     ],
   });
 }

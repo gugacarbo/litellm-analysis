@@ -79,6 +79,40 @@
           "quick": true
         }
       }
+    },
+    "weave": {
+      "enabled": true,
+      "outputFile": "weave.json",
+      "config": {
+        "$schema": "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
+        "logLevel": "INFO",
+        "tmuxEnabled": true,
+        "analyticsEnabled": true,
+        "analyticsUseFingerprint": true,
+        "continuationRecoveryCompaction": true,
+        "continuationIdleEnabled": true,
+        "continuationIdleWork": true,
+        "continuationIdleTodoPrompt": true,
+        "permissionQuestion": "allow",
+        "skillDirectories": [
+          "~/.agents/skills",
+          "~/.claude/skills",
+          "~/.opencode/skills"
+        ]
+      },
+      "routing": {
+        "agents": {
+          "loom": "loom",
+          "tapestry": "tapestry",
+          "pattern": "planner",
+          "shuttle": "shuttle",
+          "thread": "thread",
+          "spindle": "explorer",
+          "weft": "reviewer",
+          "warp": "warp"
+        },
+        "categories": {}
+      }
     }
   }
 }

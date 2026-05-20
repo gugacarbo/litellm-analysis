@@ -4,6 +4,7 @@ import {
   openAgentPluginConfigSchema,
   openCodePluginConfigSchema,
   vsCodePluginConfigSchema,
+  weavePluginConfigSchema,
 } from "./plugin-configs";
 import { pluginRoutingSchema } from "./plugin-routing";
 
@@ -49,6 +50,12 @@ export const pluginsConfigSchema = z
           .meta({
             title: "LiteLLM Alias",
             description: "LiteLLM Router Aliases plugin configuration",
+          })
+          .optional(),
+        weave: pluginRoutingWithConfig(weavePluginConfigSchema)
+          .meta({
+            title: "Weave",
+            description: "OpenCode Weave plugin configuration",
           })
           .optional(),
       })

@@ -9,6 +9,7 @@ import { CategoryExportList } from "./components/category-export-list";
 import { LitellmAliasRoutingTable } from "./components/litellm-alias-routing-table";
 import { PluginConfigForm } from "./components/plugin-config-form";
 import { OpenCodeConfigPage } from "./opencode-config";
+import { WeaveConfigPage } from "./weave-config";
 import { usePluginConfigPage } from "./use-plugin-config-page";
 
 export function PluginConfigPage() {
@@ -78,6 +79,17 @@ export function PluginConfigPage() {
               onChange={state.handleConfigChange}
               allModels={state.allModels}
               litellmProvider={state.litellmProvider}
+            />
+          ) : state.pluginId === "weave" ? (
+            <WeaveConfigPage
+              config={state.configValues}
+              onChange={state.handleConfigChange}
+              schema={state.schema}
+              agentMappings={state.agentMappings}
+              categoryMappings={state.categoryMappings}
+              systemAgents={state.systemAgents}
+              onAgentMappingChange={state.handleAgentMappingChange}
+              onCategoryToggle={state.handleCategoryToggle}
             />
           ) : state.jsonSchema ? (
             <div className="space-y-4">

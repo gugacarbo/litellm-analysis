@@ -21,3 +21,4 @@ export { OpenCodePlugin } from "./plugins/opencode/plugin";
 // Plugin registry
 export { PluginRegistry } from "./plugins/registry";
 export { VsCodePlugin } from "./plugins/vscode/plugin";
+export { WeavePlugin } from "./plugins/weave/plugin";

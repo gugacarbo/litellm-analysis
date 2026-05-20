@@ -25,6 +25,7 @@ export type {
   OpenAgentPluginConfig,
   OpenCodePluginConfig,
   VsCodePluginConfig,
+  WeavePluginConfig,
 } from "./plugin-configs";
 export {
   getPluginConfigJsonSchema,
@@ -33,6 +34,7 @@ export {
   openCodePluginConfigSchema,
   pluginConfigJsonSchemas,
   vsCodePluginConfigSchema,
+  weavePluginConfigSchema,
 } from "./plugin-configs";
 export type {
   PluginRouting,

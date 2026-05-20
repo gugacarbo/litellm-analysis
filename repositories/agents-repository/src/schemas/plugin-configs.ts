@@ -170,6 +170,107 @@ export type LitellmAliasPluginConfig = z.infer<
   typeof litellmAliasPluginConfigSchema
 >;
 
+/** Configurable parameters for the Weave plugin. */
+export const weavePluginConfigSchema = z
+  .object({
+    $schema: z
+      .string()
+      .default(
+        "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
+      )
+      .meta({
+        title: "Schema URL",
+        description: "OpenCode Weave config schema URL",
+      })
+      .optional(),
+    logLevel: z
+      .enum(["DEBUG", "INFO", "WARN", "ERROR"])
+      .default("INFO")
+      .meta({
+        title: "Log Level",
+        description: "Logging verbosity level for Weave",
+      })
+      .optional(),
+    tmuxEnabled: z
+      .boolean()
+      .default(true)
+      .meta({
+        title: "Tmux Enabled",
+        description: "Enable tmux session management",
+      })
+      .optional(),
+    analyticsEnabled: z
+      .boolean()
+      .default(true)
+      .meta({
+        title: "Analytics Enabled",
+        description: "Enable usage analytics collection",
+      })
+      .optional(),
+    analyticsUseFingerprint: z
+      .boolean()
+      .default(true)
+      .meta({
+        title: "Analytics Use Fingerprint",
+        description: "Use fingerprint for analytics tracking",
+      })
+      .optional(),
+    continuationRecoveryCompaction: z
+      .boolean()
+      .default(true)
+      .meta({
+        title: "Continuation Recovery Compaction",
+        description: "Enable context compaction during recovery",
+      })
+      .optional(),
+    continuationIdleEnabled: z
+      .boolean()
+      .default(true)
+      .meta({
+        title: "Continuation Idle Enabled",
+        description: "Enable idle continuation processing",
+      })
+      .optional(),
+    continuationIdleWork: z
+      .boolean()
+      .default(true)
+      .meta({
+        title: "Continuation Idle Work",
+        description: "Allow work during idle periods",
+      })
+      .optional(),
+    continuationIdleTodoPrompt: z
+      .boolean()
+      .default(true)
+      .meta({
+        title: "Continuation Idle Todo Prompt",
+        description: "Show todo prompt during idle",
+      })
+      .optional(),
+    permissionQuestion: z
+      .enum(["allow", "deny", "ask"])
+      .default("allow")
+      .meta({
+        title: "Permission Question Behavior",
+        description: "Default behavior for permission questions",
+      })
+      .optional(),
+    skillDirectories: z
+      .array(z.string())
+      .default(["~/.agents/skills", "~/.claude/skills", "~/.opencode/skills"])
+      .meta({
+        title: "Skill Directories",
+        description: "Directories to scan for skills",
+      })
+      .optional(),
+  })
+  .meta({
+    title: "Weave Config",
+    description: "OpenCode Weave plugin configuration",
+  });
+
+export type WeavePluginConfig = z.infer<typeof weavePluginConfigSchema>;
+
 /** JSON Schema for the OpenCode plugin config. */
 export const openCodePluginJsonSchema = z.toJSONSchema(
   openCodePluginConfigSchema,
@@ -188,6 +289,9 @@ export const litellmAliasPluginJsonSchema = z.toJSONSchema(
   litellmAliasPluginConfigSchema,
 );
 
+/** JSON Schema for the Weave plugin config. */
+export const weavePluginJsonSchema = z.toJSONSchema(weavePluginConfigSchema);
+
 /** Map of plugin ID to its JSON Schema for config validation. */
 export const pluginConfigJsonSchemas: Record<
   string,
@@ -197,6 +301,7 @@ export const pluginConfigJsonSchemas: Record<
   openagent: openAgentPluginJsonSchema,
   vscode: vsCodePluginJsonSchema,
   "litellm-alias": litellmAliasPluginJsonSchema,
+  weave: weavePluginJsonSchema,
 };
 
 /** Get the JSON Schema for a plugin's config by ID. */
