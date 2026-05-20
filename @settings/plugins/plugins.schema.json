@@ -21,7 +21,10 @@
       "$ref": "#/$defs/__schema2"
     }
   },
-  "required": ["version", "plugins"],
+  "required": [
+    "version",
+    "plugins"
+  ],
   "additionalProperties": false,
   "$defs": {
     "__schema0": {
@@ -49,7 +52,12 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "OpenCode",
           "description": "OpenCode AI SDK plugin configuration"
@@ -70,7 +78,12 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "OpenAgent",
           "description": "Oh My OpenAgent plugin configuration"
@@ -91,7 +104,12 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "VSCode",
           "description": "VS Code OAICopilot plugin configuration"
@@ -112,10 +130,41 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "LiteLLM Alias",
           "description": "LiteLLM Router Aliases plugin configuration"
+        },
+        "weave": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "$ref": "#/$defs/__schema3"
+            },
+            "outputFile": {
+              "$ref": "#/$defs/__schema5"
+            },
+            "config": {
+              "$ref": "#/$defs/__schema48"
+            },
+            "routing": {
+              "$ref": "#/$defs/__schema14"
+            }
+          },
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
+          "additionalProperties": false,
+          "title": "Weave",
+          "description": "OpenCode Weave plugin configuration"
         }
       },
       "additionalProperties": false
@@ -413,6 +462,165 @@
     },
     "__schema47": {
       "type": "string"
+    },
+    "__schema48": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/$defs/__schema49"
+        },
+        "logLevel": {
+          "$ref": "#/$defs/__schema51"
+        },
+        "tmuxEnabled": {
+          "$ref": "#/$defs/__schema53"
+        },
+        "analyticsEnabled": {
+          "$ref": "#/$defs/__schema55"
+        },
+        "analyticsUseFingerprint": {
+          "$ref": "#/$defs/__schema57"
+        },
+        "continuationRecoveryCompaction": {
+          "$ref": "#/$defs/__schema59"
+        },
+        "continuationIdleEnabled": {
+          "$ref": "#/$defs/__schema61"
+        },
+        "continuationIdleWork": {
+          "$ref": "#/$defs/__schema63"
+        },
+        "continuationIdleTodoPrompt": {
+          "$ref": "#/$defs/__schema65"
+        },
+        "permissionQuestion": {
+          "$ref": "#/$defs/__schema67"
+        },
+        "skillDirectories": {
+          "$ref": "#/$defs/__schema69"
+        }
+      },
+      "additionalProperties": false,
+      "title": "Weave Config",
+      "description": "OpenCode Weave plugin configuration"
+    },
+    "__schema49": {
+      "default": "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
+      "title": "Schema URL",
+      "description": "OpenCode Weave config schema URL",
+      "$ref": "#/$defs/__schema50"
+    },
+    "__schema50": {
+      "type": "string"
+    },
+    "__schema51": {
+      "default": "INFO",
+      "title": "Log Level",
+      "description": "Logging verbosity level for Weave",
+      "$ref": "#/$defs/__schema52"
+    },
+    "__schema52": {
+      "type": "string",
+      "enum": [
+        "DEBUG",
+        "INFO",
+        "WARN",
+        "ERROR"
+      ]
+    },
+    "__schema53": {
+      "default": true,
+      "title": "Tmux Enabled",
+      "description": "Enable tmux session management",
+      "$ref": "#/$defs/__schema54"
+    },
+    "__schema54": {
+      "type": "boolean"
+    },
+    "__schema55": {
+      "default": true,
+      "title": "Analytics Enabled",
+      "description": "Enable usage analytics collection",
+      "$ref": "#/$defs/__schema56"
+    },
+    "__schema56": {
+      "type": "boolean"
+    },
+    "__schema57": {
+      "default": true,
+      "title": "Analytics Use Fingerprint",
+      "description": "Use fingerprint for analytics tracking",
+      "$ref": "#/$defs/__schema58"
+    },
+    "__schema58": {
+      "type": "boolean"
+    },
+    "__schema59": {
+      "default": true,
+      "title": "Continuation Recovery Compaction",
+      "description": "Enable context compaction during recovery",
+      "$ref": "#/$defs/__schema60"
+    },
+    "__schema60": {
+      "type": "boolean"
+    },
+    "__schema61": {
+      "default": true,
+      "title": "Continuation Idle Enabled",
+      "description": "Enable idle continuation processing",
+      "$ref": "#/$defs/__schema62"
+    },
+    "__schema62": {
+      "type": "boolean"
+    },
+    "__schema63": {
+      "default": true,
+      "title": "Continuation Idle Work",
+      "description": "Allow work during idle periods",
+      "$ref": "#/$defs/__schema64"
+    },
+    "__schema64": {
+      "type": "boolean"
+    },
+    "__schema65": {
+      "default": true,
+      "title": "Continuation Idle Todo Prompt",
+      "description": "Show todo prompt during idle",
+      "$ref": "#/$defs/__schema66"
+    },
+    "__schema66": {
+      "type": "boolean"
+    },
+    "__schema67": {
+      "default": "allow",
+      "title": "Permission Question Behavior",
+      "description": "Default behavior for permission questions",
+      "$ref": "#/$defs/__schema68"
+    },
+    "__schema68": {
+      "type": "string",
+      "enum": [
+        "allow",
+        "deny",
+        "ask"
+      ]
+    },
+    "__schema69": {
+      "default": [
+        "~/.agents/skills",
+        "~/.claude/skills",
+        "~/.opencode/skills"
+      ],
+      "title": "Skill Directories",
+      "description": "Directories to scan for skills",
+      "$ref": "#/$defs/__schema70"
+    },
+    "__schema70": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   }
 }

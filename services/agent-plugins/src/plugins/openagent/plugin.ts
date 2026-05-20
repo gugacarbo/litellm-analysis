@@ -3,6 +3,7 @@ import type {
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
+import { normalizeAgentMappings } from "../plugin";
 import type {
   ConfigField,
   InternalAgent,
@@ -80,10 +81,12 @@ export class OpenAgentPlugin implements IPlugin<"openagent"> {
       categories: {},
     };
 
-    const agentMappings = routing.routing?.agents ?? {};
+    const rawAgentMappings: Record<string, string | string[]> =
+      (routing.routing?.agents as Record<string, string | string[]>) ?? {};
+    const agentMappings = normalizeAgentMappings(rawAgentMappings);
 
     for (const agent of agents) {
-      const internalId = agentMappings[agent.displayName];
+      const internalId = agentMappings[agent.displayName]?.[0];
       if (!internalId) continue;
 
       const entry: Record<string, unknown> = {};

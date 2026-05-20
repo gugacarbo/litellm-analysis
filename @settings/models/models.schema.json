@@ -27,7 +27,11 @@
       "$ref": "#/$defs/__schema3"
     }
   },
-  "required": ["version", "provider", "models"],
+  "required": [
+    "version",
+    "provider",
+    "models"
+  ],
   "additionalProperties": false,
   "$defs": {
     "__schema0": {
@@ -65,7 +69,12 @@
             "description": "Provider API key"
           }
         },
-        "required": ["name", "ownedBy", "baseUrl", "apiKey"],
+        "required": [
+          "name",
+          "ownedBy",
+          "baseUrl",
+          "apiKey"
+        ],
         "additionalProperties": false
       }
     },
@@ -103,7 +112,10 @@
                 "$ref": "#/$defs/__schema7"
               }
             },
-            "required": ["length", "maxOutput"],
+            "required": [
+              "length",
+              "maxOutput"
+            ],
             "additionalProperties": false,
             "title": "Limits",
             "description": "Model limits"
@@ -119,7 +131,11 @@
             "$ref": "#/$defs/__schema11"
           }
         },
-        "required": ["enabled", "displayName", "limits"],
+        "required": [
+          "enabled",
+          "displayName",
+          "limits"
+        ],
         "additionalProperties": false
       }
     },
@@ -178,7 +194,9 @@
           "$ref": "#/$defs/__schema12"
         }
       },
-      "required": ["levels"],
+      "required": [
+        "levels"
+      ],
       "additionalProperties": false
     },
     "__schema12": {

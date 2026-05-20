@@ -4,6 +4,7 @@ import type {
 } from "@lite-llm/agents-repository/schemas";
 import { sortAliasesByDefinitionOrder } from "@lite-llm/models-service";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
+import { normalizeAgentMappings } from "../plugin";
 import type {
   ConfigField,
   InternalAgent,
@@ -120,7 +121,9 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     const categoryKeys = Object.keys(ctx.allCategories ?? {});
 
     // Read routing mappings (empty object = all enabled)
-    const routingAgents = _routing.routing?.agents ?? {};
+    const rawRoutingAgents: Record<string, string | string[]> =
+      (_routing.routing?.agents as Record<string, string | string[]>) ?? {};
+    const routingAgents = normalizeAgentMappings(rawRoutingAgents);
     const routingCategories = _routing.routing?.categories ?? {};
     const hasAgentRouting = Object.keys(routingAgents).length > 0;
     const hasCategoryRouting = Object.keys(routingCategories).length > 0;
@@ -128,7 +131,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     if (includeAgents) {
       for (const agent of agents as AgentWithId[]) {
         // Filter by routing.agents when present (empty routing = all enabled)
-        if (hasAgentRouting && !routingAgents[agent.id]) {
+        if (hasAgentRouting && !routingAgents[agent.id]?.length) {
           continue;
         }
 

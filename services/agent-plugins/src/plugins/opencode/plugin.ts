@@ -5,6 +5,7 @@ import type {
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import { DEFAULT_MODEL_NAMES } from "../litellm-alias/plugin";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
+import { normalizeAgentMappings } from "../plugin";
 import type {
   ConfigField,
   InternalAgent,
@@ -191,14 +192,16 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
       models: litellmModels,
     };
 
-    const enabledAgents = routing.routing?.agents ?? {};
+    const rawEnabledAgents: Record<string, string | string[]> =
+      (routing.routing?.agents as Record<string, string | string[]>) ?? {};
+    const enabledAgents = normalizeAgentMappings(rawEnabledAgents);
 
     // ── llm-agents provider ──
     const llmAgentsModels: Record<string, unknown> = {};
 
     for (const agent of agents) {
       const agentRole = Object.entries(enabledAgents).find(
-        ([, agentId]) => agentId === agent.id,
+        ([, agentIds]) => agentIds.includes(agent.id ?? ""),
       )?.[0];
       if (!agentRole) continue;
 

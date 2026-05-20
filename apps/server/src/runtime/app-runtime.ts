@@ -34,6 +34,10 @@ interface AppRuntime {
 const DEFAULT_HEALTH_CHECK_PROMPT =
   "Respond with ONLY your model name. Example: gpt-5.3-codex";
 
+interface HealthCheckPromptSource {
+  getHealthCheckPrompt(): Promise<string | null>;
+}
+
 function getProjectRoot(): string {
   // Resolve workspace root by walking up to the pnpm workspace marker.
   const serverRuntimeDir = path.dirname(fileURLToPath(import.meta.url));
@@ -87,6 +91,20 @@ function registerShutdownHooks(stop: () => void): void {
   process.on("SIGINT", stop);
 }
 
+export async function resolveHealthCheckPrompt(
+  dataSource: HealthCheckPromptSource,
+): Promise<string> {
+  try {
+    return (await dataSource.getHealthCheckPrompt()) ?? DEFAULT_HEALTH_CHECK_PROMPT;
+  } catch (error) {
+    console.warn(
+      "Failed to load health check prompt from database; using default prompt.",
+      error,
+    );
+    return DEFAULT_HEALTH_CHECK_PROMPT;
+  }
+}
+
 export async function startAppRuntime(): Promise<AppRuntime> {
   const projectRoot = getProjectRoot();
   const ctx = createAppContext();
@@ -137,9 +155,9 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   });
 
   const enabledModelNames = await modelsService.getEnabledModelNames();
-  const healthCheckPrompt =
-    (await ctx.analytics.dataSource.getHealthCheckPrompt()) ??
-    DEFAULT_HEALTH_CHECK_PROMPT;
+  const healthCheckPrompt = await resolveHealthCheckPrompt(
+    ctx.analytics.dataSource,
+  );
 
   const healthCheckRuntime: HealthCheckRuntime = createHealthCheckRuntime({
     ctx,

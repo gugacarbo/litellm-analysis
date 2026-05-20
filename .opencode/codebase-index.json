@@ -1,0 +1,23 @@
+{
+  "embeddingProvider": "custom",
+  "scope": "project",
+  "customProvider": {
+    "baseUrl": "http://127.0.0.1:11434/v1",
+    "model": "all-minilm",
+    "dimensions": 384,
+    "apiKey": "ollama",
+    "maxBatchSize": 64,
+    "concurrency": 5
+  },
+  "indexing": {
+    "autoIndex": true,
+    "maxFileSize": 1048576
+  },
+  "search": {
+    "maxResults": 20
+  },
+  "debug": {
+    "enabled": true,
+    "logLevel": "debug"
+  }
+}

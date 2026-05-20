@@ -3,6 +3,7 @@ import type {
   WeavePluginConfig,
 } from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
+import { normalizeAgentMappings } from "../plugin";
 import type {
   ConfigField,
   InternalAgent,
@@ -309,8 +310,11 @@ export class WeavePlugin implements IPlugin<"weave"> {
       ],
     };
 
-    // Build agent routing map: systemAgentId -> weaveAgentId
-    const agentMappings = routing.routing?.agents ?? {};
+    // Build agent routing map: systemAgentId -> weaveAgentId[]
+    // Supports 1→N: one system agent can map to multiple weave agents
+    const rawAgentMappings: Record<string, string | string[]> =
+      (routing.routing?.agents as Record<string, string | string[]>) ?? {};
+    const agentMappings = normalizeAgentMappings(rawAgentMappings);
 
     // Build a map of system agents by id for fast lookup
     const systemAgentMap = new Map<string, SystemAgent>();
@@ -329,17 +333,19 @@ export class WeavePlugin implements IPlugin<"weave"> {
 
     for (const weaveAgent of WEAVE_AGENTS) {
       // Find which system agent is mapped to this weave agent
-      const entry = Object.entries(agentMappings).find(
-        ([, weaveId]) => weaveId === weaveAgent.id,
-      );
-      if (!entry) continue;
+      // (takes first match in case multiple system agents map to same weave agent)
+      const systemAgentId = Object.entries(agentMappings).find(
+        ([, weaveIds]) => weaveIds.includes(weaveAgent.id),
+      )?.[0];
+      if (!systemAgentId) continue;
 
-      const systemAgentId = entry[0];
       const systemAgent = systemAgentMap.get(systemAgentId);
       if (!systemAgent) continue;
 
       const model = systemAgent.model ?? "";
-      const models = model ? this.resolveModels(model, modelNames, ctx) : [];
+      const models = model
+        ? this.resolveModels(weaveAgent.id, modelNames, ctx)
+        : [];
 
       outputAgents[weaveAgent.id] = {
         display_name: systemAgent.displayName ?? weaveAgent.displayName,
@@ -359,7 +365,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
       const catModel = systemCat?.model ?? "";
 
       const models = catModel
-        ? this.resolveModels(catModel, modelNames, ctx)
+        ? this.resolveModels(weaveCat.id, modelNames, ctx)
         : [];
 
       outputCategories[weaveCat.id] = {
@@ -392,24 +398,14 @@ export class WeavePlugin implements IPlugin<"weave"> {
   }
 
   /**
-   * Resolve a primary model into an array of [primary, ...fallbacks]
-   * using the standard model slot naming convention.
+   * Resolve model slot names into aliased format: role/slot_name.
+   * E.g., role="loom" + slots=["gpt-5.5","gpt-5.4"] → ["loom/gpt-5.5","loom/gpt-5.4"]
    */
   private resolveModels(
-    primaryModel: string,
+    role: string,
     modelNames: readonly string[],
     _ctx: TransformContext,
   ): string[] {
-    if (!primaryModel) return [];
-    const parts = primaryModel.split("/");
-    const base = parts[parts.length - 2] ?? "";
-    const name = parts[parts.length - 1] ?? primaryModel;
-
-    return modelNames.map((slot, i) => {
-      if (i === 0) return primaryModel;
-      // Construct fallback: base/provider + slot name
-      if (base) return `${base}/${slot}`;
-      return slot;
-    });
+    return modelNames.map((slot) => `${role}/${slot}`);
   }
 }

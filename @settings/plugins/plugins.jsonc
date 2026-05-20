@@ -102,8 +102,8 @@
       },
       "routing": {
         "agents": {
-          "loom": "loom",
-          "tapestry": "tapestry",
+          "loom": "tapestry",
+          "tapestry": "loom",
           "pattern": "planner",
           "shuttle": "shuttle",
           "thread": "thread",

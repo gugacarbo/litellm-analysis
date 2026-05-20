@@ -33,7 +33,11 @@
       "$ref": "#/$defs/__schema47"
     }
   },
-  "required": ["version", "agents", "categories"],
+  "required": [
+    "version",
+    "agents",
+    "categories"
+  ],
   "additionalProperties": false,
   "$defs": {
     "__schema0": {
@@ -140,7 +144,10 @@
           "$ref": "#/$defs/__schema9"
         }
       },
-      "required": ["context", "output"],
+      "required": [
+        "context",
+        "output"
+      ],
       "additionalProperties": false
     },
     "__schema8": {
@@ -256,7 +263,11 @@
     },
     "__schema15": {
       "type": "string",
-      "enum": ["subagent", "primary", "all"]
+      "enum": [
+        "subagent",
+        "primary",
+        "all"
+      ]
     },
     "__schema16": {
       "type": "object",
@@ -426,7 +437,10 @@
             "$ref": "#/$defs/__schema46"
           }
         },
-        "required": ["model", "limits"],
+        "required": [
+          "model",
+          "limits"
+        ],
         "additionalProperties": false
       }
     },
@@ -455,7 +469,10 @@
           "description": "Maximum output tokens"
         }
       },
-      "required": ["context", "output"],
+      "required": [
+        "context",
+        "output"
+      ],
       "additionalProperties": false
     },
     "__schema33": {
@@ -483,7 +500,9 @@
           "$ref": "#/$defs/__schema39"
         }
       },
-      "required": ["levels"],
+      "required": [
+        "levels"
+      ],
       "additionalProperties": false
     },
     "__schema39": {
@@ -494,11 +513,20 @@
     },
     "__schema40": {
       "type": "string",
-      "enum": ["low", "medium", "high", "xhigh"]
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
     },
     "__schema41": {
       "type": "string",
-      "enum": ["low", "medium", "high"]
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
     },
     "__schema42": {
       "type": "object",
