@@ -34,12 +34,19 @@ type TaggedTextPiece =
       type: "tag";
       tag: string;
       value: string;
+      attributes: Record<string, string>;
     };
 
 type ToolInfo = {
   id: string;
   name: string;
   argumentsText: string | null;
+};
+
+type LinkedToolResult = {
+  key: string;
+  content: string;
+  rawMessage: string;
 };
 
 type ContentMeta = {
@@ -49,6 +56,13 @@ type ContentMeta = {
 };
 
 /* ────────────────────────────────────────────── helpers */
+
+function decodeEscapedNewlines(value: string): string {
+  return value
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\\r/g, "\n");
+}
 
 function parseContent(content: string): Segment[] {
   const parts: Segment[] = [];
@@ -141,7 +155,9 @@ function parseToolCalls(msg: Message): ToolInfo[] {
 
 function parseTaggedText(content: string): TaggedTextPiece[] {
   const pieces: TaggedTextPiece[] = [];
-  const tagRegex = /<([a-zA-Z_][\w-]*)(?:\s+[^>]*)?>([\s\S]*?)<\/\1>/g;
+  const tagRegex =
+    /<([a-zA-Z_][\w-]*)(\s+[^>]*)?>([\s\S]*?)<\/\1>/g;
+  const attrRegex = /([\w-]+)="([^"]*)"/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
@@ -156,10 +172,21 @@ function parseTaggedText(content: string): TaggedTextPiece[] {
       });
     }
 
+    const rawAttributes = match[2] ?? "";
+    const attributes: Record<string, string> = {};
+    let attrMatch: RegExpExecArray | null;
+    while (true) {
+      attrMatch = attrRegex.exec(rawAttributes);
+      if (attrMatch === null) break;
+      attributes[attrMatch[1]] = attrMatch[2];
+    }
+    attrRegex.lastIndex = 0;
+
     pieces.push({
       type: "tag",
       tag: match[1],
-      value: match[2] ?? "",
+      value: match[3] ?? "",
+      attributes,
     });
 
     lastIndex = match.index + match[0].length;
@@ -175,13 +202,59 @@ function parseTaggedText(content: string): TaggedTextPiece[] {
   return pieces;
 }
 
+function TaggedSectionCard({
+  tag,
+  value,
+  attributes,
+}: {
+  tag: string;
+  value: string;
+  attributes: Record<string, string>;
+}) {
+  const [open, setOpen] = useState(false);
+
+  let headerLabel: string;
+  if (tag === "skill_content" && attributes.name) {
+    headerLabel = `Skill: ${attributes.name}`;
+  } else if (tag === "name") {
+    headerLabel = `Skill: ${value.trim() || "unknown"}`;
+  } else {
+    headerLabel = tag;
+  }
+
+  return (
+    <div className="overflow-hidden rounded-md border bg-background/40">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex w-full items-center gap-2 border-b bg-muted/50 px-2 py-0.5 text-left"
+      >
+        {open ? (
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
+        ) : (
+          <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        )}
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {headerLabel}
+        </span>
+      </button>
+
+      {open && (
+        <pre className="whitespace-pre-wrap break-words px-2.5 py-1 text-[12px] font-mono leading-relaxed text-foreground/90">
+          {value.trim()}
+        </pre>
+      )}
+    </div>
+  );
+}
+
 /* ────────────────────────────────────────────── message parts */
 
 function MessageContent({ content }: { content: string }) {
   const segments = useMemo(() => parseContent(content), [content]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       {segments.map((segment, idx) =>
         segment.type === "code" ? (
           <div key={idx} className="relative">
@@ -195,7 +268,7 @@ function MessageContent({ content }: { content: string }) {
             </pre>
           </div>
         ) : (
-          <div key={idx} className="space-y-2">
+          <div key={idx} className="space-y-1">
             {segment.value ? (
               parseTaggedText(segment.value).map((piece, pieceIdx) =>
                 piece.type === "text" ? (
@@ -206,17 +279,12 @@ function MessageContent({ content }: { content: string }) {
                     {piece.value}
                   </p>
                 ) : (
-                  <div
-                    key={`${idx}-tag-${pieceIdx}`}
-                    className="overflow-hidden rounded-md border bg-background/40"
-                  >
-                    <div className="border-b bg-muted/50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      {piece.tag}
-                    </div>
-                    <pre className="whitespace-pre-wrap break-words px-2.5 py-2 text-[12px] font-mono leading-relaxed text-foreground/90">
-                      {piece.value.trim()}
-                    </pre>
-                  </div>
+                    <TaggedSectionCard
+                      key={`${idx}-tag-${pieceIdx}`}
+                      tag={piece.tag}
+                      value={piece.value}
+                      attributes={piece.attributes}
+                    />
                 ),
               )
             ) : (
@@ -229,8 +297,15 @@ function MessageContent({ content }: { content: string }) {
   );
 }
 
-function ToolCallCard({ tool }: { tool: ToolInfo }) {
+function ToolCallCard({
+  tool,
+  linkedResults,
+}: {
+  tool: ToolInfo;
+  linkedResults?: LinkedToolResult[];
+}) {
   const [open, setOpen] = useState(false);
+  const [openResults, setOpenResults] = useState(false);
 
   return (
     <div className="rounded-md border bg-muted/40 overflow-hidden">
@@ -259,6 +334,31 @@ function ToolCallCard({ tool }: { tool: ToolInfo }) {
           <pre className="overflow-x-hidden whitespace-pre-wrap break-all rounded bg-background/80 px-2 py-1.5 font-mono text-[11px] text-muted-foreground">
             {tool.argumentsText}
           </pre>
+        </div>
+      )}
+
+      {linkedResults && linkedResults.length > 0 && (
+        <div className="border-t bg-background/40 px-2.5 py-1.5">
+          <button
+            type="button"
+            onClick={() => setOpenResults((prev) => !prev)}
+            className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+          >
+            {openResults ? (
+              <ChevronDown className="h-3 w-3" />
+            ) : (
+              <ChevronRight className="h-3 w-3" />
+            )}
+            Result {linkedResults.length > 1 ? `(${linkedResults.length})` : ""}
+          </button>
+
+          {openResults && (
+            <div className="mt-1.5 space-y-1.5">
+              {linkedResults.map((result) => (
+                <RawMessageBlock key={result.key} rawMessage={result.rawMessage} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -344,29 +444,113 @@ function MessageDetails({
   );
 }
 
+function tryParseJsonString(value: string): unknown {
+  const trimmed = value.trim();
+  const looksLikeJson =
+    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+    (trimmed.startsWith("[") && trimmed.endsWith("]"));
+
+  if (!looksLikeJson) {
+    return value;
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return value;
+  }
+}
+
+function normalizeRawValue(value: unknown): unknown {
+  if (typeof value === "string") {
+    const parsed = tryParseJsonString(value);
+    if (parsed === value) {
+      return value;
+    }
+
+    return normalizeRawValue(parsed);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeRawValue(item));
+  }
+
+  if (value != null && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>).map(
+      ([key, nested]) => [key, normalizeRawValue(nested)] as const,
+    );
+
+    return Object.fromEntries(entries);
+  }
+
+  return value;
+}
+
+function formatRawMessage(rawMessage: string): string {
+  const trimmed = rawMessage.trim();
+  if (!trimmed) {
+    return "No content";
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    const normalized = normalizeRawValue(parsed);
+    return decodeEscapedNewlines(JSON.stringify(normalized, null, 2));
+  } catch {
+    return decodeEscapedNewlines(trimmed);
+  }
+}
+
+function RawMessageBlock({ rawMessage }: { rawMessage: string }) {
+  const rawContent = formatRawMessage(rawMessage);
+
+  return (
+    <pre className="overflow-x-hidden whitespace-pre-wrap break-words rounded-md bg-muted/60 p-2.5 font-mono text-xs text-foreground/90">
+      {`\`\`\`json
+${rawContent}
+\`\`\``}
+    </pre>
+  );
+}
+
 /* ────────────────────────────────────────────── role messages */
 
 function SystemMessage({
   content,
   meta,
   flags,
+  rawMessage,
 }: {
   content: string;
   meta: ContentMeta;
   flags: string[];
+  rawMessage: string;
 }) {
+  const [showRaw, setShowRaw] = useState(false);
+
   return (
     <div className="w-full">
-      <span className="text-[10px] uppercase tracking-wide font-semibold text-purple-700 dark:text-purple-400 mb-1 block">
-        System
-      </span>
+      <div className="mb-1 flex items-center gap-2">
+        <span className="text-[10px] uppercase tracking-wide font-semibold text-purple-700 dark:text-purple-400">
+          System
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowRaw((prev) => !prev)}
+          className="rounded border border-border/70 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+        >
+          {showRaw ? "Render" : "Raw"}
+        </button>
+      </div>
       <div className="rounded-md bg-purple-500/[0.04] border border-purple-500/10 px-3 py-2">
-        {content ? (
+        {showRaw ? (
+          <RawMessageBlock rawMessage={rawMessage} />
+        ) : content ? (
           <MessageContent content={content} />
         ) : (
           <p className="text-sm text-muted-foreground italic">No content</p>
         )}
-        <MessageDetails meta={meta} flags={flags} />
+        {!showRaw && <MessageDetails meta={meta} flags={flags} />}
       </div>
     </div>
   );
@@ -376,23 +560,38 @@ function UserMessage({
   content,
   meta,
   flags,
+  rawMessage,
 }: {
   content: string;
   meta: ContentMeta;
   flags: string[];
+  rawMessage: string;
 }) {
+  const [showRaw, setShowRaw] = useState(false);
+
   return (
-    <div className="flex flex-col items-end gap-1 ml-auto max-w-[80%]">
-      <span className="text-[10px] uppercase tracking-wide font-semibold text-blue-700 dark:text-blue-400 mr-1">
-        You
-      </span>
+    <div className="flex flex-col items-end gap-1 ml-auto max-w-[75%]">
+      <div className="mr-1 flex items-center gap-2">
+        <span className="text-[10px] uppercase tracking-wide font-semibold text-blue-700 dark:text-blue-400">
+          You
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowRaw((prev) => !prev)}
+          className="rounded border border-border/70 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+        >
+          {showRaw ? "Render" : "Raw"}
+        </button>
+      </div>
       <div className="rounded-xl rounded-tr-sm border border-blue-500/15 bg-blue-500/[0.05] px-3.5 py-2.5">
-        {content ? (
+        {showRaw ? (
+          <RawMessageBlock rawMessage={rawMessage} />
+        ) : content ? (
           <MessageContent content={content} />
         ) : (
           <p className="text-sm text-muted-foreground italic">No content</p>
         )}
-        <MessageDetails meta={meta} flags={flags} />
+        {!showRaw && <MessageDetails meta={meta} flags={flags} />}
       </div>
     </div>
   );
@@ -402,30 +601,57 @@ function AssistantMessage({
   content,
   meta,
   toolCalls,
+  toolResultsByCallId,
   flags,
+  rawMessage,
 }: {
   content: string;
   meta: ContentMeta;
   toolCalls: ToolInfo[];
+  toolResultsByCallId: Map<string, LinkedToolResult[]>;
   flags: string[];
+  rawMessage: string;
 }) {
+  const [showRaw, setShowRaw] = useState(false);
+
   return (
-    <div className="flex flex-col items-start gap-1 mr-auto max-w-[80%]">
-      <span className="text-[10px] uppercase tracking-wide font-semibold text-green-700 dark:text-green-400 ml-1">
-        Assistant
-      </span>
+    <div className="flex flex-col items-start gap-1 mr-auto max-w-[75%]">
+      <div className="ml-1 flex items-center gap-2">
+        <span className="text-[10px] uppercase tracking-wide font-semibold text-green-700 dark:text-green-400">
+          Assistant
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowRaw((prev) => !prev)}
+          className="rounded border border-border/70 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+        >
+          {showRaw ? "Render" : "Raw"}
+        </button>
+      </div>
       <div className="rounded-xl rounded-tl-sm border border-green-500/15 bg-green-500/[0.05] px-3.5 py-2.5">
-        {content && <MessageContent content={content} />}
-        {toolCalls.length > 0 && (
-          <div className={cn("space-y-1.5", content && "mt-2")}>
-            {toolCalls.map((tool) => (
-              <ToolCallCard key={tool.id} tool={tool} />
-            ))}
-          </div>
-        )}
-        <MessageDetails meta={meta} flags={flags} />
-        {!content && toolCalls.length === 0 && (
-          <p className="text-sm text-muted-foreground italic">No content</p>
+        {showRaw ? (
+          <RawMessageBlock rawMessage={rawMessage} />
+        ) : (
+          <>
+            {content && <MessageContent content={content} />}
+            {toolCalls.length > 0 && (
+              <div className={cn("space-y-1.5", content && "mt-2")}>
+                {toolCalls.map((tool) => (
+                  <ToolCallCard
+                    key={tool.id}
+                    tool={tool}
+                    linkedResults={toolResultsByCallId.get(tool.id)}
+                  />
+                ))}
+              </div>
+            )}
+            <MessageDetails meta={meta} flags={flags} />
+            {!content && toolCalls.length === 0 && (
+              <p className="text-sm text-muted-foreground italic">
+                No content
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -437,30 +663,45 @@ function ToolResponse({
   meta,
   toolName,
   flags,
+  rawMessage,
 }: {
   content: string;
   meta: ContentMeta;
   toolName?: string;
   flags: string[];
+  rawMessage: string;
 }) {
+  const [showRaw, setShowRaw] = useState(false);
+
   return (
-    <div className="flex flex-col items-start gap-1 mr-auto max-w-[80%]">
-      <span className="text-[10px] uppercase tracking-wide font-semibold text-muted-foreground ml-1">
-        {toolName ? (
-          <>
-            Tool result: <span className="font-mono">{toolName}</span>
-          </>
-        ) : (
-          "Tool result"
-        )}
-      </span>
+    <div className="flex flex-col items-start gap-1 mr-auto max-w-[75%]">
+      <div className="ml-1 flex items-center gap-2">
+        <span className="text-[10px] uppercase tracking-wide font-semibold text-muted-foreground">
+          {toolName ? (
+            <>
+              Tool result: <span className="font-mono">{toolName}</span>
+            </>
+          ) : (
+            "Tool result"
+          )}
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowRaw((prev) => !prev)}
+          className="rounded border border-border/70 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+        >
+          {showRaw ? "Render" : "Raw"}
+        </button>
+      </div>
       <div className="rounded-xl rounded-tl-sm border border-border bg-muted/40 px-3.5 py-2.5">
-        {content ? (
+        {showRaw ? (
+          <RawMessageBlock rawMessage={rawMessage} />
+        ) : content ? (
           <MessageContent content={content} />
         ) : (
           <p className="text-sm text-muted-foreground italic">No content</p>
         )}
-        <MessageDetails meta={meta} flags={flags} />
+        {!showRaw && <MessageDetails meta={meta} flags={flags} />}
       </div>
     </div>
   );
@@ -508,11 +749,21 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
         className="h-[460px] max-h-[70vh] overflow-y-auto overflow-x-hidden rounded-md bg-background/60 px-2 py-3"
       >
         <div className="space-y-5">
-          {messages.map((msg, index) => {
+          {(() => {
+            const consumedToolIndexes = new Set<number>();
+            const rows: React.ReactNode[] = [];
+
+            for (let index = 0; index < messages.length; index++) {
+              if (consumedToolIndexes.has(index)) {
+                continue;
+              }
+
+              const msg = messages[index];
             const contentMeta = getContentMeta(msg.content);
             const normalizedContent = contentMeta.text;
             const toolCalls = parseToolCalls(msg);
             const role = msg.role;
+            const rawMessage = JSON.stringify(msg, null, 2);
             const delayStyle = { animationDelay: `${index * 50}ms` };
 
             const flags: string[] = [];
@@ -532,7 +783,49 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
               flags.push("multimodal");
             }
 
-            return (
+            const toolResultsByCallId = new Map<string, LinkedToolResult[]>();
+
+            if (role === "assistant" && toolCalls.length > 0) {
+              const toolIds = new Set(toolCalls.map((tool) => tool.id));
+
+              for (let nextIndex = index + 1; nextIndex < messages.length; nextIndex++) {
+                const candidate = messages[nextIndex];
+
+                if (
+                  candidate.role === "assistant" ||
+                  candidate.role === "user" ||
+                  candidate.role === "system"
+                ) {
+                  break;
+                }
+
+                if (candidate.role !== "tool") {
+                  continue;
+                }
+
+                const toolCallId = candidate.tool_call_id;
+                if (!toolCallId || !toolIds.has(toolCallId)) {
+                  continue;
+                }
+
+                consumedToolIndexes.add(nextIndex);
+
+                const candidateMeta = getContentMeta(candidate.content);
+                const candidateContent = candidateMeta.text || "No content";
+                const candidateRaw = JSON.stringify(candidate, null, 2);
+                const linkedResult: LinkedToolResult = {
+                  key: `${nextIndex}-${toolCallId}`,
+                  content: candidateContent,
+                  rawMessage: candidateRaw,
+                };
+
+                const previous = toolResultsByCallId.get(toolCallId) ?? [];
+                previous.push(linkedResult);
+                toolResultsByCallId.set(toolCallId, previous);
+              }
+            }
+
+            rows.push(
               <div
                 key={index}
                 className="animate-in fade-in slide-in-from-bottom-2 duration-300"
@@ -543,6 +836,7 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
                     content={normalizedContent}
                     meta={contentMeta}
                     flags={flags}
+                    rawMessage={rawMessage}
                   />
                 )}
 
@@ -551,6 +845,7 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
                     content={normalizedContent}
                     meta={contentMeta}
                     flags={flags}
+                    rawMessage={rawMessage}
                   />
                 )}
 
@@ -559,11 +854,13 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
                     content={normalizedContent}
                     meta={contentMeta}
                     toolCalls={toolCalls}
+                    toolResultsByCallId={toolResultsByCallId}
                     flags={flags}
+                    rawMessage={rawMessage}
                   />
                 )}
 
-                {role === "tool" && (
+                {role === "tool" && !consumedToolIndexes.has(index) && (
                   <ToolResponse
                     content={normalizedContent}
                     meta={contentMeta}
@@ -573,6 +870,7 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
                         : undefined
                     }
                     flags={flags}
+                    rawMessage={rawMessage}
                   />
                 )}
 
@@ -585,11 +883,16 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
                       meta={contentMeta}
                       toolName={msg.name ?? role}
                       flags={flags}
+                      rawMessage={rawMessage}
                     />
                   )}
               </div>
             );
-          })}
+
+            }
+
+            return rows;
+          })()}
         </div>
       </div>
     </div>
