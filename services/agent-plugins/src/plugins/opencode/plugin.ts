@@ -15,7 +15,6 @@ import { openCodeSchema } from "./schemas/generated/opencode.zod";
 interface OpenCodeProviders {
   $schema: string;
   provider: Record<string, unknown>;
-  categories?: Record<string, unknown>;
 }
 
 const OPENCODE_REASONING_EFFORT_LEVELS = new Set([
@@ -139,7 +138,6 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
     const config: OpenCodePluginConfig = (routing.config ??
       {}) as OpenCodePluginConfig;
     const configDefaultModel = config.defaultModel || "";
-    const configDefaultTemp = config.defaultTemperature ?? 0.2;
     const schemaUrl =
       config.$schema ??
       "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/opencode/schemas/opencode.schema.json";
@@ -195,7 +193,9 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
 
     const enabledAgents = routing.routing?.agents ?? {};
 
-    // ── Per-agent providers ──
+    // ── llm-agents provider ──
+    const llmAgentsModels: Record<string, unknown> = {};
+
     for (const agent of agents) {
       const agentRole = Object.entries(enabledAgents).find(
         ([, agentId]) => agentId === agent.id,
@@ -208,11 +208,9 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
         ? ctx.allModels[primaryModelId]
         : undefined;
 
-      const agentModels: Record<string, unknown> = {};
-
       // Primary model → gpt-5.5
       if (primarySpec) {
-        agentModels[modelNames[0]] = buildModelEntry(
+        llmAgentsModels[`${agentRole}/${modelNames[0]}`] = buildModelEntry(
           agentRole,
           modelNames[0],
           agent.displayName || primarySpec.displayName,
@@ -232,20 +230,20 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
         const fbSpec = ctx.allModels[fbModelId];
         if (!fbSpec) continue;
         const aliasKey = modelNames[fbIdx + 1];
-        agentModels[aliasKey] = buildModelEntry(
+        llmAgentsModels[`${agentRole}/${aliasKey}`] = buildModelEntry(
           agentRole,
           aliasKey,
           `${agent.displayName || fbSpec.displayName} Fb`,
           fbSpec,
         );
       }
+    }
 
-      if (Object.keys(agentModels).length > 0) {
-        output.provider[agentRole] = {
-          ...providerOpts,
-          models: agentModels,
-        };
-      }
+    if (Object.keys(llmAgentsModels).length > 0) {
+      output.provider["llm-agents"] = {
+        ...providerOpts,
+        models: llmAgentsModels,
+      };
     }
 
     // ── Global fallback provider ──
@@ -267,28 +265,59 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
       }
     }
 
-    // ── Categories section ──
+    // ── llm-categories provider ──
     const categoryRouting = routing.routing?.categories ?? {};
     if (ctx.allCategories && Object.keys(ctx.allCategories).length > 0) {
-      const enabledCategories: Record<string, unknown> = {};
+      const llmCategoriesModels: Record<string, unknown> = {};
+
       for (const [categoryName, category] of Object.entries(
         ctx.allCategories,
       )) {
         if (!categoryRouting[categoryName]) continue;
 
-        enabledCategories[categoryName] = {
-          description: category.description ?? "",
-          model:
-            category.model ||
-            (configDefaultModel
-              ? `litellm/${configDefaultModel}`
-              : "litellm/default"),
-          fallback_models: category.fallbackModels ?? [],
-          temperature: category.temperature ?? configDefaultTemp,
-        };
+        const primaryModelId =
+          category.model || configDefaultModel || categoryName;
+        const primarySpec = primaryModelId
+          ? ctx.allModels[primaryModelId]
+          : undefined;
+
+        // Primary model → gpt-5.5
+        if (primarySpec) {
+          llmCategoriesModels[`${categoryName}/${modelNames[0]}`] =
+            buildModelEntry(
+              categoryName,
+              modelNames[0],
+              categoryName,
+              primarySpec,
+            );
+        }
+
+        // Fallback models → gpt-5.4, gpt-5.3, gpt-5.2
+        const fallbacks = category.fallbackModels ?? [];
+        for (
+          let fbIdx = 0;
+          fbIdx < Math.min(fallbacks.length, modelNames.length - 2);
+          fbIdx++
+        ) {
+          const fbModelId = fallbacks[fbIdx];
+          if (!fbModelId) continue;
+          const fbSpec = ctx.allModels[fbModelId];
+          if (!fbSpec) continue;
+          const aliasKey = modelNames[fbIdx + 1];
+          llmCategoriesModels[`${categoryName}/${aliasKey}`] = buildModelEntry(
+            categoryName,
+            aliasKey,
+            `${categoryName} Fb`,
+            fbSpec,
+          );
+        }
       }
-      if (Object.keys(enabledCategories).length > 0) {
-        output.categories = enabledCategories;
+
+      if (Object.keys(llmCategoriesModels).length > 0) {
+        output.provider["llm-categories"] = {
+          ...providerOpts,
+          models: llmCategoriesModels,
+        };
       }
     }
 

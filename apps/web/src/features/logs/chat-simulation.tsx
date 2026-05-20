@@ -84,10 +84,7 @@ export function LogChatSimulationPage() {
           </p>
         </div>
       ) : hasMessages ? (
-        <ChatSimulation
-          messages={chatMessages}
-          mcpNamespacedToolName={log.mcp_namespaced_tool_name}
-        />
+        <ChatSimulation messages={chatMessages} />
       ) : (
         <div className="flex flex-col items-center justify-center h-48 text-sm text-muted-foreground gap-2">
           <MessageCircle className="h-8 w-8 text-muted-foreground/40" />

@@ -77,9 +77,7 @@ export function LitellmAliasRoutingTable({
               key={agent.key}
               className={cn(!includeAgents && "opacity-50")}
             >
-              <TableCell className="font-medium">
-                {agent.displayName}
-              </TableCell>
+              <TableCell className="font-medium">{agent.displayName}</TableCell>
               <TableCell>
                 <Badge>Agent</Badge>
               </TableCell>
@@ -88,10 +86,7 @@ export function LitellmAliasRoutingTable({
                   checked={!!agentMappings[agent.key]}
                   disabled={!includeAgents}
                   onCheckedChange={(checked) => {
-                    onAgentMappingChange(
-                      agent.key,
-                      checked ? agent.key : "",
-                    );
+                    onAgentMappingChange(agent.key, checked ? agent.key : "");
                   }}
                 />
               </TableCell>

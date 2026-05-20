@@ -130,6 +130,7 @@ export function usePluginConfigPage(pluginId: string) {
         ...prev,
         [categoryId]: !prev[categoryId],
       }));
+      setIsDirty(true);
     },
     [toggleCategory],
   );
@@ -168,6 +169,7 @@ export function usePluginConfigPage(pluginId: string) {
     internalAgents: safeData.internalAgents,
     systemAgents,
     categories: Object.keys(safeData.categoryMappings),
+    categoryOptions,
     isDirty,
     handleConfigChange,
     handleAgentMappingChange,

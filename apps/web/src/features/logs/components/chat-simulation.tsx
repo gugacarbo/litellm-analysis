@@ -1,12 +1,12 @@
 import type { SpendLog } from "@lite-llm/contracts/analytics";
-import { useMemo } from "react";
+import { ChevronDown, ChevronRight, Wrench } from "lucide-react";
+import { useMemo, useState } from "react";
 import { cn } from "@/shared/lib/utils";
 
 type Message = NonNullable<SpendLog["messages"]>[number];
 
 type ChatSimulationProps = {
   messages: Message[];
-  mcpNamespacedToolName?: string | null;
 };
 
 type TextSegment = {
@@ -28,54 +28,7 @@ type ToolInfo = {
   argumentsText: string | null;
 };
 
-const roleConfig: Record<
-  string,
-  {
-    align: "left" | "right";
-    bg: string;
-    border: string;
-    labelBg: string;
-    labelText: string;
-    label: string;
-  }
-> = {
-  system: {
-    align: "left",
-    bg: "bg-purple-500/5",
-    border: "border-purple-500/20",
-    labelBg: "bg-purple-500/15",
-    labelText: "text-purple-700 dark:text-purple-400",
-    label: "System",
-  },
-  user: {
-    align: "right",
-    bg: "bg-blue-500/5",
-    border: "border-blue-500/20",
-    labelBg: "bg-blue-500/15",
-    labelText: "text-blue-700 dark:text-blue-400",
-    label: "User",
-  },
-  assistant: {
-    align: "left",
-    bg: "bg-green-500/5",
-    border: "border-green-500/20",
-    labelBg: "bg-green-500/15",
-    labelText: "text-green-700 dark:text-green-400",
-    label: "Assistant",
-  },
-  tool: {
-    align: "left",
-    bg: "bg-muted/50",
-    border: "border-border",
-    labelBg: "bg-muted",
-    labelText: "text-muted-foreground",
-    label: "Tool",
-  },
-};
-
-function getRoleConfig(role: string) {
-  return roleConfig[role] ?? roleConfig.tool;
-}
+/* ────────────────────────────────────────────── helpers */
 
 function parseContent(content: string): Segment[] {
   const parts: Segment[] = [];
@@ -136,25 +89,7 @@ function parseToolCalls(msg: Message): ToolInfo[] {
   }));
 }
 
-function collectUsedTools(
-  messages: Message[],
-  mcpNamespacedToolName?: string | null,
-): string[] {
-  const tools = new Set<string>();
-
-  for (const msg of messages) {
-    const msgTools = parseToolCalls(msg);
-    for (const tool of msgTools) {
-      tools.add(tool.name);
-    }
-  }
-
-  if (mcpNamespacedToolName) {
-    tools.add(mcpNamespacedToolName);
-  }
-
-  return Array.from(tools);
-}
+/* ────────────────────────────────────────────── message parts */
 
 function MessageContent({ content }: { content: string }) {
   const segments = useMemo(() => parseContent(content), [content]);
@@ -169,12 +104,15 @@ function MessageContent({ content }: { content: string }) {
                 {segment.lang}
               </span>
             )}
-            <pre className="bg-muted/50 p-3 rounded-lg font-mono text-xs overflow-x-auto">
+            <pre className="bg-muted/50 p-2.5 rounded-md font-mono text-xs overflow-x-auto">
               <code>{segment.value}</code>
             </pre>
           </div>
         ) : (
-          <p key={idx} className="text-sm whitespace-pre-wrap leading-relaxed">
+          <p
+            key={idx}
+            className="text-sm whitespace-pre-wrap leading-relaxed"
+          >
             {segment.value || (
               <span className="text-muted-foreground italic">No content</span>
             )}
@@ -185,14 +123,141 @@ function MessageContent({ content }: { content: string }) {
   );
 }
 
+function ToolCallCard({ tool }: { tool: ToolInfo }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-md border bg-muted/40 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        className="flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5 hover:bg-muted/60 transition-colors"
+      >
+        <Wrench className="h-3 w-3 shrink-0 text-muted-foreground" />
+        <span className="text-xs font-medium text-muted-foreground">
+          Tool call:
+        </span>
+        <span className="text-xs font-mono font-medium">
+          {tool.name}
+        </span>
+        <span className="ml-auto">
+          {open ? (
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+          )}
+        </span>
+      </button>
+      {open && tool.argumentsText && (
+        <div className="px-2.5 pb-2.5 pt-1">
+          <pre className="text-[11px] font-mono bg-background/80 rounded px-2 py-1.5 overflow-x-auto text-muted-foreground">
+            {tool.argumentsText}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────── role messages */
+
+function SystemMessage({ content }: { content: string }) {
+  return (
+    <div className="w-full">
+      <span className="text-[10px] uppercase tracking-wide font-semibold text-purple-700 dark:text-purple-400 mb-1 block">
+        System
+      </span>
+      <div className="rounded-md bg-purple-500/[0.04] border border-purple-500/10 px-3 py-2">
+        <MessageContent content={content} />
+      </div>
+    </div>
+  );
+}
+
+function UserMessage({ content }: { content: string }) {
+  return (
+    <div className="flex flex-col items-end gap-1 ml-auto max-w-[80%]">
+      <span className="text-[10px] uppercase tracking-wide font-semibold text-blue-700 dark:text-blue-400 mr-1">
+        You
+      </span>
+      <div className="rounded-xl rounded-tr-sm border border-blue-500/15 bg-blue-500/[0.05] px-3.5 py-2.5">
+        <MessageContent content={content} />
+      </div>
+    </div>
+  );
+}
+
+function AssistantMessage({
+  content,
+  toolCalls,
+}: {
+  content: string;
+  toolCalls: ToolInfo[];
+}) {
+  return (
+    <div className="flex flex-col items-start gap-1 mr-auto max-w-[80%]">
+      <span className="text-[10px] uppercase tracking-wide font-semibold text-green-700 dark:text-green-400 ml-1">
+        Assistant
+      </span>
+      <div className="rounded-xl rounded-tl-sm border border-green-500/15 bg-green-500/[0.05] px-3.5 py-2.5">
+        {content && <MessageContent content={content} />}
+        {toolCalls.length > 0 && (
+          <div className={cn("space-y-1.5", content && "mt-2")}>
+            {toolCalls.map((tool) => (
+              <ToolCallCard key={tool.id} tool={tool} />
+            ))}
+          </div>
+        )}
+        {!content && toolCalls.length === 0 && (
+          <p className="text-sm text-muted-foreground italic">
+            No content
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ToolResponse({
+  content,
+  toolName,
+}: {
+  content: string;
+  toolName?: string;
+}) {
+  return (
+    <div className="flex flex-col items-start gap-1 mr-auto max-w-[80%]">
+      <span className="text-[10px] uppercase tracking-wide font-semibold text-muted-foreground ml-1">
+        {toolName ? (
+          <>
+            Tool result: <span className="font-mono">{toolName}</span>
+          </>
+        ) : (
+          "Tool result"
+        )}
+      </span>
+      <div className="rounded-xl rounded-tl-sm border border-border bg-muted/40 px-3.5 py-2.5">
+        <MessageContent content={content} />
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────── main */
+
 export function ChatSimulation({
   messages,
-  mcpNamespacedToolName,
 }: ChatSimulationProps) {
-  const usedTools = useMemo(
-    () => collectUsedTools(messages, mcpNamespacedToolName),
-    [messages, mcpNamespacedToolName],
-  );
+  /* Build a map from tool_call_id → tool name so tool responses show cleanly */
+  const toolNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const msg of messages) {
+      for (const tool of parseToolCalls(msg)) {
+        map.set(tool.id, tool.name);
+      }
+    }
+    return map;
+  }, [messages]);
 
   if (!messages || messages.length === 0) {
     return (
@@ -203,120 +268,46 @@ export function ChatSimulation({
   }
 
   return (
-    <div className="space-y-3">
-      {usedTools.length > 0 && (
-        <div className="rounded-lg border bg-muted/20 p-3">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-            Tools utilizadas
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {usedTools.map((tool) => (
-              <span
-                key={tool}
-                className="rounded-md border bg-background px-2 py-1 text-xs font-mono"
-              >
-                {tool}
-              </span>
-            ))}
+    <div className="space-y-5 py-2">
+      {messages.map((msg, index) => {
+        const normalizedContent = normalizeContent(msg.content);
+        const role = msg.role;
+        const delayStyle = { animationDelay: `${index * 50}ms` };
+
+        return (
+          <div
+            key={index}
+            className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+            style={delayStyle}
+          >
+            {role === "system" && normalizedContent && (
+              <SystemMessage content={normalizedContent} />
+            )}
+
+            {role === "user" && (
+              <UserMessage content={normalizedContent || "No content"} />
+            )}
+
+            {role === "assistant" && (
+              <AssistantMessage
+                content={normalizedContent}
+                toolCalls={parseToolCalls(msg)}
+              />
+            )}
+
+            {role === "tool" && (
+              <ToolResponse
+                content={normalizedContent || "No content"}
+                toolName={
+                  msg.tool_call_id
+                    ? toolNameById.get(msg.tool_call_id)
+                    : undefined
+                }
+              />
+            )}
           </div>
-        </div>
-      )}
-
-      <div className="max-h-[600px] overflow-y-auto space-y-4 p-4 bg-muted/20 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
-        {messages.map((msg, index) => {
-          const config = getRoleConfig(msg.role);
-          const isRight = config.align === "right";
-          const normalizedContent = normalizeContent(msg.content);
-          const toolCalls = parseToolCalls(msg);
-          const hasToolCalls = toolCalls.length > 0;
-
-          return (
-            <div
-              key={index}
-              className={cn(
-                "flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300",
-                isRight ? "flex-row-reverse" : "flex-row",
-              )}
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div
-                className={cn(
-                  "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold uppercase tracking-wider",
-                  config.labelBg,
-                  config.labelText,
-                )}
-                title={msg.role}
-              >
-                {config.label.slice(0, 1)}
-              </div>
-              <div className={cn("flex-1 max-w-[85%]", isRight && "items-end")}>
-                <div
-                  className={cn(
-                    "rounded-xl border p-3.5",
-                    config.bg,
-                    config.border,
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "flex items-center gap-2 mb-2",
-                      isRight && "justify-end",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                        config.labelBg,
-                        config.labelText,
-                      )}
-                    >
-                      {config.label}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground/60 font-medium">
-                      #{index + 1}
-                    </span>
-                  </div>
-                  {hasToolCalls && (
-                    <div className="mb-3 space-y-2">
-                      {toolCalls.map((tool) => (
-                        <div
-                          key={tool.id}
-                          className="rounded-md border bg-background/80 p-2"
-                        >
-                          <p className="text-xs font-medium">
-                            Tool call:{" "}
-                            <span className="font-mono">{tool.name}</span>
-                          </p>
-                          {tool.argumentsText && (
-                            <pre className="mt-1 text-xs font-mono overflow-x-auto text-muted-foreground">
-                              {tool.argumentsText}
-                            </pre>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {normalizedContent ? (
-                    <MessageContent content={normalizedContent} />
-                  ) : (
-                    <p className="text-sm text-muted-foreground italic">
-                      {hasToolCalls
-                        ? "Mensagem com tool call (sem conteúdo textual)"
-                        : "No content"}
-                    </p>
-                  )}
-                  {msg.role === "tool" && msg.tool_call_id && (
-                    <p className="mt-2 text-[11px] text-muted-foreground">
-                      tool_call_id:{" "}
-                      <span className="font-mono">{msg.tool_call_id}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+        );
+      })}
     </div>
   );
 }

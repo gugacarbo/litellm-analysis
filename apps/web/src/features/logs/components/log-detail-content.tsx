@@ -364,7 +364,7 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
   const chatTab = hasMessages ? (
     <ChatSimulation
       messages={rawMessages}
-      mcpNamespacedToolName={log.mcp_namespaced_tool_name}
+
     />
   ) : (
     <div className="flex flex-col items-center justify-center h-48 text-sm text-muted-foreground gap-2">

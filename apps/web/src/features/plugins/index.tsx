@@ -6,6 +6,7 @@ import { PageLayout } from "@/shared/components/ui/page-layout";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { AgentMappingTable } from "./components/agent-mapping-table";
 import { CategoryExportList } from "./components/category-export-list";
+import { LitellmAliasRoutingTable } from "./components/litellm-alias-routing-table";
 import { PluginConfigForm } from "./components/plugin-config-form";
 import { OpenCodeConfigPage } from "./opencode-config";
 import { usePluginConfigPage } from "./use-plugin-config-page";
@@ -98,17 +99,31 @@ export function PluginConfigPage() {
               onChange={state.handleConfigChange}
             />
           )}
-          <AgentMappingTable
-            internalAgents={state.internalAgents}
-            mappings={state.agentMappings}
-            systemAgents={state.systemAgents}
-            onChange={state.handleAgentMappingChange}
-          />
-          <CategoryExportList
-            categories={state.categories}
-            mappings={state.categoryMappings}
-            onToggle={state.handleCategoryToggle}
-          />
+          {state.pluginId === "litellm-alias" ? (
+            <LitellmAliasRoutingTable
+              systemAgents={state.systemAgents}
+              categoryOptions={state.categoryOptions}
+              agentMappings={state.agentMappings}
+              categoryMappings={state.categoryMappings}
+              configValues={state.configValues}
+              onAgentMappingChange={state.handleAgentMappingChange}
+              onCategoryToggle={state.handleCategoryToggle}
+            />
+          ) : (
+            <>
+              <AgentMappingTable
+                internalAgents={state.internalAgents}
+                mappings={state.agentMappings}
+                systemAgents={state.systemAgents}
+                onChange={state.handleAgentMappingChange}
+              />
+              <CategoryExportList
+                categories={state.categories}
+                mappings={state.categoryMappings}
+                onToggle={state.handleCategoryToggle}
+              />
+            </>
+          )}
         </div>
       )}
     </PageLayout>

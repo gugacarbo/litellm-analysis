@@ -22,13 +22,6 @@ export const openCodeSchema = z.fromJSONSchema({
         $ref: "#/definitions/ProviderConfig",
       },
     },
-    categories: {
-      type: "object",
-      description: "Map of category names to their configurations",
-      additionalProperties: {
-        $ref: "#/definitions/OpenCodeCategoryConfig",
-      },
-    },
   },
   definitions: {
     ProviderConfig: {
@@ -135,31 +128,7 @@ export const openCodeSchema = z.fromJSONSchema({
         },
       },
     },
-    OpenCodeCategoryConfig: {
-      type: "object",
-      required: ["model"],
-      properties: {
-        description: {
-          type: "string",
-          description: "Human-readable description of the category",
-        },
-        model: {
-          type: "string",
-          description: "Primary model identifier (prefixed with provider/)",
-        },
-        fallback_models: {
-          type: "array",
-          items: { type: "string" },
-          description: "List of fallback model identifiers",
-        },
-        temperature: {
-          type: "number",
-          minimum: 0,
-          maximum: 2,
-          description: "Sampling temperature for the category",
-        },
-      },
-    },
+
   },
 } as const);
 export type OpenCode = z.infer<typeof openCodeSchema>;

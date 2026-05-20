@@ -66,9 +66,18 @@
           "explorer": "explorer",
           "reviewer": "reviewer",
           "writer": "thread",
-          "architect": "warp"
+          "architect": "warp",
+          "loom": "loom",
+          "tapestry": "tapestry",
+          "shuttle": "shuttle",
+          "thread": "thread",
+          "warp": "warp"
         },
-        "categories": {}
+        "categories": {
+          "writing": true,
+          "deep": true,
+          "quick": true
+        }
       }
     }
   }
