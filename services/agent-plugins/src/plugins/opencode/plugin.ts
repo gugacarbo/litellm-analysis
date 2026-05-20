@@ -246,34 +246,17 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
       };
     }
 
-    // ── Global fallback provider ──
-    const globalFallbackId = ctx.globalFallbackModel;
-    if (globalFallbackId) {
-      const globalSpec = ctx.allModels[globalFallbackId];
-      if (globalSpec) {
-        const globalModels: Record<string, unknown> = {};
-        globalModels[modelNames[0]] = buildModelEntry(
-          "global-fallback",
-          modelNames[0],
-          "Global Fallback",
-          globalSpec,
-        );
-        output.provider["global-fallback"] = {
-          ...providerOpts,
-          models: globalModels,
-        };
-      }
-    }
-
     // ── llm-categories provider ──
     const categoryRouting = routing.routing?.categories ?? {};
+    const hasExplicitCategoryRouting = Object.keys(categoryRouting).length > 0;
     if (ctx.allCategories && Object.keys(ctx.allCategories).length > 0) {
       const llmCategoriesModels: Record<string, unknown> = {};
 
       for (const [categoryName, category] of Object.entries(
         ctx.allCategories,
       )) {
-        if (!categoryRouting[categoryName]) continue;
+        if (hasExplicitCategoryRouting && !categoryRouting[categoryName])
+          continue;
 
         const primaryModelId =
           category.model || configDefaultModel || categoryName;
@@ -317,6 +300,25 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
         output.provider["llm-categories"] = {
           ...providerOpts,
           models: llmCategoriesModels,
+        };
+      }
+    }
+
+    // ── Global fallback provider ──
+    const globalFallbackId = ctx.globalFallbackModel;
+    if (globalFallbackId) {
+      const globalSpec = ctx.allModels[globalFallbackId];
+      if (globalSpec) {
+        const globalModels: Record<string, unknown> = {};
+        globalModels[modelNames[0]] = buildModelEntry(
+          "global-fallback",
+          modelNames[0],
+          "Global Fallback",
+          globalSpec,
+        );
+        output.provider["global-fallback"] = {
+          ...providerOpts,
+          models: globalModels,
         };
       }
     }

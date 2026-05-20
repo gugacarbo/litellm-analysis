@@ -199,7 +199,7 @@ describe("OpenCodePlugin", () => {
       expect(options.apiKey).toBe("secret-key");
     });
 
-    // ── Per-agent providers ──
+    // ── llm-agents aggregate provider ──
 
     it("gera provider por agente com modelo principal (gpt-5.5)", () => {
       const plugin = new OpenCodePlugin();
@@ -227,15 +227,16 @@ describe("OpenCodePlugin", () => {
       }) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      expect(provider).toHaveProperty("sisyphus");
+      expect(provider).toHaveProperty("llm-agents");
 
-      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
-      expect(sisyphusProvider.npm).toBe("@ai-sdk/openai-compatible");
+      const llmAgents = provider["llm-agents"] as Record<string, unknown>;
+      const models = llmAgents.models as Record<string, unknown>;
+      expect(models).toHaveProperty("sisyphus/gpt-5.5");
 
-      const models = sisyphusProvider.models as Record<string, unknown>;
-      expect(models).toHaveProperty("gpt-5.5");
-
-      const primaryModel = models["gpt-5.5"] as Record<string, unknown>;
+      const primaryModel = models["sisyphus/gpt-5.5"] as Record<
+        string,
+        unknown
+      >;
       expect(primaryModel.id).toBe("sisyphus/gpt-5.5");
       expect(primaryModel.name).toBe("Builder");
       expect(primaryModel.limit).toEqual({ context: 128000, output: 4096 });
@@ -281,25 +282,20 @@ describe("OpenCodePlugin", () => {
       }) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
-      const models = sisyphusProvider.models as Record<string, unknown>;
+      const llmAgents = provider["llm-agents"] as Record<string, unknown>;
+      const models = llmAgents.models as Record<string, unknown>;
 
       // gpt-5.4 → first fallback (gpt-3.5)
-      expect(models).toHaveProperty("gpt-5.4");
-      const fb1 = models["gpt-5.4"] as Record<string, unknown>;
+      expect(models).toHaveProperty("sisyphus/gpt-5.4");
+      const fb1 = models["sisyphus/gpt-5.4"] as Record<string, unknown>;
       expect(fb1.id).toBe("sisyphus/gpt-5.4");
       expect(fb1.name).toBe("Builder Fb");
       expect(fb1.limit).toEqual({ context: 16000, output: 4096 });
 
-      // gpt-5.3 → second fallback (claude-3)
-      expect(models).toHaveProperty("gpt-5.3");
-      const fb2 = models["gpt-5.3"] as Record<string, unknown>;
-      expect(fb2.id).toBe("sisyphus/gpt-5.3");
-      expect(fb2.name).toBe("Builder Fb");
-      expect(fb2.limit).toEqual({ context: 200000, output: 8192 });
-
-      // gpt-5.2 should NOT exist (only 2 fallbacks)
-      expect(models).not.toHaveProperty("gpt-5.2");
+      // gpt-5.3 should NOT exist (only 1 fallback slot with 3 model names)
+      expect(models).not.toHaveProperty("sisyphus/gpt-5.3");
+      // gpt-5.2 should NOT exist
+      expect(models).not.toHaveProperty("sisyphus/gpt-5.2");
     });
 
     it("skips fallback model not found in ctx.allModels", () => {
@@ -332,11 +328,11 @@ describe("OpenCodePlugin", () => {
       }) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
-      const models = sisyphusProvider.models as Record<string, unknown>;
+      const llmAgents = provider["llm-agents"] as Record<string, unknown>;
+      const models = llmAgents.models as Record<string, unknown>;
 
-      expect(models).toHaveProperty("gpt-5.5");
-      expect(models).not.toHaveProperty("gpt-5.4");
+      expect(models).toHaveProperty("sisyphus/gpt-5.5");
+      expect(models).not.toHaveProperty("sisyphus/gpt-5.4");
     });
 
     it("agent sem model usa defaultModel do config", () => {
@@ -366,9 +362,9 @@ describe("OpenCodePlugin", () => {
       }) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
-      const models = sisyphusProvider.models as Record<string, unknown>;
-      expect(models).toHaveProperty("gpt-5.5");
+      const llmAgents = provider["llm-agents"] as Record<string, unknown>;
+      const models = llmAgents.models as Record<string, unknown>;
+      expect(models).toHaveProperty("sisyphus/gpt-5.5");
     });
 
     it("agent com model proprio ignora defaultModel do config", () => {
@@ -403,9 +399,9 @@ describe("OpenCodePlugin", () => {
       }) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
-      const models = sisyphusProvider.models as Record<string, unknown>;
-      const primary = models["gpt-5.5"] as Record<string, unknown>;
+      const llmAgents = provider["llm-agents"] as Record<string, unknown>;
+      const models = llmAgents.models as Record<string, unknown>;
+      const primary = models["sisyphus/gpt-5.5"] as Record<string, unknown>;
       expect(primary.id).toBe("sisyphus/gpt-5.5");
       expect(primary.name).toBe("Builder");
     });
@@ -438,9 +434,9 @@ describe("OpenCodePlugin", () => {
       }) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const sisyphusProvider = provider.sisyphus as Record<string, unknown>;
-      const models = sisyphusProvider.models as Record<string, unknown>;
-      const primary = models["gpt-5.5"] as Record<string, unknown>;
+      const llmAgents = provider["llm-agents"] as Record<string, unknown>;
+      const models = llmAgents.models as Record<string, unknown>;
+      const primary = models["sisyphus/gpt-5.5"] as Record<string, unknown>;
 
       expect(primary.cost).toEqual({ input: 15, output: 60 });
       expect(primary.variants).toEqual({
@@ -522,9 +518,16 @@ describe("OpenCodePlugin", () => {
       const provider = output.provider as Record<string, unknown>;
       const providerKeys = Object.keys(provider);
       expect(providerKeys).toContain("litellm");
-      expect(providerKeys).toContain("sisyphus");
-      expect(providerKeys).toContain("oracle");
+      expect(providerKeys).toContain("llm-agents");
+      expect(providerKeys).not.toContain("sisyphus");
+      expect(providerKeys).not.toContain("oracle");
       expect(providerKeys).not.toContain("unused");
+
+      // Both mapped agents appear inside llm-agents.models
+      const llmAgents = provider["llm-agents"] as Record<string, unknown>;
+      const models = llmAgents.models as Record<string, unknown>;
+      expect(models).toHaveProperty("sisyphus/gpt-5.5");
+      expect(models).toHaveProperty("oracle/gpt-5.5");
     });
 
     it("routing agents vazio nao gera per-agent providers", () => {
@@ -652,7 +655,7 @@ describe("OpenCodePlugin", () => {
       expect(provider).not.toHaveProperty("global-fallback");
     });
 
-    // ── Categories ──
+    // ── llm-categories aggregate provider ──
 
     it("usa defaultModel do config em categorias sem model", () => {
       const plugin = new OpenCodePlugin();
@@ -667,7 +670,13 @@ describe("OpenCodePlugin", () => {
       };
 
       const output = plugin.buildOutput([], routing, {
-        allModels: {},
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+        },
         litellmConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
@@ -682,9 +691,15 @@ describe("OpenCodePlugin", () => {
         },
       }) as unknown as Record<string, unknown>;
 
-      const categories = output.categories as Record<string, unknown>;
-      const codeCategory = categories.code as Record<string, unknown>;
-      expect(codeCategory.model).toBe("litellm/gpt-4");
+      const provider = output.provider as Record<string, unknown>;
+      const llmCategories = provider["llm-categories"] as Record<
+        string,
+        unknown
+      >;
+      const models = llmCategories.models as Record<string, unknown>;
+      const codeModel = models["code/gpt-5.5"] as Record<string, unknown>;
+      expect(codeModel).toBeDefined();
+      expect(codeModel.id).toBe("code/gpt-5.5");
     });
 
     it("filtra categorias pelo routing", () => {
@@ -699,7 +714,18 @@ describe("OpenCodePlugin", () => {
       };
 
       const output = plugin.buildOutput([], routing, {
-        allModels: {},
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+          "gpt-3.5": {
+            displayName: "GPT-3.5",
+            enabled: true,
+            limits: { length: 16000, maxOutput: 4096 },
+          },
+        },
         litellmConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
@@ -726,12 +752,17 @@ describe("OpenCodePlugin", () => {
         },
       }) as unknown as Record<string, unknown>;
 
-      const categories = output.categories as Record<string, unknown>;
-      expect(Object.keys(categories)).toEqual(["code", "review"]);
-      expect(categories).not.toHaveProperty("docs");
+      const provider = output.provider as Record<string, unknown>;
+      const llmCategories = provider["llm-categories"] as Record<
+        string,
+        unknown
+      >;
+      const models = llmCategories.models as Record<string, unknown>;
+      expect(Object.keys(models)).toEqual(["code/gpt-5.5", "review/gpt-5.5"]);
+      expect(models).not.toHaveProperty("docs/gpt-5.5");
     });
 
-    it("sem routing de categorias, não gera seção categories", () => {
+    it("routing de categorias vazio inclui todas as categorias", () => {
       const plugin = new OpenCodePlugin();
       const routing: PluginRouting = {
         enabled: true,
@@ -740,7 +771,13 @@ describe("OpenCodePlugin", () => {
       };
 
       const output = plugin.buildOutput([], routing, {
-        allModels: {},
+        allModels: {
+          "gpt-4": {
+            displayName: "GPT-4",
+            enabled: true,
+            limits: { length: 128000, maxOutput: 4096 },
+          },
+        },
         litellmConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
@@ -755,7 +792,14 @@ describe("OpenCodePlugin", () => {
         },
       }) as unknown as Record<string, unknown>;
 
-      expect(output).not.toHaveProperty("categories");
+      const provider = output.provider as Record<string, unknown>;
+      expect(provider).toHaveProperty("llm-categories");
+      const llmCategories = provider["llm-categories"] as Record<
+        string,
+        unknown
+      >;
+      const models = llmCategories.models as Record<string, unknown>;
+      expect(models).toHaveProperty("code/gpt-5.5");
     });
 
     // ── No agents section ──
@@ -785,10 +829,13 @@ describe("OpenCodePlugin", () => {
         },
       }) as unknown as Record<string, unknown>;
 
-      expect(output).not.toHaveProperty("agents");
-      // Agent should appear as provider instead
       const provider = output.provider as Record<string, unknown>;
-      expect(provider).toHaveProperty("sisyphus");
+      // Agents should appear inside llm-agents provider, not as a separate output.agents
+      expect(provider).toHaveProperty("llm-agents");
+      const llmAgents = provider["llm-agents"] as Record<string, unknown>;
+      const models = llmAgents.models as Record<string, unknown>;
+      expect(models).toHaveProperty("sisyphus/gpt-5.5");
+      expect(provider).not.toHaveProperty("sisyphus");
     });
   });
 });
