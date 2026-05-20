@@ -2,11 +2,11 @@ export {
   getExistingAliasesForAgent,
   replaceAliasesForAgent,
 } from "./alias/cleanup";
+export type { ModelSlotNames } from "./alias/generate";
 export {
   DEFAULT_MODEL_NAMES,
   generateLitellmAliases,
 } from "./alias/generate";
-export type { ModelSlotNames } from "./alias/generate";
 export {
   isLogicalModelForKey,
   resolveConfiguredModels,

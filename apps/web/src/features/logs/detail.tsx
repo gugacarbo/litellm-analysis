@@ -5,8 +5,8 @@ import { Button } from "@/shared/components/ui/button";
 import { PageLayout } from "@/shared/components/ui/page-layout";
 import { getSpendLogDetail } from "@/shared/lib/api-client/spend";
 import { queryKeys } from "@/shared/lib/query-keys";
-import { extractLogMessages } from "./utils/extract-log-messages";
 import { LogDetailContent } from "./components/log-detail-content";
+import { extractLogMessages } from "./utils/extract-log-messages";
 
 export function LogDetailPage() {
   const { requestId } = useParams<{ requestId: string }>();

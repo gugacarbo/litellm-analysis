@@ -223,97 +223,99 @@ export function ChatSimulation({
       )}
 
       <div className="max-h-[600px] overflow-y-auto space-y-4 p-4 bg-muted/20 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
-      {messages.map((msg, index) => {
-        const config = getRoleConfig(msg.role);
-        const isRight = config.align === "right";
-        const normalizedContent = normalizeContent(msg.content);
-        const toolCalls = parseToolCalls(msg);
-        const hasToolCalls = toolCalls.length > 0;
+        {messages.map((msg, index) => {
+          const config = getRoleConfig(msg.role);
+          const isRight = config.align === "right";
+          const normalizedContent = normalizeContent(msg.content);
+          const toolCalls = parseToolCalls(msg);
+          const hasToolCalls = toolCalls.length > 0;
 
-        return (
-          <div
-            key={index}
-            className={cn(
-              "flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300",
-              isRight ? "flex-row-reverse" : "flex-row",
-            )}
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
+          return (
             <div
+              key={index}
               className={cn(
-                "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold uppercase tracking-wider",
-                config.labelBg,
-                config.labelText,
+                "flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300",
+                isRight ? "flex-row-reverse" : "flex-row",
               )}
-              title={msg.role}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              {config.label.slice(0, 1)}
-            </div>
-            <div className={cn("flex-1 max-w-[85%]", isRight && "items-end")}>
               <div
                 className={cn(
-                  "rounded-xl border p-3.5",
-                  config.bg,
-                  config.border,
+                  "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold uppercase tracking-wider",
+                  config.labelBg,
+                  config.labelText,
                 )}
+                title={msg.role}
               >
+                {config.label.slice(0, 1)}
+              </div>
+              <div className={cn("flex-1 max-w-[85%]", isRight && "items-end")}>
                 <div
                   className={cn(
-                    "flex items-center gap-2 mb-2",
-                    isRight && "justify-end",
+                    "rounded-xl border p-3.5",
+                    config.bg,
+                    config.border,
                   )}
                 >
-                  <span
+                  <div
                     className={cn(
-                      "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                      config.labelBg,
-                      config.labelText,
+                      "flex items-center gap-2 mb-2",
+                      isRight && "justify-end",
                     )}
                   >
-                    {config.label}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground/60 font-medium">
-                    #{index + 1}
-                  </span>
-                </div>
-                {hasToolCalls && (
-                  <div className="mb-3 space-y-2">
-                    {toolCalls.map((tool) => (
-                      <div
-                        key={tool.id}
-                        className="rounded-md border bg-background/80 p-2"
-                      >
-                        <p className="text-xs font-medium">
-                          Tool call: <span className="font-mono">{tool.name}</span>
-                        </p>
-                        {tool.argumentsText && (
-                          <pre className="mt-1 text-xs font-mono overflow-x-auto text-muted-foreground">
-                            {tool.argumentsText}
-                          </pre>
-                        )}
-                      </div>
-                    ))}
+                    <span
+                      className={cn(
+                        "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                        config.labelBg,
+                        config.labelText,
+                      )}
+                    >
+                      {config.label}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/60 font-medium">
+                      #{index + 1}
+                    </span>
                   </div>
-                )}
-                {normalizedContent ? (
-                  <MessageContent content={normalizedContent} />
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">
-                    {hasToolCalls
-                      ? "Mensagem com tool call (sem conteúdo textual)"
-                      : "No content"}
-                  </p>
-                )}
-                {msg.role === "tool" && msg.tool_call_id && (
-                  <p className="mt-2 text-[11px] text-muted-foreground">
-                    tool_call_id: <span className="font-mono">{msg.tool_call_id}</span>
-                  </p>
-                )}
+                  {hasToolCalls && (
+                    <div className="mb-3 space-y-2">
+                      {toolCalls.map((tool) => (
+                        <div
+                          key={tool.id}
+                          className="rounded-md border bg-background/80 p-2"
+                        >
+                          <p className="text-xs font-medium">
+                            Tool call:{" "}
+                            <span className="font-mono">{tool.name}</span>
+                          </p>
+                          {tool.argumentsText && (
+                            <pre className="mt-1 text-xs font-mono overflow-x-auto text-muted-foreground">
+                              {tool.argumentsText}
+                            </pre>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {normalizedContent ? (
+                    <MessageContent content={normalizedContent} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">
+                      {hasToolCalls
+                        ? "Mensagem com tool call (sem conteúdo textual)"
+                        : "No content"}
+                    </p>
+                  )}
+                  {msg.role === "tool" && msg.tool_call_id && (
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      tool_call_id:{" "}
+                      <span className="font-mono">{msg.tool_call_id}</span>
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
       </div>
     </div>
   );

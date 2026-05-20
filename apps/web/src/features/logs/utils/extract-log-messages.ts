@@ -15,10 +15,9 @@ export function extractLogMessages(log: SpendLog): ChatMessage[] {
     return log.messages;
   }
 
-  const requestBodyMessages = (log.proxy_server_request as Record<
-    string,
-    unknown
-  > | null)?.messages;
+  const requestBodyMessages = (
+    log.proxy_server_request as Record<string, unknown> | null
+  )?.messages;
 
   if (isChatMessageArray(requestBodyMessages)) {
     return requestBodyMessages;

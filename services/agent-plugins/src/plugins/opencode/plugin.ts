@@ -2,8 +2,8 @@ import type {
   OpenCodePluginConfig,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
-import { DEFAULT_MODEL_NAMES } from "@lite-llm/models-service";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
+import { DEFAULT_MODEL_NAMES } from "@lite-llm/models-service";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import type {
   ConfigField,

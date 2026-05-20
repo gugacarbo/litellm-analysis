@@ -1,6 +1,5 @@
-import { DEFAULT_MODEL_NAMES } from "./generate";
 import type { ModelSlotNames } from "./generate";
-import { escapeRegExp } from "../utils/regex";
+import { DEFAULT_MODEL_NAMES } from "./generate";
 
 /**
  * Check if a model string is a logical model reference for the given key.

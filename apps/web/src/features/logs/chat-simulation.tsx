@@ -23,7 +23,9 @@ export function LogChatSimulationPage() {
   if (!requestId) {
     return (
       <PageLayout title="Chat Simulation" subtitle="Request not found">
-        <p className="text-sm text-muted-foreground">Request ID não informado.</p>
+        <p className="text-sm text-muted-foreground">
+          Request ID não informado.
+        </p>
       </PageLayout>
     );
   }
