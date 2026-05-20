@@ -62,6 +62,12 @@ export async function getSpendByUser(
   return fetchApi(buildAnalyticsEndpoint("/spend/user", params));
 }
 
+export async function getSpendLogDetail(
+  requestId: string,
+): Promise<SpendLog> {
+  return fetchApi(`/spend/logs/${encodeURIComponent(requestId)}`);
+}
+
 export async function getDailySpendTrend(
   params: AnalyticsQueryParams = {},
 ): Promise<{ date: string; spend: number }[]> {

@@ -1,7 +1,7 @@
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -21,27 +21,25 @@ import { formatCurrency, formatDateRange } from "../../utils/dashboard-utils";
 type DailySpendChartProps = {
   data: DailyTrendItem[];
   loading: boolean;
-  rangeLabel: string;
 };
 
 export function DailySpendChart({
   data,
   loading,
-  rangeLabel,
 }: DailySpendChartProps) {
   const granularity = data[0]?.granularity ?? "1d";
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Daily Spend Trend ({rangeLabel})</CardTitle>
+        <CardTitle>Daily Spend Trend</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
           <Skeleton className="h-64 w-full" />
         ) : (
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data}>
+            <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
@@ -55,15 +53,12 @@ export function DailySpendChart({
                 formatter={(v) => formatCurrency(Number(v))}
                 labelFormatter={(label) => formatDateRange(label, granularity)}
               />
-              <Line
-                type="monotone"
+              <Bar
                 dataKey="spend"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                dot={false}
-                connectNulls
+                fill="#3b82f6"
+                radius={[4, 4, 0, 0]}
               />
-            </LineChart>
+            </BarChart>
           </ResponsiveContainer>
         )}
       </CardContent>

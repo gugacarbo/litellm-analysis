@@ -29,14 +29,12 @@ import {
 
 type DashboardTopEntitiesProps = {
   loading: boolean;
-  rangeLabel: string;
   apiKeyStats: ApiKeyStatItem[];
   spendByUser: SpendByUserItem[];
 };
 
 export function DashboardTopEntities({
   loading,
-  rangeLabel,
   apiKeyStats,
   spendByUser,
 }: DashboardTopEntitiesProps) {
@@ -82,7 +80,7 @@ export function DashboardTopEntities({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Entities ({rangeLabel})</CardTitle>
+        <CardTitle>Top Entities</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs value={tab} onValueChange={setTab}>

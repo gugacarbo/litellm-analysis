@@ -9,7 +9,6 @@ import { TokensPerRequestChart } from "./tokens-per-request-chart";
 
 type DashboardEfficiencyChartsProps = {
   loading: boolean;
-  rangeLabel: string;
   costEfficiency: CostEfficiencyItem[];
   dailyTokenTrend: DailyTokenTrendItem[];
   modelStatistics: {
@@ -21,7 +20,6 @@ type DashboardEfficiencyChartsProps = {
 
 export function DashboardEfficiencyCharts({
   loading,
-  rangeLabel,
   costEfficiency,
   dailyTokenTrend,
   modelStatistics,
@@ -31,17 +29,14 @@ export function DashboardEfficiencyCharts({
       <ModelEfficiencyChart loading={loading} costEfficiency={costEfficiency} />
       <TokenTrendChart
         loading={loading}
-        rangeLabel={rangeLabel}
         dailyTokenTrend={dailyTokenTrend}
       />
       <TokensPerRequestChart
         loading={loading}
-        rangeLabel={rangeLabel}
         dailyTokenTrend={dailyTokenTrend}
       />
       <EfficiencyVsSpeedChart
         loading={loading}
-        rangeLabel={rangeLabel}
         costEfficiency={costEfficiency}
         modelStatistics={modelStatistics}
       />

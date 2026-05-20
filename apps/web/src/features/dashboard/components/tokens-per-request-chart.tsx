@@ -26,13 +26,11 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 
 type TokensPerRequestChartProps = {
   loading: boolean;
-  rangeLabel: string;
   dailyTokenTrend: DailyTokenTrendItem[];
 };
 
 export function TokensPerRequestChart({
   loading,
-  rangeLabel,
   dailyTokenTrend,
 }: TokensPerRequestChartProps) {
   const granularity = dailyTokenTrend[0]?.granularity ?? "1d";
@@ -60,7 +58,7 @@ export function TokensPerRequestChart({
     <Card className="lg:col-span-2">
       <CardHeader>
         <CardTitle>
-          Tokens por Request ao Longo do Tempo ({rangeLabel})
+          Tokens por Request ao Longo do Tempo
         </CardTitle>
       </CardHeader>
       <CardContent>

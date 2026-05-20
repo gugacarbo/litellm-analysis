@@ -1,7 +1,7 @@
 import {
-  Area,
-  AreaChart,
+  Bar,
   CartesianGrid,
+  ComposedChart,
   Legend,
   Line,
   ResponsiveContainer,
@@ -23,13 +23,11 @@ import { formatCurrency, formatNumber } from "../../utils/dashboard-utils";
 type HourlyPatternChartProps = {
   data: HourlyPatternItem[];
   loading: boolean;
-  rangeLabel: string;
 };
 
 export function HourlyPatternChart({
   data,
   loading,
-  rangeLabel,
 }: HourlyPatternChartProps) {
   const chartData = Array.from({ length: 24 }, (_, i) => {
     const hourData = data.find((h) => h.hour === i);
@@ -43,14 +41,14 @@ export function HourlyPatternChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Hourly Usage Pattern ({rangeLabel})</CardTitle>
+        <CardTitle>Hourly Usage Pattern</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
           <Skeleton className="h-64 w-full" />
         ) : (
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={chartData}>
+            <ComposedChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="hour" tickFormatter={(v) => `${v}:00`} />
               <YAxis
@@ -72,14 +70,12 @@ export function HourlyPatternChart({
                 }
               />
               <Legend />
-              <Area
-                type="monotone"
+              <Bar
                 dataKey="requests"
                 name="Requests"
                 yAxisId="left"
-                stroke="#8b5cf6"
                 fill="#8b5cf6"
-                fillOpacity={0.3}
+                fillOpacity={0.6}
               />
               <Line
                 type="monotone"
@@ -90,7 +86,7 @@ export function HourlyPatternChart({
                 strokeWidth={2}
                 dot={false}
               />
-            </AreaChart>
+            </ComposedChart>
           </ResponsiveContainer>
         )}
       </CardContent>

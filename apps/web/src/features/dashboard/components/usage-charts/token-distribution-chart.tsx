@@ -22,18 +22,16 @@ import { formatNumber } from "../../utils/dashboard-utils";
 type TokenDistributionChartProps = {
   data: TokenDistributionItem[];
   loading: boolean;
-  rangeLabel: string;
 };
 
 export function TokenDistributionChart({
   data,
   loading,
-  rangeLabel,
 }: TokenDistributionChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Token Distribution by Model ({rangeLabel})</CardTitle>
+        <CardTitle>Token Distribution by Model</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

@@ -38,7 +38,6 @@ type EfficiencyVsSpeedItem = {
 
 type EfficiencyVsSpeedChartProps = {
   loading: boolean;
-  rangeLabel: string;
   costEfficiency: CostEfficiencyItem[];
   modelStatistics: {
     model: string;
@@ -49,7 +48,6 @@ type EfficiencyVsSpeedChartProps = {
 
 export function EfficiencyVsSpeedChart({
   loading,
-  rangeLabel,
   costEfficiency,
   modelStatistics,
 }: EfficiencyVsSpeedChartProps) {
@@ -76,7 +74,7 @@ export function EfficiencyVsSpeedChart({
   return (
     <Card className="lg:col-span-2">
       <CardHeader>
-        <CardTitle>Efficiency vs Speed ({rangeLabel})</CardTitle>
+        <CardTitle>Efficiency vs Speed</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

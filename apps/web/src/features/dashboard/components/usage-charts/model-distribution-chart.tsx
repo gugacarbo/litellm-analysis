@@ -24,18 +24,16 @@ const COLORS = [
 type ModelDistributionChartProps = {
   data: ModelDistributionItem[];
   loading: boolean;
-  rangeLabel: string;
 };
 
 export function ModelDistributionChart({
   data,
   loading,
-  rangeLabel,
 }: ModelDistributionChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Model Usage Distribution ({rangeLabel})</CardTitle>
+        <CardTitle>Model Usage Distribution</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

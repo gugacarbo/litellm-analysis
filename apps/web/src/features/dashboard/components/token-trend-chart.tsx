@@ -25,13 +25,11 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 
 type TokenTrendChartProps = {
   loading: boolean;
-  rangeLabel: string;
   dailyTokenTrend: DailyTokenTrendItem[];
 };
 
 export function TokenTrendChart({
   loading,
-  rangeLabel,
   dailyTokenTrend,
 }: TokenTrendChartProps) {
   const granularity = dailyTokenTrend[0]?.granularity ?? "1d";
@@ -39,7 +37,7 @@ export function TokenTrendChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Token Trend ({rangeLabel})</CardTitle>
+        <CardTitle>Token Trend</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

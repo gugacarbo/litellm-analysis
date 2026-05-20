@@ -11,7 +11,6 @@ import { TokenDistributionChart } from "./usage-charts/token-distribution-chart"
 
 type DashboardUsageChartsProps = {
   loading: boolean;
-  rangeLabel: string;
   variant?: "usage" | "models";
   tokenDistribution: TokenDistributionItem[];
   dailyTrend: DailyTrendItem[];
@@ -21,7 +20,6 @@ type DashboardUsageChartsProps = {
 
 export function DashboardUsageCharts({
   loading,
-  rangeLabel,
   variant = "usage",
   tokenDistribution,
   dailyTrend,
@@ -38,12 +36,10 @@ export function DashboardUsageCharts({
           <DailySpendChart
             data={dailyTrend}
             loading={loading}
-            rangeLabel={rangeLabel}
           />
           <HourlyPatternChart
             data={hourlyPatterns}
             loading={loading}
-            rangeLabel={rangeLabel}
           />
         </div>
       )}
@@ -52,12 +48,10 @@ export function DashboardUsageCharts({
           <TokenDistributionChart
             data={tokenDistribution}
             loading={loading}
-            rangeLabel={rangeLabel}
           />
           <ModelDistributionChart
             data={modelDistribution}
             loading={loading}
-            rangeLabel={rangeLabel}
           />
         </div>
       )}

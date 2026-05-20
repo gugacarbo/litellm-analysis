@@ -106,7 +106,6 @@ export function AppSidebar() {
     { to: "/monitor", icon: Radar, label: "Monitor" },
     { to: "/model-stats", icon: TrendingUp, label: "Stats" },
     { to: "/logs", icon: FileText, label: "Logs" },
-    { to: "/benchmarks", icon: Scale, label: "Benchmarks" },
     {
       id: "agents",
       icon: Bot,
@@ -118,6 +117,7 @@ export function AppSidebar() {
       ],
     },
     { to: "/models", icon: Cpu, label: "Models" },
+    { to: "/benchmarks", icon: Scale, label: "Benchmarks" },
   ];
 
   return (

@@ -26,10 +26,10 @@ export function PageLayout({
   const hasRightContent = (showFilters && filters) || buttons;
 
   return (
-    <div className={`min-w-0 p-2 ${containerClass}`}>
+    <div className={`min-w-0 px-4 ${containerClass}`}>
       <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex-1 min-w-0 p-2">
-          <h1 className="text-2xl font-bold flex items-center gap-2 p-2">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl font-bold flex items-center gap-2 pt-2 pb-2">
             {Icon && <Icon className="h-8 w-8" />}
             {title}
           </h1>
