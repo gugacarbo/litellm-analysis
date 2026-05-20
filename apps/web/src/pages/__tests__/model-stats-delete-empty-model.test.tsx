@@ -1,7 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
+import { renderWithProviders } from "../../__tests__/react-query-test-utils";
 
 const emptyModelStatsResponse = [
   {
@@ -30,14 +30,14 @@ const emptyModelStatsResponse = [
   },
 ];
 
-vi.mock("../../lib/api-client/analytics", () => ({
+vi.mock("@/shared/lib/api-client/analytics", () => ({
   getModelStatistics: vi.fn(),
   getTokenDistribution: vi.fn().mockResolvedValue([]),
   getModelRequestDistribution: vi.fn().mockResolvedValue([]),
   getCostEfficiencyByModel: vi.fn().mockResolvedValue([]),
 }));
 
-vi.mock("../../lib/api-client/models", () => ({
+vi.mock("@/shared/lib/api-client/models", () => ({
   deleteModelLogs: vi.fn(),
   mergeModels: vi.fn().mockResolvedValue(undefined),
 }));
@@ -62,7 +62,7 @@ describe("ModelStatsPage", () => {
   });
 
   it("deletes stats rows with empty model name", async () => {
-    renderWithQueryClient(<ModelStatsPage />);
+    renderWithProviders(<ModelStatsPage />);
 
     const elements = await screen.findAllByText("(no model)");
     expect(elements.length).toBeGreaterThanOrEqual(1);

@@ -176,7 +176,7 @@ const SAMPLE_ALERTS = vi.hoisted(
 );
 
 // Mocks must be at the top level
-vi.mock("@/lib/api-client/monitor", () => ({
+vi.mock("@/shared/lib/api-client/monitor", () => ({
   getMonitorAlerts: vi.fn().mockResolvedValue({
     alerts: SAMPLE_ALERTS,
     total: SAMPLE_ALERTS.length,

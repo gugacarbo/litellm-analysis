@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
+import { renderWithProviders } from "../../__tests__/react-query-test-utils";
 
-vi.mock("../../lib/api-client/analytics", () => ({
+vi.mock("@/shared/lib/api-client/analytics", () => ({
   getModelStatistics: vi.fn().mockResolvedValue([
     {
       model: "gpt-4",
@@ -49,7 +49,7 @@ vi.mock("../../lib/api-client/analytics", () => ({
   ]),
 }));
 
-vi.mock("../../lib/api-client/models", () => ({
+vi.mock("@/shared/lib/api-client/models", () => ({
   deleteModelLogs: vi.fn().mockResolvedValue(undefined),
   mergeModels: vi.fn().mockResolvedValue(undefined),
 }));
@@ -70,7 +70,7 @@ describe("ModelStatsPage", () => {
   });
 
   it("should show delete logs buttons", async () => {
-    renderWithQueryClient(<ModelStatsPage />);
+    renderWithProviders(<ModelStatsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
