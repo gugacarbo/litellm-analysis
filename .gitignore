@@ -58,3 +58,6 @@ __pycache__
 .superpowers/brainstorm
 
 .backups
+
+# OpenCode codebase indexer (regenerable)
+.opencode/index/
