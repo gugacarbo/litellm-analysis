@@ -7,8 +7,6 @@ export const DEFAULT_MODEL_NAMES: ModelSlotNames = [
   "gpt-5.5",
   "gpt-5.4",
   "gpt-5.3",
-  "gpt-5.2",
-  "gpt-5.1",
 ] as const;
 
 function normalizeModel(value: string | undefined): string {

@@ -1,5 +1,7 @@
+export type { ManagedAliasReconcileResult } from "./alias/cleanup";
 export {
   getExistingAliasesForAgent,
+  reconcileManagedAliases,
   replaceAliasesForAgent,
 } from "./alias/cleanup";
 export type { ModelSlotNames } from "./alias/generate";

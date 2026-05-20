@@ -44,3 +44,78 @@ export function replaceAliasesForAgent(
 
   return cleaned;
 }
+
+export interface ManagedAliasReconcileResult {
+  aliases: Record<string, string>;
+  managedAliasKeys: string[];
+}
+
+function getAliasSuffix(aliasKey: string): string {
+  const slashIndex = aliasKey.indexOf("/");
+  if (slashIndex <= 0) {
+    return "";
+  }
+  return aliasKey.slice(slashIndex + 1);
+}
+
+function inferPreviouslyManagedAliasKeys(
+  existingAliases: Record<string, string>,
+  nextManagedAliasKeys: readonly string[],
+): string[] {
+  const slotNames = new Set(
+    nextManagedAliasKeys
+      .map((key) => getAliasSuffix(key))
+      .filter((slot) => slot.length > 0),
+  );
+
+  if (slotNames.size === 0) {
+    return [];
+  }
+
+  return Object.keys(existingAliases).filter((key) => {
+    const suffix = getAliasSuffix(key);
+    return Boolean(suffix) && slotNames.has(suffix);
+  });
+}
+
+/**
+ * Reconcile aliases managed by the agent/category plugin.
+ *
+ * Preserves all non-managed aliases, removes stale managed aliases that are
+ * no longer present, and upserts the latest managed aliases.
+ */
+export function reconcileManagedAliases(
+  existingAliases: Record<string, string>,
+  nextManagedAliases: Record<string, string>,
+  previouslyManagedAliasKeys: readonly string[] = [],
+): ManagedAliasReconcileResult {
+  const reconciled = { ...existingAliases };
+  const nextManagedEntries = Object.entries(nextManagedAliases).filter(
+    ([, value]) => value !== "",
+  );
+  const nextManagedKeySet = new Set(nextManagedEntries.map(([key]) => key));
+  const previousManagedKeys =
+    previouslyManagedAliasKeys.length > 0
+      ? previouslyManagedAliasKeys
+      : inferPreviouslyManagedAliasKeys(
+          existingAliases,
+          Array.from(nextManagedKeySet),
+        );
+
+  for (const key of previousManagedKeys) {
+    if (!nextManagedKeySet.has(key)) {
+      delete reconciled[key];
+    }
+  }
+
+  for (const [key, value] of nextManagedEntries) {
+    reconciled[key] = value;
+  }
+
+  return {
+    aliases: reconciled,
+    managedAliasKeys: Array.from(nextManagedKeySet).sort((a, b) =>
+      a.localeCompare(b),
+    ),
+  };
+}
