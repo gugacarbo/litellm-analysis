@@ -62,9 +62,7 @@ export async function getSpendByUser(
   return fetchApi(buildAnalyticsEndpoint("/spend/user", params));
 }
 
-export async function getSpendLogDetail(
-  requestId: string,
-): Promise<SpendLog> {
+export async function getSpendLogDetail(requestId: string): Promise<SpendLog> {
   return fetchApi(`/spend/logs/${encodeURIComponent(requestId)}`);
 }
 

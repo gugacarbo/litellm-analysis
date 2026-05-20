@@ -25,10 +25,7 @@ type HourlyPatternChartProps = {
   loading: boolean;
 };
 
-export function HourlyPatternChart({
-  data,
-  loading,
-}: HourlyPatternChartProps) {
+export function HourlyPatternChart({ data, loading }: HourlyPatternChartProps) {
   const chartData = Array.from({ length: 24 }, (_, i) => {
     const hourData = data.find((h) => h.hour === i);
     return {

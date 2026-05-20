@@ -27,10 +27,7 @@ export function DashboardEfficiencyCharts({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <ModelEfficiencyChart loading={loading} costEfficiency={costEfficiency} />
-      <TokenTrendChart
-        loading={loading}
-        dailyTokenTrend={dailyTokenTrend}
-      />
+      <TokenTrendChart loading={loading} dailyTokenTrend={dailyTokenTrend} />
       <TokensPerRequestChart
         loading={loading}
         dailyTokenTrend={dailyTokenTrend}

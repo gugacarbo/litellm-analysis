@@ -57,9 +57,7 @@ export function TokensPerRequestChart({
   return (
     <Card className="lg:col-span-2">
       <CardHeader>
-        <CardTitle>
-          Tokens por Request ao Longo do Tempo
-        </CardTitle>
+        <CardTitle>Tokens por Request ao Longo do Tempo</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

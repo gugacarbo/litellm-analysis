@@ -33,26 +33,14 @@ export function DashboardUsageCharts({
     <>
       {showUsage && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <DailySpendChart
-            data={dailyTrend}
-            loading={loading}
-          />
-          <HourlyPatternChart
-            data={hourlyPatterns}
-            loading={loading}
-          />
+          <DailySpendChart data={dailyTrend} loading={loading} />
+          <HourlyPatternChart data={hourlyPatterns} loading={loading} />
         </div>
       )}
       {showModels && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <TokenDistributionChart
-            data={tokenDistribution}
-            loading={loading}
-          />
-          <ModelDistributionChart
-            data={modelDistribution}
-            loading={loading}
-          />
+          <TokenDistributionChart data={tokenDistribution} loading={loading} />
+          <ModelDistributionChart data={modelDistribution} loading={loading} />
         </div>
       )}
     </>

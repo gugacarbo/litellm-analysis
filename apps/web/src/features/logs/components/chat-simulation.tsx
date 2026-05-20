@@ -119,10 +119,7 @@ function MessageContent({ content }: { content: string }) {
             </pre>
           </div>
         ) : (
-          <p
-            key={idx}
-            className="text-sm whitespace-pre-wrap leading-relaxed"
-          >
+          <p key={idx} className="text-sm whitespace-pre-wrap leading-relaxed">
             {segment.value || (
               <span className="text-muted-foreground italic">No content</span>
             )}
@@ -167,9 +164,7 @@ export function ChatSimulation({ messages }: ChatSimulationProps) {
             >
               {config.label.slice(0, 1)}
             </div>
-            <div
-              className={cn("flex-1 max-w-[85%]", isRight && "items-end")}
-            >
+            <div className={cn("flex-1 max-w-[85%]", isRight && "items-end")}>
               <div
                 className={cn(
                   "rounded-xl border p-3.5",

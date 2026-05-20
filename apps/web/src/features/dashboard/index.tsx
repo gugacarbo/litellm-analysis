@@ -37,10 +37,7 @@ export function DashboardPage() {
   } = useDashboardData();
 
   return (
-    <PageLayout
-      title="Dashboard"
-      icon={Activity}
-    >
+    <PageLayout title="Dashboard" icon={Activity}>
       <div className="space-y-4">
         {error ? (
           <Card className="border-destructive/40 bg-destructive/5">

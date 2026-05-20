@@ -61,10 +61,7 @@ export function LogDetailPage() {
           <div className="h-4 bg-muted rounded w-2/3" />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-24 bg-muted rounded-lg"
-              />
+              <div key={i} className="h-24 bg-muted rounded-lg" />
             ))}
           </div>
           <div className="h-32 bg-muted rounded-lg" />

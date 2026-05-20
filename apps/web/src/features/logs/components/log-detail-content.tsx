@@ -6,8 +6,8 @@ import {
   Copy,
   DollarSign,
   FileText,
-  MessageSquare,
   MessageCircle,
+  MessageSquare,
   Timer,
   TrendingUp,
   Zap,
@@ -16,7 +16,12 @@ import { useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
 import { JsonViewer } from "@/shared/components/ui/json-viewer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import {
   calculateTokensPerSecond,
   formatCurrency,
@@ -331,11 +336,7 @@ export function LogDetailContent({ log }: LogDetailContentProps) {
       )}
 
       {log.request_tags && log.request_tags.length > 0 && (
-        <CollapsibleSection
-          title="Request Tags"
-          icon={Zap}
-          defaultOpen={false}
-        >
+        <CollapsibleSection title="Request Tags" icon={Zap} defaultOpen={false}>
           <div className="flex flex-wrap gap-2">
             {log.request_tags.map((tag, index) => (
               <Badge key={index} variant="outline">
