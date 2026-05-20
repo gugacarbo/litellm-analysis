@@ -1,3 +1,4 @@
+import type { ConfigField } from "@lite-llm/contracts/agent-catalog";
 import {
   Check,
   ChevronDown,
@@ -6,7 +7,6 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import type { ConfigField } from "@lite-llm/contracts/agent-catalog";
 import { Button } from "@/shared/components/ui/button";
 import {
   Collapsible,
@@ -55,8 +55,7 @@ const WEAVE_AGENTS: WeaveAgentMeta[] = [
   {
     id: "pattern",
     displayName: "Pattern (Planejador Estratégico)",
-    description:
-      "Strategic planner — produces .weave/plans/ files",
+    description: "Strategic planner — produces .weave/plans/ files",
     color: "#9B59B6",
     category: "deep",
   },
@@ -71,42 +70,54 @@ const WEAVE_AGENTS: WeaveAgentMeta[] = [
   {
     id: "thread",
     displayName: "Thread (Explorador de Código)",
-    description:
-      "Codebase explorer — fast, read-only analysis and search",
+    description: "Codebase explorer — fast, read-only analysis and search",
     color: "#27AE60",
     category: "quick",
   },
   {
     id: "spindle",
     displayName: "Spindle (Pesquisador Externo)",
-    description:
-      "External researcher — web fetching and research",
+    description: "External researcher — web fetching and research",
     color: "#F39C12",
     category: "quick",
   },
   {
     id: "weft",
     displayName: "Weft (Revisor de Qualidade)",
-    description:
-      "Quality reviewer and auditor",
+    description: "Quality reviewer and auditor",
     color: "#1ABC9C",
     category: "deep",
   },
   {
     id: "warp",
     displayName: "Warp (Auditor de Segurança)",
-    description:
-      "Security auditor",
+    description: "Security auditor",
     color: "#E74C3C",
     category: "deep",
   },
 ];
 
 const WEAVE_CATEGORIES = [
-  { id: "deep", label: "Deep", description: "Autonomous goal-oriented problem solving." },
-  { id: "quick", label: "Quick", description: "Fast handling for small and low-complexity tasks." },
-  { id: "visual-engineering", label: "Visual Engineering", description: "Frontend, UI/UX, styling, and visual implementation." },
-  { id: "writing", label: "Writing", description: "Technical writing, documentation, and clear communication." },
+  {
+    id: "deep",
+    label: "Deep",
+    description: "Autonomous goal-oriented problem solving.",
+  },
+  {
+    id: "quick",
+    label: "Quick",
+    description: "Fast handling for small and low-complexity tasks.",
+  },
+  {
+    id: "visual-engineering",
+    label: "Visual Engineering",
+    description: "Frontend, UI/UX, styling, and visual implementation.",
+  },
+  {
+    id: "writing",
+    label: "Writing",
+    description: "Technical writing, documentation, and clear communication.",
+  },
 ];
 
 // ── Props ──
@@ -118,7 +129,10 @@ interface WeaveConfigPageProps {
   agentMappings: Record<string, string>;
   categoryMappings: Record<string, boolean>;
   systemAgents: SystemAgentOption[];
-  onAgentMappingChange: (internalAgentId: string, systemAgentKey: string) => void;
+  onAgentMappingChange: (
+    internalAgentId: string,
+    systemAgentKey: string,
+  ) => void;
   onCategoryToggle: (categoryId: string) => void;
 }
 
@@ -145,16 +159,13 @@ export function WeaveConfigPage({
     (config.continuationRecoveryCompaction as boolean) ?? true;
   const idleEnabled = (config.continuationIdleEnabled as boolean) ?? true;
   const idleWork = (config.continuationIdleWork as boolean) ?? true;
-  const idleTodoPrompt =
-    (config.continuationIdleTodoPrompt as boolean) ?? true;
-  const permissionQuestion =
-    (config.permissionQuestion as string) ?? "allow";
-  const skillDirs =
-    (config.skillDirectories as string[]) ?? [
-      "~/.agents/skills",
-      "~/.claude/skills",
-      "~/.opencode/skills",
-    ];
+  const idleTodoPrompt = (config.continuationIdleTodoPrompt as boolean) ?? true;
+  const permissionQuestion = (config.permissionQuestion as string) ?? "allow";
+  const skillDirs = (config.skillDirectories as string[]) ?? [
+    "~/.agents/skills",
+    "~/.claude/skills",
+    "~/.opencode/skills",
+  ];
 
   // ── Preview JSON ──
   const previewJson = useMemo(() => {
@@ -379,9 +390,7 @@ export function WeaveConfigPage({
                 <span className="text-sm text-muted-foreground">Work</span>
                 <Switch
                   checked={idleWork}
-                  onCheckedChange={(v) =>
-                    onChange("continuationIdleWork", v)
-                  }
+                  onCheckedChange={(v) => onChange("continuationIdleWork", v)}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -429,7 +438,6 @@ export function WeaveConfigPage({
 
       {/* ── Agent Routing ── */}
 
-
       {/* ── Agent Routing ── */}
       <section className="space-y-4">
         <h3 className="text-lg font-medium">Agent Routing</h3>
@@ -455,7 +463,9 @@ export function WeaveConfigPage({
                 {/* Agent info */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{wa.displayName}</span>
+                    <span className="text-sm font-medium">
+                      {wa.displayName}
+                    </span>
                     <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
                       {wa.category}
                     </span>
@@ -476,9 +486,7 @@ export function WeaveConfigPage({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none">
-                      <span className="text-muted-foreground">
-                        None
-                      </span>
+                      <span className="text-muted-foreground">None</span>
                     </SelectItem>
                     {systemAgents.map((sa) => (
                       <SelectItem key={sa.key} value={sa.key}>
@@ -504,10 +512,7 @@ export function WeaveConfigPage({
           {WEAVE_CATEGORIES.map((wc) => {
             const enabled = categoryMappings[wc.id] ?? false;
             return (
-              <div
-                key={wc.id}
-                className="flex items-center justify-between"
-              >
+              <div key={wc.id} className="flex items-center justify-between">
                 <div>
                   <span className="text-sm font-medium">{wc.label}</span>
                   <p className="text-xs text-muted-foreground">

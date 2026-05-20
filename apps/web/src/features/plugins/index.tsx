@@ -9,8 +9,8 @@ import { CategoryExportList } from "./components/category-export-list";
 import { LitellmAliasRoutingTable } from "./components/litellm-alias-routing-table";
 import { PluginConfigForm } from "./components/plugin-config-form";
 import { OpenCodeConfigPage } from "./opencode-config";
-import { WeaveConfigPage } from "./weave-config";
 import { usePluginConfigPage } from "./use-plugin-config-page";
+import { WeaveConfigPage } from "./weave-config";
 
 export function PluginConfigPage() {
   const { pluginId } = useParams() as { pluginId?: string };

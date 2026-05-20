@@ -1,6 +1,6 @@
 import type {
-  WeavePluginConfig,
   SystemAgent,
+  WeavePluginConfig,
 } from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import type {
@@ -52,23 +52,100 @@ interface WeaveConfigOutput {
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4", "gpt-5.3"] as const;
 
 // ── Weave internal agents ──
-const WEAVE_AGENTS: { id: string; displayName: string; description: string; color: string; category: string }[] = [
-  { id: "loom", displayName: "Loom (Orquestrador Principal)", description: "Main orchestrator — primary user-facing interface that understands requests, routes work, and coordinates results", color: "#4A90D9", category: "deep" },
-  { id: "tapestry", displayName: "Tapestry (Orquestrador de Execução)", description: "Plan execution orchestrator — delegates plan tasks to Shuttle, verifies results, and tracks progress", color: "#D94A4A", category: "deep" },
-  { id: "pattern", displayName: "Pattern (Planejador Estratégico)", description: "Strategic planner — produces .weave/plans/ files", color: "#9B59B6", category: "deep" },
-  { id: "shuttle", displayName: "Shuttle (Especialista de Domínio)", description: "Domain specialist worker — handles delegated implementation and analysis tasks", color: "#E67E22", category: "deep" },
-  { id: "thread", displayName: "Thread (Explorador de Código)", description: "Codebase explorer — fast, read-only analysis and search", color: "#27AE60", category: "quick" },
-  { id: "spindle", displayName: "Spindle (Pesquisador Externo)", description: "External researcher — web fetching and research", color: "#F39C12", category: "quick" },
-  { id: "weft", displayName: "Weft (Revisor de Qualidade)", description: "Quality reviewer and auditor", color: "#1ABC9C", category: "deep" },
-  { id: "warp", displayName: "Warp (Auditor de Segurança)", description: "Security auditor", color: "#E74C3C", category: "deep" },
+const WEAVE_AGENTS: {
+  id: string;
+  displayName: string;
+  description: string;
+  color: string;
+  category: string;
+}[] = [
+  {
+    id: "loom",
+    displayName: "Loom (Orquestrador Principal)",
+    description:
+      "Main orchestrator — primary user-facing interface that understands requests, routes work, and coordinates results",
+    color: "#4A90D9",
+    category: "deep",
+  },
+  {
+    id: "tapestry",
+    displayName: "Tapestry (Orquestrador de Execução)",
+    description:
+      "Plan execution orchestrator — delegates plan tasks to Shuttle, verifies results, and tracks progress",
+    color: "#D94A4A",
+    category: "deep",
+  },
+  {
+    id: "pattern",
+    displayName: "Pattern (Planejador Estratégico)",
+    description: "Strategic planner — produces .weave/plans/ files",
+    color: "#9B59B6",
+    category: "deep",
+  },
+  {
+    id: "shuttle",
+    displayName: "Shuttle (Especialista de Domínio)",
+    description:
+      "Domain specialist worker — handles delegated implementation and analysis tasks",
+    color: "#E67E22",
+    category: "deep",
+  },
+  {
+    id: "thread",
+    displayName: "Thread (Explorador de Código)",
+    description: "Codebase explorer — fast, read-only analysis and search",
+    color: "#27AE60",
+    category: "quick",
+  },
+  {
+    id: "spindle",
+    displayName: "Spindle (Pesquisador Externo)",
+    description: "External researcher — web fetching and research",
+    color: "#F39C12",
+    category: "quick",
+  },
+  {
+    id: "weft",
+    displayName: "Weft (Revisor de Qualidade)",
+    description: "Quality reviewer and auditor",
+    color: "#1ABC9C",
+    category: "deep",
+  },
+  {
+    id: "warp",
+    displayName: "Warp (Auditor de Segurança)",
+    description: "Security auditor",
+    color: "#E74C3C",
+    category: "deep",
+  },
 ];
 
 // ── Weave categories ──
-const WEAVE_CATEGORIES: { id: string; description: string; temperature: number }[] = [
-  { id: "deep", description: "Autonomous goal-oriented problem solving.", temperature: 0.2 },
-  { id: "quick", description: "Fast handling for small and low-complexity tasks.", temperature: 0.1 },
-  { id: "visual-engineering", description: "Frontend, UI/UX, styling, and visual implementation.", temperature: 0.3 },
-  { id: "writing", description: "Technical writing, documentation, and clear communication.", temperature: 0.2 },
+const WEAVE_CATEGORIES: {
+  id: string;
+  description: string;
+  temperature: number;
+}[] = [
+  {
+    id: "deep",
+    description: "Autonomous goal-oriented problem solving.",
+    temperature: 0.2,
+  },
+  {
+    id: "quick",
+    description: "Fast handling for small and low-complexity tasks.",
+    temperature: 0.1,
+  },
+  {
+    id: "visual-engineering",
+    description: "Frontend, UI/UX, styling, and visual implementation.",
+    temperature: 0.3,
+  },
+  {
+    id: "writing",
+    description: "Technical writing, documentation, and clear communication.",
+    temperature: 0.2,
+  },
 ];
 
 export class WeavePlugin implements IPlugin<"weave"> {
@@ -92,7 +169,8 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "string",
         label: "Schema URL",
         required: false,
-        default: "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
+        default:
+          "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
         placeholder: "weave config schema URL",
         description: "JSON Schema URL for the generated weave config",
       },
@@ -102,7 +180,10 @@ export class WeavePlugin implements IPlugin<"weave"> {
         label: "Log Level",
         required: false,
         default: "INFO",
-        options: ["DEBUG", "INFO", "WARN", "ERROR"].map((v) => ({ value: v, label: v })),
+        options: ["DEBUG", "INFO", "WARN", "ERROR"].map((v) => ({
+          value: v,
+          label: v,
+        })),
         description: "Logging verbosity level for Weave",
       },
       {
@@ -195,7 +276,8 @@ export class WeavePlugin implements IPlugin<"weave"> {
     routing: TypedPluginRouting<PluginConfigFor<"weave">>,
     ctx: TransformContext,
   ): WeaveConfigOutput {
-    const config: WeavePluginConfig = (routing.config ?? {}) as WeavePluginConfig;
+    const config: WeavePluginConfig = (routing.config ??
+      {}) as WeavePluginConfig;
     const schemaUrl =
       config.$schema ??
       "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json";
@@ -220,12 +302,11 @@ export class WeavePlugin implements IPlugin<"weave"> {
         },
       },
       permission: { question: config.permissionQuestion ?? "allow" },
-      skill_directories:
-        config.skillDirectories ?? [
-          "~/.agents/skills",
-          "~/.claude/skills",
-          "~/.opencode/skills",
-        ],
+      skill_directories: config.skillDirectories ?? [
+        "~/.agents/skills",
+        "~/.claude/skills",
+        "~/.opencode/skills",
+      ],
     };
 
     // Build agent routing map: systemAgentId -> weaveAgentId
@@ -236,7 +317,10 @@ export class WeavePlugin implements IPlugin<"weave"> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for (const agent of agents as any[]) {
       // SystemAgent has id field at top level
-      const systemId: string = (agent as Record<string, unknown>).id as string ?? agent.displayName ?? "";
+      const systemId: string =
+        ((agent as Record<string, unknown>).id as string) ??
+        agent.displayName ??
+        "";
       if (systemId) systemAgentMap.set(systemId, agent);
     }
 
@@ -282,7 +366,9 @@ export class WeavePlugin implements IPlugin<"weave"> {
         description: systemCat?.description ?? weaveCat.description,
         model: models[0] ?? catModel,
         fallback_models: models.slice(1),
-        temperature: (systemCat as Record<string, unknown>)?.temperature as number ?? weaveCat.temperature,
+        temperature:
+          ((systemCat as Record<string, unknown>)?.temperature as number) ??
+          weaveCat.temperature,
       };
     }
 
