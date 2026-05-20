@@ -43,7 +43,7 @@ describe("createRepositoryClient fallback", () => {
   });
 
   it("copies agents.default.json when config file is missing", async () => {
-    const jsonPath = path.join(tmpDir, "@settings", "agents", "agents.json");
+    const _jsonPath = path.join(tmpDir, "@settings", "agents", "agents.json");
     const jsoncPath = path.join(tmpDir, "@settings", "agents", "agents.jsonc");
     const defaultPath = path.join(
       tmpDir,

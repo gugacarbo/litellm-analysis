@@ -30,10 +30,8 @@ function createMockRepository(): IAgentsRepository {
 function createMockPlugin(
   overrides: {
     id?: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    buildOutput?: (...args: any[]) => any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    validate?: (output: any) => boolean;
+    buildOutput?: (...args: unknown[]) => unknown;
+    validate?: (output: unknown) => boolean;
   } = {},
 ): IPlugin {
   return {
@@ -257,8 +255,7 @@ describe("PluginRegistry", () => {
         allPlugins: [],
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const buildOutputSpy = vi.fn().mockReturnValue({ result: true }) as any;
+      const buildOutputSpy = vi.fn((..._args: unknown[]) => ({ result: true }));
       const plugin = createMockPlugin({ buildOutput: buildOutputSpy });
       registry.register(plugin);
 
@@ -266,8 +263,8 @@ describe("PluginRegistry", () => {
 
       expect(buildOutputSpy).toHaveBeenCalledOnce();
       const callArgs = buildOutputSpy.mock.calls[0];
-      const agents = callArgs[0];
-      const routing = callArgs[1];
+      const agents = callArgs[0] as { displayName: string }[];
+      const routing = callArgs[1] as { enabled: boolean; outputFile: string };
       expect(agents).toHaveLength(1);
       expect(agents[0].displayName).toBe("Builder");
       expect(routing.enabled).toBe(true);
@@ -288,8 +285,7 @@ describe("PluginRegistry", () => {
 
     it("carrega allModels e litellmConfig do models repository", async () => {
       const mockRepo = createMockRepository();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const buildOutputSpy = vi.fn().mockReturnValue({ result: true }) as any;
+      const buildOutputSpy = vi.fn((..._args: unknown[]) => ({ result: true }));
       const plugin = createMockPlugin({ buildOutput: buildOutputSpy });
 
       const registry = new PluginRegistry({
