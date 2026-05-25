@@ -2,6 +2,11 @@ import type {
   OpenAgentPluginConfig,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import {
+  OPENAGENT_COMMIT_FOOTER_DEFAULT,
+  OPENAGENT_INCLUDE_CO_AUTHORED_BY_DEFAULT,
+  OPENAGENT_SCHEMA_URL_DEFAULT,
+} from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import { normalizeAgentMappings } from "../plugin";
 import type {
@@ -45,7 +50,7 @@ export class OpenAgentPlugin implements IPlugin<"openagent"> {
         type: "boolean",
         label: "Commit Footer",
         required: false,
-        default: false,
+        default: OPENAGENT_COMMIT_FOOTER_DEFAULT,
         description: "Add footer to commit messages",
       },
       {
@@ -53,7 +58,7 @@ export class OpenAgentPlugin implements IPlugin<"openagent"> {
         type: "boolean",
         label: "Include Co-Authored-By",
         required: false,
-        default: false,
+        default: OPENAGENT_INCLUDE_CO_AUTHORED_BY_DEFAULT,
         description: "Include co-authored-by trailer in commits",
       },
     ];
@@ -66,16 +71,16 @@ export class OpenAgentPlugin implements IPlugin<"openagent"> {
   ): OpenAgentOutput {
     const config: OpenAgentPluginConfig = (routing.config ??
       {}) as OpenAgentPluginConfig;
-    const schemaUrl =
-      config.$schema ??
-      "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json";
+    const schemaUrl = config.$schema ?? OPENAGENT_SCHEMA_URL_DEFAULT;
 
     const output: OpenAgentOutput = {
       $schema: schemaUrl,
       globalFallbackModel: ctx.globalFallbackModel,
       git_master: {
-        commit_footer: config.commitFooter ?? false,
-        include_co_authored_by: config.includeCoAuthoredBy ?? false,
+        commit_footer: config.commitFooter ?? OPENAGENT_COMMIT_FOOTER_DEFAULT,
+        include_co_authored_by:
+          config.includeCoAuthoredBy ??
+          OPENAGENT_INCLUDE_CO_AUTHORED_BY_DEFAULT,
       },
       agents: {},
       categories: {},

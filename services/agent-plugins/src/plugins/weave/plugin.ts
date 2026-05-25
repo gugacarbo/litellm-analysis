@@ -2,6 +2,19 @@ import type {
   SystemAgent,
   WeavePluginConfig,
 } from "@lite-llm/agents-repository/schemas";
+import {
+  WEAVE_ANALYTICS_ENABLED_DEFAULT,
+  WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
+  WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
+  WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
+  WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
+  WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
+  WEAVE_LOG_LEVEL_DEFAULT,
+  WEAVE_PERMISSION_QUESTION_DEFAULT,
+  WEAVE_SCHEMA_URL_DEFAULT,
+  WEAVE_SKILL_DIRECTORIES_DEFAULT,
+  WEAVE_TMUX_ENABLED_DEFAULT,
+} from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import { normalizeAgentMappings } from "../plugin";
 import type {
@@ -43,14 +56,13 @@ interface WeaveConfigOutput {
       todo_prompt: boolean;
     };
   };
-  permission: { question: string };
   skill_directories: string[];
   agents: Record<string, WeaveAgentOutput>;
   categories: Record<string, WeaveCategoryOutput>;
 }
 
-// ── Default model slot names (primary + 2 fallbacks) ──
-const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4", "gpt-5.3"] as const;
+// ── Default model slot names (primary + 1 fallback) ──
+const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
 
 // ── Weave internal agents ──
 const WEAVE_AGENTS: {
@@ -62,7 +74,7 @@ const WEAVE_AGENTS: {
 }[] = [
   {
     id: "loom",
-    displayName: "Loom (Orquestrador Principal)",
+    displayName: "Loom",
     description:
       "Main orchestrator — primary user-facing interface that understands requests, routes work, and coordinates results",
     color: "#4A90D9",
@@ -70,7 +82,7 @@ const WEAVE_AGENTS: {
   },
   {
     id: "tapestry",
-    displayName: "Tapestry (Orquestrador de Execução)",
+    displayName: "Tapestry",
     description:
       "Plan execution orchestrator — delegates plan tasks to Shuttle, verifies results, and tracks progress",
     color: "#D94A4A",
@@ -78,14 +90,14 @@ const WEAVE_AGENTS: {
   },
   {
     id: "pattern",
-    displayName: "Pattern (Planejador Estratégico)",
+    displayName: "Pattern",
     description: "Strategic planner — produces .weave/plans/ files",
     color: "#9B59B6",
     category: "deep",
   },
   {
     id: "shuttle",
-    displayName: "Shuttle (Especialista de Domínio)",
+    displayName: "Shuttle",
     description:
       "Domain specialist worker — handles delegated implementation and analysis tasks",
     color: "#E67E22",
@@ -93,59 +105,31 @@ const WEAVE_AGENTS: {
   },
   {
     id: "thread",
-    displayName: "Thread (Explorador de Código)",
+    displayName: "Thread",
     description: "Codebase explorer — fast, read-only analysis and search",
     color: "#27AE60",
     category: "quick",
   },
   {
     id: "spindle",
-    displayName: "Spindle (Pesquisador Externo)",
+    displayName: "Spindle",
     description: "External researcher — web fetching and research",
     color: "#F39C12",
     category: "quick",
   },
   {
     id: "weft",
-    displayName: "Weft (Revisor de Qualidade)",
+    displayName: "Weft",
     description: "Quality reviewer and auditor",
     color: "#1ABC9C",
     category: "deep",
   },
   {
     id: "warp",
-    displayName: "Warp (Auditor de Segurança)",
+    displayName: "Warp",
     description: "Security auditor",
     color: "#E74C3C",
     category: "deep",
-  },
-];
-
-// ── Weave categories ──
-const WEAVE_CATEGORIES: {
-  id: string;
-  description: string;
-  temperature: number;
-}[] = [
-  {
-    id: "deep",
-    description: "Autonomous goal-oriented problem solving.",
-    temperature: 0.2,
-  },
-  {
-    id: "quick",
-    description: "Fast handling for small and low-complexity tasks.",
-    temperature: 0.1,
-  },
-  {
-    id: "visual-engineering",
-    description: "Frontend, UI/UX, styling, and visual implementation.",
-    temperature: 0.3,
-  },
-  {
-    id: "writing",
-    description: "Technical writing, documentation, and clear communication.",
-    temperature: 0.2,
   },
 ];
 
@@ -170,8 +154,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "string",
         label: "Schema URL",
         required: false,
-        default:
-          "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
+        default: WEAVE_SCHEMA_URL_DEFAULT,
         placeholder: "weave config schema URL",
         description: "JSON Schema URL for the generated weave config",
       },
@@ -180,7 +163,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "select",
         label: "Log Level",
         required: false,
-        default: "INFO",
+        default: WEAVE_LOG_LEVEL_DEFAULT,
         options: ["DEBUG", "INFO", "WARN", "ERROR"].map((v) => ({
           value: v,
           label: v,
@@ -192,7 +175,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "boolean",
         label: "Tmux Enabled",
         required: false,
-        default: true,
+        default: WEAVE_TMUX_ENABLED_DEFAULT,
         description: "Enable tmux session management",
       },
       {
@@ -200,7 +183,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "boolean",
         label: "Analytics Enabled",
         required: false,
-        default: true,
+        default: WEAVE_ANALYTICS_ENABLED_DEFAULT,
         description: "Enable usage analytics collection",
       },
       {
@@ -208,7 +191,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "boolean",
         label: "Analytics Use Fingerprint",
         required: false,
-        default: true,
+        default: WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
         description: "Use fingerprint for analytics tracking",
       },
       {
@@ -216,7 +199,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "boolean",
         label: "Continuation Recovery Compaction",
         required: false,
-        default: true,
+        default: WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
         description: "Enable context compaction during recovery",
       },
       {
@@ -224,7 +207,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "boolean",
         label: "Continuation Idle Enabled",
         required: false,
-        default: true,
+        default: WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
         description: "Enable idle continuation processing",
       },
       {
@@ -232,7 +215,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "boolean",
         label: "Continuation Idle Work",
         required: false,
-        default: true,
+        default: WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
         description: "Allow work during idle periods",
       },
       {
@@ -240,7 +223,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "boolean",
         label: "Continuation Idle Todo Prompt",
         required: false,
-        default: true,
+        default: WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
         description: "Show todo prompt during idle",
       },
       {
@@ -248,7 +231,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "select",
         label: "Permission Question Behavior",
         required: false,
-        default: "allow",
+        default: WEAVE_PERMISSION_QUESTION_DEFAULT,
         options: [
           { value: "allow", label: "Allow" },
           { value: "deny", label: "Deny" },
@@ -261,7 +244,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
         type: "multiselect",
         label: "Skill Directories",
         required: false,
-        default: ["~/.agents/skills", "~/.claude/skills", "~/.opencode/skills"],
+        default: [...WEAVE_SKILL_DIRECTORIES_DEFAULT],
         options: [
           { value: "~/.agents/skills", label: "~/.agents/skills" },
           { value: "~/.claude/skills", label: "~/.claude/skills" },
@@ -279,39 +262,44 @@ export class WeavePlugin implements IPlugin<"weave"> {
   ): WeaveConfigOutput {
     const config: WeavePluginConfig = (routing.config ??
       {}) as WeavePluginConfig;
-    const schemaUrl =
-      config.$schema ??
-      "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json";
+    const schemaUrl = config.$schema ?? WEAVE_SCHEMA_URL_DEFAULT;
 
     const modelNames = ctx.modelNames ?? DEFAULT_MODEL_NAMES;
 
     const baseOutput: Omit<WeaveConfigOutput, "agents" | "categories"> = {
       $schema: schemaUrl,
-      log_level: config.logLevel ?? "INFO",
-      tmux: { enabled: config.tmuxEnabled ?? true },
+      log_level: config.logLevel ?? WEAVE_LOG_LEVEL_DEFAULT,
+      tmux: { enabled: config.tmuxEnabled ?? WEAVE_TMUX_ENABLED_DEFAULT },
       analytics: {
-        enabled: config.analyticsEnabled ?? true,
-        use_fingerprint: config.analyticsUseFingerprint ?? true,
+        enabled: config.analyticsEnabled ?? WEAVE_ANALYTICS_ENABLED_DEFAULT,
+        use_fingerprint:
+          config.analyticsUseFingerprint ??
+          WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
       },
       continuation: {
-        recovery: { compaction: config.continuationRecoveryCompaction ?? true },
+        recovery: {
+          compaction:
+            config.continuationRecoveryCompaction ??
+            WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
+        },
         idle: {
-          enabled: config.continuationIdleEnabled ?? true,
-          work: config.continuationIdleWork ?? true,
+          enabled:
+            config.continuationIdleEnabled ??
+            WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
+          work:
+            config.continuationIdleWork ?? WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
           workflow: true,
-          todo_prompt: config.continuationIdleTodoPrompt ?? true,
+          todo_prompt:
+            config.continuationIdleTodoPrompt ??
+            WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
         },
       },
-      permission: { question: config.permissionQuestion ?? "allow" },
       skill_directories: config.skillDirectories ?? [
-        "~/.agents/skills",
-        "~/.claude/skills",
-        "~/.opencode/skills",
+        ...WEAVE_SKILL_DIRECTORIES_DEFAULT,
       ],
     };
 
-    // Build agent routing map: systemAgentId -> weaveAgentId[]
-    // Supports 1→N: one system agent can map to multiple weave agents
+    // Agent routing: weaveAgentId -> systemAgentId (UI / plugins.jsonc format)
     const rawAgentMappings: Record<string, string | string[]> =
       (routing.routing?.agents as Record<string, string | string[]>) ?? {};
     const agentMappings = normalizeAgentMappings(rawAgentMappings);
@@ -332,11 +320,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
     const outputAgents: Record<string, WeaveAgentOutput> = {};
 
     for (const weaveAgent of WEAVE_AGENTS) {
-      // Find which system agent is mapped to this weave agent
-      // (takes first match in case multiple system agents map to same weave agent)
-      const systemAgentId = Object.entries(agentMappings).find(
-        ([, weaveIds]) => weaveIds.includes(weaveAgent.id),
-      )?.[0];
+      const systemAgentId = agentMappings[weaveAgent.id]?.[0];
       if (!systemAgentId) continue;
 
       const systemAgent = systemAgentMap.get(systemAgentId);
@@ -344,7 +328,7 @@ export class WeavePlugin implements IPlugin<"weave"> {
 
       const model = systemAgent.model ?? "";
       const models = model
-        ? this.resolveModels(weaveAgent.id, modelNames, ctx)
+        ? this.resolveModels(systemAgentId, modelNames, ctx)
         : [];
 
       outputAgents[weaveAgent.id] = {
@@ -352,29 +336,32 @@ export class WeavePlugin implements IPlugin<"weave"> {
         model: models[0] ?? model,
         fallback_models: models.slice(1),
         temperature: systemAgent.config?.temperature ?? 0.2,
-        color: systemAgent.config?.color || weaveAgent.color,
+        color: systemAgent.config?.color ?? "",
         category: weaveAgent.category,
       };
     }
 
-    // Build weave categories output
+    // Build weave categories output from plugin routing config.
+    // Categories are dynamic and only emitted when enabled in
+    // routing.categories.
     const outputCategories: Record<string, WeaveCategoryOutput> = {};
+    const categoryRouting = routing.routing?.categories ?? {};
+    for (const [categoryId, enabled] of Object.entries(categoryRouting)) {
+      if (!enabled) continue;
 
-    for (const weaveCat of WEAVE_CATEGORIES) {
-      const systemCat = ctx.allCategories?.[weaveCat.id];
-      const catModel = systemCat?.model ?? "";
+      const systemCat = ctx.allCategories?.[categoryId];
+      if (!systemCat) continue;
 
+      const catModel = systemCat.model ?? "";
       const models = catModel
-        ? this.resolveModels(weaveCat.id, modelNames, ctx)
+        ? this.resolveModels(categoryId, modelNames, ctx)
         : [];
 
-      outputCategories[weaveCat.id] = {
-        description: systemCat?.description ?? weaveCat.description,
+      outputCategories[categoryId] = {
+        description: systemCat.description ?? "",
         model: models[0] ?? catModel,
         fallback_models: models.slice(1),
-        temperature:
-          ((systemCat as Record<string, unknown>)?.temperature as number) ??
-          weaveCat.temperature,
+        temperature: systemCat.temperature ?? 0.2,
       };
     }
 

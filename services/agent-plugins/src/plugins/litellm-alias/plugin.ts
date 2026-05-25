@@ -2,6 +2,13 @@ import type {
   LitellmAliasPluginConfig,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import {
+  LITELLM_ALIAS_GLOBAL_FALLBACK_OVERRIDE_DEFAULT,
+  LITELLM_ALIAS_INCLUDE_AGENTS_DEFAULT,
+  LITELLM_ALIAS_INCLUDE_CATEGORIES_DEFAULT,
+  LITELLM_ALIAS_PREFIX_DEFAULT,
+  LITELLM_ALIAS_SCHEMA_URL_DEFAULT,
+} from "@lite-llm/agents-repository/schemas";
 import { sortAliasesByDefinitionOrder } from "@lite-llm/models-service";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import { normalizeAgentMappings } from "../plugin";
@@ -14,7 +21,7 @@ import { generateLitellmAliases } from "./generate";
 import { litellmAliasSchema } from "./schemas/generated/litellm-alias.zod";
 
 /** Logical slot names for primary + fallback aliases (default: gpt-5.5..gpt-5.1). */
-export const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4", "gpt-5.3"] as const;
+export const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
 
 export interface AliasDbWriter {
   updateAliases(aliases: Record<string, string>): Promise<void>;
@@ -50,7 +57,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
         type: "string",
         label: "Alias Prefix",
         required: false,
-        default: "",
+        default: LITELLM_ALIAS_PREFIX_DEFAULT,
         placeholder: "e.g. prod:",
         description: "Text prepended to all generated alias names",
       },
@@ -59,7 +66,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
         type: "boolean",
         label: "Include Agents",
         required: false,
-        default: true,
+        default: LITELLM_ALIAS_INCLUDE_AGENTS_DEFAULT,
         description: "Include agent-based aliases in output",
       },
       {
@@ -67,7 +74,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
         type: "boolean",
         label: "Include Categories",
         required: false,
-        default: true,
+        default: LITELLM_ALIAS_INCLUDE_CATEGORIES_DEFAULT,
         description: "Include category-based aliases in output",
       },
       {
@@ -75,7 +82,7 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
         type: "string",
         label: "Global Fallback Override",
         required: false,
-        default: "",
+        default: LITELLM_ALIAS_GLOBAL_FALLBACK_OVERRIDE_DEFAULT,
         placeholder: "e.g. gpt-4o-mini",
         description: "Override global fallback model (empty = use default)",
       },
@@ -94,13 +101,15 @@ export class LitellmAliasPlugin implements IPlugin<"litellm-alias"> {
     const aliases: Record<string, string> = {};
     const config: LitellmAliasPluginConfig = (_routing.config ??
       {}) as LitellmAliasPluginConfig;
-    const schemaUrl =
-      config.$schema ??
-      "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json";
-    const aliasPrefix = config.aliasPrefix ?? "";
-    const includeAgents = config.includeAgents ?? true;
-    const includeCategories = config.includeCategories ?? true;
-    const globalFallbackOverride = config.globalFallbackOverride ?? "";
+    const schemaUrl = config.$schema ?? LITELLM_ALIAS_SCHEMA_URL_DEFAULT;
+    const aliasPrefix = config.aliasPrefix ?? LITELLM_ALIAS_PREFIX_DEFAULT;
+    const includeAgents =
+      config.includeAgents ?? LITELLM_ALIAS_INCLUDE_AGENTS_DEFAULT;
+    const includeCategories =
+      config.includeCategories ?? LITELLM_ALIAS_INCLUDE_CATEGORIES_DEFAULT;
+    const globalFallbackOverride =
+      config.globalFallbackOverride ??
+      LITELLM_ALIAS_GLOBAL_FALLBACK_OVERRIDE_DEFAULT;
     const rawFallback = globalFallbackOverride || ctx.globalFallbackModel;
 
     // Build set of enabled model names

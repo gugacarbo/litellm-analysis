@@ -30,7 +30,6 @@ export const weaveOutputSchema = z.object({
       todo_prompt: z.boolean(),
     }),
   }),
-  permission: z.object({ question: z.string() }),
   skill_directories: z.array(z.string()),
   agents: z.record(z.string(), weaveAgentOutputSchema),
   categories: z.record(z.string(), weaveCategoryOutputSchema),

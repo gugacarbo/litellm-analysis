@@ -241,7 +241,7 @@ describe("OpenCodePlugin", () => {
       expect(primaryModel.limit).toEqual({ context: 128000, output: 4096 });
     });
 
-    it("nao inclui aliases locais de fallback para agentes", () => {
+    it("gera slots de fallback quando globalFallbackModel definido", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({
@@ -262,7 +262,13 @@ describe("OpenCodePlugin", () => {
             enabled: true,
             limits: { length: 128000, maxOutput: 4096 },
           },
+          "gpt-3.5": {
+            displayName: "GPT-3.5",
+            enabled: true,
+            limits: { length: 16000, maxOutput: 4096 },
+          },
         },
+        globalFallbackModel: "gpt-3.5",
         litellmConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
@@ -274,12 +280,16 @@ describe("OpenCodePlugin", () => {
       const models = llmAgents.models as Record<string, unknown>;
 
       expect(models).toHaveProperty("sisyphus/gpt-5.5");
-      expect(models).not.toHaveProperty("sisyphus/gpt-5.4");
-      expect(models).not.toHaveProperty("sisyphus/gpt-5.3");
-      expect(models).not.toHaveProperty("sisyphus/gpt-5.2");
+      expect(models).toHaveProperty("sisyphus/gpt-5.4");
+
+      const fallbackSlot = models["sisyphus/gpt-5.4"] as Record<
+        string,
+        unknown
+      >;
+      expect(fallbackSlot.limit).toEqual({ context: 16000, output: 4096 });
     });
 
-    it("nao depende de fallback local ausente para gerar modelo principal", () => {
+    it("sem globalFallbackModel gera apenas slot primario", () => {
       const plugin = new OpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({
@@ -577,6 +587,8 @@ describe("OpenCodePlugin", () => {
 
       const models = fallbackProvider.models as Record<string, unknown>;
       expect(models).toHaveProperty("gpt-5.5");
+      expect(models).not.toHaveProperty("gpt-5.4");
+      expect(models).not.toHaveProperty("gpt-5.3");
 
       const model = models["gpt-5.5"] as Record<string, unknown>;
       expect(model.id).toBe("global-fallback/gpt-5.5");

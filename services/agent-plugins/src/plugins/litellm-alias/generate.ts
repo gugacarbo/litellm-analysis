@@ -10,24 +10,39 @@ function normalizeModel(value: string | undefined): string {
   return stripLitellmPrefix(trimmed);
 }
 
+/** Resolve which backend model id fills a logical slot (primary + fallbacks). */
+export function resolveSlotModelId(
+  slotIndex: number,
+  slotCount: number,
+  primaryModelId: string,
+  globalFallbackModelId: string | undefined,
+): string {
+  const primary = (primaryModelId || "").trim();
+  const fallback = (globalFallbackModelId || "").trim();
+
+  if (slotIndex === 0) {
+    return primary || fallback;
+  }
+
+  if (slotIndex === slotCount - 1) {
+    return fallback;
+  }
+
+  return fallback;
+}
+
 function resolveSlotModel(
   slotIndex: number,
   slotCount: number,
   primaryModel: string,
   globalFallbackModel: string,
 ): string {
-  // Primary alias: prefer explicit model, then global fallback.
-  if (slotIndex === 0) {
-    return primaryModel || globalFallbackModel;
-  }
-
-  // Global fallback alias (last slot): global fallback always wins.
-  if (slotIndex === slotCount - 1) {
-    return globalFallbackModel;
-  }
-
-  // Middle fallback slots always point to the global fallback.
-  return globalFallbackModel;
+  return resolveSlotModelId(
+    slotIndex,
+    slotCount,
+    primaryModel,
+    globalFallbackModel,
+  );
 }
 
 /**

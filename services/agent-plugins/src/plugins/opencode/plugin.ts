@@ -2,7 +2,12 @@ import type {
   OpenCodePluginConfig,
   SystemAgent,
 } from "@lite-llm/agents-repository/schemas";
+import {
+  OPENCODE_DEFAULT_MODEL_DEFAULT,
+  OPENCODE_DEFAULT_TEMPERATURE_DEFAULT,
+} from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
+import { resolveSlotModelId } from "../litellm-alias/generate";
 import { DEFAULT_MODEL_NAMES } from "../litellm-alias/plugin";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import { normalizeAgentMappings } from "../plugin";
@@ -98,6 +103,35 @@ function buildModelEntry(
   return entry;
 }
 
+function addRoleModelSlots(
+  target: Record<string, unknown>,
+  role: string,
+  displayName: string,
+  primaryModelId: string,
+  modelNames: readonly string[],
+  ctx: TransformContext,
+): void {
+  for (let i = 0; i < modelNames.length; i++) {
+    const modelId = resolveSlotModelId(
+      i,
+      modelNames.length,
+      primaryModelId,
+      ctx.globalFallbackModel,
+    );
+    if (!modelId) continue;
+
+    const spec = ctx.allModels[modelId];
+    if (!spec) continue;
+
+    target[`${role}/${modelNames[i]}`] = buildModelEntry(
+      role,
+      modelNames[i],
+      displayName,
+      spec,
+    );
+  }
+}
+
 export class OpenCodePlugin implements IPlugin<"opencode"> {
   readonly id = "opencode";
   readonly name = "OpenCode AI SDK";
@@ -115,7 +149,7 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
         type: "string",
         label: "Default Model",
         required: false,
-        default: "",
+        default: OPENCODE_DEFAULT_MODEL_DEFAULT,
         placeholder: "e.g. gpt-4",
         description: "Model to use when a system agent has no model configured",
       },
@@ -124,7 +158,7 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
         type: "number",
         label: "Default Temperature",
         required: false,
-        default: 0.2,
+        default: OPENCODE_DEFAULT_TEMPERATURE_DEFAULT,
         description:
           "Default sampling temperature for agents without one configured",
       },
@@ -200,26 +234,26 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
     const llmAgentsModels: Record<string, unknown> = {};
 
     for (const agent of agents) {
-      const agentRole = Object.entries(enabledAgents).find(
-        ([, agentIds]) => agentIds.includes(agent.id ?? ""),
+      const agentRole = Object.entries(enabledAgents).find(([, agentIds]) =>
+        agentIds.includes(agent.id ?? ""),
       )?.[0];
       if (!agentRole) continue;
 
       const primaryModelId: string =
         agent.model || configDefaultModel || agent.id || "";
-      const primarySpec = primaryModelId
-        ? ctx.allModels[primaryModelId]
-        : undefined;
+      const displayName =
+        agent.displayName ||
+        (primaryModelId ? ctx.allModels[primaryModelId]?.displayName : "") ||
+        agentRole;
 
-      // Primary model → gpt-5.5
-      if (primarySpec) {
-        llmAgentsModels[`${agentRole}/${modelNames[0]}`] = buildModelEntry(
-          agentRole,
-          modelNames[0],
-          agent.displayName || primarySpec.displayName,
-          primarySpec,
-        );
-      }
+      addRoleModelSlots(
+        llmAgentsModels,
+        agentRole,
+        displayName,
+        primaryModelId,
+        modelNames,
+        ctx,
+      );
     }
 
     if (Object.keys(llmAgentsModels).length > 0) {
@@ -243,20 +277,15 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
 
         const primaryModelId =
           category.model || configDefaultModel || categoryName;
-        const primarySpec = primaryModelId
-          ? ctx.allModels[primaryModelId]
-          : undefined;
 
-        // Primary model → gpt-5.5
-        if (primarySpec) {
-          llmCategoriesModels[`${categoryName}/${modelNames[0]}`] =
-            buildModelEntry(
-              categoryName,
-              modelNames[0],
-              categoryName,
-              primarySpec,
-            );
-        }
+        addRoleModelSlots(
+          llmCategoriesModels,
+          categoryName,
+          categoryName,
+          primaryModelId,
+          modelNames,
+          ctx,
+        );
       }
 
       if (Object.keys(llmCategoriesModels).length > 0) {
@@ -267,21 +296,22 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
       }
     }
 
-    // ── Global fallback provider ──
+    // ── Global fallback provider (single primary slot only) ──
     const globalFallbackId = ctx.globalFallbackModel;
     if (globalFallbackId) {
       const globalSpec = ctx.allModels[globalFallbackId];
       if (globalSpec) {
-        const globalModels: Record<string, unknown> = {};
-        globalModels[modelNames[0]] = buildModelEntry(
-          "global-fallback",
-          modelNames[0],
-          "Global Fallback",
-          globalSpec,
-        );
+        const primarySlot = modelNames[0];
         output.provider["global-fallback"] = {
           ...providerOpts,
-          models: globalModels,
+          models: {
+            [primarySlot]: buildModelEntry(
+              "global-fallback",
+              primarySlot,
+              "Global Fallback",
+              globalSpec,
+            ),
+          },
         };
       }
     }

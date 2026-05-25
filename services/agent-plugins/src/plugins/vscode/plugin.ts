@@ -2,6 +2,12 @@ import type {
   SystemAgent,
   VsCodePluginConfig,
 } from "@lite-llm/agents-repository/schemas";
+import {
+  VSCODE_COMMIT_LANGUAGE_DEFAULT,
+  VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
+  VSCODE_RETRY_ENABLED_DEFAULT,
+  VSCODE_SCHEMA_URL_DEFAULT,
+} from "@lite-llm/agents-repository/schemas";
 import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
 import type {
   ConfigField,
@@ -48,7 +54,7 @@ export class VsCodePlugin implements IPlugin<"vscode"> {
         type: "string",
         label: "Commit Language",
         required: false,
-        default: "Portuguese (Brazil)",
+        default: VSCODE_COMMIT_LANGUAGE_DEFAULT,
         description: "Language for commit messages",
       },
       {
@@ -56,7 +62,7 @@ export class VsCodePlugin implements IPlugin<"vscode"> {
         type: "boolean",
         label: "Enable Retry",
         required: false,
-        default: true,
+        default: VSCODE_RETRY_ENABLED_DEFAULT,
         description: "Enable retry on failed requests",
       },
       {
@@ -64,7 +70,7 @@ export class VsCodePlugin implements IPlugin<"vscode"> {
         type: "number",
         label: "Max Retry Attempts",
         required: false,
-        default: 3,
+        default: VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
         description: "Maximum number of retry attempts",
       },
     ];
@@ -77,21 +83,20 @@ export class VsCodePlugin implements IPlugin<"vscode"> {
   ): VsCodeModelsOutput {
     const pluginConfig: VsCodePluginConfig = (routing.config ??
       {}) as VsCodePluginConfig;
-    const schemaUrl =
-      pluginConfig.$schema ??
-      "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json";
+    const schemaUrl = pluginConfig.$schema ?? VSCODE_SCHEMA_URL_DEFAULT;
     const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
 
     const output: VsCodeModelsOutput = {
       $schema: schemaUrl,
       "oaicopilot.commitLanguage":
-        pluginConfig.commitLanguage ?? "Portuguese (Brazil)",
+        pluginConfig.commitLanguage ?? VSCODE_COMMIT_LANGUAGE_DEFAULT,
       "oaicopilot.baseUrl": "",
       "oaicopilot.delay": 0,
       "oaicopilot.readFileLines": 0,
       "oaicopilot.retry": {
-        enabled: pluginConfig.retryEnabled ?? true,
-        max_attempts: pluginConfig.maxRetryAttempts ?? 3,
+        enabled: pluginConfig.retryEnabled ?? VSCODE_RETRY_ENABLED_DEFAULT,
+        max_attempts:
+          pluginConfig.maxRetryAttempts ?? VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
         interval_ms: 2000,
         status_codes: [],
       },
