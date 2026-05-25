@@ -123,10 +123,12 @@ function addRoleModelSlots(
     const spec = ctx.allModels[modelId];
     if (!spec) continue;
 
+    const slotDisplayName = i === 0 ? displayName : `${displayName} ${i}`;
+
     target[`${role}/${modelNames[i]}`] = buildModelEntry(
       role,
       modelNames[i],
-      displayName,
+      slotDisplayName,
       spec,
     );
   }
@@ -302,15 +304,18 @@ export class OpenCodePlugin implements IPlugin<"opencode"> {
       const globalSpec = ctx.allModels[globalFallbackId];
       if (globalSpec) {
         const primarySlot = modelNames[0];
+        const globalFallbackEntry = buildModelEntry(
+          "global-fallback",
+          primarySlot,
+          "Global Fallback",
+          globalSpec,
+        );
+        const globalFallbackEntryId = String(globalFallbackEntry.id);
+
         output.provider["global-fallback"] = {
           ...providerOpts,
           models: {
-            [primarySlot]: buildModelEntry(
-              "global-fallback",
-              primarySlot,
-              "Global Fallback",
-              globalSpec,
-            ),
+            [globalFallbackEntryId]: globalFallbackEntry,
           },
         };
       }

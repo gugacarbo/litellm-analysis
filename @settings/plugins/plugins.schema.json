@@ -21,7 +21,10 @@
       "$ref": "#/$defs/__schema2"
     }
   },
-  "required": ["version", "plugins"],
+  "required": [
+    "version",
+    "plugins"
+  ],
   "additionalProperties": false,
   "$defs": {
     "__schema0": {
@@ -49,7 +52,12 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "OpenCode",
           "description": "OpenCode AI SDK plugin configuration"
@@ -70,7 +78,12 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "OpenAgent",
           "description": "Oh My OpenAgent plugin configuration"
@@ -91,7 +104,12 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "VSCode",
           "description": "VS Code OAICopilot plugin configuration"
@@ -112,7 +130,12 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "LiteLLM Alias",
           "description": "LiteLLM Router Aliases plugin configuration"
@@ -133,7 +156,12 @@
               "$ref": "#/$defs/__schema14"
             }
           },
-          "required": ["enabled", "outputFile", "config", "routing"],
+          "required": [
+            "enabled",
+            "outputFile",
+            "config",
+            "routing"
+          ],
           "additionalProperties": false,
           "title": "Weave",
           "description": "OpenCode Weave plugin configuration"
@@ -478,7 +506,7 @@
       "description": "OpenCode Weave plugin configuration"
     },
     "__schema49": {
-      "default": "/home/gustavo/.config/opencode/plugins/opencode-weave/schema/weave-config.schema.json",
+      "default": "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json",
       "title": "Schema URL",
       "description": "OpenCode Weave config schema URL",
       "$ref": "#/$defs/__schema50"
@@ -494,7 +522,12 @@
     },
     "__schema52": {
       "type": "string",
-      "enum": ["DEBUG", "INFO", "WARN", "ERROR"]
+      "enum": [
+        "DEBUG",
+        "INFO",
+        "WARN",
+        "ERROR"
+      ]
     },
     "__schema53": {
       "default": true,
@@ -567,10 +600,18 @@
     },
     "__schema68": {
       "type": "string",
-      "enum": ["allow", "deny", "ask"]
+      "enum": [
+        "allow",
+        "deny",
+        "ask"
+      ]
     },
     "__schema69": {
-      "default": ["~/.agents/skills", "~/.claude/skills", "~/.opencode/skills"],
+      "default": [
+        "~/.agents/skills",
+        "~/.claude/skills",
+        "~/.opencode/skills"
+      ],
       "title": "Skill Directories",
       "description": "Directories to scan for skills",
       "$ref": "#/$defs/__schema70"

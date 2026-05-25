@@ -286,6 +286,7 @@ describe("OpenCodePlugin", () => {
         string,
         unknown
       >;
+      expect(fallbackSlot.name).toBe("Builder 1");
       expect(fallbackSlot.limit).toEqual({ context: 16000, output: 4096 });
     });
 
@@ -586,11 +587,15 @@ describe("OpenCodePlugin", () => {
       expect(fallbackProvider.npm).toBe("@ai-sdk/openai-compatible");
 
       const models = fallbackProvider.models as Record<string, unknown>;
-      expect(models).toHaveProperty("gpt-5.5");
+      expect(models).toHaveProperty("global-fallback/gpt-5.5");
+      expect(models).not.toHaveProperty("gpt-5.5");
       expect(models).not.toHaveProperty("gpt-5.4");
       expect(models).not.toHaveProperty("gpt-5.3");
 
-      const model = models["gpt-5.5"] as Record<string, unknown>;
+      const model = models["global-fallback/gpt-5.5"] as Record<
+        string,
+        unknown
+      >;
       expect(model.id).toBe("global-fallback/gpt-5.5");
       expect(model.name).toBe("Global Fallback");
       expect(model.limit).toEqual({ context: 128000, output: 4096 });

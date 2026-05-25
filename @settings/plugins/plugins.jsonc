@@ -12,7 +12,7 @@
       },
       "routing": {
         "agents": {
-          "coder": "loom",
+          "loom": "loom",
           "tapestry": "tapestry",
           "shuttle": "shuttle",
           "planner": "planner",
@@ -86,7 +86,7 @@
       "enabled": true,
       "outputFile": "weave.json",
       "config": {
-        "$schema": "/home/gustavo/.config/opencode/plugins/opencode-weave/schema/weave-config.schema.json",
+        "$schema": "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json",
         "logLevel": "INFO",
         "tmuxEnabled": true,
         "analyticsEnabled": true,
