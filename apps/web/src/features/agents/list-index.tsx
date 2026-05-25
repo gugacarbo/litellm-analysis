@@ -40,10 +40,7 @@ export function AgentsPage() {
     openCategoryEditor,
   } = useAgentRoutingPageState();
 
-  const editingAgent =
-    agents.find(
-      (a) => a.id === editingAgentId || a.displayName === editingAgentId,
-    ) ?? null;
+  const editingAgent = agents.find((a) => a.id === editingAgentId) ?? null;
   const editingCategory = editingCategoryKey
     ? categories[editingCategoryKey]
     : null;

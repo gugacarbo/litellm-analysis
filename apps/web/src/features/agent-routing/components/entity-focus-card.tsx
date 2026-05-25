@@ -31,7 +31,7 @@ export function EntityFocusCard({
   onOpenConfig,
   onDelete,
 }: EntityFocusCardProps) {
-  const agentId = agent.id || agent.displayName;
+  const agentId = agent.id ?? agent.displayName;
 
   return (
     <Card className="hover:shadow-md transition-shadow">

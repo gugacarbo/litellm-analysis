@@ -3,8 +3,14 @@ import { useAgentRoutingDerived } from "./use-agent-routing-derived";
 import { useAgentRoutingState } from "./use-agent-routing-state";
 
 export function useAgentRoutingPageState() {
-  const { agents, loading, error, categories, categoriesLoading } =
-    useAgentRoutingState();
+  const {
+    agents,
+    agentKeyByDisplayName,
+    loading,
+    error,
+    categories,
+    categoriesLoading,
+  } = useAgentRoutingState();
 
   const {
     saving,
@@ -20,7 +26,7 @@ export function useAgentRoutingPageState() {
     handleSaveCategory,
     handleDeleteCategory,
     openCategoryEditor,
-  } = useAgentRoutingActions();
+  } = useAgentRoutingActions(agentKeyByDisplayName);
 
   const { getAgentSummary } = useAgentRoutingDerived(agents);
 

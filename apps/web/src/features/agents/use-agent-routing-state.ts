@@ -30,7 +30,8 @@ export function useAgentRoutingState() {
   for (const entry of rawAgents) {
     if (entry.displayName) {
       agentKeyByDisplayName[entry.displayName] = entry.key;
-      agents.push(normalizeSystemAgent(entry));
+      const { key, ...fields } = entry;
+      agents.push(normalizeSystemAgent({ ...fields, id: key }));
     }
   }
 

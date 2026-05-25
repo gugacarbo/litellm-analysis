@@ -78,6 +78,34 @@ export function AgentGeneralSection({
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="agent-color">Color</Label>
+        <div className="flex items-center gap-2">
+          <Input
+            id="agent-color"
+            type="color"
+            value={config.config?.color ?? "#555555"}
+            onChange={(e) =>
+              onFieldChange("config", {
+                ...config.config,
+                color: e.target.value,
+              })
+            }
+            className="h-10 w-14 p-1"
+          />
+          <Input
+            value={config.config?.color ?? ""}
+            onChange={(e) =>
+              onFieldChange("config", {
+                ...config.config,
+                color: e.target.value,
+              })
+            }
+            placeholder="#1ABC9C"
+          />
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="agent-context-limit">Context Limit</Label>

@@ -198,7 +198,7 @@ export function WeaveConfigPage({
     return {
       $schema:
         schemaUrl ||
-        "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
+        "/home/gustavo/.config/opencode/plugins/opencode-weave/schema/weave-config.schema.json",
       log_level: logLevel,
       tmux: { enabled: tmuxEnabled },
       analytics: {
@@ -263,7 +263,7 @@ export function WeaveConfigPage({
           <a
             href={
               schemaUrl ||
-              "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json"
+              "/home/gustavo/.config/opencode/plugins/opencode-weave/schema/weave-config.schema.json"
             }
             target="_blank"
             rel="noopener noreferrer"

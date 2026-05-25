@@ -32,7 +32,7 @@ import {
 } from "@/shared/components/ui/sidebar";
 
 interface NavLeaf {
-  id?: string;
+  id: string;
   to: string;
   icon?: React.ComponentType<{ className?: string }>;
   label: string;
@@ -53,7 +53,7 @@ function isBranch(item: NavItem): item is NavBranch {
 
 function NavItemLeaf({ item }: { item: NavLeaf }) {
   return (
-    <SidebarMenuItem key={item.to}>
+    <SidebarMenuItem>
       <SidebarMenuButton asChild tooltip={item.label}>
         <NavLink to={item.to}>
           {item.icon && <item.icon className="h-4 w-4" />}
@@ -85,7 +85,7 @@ function NavItemBranch({ item }: { item: NavBranch }) {
       <Collapsible.Content>
         <SidebarMenuSub>
           {item.children.map((child) => (
-            <SidebarMenuSubItem key={child.to}>
+            <SidebarMenuSubItem key={child.id}>
               <SidebarMenuSubButton asChild>
                 <NavLink to={child.to}>
                   {child.icon && <child.icon className="h-4 w-4" />}
@@ -102,27 +102,37 @@ function NavItemBranch({ item }: { item: NavBranch }) {
 
 export function AppSidebar() {
   const navItems: NavItem[] = [
-    { to: "/", icon: Activity, label: "Dashboard" },
-    { to: "/monitor", icon: Radar, label: "Monitor" },
-    { to: "/model-stats", icon: TrendingUp, label: "Stats" },
-    { to: "/logs", icon: FileText, label: "Logs" },
+    { id: "dashboard", to: "/", icon: Activity, label: "Dashboard" },
+    { id: "monitor", to: "/monitor", icon: Radar, label: "Monitor" },
+    { id: "model-stats", to: "/model-stats", icon: TrendingUp, label: "Stats" },
+    { id: "logs", to: "/logs", icon: FileText, label: "Logs" },
     {
       id: "agents",
       icon: Bot,
       label: "Agents",
       children: [
-        { to: "/agents", label: "Config", icon: Settings },
-        { to: "/plugins", label: "Plugins", icon: GitBranch },
-        { to: "/prompt-evals", label: "Evals", icon: ListChecks },
+        { id: "agents-config", to: "/agents", label: "Config", icon: Settings },
+        { id: "plugins", to: "/plugins", label: "Plugins", icon: GitBranch },
+        {
+          id: "prompt-evals",
+          to: "/prompt-evals",
+          label: "Evals",
+          icon: ListChecks,
+        },
       ],
     },
     {
-      to: "/models",
+      id: "models",
       icon: Cpu,
       label: "Models",
       children: [
-        { to: "/models", icon: Cpu, label: "Models" },
-        { to: "/benchmarks", icon: Scale, label: "Benchmarks" },
+        { id: "models-list", to: "/models", icon: Cpu, label: "Models" },
+        {
+          id: "benchmarks",
+          to: "/benchmarks",
+          icon: Scale,
+          label: "Benchmarks",
+        },
       ],
     },
   ];
@@ -145,7 +155,7 @@ export function AppSidebar() {
                 isBranch(item) ? (
                   <NavItemBranch key={item.id} item={item} />
                 ) : (
-                  <NavItemLeaf key={item.to} item={item} />
+                  <NavItemLeaf key={item.id} item={item} />
                 ),
               )}
             </SidebarMenu>

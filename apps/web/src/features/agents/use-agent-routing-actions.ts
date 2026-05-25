@@ -11,7 +11,7 @@ import {
 import { queryKeys } from "@/shared/lib/query-keys";
 
 export function useAgentRoutingActions(
-  _agentKeyByDisplayName?: Record<string, string>,
+  agentKeyByDisplayName: Record<string, string> = {},
 ) {
   const queryClient = useQueryClient();
 
@@ -51,17 +51,24 @@ export function useAgentRoutingActions(
 
   const handleSaveAgent = useCallback(
     async (agent: SystemAgent) => {
-      const catalogKey = agent.id || agent.displayName;
+      const catalogKey =
+        editingAgentId ||
+        agent.id ||
+        agentKeyByDisplayName[agent.displayName] ||
+        "";
+      if (!catalogKey) {
+        throw new Error("Cannot save agent: missing catalog key");
+      }
       await upsertMutation.mutateAsync({
         id: catalogKey,
-        agent,
+        agent: { ...agent, id: catalogKey },
       });
       setDialogOpen(false);
       await queryClient.invalidateQueries({
         queryKey: queryKeys.agentCatalog.all,
       });
     },
-    [queryClient, upsertMutation],
+    [agentKeyByDisplayName, editingAgentId, queryClient, upsertMutation],
   );
 
   const handleDeleteAgent = useCallback(
