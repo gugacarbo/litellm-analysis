@@ -95,7 +95,9 @@ export async function resolveHealthCheckPrompt(
   dataSource: HealthCheckPromptSource,
 ): Promise<string> {
   try {
-    return (await dataSource.getHealthCheckPrompt()) ?? DEFAULT_HEALTH_CHECK_PROMPT;
+    return (
+      (await dataSource.getHealthCheckPrompt()) ?? DEFAULT_HEALTH_CHECK_PROMPT
+    );
   } catch (error) {
     console.warn(
       "Failed to load health check prompt from database; using default prompt.",
