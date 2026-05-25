@@ -52,6 +52,7 @@ __pycache__
 .weave/*
 .weave/plans/
 .weave/specs/
+!.weave/prompts/
 !.weave/designs/
 
 .worktrees/
