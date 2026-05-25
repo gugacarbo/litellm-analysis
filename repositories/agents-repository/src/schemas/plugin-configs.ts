@@ -1,11 +1,39 @@
 import { z } from "zod";
+import {
+  LITELLM_ALIAS_GLOBAL_FALLBACK_OVERRIDE_DEFAULT,
+  LITELLM_ALIAS_INCLUDE_AGENTS_DEFAULT,
+  LITELLM_ALIAS_INCLUDE_CATEGORIES_DEFAULT,
+  LITELLM_ALIAS_PREFIX_DEFAULT,
+  LITELLM_ALIAS_SCHEMA_URL_DEFAULT,
+  OPENAGENT_COMMIT_FOOTER_DEFAULT,
+  OPENAGENT_INCLUDE_CO_AUTHORED_BY_DEFAULT,
+  OPENAGENT_SCHEMA_URL_DEFAULT,
+  OPENCODE_DEFAULT_MODEL_DEFAULT,
+  OPENCODE_DEFAULT_TEMPERATURE_DEFAULT,
+  OPENCODE_SCHEMA_URL_DEFAULT,
+  VSCODE_COMMIT_LANGUAGE_DEFAULT,
+  VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
+  VSCODE_RETRY_ENABLED_DEFAULT,
+  VSCODE_SCHEMA_URL_DEFAULT,
+  WEAVE_ANALYTICS_ENABLED_DEFAULT,
+  WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
+  WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
+  WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
+  WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
+  WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
+  WEAVE_LOG_LEVEL_DEFAULT,
+  WEAVE_PERMISSION_QUESTION_DEFAULT,
+  WEAVE_SCHEMA_URL_DEFAULT,
+  WEAVE_SKILL_DIRECTORIES_DEFAULT,
+  WEAVE_TMUX_ENABLED_DEFAULT,
+} from "./plugin-defaults";
 
 /** Configurable parameters for the OpenCode plugin. */
 export const openCodePluginConfigSchema = z
   .object({
     $schema: z
       .string()
-      .default("https://opencode.ai/config.json")
+      .default(OPENCODE_SCHEMA_URL_DEFAULT)
       .meta({
         title: "Schema URL",
         description: "Official OpenCode config schema URL",
@@ -13,7 +41,7 @@ export const openCodePluginConfigSchema = z
       .optional(),
     defaultModel: z
       .string()
-      .default("")
+      .default(OPENCODE_DEFAULT_MODEL_DEFAULT)
       .meta({
         title: "Default Model",
         description: "Model to use when a system agent has no model configured",
@@ -21,7 +49,7 @@ export const openCodePluginConfigSchema = z
       .optional(),
     defaultTemperature: z
       .number()
-      .default(0.2)
+      .default(OPENCODE_DEFAULT_TEMPERATURE_DEFAULT)
       .meta({
         title: "Default Temperature",
         description:
@@ -41,9 +69,7 @@ export const openAgentPluginConfigSchema = z
   .object({
     $schema: z
       .string()
-      .default(
-        "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
-      )
+      .default(OPENAGENT_SCHEMA_URL_DEFAULT)
       .meta({
         title: "Schema URL",
         description: "Official Oh My OpenAgent config schema URL",
@@ -51,7 +77,7 @@ export const openAgentPluginConfigSchema = z
       .optional(),
     commitFooter: z
       .boolean()
-      .default(false)
+      .default(OPENAGENT_COMMIT_FOOTER_DEFAULT)
       .meta({
         title: "Commit Footer",
         description: "Add footer to commit messages",
@@ -59,7 +85,7 @@ export const openAgentPluginConfigSchema = z
       .optional(),
     includeCoAuthoredBy: z
       .boolean()
-      .default(false)
+      .default(OPENAGENT_INCLUDE_CO_AUTHORED_BY_DEFAULT)
       .meta({
         title: "Include Co-Authored-By",
         description: "Include co-authored-by trailer in commits",
@@ -78,9 +104,7 @@ export const vsCodePluginConfigSchema = z
   .object({
     $schema: z
       .string()
-      .default(
-        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
-      )
+      .default(VSCODE_SCHEMA_URL_DEFAULT)
       .meta({
         title: "Schema URL",
         description: "VS Code OAICopilot config schema URL",
@@ -88,7 +112,7 @@ export const vsCodePluginConfigSchema = z
       .optional(),
     commitLanguage: z
       .string()
-      .default("Portuguese (Brazil)")
+      .default(VSCODE_COMMIT_LANGUAGE_DEFAULT)
       .meta({
         title: "Commit Language",
         description: "Language for commit messages",
@@ -96,12 +120,12 @@ export const vsCodePluginConfigSchema = z
       .optional(),
     retryEnabled: z
       .boolean()
-      .default(true)
+      .default(VSCODE_RETRY_ENABLED_DEFAULT)
       .meta({ title: "Retry Enabled", description: "Enable retry on failure" })
       .optional(),
     maxRetryAttempts: z
       .number()
-      .default(3)
+      .default(VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT)
       .meta({
         title: "Max Retry Attempts",
         description: "Maximum number of retry attempts",
@@ -120,9 +144,7 @@ export const litellmAliasPluginConfigSchema = z
   .object({
     $schema: z
       .string()
-      .default(
-        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
-      )
+      .default(LITELLM_ALIAS_SCHEMA_URL_DEFAULT)
       .meta({
         title: "Schema URL",
         description: "LiteLLM Router Aliases config schema URL",
@@ -130,7 +152,7 @@ export const litellmAliasPluginConfigSchema = z
       .optional(),
     aliasPrefix: z
       .string()
-      .default("")
+      .default(LITELLM_ALIAS_PREFIX_DEFAULT)
       .meta({
         title: "Alias Prefix",
         description: "Text prepended to all generated alias names",
@@ -138,7 +160,7 @@ export const litellmAliasPluginConfigSchema = z
       .optional(),
     includeAgents: z
       .boolean()
-      .default(true)
+      .default(LITELLM_ALIAS_INCLUDE_AGENTS_DEFAULT)
       .meta({
         title: "Include Agents",
         description: "Include agent-based aliases in output",
@@ -146,7 +168,7 @@ export const litellmAliasPluginConfigSchema = z
       .optional(),
     includeCategories: z
       .boolean()
-      .default(true)
+      .default(LITELLM_ALIAS_INCLUDE_CATEGORIES_DEFAULT)
       .meta({
         title: "Include Categories",
         description: "Include category-based aliases in output",
@@ -154,7 +176,7 @@ export const litellmAliasPluginConfigSchema = z
       .optional(),
     globalFallbackOverride: z
       .string()
-      .default("")
+      .default(LITELLM_ALIAS_GLOBAL_FALLBACK_OVERRIDE_DEFAULT)
       .meta({
         title: "Global Fallback Override",
         description: "Override global fallback model (empty = use default)",
@@ -175,9 +197,7 @@ export const weavePluginConfigSchema = z
   .object({
     $schema: z
       .string()
-      .default(
-        "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
-      )
+      .default(WEAVE_SCHEMA_URL_DEFAULT)
       .meta({
         title: "Schema URL",
         description: "OpenCode Weave config schema URL",
@@ -185,7 +205,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     logLevel: z
       .enum(["DEBUG", "INFO", "WARN", "ERROR"])
-      .default("INFO")
+      .default(WEAVE_LOG_LEVEL_DEFAULT)
       .meta({
         title: "Log Level",
         description: "Logging verbosity level for Weave",
@@ -193,7 +213,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     tmuxEnabled: z
       .boolean()
-      .default(true)
+      .default(WEAVE_TMUX_ENABLED_DEFAULT)
       .meta({
         title: "Tmux Enabled",
         description: "Enable tmux session management",
@@ -201,7 +221,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     analyticsEnabled: z
       .boolean()
-      .default(true)
+      .default(WEAVE_ANALYTICS_ENABLED_DEFAULT)
       .meta({
         title: "Analytics Enabled",
         description: "Enable usage analytics collection",
@@ -209,7 +229,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     analyticsUseFingerprint: z
       .boolean()
-      .default(true)
+      .default(WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT)
       .meta({
         title: "Analytics Use Fingerprint",
         description: "Use fingerprint for analytics tracking",
@@ -217,7 +237,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     continuationRecoveryCompaction: z
       .boolean()
-      .default(true)
+      .default(WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT)
       .meta({
         title: "Continuation Recovery Compaction",
         description: "Enable context compaction during recovery",
@@ -225,7 +245,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     continuationIdleEnabled: z
       .boolean()
-      .default(true)
+      .default(WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT)
       .meta({
         title: "Continuation Idle Enabled",
         description: "Enable idle continuation processing",
@@ -233,7 +253,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     continuationIdleWork: z
       .boolean()
-      .default(true)
+      .default(WEAVE_CONTINUATION_IDLE_WORK_DEFAULT)
       .meta({
         title: "Continuation Idle Work",
         description: "Allow work during idle periods",
@@ -241,7 +261,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     continuationIdleTodoPrompt: z
       .boolean()
-      .default(true)
+      .default(WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT)
       .meta({
         title: "Continuation Idle Todo Prompt",
         description: "Show todo prompt during idle",
@@ -249,7 +269,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     permissionQuestion: z
       .enum(["allow", "deny", "ask"])
-      .default("allow")
+      .default(WEAVE_PERMISSION_QUESTION_DEFAULT)
       .meta({
         title: "Permission Question Behavior",
         description: "Default behavior for permission questions",
@@ -257,7 +277,7 @@ export const weavePluginConfigSchema = z
       .optional(),
     skillDirectories: z
       .array(z.string())
-      .default(["~/.agents/skills", "~/.claude/skills", "~/.opencode/skills"])
+      .default([...WEAVE_SKILL_DIRECTORIES_DEFAULT])
       .meta({
         title: "Skill Directories",
         description: "Directories to scan for skills",

@@ -13,6 +13,8 @@
       "routing": {
         "agents": {
           "coder": "loom",
+          "tapestry": "tapestry",
+          "shuttle": "shuttle",
           "planner": "planner",
           "explorer": "explorer",
           "reviewer": "reviewer",
@@ -84,7 +86,7 @@
       "enabled": true,
       "outputFile": "weave.json",
       "config": {
-        "$schema": "https://raw.githubusercontent.com/pgermishuys/opencode-weave/refs/heads/main/schema/weave-config.schema.json",
+        "$schema": "/home/gustavo/.config/opencode/plugins/opencode-weave/schema/weave-config.schema.json",
         "logLevel": "INFO",
         "tmuxEnabled": true,
         "analyticsEnabled": true,
@@ -102,8 +104,8 @@
       },
       "routing": {
         "agents": {
-          "loom": "tapestry",
-          "tapestry": "loom",
+          "loom": "loom",
+          "tapestry": "tapestry",
           "pattern": "planner",
           "shuttle": "shuttle",
           "thread": "thread",
@@ -111,7 +113,12 @@
           "weft": "reviewer",
           "warp": "warp"
         },
-        "categories": {}
+        "categories": {
+          "deep": true,
+          "quick": true,
+          "visual-engineering": true,
+          "writing": true
+        }
       }
     }
   }

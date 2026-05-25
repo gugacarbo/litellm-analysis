@@ -36,6 +36,7 @@ export {
   vsCodePluginConfigSchema,
   weavePluginConfigSchema,
 } from "./plugin-configs";
+export * from "./plugin-defaults";
 export type {
   PluginRouting,
   PluginRoutingRule,

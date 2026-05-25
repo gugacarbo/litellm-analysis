@@ -3,28 +3,29 @@
   "version": 2,
   "agents": {
     "loom": {
+      "id": "loom",
       "displayName": "Loom",
       "icon": "🔧",
       "description": "Agente principal para atendimento geral: entende o pedido, organiza a execução e entrega soluções ponta a ponta.",
       "limits": {
-        "context": 200000,
-        "output": 32768
+        "context": 280000,
+        "output": 65536
       },
       "cost": {
         "input": 0,
         "output": 0
       },
-      "model": "MiniMax-M2.7-highspeed",
+      "model": "deepseek-v4-pro",
       "config": {
         "mode": "all",
         "tools": {},
         "permissions": {},
-        "color": "#4A90D9",
+        "color": "#075bb6",
         "disable": false,
         "variant": "",
         "category": "",
         "skills": [],
-        "temperature": 0,
+        "temperature": 0.7,
         "topP": 1,
         "prompt": "",
         "promptAppend": ""
@@ -115,7 +116,8 @@
       }
     },
     "thread": {
-      "displayName": "Thread (Genérico de Contexto)",
+      "id": "thread",
+      "displayName": "Thread",
       "icon": "🧵",
       "description": "Agente de contexto rápido: faz leitura exploratória da base, consolida informações e reduz incerteza antes da implementação.",
       "limits": {
@@ -199,7 +201,8 @@
       }
     },
     "warp": {
-      "displayName": "Warp (Auditor de Segurança)",
+      "id": "warp",
+      "displayName": "Warp",
       "icon": "🛡️",
       "description": "Auditor de segurança: analisa vulnerabilidades, superfícies de ataque e práticas inseguras em código, configuração e fluxo operacional.",
       "limits": {
