@@ -1,76 +1,13 @@
-import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
+import { agentAdapter } from "./agent-adapter";
+import { modelAdapter } from "./model-adapter";
 import { resolveSlotModelId } from "../../litellm-alias/generate";
 import type { OpenCodePluginConfig } from "../config/config";
 import type { OpencodeSchemaType } from "../schema/schema";
 
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
-const OPENCODE_REASONING_EFFORT_LEVELS = new Set([
-  "none",
-  "minimal",
-  "low",
-  "medium",
-  "high",
-  "xhigh",
-]);
-
-function normalizeThinkingLevel(level: string): string | null {
-  const normalized = level
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_-]/g, "");
-  if (!normalized) return null;
-  if (normalized === "off" || normalized === "disabled") return "none";
-  if (OPENCODE_REASONING_EFFORT_LEVELS.has(normalized)) return normalized;
-  return null;
-}
-
-function buildThinkingVariants(
-  model: ModelSpec,
-): Record<string, { reasoningEffort: string }> | undefined {
-  const levels = model.thinking?.levels ?? [];
-  if (levels.length === 0) return undefined;
-
-  const variants: Record<string, { reasoningEffort: string }> = {};
-  for (const level of levels) {
-    const normalizedLevel = normalizeThinkingLevel(level);
-    if (!normalizedLevel) continue;
-    variants[normalizedLevel] = { reasoningEffort: normalizedLevel };
-  }
-  return Object.keys(variants).length > 0 ? variants : undefined;
-}
-
-function modelAdapter(
-  agentRole: string,
-  aliasKey: string,
-  displayName: string,
-  spec: ModelSpec,
-): Record<string, unknown> {
-  const entry: Record<string, unknown> = {
-    id: `${agentRole}/${aliasKey}`,
-    name: displayName,
-    limit: {
-      context: spec.limits.length,
-      output: spec.limits.maxOutput,
-    },
-  };
-
-  if (spec.cost?.input != null || spec.cost?.output != null) {
-    entry.cost = {
-      ...(spec.cost?.input != null ? { input: spec.cost.input } : {}),
-      ...(spec.cost?.output != null ? { output: spec.cost.output } : {}),
-    };
-  }
-
-  const thinkingVariants = buildThinkingVariants(spec);
-  if (thinkingVariants) {
-    entry.variants = thinkingVariants;
-  }
-
-  return entry;
-}
 
 function addRoleModelSlots(
   target: Record<string, unknown>,
@@ -100,27 +37,6 @@ function addRoleModelSlots(
       spec,
     );
   }
-}
-
-function agentAdapter(
-  agent: SystemAgent,
-  enabledAgents: Record<string, string[]>,
-  configDefaultModel: string,
-  context: PluginRuntimeContext,
-): { role: string; displayName: string; primaryModelId: string } | null {
-  const role = Object.entries(enabledAgents).find(([, agentIds]) =>
-    agentIds.includes(agent.id ?? ""),
-  )?.[0];
-  if (!role) return null;
-
-  const primaryModelId: string =
-    agent.model || configDefaultModel || agent.id || "";
-  const displayName =
-    agent.displayName ||
-    (primaryModelId ? context.allModels[primaryModelId]?.displayName : "") ||
-    role;
-
-  return { role, displayName, primaryModelId };
 }
 
 export interface BuildOpenCodeOutputInput {

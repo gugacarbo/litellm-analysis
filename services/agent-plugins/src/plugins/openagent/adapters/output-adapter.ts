@@ -1,6 +1,7 @@
 import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
+import { agentAdapter } from "./agent-adapter";
 import type { OpenAgentPluginConfig } from "../config/config";
 import type { OpenagentSchemaType } from "../schema/schema";
 
@@ -9,20 +10,6 @@ export interface BuildOpenAgentOutputInput {
   routing: PluginRoutingFor<OpenAgentPluginConfig>;
   context: PluginRuntimeContext;
   config: OpenAgentPluginConfig;
-}
-
-function modelAdapter(model: string): Record<string, unknown> {
-  return { model };
-}
-
-function agentAdapter(agent: SystemAgent): Record<string, unknown> {
-  const entry: Record<string, unknown> = {};
-  if (agent.description) entry.description = agent.description;
-  if (agent.model) Object.assign(entry, modelAdapter(agent.model));
-  if (agent.config?.mode) entry.mode = agent.config.mode;
-  if (agent.config?.tools) entry.tools = agent.config.tools;
-  if (agent.config?.color) entry.color = agent.config.color;
-  return entry;
 }
 
 export function adaptOpenAgentOutput(

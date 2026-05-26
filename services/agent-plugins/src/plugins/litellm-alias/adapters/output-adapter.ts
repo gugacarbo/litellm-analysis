@@ -2,6 +2,8 @@ import { sortAliasesByDefinitionOrder } from "@lite-llm/models-service";
 import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
+import { agentAdapter } from "./agent-adapter";
+import { modelAdapter } from "./model-adapter";
 import type { LitellmAliasPluginConfig } from "../config/config";
 import { generateLitellmAliases } from "../generate";
 import type { LitellmAliasSchemaType } from "../schema/schema";
@@ -14,34 +16,6 @@ export interface BuildLitellmAliasOutputInput {
   routing: PluginRoutingFor<LitellmAliasPluginConfig>;
   context: PluginRuntimeContext;
   config: LitellmAliasPluginConfig;
-}
-
-function modelAdapter(
-  model: string | undefined,
-  enabledSet: Set<string>,
-): string | null {
-  if (!model || !enabledSet.has(model)) {
-    return null;
-  }
-  return model;
-}
-
-function agentAdapter(
-  agent: AgentWithId,
-  routingAgents: Record<string, string[]>,
-  hasAgentRouting: boolean,
-  enabledSet: Set<string>,
-): { id: string; model: string } | null {
-  if (hasAgentRouting && !routingAgents[agent.id]?.length) {
-    return null;
-  }
-
-  const model = modelAdapter(agent.model, enabledSet);
-  if (!model) {
-    return null;
-  }
-
-  return { id: agent.id, model };
 }
 
 export function adaptLitellmAliasOutput(
