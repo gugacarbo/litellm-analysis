@@ -2,8 +2,8 @@ import { sortAliasesByDefinitionOrder } from "@lite-llm/models-service";
 import { normalizeAgentMappings } from "../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../sdk";
 import type { SystemAgent } from "../../types";
-import type { LitellmAliasPluginConfig } from "./plugin.config";
 import { generateLitellmAliases } from "./generate";
+import type { LitellmAliasPluginConfig } from "./plugin.config";
 import type { LitellmAliasSchemaType } from "./plugin.schema";
 
 type AgentWithId = SystemAgent & { id: string };
