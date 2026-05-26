@@ -2,14 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRepository } from "@lite-llm/agents-repository/repository";
 import { createRepositoryClient as createModelsRepositoryClient } from "@lite-llm/models-repository";
-import {
-  createAgentPluginsOrchestrator,
-  LitellmAliasPlugin,
-  OpenAgentPlugin,
-  OpenCodePlugin,
-  VsCodePlugin,
-  WeavePlugin,
-} from "../src/index.ts";
+import { createAgentPluginsOrchestrator } from "../src/index.ts";
 
 const pluginId = process.argv[2];
 if (!pluginId) {
@@ -69,13 +62,6 @@ async function main() {
       },
     },
     outputDir: path.join(root, "@storage/output"),
-    allPlugins: [
-      new OpenCodePlugin(),
-      new OpenAgentPlugin(),
-      new VsCodePlugin(),
-      new LitellmAliasPlugin(),
-      new WeavePlugin(),
-    ],
   });
 
   await orchestrator.registry.exportOne(pluginId);

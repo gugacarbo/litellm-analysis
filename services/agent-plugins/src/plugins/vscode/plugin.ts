@@ -1,4 +1,5 @@
 import type {
+  PluginRouting,
   SystemAgent,
   VsCodePluginConfig,
 } from "@lite-llm/agents-repository/schemas";
@@ -7,14 +8,10 @@ import {
   VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
   VSCODE_RETRY_ENABLED_DEFAULT,
   VSCODE_SCHEMA_URL_DEFAULT,
+  vsCodePluginConfigSchema,
 } from "@lite-llm/agents-repository/schemas";
-import type { IPlugin, TransformContext, TypedPluginRouting } from "../plugin";
-import type {
-  ConfigField,
-  InternalAgent,
-  PluginConfigFor,
-} from "../plugin-types";
-import { vsCodeSchema } from "./schemas/generated/vscode.zod";
+import type { PluginDefinition, PluginManifest } from "../../sdk";
+import { vscodeSchema } from "./plugin.schema";
 
 interface VsCodeModelsOutput {
   $schema: string;
@@ -37,100 +34,150 @@ interface VsCodeModelsOutput {
   }>;
 }
 
-export class VsCodePlugin implements IPlugin<"vscode"> {
-  readonly id = "vscode";
-  readonly name = "VS Code OAICopilot";
-  readonly version = 1;
-  readonly outputFile = "vscode-oaicopilot.json";
+export const vsCodeManifest: PluginManifest<
+  "vscode",
+  VsCodePluginConfig,
+  VsCodeModelsOutput
+> = {
+  id: "vscode",
+  displayName: "VS Code OAICopilot",
+  version: 2,
+  output: { fileName: "vscode-oaicopilot.json" },
+  capabilities: {
+    usesAgents: false,
+    usesCategories: false,
+    usesModels: true,
+  },
+  internalAgents: [],
+  configSchema: [
+    {
+      key: "commitLanguage",
+      type: "string",
+      label: "Commit Language",
+      required: false,
+      default: VSCODE_COMMIT_LANGUAGE_DEFAULT,
+      description: "Language for commit messages",
+    },
+    {
+      key: "retryEnabled",
+      type: "boolean",
+      label: "Enable Retry",
+      required: false,
+      default: VSCODE_RETRY_ENABLED_DEFAULT,
+      description: "Enable retry on failed requests",
+    },
+    {
+      key: "maxRetryAttempts",
+      type: "number",
+      label: "Max Retry Attempts",
+      required: false,
+      default: VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
+      description: "Maximum number of retry attempts",
+    },
+  ],
+  configZodSchema: vsCodePluginConfigSchema,
+};
 
-  getInternalAgents(): InternalAgent[] {
-    return [];
+export function createVsCodePlugin(): PluginDefinition<
+  "vscode",
+  VsCodePluginConfig,
+  VsCodeModelsOutput
+> {
+  return {
+    manifest: vsCodeManifest,
+    handlers: {
+      build(input): VsCodeModelsOutput {
+        const _agents: SystemAgent[] = input.agents;
+        void _agents;
+
+        const pluginConfig: VsCodePluginConfig = input.routing.config ?? {};
+        const schemaUrl = pluginConfig.$schema ?? VSCODE_SCHEMA_URL_DEFAULT;
+        const baseUrl = input.context.litellmConfig.baseUrl.replace(
+          /\/v1$/,
+          "",
+        );
+
+        const output: VsCodeModelsOutput = {
+          $schema: schemaUrl,
+          "oaicopilot.commitLanguage":
+            pluginConfig.commitLanguage ?? VSCODE_COMMIT_LANGUAGE_DEFAULT,
+          "oaicopilot.baseUrl": "",
+          "oaicopilot.delay": 0,
+          "oaicopilot.readFileLines": 0,
+          "oaicopilot.retry": {
+            enabled: pluginConfig.retryEnabled ?? VSCODE_RETRY_ENABLED_DEFAULT,
+            max_attempts:
+              pluginConfig.maxRetryAttempts ??
+              VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
+            interval_ms: 2000,
+            status_codes: [],
+          },
+          "oaicopilot.models": [],
+        };
+
+        for (const [key, spec] of Object.entries(input.context.allModels)) {
+          output["oaicopilot.models"].push({
+            name: spec.displayName,
+            id: key,
+            baseUrl,
+            "request-options": {
+              headers: {
+                Authorization: "Bearer {env:LITELLM_API_KEY}",
+              },
+            },
+            "model-settings": {
+              "max-tokens": spec.limits.maxOutput,
+            },
+          });
+        }
+
+        return output;
+      },
+      validate(output): boolean {
+        const result = vscodeSchema.safeParse(output);
+        if (!result.success) {
+          console.error(
+            "[VsCodePlugin] Validation failed:",
+            result.error.issues,
+          );
+        }
+        return result.success;
+      },
+    },
+  };
+}
+
+export class VsCodePlugin {
+  readonly id = vsCodeManifest.id;
+  readonly name = vsCodeManifest.displayName;
+  readonly version = 1;
+
+  getInternalAgents() {
+    return vsCodeManifest.internalAgents;
   }
 
-  getConfigSchema(): ConfigField[] {
-    return [
-      {
-        key: "commitLanguage",
-        type: "string",
-        label: "Commit Language",
-        required: false,
-        default: VSCODE_COMMIT_LANGUAGE_DEFAULT,
-        description: "Language for commit messages",
-      },
-      {
-        key: "retryEnabled",
-        type: "boolean",
-        label: "Enable Retry",
-        required: false,
-        default: VSCODE_RETRY_ENABLED_DEFAULT,
-        description: "Enable retry on failed requests",
-      },
-      {
-        key: "maxRetryAttempts",
-        type: "number",
-        label: "Max Retry Attempts",
-        required: false,
-        default: VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
-        description: "Maximum number of retry attempts",
-      },
-    ];
+  getConfigSchema() {
+    return vsCodeManifest.configSchema;
   }
 
   buildOutput(
-    _agents: SystemAgent[],
-    routing: TypedPluginRouting<PluginConfigFor<"vscode">>,
-    ctx: TransformContext,
-  ): VsCodeModelsOutput {
-    const pluginConfig: VsCodePluginConfig = (routing.config ??
-      {}) as VsCodePluginConfig;
-    const schemaUrl = pluginConfig.$schema ?? VSCODE_SCHEMA_URL_DEFAULT;
-    const baseUrl = ctx.litellmConfig.baseUrl.replace(/\/v1$/, "");
-
-    const output: VsCodeModelsOutput = {
-      $schema: schemaUrl,
-      "oaicopilot.commitLanguage":
-        pluginConfig.commitLanguage ?? VSCODE_COMMIT_LANGUAGE_DEFAULT,
-      "oaicopilot.baseUrl": "",
-      "oaicopilot.delay": 0,
-      "oaicopilot.readFileLines": 0,
-      "oaicopilot.retry": {
-        enabled: pluginConfig.retryEnabled ?? VSCODE_RETRY_ENABLED_DEFAULT,
-        max_attempts:
-          pluginConfig.maxRetryAttempts ?? VSCODE_MAX_RETRY_ATTEMPTS_DEFAULT,
-        interval_ms: 2000,
-        status_codes: [],
-      },
-      "oaicopilot.models": [],
-    };
-
-    for (const [key, spec] of Object.entries(ctx.allModels)) {
-      output["oaicopilot.models"].push({
-        name: spec.displayName,
-        id: key,
-        baseUrl,
-        "request-options": {
-          headers: {
-            Authorization: "Bearer {env:LITELLM_API_KEY}",
-          },
-        },
-        "model-settings": {
-          "max-tokens": spec.limits.maxOutput,
-        },
-      });
-    }
-
-    return output;
-  }
-
-  getOutputFile(): string {
-    return this.outputFile;
+    agents: SystemAgent[],
+    routing: PluginRouting,
+    context: Parameters<
+      ReturnType<typeof createVsCodePlugin>["handlers"]["build"]
+    >[0]["context"],
+  ) {
+    return createVsCodePlugin().handlers.build({ agents, routing, context });
   }
 
   validate(output: unknown): boolean {
-    const result = vsCodeSchema.safeParse(output);
-    if (!result.success) {
-      console.error("[VsCodePlugin] Validation failed:", result.error.issues);
-    }
-    return result.success;
+    return (
+      createVsCodePlugin().handlers.validate?.(output as VsCodeModelsOutput) ??
+      true
+    );
+  }
+
+  getOutputFile(): string {
+    return vsCodeManifest.output.fileName;
   }
 }

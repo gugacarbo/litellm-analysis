@@ -1,25 +1,16 @@
-// ── Factory: Combines agents-manager services with plugin registry ──
-
 import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
-import type { IPlugin } from "./plugins/plugin";
-import { PluginRegistry } from "./plugins/registry";
+import { ensurePluginSchemas } from "./lib/ensure-plugin-schemas";
+import { createPluginCatalog } from "./plugin-catalog";
+import {
+  createPluginRegistry,
+  type PluginConfigInput,
+  type PluginRegistryV2,
+} from "./plugin-registry";
 
-export type { IPlugin };
+export interface PluginRoutingInput extends PluginConfigInput {}
 
-// Plugin routing type (allows undefined fields)
-export interface PluginRoutingInput {
-  enabled?: boolean;
-  outputFile?: string;
-  config?: Record<string, unknown>;
-  routing?: {
-    agents?: Record<string, string>;
-    categories?: Record<string, boolean>;
-  };
-}
-
-// Agent services from @lite-llm/agents-manager
 export interface AgentServices {
   agents: {
     getAll(): Promise<Record<string, SystemAgent>>;
@@ -66,7 +57,6 @@ export interface AgentServices {
   };
 }
 
-// Repository interface for plugin config
 export interface AgentRepository {
   read(): Promise<{
     plugins?: Record<string, PluginRoutingInput>;
@@ -80,36 +70,32 @@ export interface AgentRepository {
   }): Promise<void>;
 }
 
-// Result type combining services + registry + repository
 export interface AgentPluginsOrchestrator {
   services: AgentServices;
-  registry: PluginRegistry;
+  registry: PluginRegistryV2;
   repository: AgentRepository;
 }
 
-// Factory options
 export interface AgentPluginsOrchestratorOptions {
   repository: IAgentsRepository;
   modelsRepository?: IModelsRepository;
   services: AgentServices;
   outputDir?: string;
-  allPlugins: IPlugin[];
+  aliasDbWriter?: {
+    updateAliases(aliases: Record<string, string>): Promise<void>;
+  };
 }
 
-/**
- * Creates an orchestrator that combines agents-manager services with plugin registry.
- * This factory is used by server-core to wire together:
- * - Services from @lite-llm/agents-manager (for routing/config management)
- * - Registry from @lite-llm/agent-plugins (for config file generation)
- */
 export async function createAgentPluginsOrchestrator(
   options: AgentPluginsOrchestratorOptions,
 ): Promise<AgentPluginsOrchestrator> {
-  const registry = new PluginRegistry({
+  await ensurePluginSchemas();
+
+  const registry = createPluginRegistry({
     repository: options.repository,
     modelsRepository: options.modelsRepository,
     outputDir: options.outputDir,
-    allPlugins: options.allPlugins,
+    catalog: createPluginCatalog({ aliasDbWriter: options.aliasDbWriter }),
   });
 
   const config = await options.repository.read();
@@ -119,7 +105,6 @@ export async function createAgentPluginsOrchestrator(
   >;
   registry.loadFromConfig(pluginConfigs);
 
-  // Wrap repository to expose only what's needed for plugin config
   const wrappedRepository: AgentRepository = {
     read: () =>
       options.repository.read() as Promise<{

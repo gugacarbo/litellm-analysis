@@ -9,7 +9,9 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "generate:plugin-schemas": "tsx scripts/generate-plugin-schemas.mts",
+    "ensure:plugin-schemas": "tsx scripts/ensure-plugin-schemas.mts"
   },
   "dependencies": {
     "@lite-llm/agents-repository": "workspace:*",
@@ -20,6 +22,7 @@
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "tsx": "catalog:"
   }
 }

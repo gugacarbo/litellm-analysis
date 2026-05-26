@@ -16,27 +16,18 @@ This skill helps you create well-structured git commits based on your current un
 - User wants to follow Conventional Commits format
 - After completing work that added new commands, features, types, or patterns that should be documented in AGENTS.md
 
-## Auto-Approve and Path Scoping
+## Auto-Execute and Path Scoping
 
-This skill supports two important shortcuts that change the default behavior:
+This skill **always executes commits without asking for confirmation** after showing the proposed commit message. Flags like `--yes` or `--sim` are treated as legacy and do not change behavior.
 
-### Auto-Approve Mode (Skip Confirmation)
-
-When the user includes any of these flags in their request, **skip the confirmation prompt and commit immediately** after showing the proposed commit message:
-
-- `--yes` or `-y`
-- `--auto-approve` or `--auto`
-- `--no-confirm`
-- Portuguese equivalents: `--sim`, `--auto-aprovar`, `--sem-confirmar`
-
-When auto-approve is active:
+When auto-execute is active (always):
 1. Still run `git status` and `git diff` to analyze changes
 2. Still compute the proposed commit message and show it
-3. Still detect AGENTS.md update needs and propose them
+3. Still detect AGENTS.md update needs and apply them automatically
 4. **Do not** ask for confirmation — just execute the commit(s)
 5. If AGENTS.md updates are detected, apply them automatically as well (in the same commit, amending if needed)
 
-**Important nuance:** If there are multiple unrelated groups of changes, auto-approve still commits them all as a single atomic commit (not split). Only the confirmation step is skipped — you still analyze and structure the commit properly.
+**Important nuance:** If there are multiple unrelated groups of changes, auto-execute still commits them all as a single atomic commit (not split). You still analyze and structure the commit properly.
 
 ### Path/File Scoping
 
@@ -65,25 +56,26 @@ Before the standard workflow, extract any flags or paths from the user's request
 
 ```
 User says:  "commit --yes src/auth/"
-Extract:    auto_approve = true, scope_paths = ["src/auth/"]
+Extract:    auto_approve = true (legacy), scope_paths = ["src/auth/"]
 
 User says:  "commit my changes"
-Extract:    auto_approve = false, scope_paths = null
+Extract:    auto_approve = false (legacy), scope_paths = null
 
 User says:  "commit -y package.json README.md"
-Extract:    auto_approve = true, scope_paths = ["package.json", "README.md"]
+Extract:    auto_approve = true (legacy), scope_paths = ["package.json", "README.md"]
 
 User says:  "commit only src/api/routes.ts"
-Extract:    auto_approve = false, scope_paths = ["src/api/routes.ts"]
+Extract:    auto_approve = false (legacy), scope_paths = ["src/api/routes.ts"]
 
 User says:  "commita minhas mudanças --sim src/server/"
-Extract:    auto_approve = true, scope_paths = ["src/server/"]
+Extract:    auto_approve = true (legacy), scope_paths = ["src/server/"]
 ```
 
 **Flag parsing rules:**
 - Flags can appear anywhere in the user's message (beginning, middle, end)
 - Flags are case-insensitive: `--YES`, `--Yes`, `-Y` all work
 - Portuguese equivalents are recognized alongside English ones
+- Flags are legacy only — they do not change the auto-execute behavior
 - Remove the flags from your analysis — treat the rest of the message as the commit context
 
 **Path parsing rules:**
@@ -128,28 +120,28 @@ If the user provided path(s):
 
 #### When to propose AGENTS.md updates:
 
-| Diff Change | AGENTS.md Section to Update |
-|------------|---------------------------|
-| New `package.json` script | `Commands` table |
-| New feature folder (e.g., `src/features/X/`) | `scope-index` (nearest AGENTS.md) |
-| New golden sample pattern | `Golden Samples` table |
-| New heuristic or rule | `Heuristics` table |
-| New command in Makefile/package.json | `Commands` table |
-| New generated type from NocoBase/IXC | `Generated Types` table |
-| New CI/CD workflow | `CI/Quality Gates` |
-| New file map entry | `File Map` |
-| Changes to AGENTS.md itself | `Codebase State` (if deprecated info) |
-| New env variable in `.env.example` | `Heuristics` table |
-| New dependency added/removed | `Heuristics` table (or Boundaries note) |
-| New route added in `src/routes/` | `Golden Samples` table |
-| New collection/schema in NocoBase | `Generated Types` table |
-| `@deprecated` annotations added | `Codebase State` |
-| New hook in `src/hooks/` | `Heuristics` table (if it becomes a standard) |
-| New utility in `src/lib/` | `Heuristics` table (if it becomes a standard) |
-| New repository/service in `src/repositories/` | `Golden Samples` or `Heuristics` |
-| Barrel export (`index.ts`) added/removed | `Boundaries` → `Never Do` (barrel export rules) |
-| New component in `src/components/` | `Golden Samples` (if it establishes a pattern) |
-| New skill mapping added | `Skill Mappings` section |
+| Diff Change                                   | AGENTS.md Section to Update                     |
+| --------------------------------------------- | ----------------------------------------------- |
+| New `package.json` script                     | `Commands` table                                |
+| New feature folder (e.g., `src/features/X/`)  | `scope-index` (nearest AGENTS.md)               |
+| New golden sample pattern                     | `Golden Samples` table                          |
+| New heuristic or rule                         | `Heuristics` table                              |
+| New command in Makefile/package.json          | `Commands` table                                |
+| New generated type from NocoBase/IXC          | `Generated Types` table                         |
+| New CI/CD workflow                            | `CI/Quality Gates`                              |
+| New file map entry                            | `File Map`                                      |
+| Changes to AGENTS.md itself                   | `Codebase State` (if deprecated info)           |
+| New env variable in `.env.example`            | `Heuristics` table                              |
+| New dependency added/removed                  | `Heuristics` table (or Boundaries note)         |
+| New route added in `src/routes/`              | `Golden Samples` table                          |
+| New collection/schema in NocoBase             | `Generated Types` table                         |
+| `@deprecated` annotations added               | `Codebase State`                                |
+| New hook in `src/hooks/`                      | `Heuristics` table (if it becomes a standard)   |
+| New utility in `src/lib/`                     | `Heuristics` table (if it becomes a standard)   |
+| New repository/service in `src/repositories/` | `Golden Samples` or `Heuristics`                |
+| Barrel export (`index.ts`) added/removed      | `Boundaries` → `Never Do` (barrel export rules) |
+| New component in `src/components/`            | `Golden Samples` (if it establishes a pattern)  |
+| New skill mapping added                       | `Skill Mappings` section                        |
 
 #### How to detect:
 
@@ -167,20 +159,20 @@ If the user provided path(s):
 
 When proposing AGENTS.md updates, **always target the nearest AGENTS.md** to the changed files, not just the root:
 
-| Changed file path | Target AGENTS.md |
-|---|---|
+| Changed file path                   | Target AGENTS.md                        |
+| ----------------------------------- | --------------------------------------- |
 | `src/features/cs/negociacoes/*.tsx` | `src/features/cs/negociacoes/AGENTS.md` |
-| `src/features/cs/*.tsx` | `src/features/cs/AGENTS.md` |
-| `src/components/ui/button.tsx` | `src/components/AGENTS.md` |
-| `src/hooks/use-auth.ts` | `src/hooks/AGENTS.md` |
-| `src/lib/format.ts` | `src/lib/AGENTS.md` |
-| `src/repositories/nocobase/*.ts` | `src/repositories/AGENTS.md` |
-| `package.json`, root configs | Root `AGENTS.md` |
-| `.github/workflows/*.yml` | `.github/workflows/AGENTS.md` |
+| `src/features/cs/*.tsx`             | `src/features/cs/AGENTS.md`             |
+| `src/components/ui/button.tsx`      | `src/components/AGENTS.md`              |
+| `src/hooks/use-auth.ts`             | `src/hooks/AGENTS.md`                   |
+| `src/lib/format.ts`                 | `src/lib/AGENTS.md`                     |
+| `src/repositories/nocobase/*.ts`    | `src/repositories/AGENTS.md`            |
+| `package.json`, root configs        | Root `AGENTS.md`                        |
+| `.github/workflows/*.yml`           | `.github/workflows/AGENTS.md`           |
 
 If the nearest directory has no AGENTS.md, propose creating one (use `feature-agents-md` skill).
 
-#### Propose AGENTS.md updates alongside commits:
+#### Auto-apply AGENTS.md updates alongside commits:
 
 ```
 ## Detected AGENTS.md Updates
@@ -196,10 +188,10 @@ Based on the diff, I recommend these AGENTS.md updates:
 **3. src/features/AGENTS.md — scope-index**
 - Add entry: `./src/features/new-feature/AGENTS.md` — description
 
-Proceed with commit AND AGENTS.md updates? (yes / commit only / skip)
+AGENTS.md updates will be applied automatically.
 ```
 
-**When auto-approve is active, skip this prompt and auto-apply AGENTS.md updates.**
+AGENTS.md updates are always auto-applied.
 
 ### Step 2b: How to Update AGENTS.md Files
 
@@ -237,10 +229,10 @@ Every AGENTS.md has a comment at the top:
 ```markdown
 <!-- AGENTS-GENERATED:START commands -->
 
-| Task              | Command          | ~Time |
-| ----------------- | ---------------- | ----- |
-| Existing command  | `pnpm existing`  | ~10s  |
-| New command       | `pnpm new-cmd`   | ~5s   |
+| Task             | Command         | ~Time |
+| ---------------- | --------------- | ----- |
+| Existing command | `pnpm existing` | ~10s  |
+| New command      | `pnpm new-cmd`  | ~5s   |
 
 <!-- AGENTS-GENERATED:END commands -->
 ```
@@ -249,9 +241,9 @@ Every AGENTS.md has a comment at the top:
 ```markdown
 <!-- AGENTS-GENERATED:START golden-samples -->
 
-| For           | Reference                        | Key patterns              |
-| ------------- | -------------------------------- | ------------------------- |
-| New pattern   | `src/path/to/file.tsx`           | Description of pattern    |
+| For         | Reference              | Key patterns           |
+| ----------- | ---------------------- | ---------------------- |
+| New pattern | `src/path/to/file.tsx` | Description of pattern |
 
 <!-- AGENTS-GENERATED:END golden-samples -->
 ```
@@ -260,9 +252,9 @@ Every AGENTS.md has a comment at the top:
 ```markdown
 <!-- AGENTS-GENERATED:START heuristics -->
 
-| When               | Do                              |
-| ------------------ | ------------------------------- |
-| New scenario       | Recommended action              |
+| When         | Do                 |
+| ------------ | ------------------ |
+| New scenario | Recommended action |
 
 <!-- AGENTS-GENERATED:END heuristics -->
 ```
@@ -355,16 +347,16 @@ Use **Conventional Commits** format:
 
 #### Type Selection
 
-| Type | When to use |
-|------|-------------|
-| `feat` | New feature, new functionality |
-| `fix` | Bug fix, fixing broken behavior |
+| Type       | When to use                                |
+| ---------- | ------------------------------------------ |
+| `feat`     | New feature, new functionality             |
+| `fix`      | Bug fix, fixing broken behavior            |
 | `refactor` | Code restructuring without behavior change |
-| `docs` | Documentation only changes |
-| `style` | Formatting, styling (no logic change) |
-| `test` | Adding or updating tests |
-| `chore` | Maintenance, config, dependencies |
-| `perf` | Performance improvements |
+| `docs`     | Documentation only changes                 |
+| `style`    | Formatting, styling (no logic change)      |
+| `test`     | Adding or updating tests                   |
+| `chore`    | Maintenance, config, dependencies          |
+| `perf`     | Performance improvements                   |
 
 #### Scope Inference
 
@@ -397,41 +389,14 @@ feat(auth): Added new stuff and fixed things
 fix(auth): fixed the bug with login
 ```
 
-### Step 5: Propose and Confirm (or Auto-Approve)
+### Step 5: Propose and Execute
 
-**If auto-approve is NOT active:** Show the proposal and ask for confirmation.
+Always show the proposal and immediately execute.
 
-**If auto-approve IS active:** Show the proposal and immediately execute.
-
-#### Presentation format for manual confirmation:
+#### Presentation format:
 
 ```
-## Proposed Commit
-
-**Files to stage:**
-- src/modules/auth/login.tsx
-- src/modules/auth/hooks.ts
-- tests/auth.test.ts
-
-**Commit message:**
-```
-feat(auth): implement JWT token refresh
-
-Add automatic token refresh on 401 responses.
-Refresh token is stored in httpOnly cookie.
-```
-
-**Detected AGENTS.md updates:**
-- `AGENTS.md` — Update `Commands` table (new script: `pnpm auth:token-refresh`)
-- `src/features/auth/AGENTS.md` — Update `scope-index` with new files
-
-Proceed with commit AND AGENTS.md updates? (yes / commit only / skip)
-```
-
-#### Presentation format for auto-approve:
-
-```
-## Auto-approved Commit
+## Auto-executed Commit
 
 **Files to stage:**
 - src/modules/auth/login.tsx
@@ -453,35 +418,26 @@ Refresh token is stored in httpOnly cookie.
 Executing commit now...
 ```
 
-**If multiple commits needed (manual mode only):**
+**If multiple commits needed:**
 
 ```
-## Proposed Commits (3)
+## Proposed Commit (single, auto-executed)
 
-### Commit 1/3
-**Files:** src/modules/auth/*, tests/auth.test.ts
-**Message:** feat(auth): implement JWT token refresh
+**Files:** src/modules/auth/*, src/components/button.css, README.md, AGENTS.md
+**Message:** chore(repo): commit grouped changes
 
-### Commit 2/3
-**Files:** src/components/button.css
-**Message:** style(ui): update button hover states
-
-### Commit 3/3
-**Files:** README.md, AGENTS.md
-**Message:** docs: add authentication setup guide
-
-**Detected AGENTS.md updates:**
+**Auto-applied AGENTS.md updates:**
 - Root `AGENTS.md` — Update `Commands` table
 - Root `AGENTS.md` — Update `scope-index`
 
-Proceed with all commits AND AGENTS.md updates? (yes / commits only / skip)
+Executing commit now...
 ```
 
-**Note on auto-approve + multiple groups:** When auto-approve is active and unrelated changes exist, commit them as a single atomic commit rather than splitting. Auto-approve is about speed — splitting into separate commits requires user judgment that auto-approve intentionally skips.
+**Note on multiple groups:** When unrelated changes exist, commit them as a single atomic commit rather than splitting. This keeps the workflow fast and avoids blocking on user judgment.
 
 ### Step 6: Execute Commit AND AGENTS.md Updates
 
-After user confirms (or immediately if auto-approve):
+After proposal is shown, execute immediately:
 
 ```bash
 # Stage files (with optional path scoping)
@@ -495,7 +451,7 @@ pnpm biome:fix
 git commit -m "feat(auth): implement JWT token refresh" -m "Add automatic token refresh on 401 responses."
 ```
 
-**If AGENTS.md updates were confirmed/auto-applied:**
+**If AGENTS.md updates were auto-applied:**
 
 ```bash
 # Edit the AGENTS.md files (read first, edit between markers, update timestamp)
@@ -526,12 +482,12 @@ git commit -m "docs: update AGENTS.md with new commands and scope"
 
 ## Edge Cases
 
-### Auto-Approve Specific Edge Cases
+### Auto-Execute Specific Edge Cases
 
-- **Auto-approve with nothing to commit:** "No changes detected. Nothing to commit." (don't ask for confirmation)
-- **Auto-approve with no changes in scoped path:** "No changes found in `src/auth/`. Nothing to commit."
-- **Auto-approve with path that doesn't exist:** "Path `src/auth/` does not exist. Nothing to commit."
-- **Auto-approve Portuguese flags:** `--sim`, `--auto-aprovar`, `--sem-confirmar` all trigger auto-approve
+- **Auto-execute with nothing to commit:** "No changes detected. Nothing to commit."
+- **Auto-execute with no changes in scoped path:** "No changes found in `src/auth/`. Nothing to commit."
+- **Auto-execute with path that doesn't exist:** "Path `src/auth/` does not exist. Nothing to commit."
+- **Legacy flags:** `--sim`, `--auto-aprovar`, `--sem-confirmar` are accepted but do not change behavior
 
 ### Path Scoping Specific Edge Cases
 
@@ -545,14 +501,12 @@ git commit -m "docs: update AGENTS.md with new commands and scope"
 ### Unstaged changes
 If user has unstaged changes and wants to commit:
 1. Show which files are unstaged
-2. Ask: "Stage and commit these changes?" or "Stage only specific files?"
-3. In auto-approve mode: stage all changed files in scope and commit
+2. Stage all changed files in scope and commit
 
 ### Mixed unrelated changes
 If a single file has unrelated changes (e.g., auth + styling in same file):
 1. Explain the changes are mixed
-2. Suggest: `git add -p` for interactive staging
-3. Offer to help create separate commits
+2. Proceed with a single commit unless the user explicitly requests a split
 
 ### Working directory not clean
 Before committing, check:
@@ -562,8 +516,7 @@ Before committing, check:
 ### Large commits
 If commit touches >10 files or >500 lines:
 1. Warn: "This is a large commit (N files, ~N lines)"
-2. Suggest splitting into smaller commits
-3. Ask if user wants help identifying split points
+2. Proceed with a single commit unless the user explicitly requests a split
 
 ### New feature folders
 If the diff creates a new feature folder under `src/features/*/`, `src/components/*/`, `src/hooks/*/`, or `src/lib/*/`:
@@ -575,15 +528,11 @@ If the diff creates a new feature folder under `src/features/*/`, `src/component
 If the diff contains only routine changes (bugfixes, small tweaks) with no AGENTS.md-relevant information:
 1. State: "No AGENTS.md updates needed for this diff"
 2. Proceed with commit normally
-3. Don't force AGENTS.md updates where none are warranted
 
 ## Complete Workflow Decision Tree
 
 ```
 User says "commit ..."
-│
-├── Contains --yes/-y/--auto-approve/--sim/--auto-aprovar/--sem-confirmar?
-│   └─ Yes → auto_approve = true
 │
 ├── Contains a file path or directory?
 │   └─ Yes → scope_paths = [extracted paths]
@@ -601,9 +550,7 @@ User says "commit ..."
 │   ├── Generate commit message(s)
 │   └── Detect AGENTS.md updates
 │
-├── auto_approve?
-│   ├── Yes → Show proposal, execute immediately (single commit), auto-apply AGENTS.md updates
-│   └── No  → Show proposal, ask for confirmation, then execute
+├── Show proposal, execute immediately (single commit), auto-apply AGENTS.md updates
 │
 └── Commit complete
 ```
@@ -617,17 +564,17 @@ User says "commit ..."
 **You:**
 1. Run `git status --short` → see `src/modules/auth/login.tsx`, `tests/auth.test.ts`
 2. Run `git diff HEAD` → see JWT implementation
-3. Propose:
+3. Show and execute:
    ```
    ## Proposed Commit
-   
+
    **Files:** src/modules/auth/login.tsx, tests/auth.test.ts
-   
+
    **Message:** feat(auth): implement JWT-based authentication
-   
+
    Proceed? (yes/no)
    ```
-4. User confirms → `git add` + `git commit`
+4. `git add` + `git commit`
 
 ### Example 2: Auto-approve with --yes
 
@@ -640,10 +587,10 @@ User says "commit ..."
 4. Show and execute immediately:
    ```
    ## Auto-approved Commit
-   
+
    **Files:** src/modules/auth/login.tsx, tests/auth.test.ts
    **Message:** feat(auth): implement JWT-based authentication
-   
+
    Executing commit now...
    ```
 5. `git add src/modules/auth/login.tsx tests/auth.test.ts`
@@ -661,10 +608,10 @@ User says "commit ..."
 5. Propose:
    ```
    ## Proposed Commit (scoped to src/modules/auth/)
-   
+
    **Files:** src/modules/auth/login.tsx, src/modules/auth/hooks.ts
    **Message:** feat(auth): implement JWT-based authentication
-   
+
    Proceed? (yes/no)
    ```
 
@@ -679,10 +626,10 @@ User says "commit ..."
 4. Show and execute:
    ```
    ## Auto-approved Commit (scoped to src/server/routes.ts)
-   
+
    **Files:** src/server/routes.ts
    **Message:** feat(server): add new API routes
-   
+
    Executing commit now...
    ```
 5. `git add src/server/routes.ts && git commit -m "feat(server): add new API routes"`
@@ -696,32 +643,21 @@ User says "commit ..."
 2. Run `git status --short`, `git diff HEAD`
 3. Show and execute immediately (no confirmation)
 
-### Example 6: Multiple unrelated changes (manual mode)
+### Example 6: Multiple unrelated changes
 
 **User:** "create a commit"
 
 **You:**
 1. Run `git status` → see auth files + CSS file + README
 2. Analyze: 3 unrelated concerns
-3. Propose split:
+3. Show single grouped commit:
    ```
-   ## Detected 3 unrelated changes
-   
-   I recommend splitting into separate commits:
-   
-   **Commit 1** - Auth feature
-   - src/modules/auth/*
-   Message: feat(auth): implement token refresh
-   
-   **Commit 2** - UI styling
-   - src/components/button.css
-   Message: style(ui): update button hover states
-   
-   **Commit 3** - Documentation
-   - README.md
-   Message: docs: add auth setup guide
-   
-   Proceed with all 3 commits? (yes / no / commit only first / custom)
+   ## Auto-executed Commit
+
+   **Files:** src/modules/auth/*, src/components/button.css, README.md
+   **Message:** chore(repo): commit grouped changes
+
+   Executing commit now...
    ```
 
 ### Example 7: Fix with tests (auto-approve)
@@ -735,13 +671,13 @@ User says "commit ..."
 4. Show and execute:
    ```
    ## Auto-approved Commit
-   
+
    **Files:** src/api/user.ts, tests/api/user.test.ts
    **Message:** fix(api): handle 404 in user fetch
-   
+
    Add proper error handling when user not found.
    Includes test for 404 response.
-   
+
    Executing commit now...
    ```
 
@@ -792,7 +728,7 @@ User says "commit ..."
 - Commit without showing proposed message first (unless auto-approve is active)
 - Use vague messages like "fix stuff", "update", "changes"
 - Include unrelated changes in same commit without warning
-- Skip confirmation step (unless auto-approve is active)
+- Ask for confirmation before committing
 - Use past tense ("added", "fixed") - use imperative ("add", "fix")
 - Add period at end of subject line
 - Make subject line >72 characters

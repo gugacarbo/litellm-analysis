@@ -1,0 +1,152 @@
+/**
+ * Auto-generated Zod schema for plugin "weave".
+ * DO NOT EDIT MANUALLY - Regenerate with: pnpm --filter @lite-llm/agent-plugins generate:plugin-schemas
+ */
+
+import { z } from "zod";
+
+export const weaveSchema = z.fromJSONSchema({
+  $schema: "http://json-schema.org/draft-07/schema#",
+  $id: "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/weave/schemas/weave-config.schema.json",
+  title: "OpenCode Weave Configuration",
+  description:
+    "JSON Schema for OpenCode Weave agent orchestration configuration",
+  type: "object",
+  required: ["agents", "categories"],
+  properties: {
+    $schema: {
+      type: "string",
+      description: "JSON Schema reference URL",
+    },
+    log_level: {
+      type: "string",
+      enum: ["DEBUG", "INFO", "WARN", "ERROR"],
+      description: "Logging verbosity level",
+    },
+    tmux: {
+      type: "object",
+      properties: {
+        enabled: {
+          type: "boolean",
+        },
+      },
+    },
+    analytics: {
+      type: "object",
+      properties: {
+        enabled: {
+          type: "boolean",
+        },
+        use_fingerprint: {
+          type: "boolean",
+        },
+      },
+    },
+    continuation: {
+      type: "object",
+      properties: {
+        recovery: {
+          type: "object",
+          properties: {
+            compaction: {
+              type: "boolean",
+            },
+          },
+        },
+        idle: {
+          type: "object",
+          properties: {
+            enabled: {
+              type: "boolean",
+            },
+            work: {
+              type: "boolean",
+            },
+            workflow: {
+              type: "boolean",
+            },
+            todo_prompt: {
+              type: "boolean",
+            },
+          },
+        },
+      },
+    },
+    permission: {
+      type: "object",
+      properties: {
+        question: {
+          type: "string",
+          enum: ["allow", "deny", "ask"],
+        },
+      },
+    },
+    skill_directories: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    agents: {
+      type: "object",
+      additionalProperties: {
+        type: "object",
+        required: [
+          "display_name",
+          "model",
+          "fallback_models",
+          "temperature",
+          "color",
+        ],
+        properties: {
+          display_name: {
+            type: "string",
+          },
+          model: {
+            type: "string",
+          },
+          fallback_models: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+          },
+          temperature: {
+            type: "number",
+          },
+          color: {
+            type: "string",
+          },
+          category: {
+            type: "string",
+          },
+        },
+      },
+    },
+    categories: {
+      type: "object",
+      additionalProperties: {
+        type: "object",
+        required: ["description", "model", "fallback_models", "temperature"],
+        properties: {
+          description: {
+            type: "string",
+          },
+          model: {
+            type: "string",
+          },
+          fallback_models: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+          },
+          temperature: {
+            type: "number",
+          },
+        },
+      },
+    },
+  },
+} as const);
+export type WeaveSchemaType = z.infer<typeof weaveSchema>;

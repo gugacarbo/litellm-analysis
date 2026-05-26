@@ -130,16 +130,17 @@ export function registerPluginRoutingRoutes(
       const totalAgentCount = Object.keys(config.agents ?? {}).length;
 
       const plugins: PluginInfoDTO[] = registry.listAll().map((p) => {
-        const pc = config.plugins?.[p.id];
+        const pluginId = p.manifest.id;
+        const pc = config.plugins?.[pluginId];
         const mappedAgentCount = Object.keys(pc?.routing?.agents ?? {}).length;
 
         return {
-          id: p.id,
-          name: p.name,
+          id: pluginId,
+          name: p.manifest.displayName,
           enabled: pc?.enabled ?? false,
-          outputFile: pc?.outputFile ?? p.getOutputFile(),
-          internalAgents: registry.getInternalAgents(p.id),
-          configSchema: registry.getConfigSchema(p.id),
+          outputFile: pc?.outputFile ?? p.manifest.output.fileName,
+          internalAgents: registry.getInternalAgents(pluginId),
+          configSchema: registry.getConfigSchema(pluginId),
           agentCount: totalAgentCount,
           enabledAgentCount: mappedAgentCount,
         };
