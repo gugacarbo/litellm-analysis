@@ -12,7 +12,7 @@ import { AlertDetailDialog } from "./components/alert-detail-dialog";
 import { AlertHistoryTable } from "./components/alert-history-table";
 import { AlertsByTypeChart } from "./components/alerts-by-type-chart";
 import { ConnectionBadge } from "./components/connection-badge";
-import { HealthCheckPanel } from "./components/health-check-panel";
+import { HealthStatusContent } from "./components/health-status-content";
 import { SeverityBreakdownChart } from "./components/severity-breakdown-chart";
 import { useMonitorPageState } from "./hooks/use-monitor-page";
 
@@ -123,7 +123,7 @@ export function MonitorPage() {
         </TabsContent>
 
         <TabsContent value="health-check">
-          <HealthCheckPanel active={tab === "health-check"} />
+          <HealthStatusContent embedded />
         </TabsContent>
       </Tabs>
     </PageLayout>
