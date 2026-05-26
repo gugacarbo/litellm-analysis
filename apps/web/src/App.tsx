@@ -30,7 +30,7 @@ interface RouteConfig {
   withErrorBoundary?: boolean;
 }
 
-export const routes: RouteConfig[] = [
+const routes: RouteConfig[] = [
   { path: "/", title: "Dashboard", component: DashboardPage },
   {
     path: "/logs",

@@ -1,11 +1,40 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignore": ["**/components/ui/*", "shared/lib/**", "shared/hooks/**"],
+  "ignore": [
+    "**/components/ui/*",
+    "shared/lib/**",
+    "shared/hooks/**"
+  ],
+  "workspaces": {
+    ".": {
+      "entry": [
+        "apps/web/src/main.tsx",
+        "apps/server/src/index.ts"
+      ]
+    },
+    "scripts": {
+      "entry": [
+        "src/generate-schema/index.ts",
+        "src/litellm-backup/index.ts",
+        "src/sync-aa-benchmarks/index.ts",
+        "src/sync-cloud-litellm/index.ts",
+        "src/validate-agents/index.ts"
+      ]
+    }
+  },
   "ignoreFiles": [
     "repositories/litellm-repository/src/generated/prisma/schema.prisma",
     "repositories/litellm-repository/src/generated/prisma/wasm-edge-light-loader.mjs",
     "repositories/litellm-repository/src/generated/prisma/wasm-worker-loader.mjs",
     "**/generated/**"
   ],
-  "ignoreDependencies": ["@lite-llm/agents-manager", "@lite-llm/config"]
+  "ignoreUnresolved": [
+    "../../../../packages/config/src/server"
+  ],
+  "ignoreDependencies": [
+    "@lite-llm/agents-manager",
+    "@lite-llm/config",
+    "@prisma/client",
+    "zod"
+  ]
 }

@@ -1,4 +1,4 @@
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -265,18 +265,4 @@ export async function generatePluginSchema(
   await mkdir(dir, { recursive: true });
   await writeFile(generatedSchemaPath, source, "utf-8");
   console.log(`[agent-plugins] generated ${spec.generatedSchemaPath}`);
-}
-
-export async function shouldGeneratePluginSchema(
-  spec: PluginManifestInfo,
-): Promise<boolean> {
-  try {
-    const generatedSchemaPath = resolvePath(spec.generatedSchemaPath);
-    const generatedStat = await stat(generatedSchemaPath);
-    // Always regenerate — schemas come from remote URLs that may change
-    void generatedStat;
-    return true;
-  } catch {
-    return true;
-  }
 }

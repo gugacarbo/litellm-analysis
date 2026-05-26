@@ -9,6 +9,3 @@ export const CHART_COLORS = [
   "#06b6d4",
   "#84cc16",
 ] as const;
-
-/** Error-related chart color */
-export const ERROR_COLOR = "#ef4444";

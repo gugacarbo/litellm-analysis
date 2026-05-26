@@ -18,7 +18,7 @@ const SUPPORTED_TIMEZONES = [
 
 type SupportedTimezone = (typeof SUPPORTED_TIMEZONES)[number];
 
-export function getBrowserLocale(): string | undefined {
+function getBrowserLocale(): string | undefined {
   if (typeof navigator === "undefined") {
     return undefined;
   }

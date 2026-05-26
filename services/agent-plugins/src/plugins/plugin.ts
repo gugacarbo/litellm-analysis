@@ -53,24 +53,3 @@ export interface IPluginRegistry {
   getInternalAgents(pluginId: string): InternalAgent[];
   getConfigSchema(pluginId: string): ConfigField[];
 }
-
-/**
- * Normalize agent routing mappings from string|string[] to string[].
- * Converts single strings and empty strings to arrays. Useful for plugins
- * that need to process 1→N routing (one system agent → multiple plugin agents).
- */
-export function normalizeAgentMappings(
-  mappings: Record<string, string | string[]>,
-): Record<string, string[]> {
-  const result: Record<string, string[]> = {};
-  for (const [key, value] of Object.entries(mappings)) {
-    if (Array.isArray(value)) {
-      result[key] = value.filter(Boolean);
-    } else if (value) {
-      result[key] = [value];
-    } else {
-      result[key] = [];
-    }
-  }
-  return result;
-}

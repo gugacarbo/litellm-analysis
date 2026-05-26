@@ -28,28 +28,6 @@ function buildAnalyticsEndpoint(
   return endpoint;
 }
 
-export async function getErrorLogs(
-  limit = 50,
-  days?: number,
-  options?: RequestInit,
-): Promise<
-  {
-    id: string;
-    error_type: string;
-    model: string;
-    user: string;
-    error_message: string;
-    api_key: string | null;
-    spend_status: string | null;
-    timestamp: string;
-    status_code: number;
-    litellm_model_name: string | null;
-    request_kwargs: Record<string, unknown> | null;
-  }[]
-> {
-  return fetchApi(withDays(`/errors?limit=${limit}`, days), options);
-}
-
 export async function getMetricsSummary(
   params: AnalyticsQueryParams = {},
 ): Promise<{
