@@ -1,5 +1,5 @@
-import type { PluginDefinition, PluginRuntimeContext } from "../../sdk";
 import { mergeConfig } from "../../lib/merge-config";
+import type { PluginDefinition, PluginRuntimeContext } from "../../sdk";
 import type { OpenCodePluginConfig } from "./plugin.config";
 import { openCodePluginConfigDefaults } from "./plugin.config";
 import { openCodeManifest } from "./plugin.manifest";

@@ -103,12 +103,7 @@ export function adaptLitellmAliasOutput(
 
     Object.assign(
       aliases,
-      generateLitellmAliases(
-        key,
-        categoryModel,
-        effectiveFallback,
-        modelNames,
-      ),
+      generateLitellmAliases(key, categoryModel, effectiveFallback, modelNames),
     );
   }
 

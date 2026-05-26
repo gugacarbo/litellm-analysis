@@ -1,5 +1,5 @@
-import type { CreatePluginOptions, PluginDefinition } from "../../sdk";
 import { mergeConfig } from "../../lib/merge-config";
+import type { CreatePluginOptions, PluginDefinition } from "../../sdk";
 import type { LitellmAliasPluginConfig } from "./plugin.config";
 import { litellmAliasPluginConfigDefaults } from "./plugin.config";
 import { litellmAliasManifest } from "./plugin.manifest";

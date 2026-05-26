@@ -1,5 +1,5 @@
-import type { PluginDefinition, PluginRuntimeContext } from "../../sdk";
 import { mergeConfig } from "../../lib/merge-config";
+import type { PluginDefinition, PluginRuntimeContext } from "../../sdk";
 import type { WeavePluginConfig } from "./plugin.config";
 import { weavePluginConfigDefaults } from "./plugin.config";
 import { weaveManifest } from "./plugin.manifest";

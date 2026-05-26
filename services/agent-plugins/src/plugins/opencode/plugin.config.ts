@@ -4,7 +4,7 @@ import { type OpencodeSchemaType, opencodeSchema } from "./plugin.schema";
 
 export const openCodePluginConfigDefaults: OpencodeSchemaType =
   opencodeSchema.parse({
-  $schema: openCodeManifest.$schema,
+    $schema: openCodeManifest.$schema,
   });
 
 export type OpenCodePluginConfig = z.input<typeof opencodeSchema>;

@@ -29,7 +29,11 @@ function agentAdapter(
   modelNames: readonly string[],
 ): NonNullable<WeaveSchemaType["agents"]>[string] {
   const model = systemAgent.model ?? "";
-  const modelData = modelAdapter(systemAgent.id ?? weaveAgent.id, model, modelNames);
+  const modelData = modelAdapter(
+    systemAgent.id ?? weaveAgent.id,
+    model,
+    modelNames,
+  );
 
   return {
     display_name: systemAgent.displayName ?? weaveAgent.displayName,

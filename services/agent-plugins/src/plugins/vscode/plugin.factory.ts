@@ -1,5 +1,5 @@
-import type { PluginDefinition, PluginRuntimeContext } from "../../sdk";
 import { mergeConfig } from "../../lib/merge-config";
+import type { PluginDefinition, PluginRuntimeContext } from "../../sdk";
 import type { VsCodePluginConfig } from "./plugin.config";
 import { vsCodePluginConfigDefaults } from "./plugin.config";
 import { vsCodeManifest } from "./plugin.manifest";
