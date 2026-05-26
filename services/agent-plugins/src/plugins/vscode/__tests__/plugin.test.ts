@@ -25,28 +25,15 @@ describe("VsCodePlugin", () => {
   });
 
   describe("getInternalAgents", () => {
-    it("retorna array vazio", () => {
+    it("retorna undefined (sem agentes internos)", () => {
       const plugin = new VsCodePlugin();
-      expect(plugin.getInternalAgents()).toEqual([]);
+      expect(plugin.getInternalAgents()).toBeUndefined();
     });
   });
 
-  describe("getConfigSchema", () => {
-    it("retorna schema com 3 campos", () => {
-      const plugin = new VsCodePlugin();
-      const schema = plugin.getConfigSchema();
-      expect(schema).toHaveLength(3);
-    });
-
-    it("campos têm keys e tipos corretos", () => {
-      const plugin = new VsCodePlugin();
-      const schema = plugin.getConfigSchema();
-      expect(schema[0].key).toBe("commitLanguage");
-      expect(schema[0].type).toBe("string");
-      expect(schema[1].key).toBe("retryEnabled");
-      expect(schema[1].type).toBe("boolean");
-      expect(schema[2].key).toBe("maxRetryAttempts");
-      expect(schema[2].type).toBe("number");
+  describe("getConfigSchema (removed)", () => {
+    it.skip("config validation now via Zod schemas", () => {
+      // getConfigSchema was removed - config validation is now done via Zod schemas
     });
   });
 

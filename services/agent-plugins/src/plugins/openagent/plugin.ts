@@ -5,30 +5,35 @@ import {
   type OpenAgentPluginConfig,
   openAgentPluginConfigSchema,
 } from "./plugin.config";
-import { type OpenAgentOutput, openAgentManifest } from "./plugin.manifest";
-import { openagentSchema } from "./plugin.schema";
+import { openAgentManifest } from "./plugin.manifest";
+import { type OpenagentSchemaType, openagentSchema } from "./plugin.schema";
 
 export function createOpenAgentPlugin(): PluginDefinition<
   "openagent",
   OpenAgentPluginConfig,
-  OpenAgentOutput
+  OpenagentSchemaType
 > {
   return {
     manifest: openAgentManifest,
     handlers: {
-      build(input): OpenAgentOutput {
+      build(input): OpenagentSchemaType {
         const { agents, routing, context } = input;
-        const config = openAgentPluginConfigSchema.parse(routing.config ?? {});
+        const config = openagentSchema.parse({
+          ...openAgentPluginConfigSchema,
+          ...(routing.config ?? {}),
+        });
 
-        const output: OpenAgentOutput = {
+        const outputAgents: Record<string, Record<string, unknown>> = {};
+        const outputCategories: Record<string, Record<string, unknown>> = {};
+
+        const output = {
           $schema: config.$schema,
-          globalFallbackModel: context.globalFallbackModel,
-          git_master: {
-            commit_footer: config.commitFooter,
-            include_co_authored_by: config.includeCoAuthoredBy,
-          },
-          agents: {},
-          categories: {},
+          git_master: config.git_master,
+          agents: outputAgents,
+          categories: outputCategories,
+          ...(context.globalFallbackModel
+            ? { globalFallbackModel: context.globalFallbackModel }
+            : {}),
         };
 
         const rawAgentMappings: Record<string, string | string[]> =
@@ -49,7 +54,7 @@ export function createOpenAgentPlugin(): PluginDefinition<
           if (agent.config?.tools) entry.tools = agent.config.tools;
           if (agent.config?.color) entry.color = agent.config.color;
 
-          output.agents[internalId] = entry;
+          outputAgents[internalId] = entry;
         }
 
         const categoryRouting = routing.routing?.categories ?? {};
@@ -65,12 +70,12 @@ export function createOpenAgentPlugin(): PluginDefinition<
             if (category.model) catEntry.model = category.model;
 
             if (Object.keys(catEntry).length > 0) {
-              output.categories[categoryName] = catEntry;
+              outputCategories[categoryName] = catEntry;
             }
           }
         }
 
-        return output;
+        return openagentSchema.parse(output);
       },
       validate(output): boolean {
         const result = openagentSchema.safeParse(output);
@@ -95,10 +100,6 @@ export class OpenAgentPlugin {
     return openAgentManifest.internalAgents;
   }
 
-  getConfigSchema() {
-    return openAgentManifest.configSchema;
-  }
-
   buildOutput(
     agents: SystemAgent[],
     routing: PluginRouting,
@@ -110,7 +111,10 @@ export class OpenAgentPlugin {
       agents,
       routing: {
         ...routing,
-        config: openAgentPluginConfigSchema.parse(routing.config ?? {}),
+        config: openagentSchema.parse({
+          ...openAgentPluginConfigSchema,
+          ...(routing.config ?? {}),
+        }),
       },
       context,
     });
@@ -118,8 +122,9 @@ export class OpenAgentPlugin {
 
   validate(output: unknown): boolean {
     return (
-      createOpenAgentPlugin().handlers.validate?.(output as OpenAgentOutput) ??
-      true
+      createOpenAgentPlugin().handlers.validate?.(
+        output as OpenagentSchemaType,
+      ) ?? true
     );
   }
 

@@ -5,14 +5,10 @@ export interface LitellmAliasOutput {
   model_group_alias: Record<string, string>;
 }
 
-export const litellmAliasManifest: PluginManifest<
-  "litellm-alias",
-  LitellmAliasOutput
-> = {
+export const litellmAliasManifest: PluginManifest<"litellm-alias"> = {
   id: "litellm-alias",
   displayName: "LiteLLM Router Aliases",
   version: 2,
   output: { fileName: "litellm-aliases.json" },
-  $schema:
-    "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
+  $schema: "./schemas/litellm-alias.schema.json",
 };

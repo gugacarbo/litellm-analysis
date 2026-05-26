@@ -1,44 +1,4 @@
 import type { PluginManifest } from "../../sdk";
-import {
-  type WeavePluginConfig,
-  weavePluginConfigSchema,
-} from "./plugin.config";
-import { weavePluginDefaults } from "./plugin.defaults";
-
-export interface WeaveAgentOutput {
-  display_name: string;
-  model: string;
-  fallback_models: string[];
-  temperature: number;
-  color: string;
-  category?: string;
-}
-
-export interface WeaveCategoryOutput {
-  description: string;
-  model: string;
-  fallback_models: string[];
-  temperature: number;
-}
-
-export interface WeaveConfigOutput {
-  $schema: string;
-  log_level: string;
-  tmux: { enabled: boolean };
-  analytics: { enabled: boolean; use_fingerprint: boolean };
-  continuation: {
-    recovery: { compaction: boolean };
-    idle: {
-      enabled: boolean;
-      work: boolean;
-      workflow: boolean;
-      todo_prompt: boolean;
-    };
-  };
-  skill_directories: string[];
-  agents: Record<string, WeaveAgentOutput>;
-  categories: Record<string, WeaveCategoryOutput>;
-}
 
 export const WEAVE_AGENTS: {
   id: string;
@@ -108,129 +68,15 @@ export const WEAVE_AGENTS: {
   },
 ];
 
-export const weaveManifest: PluginManifest<
-  "weave",
-  WeavePluginConfig,
-  WeaveConfigOutput
-> = {
+export const weaveManifest: PluginManifest<"weave"> = {
   id: "weave",
   displayName: "OpenCode Weave",
   version: 2,
   output: { fileName: "weave-config.json" },
-  capabilities: {
-    usesAgents: true,
-    usesCategories: true,
-    usesModels: true,
-  },
+  $schema: "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json",
   internalAgents: WEAVE_AGENTS.map((agent) => ({
     id: agent.id,
     displayName: agent.displayName,
     description: agent.description,
   })),
-  configSchema: [
-    {
-      key: "$schema",
-      type: "string",
-      label: "Schema URL",
-      required: false,
-      default: weavePluginDefaults.$schema,
-      placeholder: "weave config schema URL",
-      description: "JSON Schema URL for the generated weave config",
-    },
-    {
-      key: "logLevel",
-      type: "select",
-      label: "Log Level",
-      required: false,
-      default: weavePluginDefaults.logLevel,
-      options: ["DEBUG", "INFO", "WARN", "ERROR"].map((value) => ({
-        value,
-        label: value,
-      })),
-      description: "Logging verbosity level for Weave",
-    },
-    {
-      key: "tmuxEnabled",
-      type: "boolean",
-      label: "Tmux Enabled",
-      required: false,
-      default: weavePluginDefaults.tmuxEnabled,
-      description: "Enable tmux session management",
-    },
-    {
-      key: "analyticsEnabled",
-      type: "boolean",
-      label: "Analytics Enabled",
-      required: false,
-      default: weavePluginDefaults.analyticsEnabled,
-      description: "Enable usage analytics collection",
-    },
-    {
-      key: "analyticsUseFingerprint",
-      type: "boolean",
-      label: "Analytics Use Fingerprint",
-      required: false,
-      default: weavePluginDefaults.analyticsUseFingerprint,
-      description: "Use fingerprint for analytics tracking",
-    },
-    {
-      key: "continuationRecoveryCompaction",
-      type: "boolean",
-      label: "Continuation Recovery Compaction",
-      required: false,
-      default: weavePluginDefaults.continuationRecoveryCompaction,
-      description: "Enable context compaction during recovery",
-    },
-    {
-      key: "continuationIdleEnabled",
-      type: "boolean",
-      label: "Continuation Idle Enabled",
-      required: false,
-      default: weavePluginDefaults.continuationIdleEnabled,
-      description: "Enable idle continuation processing",
-    },
-    {
-      key: "continuationIdleWork",
-      type: "boolean",
-      label: "Continuation Idle Work",
-      required: false,
-      default: weavePluginDefaults.continuationIdleWork,
-      description: "Allow work during idle periods",
-    },
-    {
-      key: "continuationIdleTodoPrompt",
-      type: "boolean",
-      label: "Continuation Idle Todo Prompt",
-      required: false,
-      default: weavePluginDefaults.continuationIdleTodoPrompt,
-      description: "Show todo prompt during idle",
-    },
-    {
-      key: "permissionQuestion",
-      type: "select",
-      label: "Permission Question Behavior",
-      required: false,
-      default: weavePluginDefaults.permissionQuestion,
-      options: [
-        { value: "allow", label: "Allow" },
-        { value: "deny", label: "Deny" },
-        { value: "ask", label: "Ask" },
-      ],
-      description: "Default behavior for permission questions",
-    },
-    {
-      key: "skillDirectories",
-      type: "multiselect",
-      label: "Skill Directories",
-      required: false,
-      default: [...weavePluginDefaults.skillDirectories],
-      options: [
-        { value: "~/.agents/skills", label: "~/.agents/skills" },
-        { value: "~/.claude/skills", label: "~/.claude/skills" },
-        { value: "~/.opencode/skills", label: "~/.opencode/skills" },
-      ],
-      description: "Directories to scan for skills",
-    },
-  ],
-  configZodSchema: weavePluginConfigSchema,
 };

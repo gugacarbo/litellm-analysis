@@ -21,11 +21,10 @@ export interface VsCodeModelsOutput {
   }>;
 }
 
-export const vsCodeManifest: PluginManifest<"vscode", VsCodeModelsOutput> = {
+export const vsCodeManifest: PluginManifest<"vscode"> = {
   id: "vscode",
   displayName: "VS Code OAICopilot",
   version: 2,
   output: { fileName: "vscode-oaicopilot.json" },
-  $schema:
-    "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
+  $schema: "./schemas/vscode.schema.json",
 };

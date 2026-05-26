@@ -5,11 +5,11 @@ export interface OpenCodeProviders {
   provider: Record<string, unknown>;
 }
 
-export const openCodeManifest: PluginManifest<"opencode", OpenCodeProviders> = {
+export const openCodeManifest: PluginManifest<"opencode"> = {
   id: "opencode",
   displayName: "OpenCode AI SDK",
-  version: 2,
+  $schema: "./schemas/opencode.schema.json",
   output: { fileName: "opencode.json" },
-  $schema: "https://opencode.ai/config.json",
   internalAgents: [],
+  version: 2,
 };

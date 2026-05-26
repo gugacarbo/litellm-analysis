@@ -8,8 +8,8 @@ import {
   type OpenCodePluginConfig,
   openCodePluginConfigSchema,
 } from "./plugin.config";
-import { type OpenCodeProviders, openCodeManifest } from "./plugin.manifest";
-import { opencodeSchema } from "./plugin.schema";
+import { openCodeManifest } from "./plugin.manifest";
+import { type OpencodeSchemaType, opencodeSchema } from "./plugin.schema";
 
 const OPENCODE_REASONING_EFFORT_LEVELS = new Set([
   "none",
@@ -101,7 +101,7 @@ function addRoleModelSlots(
     PluginDefinition<
       "opencode",
       OpenCodePluginConfig,
-      OpenCodeProviders
+      OpencodeSchemaType
     >["handlers"]["build"]
   >[0],
 ): void {
@@ -131,23 +131,23 @@ function addRoleModelSlots(
 export function createOpenCodePlugin(): PluginDefinition<
   "opencode",
   OpenCodePluginConfig,
-  OpenCodeProviders
+  OpencodeSchemaType
 > {
   return {
     manifest: openCodeManifest,
     handlers: {
-      build(input): OpenCodeProviders {
-        const config = openCodePluginConfigSchema.parse(
-          input.routing.config ?? {},
-        );
-        const configDefaultModel = config.defaultModel || "";
-        const schemaUrl = config.$schema;
+      build(input): OpencodeSchemaType {
+        const config = opencodeSchema.parse({
+          ...openCodePluginConfigSchema,
+          ...(input.routing.config ?? {}),
+        });
+        const configDefaultModel = config.model ?? "";
 
         const modelNames = input.context.modelNames ?? DEFAULT_MODEL_NAMES;
 
-        const output: OpenCodeProviders = {
-          $schema: schemaUrl,
-          provider: {},
+        const output = {
+          $schema: config.$schema,
+          provider: {} as Record<string, unknown>,
         };
 
         const providerOpts = {
@@ -158,7 +158,7 @@ export function createOpenCodePlugin(): PluginDefinition<
           },
         };
 
-        const litellmModels: Record<string, unknown> = {};
+        const litellmModels: Record<string, Record<string, unknown>> = {};
         for (const [key, spec] of Object.entries(input.context.allModels)) {
           const modelOutput: Record<string, unknown> = {
             id: key,
@@ -199,7 +199,7 @@ export function createOpenCodePlugin(): PluginDefinition<
           >) ?? {};
         const enabledAgents = normalizeAgentMappings(rawEnabledAgents);
 
-        const llmAgentsModels: Record<string, unknown> = {};
+        const llmAgentsModels: Record<string, Record<string, unknown>> = {};
 
         for (const agent of input.agents) {
           const agentRole = Object.entries(enabledAgents).find(([, agentIds]) =>
@@ -240,7 +240,10 @@ export function createOpenCodePlugin(): PluginDefinition<
           input.context.allCategories &&
           Object.keys(input.context.allCategories).length > 0
         ) {
-          const llmCategoriesModels: Record<string, unknown> = {};
+          const llmCategoriesModels: Record<
+            string,
+            Record<string, unknown>
+          > = {};
 
           for (const [categoryName, category] of Object.entries(
             input.context.allCategories,
@@ -292,7 +295,7 @@ export function createOpenCodePlugin(): PluginDefinition<
           }
         }
 
-        return output;
+        return opencodeSchema.parse(output);
       },
       validate(output): boolean {
         const result = opencodeSchema.safeParse(output);
@@ -317,10 +320,6 @@ export class OpenCodePlugin {
     return openCodeManifest.internalAgents;
   }
 
-  getConfigSchema() {
-    return openCodeManifest.configSchema;
-  }
-
   buildOutput(
     agents: SystemAgent[],
     routing: PluginRouting,
@@ -332,7 +331,10 @@ export class OpenCodePlugin {
       agents,
       routing: {
         ...routing,
-        config: openCodePluginConfigSchema.parse(routing.config ?? {}),
+        config: opencodeSchema.parse({
+          ...openCodePluginConfigSchema,
+          ...(routing.config ?? {}),
+        }),
       },
       context,
     });
@@ -340,8 +342,9 @@ export class OpenCodePlugin {
 
   validate(output: unknown): boolean {
     return (
-      createOpenCodePlugin().handlers.validate?.(output as OpenCodeProviders) ??
-      true
+      createOpenCodePlugin().handlers.validate?.(
+        output as OpencodeSchemaType,
+      ) ?? true
     );
   }
 

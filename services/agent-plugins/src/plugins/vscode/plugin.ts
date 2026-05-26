@@ -4,41 +4,32 @@ import {
   type VsCodePluginConfig,
   vsCodePluginConfigSchema,
 } from "./plugin.config";
-import { type VsCodeModelsOutput, vsCodeManifest } from "./plugin.manifest";
-import { vscodeSchema } from "./plugin.schema";
+import { vsCodeManifest } from "./plugin.manifest";
+import { type VscodeSchemaType, vscodeSchema } from "./plugin.schema";
 
 export function createVsCodePlugin(): PluginDefinition<
   "vscode",
   VsCodePluginConfig,
-  VsCodeModelsOutput
+  VscodeSchemaType
 > {
   return {
     manifest: vsCodeManifest,
     handlers: {
-      build(input): VsCodeModelsOutput {
+      build(input): VscodeSchemaType {
         const _agents: SystemAgent[] = input.agents;
         void _agents;
 
-        const config = vsCodePluginConfigSchema.parse(
-          input.routing.config ?? {},
-        );
+        const config = vscodeSchema.parse({
+          ...vsCodePluginConfigSchema,
+          ...(input.routing.config ?? {}),
+        });
         const baseUrl = input.context.litellmConfig.baseUrl.replace(
           /\/v1$/,
           "",
         );
 
-        const output: VsCodeModelsOutput = {
-          $schema: config.$schema,
-          "oaicopilot.commitLanguage": config.commitLanguage,
-          "oaicopilot.baseUrl": "",
-          "oaicopilot.delay": 0,
-          "oaicopilot.readFileLines": 0,
-          "oaicopilot.retry": {
-            enabled: config.retryEnabled,
-            max_attempts: config.maxRetryAttempts,
-            interval_ms: 2000,
-            status_codes: [],
-          },
+        const output: VscodeSchemaType = {
+          ...config,
           "oaicopilot.models": [],
         };
 
@@ -58,7 +49,7 @@ export function createVsCodePlugin(): PluginDefinition<
           });
         }
 
-        return output;
+        return vscodeSchema.parse(output);
       },
       validate(output): boolean {
         const result = vscodeSchema.safeParse(output);
@@ -83,10 +74,6 @@ export class VsCodePlugin {
     return vsCodeManifest.internalAgents;
   }
 
-  getConfigSchema() {
-    return vsCodeManifest.configSchema;
-  }
-
   buildOutput(
     agents: SystemAgent[],
     routing: PluginRouting,
@@ -98,7 +85,10 @@ export class VsCodePlugin {
       agents,
       routing: {
         ...routing,
-        config: vsCodePluginConfigSchema.parse(routing.config ?? {}),
+        config: vscodeSchema.parse({
+          ...vsCodePluginConfigSchema,
+          ...(routing.config ?? {}),
+        }),
       },
       context,
     });
@@ -106,7 +96,7 @@ export class VsCodePlugin {
 
   validate(output: unknown): boolean {
     return (
-      createVsCodePlugin().handlers.validate?.(output as VsCodeModelsOutput) ??
+      createVsCodePlugin().handlers.validate?.(output as VscodeSchemaType) ??
       true
     );
   }

@@ -34,21 +34,9 @@ describe("OpenCodePlugin", () => {
     });
   });
 
-  describe("getConfigSchema", () => {
-    it("retorna 2 campos de configuração", () => {
-      const plugin = new OpenCodePlugin();
-      const schema = plugin.getConfigSchema();
-      expect(schema).toHaveLength(2);
-    });
-
-    it("campos tem key, type e label", () => {
-      const plugin = new OpenCodePlugin();
-      const schema = plugin.getConfigSchema();
-      expect(schema).toHaveLength(2);
-      expect(schema[0].key).toBe("defaultModel");
-      expect(schema[0].type).toBe("string");
-      expect(schema[1].key).toBe("defaultTemperature");
-      expect(schema[1].type).toBe("number");
+  describe("getConfigSchema (removed)", () => {
+    it.skip("getConfigSchema was removed - config validation is now done via Zod schemas", () => {
+      // No longer needed - config is validated by Zod schemas
     });
   });
 

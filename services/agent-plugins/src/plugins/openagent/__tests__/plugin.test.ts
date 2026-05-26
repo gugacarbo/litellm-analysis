@@ -33,26 +33,16 @@ describe("OpenAgentPlugin", () => {
     it("agente interno é 'default'", () => {
       const plugin = new OpenAgentPlugin();
       const agents = plugin.getInternalAgents();
+      expect(agents).toBeDefined();
+      if (!agents) return;
       expect(agents[0].id).toBe("default");
       expect(agents[0].displayName).toBe("Default");
     });
   });
 
-  describe("getConfigSchema", () => {
-    it("retorna schema com campos", () => {
-      const plugin = new OpenAgentPlugin();
-      const schema = plugin.getConfigSchema();
-      expect(schema.length).toBeGreaterThan(0);
-    });
-
-    it("campos são booleanos com defaults", () => {
-      const plugin = new OpenAgentPlugin();
-      const schema = plugin.getConfigSchema();
-      expect(schema).toHaveLength(2);
-      expect(schema[0].key).toBe("commitFooter");
-      expect(schema[0].type).toBe("boolean");
-      expect(schema[1].key).toBe("includeCoAuthoredBy");
-      expect(schema[1].type).toBe("boolean");
+  describe("getConfigSchema (removed)", () => {
+    it.skip("retorna schema com campos", () => {
+      // getConfigSchema was removed - config validation is now done via Zod schemas
     });
   });
 

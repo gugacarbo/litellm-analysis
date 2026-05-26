@@ -2,8 +2,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import { PluginExecutionError } from "./errors";
-import { getPluginConfigJsonSchema } from "./plugin-config-schemas";
-import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
+import type { InternalAgent } from "./plugins/plugin-types";
 import type { PluginDefinition, PluginRuntimeContext } from "./sdk";
 import type {
   AgentsRepositoryLike,
@@ -32,8 +31,6 @@ export interface PluginRegistryV2 {
   exportAll(): Promise<void>;
   exportOne(pluginId: string): Promise<void>;
   getInternalAgents(pluginId: string): InternalAgent[];
-  getConfigSchema(pluginId: string): ConfigField[];
-  getJsonSchema(pluginId: string): Record<string, unknown> | null;
 }
 
 export interface CreatePluginRegistryOptions {
@@ -128,21 +125,6 @@ class PluginRegistryV2Impl implements PluginRegistryV2 {
       return;
     }
 
-    if (plugin.manifest.configZodSchema) {
-      try {
-        const parsedConfig = plugin.manifest.configZodSchema.parse(
-          pluginConfig.config ?? {},
-        );
-        pluginConfig.config = parsedConfig;
-      } catch (cause) {
-        throw new PluginExecutionError({
-          pluginId,
-          stage: "loadPluginConfig",
-          cause,
-        });
-      }
-    }
-
     let context: PluginRuntimeContext;
     try {
       context = await this.buildContext(config);
@@ -219,18 +201,6 @@ class PluginRegistryV2Impl implements PluginRegistryV2 {
     });
 
     return plugin?.manifest.internalAgents ?? [];
-  }
-
-  getConfigSchema(pluginId: string): ConfigField[] {
-    const plugin = this.allPlugins.find((candidate) => {
-      return candidate.manifest.id === pluginId;
-    });
-
-    return plugin?.manifest.configSchema ?? [];
-  }
-
-  getJsonSchema(pluginId: string): Record<string, unknown> | null {
-    return getPluginConfigJsonSchema(pluginId);
   }
 
   private async buildContext(config: DbConfig): Promise<PluginRuntimeContext> {

@@ -55,12 +55,7 @@ function createTestPlugin(
       displayName: "Test V2",
       version: 2,
       output: { fileName: "test-v2.json" },
-      capabilities: {
-        usesAgents: true,
-        usesCategories: false,
-        usesModels: false,
-      },
-      configSchema: [],
+      $schema: "https://example.com/test-v2.schema.json",
       internalAgents: [],
     },
     handlers: {

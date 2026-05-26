@@ -7,11 +7,11 @@ import {
   type LitellmAliasPluginConfig,
   litellmAliasPluginConfigSchema,
 } from "./plugin.config";
+import { litellmAliasManifest } from "./plugin.manifest";
 import {
-  type LitellmAliasOutput,
-  litellmAliasManifest,
-} from "./plugin.manifest";
-import { litellmAliasSchema } from "./plugin.schema";
+  type LitellmAliasSchemaType,
+  litellmAliasSchema,
+} from "./plugin.schema";
 
 /** Logical slot names for primary + fallback aliases (default: gpt-5.5..gpt-5.1). */
 export const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
@@ -27,27 +27,18 @@ export function createLitellmAliasPlugin(
 ): PluginDefinition<
   "litellm-alias",
   LitellmAliasPluginConfig,
-  LitellmAliasOutput
+  LitellmAliasSchemaType
 > {
   return {
     manifest: litellmAliasManifest,
     handlers: {
-      build(input): LitellmAliasOutput {
+      build(input): LitellmAliasSchemaType {
         const aliases: Record<string, string> = {};
-        const config: LitellmAliasPluginConfig = input.routing.config ?? {};
-        const schemaUrl = config.$schema ?? litellmAliasPluginDefaults.$schema;
-        const aliasPrefix =
-          config.aliasPrefix ?? litellmAliasPluginDefaults.aliasPrefix;
-        const includeAgents =
-          config.includeAgents ?? litellmAliasPluginDefaults.includeAgents;
-        const includeCategories =
-          config.includeCategories ??
-          litellmAliasPluginDefaults.includeCategories;
-        const globalFallbackOverride =
-          config.globalFallbackOverride ??
-          litellmAliasPluginDefaults.globalFallbackOverride;
-        const rawFallback =
-          globalFallbackOverride || input.context.globalFallbackModel;
+        const config = litellmAliasSchema.parse({
+          ...litellmAliasPluginConfigSchema,
+          ...(input.routing.config ?? {}),
+        });
+        const rawFallback = input.context.globalFallbackModel;
 
         const enabledSet = new Set(
           Object.entries(input.context.allModels)
@@ -74,68 +65,60 @@ export function createLitellmAliasPlugin(
         const hasAgentRouting = Object.keys(routingAgents).length > 0;
         const hasCategoryRouting = Object.keys(routingCategories).length > 0;
 
-        if (includeAgents) {
-          for (const agent of input.agents as AgentWithId[]) {
-            if (hasAgentRouting && !routingAgents[agent.id]?.length) {
-              continue;
-            }
-
-            const agentModel =
-              agent.model && enabledSet.has(agent.model) ? agent.model : "";
-            if (!agentModel) {
-              continue;
-            }
-
-            const finalKey = aliasPrefix
-              ? `${aliasPrefix}${agent.id}`
-              : agent.id;
-            Object.assign(
-              aliases,
-              generateLitellmAliases(
-                finalKey,
-                agentModel,
-                effectiveFallback,
-                modelNames,
-              ),
-            );
+        for (const agent of input.agents as AgentWithId[]) {
+          if (hasAgentRouting && !routingAgents[agent.id]?.length) {
+            continue;
           }
+
+          const agentModel =
+            agent.model && enabledSet.has(agent.model) ? agent.model : "";
+          if (!agentModel) {
+            continue;
+          }
+
+          Object.assign(
+            aliases,
+            generateLitellmAliases(
+              agent.id,
+              agentModel,
+              effectiveFallback,
+              modelNames,
+            ),
+          );
         }
 
-        if (includeCategories) {
-          for (const [key, category] of Object.entries(
-            input.context.allCategories ?? {},
-          )) {
-            if (hasCategoryRouting && !routingCategories[key]) {
-              continue;
-            }
-
-            if (!(category.model && enabledSet.has(category.model))) {
-              continue;
-            }
-
-            const finalKey = aliasPrefix ? `${aliasPrefix}${key}` : key;
-            Object.assign(
-              aliases,
-              generateLitellmAliases(
-                finalKey,
-                category.model && enabledSet.has(category.model)
-                  ? category.model
-                  : "",
-                effectiveFallback,
-                modelNames,
-              ),
-            );
+        for (const [key, category] of Object.entries(
+          input.context.allCategories ?? {},
+        )) {
+          if (hasCategoryRouting && !routingCategories[key]) {
+            continue;
           }
+
+          if (!(category.model && enabledSet.has(category.model))) {
+            continue;
+          }
+
+          Object.assign(
+            aliases,
+            generateLitellmAliases(
+              key,
+              category.model && enabledSet.has(category.model)
+                ? category.model
+                : "",
+              effectiveFallback,
+              modelNames,
+            ),
+          );
         }
 
-        return {
-          $schema: schemaUrl,
+        return litellmAliasSchema.parse({
+          $schema: config.$schema,
           model_group_alias: sortAliasesByDefinitionOrder(
             aliases,
             agentKeys,
             categoryKeys,
           ),
-        };
+        });
       },
       validate(output): boolean {
         const result = litellmAliasSchema.safeParse(output);
@@ -176,10 +159,6 @@ export class LitellmAliasPlugin {
     return litellmAliasManifest.internalAgents;
   }
 
-  getConfigSchema() {
-    return litellmAliasManifest.configSchema;
-  }
-
   getOutputFile(): string {
     return litellmAliasManifest.output.fileName;
   }
@@ -195,7 +174,10 @@ export class LitellmAliasPlugin {
       agents,
       routing: {
         ...routing,
-        config: litellmAliasPluginConfigSchema.parse(routing.config ?? {}),
+        config: litellmAliasSchema.parse({
+          ...litellmAliasPluginConfigSchema,
+          ...(routing.config ?? {}),
+        }),
       },
       context,
     });
@@ -203,11 +185,11 @@ export class LitellmAliasPlugin {
 
   validate(output: unknown): boolean {
     return (
-      this.plugin.handlers.validate?.(output as LitellmAliasOutput) ?? true
+      this.plugin.handlers.validate?.(output as LitellmAliasSchemaType) ?? true
     );
   }
 
   async afterExport(output: unknown): Promise<void> {
-    await this.plugin.handlers.afterExport?.(output as LitellmAliasOutput);
+    await this.plugin.handlers.afterExport?.(output as LitellmAliasSchemaType);
   }
 }

@@ -11,7 +11,7 @@ export interface OpenAgentOutput {
   categories: Record<string, Record<string, unknown>>;
 }
 
-export const openAgentManifest: PluginManifest<"openagent", OpenAgentOutput> = {
+export const openAgentManifest: PluginManifest<"openagent"> = {
   id: "openagent",
   displayName: "Oh My OpenAgent",
   version: 2,

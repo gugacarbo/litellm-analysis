@@ -1,34 +1,17 @@
 import { z } from "zod";
+import { openAgentManifest } from "./plugin.manifest";
+import { openagentSchema } from "./plugin.schema";
 
-export const openAgentPluginConfigSchema = z
-  .object({
-    $schema: z
-      .string()
-      .default(
-        "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
-      )
-      .meta({
-        title: "Schema URL",
-        description: "Official Oh My OpenAgent config schema URL",
-      }),
-    commitFooter: z.boolean().default(false).meta({
-      title: "Commit Footer",
-      description: "Add footer to commit messages",
-    }),
-    includeCoAuthoredBy: z.boolean().default(false).meta({
-      title: "Include Co-Authored-By",
-      description: "Include co-authored-by trailer in commits",
-    }),
-  })
-  .meta({
-    title: "OpenAgent Config",
-    description: "Oh My OpenAgent plugin configuration",
-  });
+export const openAgentPluginConfigSchema = openagentSchema.parse({
+  $schema: openAgentManifest.$schema,
+  git_master: {
+    commit_footer: false,
+    include_co_authored_by: false,
+  },
+});
 
-export type OpenAgentPluginConfig = z.infer<
-  typeof openAgentPluginConfigSchema
-> & { [key: string]: unknown };
+export type OpenAgentPluginConfig = z.infer<typeof openagentSchema> & {
+  [key: string]: unknown;
+};
 
-export const openAgentPluginConfigJsonSchema = z.toJSONSchema(
-  openAgentPluginConfigSchema,
-);
+export const openAgentPluginConfigJsonSchema = z.toJSONSchema(openagentSchema);

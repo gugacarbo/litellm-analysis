@@ -5,14 +5,8 @@ import {
   type WeavePluginConfig,
   weavePluginConfigSchema,
 } from "./plugin.config";
-import {
-  WEAVE_AGENTS,
-  type WeaveAgentOutput,
-  type WeaveCategoryOutput,
-  type WeaveConfigOutput,
-  weaveManifest,
-} from "./plugin.manifest";
-import { weaveSchema } from "./plugin.schema";
+import { WEAVE_AGENTS, weaveManifest } from "./plugin.manifest";
+import { type WeaveSchemaType, weaveSchema } from "./plugin.schema";
 
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
 
@@ -23,38 +17,41 @@ function resolveModels(role: string, modelNames: readonly string[]): string[] {
 export function createWeavePlugin(): PluginDefinition<
   "weave",
   WeavePluginConfig,
-  WeaveConfigOutput
+  WeaveSchemaType
 > {
   return {
     manifest: weaveManifest,
     handlers: {
-      build(input): WeaveConfigOutput {
-        const config = weavePluginConfigSchema.parse(
-          input.routing.config ?? {},
-        );
-        const schemaUrl = config.$schema;
+      build(input): WeaveSchemaType {
+        const incomingConfig = (input.routing.config ??
+          {}) as WeavePluginConfig;
 
-        const modelNames = input.context.modelNames ?? DEFAULT_MODEL_NAMES;
-
-        const baseOutput: Omit<WeaveConfigOutput, "agents" | "categories"> = {
-          $schema: schemaUrl,
-          log_level: config.logLevel,
-          tmux: { enabled: config.tmuxEnabled },
+        const config = weaveSchema.parse({
+          ...weavePluginConfigSchema,
+          ...incomingConfig,
+          tmux: {
+            ...weavePluginConfigSchema.tmux,
+            ...(incomingConfig.tmux ?? {}),
+          },
           analytics: {
-            enabled: config.analyticsEnabled,
-            use_fingerprint: config.analyticsUseFingerprint,
+            ...weavePluginConfigSchema.analytics,
+            ...(incomingConfig.analytics ?? {}),
           },
           continuation: {
-            recovery: { compaction: config.continuationRecoveryCompaction },
+            ...weavePluginConfigSchema.continuation,
+            ...(incomingConfig.continuation ?? {}),
+            recovery: {
+              ...weavePluginConfigSchema.continuation?.recovery,
+              ...(incomingConfig.continuation?.recovery ?? {}),
+            },
             idle: {
-              enabled: config.continuationIdleEnabled,
-              work: config.continuationIdleWork,
-              workflow: true,
-              todo_prompt: config.continuationIdleTodoPrompt,
+              ...weavePluginConfigSchema.continuation?.idle,
+              ...(incomingConfig.continuation?.idle ?? {}),
             },
           },
-          skill_directories: config.skillDirectories,
-        };
+        });
+
+        const modelNames = input.context.modelNames ?? DEFAULT_MODEL_NAMES;
 
         const rawAgentMappings: Record<string, string | string[]> =
           (input.routing.routing?.agents as Record<
@@ -71,7 +68,7 @@ export function createWeavePlugin(): PluginDefinition<
           }
         }
 
-        const outputAgents: Record<string, WeaveAgentOutput> = {};
+        const outputAgents: NonNullable<WeaveSchemaType["agents"]> = {};
 
         for (const weaveAgent of WEAVE_AGENTS) {
           const systemAgentId = agentMappings[weaveAgent.id]?.[0];
@@ -93,7 +90,7 @@ export function createWeavePlugin(): PluginDefinition<
           };
         }
 
-        const outputCategories: Record<string, WeaveCategoryOutput> = {};
+        const outputCategories: NonNullable<WeaveSchemaType["categories"]> = {};
         const categoryRouting = input.routing.routing?.categories ?? {};
         for (const [categoryId, enabled] of Object.entries(categoryRouting)) {
           if (!enabled) continue;
@@ -112,11 +109,11 @@ export function createWeavePlugin(): PluginDefinition<
           };
         }
 
-        return {
-          ...baseOutput,
+        return weaveSchema.parse({
+          ...config,
           agents: outputAgents,
           categories: outputCategories,
-        };
+        });
       },
       validate(output): boolean {
         const result = weaveSchema.safeParse(output);
@@ -141,10 +138,6 @@ export class WeavePlugin {
     return weaveManifest.internalAgents;
   }
 
-  getConfigSchema() {
-    return weaveManifest.configSchema;
-  }
-
   buildOutput(
     agents: SystemAgent[],
     routing: PluginRouting,
@@ -152,11 +145,35 @@ export class WeavePlugin {
       ReturnType<typeof createWeavePlugin>["handlers"]["build"]
     >[0]["context"],
   ) {
+    const incomingConfig = (routing.config ?? {}) as WeavePluginConfig;
     return createWeavePlugin().handlers.build({
       agents,
       routing: {
         ...routing,
-        config: weavePluginConfigSchema.parse(routing.config ?? {}),
+        config: weaveSchema.parse({
+          ...weavePluginConfigSchema,
+          ...incomingConfig,
+          tmux: {
+            ...weavePluginConfigSchema.tmux,
+            ...(incomingConfig.tmux ?? {}),
+          },
+          analytics: {
+            ...weavePluginConfigSchema.analytics,
+            ...(incomingConfig.analytics ?? {}),
+          },
+          continuation: {
+            ...weavePluginConfigSchema.continuation,
+            ...(incomingConfig.continuation ?? {}),
+            recovery: {
+              ...weavePluginConfigSchema.continuation?.recovery,
+              ...(incomingConfig.continuation?.recovery ?? {}),
+            },
+            idle: {
+              ...weavePluginConfigSchema.continuation?.idle,
+              ...(incomingConfig.continuation?.idle ?? {}),
+            },
+          },
+        }),
       },
       context,
     });
@@ -164,8 +181,7 @@ export class WeavePlugin {
 
   validate(output: unknown): boolean {
     return (
-      createWeavePlugin().handlers.validate?.(output as WeaveConfigOutput) ??
-      true
+      createWeavePlugin().handlers.validate?.(output as WeaveSchemaType) ?? true
     );
   }
 

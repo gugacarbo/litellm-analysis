@@ -1,38 +1,22 @@
 import { z } from "zod";
+import { vscodeSchema } from "./plugin.schema";
 
-export const vsCodePluginConfigSchema = z
-  .object({
-    $schema: z
-      .string()
-      .default(
-        "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
-      )
-      .meta({
-        title: "Schema URL",
-        description: "VS Code OAICopilot config schema URL",
-      }),
-    commitLanguage: z.string().default("Portuguese (Brazil)").meta({
-      title: "Commit Language",
-      description: "Language for commit messages",
-    }),
-    retryEnabled: z
-      .boolean()
-      .default(true)
-      .meta({ title: "Retry Enabled", description: "Enable retry on failure" }),
-    maxRetryAttempts: z.number().default(3).meta({
-      title: "Max Retry Attempts",
-      description: "Maximum number of retry attempts",
-    }),
-  })
-  .meta({
-    title: "VSCode Config",
-    description: "VS Code OAICopilot plugin configuration",
-  });
+export const vsCodePluginConfigSchema = vscodeSchema.parse({
+  "oaicopilot.commitLanguage": "Portuguese (Brazil)",
+  "oaicopilot.baseUrl": "",
+  "oaicopilot.delay": 0,
+  "oaicopilot.readFileLines": 0,
+  "oaicopilot.retry": {
+    enabled: true,
+    max_attempts: 3,
+    interval_ms: 2000,
+    status_codes: [],
+  },
+  "oaicopilot.models": [],
+});
 
-export type VsCodePluginConfig = z.infer<typeof vsCodePluginConfigSchema> & {
+export type VsCodePluginConfig = z.infer<typeof vscodeSchema> & {
   [key: string]: unknown;
 };
 
-export const vsCodePluginConfigJsonSchema = z.toJSONSchema(
-  vsCodePluginConfigSchema,
-);
+export const vsCodePluginConfigJsonSchema = z.toJSONSchema(vscodeSchema);
