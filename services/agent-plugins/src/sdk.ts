@@ -1,6 +1,5 @@
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
-import type { z } from "zod";
-import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
+import type { InternalAgent } from "./plugins/plugin-types";
 import type { CategoryEntry, PluginRouting, SystemAgent } from "./types";
 
 export type PluginId =
@@ -27,7 +26,6 @@ export type PluginRoutingFor<TConfig extends Record<string, unknown>> = {
 
 export interface PluginManifest<
   TId extends string,
-  TConfig extends Record<string, unknown>,
   _TOutput,
 > {
   id: TId;
