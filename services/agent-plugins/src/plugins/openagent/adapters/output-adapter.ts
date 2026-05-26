@@ -1,9 +1,9 @@
 import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
-import { agentAdapter } from "./agent-adapter";
 import type { OpenAgentPluginConfig } from "../config/config";
 import type { OpenagentSchemaType } from "../schema/schema";
+import { agentAdapter } from "./agent-adapter";
 
 export interface BuildOpenAgentOutputInput {
   agents: SystemAgent[];

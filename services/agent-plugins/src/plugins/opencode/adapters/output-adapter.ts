@@ -1,11 +1,11 @@
 import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
-import { agentAdapter } from "./agent-adapter";
-import { modelAdapter } from "./model-adapter";
 import { resolveSlotModelId } from "../../litellm-alias/generate";
 import type { OpenCodePluginConfig } from "../config/config";
 import type { OpencodeSchemaType } from "../schema/schema";
+import { agentAdapter } from "./agent-adapter";
+import { modelAdapter } from "./model-adapter";
 
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
 

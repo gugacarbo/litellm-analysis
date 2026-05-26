@@ -1,11 +1,11 @@
 import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
-import { agentAdapter } from "./agent-adapter";
-import { modelAdapter } from "./model-adapter";
 import type { WeavePluginConfig } from "../config/config";
 import { WEAVE_AGENTS } from "../manifest/manifest";
 import type { WeaveSchemaType } from "../schema/schema";
+import { agentAdapter } from "./agent-adapter";
+import { modelAdapter } from "./model-adapter";
 
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
 
