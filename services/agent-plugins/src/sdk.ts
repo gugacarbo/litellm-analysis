@@ -24,10 +24,7 @@ export type PluginRoutingFor<TConfig extends Record<string, unknown>> = {
   config?: TConfig;
 };
 
-export interface PluginManifest<
-  TId extends string,
-  _TOutput,
-> {
+export interface PluginManifest<TId extends string, _TOutput> {
   id: TId;
   displayName: string;
   version: number;
