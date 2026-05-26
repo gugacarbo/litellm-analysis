@@ -4,7 +4,7 @@ packages:
   - "services/agent-plugins"
   - "packages/*"
   - "repositories/*"
-  - "scripts"
+  - "scripts/src"
 
 catalog:
   "@biomejs/biome": ^2.4.13
