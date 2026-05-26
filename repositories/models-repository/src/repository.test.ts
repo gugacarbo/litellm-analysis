@@ -27,6 +27,7 @@ const validProvider = {
   ownedBy: "atplus",
   baseUrl: "http://localhost:4000",
   apiKey: "sk-test",
+  defaultCredential: "",
 };
 
 const validModel = {

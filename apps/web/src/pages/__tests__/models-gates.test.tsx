@@ -40,7 +40,8 @@ vi.mock("@/shared/lib/api-client", () => {
     getModelStatistics: vi.fn().mockResolvedValue([]),
     deleteModelLogs: vi.fn().mockResolvedValue(undefined),
     mergeModels: vi.fn().mockResolvedValue(undefined),
-    syncModelsFromConfig: vi.fn().mockResolvedValue({ success: true }),
+    getModelsSyncDiff: vi.fn().mockResolvedValue({ items: [] }),
+    syncModelsBatch: vi.fn().mockResolvedValue({ success: true, applied: 0 }),
     addModelToConfig: vi.fn().mockResolvedValue({ success: true }),
     getAgentRoutingConfig: vi.fn().mockResolvedValue({}),
     getAgentDefinitions: vi.fn().mockResolvedValue({

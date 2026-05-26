@@ -1,14 +1,7 @@
 import { existsSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  createAgentPluginsOrchestrator,
-  LitellmAliasPlugin,
-  OpenAgentPlugin,
-  OpenCodePlugin,
-  VsCodePlugin,
-  WeavePlugin,
-} from "@lite-llm/agent-plugins";
+import { createAgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { prisma } from "@lite-llm/analytics-service/queries/client";
 import {
@@ -76,13 +69,7 @@ function setupAgentPluginsOrchestrator(
     modelsRepository,
     services: agentsManager.services,
     outputDir: path.join(projectRoot, env.STORAGE_PATH, "output"),
-    allPlugins: [
-      new OpenCodePlugin(),
-      new OpenAgentPlugin(),
-      new VsCodePlugin(),
-      new LitellmAliasPlugin(aliasDbWriter),
-      new WeavePlugin(),
-    ],
+    aliasDbWriter,
   });
 }
 

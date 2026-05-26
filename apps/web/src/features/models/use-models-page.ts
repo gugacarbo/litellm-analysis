@@ -1,15 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   addModelToConfig,
   createModel,
   deleteModel,
+  getDefaultSettingsDiff,
+  getModelProvider,
+  getModelsSyncDiff,
   getModelsWithConfig,
   type ModelConfig,
+  type ModelSyncDiffItem,
   mergeModels,
-  syncModelsFromConfig,
+  type SyncDirection,
+  syncDefaultSettings,
+  syncModelsBatch,
   toggleModelEnabled,
   updateModel,
+  updateModelProvider,
 } from "@/shared/lib/api-client";
 import { getModelsHealth } from "@/shared/lib/api-client/monitor";
 import { validateAndBuildModelParams } from "./models-form-utils";
@@ -48,6 +55,30 @@ export function useModelsPage() {
       ),
   });
 
+  const providerQuery = useQuery({
+    queryKey: ["model-provider", "litellm"],
+    queryFn: () => getModelProvider("litellm"),
+  });
+
+  const [providerDefaultCredential, setProviderDefaultCredential] =
+    useState("");
+
+  const updateProviderMutation = useMutation({
+    mutationFn: (defaultCredential: string) =>
+      updateModelProvider("litellm", { defaultCredential }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["model-provider", "litellm"],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["default-credential"],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["models-default-settings-diff"],
+      });
+    },
+  });
+
   const createModelMutation = useMutation({
     mutationFn: (model: ModelConfig) => createModel(model),
   });
@@ -69,10 +100,32 @@ export function useModelsPage() {
       mergeModels(params.sourceModel, params.targetModel),
   });
 
+  const syncDiffQuery = useQuery({
+    queryKey: ["models-sync-diff"],
+    queryFn: getModelsSyncDiff,
+    enabled: false,
+  });
+
+  const defaultSettingsDiffQuery = useQuery({
+    queryKey: ["models-default-settings-diff"],
+    queryFn: getDefaultSettingsDiff,
+  });
+
   const syncMutation = useMutation({
-    mutationFn: syncModelsFromConfig,
+    mutationFn: syncModelsBatch,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["models-with-config"] });
+      queryClient.invalidateQueries({ queryKey: ["models-sync-diff"] });
+    },
+  });
+
+  const syncDefaultSettingsMutation = useMutation({
+    mutationFn: syncDefaultSettings,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["models-with-config"] });
+      queryClient.invalidateQueries({
+        queryKey: ["models-default-settings-diff"],
+      });
     },
   });
 
@@ -108,9 +161,18 @@ export function useModelsPage() {
   } = useModelsFormState();
 
   const [mutationError, setMutationError] = useState<string | null>(null);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [syncSelections, setSyncSelections] = useState<
+    Record<string, SyncDirection>
+  >({});
 
   const formLoading =
     createModelMutation.isPending || updateModelMutation.isPending;
+
+  useEffect(() => {
+    if (!providerQuery.data) return;
+    setProviderDefaultCredential(providerQuery.data.defaultCredential);
+  }, [providerQuery.data]);
 
   async function handleSubmit() {
     setFormError(null);
@@ -138,6 +200,9 @@ export function useModelsPage() {
       await queryClient.invalidateQueries({
         queryKey: ["models-with-config"],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ["models-default-settings-diff"],
+      });
       setDialogOpen(false);
     } catch (e) {
       setFormError(String(e));
@@ -153,6 +218,9 @@ export function useModelsPage() {
       await queryClient.invalidateQueries({
         queryKey: ["models-with-config"],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ["models-default-settings-diff"],
+      });
       setDeleteModelName(null);
     } catch (e) {
       setMutationError(String(e));
@@ -165,9 +233,54 @@ export function useModelsPage() {
       await queryClient.invalidateQueries({
         queryKey: ["models-with-config"],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ["models-default-settings-diff"],
+      });
     } catch (e) {
       setMutationError(String(e));
     }
+  }
+
+  function getSyncKey(modelName: string, field: ModelSyncDiffItem["field"]) {
+    return `${modelName}::${field}`;
+  }
+
+  async function handleOpenSync() {
+    setMutationError(null);
+    const result = await syncDiffQuery.refetch();
+    if (result.data) {
+      const nextSelections: Record<string, SyncDirection> = {};
+      for (const item of result.data.items) {
+        nextSelections[getSyncKey(item.modelName, item.field)] =
+          item.defaultDirection;
+      }
+      setSyncSelections(nextSelections);
+    }
+    setSyncDialogOpen(true);
+  }
+
+  function handleSyncSelectionChange(
+    modelName: string,
+    field: ModelSyncDiffItem["field"],
+    direction: SyncDirection,
+  ) {
+    setSyncSelections((current) => ({
+      ...current,
+      [getSyncKey(modelName, field)]: direction,
+    }));
+  }
+
+  async function handleApplySyncSelections() {
+    const items = syncDiffQuery.data?.items ?? [];
+    const selections = items.map((item) => ({
+      modelName: item.modelName,
+      field: item.field,
+      direction:
+        syncSelections[getSyncKey(item.modelName, item.field)] ??
+        item.defaultDirection,
+    }));
+    await syncMutation.mutateAsync(selections);
+    setSyncDialogOpen(false);
   }
 
   function handleMerge() {
@@ -215,14 +328,46 @@ export function useModelsPage() {
     formError,
     setFormError,
     formLoading,
+    providerLoading: providerQuery.isLoading,
+    providerSaving: updateProviderMutation.isPending,
+    providerError: providerQuery.error
+      ? String(providerQuery.error)
+      : updateProviderMutation.error
+        ? String(updateProviderMutation.error)
+        : null,
+    providerDefaultCredential,
+    handleProviderDefaultCredentialChange: async (value: string) => {
+      setProviderDefaultCredential(value);
+      await updateProviderMutation.mutateAsync(value);
+    },
     handleAddToConfig: (modelName: string) =>
       addToConfigMutation.mutateAsync(modelName),
     handleDelete,
     handleMerge,
     confirmMerge,
     handleOpenCreate,
-    handleSyncFromConfig: () => syncMutation.mutateAsync(),
+    handleOpenSync,
+    handleApplySyncSelections,
+    handleSyncSelectionChange,
+    syncDialogOpen,
+    setSyncDialogOpen,
+    syncDiffItems: syncDiffQuery.data?.items ?? [],
+    syncDiffLoading: syncDiffQuery.isFetching,
+    syncSelections,
     syncing: syncMutation.isPending,
+    defaultSettingsDriftCount: defaultSettingsDiffQuery.data?.count ?? 0,
+    defaultSettingsMismatchedModels:
+      defaultSettingsDiffQuery.data?.mismatchedModels ?? [],
+    defaultSettingsLoading: defaultSettingsDiffQuery.isLoading,
+    syncingDefaultSettings: syncDefaultSettingsMutation.isPending,
+    handleSyncDefaultSettings: async () => {
+      try {
+        setMutationError(null);
+        await syncDefaultSettingsMutation.mutateAsync();
+      } catch (e) {
+        setMutationError(String(e));
+      }
+    },
     models: modelsQuery.data?.models ?? [],
     modelsHealth: modelsHealthQuery.data?.models ?? [],
     counts: modelsQuery.data?.counts ?? {

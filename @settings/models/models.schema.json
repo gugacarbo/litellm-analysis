@@ -24,7 +24,7 @@
       "default": {},
       "title": "Models",
       "description": "Model specifications",
-      "$ref": "#/$defs/__schema3"
+      "$ref": "#/$defs/__schema4"
     }
   },
   "required": ["version", "provider", "models"],
@@ -63,13 +63,28 @@
             "type": "string",
             "title": "API Key",
             "description": "Provider API key"
+          },
+          "defaultCredential": {
+            "default": "",
+            "title": "Default Credential",
+            "description": "Default LiteLLM credential alias used for models in this provider",
+            "$ref": "#/$defs/__schema3"
           }
         },
-        "required": ["name", "ownedBy", "baseUrl", "apiKey"],
+        "required": [
+          "name",
+          "ownedBy",
+          "baseUrl",
+          "apiKey",
+          "defaultCredential"
+        ],
         "additionalProperties": false
       }
     },
     "__schema3": {
+      "type": "string"
+    },
+    "__schema4": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -81,7 +96,7 @@
             "default": true,
             "title": "Enabled",
             "description": "Whether this model is enabled for routing and selection",
-            "$ref": "#/$defs/__schema4"
+            "$ref": "#/$defs/__schema5"
           },
           "displayName": {
             "type": "string",
@@ -91,16 +106,16 @@
           "family": {
             "title": "Family",
             "description": "Model family",
-            "$ref": "#/$defs/__schema5"
+            "$ref": "#/$defs/__schema6"
           },
           "limits": {
             "type": "object",
             "properties": {
               "length": {
-                "$ref": "#/$defs/__schema6"
+                "$ref": "#/$defs/__schema7"
               },
               "maxOutput": {
-                "$ref": "#/$defs/__schema7"
+                "$ref": "#/$defs/__schema8"
               }
             },
             "required": ["length", "maxOutput"],
@@ -111,61 +126,61 @@
           "cost": {
             "title": "Cost",
             "description": "Model pricing per million tokens",
-            "$ref": "#/$defs/__schema8"
+            "$ref": "#/$defs/__schema9"
           },
           "thinking": {
             "title": "Thinking",
             "description": "Extended thinking configuration for this model",
-            "$ref": "#/$defs/__schema11"
+            "$ref": "#/$defs/__schema12"
           }
         },
         "required": ["enabled", "displayName", "limits"],
         "additionalProperties": false
       }
     },
-    "__schema4": {
+    "__schema5": {
       "type": "boolean"
     },
-    "__schema5": {
+    "__schema6": {
       "type": "string"
     },
-    "__schema6": {
+    "__schema7": {
       "default": 200000,
       "type": "number",
       "title": "Context Length",
       "description": "Maximum context window size in tokens"
     },
-    "__schema7": {
+    "__schema8": {
       "default": 32768,
       "type": "number",
       "title": "Max Output",
       "description": "Maximum output tokens"
     },
-    "__schema8": {
+    "__schema9": {
       "type": "object",
       "properties": {
         "input": {
           "default": 0,
           "title": "Input Cost",
           "description": "Cost per million input tokens",
-          "$ref": "#/$defs/__schema9"
+          "$ref": "#/$defs/__schema10"
         },
         "output": {
           "default": 0,
           "title": "Output Cost",
           "description": "Cost per million output tokens",
-          "$ref": "#/$defs/__schema10"
+          "$ref": "#/$defs/__schema11"
         }
       },
       "additionalProperties": false
-    },
-    "__schema9": {
-      "type": "number"
     },
     "__schema10": {
       "type": "number"
     },
     "__schema11": {
+      "type": "number"
+    },
+    "__schema12": {
       "default": {
         "levels": []
       },
@@ -175,13 +190,13 @@
           "default": [],
           "title": "Levels",
           "description": "Available thinking levels for this model",
-          "$ref": "#/$defs/__schema12"
+          "$ref": "#/$defs/__schema13"
         }
       },
       "required": ["levels"],
       "additionalProperties": false
     },
-    "__schema12": {
+    "__schema13": {
       "type": "array",
       "items": {
         "type": "string"

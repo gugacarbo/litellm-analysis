@@ -23,6 +23,7 @@ describe("ProviderService", () => {
             ownedBy: "atplus",
             baseUrl: "http://0.0.0.0:4000",
             apiKey: "sk-123",
+            defaultCredential: "",
           },
         },
         models: {},
@@ -53,6 +54,7 @@ describe("ProviderService", () => {
       ownedBy: "openai",
       baseUrl: "https://api.openai.com",
       apiKey: "sk-key",
+      defaultCredential: "",
     });
     const provider = await service.get("openai");
     expect(provider?.name).toBe("OpenAI");
@@ -65,6 +67,7 @@ describe("ProviderService", () => {
         ownedBy: "",
         baseUrl: "",
         apiKey: "",
+        defaultCredential: "",
       }),
     ).rejects.toThrow(/already exists/);
   });

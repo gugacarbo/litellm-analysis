@@ -1,8 +1,8 @@
 import { writeFileSync } from "node:fs";
-import { agentsConfigSchema } from "@repositories/agents-repository/src/schemas/db-config";
-import { pluginsConfigSchema } from "@repositories/agents-repository/src/schemas/plugins-config";
-import { modelsConfigSchema } from "@repositories/models-repository/src/schemas";
 import { z } from "zod";
+import { agentsConfigSchema } from "../../../repositories/agents-repository/src/schemas/db-config";
+import { pluginsConfigSchema } from "../../../repositories/agents-repository/src/schemas/plugins-config";
+import { modelsConfigSchema } from "../../../repositories/models-repository/src/schemas";
 
 const agentsSchemaOutputPath =
   process.env.AGENTS_SCHEMA_OUTPUT_PATH ??

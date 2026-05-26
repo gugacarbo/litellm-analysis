@@ -1,8 +1,26 @@
 import { RefreshCw, Settings } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/shared/components/ui/dialog";
 import { PageLayout } from "@/shared/components/ui/page-layout";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
 import { ModelFormDialog } from "./components/model-form-dialog";
 import { ModelsTableCard } from "./components/models-table-card";
+import { SyncModelsDialog } from "./components/sync-models-dialog";
 import { useModelsPage } from "./use-models-page";
 
 export function ModelsPage() {
@@ -23,8 +41,15 @@ export function ModelsPage() {
     handleAddToConfig,
     handleDelete,
     handleOpenCreateWithDefaultCredential,
-    handleSyncFromConfig,
+    handleOpenSync,
+    handleApplySyncSelections,
+    handleSyncSelectionChange,
     syncing,
+    syncDialogOpen,
+    setSyncDialogOpen,
+    syncDiffItems,
+    syncDiffLoading,
+    syncSelections,
     handleToggleEnabled,
     handleSubmit,
     addExtraParam,
@@ -34,7 +59,18 @@ export function ModelsPage() {
     updateExtraParam,
     credentials,
     defaultCredential,
+    providerLoading,
+    providerSaving,
+    providerError,
+    providerDefaultCredential,
+    handleProviderDefaultCredentialChange,
+    defaultSettingsDriftCount,
+    defaultSettingsMismatchedModels,
+    defaultSettingsLoading,
+    syncingDefaultSettings,
+    handleSyncDefaultSettings,
   } = useModelsPage();
+  const [credentialsDialogOpen, setCredentialsDialogOpen] = useState(false);
 
   return (
     <PageLayout
@@ -47,18 +83,118 @@ export function ModelsPage() {
             size="sm"
             className="h-7 px-2 text-xs"
             onClick={() => {
-              void handleSyncFromConfig();
+              void handleOpenSync();
             }}
-            disabled={
-              syncing || (counts.configOnly === 0 && counts.litellmOnly === 0)
-            }
+            disabled={syncing}
           >
             <RefreshCw
               className={`mr-1.5 h-3 w-3 ${syncing ? "animate-spin" : ""}`}
             />
             Sync
-            {counts.configOnly > 0 ? ` (${counts.configOnly})` : null}
+            {counts.configOnly + defaultSettingsDriftCount > 0
+              ? ` (${counts.configOnly + defaultSettingsDriftCount})`
+              : null}
           </Button>
+          <Dialog
+            open={credentialsDialogOpen}
+            onOpenChange={setCredentialsDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
+                Credentials
+                {defaultSettingsDriftCount > 0
+                  ? ` (${defaultSettingsDriftCount})`
+                  : null}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl">
+              <DialogHeader>
+                <DialogTitle>Credentials</DialogTitle>
+                <DialogDescription>
+                  Defina a credencial padrão e sincronize os modelos fora do
+                  padrão.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Default credential</p>
+                  <Select
+                    value={providerDefaultCredential || "none"}
+                    onValueChange={(value) => {
+                      void handleProviderDefaultCredentialChange(
+                        value === "none" ? "" : value,
+                      );
+                    }}
+                    disabled={providerLoading || providerSaving}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Default credential" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">
+                        Sem credencial padrão
+                      </SelectItem>
+                      {credentials.map((credential) => (
+                        <SelectItem
+                          key={credential.credentialId}
+                          value={credential.credentialName}
+                        >
+                          {credential.credentialName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">
+                    Modelos fora da credencial padrão
+                  </p>
+                  {defaultSettingsLoading ? (
+                    <p className="text-sm text-muted-foreground">
+                      Carregando...
+                    </p>
+                  ) : defaultSettingsMismatchedModels.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Todos os modelos já estão com a credencial padrão.
+                    </p>
+                  ) : (
+                    <div className="max-h-48 overflow-auto rounded-md border p-2">
+                      <ul className="space-y-1 text-sm">
+                        {defaultSettingsMismatchedModels.map((modelName) => (
+                          <li key={modelName} className="font-mono">
+                            {modelName}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setCredentialsDialogOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => {
+                    void handleSyncDefaultSettings();
+                  }}
+                  disabled={
+                    syncingDefaultSettings || defaultSettingsDriftCount === 0
+                  }
+                >
+                  <RefreshCw
+                    className={`mr-1.5 h-3 w-3 ${
+                      syncingDefaultSettings ? "animate-spin" : ""
+                    }`}
+                  />
+                  Sync default settings
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <ModelFormDialog
             open={dialogOpen}
             onOpenChange={setDialogOpen}
@@ -80,6 +216,9 @@ export function ModelsPage() {
         </div>
       }
     >
+      {providerError ? (
+        <p className="text-sm text-destructive">{providerError}</p>
+      ) : null}
       <ModelsTableCard
         models={models}
         loading={modelsQuery.isPending && !modelsQuery.data}
@@ -94,6 +233,18 @@ export function ModelsPage() {
         onDelete={handleDelete}
         onAddToConfig={handleAddToConfig}
         onToggleEnabled={handleToggleEnabled}
+      />
+      <SyncModelsDialog
+        open={syncDialogOpen}
+        onOpenChange={setSyncDialogOpen}
+        loading={syncDiffLoading}
+        applying={syncing}
+        items={syncDiffItems}
+        selections={syncSelections}
+        onSelectionChange={handleSyncSelectionChange}
+        onApply={() => {
+          void handleApplySyncSelections();
+        }}
       />
     </PageLayout>
   );

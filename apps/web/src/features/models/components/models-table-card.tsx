@@ -134,6 +134,7 @@ export function ModelsTableCard({
                 );
                 const inLiteLLM =
                   model.status === "synced" || model.status === "litellm-only";
+                const inConfig = model.status !== "litellm-only";
 
                 return (
                   <TableRow
@@ -209,51 +210,54 @@ export function ModelsTableCard({
                                 <Pencil className="h-4 w-4" />
                               </Link>
                             </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  onClick={() =>
-                                    onDeleteModelNameChange(model.modelName)
-                                  }
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Delete Model
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete{" "}
-                                    <span className="font-semibold">
-                                      {deleteModelName}
-                                    </span>
-                                    ? This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel
+                            {inConfig ? (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-sm"
                                     onClick={() =>
-                                      onDeleteModelNameChange(null)
+                                      onDeleteModelNameChange(model.modelName)
                                     }
                                   >
-                                    Cancel
-                                  </AlertDialogCancel>
-                                  <AlertDialogAction asChild>
-                                    <Button
-                                      variant="destructive"
-                                      size="sm"
-                                      onClick={onDelete}
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Remove From Config
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Isso remove{" "}
+                                      <span className="font-semibold">
+                                        {deleteModelName}
+                                      </span>{" "}
+                                      apenas da config local. A remoção no
+                                      LiteLLM DB é feita pelo fluxo de Sync.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel
+                                      onClick={() =>
+                                        onDeleteModelNameChange(null)
+                                      }
                                     >
-                                      Delete
-                                    </Button>
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction asChild>
+                                      <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={onDelete}
+                                      >
+                                        Remover
+                                      </Button>
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            ) : null}
                           </>
                         ) : (
                           <span className="text-muted-foreground text-xs">

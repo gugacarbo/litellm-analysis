@@ -15,6 +15,11 @@ export const providerSchema = z
     apiKey: z
       .string()
       .meta({ title: "API Key", description: "Provider API key" }),
+    defaultCredential: z.string().default("").meta({
+      title: "Default Credential",
+      description:
+        "Default LiteLLM credential alias used for models in this provider",
+    }),
   })
   .strict();
 
