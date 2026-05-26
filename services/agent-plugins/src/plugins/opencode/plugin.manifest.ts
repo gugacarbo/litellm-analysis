@@ -1,49 +1,15 @@
 import type { PluginManifest } from "../../sdk";
-import {
-  type OpenCodePluginConfig,
-  openCodePluginConfigSchema,
-} from "./plugin.config";
-import { opencodePluginDefaults } from "./plugin.defaults";
 
 export interface OpenCodeProviders {
   $schema: string;
   provider: Record<string, unknown>;
 }
 
-export const openCodeManifest: PluginManifest<
-  "opencode",
-  OpenCodePluginConfig,
-  OpenCodeProviders
-> = {
+export const openCodeManifest: PluginManifest<"opencode", OpenCodeProviders> = {
   id: "opencode",
   displayName: "OpenCode AI SDK",
   version: 2,
   output: { fileName: "opencode.json" },
-  capabilities: {
-    usesAgents: true,
-    usesCategories: true,
-    usesModels: true,
-  },
+  $schema: "https://opencode.ai/config.json",
   internalAgents: [],
-  configSchema: [
-    {
-      key: "defaultModel",
-      type: "string",
-      label: "Default Model",
-      required: false,
-      default: opencodePluginDefaults.defaultModel,
-      placeholder: "e.g. gpt-4",
-      description: "Model to use when a system agent has no model configured",
-    },
-    {
-      key: "defaultTemperature",
-      type: "number",
-      label: "Default Temperature",
-      required: false,
-      default: opencodePluginDefaults.defaultTemperature,
-      description:
-        "Default sampling temperature for agents without one configured",
-    },
-  ],
-  configZodSchema: openCodePluginConfigSchema,
 };
