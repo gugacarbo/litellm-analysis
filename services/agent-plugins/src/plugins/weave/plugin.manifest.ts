@@ -74,9 +74,5 @@ export const weaveManifest: PluginManifest<"weave"> = {
   version: 2,
   output: { fileName: "weave-config.json" },
   $schema: "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json",
-  internalAgents: WEAVE_AGENTS.map((agent) => ({
-    id: agent.id,
-    displayName: agent.displayName,
-    description: agent.description,
-  })),
+  internalAgents: WEAVE_AGENTS,
 };

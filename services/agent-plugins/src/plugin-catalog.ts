@@ -1,8 +1,8 @@
-import { createLitellmAliasPlugin } from "./plugins/litellm-alias/plugin";
-import { createOpenAgentPlugin } from "./plugins/openagent/plugin";
-import { createOpenCodePlugin } from "./plugins/opencode/plugin";
-import { createVsCodePlugin } from "./plugins/vscode/plugin";
-import { createWeavePlugin } from "./plugins/weave/plugin";
+import { createLitellmAliasPlugin } from "./plugins/litellm-alias";
+import { createOpenAgentPlugin } from "./plugins/openagent";
+import { createOpenCodePlugin } from "./plugins/opencode";
+import { createVsCodePlugin } from "./plugins/vscode";
+import { createWeavePlugin } from "./plugins/weave";
 import type { CreatePluginOptions, PluginDefinition } from "./sdk";
 
 export function createPluginCatalog(

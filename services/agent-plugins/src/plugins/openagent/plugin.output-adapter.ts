@@ -11,6 +11,20 @@ export interface BuildOpenAgentOutputInput {
   config: OpenAgentPluginConfig;
 }
 
+function modelAdapter(model: string): Record<string, unknown> {
+  return { model };
+}
+
+function agentAdapter(agent: SystemAgent): Record<string, unknown> {
+  const entry: Record<string, unknown> = {};
+  if (agent.description) entry.description = agent.description;
+  if (agent.model) Object.assign(entry, modelAdapter(agent.model));
+  if (agent.config?.mode) entry.mode = agent.config.mode;
+  if (agent.config?.tools) entry.tools = agent.config.tools;
+  if (agent.config?.color) entry.color = agent.config.color;
+  return entry;
+}
+
 export function adaptOpenAgentOutput(
   input: BuildOpenAgentOutputInput,
 ): OpenagentSchemaType {
@@ -39,14 +53,7 @@ export function adaptOpenAgentOutput(
     const internalId = agentMappings[agentName]?.[0];
     if (!internalId) continue;
 
-    const entry: Record<string, unknown> = {};
-    if (agent.description) entry.description = agent.description;
-    if (agent.model) entry.model = agent.model;
-    if (agent.config?.mode) entry.mode = agent.config.mode;
-    if (agent.config?.tools) entry.tools = agent.config.tools;
-    if (agent.config?.color) entry.color = agent.config.color;
-
-    outputAgents[internalId] = entry;
+    outputAgents[internalId] = agentAdapter(agent);
   }
 
   const categoryRouting = routing.routing?.categories ?? {};

@@ -10,6 +10,26 @@ export interface BuildVsCodeOutputInput {
   config: VsCodePluginConfig;
 }
 
+function modelAdapter(
+  modelId: string,
+  model: PluginRuntimeContext["allModels"][string],
+  baseUrl: string,
+): VscodeSchemaType["oaicopilot.models"][number] {
+  return {
+    name: model.displayName,
+    id: modelId,
+    baseUrl,
+    "request-options": {
+      headers: {
+        Authorization: "Bearer {env:LITELLM_API_KEY}",
+      },
+    },
+    "model-settings": {
+      "max-tokens": model.limits.maxOutput,
+    },
+  };
+}
+
 export function adaptVsCodeOutput(
   input: BuildVsCodeOutputInput,
 ): VscodeSchemaType {
@@ -22,19 +42,7 @@ export function adaptVsCodeOutput(
   };
 
   for (const [key, spec] of Object.entries(context.allModels)) {
-    output["oaicopilot.models"].push({
-      name: spec.displayName,
-      id: key,
-      baseUrl,
-      "request-options": {
-        headers: {
-          Authorization: "Bearer {env:LITELLM_API_KEY}",
-        },
-      },
-      "model-settings": {
-        "max-tokens": spec.limits.maxOutput,
-      },
-    });
+    output["oaicopilot.models"].push(modelAdapter(key, spec, baseUrl));
   }
 
   return output;

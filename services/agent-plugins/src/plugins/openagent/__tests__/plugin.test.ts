@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
-import { OpenAgentPlugin } from "../plugin";
+import { createOpenAgentPlugin } from "../plugin.factory";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
@@ -14,25 +14,24 @@ function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   };
 }
 
-describe("OpenAgentPlugin", () => {
+describe("createOpenAgentPlugin", () => {
   describe("metadata", () => {
-    it("tem id, name e version corretos", () => {
-      const plugin = new OpenAgentPlugin();
-      expect(plugin.id).toBe("openagent");
-      expect(plugin.name).toBe("Oh My OpenAgent");
-      expect(plugin.version).toBe(1);
+    it("tem id e name corretos no manifest", () => {
+      const plugin = createOpenAgentPlugin();
+      expect(plugin.manifest.id).toBe("openagent");
+      expect(plugin.manifest.displayName).toBe("Oh My OpenAgent");
     });
   });
 
   describe("getInternalAgents", () => {
     it("retorna 1 agente interno", () => {
-      const plugin = new OpenAgentPlugin();
-      expect(plugin.getInternalAgents()).toHaveLength(1);
+      const plugin = createOpenAgentPlugin();
+      expect(plugin.manifest.internalAgents).toHaveLength(1);
     });
 
     it("agente interno é 'default'", () => {
-      const plugin = new OpenAgentPlugin();
-      const agents = plugin.getInternalAgents();
+      const plugin = createOpenAgentPlugin();
+      const agents = plugin.manifest.internalAgents;
       expect(agents).toBeDefined();
       if (!agents) return;
       expect(agents[0].id).toBe("default");
@@ -46,31 +45,31 @@ describe("OpenAgentPlugin", () => {
     });
   });
 
-  describe("getOutputFile", () => {
+  describe("output metadata", () => {
     it("retorna oh-my-openagent.json", () => {
-      const plugin = new OpenAgentPlugin();
-      expect(plugin.getOutputFile()).toBe("oh-my-openagent.json");
+      const plugin = createOpenAgentPlugin();
+      expect(plugin.manifest.output.fileName).toBe("oh-my-openagent.json");
     });
   });
 
-  describe("buildOutput", () => {
+  describe("build", () => {
     it("gera estrutura com $schema e git_master", () => {
-      const plugin = new OpenAgentPlugin();
-      const output = plugin.buildOutput(
-        [],
-        {
+      const plugin = createOpenAgentPlugin();
+      const output = plugin.handlers.build({
+        agents: [],
+        routing: {
           enabled: true,
           outputFile: "oh-my-openagent.json",
           routing: { agents: {}, categories: {} },
         },
-        {
+        context: {
           allModels: {},
           litellmConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
         },
-      ) as unknown as Record<string, unknown>;
+      }) as unknown as Record<string, unknown>;
 
       expect(output.$schema).toContain("oh-my-opencode");
       expect(output).toHaveProperty("git_master");
@@ -79,22 +78,22 @@ describe("OpenAgentPlugin", () => {
     });
 
     it("usa defaults para git_master quando sem config", () => {
-      const plugin = new OpenAgentPlugin();
-      const output = plugin.buildOutput(
-        [],
-        {
+      const plugin = createOpenAgentPlugin();
+      const output = plugin.handlers.build({
+        agents: [],
+        routing: {
           enabled: true,
           outputFile: "oh-my-openagent.json",
           routing: { agents: {}, categories: {} },
         },
-        {
+        context: {
           allModels: {},
           litellmConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
         },
-      ) as unknown as Record<string, unknown>;
+      }) as unknown as Record<string, unknown>;
 
       const gitMaster = output.git_master as Record<string, unknown>;
       expect(gitMaster.commit_footer).toBe(false);
@@ -102,19 +101,28 @@ describe("OpenAgentPlugin", () => {
     });
 
     it("aplica config do plugin para git_master", () => {
-      const plugin = new OpenAgentPlugin();
+      const plugin = createOpenAgentPlugin();
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "oh-my-openagent.json",
-        config: { commitFooter: true, includeCoAuthoredBy: true },
+        config: {
+          git_master: {
+            commit_footer: true,
+            include_co_authored_by: true,
+          },
+        },
         routing: { agents: {}, categories: {} },
       };
 
-      const output = plugin.buildOutput([], routing, {
-        allModels: {},
-        litellmConfig: {
-          baseUrl: "http://localhost:4000",
-          apiKey: "test-key",
+      const output = plugin.handlers.build({
+        agents: [],
+        routing,
+        context: {
+          allModels: {},
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
         },
       }) as unknown as Record<string, unknown>;
 
@@ -123,16 +131,16 @@ describe("OpenAgentPlugin", () => {
       expect(gitMaster.include_co_authored_by).toBe(true);
     });
 
-    it("inclui globalFallbackModel do contexto", () => {
-      const plugin = new OpenAgentPlugin();
-      const output = plugin.buildOutput(
-        [],
-        {
+    it("remove globalFallbackModel fora do schema final", () => {
+      const plugin = createOpenAgentPlugin();
+      const output = plugin.handlers.build({
+        agents: [],
+        routing: {
           enabled: true,
           outputFile: "oh-my-openagent.json",
           routing: { agents: {}, categories: {} },
         },
-        {
+        context: {
           allModels: {},
           globalFallbackModel: "gpt-4",
           litellmConfig: {
@@ -140,13 +148,13 @@ describe("OpenAgentPlugin", () => {
             apiKey: "test-key",
           },
         },
-      ) as unknown as Record<string, unknown>;
+      }) as unknown as Record<string, unknown>;
 
-      expect(output.globalFallbackModel).toBe("gpt-4");
+      expect(output.globalFallbackModel).toBeUndefined();
     });
 
     it("mapeia agentes com campos relevantes", () => {
-      const plugin = new OpenAgentPlugin();
+      const plugin = createOpenAgentPlugin();
       const agents = [
         makeSystemAgent({
           description: "Build stuff",
@@ -161,44 +169,48 @@ describe("OpenAgentPlugin", () => {
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "oh-my-openagent.json",
-        routing: { agents: { Builder: "default" }, categories: {} },
+        routing: { agents: { Builder: "build" }, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
-        allModels: {},
-        litellmConfig: {
-          baseUrl: "http://localhost:4000",
-          apiKey: "test-key",
-        },
-      }) as unknown as Record<string, unknown>;
-
-      const agentsMap = output.agents as Record<string, unknown>;
-      expect(agentsMap).toHaveProperty("default");
-      const entry = agentsMap.default as Record<string, unknown>;
-      expect(entry.description).toBe("Build stuff");
-      expect(entry.model).toBe("gpt-4");
-      expect(entry).not.toHaveProperty("fallback_models");
-    });
-
-    it("ignora agentes sem mapeamento", () => {
-      const plugin = new OpenAgentPlugin();
-      const agents = [makeSystemAgent()];
-
-      const output = plugin.buildOutput(
+      const output = plugin.handlers.build({
         agents,
-        {
-          enabled: true,
-          outputFile: "oh-my-openagent.json",
-          routing: { agents: {}, categories: {} },
-        },
-        {
+        routing,
+        context: {
           allModels: {},
           litellmConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
         },
-      ) as unknown as Record<string, unknown>;
+      }) as unknown as Record<string, unknown>;
+
+      const agentsMap = output.agents as Record<string, unknown>;
+      expect(agentsMap).toHaveProperty("build");
+      const entry = agentsMap.build as Record<string, unknown>;
+      expect(entry.description).toBe("Build stuff");
+      expect(entry.model).toBe("gpt-4");
+      expect(entry).not.toHaveProperty("fallback_models");
+    });
+
+    it("ignora agentes sem mapeamento", () => {
+      const plugin = createOpenAgentPlugin();
+      const agents = [makeSystemAgent()];
+
+      const output = plugin.handlers.build({
+        agents,
+        routing: {
+          enabled: true,
+          outputFile: "oh-my-openagent.json",
+          routing: { agents: {}, categories: {} },
+        },
+        context: {
+          allModels: {},
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      }) as unknown as Record<string, unknown>;
 
       const agentsMap = output.agents as Record<string, unknown>;
       expect(Object.keys(agentsMap)).toHaveLength(0);

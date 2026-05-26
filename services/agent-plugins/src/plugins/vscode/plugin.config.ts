@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { vscodeSchema } from "./plugin.schema";
+import { type VscodeSchemaType, vscodeSchema } from "./plugin.schema";
 
-export const vsCodePluginConfigSchema = vscodeSchema.parse({
+export const vsCodePluginConfigDefaults: VscodeSchemaType = vscodeSchema.parse({
   "oaicopilot.commitLanguage": "Portuguese (Brazil)",
   "oaicopilot.baseUrl": "",
   "oaicopilot.delay": 0,
@@ -15,8 +15,6 @@ export const vsCodePluginConfigSchema = vscodeSchema.parse({
   "oaicopilot.models": [],
 });
 
-export type VsCodePluginConfig = z.infer<typeof vscodeSchema> & {
-  [key: string]: unknown;
-};
+export type VsCodePluginConfig = z.input<typeof vscodeSchema>;
 
 export const vsCodePluginConfigJsonSchema = z.toJSONSchema(vscodeSchema);

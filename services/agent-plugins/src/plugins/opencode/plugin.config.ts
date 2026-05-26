@@ -1,13 +1,12 @@
 import { z } from "zod";
 import { openCodeManifest } from "./plugin.manifest";
-import { opencodeSchema } from "./plugin.schema";
+import { type OpencodeSchemaType, opencodeSchema } from "./plugin.schema";
 
-export const openCodePluginConfigSchema = opencodeSchema.parse({
+export const openCodePluginConfigDefaults: OpencodeSchemaType =
+  opencodeSchema.parse({
   $schema: openCodeManifest.$schema,
-});
+  });
 
-export type OpenCodePluginConfig = z.infer<typeof opencodeSchema> & {
-  [key: string]: unknown;
-};
+export type OpenCodePluginConfig = z.input<typeof opencodeSchema>;
 
 export const openCodePluginConfigJsonSchema = z.toJSONSchema(opencodeSchema);

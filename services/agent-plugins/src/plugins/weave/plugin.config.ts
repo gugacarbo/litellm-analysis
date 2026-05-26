@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { weaveManifest } from "./plugin.manifest";
-import { weaveSchema } from "./plugin.schema";
+import { type WeaveSchemaType, weaveSchema } from "./plugin.schema";
 
-export const weavePluginConfigSchema = weaveSchema.parse({
+export const weavePluginConfigDefaults: WeaveSchemaType = weaveSchema.parse({
   $schema: weaveManifest.$schema,
   log_level: "INFO",
   tmux: { enabled: true },
@@ -23,8 +23,6 @@ export const weavePluginConfigSchema = weaveSchema.parse({
   ],
 });
 
-export type WeavePluginConfig = z.infer<typeof weaveSchema> & {
-  [key: string]: unknown;
-};
+export type WeavePluginConfig = z.input<typeof weaveSchema>;
 
 export const weavePluginConfigJsonSchema = z.toJSONSchema(weaveSchema);

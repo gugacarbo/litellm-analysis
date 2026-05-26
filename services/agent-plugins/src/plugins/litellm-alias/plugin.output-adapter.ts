@@ -16,6 +16,34 @@ export interface BuildLitellmAliasOutputInput {
   config: LitellmAliasPluginConfig;
 }
 
+function modelAdapter(
+  model: string | undefined,
+  enabledSet: Set<string>,
+): string | null {
+  if (!model || !enabledSet.has(model)) {
+    return null;
+  }
+  return model;
+}
+
+function agentAdapter(
+  agent: AgentWithId,
+  routingAgents: Record<string, string[]>,
+  hasAgentRouting: boolean,
+  enabledSet: Set<string>,
+): { id: string; model: string } | null {
+  if (hasAgentRouting && !routingAgents[agent.id]?.length) {
+    return null;
+  }
+
+  const model = modelAdapter(agent.model, enabledSet);
+  if (!model) {
+    return null;
+  }
+
+  return { id: agent.id, model };
+}
+
 export function adaptLitellmAliasOutput(
   input: BuildLitellmAliasOutputInput,
 ): LitellmAliasSchemaType {
@@ -46,21 +74,19 @@ export function adaptLitellmAliasOutput(
   const hasCategoryRouting = Object.keys(routingCategories).length > 0;
 
   for (const agent of agents as AgentWithId[]) {
-    if (hasAgentRouting && !routingAgents[agent.id]?.length) {
-      continue;
-    }
-
-    const agentModel =
-      agent.model && enabledSet.has(agent.model) ? agent.model : "";
-    if (!agentModel) {
-      continue;
-    }
+    const adaptedAgent = agentAdapter(
+      agent,
+      routingAgents,
+      hasAgentRouting,
+      enabledSet,
+    );
+    if (!adaptedAgent) continue;
 
     Object.assign(
       aliases,
       generateLitellmAliases(
-        agent.id,
-        agentModel,
+        adaptedAgent.id,
+        adaptedAgent.model,
         effectiveFallback,
         modelNames,
       ),
@@ -72,15 +98,14 @@ export function adaptLitellmAliasOutput(
       continue;
     }
 
-    if (!(category.model && enabledSet.has(category.model))) {
-      continue;
-    }
+    const categoryModel = modelAdapter(category.model, enabledSet);
+    if (!categoryModel) continue;
 
     Object.assign(
       aliases,
       generateLitellmAliases(
         key,
-        category.model && enabledSet.has(category.model) ? category.model : "",
+        categoryModel,
         effectiveFallback,
         modelNames,
       ),

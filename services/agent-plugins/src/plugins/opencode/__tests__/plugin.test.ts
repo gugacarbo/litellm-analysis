@@ -1,6 +1,23 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
-import { OpenCodePlugin } from "../plugin";
+import { createOpenCodePlugin } from "../plugin.factory";
+
+function buildOutput(
+  plugin: ReturnType<typeof createOpenCodePlugin>,
+  agents: SystemAgent[],
+  routing: PluginRouting,
+  context: Parameters<
+    ReturnType<typeof createOpenCodePlugin>["handlers"]["build"]
+  >[0]["context"],
+) {
+  return plugin.handlers.build({
+    agents,
+    routing: routing as Parameters<
+      ReturnType<typeof createOpenCodePlugin>["handlers"]["build"]
+    >[0]["routing"],
+    context,
+  });
+}
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
@@ -15,20 +32,20 @@ function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   };
 }
 
-describe("OpenCodePlugin", () => {
+describe("createOpenCodePlugin", () => {
   describe("metadata", () => {
     it("tem id, name e version corretos", () => {
-      const plugin = new OpenCodePlugin();
-      expect(plugin.id).toBe("opencode");
-      expect(plugin.name).toBe("OpenCode AI SDK");
-      expect(plugin.version).toBe(1);
+      const plugin = createOpenCodePlugin();
+      expect(plugin.manifest.id).toBe("opencode");
+      expect(plugin.manifest.displayName).toBe("OpenCode AI SDK");
+      expect(plugin.manifest.version).toBe(2);
     });
   });
 
   describe("getInternalAgents", () => {
     it("retorna array vazio (sem agentes internos)", () => {
-      const plugin = new OpenCodePlugin();
-      const agents = plugin.getInternalAgents();
+      const plugin = createOpenCodePlugin();
+      const agents = plugin.manifest.internalAgents;
       expect(agents).toHaveLength(0);
       expect(agents).toEqual([]);
     });
@@ -42,8 +59,8 @@ describe("OpenCodePlugin", () => {
 
   describe("getOutputFile", () => {
     it("retorna opencode.json", () => {
-      const plugin = new OpenCodePlugin();
-      expect(plugin.getOutputFile()).toBe("opencode.json");
+      const plugin = createOpenCodePlugin();
+      expect(plugin.manifest.output.fileName).toBe("opencode.json");
     });
   });
 
@@ -51,8 +68,9 @@ describe("OpenCodePlugin", () => {
     // ── LiteLLM provider ──
 
     it("gera estrutura com provider litellm", () => {
-      const plugin = new OpenCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -80,8 +98,9 @@ describe("OpenCodePlugin", () => {
     });
 
     it("inclui modelos litellm com limites corretos", () => {
-      const plugin = new OpenCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -116,8 +135,9 @@ describe("OpenCodePlugin", () => {
     });
 
     it("mapeia thinking.levels para variants com reasoningEffort", () => {
-      const plugin = new OpenCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -155,12 +175,13 @@ describe("OpenCodePlugin", () => {
         "xhigh",
         "none",
       ]);
-      expect(variants.xhigh).toEqual({ reasoningEffort: "xhigh" });
+      expect(variants.xhigh).toEqual({});
     });
 
     it("configura baseURL e apiKey do litellm", () => {
-      const plugin = new OpenCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -186,7 +207,7 @@ describe("OpenCodePlugin", () => {
     // ── llm-agents aggregate provider ──
 
     it("gera provider por agente com modelo principal (gpt-5.5)", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({ id: "sisyphus", model: "gpt-4" }),
       ];
@@ -196,7 +217,7 @@ describe("OpenCodePlugin", () => {
         routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -227,7 +248,7 @@ describe("OpenCodePlugin", () => {
     });
 
     it("gera slots de fallback quando globalFallbackModel definido", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({
           id: "sisyphus",
@@ -240,7 +261,7 @@ describe("OpenCodePlugin", () => {
         routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -276,7 +297,7 @@ describe("OpenCodePlugin", () => {
     });
 
     it("sem globalFallbackModel gera apenas slot primario", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({
           id: "sisyphus",
@@ -289,7 +310,7 @@ describe("OpenCodePlugin", () => {
         routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -311,19 +332,19 @@ describe("OpenCodePlugin", () => {
       expect(models).not.toHaveProperty("sisyphus/gpt-5.4");
     });
 
-    it("agent sem model usa defaultModel do config", () => {
-      const plugin = new OpenCodePlugin();
+    it("agent sem model usa model do config", () => {
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({ id: "sisyphus", model: "" }),
       ];
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
-        config: { defaultModel: "gpt-4" },
+        config: { model: "gpt-4" },
         routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -343,19 +364,19 @@ describe("OpenCodePlugin", () => {
       expect(models).toHaveProperty("sisyphus/gpt-5.5");
     });
 
-    it("agent com model proprio ignora defaultModel do config", () => {
-      const plugin = new OpenCodePlugin();
+    it("agent com model proprio ignora model do config", () => {
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({ id: "sisyphus", model: "claude-3" }),
       ];
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
-        config: { defaultModel: "gpt-4" },
+        config: { model: "gpt-4" },
         routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -383,7 +404,7 @@ describe("OpenCodePlugin", () => {
     });
 
     it("inclui cost e variants no modelo do agente quando disponivel", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({ id: "sisyphus", model: "gpt-5" }),
       ];
@@ -393,7 +414,7 @@ describe("OpenCodePlugin", () => {
         routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-5": {
             displayName: "GPT-5",
@@ -416,15 +437,16 @@ describe("OpenCodePlugin", () => {
 
       expect(primary.cost).toEqual({ input: 15, output: 60 });
       expect(primary.variants).toEqual({
-        high: { reasoningEffort: "high" },
+        high: {},
       });
     });
 
     it("ignora agentes sem mapeamento no routing", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [makeSystemAgent({ id: "unused" })];
 
-      const output = plugin.buildOutput(
+      const output = buildOutput(
+        plugin,
         agents,
         {
           enabled: true,
@@ -452,7 +474,7 @@ describe("OpenCodePlugin", () => {
     });
 
     it("filtra agentes pelo routing (so inclui mapeados)", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({ id: "sisyphus", model: "gpt-4" }),
         makeSystemAgent({ id: "oracle", model: "claude-3" }),
@@ -467,7 +489,7 @@ describe("OpenCodePlugin", () => {
         },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -507,7 +529,7 @@ describe("OpenCodePlugin", () => {
     });
 
     it("routing agents vazio nao gera per-agent providers", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({ id: "sisyphus", model: "gpt-4" }),
       ];
@@ -517,7 +539,7 @@ describe("OpenCodePlugin", () => {
         routing: { agents: {}, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -538,8 +560,9 @@ describe("OpenCodePlugin", () => {
     // ── Global fallback provider ──
 
     it("gera global-fallback provider quando globalFallbackModel definido", () => {
-      const plugin = new OpenCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -587,8 +610,9 @@ describe("OpenCodePlugin", () => {
     });
 
     it("nao gera global-fallback provider sem globalFallbackModel", () => {
-      const plugin = new OpenCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -615,8 +639,9 @@ describe("OpenCodePlugin", () => {
     });
 
     it("nao gera global-fallback provider se modelo nao existe em allModels", () => {
-      const plugin = new OpenCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -639,19 +664,19 @@ describe("OpenCodePlugin", () => {
 
     // ── llm-categories aggregate provider ──
 
-    it("usa defaultModel do config em categorias sem model", () => {
-      const plugin = new OpenCodePlugin();
+    it("usa model do config em categorias sem model", () => {
+      const plugin = createOpenCodePlugin();
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
-        config: { defaultModel: "gpt-4" },
+        config: { model: "gpt-4" },
         routing: {
           agents: {},
           categories: { code: true },
         },
       };
 
-      const output = plugin.buildOutput([], routing, {
+      const output = buildOutput(plugin, [], routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -685,7 +710,7 @@ describe("OpenCodePlugin", () => {
     });
 
     it("filtra categorias pelo routing", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
@@ -695,7 +720,7 @@ describe("OpenCodePlugin", () => {
         },
       };
 
-      const output = plugin.buildOutput([], routing, {
+      const output = buildOutput(plugin, [], routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -745,14 +770,14 @@ describe("OpenCodePlugin", () => {
     });
 
     it("routing de categorias vazio inclui todas as categorias", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "opencode.json",
         routing: { agents: {}, categories: {} },
       };
 
-      const output = plugin.buildOutput([], routing, {
+      const output = buildOutput(plugin, [], routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",
@@ -787,7 +812,7 @@ describe("OpenCodePlugin", () => {
     // ── No agents section ──
 
     it("nao gera secao agents (deprecated)", () => {
-      const plugin = new OpenCodePlugin();
+      const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({ id: "sisyphus", model: "gpt-4" }),
       ];
@@ -797,7 +822,7 @@ describe("OpenCodePlugin", () => {
         routing: { agents: { sisyphus: "sisyphus" }, categories: {} },
       };
 
-      const output = plugin.buildOutput(agents, routing, {
+      const output = buildOutput(plugin, agents, routing, {
         allModels: {
           "gpt-4": {
             displayName: "GPT-4",

@@ -1,16 +1,9 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignore": [
-    "**/components/ui/*",
-    "shared/lib/**",
-    "shared/hooks/**"
-  ],
+  "ignore": ["**/components/ui/*", "shared/lib/**", "shared/hooks/**"],
   "workspaces": {
     ".": {
-      "entry": [
-        "apps/web/src/main.tsx",
-        "apps/server/src/index.ts"
-      ]
+      "entry": ["apps/web/src/main.tsx", "apps/server/src/index.ts"]
     },
     "scripts": {
       "entry": [
@@ -28,9 +21,7 @@
     "repositories/litellm-repository/src/generated/prisma/wasm-worker-loader.mjs",
     "**/generated/**"
   ],
-  "ignoreUnresolved": [
-    "../../../../packages/config/src/server"
-  ],
+  "ignoreUnresolved": ["../../../../packages/config/src/server"],
   "ignoreDependencies": [
     "@lite-llm/agents-manager",
     "@lite-llm/config",

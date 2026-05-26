@@ -1,16 +1,5 @@
 import type { PluginManifest } from "../../sdk";
 
-export interface OpenAgentOutput {
-  $schema: string;
-  globalFallbackModel?: string;
-  git_master: {
-    commit_footer: boolean;
-    include_co_authored_by: boolean;
-  };
-  agents: Record<string, Record<string, unknown>>;
-  categories: Record<string, Record<string, unknown>>;
-}
-
 export const openAgentManifest: PluginManifest<"openagent"> = {
   id: "openagent",
   displayName: "Oh My OpenAgent",

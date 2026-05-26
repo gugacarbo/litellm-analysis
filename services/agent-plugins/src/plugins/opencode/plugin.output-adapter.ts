@@ -42,7 +42,7 @@ function buildThinkingVariants(
   return Object.keys(variants).length > 0 ? variants : undefined;
 }
 
-function buildModelEntry(
+function modelAdapter(
   agentRole: string,
   aliasKey: string,
   displayName: string,
@@ -93,13 +93,34 @@ function addRoleModelSlots(
     if (!spec) continue;
 
     const slotDisplayName = i === 0 ? displayName : `${displayName} ${i}`;
-    target[`${role}/${modelNames[i]}`] = buildModelEntry(
+    target[`${role}/${modelNames[i]}`] = modelAdapter(
       role,
       modelNames[i],
       slotDisplayName,
       spec,
     );
   }
+}
+
+function agentAdapter(
+  agent: SystemAgent,
+  enabledAgents: Record<string, string[]>,
+  configDefaultModel: string,
+  context: PluginRuntimeContext,
+): { role: string; displayName: string; primaryModelId: string } | null {
+  const role = Object.entries(enabledAgents).find(([, agentIds]) =>
+    agentIds.includes(agent.id ?? ""),
+  )?.[0];
+  if (!role) return null;
+
+  const primaryModelId: string =
+    agent.model || configDefaultModel || agent.id || "";
+  const displayName =
+    agent.displayName ||
+    (primaryModelId ? context.allModels[primaryModelId]?.displayName : "") ||
+    role;
+
+  return { role, displayName, primaryModelId };
 }
 
 export interface BuildOpenCodeOutputInput {
@@ -132,28 +153,7 @@ export function adaptOpenCodeOutput(
 
   const litellmModels: Record<string, Record<string, unknown>> = {};
   for (const [key, spec] of Object.entries(context.allModels)) {
-    const modelOutput: Record<string, unknown> = {
-      id: key,
-      name: spec.displayName,
-      limit: {
-        context: spec.limits.length,
-        output: spec.limits.maxOutput,
-      },
-    };
-
-    if (spec.cost?.input != null || spec.cost?.output != null) {
-      modelOutput.cost = {
-        ...(spec.cost?.input != null ? { input: spec.cost.input } : {}),
-        ...(spec.cost?.output != null ? { output: spec.cost.output } : {}),
-      };
-    }
-
-    const thinkingVariants = buildThinkingVariants(spec);
-    if (thinkingVariants) {
-      modelOutput.variants = thinkingVariants;
-    }
-
-    litellmModels[key] = modelOutput;
+    litellmModels[key] = modelAdapter(key, key, spec.displayName, spec);
   }
 
   output.provider.litellm = {
@@ -168,23 +168,19 @@ export function adaptOpenCodeOutput(
   const llmAgentsModels: Record<string, Record<string, unknown>> = {};
 
   for (const agent of agents) {
-    const agentRole = Object.entries(enabledAgents).find(([, agentIds]) =>
-      agentIds.includes(agent.id ?? ""),
-    )?.[0];
-    if (!agentRole) continue;
-
-    const primaryModelId: string =
-      agent.model || configDefaultModel || agent.id || "";
-    const displayName =
-      agent.displayName ||
-      (primaryModelId ? context.allModels[primaryModelId]?.displayName : "") ||
-      agentRole;
+    const adaptedAgent = agentAdapter(
+      agent,
+      enabledAgents,
+      configDefaultModel,
+      context,
+    );
+    if (!adaptedAgent) continue;
 
     addRoleModelSlots(
       llmAgentsModels,
-      agentRole,
-      displayName,
-      primaryModelId,
+      adaptedAgent.role,
+      adaptedAgent.displayName,
+      adaptedAgent.primaryModelId,
       modelNames,
       context,
     );
@@ -233,7 +229,7 @@ export function adaptOpenCodeOutput(
     const globalSpec = context.allModels[globalFallbackId];
     if (globalSpec) {
       const primarySlot = modelNames[0];
-      const globalFallbackEntry = buildModelEntry(
+      const globalFallbackEntry = modelAdapter(
         "global-fallback",
         primarySlot,
         "Global Fallback",

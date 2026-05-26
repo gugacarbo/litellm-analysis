@@ -11,6 +11,35 @@ function resolveModels(role: string, modelNames: readonly string[]): string[] {
   return modelNames.map((slot) => `${role}/${slot}`);
 }
 
+function modelAdapter(
+  role: string,
+  model: string,
+  modelNames: readonly string[],
+): { model: string; fallback_models: string[] } {
+  const models = model ? resolveModels(role, modelNames) : [];
+  return {
+    model: models[0] ?? model,
+    fallback_models: models.slice(1),
+  };
+}
+
+function agentAdapter(
+  weaveAgent: (typeof WEAVE_AGENTS)[number],
+  systemAgent: SystemAgent,
+  modelNames: readonly string[],
+): NonNullable<WeaveSchemaType["agents"]>[string] {
+  const model = systemAgent.model ?? "";
+  const modelData = modelAdapter(systemAgent.id ?? weaveAgent.id, model, modelNames);
+
+  return {
+    display_name: systemAgent.displayName ?? weaveAgent.displayName,
+    ...modelData,
+    temperature: systemAgent.config?.temperature ?? 0.2,
+    color: systemAgent.config?.color ?? "",
+    category: weaveAgent.category,
+  };
+}
+
 export interface BuildWeaveOutputInput {
   agents: SystemAgent[];
   routing: PluginRoutingFor<WeavePluginConfig>;
@@ -45,17 +74,11 @@ export function adaptWeaveOutput(
     const systemAgent = systemAgentMap.get(systemAgentId);
     if (!systemAgent) continue;
 
-    const model = systemAgent.model ?? "";
-    const models = model ? resolveModels(systemAgentId, modelNames) : [];
-
-    outputAgents[weaveAgent.id] = {
-      display_name: systemAgent.displayName ?? weaveAgent.displayName,
-      model: models[0] ?? model,
-      fallback_models: models.slice(1),
-      temperature: systemAgent.config?.temperature ?? 0.2,
-      color: systemAgent.config?.color ?? "",
-      category: weaveAgent.category,
-    };
+    outputAgents[weaveAgent.id] = agentAdapter(
+      weaveAgent,
+      systemAgent,
+      modelNames,
+    );
   }
 
   const outputCategories: NonNullable<WeaveSchemaType["categories"]> = {};
@@ -66,13 +89,15 @@ export function adaptWeaveOutput(
     const systemCat = context.allCategories?.[categoryId];
     if (!systemCat) continue;
 
-    const catModel = systemCat.model ?? "";
-    const models = catModel ? resolveModels(categoryId, modelNames) : [];
+    const modelData = modelAdapter(
+      categoryId,
+      systemCat.model ?? "",
+      modelNames,
+    );
 
     outputCategories[categoryId] = {
       description: systemCat.description ?? "",
-      model: models[0] ?? catModel,
-      fallback_models: models.slice(1),
+      ...modelData,
       temperature: systemCat.temperature ?? 0.2,
     };
   }

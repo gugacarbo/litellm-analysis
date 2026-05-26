@@ -1,15 +1,17 @@
 import { z } from "zod";
 import { litellmAliasManifest } from "./plugin.manifest";
-import { litellmAliasSchema } from "./plugin.schema";
+import {
+  type LitellmAliasSchemaType,
+  litellmAliasSchema,
+} from "./plugin.schema";
 
-export const litellmAliasPluginConfigSchema = litellmAliasSchema.parse({
-  $schema: litellmAliasManifest.$schema,
-  model_group_alias: {},
-});
+export const litellmAliasPluginConfigDefaults: LitellmAliasSchemaType =
+  litellmAliasSchema.parse({
+    $schema: litellmAliasManifest.$schema,
+    model_group_alias: {},
+  });
 
-export type LitellmAliasPluginConfig = z.infer<typeof litellmAliasSchema> & {
-  [key: string]: unknown;
-};
+export type LitellmAliasPluginConfig = z.input<typeof litellmAliasSchema>;
 
 export const litellmAliasPluginConfigJsonSchema =
   z.toJSONSchema(litellmAliasSchema);

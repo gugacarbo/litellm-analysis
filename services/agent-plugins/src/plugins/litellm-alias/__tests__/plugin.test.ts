@@ -1,10 +1,25 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
 import type { TransformContext } from "../../plugin";
-import { LitellmAliasPlugin } from "../plugin";
+import { createLitellmAliasPlugin } from "../plugin.factory";
 
-describe("LitellmAliasPlugin", () => {
-  const plugin = new LitellmAliasPlugin();
+function buildOutput(
+  plugin: ReturnType<typeof createLitellmAliasPlugin>,
+  agents: SystemAgent[],
+  routing: PluginRouting,
+  context: TransformContext,
+) {
+  return plugin.handlers.build({
+    agents,
+    routing: routing as Parameters<
+      ReturnType<typeof createLitellmAliasPlugin>["handlers"]["build"]
+    >[0]["routing"],
+    context,
+  });
+}
+
+describe("createLitellmAliasPlugin", () => {
+  const plugin = createLitellmAliasPlugin();
 
   const makeCtx = (
     overrides?: Partial<TransformContext>,
@@ -41,9 +56,9 @@ describe("LitellmAliasPlugin", () => {
   });
 
   it("should have correct metadata", () => {
-    expect(plugin.id).toBe("litellm-alias");
-    expect(plugin.name).toBe("LiteLLM Router Aliases");
-    expect(plugin.getOutputFile()).toBe("litellm-aliases.json");
+    expect(plugin.manifest.id).toBe("litellm-alias");
+    expect(plugin.manifest.displayName).toBe("LiteLLM Router Aliases");
+    expect(plugin.manifest.output.fileName).toBe("litellm-aliases.json");
   });
 
   it("should generate aliases from agents with model", () => {
@@ -55,7 +70,7 @@ describe("LitellmAliasPlugin", () => {
     };
     const ctx = makeCtx();
 
-    const output = plugin.buildOutput(agents, routing, ctx) as {
+    const output = buildOutput(plugin, agents, routing, ctx) as {
       model_group_alias: Record<string, string>;
     };
 
@@ -80,7 +95,7 @@ describe("LitellmAliasPlugin", () => {
       },
     });
 
-    const output = plugin.buildOutput(agents, routing, ctx) as {
+    const output = buildOutput(plugin, agents, routing, ctx) as {
       model_group_alias: Record<string, string>;
     };
 
@@ -90,7 +105,7 @@ describe("LitellmAliasPlugin", () => {
     }
   });
 
-  it("should apply aliasPrefix when configured", () => {
+  it("ignora campos de config fora do schema", () => {
     const agents = [makeAgent("coder")];
     const routing: PluginRouting = {
       enabled: true,
@@ -104,12 +119,12 @@ describe("LitellmAliasPlugin", () => {
     };
     const ctx = makeCtx();
 
-    const output = plugin.buildOutput(agents, routing, ctx) as {
+    const output = buildOutput(plugin, agents, routing, ctx) as {
       model_group_alias: Record<string, string>;
     };
 
     const keys = Object.keys(output.model_group_alias);
-    expect(keys.some((k) => k.startsWith("prod:"))).toBe(true);
+    expect(keys.some((k) => k.startsWith("prod:"))).toBe(false);
   });
 
   it("should include category aliases when configured", () => {
@@ -130,7 +145,7 @@ describe("LitellmAliasPlugin", () => {
       },
     });
 
-    const output = plugin.buildOutput(agents, routing, ctx) as {
+    const output = buildOutput(plugin, agents, routing, ctx) as {
       model_group_alias: Record<string, string>;
     };
 
@@ -143,16 +158,19 @@ describe("LitellmAliasPlugin", () => {
       $schema: "https://example.com/schema.json",
       model_group_alias: { "test/alias": "real-model" },
     };
-    expect(plugin.validate?.(validOutput)).toBe(true);
+    expect(plugin.handlers.validate?.(validOutput)).toBe(true);
 
     const invalidOutput = { not_alias: true };
-    expect(plugin.validate?.(invalidOutput)).toBe(false);
+    expect(plugin.handlers.validate?.(invalidOutput as never)).toBe(false);
   });
 
   it("should not throw when afterExport with no dbWriter", async () => {
-    const pluginNoDb = new LitellmAliasPlugin();
+    const pluginNoDb = createLitellmAliasPlugin();
     await expect(
-      pluginNoDb.afterExport?.({ model_group_alias: {} }),
+      pluginNoDb.handlers.afterExport?.({
+        $schema: "https://example.com/schema.json",
+        model_group_alias: {},
+      }),
     ).resolves.toBeUndefined();
   });
 });

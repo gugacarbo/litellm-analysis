@@ -1,6 +1,23 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
-import { WeavePlugin } from "../plugin";
+import { createWeavePlugin } from "../plugin.factory";
+
+function buildOutput(
+  plugin: ReturnType<typeof createWeavePlugin>,
+  agents: SystemAgent[],
+  routing: PluginRouting,
+  context: Parameters<
+    ReturnType<typeof createWeavePlugin>["handlers"]["build"]
+  >[0]["context"],
+) {
+  return plugin.handlers.build({
+    agents,
+    routing: routing as Parameters<
+      ReturnType<typeof createWeavePlugin>["handlers"]["build"]
+    >[0]["routing"],
+    context,
+  });
+}
 
 type AgentWithId = SystemAgent & { id: string };
 
@@ -20,9 +37,9 @@ function makeSystemAgent(
   };
 }
 
-describe("WeavePlugin", () => {
+describe("createWeavePlugin", () => {
   it("inclui agentes weave quando roteamento usa ids diferentes (pattern -> planner)", () => {
-    const plugin = new WeavePlugin();
+    const plugin = createWeavePlugin();
     const agents: AgentWithId[] = [
       makeSystemAgent("planner", { displayName: "Planner" }),
       makeSystemAgent("explorer", { displayName: "Explorer" }),
@@ -41,7 +58,7 @@ describe("WeavePlugin", () => {
       },
     };
 
-    const output = plugin.buildOutput(agents, routing, {
+    const output = buildOutput(plugin, agents, routing, {
       allModels: {},
       litellmConfig: { baseUrl: "", apiKey: "" },
     }) as {

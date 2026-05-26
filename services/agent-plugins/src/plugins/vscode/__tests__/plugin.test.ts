@@ -1,6 +1,23 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
-import { VsCodePlugin } from "../plugin";
+import { createVsCodePlugin } from "../plugin.factory";
+
+function buildOutput(
+  plugin: ReturnType<typeof createVsCodePlugin>,
+  agents: SystemAgent[],
+  routing: PluginRouting,
+  context: Parameters<
+    ReturnType<typeof createVsCodePlugin>["handlers"]["build"]
+  >[0]["context"],
+) {
+  return plugin.handlers.build({
+    agents,
+    routing: routing as Parameters<
+      ReturnType<typeof createVsCodePlugin>["handlers"]["build"]
+    >[0]["routing"],
+    context,
+  });
+}
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {
@@ -14,20 +31,20 @@ function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   };
 }
 
-describe("VsCodePlugin", () => {
+describe("createVsCodePlugin", () => {
   describe("metadata", () => {
     it("tem id, name e version corretos", () => {
-      const plugin = new VsCodePlugin();
-      expect(plugin.id).toBe("vscode");
-      expect(plugin.name).toBe("VS Code OAICopilot");
-      expect(plugin.version).toBe(1);
+      const plugin = createVsCodePlugin();
+      expect(plugin.manifest.id).toBe("vscode");
+      expect(plugin.manifest.displayName).toBe("VS Code OAICopilot");
+      expect(plugin.manifest.version).toBe(2);
     });
   });
 
   describe("getInternalAgents", () => {
     it("retorna undefined (sem agentes internos)", () => {
-      const plugin = new VsCodePlugin();
-      expect(plugin.getInternalAgents()).toBeUndefined();
+      const plugin = createVsCodePlugin();
+      expect(plugin.manifest.internalAgents).toBeUndefined();
     });
   });
 
@@ -39,15 +56,16 @@ describe("VsCodePlugin", () => {
 
   describe("getOutputFile", () => {
     it("retorna vscode-oaicopilot.json", () => {
-      const plugin = new VsCodePlugin();
-      expect(plugin.getOutputFile()).toBe("vscode-oaicopilot.json");
+      const plugin = createVsCodePlugin();
+      expect(plugin.manifest.output.fileName).toBe("vscode-oaicopilot.json");
     });
   });
 
   describe("buildOutput", () => {
     it("gera estrutura com campos oaicopilot", () => {
-      const plugin = new VsCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createVsCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -72,8 +90,9 @@ describe("VsCodePlugin", () => {
     });
 
     it("remove /v1 do baseUrl", () => {
-      const plugin = new VsCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createVsCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -103,8 +122,9 @@ describe("VsCodePlugin", () => {
     });
 
     it("usa defaults quando sem config do plugin", () => {
-      const plugin = new VsCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createVsCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -128,19 +148,23 @@ describe("VsCodePlugin", () => {
     });
 
     it("aplica config do plugin", () => {
-      const plugin = new VsCodePlugin();
+      const plugin = createVsCodePlugin();
       const routing: PluginRouting = {
         enabled: true,
         outputFile: "vscode-oaicopilot.json",
         config: {
-          commitLanguage: "English",
-          retryEnabled: false,
-          maxRetryAttempts: 5,
+          "oaicopilot.commitLanguage": "English",
+          "oaicopilot.retry": {
+            enabled: false,
+            max_attempts: 5,
+            interval_ms: 2000,
+            status_codes: [],
+          },
         },
         routing: { agents: {}, categories: {} },
       };
 
-      const output = plugin.buildOutput([], routing, {
+      const output = buildOutput(plugin, [], routing, {
         allModels: {},
         litellmConfig: {
           baseUrl: "http://localhost:4000",
@@ -155,8 +179,9 @@ describe("VsCodePlugin", () => {
     });
 
     it("inclui modelos com displayName, id e max-tokens", () => {
-      const plugin = new VsCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createVsCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -198,8 +223,9 @@ describe("VsCodePlugin", () => {
     });
 
     it("configura Authorization header com placeholder", () => {
-      const plugin = new VsCodePlugin();
-      const output = plugin.buildOutput(
+      const plugin = createVsCodePlugin();
+      const output = buildOutput(
+        plugin,
         [],
         {
           enabled: true,
@@ -233,10 +259,11 @@ describe("VsCodePlugin", () => {
     });
 
     it("ignora lista de agentes (usa apenas allModels)", () => {
-      const plugin = new VsCodePlugin();
+      const plugin = createVsCodePlugin();
       const agents = [makeSystemAgent(), makeSystemAgent()];
 
-      const output = plugin.buildOutput(
+      const output = buildOutput(
+        plugin,
         agents,
         {
           enabled: true,

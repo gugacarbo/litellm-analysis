@@ -16,5 +16,9 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
-  }
+  },
+  "cSpell.words": [
+    "oaicopilot",
+    "Openagent"
+  ]
 }
