@@ -1,9 +1,4 @@
 import type { PluginManifest } from "../../sdk";
-import {
-  type VsCodePluginConfig,
-  vsCodePluginConfigSchema,
-} from "./plugin.config";
-import { vscodePluginDefaults } from "./plugin.defaults";
 
 export interface VsCodeModelsOutput {
   $schema: string;
@@ -26,46 +21,11 @@ export interface VsCodeModelsOutput {
   }>;
 }
 
-export const vsCodeManifest: PluginManifest<
-  "vscode",
-  VsCodePluginConfig,
-  VsCodeModelsOutput
-> = {
+export const vsCodeManifest: PluginManifest<"vscode", VsCodeModelsOutput> = {
   id: "vscode",
   displayName: "VS Code OAICopilot",
   version: 2,
   output: { fileName: "vscode-oaicopilot.json" },
-  capabilities: {
-    usesAgents: false,
-    usesCategories: false,
-    usesModels: true,
-  },
-  internalAgents: [],
-  configSchema: [
-    {
-      key: "commitLanguage",
-      type: "string",
-      label: "Commit Language",
-      required: false,
-      default: vscodePluginDefaults.commitLanguage,
-      description: "Language for commit messages",
-    },
-    {
-      key: "retryEnabled",
-      type: "boolean",
-      label: "Enable Retry",
-      required: false,
-      default: vscodePluginDefaults.retryEnabled,
-      description: "Enable retry on failed requests",
-    },
-    {
-      key: "maxRetryAttempts",
-      type: "number",
-      label: "Max Retry Attempts",
-      required: false,
-      default: vscodePluginDefaults.maxRetryAttempts,
-      description: "Maximum number of retry attempts",
-    },
-  ],
-  configZodSchema: vsCodePluginConfigSchema,
+  $schema:
+    "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
 };
