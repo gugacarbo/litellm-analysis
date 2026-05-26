@@ -445,14 +445,6 @@ export function registerModelRoutes(
       const litellmByName = new Map(
         litellmModels.map((model) => [model.modelName, model]),
       );
-      const stats = {
-        dbCreated: 0,
-        dbUpdated: 0,
-        dbDeleted: 0,
-        configCreated: 0,
-        configUpdated: 0,
-        configDeleted: 0,
-      };
       const fields: SyncField[] = [
         "model_presence",
         "enabled",
