@@ -32,7 +32,7 @@ export type PluginRoutingFor<TConfig extends Record<string, unknown>> = {
 export interface PluginManifest<
   TId extends string,
   TConfig extends Record<string, unknown>,
-  TOutput,
+  _TOutput,
 > {
   id: TId;
   displayName: string;
