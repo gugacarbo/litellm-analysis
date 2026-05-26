@@ -20,8 +20,10 @@ function normalizeManifestSchema<TId extends string>(
 
   return {
     ...manifest,
-    $schema: new URL(schema, new URL(`./${manifest.id}/`, import.meta.url))
-      .toString(),
+    $schema: new URL(
+      schema,
+      new URL(`./${manifest.id}/`, import.meta.url),
+    ).toString(),
   };
 }
 

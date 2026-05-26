@@ -23,12 +23,12 @@ export {
   type PluginConfigInput,
   type PluginRegistryV2,
 } from "./plugin-registry";
+export { createLitellmAliasPlugin } from "./plugins/litellm-alias/plugin";
 export {
   type LitellmAliasPluginConfig,
   litellmAliasPluginConfigJsonSchema,
   litellmAliasPluginConfigSchema,
 } from "./plugins/litellm-alias/plugin.config";
-export { createLitellmAliasPlugin } from "./plugins/litellm-alias/plugin";
 export { litellmAliasManifest } from "./plugins/litellm-alias/plugin.manifest";
 export { createOpenAgentPlugin } from "./plugins/openagent/plugin";
 export {

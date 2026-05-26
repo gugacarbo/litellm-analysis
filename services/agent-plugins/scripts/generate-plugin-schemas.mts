@@ -5,11 +5,11 @@
  * Usage: pnpm --filter @lite-llm/agent-plugins generate:plugin-schemas
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
-import { promisify } from "node:util";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import { pluginManifests } from "../src/plugins/manifests";
 
 const PACKAGE_ROOT = path.resolve(
