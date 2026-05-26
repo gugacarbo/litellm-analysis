@@ -1,7 +1,7 @@
 import type { PluginManifest } from "../../sdk";
 import {
-  openCodePluginConfigSchema,
   type OpenCodePluginConfig,
+  openCodePluginConfigSchema,
 } from "./plugin.config";
 import { opencodePluginDefaults } from "./plugin.defaults";
 

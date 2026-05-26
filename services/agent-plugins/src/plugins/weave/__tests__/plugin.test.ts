@@ -1,8 +1,5 @@
-import type {
-  PluginRouting,
-  SystemAgent,
-} from "../../../types";
 import { describe, expect, it } from "vitest";
+import type { PluginRouting, SystemAgent } from "../../../types";
 import { WeavePlugin } from "../plugin";
 
 type AgentWithId = SystemAgent & { id: string };

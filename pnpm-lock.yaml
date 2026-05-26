@@ -403,6 +403,9 @@ importers:
 
   repositories/agents-repository:
     dependencies:
+      '@lite-llm/agent-plugins':
+        specifier: workspace:*
+        version: link:../../services/agent-plugins
       '@lite-llm/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -506,9 +509,6 @@ importers:
 
   services/agent-plugins:
     dependencies:
-      '@lite-llm/agents-repository':
-        specifier: workspace:*
-        version: link:../../repositories/agents-repository
       '@lite-llm/models-repository':
         specifier: workspace:*
         version: link:../../repositories/models-repository

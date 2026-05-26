@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import { describe, expect, it, vi } from "vitest";
+import type { AgentsRepositoryLike } from "../../types";
 import type { IPlugin } from "../plugin";
 import { PluginRegistry } from "../registry";
-import type { AgentsRepositoryLike } from "../../types";
 
 function createUniqueOutputDir(): string {
   return `/tmp/test-registry-output-${randomUUID()}`;

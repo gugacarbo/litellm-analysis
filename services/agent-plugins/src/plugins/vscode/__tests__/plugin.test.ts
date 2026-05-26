@@ -1,8 +1,5 @@
-import type {
-  PluginRouting,
-  SystemAgent,
-} from "../../../types";
 import { describe, expect, it } from "vitest";
+import type { PluginRouting, SystemAgent } from "../../../types";
 import { VsCodePlugin } from "../plugin";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {

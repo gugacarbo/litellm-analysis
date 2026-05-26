@@ -1,7 +1,7 @@
 import type { PluginManifest } from "../../sdk";
 import {
-  weavePluginConfigSchema,
   type WeavePluginConfig,
+  weavePluginConfigSchema,
 } from "./plugin.config";
 import { weavePluginDefaults } from "./plugin.defaults";
 

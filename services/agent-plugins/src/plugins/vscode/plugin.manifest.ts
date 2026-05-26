@@ -1,7 +1,7 @@
 import type { PluginManifest } from "../../sdk";
 import {
-  vsCodePluginConfigSchema,
   type VsCodePluginConfig,
+  vsCodePluginConfigSchema,
 } from "./plugin.config";
 import { vscodePluginDefaults } from "./plugin.defaults";
 

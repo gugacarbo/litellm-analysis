@@ -34,14 +34,8 @@ export interface PluginManifest<
   displayName: string;
   version: number;
   output: { fileName: string };
-  capabilities: {
-    usesAgents: boolean;
-    usesCategories: boolean;
-    usesModels: boolean;
-  };
-  configSchema: ConfigField[];
-  configZodSchema?: z.ZodType<TConfig>;
-  internalAgents: InternalAgent[];
+  $schema: string;
+  internalAgents?: InternalAgent[];
 }
 
 export interface PluginHandlers<

@@ -2,9 +2,9 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import { getPluginConfigJsonSchema } from "../plugin-config-schemas";
+import type { AgentsRepositoryLike, DbConfig, SystemAgent } from "../types";
 import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin";
 import type { ConfigField, InternalAgent } from "./plugin-types";
-import type { AgentsRepositoryLike, DbConfig, SystemAgent } from "../types";
 
 /** Flexible plugin config used for loading from repository (all fields optional). */
 export interface PluginConfigInput {

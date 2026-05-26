@@ -19,6 +19,7 @@
     "validate:plugins": "ajv validate -s ../../${SETTINGS_PATH:-@settings}/plugins/plugins.schema.json -d ../../${SETTINGS_PATH:-@settings}/plugins/plugins.jsonc"
   },
   "dependencies": {
+    "@lite-llm/agent-plugins": "workspace:*",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/models-repository": "workspace:*",
     "@lite-llm/repository-utils": "workspace:*",

@@ -11,24 +11,18 @@ export const vsCodePluginConfigSchema = z
         title: "Schema URL",
         description: "VS Code OAICopilot config schema URL",
       }),
-    commitLanguage: z
-      .string()
-      .default("Portuguese (Brazil)")
-      .meta({
-        title: "Commit Language",
-        description: "Language for commit messages",
-      }),
+    commitLanguage: z.string().default("Portuguese (Brazil)").meta({
+      title: "Commit Language",
+      description: "Language for commit messages",
+    }),
     retryEnabled: z
       .boolean()
       .default(true)
       .meta({ title: "Retry Enabled", description: "Enable retry on failure" }),
-    maxRetryAttempts: z
-      .number()
-      .default(3)
-      .meta({
-        title: "Max Retry Attempts",
-        description: "Maximum number of retry attempts",
-      }),
+    maxRetryAttempts: z.number().default(3).meta({
+      title: "Max Retry Attempts",
+      description: "Maximum number of retry attempts",
+    }),
   })
   .meta({
     title: "VSCode Config",

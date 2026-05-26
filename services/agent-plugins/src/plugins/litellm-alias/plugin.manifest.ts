@@ -1,7 +1,7 @@
 import type { PluginManifest } from "../../sdk";
 import {
-  litellmAliasPluginConfigSchema,
   type LitellmAliasPluginConfig,
+  litellmAliasPluginConfigSchema,
 } from "./plugin.config";
 import { litellmAliasPluginDefaults } from "./plugin.defaults";
 

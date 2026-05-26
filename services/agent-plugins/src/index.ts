@@ -23,47 +23,41 @@ export {
   type PluginConfigInput,
   type PluginRegistryV2,
 } from "./plugin-registry";
-export {
-  litellmAliasPluginConfigSchema,
-  litellmAliasPluginConfigJsonSchema,
-  type LitellmAliasPluginConfig,
-} from "./plugins/litellm-alias/plugin.config";
-export {
-  litellmAliasManifest,
-} from "./plugins/litellm-alias/plugin.manifest";
 export { createLitellmAliasPlugin } from "./plugins/litellm-alias/plugin";
 export {
-  openAgentPluginConfigSchema,
-  openAgentPluginConfigJsonSchema,
-  type OpenAgentPluginConfig,
-} from "./plugins/openagent/plugin.config";
-export {
-  openAgentManifest,
-} from "./plugins/openagent/plugin.manifest";
+  type LitellmAliasPluginConfig,
+  litellmAliasPluginConfigJsonSchema,
+  litellmAliasPluginConfigSchema,
+} from "./plugins/litellm-alias/plugin.config";
+export { litellmAliasManifest } from "./plugins/litellm-alias/plugin.manifest";
 export { createOpenAgentPlugin } from "./plugins/openagent/plugin";
 export {
-  openCodePluginConfigSchema,
-  openCodePluginConfigJsonSchema,
-  type OpenCodePluginConfig,
-} from "./plugins/opencode/plugin.config";
-export {
-  openCodeManifest,
-} from "./plugins/opencode/plugin.manifest";
+  type OpenAgentPluginConfig,
+  openAgentPluginConfigJsonSchema,
+  openAgentPluginConfigSchema,
+} from "./plugins/openagent/plugin.config";
+export { openAgentManifest } from "./plugins/openagent/plugin.manifest";
 export { createOpenCodePlugin } from "./plugins/opencode/plugin";
 export {
-  vsCodePluginConfigSchema,
-  vsCodePluginConfigJsonSchema,
-  type VsCodePluginConfig,
-} from "./plugins/vscode/plugin.config";
-export { vsCodeManifest } from "./plugins/vscode/plugin.manifest";
+  type OpenCodePluginConfig,
+  openCodePluginConfigJsonSchema,
+  openCodePluginConfigSchema,
+} from "./plugins/opencode/plugin.config";
+export { openCodeManifest } from "./plugins/opencode/plugin.manifest";
 export { createVsCodePlugin } from "./plugins/vscode/plugin";
 export {
-  weavePluginConfigSchema,
-  weavePluginConfigJsonSchema,
+  type VsCodePluginConfig,
+  vsCodePluginConfigJsonSchema,
+  vsCodePluginConfigSchema,
+} from "./plugins/vscode/plugin.config";
+export { vsCodeManifest } from "./plugins/vscode/plugin.manifest";
+export { createWeavePlugin } from "./plugins/weave/plugin";
+export {
   type WeavePluginConfig,
+  weavePluginConfigJsonSchema,
+  weavePluginConfigSchema,
 } from "./plugins/weave/plugin.config";
 export { weaveManifest } from "./plugins/weave/plugin.manifest";
-export { createWeavePlugin } from "./plugins/weave/plugin";
 export type {
   CreatePluginOptions,
   PluginDefinition,
