@@ -1,24 +1,15 @@
-import type {
-  OpenCodePluginConfig,
-  PluginRouting,
-  SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
-import {
-  OPENCODE_DEFAULT_MODEL_DEFAULT,
-  OPENCODE_DEFAULT_TEMPERATURE_DEFAULT,
-  openCodePluginConfigSchema,
-} from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import { normalizeAgentMappings } from "../../helpers";
-import type { PluginDefinition, PluginManifest } from "../../sdk";
+import type { PluginDefinition } from "../../sdk";
+import type { PluginRouting, SystemAgent } from "../../types";
 import { resolveSlotModelId } from "../litellm-alias/generate";
 import { DEFAULT_MODEL_NAMES } from "../litellm-alias/plugin";
+import {
+  type OpenCodePluginConfig,
+  openCodePluginConfigSchema,
+} from "./plugin.config";
+import { type OpenCodeProviders, openCodeManifest } from "./plugin.manifest";
 import { opencodeSchema } from "./plugin.schema";
-
-interface OpenCodeProviders {
-  $schema: string;
-  provider: Record<string, unknown>;
-}
 
 const OPENCODE_REASONING_EFFORT_LEVELS = new Set([
   "none",
@@ -137,44 +128,6 @@ function addRoleModelSlots(
   }
 }
 
-export const openCodeManifest: PluginManifest<
-  "opencode",
-  OpenCodePluginConfig,
-  OpenCodeProviders
-> = {
-  id: "opencode",
-  displayName: "OpenCode AI SDK",
-  version: 2,
-  output: { fileName: "opencode.json" },
-  capabilities: {
-    usesAgents: true,
-    usesCategories: true,
-    usesModels: true,
-  },
-  internalAgents: [],
-  configSchema: [
-    {
-      key: "defaultModel",
-      type: "string",
-      label: "Default Model",
-      required: false,
-      default: OPENCODE_DEFAULT_MODEL_DEFAULT,
-      placeholder: "e.g. gpt-4",
-      description: "Model to use when a system agent has no model configured",
-    },
-    {
-      key: "defaultTemperature",
-      type: "number",
-      label: "Default Temperature",
-      required: false,
-      default: OPENCODE_DEFAULT_TEMPERATURE_DEFAULT,
-      description:
-        "Default sampling temperature for agents without one configured",
-    },
-  ],
-  configZodSchema: openCodePluginConfigSchema,
-};
-
 export function createOpenCodePlugin(): PluginDefinition<
   "opencode",
   OpenCodePluginConfig,
@@ -184,11 +137,11 @@ export function createOpenCodePlugin(): PluginDefinition<
     manifest: openCodeManifest,
     handlers: {
       build(input): OpenCodeProviders {
-        const config: OpenCodePluginConfig = input.routing.config ?? {};
+        const config = openCodePluginConfigSchema.parse(
+          input.routing.config ?? {},
+        );
         const configDefaultModel = config.defaultModel || "";
-        const schemaUrl =
-          config.$schema ??
-          "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/opencode/schemas/opencode.schema.json";
+        const schemaUrl = config.$schema;
 
         const modelNames = input.context.modelNames ?? DEFAULT_MODEL_NAMES;
 
@@ -375,7 +328,14 @@ export class OpenCodePlugin {
       ReturnType<typeof createOpenCodePlugin>["handlers"]["build"]
     >[0]["context"],
   ) {
-    return createOpenCodePlugin().handlers.build({ agents, routing, context });
+    return createOpenCodePlugin().handlers.build({
+      agents,
+      routing: {
+        ...routing,
+        config: openCodePluginConfigSchema.parse(routing.config ?? {}),
+      },
+      context,
+    });
   }
 
   validate(output: unknown): boolean {

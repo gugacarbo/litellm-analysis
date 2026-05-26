@@ -15,24 +15,55 @@ export {
 } from "./lib/plugin-schemas";
 export { createPluginCatalog } from "./plugin-catalog";
 export {
+  getPluginConfigJsonSchema,
+  pluginConfigJsonSchemas,
+} from "./plugin-config-schemas";
+export {
   createPluginRegistry,
   type PluginConfigInput,
   type PluginRegistryV2,
 } from "./plugin-registry";
 export {
-  createLitellmAliasPlugin,
+  litellmAliasPluginConfigSchema,
+  litellmAliasPluginConfigJsonSchema,
+  type LitellmAliasPluginConfig,
+} from "./plugins/litellm-alias/plugin.config";
+export {
   litellmAliasManifest,
-} from "./plugins/litellm-alias/plugin";
+} from "./plugins/litellm-alias/plugin.manifest";
+export { createLitellmAliasPlugin } from "./plugins/litellm-alias/plugin";
 export {
-  createOpenAgentPlugin,
+  openAgentPluginConfigSchema,
+  openAgentPluginConfigJsonSchema,
+  type OpenAgentPluginConfig,
+} from "./plugins/openagent/plugin.config";
+export {
   openAgentManifest,
-} from "./plugins/openagent/plugin";
+} from "./plugins/openagent/plugin.manifest";
+export { createOpenAgentPlugin } from "./plugins/openagent/plugin";
 export {
-  createOpenCodePlugin,
+  openCodePluginConfigSchema,
+  openCodePluginConfigJsonSchema,
+  type OpenCodePluginConfig,
+} from "./plugins/opencode/plugin.config";
+export {
   openCodeManifest,
-} from "./plugins/opencode/plugin";
-export { createVsCodePlugin, vsCodeManifest } from "./plugins/vscode/plugin";
-export { createWeavePlugin, weaveManifest } from "./plugins/weave/plugin";
+} from "./plugins/opencode/plugin.manifest";
+export { createOpenCodePlugin } from "./plugins/opencode/plugin";
+export {
+  vsCodePluginConfigSchema,
+  vsCodePluginConfigJsonSchema,
+  type VsCodePluginConfig,
+} from "./plugins/vscode/plugin.config";
+export { vsCodeManifest } from "./plugins/vscode/plugin.manifest";
+export { createVsCodePlugin } from "./plugins/vscode/plugin";
+export {
+  weavePluginConfigSchema,
+  weavePluginConfigJsonSchema,
+  type WeavePluginConfig,
+} from "./plugins/weave/plugin.config";
+export { weaveManifest } from "./plugins/weave/plugin.manifest";
+export { createWeavePlugin } from "./plugins/weave/plugin";
 export type {
   CreatePluginOptions,
   PluginDefinition,
@@ -43,3 +74,10 @@ export type {
   PluginRoutingFor,
   PluginRuntimeContext,
 } from "./sdk";
+export type {
+  AgentsRepositoryLike,
+  CategoryEntry,
+  DbConfig,
+  PluginRouting,
+  SystemAgent,
+} from "./types";

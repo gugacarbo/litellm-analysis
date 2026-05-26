@@ -1,70 +1,12 @@
-import type {
-  OpenAgentPluginConfig,
-  PluginRouting,
-  SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
-import {
-  OPENAGENT_COMMIT_FOOTER_DEFAULT,
-  OPENAGENT_INCLUDE_CO_AUTHORED_BY_DEFAULT,
-  OPENAGENT_SCHEMA_URL_DEFAULT,
-  openAgentPluginConfigSchema,
-} from "@lite-llm/agents-repository/schemas";
 import { normalizeAgentMappings } from "../../helpers";
-import type { PluginDefinition, PluginManifest } from "../../sdk";
+import type { PluginDefinition } from "../../sdk";
+import type { PluginRouting, SystemAgent } from "../../types";
+import {
+  type OpenAgentPluginConfig,
+  openAgentPluginConfigSchema,
+} from "./plugin.config";
+import { type OpenAgentOutput, openAgentManifest } from "./plugin.manifest";
 import { openagentSchema } from "./plugin.schema";
-
-interface OpenAgentOutput {
-  $schema: string;
-  globalFallbackModel?: string;
-  git_master: {
-    commit_footer: boolean;
-    include_co_authored_by: boolean;
-  };
-  agents: Record<string, Record<string, unknown>>;
-  categories: Record<string, Record<string, unknown>>;
-}
-
-export const openAgentManifest: PluginManifest<
-  "openagent",
-  OpenAgentPluginConfig,
-  OpenAgentOutput
-> = {
-  id: "openagent",
-  displayName: "Oh My OpenAgent",
-  version: 2,
-  output: { fileName: "oh-my-openagent.json" },
-  capabilities: {
-    usesAgents: true,
-    usesCategories: true,
-    usesModels: false,
-  },
-  internalAgents: [
-    {
-      id: "default",
-      displayName: "Default",
-      description: "Default OpenAgent",
-    },
-  ],
-  configSchema: [
-    {
-      key: "commitFooter",
-      type: "boolean",
-      label: "Commit Footer",
-      required: false,
-      default: OPENAGENT_COMMIT_FOOTER_DEFAULT,
-      description: "Add footer to commit messages",
-    },
-    {
-      key: "includeCoAuthoredBy",
-      type: "boolean",
-      label: "Include Co-Authored-By",
-      required: false,
-      default: OPENAGENT_INCLUDE_CO_AUTHORED_BY_DEFAULT,
-      description: "Include co-authored-by trailer in commits",
-    },
-  ],
-  configZodSchema: openAgentPluginConfigSchema,
-};
 
 export function createOpenAgentPlugin(): PluginDefinition<
   "openagent",
@@ -76,18 +18,14 @@ export function createOpenAgentPlugin(): PluginDefinition<
     handlers: {
       build(input): OpenAgentOutput {
         const { agents, routing, context } = input;
-        const config: OpenAgentPluginConfig = routing.config ?? {};
-        const schemaUrl = config.$schema ?? OPENAGENT_SCHEMA_URL_DEFAULT;
+        const config = openAgentPluginConfigSchema.parse(routing.config ?? {});
 
         const output: OpenAgentOutput = {
-          $schema: schemaUrl,
+          $schema: config.$schema,
           globalFallbackModel: context.globalFallbackModel,
           git_master: {
-            commit_footer:
-              config.commitFooter ?? OPENAGENT_COMMIT_FOOTER_DEFAULT,
-            include_co_authored_by:
-              config.includeCoAuthoredBy ??
-              OPENAGENT_INCLUDE_CO_AUTHORED_BY_DEFAULT,
+            commit_footer: config.commitFooter,
+            include_co_authored_by: config.includeCoAuthoredBy,
           },
           agents: {},
           categories: {},
@@ -98,7 +36,10 @@ export function createOpenAgentPlugin(): PluginDefinition<
         const agentMappings = normalizeAgentMappings(rawAgentMappings);
 
         for (const agent of agents) {
-          const internalId = agentMappings[agent.displayName]?.[0];
+          const agentName = agent.displayName;
+          if (!agentName) continue;
+
+          const internalId = agentMappings[agentName]?.[0];
           if (!internalId) continue;
 
           const entry: Record<string, unknown> = {};
@@ -165,7 +106,14 @@ export class OpenAgentPlugin {
       ReturnType<typeof createOpenAgentPlugin>["handlers"]["build"]
     >[0]["context"],
   ) {
-    return createOpenAgentPlugin().handlers.build({ agents, routing, context });
+    return createOpenAgentPlugin().handlers.build({
+      agents,
+      routing: {
+        ...routing,
+        config: openAgentPluginConfigSchema.parse(routing.config ?? {}),
+      },
+      context,
+    });
   }
 
   validate(output: unknown): boolean {

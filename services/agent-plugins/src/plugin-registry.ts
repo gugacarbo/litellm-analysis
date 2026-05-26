@@ -1,23 +1,23 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import {
-  type DbConfig,
-  getPluginConfigJsonSchema,
-  type PluginRouting,
-  type SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import { PluginExecutionError } from "./errors";
+import { getPluginConfigJsonSchema } from "./plugin-config-schemas";
 import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
 import type { PluginDefinition, PluginRuntimeContext } from "./sdk";
+import type {
+  AgentsRepositoryLike,
+  DbConfig,
+  PluginRouting,
+  SystemAgent,
+} from "./types";
 
 export interface PluginConfigInput {
   enabled?: boolean;
   outputFile?: string;
   config?: Record<string, unknown>;
   routing?: {
-    agents?: Record<string, string>;
+    agents?: Record<string, string | string[]>;
     categories?: Record<string, boolean>;
   };
 }
@@ -37,7 +37,7 @@ export interface PluginRegistryV2 {
 }
 
 export interface CreatePluginRegistryOptions {
-  repository: IAgentsRepository;
+  repository: AgentsRepositoryLike;
   modelsRepository?: IModelsRepository;
   outputDir?: string;
   catalog: PluginDefinition<string, Record<string, unknown>, unknown>[];
@@ -53,7 +53,7 @@ class PluginRegistryV2Impl implements PluginRegistryV2 {
     Record<string, unknown>,
     unknown
   >[];
-  private readonly repository: IAgentsRepository;
+  private readonly repository: AgentsRepositoryLike;
   private readonly modelsRepository?: IModelsRepository;
   private readonly outputDir: string;
 

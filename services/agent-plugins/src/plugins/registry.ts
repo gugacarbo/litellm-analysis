@@ -1,14 +1,10 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import {
-  type DbConfig,
-  getPluginConfigJsonSchema,
-  type SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
+import { getPluginConfigJsonSchema } from "../plugin-config-schemas";
 import type { IPlugin, IPluginRegistry, TransformContext } from "./plugin";
 import type { ConfigField, InternalAgent } from "./plugin-types";
+import type { AgentsRepositoryLike, DbConfig, SystemAgent } from "../types";
 
 /** Flexible plugin config used for loading from repository (all fields optional). */
 export interface PluginConfigInput {
@@ -16,13 +12,13 @@ export interface PluginConfigInput {
   outputFile?: string;
   config?: Record<string, unknown>;
   routing?: {
-    agents?: Record<string, string>;
+    agents?: Record<string, string | string[]>;
     categories?: Record<string, boolean>;
   };
 }
 
 export interface PluginRegistryOptions {
-  repository: IAgentsRepository;
+  repository: AgentsRepositoryLike;
   modelsRepository?: IModelsRepository;
   outputDir?: string;
   allPlugins: IPlugin[];
@@ -31,7 +27,7 @@ export interface PluginRegistryOptions {
 export class PluginRegistry implements IPluginRegistry {
   private readonly plugins = new Map<string, IPlugin>();
   private readonly allPlugins: IPlugin[];
-  private readonly repository: IAgentsRepository;
+  private readonly repository: AgentsRepositoryLike;
   private readonly modelsRepository?: IModelsRepository;
   private readonly outputDir: string;
 

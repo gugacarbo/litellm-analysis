@@ -1,5 +1,3 @@
-import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
-import type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import { ensurePluginSchemas } from "./lib/ensure-plugin-schemas";
 import { createPluginCatalog } from "./plugin-catalog";
@@ -8,6 +6,7 @@ import {
   type PluginConfigInput,
   type PluginRegistryV2,
 } from "./plugin-registry";
+import type { AgentsRepositoryLike, SystemAgent } from "./types";
 
 export interface PluginRoutingInput extends PluginConfigInput {}
 
@@ -77,7 +76,7 @@ export interface AgentPluginsOrchestrator {
 }
 
 export interface AgentPluginsOrchestratorOptions {
-  repository: IAgentsRepository;
+  repository: AgentsRepositoryLike;
   modelsRepository?: IModelsRepository;
   services: AgentServices;
   outputDir?: string;

@@ -1,261 +1,24 @@
-import type {
-  PluginRouting,
-  SystemAgent,
-  WeavePluginConfig,
-} from "@lite-llm/agents-repository/schemas";
-import {
-  WEAVE_ANALYTICS_ENABLED_DEFAULT,
-  WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
-  WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
-  WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
-  WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
-  WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
-  WEAVE_LOG_LEVEL_DEFAULT,
-  WEAVE_PERMISSION_QUESTION_DEFAULT,
-  WEAVE_SCHEMA_URL_DEFAULT,
-  WEAVE_SKILL_DIRECTORIES_DEFAULT,
-  WEAVE_TMUX_ENABLED_DEFAULT,
-  weavePluginConfigSchema,
-} from "@lite-llm/agents-repository/schemas";
 import { normalizeAgentMappings } from "../../helpers";
-import type { PluginDefinition, PluginManifest } from "../../sdk";
+import type { PluginDefinition } from "../../sdk";
+import type { PluginRouting, SystemAgent } from "../../types";
+import {
+  type WeavePluginConfig,
+  weavePluginConfigSchema,
+} from "./plugin.config";
+import {
+  WEAVE_AGENTS,
+  type WeaveAgentOutput,
+  type WeaveCategoryOutput,
+  type WeaveConfigOutput,
+  weaveManifest,
+} from "./plugin.manifest";
 import { weaveSchema } from "./plugin.schema";
 
-interface WeaveAgentOutput {
-  display_name: string;
-  model: string;
-  fallback_models: string[];
-  temperature: number;
-  color: string;
-  category?: string;
-}
-
-interface WeaveCategoryOutput {
-  description: string;
-  model: string;
-  fallback_models: string[];
-  temperature: number;
-}
-
-interface WeaveConfigOutput {
-  $schema: string;
-  log_level: string;
-  tmux: { enabled: boolean };
-  analytics: { enabled: boolean; use_fingerprint: boolean };
-  continuation: {
-    recovery: { compaction: boolean };
-    idle: {
-      enabled: boolean;
-      work: boolean;
-      workflow: boolean;
-      todo_prompt: boolean;
-    };
-  };
-  skill_directories: string[];
-  agents: Record<string, WeaveAgentOutput>;
-  categories: Record<string, WeaveCategoryOutput>;
-}
-
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
-
-const WEAVE_AGENTS: {
-  id: string;
-  displayName: string;
-  description: string;
-  color: string;
-  category: string;
-}[] = [
-  {
-    id: "loom",
-    displayName: "Loom",
-    description:
-      "Main orchestrator — primary user-facing interface that understands requests, routes work, and coordinates results",
-    color: "#4A90D9",
-    category: "deep",
-  },
-  {
-    id: "tapestry",
-    displayName: "Tapestry",
-    description:
-      "Plan execution orchestrator — delegates plan tasks to Shuttle, verifies results, and tracks progress",
-    color: "#D94A4A",
-    category: "deep",
-  },
-  {
-    id: "pattern",
-    displayName: "Pattern",
-    description: "Strategic planner — produces .weave/plans/ files",
-    color: "#9B59B6",
-    category: "deep",
-  },
-  {
-    id: "shuttle",
-    displayName: "Shuttle",
-    description:
-      "Domain specialist worker — handles delegated implementation and analysis tasks",
-    color: "#E67E22",
-    category: "deep",
-  },
-  {
-    id: "thread",
-    displayName: "Thread",
-    description: "Codebase explorer — fast, read-only analysis and search",
-    color: "#27AE60",
-    category: "quick",
-  },
-  {
-    id: "spindle",
-    displayName: "Spindle",
-    description: "External researcher — web fetching and research",
-    color: "#F39C12",
-    category: "quick",
-  },
-  {
-    id: "weft",
-    displayName: "Weft",
-    description: "Quality reviewer and auditor",
-    color: "#1ABC9C",
-    category: "deep",
-  },
-  {
-    id: "warp",
-    displayName: "Warp",
-    description: "Security auditor",
-    color: "#E74C3C",
-    category: "deep",
-  },
-];
 
 function resolveModels(role: string, modelNames: readonly string[]): string[] {
   return modelNames.map((slot) => `${role}/${slot}`);
 }
-
-export const weaveManifest: PluginManifest<
-  "weave",
-  WeavePluginConfig,
-  WeaveConfigOutput
-> = {
-  id: "weave",
-  displayName: "OpenCode Weave",
-  version: 2,
-  output: { fileName: "weave-config.json" },
-  capabilities: {
-    usesAgents: true,
-    usesCategories: true,
-    usesModels: true,
-  },
-  internalAgents: WEAVE_AGENTS.map((a) => ({
-    id: a.id,
-    displayName: a.displayName,
-    description: a.description,
-  })),
-  configSchema: [
-    {
-      key: "$schema",
-      type: "string",
-      label: "Schema URL",
-      required: false,
-      default: WEAVE_SCHEMA_URL_DEFAULT,
-      placeholder: "weave config schema URL",
-      description: "JSON Schema URL for the generated weave config",
-    },
-    {
-      key: "logLevel",
-      type: "select",
-      label: "Log Level",
-      required: false,
-      default: WEAVE_LOG_LEVEL_DEFAULT,
-      options: ["DEBUG", "INFO", "WARN", "ERROR"].map((v) => ({
-        value: v,
-        label: v,
-      })),
-      description: "Logging verbosity level for Weave",
-    },
-    {
-      key: "tmuxEnabled",
-      type: "boolean",
-      label: "Tmux Enabled",
-      required: false,
-      default: WEAVE_TMUX_ENABLED_DEFAULT,
-      description: "Enable tmux session management",
-    },
-    {
-      key: "analyticsEnabled",
-      type: "boolean",
-      label: "Analytics Enabled",
-      required: false,
-      default: WEAVE_ANALYTICS_ENABLED_DEFAULT,
-      description: "Enable usage analytics collection",
-    },
-    {
-      key: "analyticsUseFingerprint",
-      type: "boolean",
-      label: "Analytics Use Fingerprint",
-      required: false,
-      default: WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
-      description: "Use fingerprint for analytics tracking",
-    },
-    {
-      key: "continuationRecoveryCompaction",
-      type: "boolean",
-      label: "Continuation Recovery Compaction",
-      required: false,
-      default: WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
-      description: "Enable context compaction during recovery",
-    },
-    {
-      key: "continuationIdleEnabled",
-      type: "boolean",
-      label: "Continuation Idle Enabled",
-      required: false,
-      default: WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
-      description: "Enable idle continuation processing",
-    },
-    {
-      key: "continuationIdleWork",
-      type: "boolean",
-      label: "Continuation Idle Work",
-      required: false,
-      default: WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
-      description: "Allow work during idle periods",
-    },
-    {
-      key: "continuationIdleTodoPrompt",
-      type: "boolean",
-      label: "Continuation Idle Todo Prompt",
-      required: false,
-      default: WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
-      description: "Show todo prompt during idle",
-    },
-    {
-      key: "permissionQuestion",
-      type: "select",
-      label: "Permission Question Behavior",
-      required: false,
-      default: WEAVE_PERMISSION_QUESTION_DEFAULT,
-      options: [
-        { value: "allow", label: "Allow" },
-        { value: "deny", label: "Deny" },
-        { value: "ask", label: "Ask" },
-      ],
-      description: "Default behavior for permission questions",
-    },
-    {
-      key: "skillDirectories",
-      type: "multiselect",
-      label: "Skill Directories",
-      required: false,
-      default: [...WEAVE_SKILL_DIRECTORIES_DEFAULT],
-      options: [
-        { value: "~/.agents/skills", label: "~/.agents/skills" },
-        { value: "~/.claude/skills", label: "~/.claude/skills" },
-        { value: "~/.opencode/skills", label: "~/.opencode/skills" },
-      ],
-      description: "Directories to scan for skills",
-    },
-  ],
-  configZodSchema: weavePluginConfigSchema,
-};
 
 export function createWeavePlugin(): PluginDefinition<
   "weave",
@@ -266,43 +29,31 @@ export function createWeavePlugin(): PluginDefinition<
     manifest: weaveManifest,
     handlers: {
       build(input): WeaveConfigOutput {
-        const config: WeavePluginConfig = input.routing.config ?? {};
-        const schemaUrl = config.$schema ?? WEAVE_SCHEMA_URL_DEFAULT;
+        const config = weavePluginConfigSchema.parse(
+          input.routing.config ?? {},
+        );
+        const schemaUrl = config.$schema;
 
         const modelNames = input.context.modelNames ?? DEFAULT_MODEL_NAMES;
 
         const baseOutput: Omit<WeaveConfigOutput, "agents" | "categories"> = {
           $schema: schemaUrl,
-          log_level: config.logLevel ?? WEAVE_LOG_LEVEL_DEFAULT,
-          tmux: { enabled: config.tmuxEnabled ?? WEAVE_TMUX_ENABLED_DEFAULT },
+          log_level: config.logLevel,
+          tmux: { enabled: config.tmuxEnabled },
           analytics: {
-            enabled: config.analyticsEnabled ?? WEAVE_ANALYTICS_ENABLED_DEFAULT,
-            use_fingerprint:
-              config.analyticsUseFingerprint ??
-              WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
+            enabled: config.analyticsEnabled,
+            use_fingerprint: config.analyticsUseFingerprint,
           },
           continuation: {
-            recovery: {
-              compaction:
-                config.continuationRecoveryCompaction ??
-                WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
-            },
+            recovery: { compaction: config.continuationRecoveryCompaction },
             idle: {
-              enabled:
-                config.continuationIdleEnabled ??
-                WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
-              work:
-                config.continuationIdleWork ??
-                WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
+              enabled: config.continuationIdleEnabled,
+              work: config.continuationIdleWork,
               workflow: true,
-              todo_prompt:
-                config.continuationIdleTodoPrompt ??
-                WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
+              todo_prompt: config.continuationIdleTodoPrompt,
             },
           },
-          skill_directories: config.skillDirectories ?? [
-            ...WEAVE_SKILL_DIRECTORIES_DEFAULT,
-          ],
+          skill_directories: config.skillDirectories,
         };
 
         const rawAgentMappings: Record<string, string | string[]> =
@@ -401,7 +152,14 @@ export class WeavePlugin {
       ReturnType<typeof createWeavePlugin>["handlers"]["build"]
     >[0]["context"],
   ) {
-    return createWeavePlugin().handlers.build({ agents, routing, context });
+    return createWeavePlugin().handlers.build({
+      agents,
+      routing: {
+        ...routing,
+        config: weavePluginConfigSchema.parse(routing.config ?? {}),
+      },
+      context,
+    });
   }
 
   validate(output: unknown): boolean {

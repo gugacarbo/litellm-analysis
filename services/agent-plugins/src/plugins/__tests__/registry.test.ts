@@ -1,28 +1,22 @@
 import { randomUUID } from "node:crypto";
-import type { IAgentsRepository } from "@lite-llm/agents-repository/repository";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
 import { describe, expect, it, vi } from "vitest";
 import type { IPlugin } from "../plugin";
 import { PluginRegistry } from "../registry";
+import type { AgentsRepositoryLike } from "../../types";
 
 function createUniqueOutputDir(): string {
   return `/tmp/test-registry-output-${randomUUID()}`;
 }
 
-function createMockRepository(): IAgentsRepository {
+function createMockRepository(): AgentsRepositoryLike {
   return {
     read: vi.fn().mockResolvedValue({
       version: 2,
       agents: {},
       categories: {},
     }),
-    readSync: vi.fn(),
     write: vi.fn(),
-    validate: ((_config: unknown): _config is never =>
-      true) as IAgentsRepository["validate"],
-    exists: vi.fn().mockResolvedValue(true),
-    getPath: vi.fn().mockReturnValue("/tmp/test.json"),
-    getPluginsPath: vi.fn().mockReturnValue("/mock/plugins.jsonc"),
   };
 }
 

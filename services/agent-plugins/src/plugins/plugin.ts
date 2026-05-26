@@ -1,8 +1,3 @@
-import type {
-  CategoryEntry,
-  PluginRouting,
-  SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import type {
   ConfigField,
@@ -10,6 +5,7 @@ import type {
   PluginConfigFor,
   PluginConfigMap,
 } from "./plugin-types";
+import type { CategoryEntry, PluginRouting, SystemAgent } from "../types";
 
 export interface TransformContext {
   allModels: Record<string, ModelSpec>;

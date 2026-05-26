@@ -1,16 +1,10 @@
-import {
-  LITELLM_ALIAS_GLOBAL_FALLBACK_OVERRIDE_DEFAULT,
-  LITELLM_ALIAS_INCLUDE_AGENTS_DEFAULT,
-  LITELLM_ALIAS_INCLUDE_CATEGORIES_DEFAULT,
-  LITELLM_ALIAS_PREFIX_DEFAULT,
-  LITELLM_ALIAS_SCHEMA_URL_DEFAULT,
-  type LitellmAliasPluginConfig,
-} from "@lite-llm/agents-repository/schemas";
+import type { LitellmAliasPluginConfig } from "./plugin.config";
 
-export const litellmAliasPluginDefaults: LitellmAliasPluginConfig = {
-  $schema: LITELLM_ALIAS_SCHEMA_URL_DEFAULT,
-  aliasPrefix: LITELLM_ALIAS_PREFIX_DEFAULT,
-  includeAgents: LITELLM_ALIAS_INCLUDE_AGENTS_DEFAULT,
-  includeCategories: LITELLM_ALIAS_INCLUDE_CATEGORIES_DEFAULT,
-  globalFallbackOverride: LITELLM_ALIAS_GLOBAL_FALLBACK_OVERRIDE_DEFAULT,
+export const litellmAliasPluginDefaults: Required<LitellmAliasPluginConfig> = {
+  $schema:
+    "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
+  aliasPrefix: "",
+  includeAgents: true,
+  includeCategories: true,
+  globalFallbackOverride: "",
 };

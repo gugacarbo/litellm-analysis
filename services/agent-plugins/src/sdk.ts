@@ -1,11 +1,7 @@
-import type {
-  CategoryEntry,
-  PluginRouting,
-  SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 import type { z } from "zod";
 import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
+import type { CategoryEntry, PluginRouting, SystemAgent } from "./types";
 
 export type PluginId =
   | "opencode"

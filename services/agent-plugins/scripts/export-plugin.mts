@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createRepository } from "@lite-llm/agents-repository/repository";
 import { createRepositoryClient as createModelsRepositoryClient } from "@lite-llm/models-repository";
+import { createRepository } from "../../../repositories/agents-repository/src/repository";
 import { createAgentPluginsOrchestrator } from "../src/index.ts";
 
 const pluginId = process.argv[2];

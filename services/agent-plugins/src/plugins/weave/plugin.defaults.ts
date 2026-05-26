@@ -1,29 +1,20 @@
-import {
-  WEAVE_ANALYTICS_ENABLED_DEFAULT,
-  WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
-  WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
-  WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
-  WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
-  WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
-  WEAVE_LOG_LEVEL_DEFAULT,
-  WEAVE_PERMISSION_QUESTION_DEFAULT,
-  WEAVE_SCHEMA_URL_DEFAULT,
-  WEAVE_SKILL_DIRECTORIES_DEFAULT,
-  WEAVE_TMUX_ENABLED_DEFAULT,
-  type WeavePluginConfig,
-} from "@lite-llm/agents-repository/schemas";
+import type { WeavePluginConfig } from "./plugin.config";
 
-export const weavePluginDefaults: WeavePluginConfig = {
-  $schema: WEAVE_SCHEMA_URL_DEFAULT,
-  logLevel: WEAVE_LOG_LEVEL_DEFAULT,
-  tmuxEnabled: WEAVE_TMUX_ENABLED_DEFAULT,
-  analyticsEnabled: WEAVE_ANALYTICS_ENABLED_DEFAULT,
-  analyticsUseFingerprint: WEAVE_ANALYTICS_USE_FINGERPRINT_DEFAULT,
-  continuationRecoveryCompaction:
-    WEAVE_CONTINUATION_RECOVERY_COMPACTION_DEFAULT,
-  continuationIdleEnabled: WEAVE_CONTINUATION_IDLE_ENABLED_DEFAULT,
-  continuationIdleWork: WEAVE_CONTINUATION_IDLE_WORK_DEFAULT,
-  continuationIdleTodoPrompt: WEAVE_CONTINUATION_IDLE_TODO_PROMPT_DEFAULT,
-  permissionQuestion: WEAVE_PERMISSION_QUESTION_DEFAULT,
-  skillDirectories: [...WEAVE_SKILL_DIRECTORIES_DEFAULT],
+export const weavePluginDefaults = {
+  ...({} as Required<WeavePluginConfig>),
+  $schema: "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json",
+  logLevel: "INFO",
+  tmuxEnabled: true,
+  analyticsEnabled: true,
+  analyticsUseFingerprint: true,
+  continuationRecoveryCompaction: true,
+  continuationIdleEnabled: true,
+  continuationIdleWork: true,
+  continuationIdleTodoPrompt: true,
+  permissionQuestion: "allow",
+  skillDirectories: [
+    "~/.agents/skills",
+    "~/.claude/skills",
+    "~/.opencode/skills",
+  ],
 };

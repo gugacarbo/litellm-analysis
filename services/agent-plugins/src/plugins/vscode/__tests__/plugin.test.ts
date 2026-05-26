@@ -1,7 +1,7 @@
 import type {
   PluginRouting,
   SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
+} from "../../../types";
 import { describe, expect, it } from "vitest";
 import { VsCodePlugin } from "../plugin";
 
