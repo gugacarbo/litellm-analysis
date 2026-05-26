@@ -1,7 +1,7 @@
-import type { PluginRoutingFor, PluginRuntimeContext } from "../../sdk";
-import type { SystemAgent } from "../../types";
-import type { VsCodePluginConfig } from "./plugin.config";
-import type { VscodeSchemaType } from "./plugin.schema";
+import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
+import type { SystemAgent } from "../../../types";
+import type { VsCodePluginConfig } from "../config/config";
+import type { VscodeSchemaType } from "../schema/schema";
 
 export interface BuildVsCodeOutputInput {
   agents: SystemAgent[];

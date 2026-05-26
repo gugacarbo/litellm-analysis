@@ -1,10 +1,10 @@
-import { mergeConfig } from "../../lib/merge-config";
-import type { PluginDefinition, PluginRuntimeContext } from "../../sdk";
-import type { WeavePluginConfig } from "./plugin.config";
-import { weavePluginConfigDefaults } from "./plugin.config";
-import { weaveManifest } from "./plugin.manifest";
-import { adaptWeaveOutput } from "./plugin.output-adapter";
-import { type WeaveSchemaType, weaveSchema } from "./plugin.schema";
+import { mergeConfig } from "../../../lib/merge-config";
+import type { PluginDefinition, PluginRuntimeContext } from "../../../sdk";
+import { adaptWeaveOutput } from "../adapters/output-adapter";
+import type { WeavePluginConfig } from "../config/config";
+import { weavePluginConfigDefaults } from "../config/config";
+import { weaveManifest } from "../manifest/manifest";
+import { type WeaveSchemaType, weaveSchema } from "../schema/schema";
 
 export type WeaveBuildContext = PluginRuntimeContext;
 

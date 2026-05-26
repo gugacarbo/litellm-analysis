@@ -1,2 +1,2 @@
-export type { VsCodeBuildContext } from "./plugin.factory";
-export { createVsCodePlugin } from "./plugin.factory";
+export type { VsCodeBuildContext } from "./factory/plugin.factory";
+export { createVsCodePlugin } from "./factory/plugin.factory";

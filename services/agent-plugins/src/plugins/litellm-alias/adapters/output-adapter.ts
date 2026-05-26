@@ -1,10 +1,10 @@
 import { sortAliasesByDefinitionOrder } from "@lite-llm/models-service";
-import { normalizeAgentMappings } from "../../helpers";
-import type { PluginRoutingFor, PluginRuntimeContext } from "../../sdk";
-import type { SystemAgent } from "../../types";
-import { generateLitellmAliases } from "./generate";
-import type { LitellmAliasPluginConfig } from "./plugin.config";
-import type { LitellmAliasSchemaType } from "./plugin.schema";
+import { normalizeAgentMappings } from "../../../helpers";
+import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
+import type { SystemAgent } from "../../../types";
+import type { LitellmAliasPluginConfig } from "../config/config";
+import { generateLitellmAliases } from "../generate";
+import type { LitellmAliasSchemaType } from "../schema/schema";
 
 type AgentWithId = SystemAgent & { id: string };
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;

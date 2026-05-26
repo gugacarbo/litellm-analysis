@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { weaveManifest } from "./plugin.manifest";
-import { type WeaveSchemaType, weaveSchema } from "./plugin.schema";
+import { weaveManifest } from "../manifest/manifest";
+import { type WeaveSchemaType, weaveSchema } from "../schema/schema";
 
 export const weavePluginConfigDefaults: WeaveSchemaType = weaveSchema.parse({
   $schema: weaveManifest.$schema,

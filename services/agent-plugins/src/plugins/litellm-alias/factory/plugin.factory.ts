@@ -1,13 +1,13 @@
-import { mergeConfig } from "../../lib/merge-config";
-import type { CreatePluginOptions, PluginDefinition } from "../../sdk";
-import type { LitellmAliasPluginConfig } from "./plugin.config";
-import { litellmAliasPluginConfigDefaults } from "./plugin.config";
-import { litellmAliasManifest } from "./plugin.manifest";
-import { adaptLitellmAliasOutput } from "./plugin.output-adapter";
+import { mergeConfig } from "../../../lib/merge-config";
+import type { CreatePluginOptions, PluginDefinition } from "../../../sdk";
+import { adaptLitellmAliasOutput } from "../adapters/output-adapter";
+import type { LitellmAliasPluginConfig } from "../config/config";
+import { litellmAliasPluginConfigDefaults } from "../config/config";
+import { litellmAliasManifest } from "../manifest/manifest";
 import {
   type LitellmAliasSchemaType,
   litellmAliasSchema,
-} from "./plugin.schema";
+} from "../schema/schema";
 
 export interface AliasDbWriter {
   updateAliases(aliases: Record<string, string>): Promise<void>;

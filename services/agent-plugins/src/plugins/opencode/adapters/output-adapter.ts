@@ -1,10 +1,10 @@
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
-import { normalizeAgentMappings } from "../../helpers";
-import type { PluginRoutingFor, PluginRuntimeContext } from "../../sdk";
-import type { SystemAgent } from "../../types";
-import { resolveSlotModelId } from "../litellm-alias/generate";
-import type { OpenCodePluginConfig } from "./plugin.config";
-import type { OpencodeSchemaType } from "./plugin.schema";
+import { normalizeAgentMappings } from "../../../helpers";
+import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
+import type { SystemAgent } from "../../../types";
+import { resolveSlotModelId } from "../../litellm-alias/generate";
+import type { OpenCodePluginConfig } from "../config/config";
+import type { OpencodeSchemaType } from "../schema/schema";
 
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
 const OPENCODE_REASONING_EFFORT_LEVELS = new Set([

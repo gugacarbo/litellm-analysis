@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
-import { createWeavePlugin } from "../plugin.factory";
+import { createWeavePlugin } from "../factory/plugin.factory";
 
 function buildOutput(
   plugin: ReturnType<typeof createWeavePlugin>,

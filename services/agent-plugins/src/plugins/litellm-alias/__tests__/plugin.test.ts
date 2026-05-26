@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
 import type { TransformContext } from "../../plugin";
-import { createLitellmAliasPlugin } from "../plugin.factory";
+import { createLitellmAliasPlugin } from "../factory/plugin.factory";
 
 function buildOutput(
   plugin: ReturnType<typeof createLitellmAliasPlugin>,

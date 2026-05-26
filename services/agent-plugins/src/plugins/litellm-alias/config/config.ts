@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { litellmAliasManifest } from "./plugin.manifest";
+import { litellmAliasManifest } from "../manifest/manifest";
 import {
   type LitellmAliasSchemaType,
   litellmAliasSchema,
-} from "./plugin.schema";
+} from "../schema/schema";
 
 export const litellmAliasPluginConfigDefaults: LitellmAliasSchemaType =
   litellmAliasSchema.parse({

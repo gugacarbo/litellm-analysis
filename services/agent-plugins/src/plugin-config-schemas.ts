@@ -1,8 +1,8 @@
-import { litellmAliasPluginConfigJsonSchema } from "./plugins/litellm-alias/plugin.config";
-import { openAgentPluginConfigJsonSchema } from "./plugins/openagent/plugin.config";
-import { openCodePluginConfigJsonSchema } from "./plugins/opencode/plugin.config";
-import { vsCodePluginConfigJsonSchema } from "./plugins/vscode/plugin.config";
-import { weavePluginConfigJsonSchema } from "./plugins/weave/plugin.config";
+import { litellmAliasPluginConfigJsonSchema } from "./plugins/litellm-alias/config/config";
+import { openAgentPluginConfigJsonSchema } from "./plugins/openagent/config/config";
+import { openCodePluginConfigJsonSchema } from "./plugins/opencode/config/config";
+import { vsCodePluginConfigJsonSchema } from "./plugins/vscode/config/config";
+import { weavePluginConfigJsonSchema } from "./plugins/weave/config/config";
 
 export const pluginConfigJsonSchemas: Record<
   string,

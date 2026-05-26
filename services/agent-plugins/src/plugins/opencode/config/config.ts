@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { openCodeManifest } from "./plugin.manifest";
-import { type OpencodeSchemaType, opencodeSchema } from "./plugin.schema";
+import { openCodeManifest } from "../manifest/manifest";
+import { type OpencodeSchemaType, opencodeSchema } from "../schema/schema";
 
 export const openCodePluginConfigDefaults: OpencodeSchemaType =
   opencodeSchema.parse({

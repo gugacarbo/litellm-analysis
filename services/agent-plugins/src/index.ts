@@ -28,36 +28,36 @@ export {
   type LitellmAliasPluginConfig,
   litellmAliasPluginConfigDefaults,
   litellmAliasPluginConfigJsonSchema,
-} from "./plugins/litellm-alias/plugin.config";
-export { litellmAliasManifest } from "./plugins/litellm-alias/plugin.manifest";
+} from "./plugins/litellm-alias/config/config";
+export { litellmAliasManifest } from "./plugins/litellm-alias/manifest/manifest";
 export { createOpenAgentPlugin } from "./plugins/openagent";
 export {
   type OpenAgentPluginConfig,
   openAgentPluginConfigDefaults,
   openAgentPluginConfigJsonSchema,
-} from "./plugins/openagent/plugin.config";
-export { openAgentManifest } from "./plugins/openagent/plugin.manifest";
+} from "./plugins/openagent/config/config";
+export { openAgentManifest } from "./plugins/openagent/manifest/manifest";
 export { createOpenCodePlugin } from "./plugins/opencode";
 export {
   type OpenCodePluginConfig,
   openCodePluginConfigDefaults,
   openCodePluginConfigJsonSchema,
-} from "./plugins/opencode/plugin.config";
-export { openCodeManifest } from "./plugins/opencode/plugin.manifest";
+} from "./plugins/opencode/config/config";
+export { openCodeManifest } from "./plugins/opencode/manifest/manifest";
 export { createVsCodePlugin } from "./plugins/vscode";
 export {
   type VsCodePluginConfig,
   vsCodePluginConfigDefaults,
   vsCodePluginConfigJsonSchema,
-} from "./plugins/vscode/plugin.config";
-export { vsCodeManifest } from "./plugins/vscode/plugin.manifest";
+} from "./plugins/vscode/config/config";
+export { vsCodeManifest } from "./plugins/vscode/manifest/manifest";
 export { createWeavePlugin } from "./plugins/weave";
 export {
   type WeavePluginConfig,
   weavePluginConfigDefaults,
   weavePluginConfigJsonSchema,
-} from "./plugins/weave/plugin.config";
-export { weaveManifest } from "./plugins/weave/plugin.manifest";
+} from "./plugins/weave/config/config";
+export { weaveManifest } from "./plugins/weave/manifest/manifest";
 export type {
   CreatePluginOptions,
   PluginDefinition,

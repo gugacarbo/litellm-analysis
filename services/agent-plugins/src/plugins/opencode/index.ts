@@ -1,2 +1,2 @@
-export type { OpenCodeBuildContext } from "./plugin.factory";
-export { createOpenCodePlugin } from "./plugin.factory";
+export type { OpenCodeBuildContext } from "./factory/plugin.factory";
+export { createOpenCodePlugin } from "./factory/plugin.factory";

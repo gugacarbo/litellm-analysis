@@ -22,11 +22,11 @@ export interface ConfigField {
   description?: string;
 }
 
-import type { LitellmAliasPluginConfig } from "./litellm-alias/plugin.config";
-import type { OpenAgentPluginConfig } from "./openagent/plugin.config";
-import type { OpenCodePluginConfig } from "./opencode/plugin.config";
-import type { VsCodePluginConfig } from "./vscode/plugin.config";
-import type { WeavePluginConfig } from "./weave/plugin.config";
+import type { LitellmAliasPluginConfig } from "./litellm-alias/config/config";
+import type { OpenAgentPluginConfig } from "./openagent/config/config";
+import type { OpenCodePluginConfig } from "./opencode/config/config";
+import type { VsCodePluginConfig } from "./vscode/config/config";
+import type { WeavePluginConfig } from "./weave/config/config";
 
 export interface PluginConfigMap {
   opencode: OpenCodePluginConfig;

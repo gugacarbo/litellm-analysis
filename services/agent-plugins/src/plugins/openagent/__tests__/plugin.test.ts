@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
-import { createOpenAgentPlugin } from "../plugin.factory";
+import { createOpenAgentPlugin } from "../factory/plugin.factory";
 
 function makeSystemAgent(overrides: Partial<SystemAgent> = {}): SystemAgent {
   return {

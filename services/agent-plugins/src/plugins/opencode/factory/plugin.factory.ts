@@ -1,10 +1,10 @@
-import { mergeConfig } from "../../lib/merge-config";
-import type { PluginDefinition, PluginRuntimeContext } from "../../sdk";
-import type { OpenCodePluginConfig } from "./plugin.config";
-import { openCodePluginConfigDefaults } from "./plugin.config";
-import { openCodeManifest } from "./plugin.manifest";
-import { adaptOpenCodeOutput } from "./plugin.output-adapter";
-import { type OpencodeSchemaType, opencodeSchema } from "./plugin.schema";
+import { mergeConfig } from "../../../lib/merge-config";
+import type { PluginDefinition, PluginRuntimeContext } from "../../../sdk";
+import { adaptOpenCodeOutput } from "../adapters/output-adapter";
+import type { OpenCodePluginConfig } from "../config/config";
+import { openCodePluginConfigDefaults } from "../config/config";
+import { openCodeManifest } from "../manifest/manifest";
+import { type OpencodeSchemaType, opencodeSchema } from "../schema/schema";
 
 export type OpenCodeBuildContext = PluginRuntimeContext;
 

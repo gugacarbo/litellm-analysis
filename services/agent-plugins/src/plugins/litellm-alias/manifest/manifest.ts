@@ -1,4 +1,4 @@
-import type { PluginManifest } from "../../sdk";
+import type { PluginManifest } from "../../../sdk";
 
 export const litellmAliasManifest: PluginManifest<"litellm-alias"> = {
   id: "litellm-alias",

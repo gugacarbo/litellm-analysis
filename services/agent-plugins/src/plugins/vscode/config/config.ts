@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type VscodeSchemaType, vscodeSchema } from "./plugin.schema";
+import { type VscodeSchemaType, vscodeSchema } from "../schema/schema";
 
 export const vsCodePluginConfigDefaults: VscodeSchemaType = vscodeSchema.parse({
   "oaicopilot.commitLanguage": "Portuguese (Brazil)",

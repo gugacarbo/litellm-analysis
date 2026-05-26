@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
-import { createVsCodePlugin } from "../plugin.factory";
+import { createVsCodePlugin } from "../factory/plugin.factory";
 
 function buildOutput(
   plugin: ReturnType<typeof createVsCodePlugin>,

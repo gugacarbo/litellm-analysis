@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { openAgentManifest } from "./plugin.manifest";
-import { type OpenagentSchemaType, openagentSchema } from "./plugin.schema";
+import { openAgentManifest } from "../manifest/manifest";
+import { type OpenagentSchemaType, openagentSchema } from "../schema/schema";
 
 export const openAgentPluginConfigDefaults: OpenagentSchemaType =
   openagentSchema.parse({
