@@ -58,12 +58,7 @@ export const weaveSchema = z
             skills: z.array(z.string()).optional(),
             triggers: z
               .array(
-                z
-                  .object({
-                    domain: z.string(),
-                    trigger: z.string(),
-                  })
-                  .strict(),
+                z.object({ domain: z.string(), trigger: z.string() }).strict(),
               )
               .optional(),
             description: z.string().optional(),
@@ -115,9 +110,7 @@ export const weaveSchema = z
     continuation: z
       .object({
         recovery: z
-          .object({
-            compaction: z.boolean().optional(),
-          })
+          .object({ compaction: z.boolean().optional() })
           .strict()
           .optional(),
         idle: z

@@ -47,23 +47,14 @@ export const opencodeSchema = z
         z.union([
           z.string(),
           z
-            .object({
-              repository: z.string(),
-              branch: z.string().optional(),
-            })
+            .object({ repository: z.string(), branch: z.string().optional() })
             .strict(),
-          z
-            .object({
-              path: z.string(),
-            })
-            .strict(),
+          z.object({ path: z.string() }).strict(),
         ]),
       )
       .optional(),
     watcher: z
-      .object({
-        ignore: z.array(z.string()).optional(),
-      })
+      .object({ ignore: z.array(z.string()).optional() })
       .strict()
       .optional(),
     snapshot: z.boolean().optional(),
@@ -1338,9 +1329,7 @@ export const opencodeSchema = z
                     variants: z
                       .record(
                         z.string(),
-                        z.object({
-                          disabled: z.boolean().optional(),
-                        }),
+                        z.object({ disabled: z.boolean().optional() }),
                       )
                       .optional(),
                   })
@@ -1389,11 +1378,7 @@ export const opencodeSchema = z
               })
               .strict(),
           ]),
-          z
-            .object({
-              enabled: z.boolean(),
-            })
-            .strict(),
+          z.object({ enabled: z.boolean() }).strict(),
         ]),
       )
       .optional(),
@@ -1419,11 +1404,7 @@ export const opencodeSchema = z
         z.record(
           z.string(),
           z.union([
-            z
-              .object({
-                disabled: z.union([z.literal(true)]),
-              })
-              .strict(),
+            z.object({ disabled: z.union([z.literal(true)]) }).strict(),
             z
               .object({
                 command: z.array(z.string()),
@@ -1538,12 +1519,7 @@ export const opencodeSchema = z
       })
       .strict()
       .optional(),
-    enterprise: z
-      .object({
-        url: z.string().optional(),
-      })
-      .strict()
-      .optional(),
+    enterprise: z.object({ url: z.string().optional() }).strict().optional(),
     tool_output: z
       .object({
         max_lines: z.number().optional(),

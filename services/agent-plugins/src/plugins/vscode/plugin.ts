@@ -5,6 +5,7 @@ import {
   vsCodePluginConfigSchema,
 } from "./plugin.config";
 import { vsCodeManifest } from "./plugin.manifest";
+import { adaptVsCodeOutput } from "./plugin.output-adapter";
 import { type VscodeSchemaType, vscodeSchema } from "./plugin.schema";
 
 export function createVsCodePlugin(): PluginDefinition<
@@ -16,38 +17,16 @@ export function createVsCodePlugin(): PluginDefinition<
     manifest: vsCodeManifest,
     handlers: {
       build(input): VscodeSchemaType {
-        const _agents: SystemAgent[] = input.agents;
-        void _agents;
-
         const config = vscodeSchema.parse({
           ...vsCodePluginConfigSchema,
           ...(input.routing.config ?? {}),
         });
-        const baseUrl = input.context.litellmConfig.baseUrl.replace(
-          /\/v1$/,
-          "",
-        );
-
-        const output: VscodeSchemaType = {
-          ...config,
-          "oaicopilot.models": [],
-        };
-
-        for (const [key, spec] of Object.entries(input.context.allModels)) {
-          output["oaicopilot.models"].push({
-            name: spec.displayName,
-            id: key,
-            baseUrl,
-            "request-options": {
-              headers: {
-                Authorization: "Bearer {env:LITELLM_API_KEY}",
-              },
-            },
-            "model-settings": {
-              "max-tokens": spec.limits.maxOutput,
-            },
-          });
-        }
+        const output = adaptVsCodeOutput({
+          agents: input.agents,
+          routing: input.routing,
+          context: input.context,
+          config,
+        });
 
         return vscodeSchema.parse(output);
       },

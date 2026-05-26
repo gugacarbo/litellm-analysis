@@ -1,18 +1,12 @@
-import { normalizeAgentMappings } from "../../helpers";
 import type { PluginDefinition } from "../../sdk";
 import type { PluginRouting, SystemAgent } from "../../types";
 import {
   type WeavePluginConfig,
   weavePluginConfigSchema,
 } from "./plugin.config";
-import { WEAVE_AGENTS, weaveManifest } from "./plugin.manifest";
+import { weaveManifest } from "./plugin.manifest";
+import { adaptWeaveOutput } from "./plugin.output-adapter";
 import { type WeaveSchemaType, weaveSchema } from "./plugin.schema";
-
-const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
-
-function resolveModels(role: string, modelNames: readonly string[]): string[] {
-  return modelNames.map((slot) => `${role}/${slot}`);
-}
 
 export function createWeavePlugin(): PluginDefinition<
   "weave",
@@ -51,69 +45,13 @@ export function createWeavePlugin(): PluginDefinition<
           },
         });
 
-        const modelNames = input.context.modelNames ?? DEFAULT_MODEL_NAMES;
-
-        const rawAgentMappings: Record<string, string | string[]> =
-          (input.routing.routing?.agents as Record<
-            string,
-            string | string[]
-          >) ?? {};
-        const agentMappings = normalizeAgentMappings(rawAgentMappings);
-
-        const systemAgentMap = new Map<string, SystemAgent>();
-        for (const agent of input.agents) {
-          const systemId = agent.id ?? agent.displayName ?? "";
-          if (systemId) {
-            systemAgentMap.set(systemId, agent);
-          }
-        }
-
-        const outputAgents: NonNullable<WeaveSchemaType["agents"]> = {};
-
-        for (const weaveAgent of WEAVE_AGENTS) {
-          const systemAgentId = agentMappings[weaveAgent.id]?.[0];
-          if (!systemAgentId) continue;
-
-          const systemAgent = systemAgentMap.get(systemAgentId);
-          if (!systemAgent) continue;
-
-          const model = systemAgent.model ?? "";
-          const models = model ? resolveModels(systemAgentId, modelNames) : [];
-
-          outputAgents[weaveAgent.id] = {
-            display_name: systemAgent.displayName ?? weaveAgent.displayName,
-            model: models[0] ?? model,
-            fallback_models: models.slice(1),
-            temperature: systemAgent.config?.temperature ?? 0.2,
-            color: systemAgent.config?.color ?? "",
-            category: weaveAgent.category,
-          };
-        }
-
-        const outputCategories: NonNullable<WeaveSchemaType["categories"]> = {};
-        const categoryRouting = input.routing.routing?.categories ?? {};
-        for (const [categoryId, enabled] of Object.entries(categoryRouting)) {
-          if (!enabled) continue;
-
-          const systemCat = input.context.allCategories?.[categoryId];
-          if (!systemCat) continue;
-
-          const catModel = systemCat.model ?? "";
-          const models = catModel ? resolveModels(categoryId, modelNames) : [];
-
-          outputCategories[categoryId] = {
-            description: systemCat.description ?? "",
-            model: models[0] ?? catModel,
-            fallback_models: models.slice(1),
-            temperature: systemCat.temperature ?? 0.2,
-          };
-        }
-
-        return weaveSchema.parse({
-          ...config,
-          agents: outputAgents,
-          categories: outputCategories,
+        const output = adaptWeaveOutput({
+          agents: input.agents,
+          routing: input.routing,
+          context: input.context,
+          config,
         });
+        return weaveSchema.parse(output);
       },
       validate(output): boolean {
         const result = weaveSchema.safeParse(output);

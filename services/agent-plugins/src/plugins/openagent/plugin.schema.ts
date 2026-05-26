@@ -517,9 +517,7 @@ export const openagentSchema = z.object({
     })
     .optional(),
   comment_checker: z
-    .object({
-      custom_prompt: z.string().optional(),
-    })
+    .object({ custom_prompt: z.string().optional() })
     .optional(),
   experimental: z
     .object({
@@ -540,9 +538,7 @@ export const openagentSchema = z.object({
           strategies: z
             .object({
               deduplication: z
-                .object({
-                  enabled: z.boolean().optional(),
-                })
+                .object({ enabled: z.boolean().optional() })
                 .optional(),
               supersede_writes: z
                 .object({
@@ -622,11 +618,7 @@ export const openagentSchema = z.object({
       staleTimeoutMs: z.number().optional(),
     })
     .optional(),
-  notification: z
-    .object({
-      force_enable: z.boolean().optional(),
-    })
-    .optional(),
+  notification: z.object({ force_enable: z.boolean().optional() }).optional(),
   git_master: z
     .object({
       commit_footer: z.boolean().optional(),
@@ -634,9 +626,7 @@ export const openagentSchema = z.object({
     })
     .optional(),
   browser_automation_engine: z
-    .object({
-      provider: z.enum(["playwright", "agent-browser"]).optional(),
-    })
+    .object({ provider: z.enum(["playwright", "agent-browser"]).optional() })
     .optional(),
   tmux: z
     .object({

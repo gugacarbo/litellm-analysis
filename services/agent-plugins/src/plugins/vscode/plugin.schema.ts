@@ -22,14 +22,10 @@ export const vscodeSchema = z.object({
       id: z.string(),
       baseUrl: z.string(),
       "request-options": z
-        .object({
-          headers: z.record(z.string(), z.string()).optional(),
-        })
+        .object({ headers: z.record(z.string(), z.string()).optional() })
         .optional(),
       "model-settings": z
-        .object({
-          "max-tokens": z.number().optional(),
-        })
+        .object({ "max-tokens": z.number().optional() })
         .optional(),
     }),
   ),
