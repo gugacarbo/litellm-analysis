@@ -27,6 +27,125 @@ const normalizePluginConfigPayload = (
   return normalizePluginConfigPayload(nested);
 };
 
+const asRecord = (value: unknown): Record<string, unknown> =>
+  isRecord(value) ? value : {};
+
+const normalizePluginConfigById = (
+  pluginId: string,
+  value: unknown,
+): Record<string, unknown> => {
+  const config = asRecord(value);
+
+  if (pluginId === "openagent") {
+    const gitMaster = asRecord(config.git_master);
+    return {
+      $schema: config.$schema,
+      git_master: {
+        commit_footer:
+          gitMaster.commit_footer ??
+          config.commitFooter ??
+          false,
+        include_co_authored_by:
+          gitMaster.include_co_authored_by ??
+          config.includeCoAuthoredBy ??
+          false,
+      },
+    };
+  }
+
+  if (pluginId === "opencode") {
+    return {
+      $schema: config.$schema,
+      model: (config.model as string | undefined) ?? config.defaultModel ?? "",
+    };
+  }
+
+  if (pluginId === "vscode") {
+    const retry = asRecord(config["oaicopilot.retry"]);
+    return {
+      "oaicopilot.commitLanguage":
+        config["oaicopilot.commitLanguage"] ?? config.commitLanguage,
+      "oaicopilot.baseUrl":
+        config["oaicopilot.baseUrl"] ?? config.baseUrl ?? "",
+      "oaicopilot.delay":
+        config["oaicopilot.delay"] ?? config.delay ?? 0,
+      "oaicopilot.readFileLines":
+        config["oaicopilot.readFileLines"] ?? config.readFileLines ?? 0,
+      "oaicopilot.retry": {
+        enabled: retry.enabled ?? config.retryEnabled ?? true,
+        max_attempts:
+          retry.max_attempts ?? config.maxRetryAttempts ?? 3,
+        interval_ms: retry.interval_ms ?? config.retryIntervalMs ?? 2000,
+        status_codes: retry.status_codes ?? config.retryStatusCodes ?? [],
+      },
+      "oaicopilot.models": config["oaicopilot.models"] ?? [],
+    };
+  }
+
+  if (pluginId === "weave") {
+    const tmux = asRecord(config.tmux);
+    const analytics = asRecord(config.analytics);
+    const continuation = asRecord(config.continuation);
+    const recovery = asRecord(continuation.recovery);
+    const idle = asRecord(continuation.idle);
+    return {
+      $schema: config.$schema,
+      log_level: config.log_level ?? config.logLevel ?? "INFO",
+      tmux: {
+        enabled: tmux.enabled ?? config.tmuxEnabled ?? true,
+      },
+      analytics: {
+        enabled: analytics.enabled ?? config.analyticsEnabled ?? true,
+        use_fingerprint:
+          analytics.use_fingerprint ??
+          config.analyticsUseFingerprint ??
+          true,
+      },
+      continuation: {
+        recovery: {
+          compaction:
+            recovery.compaction ??
+            config.continuationRecoveryCompaction ??
+            true,
+        },
+        idle: {
+          enabled: idle.enabled ?? config.continuationIdleEnabled ?? true,
+          work: idle.work ?? config.continuationIdleWork ?? true,
+          workflow: idle.workflow ?? true,
+          todo_prompt:
+            idle.todo_prompt ??
+            config.continuationIdleTodoPrompt ??
+            true,
+        },
+      },
+      skill_directories:
+        config.skill_directories ?? config.skillDirectories ?? [],
+    };
+  }
+
+  if (pluginId === "litellm-alias") {
+    return {
+      $schema: config.$schema,
+      model_group_alias: config.model_group_alias ?? {},
+    };
+  }
+
+  return config;
+};
+
+const normalizePluginRoutingMap = (
+  plugins: Record<string, PluginRouting>,
+): Record<string, PluginRoutingInput> => {
+  const normalized: Record<string, PluginRoutingInput> = {};
+  for (const [pluginId, plugin] of Object.entries(plugins)) {
+    normalized[pluginId] = {
+      ...plugin,
+      config: normalizePluginConfigById(pluginId, plugin.config),
+    };
+  }
+  return normalized;
+};
+
 interface PluginInfoDTO {
   id: string;
   name: string;
@@ -85,10 +204,11 @@ export function registerPluginRoutingRoutes(
         return;
       }
 
+      const normalizedPlugins = normalizePluginRoutingMap(plugins);
       const config = await manager.repository.read();
-      config.plugins = plugins as Record<string, PluginRoutingInput>;
+      config.plugins = normalizedPlugins;
       await manager.repository.write(config);
-      manager.registry.loadFromConfig(plugins);
+      manager.registry.loadFromConfig(normalizedPlugins);
       await manager.registry.exportAll();
       res.json({ success: true });
     } catch (error) {
@@ -257,7 +377,12 @@ export function registerPluginRoutingRoutes(
         categoryMappings?: Record<string, boolean>;
       };
       const normalizedConfig =
-        config !== undefined ? normalizePluginConfigPayload(config) : undefined;
+        config !== undefined
+          ? normalizePluginConfigById(
+              pluginId,
+              normalizePluginConfigPayload(config),
+            )
+          : undefined;
 
       const current = await services.routing.getPluginConfig(pluginId);
 

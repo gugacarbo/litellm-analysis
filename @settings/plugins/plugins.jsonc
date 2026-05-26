@@ -7,30 +7,24 @@
       "outputFile": "opencode.json",
       "config": {
         "$schema": "https://opencode.ai/config.json",
-        "defaultModel": "",
-        "defaultTemperature": 0.2
+        "model": ""
       },
       "routing": {
         "agents": {
-          "loom": "loom",
-          "tapestry": "tapestry",
-          "shuttle": "shuttle",
-          "planner": "planner",
-          "explorer": "explorer",
-          "reviewer": "reviewer",
-          "writer": "thread",
-          "architect": "warp"
+          "loom": "loom"
         },
         "categories": {}
       }
     },
     "openagent": {
-      "enabled": true,
+      "enabled": false,
       "outputFile": "oh-my-openagent.json",
       "config": {
         "$schema": "https://raw.githubusercontent.com/opensoft/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
-        "commitFooter": false,
-        "includeCoAuthoredBy": false
+        "git_master": {
+          "commit_footer": false,
+          "include_co_authored_by": false
+        }
       },
       "routing": {
         "agents": {},
@@ -38,13 +32,20 @@
       }
     },
     "vscode": {
-      "enabled": true,
+      "enabled": false,
       "outputFile": "vscode-oaicopilot.json",
       "config": {
-        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/vscode/schemas/vscode.schema.json",
-        "commitLanguage": "Portuguese (Brazil)",
-        "retryEnabled": true,
-        "maxRetryAttempts": 3
+        "oaicopilot.commitLanguage": "Portuguese (Brazil)",
+        "oaicopilot.baseUrl": "",
+        "oaicopilot.delay": 0,
+        "oaicopilot.readFileLines": 0,
+        "oaicopilot.retry": {
+          "enabled": true,
+          "max_attempts": 3,
+          "interval_ms": 2000,
+          "status_codes": []
+        },
+        "oaicopilot.models": []
       },
       "routing": {
         "agents": {},
@@ -56,10 +57,7 @@
       "outputFile": "litellm-aliases.json",
       "config": {
         "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
-        "aliasPrefix": "",
-        "includeAgents": true,
-        "includeCategories": true,
-        "globalFallbackOverride": ""
+        "model_group_alias": {}
       },
       "routing": {
         "agents": {
@@ -87,20 +85,30 @@
       "outputFile": "weave.json",
       "config": {
         "$schema": "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json",
-        "logLevel": "INFO",
-        "tmuxEnabled": true,
-        "analyticsEnabled": true,
-        "analyticsUseFingerprint": true,
-        "continuationRecoveryCompaction": true,
-        "continuationIdleEnabled": true,
-        "continuationIdleWork": true,
-        "continuationIdleTodoPrompt": true,
-        "permissionQuestion": "allow",
-        "skillDirectories": [
+        "skill_directories": [
           "~/.agents/skills",
           "~/.claude/skills",
           "~/.opencode/skills"
-        ]
+        ],
+        "analytics": {
+          "enabled": true,
+          "use_fingerprint": true
+        },
+        "continuation": {
+          "recovery": {
+            "compaction": true
+          },
+          "idle": {
+            "enabled": true,
+            "work": true,
+            "workflow": true,
+            "todo_prompt": true
+          }
+        },
+        "tmux": {
+          "enabled": true
+        },
+        "log_level": "INFO"
       },
       "routing": {
         "agents": {

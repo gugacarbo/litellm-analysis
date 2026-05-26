@@ -1,7 +1,9 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
+import { getPluginConfigJsonSchema } from "./plugin-config-schemas";
 import { PluginExecutionError } from "./errors";
+import type { ConfigField } from "./plugins/plugin-types";
 import type { InternalAgent } from "./plugins/plugin-types";
 import type { PluginDefinition, PluginRuntimeContext } from "./sdk";
 import type {
@@ -31,6 +33,8 @@ export interface PluginRegistryV2 {
   exportAll(): Promise<void>;
   exportOne(pluginId: string): Promise<void>;
   getInternalAgents(pluginId: string): InternalAgent[];
+  getConfigSchema(pluginId: string): ConfigField[];
+  getJsonSchema(pluginId: string): Record<string, unknown> | null;
 }
 
 export interface CreatePluginRegistryOptions {
@@ -201,6 +205,15 @@ class PluginRegistryV2Impl implements PluginRegistryV2 {
     });
 
     return plugin?.manifest.internalAgents ?? [];
+  }
+
+  getConfigSchema(_pluginId: string): ConfigField[] {
+    // V2 plugins expose JSON Schema instead of legacy ConfigField entries.
+    return [];
+  }
+
+  getJsonSchema(pluginId: string): Record<string, unknown> | null {
+    return getPluginConfigJsonSchema(pluginId);
   }
 
   private async buildContext(config: DbConfig): Promise<PluginRuntimeContext> {

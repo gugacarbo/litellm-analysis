@@ -1,9 +1,24 @@
-import { AlertTriangle, ArrowLeft, Plug, Save, Settings } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Check,
+  Copy,
+  Plug,
+  Save,
+  Settings,
+} from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { JsonSchemaForm } from "@/shared/components/json-schema-form";
 import { Button } from "@/shared/components/ui/button";
 import { PageLayout } from "@/shared/components/ui/page-layout";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import { AgentMappingTable } from "./components/agent-mapping-table";
 import { CategoryExportList } from "./components/category-export-list";
 import { LitellmAliasRoutingTable } from "./components/litellm-alias-routing-table";
@@ -16,6 +31,41 @@ export function PluginConfigPage() {
   const { pluginId } = useParams() as { pluginId?: string };
   const navigate = useNavigate();
   const state = usePluginConfigPage(pluginId ?? "");
+  const [copied, setCopied] = useState(false);
+
+  const showAliasRouting = state.pluginId === "litellm-alias";
+  const showAgentsTab = !showAliasRouting && state.internalAgents.length > 0;
+  const showCategoriesTab = !showAliasRouting && state.categories.length > 0;
+  const showPreviewTab =
+    state.pluginId !== "weave" && state.pluginId !== "opencode";
+
+  const previewPayload = useMemo(() => {
+    const payload: Record<string, unknown> = {
+      config: state.configValues,
+    };
+
+    if (Object.keys(state.agentMappings).length > 0) {
+      payload.agentMappings = state.agentMappings;
+    }
+
+    if (Object.keys(state.categoryMappings).length > 0) {
+      payload.categoryMappings = state.categoryMappings;
+    }
+
+    return payload;
+  }, [state.configValues, state.agentMappings, state.categoryMappings]);
+
+  const previewText = useMemo(
+    () => JSON.stringify(previewPayload, null, 2),
+    [previewPayload],
+  );
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(previewText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [previewText]);
 
   const title = state.pluginName ?? pluginId ?? "Plugin Config";
 
@@ -73,14 +123,7 @@ export function PluginConfigPage() {
               You have unsaved changes.
             </div>
           )}
-          {state.pluginId === "opencode" ? (
-            <OpenCodeConfigPage
-              config={state.configValues}
-              onChange={state.handleConfigChange}
-              allModels={state.allModels}
-              litellmProvider={state.litellmProvider}
-            />
-          ) : state.pluginId === "weave" ? (
+          {state.pluginId === "weave" ? (
             <WeaveConfigPage
               config={state.configValues}
               onChange={state.handleConfigChange}
@@ -91,50 +134,125 @@ export function PluginConfigPage() {
               onAgentMappingChange={state.handleAgentMappingChange}
               onCategoryToggle={state.handleCategoryToggle}
             />
-          ) : state.jsonSchema ? (
-            <div className="space-y-4">
-              <JsonSchemaForm
-                schema={state.jsonSchema}
-                formData={state.configValues}
-                onChange={(data) => {
-                  if (!data.formData) return;
-                  for (const [key, value] of Object.entries(data.formData)) {
-                    state.handleConfigChange(key, value);
-                  }
-                }}
-              />
-            </div>
           ) : (
-            <PluginConfigForm
-              schema={state.schema}
-              values={state.configValues}
-              onChange={state.handleConfigChange}
-            />
-          )}
-          {state.pluginId === "litellm-alias" ? (
-            <LitellmAliasRoutingTable
-              systemAgents={state.systemAgents}
-              categoryOptions={state.categoryOptions}
-              agentMappings={state.agentMappings}
-              categoryMappings={state.categoryMappings}
-              configValues={state.configValues}
-              onAgentMappingChange={state.handleAgentMappingChange}
-              onCategoryToggle={state.handleCategoryToggle}
-            />
-          ) : (
-            <>
-              <AgentMappingTable
-                internalAgents={state.internalAgents}
-                mappings={state.agentMappings}
-                systemAgents={state.systemAgents}
-                onChange={state.handleAgentMappingChange}
-              />
-              <CategoryExportList
-                categories={state.categories}
-                mappings={state.categoryMappings}
-                onToggle={state.handleCategoryToggle}
-              />
-            </>
+            <Tabs defaultValue="settings">
+              <TabsList variant="line" className="mb-4">
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+                {showAliasRouting ? (
+                  <TabsTrigger value="routing">Alias Routing</TabsTrigger>
+                ) : (
+                  <>
+                    {showAgentsTab && (
+                      <TabsTrigger value="agents">Agent Mapping</TabsTrigger>
+                    )}
+                    {showCategoriesTab && (
+                      <TabsTrigger value="categories">
+                        Category Export
+                      </TabsTrigger>
+                    )}
+                  </>
+                )}
+                {showPreviewTab && (
+                  <TabsTrigger value="preview">Preview</TabsTrigger>
+                )}
+              </TabsList>
+
+              <TabsContent value="settings">
+                {state.pluginId === "opencode" ? (
+                  <OpenCodeConfigPage
+                    config={state.configValues}
+                    onChange={state.handleConfigChange}
+                    allModels={state.allModels}
+                    litellmProvider={state.litellmProvider}
+                  />
+                ) : state.jsonSchema ? (
+                  <div className="space-y-4">
+                    <JsonSchemaForm
+                      schema={state.jsonSchema}
+                      formData={state.configValues}
+                      onChange={(data) => {
+                        if (!data.formData) return;
+                        for (const [key, value] of Object.entries(
+                          data.formData,
+                        )) {
+                          state.handleConfigChange(key, value);
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <PluginConfigForm
+                    schema={state.schema}
+                    values={state.configValues}
+                    onChange={state.handleConfigChange}
+                  />
+                )}
+              </TabsContent>
+
+              {showAliasRouting ? (
+                <TabsContent value="routing">
+                  <LitellmAliasRoutingTable
+                    systemAgents={state.systemAgents}
+                    categoryOptions={state.categoryOptions}
+                    agentMappings={state.agentMappings}
+                    categoryMappings={state.categoryMappings}
+                    configValues={state.configValues}
+                    onAgentMappingChange={state.handleAgentMappingChange}
+                    onCategoryToggle={state.handleCategoryToggle}
+                  />
+                </TabsContent>
+              ) : (
+                <>
+                  {showAgentsTab && (
+                    <TabsContent value="agents">
+                      <AgentMappingTable
+                        internalAgents={state.internalAgents}
+                        mappings={state.agentMappings}
+                        systemAgents={state.systemAgents}
+                        onChange={state.handleAgentMappingChange}
+                      />
+                    </TabsContent>
+                  )}
+                  {showCategoriesTab && (
+                    <TabsContent value="categories">
+                      <CategoryExportList
+                        categories={state.categories}
+                        mappings={state.categoryMappings}
+                        onToggle={state.handleCategoryToggle}
+                      />
+                    </TabsContent>
+                  )}
+                </>
+              )}
+
+              {showPreviewTab && (
+                <TabsContent value="preview">
+                  <section className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <h3 className="text-lg font-medium">JSON Preview</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Snapshot of the plugin config and mappings.
+                        </p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={handleCopy}>
+                        {copied ? (
+                          <Check className="mr-2 h-4 w-4 text-green-600" />
+                        ) : (
+                          <Copy className="mr-2 h-4 w-4" />
+                        )}
+                        {copied ? "Copied" : "Copy"}
+                      </Button>
+                    </div>
+                    <div className="rounded-md border bg-muted/20">
+                      <pre className="max-h-80 overflow-auto p-4 text-xs font-mono">
+                        {previewText}
+                      </pre>
+                    </div>
+                  </section>
+                </TabsContent>
+              )}
+            </Tabs>
           )}
         </div>
       )}

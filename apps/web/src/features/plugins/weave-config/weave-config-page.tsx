@@ -1,18 +1,7 @@
 import type { ConfigField } from "@lite-llm/contracts/agent-catalog";
-import {
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  ExternalLink,
-} from "lucide-react";
+import { Check, Copy, ExternalLink } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/shared/components/ui/collapsible";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import {
@@ -23,6 +12,12 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import type { SystemAgentOption } from "@/shared/lib/api-client/agent-catalog";
 
 // ── Weave agent metadata (synced with plugin.ts) ──
@@ -145,7 +140,6 @@ export function WeaveConfigPage({
   onAgentMappingChange,
   onCategoryToggle,
 }: WeaveConfigPageProps) {
-  const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // ── Config values ──
@@ -246,323 +240,331 @@ export function WeaveConfigPage({
   }, [previewText]);
 
   return (
-    <div className="space-y-8">
-      {/* ── Schema URL ── */}
-      <section className="space-y-3">
-        <h3 className="text-lg font-medium">Schema</h3>
-        <p className="text-sm text-muted-foreground">
-          OpenCode Weave config schema URL for validation.
-        </p>
-        <div className="flex gap-2">
-          <Input
-            value={schemaUrl}
-            onChange={(e) => onChange("$schema", e.target.value)}
-            placeholder="weave config schema URL"
-            className="font-mono text-xs"
-          />
-          <a
-            href={
-              schemaUrl ||
-              "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json"
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ExternalLink className="h-4 w-4" />
-          </a>
-        </div>
-      </section>
+    <div className="space-y-6">
+      <Tabs defaultValue="settings">
+        <TabsList variant="line" className="mb-4">
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="agents">Agents</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+        </TabsList>
 
-      {/* ── General Settings ── */}
-      <section className="space-y-4">
-        <h3 className="text-lg font-medium">General Settings</h3>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Log Level */}
-          <div className="space-y-2">
-            <Label>Log Level</Label>
-            <Select
-              value={logLevel}
-              onValueChange={(v) => onChange("logLevel", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {["DEBUG", "INFO", "WARN", "ERROR"].map((l) => (
-                  <SelectItem key={l} value={l}>
-                    {l}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Permission Question */}
-          <div className="space-y-2">
-            <Label>Permission Question Behavior</Label>
-            <Select
-              value={permissionQuestion}
-              onValueChange={(v) => onChange("permissionQuestion", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="allow">Allow</SelectItem>
-                <SelectItem value="deny">Deny</SelectItem>
-                <SelectItem value="ask">Ask</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Tmux */}
-        <div className="flex items-center justify-between rounded-md border px-3 py-2.5">
-          <div>
-            <Label className="text-sm font-medium">Tmux</Label>
-            <p className="text-xs text-muted-foreground">
-              Enable tmux session management
-            </p>
-          </div>
-          <Switch
-            checked={tmuxEnabled}
-            onCheckedChange={(v) => onChange("tmuxEnabled", v)}
-          />
-        </div>
-
-        {/* Analytics */}
-        <div className="space-y-2 rounded-md border p-3">
-          <Label className="text-sm font-medium">Analytics</Label>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Enabled</span>
-            <Switch
-              checked={analyticsEnabled}
-              onCheckedChange={(v) => onChange("analyticsEnabled", v)}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              Use Fingerprint
-            </span>
-            <Switch
-              checked={analyticsFingerprint}
-              onCheckedChange={(v) => onChange("analyticsUseFingerprint", v)}
-            />
-          </div>
-        </div>
-
-        {/* Continuation */}
-        <div className="space-y-2 rounded-md border p-3">
-          <Label className="text-sm font-medium">Continuation</Label>
-          <div className="ml-2 space-y-2 border-l-2 border-muted pl-3">
-            <div>
-              <span className="text-xs font-medium text-muted-foreground">
-                Recovery
-              </span>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
-                  Compaction
-                </span>
-                <Switch
-                  checked={recoveryCompaction}
-                  onCheckedChange={(v) =>
-                    onChange("continuationRecoveryCompaction", v)
+        <TabsContent value="settings">
+          <div className="space-y-8">
+            <section className="space-y-3">
+              <h3 className="text-lg font-medium">Schema</h3>
+              <p className="text-sm text-muted-foreground">
+                OpenCode Weave config schema URL for validation.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  value={schemaUrl}
+                  onChange={(e) => onChange("$schema", e.target.value)}
+                  placeholder="weave config schema URL"
+                  className="font-mono text-xs"
+                />
+                <a
+                  href={
+                    schemaUrl ||
+                    "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json"
                   }
-                />
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
               </div>
-            </div>
-            <div>
-              <span className="text-xs font-medium text-muted-foreground">
-                Idle
-              </span>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Enabled</span>
-                <Switch
-                  checked={idleEnabled}
-                  onCheckedChange={(v) =>
-                    onChange("continuationIdleEnabled", v)
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Work</span>
-                <Switch
-                  checked={idleWork}
-                  onCheckedChange={(v) => onChange("continuationIdleWork", v)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
-                  Todo Prompt
-                </span>
-                <Switch
-                  checked={idleTodoPrompt}
-                  onCheckedChange={(v) =>
-                    onChange("continuationIdleTodoPrompt", v)
-                  }
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+            </section>
 
-        {/* Skill Directories */}
-        <div className="space-y-2 rounded-md border p-3">
-          <Label className="text-sm font-medium">Skill Directories</Label>
-          <p className="text-xs text-muted-foreground">
-            Directories to scan for skills
-          </p>
-          {["~/.agents/skills", "~/.claude/skills", "~/.opencode/skills"].map(
-            (dir) => {
-              const checked = skillDirs.includes(dir);
-              return (
-                <div key={dir} className="flex items-center justify-between">
-                  <code className="text-xs">{dir}</code>
+            <section className="space-y-4">
+              <h3 className="text-lg font-medium">General Settings</h3>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Log Level</Label>
+                  <Select
+                    value={logLevel}
+                    onValueChange={(v) => onChange("logLevel", v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["DEBUG", "INFO", "WARN", "ERROR"].map((l) => (
+                        <SelectItem key={l} value={l}>
+                          {l}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Permission Question Behavior</Label>
+                  <Select
+                    value={permissionQuestion}
+                    onValueChange={(v) => onChange("permissionQuestion", v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="allow">Allow</SelectItem>
+                      <SelectItem value="deny">Deny</SelectItem>
+                      <SelectItem value="ask">Ask</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between rounded-md border px-3 py-2.5">
+                <div>
+                  <Label className="text-sm font-medium">Tmux</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Enable tmux session management
+                  </p>
+                </div>
+                <Switch
+                  checked={tmuxEnabled}
+                  onCheckedChange={(v) => onChange("tmuxEnabled", v)}
+                />
+              </div>
+
+              <div className="space-y-2 rounded-md border p-3">
+                <Label className="text-sm font-medium">Analytics</Label>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Enabled</span>
                   <Switch
-                    checked={checked}
-                    onCheckedChange={(v) => {
-                      const next = v
-                        ? [...skillDirs, dir]
-                        : skillDirs.filter((d: string) => d !== dir);
-                      onChange("skillDirectories", next);
-                    }}
+                    checked={analyticsEnabled}
+                    onCheckedChange={(v) => onChange("analyticsEnabled", v)}
                   />
                 </div>
-              );
-            },
-          )}
-        </div>
-      </section>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Use Fingerprint
+                  </span>
+                  <Switch
+                    checked={analyticsFingerprint}
+                    onCheckedChange={(v) =>
+                      onChange("analyticsUseFingerprint", v)
+                    }
+                  />
+                </div>
+              </div>
 
-      {/* ── Agent Routing ── */}
-
-      {/* ── Agent Routing ── */}
-      <section className="space-y-4">
-        <h3 className="text-lg font-medium">Agent Routing</h3>
-        <p className="text-sm text-muted-foreground">
-          Map system agents to Weave's internal agent roles. Each Weave agent
-          has a specific role and category.
-        </p>
-
-        {/* Agent cards with color indicators */}
-        <div className="space-y-2">
-          {WEAVE_AGENTS.map((wa) => {
-            const selectedSystemKey = agentMappings[wa.id] ?? "";
-            return (
-              <div
-                key={wa.id}
-                className="flex items-center gap-3 rounded-md border px-3 py-2.5"
-              >
-                {/* Color dot */}
-                <div
-                  className="h-3 w-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: wa.color }}
-                />
-                {/* Agent info */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">
-                      {wa.displayName}
+              <div className="space-y-2 rounded-md border p-3">
+                <Label className="text-sm font-medium">Continuation</Label>
+                <div className="ml-2 space-y-2 border-l-2 border-muted pl-3">
+                  <div>
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Recovery
                     </span>
-                    <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
-                      {wa.category}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Compaction
+                      </span>
+                      <Switch
+                        checked={recoveryCompaction}
+                        onCheckedChange={(v) =>
+                          onChange("continuationRecoveryCompaction", v)
+                        }
+                      />
+                    </div>
                   </div>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {wa.description}
-                  </p>
+                  <div>
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Idle
+                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Enabled
+                      </span>
+                      <Switch
+                        checked={idleEnabled}
+                        onCheckedChange={(v) =>
+                          onChange("continuationIdleEnabled", v)
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Work
+                      </span>
+                      <Switch
+                        checked={idleWork}
+                        onCheckedChange={(v) =>
+                          onChange("continuationIdleWork", v)
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Todo Prompt
+                      </span>
+                      <Switch
+                        checked={idleTodoPrompt}
+                        onCheckedChange={(v) =>
+                          onChange("continuationIdleTodoPrompt", v)
+                        }
+                      />
+                    </div>
+                  </div>
                 </div>
-                {/* System agent select */}
-                <Select
-                  value={selectedSystemKey || "__none"}
-                  onValueChange={(v) =>
-                    onAgentMappingChange(wa.id, v === "__none" ? "" : v)
-                  }
-                >
-                  <SelectTrigger className="w-52 shrink-0">
-                    <SelectValue placeholder="Select agent..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none">
-                      <span className="text-muted-foreground">None</span>
-                    </SelectItem>
-                    {systemAgents.map((sa) => (
-                      <SelectItem key={sa.key} value={sa.key}>
-                        {sa.displayName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
-            );
-          })}
-        </div>
-      </section>
 
-      {/* ── Categories ── */}
-      <section className="space-y-4">
-        <h3 className="text-lg font-medium">Categories</h3>
-        <p className="text-sm text-muted-foreground">
-          Enable or disable task categories for export to Weave config.
-        </p>
-
-        <div className="space-y-2 rounded-md border p-3">
-          {WEAVE_CATEGORIES.map((wc) => {
-            const enabled = categoryMappings[wc.id] ?? false;
-            return (
-              <div key={wc.id} className="flex items-center justify-between">
-                <div>
-                  <span className="text-sm font-medium">{wc.label}</span>
-                  <p className="text-xs text-muted-foreground">
-                    {wc.description}
-                  </p>
-                </div>
-                <Switch
-                  checked={enabled}
-                  onCheckedChange={() => onCategoryToggle(wc.id)}
-                />
+              <div className="space-y-2 rounded-md border p-3">
+                <Label className="text-sm font-medium">Skill Directories</Label>
+                <p className="text-xs text-muted-foreground">
+                  Directories to scan for skills
+                </p>
+                {[
+                  "~/.agents/skills",
+                  "~/.claude/skills",
+                  "~/.opencode/skills",
+                ].map((dir) => {
+                  const checked = skillDirs.includes(dir);
+                  return (
+                    <div
+                      key={dir}
+                      className="flex items-center justify-between"
+                    >
+                      <code className="text-xs">{dir}</code>
+                      <Switch
+                        checked={checked}
+                        onCheckedChange={(v) => {
+                          const next = v
+                            ? [...skillDirs, dir]
+                            : skillDirs.filter((d: string) => d !== dir);
+                          onChange("skillDirectories", next);
+                        }}
+                      />
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-      </section>
+            </section>
+          </div>
+        </TabsContent>
 
-      {/* ── Output Preview ── */}
-      <Collapsible open={previewOpen} onOpenChange={setPreviewOpen}>
-        <div className="space-y-3">
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              {previewOpen ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-              Output Preview
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="relative rounded-md border bg-muted/20">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-2 h-7 w-7 p-0"
-                onClick={handleCopy}
-              >
+        <TabsContent value="agents">
+          <section className="space-y-4">
+            <h3 className="text-lg font-medium">Agent Routing</h3>
+            <p className="text-sm text-muted-foreground">
+              Map system agents to Weave's internal agent roles. Each Weave
+              agent has a specific role and category.
+            </p>
+
+            <div className="space-y-2">
+              {WEAVE_AGENTS.map((wa) => {
+                const selectedSystemKey = agentMappings[wa.id] ?? "";
+                return (
+                  <div
+                    key={wa.id}
+                    className="flex items-center gap-3 rounded-md border px-3 py-2.5"
+                  >
+                    <div
+                      className="h-3 w-3 shrink-0 rounded-full"
+                      style={{ backgroundColor: wa.color }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">
+                          {wa.displayName}
+                        </span>
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
+                          {wa.category}
+                        </span>
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {wa.description}
+                      </p>
+                    </div>
+                    <Select
+                      value={selectedSystemKey || "__none"}
+                      onValueChange={(v) =>
+                        onAgentMappingChange(wa.id, v === "__none" ? "" : v)
+                      }
+                    >
+                      <SelectTrigger className="w-52 shrink-0">
+                        <SelectValue placeholder="Select agent..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none">
+                          <span className="text-muted-foreground">None</span>
+                        </SelectItem>
+                        {systemAgents.map((sa) => (
+                          <SelectItem key={sa.key} value={sa.key}>
+                            {sa.displayName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </TabsContent>
+
+        <TabsContent value="categories">
+          <section className="space-y-4">
+            <h3 className="text-lg font-medium">Categories</h3>
+            <p className="text-sm text-muted-foreground">
+              Enable or disable task categories for export to Weave config.
+            </p>
+
+            <div className="space-y-2 rounded-md border p-3">
+              {WEAVE_CATEGORIES.map((wc) => {
+                const enabled = categoryMappings[wc.id] ?? false;
+                return (
+                  <div
+                    key={wc.id}
+                    className="flex items-center justify-between"
+                  >
+                    <div>
+                      <span className="text-sm font-medium">{wc.label}</span>
+                      <p className="text-xs text-muted-foreground">
+                        {wc.description}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={enabled}
+                      onCheckedChange={() => onCategoryToggle(wc.id)}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </TabsContent>
+
+        <TabsContent value="preview">
+          <section className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 className="text-lg font-medium">Output Preview</h3>
+                <p className="text-sm text-muted-foreground">
+                  JSON preview of the generated Weave config.
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleCopy}>
                 {copied ? (
-                  <Check className="h-3.5 w-3.5 text-green-600" />
+                  <Check className="mr-2 h-4 w-4 text-green-600" />
                 ) : (
-                  <Copy className="h-3.5 w-3.5" />
+                  <Copy className="mr-2 h-4 w-4" />
                 )}
+                {copied ? "Copied" : "Copy"}
               </Button>
-              <pre className="max-h-96 overflow-auto p-4 text-xs font-mono">
+            </div>
+            <div className="rounded-md border bg-muted/20">
+              <pre className="max-h-130 overflow-auto p-4 text-xs font-mono">
                 {previewText}
               </pre>
             </div>
-          </CollapsibleContent>
-        </div>
-      </Collapsible>
+          </section>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
