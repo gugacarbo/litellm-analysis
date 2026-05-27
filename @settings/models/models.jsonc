@@ -44,7 +44,7 @@
       }
     },
     "glm-5-turbo": {
-      "enabled": true,
+      "enabled": false,
       "displayName": "GLM 5 Turbo",
       "family": "z.ai",
       "limits": {
@@ -137,38 +137,6 @@
       },
       "thinking": {
         "levels": ["low", "medium", "high", "xhigh"]
-      }
-    },
-    "mimo-v2.5-pro": {
-      "enabled": true,
-      "displayName": "Mimo V2.5 Pro",
-      "family": "xiaomi",
-      "limits": {
-        "length": 1048576,
-        "maxOutput": 32768
-      },
-      "cost": {
-        "input": 1,
-        "output": 3
-      },
-      "thinking": {
-        "levels": []
-      }
-    },
-    "mimo-v2-pro": {
-      "enabled": false,
-      "displayName": "Mimo V2 Pro",
-      "family": "xiaomi",
-      "limits": {
-        "length": 1048576,
-        "maxOutput": 32768
-      },
-      "cost": {
-        "input": 1,
-        "output": 3
-      },
-      "thinking": {
-        "levels": []
       }
     }
   }
