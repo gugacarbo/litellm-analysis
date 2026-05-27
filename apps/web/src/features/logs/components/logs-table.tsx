@@ -142,10 +142,25 @@ export function LogsTable({
     {},
   );
 
-  const groupedLogs = useMemo(() => {
-    if (!groupByModel || logs.length === 0) return null;
+  const sortedLogs = useMemo(() => {
+    return [...logs].sort((a, b) => {
+      const timeA = new Date(a.start_time).getTime();
+      const timeB = new Date(b.start_time).getTime();
+      const normalizedA = Number.isNaN(timeA) ? 0 : timeA;
+      const normalizedB = Number.isNaN(timeB) ? 0 : timeB;
 
-    const groups = groupLogsByModel(logs);
+      if (normalizedA !== normalizedB) {
+        return normalizedB - normalizedA;
+      }
+
+      return b.request_id.localeCompare(a.request_id);
+    });
+  }, [logs]);
+
+  const groupedLogs = useMemo(() => {
+    if (!groupByModel || sortedLogs.length === 0) return null;
+
+    const groups = groupLogsByModel(sortedLogs);
 
     const initialExpanded: Record<string, boolean> = {};
     for (const group of groups) {
@@ -159,7 +174,7 @@ export function LogsTable({
     }
 
     return groups;
-  }, [groupByModel, logs, expandedGroups]);
+  }, [groupByModel, sortedLogs, expandedGroups]);
 
   const handleToggleGroup = (groupKey: string) => {
     setExpandedGroups((prev) => ({
@@ -240,7 +255,7 @@ export function LogsTable({
         ) : (
           <DataTable
             columns={columns}
-            data={logs}
+            data={sortedLogs}
             loading={loading && logs.length === 0}
             loadingSkeletonRows={10}
             emptyMessage="No logs found."

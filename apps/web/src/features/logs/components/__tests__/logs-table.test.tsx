@@ -40,6 +40,89 @@ const SAMPLE_LOGS: SpendLog[] = [
 const VISIBLE_COLUMNS: LogColumnKey[] = ["model", "spend", "status"];
 
 describe("LogsTable", () => {
+  it("renders logs sorted by start time (newest first)", () => {
+    const logs: SpendLog[] = [
+      {
+        request_id: "req-old",
+        model: "gpt-4.1-mini",
+        user: "alice",
+        total_tokens: 100,
+        prompt_tokens: 60,
+        completion_tokens: 40,
+        spend: 0.001,
+        time_to_first_token_ms: 200,
+        start_time: "2026-04-24T10:00:00.000Z",
+        end_time: "2026-04-24T10:00:01.000Z",
+        api_key: "key-1",
+        status: "200",
+      },
+      {
+        request_id: "req-new",
+        model: "gpt-4.1-mini",
+        user: "alice",
+        total_tokens: 120,
+        prompt_tokens: 70,
+        completion_tokens: 50,
+        spend: 0.0012,
+        time_to_first_token_ms: 180,
+        start_time: "2026-04-24T10:02:00.000Z",
+        end_time: "2026-04-24T10:02:01.000Z",
+        api_key: "key-1",
+        status: "200",
+      },
+      {
+        request_id: "req-mid",
+        model: "gpt-4.1-mini",
+        user: "alice",
+        total_tokens: 110,
+        prompt_tokens: 65,
+        completion_tokens: 45,
+        spend: 0.0011,
+        time_to_first_token_ms: 190,
+        start_time: "2026-04-24T10:01:00.000Z",
+        end_time: "2026-04-24T10:01:01.000Z",
+        api_key: "key-1",
+        status: "200",
+      },
+    ];
+
+    const { container } = render(
+      <BrowserRouter>
+        <LogsTable
+          logs={logs}
+          loading={false}
+          refreshing={false}
+          page={1}
+          pageSize={20}
+          pagination={{
+            total: logs.length,
+            page: 1,
+            page_size: 20,
+            total_pages: 1,
+          }}
+          visibleColumns={["requestId"]}
+          autoRefetchEnabled={false}
+          groupByModel={false}
+          onSelectLog={vi.fn()}
+          onToggleColumn={vi.fn()}
+          onAutoRefetchChange={vi.fn()}
+          onGroupByModelChange={vi.fn()}
+          onRefetch={vi.fn()}
+          onPageChange={vi.fn()}
+          onPageSizeChange={vi.fn()}
+        />
+      </BrowserRouter>,
+    );
+
+    const rowTexts = Array.from(
+      container.querySelectorAll("tbody tr"),
+      (row) => row.textContent ?? "",
+    );
+    expect(rowTexts[0]).toContain("req-new");
+    expect(rowTexts[1]).toContain("req-mid");
+    expect(rowTexts[2]).toContain("req-old");
+  });
+
   it("keeps grouped rows aligned when some columns are hidden", async () => {
     const onSelectLog = vi.fn();
     const { container } = render(

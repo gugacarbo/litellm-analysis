@@ -17,21 +17,19 @@ export type GroupSummary = {
 };
 
 export function groupLogsByModel(logs: SpendLog[]): LogGroup[] {
+  const groupsByModel = new Map<string, LogGroup>();
   const groups: LogGroup[] = [];
-  let currentGroup: LogGroup | null = null;
 
   for (const log of logs) {
-    if (currentGroup && currentGroup.model === log.model) {
-      currentGroup.logs.push(log);
-    } else {
-      if (currentGroup) {
-        groups.push(currentGroup);
-      }
-      currentGroup = { model: log.model, logs: [log] };
+    const existingGroup = groupsByModel.get(log.model);
+    if (existingGroup) {
+      existingGroup.logs.push(log);
+      continue;
     }
-  }
-  if (currentGroup) {
-    groups.push(currentGroup);
+
+    const newGroup: LogGroup = { model: log.model, logs: [log] };
+    groupsByModel.set(log.model, newGroup);
+    groups.push(newGroup);
   }
 
   return groups;
