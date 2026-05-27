@@ -35,10 +35,7 @@ describe("groupLogsByModel", () => {
 
     expect(groups).toHaveLength(2);
     expect(groups[0]?.model).toBe("model-a");
-    expect(groups[0]?.logs.map((log) => log.request_id)).toEqual([
-      "a1",
-      "a2",
-    ]);
+    expect(groups[0]?.logs.map((log) => log.request_id)).toEqual(["a1", "a2"]);
     expect(groups[1]?.model).toBe("model-b");
     expect(groups[1]?.logs.map((log) => log.request_id)).toEqual(["b1"]);
   });
