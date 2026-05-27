@@ -41,10 +41,7 @@ const normalizePluginConfigById = (
     return {
       $schema: config.$schema,
       git_master: {
-        commit_footer:
-          gitMaster.commit_footer ??
-          config.commitFooter ??
-          false,
+        commit_footer: gitMaster.commit_footer ?? config.commitFooter ?? false,
         include_co_authored_by:
           gitMaster.include_co_authored_by ??
           config.includeCoAuthoredBy ??
@@ -67,14 +64,12 @@ const normalizePluginConfigById = (
         config["oaicopilot.commitLanguage"] ?? config.commitLanguage,
       "oaicopilot.baseUrl":
         config["oaicopilot.baseUrl"] ?? config.baseUrl ?? "",
-      "oaicopilot.delay":
-        config["oaicopilot.delay"] ?? config.delay ?? 0,
+      "oaicopilot.delay": config["oaicopilot.delay"] ?? config.delay ?? 0,
       "oaicopilot.readFileLines":
         config["oaicopilot.readFileLines"] ?? config.readFileLines ?? 0,
       "oaicopilot.retry": {
         enabled: retry.enabled ?? config.retryEnabled ?? true,
-        max_attempts:
-          retry.max_attempts ?? config.maxRetryAttempts ?? 3,
+        max_attempts: retry.max_attempts ?? config.maxRetryAttempts ?? 3,
         interval_ms: retry.interval_ms ?? config.retryIntervalMs ?? 2000,
         status_codes: retry.status_codes ?? config.retryStatusCodes ?? [],
       },
@@ -97,9 +92,7 @@ const normalizePluginConfigById = (
       analytics: {
         enabled: analytics.enabled ?? config.analyticsEnabled ?? true,
         use_fingerprint:
-          analytics.use_fingerprint ??
-          config.analyticsUseFingerprint ??
-          true,
+          analytics.use_fingerprint ?? config.analyticsUseFingerprint ?? true,
       },
       continuation: {
         recovery: {
@@ -113,9 +106,7 @@ const normalizePluginConfigById = (
           work: idle.work ?? config.continuationIdleWork ?? true,
           workflow: idle.workflow ?? true,
           todo_prompt:
-            idle.todo_prompt ??
-            config.continuationIdleTodoPrompt ??
-            true,
+            idle.todo_prompt ?? config.continuationIdleTodoPrompt ?? true,
         },
       },
       skill_directories:

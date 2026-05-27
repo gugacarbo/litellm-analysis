@@ -1,10 +1,9 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type { IModelsRepository } from "@lite-llm/models-repository/repository";
-import { getPluginConfigJsonSchema } from "./plugin-config-schemas";
 import { PluginExecutionError } from "./errors";
-import type { ConfigField } from "./plugins/plugin-types";
-import type { InternalAgent } from "./plugins/plugin-types";
+import { getPluginConfigJsonSchema } from "./plugin-config-schemas";
+import type { ConfigField, InternalAgent } from "./plugins/plugin-types";
 import type { PluginDefinition, PluginRuntimeContext } from "./sdk";
 import type {
   AgentsRepositoryLike,
