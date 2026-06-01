@@ -1,42 +1,30 @@
 import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
-import { resolveSlotModelId } from "../../litellm-alias/generate";
 import type { OpenCodePluginConfig } from "../config/config";
 import type { OpencodeSchemaType } from "../schema/schema";
 import { agentAdapter } from "./agent-adapter";
 import { modelAdapter } from "./model-adapter";
 
-const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
+const DEFAULT_MODEL_NAME = "gpt-5.5";
 
-function addRoleModelSlots(
+function addRolePrimaryModel(
   target: Record<string, unknown>,
   role: string,
   displayName: string,
   primaryModelId: string,
-  modelNames: readonly string[],
+  modelName: string,
   context: PluginRuntimeContext,
 ): void {
-  for (let i = 0; i < modelNames.length; i++) {
-    const modelId = resolveSlotModelId(
-      i,
-      modelNames.length,
-      primaryModelId,
-      context.globalFallbackModel,
-    );
-    if (!modelId) continue;
+  const spec = context.allModels[primaryModelId];
+  if (!spec) return;
 
-    const spec = context.allModels[modelId];
-    if (!spec) continue;
-
-    const slotDisplayName = i === 0 ? displayName : `${displayName} ${i}`;
-    target[`${role}/${modelNames[i]}`] = modelAdapter(
-      role,
-      modelNames[i],
-      slotDisplayName,
-      spec,
-    );
-  }
+  target[`${role}/${modelName}`] = modelAdapter(
+    role,
+    modelName,
+    displayName,
+    spec,
+  );
 }
 
 export interface BuildOpenCodeOutputInput {
@@ -51,7 +39,8 @@ export function adaptOpenCodeOutput(
 ): OpencodeSchemaType {
   const { agents, routing, context, config } = input;
   const configDefaultModel = config.model ?? "";
-  const modelNames = context.modelNames ?? DEFAULT_MODEL_NAMES;
+  const modelName =
+    (context.modelNames ?? [DEFAULT_MODEL_NAME])[0] ?? DEFAULT_MODEL_NAME;
   const outputProvider: NonNullable<OpencodeSchemaType["provider"]> = {};
 
   const output = {
@@ -92,12 +81,12 @@ export function adaptOpenCodeOutput(
     );
     if (!adaptedAgent) continue;
 
-    addRoleModelSlots(
+    addRolePrimaryModel(
       llmAgentsModels,
       adaptedAgent.role,
       adaptedAgent.displayName,
       adaptedAgent.primaryModelId,
-      modelNames,
+      modelName,
       context,
     );
   }
@@ -122,12 +111,12 @@ export function adaptOpenCodeOutput(
 
       const primaryModelId =
         category.model || configDefaultModel || categoryName;
-      addRoleModelSlots(
+      addRolePrimaryModel(
         llmCategoriesModels,
         categoryName,
         categoryName,
         primaryModelId,
-        modelNames,
+        modelName,
         context,
       );
     }
@@ -144,10 +133,9 @@ export function adaptOpenCodeOutput(
   if (globalFallbackId) {
     const globalSpec = context.allModels[globalFallbackId];
     if (globalSpec) {
-      const primarySlot = modelNames[0];
       const globalFallbackEntry = modelAdapter(
         "global-fallback",
-        primarySlot,
+        modelName,
         "Global Fallback",
         globalSpec,
       );

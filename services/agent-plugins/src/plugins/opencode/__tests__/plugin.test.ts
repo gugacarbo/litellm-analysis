@@ -247,7 +247,7 @@ describe("createOpenCodePlugin", () => {
       expect(primaryModel.limit).toEqual({ context: 128000, output: 4096 });
     });
 
-    it("gera slots de fallback quando globalFallbackModel definido", () => {
+    it("globalFallbackModel nao cria slot extra por agente", () => {
       const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({
@@ -286,14 +286,7 @@ describe("createOpenCodePlugin", () => {
       const models = llmAgents.models as Record<string, unknown>;
 
       expect(models).toHaveProperty("sisyphus/gpt-5.5");
-      expect(models).toHaveProperty("sisyphus/gpt-5.4");
-
-      const fallbackSlot = models["sisyphus/gpt-5.4"] as Record<
-        string,
-        unknown
-      >;
-      expect(fallbackSlot.name).toBe("Builder 1");
-      expect(fallbackSlot.limit).toEqual({ context: 16000, output: 4096 });
+      expect(models).not.toHaveProperty("sisyphus/gpt-5.4");
     });
 
     it("sem globalFallbackModel gera apenas slot primario", () => {

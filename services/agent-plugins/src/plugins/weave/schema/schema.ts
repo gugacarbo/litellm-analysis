@@ -14,7 +14,6 @@ export const weaveSchema = z
         z
           .object({
             model: z.string().optional(),
-            fallback_models: z.array(z.string()).optional(),
             review_models: z.array(z.string()).optional(),
             variant: z.string().optional(),
             category: z.string().optional(),
@@ -45,7 +44,6 @@ export const weaveSchema = z
             display_name: z.string().optional(),
             color: z.string().optional(),
             mode: z.enum(["subagent", "primary", "all"]).optional(),
-            fallback_models: z.array(z.string()).optional(),
             category: z
               .enum(["exploration", "specialist", "advisor", "utility"])
               .optional(),
@@ -73,7 +71,6 @@ export const weaveSchema = z
           .object({
             description: z.string().optional(),
             model: z.string().optional(),
-            fallback_models: z.array(z.string()).optional(),
             variant: z.string().optional(),
             temperature: z.number().optional(),
             top_p: z.number().optional(),

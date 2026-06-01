@@ -1,6 +1,5 @@
 export interface WeaveModelData {
   model: string;
-  fallback_models: string[];
 }
 
 function resolveModels(role: string, modelNames: readonly string[]): string[] {
@@ -15,6 +14,5 @@ export function modelAdapter(
   const models = model ? resolveModels(role, modelNames) : [];
   return {
     model: models[0] ?? model,
-    fallback_models: models.slice(1),
   };
 }

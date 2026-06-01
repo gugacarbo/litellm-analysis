@@ -24,9 +24,6 @@ export function adaptOpenAgentOutput(
     git_master: config.git_master,
     agents: outputAgents,
     categories: outputCategories,
-    ...(context.globalFallbackModel
-      ? { globalFallbackModel: context.globalFallbackModel }
-      : {}),
   };
 
   const rawAgentMappings: Record<string, string | string[]> =

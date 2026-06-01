@@ -10,25 +10,21 @@ function normalizeModel(value: string | undefined): string {
   return stripLitellmPrefix(trimmed);
 }
 
-/** Resolve which backend model id fills a logical slot (primary + fallbacks). */
+/** Resolve which backend model id fills logical slot. */
 export function resolveSlotModelId(
   slotIndex: number,
-  slotCount: number,
+  _slotCount: number,
   primaryModelId: string,
   globalFallbackModelId: string | undefined,
 ): string {
   const primary = (primaryModelId || "").trim();
   const fallback = (globalFallbackModelId || "").trim();
 
-  if (slotIndex === 0) {
-    return primary || fallback;
+  if (slotIndex !== 0) {
+    return "";
   }
 
-  if (slotIndex === slotCount - 1) {
-    return fallback;
-  }
-
-  return fallback;
+  return primary || fallback;
 }
 
 function resolveSlotModel(
@@ -46,11 +42,8 @@ function resolveSlotModel(
 }
 
 /**
- * Generate litellm aliases for an agent/category key using logical slot names.
- * Slots map: modelNames[0] = primary, middle = fallbacks, last = global fallback.
- *
- * @param modelNames Logical slot names to generate.
- *        Must come from the caller's context (plugin config, routing config, etc.)
+ * Generate litellm aliases for agent/category key using single slot.
+ * Uses primary model, fallback only when primary absent.
  */
 export function generateLitellmAliases(
   key: string,
