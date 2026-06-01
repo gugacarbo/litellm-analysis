@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   getHealthCheckResults,
   getHealthCheckSummary,
@@ -11,7 +11,6 @@ import type {
   HealthCheckResultEntry,
   HealthCheckSummaryData,
 } from "../types/health-status-types";
-import { useHealthStatusWebSocket } from "./use-health-status-websocket";
 
 const REFETCH_INTERVAL = 30_000;
 
@@ -50,17 +49,22 @@ interface UseHealthStatusStateResult {
     }>
   >;
   wsStatus: string;
-  wsResults: HealthCheckResultEntry[] | null;
+  wsResults: HealthCheckResultEntry[];
   allModelsWithStatus: ModelWithStatus[];
   resultsLimit: number;
   resultsOffset: number;
   setResultsOffset: (offset: number) => void;
 }
 
-export function useHealthStatusState(): UseHealthStatusStateResult {
-  const { status: wsStatus, latestResults: wsResults } =
-    useHealthStatusWebSocket();
+interface UseHealthStatusStateParams {
+  wsStatus: string;
+  wsResults: HealthCheckResultEntry[];
+}
 
+export function useHealthStatusState({
+  wsStatus,
+  wsResults,
+}: UseHealthStatusStateParams): UseHealthStatusStateResult {
   const modelsQuery = useQuery({
     queryKey: queryKeys.models,
     queryFn: getAllModels,
@@ -94,53 +98,55 @@ export function useHealthStatusState(): UseHealthStatusStateResult {
 
   const allModelNames = modelsQuery.data ?? [];
   const latestData = latestQuery.data?.checks ?? [];
-  const wsLatest = wsResults ?? [];
+  const wsLatest = wsResults;
 
-  const checkMap = new Map<string, HealthCheckResultEntry>();
-  for (const c of wsLatest) checkMap.set(c.modelName, c);
-  for (const c of latestData) {
-    if (!checkMap.has(c.modelName)) checkMap.set(c.modelName, c);
-  }
-
-  const allModelsWithStatus: ModelWithStatus[] = allModelNames.map((model) => {
-    const check = checkMap.get(model.modelName);
-    if (!check) {
-      return {
-        id: null,
-        modelName: model.modelName,
-        status: "unknown" as const,
-        responseTimeMs: null,
-        ttftMs: null,
-        outputTokens: null,
-        tokensPerSecond: null,
-        statusCode: null,
-        promptSent: null,
-        responseReceived: null,
-        requestPayload: null,
-        responsePayload: null,
-        errorMessage: null,
-        checkedAt: null,
-        source: null,
-      };
+  const allModelsWithStatus: ModelWithStatus[] = useMemo(() => {
+    const checkMap = new Map<string, HealthCheckResultEntry>();
+    for (const c of wsLatest) checkMap.set(c.modelName, c);
+    for (const c of latestData) {
+      if (!checkMap.has(c.modelName)) checkMap.set(c.modelName, c);
     }
-    return {
-      id: check.id,
-      modelName: check.modelName,
-      status: check.status,
-      responseTimeMs: check.responseTimeMs,
-      ttftMs: check.ttftMs,
-      outputTokens: check.outputTokens,
-      tokensPerSecond: check.tokensPerSecond,
-      statusCode: check.statusCode,
-      promptSent: check.promptSent,
-      responseReceived: check.responseReceived,
-      requestPayload: check.requestPayload,
-      responsePayload: check.responsePayload,
-      errorMessage: check.errorMessage,
-      checkedAt: check.checkedAt,
-      source: check.source,
-    };
-  });
+
+    return allModelNames.map((model) => {
+      const check = checkMap.get(model.modelName);
+      if (!check) {
+        return {
+          id: null,
+          modelName: model.modelName,
+          status: "unknown" as const,
+          responseTimeMs: null,
+          ttftMs: null,
+          outputTokens: null,
+          tokensPerSecond: null,
+          statusCode: null,
+          promptSent: null,
+          responseReceived: null,
+          requestPayload: null,
+          responsePayload: null,
+          errorMessage: null,
+          checkedAt: null,
+          source: null,
+        };
+      }
+      return {
+        id: check.id,
+        modelName: check.modelName,
+        status: check.status,
+        responseTimeMs: check.responseTimeMs,
+        ttftMs: check.ttftMs,
+        outputTokens: check.outputTokens,
+        tokensPerSecond: check.tokensPerSecond,
+        statusCode: check.statusCode,
+        promptSent: check.promptSent,
+        responseReceived: check.responseReceived,
+        requestPayload: check.requestPayload,
+        responsePayload: check.responsePayload,
+        errorMessage: check.errorMessage,
+        checkedAt: check.checkedAt,
+        source: check.source,
+      };
+    });
+  }, [allModelNames, latestData, wsLatest]);
 
   return {
     modelsQuery,

@@ -14,11 +14,8 @@ interface UseMonitorWebSocketResult {
 }
 
 function getWsUrl(): string {
-  if (import.meta.env.PROD) {
-    const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-    return `${proto}//${window.location.host}/ws/monitor`;
-  }
-  return `ws://${window.location.hostname}:5178/ws/monitor`;
+  const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${proto}//${window.location.host}/ws/monitor`;
 }
 
 export function useMonitorWebSocket(): UseMonitorWebSocketResult {

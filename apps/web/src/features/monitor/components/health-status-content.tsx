@@ -176,7 +176,10 @@ export function HealthStatusContent({
         </TabsContent>
       </Tabs>
 
-      <StatusDetailsDialog selected={selectedStatus} />
+      <StatusDetailsDialog
+        selected={selectedStatus}
+        onClose={() => setSelectedStatus(null)}
+      />
     </div>
   );
 }

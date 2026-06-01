@@ -89,6 +89,12 @@ export class WsClient {
     this.statusCallbacks.clear();
   }
 
+  send(message: object): void {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(message));
+    }
+  }
+
   onMessage(callback: MessageCallback): () => void {
     this.messageCallbacks.add(callback);
     return () => this.messageCallbacks.delete(callback);

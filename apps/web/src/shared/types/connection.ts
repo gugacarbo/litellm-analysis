@@ -5,6 +5,14 @@ export type ConnectionState =
   | "reconnecting";
 
 export interface WsMessage {
-  type: "alert" | "health_update" | "connected" | "health_check_update";
+  type:
+    | "alert"
+    | "health_update"
+    | "connected"
+    | "health_check_update"
+    | "request_health_check"
+    | "health_check_rejected"
+    | "prompt_eval_run_update"
+    | "prompt_eval_run_completed";
   data: unknown;
 }

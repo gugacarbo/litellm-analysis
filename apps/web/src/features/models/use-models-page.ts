@@ -34,7 +34,6 @@ export function useModelsPage() {
     queryKey: ["models-health"],
     queryFn: async () => {
       const result = await getModelsHealth();
-      console.log("[DEBUG] modelsHealth response:", result);
       return result;
     },
   });
@@ -310,11 +309,6 @@ export function useModelsPage() {
       setMerging(false);
     }
   }
-
-  console.log(
-    "[DEBUG] modelsHealth from hook:",
-    modelsHealthQuery.data?.models,
-  );
 
   return {
     addExtraParam,
