@@ -4,10 +4,12 @@ import {
   insertHealthCheck,
 } from "../db/monitor-queries";
 import type {
+  HealthCheckRequestResult,
   HealthCheckResult,
   HealthCheckServiceEvents,
   HealthCheckServiceOptions,
 } from "./monitor-types";
+import { COOLDOWN_MS } from "./monitor-types";
 
 const HEALTH_CHECK_MAX_TOKENS = 200;
 const MAX_CAPTURED_RESPONSE_CHARS = 500;
@@ -67,6 +69,9 @@ export class HealthCheckService {
   private emitter = new EventEmitter();
   private timer: ReturnType<typeof setInterval> | null = null;
   private running = false;
+  private inFlightModels = new Set<string>();
+  private cooldownMap = new Map<string, number>();
+  private cooldownTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(options: HealthCheckServiceOptions) {
     this.options = options;
@@ -77,6 +82,14 @@ export class HealthCheckService {
       return;
     }
     this.running = true;
+    this.cooldownTimer = setInterval(() => {
+      const now = Date.now();
+      for (const [model, expiry] of this.cooldownMap) {
+        if (expiry <= now) {
+          this.cooldownMap.delete(model);
+        }
+      }
+    }, 1_000);
     this.tick();
     this.timer = setInterval(() => this.tick(), this.options.pollIntervalMs);
   }
@@ -87,6 +100,12 @@ export class HealthCheckService {
       clearInterval(this.timer);
       this.timer = null;
     }
+    if (this.cooldownTimer) {
+      clearInterval(this.cooldownTimer);
+      this.cooldownTimer = null;
+    }
+    this.cooldownMap.clear();
+    this.inFlightModels.clear();
   }
 
   isRunning(): boolean {
@@ -217,6 +236,45 @@ export class HealthCheckService {
       });
 
       return check;
+    }
+  }
+
+  private isCheckAllowed(modelName: string): {
+    allowed: boolean;
+    reason?: string;
+  } {
+    if (this.inFlightModels.has(modelName)) {
+      return { allowed: false, reason: "already in progress" };
+    }
+    const cooldownExpiry = this.cooldownMap.get(modelName);
+    if (cooldownExpiry !== undefined && cooldownExpiry > Date.now()) {
+      return { allowed: false, reason: "cooldown active" };
+    }
+    return { allowed: true };
+  }
+
+  async requestCheck(modelName: string): Promise<HealthCheckRequestResult> {
+    const check = this.isCheckAllowed(modelName);
+    if (!check.allowed) {
+      this.emitter.emit("health_check_rejected", {
+        modelName,
+        reason: check.reason ?? "unknown",
+        timestamp: Date.now(),
+      });
+      return { accepted: false, reason: check.reason };
+    }
+
+    this.inFlightModels.add(modelName);
+    try {
+      const result = await this.runCheck(modelName, "manual");
+      this.cooldownMap.set(modelName, Date.now() + COOLDOWN_MS);
+      this.emitter.emit("health_check_update", {
+        results: [result],
+        timestamp: Date.now(),
+      });
+      return { accepted: true };
+    } finally {
+      this.inFlightModels.delete(modelName);
     }
   }
 
@@ -761,9 +819,18 @@ export class HealthCheckService {
     const results: HealthCheckResult[] = [];
 
     for (let i = 0; i < modelNames.length; i += maxConcurrency) {
-      const batch = modelNames.slice(i, i + maxConcurrency);
+      const eligible = modelNames
+        .slice(i, i + maxConcurrency)
+        .filter((name) => this.isCheckAllowed(name).allowed);
       const batchResults = await Promise.all(
-        batch.map((name) => this.runCheck(name, source)),
+        eligible.map(async (name) => {
+          this.inFlightModels.add(name);
+          try {
+            return await this.runCheck(name, source);
+          } finally {
+            this.inFlightModels.delete(name);
+          }
+        }),
       );
       results.push(...batchResults);
     }

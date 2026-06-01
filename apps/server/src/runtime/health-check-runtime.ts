@@ -44,6 +44,29 @@ export function createHealthCheckRuntime(
     });
   });
 
+  options.wsServer.onClientMessage(async (ws, message) => {
+    if (message.type !== "request_health_check") {
+      return;
+    }
+
+    const modelName = (message.data as { modelName?: unknown })?.modelName;
+    if (typeof modelName !== "string" || !modelName.trim()) {
+      return;
+    }
+
+    const result = await healthCheckService.requestCheck(modelName);
+    if (!result.accepted) {
+      options.wsServer.sendTo(ws, {
+        type: "health_check_rejected",
+        data: {
+          modelName,
+          reason: result.reason ?? "unknown",
+          timestamp: Date.now(),
+        },
+      });
+    }
+  });
+
   return {
     healthCheckService,
     start() {

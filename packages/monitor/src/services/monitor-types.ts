@@ -105,9 +105,21 @@ export interface HealthCheckServiceOptions {
   enabledModelNames?: string[];
 }
 
+export type HealthCheckRequestResult = {
+  accepted: boolean;
+  reason?: string;
+};
+
+export const COOLDOWN_MS = 5_000;
+
 export type HealthCheckServiceEvents = {
   health_check_update: (data: {
     results: HealthCheckResult[];
+    timestamp: number;
+  }) => void;
+  health_check_rejected: (data: {
+    modelName: string;
+    reason: string;
     timestamp: number;
   }) => void;
 };

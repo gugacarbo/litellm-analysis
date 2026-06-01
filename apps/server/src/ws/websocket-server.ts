@@ -7,12 +7,19 @@ type MessageType =
   | "health_check_update"
   | "connected"
   | "prompt_eval_run_update"
-  | "prompt_eval_run_completed";
+  | "prompt_eval_run_completed"
+  | "request_health_check"
+  | "health_check_rejected";
 
 interface WsMessage {
   type: MessageType;
   data: unknown;
 }
+
+type ClientMessageHandler = (
+  ws: WebSocket,
+  message: { type: string; data: unknown },
+) => void;
 
 const WS_PATH = "/ws/monitor";
 const HEARTBEAT_INTERVAL = 30_000;
@@ -30,6 +37,7 @@ export class WebSocketServer {
   private clients: Set<TrackedWebSocket> = new Set();
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private started = false;
+  private clientMessageHandlers: Set<ClientMessageHandler> = new Set();
 
   constructor(httpServer: HttpServer) {
     this.httpServer = httpServer;
@@ -70,6 +78,22 @@ export class WebSocketServer {
           tracked.pongTimer = null;
         }
         this.clients.delete(tracked);
+      });
+
+      ws.on("message", (raw) => {
+        let parsed: { type: string; data: unknown };
+        try {
+          parsed = JSON.parse(raw.toString());
+        } catch {
+          return;
+        }
+        for (const handler of this.clientMessageHandlers) {
+          try {
+            handler(ws, parsed);
+          } catch {
+            // handler threw — continue with remaining handlers
+          }
+        }
       });
     });
 
@@ -141,6 +165,20 @@ export class WebSocketServer {
     });
   }
 
+  onClientMessage(handler: ClientMessageHandler): void {
+    this.clientMessageHandlers.add(handler);
+  }
+
+  sendTo(ws: WebSocket, message: object): void {
+    if (ws.readyState === WebSocket.OPEN) {
+      try {
+        ws.send(JSON.stringify(message));
+      } catch {
+        // client disconnected — message dropped
+      }
+    }
+  }
+
   getConnectionCount(): number {
     return this.clients.size;
   }
@@ -155,6 +193,7 @@ export class WebSocketServer {
       tracked.ws.terminate();
     });
     this.clients.clear();
+    this.clientMessageHandlers.clear();
 
     if (this.wss) {
       this.wss.close();

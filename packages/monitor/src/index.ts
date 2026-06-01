@@ -42,6 +42,7 @@ export type {
   AnomalyType,
   DetectorInput,
   DetectorResult,
+  HealthCheckRequestResult,
   HealthCheckResult,
   HealthCheckServiceEvents,
   HealthCheckServiceOptions,
@@ -53,3 +54,4 @@ export type {
   ModelHealthUpdate,
   MonitorServiceOptions,
 } from "./services/monitor-types";
+export { COOLDOWN_MS } from "./services/monitor-types";
