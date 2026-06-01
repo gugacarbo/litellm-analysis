@@ -24,7 +24,12 @@
         "output": 3.2
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xhigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "glm-5.1": {
@@ -40,7 +45,12 @@
         "output": 4.4
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xhigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "glm-5-turbo": {
@@ -56,7 +66,11 @@
         "output": 4
       },
       "thinking": {
-        "levels": ["low", "medium", "high"]
+        "levels": [
+          "low",
+          "medium",
+          "high"
+        ]
       }
     },
     "MiniMax-M2.7-highspeed": {
@@ -88,7 +102,12 @@
         "output": 0.28
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xhigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "deepseek-v4-pro": {
@@ -104,7 +123,12 @@
         "output": 3.48
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xhigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
       }
     },
     "glm-5.1:ollama": {
@@ -136,7 +160,27 @@
         "output": 4
       },
       "thinking": {
-        "levels": ["low", "medium", "high", "xhigh"]
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
+      }
+    },
+    "kimi-k2.6:vultr": {
+      "enabled": true,
+      "displayName": "",
+      "limits": {
+        "length": 200000,
+        "maxOutput": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "thinking": {
+        "levels": []
       }
     }
   }
