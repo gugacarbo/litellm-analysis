@@ -6,7 +6,7 @@
 import { z } from "zod";
 
 export const litellmAliasSchema = z.object({
-  $schema: z.string(),
-  model_group_alias: z.record(z.string(), z.string()),
+  "$schema": z.string(),
+  "model_group_alias": z.record(z.string(), z.string()),
 });
 export type LitellmAliasSchemaType = z.infer<typeof litellmAliasSchema>;
