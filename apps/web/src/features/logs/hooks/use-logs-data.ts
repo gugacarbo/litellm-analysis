@@ -2,10 +2,13 @@ import type {
   PaginationMetadata,
   SpendLog,
 } from "@lite-llm/contracts/analytics";
-import { useQuery } from "@tanstack/react-query";
+import type { SpendLogsChangedPayload } from "@lite-llm/contracts/ws-events";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFilter } from "@/shared/contexts/filter-context";
+import { useSpendLogsWs } from "@/shared/hooks/use-spend-logs-ws";
 import { getSpendLogs } from "@/shared/lib/api-client/spend";
+import { invalidateSpendLogsFromWsEvent } from "@/shared/lib/invalidate-spend-logs-from-ws-event";
 import { queryKeys } from "@/shared/lib/query-keys";
 import {
   DEFAULT_VISIBLE_LOG_COLUMNS,
@@ -24,6 +27,7 @@ const DEFAULT_PAGINATION: PaginationMetadata = {
 };
 
 export function useLogsData() {
+  const queryClient = useQueryClient();
   const { dateRange, customFrom, customTo, rangeDays } = useFilter();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -80,6 +84,27 @@ export function useLogsData() {
     setPage(1);
   }, []);
 
+  const logs = (logsQuery.data?.logs ?? []) as SpendLog[];
+  const visibleRequestIds = useMemo(
+    () => logs.map((log) => log.request_id),
+    [logs],
+  );
+  const visibleRequestIdsRef = useRef(visibleRequestIds);
+  visibleRequestIdsRef.current = visibleRequestIds;
+
+  const handleSpendLogsChanged = useCallback(
+    (payload: SpendLogsChangedPayload) => {
+      invalidateSpendLogsFromWsEvent(queryClient, payload, {
+        visibleRequestIds: visibleRequestIdsRef.current,
+      });
+    },
+    [queryClient],
+  );
+
+  useSpendLogsWs({
+    onSpendLogsChanged: handleSpendLogsChanged,
+  });
+
   const loading = logsQuery.isPending && !logsQuery.data;
   const refreshing = logsQuery.isFetching && !loading;
 
@@ -97,7 +122,7 @@ export function useLogsData() {
   }, []);
 
   return {
-    logs: (logsQuery.data?.logs ?? []) as SpendLog[],
+    logs,
     pagination: logsQuery.data?.pagination ?? DEFAULT_PAGINATION,
     loading,
     refreshing,

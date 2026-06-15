@@ -4,9 +4,9 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { PageLayout } from "@/shared/components/ui/page-layout";
 import { getSpendLogDetail } from "@/shared/lib/api-client/spend";
+import { extractSpendLogMessages } from "@/shared/lib/automatic-interactions";
 import { queryKeys } from "@/shared/lib/query-keys";
 import { ChatSimulation } from "./components/chat-simulation";
-import { extractLogMessages } from "./utils/extract-log-messages";
 
 export function LogChatSimulationPage() {
   const { requestId } = useParams<{ requestId: string }>();
@@ -31,8 +31,7 @@ export function LogChatSimulationPage() {
   }
 
   const log = detailQuery.data;
-  const chatMessages = log ? extractLogMessages(log) : [];
-  const hasMessages = chatMessages.length > 0;
+  const hasMessages = log ? extractSpendLogMessages(log).length > 0 : false;
 
   return (
     <PageLayout
@@ -84,7 +83,7 @@ export function LogChatSimulationPage() {
           </p>
         </div>
       ) : hasMessages ? (
-        <ChatSimulation messages={chatMessages} />
+        <ChatSimulation log={log} />
       ) : (
         <div className="flex flex-col items-center justify-center h-48 text-sm text-muted-foreground gap-2">
           <MessageCircle className="h-8 w-8 text-muted-foreground/40" />

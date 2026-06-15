@@ -1,3 +1,9 @@
+import type {
+  HealthCheckResult,
+  HealthCheckStreamDeltaPayload,
+  HealthCheckStreamStartedPayload,
+  HealthCheckStreamTerminalPayload,
+} from "@lite-llm/contracts/ws-events";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { WsClient } from "@/shared/lib/api-client/ws-client";
 import type { ConnectionState, WsMessage } from "@/shared/types/connection";
@@ -9,6 +15,45 @@ const WS_URL =
     ? `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/monitor`
     : "";
 
+export interface RunningHealthCheckExecution {
+  executionId: string;
+  modelName: string;
+  prompt: string;
+  startedAt: number;
+}
+
+function resultToEntry(result: HealthCheckResult): HealthCheckResultEntry {
+  return {
+    id: result.id,
+    modelName: result.modelName,
+    status: result.status,
+    responseTimeMs: result.responseTimeMs,
+    ttftMs: result.ttftMs,
+    outputTokens: result.outputTokens,
+    tokensPerSecond: result.tokensPerSecond,
+    statusCode: result.statusCode,
+    promptSent: result.promptSent,
+    responseReceived: result.responseReceived,
+    requestPayload: result.requestPayload,
+    responsePayload: result.responsePayload,
+    errorMessage: result.errorMessage,
+    source: result.source,
+    checkedAt: result.checkedAt,
+  };
+}
+
+function mergeLatestResult(
+  prev: HealthCheckResultEntry[],
+  entry: HealthCheckResultEntry,
+): HealthCheckResultEntry[] {
+  const byModel = new Map(prev.map((item) => [item.modelName, item]));
+  const existing = byModel.get(entry.modelName);
+  if (!existing || isNewerHealthCheckEntry(entry, existing)) {
+    byModel.set(entry.modelName, entry);
+  }
+  return [...byModel.values()];
+}
+
 export function useHealthStatusWebSocket() {
   const wsRef = useRef<WsClient | null>(null);
   const [status, setStatus] = useState<ConnectionState>("disconnected");
@@ -18,12 +63,62 @@ export function useHealthStatusWebSocket() {
   const [rejectedMap, setRejectedMap] = useState<Map<string, string>>(
     new Map(),
   );
+  const [runningExecutions, setRunningExecutions] = useState<
+    Map<string, RunningHealthCheckExecution>
+  >(new Map());
+  const [partialMessages, setPartialMessages] = useState<Map<string, string>>(
+    new Map(),
+  );
 
   useEffect(() => {
     if (!WS_URL) return;
 
     const ws = new WsClient(WS_URL);
     wsRef.current = ws;
+
+    const handleStreamStarted = (payload: HealthCheckStreamStartedPayload) => {
+      setRunningExecutions((prev) => {
+        const next = new Map(prev);
+        next.set(payload.modelName, {
+          executionId: payload.executionId,
+          modelName: payload.modelName,
+          prompt: payload.prompt,
+          startedAt: payload.timestamp,
+        });
+        return next;
+      });
+      setPartialMessages((prev) => {
+        const next = new Map(prev);
+        next.set(payload.executionId, "");
+        return next;
+      });
+    };
+
+    const handleStreamDelta = (payload: HealthCheckStreamDeltaPayload) => {
+      setPartialMessages((prev) => {
+        const next = new Map(prev);
+        const current = next.get(payload.executionId) ?? "";
+        next.set(payload.executionId, `${current}${payload.delta}`);
+        return next;
+      });
+    };
+
+    const handleStreamTerminal = (
+      payload: HealthCheckStreamTerminalPayload,
+    ) => {
+      const entry = resultToEntry(payload.result);
+      setLatestResults((prev) => mergeLatestResult(prev, entry));
+      setRunningExecutions((prev) => {
+        const next = new Map(prev);
+        next.delete(payload.modelName);
+        return next;
+      });
+      setPartialMessages((prev) => {
+        const next = new Map(prev);
+        next.delete(payload.executionId);
+        return next;
+      });
+    };
 
     const onMessage = (message: WsMessage) => {
       if (message.type === "health_check_update") {
@@ -53,6 +148,15 @@ export function useHealthStatusWebSocket() {
           next.set(payload.modelName, payload.reason);
           return next;
         });
+      } else if (message.type === "health_check_stream_started") {
+        handleStreamStarted(message.data as HealthCheckStreamStartedPayload);
+      } else if (message.type === "health_check_stream_delta") {
+        handleStreamDelta(message.data as HealthCheckStreamDeltaPayload);
+      } else if (
+        message.type === "health_check_stream_completed" ||
+        message.type === "health_check_stream_failed"
+      ) {
+        handleStreamTerminal(message.data as HealthCheckStreamTerminalPayload);
       }
     };
 
@@ -75,5 +179,12 @@ export function useHealthStatusWebSocket() {
     wsRef.current?.send(msg);
   }, []);
 
-  return { status, latestResults, rejectedMap, send };
+  return {
+    status,
+    latestResults,
+    rejectedMap,
+    runningExecutions,
+    partialMessages,
+    send,
+  };
 }

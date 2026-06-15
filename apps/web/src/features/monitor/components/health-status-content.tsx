@@ -43,7 +43,8 @@ function SmallStat({
 export function HealthStatusContent({
   embedded = false,
 }: HealthStatusContentProps) {
-  const { state, actions, derived } = useHealthStatusPage();
+  const { state, actions, derived, runningExecutions, partialMessages } =
+    useHealthStatusPage();
   const [activeTab, setActiveTab] = useState<"models" | "history">("models");
   const [selectedStatus, setSelectedStatus] = useState<
     ModelWithStatus | HealthCheckResultEntry | null
@@ -178,6 +179,8 @@ export function HealthStatusContent({
 
       <StatusDetailsDialog
         selected={selectedStatus}
+        runningExecutions={runningExecutions}
+        partialMessages={partialMessages}
         onClose={() => setSelectedStatus(null)}
       />
     </div>

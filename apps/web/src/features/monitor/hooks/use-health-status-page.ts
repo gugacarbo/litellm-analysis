@@ -8,8 +8,14 @@ import { useHealthStatusWebSocket } from "./use-health-status-websocket";
 
 export function useHealthStatusPage() {
   const queryClient = useQueryClient();
-  const { status, latestResults, rejectedMap, send } =
-    useHealthStatusWebSocket();
+  const {
+    status,
+    latestResults,
+    rejectedMap,
+    runningExecutions,
+    partialMessages,
+    send,
+  } = useHealthStatusWebSocket();
   const state = useHealthStatusState({
     wsStatus: status,
     wsResults: latestResults,
@@ -54,5 +60,5 @@ export function useHealthStatusPage() {
     ]);
   }, [latestResults, queryClient]);
 
-  return { state, actions, derived };
+  return { state, actions, derived, runningExecutions, partialMessages };
 }

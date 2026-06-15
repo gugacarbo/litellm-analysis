@@ -1,7 +1,4 @@
-import type {
-  ChatMessageContentPart,
-  SpendLog,
-} from "@lite-llm/contracts/analytics";
+import type { SpendLog } from "@lite-llm/contracts/analytics";
 import {
   AlertCircle,
   AlertTriangle,
@@ -17,8 +14,9 @@ import {
   Webhook,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { ReadonlyInteractionThread } from "@/shared/components/automatic-interactions";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
@@ -30,6 +28,11 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { JsonViewer } from "@/shared/components/ui/json-viewer";
+import {
+  extractSpendLogMessages,
+  normalizeSpendLogThread,
+  resolveSpendLogRawPayload,
+} from "@/shared/lib/automatic-interactions";
 import {
   calculateTokensPerSecond,
   formatCurrency,
@@ -47,24 +50,22 @@ type LogDetailDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-function getMessageText(
-  content: string | ChatMessageContentPart[] | null | undefined,
-): string {
-  if (typeof content === "string") return content;
-  if (!Array.isArray(content)) return "";
-
-  return content
-    .map((part) => (part?.type === "text" ? (part.text ?? "") : ""))
-    .filter(Boolean)
-    .join("\n");
-}
-
 export function LogDetailDialog({
   log,
   open,
   onOpenChange,
 }: LogDetailDialogProps) {
   const [copied, setCopied] = useState(false);
+  const messageThread = useMemo(
+    () => (log ? normalizeSpendLogThread(log) : null),
+    [log],
+  );
+  const resolveRawPayload = useMemo(
+    () =>
+      log ? (ref: string) => resolveSpendLogRawPayload(log, ref) : undefined,
+    [log],
+  );
+  const chatMessageCount = log ? extractSpendLogMessages(log).length : 0;
 
   if (!log) return null;
 
@@ -317,51 +318,17 @@ export function LogDetailDialog({
           </div>
         </div>
 
-        {log.messages && log.messages.length > 0 && (
+        {chatMessageCount > 0 && messageThread && (
           <CollapsibleSection
-            title={`Messages (${log.messages.length})`}
+            title={`Messages (${chatMessageCount})`}
             icon={MessageSquare}
             defaultOpen={true}
           >
-            <div className="space-y-3">
-              {log.messages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`rounded-lg border p-3 ${
-                    msg.role === "user"
-                      ? "bg-blue-500/5 border-blue-500/20"
-                      : msg.role === "assistant"
-                        ? "bg-green-500/5 border-green-500/20"
-                        : msg.role === "system"
-                          ? "bg-purple-500/5 border-purple-500/20"
-                          : "bg-muted/50 border-border"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span
-                      className={`text-xs font-medium uppercase tracking-wide ${
-                        msg.role === "user"
-                          ? "text-blue-600 dark:text-blue-400"
-                          : msg.role === "assistant"
-                            ? "text-green-600 dark:text-green-400"
-                            : msg.role === "system"
-                              ? "text-purple-600 dark:text-purple-400"
-                              : "text-muted-foreground"
-                      }`}
-                    >
-                      {msg.role}
-                    </span>
-                  </div>
-                  <p className="text-sm whitespace-pre-wrap">
-                    {getMessageText(msg.content) || (
-                      <span className="text-muted-foreground italic">
-                        No content
-                      </span>
-                    )}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <ReadonlyInteractionThread
+              thread={messageThread}
+              resolveRawPayload={resolveRawPayload}
+              className="max-h-96 overflow-y-auto rounded-lg border bg-muted/10 p-2"
+            />
           </CollapsibleSection>
         )}
 

@@ -1,4 +1,9 @@
 import { MessageSquareText } from "lucide-react";
+import { useMemo } from "react";
+import {
+  LiveHealthCheckThread,
+  ReadonlyInteractionThread,
+} from "@/shared/components/automatic-interactions";
 import { DetailRow } from "@/shared/components/ui/detail-row";
 import {
   Dialog,
@@ -7,7 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { normalizeHealthCheckThread } from "@/shared/lib/automatic-interactions";
 import type { ModelWithStatus } from "../hooks/use-health-status-state";
+import type { RunningHealthCheckExecution } from "../hooks/use-health-status-websocket";
 import type { HealthCheckResultEntry } from "../types/health-status-types";
 import {
   formatRelativeTime,
@@ -26,13 +33,59 @@ function formatPayload(payload: string | null): string {
   }
 }
 
+function executionIdFor(
+  selected: ModelWithStatus | HealthCheckResultEntry,
+): string {
+  if (selected.id != null) {
+    return String(selected.id);
+  }
+  return selected.modelName;
+}
+
 export function StatusDetailsDialog({
   selected,
+  runningExecutions,
+  partialMessages,
   onClose,
 }: {
   selected: ModelWithStatus | HealthCheckResultEntry | null;
+  runningExecutions: Map<string, RunningHealthCheckExecution>;
+  partialMessages: Map<string, string>;
   onClose: () => void;
 }) {
+  const runningExecution = selected
+    ? runningExecutions.get(selected.modelName)
+    : undefined;
+
+  const readonlyThread = useMemo(() => {
+    if (!selected || runningExecution) {
+      return null;
+    }
+
+    return normalizeHealthCheckThread({
+      executionId: executionIdFor(selected),
+      prompt: selected.promptSent ?? "",
+      assistantText: selected.responseReceived,
+      isRunning: false,
+      timestamp: selected.checkedAt ?? undefined,
+    });
+  }, [runningExecution, selected]);
+
+  const liveThread = useMemo(() => {
+    if (!selected || !runningExecution) {
+      return null;
+    }
+
+    return normalizeHealthCheckThread({
+      executionId: runningExecution.executionId,
+      prompt: runningExecution.prompt,
+      isRunning: true,
+      partialAssistantText:
+        partialMessages.get(runningExecution.executionId) ?? "",
+      timestamp: runningExecution.startedAt,
+    });
+  }, [partialMessages, runningExecution, selected]);
+
   if (!selected) return null;
 
   return (
@@ -101,6 +154,31 @@ export function StatusDetailsDialog({
               mono
             />
           </dl>
+
+          <div className="rounded-md border bg-muted/20 p-3">
+            <div className="mb-2 flex items-center gap-1 text-xs text-muted-foreground">
+              <MessageSquareText className="size-3.5" />
+              Conversation
+            </div>
+            <div className="max-h-72 overflow-auto rounded bg-muted/50">
+              {liveThread ? (
+                <LiveHealthCheckThread
+                  executionId={liveThread.id}
+                  initialThread={liveThread}
+                  className="min-h-48"
+                />
+              ) : readonlyThread ? (
+                <ReadonlyInteractionThread
+                  thread={readonlyThread}
+                  className="min-h-48"
+                />
+              ) : (
+                <div className="flex h-48 items-center justify-center text-xs text-muted-foreground">
+                  No conversation available
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="rounded-md border bg-muted/20 p-3">
             <div className="mb-1 text-xs text-muted-foreground">

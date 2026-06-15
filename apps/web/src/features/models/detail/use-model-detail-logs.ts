@@ -2,9 +2,12 @@ import type {
   PaginationMetadata,
   SpendLog,
 } from "@lite-llm/contracts/analytics";
-import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import type { SpendLogsChangedPayload } from "@lite-llm/contracts/ws-events";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSpendLogsWs } from "@/shared/hooks/use-spend-logs-ws";
 import { getSpendLogs } from "@/shared/lib/api-client/spend";
+import { invalidateSpendLogsFromWsEvent } from "@/shared/lib/invalidate-spend-logs-from-ws-event";
 import { queryKeys } from "@/shared/lib/query-keys";
 
 type RefetchOptions = {
@@ -19,6 +22,7 @@ const DEFAULT_PAGINATION: PaginationMetadata = {
 };
 
 export function useModelDetailLogs(modelName: string) {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const abortRef = useRef<AbortController | null>(null);
@@ -51,6 +55,28 @@ export function useModelDetailLogs(modelName: string) {
     };
   }, []);
 
+  const logs = (logsQuery.data?.logs ?? []) as SpendLog[];
+  const visibleRequestIds = useMemo(
+    () => logs.map((log) => log.request_id),
+    [logs],
+  );
+  const visibleRequestIdsRef = useRef(visibleRequestIds);
+  visibleRequestIdsRef.current = visibleRequestIds;
+
+  const handleSpendLogsChanged = useCallback(
+    (payload: SpendLogsChangedPayload) => {
+      invalidateSpendLogsFromWsEvent(queryClient, payload, {
+        visibleRequestIds: visibleRequestIdsRef.current,
+      });
+    },
+    [queryClient],
+  );
+
+  useSpendLogsWs({
+    enabled: modelName.length > 0,
+    onSpendLogsChanged: handleSpendLogsChanged,
+  });
+
   const loading = logsQuery.isPending && !logsQuery.data;
 
   const refetch = useCallback(
@@ -59,7 +85,7 @@ export function useModelDetailLogs(modelName: string) {
   );
 
   return {
-    logs: (logsQuery.data?.logs ?? []) as SpendLog[],
+    logs,
     pagination: logsQuery.data?.pagination ?? DEFAULT_PAGINATION,
     loading,
     refreshing: logsQuery.isFetching && !loading,

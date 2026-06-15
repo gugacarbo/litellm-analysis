@@ -12,6 +12,8 @@ vi.mock("@/features/monitor/hooks/use-health-status-websocket", () => ({
     status: "disconnected",
     latestResults: [],
     rejectedMap: new Map(),
+    runningExecutions: new Map(),
+    partialMessages: new Map(),
     send: vi.fn(),
   }),
 }));

@@ -16,6 +16,8 @@ export interface ModelConfigFormData {
   thinkingLevels: string[];
   apiBase: string;
   credentialName: string;
+  inputCostPerToken: string;
+  outputCostPerToken: string;
   extraParams: Record<string, string>;
 }
 
@@ -27,6 +29,8 @@ function getEmptyFormData(): ModelConfigFormData {
     thinkingLevels: [],
     apiBase: "",
     credentialName: "",
+    inputCostPerToken: "",
+    outputCostPerToken: "",
     extraParams: {},
   };
 }
@@ -65,6 +69,8 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     thinkingLevels: [],
     apiBase: (params?.api_base as string) ?? "",
     credentialName,
+    inputCostPerToken: params?.input_cost_per_token?.toString() ?? "",
+    outputCostPerToken: params?.output_cost_per_token?.toString() ?? "",
     extraParams,
   };
 }
@@ -162,12 +168,47 @@ export function useModelConfigPage(): UseModelConfigPageResult {
     if (!model) return;
 
     try {
+      const inputCost = formData.inputCostPerToken.trim()
+        ? Number(formData.inputCostPerToken)
+        : undefined;
+      const outputCost = formData.outputCostPerToken.trim()
+        ? Number(formData.outputCostPerToken)
+        : undefined;
+
+      if (
+        inputCost !== undefined &&
+        (!Number.isFinite(inputCost) || inputCost < 0)
+      ) {
+        toast.error("Input cost must be a valid non-negative number");
+        return;
+      }
+
+      if (
+        outputCost !== undefined &&
+        (!Number.isFinite(outputCost) || outputCost < 0)
+      ) {
+        toast.error("Output cost must be a valid non-negative number");
+        return;
+      }
+
       const litellmParams: Record<string, unknown> = {
         ...model.litellmParams,
         api_base: formData.apiBase || undefined,
         litellm_credential_name: formData.credentialName || undefined,
         enabled: formData.enabled,
       };
+
+      if (inputCost === undefined) {
+        delete litellmParams.input_cost_per_token;
+      } else {
+        litellmParams.input_cost_per_token = inputCost;
+      }
+
+      if (outputCost === undefined) {
+        delete litellmParams.output_cost_per_token;
+      } else {
+        litellmParams.output_cost_per_token = outputCost;
+      }
 
       for (const [key, value] of Object.entries(formData.extraParams)) {
         if (key && value) {

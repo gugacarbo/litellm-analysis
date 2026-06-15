@@ -273,6 +273,54 @@ function DatabaseSettingsSection({
           </div>
         </div>
 
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="input-cost" className="text-sm font-medium">
+              Input Cost
+              <span className="text-muted-foreground font-normal ml-1">
+                ($/token)
+              </span>
+            </Label>
+            <Input
+              id="input-cost"
+              type="number"
+              step="0.000001"
+              min="0"
+              value={formData.inputCostPerToken}
+              onChange={(e) =>
+                onFormDataChange({
+                  ...formData,
+                  inputCostPerToken: e.target.value,
+                })
+              }
+              placeholder="0.00"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="output-cost" className="text-sm font-medium">
+              Output Cost
+              <span className="text-muted-foreground font-normal ml-1">
+                ($/token)
+              </span>
+            </Label>
+            <Input
+              id="output-cost"
+              type="number"
+              step="0.000001"
+              min="0"
+              value={formData.outputCostPerToken}
+              onChange={(e) =>
+                onFormDataChange({
+                  ...formData,
+                  outputCostPerToken: e.target.value,
+                })
+              }
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+
         {Object.keys(formData.extraParams).length > 0 && (
           <div className="space-y-3">
             <Label className="text-sm font-medium">Extra Parameters</Label>
