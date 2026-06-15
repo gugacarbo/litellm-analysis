@@ -1,4 +1,5 @@
 import type { Server as HttpServer } from "node:http";
+import type { AutomaticInteractionWsEventType } from "@lite-llm/contracts/ws-events";
 import { WebSocket, WebSocketServer as WsServer } from "ws";
 
 type MessageType =
@@ -9,7 +10,8 @@ type MessageType =
   | "prompt_eval_run_update"
   | "prompt_eval_run_completed"
   | "request_health_check"
-  | "health_check_rejected";
+  | "health_check_rejected"
+  | AutomaticInteractionWsEventType;
 
 interface WsMessage {
   type: MessageType;

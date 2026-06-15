@@ -12,6 +12,10 @@ import {
 import { createOrchestrationServices } from "@lite-llm/server/orchestration";
 import { createAppContext } from "../contexts";
 import { env } from "../env";
+import {
+  createSpendLogsWatcher,
+  type SpendLogsWatcher,
+} from "../ws/spend-logs-watcher";
 import { createApiServer } from "./api-server";
 import {
   createHealthCheckRuntime,
@@ -180,11 +184,18 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   app.use("/prompt-evals/runs", promptEvalRuntime.router);
   app.use("/prompt-evals", promptEvalRuntime.router);
 
+  const spendLogsWatcher: SpendLogsWatcher = createSpendLogsWatcher({
+    analyticsDataSource: ctx.analytics.dataSource,
+    wsServer: monitorRuntime.wsServer,
+  });
+
   monitorRuntime.start();
   healthCheckRuntime.start();
+  spendLogsWatcher.start();
 
   const stop = () => {
     console.log("\nShutting down gracefully...");
+    spendLogsWatcher.stop();
     healthCheckRuntime.stop();
     monitorRuntime.stop();
     httpServer.close(async () => {

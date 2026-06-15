@@ -44,6 +44,34 @@ export function createHealthCheckRuntime(
     });
   });
 
+  healthCheckService.on("health_check_stream_started", (data) => {
+    options.wsServer.broadcast({
+      type: "health_check_stream_started",
+      data,
+    });
+  });
+
+  healthCheckService.on("health_check_stream_delta", (data) => {
+    options.wsServer.broadcast({
+      type: "health_check_stream_delta",
+      data,
+    });
+  });
+
+  healthCheckService.on("health_check_stream_completed", (data) => {
+    options.wsServer.broadcast({
+      type: "health_check_stream_completed",
+      data,
+    });
+  });
+
+  healthCheckService.on("health_check_stream_failed", (data) => {
+    options.wsServer.broadcast({
+      type: "health_check_stream_failed",
+      data,
+    });
+  });
+
   options.wsServer.onClientMessage(async (ws, message) => {
     if (message.type !== "request_health_check") {
       return;
