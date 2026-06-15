@@ -8,6 +8,7 @@ import {
   type ModelWithStatus,
   updateModel,
 } from "@/shared/lib/api-client/models";
+import { parseExtraParamValue } from "./models-form-utils";
 
 export interface ModelConfigFormData {
   displayName: string;
@@ -211,8 +212,14 @@ export function useModelConfigPage(): UseModelConfigPageResult {
       }
 
       for (const [key, value] of Object.entries(formData.extraParams)) {
-        if (key && value) {
-          litellmParams[key] = value;
+        if (!key) {
+          continue;
+        }
+        const parsed = parseExtraParamValue(value);
+        if (parsed !== undefined) {
+          litellmParams[key] = parsed;
+        } else {
+          delete litellmParams[key];
         }
       }
 

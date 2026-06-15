@@ -1,6 +1,33 @@
 import type { ModelConfig } from "@/shared/lib/api-client/models";
 import { FIXED_KEYS, type ModelFormData } from "./model-form-data";
 
+const NUMERIC_PARAM_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+
+/** Coerce a form string into a JSON-friendly LiteLLM param value. */
+export function parseExtraParamValue(raw: string): unknown {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  const lower = trimmed.toLowerCase();
+  if (lower === "true") {
+    return true;
+  }
+  if (lower === "false") {
+    return false;
+  }
+
+  if (NUMERIC_PARAM_PATTERN.test(trimmed)) {
+    const num = Number(trimmed);
+    if (Number.isFinite(num)) {
+      return num;
+    }
+  }
+
+  return trimmed;
+}
+
 export function mapModelToFormData(model: ModelConfig): ModelFormData {
   const params = model.litellmParams || {};
   const extraParams: Record<string, string> = {};
@@ -79,9 +106,9 @@ export function validateAndBuildModelParams(formData: ModelFormData): {
   }
 
   Object.entries(formData.extraParams).forEach(([key, value]) => {
-    if (value.trim()) {
-      const num = parseFloat(value);
-      params[key] = !Number.isNaN(num) ? num : value.trim();
+    const parsed = parseExtraParamValue(value);
+    if (parsed !== undefined) {
+      params[key] = parsed;
     }
   });
 
