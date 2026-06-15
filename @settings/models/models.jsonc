@@ -20,8 +20,8 @@
         "maxOutput": 128000
       },
       "cost": {
-        "input": 1.4,
-        "output": 4.4
+        "input": 0.0000014,
+        "output": 0.0000044
       },
       "thinking": {
         "levels": ["low", "medium", "high", "xhigh"]
@@ -36,8 +36,8 @@
         "maxOutput": 128000
       },
       "cost": {
-        "input": 0.3,
-        "output": 1.2
+        "input": 3e-7,
+        "output": 0.0000012
       },
       "thinking": {
         "levels": []
@@ -52,8 +52,8 @@
         "maxOutput": 32768
       },
       "cost": {
-        "input": 0.95,
-        "output": 4
+        "input": 9.5e-7,
+        "output": 0.000004
       },
       "thinking": {
         "levels": ["low", "medium", "high", "xhigh"]
@@ -67,8 +67,8 @@
         "maxOutput": 256000
       },
       "cost": {
-        "input": 300000,
-        "output": 1200000
+        "input": 3e-7,
+        "output": 0.0000012
       },
       "thinking": {
         "levels": []
@@ -82,8 +82,23 @@
         "maxOutput": 32768
       },
       "cost": {
-        "input": 1,
-        "output": 4
+        "input": 0.000001,
+        "output": 0.000004
+      },
+      "thinking": {
+        "levels": []
+      }
+    },
+    "nemotron-3-ultra": {
+      "enabled": true,
+      "displayName": "",
+      "limits": {
+        "length": 200000,
+        "maxOutput": 32768
+      },
+      "cost": {
+        "input": 5e-7,
+        "output": 0.0000025
       },
       "thinking": {
         "levels": []

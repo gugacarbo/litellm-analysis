@@ -155,13 +155,13 @@
         "input": {
           "default": 0,
           "title": "Input Cost",
-          "description": "Cost per million input tokens",
+          "description": "Cost per input token in USD",
           "$ref": "#/$defs/__schema11"
         },
         "output": {
           "default": 0,
           "title": "Output Cost",
-          "description": "Cost per million output tokens",
+          "description": "Cost per output token in USD",
           "$ref": "#/$defs/__schema12"
         }
       },

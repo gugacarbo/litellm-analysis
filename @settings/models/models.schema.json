@@ -125,7 +125,7 @@
           },
           "cost": {
             "title": "Cost",
-            "description": "Model pricing per million tokens",
+            "description": "Model pricing in USD per token (matches LiteLLM `input_cost_per_token` / `output_cost_per_token`)",
             "$ref": "#/$defs/__schema9"
           },
           "thinking": {
@@ -162,13 +162,13 @@
         "input": {
           "default": 0,
           "title": "Input Cost",
-          "description": "Cost per million input tokens",
+          "description": "Cost per input token in USD",
           "$ref": "#/$defs/__schema10"
         },
         "output": {
           "default": 0,
           "title": "Output Cost",
-          "description": "Cost per million output tokens",
+          "description": "Cost per output token in USD",
           "$ref": "#/$defs/__schema11"
         }
       },
