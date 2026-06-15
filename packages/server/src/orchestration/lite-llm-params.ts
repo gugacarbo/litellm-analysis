@@ -29,6 +29,24 @@ function normalizeCredentialName(
   return normalized ? normalized : undefined;
 }
 
+export function getCredentialNameFromParams(
+  params: Record<string, unknown>,
+): string | undefined {
+  return normalizeCredentialName(
+    params.litellm_credential_name as string | undefined,
+  );
+}
+
+export function resolveModelCredential(
+  litellmParams: Record<string, unknown>,
+  fallbackCredential?: string | null,
+): string | undefined {
+  return (
+    getCredentialNameFromParams(litellmParams) ??
+    normalizeCredentialName(fallbackCredential)
+  );
+}
+
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -46,9 +64,11 @@ export function applyRequiredLiteLLMParams(
   nextParams.use_in_pass_through = false;
   nextParams.merge_reasoning_content_in_choices = false;
 
-  const litellmCredentialName = normalizeCredentialName(credentialName);
-  if (litellmCredentialName) {
-    nextParams.litellm_credential_name = litellmCredentialName;
+  const resolvedCredential = resolveModelCredential(nextParams, credentialName);
+  if (resolvedCredential) {
+    nextParams.litellm_credential_name = resolvedCredential;
+  } else {
+    delete nextParams.litellm_credential_name;
   }
 
   return nextParams;
@@ -84,4 +104,27 @@ export function buildLiteLLMParams(
   }
 
   return litellmParams;
+}
+
+export function buildMergedLiteLLMParams(
+  modelName: string,
+  spec: {
+    limits: { length: number; maxOutput: number };
+    cost?: { input?: number; output?: number };
+  },
+  existingParams: Record<string, unknown>,
+  defaultCredential?: string | null,
+): Record<string, unknown> {
+  const modelCredential =
+    getCredentialNameFromParams(existingParams) ?? defaultCredential;
+  const builtParams = buildLiteLLMParams(modelName, spec, modelCredential);
+
+  return applyRequiredLiteLLMParams(
+    modelName,
+    {
+      ...existingParams,
+      ...builtParams,
+    },
+    modelCredential,
+  );
 }

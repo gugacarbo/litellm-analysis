@@ -1,7 +1,7 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import type { IModelService } from "@lite-llm/models-service";
 import type { AgentsManager, DbModelSpecLike } from "../types/index";
-import { buildLiteLLMParams } from "./lite-llm-params";
+import { buildMergedLiteLLMParams, isRecord } from "./lite-llm-params";
 
 export async function syncModelsDirectlyToDatabase(
   dataSource: AnalyticsDataSource,
@@ -41,8 +41,21 @@ export async function syncModelsDirectlyToDatabase(
     existingCounts.delete(modelName);
   }
 
+  const existingByName = new Map(
+    existing.map((item) => [item.modelName, item]),
+  );
+
   for (const [modelName, spec] of desiredEntries) {
-    const litellmParams = buildLiteLLMParams(modelName, spec, credentialName);
+    const existingModel = existingByName.get(modelName);
+    const existingParams = isRecord(existingModel?.litellmParams)
+      ? existingModel.litellmParams
+      : {};
+    const litellmParams = buildMergedLiteLLMParams(
+      modelName,
+      spec,
+      existingParams,
+      credentialName,
+    );
 
     if (existingCounts.has(modelName)) {
       await dataSource.updateModel(modelName, { litellmParams });

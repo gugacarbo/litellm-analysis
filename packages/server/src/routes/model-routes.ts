@@ -2,6 +2,8 @@ import type { Application, Response } from "express";
 import {
   applyRequiredLiteLLMParams,
   buildLiteLLMParams,
+  buildMergedLiteLLMParams,
+  getCredentialNameFromParams,
   isRecord,
 } from "../orchestration/lite-llm-params";
 import type { RouteOptions } from "../types/index";
@@ -79,17 +81,6 @@ function setLiteLLMFieldValue(
   }
   next[field] = value;
   return next;
-}
-
-function getCredentialNameFromParams(
-  params: Record<string, unknown>,
-): string | null {
-  const raw = params.litellm_credential_name;
-  if (typeof raw !== "string") {
-    return null;
-  }
-  const normalized = raw.trim();
-  return normalized.length > 0 ? normalized : null;
 }
 
 export function registerModelRoutes(
@@ -393,9 +384,22 @@ export function registerModelRoutes(
       const configNames = new Set(Object.keys(configModels || {}));
       const litellmNames = new Set(litellmModels.map((m) => m.modelName));
 
+      const litellmByName = new Map(
+        litellmModels.map((model) => [model.modelName, model]),
+      );
+
       // 1. Push config → LiteLLM DB (create missing, update existing)
       for (const [name, spec] of Object.entries(configModels || {})) {
-        const litellmParams = buildLiteLLMParams(name, spec, credentialName);
+        const existing = litellmByName.get(name);
+        const existingParams = isRecord(existing?.litellmParams)
+          ? existing.litellmParams
+          : {};
+        const litellmParams = buildMergedLiteLLMParams(
+          name,
+          spec,
+          existingParams,
+          credentialName,
+        );
         if (litellmNames.has(name)) {
           await dataSource.updateModel(name, { litellmParams });
         } else {

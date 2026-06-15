@@ -17,8 +17,11 @@ export {
 export {
   applyRequiredLiteLLMParams,
   buildLiteLLMParams,
+  buildMergedLiteLLMParams,
+  getCredentialNameFromParams,
   isRecord,
   parseDays,
+  resolveModelCredential,
   toCostPerToken,
 } from "./lite-llm-params";
 
