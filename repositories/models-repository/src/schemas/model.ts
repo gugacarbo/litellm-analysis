@@ -5,15 +5,12 @@ export const costSchema = z.object({
   input: z
     .number()
     .default(0)
-    .meta({ title: "Input Cost", description: "Cost per million input tokens" })
+    .meta({ title: "Input Cost", description: "Cost per input token in USD" })
     .optional(),
   output: z
     .number()
     .default(0)
-    .meta({
-      title: "Output Cost",
-      description: "Cost per million output tokens",
-    })
+    .meta({ title: "Output Cost", description: "Cost per output token in USD" })
     .optional(),
 });
 
@@ -50,7 +47,8 @@ export const modelSpecSchema = z
       .meta({ title: "Limits", description: "Model limits" }),
     cost: costSchema.optional().meta({
       title: "Cost",
-      description: "Model pricing per million tokens",
+      description:
+        "Model pricing in USD per token (matches LiteLLM `input_cost_per_token` / `output_cost_per_token`)",
     }),
     thinking: thinkingSchema.default({ levels: [] }).optional().meta({
       title: "Thinking",
