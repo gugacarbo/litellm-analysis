@@ -11,22 +11,6 @@
     }
   },
   "models": {
-    "glm-5": {
-      "enabled": true,
-      "displayName": "GLM 5",
-      "family": "z.ai",
-      "limits": {
-        "length": 200000,
-        "maxOutput": 128000
-      },
-      "cost": {
-        "input": 1,
-        "output": 3.2
-      },
-      "thinking": {
-        "levels": ["low", "medium", "high", "xhigh"]
-      }
-    },
     "glm-5.1": {
       "enabled": true,
       "displayName": "GLM 5.1",
@@ -43,22 +27,6 @@
         "levels": ["low", "medium", "high", "xhigh"]
       }
     },
-    "glm-5-turbo": {
-      "enabled": false,
-      "displayName": "GLM 5 Turbo",
-      "family": "z.ai",
-      "limits": {
-        "length": 200000,
-        "maxOutput": 128000
-      },
-      "cost": {
-        "input": 1.2,
-        "output": 4
-      },
-      "thinking": {
-        "levels": ["low", "medium", "high"]
-      }
-    },
     "MiniMax-M2.7-highspeed": {
       "enabled": true,
       "displayName": "MiniMax M2.7 Hs",
@@ -70,54 +38,6 @@
       "cost": {
         "input": 0.3,
         "output": 1.2
-      },
-      "thinking": {
-        "levels": []
-      }
-    },
-    "deepseek-v4-flash": {
-      "enabled": true,
-      "displayName": "Deepseek V4 Flash",
-      "family": "deepseek",
-      "limits": {
-        "length": 1048576,
-        "maxOutput": 384000
-      },
-      "cost": {
-        "input": 0.14,
-        "output": 0.28
-      },
-      "thinking": {
-        "levels": ["low", "medium", "high", "xhigh"]
-      }
-    },
-    "deepseek-v4-pro": {
-      "enabled": true,
-      "displayName": "Deepseek V4 Pro",
-      "family": "deepseek",
-      "limits": {
-        "length": 1048576,
-        "maxOutput": 384000
-      },
-      "cost": {
-        "input": 1.74,
-        "output": 3.48
-      },
-      "thinking": {
-        "levels": ["low", "medium", "high", "xhigh"]
-      }
-    },
-    "glm-5.1:ollama": {
-      "enabled": true,
-      "displayName": "Glm 5.1:ollama",
-      "family": "z.ai",
-      "limits": {
-        "length": 200000,
-        "maxOutput": 32768
-      },
-      "cost": {
-        "input": 1.2,
-        "output": 4
       },
       "thinking": {
         "levels": []
@@ -139,7 +59,22 @@
         "levels": ["low", "medium", "high", "xhigh"]
       }
     },
-    "kimi-k2.6:vultr": {
+    "minimax-m3": {
+      "enabled": true,
+      "displayName": "",
+      "limits": {
+        "length": 1000000,
+        "maxOutput": 256000
+      },
+      "cost": {
+        "input": 300000,
+        "output": 1200000
+      },
+      "thinking": {
+        "levels": []
+      }
+    },
+    "kimi-k2.7-code": {
       "enabled": true,
       "displayName": "",
       "limits": {
@@ -147,8 +82,8 @@
         "maxOutput": 32768
       },
       "cost": {
-        "input": 0,
-        "output": 0
+        "input": 1,
+        "output": 4
       },
       "thinking": {
         "levels": []
