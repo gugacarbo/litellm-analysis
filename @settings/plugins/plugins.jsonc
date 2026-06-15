@@ -32,7 +32,7 @@
       }
     },
     "vscode": {
-      "enabled": false,
+      "enabled": true,
       "outputFile": "vscode-oaicopilot.json",
       "config": {
         "oaicopilot.commitLanguage": "Portuguese (Brazil)",
@@ -81,7 +81,7 @@
       }
     },
     "weave": {
-      "enabled": true,
+      "enabled": false,
       "outputFile": "weave.json",
       "config": {
         "$schema": "/home/gustavo/Apps/opencode-weave/schema/weave-config.schema.json",
