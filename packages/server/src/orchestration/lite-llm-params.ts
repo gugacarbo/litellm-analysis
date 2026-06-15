@@ -11,11 +11,19 @@ export function parseDays(rawValue: unknown, fallback: number): number {
   return Math.min(parsed, MAX_DAYS);
 }
 
-export function toCostPerToken(costPerMillion?: number): number | undefined {
-  if (typeof costPerMillion !== "number" || Number.isNaN(costPerMillion)) {
+/**
+ * Normalize a per-token cost value to a plain USD/token number.
+ *
+ * The `costSchema` in `models-repository` is canonicalized in USD/token
+ * (the same unit as LiteLLM's `input_cost_per_token` / `output_cost_per_token`),
+ * so no scaling is required. This helper exists to keep callers explicit
+ * and to guard against `NaN` / non-number inputs.
+ */
+export function toCostPerToken(costPerToken?: number): number | undefined {
+  if (typeof costPerToken !== "number" || Number.isNaN(costPerToken)) {
     return undefined;
   }
-  return costPerMillion / 1_000_000;
+  return costPerToken;
 }
 
 function normalizeCredentialName(
@@ -49,6 +57,49 @@ export function resolveModelCredential(
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+const NUMERIC_PARAM_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+
+export function coerceStringParamValue(raw: string): unknown {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+
+  const lower = trimmed.toLowerCase();
+  if (lower === "true") {
+    return true;
+  }
+  if (lower === "false") {
+    return false;
+  }
+
+  if (NUMERIC_PARAM_PATTERN.test(trimmed)) {
+    const num = Number(trimmed);
+    if (Number.isFinite(num)) {
+      return num;
+    }
+  }
+
+  return trimmed;
+}
+
+export function coerceLiteLLMParamValue(value: unknown): unknown {
+  if (typeof value === "string") {
+    return coerceStringParamValue(value);
+  }
+  return value;
+}
+
+export function coerceLiteLLMParams(
+  params: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(params)) {
+    result[key] = coerceLiteLLMParamValue(value);
+  }
+  return result;
 }
 
 export function applyRequiredLiteLLMParams(

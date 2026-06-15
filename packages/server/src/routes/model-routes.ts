@@ -3,6 +3,7 @@ import {
   applyRequiredLiteLLMParams,
   buildLiteLLMParams,
   buildMergedLiteLLMParams,
+  coerceLiteLLMParams,
   getCredentialNameFromParams,
   isRecord,
 } from "../orchestration/lite-llm-params";
@@ -50,9 +51,9 @@ function getConfigFieldValue(
   if (field === "context_window_size") return spec.limits.length;
   if (field === "max_tokens") return spec.limits.maxOutput;
   if (field === "input_cost_per_token") {
-    return spec.cost?.input != null ? spec.cost.input / 1_000_000 : undefined;
+    return spec.cost?.input;
   }
-  return spec.cost?.output != null ? spec.cost.output / 1_000_000 : undefined;
+  return spec.cost?.output;
 }
 
 function getLiteLLMFieldValue(
@@ -260,7 +261,9 @@ export function registerModelRoutes(
         return;
       }
 
-      const baseParams = isRecord(litellmParams) ? litellmParams : {};
+      const baseParams = coerceLiteLLMParams(
+        isRecord(litellmParams) ? litellmParams : {},
+      );
       const credentialName = await getResolvedDefaultCredential();
       await dataSource.createModel({
         modelName: normalizedModelName,
@@ -300,7 +303,9 @@ export function registerModelRoutes(
       const credentialName = await getResolvedDefaultCredential();
 
       if (litellmParams !== undefined || modelName !== undefined) {
-        const incomingParams = isRecord(litellmParams) ? litellmParams : {};
+        const incomingParams = coerceLiteLLMParams(
+          isRecord(litellmParams) ? litellmParams : {},
+        );
         const mergedParams = {
           ...existingParams,
           ...incomingParams,
@@ -423,12 +428,8 @@ export function registerModelRoutes(
             maxOutput: (params.max_tokens as number) ?? 32_768,
           },
           cost: {
-            input:
-              inputCost != null ? Math.round(inputCost * 1_000_000) : undefined,
-            output:
-              outputCost != null
-                ? Math.round(outputCost * 1_000_000)
-                : undefined,
+            input: inputCost,
+            output: outputCost,
           },
         });
       }
@@ -648,14 +649,8 @@ export function registerModelRoutes(
                 maxOutput: (params.max_tokens as number) ?? 32_768,
               },
               cost: {
-                input:
-                  inputCost != null
-                    ? Math.round(inputCost * 1_000_000)
-                    : undefined,
-                output:
-                  outputCost != null
-                    ? Math.round(outputCost * 1_000_000)
-                    : undefined,
+                input: inputCost,
+                output: outputCost,
               },
             });
             const refreshed = await opts.modelsService.get(modelName);
@@ -681,14 +676,8 @@ export function registerModelRoutes(
               maxOutput: (params.max_tokens as number) ?? 32_768,
             },
             cost: {
-              input:
-                inputCost != null
-                  ? Math.round(inputCost * 1_000_000)
-                  : undefined,
-              output:
-                outputCost != null
-                  ? Math.round(outputCost * 1_000_000)
-                  : undefined,
+              input: inputCost,
+              output: outputCost,
             },
           });
           const refreshed = await opts.modelsService.get(modelName);
@@ -728,7 +717,7 @@ export function registerModelRoutes(
           await opts.modelsService.update(modelName, {
             cost: {
               ...(spec.cost ?? {}),
-              input: value != null ? Math.round(value * 1_000_000) : undefined,
+              input: value,
             },
           });
           stats.configUpdated += 1;
@@ -737,7 +726,7 @@ export function registerModelRoutes(
           await opts.modelsService.update(modelName, {
             cost: {
               ...(spec.cost ?? {}),
-              output: value != null ? Math.round(value * 1_000_000) : undefined,
+              output: value,
             },
           });
           stats.configUpdated += 1;
@@ -798,14 +787,8 @@ export function registerModelRoutes(
           litellmParams = {
             context_window_size: spec.limits.length,
             max_tokens: spec.limits.maxOutput,
-            input_cost_per_token:
-              spec.cost?.input != null
-                ? spec.cost.input / 1_000_000
-                : undefined,
-            output_cost_per_token:
-              spec.cost?.output != null
-                ? spec.cost.output / 1_000_000
-                : undefined,
+            input_cost_per_token: spec.cost?.input,
+            output_cost_per_token: spec.cost?.output,
           };
           enabled = spec.enabled ?? true;
         } else {
@@ -888,10 +871,8 @@ export function registerModelRoutes(
           maxOutput: (params.max_tokens as number) ?? 32_768,
         },
         cost: {
-          input:
-            inputCost != null ? Math.round(inputCost * 1_000_000) : undefined,
-          output:
-            outputCost != null ? Math.round(outputCost * 1_000_000) : undefined,
+          input: inputCost,
+          output: outputCost,
         },
       });
 

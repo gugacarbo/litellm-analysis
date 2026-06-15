@@ -15,7 +15,7 @@ packages/server-core/src/
 │   ├── index.ts                # Factory + re-exports
 │   ├── alias-db-writer.ts      # AliasDbWriterImpl — bridges plugin to dataSource
 │   ├── artifact-service.ts     # syncGeneratedArtifacts, syncModelsDirectlyToDatabase
-│   └── lite-llm-params.ts     # parseDays, toCostPerToken, buildLiteLLMParams, etc.
+│   └── lite-llm-params.ts     # parseDays, toCostPerToken, buildLiteLLMParams, coerceLiteLLMParams, etc.
 ├── routes/
 │   ├── index.ts               # registerAllRoutes, RouteOptions
 │   ├── spend-routes.ts         # GET /spend/*
@@ -83,6 +83,12 @@ export function createOrchestrationServices(
   };
 }
 ```
+
+## COST AND PARAM CONVENTIONS
+
+- `toCostPerToken()` normalizes incoming cost values to USD per token. It assumes config files already store per-token USD, so it no longer divides by 1,000,000.
+- `coerceLiteLLMParams()` parses extra `litellm_params` values from form/body input, coercing strings to boolean, number, bigint, date, or JSON when possible.
+- Route handlers should coerce incoming free-form params before passing them to `buildLiteLLMParams()` or the data source.
 
 ## ANTI-PATTERNS
 
