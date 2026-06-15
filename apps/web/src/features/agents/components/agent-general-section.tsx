@@ -129,25 +129,25 @@ export function AgentGeneralSection({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="agent-cost-input">Input Cost ($/M tokens)</Label>
+          <Label htmlFor="agent-cost-input">Input Cost ($/token)</Label>
           <Input
             id="agent-cost-input"
             type="number"
-            step="0.01"
+            step="0.000001"
             value={config.cost?.input ?? ""}
             onChange={(e) => handleCostChange("input", e.target.value)}
-            placeholder="0.00"
+            placeholder="0.000000"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="agent-cost-output">Output Cost ($/M tokens)</Label>
+          <Label htmlFor="agent-cost-output">Output Cost ($/token)</Label>
           <Input
             id="agent-cost-output"
             type="number"
-            step="0.01"
+            step="0.000001"
             value={config.cost?.output ?? ""}
             onChange={(e) => handleCostChange("output", e.target.value)}
-            placeholder="0.00"
+            placeholder="0.000000"
           />
         </div>
       </div>
