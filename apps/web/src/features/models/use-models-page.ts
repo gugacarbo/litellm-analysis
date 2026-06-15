@@ -18,8 +18,8 @@ import {
   updateModel,
   updateModelProvider,
 } from "@/shared/lib/api-client";
-import { getModelsHealth } from "@/shared/lib/api-client/monitor";
 import { validateAndBuildModelParams } from "./models-form-utils";
+import { useLatestHealthChecks } from "./use-latest-health-checks";
 import { useModelsFormState } from "./use-models-form-state";
 
 export function useModelsPage() {
@@ -30,13 +30,11 @@ export function useModelsPage() {
     queryFn: getModelsWithConfig,
   });
 
-  const modelsHealthQuery = useQuery({
-    queryKey: ["models-health"],
-    queryFn: async () => {
-      const result = await getModelsHealth();
-      return result;
-    },
-  });
+  const {
+    checksByModel,
+    getCheck,
+    query: healthChecksQuery,
+  } = useLatestHealthChecks();
 
   const credentialsQuery = useQuery({
     queryKey: ["credentials"],
@@ -363,7 +361,9 @@ export function useModelsPage() {
       }
     },
     models: modelsQuery.data?.models ?? [],
-    modelsHealth: modelsHealthQuery.data?.models ?? [],
+    healthChecksByModel: checksByModel,
+    getHealthCheck: getCheck,
+    healthChecksQuery,
     counts: modelsQuery.data?.counts ?? {
       synced: 0,
       configOnly: 0,

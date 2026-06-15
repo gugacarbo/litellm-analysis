@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
 import {
   cleanupOldHealthChecks,
@@ -125,6 +126,7 @@ export class HealthCheckService {
   ): Promise<HealthCheckResult> {
     const { litellmApiUrl, litellmApiKey, prompt, timeoutMs } = this.options;
     const startTime = Date.now();
+    const executionId = randomUUID();
     const normalizedApiKey = litellmApiKey.trim().replace(/^Bearer\s+/i, "");
     const normalizedApiUrl = litellmApiUrl.replace(/\/+$/, "");
     const headers: Record<string, string> = {
@@ -133,6 +135,13 @@ export class HealthCheckService {
     if (normalizedApiKey) {
       headers.Authorization = `Bearer ${normalizedApiKey}`;
     }
+
+    this.emitter.emit("health_check_stream_started", {
+      executionId,
+      modelName,
+      prompt,
+      timestamp: Date.now(),
+    });
 
     try {
       const fetchResult = await this.fetchHealthCheckResponse({
@@ -145,7 +154,16 @@ export class HealthCheckService {
       const { response, requestPayload } = fetchResult;
 
       const statusCode = response.status;
-      const streamResult = await this.readStreamResponse(response, startTime);
+      const streamResult = await this.readStreamResponse(response, startTime, {
+        onDelta: (delta) => {
+          this.emitter.emit("health_check_stream_delta", {
+            executionId,
+            modelName,
+            delta,
+            timestamp: Date.now(),
+          });
+        },
+      });
       const responseTimeMs = Date.now() - startTime;
       const tokensPerSecond = this.calculateTokensPerSecond(
         streamResult.completionTokens,
@@ -195,6 +213,18 @@ export class HealthCheckService {
         checkedAt: check.checkedAt,
       });
 
+      this.emitter.emit(
+        check.status === "error"
+          ? "health_check_stream_failed"
+          : "health_check_stream_completed",
+        {
+          executionId,
+          modelName,
+          result: check,
+          timestamp: Date.now(),
+        },
+      );
+
       return check;
     } catch (err) {
       const responseTimeMs = Date.now() - startTime;
@@ -235,20 +265,32 @@ export class HealthCheckService {
         checkedAt: check.checkedAt,
       });
 
+      this.emitter.emit("health_check_stream_failed", {
+        executionId,
+        modelName,
+        result: check,
+        timestamp: Date.now(),
+      });
+
       return check;
     }
   }
 
-  private isCheckAllowed(modelName: string): {
+  private isCheckAllowed(
+    modelName: string,
+    options?: { bypassCooldown?: boolean },
+  ): {
     allowed: boolean;
     reason?: string;
   } {
     if (this.inFlightModels.has(modelName)) {
       return { allowed: false, reason: "already in progress" };
     }
-    const cooldownExpiry = this.cooldownMap.get(modelName);
-    if (cooldownExpiry !== undefined && cooldownExpiry > Date.now()) {
-      return { allowed: false, reason: "cooldown active" };
+    if (!options?.bypassCooldown) {
+      const cooldownExpiry = this.cooldownMap.get(modelName);
+      if (cooldownExpiry !== undefined && cooldownExpiry > Date.now()) {
+        return { allowed: false, reason: "cooldown active" };
+      }
     }
     return { allowed: true };
   }
@@ -437,6 +479,7 @@ export class HealthCheckService {
   private async readStreamResponse(
     response: Response,
     startTime: number,
+    streamOptions?: { onDelta?: (delta: string) => void },
   ): Promise<StreamReadResult> {
     if (!response.body) {
       return {
@@ -520,6 +563,7 @@ export class HealthCheckService {
           onStreamEvent: () => {
             sawStreamEvents = true;
           },
+          onDelta: streamOptions?.onDelta,
         });
         separatorIndex = buffer.indexOf("\n\n");
       }
@@ -553,6 +597,7 @@ export class HealthCheckService {
     completionTokensRef,
     responseErrorMessageRef,
     onStreamEvent,
+    onDelta,
   }: {
     eventBlock: string;
     contentParts: string[];
@@ -567,6 +612,7 @@ export class HealthCheckService {
       set: (value: string | null) => void;
     };
     onStreamEvent: () => void;
+    onDelta?: (text: string) => void;
   }): void {
     for (const line of eventBlock.split("\n")) {
       if (!line.startsWith("data:")) {
@@ -611,9 +657,11 @@ export class HealthCheckService {
 
       if (content) {
         contentParts.push(content);
+        onDelta?.(content);
       }
       if (reasoning) {
         reasoningParts.push(reasoning);
+        onDelta?.(reasoning);
       }
     }
   }
@@ -819,9 +867,12 @@ export class HealthCheckService {
     const results: HealthCheckResult[] = [];
 
     for (let i = 0; i < modelNames.length; i += maxConcurrency) {
-      const eligible = modelNames
-        .slice(i, i + maxConcurrency)
-        .filter((name) => this.isCheckAllowed(name).allowed);
+      const eligible = modelNames.slice(i, i + maxConcurrency).filter(
+        (name) =>
+          this.isCheckAllowed(name, {
+            bypassCooldown: source === "manual",
+          }).allowed,
+      );
       const batchResults = await Promise.all(
         eligible.map(async (name) => {
           this.inFlightModels.add(name);

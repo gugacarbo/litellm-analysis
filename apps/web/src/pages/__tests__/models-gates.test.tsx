@@ -1,9 +1,23 @@
 import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
 
-vi.mock("@/shared/lib/api-client/monitor", () => ({
-  getModelsHealth: vi.fn().mockResolvedValue({ models: [] }),
+vi.mock("@/features/monitor/components/health-status-content", () => ({
+  HealthStatusContent: () => <div>Mock health check content</div>,
+}));
+
+vi.mock("@/features/monitor/hooks/use-health-status-websocket", () => ({
+  useHealthStatusWebSocket: () => ({
+    status: "disconnected",
+    latestResults: [],
+    rejectedMap: new Map(),
+    send: vi.fn(),
+  }),
+}));
+
+vi.mock("@/shared/lib/api-client/health-check", () => ({
+  getLatestHealthChecks: vi.fn().mockResolvedValue({ checks: [] }),
 }));
 
 vi.mock("@/shared/lib/api-client", () => {
@@ -43,6 +57,15 @@ vi.mock("@/shared/lib/api-client", () => {
     getModelsSyncDiff: vi.fn().mockResolvedValue({ items: [] }),
     syncModelsBatch: vi.fn().mockResolvedValue({ success: true, applied: 0 }),
     addModelToConfig: vi.fn().mockResolvedValue({ success: true }),
+    getDefaultSettingsDiff: vi
+      .fn()
+      .mockResolvedValue({ count: 0, mismatchedModels: [] }),
+    getModelProvider: vi
+      .fn()
+      .mockResolvedValue({ defaultCredential: "", provider: "litellm" }),
+    syncDefaultSettings: vi.fn().mockResolvedValue({ success: true }),
+    toggleModelEnabled: vi.fn().mockResolvedValue({ success: true }),
+    updateModelProvider: vi.fn().mockResolvedValue({ success: true }),
     getAgentRoutingConfig: vi.fn().mockResolvedValue({}),
     getAgentDefinitions: vi.fn().mockResolvedValue({
       agents: [],
@@ -90,5 +113,22 @@ describe("ModelsPage", () => {
       .getAllByRole("link")
       .filter((link) => link.querySelector("svg.lucide-pencil"));
     expect(editLinks.length).toBe(2);
+  });
+
+  it("should switch to the health check tab", async () => {
+    const user = userEvent.setup();
+
+    renderWithQueryClient(<ModelsPage />);
+
+    await screen.findAllByText(/gpt-4|claude-3-opus/);
+
+    expect(screen.getByText("Configured Models")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("tab", { name: /health check/i }));
+
+    expect(screen.getByText("Mock health check content")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /add model/i }),
+    ).not.toBeInTheDocument();
   });
 });

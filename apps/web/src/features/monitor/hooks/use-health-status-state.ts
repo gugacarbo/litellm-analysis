@@ -11,6 +11,7 @@ import type {
   HealthCheckResultEntry,
   HealthCheckSummaryData,
 } from "../types/health-status-types";
+import { mergeLatestHealthChecks } from "../utils/health-status-utils";
 
 const REFETCH_INTERVAL = 30_000;
 
@@ -101,11 +102,7 @@ export function useHealthStatusState({
   const wsLatest = wsResults;
 
   const allModelsWithStatus: ModelWithStatus[] = useMemo(() => {
-    const checkMap = new Map<string, HealthCheckResultEntry>();
-    for (const c of wsLatest) checkMap.set(c.modelName, c);
-    for (const c of latestData) {
-      if (!checkMap.has(c.modelName)) checkMap.set(c.modelName, c);
-    }
+    const checkMap = mergeLatestHealthChecks(latestData, wsLatest);
 
     return allModelNames.map((model) => {
       const check = checkMap.get(model.modelName);

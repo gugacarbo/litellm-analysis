@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { WsClient } from "@/shared/lib/api-client/ws-client";
 import type { ConnectionState, WsMessage } from "@/shared/types/connection";
 import type { HealthCheckResultEntry } from "../types/health-status-types";
+import { isNewerHealthCheckEntry } from "../utils/health-status-utils";
 
 const WS_URL =
   typeof window !== "undefined"
@@ -31,10 +32,16 @@ export function useHealthStatusWebSocket() {
           timestamp: number;
         };
         setLatestResults((prev) => {
-          const updated = prev.filter(
-            (r) => !payload.results.some((nr) => nr.modelName === r.modelName),
+          const byModel = new Map(
+            prev.map((entry) => [entry.modelName, entry]),
           );
-          return [...payload.results, ...updated];
+          for (const entry of payload.results) {
+            const existing = byModel.get(entry.modelName);
+            if (!existing || isNewerHealthCheckEntry(entry, existing)) {
+              byModel.set(entry.modelName, entry);
+            }
+          }
+          return [...byModel.values()];
         });
       } else if (message.type === "health_check_rejected") {
         const payload = message.data as {

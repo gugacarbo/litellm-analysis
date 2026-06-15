@@ -14,27 +14,29 @@ export function useHealthStatusActions({
   const [isGlobalRunning, setIsGlobalRunning] = useState(false);
   const [runningModels, setRunningModels] = useState<Set<string>>(new Set());
 
-  const invalidateQueries = useCallback(async () => {
-    await queryClient.invalidateQueries({
-      queryKey: queryKeys.healthCheckLatest,
-    });
-    await queryClient.invalidateQueries({
-      queryKey: queryKeys.healthCheckSummary,
-    });
-    await queryClient.invalidateQueries({
-      queryKey: queryKeys.healthCheckResults({ limit: 10, offset: 0 }),
-    });
+  const refreshQueries = useCallback(async () => {
+    await Promise.all([
+      queryClient.refetchQueries({
+        queryKey: queryKeys.healthCheckLatest,
+      }),
+      queryClient.refetchQueries({
+        queryKey: queryKeys.healthCheckSummary,
+      }),
+      queryClient.refetchQueries({
+        queryKey: queryKeys.healthCheckResults({ limit: 10, offset: 0 }),
+      }),
+    ]);
   }, [queryClient]);
 
   const triggerRun = useCallback(async () => {
     setIsGlobalRunning(true);
     try {
       await runHealthCheck();
-      await invalidateQueries();
+      await refreshQueries();
     } finally {
       setIsGlobalRunning(false);
     }
-  }, [invalidateQueries]);
+  }, [refreshQueries]);
 
   const triggerSingleRun = useCallback(
     (modelName: string) => {

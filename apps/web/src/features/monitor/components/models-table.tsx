@@ -79,9 +79,9 @@ export function ModelsTable({
         </TableHeader>
         <TableBody>
           {models.map((model) => {
-            const modelIsRunning = isModelRunning(model.modelName);
-            const isIndividualButtonDisabled =
-              isGlobalRunning || modelIsRunning;
+            const modelIsRunning =
+              isGlobalRunning || isModelRunning(model.modelName);
+            const isIndividualButtonDisabled = modelIsRunning;
             const displayStatus = modelIsRunning ? "checking" : model.status;
 
             return (
@@ -131,7 +131,14 @@ export function ModelsTable({
                     onClick={() => onTest(model.modelName)}
                     disabled={isIndividualButtonDisabled}
                   >
-                    Test
+                    {modelIsRunning ? (
+                      <>
+                        <Loader2 className="size-3 animate-spin" />
+                        Testing...
+                      </>
+                    ) : (
+                      "Test"
+                    )}
                   </Button>
                 </TableCell>
               </TableRow>

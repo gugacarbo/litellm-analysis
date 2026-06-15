@@ -2,12 +2,12 @@ import { Database, Pencil, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   getContextWindow,
-  getHealthStatusLabel,
   getInputCost,
   getMaxOutput,
   getOutputCost,
-  type ModelHealthEntry,
 } from "@/features/models/models-utils";
+import { StatusBadge } from "@/features/monitor/components/status-badge";
+import type { HealthCheckResultEntry } from "@/features/monitor/types/health-status-types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,7 +59,9 @@ type ModelsTableCardProps = {
   loading: boolean;
   error: string | null;
   deleteModelName: string | null;
-  modelsHealth?: ModelHealthEntry[];
+  healthChecksByModel: Map<string, HealthCheckResultEntry>;
+  getHealthCheck: (modelName: string) => HealthCheckResultEntry | undefined;
+  healthChecksLoading?: boolean;
   addToConfigPending: boolean;
   onDeleteModelNameChange: (value: string | null) => void;
   onDelete: () => void;
@@ -67,24 +69,14 @@ type ModelsTableCardProps = {
   onToggleEnabled: (modelName: string, enabled: boolean) => void;
 };
 
-const statusConfig: Record<
-  string,
-  {
-    variant: "default" | "secondary" | "destructive" | "outline" | "success";
-  }
-> = {
-  healthy: { variant: "success" },
-  degraded: { variant: "secondary" },
-  offline: { variant: "destructive" },
-  unknown: { variant: "outline" },
-};
-
 export function ModelsTableCard({
   models,
   loading,
   error,
   deleteModelName,
-  modelsHealth = [],
+  healthChecksByModel,
+  getHealthCheck,
+  healthChecksLoading = false,
   addToConfigPending,
   onDeleteModelNameChange,
   onDelete,
@@ -129,9 +121,7 @@ export function ModelsTableCard({
             </TableHeader>
             <TableBody>
               {models.map((model) => {
-                const health = modelsHealth.find(
-                  (h) => h.model === model.modelName,
-                );
+                const health = getHealthCheck(model.modelName);
                 const inLiteLLM =
                   model.status === "synced" || model.status === "litellm-only";
                 const inConfig = model.status !== "litellm-only";
@@ -175,14 +165,12 @@ export function ModelsTableCard({
                     </TableCell>
                     <TableCell>
                       {inLiteLLM ? (
-                        <Badge
-                          variant={
-                            statusConfig[health?.status ?? "healthy"]
-                              ?.variant ?? "outline"
-                          }
-                        >
-                          {getHealthStatusLabel(health?.status ?? "healthy")}
-                        </Badge>
+                        healthChecksLoading &&
+                        !healthChecksByModel.has(model.modelName) ? (
+                          <Skeleton className="h-5 w-24" />
+                        ) : (
+                          <StatusBadge status={health?.status ?? "unknown"} />
+                        )
                       ) : (
                         <span className="text-muted-foreground text-sm">—</span>
                       )}

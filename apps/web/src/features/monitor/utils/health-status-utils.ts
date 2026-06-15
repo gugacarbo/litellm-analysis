@@ -1,4 +1,31 @@
-import type { HealthCheckStatus } from "../types/health-status-types";
+import type {
+  HealthCheckResultEntry,
+  HealthCheckStatus,
+} from "../types/health-status-types";
+
+export function isNewerHealthCheckEntry(
+  candidate: HealthCheckResultEntry,
+  current: HealthCheckResultEntry,
+): boolean {
+  if (candidate.checkedAt !== current.checkedAt) {
+    return candidate.checkedAt > current.checkedAt;
+  }
+  return candidate.id > current.id;
+}
+
+export function mergeLatestHealthChecks(
+  latestData: HealthCheckResultEntry[],
+  wsResults: HealthCheckResultEntry[],
+): Map<string, HealthCheckResultEntry> {
+  const checkMap = new Map<string, HealthCheckResultEntry>();
+  for (const entry of [...latestData, ...wsResults]) {
+    const existing = checkMap.get(entry.modelName);
+    if (!existing || isNewerHealthCheckEntry(entry, existing)) {
+      checkMap.set(entry.modelName, entry);
+    }
+  }
+  return checkMap;
+}
 
 export const STATUS_COLORS: Record<HealthCheckStatus, string> = {
   healthy: "#10b981",
