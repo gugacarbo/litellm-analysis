@@ -413,7 +413,7 @@ describe("createOpenCodePlugin", () => {
             displayName: "GPT-5",
             enabled: true,
             limits: { length: 200000, maxOutput: 8192 },
-            cost: { input: 15, output: 60 },
+            cost: { input: 0.000015, output: 0.00006 },
             thinking: { levels: ["high"] },
           },
         },

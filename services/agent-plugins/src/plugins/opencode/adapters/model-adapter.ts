@@ -51,9 +51,17 @@ export function modelAdapter(
   };
 
   if (spec.cost?.input != null || spec.cost?.output != null) {
+    // The OpenCode plugin schema expects cost in USD per million tokens
+    // (see `opencode.schema.json` → `cost.input` / `cost.output`).
+    // Our canonical `costSchema` stores values in USD per token, so we
+    // convert here at the export boundary.
     entry.cost = {
-      ...(spec.cost?.input != null ? { input: spec.cost.input } : {}),
-      ...(spec.cost?.output != null ? { output: spec.cost.output } : {}),
+      ...(spec.cost?.input != null
+        ? { input: spec.cost.input * 1_000_000 }
+        : {}),
+      ...(spec.cost?.output != null
+        ? { output: spec.cost.output * 1_000_000 }
+        : {}),
     };
   }
 
