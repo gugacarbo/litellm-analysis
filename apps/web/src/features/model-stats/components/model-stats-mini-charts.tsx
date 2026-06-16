@@ -78,7 +78,7 @@ export function ModelStatsMiniCharts({
                   formatted={formatCurrency(m.total_spend)}
                   max={maxSpend}
                   color="bg-blue-500"
-                  href={`/model-stats/${encodeURIComponent(m.model)}`}
+                  href={`/models/${encodeURIComponent(m.model)}`}
                 />
               ))}
         </CardContent>
@@ -170,7 +170,7 @@ export function ModelStatsMiniCharts({
                           ? "bg-yellow-500"
                           : "bg-emerald-500"
                     }
-                    href={`/model-stats/${encodeURIComponent(m.model)}`}
+                    href={`/models/${encodeURIComponent(m.model)}`}
                   />
                 );
               })}

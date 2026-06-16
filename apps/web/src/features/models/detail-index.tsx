@@ -1,6 +1,5 @@
-import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { useCallback, useMemo } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import { getDateRangeDays } from "@/features/dashboard/utils/dashboard-utils";
 import { ModelDetailApiKeyTable } from "@/features/models/detail/components/model-detail-api-key-table";
 import { ModelDetailCostChart } from "@/features/models/detail/components/model-detail-cost-chart";
@@ -15,24 +14,13 @@ import { ModelDetailTokenEfficiency } from "@/features/models/detail/components/
 import { ModelDetailTrendChart } from "@/features/models/detail/components/model-detail-trend-chart";
 import { ModelDetailTTFTChart } from "@/features/models/detail/components/model-detail-ttft-chart";
 import { ModelDetailUserTable } from "@/features/models/detail/components/model-detail-user-table";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { PageLayout } from "@/shared/components/ui/page-layout";
 import { Separator } from "@/shared/components/ui/separator";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
 import { TimeRangePicker } from "@/shared/components/ui/time-range-picker";
 import type {
   DashboardDateRangeKey,
   TimeRangeValue,
 } from "@/shared/lib/date-ranges";
 import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
-import { ModelDetailLogsTab } from "./detail/model-detail-logs-tab";
-import { useModelDetailLogs } from "./detail/use-model-detail-logs";
 import { useModelDetailData } from "./hooks/use-model-detail-data";
 
 function getRangeLabel(
@@ -63,8 +51,13 @@ function getRangeLabel(
   return labels[rangeKey] ?? rangeKey;
 }
 
-export function ModelDetailPage() {
-  const { modelName } = useParams<{ modelName: string }>();
+interface ModelDetailOverviewContentProps {
+  modelName: string;
+}
+
+export function ModelDetailOverviewContent({
+  modelName,
+}: ModelDetailOverviewContentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const rangeKey = searchParams.get("range") ?? "30d";
@@ -129,51 +122,10 @@ export function ModelDetailPage() {
     providerBreakdown,
     loading,
     error,
-  } = useModelDetailData(modelName ?? "", days);
-
-  const {
-    logs,
-    pagination: logsPagination,
-    loading: logsLoading,
-    refreshing: logsRefreshing,
-    error: logsError,
-    page: logsPage,
-    pageSize: logsPageSize,
-    setPage: setLogsPage,
-    setPageSize: setLogsPageSize,
-    refetch: logsRefetch,
-  } = useModelDetailLogs(modelName ?? "");
-
-  if (!modelName) {
-    return (
-      <div className="p-6">
-        <p className="text-muted-foreground">Model not specified</p>
-      </div>
-    );
-  }
+  } = useModelDetailData(modelName, days);
 
   return (
-    <PageLayout
-      title="Model Detail"
-      icon={TrendingUp}
-      showFilters={false}
-      buttons={
-        <>
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/model-stats">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Link>
-          </Button>
-          <Badge variant="outline" className="text-lg px-4 py-1">
-            {modelName}
-          </Badge>
-          {loading && (
-            <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
-          )}
-        </>
-      }
-    >
+    <>
       <div className="flex items-center justify-between flex-wrap gap-2">
         <TimeRangePicker
           value={timeRangeValue}
@@ -192,165 +144,153 @@ export function ModelDetailPage() {
         </div>
       )}
 
-      <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="logs">Logs</TabsTrigger>
-        </TabsList>
+      {/*** KPI ROWS ***/}
+      <ModelDetailSummaryCards
+        summary={summary}
+        cacheHitRate={cacheHitRate}
+        ttft={ttft}
+        loading={loading}
+        days={Math.max(1, days)}
+      />
 
-        <TabsContent value="overview" className="mt-6">
-          {/*** KPI ROWS ***/}
-          <ModelDetailSummaryCards
-            summary={summary}
-            cacheHitRate={cacheHitRate}
-            ttft={ttft}
+      {/*** COST ANALYSIS ***/}
+      <section>
+        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+          Cost Analysis
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ModelDetailCostChart
+            data={dailySpendTrend}
             loading={loading}
-            days={Math.max(1, days)}
+            rangeLabel={rangeLabel}
           />
+        </div>
+      </section>
 
-          {/*** COST ANALYSIS ***/}
-          <section>
-            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-              Cost Analysis
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ModelDetailCostChart
-                data={dailySpendTrend}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-            </div>
-          </section>
+      <Separator />
 
-          <Separator />
-
-          {/*** TOKEN ANALYTICS ***/}
-          <section>
-            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-              Token Analytics
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ModelDetailTokenEfficiency
-                data={dailyTokenTrend}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-            </div>
-          </section>
-
-          <Separator />
-
-          {/*** LATENCY ***/}
-          <section>
-            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-              Latency
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ModelDetailLatencyChart
-                data={latencyTrend}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-              <ModelDetailTTFTChart data={ttft} loading={loading} />
-            </div>
-          </section>
-
-          <Separator />
-
-          {/*** RELIABILITY ***/}
-          <section>
-            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-              Reliability
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <ModelDetailErrorBreakdown
-                data={errorBreakdown}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-              <ModelDetailErrorTrendChart
-                data={dailyErrorTrend}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-              <ModelDetailStatusChart
-                data={statusDistribution}
-                loading={loading}
-              />
-            </div>
-          </section>
-
-          <Separator />
-
-          {/*** USAGE PATTERNS ***/}
-          <section>
-            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-              Usage Patterns
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ModelDetailHourlyChart
-                data={hourlyUsage}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-              <ModelDetailTrendChart
-                data={dailySpendTrend}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-            </div>
-          </section>
-
-          <Separator />
-
-          {/*** PROVIDER BREAKDOWN ***/}
-          <section>
-            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-              Provider Breakdown
-            </h2>
-            <ModelDetailProviderChart
-              data={providerBreakdown}
-              loading={loading}
-            />
-          </section>
-
-          <Separator />
-
-          {/*** TOP ENTITIES ***/}
-          <section>
-            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-              Top Entities
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ModelDetailUserTable
-                users={topUsers}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-              <ModelDetailApiKeyTable
-                apiKeys={topApiKeys}
-                loading={loading}
-                rangeLabel={rangeLabel}
-              />
-            </div>
-          </section>
-        </TabsContent>
-
-        <TabsContent value="logs" className="mt-6">
-          <ModelDetailLogsTab
-            logs={logs}
-            pagination={logsPagination}
-            loading={logsLoading}
-            refreshing={logsRefreshing}
-            error={logsError}
-            page={logsPage}
-            pageSize={logsPageSize}
-            setPage={setLogsPage}
-            setPageSize={setLogsPageSize}
-            refetch={logsRefetch}
+      {/*** TOKEN ANALYTICS ***/}
+      <section>
+        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+          Token Analytics
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ModelDetailTokenEfficiency
+            data={dailyTokenTrend}
+            loading={loading}
+            rangeLabel={rangeLabel}
           />
-        </TabsContent>
-      </Tabs>
-    </PageLayout>
+        </div>
+      </section>
+
+      <Separator />
+
+      {/*** LATENCY ***/}
+      <section>
+        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+          Latency
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ModelDetailLatencyChart
+            data={latencyTrend}
+            loading={loading}
+            rangeLabel={rangeLabel}
+          />
+          <ModelDetailTTFTChart data={ttft} loading={loading} />
+        </div>
+      </section>
+
+      <Separator />
+
+      {/*** RELIABILITY ***/}
+      <section>
+        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+          Reliability
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <ModelDetailErrorBreakdown
+            data={errorBreakdown}
+            loading={loading}
+            rangeLabel={rangeLabel}
+          />
+          <ModelDetailErrorTrendChart
+            data={dailyErrorTrend}
+            loading={loading}
+            rangeLabel={rangeLabel}
+          />
+          <ModelDetailStatusChart
+            data={statusDistribution}
+            loading={loading}
+          />
+        </div>
+      </section>
+
+      <Separator />
+
+      {/*** USAGE PATTERNS ***/}
+      <section>
+        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+          Usage Patterns
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ModelDetailHourlyChart
+            data={hourlyUsage}
+            loading={loading}
+            rangeLabel={rangeLabel}
+          />
+          <ModelDetailTrendChart
+            data={dailySpendTrend}
+            loading={loading}
+            rangeLabel={rangeLabel}
+          />
+        </div>
+      </section>
+
+      <Separator />
+
+      {/*** PROVIDER BREAKDOWN ***/}
+      <section>
+        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+          Provider Breakdown
+        </h2>
+        <ModelDetailProviderChart
+          data={providerBreakdown}
+          loading={loading}
+        />
+      </section>
+
+      <Separator />
+
+      {/*** TOP ENTITIES ***/}
+      <section>
+        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+          Top Entities
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ModelDetailUserTable
+            users={topUsers}
+            loading={loading}
+            rangeLabel={rangeLabel}
+          />
+          <ModelDetailApiKeyTable
+            apiKeys={topApiKeys}
+            loading={loading}
+            rangeLabel={rangeLabel}
+          />
+        </div>
+      </section>
+    </>
   );
+}
+
+export function ModelDetailPage() {
+  const { modelName } = useParams<{ modelName: string }>();
+  if (!modelName) {
+    return (
+      <div className="p-6">
+        <p className="text-muted-foreground">Model not specified</p>
+      </div>
+    );
+  }
+  return <ModelDetailOverviewContent modelName={modelName} />;
 }

@@ -58,7 +58,7 @@ export function ModelStatsTopTables({
                   formatted={formatCurrency(m.total_spend)}
                   max={maxSpend}
                   color="bg-blue-500"
-                  href={`/model-stats/${encodeURIComponent(m.model)}`}
+                  href={`/models/${encodeURIComponent(m.model)}`}
                   disabled={m.enabled === false}
                 />
               ))}
@@ -85,7 +85,7 @@ export function ModelStatsTopTables({
                   formatted={`${formatCompactNumber(m.request_count)} reqs`}
                   max={maxRequests}
                   color="bg-emerald-500"
-                  href={`/model-stats/${encodeURIComponent(m.model)}`}
+                  href={`/models/${encodeURIComponent(m.model)}`}
                   disabled={m.enabled === false}
                 />
               ))}

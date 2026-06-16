@@ -12,8 +12,10 @@ import { LogsPage } from "@/features/logs";
 import { LogChatSimulationPage } from "@/features/logs/chat-simulation";
 import { LogDetailPage } from "@/features/logs/detail";
 import { ModelStatsPage } from "@/features/model-stats/index";
-import { ModelDetailPage } from "@/features/models/detail-index";
-import { ModelConfigPage } from "@/features/models/index";
+import { ModelDetailLayout } from "@/features/models/detail/model-detail-layout";
+import { ModelDetailLogsRoute } from "@/features/models/detail/model-detail-logs-route";
+import { ModelDetailOverviewTab } from "@/features/models/detail/model-detail-overview-tab";
+import { ModelDetailSettingsTab } from "@/features/models/detail/model-detail-settings-tab";
 import { ModelsConfiguredPage } from "@/features/models/models-configured-page";
 import { ModelsHealthCheckPage } from "@/features/models/models-health-check-page";
 import { ModelsLayout } from "@/features/models/models-layout";
@@ -50,12 +52,6 @@ const routes: RouteConfig[] = [
     path: "/logs/:requestId/chat",
     title: "Chat Simulation",
     component: LogChatSimulationPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/model-stats/:modelName",
-    title: "Model Detail",
-    component: ModelDetailPage,
     withErrorBoundary: true,
   },
   {
@@ -167,11 +163,45 @@ function App() {
               path: ":modelName",
               element: (
                 <ErrorBoundary>
-                  <ModelConfigPage />
+                  <ModelDetailLayout />
                 </ErrorBoundary>
               ),
+              children: [
+                {
+                  index: true,
+                  element: <Navigate to="overview" replace />,
+                },
+                {
+                  path: "overview",
+                  element: (
+                    <ErrorBoundary>
+                      <ModelDetailOverviewTab />
+                    </ErrorBoundary>
+                  ),
+                },
+                {
+                  path: "logs",
+                  element: (
+                    <ErrorBoundary>
+                      <ModelDetailLogsRoute />
+                    </ErrorBoundary>
+                  ),
+                },
+                {
+                  path: "settings",
+                  element: (
+                    <ErrorBoundary>
+                      <ModelDetailSettingsTab />
+                    </ErrorBoundary>
+                  ),
+                },
+              ],
             },
           ],
+        },
+        {
+          path: "/model-stats/:modelName",
+          element: <Navigate to="/models/:modelName" replace />,
         },
         { path: "*", element: <Navigate to="/" replace /> },
       ],
