@@ -1,5 +1,6 @@
 "use client";
 
+import { useStore } from "@tanstack/react-store";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 import { Slot } from "radix-ui";
@@ -22,9 +23,12 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
+import {
+  setSidebarOpen,
+  toggleSidebar as toggleSidebarStore,
+  uiStore,
+} from "@/shared/stores/ui-store";
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state";
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
@@ -67,30 +71,34 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen);
+  const storeOpen = useStore(uiStore, (state) => state.sidebarOpen);
+
+  // If the store hasn't been initialized yet (hydration mismatch guard), we
+  // fall back to the provider's defaultOpen. The store already reads from
+  // localStorage on creation, so this primarily protects server rendering.
+  const _open = storeOpen ?? defaultOpen;
   const open = openProp ?? _open;
+
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value;
       if (setOpenProp) {
         setOpenProp(openState);
       } else {
-        _setOpen(openState);
+        setSidebarOpen(openState);
       }
-
-      // This sets the cookie to keep the sidebar state.
-      // biome-ignore lint/suspicious/noDocumentCookie: We want to use cookies to persist the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open],
   );
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen]);
+    return isMobile
+      ? setOpenMobile((open) => !open)
+      : setOpenProp
+        ? setOpenProp(!open)
+        : toggleSidebarStore();
+  }, [isMobile, setOpenProp, open]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {

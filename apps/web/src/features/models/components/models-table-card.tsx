@@ -229,12 +229,13 @@ export function ModelsTableCard({
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Models
             </span>
-            <span className="text-sm font-semibold tabular-nums">
-              {total}
-            </span>
+            <span className="text-sm font-semibold tabular-nums">{total}</span>
           </div>
           <div className="flex items-center gap-2 rounded-md border bg-card px-2.5 py-1.5">
-            <Activity className="size-3.5" style={{ color: STATUS_COLORS.healthy }} />
+            <Activity
+              className="size-3.5"
+              style={{ color: STATUS_COLORS.healthy }}
+            />
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Enabled
             </span>
@@ -246,7 +247,10 @@ export function ModelsTableCard({
             </span>
           </div>
           <div className="flex items-center gap-2 rounded-md border bg-card px-2.5 py-1.5">
-            <CircleCheck className="size-3.5" style={{ color: STATUS_COLORS.healthy }} />
+            <CircleCheck
+              className="size-3.5"
+              style={{ color: STATUS_COLORS.healthy }}
+            />
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Synced
             </span>
@@ -258,19 +262,27 @@ export function ModelsTableCard({
             </span>
           </div>
           <div className="flex items-center gap-2 rounded-md border bg-card px-2.5 py-1.5">
-            <CircleX className="size-3.5" style={{ color: STATUS_COLORS.unhealthy }} />
+            <CircleX
+              className="size-3.5"
+              style={{ color: STATUS_COLORS.unhealthy }}
+            />
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Drift
             </span>
             <span
               className="text-sm font-semibold tabular-nums"
-              style={{ color: driftCount > 0 ? STATUS_COLORS.unhealthy : undefined }}
+              style={{
+                color: driftCount > 0 ? STATUS_COLORS.unhealthy : undefined,
+              }}
             >
               {driftCount}
             </span>
           </div>
           <div className="flex items-center gap-2 rounded-md border bg-card px-2.5 py-1.5">
-            <CircleAlert className="size-3.5" style={{ color: STATUS_COLORS.error }} />
+            <CircleAlert
+              className="size-3.5"
+              style={{ color: STATUS_COLORS.error }}
+            />
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Unhealthy
             </span>

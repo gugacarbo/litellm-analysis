@@ -1,16 +1,17 @@
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { useMemo } from "react";
-import { Link, Outlet, useParams, useLocation, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getModelsWithConfig } from "@/shared/lib/api-client/models";
-import { Badge } from "@/shared/components/ui/badge";
+import {
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { PageLayout } from "@/shared/components/ui/page-layout";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { getModelsWithConfig } from "@/shared/lib/api-client/models";
 import { ModelDetailContext } from "./model-detail-context";
 
 const TAB_SEGMENTS = ["overview", "logs", "settings"] as const;
@@ -125,7 +126,6 @@ export function ModelDetailLayout() {
     <ModelDetailContext.Provider value={contextValue}>
       <PageLayout
         title={model?.modelName ?? modelName}
-        subtitle="Model analytics and configuration"
         icon={TrendingUp}
         showFilters={false}
         buttons={
@@ -136,9 +136,6 @@ export function ModelDetailLayout() {
                 Back
               </Link>
             </Button>
-            <Badge variant="outline" className="text-lg px-4 py-1">
-              {model?.modelName ?? modelName}
-            </Badge>
             {loading && (
               <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
             )}

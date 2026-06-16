@@ -1,5 +1,4 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
 
@@ -77,15 +76,15 @@ vi.mock("@/shared/lib/api-client", () => {
   };
 });
 
-import { ModelsPage } from "@/features/models/list-index";
+import { ModelsConfiguredPage } from "@/features/models/models-configured-page";
 
-describe("ModelsPage", () => {
+describe("ModelsConfiguredPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("should show create button", async () => {
-    renderWithQueryClient(<ModelsPage />);
+    renderWithQueryClient(<ModelsConfiguredPage />);
 
     const modelNames = await screen.findAllByText(/gpt-4|claude-3-opus/);
     expect(modelNames.length).toBeGreaterThan(0);
@@ -96,7 +95,7 @@ describe("ModelsPage", () => {
   });
 
   it("should show delete buttons", async () => {
-    renderWithQueryClient(<ModelsPage />);
+    renderWithQueryClient(<ModelsConfiguredPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
@@ -107,7 +106,7 @@ describe("ModelsPage", () => {
   });
 
   it("should show edit link", async () => {
-    renderWithQueryClient(<ModelsPage />);
+    renderWithQueryClient(<ModelsConfiguredPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
@@ -115,32 +114,5 @@ describe("ModelsPage", () => {
       .getAllByRole("link")
       .filter((link) => link.querySelector("svg.lucide-pencil"));
     expect(editLinks.length).toBe(2);
-  });
-
-  it("should show configured models and health check tabs", async () => {
-    renderWithQueryClient(<ModelsPage />);
-
-    await screen.findAllByText(/gpt-4|claude-3-opus/);
-
-    expect(
-      screen.getByRole("tab", { name: /configured models/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", { name: /health check/i }),
-    ).toBeInTheDocument();
-  });
-
-  it("should switch to health check tab", async () => {
-    const user = userEvent.setup();
-    renderWithQueryClient(<ModelsPage />);
-
-    await screen.findAllByText(/gpt-4|claude-3-opus/);
-
-    const healthCheckTab = screen.getByRole("tab", {
-      name: /health check/i,
-    });
-    await user.click(healthCheckTab);
-
-    expect(screen.getByText("Mock health check content")).toBeInTheDocument();
   });
 });

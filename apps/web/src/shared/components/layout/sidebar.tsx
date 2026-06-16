@@ -7,6 +7,7 @@ import {
   Cpu,
   FileText,
   GitBranch,
+  HeartPulse,
   ListChecks,
   PanelLeftIcon,
   Radar,
@@ -40,6 +41,7 @@ interface NavLeaf {
 
 interface NavBranch {
   id: string;
+  to?: string;
   icon?: React.ComponentType<{ className?: string }>;
   label: string;
   children: NavLeaf[];
@@ -71,15 +73,29 @@ function NavItemBranch({ item }: { item: NavBranch }) {
     <Collapsible.Root open={isOpen} onOpenChange={setIsOpen}>
       <SidebarMenuItem>
         <Collapsible.Trigger asChild>
-          <SidebarMenuButton>
-            {item.icon && <item.icon className="h-4 w-4" />}
-            <span className="flex-1">{item.label}</span>
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </SidebarMenuButton>
+          {item.to ? (
+            <SidebarMenuButton asChild tooltip={item.label}>
+              <NavLink to={item.to}>
+                {item.icon && <item.icon className="h-4 w-4" />}
+                <span className="flex-1">{item.label}</span>
+                {isOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </NavLink>
+            </SidebarMenuButton>
+          ) : (
+            <SidebarMenuButton tooltip={item.label}>
+              {item.icon && <item.icon className="h-4 w-4" />}
+              <span className="flex-1">{item.label}</span>
+              {isOpen ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </SidebarMenuButton>
+          )}
         </Collapsible.Trigger>
       </SidebarMenuItem>
       <Collapsible.Content>
@@ -123,10 +139,17 @@ export function AppSidebar() {
     },
     {
       id: "models",
+      to: "/models",
       icon: Cpu,
       label: "Models",
       children: [
         { id: "models-list", to: "/models", icon: Cpu, label: "Models" },
+        {
+          id: "models-health-check",
+          to: "/models/health-check",
+          icon: HeartPulse,
+          label: "Health Check",
+        },
         {
           id: "benchmarks",
           to: "/benchmarks",

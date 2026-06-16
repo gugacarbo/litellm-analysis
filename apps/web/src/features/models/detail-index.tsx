@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useSearchParams, useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { getDateRangeDays } from "@/features/dashboard/utils/dashboard-utils";
 import { ModelDetailApiKeyTable } from "@/features/models/detail/components/model-detail-api-key-table";
 import { ModelDetailCostChart } from "@/features/models/detail/components/model-detail-cost-chart";
@@ -218,10 +218,7 @@ export function ModelDetailOverviewContent({
             loading={loading}
             rangeLabel={rangeLabel}
           />
-          <ModelDetailStatusChart
-            data={statusDistribution}
-            loading={loading}
-          />
+          <ModelDetailStatusChart data={statusDistribution} loading={loading} />
         </div>
       </section>
 
@@ -253,10 +250,7 @@ export function ModelDetailOverviewContent({
         <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
           Provider Breakdown
         </h2>
-        <ModelDetailProviderChart
-          data={providerBreakdown}
-          loading={loading}
-        />
+        <ModelDetailProviderChart data={providerBreakdown} loading={loading} />
       </section>
 
       <Separator />

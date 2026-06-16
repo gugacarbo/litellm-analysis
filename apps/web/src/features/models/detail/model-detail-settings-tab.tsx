@@ -1,6 +1,6 @@
-import { useModelDetailContext } from "./model-detail-context";
-import { useModelConfigPageFromContext } from "../use-model-config-page";
 import { ModelConfigForm } from "../components/model-config-form";
+import { useModelConfigPageFromContext } from "../use-model-config-page";
+import { useModelDetailContext } from "./model-detail-context";
 
 export function ModelDetailSettingsTab() {
   const { model, notFound } = useModelDetailContext();
