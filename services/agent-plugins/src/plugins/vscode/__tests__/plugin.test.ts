@@ -74,7 +74,7 @@ describe("createVsCodePlugin", () => {
         },
         {
           allModels: {},
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000/v1",
             apiKey: "test-key",
           },
@@ -107,7 +107,7 @@ describe("createVsCodePlugin", () => {
               limits: { length: 128000, maxOutput: 4096 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000/v1",
             apiKey: "test-key",
           },
@@ -133,7 +133,7 @@ describe("createVsCodePlugin", () => {
         },
         {
           allModels: {},
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -166,7 +166,7 @@ describe("createVsCodePlugin", () => {
 
       const output = buildOutput(plugin, [], routing, {
         allModels: {},
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -201,7 +201,7 @@ describe("createVsCodePlugin", () => {
               limits: { length: 200000, maxOutput: 8192 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -240,7 +240,7 @@ describe("createVsCodePlugin", () => {
               limits: { length: 128000, maxOutput: 4096 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -255,7 +255,7 @@ describe("createVsCodePlugin", () => {
         unknown
       >;
       const headers = requestOptions.headers as Record<string, unknown>;
-      expect(headers.Authorization).toBe("Bearer {env:LITELLM_API_KEY}");
+      expect(headers.Authorization).toBe("Bearer {env:MODEL_PROXY_API_KEY}");
     });
 
     it("ignora lista de agentes (usa apenas allModels)", () => {
@@ -278,7 +278,7 @@ describe("createVsCodePlugin", () => {
               limits: { length: 128000, maxOutput: 4096 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -317,7 +317,7 @@ describe("createVsCodePlugin", () => {
               },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },

@@ -219,7 +219,7 @@ class PluginRegistryV2Impl implements PluginRegistryV2 {
     const context: PluginRuntimeContext = {
       allModels: {},
       globalFallbackModel: config.globalFallbackModel,
-      litellmConfig: {
+      modelProxyConfig: {
         baseUrl: "",
         apiKey: "",
       },
@@ -234,14 +234,12 @@ class PluginRegistryV2Impl implements PluginRegistryV2 {
       const modelsConfig = await this.modelsRepository.read();
       context.allModels = modelsConfig.models ?? {};
 
-      const litellmProvider =
-        modelsConfig.provider?.["local-proxy"] ??
-        modelsConfig.provider?.litellm;
-      context.litellmConfig = {
-        baseUrl: litellmProvider?.baseUrl ?? "",
-        apiKey: litellmProvider?.apiKey ?? "",
+      const modelProxyProvider = modelsConfig.provider?.["local-proxy"];
+      context.modelProxyConfig = {
+        baseUrl: modelProxyProvider?.baseUrl ?? "",
+        apiKey: modelProxyProvider?.apiKey ?? "",
       };
-      context.ownedBy = litellmProvider?.ownedBy ?? "";
+      context.ownedBy = modelProxyProvider?.ownedBy ?? "";
     } catch {
       // Keep empty context for missing models source.
     }

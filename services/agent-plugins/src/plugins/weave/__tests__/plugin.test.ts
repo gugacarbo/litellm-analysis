@@ -60,7 +60,7 @@ describe("createWeavePlugin", () => {
 
     const output = buildOutput(plugin, agents, routing, {
       allModels: {},
-      litellmConfig: { baseUrl: "", apiKey: "" },
+      modelProxyConfig: { baseUrl: "", apiKey: "" },
     }) as {
       agents: Record<string, { display_name: string; model: string }>;
     };

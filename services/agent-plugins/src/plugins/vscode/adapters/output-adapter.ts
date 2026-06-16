@@ -21,7 +21,7 @@ function modelAdapter(
     baseUrl,
     "request-options": {
       headers: {
-        Authorization: "Bearer {env:LITELLM_API_KEY}",
+        Authorization: "Bearer {env:MODEL_PROXY_API_KEY}",
       },
     },
     "model-settings": {
@@ -62,7 +62,7 @@ export function adaptVsCodeOutput(
   input: BuildVsCodeOutputInput,
 ): VscodeSchemaType {
   const { context, config } = input;
-  const baseUrl = context.litellmConfig.baseUrl.replace(/\/v1$/, "");
+  const baseUrl = context.modelProxyConfig.baseUrl.replace(/\/v1$/, "");
 
   const output: VscodeSchemaType = {
     ...config,

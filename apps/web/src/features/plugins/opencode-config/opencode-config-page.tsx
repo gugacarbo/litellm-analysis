@@ -21,7 +21,7 @@ interface OpenCodeConfigPageProps {
   config: Record<string, unknown>;
   onChange: (key: string, value: unknown) => void;
   allModels: Record<string, unknown>;
-  litellmProvider: { baseUrl: string; name: string };
+  modelProxyProvider: { baseUrl: string; name: string };
 }
 
 interface ModelEntry {
@@ -34,7 +34,7 @@ export function OpenCodeConfigPage({
   config,
   onChange,
   allModels,
-  litellmProvider,
+  modelProxyProvider,
 }: OpenCodeConfigPageProps) {
   const [copied, setCopied] = useState(false);
 
@@ -98,12 +98,14 @@ export function OpenCodeConfigPage({
     return {
       $schema: schemaUrl || "https://opencode.ai/config.json",
       provider: {
-        litellm: {
-          name: litellmProvider.name || "LiteLLM",
+        "local-proxy": {
+          name: modelProxyProvider.name || "Local Model Proxy",
           npm: "@ai-sdk/openai-compatible",
           options: {
-            baseURL: litellmProvider.baseUrl,
-            apiKey: litellmProvider.baseUrl ? "{env:LITELLM_API_KEY}" : "",
+            baseURL: modelProxyProvider.baseUrl,
+            apiKey: modelProxyProvider.baseUrl
+              ? "{env:MODEL_PROXY_API_KEY}"
+              : "",
           },
           models: modelsSection,
         },
@@ -117,7 +119,13 @@ export function OpenCodeConfigPage({
           }
         : {}),
     };
-  }, [schemaUrl, allModels, litellmProvider, defaultModel, defaultTemperature]);
+  }, [
+    schemaUrl,
+    allModels,
+    modelProxyProvider,
+    defaultModel,
+    defaultTemperature,
+  ]);
 
   const previewText = JSON.stringify(previewJson, null, 2);
 
@@ -219,19 +227,20 @@ export function OpenCodeConfigPage({
               Provider Connection
             </h3>
             <p className="text-sm text-muted-foreground">
-              LiteLLM provider settings from models configuration (read-only).
+              Local proxy provider settings from models configuration
+              (read-only).
             </p>
             <div className="rounded-md border bg-muted/30 p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Name</span>
                 <span className="text-sm font-medium">
-                  {litellmProvider.name || "Not configured"}
+                  {modelProxyProvider.name || "Not configured"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Base URL</span>
                 <span className="font-mono text-sm">
-                  {litellmProvider.baseUrl || "Not configured"}
+                  {modelProxyProvider.baseUrl || "Not configured"}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2 py-1 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-300">

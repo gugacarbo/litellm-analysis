@@ -180,7 +180,8 @@ export function usePluginConfigPage(pluginId: string) {
       string,
       unknown
     >,
-    modelProxyProvider: (safeData as Record<string, unknown>).modelProxyProvider as {
+    modelProxyProvider: (safeData as Record<string, unknown>)
+      .modelProxyProvider as {
       baseUrl: string;
       name: string;
     },

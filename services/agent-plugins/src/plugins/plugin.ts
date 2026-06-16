@@ -10,7 +10,7 @@ import type {
 export interface TransformContext {
   allModels: Record<string, ModelSpec>;
   globalFallbackModel?: string;
-  litellmConfig: { baseUrl: string; apiKey: string };
+  modelProxyConfig: { baseUrl: string; apiKey: string };
   allCategories?: Record<string, CategoryEntry>;
   /** Logical slot names for alias generation (e.g. gpt-5.5..gpt-5.1). Provided by the plugin's routing configuration. */
   modelNames?: readonly string[];

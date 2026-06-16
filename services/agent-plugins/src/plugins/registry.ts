@@ -141,7 +141,7 @@ export class PluginRegistry implements IPluginRegistry {
     const context: TransformContext = {
       allModels: {},
       globalFallbackModel: config.globalFallbackModel,
-      litellmConfig: {
+      modelProxyConfig: {
         baseUrl: "",
         apiKey: "",
       },
@@ -156,10 +156,10 @@ export class PluginRegistry implements IPluginRegistry {
       const modelsConfig = await this.modelsRepository.read();
       context.allModels = modelsConfig.models ?? {};
 
-      const litellmProvider = modelsConfig.provider?.litellm;
-      context.litellmConfig = {
-        baseUrl: litellmProvider?.baseUrl ?? "",
-        apiKey: litellmProvider?.apiKey ?? "",
+      const modelProxyProvider = modelsConfig.provider?.["local-proxy"];
+      context.modelProxyConfig = {
+        baseUrl: modelProxyProvider?.baseUrl ?? "",
+        apiKey: modelProxyProvider?.apiKey ?? "",
       };
     } catch {
       // Keep default empty models/provider context when models config isn't available.

@@ -54,8 +54,8 @@ function createMockModelsRepository(
       $schema: "./models.schema.json",
       version: 1,
       provider: {
-        litellm: {
-          name: "LiteLLM",
+        "local-proxy": {
+          name: "Local Model Proxy",
           ownedBy: "team",
           baseUrl: "http://localhost:4000/v1",
           apiKey: "sk-test",
@@ -277,7 +277,7 @@ describe("PluginRegistry", () => {
       );
     });
 
-    it("carrega allModels e litellmConfig do models repository", async () => {
+    it("carrega allModels e modelProxyConfig do models repository", async () => {
       const mockRepo = createMockRepository();
       const buildOutputSpy = vi.fn((..._args: unknown[]) => ({ result: true }));
       const plugin = createMockPlugin({ buildOutput: buildOutputSpy });
@@ -293,12 +293,12 @@ describe("PluginRegistry", () => {
 
       const ctx = buildOutputSpy.mock.calls[0][2] as {
         allModels: Record<string, unknown>;
-        litellmConfig: { baseUrl: string; apiKey: string };
+        modelProxyConfig: { baseUrl: string; apiKey: string };
       };
 
       expect(Object.keys(ctx.allModels)).toEqual(["gpt-5"]);
-      expect(ctx.litellmConfig.baseUrl).toBe("http://localhost:4000/v1");
-      expect(ctx.litellmConfig.apiKey).toBe("sk-test");
+      expect(ctx.modelProxyConfig.baseUrl).toBe("http://localhost:4000/v1");
+      expect(ctx.modelProxyConfig.apiKey).toBe("sk-test");
     });
   });
 });

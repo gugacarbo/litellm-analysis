@@ -51,20 +51,20 @@ export function adaptOpenCodeOutput(
   const providerOpts = {
     npm: "@ai-sdk/openai-compatible",
     options: {
-      baseURL: context.litellmConfig.baseUrl,
-      apiKey: context.litellmConfig.apiKey,
+      baseURL: context.modelProxyConfig.baseUrl,
+      apiKey: context.modelProxyConfig.apiKey,
     },
   };
 
-  const litellmModels: Record<string, Record<string, unknown>> = {};
+  const localProxyModels: Record<string, Record<string, unknown>> = {};
   for (const [key, spec] of Object.entries(context.allModels)) {
-    litellmModels[key] = modelAdapter(key, key, spec.displayName, spec);
+    localProxyModels[key] = modelAdapter(key, key, spec.displayName, spec);
   }
 
-  output.provider.litellm = {
-    name: "LiteLLM",
+  output.provider["local-proxy"] = {
+    name: "Local Model Proxy",
     ...providerOpts,
-    models: litellmModels,
+    models: localProxyModels,
   };
 
   const rawEnabledAgents: Record<string, string | string[]> =

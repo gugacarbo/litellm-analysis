@@ -64,7 +64,7 @@ describe("createOpenAgentPlugin", () => {
         },
         context: {
           allModels: {},
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -88,7 +88,7 @@ describe("createOpenAgentPlugin", () => {
         },
         context: {
           allModels: {},
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -119,7 +119,7 @@ describe("createOpenAgentPlugin", () => {
         routing,
         context: {
           allModels: {},
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -143,7 +143,7 @@ describe("createOpenAgentPlugin", () => {
         context: {
           allModels: {},
           globalFallbackModel: "gpt-4",
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -177,7 +177,7 @@ describe("createOpenAgentPlugin", () => {
         routing,
         context: {
           allModels: {},
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -205,7 +205,7 @@ describe("createOpenAgentPlugin", () => {
         },
         context: {
           allModels: {},
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },

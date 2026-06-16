@@ -437,8 +437,8 @@ export function registerPluginRoutingRoutes(
           return;
         }
         const { services } = manager;
-      const pluginId = normalizePluginId(req.params.pluginId);
-      const { categoryId } = req.params;
+        const pluginId = normalizePluginId(req.params.pluginId);
+        const { categoryId } = req.params;
         const enabled = await services.routing.toggleCategoryMapping(
           pluginId,
           categoryId,

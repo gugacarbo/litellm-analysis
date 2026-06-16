@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { modelAliasManifest } from "../manifest/manifest";
-import {
-  type ModelAliasSchemaType,
-  modelAliasSchema,
-} from "../schema/schema";
+import { type ModelAliasSchemaType, modelAliasSchema } from "../schema/schema";
 
 export const modelAliasPluginConfigDefaults: ModelAliasSchemaType =
   modelAliasSchema.parse({

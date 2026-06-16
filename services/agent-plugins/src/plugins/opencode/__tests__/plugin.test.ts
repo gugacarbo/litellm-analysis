@@ -65,9 +65,9 @@ describe("createOpenCodePlugin", () => {
   });
 
   describe("buildOutput", () => {
-    // ── LiteLLM provider ──
+    // ── Local proxy provider ──
 
-    it("gera estrutura com provider litellm", () => {
+    it("gera estrutura com provider local-proxy", () => {
       const plugin = createOpenCodePlugin();
       const output = buildOutput(
         plugin,
@@ -85,7 +85,7 @@ describe("createOpenCodePlugin", () => {
               limits: { length: 128000, maxOutput: 4096 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000/v1",
             apiKey: "test-key",
           },
@@ -94,10 +94,10 @@ describe("createOpenCodePlugin", () => {
       expect(output).toHaveProperty("provider");
       expect(
         (output as unknown as Record<string, unknown>).provider,
-      ).toHaveProperty("litellm");
+      ).toHaveProperty("local-proxy");
     });
 
-    it("inclui modelos litellm com limites corretos", () => {
+    it("inclui modelos local-proxy com limites corretos", () => {
       const plugin = createOpenCodePlugin();
       const output = buildOutput(
         plugin,
@@ -115,7 +115,7 @@ describe("createOpenCodePlugin", () => {
               limits: { length: 128000, maxOutput: 4096 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -123,8 +123,8 @@ describe("createOpenCodePlugin", () => {
       ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const litellm = provider.litellm as Record<string, unknown>;
-      const models = litellm.models as Record<string, unknown>;
+      const localProxy = provider["local-proxy"] as Record<string, unknown>;
+      const models = localProxy.models as Record<string, unknown>;
       const gpt4 = models["gpt-4"] as Record<string, unknown>;
 
       expect(gpt4.id).toBe("gpt-4");
@@ -153,7 +153,7 @@ describe("createOpenCodePlugin", () => {
               limits: { length: 1000000, maxOutput: 256000 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -161,8 +161,8 @@ describe("createOpenCodePlugin", () => {
       ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const litellm = provider.litellm as Record<string, unknown>;
-      const models = litellm.models as Record<string, unknown>;
+      const localProxy = provider["local-proxy"] as Record<string, unknown>;
+      const models = localProxy.models as Record<string, unknown>;
       const minimax = models["minimax-m3"] as Record<string, unknown>;
 
       expect(minimax.id).toBe("minimax-m3");
@@ -190,7 +190,7 @@ describe("createOpenCodePlugin", () => {
               },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -198,8 +198,8 @@ describe("createOpenCodePlugin", () => {
       ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const litellm = provider.litellm as Record<string, unknown>;
-      const models = litellm.models as Record<string, unknown>;
+      const localProxy = provider["local-proxy"] as Record<string, unknown>;
+      const models = localProxy.models as Record<string, unknown>;
       const gpt5 = models["gpt-5"] as Record<string, unknown>;
       const variants = gpt5.variants as Record<string, unknown>;
 
@@ -236,7 +236,7 @@ describe("createOpenCodePlugin", () => {
               },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -244,8 +244,8 @@ describe("createOpenCodePlugin", () => {
       ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const litellm = provider.litellm as Record<string, unknown>;
-      const models = litellm.models as Record<string, unknown>;
+      const localProxy = provider["local-proxy"] as Record<string, unknown>;
+      const models = localProxy.models as Record<string, unknown>;
       const gpt5 = models["gpt-5"] as Record<string, unknown>;
 
       expect(gpt5.reasoning).toBe(true);
@@ -273,7 +273,7 @@ describe("createOpenCodePlugin", () => {
               },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -281,8 +281,8 @@ describe("createOpenCodePlugin", () => {
       ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const litellm = provider.litellm as Record<string, unknown>;
-      const models = litellm.models as Record<string, unknown>;
+      const localProxy = provider["local-proxy"] as Record<string, unknown>;
+      const models = localProxy.models as Record<string, unknown>;
       const deepseek = models["deepseek-r1"] as Record<string, unknown>;
 
       expect(deepseek.reasoning).toBe(true);
@@ -291,7 +291,7 @@ describe("createOpenCodePlugin", () => {
       });
     });
 
-    it("configura baseURL e apiKey do litellm", () => {
+    it("configura baseURL e apiKey do local-proxy", () => {
       const plugin = createOpenCodePlugin();
       const output = buildOutput(
         plugin,
@@ -303,7 +303,7 @@ describe("createOpenCodePlugin", () => {
         },
         {
           allModels: {},
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://proxy:4000/v1",
             apiKey: "secret-key",
           },
@@ -311,8 +311,8 @@ describe("createOpenCodePlugin", () => {
       ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      const litellm = provider.litellm as Record<string, unknown>;
-      const options = litellm.options as Record<string, unknown>;
+      const localProxy = provider["local-proxy"] as Record<string, unknown>;
+      const options = localProxy.options as Record<string, unknown>;
       expect(options.baseURL).toBe("http://proxy:4000/v1");
       expect(options.apiKey).toBe("secret-key");
     });
@@ -338,7 +338,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 128000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -388,7 +388,7 @@ describe("createOpenCodePlugin", () => {
           },
         },
         globalFallbackModel: "gpt-3.5",
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -424,7 +424,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 128000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -458,7 +458,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 128000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -495,7 +495,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 200000, maxOutput: 8192 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -530,7 +530,7 @@ describe("createOpenCodePlugin", () => {
             thinking: { levels: ["high"] },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -567,7 +567,7 @@ describe("createOpenCodePlugin", () => {
               limits: { length: 128000, maxOutput: 4096 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -575,8 +575,8 @@ describe("createOpenCodePlugin", () => {
       ) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      // Only litellm provider should exist
-      expect(Object.keys(provider)).toEqual(["litellm"]);
+      // Only local-proxy provider should exist
+      expect(Object.keys(provider)).toEqual(["local-proxy"]);
     });
 
     it("filtra agentes pelo routing (so inclui mapeados)", () => {
@@ -613,7 +613,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 16000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -621,7 +621,7 @@ describe("createOpenCodePlugin", () => {
 
       const provider = output.provider as Record<string, unknown>;
       const providerKeys = Object.keys(provider);
-      expect(providerKeys).toContain("litellm");
+      expect(providerKeys).toContain("local-proxy");
       expect(providerKeys).toContain("llm-agents");
       expect(providerKeys).not.toContain("sisyphus");
       expect(providerKeys).not.toContain("oracle");
@@ -653,14 +653,14 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 128000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
       }) as unknown as Record<string, unknown>;
 
       const provider = output.provider as Record<string, unknown>;
-      expect(Object.keys(provider)).toEqual(["litellm"]);
+      expect(Object.keys(provider)).toEqual(["local-proxy"]);
     });
 
     // ── Global fallback provider ──
@@ -684,7 +684,7 @@ describe("createOpenCodePlugin", () => {
             },
           },
           globalFallbackModel: "gpt-4",
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -733,7 +733,7 @@ describe("createOpenCodePlugin", () => {
               limits: { length: 128000, maxOutput: 4096 },
             },
           },
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -757,7 +757,7 @@ describe("createOpenCodePlugin", () => {
         {
           allModels: {},
           globalFallbackModel: "unknown-model",
-          litellmConfig: {
+          modelProxyConfig: {
             baseUrl: "http://localhost:4000",
             apiKey: "test-key",
           },
@@ -790,7 +790,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 128000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -839,7 +839,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 16000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -891,7 +891,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 128000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },
@@ -936,7 +936,7 @@ describe("createOpenCodePlugin", () => {
             limits: { length: 128000, maxOutput: 4096 },
           },
         },
-        litellmConfig: {
+        modelProxyConfig: {
           baseUrl: "http://localhost:4000",
           apiKey: "test-key",
         },

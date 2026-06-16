@@ -11,10 +11,7 @@ export const pluginConfigJsonSchemas: Record<
   opencode: openCodePluginConfigJsonSchema as Record<string, unknown>,
   openagent: openAgentPluginConfigJsonSchema as Record<string, unknown>,
   vscode: vsCodePluginConfigJsonSchema as Record<string, unknown>,
-  "model-alias": modelAliasPluginConfigJsonSchema as Record<
-    string,
-    unknown
-  >,
+  "model-alias": modelAliasPluginConfigJsonSchema as Record<string, unknown>,
   weave: weavePluginConfigJsonSchema as Record<string, unknown>,
 };
 
