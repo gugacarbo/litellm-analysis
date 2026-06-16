@@ -19,11 +19,6 @@ export const serverSchema = {
   DB_USER: z.string(),
   DB_PASSWORD: z.string().min(1, "DB_PASSWORD is required"),
 
-  LITELLM_API_URL: z.url().optional(),
-  LITELLM_API_KEY: z
-    .string()
-    .min(1, "LITELLM_API_KEY cannot be empty")
-    .optional(),
   MODEL_PROXY_API_KEY: z
     .string()
     .min(1, "MODEL_PROXY_API_KEY cannot be empty")
