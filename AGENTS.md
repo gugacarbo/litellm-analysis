@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-13 (updated 2026-05-20)
+**Generated:** 2026-05-13 (updated 2026-06-15)
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -64,7 +64,7 @@ lite-llm-analytics/
 
 | Task                     | Location                                         | Notes                                                |
 | ------------------------ | ------------------------------------------------ | ---------------------------------------------------- |
-| Add a page/route         | `apps/web/src/App.tsx` + `apps/web/src/pages/`   | Pages own their types, utils, and hooks              |
+| Add a page/route         | `apps/web/src/App.tsx` + `apps/web/src/pages/`   | Pages own their types, utils, and hooks; use nested children + `Outlet` for tabbed sections              |
 | Add a UI component       | `apps/web/src/components/`                       | shadcn primitives at root, domain modules in subdirs |
 | Add an API endpoint      | `apps/server/src/runtime/api-server.ts`          | All routes defined here                              |
 | Add a data-source method | `services/analytics-service/src/data-source/database.ts` | Must implement `AnalyticsDataSource` interface       |
@@ -76,6 +76,7 @@ lite-llm-analytics/
 | Modify agent API routes  | `packages/server-core/src/routes/agent-config-routes.ts` | Express routes using agents-manager                  |
 | Add model config logic   | `services/models-service/src/`                   | Provider/model CRUD, alias management                 |
 | Modify model API routes  | `packages/server-core/src/routes/model-routes.ts`| Express routes using models-manager                  |
+| Add a Models sub-route   | `apps/web/src/features/models/models-layout.tsx` + `App.tsx` | Tab navigation lives in the layout; children render via `Outlet` |
 
 ## CONVENTIONS
 

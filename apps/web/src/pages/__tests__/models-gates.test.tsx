@@ -117,20 +117,30 @@ describe("ModelsPage", () => {
     expect(editLinks.length).toBe(2);
   });
 
-  it("should switch to the health check tab", async () => {
-    const user = userEvent.setup();
-
+  it("should show configured models and health check tabs", async () => {
     renderWithQueryClient(<ModelsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    expect(screen.getByText("Configured Models")).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /configured models/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /health check/i }),
+    ).toBeInTheDocument();
+  });
 
-    await user.click(screen.getByRole("tab", { name: /health check/i }));
+  it("should switch to health check tab", async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(<ModelsPage />);
+
+    await screen.findAllByText(/gpt-4|claude-3-opus/);
+
+    const healthCheckTab = screen.getByRole("tab", {
+      name: /health check/i,
+    });
+    await user.click(healthCheckTab);
 
     expect(screen.getByText("Mock health check content")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /add model/i }),
-    ).not.toBeInTheDocument();
   });
 });

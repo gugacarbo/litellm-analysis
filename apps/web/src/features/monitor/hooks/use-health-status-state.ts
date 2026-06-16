@@ -84,7 +84,8 @@ export function useHealthStatusState({
     refetchInterval: REFETCH_INTERVAL,
   });
 
-  const resultsLimit = 10;
+  const allModelNames = modelsQuery.data ?? [];
+  const resultsLimit = Math.max(allModelNames.length, 1);
   const [resultsOffset, setResultsOffset] = useState(0);
 
   const resultsQuery = useQuery({
@@ -96,8 +97,6 @@ export function useHealthStatusState({
       getHealthCheckResults({ limit: resultsLimit, offset: resultsOffset }),
     refetchInterval: REFETCH_INTERVAL,
   });
-
-  const allModelNames = modelsQuery.data ?? [];
   const latestData = latestQuery.data?.checks ?? [];
   const wsLatest = wsResults;
 

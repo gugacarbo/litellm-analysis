@@ -14,7 +14,9 @@ import { LogDetailPage } from "@/features/logs/detail";
 import { ModelStatsPage } from "@/features/model-stats/index";
 import { ModelDetailPage } from "@/features/models/detail-index";
 import { ModelConfigPage } from "@/features/models/index";
-import { ModelsPage } from "@/features/models/list-index";
+import { ModelsConfiguredPage } from "@/features/models/models-configured-page";
+import { ModelsHealthCheckPage } from "@/features/models/models-health-check-page";
+import { ModelsLayout } from "@/features/models/models-layout";
 import { MonitorPage } from "@/features/monitor";
 import { PluginConfigPage } from "@/features/plugins";
 import { PluginsPage } from "@/features/plugins/list-index";
@@ -60,18 +62,6 @@ const routes: RouteConfig[] = [
     path: "/model-stats",
     title: "Model Statistics",
     component: ModelStatsPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/models",
-    title: "Models",
-    component: ModelsPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/models/:modelName",
-    title: "Model Configuration",
-    component: ModelConfigPage,
     withErrorBoundary: true,
   },
   {
@@ -145,6 +135,44 @@ function App() {
       element: <AppLayout />,
       children: [
         ...routes.map(renderRoute),
+        {
+          path: "models",
+          element: (
+            <ErrorBoundary>
+              <ModelsLayout />
+            </ErrorBoundary>
+          ),
+          children: [
+            {
+              index: true,
+              element: <Navigate to="configured" replace />,
+            },
+            {
+              path: "configured",
+              element: (
+                <ErrorBoundary>
+                  <ModelsConfiguredPage />
+                </ErrorBoundary>
+              ),
+            },
+            {
+              path: "health-check",
+              element: (
+                <ErrorBoundary>
+                  <ModelsHealthCheckPage />
+                </ErrorBoundary>
+              ),
+            },
+            {
+              path: ":modelName",
+              element: (
+                <ErrorBoundary>
+                  <ModelConfigPage />
+                </ErrorBoundary>
+              ),
+            },
+          ],
+        },
         { path: "*", element: <Navigate to="/" replace /> },
       ],
     },
