@@ -31,5 +31,4 @@ export async function disconnectModelProxyPrisma(): Promise<void> {
   prismaInstance = null;
 }
 
-export { PrismaClient };
-export { Prisma };
+export { Prisma, PrismaClient };

@@ -1,13 +1,13 @@
 export {
+  type ChatCompletionsRequest,
+  chatCompletionsRequestSchema,
+  type ModelListResponse,
+  modelListResponseSchema,
+} from "./schemas";
+export {
   createModelProxyService,
   ModelProxyService,
 } from "./service";
-export {
-  chatCompletionsRequestSchema,
-  modelListResponseSchema,
-  type ChatCompletionsRequest,
-  type ModelListResponse,
-} from "./schemas";
 export type {
   IModelProxyService,
   ModelProxyServiceOptions,

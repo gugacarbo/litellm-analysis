@@ -1,9 +1,6 @@
 import type { PrismaClient } from "@lite-llm/model-proxy-repository";
 import type { IModelService } from "@lite-llm/models-service";
-import type {
-  ChatCompletionsRequest,
-  ModelListResponse,
-} from "./schemas";
+import type { ChatCompletionsRequest, ModelListResponse } from "./schemas";
 
 export interface ModelProxyServiceOptions {
   database?: PrismaClient;

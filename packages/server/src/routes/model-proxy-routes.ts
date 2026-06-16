@@ -1,9 +1,9 @@
 import { Readable } from "node:stream";
-import type { Application } from "express";
 import {
   chatCompletionsRequestSchema,
   modelListResponseSchema,
 } from "@lite-llm/model-proxy-service";
+import type { Application } from "express";
 import type { RouteOptions } from "../types/index";
 
 function readBearerToken(header?: string): string | null {
@@ -103,9 +103,8 @@ export function registerModelProxyRoutes(
         return;
       }
 
-      const response = await opts.modelProxyService.createChatCompletion(
-        request,
-      );
+      const response =
+        await opts.modelProxyService.createChatCompletion(request);
       res.status(response.status);
       response.headers.forEach((value, key) => {
         if (key.toLowerCase() === "content-length") {

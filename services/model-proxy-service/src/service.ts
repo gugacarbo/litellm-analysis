@@ -1,17 +1,17 @@
 import { serverEnv } from "@lite-llm/config/server";
+import type {
+  ModelProxyModel,
+  ModelProxyRequest,
+} from "@lite-llm/model-proxy-repository";
 import {
   getModelProxyPrisma,
   type Prisma,
   type PrismaClient,
 } from "@lite-llm/model-proxy-repository";
-import type {
-  ModelProxyModel,
-  ModelProxyRequest,
-} from "@lite-llm/model-proxy-repository";
 import type { IModelService } from "@lite-llm/models-service";
 import {
-  chatCompletionsRequestSchema,
   type ChatCompletionsRequest,
+  chatCompletionsRequestSchema,
   type ModelListEntry,
   type ModelListResponse,
 } from "./schemas";
@@ -335,7 +335,8 @@ export class ModelProxyService implements IModelProxyService {
           controller.close();
         } catch (error) {
           await this.finishRequest(requestRow.id, {
-            status: (error as Error).name === "AbortError" ? "cancelled" : "failed",
+            status:
+              (error as Error).name === "AbortError" ? "cancelled" : "failed",
             finishedAt: this.now(),
             latencyMs: this.now().getTime() - startedAt.getTime(),
             ttftMs,
@@ -436,7 +437,9 @@ export class ModelProxyService implements IModelProxyService {
       serverEnv.MODEL_PROXY_UPSTREAM_API_KEY?.trim();
 
     if (!upstreamApiKey) {
-      throw new Error(`No upstream API key configured for model "${modelName}"`);
+      throw new Error(
+        `No upstream API key configured for model "${modelName}"`,
+      );
     }
 
     return {
@@ -542,15 +545,14 @@ export class ModelProxyService implements IModelProxyService {
     return headerId?.trim() ? headerId.trim() : undefined;
   }
 
-  private extractUpstreamRequestIdFromStream(buffer: string): string | undefined {
+  private extractUpstreamRequestIdFromStream(
+    buffer: string,
+  ): string | undefined {
     const matches = buffer.match(/"id"\s*:\s*"([^"]+)"/);
     return matches?.[1];
   }
 
-  private readUsageFromStreamBuffer(
-    buffer: string,
-    usage: UsageSummary,
-  ): void {
+  private readUsageFromStreamBuffer(buffer: string, usage: UsageSummary): void {
     const lines = buffer.split("\n\n");
     for (const line of lines) {
       const trimmed = line.trim();

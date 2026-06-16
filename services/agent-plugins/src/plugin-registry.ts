@@ -235,7 +235,8 @@ class PluginRegistryV2Impl implements PluginRegistryV2 {
       context.allModels = modelsConfig.models ?? {};
 
       const litellmProvider =
-        modelsConfig.provider?.["local-proxy"] ?? modelsConfig.provider?.litellm;
+        modelsConfig.provider?.["local-proxy"] ??
+        modelsConfig.provider?.litellm;
       context.litellmConfig = {
         baseUrl: litellmProvider?.baseUrl ?? "",
         apiKey: litellmProvider?.apiKey ?? "",

@@ -132,7 +132,8 @@ describe("ModelProxyService", () => {
     });
 
     expect(fetchFn).toHaveBeenCalledOnce();
-    const updateCall = vi.mocked(database.modelProxyRequest.update).mock.calls[0];
+    const updateCall = vi.mocked(database.modelProxyRequest.update).mock
+      .calls[0];
     expect(updateCall?.[0]).toEqual(
       expect.objectContaining({
         data: expect.objectContaining({

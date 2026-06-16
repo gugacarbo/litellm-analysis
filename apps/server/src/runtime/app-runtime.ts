@@ -4,9 +4,7 @@ import { fileURLToPath } from "node:url";
 import { createAgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { prisma } from "@lite-llm/analytics-service/queries/client";
-import {
-  createModelProxyService,
-} from "@lite-llm/model-proxy-service";
+import { createModelProxyService } from "@lite-llm/model-proxy-service";
 import {
   createRepositoryClient as createModelsRepositoryClient,
   ModelService,
@@ -169,8 +167,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     maxConcurrency: 6,
     litellmApiUrl:
       env.MODEL_PROXY_BASE_URL?.trim() || env.LITELLM_API_URL || "",
-    litellmApiKey:
-      env.MODEL_PROXY_API_KEY?.trim() || env.LITELLM_API_KEY || "",
+    litellmApiKey: env.MODEL_PROXY_API_KEY?.trim() || env.LITELLM_API_KEY || "",
     enabledModelNames: [...enabledModelNames],
   });
 
