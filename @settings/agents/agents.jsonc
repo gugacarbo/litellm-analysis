@@ -251,6 +251,7 @@
       "thinking": {
         "levels": []
       },
+      "reasoning": {},
       "reasoningEffort": "medium",
       "textVerbosity": "medium",
       "tools": {},
@@ -291,6 +292,7 @@
       "thinking": {
         "levels": []
       },
+      "reasoning": {},
       "reasoningEffort": "medium",
       "textVerbosity": "medium",
       "tools": {},
@@ -331,6 +333,7 @@
       "thinking": {
         "levels": []
       },
+      "reasoning": {},
       "reasoningEffort": "medium",
       "textVerbosity": "medium",
       "tools": {},

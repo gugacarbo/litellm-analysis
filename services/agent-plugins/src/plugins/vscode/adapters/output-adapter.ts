@@ -15,7 +15,7 @@ function modelAdapter(
   model: PluginRuntimeContext["allModels"][string],
   baseUrl: string,
 ): VscodeSchemaType["oaicopilot.models"][number] {
-  return {
+  const entry: VscodeSchemaType["oaicopilot.models"][number] = {
     name: model.displayName,
     id: modelId,
     baseUrl,
@@ -27,7 +27,35 @@ function modelAdapter(
     "model-settings": {
       "max-tokens": model.limits.maxOutput,
     },
+    context_length: model.limits.length,
+    max_tokens: model.limits.maxOutput,
   };
+
+  if (model.displayName) {
+    entry.displayName = model.displayName;
+  }
+  if (model.ownedBy) {
+    entry.owned_by = model.ownedBy;
+  }
+
+  if (model.apiMode) {
+    entry.apiMode = model.apiMode;
+  }
+  if (model.vision === true) {
+    entry.vision = true;
+  }
+  if (model.reasoning?.effort) {
+    entry.reasoning_effort = model.reasoning.effort;
+  }
+  if (model.reasoning?.enableThinking !== undefined) {
+    entry.enable_thinking = model.reasoning.enableThinking;
+  }
+  if (model.reasoning?.includeReasoningInRequest !== undefined) {
+    entry.include_reasoning_in_request =
+      model.reasoning.includeReasoningInRequest;
+  }
+
+  return entry;
 }
 
 export function adaptVsCodeOutput(

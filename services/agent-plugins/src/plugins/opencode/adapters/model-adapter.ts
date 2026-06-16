@@ -68,9 +68,7 @@ function buildReasoningConfig(
 
   return {
     reasoning: true,
-    ...(hasReasoningEffort
-      ? { options: { reasoningEffort } }
-      : {}),
+    ...(hasReasoningEffort ? { options: { reasoningEffort } } : {}),
     ...(reasoning?.includeReasoningInRequest === true
       ? { interleaved: { field: "reasoning_content" as const } }
       : {}),

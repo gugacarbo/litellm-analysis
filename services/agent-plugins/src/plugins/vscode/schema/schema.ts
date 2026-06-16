@@ -27,6 +27,15 @@ export const vscodeSchema = z.object({
       "model-settings": z
         .object({ "max-tokens": z.number().optional() })
         .optional(),
+      context_length: z.number().optional(),
+      max_tokens: z.number().optional(),
+      apiMode: z.string().optional(),
+      reasoning_effort: z.string().optional(),
+      enable_thinking: z.boolean().optional(),
+      include_reasoning_in_request: z.boolean().optional(),
+      vision: z.boolean().optional(),
+      owned_by: z.string().optional(),
+      displayName: z.string().optional(),
     }),
   ),
 });

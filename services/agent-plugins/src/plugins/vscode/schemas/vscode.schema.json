@@ -109,6 +109,44 @@
               "description": "Maximum tokens in response"
             }
           }
+        },
+        "context_length": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum context window in tokens"
+        },
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum tokens in response"
+        },
+        "apiMode": {
+          "type": "string",
+          "description": "API mode for the model (e.g., openai, anthropic)"
+        },
+        "reasoning_effort": {
+          "type": "string",
+          "description": "Reasoning effort level (low, medium, high, xhigh)"
+        },
+        "enable_thinking": {
+          "type": "boolean",
+          "description": "Whether to enable thinking/reasoning"
+        },
+        "include_reasoning_in_request": {
+          "type": "boolean",
+          "description": "Whether to include reasoning in the request"
+        },
+        "vision": {
+          "type": "boolean",
+          "description": "Whether the model supports vision/image inputs"
+        },
+        "owned_by": {
+          "type": "string",
+          "description": "Owner/organization identifier for the model"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name alias for consumers that read this field"
         }
       }
     }

@@ -9,6 +9,12 @@ export interface CategoryEntry {
   thinking?: {
     levels: string[];
   };
+  reasoning?: {
+    effort?: "low" | "medium" | "high" | "xhigh";
+    enableThinking?: boolean;
+    includeReasoningInRequest?: boolean;
+    apiMode?: "openai" | "anthropic";
+  };
   reasoningEffort?: "low" | "medium" | "high" | "xhigh";
   textVerbosity?: "low" | "medium" | "high";
   tools?: Record<string, boolean>;

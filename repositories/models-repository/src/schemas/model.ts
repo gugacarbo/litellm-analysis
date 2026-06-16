@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { thinkingSchema } from "./thinking";
+import { reasoningSchema, thinkingSchema } from "./thinking";
 
 export const costSchema = z.object({
   input: z
@@ -53,6 +53,23 @@ export const modelSpecSchema = z
     thinking: thinkingSchema.default({ levels: [] }).optional().meta({
       title: "Thinking",
       description: "Extended thinking configuration for this model",
+    }),
+    reasoning: reasoningSchema.optional().meta({
+      title: "Reasoning",
+      description: "Reasoning/thinking runtime configuration for this model",
+    }),
+    apiMode: z.enum(["openai", "anthropic"]).optional().meta({
+      title: "API Mode",
+      description:
+        "API provider mode used by consumers (e.g. openai, anthropic)",
+    }),
+    vision: z.boolean().optional().meta({
+      title: "Vision",
+      description: "Whether this model supports vision/image inputs",
+    }),
+    ownedBy: z.string().optional().meta({
+      title: "Owned By",
+      description: "Organization or provider that owns this model",
     }),
   })
   .strict();

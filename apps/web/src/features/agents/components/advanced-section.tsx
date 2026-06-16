@@ -76,42 +76,99 @@ export function AdvancedSection({
       {renderSection(
         "reasoning",
         "Reasoning & Verbosity",
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="cat-reasoning">Reasoning Effort</Label>
-            <select
-              id="cat-reasoning"
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-              value={category.reasoningEffort ?? "medium"}
-              onChange={(e) =>
-                onUpdate(
-                  "reasoningEffort",
-                  e.target.value as "low" | "medium" | "high" | "xhigh",
-                )
-              }
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="xhigh">Extra High</option>
-            </select>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="cat-reasoning">Reasoning Effort</Label>
+              <select
+                id="cat-reasoning"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                value={category.reasoningEffort ?? "medium"}
+                onChange={(e) =>
+                  onUpdate(
+                    "reasoningEffort",
+                    e.target.value as "low" | "medium" | "high" | "xhigh",
+                  )
+                }
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="xhigh">Extra High</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cat-verbosity">Text Verbosity</Label>
+              <select
+                id="cat-verbosity"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                value={category.textVerbosity ?? "medium"}
+                onChange={(e) =>
+                  onUpdate(
+                    "textVerbosity",
+                    e.target.value as "low" | "medium" | "high",
+                  )
+                }
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="cat-enable-thinking"
+                checked={category.reasoning?.enableThinking ?? false}
+                onChange={(e) =>
+                  onUpdate("reasoning", {
+                    ...category.reasoning,
+                    enableThinking: e.target.checked,
+                  })
+                }
+                className="h-4 w-4 rounded border-input"
+              />
+              <span className="text-sm">Enable thinking</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="cat-include-reasoning"
+                checked={category.reasoning?.includeReasoningInRequest ?? false}
+                onChange={(e) =>
+                  onUpdate("reasoning", {
+                    ...category.reasoning,
+                    includeReasoningInRequest: e.target.checked,
+                  })
+                }
+                className="h-4 w-4 rounded border-input"
+              />
+              <span className="text-sm">Include reasoning in request</span>
+            </label>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="cat-verbosity">Text Verbosity</Label>
+            <Label htmlFor="cat-api-mode">API Mode</Label>
             <select
-              id="cat-verbosity"
+              id="cat-api-mode"
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-              value={category.textVerbosity ?? "medium"}
+              value={category.reasoning?.apiMode ?? ""}
               onChange={(e) =>
-                onUpdate(
-                  "textVerbosity",
-                  e.target.value as "low" | "medium" | "high",
-                )
+                onUpdate("reasoning", {
+                  ...category.reasoning,
+                  apiMode: (e.target.value || undefined) as
+                    | "openai"
+                    | "anthropic"
+                    | undefined,
+                })
               }
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+              <option value="">Default</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
             </select>
           </div>
         </div>,

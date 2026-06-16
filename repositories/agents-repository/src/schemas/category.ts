@@ -1,5 +1,6 @@
 import {
   costSchema,
+  reasoningSchema,
   thinkingSchema,
 } from "@lite-llm/models-repository/schemas";
 import { z } from "zod";
@@ -68,6 +69,10 @@ export const categoryEntrySchema = z.object({
   thinking: thinkingSchema
     .default({ levels: [] })
     .meta({ title: "Thinking", description: "Thinking configuration" })
+    .optional(),
+  reasoning: reasoningSchema
+    .default({})
+    .meta({ title: "Reasoning", description: "Reasoning configuration" })
     .optional(),
   reasoningEffort: z
     .enum(["low", "medium", "high", "xhigh"])

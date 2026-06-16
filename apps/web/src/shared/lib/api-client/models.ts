@@ -1,9 +1,25 @@
 import { fetchApi } from "./core";
 
+export type ModelReasoningConfig = {
+  effort?: "low" | "medium" | "high" | "xhigh";
+  enableThinking?: boolean;
+  includeReasoningInRequest?: boolean;
+  apiMode?: "openai" | "anthropic";
+};
+
 export type ModelConfig = {
   modelName: string;
   litellmParams: Record<string, unknown>;
   enabled?: boolean;
+  config?: {
+    displayName?: string;
+    family?: string;
+    ownedBy?: string;
+    apiMode?: "openai" | "anthropic";
+    vision?: boolean;
+    thinking?: { levels?: string[] };
+    reasoning?: ModelReasoningConfig;
+  };
 };
 
 export type ModelWithStatus = ModelConfig & {
@@ -75,12 +91,14 @@ export async function updateModel(
   modelName: string,
   litellmParams: Record<string, unknown>,
   newName?: string,
+  config?: ModelConfig["config"],
 ): Promise<{ success: boolean }> {
   return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
     method: "PUT",
     body: JSON.stringify({
       litellmParams,
       ...(newName ? { modelName: newName } : {}),
+      ...(config ? { config } : {}),
     }),
   });
 }

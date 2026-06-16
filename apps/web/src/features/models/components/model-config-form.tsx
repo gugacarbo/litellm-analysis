@@ -1,4 +1,5 @@
 import { Database, Plus, Settings, Trash2 } from "lucide-react";
+import { useCallback } from "react";
 import type { ModelConfigFormData } from "@/features/models/use-model-config-page";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -126,7 +127,7 @@ function GlobalSettingsSection({
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="family" className="text-sm font-medium">
               Family
@@ -140,6 +141,48 @@ function GlobalSettingsSection({
               placeholder="e.g., GPT-4"
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="owned-by" className="text-sm font-medium">
+              Owned By
+            </Label>
+            <Input
+              id="owned-by"
+              value={formData.ownedBy}
+              onChange={(e) =>
+                onFormDataChange({ ...formData, ownedBy: e.target.value })
+              }
+              placeholder="e.g., atplus"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="api-mode" className="text-sm font-medium">
+              API Mode
+            </Label>
+            <Select
+              value={formData.apiMode || "none"}
+              onValueChange={(value) =>
+                onFormDataChange({
+                  ...formData,
+                  apiMode:
+                    value === "none" ? "" : (value as "openai" | "anthropic"),
+                })
+              }
+            >
+              <SelectTrigger id="api-mode">
+                <SelectValue placeholder="Select API mode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">
+                  <span className="text-muted-foreground">Default</span>
+                </SelectItem>
+                <SelectItem value="openai">OpenAI</SelectItem>
+                <SelectItem value="anthropic">Anthropic</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="thinking-levels" className="text-sm font-medium">
               Thinking Levels
@@ -159,6 +202,26 @@ function GlobalSettingsSection({
             <p className="text-xs text-muted-foreground">
               Comma-separated list of available thinking modes
             </p>
+          </div>
+          <div className="flex items-center space-x-3 rounded-md border p-3">
+            <Switch
+              id="vision"
+              checked={formData.vision}
+              onCheckedChange={(checked) =>
+                onFormDataChange({ ...formData, vision: checked })
+              }
+            />
+            <div className="space-y-0.5">
+              <Label
+                htmlFor="vision"
+                className="text-sm font-medium cursor-pointer"
+              >
+                Vision support
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Model accepts image inputs
+              </p>
+            </div>
           </div>
         </div>
 
@@ -182,8 +245,122 @@ function GlobalSettingsSection({
             </p>
           </div>
         </div>
+
+        <ReasoningSettingsSection
+          formData={formData}
+          onFormDataChange={onFormDataChange}
+        />
       </CardContent>
     </Card>
+  );
+}
+
+function ReasoningSettingsSection({
+  formData,
+  onFormDataChange,
+}: {
+  formData: ModelConfigFormData;
+  onFormDataChange: (next: ModelConfigFormData) => void;
+}) {
+  const reasoning = formData.reasoning;
+
+  const updateReasoning = useCallback(
+    (patch: Partial<ModelConfigFormData["reasoning"]>) => {
+      onFormDataChange({
+        ...formData,
+        reasoning: { ...reasoning, ...patch },
+      });
+    },
+    [formData, onFormDataChange, reasoning],
+  );
+
+  return (
+    <div className="space-y-3 rounded-md border p-4">
+      <h4 className="text-sm font-medium">Reasoning / Thinking</h4>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="reasoning-effort" className="text-sm font-medium">
+            Reasoning Effort
+          </Label>
+          <Select
+            value={reasoning.effort || "none"}
+            onValueChange={(value) =>
+              updateReasoning({
+                effort:
+                  value === "none"
+                    ? ""
+                    : (value as ModelConfigFormData["reasoning"]["effort"]),
+              })
+            }
+          >
+            <SelectTrigger id="reasoning-effort">
+              <SelectValue placeholder="Select effort level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Default / none</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="xhigh">Extra High</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Maps to reasoning_effort in VS Code / OpenCode
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="reasoning-api-mode" className="text-sm font-medium">
+            API Mode
+          </Label>
+          <Select
+            value={reasoning.apiMode || "none"}
+            onValueChange={(value) =>
+              updateReasoning({
+                apiMode:
+                  value === "none" ? "" : (value as "openai" | "anthropic"),
+              })
+            }
+          >
+            <SelectTrigger id="reasoning-api-mode">
+              <SelectValue placeholder="Select API mode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">
+                <span className="text-muted-foreground">Default</span>
+              </SelectItem>
+              <SelectItem value="openai">OpenAI</SelectItem>
+              <SelectItem value="anthropic">Anthropic</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-6">
+        <label className="flex items-center gap-2">
+          <Switch
+            id="enable-thinking"
+            checked={reasoning.enableThinking}
+            onCheckedChange={(checked) =>
+              updateReasoning({ enableThinking: checked })
+            }
+          />
+          <span className="text-sm">Enable thinking</span>
+        </label>
+
+        <label className="flex items-center gap-2">
+          <Switch
+            id="include-reasoning"
+            checked={reasoning.includeReasoningInRequest}
+            onCheckedChange={(checked) =>
+              updateReasoning({ includeReasoningInRequest: checked })
+            }
+          />
+          <span className="text-sm">Include reasoning in request</span>
+        </label>
+      </div>
+    </div>
   );
 }
 

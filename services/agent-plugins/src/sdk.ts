@@ -15,6 +15,7 @@ export interface PluginRuntimeContext {
   litellmConfig: { baseUrl: string; apiKey: string };
   allCategories?: Record<string, CategoryEntry>;
   modelNames?: readonly string[];
+  ownedBy?: string;
 }
 
 export type PluginRoutingFor<TConfig extends Record<string, unknown>> = {

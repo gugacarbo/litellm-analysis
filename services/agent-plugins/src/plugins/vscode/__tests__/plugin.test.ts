@@ -290,5 +290,54 @@ describe("createVsCodePlugin", () => {
       >;
       expect(models).toHaveLength(1);
     });
+
+    it("emite campos de reasoning/thinking e metadados do modelo", () => {
+      const plugin = createVsCodePlugin();
+      const output = buildOutput(
+        plugin,
+        [],
+        {
+          enabled: true,
+          outputFile: "vscode-oaicopilot.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "claude-opus": {
+              enabled: true,
+              displayName: "Claude 3 Opus",
+              ownedBy: "anthropic",
+              apiMode: "anthropic",
+              vision: true,
+              limits: { length: 200000, maxOutput: 4096 },
+              reasoning: {
+                effort: "high",
+                enableThinking: true,
+                includeReasoningInRequest: true,
+              },
+            },
+          },
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const models = output["oaicopilot.models"] as Array<
+        Record<string, unknown>
+      >;
+      expect(models).toHaveLength(1);
+      const model = models[0];
+      expect(model.displayName).toBe("Claude 3 Opus");
+      expect(model.owned_by).toBe("anthropic");
+      expect(model.apiMode).toBe("anthropic");
+      expect(model.vision).toBe(true);
+      expect(model.context_length).toBe(200000);
+      expect(model.max_tokens).toBe(4096);
+      expect(model.reasoning_effort).toBe("high");
+      expect(model.enable_thinking).toBe(true);
+      expect(model.include_reasoning_in_request).toBe(true);
+    });
   });
 });
