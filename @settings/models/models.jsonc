@@ -2,6 +2,13 @@
   "$schema": "./models.schema.json",
   "version": 1,
   "provider": {
+    "local-proxy": {
+      "name": "Local Model Proxy",
+      "ownedBy": "lite-llm-analytics",
+      "baseUrl": "http://localhost:3008/v1",
+      "apiKey": "env:MODEL_PROXY_API_KEY",
+      "defaultCredential": "ATplus Router"
+    },
     "litellm": {
       "name": "LiteLLM",
       "ownedBy": "atplus",

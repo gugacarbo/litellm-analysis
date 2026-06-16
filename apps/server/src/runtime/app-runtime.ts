@@ -5,6 +5,9 @@ import { createAgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { prisma } from "@lite-llm/analytics-service/queries/client";
 import {
+  createModelProxyService,
+} from "@lite-llm/model-proxy-service";
+import {
   createRepositoryClient as createModelsRepositoryClient,
   ModelService,
   ProviderService,
@@ -117,6 +120,9 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   const providerService = new ProviderService({
     repository: modelsRepository,
   });
+  const modelProxyService = createModelProxyService({
+    modelsService,
+  });
   const orchestration = createOrchestrationServices(
     ctx.analytics.dataSource,
     agentPlugins,
@@ -128,6 +134,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       dataSource: ctx.analytics.dataSource,
       orchestration,
       agentsManager: agentPlugins,
+      modelProxyService,
       modelsService,
       providerService,
     },
@@ -160,8 +167,10 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     timeoutMs: env.HEALTH_CHECK_TIMEOUT_MS,
     prompt: healthCheckPrompt,
     maxConcurrency: 6,
-    litellmApiUrl: env.LITELLM_API_URL,
-    litellmApiKey: env.LITELLM_API_KEY,
+    litellmApiUrl:
+      env.MODEL_PROXY_BASE_URL?.trim() || env.LITELLM_API_URL || "",
+    litellmApiKey:
+      env.MODEL_PROXY_API_KEY?.trim() || env.LITELLM_API_KEY || "",
     enabledModelNames: [...enabledModelNames],
   });
 

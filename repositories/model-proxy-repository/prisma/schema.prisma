@@ -1,0 +1,131 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("MODEL_PROXY_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+model ModelProxyRequest {
+  id                 String   @id @default(cuid())
+  upstreamRequestId  String?  @map("upstream_request_id")
+  model              String
+  upstreamModel      String   @map("upstream_model")
+  upstreamBaseUrl    String   @map("upstream_base_url")
+  status             String
+  startedAt          DateTime @default(now()) @map("started_at")
+  finishedAt         DateTime? @map("finished_at")
+  latencyMs          Int?     @map("latency_ms")
+  ttftMs             Int?     @map("ttft_ms")
+  inputTokens        Int?     @map("input_tokens")
+  outputTokens       Int?     @map("output_tokens")
+  totalTokens        Int?     @map("total_tokens")
+  estimatedCostUsd   Float?   @map("estimated_cost_usd")
+  errorSummary       String?  @map("error_summary")
+  requestBody        Json?    @map("request_body")
+  responseBody       Json?    @map("response_body")
+  responseHeaders    Json?    @map("response_headers")
+  messages           ModelProxyMessage[]
+
+  @@map("model_proxy_requests")
+  @@index([model, startedAt])
+  @@index([status, startedAt])
+}
+
+model ModelProxyMessage {
+  id         String            @id @default(cuid())
+  requestId  String            @map("request_id")
+  role       String
+  content    Json
+  createdAt  DateTime          @default(now()) @map("created_at")
+  request    ModelProxyRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("model_proxy_messages")
+  @@index([requestId, createdAt])
+}
+
+model ModelProxyModel {
+  id                  String   @id @default(cuid())
+  modelName           String   @unique @map("model_name")
+  enabled             Boolean  @default(true)
+  displayName         String?  @map("display_name")
+  family              String?
+  ownedBy             String?  @map("owned_by")
+  apiMode             String?  @map("api_mode")
+  vision              Boolean?
+  contextWindowSize   Int?     @map("context_window_size")
+  maxOutputTokens     Int?     @map("max_output_tokens")
+  inputCostPerToken   Float?   @map("input_cost_per_token")
+  outputCostPerToken  Float?   @map("output_cost_per_token")
+  upstreamModel       String?  @map("upstream_model")
+  upstreamBaseUrl     String?  @map("upstream_base_url")
+  credentialName      String?  @map("credential_name")
+  secretRef           String?  @map("secret_ref")
+  requestOptions      Json?    @map("request_options")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("model_proxy_models")
+  @@index([enabled, modelName])
+}
+
+model ModelProxyCredential {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  provider      String?
+  baseUrl       String?  @map("base_url")
+  apiKey        String?  @map("api_key")
+  secretRef     String?  @map("secret_ref")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("model_proxy_credentials")
+}
+
+model ModelProxyApiKey {
+  id         String   @id @default(cuid())
+  label      String
+  keyHash    String   @unique @map("key_hash")
+  enabled    Boolean  @default(true)
+  lastUsedAt DateTime? @map("last_used_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("model_proxy_api_keys")
+  @@index([enabled, label])
+}
+
+model ModelProxySetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("model_proxy_settings")
+}
+
+model ModelProxyAlias {
+  id          String   @id @default(cuid())
+  alias       String   @unique
+  targetModel String   @map("target_model")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("model_proxy_aliases")
+}
+
+model ModelProxyImportJob {
+  id          String   @id @default(cuid())
+  source      String
+  status      String
+  startedAt   DateTime @default(now()) @map("started_at")
+  finishedAt  DateTime? @map("finished_at")
+  summary     Json?
+  error       String?
+
+  @@map("model_proxy_import_jobs")
+  @@index([status, startedAt])
+}

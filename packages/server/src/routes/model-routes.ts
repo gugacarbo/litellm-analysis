@@ -7,13 +7,41 @@ import {
   getCredentialNameFromParams,
   isRecord,
 } from "../orchestration/lite-llm-params";
-import type { RouteOptions } from "../types/index";
+import type { DbModelSpecLike, RouteOptions } from "../types/index";
+
+function buildModelConfigResponse(
+  spec: DbModelSpecLike,
+): ConfigModelEntry["config"] {
+  return {
+    displayName: spec.displayName,
+    family: spec.family,
+    ownedBy: spec.ownedBy,
+    thinking: spec.thinking,
+    reasoning: spec.reasoning,
+    apiMode: spec.apiMode,
+    vision: spec.vision,
+  };
+}
 
 interface ConfigModelEntry {
   modelName: string;
   status: "synced" | "config-only" | "litellm-only";
   litellmParams: Record<string, unknown>;
   enabled?: boolean;
+  config?: {
+    displayName?: string;
+    family?: string;
+    ownedBy?: string;
+    thinking?: { levels: string[] };
+    reasoning?: {
+      effort?: "low" | "medium" | "high" | "xhigh";
+      enableThinking?: boolean;
+      includeReasoningInRequest?: boolean;
+      apiMode?: string;
+    };
+    apiMode?: "openai" | "anthropic";
+    vision?: boolean;
+  };
 }
 
 type SyncField =
@@ -91,8 +119,10 @@ export function registerModelRoutes(
   const { dataSource } = opts;
 
   async function getResolvedDefaultCredential(): Promise<string | null> {
-    const litellmProvider = await opts.providerService.get("litellm");
-    const providerDefault = litellmProvider?.defaultCredential?.trim();
+    const preferredProvider =
+      (await opts.providerService.get("local-proxy")) ??
+      (await opts.providerService.get("litellm"));
+    const providerDefault = preferredProvider?.defaultCredential?.trim();
     if (providerDefault) {
       return providerDefault;
     }
@@ -282,7 +312,7 @@ export function registerModelRoutes(
   app.put("/models/:name", async (req, res) => {
     try {
       const { name } = req.params;
-      const { litellmParams, modelName } = req.body;
+      const { litellmParams, modelName, config } = req.body;
       const normalizedNewName =
         typeof modelName === "string" && modelName.trim()
           ? modelName.trim()
@@ -330,7 +360,46 @@ export function registerModelRoutes(
           }
         }
       }
+
+      if (isRecord(config)) {
+        const configUpdate: Partial<DbModelSpecLike> = {};
+        if (typeof config.displayName === "string") {
+          configUpdate.displayName = config.displayName || "";
+        }
+        if (typeof config.family === "string") {
+          configUpdate.family = config.family || undefined;
+        }
+        if (typeof config.ownedBy === "string") {
+          configUpdate.ownedBy = config.ownedBy || undefined;
+        }
+        if (config.apiMode === "openai" || config.apiMode === "anthropic") {
+          configUpdate.apiMode = config.apiMode;
+        }
+        if (typeof config.vision === "boolean") {
+          configUpdate.vision = config.vision;
+        }
+        if (isRecord(config.thinking)) {
+          configUpdate.thinking =
+            config.thinking as DbModelSpecLike["thinking"];
+        }
+        if (isRecord(config.reasoning)) {
+          configUpdate.reasoning =
+            config.reasoning as DbModelSpecLike["reasoning"];
+        }
+        if (Object.keys(configUpdate).length > 0) {
+          try {
+            await opts.modelsService.update(name, configUpdate);
+          } catch (configErr) {
+            // If model doesn't exist in config, that's fine — it may be litellm-only
+            if (!String(configErr).includes("not found")) {
+              throw configErr;
+            }
+          }
+        }
+      }
+
       if (modelName !== undefined) updates.modelName = normalizedNewName;
+
       try {
         if (Object.keys(updates).length > 0) {
           await dataSource.updateModel(name, updates);
@@ -344,6 +413,7 @@ export function registerModelRoutes(
           throw dbErr;
         }
       }
+
       res.json({ success: true });
     } catch (error) {
       const msg = String(error);
@@ -774,6 +844,8 @@ export function registerModelRoutes(
         let litellmParams: Record<string, unknown>;
         let enabled = true;
 
+        let config: ConfigModelEntry["config"] | undefined;
+
         if (inConfig && inLiteLLM) {
           const spec = configModels[modelName];
           status = "synced";
@@ -781,6 +853,7 @@ export function registerModelRoutes(
             litellmModels.find((m) => m.modelName === modelName)
               ?.litellmParams ?? {};
           enabled = spec?.enabled ?? true;
+          config = buildModelConfigResponse(spec);
         } else if (inConfig) {
           const spec = configModels[modelName];
           status = "config-only";
@@ -791,6 +864,7 @@ export function registerModelRoutes(
             output_cost_per_token: spec.cost?.output,
           };
           enabled = spec.enabled ?? true;
+          config = buildModelConfigResponse(spec);
         } else {
           status = "litellm-only";
           litellmParams =
@@ -799,7 +873,7 @@ export function registerModelRoutes(
           enabled = (litellmParams.enabled as boolean | undefined) ?? true;
         }
 
-        models.push({ modelName, status, litellmParams, enabled });
+        models.push({ modelName, status, litellmParams, enabled, config });
       }
 
       models.sort((a, b) => {

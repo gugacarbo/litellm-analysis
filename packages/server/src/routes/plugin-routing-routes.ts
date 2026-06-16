@@ -325,7 +325,9 @@ export function registerPluginRoutingRoutes(
       try {
         const [models, provider] = await Promise.all([
           opts.modelsService.getAll(),
-          opts.providerService.get("litellm"),
+          opts.providerService.get("local-proxy").then((localProxy) => {
+            return localProxy ?? opts.providerService.get("litellm");
+          }),
         ]);
         allModels = models ?? {};
         if (provider) {

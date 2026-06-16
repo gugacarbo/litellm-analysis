@@ -19,6 +19,7 @@
     "@lite-llm/contracts": "workspace:^",
     "@lite-llm/app-repository": "workspace:*",
     "@lite-llm/config": "workspace:*",
+    "@lite-llm/model-proxy-service": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
     "@lite-llm/monitor": "workspace:^",
     "@lite-llm/prompt-eval": "workspace:*",

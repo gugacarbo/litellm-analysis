@@ -92,6 +92,9 @@ importers:
       '@lite-llm/contracts':
         specifier: workspace:^
         version: link:../../packages/contracts
+      '@lite-llm/model-proxy-service':
+        specifier: workspace:*
+        version: link:../../services/model-proxy-service
       '@lite-llm/models-service':
         specifier: workspace:*
         version: link:../../services/models-service
@@ -180,6 +183,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.100.6
         version: 5.100.9(react@19.2.6)
+      '@tanstack/react-store':
+        specifier: ^0.11.0
+        version: 0.11.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -405,6 +411,9 @@ importers:
       '@lite-llm/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@lite-llm/model-proxy-service':
+        specifier: workspace:*
+        version: link:../../services/model-proxy-service
       '@lite-llm/models-service':
         specifier: workspace:*
         version: link:../../services/models-service
@@ -497,6 +506,25 @@ importers:
         specifier: 'catalog:'
         version: 6.0.3
 
+  repositories/model-proxy-repository:
+    dependencies:
+      '@lite-llm/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@prisma/client':
+        specifier: 6.19.3
+        version: 6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3)
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      prisma:
+        specifier: ^6.8.2
+        version: 6.19.3(typescript@6.0.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+
   repositories/models-repository:
     dependencies:
       '@lite-llm/config':
@@ -574,6 +602,31 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  services/model-proxy-service:
+    dependencies:
+      '@lite-llm/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@lite-llm/model-proxy-repository':
+        specifier: workspace:*
+        version: link:../../repositories/model-proxy-repository
+      '@lite-llm/models-service':
+        specifier: workspace:*
+        version: link:../models-service
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
   services/models-service:
     dependencies:
@@ -3538,12 +3591,21 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
+  '@tanstack/react-store@0.11.0':
+    resolution: {integrity: sha512-tX4YXh3PDkmpvGQWkWqKpzs/MSqbtuwY9dWdWhtV9Q50PmO+jOkUKIWIX4G85dwt7lxdHLXsiaEKPdKmC8F41w==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   '@tanstack/react-table@8.21.3':
     resolution: {integrity: sha512-5nNMTSETP4ykGegmVkhjcS8tTLW6Vl4axfEGQN3v0zdHYbK4UfoqfPChclTrJ4EoK9QynqAu9oUf8VEmrpZ5Ww==}
     engines: {node: '>=12'}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
+
+  '@tanstack/store@0.11.0':
+    resolution: {integrity: sha512-WlzzCt3xi0G6pCAJu1U+2jiECwabETDpQDi3hfkFZvJii9AuZqEKbOiVarX1/bWhTNjU486yQtJCCasi/0q+Cw==}
 
   '@tanstack/table-core@8.21.3':
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
@@ -9344,11 +9406,20 @@ snapshots:
       '@tanstack/query-core': 5.100.9
       react: 19.2.6
 
+  '@tanstack/react-store@0.11.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@tanstack/store': 0.11.0
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+      use-sync-external-store: 1.6.0(react@19.2.6)
+
   '@tanstack/react-table@8.21.3(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@tanstack/table-core': 8.21.3
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
+
+  '@tanstack/store@0.11.0': {}
 
   '@tanstack/table-core@8.21.3': {}
 

@@ -19,8 +19,25 @@ export const serverSchema = {
   DB_USER: z.string(),
   DB_PASSWORD: z.string().min(1, "DB_PASSWORD is required"),
 
-  LITELLM_API_URL: z.url(),
-  LITELLM_API_KEY: z.string().min(1, "LITELLM_API_KEY is required"),
+  LITELLM_API_URL: z.url().optional(),
+  LITELLM_API_KEY: z
+    .string()
+    .min(1, "LITELLM_API_KEY cannot be empty")
+    .optional(),
+  MODEL_PROXY_API_KEY: z
+    .string()
+    .min(1, "MODEL_PROXY_API_KEY cannot be empty")
+    .optional(),
+  MODEL_PROXY_DATABASE_URL: z
+    .string()
+    .min(1, "MODEL_PROXY_DATABASE_URL cannot be empty")
+    .optional(),
+  MODEL_PROXY_BASE_URL: z.url().optional(),
+  MODEL_PROXY_UPSTREAM_BASE_URL: z.url().optional(),
+  MODEL_PROXY_UPSTREAM_API_KEY: z
+    .string()
+    .min(1, "MODEL_PROXY_UPSTREAM_API_KEY cannot be empty")
+    .optional(),
 
   HEALTH_CHECK_INTERVAL_MS: z.coerce.number().int().positive(),
   HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().positive(),

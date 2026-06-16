@@ -52,6 +52,7 @@ lite-llm-analytics/
 ├── repositories/            # Config repositories + DB repos
 │   ├── agents-repository/  # Agents config persistence + validation
 │   ├── models-repository/  # Models config persistence + validation
+│   ├── model-proxy-repository/ # Local model-proxy PostgreSQL schema + Prisma client
 │   ├── repository-utils/   # Shared storage + JSONC parsing utilities
 │   ├── app-repository/     # App-specific DB (Drizzle ORM)
 │   └── litellm-repository/ # LiteLLM DB access via Prisma (generated client + raw SQL queries)
@@ -119,6 +120,7 @@ Detailed documentation in each package's `AGENTS.md`:
 | ---------------------------- | -------------- | ------------------------------------------------------------ |
 | `@lite-llm/agent-plugins`   | `src/index.ts` | Plugin system: OpenCode, OpenAgent, VS Code, LiteLLM aliases |
 | `@lite-llm/analytics-service`| `src/index.ts` | 46-method AnalyticsDataSource, Prisma raw SQL queries          |
+| `@lite-llm/model-proxy-service`| `src/index.ts` | Local OpenAI-compatible proxy, upstream forwarding, request ledger |
 | `@lite-llm/models-service`   | `src/index.ts` | Provider/model CRUD, alias DB management                      |
 
 ### /packages (shared libraries)
@@ -168,6 +170,11 @@ pnpm typecheck    # turbo typecheck (tsc --noEmit)
 # Single package (faster for iteration)
 pnpm --filter @lite-llm/analytics-service typecheck
 pnpm --filter @lite-llm/analytics-service build
+pnpm --filter @lite-llm/model-proxy-repository db:generate
+pnpm --filter @lite-llm/model-proxy-repository db:validate
+pnpm --filter @lite-llm/model-proxy-repository typecheck
+pnpm --filter @lite-llm/model-proxy-service typecheck
+pnpm --filter @lite-llm/model-proxy-service test
 pnpm --filter @lite-llm/server typecheck
 pnpm --filter @lite-llm/monitor typecheck
 pnpm --filter @lite-llm/litellm-repository typecheck
