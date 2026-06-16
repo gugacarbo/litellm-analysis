@@ -1,4 +1,4 @@
-import { createLitellmAliasPlugin } from "./plugins/litellm-alias";
+import { createModelAliasPlugin } from "./plugins/model-alias";
 import { createOpenAgentPlugin } from "./plugins/openagent";
 import { createOpenCodePlugin } from "./plugins/opencode";
 import { createVsCodePlugin } from "./plugins/vscode";
@@ -12,7 +12,7 @@ export function createPluginCatalog(
     createOpenCodePlugin(),
     createOpenAgentPlugin(),
     createVsCodePlugin(),
-    createLitellmAliasPlugin(options),
+    createModelAliasPlugin(options),
     createWeavePlugin(),
   ];
 }

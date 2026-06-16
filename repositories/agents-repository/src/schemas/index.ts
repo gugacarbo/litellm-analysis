@@ -21,7 +21,7 @@ export { agentsConfigSchema } from "./db-config";
 export type { Permission } from "./permission";
 export { permissionSchema } from "./permission";
 export type {
-  LitellmAliasPluginConfig,
+  ModelAliasPluginConfig,
   OpenAgentPluginConfig,
   OpenCodePluginConfig,
   VsCodePluginConfig,
@@ -29,7 +29,7 @@ export type {
 } from "./plugin-configs";
 export {
   getPluginConfigJsonSchema,
-  litellmAliasPluginConfigSchema,
+  modelAliasPluginConfigSchema,
   openAgentPluginConfigSchema,
   openCodePluginConfigSchema,
   pluginConfigJsonSchemas,

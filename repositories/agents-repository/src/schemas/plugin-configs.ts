@@ -1,5 +1,5 @@
 export type {
-  LitellmAliasPluginConfig,
+  ModelAliasPluginConfig,
   OpenAgentPluginConfig,
   OpenCodePluginConfig,
   VsCodePluginConfig,
@@ -7,7 +7,7 @@ export type {
 } from "@lite-llm/agent-plugins";
 export {
   getPluginConfigJsonSchema,
-  litellmAliasPluginConfigSchema,
+  modelAliasPluginConfigSchema,
   openAgentPluginConfigSchema,
   openCodePluginConfigSchema,
   pluginConfigJsonSchemas,

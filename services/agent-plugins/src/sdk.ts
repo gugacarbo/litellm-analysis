@@ -6,13 +6,13 @@ export type PluginId =
   | "opencode"
   | "openagent"
   | "vscode"
-  | "litellm-alias"
+  | "model-alias"
   | "weave";
 
 export interface PluginRuntimeContext {
   allModels: Record<string, ModelSpec>;
   globalFallbackModel?: string;
-  litellmConfig: { baseUrl: string; apiKey: string };
+  modelProxyConfig: { baseUrl: string; apiKey: string };
   allCategories?: Record<string, CategoryEntry>;
   modelNames?: readonly string[];
   ownedBy?: string;

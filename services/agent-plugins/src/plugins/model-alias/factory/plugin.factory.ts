@@ -1,46 +1,46 @@
 import { mergeConfig } from "../../../lib/merge-config";
 import type { CreatePluginOptions, PluginDefinition } from "../../../sdk";
-import { adaptLitellmAliasOutput } from "../adapters/output-adapter";
-import type { LitellmAliasPluginConfig } from "../config/config";
-import { litellmAliasPluginConfigDefaults } from "../config/config";
-import { litellmAliasManifest } from "../manifest/manifest";
+import { adaptModelAliasOutput } from "../adapters/output-adapter";
+import type { ModelAliasPluginConfig } from "../config/config";
+import { modelAliasPluginConfigDefaults } from "../config/config";
+import { modelAliasManifest } from "../manifest/manifest";
 import {
-  type LitellmAliasSchemaType,
-  litellmAliasSchema,
+  type ModelAliasSchemaType,
+  modelAliasSchema,
 } from "../schema/schema";
 
 export interface AliasDbWriter {
   updateAliases(aliases: Record<string, string>): Promise<void>;
 }
 
-export function createLitellmAliasPlugin(
+export function createModelAliasPlugin(
   options: CreatePluginOptions = {},
 ): PluginDefinition<
-  "litellm-alias",
-  LitellmAliasPluginConfig,
-  LitellmAliasSchemaType
+  "model-alias",
+  ModelAliasPluginConfig,
+  ModelAliasSchemaType
 > {
   return {
-    manifest: litellmAliasManifest,
+    manifest: modelAliasManifest,
     handlers: {
-      build(input): LitellmAliasSchemaType {
+      build(input): ModelAliasSchemaType {
         const config = mergeConfig(
-          litellmAliasPluginConfigDefaults,
+          modelAliasPluginConfigDefaults,
           input.routing.config,
         );
-        const output = adaptLitellmAliasOutput({
+        const output = adaptModelAliasOutput({
           agents: input.agents,
           routing: input.routing,
           context: input.context,
           config,
         });
-        return litellmAliasSchema.parse(output);
+        return modelAliasSchema.parse(output);
       },
       validate(output): boolean {
-        const result = litellmAliasSchema.safeParse(output);
+        const result = modelAliasSchema.safeParse(output);
         if (!result.success) {
           console.error(
-            "[LitellmAliasPlugin] Validation failed:",
+            "[ModelAliasPlugin] Validation failed:",
             result.error.issues,
           );
         }
@@ -53,7 +53,7 @@ export function createLitellmAliasPlugin(
           await options.aliasDbWriter.updateAliases(output.model_group_alias);
         } catch (error) {
           console.error(
-            `[LitellmAliasPlugin] Failed to sync aliases to DB: ${error}`,
+            `[ModelAliasPlugin] Failed to sync aliases to DB: ${error}`,
           );
         }
       },

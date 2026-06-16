@@ -180,7 +180,7 @@ export function usePluginConfigPage(pluginId: string) {
       string,
       unknown
     >,
-    litellmProvider: (safeData as Record<string, unknown>).litellmProvider as {
+    modelProxyProvider: (safeData as Record<string, unknown>).modelProxyProvider as {
       baseUrl: string;
       name: string;
     },

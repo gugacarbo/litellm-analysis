@@ -20,7 +20,7 @@ interface SystemAgentOption {
   displayName: string;
 }
 
-interface LitellmAliasRoutingTableProps {
+interface ModelAliasRoutingTableProps {
   systemAgents: SystemAgentOption[];
   categoryOptions: CategoryOption[];
   agentMappings: Record<string, string>;
@@ -30,7 +30,7 @@ interface LitellmAliasRoutingTableProps {
   onCategoryToggle: (categoryId: string) => void;
 }
 
-export function LitellmAliasRoutingTable({
+export function ModelAliasRoutingTable({
   systemAgents,
   categoryOptions,
   agentMappings,
@@ -38,7 +38,7 @@ export function LitellmAliasRoutingTable({
   configValues,
   onAgentMappingChange,
   onCategoryToggle,
-}: LitellmAliasRoutingTableProps) {
+}: ModelAliasRoutingTableProps) {
   if (systemAgents.length === 0 && categoryOptions.length === 0) return null;
 
   const includeAgents = configValues.includeAgents !== false;

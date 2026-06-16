@@ -23,14 +23,14 @@ export {
   type PluginConfigInput,
   type PluginRegistryV2,
 } from "./plugin-registry";
-export { createLitellmAliasPlugin } from "./plugins/litellm-alias";
+export { createModelAliasPlugin } from "./plugins/model-alias";
 export {
-  type LitellmAliasPluginConfig,
-  litellmAliasPluginConfigDefaults,
-  litellmAliasPluginConfigJsonSchema,
-} from "./plugins/litellm-alias/config/config";
-export { litellmAliasManifest } from "./plugins/litellm-alias/manifest/manifest";
-export { litellmAliasSchema as litellmAliasPluginConfigSchema } from "./plugins/litellm-alias/schema/schema";
+  type ModelAliasPluginConfig,
+  modelAliasPluginConfigDefaults,
+  modelAliasPluginConfigJsonSchema,
+} from "./plugins/model-alias/config/config";
+export { modelAliasManifest } from "./plugins/model-alias/manifest/manifest";
+export { modelAliasSchema as modelAliasPluginConfigSchema } from "./plugins/model-alias/schema/schema";
 export { createOpenAgentPlugin } from "./plugins/openagent";
 export {
   type OpenAgentPluginConfig,

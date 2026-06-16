@@ -52,11 +52,11 @@
         "categories": {}
       }
     },
-    "litellm-alias": {
+    "model-alias": {
       "enabled": true,
-      "outputFile": "litellm-aliases.json",
+      "outputFile": "model-aliases.json",
       "config": {
-        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/litellm-alias/schemas/litellm-alias.schema.json",
+        "$schema": "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/model-alias/schemas/model-alias.schema.json",
         "model_group_alias": {}
       },
       "routing": {

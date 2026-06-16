@@ -30,10 +30,15 @@ const normalizePluginConfigPayload = (
 const asRecord = (value: unknown): Record<string, unknown> =>
   isRecord(value) ? value : {};
 
+function normalizePluginId(pluginId: string): string {
+  return pluginId === "litellm-alias" ? "model-alias" : pluginId;
+}
+
 const normalizePluginConfigById = (
   pluginId: string,
   value: unknown,
 ): Record<string, unknown> => {
+  pluginId = normalizePluginId(pluginId);
   const config = asRecord(value);
 
   if (pluginId === "openagent") {
@@ -114,7 +119,7 @@ const normalizePluginConfigById = (
     };
   }
 
-  if (pluginId === "litellm-alias") {
+  if (pluginId === "model-alias") {
     return {
       $schema: config.$schema,
       model_group_alias: config.model_group_alias ?? {},
@@ -129,9 +134,10 @@ const normalizePluginRoutingMap = (
 ): Record<string, PluginRoutingInput> => {
   const normalized: Record<string, PluginRoutingInput> = {};
   for (const [pluginId, plugin] of Object.entries(plugins)) {
-    normalized[pluginId] = {
+    const normalizedPluginId = normalizePluginId(pluginId);
+    normalized[normalizedPluginId] = {
       ...plugin,
-      config: normalizePluginConfigById(pluginId, plugin.config),
+      config: normalizePluginConfigById(normalizedPluginId, plugin.config),
     };
   }
   return normalized;
@@ -215,7 +221,8 @@ export function registerPluginRoutingRoutes(
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
-      const { pluginId, agentId } = req.params;
+      const pluginId = normalizePluginId(req.params.pluginId);
+      const { agentId } = req.params;
       const newEnabled = await manager.services.routing.toggleAgentPlugin(
         pluginId,
         agentId,
@@ -271,7 +278,7 @@ export function registerPluginRoutingRoutes(
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
-      const { pluginId } = req.params;
+      const pluginId = normalizePluginId(req.params.pluginId);
       const schema = manager.registry.getJsonSchema(pluginId);
 
       if (!schema) {
@@ -318,22 +325,20 @@ export function registerPluginRoutingRoutes(
 
       // Fetch models context for plugins that need it (e.g. OpenCode)
       let allModels: Record<string, unknown> = {};
-      let litellmProvider: { baseUrl: string; name: string } = {
+      let modelProxyProvider: { baseUrl: string; name: string } = {
         baseUrl: "",
         name: "",
       };
       try {
         const [models, provider] = await Promise.all([
           opts.modelsService.getAll(),
-          opts.providerService.get("local-proxy").then((localProxy) => {
-            return localProxy ?? opts.providerService.get("litellm");
-          }),
+          opts.providerService.get("local-proxy"),
         ]);
         allModels = models ?? {};
         if (provider) {
-          litellmProvider = {
+          modelProxyProvider = {
             baseUrl: provider.baseUrl ?? "",
-            name: provider.name ?? "LiteLLM",
+            name: provider.name ?? "Local Model Proxy",
           };
         }
       } catch {
@@ -347,7 +352,7 @@ export function registerPluginRoutingRoutes(
         schema,
         internalAgents,
         allModels,
-        litellmProvider,
+        modelProxyProvider,
       });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -363,7 +368,7 @@ export function registerPluginRoutingRoutes(
         return;
       }
       const { services } = manager;
-      const { pluginId } = req.params;
+      const pluginId = normalizePluginId(req.params.pluginId);
       const { config, agentMappings, categoryMappings } = req.body as {
         config?: Record<string, unknown>;
         agentMappings?: Record<string, string>;
@@ -432,7 +437,8 @@ export function registerPluginRoutingRoutes(
           return;
         }
         const { services } = manager;
-        const { pluginId, categoryId } = req.params;
+      const pluginId = normalizePluginId(req.params.pluginId);
+      const { categoryId } = req.params;
         const enabled = await services.routing.toggleCategoryMapping(
           pluginId,
           categoryId,

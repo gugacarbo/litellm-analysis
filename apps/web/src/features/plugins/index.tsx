@@ -21,7 +21,7 @@ import {
 } from "@/shared/components/ui/tabs";
 import { AgentMappingTable } from "./components/agent-mapping-table";
 import { CategoryExportList } from "./components/category-export-list";
-import { LitellmAliasRoutingTable } from "./components/litellm-alias-routing-table";
+import { ModelAliasRoutingTable } from "./components/model-alias-routing-table";
 import { PluginConfigForm } from "./components/plugin-config-form";
 import { OpenCodeConfigPage } from "./opencode-config";
 import { usePluginConfigPage } from "./use-plugin-config-page";
@@ -33,7 +33,7 @@ export function PluginConfigPage() {
   const state = usePluginConfigPage(pluginId ?? "");
   const [copied, setCopied] = useState(false);
 
-  const showAliasRouting = state.pluginId === "litellm-alias";
+  const showAliasRouting = state.pluginId === "model-alias";
   const showAgentsTab = !showAliasRouting && state.internalAgents.length > 0;
   const showCategoriesTab = !showAliasRouting && state.categories.length > 0;
   const showPreviewTab =
@@ -163,7 +163,7 @@ export function PluginConfigPage() {
                     config={state.configValues}
                     onChange={state.handleConfigChange}
                     allModels={state.allModels}
-                    litellmProvider={state.litellmProvider}
+                    modelProxyProvider={state.modelProxyProvider}
                   />
                 ) : state.jsonSchema ? (
                   <div className="space-y-4">
@@ -191,7 +191,7 @@ export function PluginConfigPage() {
 
               {showAliasRouting ? (
                 <TabsContent value="routing">
-                  <LitellmAliasRoutingTable
+                  <ModelAliasRoutingTable
                     systemAgents={state.systemAgents}
                     categoryOptions={state.categoryOptions}
                     agentMappings={state.agentMappings}

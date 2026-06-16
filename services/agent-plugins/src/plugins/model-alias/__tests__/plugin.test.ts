@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { PluginRouting, SystemAgent } from "../../../types";
 import type { TransformContext } from "../../plugin";
-import { createLitellmAliasPlugin } from "../factory/plugin.factory";
+import { createModelAliasPlugin } from "../factory/plugin.factory";
 
 function buildOutput(
-  plugin: ReturnType<typeof createLitellmAliasPlugin>,
+  plugin: ReturnType<typeof createModelAliasPlugin>,
   agents: SystemAgent[],
   routing: PluginRouting,
   context: TransformContext,
@@ -12,14 +12,14 @@ function buildOutput(
   return plugin.handlers.build({
     agents,
     routing: routing as Parameters<
-      ReturnType<typeof createLitellmAliasPlugin>["handlers"]["build"]
+      ReturnType<typeof createModelAliasPlugin>["handlers"]["build"]
     >[0]["routing"],
     context,
   });
 }
 
-describe("createLitellmAliasPlugin", () => {
-  const plugin = createLitellmAliasPlugin();
+describe("createModelAliasPlugin", () => {
+  const plugin = createModelAliasPlugin();
 
   const makeCtx = (
     overrides?: Partial<TransformContext>,
@@ -37,7 +37,7 @@ describe("createLitellmAliasPlugin", () => {
       },
     },
     globalFallbackModel: "gpt-3.5",
-    litellmConfig: { baseUrl: "http://localhost:4000", apiKey: "key" },
+    modelProxyConfig: { baseUrl: "http://localhost:4000", apiKey: "key" },
     ...overrides,
   });
 
@@ -56,16 +56,16 @@ describe("createLitellmAliasPlugin", () => {
   });
 
   it("should have correct metadata", () => {
-    expect(plugin.manifest.id).toBe("litellm-alias");
-    expect(plugin.manifest.displayName).toBe("LiteLLM Router Aliases");
-    expect(plugin.manifest.output.fileName).toBe("litellm-aliases.json");
+    expect(plugin.manifest.id).toBe("model-alias");
+    expect(plugin.manifest.displayName).toBe("Model Aliases");
+    expect(plugin.manifest.output.fileName).toBe("model-aliases.json");
   });
 
   it("should generate aliases from agents with model", () => {
     const agents = [makeAgent("coder", { model: "gpt-4" })];
     const routing: PluginRouting = {
       enabled: true,
-      outputFile: "litellm-aliases.json",
+      outputFile: "model-aliases.json",
       routing: { agents: { coder: "coder" }, categories: {} },
     };
     const ctx = makeCtx();
@@ -82,7 +82,7 @@ describe("createLitellmAliasPlugin", () => {
     const agents = [makeAgent("coder", { model: "disabled-model" })];
     const routing: PluginRouting = {
       enabled: true,
-      outputFile: "litellm-aliases.json",
+      outputFile: "model-aliases.json",
       routing: { agents: { coder: "coder" }, categories: {} },
     };
     const ctx = makeCtx({
@@ -109,7 +109,7 @@ describe("createLitellmAliasPlugin", () => {
     const agents = [makeAgent("coder")];
     const routing: PluginRouting = {
       enabled: true,
-      outputFile: "litellm-aliases.json",
+      outputFile: "model-aliases.json",
       config: {
         aliasPrefix: "prod:",
         includeAgents: true,
@@ -131,7 +131,7 @@ describe("createLitellmAliasPlugin", () => {
     const agents: SystemAgent[] = [];
     const routing: PluginRouting = {
       enabled: true,
-      outputFile: "litellm-aliases.json",
+      outputFile: "model-aliases.json",
       config: { includeAgents: false, includeCategories: true },
       routing: { agents: {}, categories: { reasoning: true } },
     };
@@ -165,7 +165,7 @@ describe("createLitellmAliasPlugin", () => {
   });
 
   it("should not throw when afterExport with no dbWriter", async () => {
-    const pluginNoDb = createLitellmAliasPlugin();
+    const pluginNoDb = createModelAliasPlugin();
     await expect(
       pluginNoDb.handlers.afterExport?.({
         $schema: "https://example.com/schema.json",

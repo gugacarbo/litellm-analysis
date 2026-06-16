@@ -2,25 +2,25 @@ import { sortAliasesByDefinitionOrder } from "@lite-llm/models-service";
 import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
-import type { LitellmAliasPluginConfig } from "../config/config";
-import { generateLitellmAliases } from "../generate";
-import type { LitellmAliasSchemaType } from "../schema/schema";
+import type { ModelAliasPluginConfig } from "../config/config";
+import { generateModelAliases } from "../generate";
+import type { ModelAliasSchemaType } from "../schema/schema";
 import { agentAdapter } from "./agent-adapter";
 import { modelAdapter } from "./model-adapter";
 
 type AgentWithId = SystemAgent & { id: string };
 const DEFAULT_MODEL_NAMES = ["gpt-5.5", "gpt-5.4"] as const;
 
-export interface BuildLitellmAliasOutputInput {
+export interface BuildModelAliasOutputInput {
   agents: SystemAgent[];
-  routing: PluginRoutingFor<LitellmAliasPluginConfig>;
+  routing: PluginRoutingFor<ModelAliasPluginConfig>;
   context: PluginRuntimeContext;
-  config: LitellmAliasPluginConfig;
+  config: ModelAliasPluginConfig;
 }
 
-export function adaptLitellmAliasOutput(
-  input: BuildLitellmAliasOutputInput,
-): LitellmAliasSchemaType {
+export function adaptModelAliasOutput(
+  input: BuildModelAliasOutputInput,
+): ModelAliasSchemaType {
   const { agents, routing, context, config } = input;
   const aliases: Record<string, string> = {};
   const rawFallback = context.globalFallbackModel;
@@ -58,7 +58,7 @@ export function adaptLitellmAliasOutput(
 
     Object.assign(
       aliases,
-      generateLitellmAliases(
+      generateModelAliases(
         adaptedAgent.id,
         adaptedAgent.model,
         effectiveFallback,
@@ -77,7 +77,7 @@ export function adaptLitellmAliasOutput(
 
     Object.assign(
       aliases,
-      generateLitellmAliases(key, categoryModel, effectiveFallback, modelNames),
+      generateModelAliases(key, categoryModel, effectiveFallback, modelNames),
     );
   }
 

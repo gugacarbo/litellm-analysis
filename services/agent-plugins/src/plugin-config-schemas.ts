@@ -1,4 +1,4 @@
-import { litellmAliasPluginConfigJsonSchema } from "./plugins/litellm-alias/config/config";
+import { modelAliasPluginConfigJsonSchema } from "./plugins/model-alias/config/config";
 import { openAgentPluginConfigJsonSchema } from "./plugins/openagent/config/config";
 import { openCodePluginConfigJsonSchema } from "./plugins/opencode/config/config";
 import { vsCodePluginConfigJsonSchema } from "./plugins/vscode/config/config";
@@ -11,7 +11,7 @@ export const pluginConfigJsonSchemas: Record<
   opencode: openCodePluginConfigJsonSchema as Record<string, unknown>,
   openagent: openAgentPluginConfigJsonSchema as Record<string, unknown>,
   vscode: vsCodePluginConfigJsonSchema as Record<string, unknown>,
-  "litellm-alias": litellmAliasPluginConfigJsonSchema as Record<
+  "model-alias": modelAliasPluginConfigJsonSchema as Record<
     string,
     unknown
   >,

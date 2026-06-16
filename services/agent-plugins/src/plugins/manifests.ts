@@ -1,5 +1,5 @@
 import type { PluginManifest } from "../sdk";
-import { litellmAliasManifest } from "./litellm-alias/manifest/manifest";
+import { modelAliasManifest } from "./model-alias/manifest/manifest";
 import { openAgentManifest } from "./openagent/manifest/manifest";
 import { openCodeManifest } from "./opencode/manifest/manifest";
 import { vsCodeManifest } from "./vscode/manifest/manifest";
@@ -31,6 +31,6 @@ export const pluginManifests = [
   normalizeManifestSchema(openCodeManifest),
   normalizeManifestSchema(openAgentManifest),
   normalizeManifestSchema(vsCodeManifest),
-  normalizeManifestSchema(litellmAliasManifest),
+  normalizeManifestSchema(modelAliasManifest),
   normalizeManifestSchema(weaveManifest),
 ] as const;

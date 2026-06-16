@@ -45,7 +45,7 @@ function resolveSlotModel(
  * Generate litellm aliases for agent/category key using single slot.
  * Uses primary model, fallback only when primary absent.
  */
-export function generateLitellmAliases(
+export function generateModelAliases(
   key: string,
   model: string,
   globalFallbackModel: string | undefined,

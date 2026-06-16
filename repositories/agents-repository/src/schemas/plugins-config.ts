@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-  litellmAliasPluginConfigSchema,
+  modelAliasPluginConfigSchema,
   openAgentPluginConfigSchema,
   openCodePluginConfigSchema,
   vsCodePluginConfigSchema,
@@ -46,7 +46,7 @@ export const pluginsConfigSchema = z
             description: "VS Code OAICopilot plugin configuration",
           })
           .optional(),
-        "litellm-alias": pluginRoutingWithConfig(litellmAliasPluginConfigSchema)
+        "model-alias": pluginRoutingWithConfig(modelAliasPluginConfigSchema)
           .meta({
             title: "LiteLLM Alias",
             description: "LiteLLM Router Aliases plugin configuration",
