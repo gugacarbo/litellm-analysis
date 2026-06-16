@@ -46,7 +46,7 @@ export {
   openCodePluginConfigJsonSchema,
 } from "./plugins/opencode/config/config";
 export { openCodeManifest } from "./plugins/opencode/manifest/manifest";
-export { opencodeSchema as openCodePluginConfigSchema } from "./plugins/opencode/schema/schema";
+export { opencodeSchema as openCodePluginConfigSchema } from "./plugins/opencode/plugin.schema";
 export { createVsCodePlugin } from "./plugins/vscode";
 export {
   type VsCodePluginConfig,

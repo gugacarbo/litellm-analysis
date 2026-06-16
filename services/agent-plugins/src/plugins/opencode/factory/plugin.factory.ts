@@ -4,7 +4,7 @@ import { adaptOpenCodeOutput } from "../adapters/output-adapter";
 import type { OpenCodePluginConfig } from "../config/config";
 import { openCodePluginConfigDefaults } from "../config/config";
 import { openCodeManifest } from "../manifest/manifest";
-import { type OpencodeSchemaType, opencodeSchema } from "../schema/schema";
+import { type OpencodeSchemaType, opencodeSchema } from "../plugin.schema";
 
 export type OpenCodeBuildContext = PluginRuntimeContext;
 

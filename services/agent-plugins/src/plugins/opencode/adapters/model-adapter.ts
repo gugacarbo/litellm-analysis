@@ -35,15 +35,57 @@ function buildThinkingVariants(
   return Object.keys(variants).length > 0 ? variants : undefined;
 }
 
+function resolveModelName(
+  displayName: string | undefined,
+  fallbackName: string,
+): string {
+  const trimmedName = displayName?.trim();
+  return trimmedName && trimmedName.length > 0 ? trimmedName : fallbackName;
+}
+
+function buildReasoningConfig(
+  spec: ModelSpec,
+  thinkingVariants?: Record<string, { reasoningEffort: string }>,
+):
+  | {
+      reasoning: boolean;
+      interleaved?: true | { field: string };
+      options?: { reasoningEffort: string };
+    }
+  | undefined {
+  const reasoning = spec.reasoning;
+  const hasThinkingVariants =
+    thinkingVariants !== undefined && Object.keys(thinkingVariants).length > 0;
+  const reasoningEffort = reasoning?.effort;
+  const hasReasoningEffort = reasoningEffort !== undefined;
+  const shouldEnableReasoning =
+    hasReasoningEffort ||
+    reasoning?.enableThinking === true ||
+    reasoning?.includeReasoningInRequest === true ||
+    hasThinkingVariants;
+
+  if (!shouldEnableReasoning) return undefined;
+
+  return {
+    reasoning: true,
+    ...(hasReasoningEffort
+      ? { options: { reasoningEffort } }
+      : {}),
+    ...(reasoning?.includeReasoningInRequest === true
+      ? { interleaved: { field: "reasoning_content" as const } }
+      : {}),
+  };
+}
+
 export function modelAdapter(
-  agentRole: string,
-  aliasKey: string,
-  displayName: string,
+  exportedId: string,
+  modelId: string,
+  displayName: string | undefined,
   spec: ModelSpec,
 ): Record<string, unknown> {
   const entry: Record<string, unknown> = {
-    id: `${agentRole}/${aliasKey}`,
-    name: displayName,
+    id: exportedId,
+    name: resolveModelName(displayName, modelId),
     limit: {
       context: spec.limits.length,
       output: spec.limits.maxOutput,
@@ -68,6 +110,17 @@ export function modelAdapter(
   const thinkingVariants = buildThinkingVariants(spec);
   if (thinkingVariants) {
     entry.variants = thinkingVariants;
+  }
+
+  const reasoningConfig = buildReasoningConfig(spec, thinkingVariants);
+  if (reasoningConfig) {
+    entry.reasoning = reasoningConfig.reasoning;
+    if (reasoningConfig.options) {
+      entry.options = reasoningConfig.options;
+    }
+    if (reasoningConfig.interleaved) {
+      entry.interleaved = reasoningConfig.interleaved;
+    }
   }
 
   return entry;

@@ -476,6 +476,18 @@
                     "disabled": {
                       "type": "boolean",
                       "description": "Disable this variant for the model"
+                    },
+                    "reasoningEffort": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "minimal",
+                        "low",
+                        "medium",
+                        "high",
+                        "xhigh"
+                      ],
+                      "description": "Reasoning effort level for this variant"
                     }
                   }
                 },

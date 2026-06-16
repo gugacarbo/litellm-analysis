@@ -127,11 +127,46 @@ describe("createOpenCodePlugin", () => {
       const models = litellm.models as Record<string, unknown>;
       const gpt4 = models["gpt-4"] as Record<string, unknown>;
 
+      expect(gpt4.id).toBe("gpt-4");
       expect(gpt4.name).toBe("GPT-4");
       expect(gpt4.limit).toEqual({
         context: 128000,
         output: 4096,
       });
+    });
+
+    it("faz fallback do name para o id do modelo quando displayName vier vazio", () => {
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
+        [],
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "minimax-m3": {
+              displayName: "",
+              enabled: true,
+              limits: { length: 1000000, maxOutput: 256000 },
+            },
+          },
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const litellm = provider.litellm as Record<string, unknown>;
+      const models = litellm.models as Record<string, unknown>;
+      const minimax = models["minimax-m3"] as Record<string, unknown>;
+
+      expect(minimax.id).toBe("minimax-m3");
+      expect(minimax.name).toBe("minimax-m3");
     });
 
     it("mapeia thinking.levels para variants com reasoningEffort", () => {
@@ -175,7 +210,85 @@ describe("createOpenCodePlugin", () => {
         "xhigh",
         "none",
       ]);
-      expect(variants.xhigh).toEqual({});
+      expect(variants.none).toEqual({ reasoningEffort: "none" });
+      expect(variants.xhigh).toEqual({ reasoningEffort: "xhigh" });
+      expect(gpt5.reasoning).toBe(true);
+    });
+
+    it("mapeia reasoning.effort para options.reasoningEffort", () => {
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
+        [],
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "gpt-5": {
+              displayName: "GPT-5",
+              enabled: true,
+              limits: { length: 200000, maxOutput: 8192 },
+              reasoning: {
+                effort: "high",
+              },
+            },
+          },
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const litellm = provider.litellm as Record<string, unknown>;
+      const models = litellm.models as Record<string, unknown>;
+      const gpt5 = models["gpt-5"] as Record<string, unknown>;
+
+      expect(gpt5.reasoning).toBe(true);
+      expect(gpt5.options).toEqual({ reasoningEffort: "high" });
+    });
+
+    it("configura interleaved quando o modelo inclui reasoning_content na request", () => {
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
+        [],
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "deepseek-r1": {
+              displayName: "DeepSeek R1",
+              enabled: true,
+              limits: { length: 128000, maxOutput: 8192 },
+              reasoning: {
+                includeReasoningInRequest: true,
+              },
+            },
+          },
+          litellmConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const litellm = provider.litellm as Record<string, unknown>;
+      const models = litellm.models as Record<string, unknown>;
+      const deepseek = models["deepseek-r1"] as Record<string, unknown>;
+
+      expect(deepseek.reasoning).toBe(true);
+      expect(deepseek.interleaved).toEqual({
+        field: "reasoning_content",
+      });
     });
 
     it("configura baseURL e apiKey do litellm", () => {
@@ -430,7 +543,7 @@ describe("createOpenCodePlugin", () => {
 
       expect(primary.cost).toEqual({ input: 15, output: 60 });
       expect(primary.variants).toEqual({
-        high: {},
+        high: { reasoningEffort: "high" },
       });
     });
 

@@ -2,7 +2,7 @@ import { normalizeAgentMappings } from "../../../helpers";
 import type { PluginRoutingFor, PluginRuntimeContext } from "../../../sdk";
 import type { SystemAgent } from "../../../types";
 import type { OpenCodePluginConfig } from "../config/config";
-import type { OpencodeSchemaType } from "../schema/schema";
+import type { OpencodeSchemaType } from "../plugin.schema";
 import { agentAdapter } from "./agent-adapter";
 import { modelAdapter } from "./model-adapter";
 
@@ -20,7 +20,7 @@ function addRolePrimaryModel(
   if (!spec) return;
 
   target[`${role}/${modelName}`] = modelAdapter(
-    role,
+    `${role}/${modelName}`,
     modelName,
     displayName,
     spec,
@@ -134,7 +134,7 @@ export function adaptOpenCodeOutput(
     const globalSpec = context.allModels[globalFallbackId];
     if (globalSpec) {
       const globalFallbackEntry = modelAdapter(
-        "global-fallback",
+        `global-fallback/${modelName}`,
         modelName,
         "Global Fallback",
         globalSpec,
