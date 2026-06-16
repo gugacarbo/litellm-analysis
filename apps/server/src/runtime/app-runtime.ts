@@ -165,9 +165,8 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     timeoutMs: env.HEALTH_CHECK_TIMEOUT_MS,
     prompt: healthCheckPrompt,
     maxConcurrency: 6,
-    litellmApiUrl:
-      env.MODEL_PROXY_BASE_URL?.trim() || env.LITELLM_API_URL || "",
-    litellmApiKey: env.MODEL_PROXY_API_KEY?.trim() || env.LITELLM_API_KEY || "",
+    modelProxyBaseUrl: env.MODEL_PROXY_BASE_URL?.trim() || "",
+    modelProxyApiKey: env.MODEL_PROXY_API_KEY?.trim() || "",
     enabledModelNames: [...enabledModelNames],
   });
 

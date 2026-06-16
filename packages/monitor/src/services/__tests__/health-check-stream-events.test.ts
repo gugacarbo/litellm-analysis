@@ -30,8 +30,8 @@ function createServiceOptions(): HealthCheckServiceOptions {
     timeoutMs: 30_000,
     prompt: "Respond with ONLY your model name.",
     maxConcurrency: 1,
-    litellmApiUrl: "http://localhost:4000",
-    litellmApiKey: "test-key",
+    modelProxyBaseUrl: "http://localhost:4000",
+    modelProxyApiKey: "test-key",
     analyticsDataSource: {
       getModels: vi.fn().mockResolvedValue([]),
     } as unknown as HealthCheckServiceOptions["analyticsDataSource"],

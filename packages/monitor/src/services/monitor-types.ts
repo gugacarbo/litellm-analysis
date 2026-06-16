@@ -98,8 +98,8 @@ export interface HealthCheckServiceOptions {
   timeoutMs: number;
   prompt: string;
   maxConcurrency: number;
-  litellmApiUrl: string;
-  litellmApiKey: string;
+  modelProxyBaseUrl: string;
+  modelProxyApiKey: string;
   analyticsDataSource: import("@lite-llm/analytics-service/data-source").AnalyticsDataSource;
   monitorDb: ReturnType<typeof import("../db/monitor-client").getMonitorDb>;
   enabledModelNames?: string[];

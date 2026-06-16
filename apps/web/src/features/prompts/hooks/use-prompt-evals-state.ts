@@ -95,7 +95,7 @@ export function usePromptEvalsState() {
   const [sortField, setSortField] = useState<SortField>("startedAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [form, setForm] = useState<EvalFormState>({
-    model: "litellm/gpt-4o",
+    model: "",
     threshold: 0.8,
   });
   const [casesText, setCasesText] = useState<string>(readInitialCasesText);
@@ -113,11 +113,7 @@ export function usePromptEvalsState() {
   });
 
   // Update form default model when models load
-  if (
-    modelsQuery.data &&
-    form.model === "litellm/gpt-4o" &&
-    !modelsQuery.isLoading
-  ) {
+  if (modelsQuery.data && form.model === "" && !modelsQuery.isLoading) {
     const firstModel = modelsQuery.data[0]?.modelName;
     if (firstModel && firstModel !== form.model) {
       setForm((prev) => ({ ...prev, model: firstModel }));

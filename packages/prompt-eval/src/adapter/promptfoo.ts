@@ -274,19 +274,15 @@ async function runChatCompletion(
   request: ChatCompletionsRequest,
   signal?: AbortSignal,
 ): Promise<string> {
-  if (options.provider !== "litellm") {
+  if (options.provider !== "model-proxy" && options.provider !== "litellm") {
     return "";
   }
 
   if (!options.baseUrl?.trim()) {
-    throw new Error(
-      "EVAL_BASE_URL (or LITELLM_API_URL fallback) is required for litellm provider.",
-    );
+    throw new Error("EVAL_BASE_URL is required for model-proxy provider.");
   }
   if (!options.apiKey?.trim()) {
-    throw new Error(
-      "EVAL_API_KEY (or LITELLM_API_KEY fallback) is required for litellm provider.",
-    );
+    throw new Error("EVAL_API_KEY is required for model-proxy provider.");
   }
 
   const url = normalizeBaseUrl(options.baseUrl);
@@ -304,7 +300,7 @@ async function runChatCompletion(
   const responseText = await response.text();
   if (!response.ok) {
     throw new Error(
-      `LiteLLM classify/review failed (${response.status}): ${responseText.slice(0, 500)}`,
+      `Model proxy classify/review failed (${response.status}): ${responseText.slice(0, 500)}`,
     );
   }
 
@@ -313,7 +309,7 @@ async function runChatCompletion(
     return extractFirstChoiceContent(payload);
   } catch (error) {
     throw new Error(
-      `Failed to parse LiteLLM response JSON: ${toStringError(error)}`,
+      `Failed to parse model proxy response JSON: ${toStringError(error)}`,
     );
   }
 }
@@ -322,6 +318,8 @@ export function createPromptfooAdapter(
   options: EvalAdapterOptions,
 ): PromptEvalAdapter {
   const provider = options.provider.trim().toLowerCase();
+  const isModelProxyProvider =
+    provider === "model-proxy" || provider === "litellm";
 
   return {
     async classify(input: ClassifyInput): Promise<ClassifyOutput> {
@@ -330,7 +328,7 @@ export function createPromptfooAdapter(
       const start = Date.now();
       const allowedCategoryIds = new Set(input.categories.map((c) => c.id));
 
-      if (provider !== "litellm") {
+      if (!isModelProxyProvider) {
         const predictedCategories =
           input.categories.length > 0 ? [input.categories[0].id] : [];
         return {
@@ -398,7 +396,7 @@ export function createPromptfooAdapter(
     async review(input: ReviewInput): Promise<ReviewOutput> {
       input.signal?.throwIfAborted();
 
-      if (provider !== "litellm") {
+      if (!isModelProxyProvider) {
         return {
           findings: input.cases.map((c) => ({
             caseId: c.caseId,

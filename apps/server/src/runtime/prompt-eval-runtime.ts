@@ -14,15 +14,9 @@ export interface PromptEvalRuntimeOptions {
 
 export function createPromptEvalRuntime(opts: PromptEvalRuntimeOptions) {
   const adapter = createPromptfooAdapter({
-    provider: process.env.EVAL_PROVIDER ?? "litellm",
-    apiKey:
-      process.env.EVAL_API_KEY ??
-      env.MODEL_PROXY_API_KEY ??
-      env.LITELLM_API_KEY,
-    baseUrl:
-      process.env.EVAL_BASE_URL ??
-      env.MODEL_PROXY_BASE_URL ??
-      env.LITELLM_API_URL,
+    provider: process.env.EVAL_PROVIDER ?? "model-proxy",
+    apiKey: process.env.EVAL_API_KEY ?? env.MODEL_PROXY_API_KEY,
+    baseUrl: process.env.EVAL_BASE_URL ?? env.MODEL_PROXY_BASE_URL,
   });
 
   const reportsDir = path.join(opts.projectRoot, env.STORAGE_PATH, "reports");

@@ -124,11 +124,12 @@ export class HealthCheckService {
     modelName: string,
     source: "scheduled" | "manual" = "scheduled",
   ): Promise<HealthCheckResult> {
-    const { litellmApiUrl, litellmApiKey, prompt, timeoutMs } = this.options;
+    const { modelProxyBaseUrl, modelProxyApiKey, prompt, timeoutMs } =
+      this.options;
     const startTime = Date.now();
     const executionId = randomUUID();
-    const normalizedApiKey = litellmApiKey.trim().replace(/^Bearer\s+/i, "");
-    const normalizedApiUrl = litellmApiUrl.replace(/\/+$/, "");
+    const normalizedApiKey = modelProxyApiKey.trim().replace(/^Bearer\s+/i, "");
+    const normalizedApiUrl = modelProxyBaseUrl.replace(/\/+$/, "");
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };

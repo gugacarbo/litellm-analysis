@@ -11,8 +11,8 @@ interface HealthCheckRuntimeOptions {
   timeoutMs: number;
   prompt: string;
   maxConcurrency: number;
-  litellmApiUrl: string;
-  litellmApiKey: string;
+  modelProxyBaseUrl: string;
+  modelProxyApiKey: string;
   enabledModelNames?: string[];
 }
 
@@ -30,8 +30,8 @@ export function createHealthCheckRuntime(
     timeoutMs: options.timeoutMs,
     prompt: options.prompt,
     maxConcurrency: options.maxConcurrency,
-    litellmApiUrl: options.litellmApiUrl,
-    litellmApiKey: options.litellmApiKey,
+    modelProxyBaseUrl: options.modelProxyBaseUrl,
+    modelProxyApiKey: options.modelProxyApiKey,
     analyticsDataSource: options.ctx.analytics.dataSource,
     monitorDb: options.ctx.monitor.monitorDb,
     enabledModelNames: options.enabledModelNames,

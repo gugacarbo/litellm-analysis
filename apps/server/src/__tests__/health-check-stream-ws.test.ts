@@ -76,8 +76,8 @@ describe("health-check-runtime stream WS bridge", () => {
       timeoutMs: 30_000,
       prompt: "test prompt",
       maxConcurrency: 1,
-      litellmApiUrl: "http://localhost:4000",
-      litellmApiKey: "test-key",
+      modelProxyBaseUrl: "http://localhost:4000",
+      modelProxyApiKey: "test-key",
     });
 
     await runtime.healthCheckService.runCheck("test-model", "manual");
