@@ -4,7 +4,7 @@
 
 Server orchestration layer. Contains business logic that coordinates between
 @lite-llm/analytics-service (data access) and @lite-llm/agents-manager (config CRUD + plugins).
-Alias generation is handled by the LitellmAliasPlugin in agents-manager.
+Alias generation is handled by the ModelAliasPlugin in agents-manager.
 
 ## STRUCTURE
 

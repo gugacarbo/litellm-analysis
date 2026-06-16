@@ -118,7 +118,7 @@ Detailed documentation in each package's `AGENTS.md`:
 
 | Package                      | Entry          | Key Responsibility                                           |
 | ---------------------------- | -------------- | ------------------------------------------------------------ |
-| `@lite-llm/agent-plugins`   | `src/index.ts` | Plugin system: OpenCode, OpenAgent, VS Code, LiteLLM aliases |
+| `@lite-llm/agent-plugins`   | `src/index.ts` | Plugin system: OpenCode, OpenAgent, VS Code, model aliases |
 | `@lite-llm/analytics-service`| `src/index.ts` | 46-method AnalyticsDataSource, Prisma raw SQL queries          |
 | `@lite-llm/model-proxy-service`| `src/index.ts` | Local OpenAI-compatible proxy, upstream forwarding, request ledger |
 | `@lite-llm/models-service`   | `src/index.ts` | Provider/model CRUD, alias DB management                      |
