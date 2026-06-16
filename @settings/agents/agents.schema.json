@@ -30,7 +30,7 @@
       "default": "",
       "title": "Global Fallback Model",
       "description": "Default fallback model",
-      "$ref": "#/$defs/__schema47"
+      "$ref": "#/$defs/__schema52"
     }
   },
   "required": ["version", "agents", "categories"],
@@ -389,41 +389,46 @@
             "description": "Thinking configuration",
             "$ref": "#/$defs/__schema38"
           },
+          "reasoning": {
+            "default": {},
+            "description": "Reasoning configuration",
+            "$ref": "#/$defs/__schema40"
+          },
           "reasoningEffort": {
             "default": "medium",
             "title": "Reasoning Effort",
             "description": "Reasoning budget level",
-            "$ref": "#/$defs/__schema40"
+            "$ref": "#/$defs/__schema45"
           },
           "textVerbosity": {
             "default": "medium",
             "title": "Text Verbosity",
             "description": "Response verbosity level",
-            "$ref": "#/$defs/__schema41"
+            "$ref": "#/$defs/__schema46"
           },
           "tools": {
             "default": {},
             "title": "Tools",
             "description": "Tool enable/disable map",
-            "$ref": "#/$defs/__schema42"
+            "$ref": "#/$defs/__schema47"
           },
           "promptAppend": {
             "default": "",
             "title": "Prompt Append",
             "description": "Text to append to prompts",
-            "$ref": "#/$defs/__schema44"
+            "$ref": "#/$defs/__schema49"
           },
           "isUnstableAgent": {
             "default": false,
             "title": "Unstable Agent",
             "description": "Mark as experimental/unstable",
-            "$ref": "#/$defs/__schema45"
+            "$ref": "#/$defs/__schema50"
           },
           "config": {
             "default": {},
             "title": "Config",
             "description": "Extra agent configuration",
-            "$ref": "#/$defs/__schema46"
+            "$ref": "#/$defs/__schema51"
           }
         },
         "required": ["model", "limits"],
@@ -493,14 +498,50 @@
       }
     },
     "__schema40": {
+      "title": "Reasoning",
+      "description": "Runtime reasoning configuration",
+      "$ref": "#/$defs/__schema41"
+    },
+    "__schema41": {
+      "type": "object",
+      "properties": {
+        "effort": {
+          "title": "Reasoning Effort",
+          "description": "Default reasoning budget level for this model",
+          "$ref": "#/$defs/__schema42"
+        },
+        "enableThinking": {
+          "title": "Enable Thinking",
+          "description": "Whether to request thinking/reasoning content",
+          "$ref": "#/$defs/__schema43"
+        },
+        "includeReasoningInRequest": {
+          "title": "Include Reasoning in Request",
+          "description": "Whether reasoning content is included in the request body",
+          "$ref": "#/$defs/__schema44"
+        }
+      },
+      "additionalProperties": false
+    },
+    "__schema42": {
       "type": "string",
       "enum": ["low", "medium", "high", "xhigh"]
     },
-    "__schema41": {
+    "__schema43": {
+      "type": "boolean"
+    },
+    "__schema44": {
+      "type": "boolean"
+    },
+    "__schema45": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "xhigh"]
+    },
+    "__schema46": {
       "type": "string",
       "enum": ["low", "medium", "high"]
     },
-    "__schema42": {
+    "__schema47": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -509,22 +550,22 @@
         "default": false,
         "title": "Tool",
         "description": "Tool enabled state",
-        "$ref": "#/$defs/__schema43"
+        "$ref": "#/$defs/__schema48"
       }
     },
-    "__schema43": {
+    "__schema48": {
       "type": "boolean"
     },
-    "__schema44": {
+    "__schema49": {
       "type": "string"
     },
-    "__schema45": {
+    "__schema50": {
       "type": "boolean"
     },
-    "__schema46": {
+    "__schema51": {
       "$ref": "#/$defs/__schema14"
     },
-    "__schema47": {
+    "__schema52": {
       "type": "string"
     }
   }
