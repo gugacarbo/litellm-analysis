@@ -132,6 +132,25 @@
             "title": "Thinking",
             "description": "Extended thinking configuration for this model",
             "$ref": "#/$defs/__schema12"
+          },
+          "reasoning": {
+            "description": "Reasoning/thinking runtime configuration for this model",
+            "$ref": "#/$defs/__schema14"
+          },
+          "apiMode": {
+            "title": "API Mode",
+            "description": "API provider mode used by consumers (e.g. openai, anthropic)",
+            "$ref": "#/$defs/__schema19"
+          },
+          "vision": {
+            "title": "Vision",
+            "description": "Whether this model supports vision/image inputs",
+            "$ref": "#/$defs/__schema20"
+          },
+          "ownedBy": {
+            "title": "Owned By",
+            "description": "Organization or provider that owns this model",
+            "$ref": "#/$defs/__schema21"
           }
         },
         "required": ["enabled", "displayName", "limits"],
@@ -201,6 +220,52 @@
       "items": {
         "type": "string"
       }
+    },
+    "__schema14": {
+      "title": "Reasoning",
+      "description": "Runtime reasoning configuration",
+      "$ref": "#/$defs/__schema15"
+    },
+    "__schema15": {
+      "type": "object",
+      "properties": {
+        "effort": {
+          "title": "Reasoning Effort",
+          "description": "Default reasoning budget level for this model",
+          "$ref": "#/$defs/__schema16"
+        },
+        "enableThinking": {
+          "title": "Enable Thinking",
+          "description": "Whether to request thinking/reasoning content",
+          "$ref": "#/$defs/__schema17"
+        },
+        "includeReasoningInRequest": {
+          "title": "Include Reasoning in Request",
+          "description": "Whether reasoning content is included in the request body",
+          "$ref": "#/$defs/__schema18"
+        }
+      },
+      "additionalProperties": false
+    },
+    "__schema16": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "xhigh"]
+    },
+    "__schema17": {
+      "type": "boolean"
+    },
+    "__schema18": {
+      "type": "boolean"
+    },
+    "__schema19": {
+      "type": "string",
+      "enum": ["openai", "anthropic"]
+    },
+    "__schema20": {
+      "type": "boolean"
+    },
+    "__schema21": {
+      "type": "string"
     }
   }
 }

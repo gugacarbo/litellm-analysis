@@ -53,8 +53,8 @@ export function useModelsPage() {
   });
 
   const providerQuery = useQuery({
-    queryKey: ["model-provider", "litellm"],
-    queryFn: () => getModelProvider("litellm"),
+    queryKey: ["model-provider", "local-proxy"],
+    queryFn: () => getModelProvider("local-proxy"),
   });
 
   const [providerDefaultCredential, setProviderDefaultCredential] =
@@ -62,10 +62,10 @@ export function useModelsPage() {
 
   const updateProviderMutation = useMutation({
     mutationFn: (defaultCredential: string) =>
-      updateModelProvider("litellm", { defaultCredential }),
+      updateModelProvider("local-proxy", { defaultCredential }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["model-provider", "litellm"],
+        queryKey: ["model-provider", "local-proxy"],
       });
       await queryClient.invalidateQueries({
         queryKey: ["default-credential"],

@@ -119,9 +119,7 @@ export function registerModelRoutes(
   const { dataSource } = opts;
 
   async function getResolvedDefaultCredential(): Promise<string | null> {
-    const preferredProvider =
-      (await opts.providerService.get("local-proxy")) ??
-      (await opts.providerService.get("litellm"));
+    const preferredProvider = await opts.providerService.get("local-proxy");
     const providerDefault = preferredProvider?.defaultCredential?.trim();
     if (providerDefault) {
       return providerDefault;

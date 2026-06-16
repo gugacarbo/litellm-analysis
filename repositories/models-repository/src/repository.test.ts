@@ -23,11 +23,11 @@ class MemoryStorage implements IStorage {
 }
 
 const validProvider = {
-  name: "LiteLLM",
-  ownedBy: "atplus",
+  name: "Local Model Proxy",
+  ownedBy: "lite-llm-analytics",
   baseUrl: "http://localhost:4000",
   apiKey: "sk-test",
-  defaultCredential: "",
+  defaultCredential: "ATplus Router",
 };
 
 const validModel = {
@@ -47,10 +47,10 @@ describe("ModelsRepository", () => {
           // comment
           "version": 1,
           "provider": {
-            "litellm": {
-              "name": "LiteLLM",
-              "ownedBy": "atplus",
-              "baseUrl": "http://0.0.0.0:4000",
+            "local-proxy": {
+              "name": "Local Model Proxy",
+              "ownedBy": "lite-llm-analytics",
+              "baseUrl": "http://localhost:3008/v1",
               "apiKey": "sk-test"
             }
           },
@@ -74,7 +74,7 @@ describe("ModelsRepository", () => {
 
       const config = await repository.read();
       expect(config.version).toBe(1);
-      expect(config.provider.litellm.name).toBe("LiteLLM");
+      expect(config.provider["local-proxy"].name).toBe("Local Model Proxy");
       expect(config.models["glm-5"].displayName).toBe("GLM 5");
       expect(config.models["glm-5"].limits.maxOutput).toBe(128000);
     });
@@ -103,8 +103,8 @@ describe("ModelsRepository", () => {
         [filePath]: JSON.stringify({
           version: 1,
           provider: {
-            litellm: {
-              name: "LiteLLM",
+            "local-proxy": {
+              name: "Local Model Proxy",
             },
           },
           models: {},
@@ -258,7 +258,7 @@ describe("ModelsRepository", () => {
       const config = {
         version: 1,
         provider: {
-          litellm: validProvider,
+          "local-proxy": validProvider,
         },
         models: {
           "gpt-4": validModel,
@@ -274,7 +274,7 @@ describe("ModelsRepository", () => {
 
       const readBack = await repository.read();
       expect(readBack.models["gpt-4"].displayName).toBe("Test Model");
-      expect(readBack.provider.litellm.apiKey).toBe("sk-test");
+      expect(readBack.provider["local-proxy"].apiKey).toBe("sk-test");
     });
 
     it("validates on write, rejecting invalid config", async () => {
@@ -304,7 +304,7 @@ describe("ModelsRepository", () => {
         repository.validate({
           version: 1,
           provider: {
-            litellm: validProvider,
+            "local-proxy": validProvider,
           },
           models: {
             "test-model": validModel,

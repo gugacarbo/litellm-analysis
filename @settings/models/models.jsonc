@@ -8,13 +8,6 @@
       "baseUrl": "http://localhost:3008/v1",
       "apiKey": "env:MODEL_PROXY_API_KEY",
       "defaultCredential": "ATplus Router"
-    },
-    "litellm": {
-      "name": "LiteLLM",
-      "ownedBy": "atplus",
-      "baseUrl": "http://0.0.0.0:4000",
-      "apiKey": "sk-123456789",
-      "defaultCredential": "ATplus Router"
     }
   },
   "models": {
