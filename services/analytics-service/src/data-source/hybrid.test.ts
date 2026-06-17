@@ -1,70 +1,46 @@
 import { describe, expect, it, vi } from "vitest";
-import type {
-  AnalyticsDataSource,
-  SpendLogEntry,
-  SpendLogsFilters,
-  SpendLogsResponse,
-} from "../types/index";
+import type { AnalyticsDataSource, SpendTotals } from "../types/index";
 import { compareTotals, HybridDataSource } from "./hybrid";
 
-function createLog(
-  overrides: Partial<SpendLogEntry> & Pick<SpendLogEntry, "request_id">,
-): SpendLogEntry {
+function createTotals(overrides: Partial<SpendTotals> = {}): SpendTotals {
   return {
-    request_id: overrides.request_id,
-    model: overrides.model ?? "gpt-4o",
-    user: null,
-    total_tokens: overrides.total_tokens ?? 100,
-    prompt_tokens: overrides.prompt_tokens ?? 60,
-    completion_tokens: overrides.completion_tokens ?? 40,
-    spend: overrides.spend ?? 0.01,
-    time_to_first_token_ms: overrides.time_to_first_token_ms ?? 200,
-    start_time: overrides.start_time ?? "2026-06-16T10:00:00.000Z",
-    end_time: overrides.end_time ?? "2026-06-16T10:00:01.000Z",
-    api_key: null,
-    status: overrides.status ?? "success",
-    request_duration_ms: overrides.request_duration_ms ?? 1000,
-    messages: null,
+    request_count: 0,
+    total_tokens: 0,
+    total_cost: 0,
+    error_count: 0,
+    avg_latency_ms: 0,
+    ...overrides,
   };
 }
 
 function createMockDataSource(
-  logs: SpendLogEntry[],
-): Pick<AnalyticsDataSource, "getSpendLogs"> {
+  totals: SpendTotals,
+): Pick<AnalyticsDataSource, "getSpendTotals"> {
   return {
-    getSpendLogs: async (
-      filters: SpendLogsFilters,
-    ): Promise<SpendLogsResponse> => {
-      const limit = filters.limit ?? 50;
-      const offset = filters.offset ?? 0;
-      const page = logs.slice(
-        offset,
-        offset + (limit === 0 ? logs.length : limit),
-      );
-
-      return {
-        logs: page,
-        pagination: {
-          total: logs.length,
-          page: 1,
-          page_size: limit,
-          total_pages: 1,
-        },
-      };
-    },
+    getSpendTotals: async () => totals,
   };
 }
 
 describe("compareTotals", () => {
-  it("merges by id with proxy winning and checks tolerances", async () => {
-    const litellm = createMockDataSource([
-      createLog({ request_id: "shared", spend: 0.02, total_tokens: 100 }),
-      createLog({ request_id: "litellm-only", spend: 0.01, total_tokens: 50 }),
-    ]);
-    const proxy = createMockDataSource([
-      createLog({ request_id: "shared", spend: 0.03, total_tokens: 110 }),
-      createLog({ request_id: "proxy-only", spend: 0.02, total_tokens: 80 }),
-    ]);
+  it("uses SQL aggregates without row limits and checks tolerances", async () => {
+    const litellm = createMockDataSource(
+      createTotals({
+        request_count: 2,
+        total_tokens: 150,
+        total_cost: 0.03,
+        error_count: 0,
+        avg_latency_ms: 500,
+      }),
+    );
+    const proxy = createMockDataSource(
+      createTotals({
+        request_count: 2,
+        total_tokens: 190,
+        total_cost: 0.05,
+        error_count: 0,
+        avg_latency_ms: 500,
+      }),
+    );
 
     const result = await compareTotals(
       {
@@ -78,7 +54,7 @@ describe("compareTotals", () => {
     expect(result.request_count).toMatchObject({
       litellm: 2,
       proxy: 2,
-      merged: 3,
+      merged: 2,
     });
     expect(result.total_cost.litellm).toBeCloseTo(0.03);
     expect(result.total_cost.proxy).toBeCloseTo(0.05);
@@ -100,6 +76,15 @@ describe("HybridDataSource delegation", () => {
         logs: [],
         pagination: { total: 0, page: 1, page_size: 50, total_pages: 0 },
       }),
+      getSpendTotals: vi.fn().mockResolvedValue(createTotals()),
+      getModels: vi.fn().mockResolvedValue([]),
+      getModelDetails: vi.fn().mockResolvedValue([]),
+      getCredentials: vi.fn().mockResolvedValue([]),
+      getDefaultCredential: vi.fn().mockResolvedValue(null),
+      getHealthCheckPrompt: vi.fn().mockResolvedValue(null),
+      setDefaultCredential: vi.fn(),
+      getAgentRoutingConfig: vi.fn().mockResolvedValue(null),
+      updateAgentRoutingConfig: vi.fn(),
     };
 
     const hybrid = new HybridDataSource(litellm as never, proxy as never);

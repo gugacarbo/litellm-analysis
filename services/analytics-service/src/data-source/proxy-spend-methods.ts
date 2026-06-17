@@ -6,34 +6,14 @@ import {
   getSpendLogDetail,
   getSpendLogs,
   getSpendLogsCount,
+  getSpendTotals,
 } from "../queries/proxy/spend-queries";
 import type {
-  ChatMessage,
-  SpendLogEntry,
+  ProxyRequestLog,
   SpendLogsFilters,
   SpendLogsResponse,
+  SpendTotals,
 } from "../types/index";
-import type { ProxyRequestLog } from "../types/proxy-request-log";
-
-function proxyRequestLogToSpendLogEntry(log: ProxyRequestLog): SpendLogEntry {
-  return {
-    request_id: log.id,
-    model: log.model,
-    user: null,
-    total_tokens: log.total_tokens,
-    prompt_tokens: log.input_tokens,
-    completion_tokens: log.output_tokens,
-    spend: log.total_cost ?? 0,
-    time_to_first_token_ms: log.ttft_ms,
-    start_time: log.started_at,
-    end_time: log.finished_at,
-    api_key: null,
-    status: log.status,
-    api_base: log.upstream_base_url,
-    request_duration_ms: log.latency_ms,
-    messages: log.messages as ChatMessage[],
-  };
-}
 
 export async function getProxySpendLogsCountImpl(
   filters: SpendLogsFilters,
@@ -63,9 +43,7 @@ export async function getProxySpendLogsImpl(
     getSpendLogsCountFn(filters),
   ]);
 
-  const logs = rows.map((row) =>
-    proxyRequestLogToSpendLogEntry(presentProxyRequestLogListItem(row)),
-  );
+  const logs = rows.map((row) => presentProxyRequestLogListItem(row));
 
   return {
     logs,
@@ -80,20 +58,17 @@ export async function getProxySpendLogsImpl(
 
 export async function getProxySpendLogDetailImpl(
   requestId: string,
-): Promise<SpendLogEntry> {
+): Promise<ProxyRequestLog> {
   const row = await getSpendLogDetail(requestId);
   if (!row) {
     throw new Error(`Spend log not found: ${requestId}`);
   }
 
-  return proxyRequestLogToSpendLogEntry(
-    presentProxyRequestLog(row, { includeDetailFields: true }),
-  );
+  return presentProxyRequestLog(row, { includeDetailFields: true });
 }
 
-export function toProxyRequestLog(
-  row: Parameters<typeof presentProxyRequestLog>[0],
-  includeDetailFields = false,
-): ProxyRequestLog {
-  return presentProxyRequestLog(row, { includeDetailFields });
+export async function getProxySpendTotalsImpl(
+  filters: Pick<SpendLogsFilters, "model" | "startDate" | "endDate">,
+): Promise<SpendTotals> {
+  return getSpendTotals(filters);
 }

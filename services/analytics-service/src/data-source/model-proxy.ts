@@ -1,5 +1,4 @@
 import type { AnalyticsDataSource, SpendLogsFilters } from "../types/index";
-import { DatabaseDataSource } from "./database";
 import {
   getProxyCostEfficiencyImpl,
   getProxyDailySpendTrendImpl,
@@ -39,19 +38,30 @@ import {
   getProxySpendLogDetailImpl,
   getProxySpendLogsCountImpl,
   getProxySpendLogsImpl,
+  getProxySpendTotalsImpl,
 } from "./proxy-spend-methods";
+import {
+  createRegistryModelImpl,
+  deleteRegistryModelImpl,
+  getRegistryCredentialsImpl,
+  getRegistryDefaultCredentialImpl,
+  getRegistryHealthCheckPromptImpl,
+  getRegistryModelDetailsImpl,
+  getRegistryModelsImpl,
+  setRegistryDefaultCredentialImpl,
+  updateRegistryModelImpl,
+} from "./registry-methods";
 import {
   getAgentRoutingConfigImpl,
   updateAgentRoutingConfigImpl,
 } from "./routing-methods";
 
 export class ModelProxyDataSource implements AnalyticsDataSource {
-  private readonly registryDelegate = new DatabaseDataSource();
-
   getSpendLogsCount = getProxySpendLogsCountImpl;
   getSpendLogs = (filters: SpendLogsFilters) =>
     getProxySpendLogsImpl(filters, this.getSpendLogsCount);
   getSpendLogDetail = getProxySpendLogDetailImpl;
+  getSpendTotals = getProxySpendTotalsImpl;
 
   getSpendByUser = async () => [];
   getSpendByKey = async () => [];
@@ -59,20 +69,15 @@ export class ModelProxyDataSource implements AnalyticsDataSource {
   getTopUsersByModel = async () => [];
   getTopApiKeysByModel = async () => [];
 
-  getModels = () => this.registryDelegate.getModels();
-  getModelDetails = () => this.registryDelegate.getModelDetails();
-  createModel = (...args: Parameters<AnalyticsDataSource["createModel"]>) =>
-    this.registryDelegate.createModel(...args);
-  updateModel = (...args: Parameters<AnalyticsDataSource["updateModel"]>) =>
-    this.registryDelegate.updateModel(...args);
-  deleteModel = (...args: Parameters<AnalyticsDataSource["deleteModel"]>) =>
-    this.registryDelegate.deleteModel(...args);
-  getCredentials = () => this.registryDelegate.getCredentials();
-  getDefaultCredential = () => this.registryDelegate.getDefaultCredential();
-  getHealthCheckPrompt = () => this.registryDelegate.getHealthCheckPrompt();
-  setDefaultCredential = (
-    ...args: Parameters<AnalyticsDataSource["setDefaultCredential"]>
-  ) => this.registryDelegate.setDefaultCredential(...args);
+  getModels = getRegistryModelsImpl;
+  getModelDetails = getRegistryModelDetailsImpl;
+  createModel = createRegistryModelImpl;
+  updateModel = updateRegistryModelImpl;
+  deleteModel = deleteRegistryModelImpl;
+  getCredentials = getRegistryCredentialsImpl;
+  getDefaultCredential = getRegistryDefaultCredentialImpl;
+  getHealthCheckPrompt = getRegistryHealthCheckPromptImpl;
+  setDefaultCredential = setRegistryDefaultCredentialImpl;
   getAgentRoutingConfig = getAgentRoutingConfigImpl;
   updateAgentRoutingConfig = updateAgentRoutingConfigImpl;
 

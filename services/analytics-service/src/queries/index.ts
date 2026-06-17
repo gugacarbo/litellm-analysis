@@ -57,6 +57,7 @@ export {
   getSpendLogById,
   getSpendLogs,
   getSpendLogsCount,
+  getSpendTotals,
 } from "./spend-queries";
 export {
   getDailySpendTrend,

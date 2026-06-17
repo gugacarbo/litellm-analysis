@@ -1,8 +1,7 @@
 import { serverEnv } from "@lite-llm/config/server";
 import type { AnalyticsDataSource } from "../types/index";
-
-import { DatabaseDataSource } from "./database";
 import { HybridDataSource } from "./hybrid";
+import { getLitellmDataSource } from "./litellm-loader";
 import { ModelProxyDataSource } from "./model-proxy";
 
 export function createDataSource(): AnalyticsDataSource {
@@ -11,19 +10,19 @@ export function createDataSource(): AnalyticsDataSource {
       return new ModelProxyDataSource();
     case "hybrid":
       return new HybridDataSource(
-        new DatabaseDataSource(),
+        getLitellmDataSource(),
         new ModelProxyDataSource(),
       );
     default:
-      return new DatabaseDataSource();
+      return getLitellmDataSource();
   }
 }
 
 export type { AnalyticsDataSource } from "../types/index";
-export { DatabaseDataSource } from "./database";
 export type {
   CompareTotalsResult,
   CompareTotalsWindow,
 } from "./hybrid";
 export { compareTotals, HybridDataSource } from "./hybrid";
+export { getLitellmDataSource } from "./litellm-loader";
 export { ModelProxyDataSource } from "./model-proxy";

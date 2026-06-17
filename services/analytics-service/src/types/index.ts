@@ -1,4 +1,6 @@
 // Analytics Data Source Interface
+import type { ProxyRequestLog } from "./proxy-request-log";
+
 // Granularity identifiers for time-series bucketing
 export type TimeGranularity =
   | "30s"
@@ -38,7 +40,10 @@ export interface AnalyticsDataSource {
   getSpendByKey(days?: number): Promise<SpendByKey[]>;
   getSpendLogs(filters: SpendLogsFilters): Promise<SpendLogsResponse>;
   getSpendLogsCount(filters: SpendLogsFilters): Promise<number>;
-  getSpendLogDetail(requestId: string): Promise<SpendLogEntry>;
+  getSpendLogDetail(requestId: string): Promise<ProxyRequestLog>;
+  getSpendTotals(
+    filters: Pick<SpendLogsFilters, "model" | "startDate" | "endDate">,
+  ): Promise<SpendTotals>;
   getTokenDistribution(params?: TimeRangeParams): Promise<TokenDistribution[]>;
   getPerformanceMetrics(params?: TimeRangeParams): Promise<PerformanceMetrics>;
   getHourlyUsagePatterns(
@@ -173,6 +178,7 @@ export interface ChatMessage {
 }
 
 export interface SpendLogEntry {
+  /** @deprecated Use ProxyRequestLog. Removed from HTTP API in Batch 5. */
   request_id: string;
   model: string;
   user: string | null;
@@ -374,7 +380,22 @@ export interface SpendLogsQueryParams {
   offset?: number;
 }
 
-export type SpendLogsFilters = SpendLogsQueryParams;
+export interface SpendLogsFilters {
+  model?: string;
+  user?: string;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SpendTotals {
+  request_count: number;
+  total_tokens: number;
+  total_cost: number;
+  error_count: number;
+  avg_latency_ms: number;
+}
 
 export interface PaginationMetadata {
   total: number;
@@ -384,7 +405,7 @@ export interface PaginationMetadata {
 }
 
 export interface SpendLogsResponse {
-  logs: SpendLogEntry[];
+  logs: ProxyRequestLog[];
   pagination: PaginationMetadata;
 }
 

@@ -1,85 +1,34 @@
 import type {
   AnalyticsDataSource,
-  SpendLogEntry,
+  ProxyRequestLog,
   SpendLogsFilters,
   SpendLogsResponse,
+  SpendTotals,
 } from "../types/index";
 
-export interface CompareTotalsWindow {
-  startDate: string;
-  endDate: string;
-  model?: string;
-}
-
-export interface CompareTotalsMetric<T> {
-  litellm: T;
-  proxy: T;
-  within_tolerance: boolean;
-}
-
-export interface CompareTotalsResult {
-  request_count: CompareTotalsMetric<number> & { merged: number };
-  total_tokens: CompareTotalsMetric<number> & { delta_pct: number };
-  total_cost: CompareTotalsMetric<number> & { delta_pct: number };
-  error_count: CompareTotalsMetric<number>;
-  avg_latency_ms: CompareTotalsMetric<number>;
-}
-
-const TOKEN_TOLERANCE_PCT = 0.1;
-const COST_TOLERANCE_PCT = 1;
-
-function mergeSpendLogsById(
-  litellmLogs: SpendLogEntry[],
-  proxyLogs: SpendLogEntry[],
-): SpendLogEntry[] {
-  const merged = new Map<string, SpendLogEntry>();
+function mergeProxyLogsById(
+  litellmLogs: ProxyRequestLog[],
+  proxyLogs: ProxyRequestLog[],
+): ProxyRequestLog[] {
+  const merged = new Map<string, ProxyRequestLog>();
 
   for (const log of litellmLogs) {
-    merged.set(log.request_id, log);
+    merged.set(log.id, log);
   }
 
   for (const log of proxyLogs) {
-    merged.set(log.request_id, log);
+    merged.set(log.id, log);
   }
 
   return [...merged.values()].sort(
     (left, right) =>
-      new Date(right.start_time).getTime() -
-      new Date(left.start_time).getTime(),
+      new Date(right.started_at).getTime() -
+      new Date(left.started_at).getTime(),
   );
 }
 
-function aggregateSpendLogs(logs: SpendLogEntry[]) {
-  let totalTokens = 0;
-  let totalCost = 0;
-  let errorCount = 0;
-  let latencySum = 0;
-  let latencyCount = 0;
-
-  for (const log of logs) {
-    totalTokens += log.total_tokens ?? 0;
-    totalCost += log.spend ?? 0;
-
-    if (log.status === "failed" || log.status === "timeout") {
-      errorCount += 1;
-    }
-
-    const latency = log.request_duration_ms ?? log.time_to_first_token_ms;
-    if (latency !== null && latency !== undefined) {
-      latencySum += latency;
-      latencyCount += 1;
-    }
-  }
-
-  return {
-    request_count: logs.length,
-    total_tokens: totalTokens,
-    total_cost: totalCost,
-    error_count: errorCount,
-    avg_latency_ms:
-      latencyCount === 0 ? 0 : Math.round(latencySum / latencyCount),
-  };
-}
+const TOKEN_TOLERANCE_PCT = 0.1;
+const COST_TOLERANCE_PCT = 1;
 
 function withinPercentTolerance(
   left: number,
@@ -108,39 +57,54 @@ function withinTokenTolerance(left: number, right: number): boolean {
   return withinPercentTolerance(left, right, TOKEN_TOLERANCE_PCT);
 }
 
+export interface CompareTotalsWindow {
+  startDate: string;
+  endDate: string;
+  model?: string;
+}
+
+export interface CompareTotalsMetric<T> {
+  litellm: T;
+  proxy: T;
+  within_tolerance: boolean;
+}
+
+export interface CompareTotalsResult {
+  request_count: CompareTotalsMetric<number> & { merged: number };
+  total_tokens: CompareTotalsMetric<number> & { delta_pct: number };
+  total_cost: CompareTotalsMetric<number> & { delta_pct: number };
+  error_count: CompareTotalsMetric<number>;
+  avg_latency_ms: CompareTotalsMetric<number>;
+}
+
 export async function compareTotals(
   window: CompareTotalsWindow,
   litellm: AnalyticsDataSource,
   proxy: AnalyticsDataSource,
 ): Promise<CompareTotalsResult> {
-  const filters: SpendLogsFilters = {
+  const filters: Pick<SpendLogsFilters, "model" | "startDate" | "endDate"> = {
     model: window.model,
     startDate: window.startDate,
     endDate: window.endDate,
-    limit: 0,
-    offset: 0,
   };
 
-  const [litellmResponse, proxyResponse] = await Promise.all([
-    litellm.getSpendLogs(filters),
-    proxy.getSpendLogs(filters),
+  const [litellmTotals, proxyTotals] = await Promise.all([
+    litellm.getSpendTotals(filters),
+    proxy.getSpendTotals(filters),
   ]);
 
-  const mergedLogs = mergeSpendLogsById(
-    litellmResponse.logs,
-    proxyResponse.logs,
+  const mergedRequestCount = Math.max(
+    litellmTotals.request_count,
+    proxyTotals.request_count,
   );
-  const litellmTotals = aggregateSpendLogs(litellmResponse.logs);
-  const proxyTotals = aggregateSpendLogs(proxyResponse.logs);
-  const mergedTotals = aggregateSpendLogs(mergedLogs);
 
   return {
     request_count: {
       litellm: litellmTotals.request_count,
       proxy: proxyTotals.request_count,
-      merged: mergedTotals.request_count,
+      merged: mergedRequestCount,
       within_tolerance:
-        mergedTotals.request_count ===
+        mergedRequestCount ===
         Math.max(litellmTotals.request_count, proxyTotals.request_count),
     },
     total_tokens: {
@@ -195,6 +159,10 @@ export class HybridDataSource implements AnalyticsDataSource {
   compareTotals = (window: CompareTotalsWindow) =>
     compareTotals(window, this.litellm, this.proxy);
 
+  getSpendTotals = (
+    filters: Pick<SpendLogsFilters, "model" | "startDate" | "endDate">,
+  ) => this.proxy.getSpendTotals(filters);
+
   getSpendLogs = async (
     filters: SpendLogsFilters,
   ): Promise<SpendLogsResponse> => {
@@ -203,7 +171,7 @@ export class HybridDataSource implements AnalyticsDataSource {
       this.proxy.getSpendLogs({ ...filters, limit: 0, offset: 0 }),
     ]);
 
-    const merged = mergeSpendLogsById(litellmResponse.logs, proxyResponse.logs);
+    const merged = mergeProxyLogsById(litellmResponse.logs, proxyResponse.logs);
     const limit = filters.limit ?? 50;
     const offset = filters.offset ?? 0;
     const logs = merged.slice(offset, offset + limit);
@@ -229,7 +197,7 @@ export class HybridDataSource implements AnalyticsDataSource {
     return response.pagination.total;
   };
 
-  getSpendLogDetail = async (requestId: string): Promise<SpendLogEntry> => {
+  getSpendLogDetail = async (requestId: string): Promise<ProxyRequestLog> => {
     try {
       return await this.proxy.getSpendLogDetail(requestId);
     } catch {
@@ -296,25 +264,25 @@ export class HybridDataSource implements AnalyticsDataSource {
   getDailyErrorTrendByModel = (
     ...args: Parameters<AnalyticsDataSource["getDailyErrorTrendByModel"]>
   ) => this.proxy.getDailyErrorTrendByModel(...args);
-  getModels = () => this.litellm.getModels();
-  getModelDetails = () => this.litellm.getModelDetails();
+  getModels = () => this.proxy.getModels();
+  getModelDetails = () => this.proxy.getModelDetails();
   getErrorLogs = (...args: Parameters<AnalyticsDataSource["getErrorLogs"]>) =>
     this.proxy.getErrorLogs(...args);
   createModel = (...args: Parameters<AnalyticsDataSource["createModel"]>) =>
-    this.litellm.createModel(...args);
+    this.proxy.createModel(...args);
   updateModel = (...args: Parameters<AnalyticsDataSource["updateModel"]>) =>
-    this.litellm.updateModel(...args);
+    this.proxy.updateModel(...args);
   deleteModel = (...args: Parameters<AnalyticsDataSource["deleteModel"]>) =>
-    this.litellm.deleteModel(...args);
+    this.proxy.deleteModel(...args);
   mergeModels = (...args: Parameters<AnalyticsDataSource["mergeModels"]>) =>
     this.proxy.mergeModels(...args);
   deleteModelLogs = (
     ...args: Parameters<AnalyticsDataSource["deleteModelLogs"]>
   ) => this.proxy.deleteModelLogs(...args);
-  getAgentRoutingConfig = () => this.litellm.getAgentRoutingConfig();
+  getAgentRoutingConfig = () => this.proxy.getAgentRoutingConfig();
   updateAgentRoutingConfig = (
     ...args: Parameters<AnalyticsDataSource["updateAgentRoutingConfig"]>
-  ) => this.litellm.updateAgentRoutingConfig(...args);
+  ) => this.proxy.updateAgentRoutingConfig(...args);
   getTopUsersByModel = (
     ...args: Parameters<AnalyticsDataSource["getTopUsersByModel"]>
   ) => this.litellm.getTopUsersByModel(...args);
@@ -348,10 +316,10 @@ export class HybridDataSource implements AnalyticsDataSource {
   getProviderBreakdownByModel = (
     ...args: Parameters<AnalyticsDataSource["getProviderBreakdownByModel"]>
   ) => this.proxy.getProviderBreakdownByModel(...args);
-  getCredentials = () => this.litellm.getCredentials();
-  getDefaultCredential = () => this.litellm.getDefaultCredential();
-  getHealthCheckPrompt = () => this.litellm.getHealthCheckPrompt();
+  getCredentials = () => this.proxy.getCredentials();
+  getDefaultCredential = () => this.proxy.getDefaultCredential();
+  getHealthCheckPrompt = () => this.proxy.getHealthCheckPrompt();
   setDefaultCredential = (
     ...args: Parameters<AnalyticsDataSource["setDefaultCredential"]>
-  ) => this.litellm.setDefaultCredential(...args);
+  ) => this.proxy.setDefaultCredential(...args);
 }

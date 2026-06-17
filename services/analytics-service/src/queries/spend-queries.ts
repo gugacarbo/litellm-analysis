@@ -236,3 +236,67 @@ export async function getSpendLogById(requestId: string) {
 
   return result[0];
 }
+
+export interface SpendTotalsFilters {
+  model?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface SpendTotals {
+  request_count: number;
+  total_tokens: number;
+  total_cost: number;
+  error_count: number;
+  avg_latency_ms: number;
+}
+
+function buildSpendTotalsConditions(params: SpendTotalsFilters): string[] {
+  const conditions: string[] = [];
+
+  if (params.model) {
+    conditions.push(`"model" = '${params.model}'`);
+  }
+  if (params.startDate) {
+    conditions.push(`"startTime" >= '${params.startDate}'::timestamp`);
+  }
+  if (params.endDate) {
+    conditions.push(`"startTime" <= '${params.endDate}'::timestamp`);
+  }
+
+  return conditions;
+}
+
+export async function getSpendTotals(
+  params: SpendTotalsFilters,
+): Promise<SpendTotals> {
+  const where = buildWhereClause(buildSpendTotalsConditions(params));
+
+  const result = await prisma.$queryRawUnsafe<
+    Array<{
+      request_count: number;
+      total_tokens: number;
+      total_cost: number;
+      error_count: number;
+      avg_latency_ms: number;
+    }>
+  >(`
+    SELECT
+      COUNT(*)::int as "request_count",
+      COALESCE(SUM("total_tokens"), 0)::float as "total_tokens",
+      COALESCE(SUM("spend"), 0)::float as "total_cost",
+      COUNT(*) FILTER (WHERE "status" IN ('failed', 'timeout'))::int as "error_count",
+      COALESCE(AVG("request_duration_ms"), 0)::float as "avg_latency_ms"
+    FROM "LiteLLM_SpendLogs"
+    ${where}
+  `);
+
+  const row = result[0];
+  return {
+    request_count: Number(row?.request_count ?? 0),
+    total_tokens: Number(row?.total_tokens ?? 0),
+    total_cost: Number(row?.total_cost ?? 0),
+    error_count: Number(row?.error_count ?? 0),
+    avg_latency_ms: Math.round(Number(row?.avg_latency_ms ?? 0)),
+  };
+}

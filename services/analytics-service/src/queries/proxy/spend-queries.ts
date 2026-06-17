@@ -71,3 +71,47 @@ export async function getSpendLogDetail(requestId: string) {
     include: messagesInclude,
   });
 }
+
+export interface SpendTotalsFilters {
+  model?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface SpendTotals {
+  request_count: number;
+  total_tokens: number;
+  total_cost: number;
+  error_count: number;
+  avg_latency_ms: number;
+}
+
+export async function getSpendTotals(
+  params: SpendTotalsFilters,
+): Promise<SpendTotals> {
+  const prisma = getModelProxyPrisma();
+  const where = buildWhereClause(params);
+
+  const [aggregate, errorCount] = await Promise.all([
+    prisma.modelProxyRequest.aggregate({
+      where,
+      _count: { _all: true },
+      _sum: { totalTokens: true, totalCost: true },
+      _avg: { latencyMs: true },
+    }),
+    prisma.modelProxyRequest.count({
+      where: {
+        ...where,
+        status: { in: ["failed", "timeout"] },
+      },
+    }),
+  ]);
+
+  return {
+    request_count: aggregate._count._all,
+    total_tokens: Number(aggregate._sum.totalTokens ?? 0),
+    total_cost: Number(aggregate._sum.totalCost ?? 0),
+    error_count: errorCount,
+    avg_latency_ms: Math.round(Number(aggregate._avg.latencyMs ?? 0)),
+  };
+}
