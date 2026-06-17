@@ -53,8 +53,10 @@ interface UseHealthStatusStateResult {
   wsResults: HealthCheckResultEntry[];
   allModelsWithStatus: ModelWithStatus[];
   resultsLimit: number;
-  resultsOffset: number;
-  setResultsOffset: (offset: number) => void;
+  resultsPage: number;
+  setResultsPage: (page: number) => void;
+  isLatestPage: boolean;
+  historyOffset: number;
 }
 
 interface UseHealthStatusStateParams {
@@ -86,15 +88,17 @@ export function useHealthStatusState({
 
   const allModelNames = modelsQuery.data ?? [];
   const resultsLimit = Math.max(allModelNames.length, 1);
-  const [resultsOffset, setResultsOffset] = useState(0);
+  const [resultsPage, setResultsPage] = useState(0);
+  const isLatestPage = resultsPage === 0;
+  const historyOffset = isLatestPage ? 0 : (resultsPage - 1) * resultsLimit;
 
   const resultsQuery = useQuery({
     queryKey: queryKeys.healthCheckResults({
       limit: resultsLimit,
-      offset: resultsOffset,
+      offset: historyOffset,
     }),
     queryFn: () =>
-      getHealthCheckResults({ limit: resultsLimit, offset: resultsOffset }),
+      getHealthCheckResults({ limit: resultsLimit, offset: historyOffset }),
     refetchInterval: REFETCH_INTERVAL,
   });
   const latestData = latestQuery.data?.checks ?? [];
@@ -153,7 +157,9 @@ export function useHealthStatusState({
     wsResults,
     allModelsWithStatus,
     resultsLimit,
-    resultsOffset,
-    setResultsOffset,
+    resultsPage,
+    setResultsPage,
+    isLatestPage,
+    historyOffset,
   };
 }

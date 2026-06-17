@@ -46,6 +46,28 @@ interface HealthStatusContentProps {
   runButton?: ReactNode;
 }
 
+function modelWithStatusToEntry(
+  model: ModelWithStatus,
+): HealthCheckResultEntry {
+  return {
+    id: model.id ?? 0,
+    modelName: model.modelName,
+    status: model.status,
+    responseTimeMs: model.responseTimeMs,
+    ttftMs: model.ttftMs,
+    outputTokens: model.outputTokens,
+    tokensPerSecond: model.tokensPerSecond,
+    statusCode: model.statusCode,
+    promptSent: model.promptSent,
+    responseReceived: model.responseReceived,
+    requestPayload: model.requestPayload,
+    responsePayload: model.responsePayload,
+    errorMessage: model.errorMessage,
+    source: model.source ?? "manual",
+    checkedAt: model.checkedAt ?? 0,
+  };
+}
+
 export function HealthStatusContent({
   embedded = false,
 }: HealthStatusContentProps) {
@@ -60,14 +82,30 @@ export function HealthStatusContent({
   const healthPercent =
     total > 0 ? `${Math.round((derived.healthyCount / total) * 100)}%` : "0%";
 
-  const page =
-    state.resultsLimit > 0
-      ? Math.floor(state.resultsOffset / state.resultsLimit) + 1
-      : 1;
-  const totalPages =
-    state.resultsLimit > 0 ? Math.ceil(totalHistory / state.resultsLimit) : 1;
-  const start = totalHistory > 0 ? state.resultsOffset + 1 : 0;
-  const end = Math.min(state.resultsOffset + state.resultsLimit, totalHistory);
+  const historyPages =
+    state.resultsLimit > 0 ? Math.ceil(totalHistory / state.resultsLimit) : 0;
+  const totalPages = 1 + historyPages;
+  const latestEntries = derived.sorted.map(modelWithStatusToEntry);
+  const tableEntries = state.isLatestPage
+    ? latestEntries
+    : (state.resultsQuery.data?.checks ?? []);
+  const tableIsLoading = state.isLatestPage
+    ? state.modelsQuery.isPending || state.latestQuery.isPending
+    : state.resultsQuery.isPending;
+  const tableIsError = state.isLatestPage
+    ? state.modelsQuery.isError || state.latestQuery.isError
+    : state.resultsQuery.isError;
+
+  const start = state.isLatestPage
+    ? total > 0
+      ? 1
+      : 0
+    : totalHistory > 0
+      ? state.historyOffset + 1
+      : 0;
+  const end = state.isLatestPage
+    ? total
+    : Math.min(state.historyOffset + state.resultsLimit, totalHistory);
 
   return (
     <div className={embedded ? "space-y-4" : undefined}>
@@ -123,26 +161,24 @@ export function HealthStatusContent({
       </div>
 
       <HealthCheckTable
-        entries={state.resultsQuery.data?.checks ?? []}
-        isLoading={state.resultsQuery.isPending}
-        isError={state.resultsQuery.isError}
+        entries={tableEntries}
+        isLoading={tableIsLoading}
+        isError={tableIsError}
         isGlobalRunning={actions.isGlobalRunning}
         isModelRunning={actions.isModelRunning}
-        total={totalHistory}
-        offset={state.resultsOffset}
-        page={page}
+        isLatestPage={state.isLatestPage}
+        total={state.isLatestPage ? total : totalHistory}
+        page={state.resultsPage}
         totalPages={totalPages}
         start={start}
         end={end}
         onSelect={setSelectedStatus}
         onTest={(modelName) => void actions.triggerSingleRun(modelName)}
         onPrevPage={() =>
-          state.setResultsOffset(
-            Math.max(0, state.resultsOffset - state.resultsLimit),
-          )
+          state.setResultsPage(Math.max(0, state.resultsPage - 1))
         }
         onNextPage={() =>
-          state.setResultsOffset(state.resultsOffset + state.resultsLimit)
+          state.setResultsPage(Math.min(totalPages - 1, state.resultsPage + 1))
         }
       />
 

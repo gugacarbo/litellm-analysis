@@ -23,8 +23,8 @@ interface HealthCheckTableProps {
   isError: boolean;
   isGlobalRunning: boolean;
   isModelRunning: (modelName: string) => boolean;
+  isLatestPage: boolean;
   total: number;
-  offset: number;
   page: number;
   totalPages: number;
   start: number;
@@ -41,8 +41,8 @@ export function HealthCheckTable({
   isError,
   isGlobalRunning,
   isModelRunning,
+  isLatestPage,
   total,
-  offset,
   page,
   totalPages,
   start,
@@ -102,7 +102,13 @@ export function HealthCheckTable({
             const displayStatus = modelIsRunning ? "checking" : entry.status;
 
             return (
-              <TableRow key={entry.id}>
+              <TableRow
+                key={
+                  entry.id > 0
+                    ? entry.id
+                    : `${entry.modelName}-${entry.checkedAt}`
+                }
+              >
                 <TableCell>
                   <button
                     type="button"
@@ -132,9 +138,15 @@ export function HealthCheckTable({
                 </TableCell>
                 <TableCell
                   className="text-xs text-muted-foreground"
-                  title={formatTimestamp(entry.checkedAt)}
+                  title={
+                    entry.checkedAt > 0
+                      ? formatTimestamp(entry.checkedAt)
+                      : undefined
+                  }
                 >
-                  {formatRelativeTime(entry.checkedAt)}
+                  {entry.checkedAt > 0
+                    ? formatRelativeTime(entry.checkedAt)
+                    : "—"}
                 </TableCell>
                 <TableCell className="text-center">
                   <Button
@@ -162,27 +174,29 @@ export function HealthCheckTable({
 
       <div className="flex items-center justify-between border-t bg-muted/20 px-3 py-2">
         <span className="text-xs text-muted-foreground tabular-nums">
-          Showing {start}–{end} of {total}
+          {isLatestPage
+            ? `Showing ${start}–${end} of ${total} · latest`
+            : `Showing ${start}–${end} of ${total}`}
         </span>
         <div className="flex items-center gap-1">
           <Button
             size="sm"
             variant="ghost"
             className="h-7 px-2 text-xs"
-            disabled={offset === 0}
+            disabled={page === 0}
             onClick={onPrevPage}
           >
             <ChevronLeft className="size-3.5" />
             Prev
           </Button>
           <span className="px-1 text-xs tabular-nums">
-            {page} / {totalPages}
+            {isLatestPage ? "latest" : page + 1} / {totalPages}
           </span>
           <Button
             size="sm"
             variant="ghost"
             className="h-7 px-2 text-xs"
-            disabled={end >= total}
+            disabled={page >= totalPages - 1}
             onClick={onNextPage}
           >
             Next

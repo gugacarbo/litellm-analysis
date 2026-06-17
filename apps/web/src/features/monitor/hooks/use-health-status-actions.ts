@@ -23,7 +23,7 @@ export function useHealthStatusActions({
         queryKey: queryKeys.healthCheckSummary,
       }),
       queryClient.refetchQueries({
-        queryKey: queryKeys.healthCheckResults({ limit: 10, offset: 0 }),
+        queryKey: ["health-check", "results"],
       }),
     ]);
   }, [queryClient]);
