@@ -6,7 +6,7 @@
 
 ## OVERVIEW
 
-LiteLLM Analytics Dashboard — full-stack TypeScript monorepo for monitoring LLM API usage, costs, and errors via the **local model proxy** (`model_proxy_*` PostgreSQL). Default `ANALYTICS_DATA_SOURCE=model-proxy`; LiteLLM DB is optional (compare/import CLIs only).
+LiteLLM Analytics Dashboard — full-stack TypeScript monorepo for monitoring LLM API usage, costs, and errors via the **local model proxy** (`model_proxy_*` PostgreSQL). Runtime uses only `MODEL_PROXY_DATABASE_URL` (see `docs/litellm-legacy-support-inventory.md`).
 
 ## STRUCTURE
 
@@ -54,8 +54,7 @@ lite-llm-analytics/
 │   ├── models-repository/  # Models config persistence + validation
 │   ├── model-proxy-repository/ # Local model-proxy PostgreSQL schema + Prisma client
 │   ├── repository-utils/   # Shared storage + JSONC parsing utilities
-│   ├── app-repository/     # App-specific DB (Drizzle ORM)
-│   └── litellm-repository/ # LiteLLM DB access via Prisma (generated client + raw SQL queries)
+│   └── app-repository/     # App-specific DB (Drizzle ORM)
 ├── biome.json               # Biome 2.x (replaces ESLint+Prettier)
 ├── turbo.json               # Turborepo task pipeline
 └── pnpm-workspace.yaml      # apps/* + packages/* + repositories/*
@@ -68,8 +67,8 @@ lite-llm-analytics/
 | Add a page/route         | `apps/web/src/App.tsx` + `apps/web/src/pages/`   | Pages own their types, utils, and hooks; use nested children + `Outlet` for tabbed sections              |
 | Add a UI component       | `apps/web/src/components/`                       | shadcn primitives at root, domain modules in subdirs |
 | Add an API endpoint      | `apps/server/src/runtime/api-server.ts`          | All routes defined here                              |
-| Add a data-source method | `services/analytics-service/src/data-source/database.ts` | Must implement `AnalyticsDataSource` interface       |
-| Add a DB query           | `services/analytics-service/src/queries/`                | Prisma raw SQL queries via `$queryRawUnsafe`         |
+| Add a data-source method | `services/analytics-service/src/data-source/model-proxy.ts` | Must implement `AnalyticsDataSource` interface       |
+| Add a DB query           | `services/analytics-service/src/queries/proxy/`           | Prisma raw SQL queries via `$queryRawUnsafe`         |
 | Add a new data type      | `services/analytics-service/src/types/index.ts`          | Add to interface or type exports                     |
 | Change lint/format rules | `biome.json` (root)                              | Single quotes, 80 chars, import auto-organize        |
 | Change dev proxy         | `apps/web/vite.config.ts`                        | `/api` → `localhost:3008`                            |
@@ -90,7 +89,7 @@ lite-llm-analytics/
 - **Generated schemas are read-only** — do not edit generated JSON/Zod schema files manually; update the canonical Zod source and regenerate
 
 ### Architecture
-- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` (LiteLLM), `ModelProxyDataSource` (`model_proxy_*`), and `HybridDataSource` (transition/compare). Factory: `createDataSource()` in `services/analytics-service/src/data-source/index.ts`, controlled by `ANALYTICS_DATA_SOURCE` (`litellm` \| `model-proxy` \| `hybrid`).
+- **Data access:** `AnalyticsDataSource` interface (46 methods), implemented by `ModelProxyDataSource` (`model_proxy_*`). Factory: `createDataSource()` in `services/analytics-service/src/data-source/index.ts`.
 - **Page-level architecture**: Page subdirectories contain hooks/types/utils only (no JSX). Page root `.tsx` files contain JSX. Components live in `components/` and import from page directories
 - **State-Actions-Derived pattern**: Complex pages (agent-routing) split into `use-*-state.ts`, `use-*-actions.ts`, `use-*-derived.ts`, composed via `use-*-page.ts`
 
@@ -187,25 +186,10 @@ pnpm --filter @lite-llm/model-proxy-service test
 pnpm --filter @lite-llm/model-proxy-registry-service test
 pnpm --filter @lite-llm/server typecheck
 pnpm --filter @lite-llm/monitor typecheck
-pnpm --filter @lite-llm/litellm-repository typecheck
-
-# Prisma / litellm-repository
-pnpm --filter @lite-llm/litellm-repository db:generate   # Generate Prisma client
-pnpm --filter @lite-llm/litellm-repository db:sync        # Clone schema + migrations from upstream LiteLLM repo
-pnpm --filter @lite-llm/litellm-repository db:pull        # Introspect DB tables
-pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma schema
 
 # Model proxy database backup
 pnpm backup           # MODEL_PROXY_DATABASE_URL (model_proxy_*)
 pnpm backup:list      # List model_proxy_* backup files
-pnpm backup:litellm   # Historical LiteLLM DB only
-
-# Model proxy registry (Batch 3)
-pnpm model-proxy:import-legacy  # Import LiteLLM_Config/Credentials/ProxyModel → model_proxy_*
-pnpm model-proxy:import-history # Import LiteLLM_SpendLogs/ErrorLogs → model_proxy_requests
-
-# Analytics source comparison (Batch 4)
-pnpm analytics:compare-sources --days 7   # Compare LiteLLM vs model-proxy totals
 ```
 
 ## BUILD & CI (Gaps)
@@ -220,7 +204,6 @@ pnpm analytics:compare-sources --days 7   # Compare LiteLLM vs model-proxy total
 
 | Location                              | Coverage                            |
 | ------------------------------------- | ----------------------------------- |
-| `services/analytics-service/src/queries/`     | Prisma raw SQL query patterns, helpers |
-| `services/analytics-service/src/data-source/` | DatabaseDataSource composition      |
-| `repositories/litellm-repository/`    | Prisma client + upstream schema sync scripts |
+| `services/analytics-service/src/queries/proxy/` | Prisma raw SQL query patterns, helpers |
+| `services/analytics-service/src/data-source/` | ModelProxyDataSource composition      |
 | `services/models-service/src/alias-router/` | Managed alias reconciliation (DB) |
