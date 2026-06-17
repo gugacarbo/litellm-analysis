@@ -15,7 +15,6 @@
     "prepare": "husky",
     "generate:agents-schema": "tsx scripts/src/generate-schema/index.ts",
     "sync:aa-benchmarks": "tsx scripts/src/sync-aa-benchmarks/index.ts",
-    "sync:cloud": "tsx scripts/src/sync-cloud-litellm/index.ts",
     "validate:agents": "tsx scripts/src/validate-agents/index.ts",
     "validate:agents:all": "tsx scripts/src/validate-agents/index.ts --strict",
     "generate:plugin-configs": "tsx scripts/src/generate-plugin-configs/index.ts",
@@ -24,11 +23,7 @@
     "db:logs": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec docker compose logs -f postgres'",
     "db:migrate": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec pnpm --filter @lite-llm/model-proxy-repository db:migrate'",
     "backup": "pnpm --filter @lite-llm/scripts backup",
-    "backup:litellm": "pnpm --filter @lite-llm/scripts backup:litellm",
-    "backup:list": "ls -lh backups/model_proxy_* backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
-    "model-proxy:import-legacy": "pnpm --filter @lite-llm/model-proxy-registry-service import:legacy",
-    "model-proxy:import-history": "pnpm --filter @lite-llm/model-proxy-registry-service import:history",
-    "analytics:compare-sources": "tsx scripts/src/compare-analytics-sources/index.ts"
+    "backup:list": "ls -lh backups/model_proxy_* backups/*.sql.gz 2>/dev/null || echo 'No backups found'"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

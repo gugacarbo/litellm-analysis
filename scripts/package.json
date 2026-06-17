@@ -6,8 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "backup": "tsx model-proxy-backup/index.ts",
-    "backup:litellm": "tsx litellm-backup/index.ts"
+    "backup": "tsx model-proxy-backup/index.ts"
   },
   "dependencies": {
     "@lite-llm/config": "workspace:*",
