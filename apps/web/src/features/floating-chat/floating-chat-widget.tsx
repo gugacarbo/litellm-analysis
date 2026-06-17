@@ -84,6 +84,7 @@ export function FloatingChatWidget() {
 
   return (
     <FloatingChatPanel
+      key={selectedModel}
       selectedModel={selectedModel}
       onModelChange={onModelChange}
     />
