@@ -21,12 +21,33 @@ export {
   coerceLiteLLMParams,
   coerceLiteLLMParamValue,
   coerceStringParamValue,
-  getCredentialNameFromParams,
   isRecord,
   parseDays,
-  resolveModelCredential,
   toCostPerToken,
 } from "./lite-llm-params";
+export {
+  fromModelProxyRow,
+  fromModelRoute,
+  getCredentialNameFromParams,
+  type ModelProxyRowWrite,
+  type ModelRoute,
+  type ModelRouteUpdate,
+  resolveModelCredential,
+  toModelProxyRow,
+  toModelRoute,
+} from "./model-route";
+export {
+  createRegistryModelFromParams,
+  createRegistryModelFromSpec,
+  listModelsWithRegistryFirst,
+  listRegistryRoutes,
+  mergeRegistryModelFromSpec,
+  routeUpdateFromParams,
+  toLegacyEntry,
+  toLitellmParamsShim,
+  updateRegistryModelFromParams,
+} from "./registry-models-bridge";
+export { updateRouterAliasesInRegistry } from "./router-settings";
 
 export function createOrchestrationServices(
   dataSource: AnalyticsDataSource,

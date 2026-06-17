@@ -15,13 +15,31 @@ function readBearerToken(header?: string): string | null {
   return match?.[1]?.trim() ? match[1].trim() : null;
 }
 
-function isAuthorized(header?: string): boolean {
-  const configured = process.env.MODEL_PROXY_API_KEY?.trim();
-  if (!configured) {
+async function isAuthorized(
+  header: string | undefined,
+  opts: RouteOptions,
+): Promise<boolean> {
+  const token = readBearerToken(header);
+  if (!token) {
     return false;
   }
 
-  return readBearerToken(header) === configured;
+  const verifyResult = await opts.registry.apiKeysService.verify(token);
+  if (verifyResult.valid) {
+    return true;
+  }
+
+  const configured = process.env.MODEL_PROXY_API_KEY?.trim();
+  return configured ? token === configured : false;
+}
+
+async function hasConfiguredAuth(opts: RouteOptions): Promise<boolean> {
+  if (process.env.MODEL_PROXY_API_KEY?.trim()) {
+    return true;
+  }
+
+  const keys = await opts.registry.apiKeysService.list();
+  return keys.some((key) => key.enabled);
 }
 
 export function registerModelProxyRoutes(
@@ -29,12 +47,15 @@ export function registerModelProxyRoutes(
   opts: RouteOptions,
 ): void {
   app.get("/v1/models", async (req, res) => {
-    if (!process.env.MODEL_PROXY_API_KEY?.trim()) {
-      res.status(503).json({ error: "MODEL_PROXY_API_KEY is not configured" });
+    if (!(await hasConfiguredAuth(opts))) {
+      res.status(503).json({
+        error:
+          "No model proxy API keys configured (set MODEL_PROXY_API_KEY or seed model_proxy_api_keys)",
+      });
       return;
     }
 
-    if (!isAuthorized(req.header("authorization"))) {
+    if (!(await isAuthorized(req.header("authorization"), opts))) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
@@ -57,12 +78,15 @@ export function registerModelProxyRoutes(
   });
 
   app.post("/v1/chat/completions", async (req, res) => {
-    if (!process.env.MODEL_PROXY_API_KEY?.trim()) {
-      res.status(503).json({ error: "MODEL_PROXY_API_KEY is not configured" });
+    if (!(await hasConfiguredAuth(opts))) {
+      res.status(503).json({
+        error:
+          "No model proxy API keys configured (set MODEL_PROXY_API_KEY or seed model_proxy_api_keys)",
+      });
       return;
     }
 
-    if (!isAuthorized(req.header("authorization"))) {
+    if (!(await isAuthorized(req.header("authorization"), opts))) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }

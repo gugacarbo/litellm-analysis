@@ -1,3 +1,8 @@
+import {
+  getCredentialNameFromParams,
+  resolveModelCredential,
+} from "./model-route";
+
 export function parseDays(rawValue: unknown, fallback: number): number {
   if (typeof rawValue !== "string") {
     return fallback;
@@ -26,34 +31,11 @@ export function toCostPerToken(costPerToken?: number): number | undefined {
   return costPerToken;
 }
 
-function normalizeCredentialName(
-  credentialName?: string | null,
-): string | undefined {
-  if (typeof credentialName !== "string") {
-    return undefined;
-  }
-
-  const normalized = credentialName.trim();
-  return normalized ? normalized : undefined;
-}
-
-export function getCredentialNameFromParams(
-  params: Record<string, unknown>,
-): string | undefined {
-  return normalizeCredentialName(
-    params.litellm_credential_name as string | undefined,
-  );
-}
-
-export function resolveModelCredential(
-  litellmParams: Record<string, unknown>,
-  fallbackCredential?: string | null,
-): string | undefined {
-  return (
-    getCredentialNameFromParams(litellmParams) ??
-    normalizeCredentialName(fallbackCredential)
-  );
-}
+/** @deprecated Import from `./model-route` instead. */
+export {
+  getCredentialNameFromParams,
+  resolveModelCredential,
+} from "./model-route";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

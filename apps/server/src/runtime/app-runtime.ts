@@ -4,6 +4,10 @@ import { fileURLToPath } from "node:url";
 import { createAgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { prisma } from "@lite-llm/analytics-service/queries/client";
+import {
+  createRegistryServices,
+  getHealthCheckPromptWithFallback,
+} from "@lite-llm/model-proxy-registry-service";
 import { createModelProxyService } from "@lite-llm/model-proxy-service";
 import {
   createRepositoryClient as createModelsRepositoryClient,
@@ -11,6 +15,7 @@ import {
   ProviderService,
 } from "@lite-llm/models-service";
 import { createOrchestrationServices } from "@lite-llm/server/orchestration";
+import { updateRouterAliasesInRegistry } from "@lite-llm/server/orchestration/router-settings";
 import { createAppContext } from "../contexts";
 import { env } from "../env";
 import {
@@ -34,6 +39,26 @@ const DEFAULT_HEALTH_CHECK_PROMPT =
 
 interface HealthCheckPromptSource {
   getHealthCheckPrompt(): Promise<string | null>;
+}
+
+async function seedBootstrapApiKey(
+  envKey: string | undefined,
+  registry: ReturnType<typeof createRegistryServices>,
+): Promise<void> {
+  const trimmed = envKey?.trim();
+  if (!trimmed) {
+    return;
+  }
+
+  const existing = await registry.apiKeysService.list();
+  if (existing.length > 0) {
+    return;
+  }
+
+  await registry.apiKeysService.create(
+    { label: "env-bootstrap", enabled: true },
+    trimmed,
+  );
 }
 
 function getProjectRoot(): string {
@@ -84,12 +109,24 @@ function registerShutdownHooks(stop: () => void): void {
 }
 
 export async function resolveHealthCheckPrompt(
-  dataSource: HealthCheckPromptSource,
+  settingsService: ReturnType<typeof createRegistryServices>["settingsService"],
+  dataSource?: HealthCheckPromptSource,
 ): Promise<string> {
   try {
-    return (
-      (await dataSource.getHealthCheckPrompt()) ?? DEFAULT_HEALTH_CHECK_PROMPT
-    );
+    const fromRegistry =
+      await getHealthCheckPromptWithFallback(settingsService);
+    if (fromRegistry) {
+      return fromRegistry;
+    }
+
+    if (dataSource) {
+      const fromLegacy = await dataSource.getHealthCheckPrompt();
+      if (fromLegacy) {
+        return fromLegacy;
+      }
+    }
+
+    return DEFAULT_HEALTH_CHECK_PROMPT;
   } catch (error) {
     console.warn(
       "Failed to load health check prompt from database; using default prompt.",
@@ -102,10 +139,12 @@ export async function resolveHealthCheckPrompt(
 export async function startAppRuntime(): Promise<AppRuntime> {
   const projectRoot = getProjectRoot();
   const ctx = createAppContext();
+  const registry = createRegistryServices();
+  await seedBootstrapApiKey(env.MODEL_PROXY_API_KEY, registry);
 
   const aliasDbWriter = {
     updateAliases: async (aliases: Record<string, string>) => {
-      await ctx.analytics.dataSource.updateAgentRoutingConfig(aliases);
+      await updateRouterAliasesInRegistry(registry.settingsService, aliases);
     },
   };
 
@@ -136,6 +175,11 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       modelProxyService,
       modelsService,
       providerService,
+      registry: {
+        settingsService: registry.settingsService,
+        registryModelsService: registry.registryModelsService,
+        apiKeysService: registry.apiKeysService,
+      },
     },
     ctx,
   );
@@ -165,6 +209,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
 
   const enabledModelNames = await modelsService.getEnabledModelNames();
   const healthCheckPrompt = await resolveHealthCheckPrompt(
+    registry.settingsService,
     ctx.analytics.dataSource,
   );
 

@@ -1,3 +1,4 @@
+import { getDefaultCredentialWithFallback } from "@lite-llm/model-proxy-registry-service";
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index";
 
@@ -5,7 +6,8 @@ export function registerCredentialRoutes(
   app: Application,
   opts: RouteOptions,
 ): void {
-  const { dataSource } = opts;
+  const { dataSource, registry } = opts;
+  const { settingsService } = registry;
 
   // GET /credentials - List all credentials
   app.get("/credentials", async (_req, res) => {
@@ -17,17 +19,18 @@ export function registerCredentialRoutes(
     }
   });
 
-  // GET /credentials/default - Get default credential
+  // GET /credentials/default - Get default credential (registry first)
   app.get("/credentials/default", async (_req, res) => {
     try {
-      const defaultCredential = await dataSource.getDefaultCredential();
+      const defaultCredential =
+        await getDefaultCredentialWithFallback(settingsService);
       res.json({ defaultCredential });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  // PUT /credentials/default - Set default credential
+  // PUT /credentials/default - Set default credential (registry only)
   app.put("/credentials/default", async (req, res) => {
     try {
       const { credentialAlias } = req.body;
@@ -37,7 +40,13 @@ export function registerCredentialRoutes(
           .json({ error: "credentialAlias must be a string or null" });
         return;
       }
-      await dataSource.setDefaultCredential(credentialAlias || null);
+
+      if (credentialAlias === null || !credentialAlias.trim()) {
+        await settingsService.deleteDefaultCredential();
+      } else {
+        await settingsService.setDefaultCredential(credentialAlias.trim());
+      }
+
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });

@@ -34,6 +34,11 @@ async function createTestServer() {
   const app = express();
   app.use(express.json());
 
+  const apiKeysService = {
+    list: vi.fn().mockResolvedValue([]),
+    verify: vi.fn().mockResolvedValue({ valid: false }),
+  };
+
   const modelProxyService = {
     listModels: vi.fn().mockResolvedValue({
       object: "list",
@@ -73,6 +78,11 @@ async function createTestServer() {
     orchestration: {} as never,
     modelsService: {} as never,
     providerService: {} as never,
+    registry: {
+      settingsService: {} as never,
+      registryModelsService: {} as never,
+      apiKeysService,
+    },
   });
 
   const server = app.listen(0);
@@ -126,6 +136,74 @@ describe("model proxy routes", () => {
         ],
       });
       expect(modelProxyService.listModels).toHaveBeenCalledOnce();
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+    }
+  });
+
+  it("authorizes requests with a matching registry API key", async () => {
+    vi.resetModules();
+    vi.stubEnv("MODEL_PROXY_API_KEY", "");
+    vi.stubEnv("PORT", "3008");
+    vi.stubEnv("DB_HOST", "localhost");
+    vi.stubEnv("DB_PORT", "5432");
+    vi.stubEnv("DB_NAME", "litellm");
+    vi.stubEnv("DB_USER", "postgres");
+    vi.stubEnv("DB_PASSWORD", "postgres");
+    vi.stubEnv("HEALTH_CHECK_INTERVAL_MS", "60000");
+    vi.stubEnv("HEALTH_CHECK_TIMEOUT_MS", "30000");
+    vi.stubEnv("APP_DB_PATH", "/tmp/model-proxy-test.db");
+
+    const express = (await import("express")).default;
+    const { registerModelProxyRoutes } = await import(
+      "../../../../packages/server/src/routes/model-proxy-routes.ts"
+    );
+    const app = express();
+    app.use(express.json());
+
+    const apiKeysService = {
+      list: vi
+        .fn()
+        .mockResolvedValue([
+          { id: "1", label: "test", keyHash: "hash", enabled: true },
+        ]),
+      verify: vi.fn().mockResolvedValue({ valid: true }),
+    };
+    const modelProxyService = {
+      listModels: vi.fn().mockResolvedValue({ object: "list", data: [] }),
+      createChatCompletion: vi.fn(),
+      createStreamingChatCompletion: vi.fn(),
+      onRequestFinished: vi.fn().mockReturnValue(() => undefined),
+    };
+
+    registerModelProxyRoutes(app, {
+      modelProxyService,
+      agentsManager: undefined,
+      dataSource: {} as never,
+      orchestration: {} as never,
+      modelsService: {} as never,
+      providerService: {} as never,
+      registry: {
+        settingsService: {} as never,
+        registryModelsService: {} as never,
+        apiKeysService,
+      },
+    });
+
+    const server = app.listen(0);
+    await new Promise<void>((resolve) => {
+      server.once("listening", () => resolve());
+    });
+    const port = (server.address() as AddressInfo).port;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/v1/models`, {
+        headers: { authorization: "Bearer registry-key" },
+      });
+      expect(response.status).toBe(200);
+      expect(apiKeysService.verify).toHaveBeenCalledWith("registry-key");
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));

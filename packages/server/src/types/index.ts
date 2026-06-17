@@ -1,7 +1,18 @@
 import type { AgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
+import type {
+  IApiKeysService,
+  IRegistryModelsService,
+  ISettingsService,
+} from "@lite-llm/model-proxy-registry-service";
 import type { IModelProxyService } from "@lite-llm/model-proxy-service";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
+
+export interface RegistryRouteServices {
+  settingsService: ISettingsService;
+  registryModelsService: IRegistryModelsService;
+  apiKeysService: IApiKeysService;
+}
 
 export type AgentsManager = AgentPluginsOrchestrator;
 
@@ -44,5 +55,6 @@ export interface RouteOptions {
   modelProxyService: IModelProxyService;
   modelsService: IModelService;
   providerService: IProviderService;
+  registry: RegistryRouteServices;
   agentsManager?: AgentsManager;
 }
