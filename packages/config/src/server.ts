@@ -2,6 +2,13 @@ import { resolve } from "node:path";
 import { createEnv } from "@t3-oss/env-core";
 import dotenv from "dotenv";
 import { z } from "zod";
+import { assertAnalyticsDataSourceEnv } from "./server-env-validation";
+
+export type {
+  AnalyticsDataSourceEnv,
+  AnalyticsDataSourceMode,
+} from "./server-env-validation";
+export { assertAnalyticsDataSourceEnv } from "./server-env-validation";
 
 const packageRoot = resolve(import.meta.dirname, "..");
 const repoRoot = resolve(packageRoot, "..", "..");
@@ -13,11 +20,11 @@ dotenv.config({
 export const serverSchema = {
   PORT: z.coerce.number().int().positive(),
 
-  DB_HOST: z.string(),
-  DB_PORT: z.coerce.number().int().positive(),
-  DB_NAME: z.string(),
-  DB_USER: z.string(),
-  DB_PASSWORD: z.string().min(1, "DB_PASSWORD is required"),
+  DB_HOST: z.string().optional(),
+  DB_PORT: z.coerce.number().int().positive().optional(),
+  DB_NAME: z.string().optional(),
+  DB_USER: z.string().optional(),
+  DB_PASSWORD: z.string().min(1, "DB_PASSWORD cannot be empty").optional(),
 
   MODEL_PROXY_API_KEY: z
     .string()
@@ -51,6 +58,8 @@ export const serverEnv = createEnv({
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });
+
+assertAnalyticsDataSourceEnv(serverEnv);
 
 const backupDbSchema = z.object({
   DB_HOST: z.string().min(1, "DB_HOST is required"),
