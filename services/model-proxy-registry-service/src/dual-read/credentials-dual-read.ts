@@ -1,4 +1,3 @@
-import { deriveSecretRefFromCredentialName } from "../adapters/derive-secret-ref.js";
 import type { ICredentialsService } from "../services/credentials.service.js";
 import type { CredentialRecord } from "../types/credentials.js";
 
@@ -45,5 +44,3 @@ export async function credentialExists(
   const credentials = await listCredentials(credentialsService);
   return credentials.some((item) => item.credentialName === normalized);
 }
-
-export { deriveSecretRefFromCredentialName };

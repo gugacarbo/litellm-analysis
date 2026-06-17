@@ -2,6 +2,8 @@ export const SETTING_KEYS = {
   DEFAULT_CREDENTIAL: "default_credential",
   HEALTH_CHECK_PROMPT: "health_check_prompt",
   ROUTER_SETTINGS: "router_settings",
+  DASHBOARD_AGENTS: "dashboard.agents",
+  DASHBOARD_PLUGINS: "dashboard.plugins",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];

@@ -29,6 +29,8 @@ export interface ModelRoute {
   secretRef?: string;
   /** Provider-specific kwargs not mapped to dedicated columns. */
   requestOptions?: Record<string, unknown>;
+  /** Extra model config (thinking, reasoning) from dashboard models.jsonc. */
+  metadata?: Record<string, unknown>;
 }
 
 /** Subset of `ModelRoute` writable on create/update (excludes identity). */
@@ -56,6 +58,7 @@ export interface ModelProxyModelRecord {
   credentialName: string | null;
   secretRef: string | null;
   requestOptions: Record<string, unknown> | null;
+  metadata: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -9,9 +9,7 @@ import type {
   ModelRouteUpdate,
 } from "../types/model-route.js";
 
-export function toModelProxyModelRecord(
-  row: ModelProxyModel,
-): ModelProxyModelRecord {
+function toModelProxyModelRecord(row: ModelProxyModel): ModelProxyModelRecord {
   return {
     id: row.id,
     modelName: row.modelName,
@@ -33,6 +31,8 @@ export function toModelProxyModelRecord(
       row.requestOptions === null
         ? null
         : (row.requestOptions as Record<string, unknown>),
+    metadata:
+      row.metadata === null ? null : (row.metadata as Record<string, unknown>),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -62,7 +62,7 @@ export function toModelRoute(record: ModelProxyModelRecord): ModelRoute {
   };
 }
 
-export function toPrismaModelData(
+function toPrismaModelData(
   route: ModelRouteUpdate,
 ): Prisma.ModelProxyModelUpdateInput {
   const data: Prisma.ModelProxyModelUpdateInput = {
@@ -99,11 +99,14 @@ export function toPrismaModelData(
     ...(route.requestOptions !== undefined
       ? { requestOptions: route.requestOptions as Prisma.InputJsonValue }
       : {}),
+    ...(route.metadata !== undefined
+      ? { metadata: route.metadata as Prisma.InputJsonValue }
+      : {}),
   };
   return data;
 }
 
-export function toPrismaModelCreate(
+function toPrismaModelCreate(
   modelName: string,
   route: ModelRouteUpdate = {},
 ): Prisma.ModelProxyModelCreateInput {
@@ -126,6 +129,11 @@ export function toPrismaModelCreate(
     ...(route.requestOptions !== undefined
       ? {
           requestOptions: route.requestOptions as Prisma.InputJsonValue,
+        }
+      : {}),
+    ...(route.metadata !== undefined
+      ? {
+          metadata: route.metadata as Prisma.InputJsonValue,
         }
       : {}),
   };
