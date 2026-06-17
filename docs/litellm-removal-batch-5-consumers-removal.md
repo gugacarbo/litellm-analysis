@@ -33,14 +33,19 @@ analytics, remocao de fallbacks).
 | Shim legado (borda) | `litellm-alias` → `model-alias` em plugin-routing routes |
 | Adapter prompt-eval | aceita `litellm` como alias de `model-proxy` |
 
+## Plano de implementacao
+
+Ver [batch-5-decisions.md](./batch-5-decisions.md), [batch-5-inventory.md](./batch-5-inventory.md) e
+[litellm-removal-batch-5-implementation-plan.md](./litellm-removal-batch-5-implementation-plan.md).
+
 ## Checklist de Preparacao
 
-- [ ] Confirmar que Batch 4 funciona com `ANALYTICS_DATA_SOURCE=model-proxy`.
-- [ ] Definir janela final de suporte a adapters legados.
-- [ ] Listar todos os arquivos gerados em `@storage/output`.
-- [ ] Listar env vars `LITELLM_*` restantes no runtime.
-- [ ] Listar docs/scripts que ainda falam em LiteLLM como runtime.
-- [ ] Confirmar que importadores historicos ficam offline/opcionais.
+- [x] Confirmar que Batch 4 funciona com `ANALYTICS_DATA_SOURCE=model-proxy`.
+- [x] Definir janela final de suporte a adapters legados — ver [batch-5-decisions.md](./batch-5-decisions.md) §3.
+- [x] Listar todos os arquivos gerados em `@storage/output` — ver [batch-5-inventory.md](./batch-5-inventory.md).
+- [x] Listar env vars `LITELLM_*` restantes no runtime — ver [batch-5-inventory.md](./batch-5-inventory.md).
+- [x] Listar docs/scripts que ainda falam em LiteLLM como runtime — ver [batch-5-inventory.md](./batch-5-inventory.md).
+- [x] Confirmar que importadores historicos ficam offline/opcionais.
 
 ## Checklist de Implementacao
 
@@ -68,23 +73,22 @@ analytics, remocao de fallbacks).
 - [x] Atualizar generator do VS Code.
 - [x] Atualizar generator do OpenAgent (contexto `modelProxyConfig`; output nao
   inclui bloco de provider).
-- [ ] Regenerar configs em `@storage/output` (artefatos locais / gitignored).
+- [ ] Regenerar configs em `@storage/output` — `pnpm generate:plugin-configs` (local/gitignored).
 - [x] Atualizar testes dos plugins.
 - [x] Atualizar snapshots/fixtures de plugins (cobertos pelos testes atuais).
 
 ### Remocao final e operacao
 
-- [ ] Migrar backup para o banco PostgreSQL novo.
-- [ ] Migrar `backup:list`.
-- [ ] Atualizar `.env.example` (ainda cita `LITELLM_API_URL` / `LITELLM_API_KEY`).
-- [ ] Atualizar README (ainda cita `VITE_LITELLM_*`).
-- [ ] Atualizar docs principais (`AGENTS.md` parcialmente atualizado).
-- [ ] Atualizar scripts que citam LiteLLM como runtime (`scripts/src/litellm-backup`,
-  `scripts/src/sync-cloud-litellm` permanecem historicos).
-- [ ] Remover fallbacks `LITELLM_*` do runtime principal.
-- [ ] Remover dependencia obrigatoria de `repositories/litellm-repository`.
+- [x] Migrar backup para o banco PostgreSQL novo.
+- [x] Migrar `backup:list`.
+- [x] Atualizar `.env.example` (MODEL_PROXY_*; LITELLM_API_* removidos).
+- [x] Atualizar README (model proxy runtime).
+- [x] Atualizar docs principais (`AGENTS.md`).
+- [x] Atualizar scripts backup (`model-proxy-backup`; `litellm-backup` historico).
+- [x] Remover fallbacks `LITELLM_*` do runtime principal.
+- [x] Remover dependencia obrigatoria de `repositories/litellm-repository` no runtime model-proxy.
 - [x] Manter importadores historicos fora do runtime.
-- [ ] Validar `pnpm dev` sem container LiteLLM.
+- [ ] Validar `pnpm dev` sem container LiteLLM (requer `MODEL_PROXY_DATABASE_URL` local).
 
 ## Fora de Escopo
 
