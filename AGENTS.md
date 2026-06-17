@@ -167,7 +167,7 @@ pnpm lint         # turbo lint (biome lint)
 pnpm format       # turbo format (biome check --write)
 pnpm typecheck    # turbo typecheck (tsc --noEmit)
 
-# Local PostgreSQL (docker-compose)
+# Local PostgreSQL (docker-compose / podman-compose via scripts/db-compose.sh)
 pnpm db:up              # Start postgres (reads .env / .env.local)
 pnpm db:down            # Stop postgres container
 pnpm db:logs            # Follow postgres logs

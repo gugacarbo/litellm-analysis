@@ -18,9 +18,9 @@
     "validate:agents": "tsx scripts/src/validate-agents/index.ts",
     "validate:agents:all": "tsx scripts/src/validate-agents/index.ts --strict",
     "generate:plugin-configs": "tsx scripts/src/generate-plugin-configs/index.ts",
-    "db:up": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec docker compose up -d'",
-    "db:down": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec docker compose down'",
-    "db:logs": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec docker compose logs -f postgres'",
+    "db:up": "sh scripts/db-compose.sh up -d",
+    "db:down": "sh scripts/db-compose.sh down",
+    "db:logs": "sh scripts/db-compose.sh logs -f postgres",
     "db:migrate": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec pnpm --filter @lite-llm/model-proxy-repository db:migrate'",
     "backup": "pnpm --filter @lite-llm/scripts backup",
     "backup:list": "ls -lh backups/model_proxy_* backups/*.sql.gz 2>/dev/null || echo 'No backups found'"
