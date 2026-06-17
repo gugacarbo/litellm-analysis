@@ -63,6 +63,7 @@ async function createTestServer() {
         "data: [DONE]\n\n",
       ]),
     }),
+    onRequestFinished: vi.fn().mockReturnValue(() => undefined),
   };
 
   registerModelProxyRoutes(app, {

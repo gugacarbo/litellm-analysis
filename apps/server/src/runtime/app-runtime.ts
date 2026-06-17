@@ -120,6 +120,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   });
   const modelProxyService = createModelProxyService({
     modelsService,
+    providerService,
   });
   const orchestration = createOrchestrationServices(
     ctx.analytics.dataSource,
@@ -150,6 +151,16 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     ctx,
     httpServer,
     pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
+  });
+
+  modelProxyService.onRequestFinished((requestId) => {
+    monitorRuntime.wsServer.broadcast({
+      type: "spend_logs_changed",
+      data: {
+        changedRequestIds: [requestId],
+        timestamp: Date.now(),
+      },
+    });
   });
 
   const enabledModelNames = await modelsService.getEnabledModelNames();
