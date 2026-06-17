@@ -6,6 +6,11 @@ import {
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index";
 
+interface ProxyAuthResult {
+  authorized: boolean;
+  apiKeyAlias?: string;
+}
+
 function readBearerToken(header?: string): string | null {
   if (!header) {
     return null;
@@ -15,22 +20,36 @@ function readBearerToken(header?: string): string | null {
   return match?.[1]?.trim() ? match[1].trim() : null;
 }
 
-async function isAuthorized(
+async function authorizeRequest(
   header: string | undefined,
   opts: RouteOptions,
-): Promise<boolean> {
+): Promise<ProxyAuthResult> {
   const token = readBearerToken(header);
   if (!token) {
-    return false;
+    return { authorized: false };
   }
 
   const verifyResult = await opts.registry.apiKeysService.verify(token);
   if (verifyResult.valid) {
-    return true;
+    return {
+      authorized: true,
+      apiKeyAlias: verifyResult.record?.label ?? "unknown-key",
+    };
   }
 
   const configured = process.env.MODEL_PROXY_API_KEY?.trim();
-  return configured ? token === configured : false;
+  if (configured && token === configured) {
+    return { authorized: true, apiKeyAlias: "MODEL_PROXY_API_KEY" };
+  }
+
+  return { authorized: false };
+}
+
+async function isAuthorized(
+  header: string | undefined,
+  opts: RouteOptions,
+): Promise<boolean> {
+  return (await authorizeRequest(header, opts)).authorized;
 }
 
 async function hasConfiguredAuth(opts: RouteOptions): Promise<boolean> {
@@ -93,6 +112,7 @@ export function registerModelProxyRoutes(
 
     try {
       const request = chatCompletionsRequestSchema.parse(req.body);
+      const auth = await authorizeRequest(req.header("authorization"), opts);
       if (request.stream) {
         const abortController = new AbortController();
         res.on("close", () => {
@@ -105,6 +125,7 @@ export function registerModelProxyRoutes(
           await opts.modelProxyService.createStreamingChatCompletion(
             request,
             abortController.signal,
+            { apiKeyAlias: auth.apiKeyAlias },
           );
 
         res.status(response.status);
@@ -127,8 +148,11 @@ export function registerModelProxyRoutes(
         return;
       }
 
-      const response =
-        await opts.modelProxyService.createChatCompletion(request);
+      const response = await opts.modelProxyService.createChatCompletion(
+        request,
+        undefined,
+        { apiKeyAlias: auth.apiKeyAlias },
+      );
       res.status(response.status);
       response.headers.forEach((value, key) => {
         if (key.toLowerCase() === "content-length") {
@@ -151,5 +175,29 @@ export function registerModelProxyRoutes(
       }
       res.status(500).json({ error: String(error) });
     }
+  });
+
+  app.post("/v1/responses", async (req, res) => {
+    if (!(await hasConfiguredAuth(opts))) {
+      res.status(503).json({
+        error:
+          "No model proxy API keys configured (set MODEL_PROXY_API_KEY or seed model_proxy_api_keys)",
+      });
+      return;
+    }
+
+    if (!(await isAuthorized(req.header("authorization"), opts))) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    res.status(501).json({
+      error: {
+        message:
+          "The OpenAI Responses API is not implemented by the local model proxy yet. Use POST /v1/chat/completions instead.",
+        type: "not_implemented",
+        code: "responses_api_not_supported",
+      },
+    });
   });
 }

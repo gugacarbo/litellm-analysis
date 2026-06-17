@@ -152,7 +152,20 @@ exports.Prisma.ModelProxyRequestScalarFieldEnum = {
   errorDetails: 'errorDetails',
   requestBody: 'requestBody',
   responseBody: 'responseBody',
-  responseHeaders: 'responseHeaders'
+  responseHeaders: 'responseHeaders',
+  apiKeyAlias: 'apiKeyAlias',
+  endUser: 'endUser'
+};
+
+exports.Prisma.ModelProxyUsageAdjustmentScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  reason: 'reason',
+  promptTokensDelta: 'promptTokensDelta',
+  completionTokensDelta: 'completionTokensDelta',
+  totalCostDelta: 'totalCostDelta',
+  note: 'note',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ModelProxyMessageScalarFieldEnum = {
@@ -265,6 +278,7 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   ModelProxyRequest: 'ModelProxyRequest',
+  ModelProxyUsageAdjustment: 'ModelProxyUsageAdjustment',
   ModelProxyMessage: 'ModelProxyMessage',
   ModelProxyModel: 'ModelProxyModel',
   ModelProxyCredential: 'ModelProxyCredential',

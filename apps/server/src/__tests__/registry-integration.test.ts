@@ -148,11 +148,18 @@ describe("registry integration", () => {
         expect(listResponse.status).toBe(200);
         const models = (await listResponse.json()) as Array<{
           modelName: string;
-          litellmParams: Record<string, unknown>;
+          modelRoute: Record<string, unknown>;
         }>;
         expect(models.map((model) => model.modelName)).toContain(
           "gpt-integration",
         );
+        expect(
+          models.find((model) => model.modelName === "gpt-integration"),
+        ).toMatchObject({
+          modelRoute: expect.objectContaining({
+            maxOutputTokens: 4096,
+          }),
+        });
 
         const updateResponse = await fetch(
           `http://127.0.0.1:${port}/models/gpt-integration`,

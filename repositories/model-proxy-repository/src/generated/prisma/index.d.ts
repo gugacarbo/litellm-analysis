@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type ModelProxyRequest = $Result.DefaultSelection<Prisma.$ModelProxyRequestPayload>
 /**
+ * Model ModelProxyUsageAdjustment
+ * 
+ */
+export type ModelProxyUsageAdjustment = $Result.DefaultSelection<Prisma.$ModelProxyUsageAdjustmentPayload>
+/**
  * Model ModelProxyMessage
  * 
  */
@@ -181,6 +186,16 @@ export class PrismaClient<
     * ```
     */
   get modelProxyRequest(): Prisma.ModelProxyRequestDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.modelProxyUsageAdjustment`: Exposes CRUD operations for the **ModelProxyUsageAdjustment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ModelProxyUsageAdjustments
+    * const modelProxyUsageAdjustments = await prisma.modelProxyUsageAdjustment.findMany()
+    * ```
+    */
+  get modelProxyUsageAdjustment(): Prisma.ModelProxyUsageAdjustmentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.modelProxyMessage`: Exposes CRUD operations for the **ModelProxyMessage** model.
@@ -693,6 +708,7 @@ export namespace Prisma {
 
   export const ModelName: {
     ModelProxyRequest: 'ModelProxyRequest',
+    ModelProxyUsageAdjustment: 'ModelProxyUsageAdjustment',
     ModelProxyMessage: 'ModelProxyMessage',
     ModelProxyModel: 'ModelProxyModel',
     ModelProxyCredential: 'ModelProxyCredential',
@@ -718,7 +734,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "modelProxyRequest" | "modelProxyMessage" | "modelProxyModel" | "modelProxyCredential" | "modelProxyApiKey" | "modelProxySetting" | "modelProxyAlias" | "modelProxyImportJob"
+      modelProps: "modelProxyRequest" | "modelProxyUsageAdjustment" | "modelProxyMessage" | "modelProxyModel" | "modelProxyCredential" | "modelProxyApiKey" | "modelProxySetting" | "modelProxyAlias" | "modelProxyImportJob"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -793,6 +809,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ModelProxyRequestCountArgs<ExtArgs>
             result: $Utils.Optional<ModelProxyRequestCountAggregateOutputType> | number
+          }
+        }
+      }
+      ModelProxyUsageAdjustment: {
+        payload: Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>
+        fields: Prisma.ModelProxyUsageAdjustmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ModelProxyUsageAdjustmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ModelProxyUsageAdjustmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>
+          }
+          findFirst: {
+            args: Prisma.ModelProxyUsageAdjustmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ModelProxyUsageAdjustmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>
+          }
+          findMany: {
+            args: Prisma.ModelProxyUsageAdjustmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>[]
+          }
+          create: {
+            args: Prisma.ModelProxyUsageAdjustmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>
+          }
+          createMany: {
+            args: Prisma.ModelProxyUsageAdjustmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ModelProxyUsageAdjustmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>[]
+          }
+          delete: {
+            args: Prisma.ModelProxyUsageAdjustmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>
+          }
+          update: {
+            args: Prisma.ModelProxyUsageAdjustmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.ModelProxyUsageAdjustmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ModelProxyUsageAdjustmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ModelProxyUsageAdjustmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.ModelProxyUsageAdjustmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyUsageAdjustmentPayload>
+          }
+          aggregate: {
+            args: Prisma.ModelProxyUsageAdjustmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateModelProxyUsageAdjustment>
+          }
+          groupBy: {
+            args: Prisma.ModelProxyUsageAdjustmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ModelProxyUsageAdjustmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ModelProxyUsageAdjustmentCountArgs<ExtArgs>
+            result: $Utils.Optional<ModelProxyUsageAdjustmentCountAggregateOutputType> | number
           }
         }
       }
@@ -1411,6 +1501,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     modelProxyRequest?: ModelProxyRequestOmit
+    modelProxyUsageAdjustment?: ModelProxyUsageAdjustmentOmit
     modelProxyMessage?: ModelProxyMessageOmit
     modelProxyModel?: ModelProxyModelOmit
     modelProxyCredential?: ModelProxyCredentialOmit
@@ -1499,10 +1590,12 @@ export namespace Prisma {
 
   export type ModelProxyRequestCountOutputType = {
     messages: number
+    usageAdjustments: number
   }
 
   export type ModelProxyRequestCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     messages?: boolean | ModelProxyRequestCountOutputTypeCountMessagesArgs
+    usageAdjustments?: boolean | ModelProxyRequestCountOutputTypeCountUsageAdjustmentsArgs
   }
 
   // Custom InputTypes
@@ -1521,6 +1614,13 @@ export namespace Prisma {
    */
   export type ModelProxyRequestCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ModelProxyMessageWhereInput
+  }
+
+  /**
+   * ModelProxyRequestCountOutputType without action
+   */
+  export type ModelProxyRequestCountOutputTypeCountUsageAdjustmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelProxyUsageAdjustmentWhereInput
   }
 
 
@@ -1602,6 +1702,8 @@ export namespace Prisma {
     errorType: string | null
     errorMessage: string | null
     errorStatusCode: number | null
+    apiKeyAlias: string | null
+    endUser: string | null
   }
 
   export type ModelProxyRequestMaxAggregateOutputType = {
@@ -1632,6 +1734,8 @@ export namespace Prisma {
     errorType: string | null
     errorMessage: string | null
     errorStatusCode: number | null
+    apiKeyAlias: string | null
+    endUser: string | null
   }
 
   export type ModelProxyRequestCountAggregateOutputType = {
@@ -1666,6 +1770,8 @@ export namespace Prisma {
     requestBody: number
     responseBody: number
     responseHeaders: number
+    apiKeyAlias: number
+    endUser: number
     _all: number
   }
 
@@ -1732,6 +1838,8 @@ export namespace Prisma {
     errorType?: true
     errorMessage?: true
     errorStatusCode?: true
+    apiKeyAlias?: true
+    endUser?: true
   }
 
   export type ModelProxyRequestMaxAggregateInputType = {
@@ -1762,6 +1870,8 @@ export namespace Prisma {
     errorType?: true
     errorMessage?: true
     errorStatusCode?: true
+    apiKeyAlias?: true
+    endUser?: true
   }
 
   export type ModelProxyRequestCountAggregateInputType = {
@@ -1796,6 +1906,8 @@ export namespace Prisma {
     requestBody?: true
     responseBody?: true
     responseHeaders?: true
+    apiKeyAlias?: true
+    endUser?: true
     _all?: true
   }
 
@@ -1917,6 +2029,8 @@ export namespace Prisma {
     requestBody: JsonValue | null
     responseBody: JsonValue | null
     responseHeaders: JsonValue | null
+    apiKeyAlias: string | null
+    endUser: string | null
     _count: ModelProxyRequestCountAggregateOutputType | null
     _avg: ModelProxyRequestAvgAggregateOutputType | null
     _sum: ModelProxyRequestSumAggregateOutputType | null
@@ -1970,7 +2084,10 @@ export namespace Prisma {
     requestBody?: boolean
     responseBody?: boolean
     responseHeaders?: boolean
+    apiKeyAlias?: boolean
+    endUser?: boolean
     messages?: boolean | ModelProxyRequest$messagesArgs<ExtArgs>
+    usageAdjustments?: boolean | ModelProxyRequest$usageAdjustmentsArgs<ExtArgs>
     _count?: boolean | ModelProxyRequestCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["modelProxyRequest"]>
 
@@ -2006,6 +2123,8 @@ export namespace Prisma {
     requestBody?: boolean
     responseBody?: boolean
     responseHeaders?: boolean
+    apiKeyAlias?: boolean
+    endUser?: boolean
   }, ExtArgs["result"]["modelProxyRequest"]>
 
   export type ModelProxyRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2040,6 +2159,8 @@ export namespace Prisma {
     requestBody?: boolean
     responseBody?: boolean
     responseHeaders?: boolean
+    apiKeyAlias?: boolean
+    endUser?: boolean
   }, ExtArgs["result"]["modelProxyRequest"]>
 
   export type ModelProxyRequestSelectScalar = {
@@ -2074,11 +2195,14 @@ export namespace Prisma {
     requestBody?: boolean
     responseBody?: boolean
     responseHeaders?: boolean
+    apiKeyAlias?: boolean
+    endUser?: boolean
   }
 
-  export type ModelProxyRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "upstreamRequestId" | "model" | "upstreamModel" | "upstreamBaseUrl" | "status" | "startedAt" | "finishedAt" | "latencyMs" | "ttftMs" | "inputTokens" | "outputTokens" | "totalTokens" | "cachedTokens" | "reasoningTokens" | "usageEstimated" | "inputCostPerToken" | "outputCostPerToken" | "inputCost" | "outputCost" | "totalCost" | "costEstimated" | "estimatedCostUsd" | "errorSummary" | "errorType" | "errorMessage" | "errorStatusCode" | "errorDetails" | "requestBody" | "responseBody" | "responseHeaders", ExtArgs["result"]["modelProxyRequest"]>
+  export type ModelProxyRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "upstreamRequestId" | "model" | "upstreamModel" | "upstreamBaseUrl" | "status" | "startedAt" | "finishedAt" | "latencyMs" | "ttftMs" | "inputTokens" | "outputTokens" | "totalTokens" | "cachedTokens" | "reasoningTokens" | "usageEstimated" | "inputCostPerToken" | "outputCostPerToken" | "inputCost" | "outputCost" | "totalCost" | "costEstimated" | "estimatedCostUsd" | "errorSummary" | "errorType" | "errorMessage" | "errorStatusCode" | "errorDetails" | "requestBody" | "responseBody" | "responseHeaders" | "apiKeyAlias" | "endUser", ExtArgs["result"]["modelProxyRequest"]>
   export type ModelProxyRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     messages?: boolean | ModelProxyRequest$messagesArgs<ExtArgs>
+    usageAdjustments?: boolean | ModelProxyRequest$usageAdjustmentsArgs<ExtArgs>
     _count?: boolean | ModelProxyRequestCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ModelProxyRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2088,6 +2212,7 @@ export namespace Prisma {
     name: "ModelProxyRequest"
     objects: {
       messages: Prisma.$ModelProxyMessagePayload<ExtArgs>[]
+      usageAdjustments: Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2121,6 +2246,8 @@ export namespace Prisma {
       requestBody: Prisma.JsonValue | null
       responseBody: Prisma.JsonValue | null
       responseHeaders: Prisma.JsonValue | null
+      apiKeyAlias: string | null
+      endUser: string | null
     }, ExtArgs["result"]["modelProxyRequest"]>
     composites: {}
   }
@@ -2516,6 +2643,7 @@ export namespace Prisma {
   export interface Prisma__ModelProxyRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     messages<T extends ModelProxyRequest$messagesArgs<ExtArgs> = {}>(args?: Subset<T, ModelProxyRequest$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    usageAdjustments<T extends ModelProxyRequest$usageAdjustmentsArgs<ExtArgs> = {}>(args?: Subset<T, ModelProxyRequest$usageAdjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2576,6 +2704,8 @@ export namespace Prisma {
     readonly requestBody: FieldRef<"ModelProxyRequest", 'Json'>
     readonly responseBody: FieldRef<"ModelProxyRequest", 'Json'>
     readonly responseHeaders: FieldRef<"ModelProxyRequest", 'Json'>
+    readonly apiKeyAlias: FieldRef<"ModelProxyRequest", 'String'>
+    readonly endUser: FieldRef<"ModelProxyRequest", 'String'>
   }
     
 
@@ -2988,6 +3118,30 @@ export namespace Prisma {
   }
 
   /**
+   * ModelProxyRequest.usageAdjustments
+   */
+  export type ModelProxyRequest$usageAdjustmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    where?: ModelProxyUsageAdjustmentWhereInput
+    orderBy?: ModelProxyUsageAdjustmentOrderByWithRelationInput | ModelProxyUsageAdjustmentOrderByWithRelationInput[]
+    cursor?: ModelProxyUsageAdjustmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ModelProxyUsageAdjustmentScalarFieldEnum | ModelProxyUsageAdjustmentScalarFieldEnum[]
+  }
+
+  /**
    * ModelProxyRequest without action
    */
   export type ModelProxyRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3003,6 +3157,1145 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ModelProxyRequestInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ModelProxyUsageAdjustment
+   */
+
+  export type AggregateModelProxyUsageAdjustment = {
+    _count: ModelProxyUsageAdjustmentCountAggregateOutputType | null
+    _avg: ModelProxyUsageAdjustmentAvgAggregateOutputType | null
+    _sum: ModelProxyUsageAdjustmentSumAggregateOutputType | null
+    _min: ModelProxyUsageAdjustmentMinAggregateOutputType | null
+    _max: ModelProxyUsageAdjustmentMaxAggregateOutputType | null
+  }
+
+  export type ModelProxyUsageAdjustmentAvgAggregateOutputType = {
+    promptTokensDelta: number | null
+    completionTokensDelta: number | null
+    totalCostDelta: number | null
+  }
+
+  export type ModelProxyUsageAdjustmentSumAggregateOutputType = {
+    promptTokensDelta: number | null
+    completionTokensDelta: number | null
+    totalCostDelta: number | null
+  }
+
+  export type ModelProxyUsageAdjustmentMinAggregateOutputType = {
+    id: string | null
+    requestId: string | null
+    reason: string | null
+    promptTokensDelta: number | null
+    completionTokensDelta: number | null
+    totalCostDelta: number | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type ModelProxyUsageAdjustmentMaxAggregateOutputType = {
+    id: string | null
+    requestId: string | null
+    reason: string | null
+    promptTokensDelta: number | null
+    completionTokensDelta: number | null
+    totalCostDelta: number | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type ModelProxyUsageAdjustmentCountAggregateOutputType = {
+    id: number
+    requestId: number
+    reason: number
+    promptTokensDelta: number
+    completionTokensDelta: number
+    totalCostDelta: number
+    note: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ModelProxyUsageAdjustmentAvgAggregateInputType = {
+    promptTokensDelta?: true
+    completionTokensDelta?: true
+    totalCostDelta?: true
+  }
+
+  export type ModelProxyUsageAdjustmentSumAggregateInputType = {
+    promptTokensDelta?: true
+    completionTokensDelta?: true
+    totalCostDelta?: true
+  }
+
+  export type ModelProxyUsageAdjustmentMinAggregateInputType = {
+    id?: true
+    requestId?: true
+    reason?: true
+    promptTokensDelta?: true
+    completionTokensDelta?: true
+    totalCostDelta?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type ModelProxyUsageAdjustmentMaxAggregateInputType = {
+    id?: true
+    requestId?: true
+    reason?: true
+    promptTokensDelta?: true
+    completionTokensDelta?: true
+    totalCostDelta?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type ModelProxyUsageAdjustmentCountAggregateInputType = {
+    id?: true
+    requestId?: true
+    reason?: true
+    promptTokensDelta?: true
+    completionTokensDelta?: true
+    totalCostDelta?: true
+    note?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ModelProxyUsageAdjustmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ModelProxyUsageAdjustment to aggregate.
+     */
+    where?: ModelProxyUsageAdjustmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelProxyUsageAdjustments to fetch.
+     */
+    orderBy?: ModelProxyUsageAdjustmentOrderByWithRelationInput | ModelProxyUsageAdjustmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ModelProxyUsageAdjustmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelProxyUsageAdjustments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelProxyUsageAdjustments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ModelProxyUsageAdjustments
+    **/
+    _count?: true | ModelProxyUsageAdjustmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ModelProxyUsageAdjustmentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ModelProxyUsageAdjustmentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ModelProxyUsageAdjustmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ModelProxyUsageAdjustmentMaxAggregateInputType
+  }
+
+  export type GetModelProxyUsageAdjustmentAggregateType<T extends ModelProxyUsageAdjustmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateModelProxyUsageAdjustment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateModelProxyUsageAdjustment[P]>
+      : GetScalarType<T[P], AggregateModelProxyUsageAdjustment[P]>
+  }
+
+
+
+
+  export type ModelProxyUsageAdjustmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelProxyUsageAdjustmentWhereInput
+    orderBy?: ModelProxyUsageAdjustmentOrderByWithAggregationInput | ModelProxyUsageAdjustmentOrderByWithAggregationInput[]
+    by: ModelProxyUsageAdjustmentScalarFieldEnum[] | ModelProxyUsageAdjustmentScalarFieldEnum
+    having?: ModelProxyUsageAdjustmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ModelProxyUsageAdjustmentCountAggregateInputType | true
+    _avg?: ModelProxyUsageAdjustmentAvgAggregateInputType
+    _sum?: ModelProxyUsageAdjustmentSumAggregateInputType
+    _min?: ModelProxyUsageAdjustmentMinAggregateInputType
+    _max?: ModelProxyUsageAdjustmentMaxAggregateInputType
+  }
+
+  export type ModelProxyUsageAdjustmentGroupByOutputType = {
+    id: string
+    requestId: string
+    reason: string
+    promptTokensDelta: number
+    completionTokensDelta: number
+    totalCostDelta: number
+    note: string | null
+    createdAt: Date
+    _count: ModelProxyUsageAdjustmentCountAggregateOutputType | null
+    _avg: ModelProxyUsageAdjustmentAvgAggregateOutputType | null
+    _sum: ModelProxyUsageAdjustmentSumAggregateOutputType | null
+    _min: ModelProxyUsageAdjustmentMinAggregateOutputType | null
+    _max: ModelProxyUsageAdjustmentMaxAggregateOutputType | null
+  }
+
+  type GetModelProxyUsageAdjustmentGroupByPayload<T extends ModelProxyUsageAdjustmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ModelProxyUsageAdjustmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ModelProxyUsageAdjustmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ModelProxyUsageAdjustmentGroupByOutputType[P]>
+            : GetScalarType<T[P], ModelProxyUsageAdjustmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ModelProxyUsageAdjustmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    reason?: boolean
+    promptTokensDelta?: boolean
+    completionTokensDelta?: boolean
+    totalCostDelta?: boolean
+    note?: boolean
+    createdAt?: boolean
+    request?: boolean | ModelProxyRequestDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["modelProxyUsageAdjustment"]>
+
+  export type ModelProxyUsageAdjustmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    reason?: boolean
+    promptTokensDelta?: boolean
+    completionTokensDelta?: boolean
+    totalCostDelta?: boolean
+    note?: boolean
+    createdAt?: boolean
+    request?: boolean | ModelProxyRequestDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["modelProxyUsageAdjustment"]>
+
+  export type ModelProxyUsageAdjustmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    reason?: boolean
+    promptTokensDelta?: boolean
+    completionTokensDelta?: boolean
+    totalCostDelta?: boolean
+    note?: boolean
+    createdAt?: boolean
+    request?: boolean | ModelProxyRequestDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["modelProxyUsageAdjustment"]>
+
+  export type ModelProxyUsageAdjustmentSelectScalar = {
+    id?: boolean
+    requestId?: boolean
+    reason?: boolean
+    promptTokensDelta?: boolean
+    completionTokensDelta?: boolean
+    totalCostDelta?: boolean
+    note?: boolean
+    createdAt?: boolean
+  }
+
+  export type ModelProxyUsageAdjustmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requestId" | "reason" | "promptTokensDelta" | "completionTokensDelta" | "totalCostDelta" | "note" | "createdAt", ExtArgs["result"]["modelProxyUsageAdjustment"]>
+  export type ModelProxyUsageAdjustmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | ModelProxyRequestDefaultArgs<ExtArgs>
+  }
+  export type ModelProxyUsageAdjustmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | ModelProxyRequestDefaultArgs<ExtArgs>
+  }
+  export type ModelProxyUsageAdjustmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | ModelProxyRequestDefaultArgs<ExtArgs>
+  }
+
+  export type $ModelProxyUsageAdjustmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ModelProxyUsageAdjustment"
+    objects: {
+      request: Prisma.$ModelProxyRequestPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      requestId: string
+      reason: string
+      promptTokensDelta: number
+      completionTokensDelta: number
+      totalCostDelta: number
+      note: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["modelProxyUsageAdjustment"]>
+    composites: {}
+  }
+
+  type ModelProxyUsageAdjustmentGetPayload<S extends boolean | null | undefined | ModelProxyUsageAdjustmentDefaultArgs> = $Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload, S>
+
+  type ModelProxyUsageAdjustmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ModelProxyUsageAdjustmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ModelProxyUsageAdjustmentCountAggregateInputType | true
+    }
+
+  export interface ModelProxyUsageAdjustmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ModelProxyUsageAdjustment'], meta: { name: 'ModelProxyUsageAdjustment' } }
+    /**
+     * Find zero or one ModelProxyUsageAdjustment that matches the filter.
+     * @param {ModelProxyUsageAdjustmentFindUniqueArgs} args - Arguments to find a ModelProxyUsageAdjustment
+     * @example
+     * // Get one ModelProxyUsageAdjustment
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ModelProxyUsageAdjustmentFindUniqueArgs>(args: SelectSubset<T, ModelProxyUsageAdjustmentFindUniqueArgs<ExtArgs>>): Prisma__ModelProxyUsageAdjustmentClient<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ModelProxyUsageAdjustment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ModelProxyUsageAdjustmentFindUniqueOrThrowArgs} args - Arguments to find a ModelProxyUsageAdjustment
+     * @example
+     * // Get one ModelProxyUsageAdjustment
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ModelProxyUsageAdjustmentFindUniqueOrThrowArgs>(args: SelectSubset<T, ModelProxyUsageAdjustmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ModelProxyUsageAdjustmentClient<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ModelProxyUsageAdjustment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelProxyUsageAdjustmentFindFirstArgs} args - Arguments to find a ModelProxyUsageAdjustment
+     * @example
+     * // Get one ModelProxyUsageAdjustment
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ModelProxyUsageAdjustmentFindFirstArgs>(args?: SelectSubset<T, ModelProxyUsageAdjustmentFindFirstArgs<ExtArgs>>): Prisma__ModelProxyUsageAdjustmentClient<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ModelProxyUsageAdjustment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelProxyUsageAdjustmentFindFirstOrThrowArgs} args - Arguments to find a ModelProxyUsageAdjustment
+     * @example
+     * // Get one ModelProxyUsageAdjustment
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ModelProxyUsageAdjustmentFindFirstOrThrowArgs>(args?: SelectSubset<T, ModelProxyUsageAdjustmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__ModelProxyUsageAdjustmentClient<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ModelProxyUsageAdjustments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelProxyUsageAdjustmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ModelProxyUsageAdjustments
+     * const modelProxyUsageAdjustments = await prisma.modelProxyUsageAdjustment.findMany()
+     * 
+     * // Get first 10 ModelProxyUsageAdjustments
+     * const modelProxyUsageAdjustments = await prisma.modelProxyUsageAdjustment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const modelProxyUsageAdjustmentWithIdOnly = await prisma.modelProxyUsageAdjustment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ModelProxyUsageAdjustmentFindManyArgs>(args?: SelectSubset<T, ModelProxyUsageAdjustmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ModelProxyUsageAdjustment.
+     * @param {ModelProxyUsageAdjustmentCreateArgs} args - Arguments to create a ModelProxyUsageAdjustment.
+     * @example
+     * // Create one ModelProxyUsageAdjustment
+     * const ModelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.create({
+     *   data: {
+     *     // ... data to create a ModelProxyUsageAdjustment
+     *   }
+     * })
+     * 
+     */
+    create<T extends ModelProxyUsageAdjustmentCreateArgs>(args: SelectSubset<T, ModelProxyUsageAdjustmentCreateArgs<ExtArgs>>): Prisma__ModelProxyUsageAdjustmentClient<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ModelProxyUsageAdjustments.
+     * @param {ModelProxyUsageAdjustmentCreateManyArgs} args - Arguments to create many ModelProxyUsageAdjustments.
+     * @example
+     * // Create many ModelProxyUsageAdjustments
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ModelProxyUsageAdjustmentCreateManyArgs>(args?: SelectSubset<T, ModelProxyUsageAdjustmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ModelProxyUsageAdjustments and returns the data saved in the database.
+     * @param {ModelProxyUsageAdjustmentCreateManyAndReturnArgs} args - Arguments to create many ModelProxyUsageAdjustments.
+     * @example
+     * // Create many ModelProxyUsageAdjustments
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ModelProxyUsageAdjustments and only return the `id`
+     * const modelProxyUsageAdjustmentWithIdOnly = await prisma.modelProxyUsageAdjustment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ModelProxyUsageAdjustmentCreateManyAndReturnArgs>(args?: SelectSubset<T, ModelProxyUsageAdjustmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ModelProxyUsageAdjustment.
+     * @param {ModelProxyUsageAdjustmentDeleteArgs} args - Arguments to delete one ModelProxyUsageAdjustment.
+     * @example
+     * // Delete one ModelProxyUsageAdjustment
+     * const ModelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.delete({
+     *   where: {
+     *     // ... filter to delete one ModelProxyUsageAdjustment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ModelProxyUsageAdjustmentDeleteArgs>(args: SelectSubset<T, ModelProxyUsageAdjustmentDeleteArgs<ExtArgs>>): Prisma__ModelProxyUsageAdjustmentClient<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ModelProxyUsageAdjustment.
+     * @param {ModelProxyUsageAdjustmentUpdateArgs} args - Arguments to update one ModelProxyUsageAdjustment.
+     * @example
+     * // Update one ModelProxyUsageAdjustment
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ModelProxyUsageAdjustmentUpdateArgs>(args: SelectSubset<T, ModelProxyUsageAdjustmentUpdateArgs<ExtArgs>>): Prisma__ModelProxyUsageAdjustmentClient<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ModelProxyUsageAdjustments.
+     * @param {ModelProxyUsageAdjustmentDeleteManyArgs} args - Arguments to filter ModelProxyUsageAdjustments to delete.
+     * @example
+     * // Delete a few ModelProxyUsageAdjustments
+     * const { count } = await prisma.modelProxyUsageAdjustment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ModelProxyUsageAdjustmentDeleteManyArgs>(args?: SelectSubset<T, ModelProxyUsageAdjustmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ModelProxyUsageAdjustments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelProxyUsageAdjustmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ModelProxyUsageAdjustments
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ModelProxyUsageAdjustmentUpdateManyArgs>(args: SelectSubset<T, ModelProxyUsageAdjustmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ModelProxyUsageAdjustments and returns the data updated in the database.
+     * @param {ModelProxyUsageAdjustmentUpdateManyAndReturnArgs} args - Arguments to update many ModelProxyUsageAdjustments.
+     * @example
+     * // Update many ModelProxyUsageAdjustments
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ModelProxyUsageAdjustments and only return the `id`
+     * const modelProxyUsageAdjustmentWithIdOnly = await prisma.modelProxyUsageAdjustment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ModelProxyUsageAdjustmentUpdateManyAndReturnArgs>(args: SelectSubset<T, ModelProxyUsageAdjustmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ModelProxyUsageAdjustment.
+     * @param {ModelProxyUsageAdjustmentUpsertArgs} args - Arguments to update or create a ModelProxyUsageAdjustment.
+     * @example
+     * // Update or create a ModelProxyUsageAdjustment
+     * const modelProxyUsageAdjustment = await prisma.modelProxyUsageAdjustment.upsert({
+     *   create: {
+     *     // ... data to create a ModelProxyUsageAdjustment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ModelProxyUsageAdjustment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ModelProxyUsageAdjustmentUpsertArgs>(args: SelectSubset<T, ModelProxyUsageAdjustmentUpsertArgs<ExtArgs>>): Prisma__ModelProxyUsageAdjustmentClient<$Result.GetResult<Prisma.$ModelProxyUsageAdjustmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ModelProxyUsageAdjustments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelProxyUsageAdjustmentCountArgs} args - Arguments to filter ModelProxyUsageAdjustments to count.
+     * @example
+     * // Count the number of ModelProxyUsageAdjustments
+     * const count = await prisma.modelProxyUsageAdjustment.count({
+     *   where: {
+     *     // ... the filter for the ModelProxyUsageAdjustments we want to count
+     *   }
+     * })
+    **/
+    count<T extends ModelProxyUsageAdjustmentCountArgs>(
+      args?: Subset<T, ModelProxyUsageAdjustmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ModelProxyUsageAdjustmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ModelProxyUsageAdjustment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelProxyUsageAdjustmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ModelProxyUsageAdjustmentAggregateArgs>(args: Subset<T, ModelProxyUsageAdjustmentAggregateArgs>): Prisma.PrismaPromise<GetModelProxyUsageAdjustmentAggregateType<T>>
+
+    /**
+     * Group by ModelProxyUsageAdjustment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelProxyUsageAdjustmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ModelProxyUsageAdjustmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ModelProxyUsageAdjustmentGroupByArgs['orderBy'] }
+        : { orderBy?: ModelProxyUsageAdjustmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ModelProxyUsageAdjustmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetModelProxyUsageAdjustmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ModelProxyUsageAdjustment model
+   */
+  readonly fields: ModelProxyUsageAdjustmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ModelProxyUsageAdjustment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ModelProxyUsageAdjustmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    request<T extends ModelProxyRequestDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ModelProxyRequestDefaultArgs<ExtArgs>>): Prisma__ModelProxyRequestClient<$Result.GetResult<Prisma.$ModelProxyRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ModelProxyUsageAdjustment model
+   */
+  interface ModelProxyUsageAdjustmentFieldRefs {
+    readonly id: FieldRef<"ModelProxyUsageAdjustment", 'String'>
+    readonly requestId: FieldRef<"ModelProxyUsageAdjustment", 'String'>
+    readonly reason: FieldRef<"ModelProxyUsageAdjustment", 'String'>
+    readonly promptTokensDelta: FieldRef<"ModelProxyUsageAdjustment", 'Int'>
+    readonly completionTokensDelta: FieldRef<"ModelProxyUsageAdjustment", 'Int'>
+    readonly totalCostDelta: FieldRef<"ModelProxyUsageAdjustment", 'Float'>
+    readonly note: FieldRef<"ModelProxyUsageAdjustment", 'String'>
+    readonly createdAt: FieldRef<"ModelProxyUsageAdjustment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ModelProxyUsageAdjustment findUnique
+   */
+  export type ModelProxyUsageAdjustmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelProxyUsageAdjustment to fetch.
+     */
+    where: ModelProxyUsageAdjustmentWhereUniqueInput
+  }
+
+  /**
+   * ModelProxyUsageAdjustment findUniqueOrThrow
+   */
+  export type ModelProxyUsageAdjustmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelProxyUsageAdjustment to fetch.
+     */
+    where: ModelProxyUsageAdjustmentWhereUniqueInput
+  }
+
+  /**
+   * ModelProxyUsageAdjustment findFirst
+   */
+  export type ModelProxyUsageAdjustmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelProxyUsageAdjustment to fetch.
+     */
+    where?: ModelProxyUsageAdjustmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelProxyUsageAdjustments to fetch.
+     */
+    orderBy?: ModelProxyUsageAdjustmentOrderByWithRelationInput | ModelProxyUsageAdjustmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ModelProxyUsageAdjustments.
+     */
+    cursor?: ModelProxyUsageAdjustmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelProxyUsageAdjustments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelProxyUsageAdjustments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ModelProxyUsageAdjustments.
+     */
+    distinct?: ModelProxyUsageAdjustmentScalarFieldEnum | ModelProxyUsageAdjustmentScalarFieldEnum[]
+  }
+
+  /**
+   * ModelProxyUsageAdjustment findFirstOrThrow
+   */
+  export type ModelProxyUsageAdjustmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelProxyUsageAdjustment to fetch.
+     */
+    where?: ModelProxyUsageAdjustmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelProxyUsageAdjustments to fetch.
+     */
+    orderBy?: ModelProxyUsageAdjustmentOrderByWithRelationInput | ModelProxyUsageAdjustmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ModelProxyUsageAdjustments.
+     */
+    cursor?: ModelProxyUsageAdjustmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelProxyUsageAdjustments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelProxyUsageAdjustments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ModelProxyUsageAdjustments.
+     */
+    distinct?: ModelProxyUsageAdjustmentScalarFieldEnum | ModelProxyUsageAdjustmentScalarFieldEnum[]
+  }
+
+  /**
+   * ModelProxyUsageAdjustment findMany
+   */
+  export type ModelProxyUsageAdjustmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelProxyUsageAdjustments to fetch.
+     */
+    where?: ModelProxyUsageAdjustmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelProxyUsageAdjustments to fetch.
+     */
+    orderBy?: ModelProxyUsageAdjustmentOrderByWithRelationInput | ModelProxyUsageAdjustmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ModelProxyUsageAdjustments.
+     */
+    cursor?: ModelProxyUsageAdjustmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelProxyUsageAdjustments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelProxyUsageAdjustments.
+     */
+    skip?: number
+    distinct?: ModelProxyUsageAdjustmentScalarFieldEnum | ModelProxyUsageAdjustmentScalarFieldEnum[]
+  }
+
+  /**
+   * ModelProxyUsageAdjustment create
+   */
+  export type ModelProxyUsageAdjustmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ModelProxyUsageAdjustment.
+     */
+    data: XOR<ModelProxyUsageAdjustmentCreateInput, ModelProxyUsageAdjustmentUncheckedCreateInput>
+  }
+
+  /**
+   * ModelProxyUsageAdjustment createMany
+   */
+  export type ModelProxyUsageAdjustmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ModelProxyUsageAdjustments.
+     */
+    data: ModelProxyUsageAdjustmentCreateManyInput | ModelProxyUsageAdjustmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ModelProxyUsageAdjustment createManyAndReturn
+   */
+  export type ModelProxyUsageAdjustmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many ModelProxyUsageAdjustments.
+     */
+    data: ModelProxyUsageAdjustmentCreateManyInput | ModelProxyUsageAdjustmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ModelProxyUsageAdjustment update
+   */
+  export type ModelProxyUsageAdjustmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ModelProxyUsageAdjustment.
+     */
+    data: XOR<ModelProxyUsageAdjustmentUpdateInput, ModelProxyUsageAdjustmentUncheckedUpdateInput>
+    /**
+     * Choose, which ModelProxyUsageAdjustment to update.
+     */
+    where: ModelProxyUsageAdjustmentWhereUniqueInput
+  }
+
+  /**
+   * ModelProxyUsageAdjustment updateMany
+   */
+  export type ModelProxyUsageAdjustmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ModelProxyUsageAdjustments.
+     */
+    data: XOR<ModelProxyUsageAdjustmentUpdateManyMutationInput, ModelProxyUsageAdjustmentUncheckedUpdateManyInput>
+    /**
+     * Filter which ModelProxyUsageAdjustments to update
+     */
+    where?: ModelProxyUsageAdjustmentWhereInput
+    /**
+     * Limit how many ModelProxyUsageAdjustments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ModelProxyUsageAdjustment updateManyAndReturn
+   */
+  export type ModelProxyUsageAdjustmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * The data used to update ModelProxyUsageAdjustments.
+     */
+    data: XOR<ModelProxyUsageAdjustmentUpdateManyMutationInput, ModelProxyUsageAdjustmentUncheckedUpdateManyInput>
+    /**
+     * Filter which ModelProxyUsageAdjustments to update
+     */
+    where?: ModelProxyUsageAdjustmentWhereInput
+    /**
+     * Limit how many ModelProxyUsageAdjustments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ModelProxyUsageAdjustment upsert
+   */
+  export type ModelProxyUsageAdjustmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ModelProxyUsageAdjustment to update in case it exists.
+     */
+    where: ModelProxyUsageAdjustmentWhereUniqueInput
+    /**
+     * In case the ModelProxyUsageAdjustment found by the `where` argument doesn't exist, create a new ModelProxyUsageAdjustment with this data.
+     */
+    create: XOR<ModelProxyUsageAdjustmentCreateInput, ModelProxyUsageAdjustmentUncheckedCreateInput>
+    /**
+     * In case the ModelProxyUsageAdjustment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ModelProxyUsageAdjustmentUpdateInput, ModelProxyUsageAdjustmentUncheckedUpdateInput>
+  }
+
+  /**
+   * ModelProxyUsageAdjustment delete
+   */
+  export type ModelProxyUsageAdjustmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
+    /**
+     * Filter which ModelProxyUsageAdjustment to delete.
+     */
+    where: ModelProxyUsageAdjustmentWhereUniqueInput
+  }
+
+  /**
+   * ModelProxyUsageAdjustment deleteMany
+   */
+  export type ModelProxyUsageAdjustmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ModelProxyUsageAdjustments to delete
+     */
+    where?: ModelProxyUsageAdjustmentWhereInput
+    /**
+     * Limit how many ModelProxyUsageAdjustments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ModelProxyUsageAdjustment without action
+   */
+  export type ModelProxyUsageAdjustmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyUsageAdjustment
+     */
+    select?: ModelProxyUsageAdjustmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyUsageAdjustment
+     */
+    omit?: ModelProxyUsageAdjustmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyUsageAdjustmentInclude<ExtArgs> | null
   }
 
 
@@ -10382,10 +11675,26 @@ export namespace Prisma {
     errorDetails: 'errorDetails',
     requestBody: 'requestBody',
     responseBody: 'responseBody',
-    responseHeaders: 'responseHeaders'
+    responseHeaders: 'responseHeaders',
+    apiKeyAlias: 'apiKeyAlias',
+    endUser: 'endUser'
   };
 
   export type ModelProxyRequestScalarFieldEnum = (typeof ModelProxyRequestScalarFieldEnum)[keyof typeof ModelProxyRequestScalarFieldEnum]
+
+
+  export const ModelProxyUsageAdjustmentScalarFieldEnum: {
+    id: 'id',
+    requestId: 'requestId',
+    reason: 'reason',
+    promptTokensDelta: 'promptTokensDelta',
+    completionTokensDelta: 'completionTokensDelta',
+    totalCostDelta: 'totalCostDelta',
+    note: 'note',
+    createdAt: 'createdAt'
+  };
+
+  export type ModelProxyUsageAdjustmentScalarFieldEnum = (typeof ModelProxyUsageAdjustmentScalarFieldEnum)[keyof typeof ModelProxyUsageAdjustmentScalarFieldEnum]
 
 
   export const ModelProxyMessageScalarFieldEnum: {
@@ -10654,7 +11963,10 @@ export namespace Prisma {
     requestBody?: JsonNullableFilter<"ModelProxyRequest">
     responseBody?: JsonNullableFilter<"ModelProxyRequest">
     responseHeaders?: JsonNullableFilter<"ModelProxyRequest">
+    apiKeyAlias?: StringNullableFilter<"ModelProxyRequest"> | string | null
+    endUser?: StringNullableFilter<"ModelProxyRequest"> | string | null
     messages?: ModelProxyMessageListRelationFilter
+    usageAdjustments?: ModelProxyUsageAdjustmentListRelationFilter
   }
 
   export type ModelProxyRequestOrderByWithRelationInput = {
@@ -10689,7 +12001,10 @@ export namespace Prisma {
     requestBody?: SortOrderInput | SortOrder
     responseBody?: SortOrderInput | SortOrder
     responseHeaders?: SortOrderInput | SortOrder
+    apiKeyAlias?: SortOrderInput | SortOrder
+    endUser?: SortOrderInput | SortOrder
     messages?: ModelProxyMessageOrderByRelationAggregateInput
+    usageAdjustments?: ModelProxyUsageAdjustmentOrderByRelationAggregateInput
   }
 
   export type ModelProxyRequestWhereUniqueInput = Prisma.AtLeast<{
@@ -10727,7 +12042,10 @@ export namespace Prisma {
     requestBody?: JsonNullableFilter<"ModelProxyRequest">
     responseBody?: JsonNullableFilter<"ModelProxyRequest">
     responseHeaders?: JsonNullableFilter<"ModelProxyRequest">
+    apiKeyAlias?: StringNullableFilter<"ModelProxyRequest"> | string | null
+    endUser?: StringNullableFilter<"ModelProxyRequest"> | string | null
     messages?: ModelProxyMessageListRelationFilter
+    usageAdjustments?: ModelProxyUsageAdjustmentListRelationFilter
   }, "id">
 
   export type ModelProxyRequestOrderByWithAggregationInput = {
@@ -10762,6 +12080,8 @@ export namespace Prisma {
     requestBody?: SortOrderInput | SortOrder
     responseBody?: SortOrderInput | SortOrder
     responseHeaders?: SortOrderInput | SortOrder
+    apiKeyAlias?: SortOrderInput | SortOrder
+    endUser?: SortOrderInput | SortOrder
     _count?: ModelProxyRequestCountOrderByAggregateInput
     _avg?: ModelProxyRequestAvgOrderByAggregateInput
     _max?: ModelProxyRequestMaxOrderByAggregateInput
@@ -10804,6 +12124,80 @@ export namespace Prisma {
     requestBody?: JsonNullableWithAggregatesFilter<"ModelProxyRequest">
     responseBody?: JsonNullableWithAggregatesFilter<"ModelProxyRequest">
     responseHeaders?: JsonNullableWithAggregatesFilter<"ModelProxyRequest">
+    apiKeyAlias?: StringNullableWithAggregatesFilter<"ModelProxyRequest"> | string | null
+    endUser?: StringNullableWithAggregatesFilter<"ModelProxyRequest"> | string | null
+  }
+
+  export type ModelProxyUsageAdjustmentWhereInput = {
+    AND?: ModelProxyUsageAdjustmentWhereInput | ModelProxyUsageAdjustmentWhereInput[]
+    OR?: ModelProxyUsageAdjustmentWhereInput[]
+    NOT?: ModelProxyUsageAdjustmentWhereInput | ModelProxyUsageAdjustmentWhereInput[]
+    id?: StringFilter<"ModelProxyUsageAdjustment"> | string
+    requestId?: StringFilter<"ModelProxyUsageAdjustment"> | string
+    reason?: StringFilter<"ModelProxyUsageAdjustment"> | string
+    promptTokensDelta?: IntFilter<"ModelProxyUsageAdjustment"> | number
+    completionTokensDelta?: IntFilter<"ModelProxyUsageAdjustment"> | number
+    totalCostDelta?: FloatFilter<"ModelProxyUsageAdjustment"> | number
+    note?: StringNullableFilter<"ModelProxyUsageAdjustment"> | string | null
+    createdAt?: DateTimeFilter<"ModelProxyUsageAdjustment"> | Date | string
+    request?: XOR<ModelProxyRequestScalarRelationFilter, ModelProxyRequestWhereInput>
+  }
+
+  export type ModelProxyUsageAdjustmentOrderByWithRelationInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    reason?: SortOrder
+    promptTokensDelta?: SortOrder
+    completionTokensDelta?: SortOrder
+    totalCostDelta?: SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    request?: ModelProxyRequestOrderByWithRelationInput
+  }
+
+  export type ModelProxyUsageAdjustmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ModelProxyUsageAdjustmentWhereInput | ModelProxyUsageAdjustmentWhereInput[]
+    OR?: ModelProxyUsageAdjustmentWhereInput[]
+    NOT?: ModelProxyUsageAdjustmentWhereInput | ModelProxyUsageAdjustmentWhereInput[]
+    requestId?: StringFilter<"ModelProxyUsageAdjustment"> | string
+    reason?: StringFilter<"ModelProxyUsageAdjustment"> | string
+    promptTokensDelta?: IntFilter<"ModelProxyUsageAdjustment"> | number
+    completionTokensDelta?: IntFilter<"ModelProxyUsageAdjustment"> | number
+    totalCostDelta?: FloatFilter<"ModelProxyUsageAdjustment"> | number
+    note?: StringNullableFilter<"ModelProxyUsageAdjustment"> | string | null
+    createdAt?: DateTimeFilter<"ModelProxyUsageAdjustment"> | Date | string
+    request?: XOR<ModelProxyRequestScalarRelationFilter, ModelProxyRequestWhereInput>
+  }, "id">
+
+  export type ModelProxyUsageAdjustmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    reason?: SortOrder
+    promptTokensDelta?: SortOrder
+    completionTokensDelta?: SortOrder
+    totalCostDelta?: SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ModelProxyUsageAdjustmentCountOrderByAggregateInput
+    _avg?: ModelProxyUsageAdjustmentAvgOrderByAggregateInput
+    _max?: ModelProxyUsageAdjustmentMaxOrderByAggregateInput
+    _min?: ModelProxyUsageAdjustmentMinOrderByAggregateInput
+    _sum?: ModelProxyUsageAdjustmentSumOrderByAggregateInput
+  }
+
+  export type ModelProxyUsageAdjustmentScalarWhereWithAggregatesInput = {
+    AND?: ModelProxyUsageAdjustmentScalarWhereWithAggregatesInput | ModelProxyUsageAdjustmentScalarWhereWithAggregatesInput[]
+    OR?: ModelProxyUsageAdjustmentScalarWhereWithAggregatesInput[]
+    NOT?: ModelProxyUsageAdjustmentScalarWhereWithAggregatesInput | ModelProxyUsageAdjustmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ModelProxyUsageAdjustment"> | string
+    requestId?: StringWithAggregatesFilter<"ModelProxyUsageAdjustment"> | string
+    reason?: StringWithAggregatesFilter<"ModelProxyUsageAdjustment"> | string
+    promptTokensDelta?: IntWithAggregatesFilter<"ModelProxyUsageAdjustment"> | number
+    completionTokensDelta?: IntWithAggregatesFilter<"ModelProxyUsageAdjustment"> | number
+    totalCostDelta?: FloatWithAggregatesFilter<"ModelProxyUsageAdjustment"> | number
+    note?: StringNullableWithAggregatesFilter<"ModelProxyUsageAdjustment"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ModelProxyUsageAdjustment"> | Date | string
   }
 
   export type ModelProxyMessageWhereInput = {
@@ -11312,7 +12706,10 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: string | null
+    endUser?: string | null
     messages?: ModelProxyMessageCreateNestedManyWithoutRequestInput
+    usageAdjustments?: ModelProxyUsageAdjustmentCreateNestedManyWithoutRequestInput
   }
 
   export type ModelProxyRequestUncheckedCreateInput = {
@@ -11347,7 +12744,10 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: string | null
+    endUser?: string | null
     messages?: ModelProxyMessageUncheckedCreateNestedManyWithoutRequestInput
+    usageAdjustments?: ModelProxyUsageAdjustmentUncheckedCreateNestedManyWithoutRequestInput
   }
 
   export type ModelProxyRequestUpdateInput = {
@@ -11382,7 +12782,10 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: NullableStringFieldUpdateOperationsInput | string | null
+    endUser?: NullableStringFieldUpdateOperationsInput | string | null
     messages?: ModelProxyMessageUpdateManyWithoutRequestNestedInput
+    usageAdjustments?: ModelProxyUsageAdjustmentUpdateManyWithoutRequestNestedInput
   }
 
   export type ModelProxyRequestUncheckedUpdateInput = {
@@ -11417,7 +12820,10 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: NullableStringFieldUpdateOperationsInput | string | null
+    endUser?: NullableStringFieldUpdateOperationsInput | string | null
     messages?: ModelProxyMessageUncheckedUpdateManyWithoutRequestNestedInput
+    usageAdjustments?: ModelProxyUsageAdjustmentUncheckedUpdateManyWithoutRequestNestedInput
   }
 
   export type ModelProxyRequestCreateManyInput = {
@@ -11452,6 +12858,8 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: string | null
+    endUser?: string | null
   }
 
   export type ModelProxyRequestUpdateManyMutationInput = {
@@ -11486,6 +12894,8 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: NullableStringFieldUpdateOperationsInput | string | null
+    endUser?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ModelProxyRequestUncheckedUpdateManyInput = {
@@ -11520,6 +12930,84 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: NullableStringFieldUpdateOperationsInput | string | null
+    endUser?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ModelProxyUsageAdjustmentCreateInput = {
+    id?: string
+    reason: string
+    promptTokensDelta?: number
+    completionTokensDelta?: number
+    totalCostDelta?: number
+    note?: string | null
+    createdAt?: Date | string
+    request: ModelProxyRequestCreateNestedOneWithoutUsageAdjustmentsInput
+  }
+
+  export type ModelProxyUsageAdjustmentUncheckedCreateInput = {
+    id?: string
+    requestId: string
+    reason: string
+    promptTokensDelta?: number
+    completionTokensDelta?: number
+    totalCostDelta?: number
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    promptTokensDelta?: IntFieldUpdateOperationsInput | number
+    completionTokensDelta?: IntFieldUpdateOperationsInput | number
+    totalCostDelta?: FloatFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    request?: ModelProxyRequestUpdateOneRequiredWithoutUsageAdjustmentsNestedInput
+  }
+
+  export type ModelProxyUsageAdjustmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestId?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    promptTokensDelta?: IntFieldUpdateOperationsInput | number
+    completionTokensDelta?: IntFieldUpdateOperationsInput | number
+    totalCostDelta?: FloatFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentCreateManyInput = {
+    id?: string
+    requestId: string
+    reason: string
+    promptTokensDelta?: number
+    completionTokensDelta?: number
+    totalCostDelta?: number
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    promptTokensDelta?: IntFieldUpdateOperationsInput | number
+    completionTokensDelta?: IntFieldUpdateOperationsInput | number
+    totalCostDelta?: FloatFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestId?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    promptTokensDelta?: IntFieldUpdateOperationsInput | number
+    completionTokensDelta?: IntFieldUpdateOperationsInput | number
+    totalCostDelta?: FloatFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ModelProxyMessageCreateInput = {
@@ -12168,12 +13656,22 @@ export namespace Prisma {
     none?: ModelProxyMessageWhereInput
   }
 
+  export type ModelProxyUsageAdjustmentListRelationFilter = {
+    every?: ModelProxyUsageAdjustmentWhereInput
+    some?: ModelProxyUsageAdjustmentWhereInput
+    none?: ModelProxyUsageAdjustmentWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
   export type ModelProxyMessageOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ModelProxyUsageAdjustmentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -12209,6 +13707,8 @@ export namespace Prisma {
     requestBody?: SortOrder
     responseBody?: SortOrder
     responseHeaders?: SortOrder
+    apiKeyAlias?: SortOrder
+    endUser?: SortOrder
   }
 
   export type ModelProxyRequestAvgOrderByAggregateInput = {
@@ -12256,6 +13756,8 @@ export namespace Prisma {
     errorType?: SortOrder
     errorMessage?: SortOrder
     errorStatusCode?: SortOrder
+    apiKeyAlias?: SortOrder
+    endUser?: SortOrder
   }
 
   export type ModelProxyRequestMinOrderByAggregateInput = {
@@ -12286,6 +13788,8 @@ export namespace Prisma {
     errorType?: SortOrder
     errorMessage?: SortOrder
     errorStatusCode?: SortOrder
+    apiKeyAlias?: SortOrder
+    endUser?: SortOrder
   }
 
   export type ModelProxyRequestSumOrderByAggregateInput = {
@@ -12434,6 +13938,110 @@ export namespace Prisma {
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type ModelProxyRequestScalarRelationFilter = {
+    is?: ModelProxyRequestWhereInput
+    isNot?: ModelProxyRequestWhereInput
+  }
+
+  export type ModelProxyUsageAdjustmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    reason?: SortOrder
+    promptTokensDelta?: SortOrder
+    completionTokensDelta?: SortOrder
+    totalCostDelta?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelProxyUsageAdjustmentAvgOrderByAggregateInput = {
+    promptTokensDelta?: SortOrder
+    completionTokensDelta?: SortOrder
+    totalCostDelta?: SortOrder
+  }
+
+  export type ModelProxyUsageAdjustmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    reason?: SortOrder
+    promptTokensDelta?: SortOrder
+    completionTokensDelta?: SortOrder
+    totalCostDelta?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelProxyUsageAdjustmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    reason?: SortOrder
+    promptTokensDelta?: SortOrder
+    completionTokensDelta?: SortOrder
+    totalCostDelta?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelProxyUsageAdjustmentSumOrderByAggregateInput = {
+    promptTokensDelta?: SortOrder
+    completionTokensDelta?: SortOrder
+    totalCostDelta?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -12456,11 +14064,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type ModelProxyRequestScalarRelationFilter = {
-    is?: ModelProxyRequestWhereInput
-    isNot?: ModelProxyRequestWhereInput
   }
 
   export type ModelProxyMessageCountOrderByAggregateInput = {
@@ -12746,11 +14349,25 @@ export namespace Prisma {
     connect?: ModelProxyMessageWhereUniqueInput | ModelProxyMessageWhereUniqueInput[]
   }
 
+  export type ModelProxyUsageAdjustmentCreateNestedManyWithoutRequestInput = {
+    create?: XOR<ModelProxyUsageAdjustmentCreateWithoutRequestInput, ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput> | ModelProxyUsageAdjustmentCreateWithoutRequestInput[] | ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput | ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput[]
+    createMany?: ModelProxyUsageAdjustmentCreateManyRequestInputEnvelope
+    connect?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+  }
+
   export type ModelProxyMessageUncheckedCreateNestedManyWithoutRequestInput = {
     create?: XOR<ModelProxyMessageCreateWithoutRequestInput, ModelProxyMessageUncheckedCreateWithoutRequestInput> | ModelProxyMessageCreateWithoutRequestInput[] | ModelProxyMessageUncheckedCreateWithoutRequestInput[]
     connectOrCreate?: ModelProxyMessageCreateOrConnectWithoutRequestInput | ModelProxyMessageCreateOrConnectWithoutRequestInput[]
     createMany?: ModelProxyMessageCreateManyRequestInputEnvelope
     connect?: ModelProxyMessageWhereUniqueInput | ModelProxyMessageWhereUniqueInput[]
+  }
+
+  export type ModelProxyUsageAdjustmentUncheckedCreateNestedManyWithoutRequestInput = {
+    create?: XOR<ModelProxyUsageAdjustmentCreateWithoutRequestInput, ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput> | ModelProxyUsageAdjustmentCreateWithoutRequestInput[] | ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput | ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput[]
+    createMany?: ModelProxyUsageAdjustmentCreateManyRequestInputEnvelope
+    connect?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -12803,6 +14420,20 @@ export namespace Prisma {
     deleteMany?: ModelProxyMessageScalarWhereInput | ModelProxyMessageScalarWhereInput[]
   }
 
+  export type ModelProxyUsageAdjustmentUpdateManyWithoutRequestNestedInput = {
+    create?: XOR<ModelProxyUsageAdjustmentCreateWithoutRequestInput, ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput> | ModelProxyUsageAdjustmentCreateWithoutRequestInput[] | ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput | ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput[]
+    upsert?: ModelProxyUsageAdjustmentUpsertWithWhereUniqueWithoutRequestInput | ModelProxyUsageAdjustmentUpsertWithWhereUniqueWithoutRequestInput[]
+    createMany?: ModelProxyUsageAdjustmentCreateManyRequestInputEnvelope
+    set?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+    disconnect?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+    delete?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+    connect?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+    update?: ModelProxyUsageAdjustmentUpdateWithWhereUniqueWithoutRequestInput | ModelProxyUsageAdjustmentUpdateWithWhereUniqueWithoutRequestInput[]
+    updateMany?: ModelProxyUsageAdjustmentUpdateManyWithWhereWithoutRequestInput | ModelProxyUsageAdjustmentUpdateManyWithWhereWithoutRequestInput[]
+    deleteMany?: ModelProxyUsageAdjustmentScalarWhereInput | ModelProxyUsageAdjustmentScalarWhereInput[]
+  }
+
   export type ModelProxyMessageUncheckedUpdateManyWithoutRequestNestedInput = {
     create?: XOR<ModelProxyMessageCreateWithoutRequestInput, ModelProxyMessageUncheckedCreateWithoutRequestInput> | ModelProxyMessageCreateWithoutRequestInput[] | ModelProxyMessageUncheckedCreateWithoutRequestInput[]
     connectOrCreate?: ModelProxyMessageCreateOrConnectWithoutRequestInput | ModelProxyMessageCreateOrConnectWithoutRequestInput[]
@@ -12815,6 +14446,50 @@ export namespace Prisma {
     update?: ModelProxyMessageUpdateWithWhereUniqueWithoutRequestInput | ModelProxyMessageUpdateWithWhereUniqueWithoutRequestInput[]
     updateMany?: ModelProxyMessageUpdateManyWithWhereWithoutRequestInput | ModelProxyMessageUpdateManyWithWhereWithoutRequestInput[]
     deleteMany?: ModelProxyMessageScalarWhereInput | ModelProxyMessageScalarWhereInput[]
+  }
+
+  export type ModelProxyUsageAdjustmentUncheckedUpdateManyWithoutRequestNestedInput = {
+    create?: XOR<ModelProxyUsageAdjustmentCreateWithoutRequestInput, ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput> | ModelProxyUsageAdjustmentCreateWithoutRequestInput[] | ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput | ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput[]
+    upsert?: ModelProxyUsageAdjustmentUpsertWithWhereUniqueWithoutRequestInput | ModelProxyUsageAdjustmentUpsertWithWhereUniqueWithoutRequestInput[]
+    createMany?: ModelProxyUsageAdjustmentCreateManyRequestInputEnvelope
+    set?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+    disconnect?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+    delete?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+    connect?: ModelProxyUsageAdjustmentWhereUniqueInput | ModelProxyUsageAdjustmentWhereUniqueInput[]
+    update?: ModelProxyUsageAdjustmentUpdateWithWhereUniqueWithoutRequestInput | ModelProxyUsageAdjustmentUpdateWithWhereUniqueWithoutRequestInput[]
+    updateMany?: ModelProxyUsageAdjustmentUpdateManyWithWhereWithoutRequestInput | ModelProxyUsageAdjustmentUpdateManyWithWhereWithoutRequestInput[]
+    deleteMany?: ModelProxyUsageAdjustmentScalarWhereInput | ModelProxyUsageAdjustmentScalarWhereInput[]
+  }
+
+  export type ModelProxyRequestCreateNestedOneWithoutUsageAdjustmentsInput = {
+    create?: XOR<ModelProxyRequestCreateWithoutUsageAdjustmentsInput, ModelProxyRequestUncheckedCreateWithoutUsageAdjustmentsInput>
+    connectOrCreate?: ModelProxyRequestCreateOrConnectWithoutUsageAdjustmentsInput
+    connect?: ModelProxyRequestWhereUniqueInput
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type ModelProxyRequestUpdateOneRequiredWithoutUsageAdjustmentsNestedInput = {
+    create?: XOR<ModelProxyRequestCreateWithoutUsageAdjustmentsInput, ModelProxyRequestUncheckedCreateWithoutUsageAdjustmentsInput>
+    connectOrCreate?: ModelProxyRequestCreateOrConnectWithoutUsageAdjustmentsInput
+    upsert?: ModelProxyRequestUpsertWithoutUsageAdjustmentsInput
+    connect?: ModelProxyRequestWhereUniqueInput
+    update?: XOR<XOR<ModelProxyRequestUpdateToOneWithWhereWithoutUsageAdjustmentsInput, ModelProxyRequestUpdateWithoutUsageAdjustmentsInput>, ModelProxyRequestUncheckedUpdateWithoutUsageAdjustmentsInput>
   }
 
   export type ModelProxyRequestCreateNestedOneWithoutMessagesInput = {
@@ -13047,6 +14722,49 @@ export namespace Prisma {
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -13108,6 +14826,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ModelProxyUsageAdjustmentCreateWithoutRequestInput = {
+    id?: string
+    reason: string
+    promptTokensDelta?: number
+    completionTokensDelta?: number
+    totalCostDelta?: number
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput = {
+    id?: string
+    reason: string
+    promptTokensDelta?: number
+    completionTokensDelta?: number
+    totalCostDelta?: number
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentCreateOrConnectWithoutRequestInput = {
+    where: ModelProxyUsageAdjustmentWhereUniqueInput
+    create: XOR<ModelProxyUsageAdjustmentCreateWithoutRequestInput, ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput>
+  }
+
+  export type ModelProxyUsageAdjustmentCreateManyRequestInputEnvelope = {
+    data: ModelProxyUsageAdjustmentCreateManyRequestInput | ModelProxyUsageAdjustmentCreateManyRequestInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ModelProxyMessageUpsertWithWhereUniqueWithoutRequestInput = {
     where: ModelProxyMessageWhereUniqueInput
     update: XOR<ModelProxyMessageUpdateWithoutRequestInput, ModelProxyMessageUncheckedUpdateWithoutRequestInput>
@@ -13133,6 +14881,200 @@ export namespace Prisma {
     role?: StringFilter<"ModelProxyMessage"> | string
     content?: JsonFilter<"ModelProxyMessage">
     createdAt?: DateTimeFilter<"ModelProxyMessage"> | Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentUpsertWithWhereUniqueWithoutRequestInput = {
+    where: ModelProxyUsageAdjustmentWhereUniqueInput
+    update: XOR<ModelProxyUsageAdjustmentUpdateWithoutRequestInput, ModelProxyUsageAdjustmentUncheckedUpdateWithoutRequestInput>
+    create: XOR<ModelProxyUsageAdjustmentCreateWithoutRequestInput, ModelProxyUsageAdjustmentUncheckedCreateWithoutRequestInput>
+  }
+
+  export type ModelProxyUsageAdjustmentUpdateWithWhereUniqueWithoutRequestInput = {
+    where: ModelProxyUsageAdjustmentWhereUniqueInput
+    data: XOR<ModelProxyUsageAdjustmentUpdateWithoutRequestInput, ModelProxyUsageAdjustmentUncheckedUpdateWithoutRequestInput>
+  }
+
+  export type ModelProxyUsageAdjustmentUpdateManyWithWhereWithoutRequestInput = {
+    where: ModelProxyUsageAdjustmentScalarWhereInput
+    data: XOR<ModelProxyUsageAdjustmentUpdateManyMutationInput, ModelProxyUsageAdjustmentUncheckedUpdateManyWithoutRequestInput>
+  }
+
+  export type ModelProxyUsageAdjustmentScalarWhereInput = {
+    AND?: ModelProxyUsageAdjustmentScalarWhereInput | ModelProxyUsageAdjustmentScalarWhereInput[]
+    OR?: ModelProxyUsageAdjustmentScalarWhereInput[]
+    NOT?: ModelProxyUsageAdjustmentScalarWhereInput | ModelProxyUsageAdjustmentScalarWhereInput[]
+    id?: StringFilter<"ModelProxyUsageAdjustment"> | string
+    requestId?: StringFilter<"ModelProxyUsageAdjustment"> | string
+    reason?: StringFilter<"ModelProxyUsageAdjustment"> | string
+    promptTokensDelta?: IntFilter<"ModelProxyUsageAdjustment"> | number
+    completionTokensDelta?: IntFilter<"ModelProxyUsageAdjustment"> | number
+    totalCostDelta?: FloatFilter<"ModelProxyUsageAdjustment"> | number
+    note?: StringNullableFilter<"ModelProxyUsageAdjustment"> | string | null
+    createdAt?: DateTimeFilter<"ModelProxyUsageAdjustment"> | Date | string
+  }
+
+  export type ModelProxyRequestCreateWithoutUsageAdjustmentsInput = {
+    id?: string
+    upstreamRequestId?: string | null
+    model: string
+    upstreamModel: string
+    upstreamBaseUrl: string
+    status: string
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    latencyMs?: number | null
+    ttftMs?: number | null
+    inputTokens?: number | null
+    outputTokens?: number | null
+    totalTokens?: number | null
+    cachedTokens?: number | null
+    reasoningTokens?: number | null
+    usageEstimated?: boolean | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    inputCost?: number | null
+    outputCost?: number | null
+    totalCost?: number | null
+    costEstimated?: boolean | null
+    estimatedCostUsd?: number | null
+    errorSummary?: string | null
+    errorType?: string | null
+    errorMessage?: string | null
+    errorStatusCode?: number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
+    requestBody?: NullableJsonNullValueInput | InputJsonValue
+    responseBody?: NullableJsonNullValueInput | InputJsonValue
+    responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: string | null
+    endUser?: string | null
+    messages?: ModelProxyMessageCreateNestedManyWithoutRequestInput
+  }
+
+  export type ModelProxyRequestUncheckedCreateWithoutUsageAdjustmentsInput = {
+    id?: string
+    upstreamRequestId?: string | null
+    model: string
+    upstreamModel: string
+    upstreamBaseUrl: string
+    status: string
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    latencyMs?: number | null
+    ttftMs?: number | null
+    inputTokens?: number | null
+    outputTokens?: number | null
+    totalTokens?: number | null
+    cachedTokens?: number | null
+    reasoningTokens?: number | null
+    usageEstimated?: boolean | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    inputCost?: number | null
+    outputCost?: number | null
+    totalCost?: number | null
+    costEstimated?: boolean | null
+    estimatedCostUsd?: number | null
+    errorSummary?: string | null
+    errorType?: string | null
+    errorMessage?: string | null
+    errorStatusCode?: number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
+    requestBody?: NullableJsonNullValueInput | InputJsonValue
+    responseBody?: NullableJsonNullValueInput | InputJsonValue
+    responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: string | null
+    endUser?: string | null
+    messages?: ModelProxyMessageUncheckedCreateNestedManyWithoutRequestInput
+  }
+
+  export type ModelProxyRequestCreateOrConnectWithoutUsageAdjustmentsInput = {
+    where: ModelProxyRequestWhereUniqueInput
+    create: XOR<ModelProxyRequestCreateWithoutUsageAdjustmentsInput, ModelProxyRequestUncheckedCreateWithoutUsageAdjustmentsInput>
+  }
+
+  export type ModelProxyRequestUpsertWithoutUsageAdjustmentsInput = {
+    update: XOR<ModelProxyRequestUpdateWithoutUsageAdjustmentsInput, ModelProxyRequestUncheckedUpdateWithoutUsageAdjustmentsInput>
+    create: XOR<ModelProxyRequestCreateWithoutUsageAdjustmentsInput, ModelProxyRequestUncheckedCreateWithoutUsageAdjustmentsInput>
+    where?: ModelProxyRequestWhereInput
+  }
+
+  export type ModelProxyRequestUpdateToOneWithWhereWithoutUsageAdjustmentsInput = {
+    where?: ModelProxyRequestWhereInput
+    data: XOR<ModelProxyRequestUpdateWithoutUsageAdjustmentsInput, ModelProxyRequestUncheckedUpdateWithoutUsageAdjustmentsInput>
+  }
+
+  export type ModelProxyRequestUpdateWithoutUsageAdjustmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    upstreamRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    model?: StringFieldUpdateOperationsInput | string
+    upstreamModel?: StringFieldUpdateOperationsInput | string
+    upstreamBaseUrl?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    ttftMs?: NullableIntFieldUpdateOperationsInput | number | null
+    inputTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    outputTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    totalTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    cachedTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    reasoningTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    usageEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    inputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    costEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    estimatedCostUsd?: NullableFloatFieldUpdateOperationsInput | number | null
+    errorSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    errorType?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    errorStatusCode?: NullableIntFieldUpdateOperationsInput | number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
+    requestBody?: NullableJsonNullValueInput | InputJsonValue
+    responseBody?: NullableJsonNullValueInput | InputJsonValue
+    responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: NullableStringFieldUpdateOperationsInput | string | null
+    endUser?: NullableStringFieldUpdateOperationsInput | string | null
+    messages?: ModelProxyMessageUpdateManyWithoutRequestNestedInput
+  }
+
+  export type ModelProxyRequestUncheckedUpdateWithoutUsageAdjustmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    upstreamRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    model?: StringFieldUpdateOperationsInput | string
+    upstreamModel?: StringFieldUpdateOperationsInput | string
+    upstreamBaseUrl?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    ttftMs?: NullableIntFieldUpdateOperationsInput | number | null
+    inputTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    outputTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    totalTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    cachedTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    reasoningTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    usageEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    inputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    costEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    estimatedCostUsd?: NullableFloatFieldUpdateOperationsInput | number | null
+    errorSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    errorType?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    errorStatusCode?: NullableIntFieldUpdateOperationsInput | number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
+    requestBody?: NullableJsonNullValueInput | InputJsonValue
+    responseBody?: NullableJsonNullValueInput | InputJsonValue
+    responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: NullableStringFieldUpdateOperationsInput | string | null
+    endUser?: NullableStringFieldUpdateOperationsInput | string | null
+    messages?: ModelProxyMessageUncheckedUpdateManyWithoutRequestNestedInput
   }
 
   export type ModelProxyRequestCreateWithoutMessagesInput = {
@@ -13167,6 +15109,9 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: string | null
+    endUser?: string | null
+    usageAdjustments?: ModelProxyUsageAdjustmentCreateNestedManyWithoutRequestInput
   }
 
   export type ModelProxyRequestUncheckedCreateWithoutMessagesInput = {
@@ -13201,6 +15146,9 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: string | null
+    endUser?: string | null
+    usageAdjustments?: ModelProxyUsageAdjustmentUncheckedCreateNestedManyWithoutRequestInput
   }
 
   export type ModelProxyRequestCreateOrConnectWithoutMessagesInput = {
@@ -13251,6 +15199,9 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: NullableStringFieldUpdateOperationsInput | string | null
+    endUser?: NullableStringFieldUpdateOperationsInput | string | null
+    usageAdjustments?: ModelProxyUsageAdjustmentUpdateManyWithoutRequestNestedInput
   }
 
   export type ModelProxyRequestUncheckedUpdateWithoutMessagesInput = {
@@ -13285,12 +15236,25 @@ export namespace Prisma {
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
+    apiKeyAlias?: NullableStringFieldUpdateOperationsInput | string | null
+    endUser?: NullableStringFieldUpdateOperationsInput | string | null
+    usageAdjustments?: ModelProxyUsageAdjustmentUncheckedUpdateManyWithoutRequestNestedInput
   }
 
   export type ModelProxyMessageCreateManyRequestInput = {
     id?: string
     role: string
     content: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentCreateManyRequestInput = {
+    id?: string
+    reason: string
+    promptTokensDelta?: number
+    completionTokensDelta?: number
+    totalCostDelta?: number
+    note?: string | null
     createdAt?: Date | string
   }
 
@@ -13312,6 +15276,36 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentUpdateWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    promptTokensDelta?: IntFieldUpdateOperationsInput | number
+    completionTokensDelta?: IntFieldUpdateOperationsInput | number
+    totalCostDelta?: FloatFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentUncheckedUpdateWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    promptTokensDelta?: IntFieldUpdateOperationsInput | number
+    completionTokensDelta?: IntFieldUpdateOperationsInput | number
+    totalCostDelta?: FloatFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyUsageAdjustmentUncheckedUpdateManyWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    promptTokensDelta?: IntFieldUpdateOperationsInput | number
+    completionTokensDelta?: IntFieldUpdateOperationsInput | number
+    totalCostDelta?: FloatFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

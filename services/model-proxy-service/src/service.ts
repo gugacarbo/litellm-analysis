@@ -38,6 +38,7 @@ import {
 import type {
   IModelProxyService,
   ModelProxyServiceOptions,
+  ProxyRequestContext,
   ProxyResponse,
   StreamingProxyResponse,
 } from "./types";
@@ -102,11 +103,15 @@ export class ModelProxyService implements IModelProxyService {
   async createChatCompletion(
     rawRequest: ChatCompletionsRequest,
     signal?: AbortSignal,
+    context: ProxyRequestContext = {},
   ): Promise<ProxyResponse> {
     const request = chatCompletionsRequestSchema.parse(rawRequest);
     const target = await this.resolveTarget(request.model);
     const startedAt = this.now();
-    const requestRow = await this.ledger.start(request, target, startedAt);
+    const requestRow = await this.ledger.start(request, target, startedAt, {
+      apiKeyAlias: context.apiKeyAlias,
+      endUser: request.user,
+    });
     const requestSignal = createRequestAbortSignal(signal);
 
     try {
@@ -196,6 +201,7 @@ export class ModelProxyService implements IModelProxyService {
   async createStreamingChatCompletion(
     rawRequest: ChatCompletionsRequest,
     signal?: AbortSignal,
+    context: ProxyRequestContext = {},
   ): Promise<StreamingProxyResponse> {
     const request = chatCompletionsRequestSchema.parse({
       ...rawRequest,
@@ -203,7 +209,10 @@ export class ModelProxyService implements IModelProxyService {
     });
     const target = await this.resolveTarget(request.model);
     const startedAt = this.now();
-    const requestRow = await this.ledger.start(request, target, startedAt);
+    const requestRow = await this.ledger.start(request, target, startedAt, {
+      apiKeyAlias: context.apiKeyAlias,
+      endUser: request.user,
+    });
     const upstreamAbort = new AbortController();
     const requestSignal = mergeAbortSignals(
       signal,

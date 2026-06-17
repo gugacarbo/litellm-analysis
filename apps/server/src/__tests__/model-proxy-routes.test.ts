@@ -16,11 +16,11 @@ function createStreamingBody(chunks: string[]): ReadableStream<Uint8Array> {
 async function createTestServer() {
   vi.resetModules();
   vi.stubEnv("PORT", "3008");
-  vi.stubEnv("DB_HOST", "localhost");
-  vi.stubEnv("DB_PORT", "5432");
-  vi.stubEnv("DB_NAME", "litellm");
-  vi.stubEnv("DB_USER", "postgres");
-  vi.stubEnv("DB_PASSWORD", "postgres");
+  vi.stubEnv("ANALYTICS_DATA_SOURCE", "model-proxy");
+  vi.stubEnv(
+    "MODEL_PROXY_DATABASE_URL",
+    "postgresql://proxy:secret@localhost:5432/model_proxy",
+  );
   vi.stubEnv("HEALTH_CHECK_INTERVAL_MS", "60000");
   vi.stubEnv("HEALTH_CHECK_TIMEOUT_MS", "30000");
   vi.stubEnv("APP_DB_PATH", "/tmp/model-proxy-test.db");
@@ -148,11 +148,11 @@ describe("model proxy routes", () => {
     vi.resetModules();
     vi.stubEnv("MODEL_PROXY_API_KEY", "");
     vi.stubEnv("PORT", "3008");
-    vi.stubEnv("DB_HOST", "localhost");
-    vi.stubEnv("DB_PORT", "5432");
-    vi.stubEnv("DB_NAME", "litellm");
-    vi.stubEnv("DB_USER", "postgres");
-    vi.stubEnv("DB_PASSWORD", "postgres");
+    vi.stubEnv("ANALYTICS_DATA_SOURCE", "model-proxy");
+    vi.stubEnv(
+      "MODEL_PROXY_DATABASE_URL",
+      "postgresql://proxy:secret@localhost:5432/model_proxy",
+    );
     vi.stubEnv("HEALTH_CHECK_INTERVAL_MS", "60000");
     vi.stubEnv("HEALTH_CHECK_TIMEOUT_MS", "30000");
     vi.stubEnv("APP_DB_PATH", "/tmp/model-proxy-test.db");
@@ -206,6 +206,61 @@ describe("model proxy routes", () => {
       });
       expect(response.status).toBe(200);
       expect(apiKeysService.verify).toHaveBeenCalledWith("registry-key");
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+    }
+  });
+
+  it("passes api key alias to chat completion handler", async () => {
+    const { port, server, modelProxyService } = await createTestServer();
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:${port}/v1/chat/completions`,
+        {
+          method: "POST",
+          headers: {
+            authorization: "Bearer proxy-secret",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "gpt-test",
+            stream: false,
+            user: "alice",
+            messages: [{ role: "user", content: "hello" }],
+          }),
+        },
+      );
+
+      expect(response.status).toBe(200);
+      expect(modelProxyService.createChatCompletion).toHaveBeenCalledWith(
+        expect.objectContaining({ user: "alice" }),
+        undefined,
+        { apiKeyAlias: "MODEL_PROXY_API_KEY" },
+      );
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+    }
+  });
+
+  it("returns 501 for OpenAI Responses API stub", async () => {
+    const { port, server } = await createTestServer();
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/v1/responses`, {
+        method: "POST",
+        headers: {
+          authorization: "Bearer proxy-secret",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ model: "gpt-test", input: "hello" }),
+      });
+
+      expect(response.status).toBe(501);
+      const body = await response.json();
+      expect(body.error.code).toBe("responses_api_not_supported");
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));

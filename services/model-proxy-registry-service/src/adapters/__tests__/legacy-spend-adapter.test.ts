@@ -30,6 +30,8 @@ function createSpend(overrides: Partial<LegacySpendRow> = {}): LegacySpendRow {
     response: { choices: [{ message: { content: "hi" } }] },
     proxyServerRequest: { model: "gpt-test", messages: [] },
     metadata: {},
+    apiKey: null,
+    endUser: null,
     ...overrides,
   };
 }
@@ -74,6 +76,18 @@ describe("legacy-spend-adapter", () => {
     expect(mapped.request.errorDetails).toEqual({ source: "litellm-import" });
     expect(mapped.messages).toHaveLength(1);
     expect(mapped.messages[0]?.role).toBe("user");
+  });
+
+  it("maps api_key and end_user from legacy spend rows", () => {
+    const mapped = mapLegacySpendToProxyRequest({
+      spend: createSpend({
+        apiKey: "hashed-key-alias",
+        endUser: "alice",
+      }),
+    });
+
+    expect(mapped.request.apiKeyAlias).toBe("hashed-key-alias");
+    expect(mapped.request.endUser).toBe("alice");
   });
 
   it("merges error log fields into the same request row", () => {

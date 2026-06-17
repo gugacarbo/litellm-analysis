@@ -1,6 +1,8 @@
 import {
   credentialExistsWithFallback,
+  fromModelRoute,
   getDefaultCredentialWithFallback,
+  type ModelRoute,
   type ModelSyncDirectionInput,
   type ModelSyncPresenceStatus,
   normalizeSyncDirection,
@@ -24,6 +26,13 @@ import {
   updateRegistryModelFromParams,
 } from "../orchestration/registry-models-bridge";
 import type { DbModelSpecLike, RouteOptions } from "../types/index";
+
+function registryEntryParams(model: {
+  modelName: string;
+  modelRoute: ModelRoute;
+}): Record<string, unknown> {
+  return fromModelRoute(model.modelRoute);
+}
 
 function buildModelConfigResponse(
   spec: DbModelSpecLike,
@@ -218,7 +227,12 @@ export function registerModelRoutes(
   app.get("/models", async (_req, res) => {
     try {
       const data = await listMergedRegistryModels();
-      res.json(data);
+      res.json(
+        data.map((model) => ({
+          modelName: model.modelName,
+          modelRoute: model.modelRoute,
+        })),
+      );
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
@@ -233,9 +247,7 @@ export function registerModelRoutes(
       const normalizedDefault = credentialName?.trim() ?? "";
       const mismatchedModels = litellmModels
         .filter((model) => {
-          const params = isRecord(model.litellmParams)
-            ? model.litellmParams
-            : {};
+          const params = registryEntryParams(model);
           const modelCredential = getCredentialNameFromParams(params) ?? "";
           return modelCredential !== normalizedDefault;
         })
@@ -260,7 +272,7 @@ export function registerModelRoutes(
       let updated = 0;
 
       for (const model of litellmModels) {
-        const params = isRecord(model.litellmParams) ? model.litellmParams : {};
+        const params = registryEntryParams(model);
         const modelCredential = getCredentialNameFromParams(params) ?? "";
         if (modelCredential === normalizedDefault) {
           continue;
@@ -367,8 +379,8 @@ export function registerModelRoutes(
       const existingModel = existingModels.find(
         (item) => item.modelName === name,
       );
-      const existingParams = isRecord(existingModel?.litellmParams)
-        ? existingModel.litellmParams
+      const existingParams = existingModel
+        ? registryEntryParams(existingModel)
         : {};
       const credentialName = await getResolvedDefaultCredential();
 
@@ -513,9 +525,7 @@ export function registerModelRoutes(
       // 1. Push config → registry (create missing, update existing)
       for (const [name, spec] of Object.entries(configModels || {})) {
         const existing = litellmByName.get(name);
-        const existingParams = isRecord(existing?.litellmParams)
-          ? existing.litellmParams
-          : {};
+        const existingParams = existing ? registryEntryParams(existing) : {};
         if (litellmNames.has(name)) {
           await mergeRegistryModelFromSpec(
             registryModelsService,
@@ -539,7 +549,7 @@ export function registerModelRoutes(
       for (const model of litellmModels) {
         if (configNames.has(model.modelName)) continue;
 
-        const params = isRecord(model.litellmParams) ? model.litellmParams : {};
+        const params = registryEntryParams(model);
         const inputCost = params.input_cost_per_token as number | undefined;
         const outputCost = params.output_cost_per_token as number | undefined;
 
@@ -595,9 +605,7 @@ export function registerModelRoutes(
           });
           continue;
         }
-        const litellmParams = isRecord(litellmModel.litellmParams)
-          ? litellmModel.litellmParams
-          : {};
+        const litellmParams = registryEntryParams(litellmModel);
         for (const field of fields) {
           const configValue = getConfigFieldValue(configSpec, field);
           const registryValue = getLiteLLMFieldValue(litellmParams, field);
@@ -716,7 +724,10 @@ export function registerModelRoutes(
                 litellmParams,
                 credentialName,
               );
-              litellmByName.set(modelName, { modelName, litellmParams });
+              litellmByName.set(modelName, {
+                modelName,
+                modelRoute: toModelRoute(litellmParams, modelName),
+              });
               stats.dbCreated += 1;
             } else if (!spec && existing) {
               await registryModelsService.delete(modelName);
@@ -739,13 +750,14 @@ export function registerModelRoutes(
               litellmParams,
               credentialName,
             );
-            litellmByName.set(modelName, { modelName, litellmParams });
+            litellmByName.set(modelName, {
+              modelName,
+              modelRoute: toModelRoute(litellmParams, modelName),
+            });
             stats.dbCreated += 1;
             continue;
           }
-          const currentParams = isRecord(existing.litellmParams)
-            ? existing.litellmParams
-            : {};
+          const currentParams = registryEntryParams(existing);
           const nextParams = setLiteLLMFieldValue(
             currentParams,
             field,
@@ -762,7 +774,10 @@ export function registerModelRoutes(
             litellmParams,
             credentialName,
           );
-          litellmByName.set(modelName, { ...existing, litellmParams });
+          litellmByName.set(modelName, {
+            ...existing,
+            modelRoute: toModelRoute(litellmParams, modelName),
+          });
           stats.dbUpdated += 1;
           continue;
         }
@@ -776,9 +791,7 @@ export function registerModelRoutes(
             stats.configDeleted += 1;
           }
           if (existing && !currentSpec) {
-            const params = isRecord(existing.litellmParams)
-              ? existing.litellmParams
-              : {};
+            const params = registryEntryParams(existing);
             const inputCost = params.input_cost_per_token as number | undefined;
             const outputCost = params.output_cost_per_token as
               | number
@@ -804,9 +817,7 @@ export function registerModelRoutes(
           continue;
         }
         if (!existing) continue;
-        const params = isRecord(existing.litellmParams)
-          ? existing.litellmParams
-          : {};
+        const params = registryEntryParams(existing);
         if (!currentSpec) {
           const inputCost = params.input_cost_per_token as number | undefined;
           const outputCost = params.output_cost_per_token as number | undefined;
@@ -913,7 +924,7 @@ export function registerModelRoutes(
         const inRegistry = registryNames.has(modelName);
 
         let status: ConfigModelEntry["status"];
-        let litellmParams: Record<string, unknown>;
+        let modelRoute: ModelRoute;
         let enabled = true;
 
         let config: ConfigModelEntry["config"] | undefined;
@@ -921,31 +932,32 @@ export function registerModelRoutes(
         if (inConfig && inRegistry) {
           const spec = configModels[modelName];
           status = "synced";
-          litellmParams =
-            registryModels.find((m) => m.modelName === modelName)
-              ?.litellmParams ?? {};
+          modelRoute =
+            registryModels.find((m) => m.modelName === modelName)?.modelRoute ??
+            ({ modelName } as ModelRoute);
           enabled = spec?.enabled ?? true;
           config = buildModelConfigResponse(spec);
         } else if (inConfig) {
           const spec = configModels[modelName];
           status = "config-only";
-          litellmParams = {
-            context_window_size: spec.limits.length,
-            max_tokens: spec.limits.maxOutput,
-            input_cost_per_token: spec.cost?.input,
-            output_cost_per_token: spec.cost?.output,
-          };
+          modelRoute = toModelRoute(
+            {
+              context_window_size: spec.limits.length,
+              max_tokens: spec.limits.maxOutput,
+              input_cost_per_token: spec.cost?.input,
+              output_cost_per_token: spec.cost?.output,
+            },
+            modelName,
+          );
           enabled = spec.enabled ?? true;
           config = buildModelConfigResponse(spec);
         } else {
           status = "registry-only";
-          litellmParams =
-            registryModels.find((m) => m.modelName === modelName)
-              ?.litellmParams ?? {};
-          enabled = (litellmParams.enabled as boolean | undefined) ?? true;
+          modelRoute =
+            registryModels.find((m) => m.modelName === modelName)?.modelRoute ??
+            ({ modelName } as ModelRoute);
+          enabled = modelRoute.enabled ?? true;
         }
-
-        const modelRoute = toModelRoute(litellmParams, modelName);
 
         models.push({
           modelName,
@@ -1018,7 +1030,7 @@ export function registerModelRoutes(
         return;
       }
 
-      const params = isRecord(model.litellmParams) ? model.litellmParams : {};
+      const params = registryEntryParams(model);
       const inputCost = params.input_cost_per_token as number | undefined;
       const outputCost = params.output_cost_per_token as number | undefined;
 

@@ -40,11 +40,31 @@ model ModelProxyRequest {
   requestBody        Json?    @map("request_body")
   responseBody       Json?    @map("response_body")
   responseHeaders    Json?    @map("response_headers")
+  apiKeyAlias        String?  @map("api_key_alias")
+  endUser            String?  @map("end_user")
   messages           ModelProxyMessage[]
+  usageAdjustments   ModelProxyUsageAdjustment[]
 
   @@map("model_proxy_requests")
   @@index([model, startedAt])
   @@index([status, startedAt])
+  @@index([apiKeyAlias, startedAt])
+  @@index([endUser, startedAt])
+}
+
+model ModelProxyUsageAdjustment {
+  id                      String            @id @default(cuid())
+  requestId               String            @map("request_id")
+  reason                  String
+  promptTokensDelta       Int               @default(0) @map("prompt_tokens_delta")
+  completionTokensDelta   Int               @default(0) @map("completion_tokens_delta")
+  totalCostDelta          Float             @default(0) @map("total_cost_delta")
+  note                    String?
+  createdAt               DateTime          @default(now()) @map("created_at")
+  request                 ModelProxyRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("model_proxy_usage_adjustments")
+  @@index([requestId, createdAt])
 }
 
 model ModelProxyMessage {

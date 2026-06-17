@@ -22,15 +22,21 @@ export interface StreamingProxyResponse {
   status: number;
 }
 
+export interface ProxyRequestContext {
+  apiKeyAlias?: string | null;
+}
+
 export interface IModelProxyService {
   listModels(): Promise<ModelListResponse>;
   createChatCompletion(
     request: ChatCompletionsRequest,
     signal?: AbortSignal,
+    context?: ProxyRequestContext,
   ): Promise<ProxyResponse>;
   createStreamingChatCompletion(
     request: ChatCompletionsRequest,
     signal?: AbortSignal,
+    context?: ProxyRequestContext,
   ): Promise<StreamingProxyResponse>;
   onRequestFinished(listener: (requestId: string) => void): () => void;
 }

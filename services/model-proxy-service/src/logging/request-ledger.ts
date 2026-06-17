@@ -42,6 +42,11 @@ export interface FinishRequestParams {
   usage?: UsageSummary;
 }
 
+export interface LedgerStartContext {
+  apiKeyAlias?: string | null;
+  endUser?: string | null;
+}
+
 type RequestFinishedListener = (requestId: string) => void;
 
 export class RequestLedger {
@@ -63,6 +68,7 @@ export class RequestLedger {
     request: ChatCompletionsRequest,
     target: LedgerTarget,
     startedAt: Date,
+    context: LedgerStartContext = {},
   ): Promise<ModelProxyRequest> {
     const row = await this.database.modelProxyRequest.create({
       data: {
@@ -71,6 +77,8 @@ export class RequestLedger {
         upstreamBaseUrl: target.upstreamBaseUrl,
         status: "started",
         startedAt,
+        apiKeyAlias: context.apiKeyAlias ?? null,
+        endUser: context.endUser ?? request.user ?? null,
         requestBody: redactPayload(request) as Prisma.InputJsonValue,
       },
     });

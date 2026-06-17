@@ -135,9 +135,7 @@ export async function listRegistryRoutes(
     registryModelsService,
     dataSource,
   );
-  return models.map((model) =>
-    toModelRoute(model.litellmParams, model.modelName),
-  );
+  return models.map((model) => model.modelRoute);
 }
 
 export function toLitellmParamsShim(

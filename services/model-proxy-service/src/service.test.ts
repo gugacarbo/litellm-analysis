@@ -167,13 +167,28 @@ describe("ModelProxyService", () => {
       })(),
     });
 
-    await service.createChatCompletion({
-      model: "gpt-test",
-      stream: false,
-      messages: [{ role: "user", content: "hello" }],
-    });
+    await service.createChatCompletion(
+      {
+        model: "gpt-test",
+        stream: false,
+        messages: [{ role: "user", content: "hello" }],
+        user: "alice",
+      },
+      undefined,
+      { apiKeyAlias: "test-key" },
+    );
 
     expect(fetchFn).toHaveBeenCalledOnce();
+    expect(vi.mocked(database.modelProxyRequest.create).mock.calls[0]).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          data: expect.objectContaining({
+            apiKeyAlias: "test-key",
+            endUser: "alice",
+          }),
+        }),
+      ]),
+    );
     const updateCall = vi.mocked(database.modelProxyRequest.update).mock
       .calls[0];
     expect(updateCall?.[0]).toEqual(

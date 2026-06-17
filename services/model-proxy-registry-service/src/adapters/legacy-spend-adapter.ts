@@ -24,6 +24,8 @@ export interface LegacySpendRow {
   model: string;
   apiBase: string | null;
   status: string | null;
+  apiKey: string | null;
+  endUser: string | null;
   messages: unknown;
   response: unknown;
   proxyServerRequest: unknown;
@@ -473,6 +475,26 @@ export function shouldSkipExistingRow(
   return !force;
 }
 
+function resolveEndUser(
+  spend: LegacySpendRow | null | undefined,
+): string | null {
+  if (!spend) {
+    return null;
+  }
+  const endUser = spend.endUser?.trim();
+  if (endUser) {
+    return endUser;
+  }
+  return null;
+}
+
+function resolveApiKeyAlias(
+  spend: LegacySpendRow | null | undefined,
+): string | null {
+  const apiKey = spend?.apiKey?.trim();
+  return apiKey ? apiKey : null;
+}
+
 export function legacySpendRowFromPrisma(row: {
   request_id: string;
   spend: number;
@@ -486,6 +508,9 @@ export function legacySpendRowFromPrisma(row: {
   model: string;
   api_base: string | null;
   status: string | null;
+  api_key: string | null;
+  end_user: string | null;
+  user: string | null;
   messages: unknown;
   response: unknown;
   proxy_server_request: unknown;
@@ -504,6 +529,8 @@ export function legacySpendRowFromPrisma(row: {
     model: row.model,
     apiBase: row.api_base,
     status: row.status,
+    apiKey: row.api_key?.trim() ? row.api_key.trim() : null,
+    endUser: row.end_user?.trim() || row.user?.trim() || null,
     messages: row.messages,
     response: row.response,
     proxyServerRequest: row.proxy_server_request,
@@ -567,6 +594,9 @@ export function legacySpendRowFromCloudJson(
     model: toNullableString(log.model) ?? "",
     apiBase: toNullableString(log.api_base),
     status: toNullableString(log.status),
+    apiKey: toNullableString(log.api_key),
+    endUser:
+      toNullableString(log.end_user) ?? toNullableString(log.user) ?? null,
     messages: log.messages ?? null,
     response: log.response ?? null,
     proxyServerRequest: log.proxy_server_request ?? null,
@@ -624,6 +654,8 @@ export function mapLegacySpendToProxyRequest(
     upstreamModel: resolveUpstreamModel(spend, error),
     upstreamBaseUrl: resolveUpstreamBaseUrl(spend, error),
     status,
+    apiKeyAlias: resolveApiKeyAlias(spend),
+    endUser: resolveEndUser(spend),
     startedAt,
     finishedAt,
     latencyMs: spend

@@ -12,4 +12,6 @@ export type {
   ModelProxyMessage,
   ModelProxyModel,
   ModelProxyRequest,
+  ModelProxySetting,
+  ModelProxyUsageAdjustment,
 } from "./generated/prisma/index";
