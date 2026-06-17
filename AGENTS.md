@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-13 (updated 2026-06-15)
+**Generated:** 2026-05-13 (updated 2026-06-16)
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -121,6 +121,7 @@ Detailed documentation in each package's `AGENTS.md`:
 | `@lite-llm/agent-plugins`   | `src/index.ts` | Plugin system: OpenCode, OpenAgent, VS Code, model aliases |
 | `@lite-llm/analytics-service`| `src/index.ts` | 46-method AnalyticsDataSource, Prisma raw SQL queries          |
 | `@lite-llm/model-proxy-service`| `src/index.ts` | Local OpenAI-compatible proxy, upstream forwarding, request ledger |
+| `@lite-llm/model-proxy-registry-service`| `src/index.ts` | `model_proxy_*` settings, model registry, credentials, API keys |
 | `@lite-llm/models-service`   | `src/index.ts` | Provider/model CRUD, alias DB management                      |
 
 ### /packages (shared libraries)
@@ -175,6 +176,7 @@ pnpm --filter @lite-llm/model-proxy-repository db:validate
 pnpm --filter @lite-llm/model-proxy-repository typecheck
 pnpm --filter @lite-llm/model-proxy-service typecheck
 pnpm --filter @lite-llm/model-proxy-service test
+pnpm --filter @lite-llm/model-proxy-registry-service test
 pnpm --filter @lite-llm/server typecheck
 pnpm --filter @lite-llm/monitor typecheck
 pnpm --filter @lite-llm/litellm-repository typecheck
@@ -188,6 +190,9 @@ pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma sche
 # LiteLLM database backup
 pnpm backup           # Run LiteLLM database backup with progress display
 pnpm backup:list      # List available backup files in backups/
+
+# Model proxy registry (Batch 3)
+pnpm model-proxy:import-legacy  # Import LiteLLM_Config/Credentials/ProxyModel → model_proxy_*
 ```
 
 ## BUILD & CI (Gaps)
