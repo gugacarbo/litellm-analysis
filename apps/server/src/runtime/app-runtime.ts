@@ -3,11 +3,12 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
-import { prisma } from "@lite-llm/analytics-service/queries/client";
+import { serverEnv } from "@lite-llm/config/server";
 import {
   createRegistryServices,
   getHealthCheckPromptWithFallback,
 } from "@lite-llm/model-proxy-registry-service";
+import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import { createModelProxyService } from "@lite-llm/model-proxy-service";
 import {
   createRepositoryClient as createModelsRepositoryClient,
@@ -265,7 +266,14 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     healthCheckRuntime.stop();
     monitorRuntime.stop();
     httpServer.close(async () => {
-      await prisma.$disconnect();
+      if (serverEnv.ANALYTICS_DATA_SOURCE === "model-proxy") {
+        await getModelProxyPrisma().$disconnect();
+      } else {
+        const { prisma } = await import(
+          "@lite-llm/analytics-service/queries/client"
+        );
+        await prisma.$disconnect();
+      }
       process.exit(0);
     });
   };

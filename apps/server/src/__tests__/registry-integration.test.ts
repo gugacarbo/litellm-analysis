@@ -135,9 +135,10 @@ describe("registry integration", () => {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             modelName: "gpt-integration",
-            litellmParams: {
-              input_cost_per_token: 0.000001,
-              max_tokens: 4096,
+            modelRoute: {
+              modelName: "gpt-integration",
+              inputCostPerToken: 0.000001,
+              maxOutputTokens: 4096,
             },
           }),
         });
@@ -159,7 +160,7 @@ describe("registry integration", () => {
             method: "PUT",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({
-              litellmParams: { max_tokens: 8192 },
+              modelRoute: { maxOutputTokens: 8192 },
             }),
           },
         );

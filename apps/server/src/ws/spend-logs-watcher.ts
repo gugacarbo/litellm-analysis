@@ -1,7 +1,4 @@
-import type {
-  AnalyticsDataSource,
-  SpendLogEntry,
-} from "@lite-llm/analytics-service";
+import type { ProxyRequestLog } from "@lite-llm/analytics-service/types";
 import type { SpendLogsChangedPayload } from "@lite-llm/contracts";
 import type { WebSocketServer } from "./websocket-server";
 
@@ -10,12 +7,12 @@ const DEFAULT_DEBOUNCE_MS = 500;
 const DEFAULT_RECENT_LOGS_LIMIT = 50;
 
 type SpendLogFingerprintSource = Pick<
-  SpendLogEntry,
-  "request_id" | "status" | "start_time" | "end_time"
+  ProxyRequestLog,
+  "id" | "status" | "started_at" | "finished_at"
 >;
 
 export function spendLogFingerprint(log: SpendLogFingerprintSource): string {
-  const updatedAt = log.end_time ?? log.start_time;
+  const updatedAt = log.finished_at ?? log.started_at;
   return `${log.status}|${updatedAt}`;
 }
 
@@ -24,7 +21,7 @@ export function buildSpendLogFingerprintMap(
 ): Map<string, string> {
   const fingerprints = new Map<string, string>();
   for (const log of logs) {
-    fingerprints.set(log.request_id, spendLogFingerprint(log));
+    fingerprints.set(log.id, spendLogFingerprint(log));
   }
   return fingerprints;
 }
@@ -45,7 +42,10 @@ export function diffSpendLogFingerprints(
 }
 
 export interface SpendLogsWatcherOptions {
-  analyticsDataSource: Pick<AnalyticsDataSource, "getSpendLogs">;
+  analyticsDataSource: Pick<
+    import("@lite-llm/analytics-service/data-source").AnalyticsDataSource,
+    "getSpendLogs"
+  >;
   wsServer: Pick<WebSocketServer, "broadcast">;
   pollIntervalMs?: number;
   debounceMs?: number;

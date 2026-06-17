@@ -1,4 +1,4 @@
-import type { SpendLogEntry } from "@lite-llm/analytics-service";
+import type { ProxyRequestLog } from "@lite-llm/analytics-service/types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildSpendLogFingerprintMap,
@@ -7,19 +7,36 @@ import {
 } from "../ws/spend-logs-watcher";
 
 function createLog(
-  overrides: Partial<SpendLogEntry> & Pick<SpendLogEntry, "request_id">,
-): SpendLogEntry {
+  overrides: Partial<ProxyRequestLog> & Pick<ProxyRequestLog, "id">,
+): ProxyRequestLog {
   return {
     model: "gpt-4",
-    user: null,
+    upstream_model: "gpt-4",
+    upstream_base_url: "https://api.openai.com/v1",
     total_tokens: 100,
-    prompt_tokens: 50,
-    completion_tokens: 50,
-    spend: 0.01,
-    time_to_first_token_ms: null,
-    start_time: "2026-06-15T10:00:00.000Z",
-    end_time: "2026-06-15T10:00:01.000Z",
-    api_key: null,
+    input_tokens: 50,
+    output_tokens: 50,
+    total_cost: 0.01,
+    ttft_ms: null,
+    started_at: "2026-06-15T10:00:00.000Z",
+    finished_at: "2026-06-15T10:00:01.000Z",
+    latency_ms: 1000,
+    cached_tokens: null,
+    reasoning_tokens: null,
+    usage_estimated: false,
+    cost_estimated: false,
+    input_cost_per_token: null,
+    output_cost_per_token: null,
+    input_cost: null,
+    output_cost: null,
+    estimated_cost_usd: null,
+    error_type: null,
+    error_message: null,
+    error_status_code: null,
+    error_summary: null,
+    request_body: null,
+    response_body: null,
+    messages: [],
     status: "success",
     ...overrides,
   };
@@ -36,8 +53,8 @@ describe("spend-logs-watcher", () => {
 
   it("does not emit when consecutive ticks return identical logs", async () => {
     const logs = [
-      createLog({ request_id: "req-1" }),
-      createLog({ request_id: "req-2", status: "failure" }),
+      createLog({ id: "req-1" }),
+      createLog({ id: "req-2", status: "failed" }),
     ];
     const getSpendLogs = vi.fn().mockResolvedValue({ logs, pagination: {} });
     const broadcast = vi.fn();
@@ -55,11 +72,11 @@ describe("spend-logs-watcher", () => {
     expect(broadcast).not.toHaveBeenCalled();
   });
 
-  it("emits spend_logs_changed when a new request_id appears", async () => {
-    const baseline = [createLog({ request_id: "req-1" })];
+  it("emits spend_logs_changed when a new request id appears", async () => {
+    const baseline = [createLog({ id: "req-1" })];
     const withNewLog = [
-      createLog({ request_id: "req-1" }),
-      createLog({ request_id: "req-2", status: "success" }),
+      createLog({ id: "req-1" }),
+      createLog({ id: "req-2", status: "success" }),
     ];
     const getSpendLogs = vi
       .fn()
@@ -87,19 +104,19 @@ describe("spend-logs-watcher", () => {
     });
   });
 
-  it("detects status and end_time fingerprint changes", () => {
+  it("detects status and finished_at fingerprint changes", () => {
     const previous = buildSpendLogFingerprintMap([
       createLog({
-        request_id: "req-1",
+        id: "req-1",
         status: "success",
-        end_time: "2026-06-15T10:00:01.000Z",
+        finished_at: "2026-06-15T10:00:01.000Z",
       }),
     ]);
     const current = buildSpendLogFingerprintMap([
       createLog({
-        request_id: "req-1",
-        status: "failure",
-        end_time: "2026-06-15T10:00:02.000Z",
+        id: "req-1",
+        status: "failed",
+        finished_at: "2026-06-15T10:00:02.000Z",
       }),
     ]);
 
