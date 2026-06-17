@@ -13,9 +13,9 @@ import {
   DEFAULT_REQUEST_TIMEOUT_MS,
   isAbortError,
   isLedgerHandledError,
+  isTimeoutError,
   LedgerHandledError,
   mergeAbortSignals,
-  isTimeoutError,
   trimErrorMessage,
   unwrapLedgerHandledError,
 } from "./logging/request-errors";

@@ -68,15 +68,19 @@ function createDatabaseMock() {
     },
     modelProxyRequest: {
       create: vi.fn().mockResolvedValue({ id: "req_1" }),
-      findUnique: vi.fn().mockImplementation(() =>
-        Promise.resolve({ id: "req_1", status: requestStatus }),
-      ),
-      update: vi.fn().mockImplementation((args: { data: { status?: string } }) => {
-        if (args.data.status) {
-          requestStatus = args.data.status;
-        }
-        return Promise.resolve(undefined);
-      }),
+      findUnique: vi
+        .fn()
+        .mockImplementation(() =>
+          Promise.resolve({ id: "req_1", status: requestStatus }),
+        ),
+      update: vi
+        .fn()
+        .mockImplementation((args: { data: { status?: string } }) => {
+          if (args.data.status) {
+            requestStatus = args.data.status;
+          }
+          return Promise.resolve(undefined);
+        }),
     },
     modelProxyMessage: {
       createMany: vi.fn().mockResolvedValue(undefined),
