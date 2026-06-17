@@ -22,6 +22,7 @@ catalog:
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
+  argon2: set this to true or false
   better-sqlite3: true
   esbuild: true
   msw: true

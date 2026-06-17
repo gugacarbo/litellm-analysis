@@ -1,0 +1,28 @@
+{
+  "name": "@lite-llm/model-proxy-registry-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "test": "vitest run",
+    "import:legacy": "tsx scripts/import-legacy-registry.ts"
+  },
+  "dependencies": {
+    "@lite-llm/analytics-service": "workspace:*",
+    "@lite-llm/litellm-repository": "workspace:*",
+    "@lite-llm/model-proxy-repository": "workspace:*",
+    "bcryptjs": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

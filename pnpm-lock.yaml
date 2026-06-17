@@ -92,6 +92,9 @@ importers:
       '@lite-llm/contracts':
         specifier: workspace:^
         version: link:../../packages/contracts
+      '@lite-llm/model-proxy-registry-service':
+        specifier: workspace:*
+        version: link:../../services/model-proxy-registry-service
       '@lite-llm/model-proxy-service':
         specifier: workspace:*
         version: link:../../services/model-proxy-service
@@ -402,6 +405,9 @@ importers:
       '@lite-llm/agent-plugins':
         specifier: workspace:*
         version: link:../../services/agent-plugins
+      '@lite-llm/agents-manager':
+        specifier: workspace:*
+        version: link:../agents-manager
       '@lite-llm/agents-repository':
         specifier: workspace:*
         version: link:../../repositories/agents-repository
@@ -411,6 +417,9 @@ importers:
       '@lite-llm/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@lite-llm/model-proxy-registry-service':
+        specifier: workspace:*
+        version: link:../../services/model-proxy-registry-service
       '@lite-llm/model-proxy-service':
         specifier: workspace:*
         version: link:../../services/model-proxy-service
@@ -602,6 +611,37 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  services/model-proxy-registry-service:
+    dependencies:
+      '@lite-llm/analytics-service':
+        specifier: workspace:*
+        version: link:../analytics-service
+      '@lite-llm/litellm-repository':
+        specifier: workspace:*
+        version: link:../../repositories/litellm-repository
+      '@lite-llm/model-proxy-repository':
+        specifier: workspace:*
+        version: link:../../repositories/model-proxy-repository
+      bcryptjs:
+        specifier: ^3.0.2
+        version: 3.0.3
+    devDependencies:
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
   services/model-proxy-service:
     dependencies:
@@ -3682,6 +3722,9 @@ packages:
   '@types/aria-query@5.0.4':
     resolution: {integrity: sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==}
 
+  '@types/bcryptjs@2.4.6':
+    resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
+
   '@types/better-sqlite3@7.6.13':
     resolution: {integrity: sha512-NMv9ASNARoKksWtsq/SHakpYAYnhBrQgGD8zkLYk/jaK8jUGn08CfEdTRgYhMypUQAfzSP8W6gNLe0q19/t4VA==}
 
@@ -3968,6 +4011,10 @@ packages:
   baseline-browser-mapping@2.10.29:
     resolution: {integrity: sha512-Asa2krT+XTPZINCS+2QcyS8WTkObE77RwkydwF7h6DmnKqbvlalz93m/dnphUyCa6SWSP51VgtEUf2FN+gelFQ==}
     engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
     hasBin: true
 
   better-sqlite3@12.9.0:
@@ -9491,6 +9538,8 @@ snapshots:
 
   '@types/aria-query@5.0.4': {}
 
+  '@types/bcryptjs@2.4.6': {}
+
   '@types/better-sqlite3@7.6.13':
     dependencies:
       '@types/node': 25.6.2
@@ -9767,6 +9816,8 @@ snapshots:
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.10.29: {}
+
+  bcryptjs@3.0.3: {}
 
   better-sqlite3@12.9.0:
     dependencies:
