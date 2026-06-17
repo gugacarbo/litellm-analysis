@@ -6,6 +6,7 @@ import {
   CircleCheck,
   CircleX,
   Database,
+  FileOutput,
   Pencil,
   Plus,
   RefreshCw,
@@ -69,11 +70,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/ui/tooltip";
 import type { RegistryCredential } from "@/shared/lib/api-client/credentials";
 import type {
   ModelConfig,
   ModelSyncDiffItem,
   ModelWithStatus,
+  SettingsStorage,
   SyncDirection,
   SyncField,
 } from "@/shared/lib/api-client/models";
@@ -109,8 +116,11 @@ type ModelsTableCardProps = {
   onToggleEnabled: (modelName: string, enabled: boolean) => void;
 
   // sync + form + credentials
+  settingsStorage: SettingsStorage;
   counts: { configOnly: number; registryOnly: number };
   syncing: boolean;
+  exportingConfigs: boolean;
+  onExportConfigs: () => void;
   syncDialogOpen: boolean;
   setSyncDialogOpen: (open: boolean) => void;
   syncDiffItems: ModelSyncDiffItem[];
@@ -166,7 +176,10 @@ export function ModelsTableCard({
   onAddToConfig,
   onToggleEnabled,
   counts,
+  settingsStorage,
   syncing,
+  exportingConfigs,
+  onExportConfigs,
   syncDialogOpen,
   setSyncDialogOpen,
   syncDiffItems,
@@ -219,7 +232,11 @@ export function ModelsTableCard({
       (m.status === "synced" || m.status === "registry-only") &&
       getHealthCheck(m.modelName)?.status === "healthy",
   ).length;
-  const driftCount = counts.configOnly + defaultSettingsDriftCount;
+  const driftCount =
+    settingsStorage === "database"
+      ? defaultSettingsDriftCount
+      : counts.configOnly + defaultSettingsDriftCount;
+  const usesDatabaseStorage = settingsStorage === "database";
 
   return (
     <div className="space-y-4">
@@ -296,21 +313,46 @@ export function ModelsTableCard({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 px-2 text-xs"
-            onClick={() => {
-              void onOpenSync();
-            }}
-            disabled={syncing}
-          >
-            <RefreshCw
-              className={`mr-1.5 h-3 w-3 ${syncing ? "animate-spin" : ""}`}
-            />
-            Sync
-            {driftCount > 0 ? ` (${driftCount})` : null}
-          </Button>
+          {usesDatabaseStorage ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => {
+                    void onExportConfigs();
+                  }}
+                  disabled={exportingConfigs}
+                >
+                  <FileOutput
+                    className={`mr-1.5 h-3 w-3 ${exportingConfigs ? "animate-pulse" : ""}`}
+                  />
+                  Export configs
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Regenera opencode.json, vscode-oaicopilot.json e demais
+                artefatos em @storage/output
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => {
+                void onOpenSync();
+              }}
+              disabled={syncing}
+            >
+              <RefreshCw
+                className={`mr-1.5 h-3 w-3 ${syncing ? "animate-spin" : ""}`}
+              />
+              Sync
+              {driftCount > 0 ? ` (${driftCount})` : null}
+            </Button>
+          )}
 
           <Dialog
             open={credentialsDialogOpen}
@@ -695,16 +737,18 @@ export function ModelsTableCard({
         )}
       </div>
 
-      <SyncModelsDialog
-        open={syncDialogOpen}
-        onOpenChange={setSyncDialogOpen}
-        loading={syncDiffLoading}
-        applying={syncing}
-        items={syncDiffItems}
-        selections={syncSelections}
-        onSelectionChange={onSyncSelectionChange}
-        onApply={onApplySync}
-      />
+      {!usesDatabaseStorage ? (
+        <SyncModelsDialog
+          open={syncDialogOpen}
+          onOpenChange={setSyncDialogOpen}
+          loading={syncDiffLoading}
+          applying={syncing}
+          items={syncDiffItems}
+          selections={syncSelections}
+          onSelectionChange={onSyncSelectionChange}
+          onApply={onApplySync}
+        />
+      ) : null}
     </div>
   );
 }

@@ -15,7 +15,7 @@ dotenv.config({
 });
 
 export const serverSchema = {
-  SETTINGS_STORAGE: z.enum(["file", "database"]).default("file"),
+  SETTINGS_STORAGE: z.enum(["file", "database"]).default("database"),
 
   PORT: z.coerce.number().int().positive(),
 

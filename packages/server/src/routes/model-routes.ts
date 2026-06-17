@@ -1,3 +1,4 @@
+import { serverEnv } from "@lite-llm/config/server";
 import {
   fromModelRoute,
   getDefaultCredential,
@@ -967,7 +968,23 @@ export function registerModelRoutes(
             .length,
           total: models.length,
         },
+        settingsStorage: serverEnv.SETTINGS_STORAGE,
       });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.post("/models/export-configs", async (_req, res) => {
+    try {
+      const manager = opts.agentsManager;
+      if (!manager) {
+        res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+
+      await manager.registry.exportAll();
+      res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

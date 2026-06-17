@@ -64,9 +64,12 @@ export type ModelsWithConfigCounts = {
   litellmOnly?: number;
 };
 
+export type SettingsStorage = "file" | "database";
+
 export type ModelsWithConfigResponse = {
   models: ModelWithStatus[];
   counts: ModelsWithConfigCounts;
+  settingsStorage: SettingsStorage;
 };
 
 export type SyncDirection = "config-to-registry" | "registry-to-config";
@@ -253,11 +256,15 @@ export function normalizeModelsWithConfigResponse(
         .map((model) => normalizeModelWithStatus(model))
     : [];
 
+  const settingsStorage =
+    raw.settingsStorage === "database" ? "database" : "file";
+
   return {
     models,
     counts: isRecord(raw.counts)
       ? normalizeModelsCounts(raw.counts)
       : { synced: 0, configOnly: 0, registryOnly: 0, total: 0 },
+    settingsStorage,
   };
 }
 
@@ -335,6 +342,12 @@ export async function getModelsWithConfig(): Promise<ModelsWithConfigResponse> {
 
 export async function syncModelsFromConfig(): Promise<{ success: boolean }> {
   return fetchApi("/models/sync-from-config", {
+    method: "POST",
+  });
+}
+
+export async function exportConsumerConfigs(): Promise<{ success: boolean }> {
+  return fetchApi("/models/export-configs", {
     method: "POST",
   });
 }

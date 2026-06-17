@@ -4,6 +4,7 @@ import {
   addModelToConfig,
   createModel,
   deleteModel,
+  exportConsumerConfigs,
   getDefaultSettingsDiff,
   getModelProvider,
   getModelsSyncDiff,
@@ -114,6 +115,10 @@ export function useModelsPage() {
       queryClient.invalidateQueries({ queryKey: ["models-with-config"] });
       queryClient.invalidateQueries({ queryKey: ["models-sync-diff"] });
     },
+  });
+
+  const exportConfigsMutation = useMutation({
+    mutationFn: exportConsumerConfigs,
   });
 
   const syncDefaultSettingsMutation = useMutation({
@@ -347,6 +352,15 @@ export function useModelsPage() {
     syncDiffLoading: syncDiffQuery.isFetching,
     syncSelections,
     syncing: syncMutation.isPending,
+    exportingConfigs: exportConfigsMutation.isPending,
+    handleExportConfigs: async () => {
+      try {
+        setMutationError(null);
+        await exportConfigsMutation.mutateAsync();
+      } catch (e) {
+        setMutationError(String(e));
+      }
+    },
     defaultSettingsDriftCount: defaultSettingsDiffQuery.data?.count ?? 0,
     defaultSettingsMismatchedModels:
       defaultSettingsDiffQuery.data?.mismatchedModels ?? [],
@@ -361,6 +375,7 @@ export function useModelsPage() {
       }
     },
     models: modelsQuery.data?.models ?? [],
+    settingsStorage: modelsQuery.data?.settingsStorage ?? "file",
     healthChecksByModel: checksByModel,
     getHealthCheck: getCheck,
     healthChecksQuery,

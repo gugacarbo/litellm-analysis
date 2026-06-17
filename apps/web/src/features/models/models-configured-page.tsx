@@ -1,5 +1,4 @@
 import { ModelsTableCard } from "./components/models-table-card";
-import { SyncModelsDialog } from "./components/sync-models-dialog";
 import { useModelsPage } from "./use-models-page";
 
 export function ModelsConfiguredPage() {
@@ -14,6 +13,7 @@ export function ModelsConfiguredPage() {
     formError,
     formLoading,
     models,
+    settingsStorage,
     healthChecksByModel,
     getHealthCheck,
     modelsQuery,
@@ -25,7 +25,9 @@ export function ModelsConfiguredPage() {
     handleOpenSync,
     handleApplySyncSelections,
     handleSyncSelectionChange,
+    handleExportConfigs,
     syncing,
+    exportingConfigs,
     syncDialogOpen,
     setSyncDialogOpen,
     syncDiffItems,
@@ -76,7 +78,12 @@ export function ModelsConfiguredPage() {
         onAddToConfig={handleAddToConfig}
         onToggleEnabled={handleToggleEnabled}
         counts={counts}
+        settingsStorage={settingsStorage}
         syncing={syncing}
+        exportingConfigs={exportingConfigs}
+        onExportConfigs={() => {
+          void handleExportConfigs();
+        }}
         syncDialogOpen={syncDialogOpen}
         setSyncDialogOpen={setSyncDialogOpen}
         syncDiffItems={syncDiffItems}
@@ -117,18 +124,6 @@ export function ModelsConfiguredPage() {
         syncingDefaultSettings={syncingDefaultSettings}
         onSyncDefaultSettings={() => {
           void handleSyncDefaultSettings();
-        }}
-      />
-      <SyncModelsDialog
-        open={syncDialogOpen}
-        onOpenChange={setSyncDialogOpen}
-        loading={syncDiffLoading}
-        applying={syncing}
-        items={syncDiffItems}
-        selections={syncSelections}
-        onSelectionChange={handleSyncSelectionChange}
-        onApply={() => {
-          void handleApplySyncSelections();
         }}
       />
     </>
