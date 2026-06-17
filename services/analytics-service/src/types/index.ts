@@ -177,8 +177,8 @@ export interface ChatMessage {
   name?: string;
 }
 
+/** @deprecated Use ProxyRequestLog. Not exposed on HTTP routes (Batch 5). */
 export interface SpendLogEntry {
-  /** @deprecated Use ProxyRequestLog. Removed from HTTP API in Batch 5. */
   request_id: string;
   model: string;
   user: string | null;
@@ -366,7 +366,9 @@ export interface ModelStatistics {
 
 export interface ModelInfo {
   modelName: string;
-  litellmParams: Record<string, unknown> | null;
+  modelRoute: Record<string, unknown>;
+  /** @deprecated Prefer modelRoute */
+  litellmParams?: Record<string, unknown> | null;
 }
 
 export type ModelEntry = ModelInfo;

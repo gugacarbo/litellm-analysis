@@ -1,5 +1,15 @@
 import type { ChatMessage } from "./index";
 
+export interface ProxyUsageAdjustment {
+  id: string;
+  reason: string;
+  prompt_tokens_delta: number;
+  completion_tokens_delta: number;
+  total_cost_delta: number;
+  note: string | null;
+  created_at: string;
+}
+
 /** Native proxy ledger contract (replaces deprecated SpendLogEntry). */
 export interface ProxyRequestLog {
   id: string;
@@ -24,6 +34,10 @@ export interface ProxyRequestLog {
   output_cost: number | null;
   total_cost: number | null;
   estimated_cost_usd: number | null;
+  has_usage_adjustments?: boolean;
+  usage_adjustments?: ProxyUsageAdjustment[];
+  api_key_alias: string | null;
+  end_user: string | null;
   error_type: string | null;
   error_message: string | null;
   error_status_code: number | null;

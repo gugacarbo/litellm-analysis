@@ -51,6 +51,9 @@ describe("proxy spend-queries", () => {
         messages: {
           orderBy: { createdAt: "asc" },
         },
+        usageAdjustments: {
+          orderBy: { createdAt: "asc" },
+        },
       },
       orderBy: { startedAt: "desc" },
       take: 25,
@@ -89,6 +92,9 @@ describe("proxy spend-queries", () => {
       where: { id: "req-1" },
       include: {
         messages: {
+          orderBy: { createdAt: "asc" },
+        },
+        usageAdjustments: {
           orderBy: { createdAt: "asc" },
         },
       },

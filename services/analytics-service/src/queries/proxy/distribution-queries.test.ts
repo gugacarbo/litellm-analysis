@@ -65,10 +65,50 @@ describe("proxy distribution-queries", () => {
     expect(queryRawUnsafe).toHaveBeenCalledTimes(2);
   });
 
-  it("returns empty arrays for user and api key aggregations", async () => {
-    await expect(getSpendByUser()).resolves.toEqual([]);
-    await expect(getSpendByKey()).resolves.toEqual([]);
-    await expect(getApiKeyStats()).resolves.toEqual([]);
-    expect(queryRawUnsafe).not.toHaveBeenCalled();
+  it("aggregates spend by user from end_user", async () => {
+    queryRawUnsafe.mockResolvedValueOnce([
+      {
+        user: "alice",
+        total_spend: 1.5,
+        total_tokens: 1000,
+        request_count: 3,
+      },
+    ]);
+
+    const result = await getSpendByUser({ days: 30 });
+
+    expect(result[0]?.user).toBe("alice");
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"end_user"');
+  });
+
+  it("aggregates spend by api key alias", async () => {
+    queryRawUnsafe.mockResolvedValueOnce([
+      { key: "prod-key", total_spend: 2.1, total_tokens: 500 },
+    ]);
+
+    const result = await getSpendByKey(30);
+
+    expect(result[0]?.key).toBe("prod-key");
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"api_key_alias"');
+  });
+
+  it("aggregates api key stats from ledger", async () => {
+    queryRawUnsafe.mockResolvedValueOnce([
+      {
+        key: "prod-key",
+        request_count: 4,
+        total_spend: 2.1,
+        total_tokens: 500,
+        avg_tokens_per_request: 125,
+        success_rate: 100,
+        avg_tokens_per_second: 50,
+        last_used: new Date("2026-06-16T00:00:00.000Z"),
+      },
+    ]);
+
+    const result = await getApiKeyStats({ days: 30 });
+
+    expect(result[0]?.key).toBe("prod-key");
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"api_key_alias"');
   });
 });

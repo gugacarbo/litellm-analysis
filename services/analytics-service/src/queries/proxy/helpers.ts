@@ -6,7 +6,38 @@ import {
 } from "../helpers";
 
 export const PROXY_REQUESTS_TABLE = "model_proxy_requests";
+export const PROXY_USAGE_ADJUSTMENTS_TABLE = "model_proxy_usage_adjustments";
 export const PROXY_TIME_COLUMN = "started_at";
+
+export function proxyAdjustmentsJoin(requestsAlias = "r"): string {
+  return `
+    LEFT JOIN (
+      SELECT
+        "request_id",
+        COALESCE(SUM("prompt_tokens_delta"), 0) AS "prompt_tokens_delta",
+        COALESCE(SUM("completion_tokens_delta"), 0) AS "completion_tokens_delta",
+        COALESCE(SUM("total_cost_delta"), 0) AS "total_cost_delta"
+      FROM "${PROXY_USAGE_ADJUSTMENTS_TABLE}"
+      GROUP BY "request_id"
+    ) adj ON adj."request_id" = ${requestsAlias}."id"
+  `;
+}
+
+export function adjustedTotalCostSql(requestsAlias = "r"): string {
+  return `(COALESCE(${requestsAlias}."total_cost", 0) + COALESCE(adj."total_cost_delta", 0))`;
+}
+
+export function adjustedTotalTokensSql(requestsAlias = "r"): string {
+  return `(COALESCE(${requestsAlias}."total_tokens", 0) + COALESCE(adj."prompt_tokens_delta", 0) + COALESCE(adj."completion_tokens_delta", 0))`;
+}
+
+export function adjustedInputTokensSql(requestsAlias = "r"): string {
+  return `(COALESCE(${requestsAlias}."input_tokens", 0) + COALESCE(adj."prompt_tokens_delta", 0))`;
+}
+
+export function adjustedOutputTokensSql(requestsAlias = "r"): string {
+  return `(COALESCE(${requestsAlias}."output_tokens", 0) + COALESCE(adj."completion_tokens_delta", 0))`;
+}
 
 function getWindowStart(days: number): Date | null {
   if (days <= 0) {
@@ -76,6 +107,16 @@ export function normalizeProxyDays(
   fallback: number,
 ): number {
   return normalizeDays(days, fallback);
+}
+
+export function prefixProxyRequestColumns(
+  sql: string,
+  requestsAlias = "r",
+): string {
+  return sql
+    .replace(/"started_at"/g, `${requestsAlias}."started_at"`)
+    .replace(/"status"/g, `${requestsAlias}."status"`)
+    .replace(/"model"/g, `${requestsAlias}."model"`);
 }
 
 export function combineProxyConditions(conditions: Array<string>): string {

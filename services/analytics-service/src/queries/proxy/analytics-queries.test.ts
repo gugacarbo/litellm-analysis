@@ -46,11 +46,14 @@ describe("proxy analytics-queries", () => {
     });
 
     expect(queryRawUnsafe).toHaveBeenCalledTimes(2);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("total_cost")');
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("input_tokens")');
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("cached_tokens")');
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain(
+      "model_proxy_usage_adjustments",
+    );
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain('r."total_cost"');
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain('r."input_tokens"');
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain('r."cached_tokens"');
     expect(queryRawUnsafe.mock.calls[1][0]).toContain(
-      `"status" IN ('failed', 'timeout')`,
+      `r."status" IN ('failed', 'timeout')`,
     );
   });
 
@@ -90,9 +93,12 @@ describe("proxy analytics-queries", () => {
     const result = await getCostEfficiency({ days: 30 });
 
     expect(result).toHaveLength(1);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("total_cost")');
     expect(queryRawUnsafe.mock.calls[0][0]).toContain(
-      'ORDER BY SUM("total_cost") DESC',
+      "model_proxy_usage_adjustments",
+    );
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain("SUM(");
+    expect(queryRawUnsafe.mock.calls[0][0]).toContain(
+      'ORDER BY SUM((COALESCE(r."total_cost", 0)',
     );
   });
 });

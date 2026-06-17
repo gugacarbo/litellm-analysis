@@ -1,11 +1,17 @@
 import type { TimeRangeParams } from "../../types/index";
 import { getModelProxyPrisma } from "./client";
 import {
+  adjustedInputTokensSql,
+  adjustedOutputTokensSql,
+  adjustedTotalCostSql,
+  adjustedTotalTokensSql,
   buildProxyWhereClause,
   getProxyErrorFilter,
   getProxyTimeRangeFilterWhere,
   normalizeProxyDays,
   PROXY_REQUESTS_TABLE,
+  prefixProxyRequestColumns,
+  proxyAdjustmentsJoin,
   proxyTimeCondition,
 } from "./helpers";
 
@@ -19,10 +25,12 @@ export async function getMetricsSummary(params: TimeRangeParams = {}) {
   const errorTimeFilter = timeFilter;
 
   const prisma = getModelProxyPrisma();
-  const summaryWhere = timeFilter ? `WHERE ${timeFilter}` : "";
+  const summaryWhere = timeFilter
+    ? `WHERE ${prefixProxyRequestColumns(timeFilter)}`
+    : "";
   const errorWhere = errorTimeFilter
-    ? `WHERE ${errorTimeFilter} AND ${getProxyErrorFilter()}`
-    : `WHERE ${getProxyErrorFilter()}`;
+    ? `WHERE ${prefixProxyRequestColumns(errorTimeFilter)} AND ${prefixProxyRequestColumns(getProxyErrorFilter())}`
+    : `WHERE ${prefixProxyRequestColumns(getProxyErrorFilter())}`;
 
   const [spendResult, errorResult] = await Promise.all([
     prisma.$queryRawUnsafe<
@@ -36,18 +44,19 @@ export async function getMetricsSummary(params: TimeRangeParams = {}) {
       }>
     >(`
       SELECT
-        COALESCE(SUM("total_cost"), 0)::float as "totalSpend",
-        COALESCE(SUM("total_tokens"), 0)::float as "totalTokens",
-        COUNT(DISTINCT "model")::float as "activeModels",
-        COALESCE(SUM("input_tokens"), 0)::float as "promptTokens",
-        COALESCE(SUM("output_tokens"), 0)::float as "completionTokens",
-        COALESCE(SUM("cached_tokens"), 0)::float as "cachedTokens"
-      FROM "${PROXY_REQUESTS_TABLE}"
+        COALESCE(SUM(${adjustedTotalCostSql("r")}), 0)::float as "totalSpend",
+        COALESCE(SUM(${adjustedTotalTokensSql("r")}), 0)::float as "totalTokens",
+        COUNT(DISTINCT r."model")::float as "activeModels",
+        COALESCE(SUM(${adjustedInputTokensSql("r")}), 0)::float as "promptTokens",
+        COALESCE(SUM(${adjustedOutputTokensSql("r")}), 0)::float as "completionTokens",
+        COALESCE(SUM(r."cached_tokens"), 0)::float as "cachedTokens"
+      FROM "${PROXY_REQUESTS_TABLE}" r
+      ${proxyAdjustmentsJoin("r")}
       ${summaryWhere}
     `),
     prisma.$queryRawUnsafe<Array<{ errorCount: number }>>(`
       SELECT COUNT(*)::float as "errorCount"
-      FROM "${PROXY_REQUESTS_TABLE}"
+      FROM "${PROXY_REQUESTS_TABLE}" r
       ${errorWhere}
     `),
   ]);
@@ -110,7 +119,9 @@ export async function getCostEfficiency(params: TimeRangeParams = {}) {
   const normalizedDays = normalizeProxyDays(days, 30);
   const timeParams =
     params.startDate || params.endDate ? params : { days: normalizedDays };
-  const where = buildProxyWhereClause([proxyTimeCondition(timeParams)]);
+  const where = buildProxyWhereClause([
+    prefixProxyRequestColumns(proxyTimeCondition(timeParams)),
+  ]);
 
   const prisma = getModelProxyPrisma();
   const result = await prisma.$queryRawUnsafe<
@@ -123,19 +134,20 @@ export async function getCostEfficiency(params: TimeRangeParams = {}) {
     }>
   >(`
     SELECT
-      "model",
-      SUM("total_cost")::float as "total_spend",
-      SUM("total_tokens")::float as "total_tokens",
+      r."model",
+      SUM(${adjustedTotalCostSql("r")})::float as "total_spend",
+      SUM(${adjustedTotalTokensSql("r")})::float as "total_tokens",
       CASE
-        WHEN SUM("total_tokens") > 0
-        THEN SUM("total_cost") / SUM("total_tokens") * 1000
+        WHEN SUM(${adjustedTotalTokensSql("r")}) > 0
+        THEN SUM(${adjustedTotalCostSql("r")}) / SUM(${adjustedTotalTokensSql("r")}) * 1000
         ELSE 0
       END::float as "cost_per_1k_tokens",
       COUNT(*)::float as "request_count"
-    FROM "${PROXY_REQUESTS_TABLE}"
+    FROM "${PROXY_REQUESTS_TABLE}" r
+    ${proxyAdjustmentsJoin("r")}
     ${where}
-    GROUP BY "model"
-    ORDER BY SUM("total_cost") DESC
+    GROUP BY r."model"
+    ORDER BY SUM(${adjustedTotalCostSql("r")}) DESC
     LIMIT 20
   `);
 

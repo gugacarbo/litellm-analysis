@@ -46,8 +46,8 @@ export async function getModelStatistics(params: TimeRangeParams = {}) {
       PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY "latency_ms")::float as "p99_latency_ms",
       MIN("${PROXY_TIME_COLUMN}") as "first_seen",
       MAX("${PROXY_TIME_COLUMN}") as "last_seen",
-      0::float as "unique_users",
-      0::float as "unique_api_keys",
+      COUNT(DISTINCT NULLIF(BTRIM("end_user"), ''))::float as "unique_users",
+      COUNT(DISTINCT NULLIF(BTRIM("api_key_alias"), ''))::float as "unique_api_keys",
       AVG(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "avg_tokens_per_second",
       PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "p50_tokens_per_second",
       MAX(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "max_tokens_per_second"
@@ -411,5 +411,71 @@ export async function getModelProviderBreakdownByModel(
     WHERE ${where}
     GROUP BY COALESCE(NULLIF(BTRIM(m."owned_by"), ''), NULLIF(BTRIM(r."upstream_base_url"), ''), 'unknown')
     ORDER BY SUM(r."total_cost") DESC
+  `);
+}
+
+export async function getTopUsersByModel(model: string, days?: number) {
+  const normalizedDays = normalizeProxyDays(days, 30);
+  const where = buildProxyWhereClause([
+    `"model" = '${model}'`,
+    getProxyTimeFilterWhere(normalizedDays),
+    `"end_user" IS NOT NULL`,
+    `NULLIF(BTRIM("end_user"), '') IS NOT NULL`,
+  ]);
+  const prisma = getModelProxyPrisma();
+
+  return prisma.$queryRawUnsafe<
+    Array<{
+      user: string;
+      total_spend: number;
+      total_tokens: number;
+      request_count: number;
+    }>
+  >(`
+    SELECT
+      COALESCE(NULLIF(BTRIM("end_user"), ''), 'unknown') as "user",
+      SUM("total_cost")::float as "total_spend",
+      SUM("total_tokens")::float as "total_tokens",
+      COUNT(*)::float as "request_count"
+    FROM "${PROXY_REQUESTS_TABLE}"
+    ${where}
+    GROUP BY COALESCE(NULLIF(BTRIM("end_user"), ''), 'unknown')
+    ORDER BY SUM("total_cost") DESC
+    LIMIT 20
+  `);
+}
+
+export async function getTopApiKeysByModel(model: string, days?: number) {
+  const normalizedDays = normalizeProxyDays(days, 30);
+  const where = buildProxyWhereClause([
+    `"model" = '${model}'`,
+    getProxyTimeFilterWhere(normalizedDays),
+    `"api_key_alias" IS NOT NULL`,
+    `NULLIF(BTRIM("api_key_alias"), '') IS NOT NULL`,
+  ]);
+  const prisma = getModelProxyPrisma();
+
+  return prisma.$queryRawUnsafe<
+    Array<{
+      api_key: string;
+      total_spend: number;
+      total_tokens: number;
+      request_count: number;
+      success_rate: number;
+      avg_tokens_per_second: number;
+    }>
+  >(`
+    SELECT
+      COALESCE(NULLIF(BTRIM("api_key_alias"), ''), 'unknown') as "api_key",
+      SUM("total_cost")::float as "total_spend",
+      SUM("total_tokens")::float as "total_tokens",
+      COUNT(*)::float as "request_count",
+      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
+      AVG(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "avg_tokens_per_second"
+    FROM "${PROXY_REQUESTS_TABLE}"
+    ${where}
+    GROUP BY COALESCE(NULLIF(BTRIM("api_key_alias"), ''), 'unknown')
+    ORDER BY SUM("total_cost") DESC
+    LIMIT 20
   `);
 }

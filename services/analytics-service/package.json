@@ -19,11 +19,11 @@
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/agent-schemas": "workspace:*",
     "@lite-llm/config": "workspace:*",
-    "@lite-llm/litellm-repository": "workspace:*",
     "@lite-llm/model-proxy-repository": "workspace:*",
     "@lite-llm/models-service": "workspace:*"
   },
   "devDependencies": {
+    "@lite-llm/litellm-repository": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

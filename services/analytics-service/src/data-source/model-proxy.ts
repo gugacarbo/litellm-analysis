@@ -23,6 +23,8 @@ import {
   getHourlyUsageByModelImpl,
   getProviderBreakdownByModelImpl,
   getProxyModelStatisticsImpl,
+  getProxyTopApiKeysByModelImpl,
+  getProxyTopUsersByModelImpl,
   getStatusDistributionByModelImpl,
   getTTFTPercentilesByModelImpl,
   mergeModelsImpl,
@@ -35,6 +37,9 @@ import {
   getProxyStuckRequestsImpl,
 } from "./proxy-monitor-methods";
 import {
+  getProxyApiKeyStatsImpl,
+  getProxySpendByKeyImpl,
+  getProxySpendByUserImpl,
   getProxySpendLogDetailImpl,
   getProxySpendLogsCountImpl,
   getProxySpendLogsImpl,
@@ -63,11 +68,11 @@ export class ModelProxyDataSource implements AnalyticsDataSource {
   getSpendLogDetail = getProxySpendLogDetailImpl;
   getSpendTotals = getProxySpendTotalsImpl;
 
-  getSpendByUser = async () => [];
-  getSpendByKey = async () => [];
-  getApiKeyStats = async () => [];
-  getTopUsersByModel = async () => [];
-  getTopApiKeysByModel = async () => [];
+  getSpendByUser = getProxySpendByUserImpl;
+  getSpendByKey = getProxySpendByKeyImpl;
+  getApiKeyStats = getProxyApiKeyStatsImpl;
+  getTopUsersByModel = getProxyTopUsersByModelImpl;
+  getTopApiKeysByModel = getProxyTopApiKeysByModelImpl;
 
   getModels = getRegistryModelsImpl;
   getModelDetails = getRegistryModelDetailsImpl;

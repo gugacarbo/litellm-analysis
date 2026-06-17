@@ -29,6 +29,8 @@ describe("presentProxyRequestLog", () => {
     totalCost: 0.00075,
     costEstimated: false,
     estimatedCostUsd: null,
+    apiKeyAlias: "test-key",
+    endUser: "alice",
     errorSummary: null,
     errorType: null,
     errorMessage: null,
@@ -68,6 +70,8 @@ describe("presentProxyRequestLog", () => {
       usage_estimated: false,
       cost_estimated: false,
       total_cost: 0.00075,
+      api_key_alias: "test-key",
+      end_user: "alice",
       messages: [{ role: "user", content: "hello" }],
     });
     expect(log.error_details).toBeUndefined();
@@ -87,5 +91,42 @@ describe("presentProxyRequestLog", () => {
     expect(log.response_headers).toEqual({
       "content-type": "application/json",
     });
+  });
+
+  it("applies usage adjustments to presented token and cost fields", () => {
+    const log = presentProxyRequestLog({
+      ...baseRow,
+      usageAdjustments: [
+        {
+          id: "adj-1",
+          requestId: "req-123",
+          reason: "manual-correction",
+          promptTokensDelta: 10,
+          completionTokensDelta: 5,
+          totalCostDelta: 0.001,
+          note: "billing fix",
+          createdAt: startedAt,
+        },
+      ],
+    });
+
+    expect(log).toMatchObject({
+      input_tokens: 130,
+      output_tokens: 50,
+      total_tokens: 180,
+      total_cost: 0.00175,
+      has_usage_adjustments: true,
+    });
+    expect(log.usage_adjustments).toEqual([
+      {
+        id: "adj-1",
+        reason: "manual-correction",
+        prompt_tokens_delta: 10,
+        completion_tokens_delta: 5,
+        total_cost_delta: 0.001,
+        note: "billing fix",
+        created_at: startedAt.toISOString(),
+      },
+    ]);
   });
 });

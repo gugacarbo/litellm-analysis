@@ -51,7 +51,10 @@ describe("proxy model-queries", () => {
     const sql = String(queryRawUnsafe.mock.calls[0][0]);
     expect(sql).toContain("model_proxy_requests");
     expect(sql).toContain('"unique_users"');
-    expect(sql).toContain('0::float as "unique_users"');
+    expect(sql).toContain("COUNT(DISTINCT NULLIF(BTRIM(\"end_user\"), ''))");
+    expect(sql).toContain(
+      "COUNT(DISTINCT NULLIF(BTRIM(\"api_key_alias\"), ''))",
+    );
     expect(sql).toContain('"latency_ms" >= 100');
   });
 

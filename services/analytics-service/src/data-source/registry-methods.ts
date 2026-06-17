@@ -1,3 +1,8 @@
+import {
+  fromModelProxyRow,
+  toModelRoute,
+} from "@lite-llm/model-proxy-registry-service";
+import type { ModelProxyModel, Prisma } from "@lite-llm/model-proxy-repository";
 import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import type {
   LiteLLMCredential,
@@ -5,74 +10,57 @@ import type {
   ModelEntry,
 } from "../types/index";
 
-const ROUTER_SETTINGS_KEY = "router_settings";
 const DEFAULT_CREDENTIAL_KEY = "default_credential";
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
 
-function routeToLitellmParams(row: {
-  modelName: string;
-  enabled: boolean;
-  upstreamModel: string | null;
-  upstreamBaseUrl: string | null;
-  credentialName: string | null;
-  contextWindowSize: number | null;
-  maxOutputTokens: number | null;
-  inputCostPerToken: unknown;
-  outputCostPerToken: unknown;
-  requestOptions: unknown;
-}): Record<string, unknown> {
-  const options =
-    row.requestOptions !== null &&
-    typeof row.requestOptions === "object" &&
-    !Array.isArray(row.requestOptions)
-      ? (row.requestOptions as Record<string, unknown>)
-      : {};
-
-  return {
-    ...options,
-    model: row.upstreamModel ?? row.modelName,
-    api_base: row.upstreamBaseUrl ?? undefined,
-    litellm_credential_name: row.credentialName ?? undefined,
+function prismaModelToRoute(row: ModelProxyModel) {
+  return fromModelProxyRow({
+    id: row.id,
+    modelName: row.modelName,
     enabled: row.enabled,
-    context_window_size: row.contextWindowSize ?? undefined,
-    max_tokens: row.maxOutputTokens ?? undefined,
-    input_cost_per_token: row.inputCostPerToken ?? undefined,
-    output_cost_per_token: row.outputCostPerToken ?? undefined,
-  };
+    displayName: row.displayName,
+    family: row.family,
+    ownedBy: row.ownedBy,
+    apiMode: row.apiMode,
+    vision: row.vision,
+    contextWindowSize: row.contextWindowSize,
+    maxOutputTokens: row.maxOutputTokens,
+    inputCostPerToken: row.inputCostPerToken,
+    outputCostPerToken: row.outputCostPerToken,
+    upstreamModel: row.upstreamModel,
+    upstreamBaseUrl: row.upstreamBaseUrl,
+    credentialName: row.credentialName,
+    secretRef: row.secretRef,
+    requestOptions:
+      row.requestOptions === null
+        ? null
+        : (row.requestOptions as Record<string, unknown>),
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  });
 }
 
-function litellmParamsToRoute(
-  modelName: string,
-  params: Record<string, unknown>,
-): Record<string, unknown> {
+function routeToCreateData(route: ReturnType<typeof prismaModelToRoute>) {
   return {
-    modelName,
-    enabled: (params.enabled as boolean | undefined) ?? true,
-    upstreamModel:
-      (params.model as string | undefined) ??
-      (params.upstream_model as string | undefined) ??
-      modelName,
-    upstreamBaseUrl: params.api_base as string | undefined,
-    credentialName: params.litellm_credential_name as string | undefined,
-    contextWindowSize: params.context_window_size as number | undefined,
-    maxOutputTokens: params.max_tokens as number | undefined,
-    inputCostPerToken: params.input_cost_per_token as number | undefined,
-    outputCostPerToken: params.output_cost_per_token as number | undefined,
-    requestOptions: Object.fromEntries(
-      Object.entries(params).filter(
-        ([key]) =>
-          ![
-            "model",
-            "api_base",
-            "litellm_credential_name",
-            "enabled",
-            "context_window_size",
-            "max_tokens",
-            "input_cost_per_token",
-            "output_cost_per_token",
-          ].includes(key),
-      ),
-    ),
+    modelName: route.modelName,
+    enabled: route.enabled ?? true,
+    displayName: route.displayName,
+    family: route.family,
+    ownedBy: route.ownedBy,
+    apiMode: route.apiMode,
+    vision: route.vision,
+    contextWindowSize: route.contextWindowSize,
+    maxOutputTokens: route.maxOutputTokens,
+    inputCostPerToken: route.inputCostPerToken,
+    outputCostPerToken: route.outputCostPerToken,
+    upstreamModel: route.upstreamModel ?? route.modelName,
+    upstreamBaseUrl: route.upstreamBaseUrl ?? "",
+    credentialName: route.credentialName,
+    secretRef: route.secretRef,
+    requestOptions:
+      route.requestOptions !== undefined
+        ? (route.requestOptions as Prisma.InputJsonValue)
+        : undefined,
   };
 }
 
@@ -83,7 +71,7 @@ export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
   });
   return rows.map((row) => ({
     modelName: row.modelName,
-    litellmParams: routeToLitellmParams(row),
+    modelRoute: prismaModelToRoute(row) as unknown as Record<string, unknown>,
   }));
 }
 
@@ -103,23 +91,17 @@ export async function getRegistryModelDetailsImpl(): Promise<ModelDetail[]> {
 
 export async function createRegistryModelImpl(model: {
   modelName: string;
-  litellmParams: Record<string, unknown>;
+  litellmParams?: Record<string, unknown>;
+  modelRoute?: Record<string, unknown>;
 }): Promise<void> {
   const prisma = getModelProxyPrisma();
-  const route = litellmParamsToRoute(model.modelName, model.litellmParams);
+  const route: ReturnType<typeof prismaModelToRoute> = model.modelRoute
+    ? ({ modelName: model.modelName, ...model.modelRoute } as ReturnType<
+        typeof prismaModelToRoute
+      >)
+    : toModelRoute(model.litellmParams ?? {}, model.modelName);
   await prisma.modelProxyModel.create({
-    data: {
-      modelName: model.modelName,
-      enabled: (route.enabled as boolean) ?? true,
-      upstreamModel: route.upstreamModel as string,
-      upstreamBaseUrl: (route.upstreamBaseUrl as string | undefined) ?? "",
-      credentialName: route.credentialName as string | undefined,
-      contextWindowSize: route.contextWindowSize as number | undefined,
-      maxOutputTokens: route.maxOutputTokens as number | undefined,
-      inputCostPerToken: route.inputCostPerToken as number | undefined,
-      outputCostPerToken: route.outputCostPerToken as number | undefined,
-      requestOptions: route.requestOptions as object | undefined,
-    },
+    data: routeToCreateData(route),
   });
 }
 
@@ -127,14 +109,20 @@ export async function updateRegistryModelImpl(
   modelName: string,
   updates: {
     litellmParams?: Record<string, unknown>;
+    modelRoute?: Record<string, unknown>;
     modelName?: string;
   },
 ): Promise<void> {
   const prisma = getModelProxyPrisma();
   const targetName = updates.modelName ?? modelName;
-  const route = updates.litellmParams
-    ? litellmParamsToRoute(targetName, updates.litellmParams)
-    : null;
+  const route = updates.modelRoute
+    ? ({
+        modelName: targetName,
+        ...updates.modelRoute,
+      } as ReturnType<typeof prismaModelToRoute>)
+    : updates.litellmParams
+      ? toModelRoute(updates.litellmParams, targetName)
+      : null;
 
   if (targetName !== modelName) {
     const existing = await prisma.modelProxyModel.findUnique({
@@ -143,43 +131,11 @@ export async function updateRegistryModelImpl(
     if (!existing) {
       throw new Error(`Model "${modelName}" not found`);
     }
+    const existingRoute = prismaModelToRoute(existing);
+    const mergedRoute = route ?? existingRoute;
     await prisma.modelProxyModel.delete({ where: { modelName } });
     await prisma.modelProxyModel.create({
-      data: {
-        modelName: targetName,
-        enabled: (route?.enabled as boolean) ?? existing.enabled,
-        upstreamModel:
-          (route?.upstreamModel as string | undefined) ??
-          existing.upstreamModel ??
-          targetName,
-        upstreamBaseUrl:
-          (route?.upstreamBaseUrl as string | undefined) ??
-          existing.upstreamBaseUrl ??
-          "",
-        credentialName:
-          (route?.credentialName as string | undefined) ??
-          existing.credentialName ??
-          undefined,
-        contextWindowSize:
-          (route?.contextWindowSize as number | undefined) ??
-          existing.contextWindowSize ??
-          undefined,
-        maxOutputTokens:
-          (route?.maxOutputTokens as number | undefined) ??
-          existing.maxOutputTokens ??
-          undefined,
-        inputCostPerToken:
-          (route?.inputCostPerToken as number | undefined) ??
-          existing.inputCostPerToken ??
-          undefined,
-        outputCostPerToken:
-          (route?.outputCostPerToken as number | undefined) ??
-          existing.outputCostPerToken ??
-          undefined,
-        requestOptions:
-          (route?.requestOptions as object | undefined) ??
-          (existing.requestOptions as object | undefined),
-      },
+      data: routeToCreateData({ ...mergedRoute, modelName: targetName }),
     });
     return;
   }
@@ -190,17 +146,7 @@ export async function updateRegistryModelImpl(
 
   const updated = await prisma.modelProxyModel.update({
     where: { modelName },
-    data: {
-      enabled: route.enabled as boolean | undefined,
-      upstreamModel: route.upstreamModel as string | undefined,
-      upstreamBaseUrl: route.upstreamBaseUrl as string | undefined,
-      credentialName: route.credentialName as string | undefined,
-      contextWindowSize: route.contextWindowSize as number | undefined,
-      maxOutputTokens: route.maxOutputTokens as number | undefined,
-      inputCostPerToken: route.inputCostPerToken as number | undefined,
-      outputCostPerToken: route.outputCostPerToken as number | undefined,
-      requestOptions: route.requestOptions as object | undefined,
-    },
+    data: routeToCreateData(route),
   });
   if (!updated) {
     throw new Error(`Model "${modelName}" not found`);

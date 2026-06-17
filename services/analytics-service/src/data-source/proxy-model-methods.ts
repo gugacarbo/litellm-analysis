@@ -11,6 +11,8 @@ import {
   getModelStatistics,
   getModelStatusDistributionByModel,
   getModelTTFTPercentilesByModel,
+  getTopApiKeysByModel,
+  getTopUsersByModel,
   mergeModels,
 } from "../queries/proxy/model-queries";
 import type {
@@ -24,6 +26,8 @@ import type {
   ModelProviderBreakdown,
   ModelStatistics,
   ModelStatusDistribution,
+  ModelTopApiKey,
+  ModelTopUser,
   ModelTTFTPercentiles,
   TimeGranularity,
   TimeRangeParams,
@@ -58,8 +62,8 @@ export async function getProxyModelStatisticsImpl(
     last_seen: item.last_seen
       ? new Date(item.last_seen as Date).toISOString()
       : "",
-    unique_users: 0,
-    unique_api_keys: 0,
+    unique_users: Number(item.unique_users || 0),
+    unique_api_keys: Number(item.unique_api_keys || 0),
     p50_tokens_per_second: Number(item.p50_tokens_per_second || 0),
     max_tokens_per_second: Number(item.max_tokens_per_second || 0),
   }));
@@ -205,5 +209,33 @@ export async function getProviderBreakdownByModelImpl(
     request_count: Number(item.request_count),
     total_spend: Number(item.total_spend),
     avg_latency_ms: Number(item.avg_latency_ms),
+  }));
+}
+
+export async function getProxyTopUsersByModelImpl(
+  model: string,
+  days?: number,
+): Promise<ModelTopUser[]> {
+  const result = await getTopUsersByModel(model, days);
+  return result.map((item) => ({
+    user: item.user,
+    total_spend: Number(item.total_spend),
+    total_tokens: Number(item.total_tokens),
+    request_count: Number(item.request_count),
+  }));
+}
+
+export async function getProxyTopApiKeysByModelImpl(
+  model: string,
+  days?: number,
+): Promise<ModelTopApiKey[]> {
+  const result = await getTopApiKeysByModel(model, days);
+  return result.map((item) => ({
+    api_key: item.api_key,
+    total_spend: Number(item.total_spend),
+    total_tokens: Number(item.total_tokens),
+    request_count: Number(item.request_count),
+    success_rate: Number(item.success_rate),
+    avg_tokens_per_second: Number(item.avg_tokens_per_second || 0),
   }));
 }

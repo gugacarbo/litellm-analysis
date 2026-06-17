@@ -37,10 +37,17 @@ import type {
 
 export async function getModelsImpl(): Promise<ModelEntry[]> {
   const result = await getAllModels();
-  return result.map((item) => ({
-    modelName: item.modelName,
-    litellmParams: item.litellmParams as Record<string, unknown> | null,
-  }));
+  return result.map((item) => {
+    const litellmParams = item.litellmParams as Record<string, unknown> | null;
+    return {
+      modelName: item.modelName,
+      modelRoute: (litellmParams ?? { model: item.modelName }) as Record<
+        string,
+        unknown
+      >,
+      litellmParams,
+    };
+  });
 }
 
 export async function getModelDetailsImpl(): Promise<ModelDetail[]> {

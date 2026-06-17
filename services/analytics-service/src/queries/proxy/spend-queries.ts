@@ -1,5 +1,12 @@
 import type { Prisma } from "@lite-llm/model-proxy-repository";
 import { getModelProxyPrisma } from "./client";
+import {
+  adjustedTotalCostSql,
+  adjustedTotalTokensSql,
+  buildProxyWhereClause,
+  PROXY_REQUESTS_TABLE,
+  proxyAdjustmentsJoin,
+} from "./helpers";
 
 export interface ProxySpendLogsQueryParams {
   model?: string;
@@ -33,6 +40,11 @@ function buildWhereClause(
 
 const messagesInclude = {
   messages: {
+    orderBy: {
+      createdAt: "asc" as const,
+    },
+  },
+  usageAdjustments: {
     orderBy: {
       createdAt: "asc" as const,
     },
@@ -90,28 +102,54 @@ export async function getSpendTotals(
   params: SpendTotalsFilters,
 ): Promise<SpendTotals> {
   const prisma = getModelProxyPrisma();
-  const where = buildWhereClause(params);
+  const conditions: string[] = [];
+  if (params.model) {
+    conditions.push(`r."model" = '${params.model.replace(/'/g, "''")}'`);
+  }
+  if (params.startDate) {
+    conditions.push(`r."started_at" >= '${params.startDate}'`);
+  }
+  if (params.endDate) {
+    conditions.push(`r."started_at" <= '${params.endDate}'`);
+  }
+  const where = buildProxyWhereClause(conditions);
+  const errorWhere = where
+    ? `${where} AND r."status" IN ('failed', 'timeout')`
+    : `WHERE r."status" IN ('failed', 'timeout')`;
 
-  const [aggregate, errorCount] = await Promise.all([
-    prisma.modelProxyRequest.aggregate({
-      where,
-      _count: { _all: true },
-      _sum: { totalTokens: true, totalCost: true },
-      _avg: { latencyMs: true },
-    }),
-    prisma.modelProxyRequest.count({
-      where: {
-        ...where,
-        status: { in: ["failed", "timeout"] },
-      },
-    }),
+  const [aggregateResult, errorResult] = await Promise.all([
+    prisma.$queryRawUnsafe<
+      Array<{
+        request_count: number;
+        total_tokens: number;
+        total_cost: number;
+        avg_latency_ms: number;
+      }>
+    >(`
+      SELECT
+        COUNT(*)::float as "request_count",
+        COALESCE(SUM(${adjustedTotalTokensSql("r")}), 0)::float as "total_tokens",
+        COALESCE(SUM(${adjustedTotalCostSql("r")}), 0)::float as "total_cost",
+        COALESCE(AVG(r."latency_ms"), 0)::float as "avg_latency_ms"
+      FROM "${PROXY_REQUESTS_TABLE}" r
+      ${proxyAdjustmentsJoin("r")}
+      ${where}
+    `),
+    prisma.$queryRawUnsafe<Array<{ error_count: number }>>(`
+      SELECT COUNT(*)::float as "error_count"
+      FROM "${PROXY_REQUESTS_TABLE}" r
+      ${errorWhere}
+    `),
   ]);
 
+  const aggregate = aggregateResult[0];
+  const errors = errorResult[0];
+
   return {
-    request_count: aggregate._count._all,
-    total_tokens: Number(aggregate._sum.totalTokens ?? 0),
-    total_cost: Number(aggregate._sum.totalCost ?? 0),
-    error_count: errorCount,
-    avg_latency_ms: Math.round(Number(aggregate._avg.latencyMs ?? 0)),
+    request_count: Number(aggregate?.request_count ?? 0),
+    total_tokens: Number(aggregate?.total_tokens ?? 0),
+    total_cost: Number(aggregate?.total_cost ?? 0),
+    error_count: Number(errors?.error_count ?? 0),
+    avg_latency_ms: Math.round(Number(aggregate?.avg_latency_ms ?? 0)),
   };
 }

@@ -71,6 +71,18 @@ export function presentLitellmSpendLogAsProxy(
     output_cost: toNullableNumber(row.output_cost),
     total_cost: toNullableNumber(row.spend ?? row.total_cost) ?? 0,
     estimated_cost_usd: toNullableNumber(row.estimated_cost_usd),
+    api_key_alias:
+      row.api_key != null && row.api_key !== ""
+        ? readString(row.api_key)
+        : row.api_key_alias != null
+          ? readString(row.api_key_alias)
+          : null,
+    end_user:
+      row.end_user != null && row.end_user !== ""
+        ? readString(row.end_user)
+        : row.user != null && row.user !== ""
+          ? readString(row.user)
+          : null,
     error_type: row.error_type != null ? readString(row.error_type) : null,
     error_message:
       row.error_message != null ? readString(row.error_message) : null,
