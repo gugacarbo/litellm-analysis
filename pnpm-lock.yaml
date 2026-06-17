@@ -47,6 +47,9 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
+      '@lite-llm/analytics-service':
+        specifier: workspace:*
+        version: link:services/analytics-service
       '@lite-llm/model-proxy-registry-service':
         specifier: workspace:*
         version: link:services/model-proxy-registry-service
@@ -98,6 +101,9 @@ importers:
       '@lite-llm/model-proxy-registry-service':
         specifier: workspace:*
         version: link:../../services/model-proxy-registry-service
+      '@lite-llm/model-proxy-repository':
+        specifier: workspace:*
+        version: link:../../repositories/model-proxy-repository
       '@lite-llm/model-proxy-service':
         specifier: workspace:*
         version: link:../../services/model-proxy-service
@@ -629,9 +635,6 @@ importers:
       '@lite-llm/analytics-service':
         specifier: workspace:*
         version: link:../analytics-service
-      '@lite-llm/litellm-repository':
-        specifier: workspace:*
-        version: link:../../repositories/litellm-repository
       '@lite-llm/model-proxy-repository':
         specifier: workspace:*
         version: link:../../repositories/model-proxy-repository
@@ -642,6 +645,9 @@ importers:
         specifier: ^3.0.2
         version: 3.0.3
     devDependencies:
+      '@lite-llm/litellm-repository':
+        specifier: workspace:*
+        version: link:../../repositories/litellm-repository
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6

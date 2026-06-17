@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@lite-llm/analytics-service": "workspace:*",
-    "@lite-llm/litellm-repository": "workspace:*",
     "@lite-llm/model-proxy-repository": "workspace:*",
     "@lite-llm/model-proxy-service": "workspace:*",
     "bcryptjs": "^3.0.2"
   },
   "devDependencies": {
+    "@lite-llm/litellm-repository": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "catalog:",
     "tsx": "catalog:",

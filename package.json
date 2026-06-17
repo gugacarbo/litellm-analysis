@@ -20,13 +20,15 @@
     "validate:agents:all": "tsx scripts/src/validate-agents/index.ts --strict",
     "generate:plugin-configs": "tsx scripts/src/generate-plugin-configs/index.ts",
     "backup": "pnpm --filter @lite-llm/scripts backup",
-    "backup:list": "ls -lh backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
+    "backup:litellm": "pnpm --filter @lite-llm/scripts backup:litellm",
+    "backup:list": "ls -lh backups/model_proxy_* backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
     "model-proxy:import-legacy": "pnpm --filter @lite-llm/model-proxy-registry-service import:legacy",
     "model-proxy:import-history": "pnpm --filter @lite-llm/model-proxy-registry-service import:history",
     "analytics:compare-sources": "tsx scripts/src/compare-analytics-sources/index.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@lite-llm/analytics-service": "workspace:*",
     "@lite-llm/model-proxy-registry-service": "workspace:*",
     "ajv-cli": "^5.0.0",
     "husky": "^9.1.7",

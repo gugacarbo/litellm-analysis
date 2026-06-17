@@ -18,7 +18,7 @@
 
 import type { CompareTotalsResult } from "@lite-llm/analytics-service/data-source";
 import {
-  DatabaseDataSource,
+  getLitellmDataSource,
   HybridDataSource,
   ModelProxyDataSource,
 } from "@lite-llm/analytics-service/data-source";
@@ -150,7 +150,7 @@ async function main(): Promise<void> {
   }
 
   const hybrid = new HybridDataSource(
-    new DatabaseDataSource(),
+    getLitellmDataSource(),
     new ModelProxyDataSource(),
   );
 
