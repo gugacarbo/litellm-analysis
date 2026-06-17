@@ -393,3 +393,46 @@ describe("registry integration", () => {
     });
   });
 });
+
+describe("SETTINGS_STORAGE=database", () => {
+  beforeEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  it("skips syncModelsDirectlyToDatabase when storage backend is database", async () => {
+    vi.stubEnv("SETTINGS_STORAGE", "database");
+    vi.resetModules();
+
+    const { syncModelsDirectlyToDatabase } = await import(
+      "../../../../packages/server/src/orchestration/artifact-service.ts"
+    );
+
+    const registryModelsService = {
+      list: vi.fn(async () => []),
+      getRoute: vi.fn(),
+      delete: vi.fn(),
+      upsert: vi.fn(),
+    };
+    const settingsService = {
+      getDefaultCredential: vi.fn(async () => null),
+    };
+
+    await syncModelsDirectlyToDatabase(
+      registryModelsService as never,
+      settingsService as never,
+      {
+        "gpt-4": {
+          displayName: "GPT-4",
+          limits: { length: 128000, maxOutput: 4096 },
+        },
+      },
+    );
+
+    expect(registryModelsService.list).not.toHaveBeenCalled();
+  });
+});
