@@ -1546,7 +1546,15 @@ export namespace Prisma {
     inputTokens: number | null
     outputTokens: number | null
     totalTokens: number | null
+    cachedTokens: number | null
+    reasoningTokens: number | null
+    inputCostPerToken: number | null
+    outputCostPerToken: number | null
+    inputCost: number | null
+    outputCost: number | null
+    totalCost: number | null
     estimatedCostUsd: number | null
+    errorStatusCode: number | null
   }
 
   export type ModelProxyRequestSumAggregateOutputType = {
@@ -1555,7 +1563,15 @@ export namespace Prisma {
     inputTokens: number | null
     outputTokens: number | null
     totalTokens: number | null
+    cachedTokens: number | null
+    reasoningTokens: number | null
+    inputCostPerToken: number | null
+    outputCostPerToken: number | null
+    inputCost: number | null
+    outputCost: number | null
+    totalCost: number | null
     estimatedCostUsd: number | null
+    errorStatusCode: number | null
   }
 
   export type ModelProxyRequestMinAggregateOutputType = {
@@ -1572,8 +1588,20 @@ export namespace Prisma {
     inputTokens: number | null
     outputTokens: number | null
     totalTokens: number | null
+    cachedTokens: number | null
+    reasoningTokens: number | null
+    usageEstimated: boolean | null
+    inputCostPerToken: number | null
+    outputCostPerToken: number | null
+    inputCost: number | null
+    outputCost: number | null
+    totalCost: number | null
+    costEstimated: boolean | null
     estimatedCostUsd: number | null
     errorSummary: string | null
+    errorType: string | null
+    errorMessage: string | null
+    errorStatusCode: number | null
   }
 
   export type ModelProxyRequestMaxAggregateOutputType = {
@@ -1590,8 +1618,20 @@ export namespace Prisma {
     inputTokens: number | null
     outputTokens: number | null
     totalTokens: number | null
+    cachedTokens: number | null
+    reasoningTokens: number | null
+    usageEstimated: boolean | null
+    inputCostPerToken: number | null
+    outputCostPerToken: number | null
+    inputCost: number | null
+    outputCost: number | null
+    totalCost: number | null
+    costEstimated: boolean | null
     estimatedCostUsd: number | null
     errorSummary: string | null
+    errorType: string | null
+    errorMessage: string | null
+    errorStatusCode: number | null
   }
 
   export type ModelProxyRequestCountAggregateOutputType = {
@@ -1608,8 +1648,21 @@ export namespace Prisma {
     inputTokens: number
     outputTokens: number
     totalTokens: number
+    cachedTokens: number
+    reasoningTokens: number
+    usageEstimated: number
+    inputCostPerToken: number
+    outputCostPerToken: number
+    inputCost: number
+    outputCost: number
+    totalCost: number
+    costEstimated: number
     estimatedCostUsd: number
     errorSummary: number
+    errorType: number
+    errorMessage: number
+    errorStatusCode: number
+    errorDetails: number
     requestBody: number
     responseBody: number
     responseHeaders: number
@@ -1623,7 +1676,15 @@ export namespace Prisma {
     inputTokens?: true
     outputTokens?: true
     totalTokens?: true
+    cachedTokens?: true
+    reasoningTokens?: true
+    inputCostPerToken?: true
+    outputCostPerToken?: true
+    inputCost?: true
+    outputCost?: true
+    totalCost?: true
     estimatedCostUsd?: true
+    errorStatusCode?: true
   }
 
   export type ModelProxyRequestSumAggregateInputType = {
@@ -1632,7 +1693,15 @@ export namespace Prisma {
     inputTokens?: true
     outputTokens?: true
     totalTokens?: true
+    cachedTokens?: true
+    reasoningTokens?: true
+    inputCostPerToken?: true
+    outputCostPerToken?: true
+    inputCost?: true
+    outputCost?: true
+    totalCost?: true
     estimatedCostUsd?: true
+    errorStatusCode?: true
   }
 
   export type ModelProxyRequestMinAggregateInputType = {
@@ -1649,8 +1718,20 @@ export namespace Prisma {
     inputTokens?: true
     outputTokens?: true
     totalTokens?: true
+    cachedTokens?: true
+    reasoningTokens?: true
+    usageEstimated?: true
+    inputCostPerToken?: true
+    outputCostPerToken?: true
+    inputCost?: true
+    outputCost?: true
+    totalCost?: true
+    costEstimated?: true
     estimatedCostUsd?: true
     errorSummary?: true
+    errorType?: true
+    errorMessage?: true
+    errorStatusCode?: true
   }
 
   export type ModelProxyRequestMaxAggregateInputType = {
@@ -1667,8 +1748,20 @@ export namespace Prisma {
     inputTokens?: true
     outputTokens?: true
     totalTokens?: true
+    cachedTokens?: true
+    reasoningTokens?: true
+    usageEstimated?: true
+    inputCostPerToken?: true
+    outputCostPerToken?: true
+    inputCost?: true
+    outputCost?: true
+    totalCost?: true
+    costEstimated?: true
     estimatedCostUsd?: true
     errorSummary?: true
+    errorType?: true
+    errorMessage?: true
+    errorStatusCode?: true
   }
 
   export type ModelProxyRequestCountAggregateInputType = {
@@ -1685,8 +1778,21 @@ export namespace Prisma {
     inputTokens?: true
     outputTokens?: true
     totalTokens?: true
+    cachedTokens?: true
+    reasoningTokens?: true
+    usageEstimated?: true
+    inputCostPerToken?: true
+    outputCostPerToken?: true
+    inputCost?: true
+    outputCost?: true
+    totalCost?: true
+    costEstimated?: true
     estimatedCostUsd?: true
     errorSummary?: true
+    errorType?: true
+    errorMessage?: true
+    errorStatusCode?: true
+    errorDetails?: true
     requestBody?: true
     responseBody?: true
     responseHeaders?: true
@@ -1793,8 +1899,21 @@ export namespace Prisma {
     inputTokens: number | null
     outputTokens: number | null
     totalTokens: number | null
+    cachedTokens: number | null
+    reasoningTokens: number | null
+    usageEstimated: boolean | null
+    inputCostPerToken: number | null
+    outputCostPerToken: number | null
+    inputCost: number | null
+    outputCost: number | null
+    totalCost: number | null
+    costEstimated: boolean | null
     estimatedCostUsd: number | null
     errorSummary: string | null
+    errorType: string | null
+    errorMessage: string | null
+    errorStatusCode: number | null
+    errorDetails: JsonValue | null
     requestBody: JsonValue | null
     responseBody: JsonValue | null
     responseHeaders: JsonValue | null
@@ -1833,8 +1952,21 @@ export namespace Prisma {
     inputTokens?: boolean
     outputTokens?: boolean
     totalTokens?: boolean
+    cachedTokens?: boolean
+    reasoningTokens?: boolean
+    usageEstimated?: boolean
+    inputCostPerToken?: boolean
+    outputCostPerToken?: boolean
+    inputCost?: boolean
+    outputCost?: boolean
+    totalCost?: boolean
+    costEstimated?: boolean
     estimatedCostUsd?: boolean
     errorSummary?: boolean
+    errorType?: boolean
+    errorMessage?: boolean
+    errorStatusCode?: boolean
+    errorDetails?: boolean
     requestBody?: boolean
     responseBody?: boolean
     responseHeaders?: boolean
@@ -1856,8 +1988,21 @@ export namespace Prisma {
     inputTokens?: boolean
     outputTokens?: boolean
     totalTokens?: boolean
+    cachedTokens?: boolean
+    reasoningTokens?: boolean
+    usageEstimated?: boolean
+    inputCostPerToken?: boolean
+    outputCostPerToken?: boolean
+    inputCost?: boolean
+    outputCost?: boolean
+    totalCost?: boolean
+    costEstimated?: boolean
     estimatedCostUsd?: boolean
     errorSummary?: boolean
+    errorType?: boolean
+    errorMessage?: boolean
+    errorStatusCode?: boolean
+    errorDetails?: boolean
     requestBody?: boolean
     responseBody?: boolean
     responseHeaders?: boolean
@@ -1877,8 +2022,21 @@ export namespace Prisma {
     inputTokens?: boolean
     outputTokens?: boolean
     totalTokens?: boolean
+    cachedTokens?: boolean
+    reasoningTokens?: boolean
+    usageEstimated?: boolean
+    inputCostPerToken?: boolean
+    outputCostPerToken?: boolean
+    inputCost?: boolean
+    outputCost?: boolean
+    totalCost?: boolean
+    costEstimated?: boolean
     estimatedCostUsd?: boolean
     errorSummary?: boolean
+    errorType?: boolean
+    errorMessage?: boolean
+    errorStatusCode?: boolean
+    errorDetails?: boolean
     requestBody?: boolean
     responseBody?: boolean
     responseHeaders?: boolean
@@ -1898,14 +2056,27 @@ export namespace Prisma {
     inputTokens?: boolean
     outputTokens?: boolean
     totalTokens?: boolean
+    cachedTokens?: boolean
+    reasoningTokens?: boolean
+    usageEstimated?: boolean
+    inputCostPerToken?: boolean
+    outputCostPerToken?: boolean
+    inputCost?: boolean
+    outputCost?: boolean
+    totalCost?: boolean
+    costEstimated?: boolean
     estimatedCostUsd?: boolean
     errorSummary?: boolean
+    errorType?: boolean
+    errorMessage?: boolean
+    errorStatusCode?: boolean
+    errorDetails?: boolean
     requestBody?: boolean
     responseBody?: boolean
     responseHeaders?: boolean
   }
 
-  export type ModelProxyRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "upstreamRequestId" | "model" | "upstreamModel" | "upstreamBaseUrl" | "status" | "startedAt" | "finishedAt" | "latencyMs" | "ttftMs" | "inputTokens" | "outputTokens" | "totalTokens" | "estimatedCostUsd" | "errorSummary" | "requestBody" | "responseBody" | "responseHeaders", ExtArgs["result"]["modelProxyRequest"]>
+  export type ModelProxyRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "upstreamRequestId" | "model" | "upstreamModel" | "upstreamBaseUrl" | "status" | "startedAt" | "finishedAt" | "latencyMs" | "ttftMs" | "inputTokens" | "outputTokens" | "totalTokens" | "cachedTokens" | "reasoningTokens" | "usageEstimated" | "inputCostPerToken" | "outputCostPerToken" | "inputCost" | "outputCost" | "totalCost" | "costEstimated" | "estimatedCostUsd" | "errorSummary" | "errorType" | "errorMessage" | "errorStatusCode" | "errorDetails" | "requestBody" | "responseBody" | "responseHeaders", ExtArgs["result"]["modelProxyRequest"]>
   export type ModelProxyRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     messages?: boolean | ModelProxyRequest$messagesArgs<ExtArgs>
     _count?: boolean | ModelProxyRequestCountOutputTypeDefaultArgs<ExtArgs>
@@ -1932,8 +2103,21 @@ export namespace Prisma {
       inputTokens: number | null
       outputTokens: number | null
       totalTokens: number | null
+      cachedTokens: number | null
+      reasoningTokens: number | null
+      usageEstimated: boolean | null
+      inputCostPerToken: number | null
+      outputCostPerToken: number | null
+      inputCost: number | null
+      outputCost: number | null
+      totalCost: number | null
+      costEstimated: boolean | null
       estimatedCostUsd: number | null
       errorSummary: string | null
+      errorType: string | null
+      errorMessage: string | null
+      errorStatusCode: number | null
+      errorDetails: Prisma.JsonValue | null
       requestBody: Prisma.JsonValue | null
       responseBody: Prisma.JsonValue | null
       responseHeaders: Prisma.JsonValue | null
@@ -2374,8 +2558,21 @@ export namespace Prisma {
     readonly inputTokens: FieldRef<"ModelProxyRequest", 'Int'>
     readonly outputTokens: FieldRef<"ModelProxyRequest", 'Int'>
     readonly totalTokens: FieldRef<"ModelProxyRequest", 'Int'>
+    readonly cachedTokens: FieldRef<"ModelProxyRequest", 'Int'>
+    readonly reasoningTokens: FieldRef<"ModelProxyRequest", 'Int'>
+    readonly usageEstimated: FieldRef<"ModelProxyRequest", 'Boolean'>
+    readonly inputCostPerToken: FieldRef<"ModelProxyRequest", 'Float'>
+    readonly outputCostPerToken: FieldRef<"ModelProxyRequest", 'Float'>
+    readonly inputCost: FieldRef<"ModelProxyRequest", 'Float'>
+    readonly outputCost: FieldRef<"ModelProxyRequest", 'Float'>
+    readonly totalCost: FieldRef<"ModelProxyRequest", 'Float'>
+    readonly costEstimated: FieldRef<"ModelProxyRequest", 'Boolean'>
     readonly estimatedCostUsd: FieldRef<"ModelProxyRequest", 'Float'>
     readonly errorSummary: FieldRef<"ModelProxyRequest", 'String'>
+    readonly errorType: FieldRef<"ModelProxyRequest", 'String'>
+    readonly errorMessage: FieldRef<"ModelProxyRequest", 'String'>
+    readonly errorStatusCode: FieldRef<"ModelProxyRequest", 'Int'>
+    readonly errorDetails: FieldRef<"ModelProxyRequest", 'Json'>
     readonly requestBody: FieldRef<"ModelProxyRequest", 'Json'>
     readonly responseBody: FieldRef<"ModelProxyRequest", 'Json'>
     readonly responseHeaders: FieldRef<"ModelProxyRequest", 'Json'>
@@ -10168,8 +10365,21 @@ export namespace Prisma {
     inputTokens: 'inputTokens',
     outputTokens: 'outputTokens',
     totalTokens: 'totalTokens',
+    cachedTokens: 'cachedTokens',
+    reasoningTokens: 'reasoningTokens',
+    usageEstimated: 'usageEstimated',
+    inputCostPerToken: 'inputCostPerToken',
+    outputCostPerToken: 'outputCostPerToken',
+    inputCost: 'inputCost',
+    outputCost: 'outputCost',
+    totalCost: 'totalCost',
+    costEstimated: 'costEstimated',
     estimatedCostUsd: 'estimatedCostUsd',
     errorSummary: 'errorSummary',
+    errorType: 'errorType',
+    errorMessage: 'errorMessage',
+    errorStatusCode: 'errorStatusCode',
+    errorDetails: 'errorDetails',
     requestBody: 'requestBody',
     responseBody: 'responseBody',
     responseHeaders: 'responseHeaders'
@@ -10372,6 +10582,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -10397,13 +10614,6 @@ export namespace Prisma {
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
-
-
-  /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
   /**
    * Deep Input Types
    */
@@ -10426,8 +10636,21 @@ export namespace Prisma {
     inputTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
     outputTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
     totalTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
+    cachedTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
+    reasoningTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
+    usageEstimated?: BoolNullableFilter<"ModelProxyRequest"> | boolean | null
+    inputCostPerToken?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    outputCostPerToken?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    inputCost?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    outputCost?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    totalCost?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    costEstimated?: BoolNullableFilter<"ModelProxyRequest"> | boolean | null
     estimatedCostUsd?: FloatNullableFilter<"ModelProxyRequest"> | number | null
     errorSummary?: StringNullableFilter<"ModelProxyRequest"> | string | null
+    errorType?: StringNullableFilter<"ModelProxyRequest"> | string | null
+    errorMessage?: StringNullableFilter<"ModelProxyRequest"> | string | null
+    errorStatusCode?: IntNullableFilter<"ModelProxyRequest"> | number | null
+    errorDetails?: JsonNullableFilter<"ModelProxyRequest">
     requestBody?: JsonNullableFilter<"ModelProxyRequest">
     responseBody?: JsonNullableFilter<"ModelProxyRequest">
     responseHeaders?: JsonNullableFilter<"ModelProxyRequest">
@@ -10448,8 +10671,21 @@ export namespace Prisma {
     inputTokens?: SortOrderInput | SortOrder
     outputTokens?: SortOrderInput | SortOrder
     totalTokens?: SortOrderInput | SortOrder
+    cachedTokens?: SortOrderInput | SortOrder
+    reasoningTokens?: SortOrderInput | SortOrder
+    usageEstimated?: SortOrderInput | SortOrder
+    inputCostPerToken?: SortOrderInput | SortOrder
+    outputCostPerToken?: SortOrderInput | SortOrder
+    inputCost?: SortOrderInput | SortOrder
+    outputCost?: SortOrderInput | SortOrder
+    totalCost?: SortOrderInput | SortOrder
+    costEstimated?: SortOrderInput | SortOrder
     estimatedCostUsd?: SortOrderInput | SortOrder
     errorSummary?: SortOrderInput | SortOrder
+    errorType?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    errorStatusCode?: SortOrderInput | SortOrder
+    errorDetails?: SortOrderInput | SortOrder
     requestBody?: SortOrderInput | SortOrder
     responseBody?: SortOrderInput | SortOrder
     responseHeaders?: SortOrderInput | SortOrder
@@ -10473,8 +10709,21 @@ export namespace Prisma {
     inputTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
     outputTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
     totalTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
+    cachedTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
+    reasoningTokens?: IntNullableFilter<"ModelProxyRequest"> | number | null
+    usageEstimated?: BoolNullableFilter<"ModelProxyRequest"> | boolean | null
+    inputCostPerToken?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    outputCostPerToken?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    inputCost?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    outputCost?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    totalCost?: FloatNullableFilter<"ModelProxyRequest"> | number | null
+    costEstimated?: BoolNullableFilter<"ModelProxyRequest"> | boolean | null
     estimatedCostUsd?: FloatNullableFilter<"ModelProxyRequest"> | number | null
     errorSummary?: StringNullableFilter<"ModelProxyRequest"> | string | null
+    errorType?: StringNullableFilter<"ModelProxyRequest"> | string | null
+    errorMessage?: StringNullableFilter<"ModelProxyRequest"> | string | null
+    errorStatusCode?: IntNullableFilter<"ModelProxyRequest"> | number | null
+    errorDetails?: JsonNullableFilter<"ModelProxyRequest">
     requestBody?: JsonNullableFilter<"ModelProxyRequest">
     responseBody?: JsonNullableFilter<"ModelProxyRequest">
     responseHeaders?: JsonNullableFilter<"ModelProxyRequest">
@@ -10495,8 +10744,21 @@ export namespace Prisma {
     inputTokens?: SortOrderInput | SortOrder
     outputTokens?: SortOrderInput | SortOrder
     totalTokens?: SortOrderInput | SortOrder
+    cachedTokens?: SortOrderInput | SortOrder
+    reasoningTokens?: SortOrderInput | SortOrder
+    usageEstimated?: SortOrderInput | SortOrder
+    inputCostPerToken?: SortOrderInput | SortOrder
+    outputCostPerToken?: SortOrderInput | SortOrder
+    inputCost?: SortOrderInput | SortOrder
+    outputCost?: SortOrderInput | SortOrder
+    totalCost?: SortOrderInput | SortOrder
+    costEstimated?: SortOrderInput | SortOrder
     estimatedCostUsd?: SortOrderInput | SortOrder
     errorSummary?: SortOrderInput | SortOrder
+    errorType?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    errorStatusCode?: SortOrderInput | SortOrder
+    errorDetails?: SortOrderInput | SortOrder
     requestBody?: SortOrderInput | SortOrder
     responseBody?: SortOrderInput | SortOrder
     responseHeaders?: SortOrderInput | SortOrder
@@ -10524,8 +10786,21 @@ export namespace Prisma {
     inputTokens?: IntNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
     outputTokens?: IntNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
     totalTokens?: IntNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    cachedTokens?: IntNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    reasoningTokens?: IntNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    usageEstimated?: BoolNullableWithAggregatesFilter<"ModelProxyRequest"> | boolean | null
+    inputCostPerToken?: FloatNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    outputCostPerToken?: FloatNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    inputCost?: FloatNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    outputCost?: FloatNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    totalCost?: FloatNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    costEstimated?: BoolNullableWithAggregatesFilter<"ModelProxyRequest"> | boolean | null
     estimatedCostUsd?: FloatNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
     errorSummary?: StringNullableWithAggregatesFilter<"ModelProxyRequest"> | string | null
+    errorType?: StringNullableWithAggregatesFilter<"ModelProxyRequest"> | string | null
+    errorMessage?: StringNullableWithAggregatesFilter<"ModelProxyRequest"> | string | null
+    errorStatusCode?: IntNullableWithAggregatesFilter<"ModelProxyRequest"> | number | null
+    errorDetails?: JsonNullableWithAggregatesFilter<"ModelProxyRequest">
     requestBody?: JsonNullableWithAggregatesFilter<"ModelProxyRequest">
     responseBody?: JsonNullableWithAggregatesFilter<"ModelProxyRequest">
     responseHeaders?: JsonNullableWithAggregatesFilter<"ModelProxyRequest">
@@ -11019,8 +11294,21 @@ export namespace Prisma {
     inputTokens?: number | null
     outputTokens?: number | null
     totalTokens?: number | null
+    cachedTokens?: number | null
+    reasoningTokens?: number | null
+    usageEstimated?: boolean | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    inputCost?: number | null
+    outputCost?: number | null
+    totalCost?: number | null
+    costEstimated?: boolean | null
     estimatedCostUsd?: number | null
     errorSummary?: string | null
+    errorType?: string | null
+    errorMessage?: string | null
+    errorStatusCode?: number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -11041,8 +11329,21 @@ export namespace Prisma {
     inputTokens?: number | null
     outputTokens?: number | null
     totalTokens?: number | null
+    cachedTokens?: number | null
+    reasoningTokens?: number | null
+    usageEstimated?: boolean | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    inputCost?: number | null
+    outputCost?: number | null
+    totalCost?: number | null
+    costEstimated?: boolean | null
     estimatedCostUsd?: number | null
     errorSummary?: string | null
+    errorType?: string | null
+    errorMessage?: string | null
+    errorStatusCode?: number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -11063,8 +11364,21 @@ export namespace Prisma {
     inputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     outputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     totalTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    cachedTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    reasoningTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    usageEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    inputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    costEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
     estimatedCostUsd?: NullableFloatFieldUpdateOperationsInput | number | null
     errorSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    errorType?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    errorStatusCode?: NullableIntFieldUpdateOperationsInput | number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -11085,8 +11399,21 @@ export namespace Prisma {
     inputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     outputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     totalTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    cachedTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    reasoningTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    usageEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    inputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    costEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
     estimatedCostUsd?: NullableFloatFieldUpdateOperationsInput | number | null
     errorSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    errorType?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    errorStatusCode?: NullableIntFieldUpdateOperationsInput | number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -11107,8 +11434,21 @@ export namespace Prisma {
     inputTokens?: number | null
     outputTokens?: number | null
     totalTokens?: number | null
+    cachedTokens?: number | null
+    reasoningTokens?: number | null
+    usageEstimated?: boolean | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    inputCost?: number | null
+    outputCost?: number | null
+    totalCost?: number | null
+    costEstimated?: boolean | null
     estimatedCostUsd?: number | null
     errorSummary?: string | null
+    errorType?: string | null
+    errorMessage?: string | null
+    errorStatusCode?: number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -11128,8 +11468,21 @@ export namespace Prisma {
     inputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     outputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     totalTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    cachedTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    reasoningTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    usageEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    inputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    costEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
     estimatedCostUsd?: NullableFloatFieldUpdateOperationsInput | number | null
     errorSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    errorType?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    errorStatusCode?: NullableIntFieldUpdateOperationsInput | number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -11149,8 +11502,21 @@ export namespace Prisma {
     inputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     outputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     totalTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    cachedTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    reasoningTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    usageEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    inputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    costEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
     estimatedCostUsd?: NullableFloatFieldUpdateOperationsInput | number | null
     errorSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    errorType?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    errorStatusCode?: NullableIntFieldUpdateOperationsInput | number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -11757,6 +12123,11 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
   export type FloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -11820,8 +12191,21 @@ export namespace Prisma {
     inputTokens?: SortOrder
     outputTokens?: SortOrder
     totalTokens?: SortOrder
+    cachedTokens?: SortOrder
+    reasoningTokens?: SortOrder
+    usageEstimated?: SortOrder
+    inputCostPerToken?: SortOrder
+    outputCostPerToken?: SortOrder
+    inputCost?: SortOrder
+    outputCost?: SortOrder
+    totalCost?: SortOrder
+    costEstimated?: SortOrder
     estimatedCostUsd?: SortOrder
     errorSummary?: SortOrder
+    errorType?: SortOrder
+    errorMessage?: SortOrder
+    errorStatusCode?: SortOrder
+    errorDetails?: SortOrder
     requestBody?: SortOrder
     responseBody?: SortOrder
     responseHeaders?: SortOrder
@@ -11833,7 +12217,15 @@ export namespace Prisma {
     inputTokens?: SortOrder
     outputTokens?: SortOrder
     totalTokens?: SortOrder
+    cachedTokens?: SortOrder
+    reasoningTokens?: SortOrder
+    inputCostPerToken?: SortOrder
+    outputCostPerToken?: SortOrder
+    inputCost?: SortOrder
+    outputCost?: SortOrder
+    totalCost?: SortOrder
     estimatedCostUsd?: SortOrder
+    errorStatusCode?: SortOrder
   }
 
   export type ModelProxyRequestMaxOrderByAggregateInput = {
@@ -11850,8 +12242,20 @@ export namespace Prisma {
     inputTokens?: SortOrder
     outputTokens?: SortOrder
     totalTokens?: SortOrder
+    cachedTokens?: SortOrder
+    reasoningTokens?: SortOrder
+    usageEstimated?: SortOrder
+    inputCostPerToken?: SortOrder
+    outputCostPerToken?: SortOrder
+    inputCost?: SortOrder
+    outputCost?: SortOrder
+    totalCost?: SortOrder
+    costEstimated?: SortOrder
     estimatedCostUsd?: SortOrder
     errorSummary?: SortOrder
+    errorType?: SortOrder
+    errorMessage?: SortOrder
+    errorStatusCode?: SortOrder
   }
 
   export type ModelProxyRequestMinOrderByAggregateInput = {
@@ -11868,8 +12272,20 @@ export namespace Prisma {
     inputTokens?: SortOrder
     outputTokens?: SortOrder
     totalTokens?: SortOrder
+    cachedTokens?: SortOrder
+    reasoningTokens?: SortOrder
+    usageEstimated?: SortOrder
+    inputCostPerToken?: SortOrder
+    outputCostPerToken?: SortOrder
+    inputCost?: SortOrder
+    outputCost?: SortOrder
+    totalCost?: SortOrder
+    costEstimated?: SortOrder
     estimatedCostUsd?: SortOrder
     errorSummary?: SortOrder
+    errorType?: SortOrder
+    errorMessage?: SortOrder
+    errorStatusCode?: SortOrder
   }
 
   export type ModelProxyRequestSumOrderByAggregateInput = {
@@ -11878,7 +12294,15 @@ export namespace Prisma {
     inputTokens?: SortOrder
     outputTokens?: SortOrder
     totalTokens?: SortOrder
+    cachedTokens?: SortOrder
+    reasoningTokens?: SortOrder
+    inputCostPerToken?: SortOrder
+    outputCostPerToken?: SortOrder
+    inputCost?: SortOrder
+    outputCost?: SortOrder
+    totalCost?: SortOrder
     estimatedCostUsd?: SortOrder
+    errorStatusCode?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -11959,6 +12383,14 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -12084,11 +12516,6 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type BoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
   export type ModelProxyModelCountOrderByAggregateInput = {
     id?: SortOrder
     modelName?: SortOrder
@@ -12173,14 +12600,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedBoolNullableFilter<$PrismaModel>
-    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type ModelProxyCredentialCountOrderByAggregateInput = {
@@ -12358,6 +12777,10 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
+  }
+
   export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -12410,10 +12833,6 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
-  }
-
-  export type NullableBoolFieldUpdateOperationsInput = {
-    set?: boolean | null
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -12475,6 +12894,11 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
   }
 
   export type NestedFloatNullableFilter<$PrismaModel = never> = {
@@ -12577,6 +13001,14 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -12644,25 +13076,12 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type NestedBoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedBoolNullableFilter<$PrismaModel>
-    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type ModelProxyMessageCreateWithoutRequestInput = {
@@ -12730,8 +13149,21 @@ export namespace Prisma {
     inputTokens?: number | null
     outputTokens?: number | null
     totalTokens?: number | null
+    cachedTokens?: number | null
+    reasoningTokens?: number | null
+    usageEstimated?: boolean | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    inputCost?: number | null
+    outputCost?: number | null
+    totalCost?: number | null
+    costEstimated?: boolean | null
     estimatedCostUsd?: number | null
     errorSummary?: string | null
+    errorType?: string | null
+    errorMessage?: string | null
+    errorStatusCode?: number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -12751,8 +13183,21 @@ export namespace Prisma {
     inputTokens?: number | null
     outputTokens?: number | null
     totalTokens?: number | null
+    cachedTokens?: number | null
+    reasoningTokens?: number | null
+    usageEstimated?: boolean | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    inputCost?: number | null
+    outputCost?: number | null
+    totalCost?: number | null
+    costEstimated?: boolean | null
     estimatedCostUsd?: number | null
     errorSummary?: string | null
+    errorType?: string | null
+    errorMessage?: string | null
+    errorStatusCode?: number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -12788,8 +13233,21 @@ export namespace Prisma {
     inputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     outputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     totalTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    cachedTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    reasoningTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    usageEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    inputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    costEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
     estimatedCostUsd?: NullableFloatFieldUpdateOperationsInput | number | null
     errorSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    errorType?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    errorStatusCode?: NullableIntFieldUpdateOperationsInput | number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue
@@ -12809,8 +13267,21 @@ export namespace Prisma {
     inputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     outputTokens?: NullableIntFieldUpdateOperationsInput | number | null
     totalTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    cachedTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    reasoningTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    usageEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    inputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    costEstimated?: NullableBoolFieldUpdateOperationsInput | boolean | null
     estimatedCostUsd?: NullableFloatFieldUpdateOperationsInput | number | null
     errorSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    errorType?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    errorStatusCode?: NullableIntFieldUpdateOperationsInput | number | null
+    errorDetails?: NullableJsonNullValueInput | InputJsonValue
     requestBody?: NullableJsonNullValueInput | InputJsonValue
     responseBody?: NullableJsonNullValueInput | InputJsonValue
     responseHeaders?: NullableJsonNullValueInput | InputJsonValue

@@ -9,25 +9,38 @@ generator client {
 }
 
 model ModelProxyRequest {
-  id                String              @id @default(cuid())
-  upstreamRequestId String?             @map("upstream_request_id")
-  model             String
-  upstreamModel     String              @map("upstream_model")
-  upstreamBaseUrl   String              @map("upstream_base_url")
-  status            String
-  startedAt         DateTime            @default(now()) @map("started_at")
-  finishedAt        DateTime?           @map("finished_at")
-  latencyMs         Int?                @map("latency_ms")
-  ttftMs            Int?                @map("ttft_ms")
-  inputTokens       Int?                @map("input_tokens")
-  outputTokens      Int?                @map("output_tokens")
-  totalTokens       Int?                @map("total_tokens")
-  estimatedCostUsd  Float?              @map("estimated_cost_usd")
-  errorSummary      String?             @map("error_summary")
-  requestBody       Json?               @map("request_body")
-  responseBody      Json?               @map("response_body")
-  responseHeaders   Json?               @map("response_headers")
-  messages          ModelProxyMessage[]
+  id                 String              @id @default(cuid())
+  upstreamRequestId  String?             @map("upstream_request_id")
+  model              String
+  upstreamModel      String              @map("upstream_model")
+  upstreamBaseUrl    String              @map("upstream_base_url")
+  status             String
+  startedAt          DateTime            @default(now()) @map("started_at")
+  finishedAt         DateTime?           @map("finished_at")
+  latencyMs          Int?                @map("latency_ms")
+  ttftMs             Int?                @map("ttft_ms")
+  inputTokens        Int?                @map("input_tokens")
+  outputTokens       Int?                @map("output_tokens")
+  totalTokens        Int?                @map("total_tokens")
+  cachedTokens       Int?                @map("cached_tokens")
+  reasoningTokens    Int?                @map("reasoning_tokens")
+  usageEstimated     Boolean?            @map("usage_estimated")
+  inputCostPerToken  Float?              @map("input_cost_per_token")
+  outputCostPerToken Float?              @map("output_cost_per_token")
+  inputCost          Float?              @map("input_cost")
+  outputCost         Float?              @map("output_cost")
+  totalCost          Float?              @map("total_cost")
+  costEstimated      Boolean?            @map("cost_estimated")
+  estimatedCostUsd   Float?              @map("estimated_cost_usd")
+  errorSummary       String?             @map("error_summary")
+  errorType          String?             @map("error_type")
+  errorMessage       String?             @map("error_message")
+  errorStatusCode    Int?                @map("error_status_code")
+  errorDetails       Json?               @map("error_details")
+  requestBody        Json?               @map("request_body")
+  responseBody       Json?               @map("response_body")
+  responseHeaders    Json?               @map("response_headers")
+  messages           ModelProxyMessage[]
 
   @@index([model, startedAt])
   @@index([status, startedAt])
