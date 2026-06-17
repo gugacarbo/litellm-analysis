@@ -10,12 +10,14 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "test": "vitest run",
-    "import:legacy": "tsx scripts/import-legacy-registry.ts"
+    "import:legacy": "tsx scripts/import-legacy-registry.ts",
+    "import:history": "tsx scripts/import-history.ts"
   },
   "dependencies": {
     "@lite-llm/analytics-service": "workspace:*",
     "@lite-llm/litellm-repository": "workspace:*",
     "@lite-llm/model-proxy-repository": "workspace:*",
+    "@lite-llm/model-proxy-service": "workspace:*",
     "bcryptjs": "^3.0.2"
   },
   "devDependencies": {

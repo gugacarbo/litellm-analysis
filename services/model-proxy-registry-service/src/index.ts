@@ -29,6 +29,25 @@ export {
   toModelProxyRow as legacyToModelProxyRow,
 } from "./adapters/legacy-models-adapter.js";
 export {
+  deriveCostFields,
+  deriveUsageFields,
+  isImportMarkedRow,
+  isLedgerOwnedRow,
+  type LegacyErrorRow,
+  type LegacySpendRow,
+  LITELLM_IMPORT_SOURCE,
+  legacyErrorRowFromPrisma,
+  legacySpendRowFromCloudJson,
+  legacySpendRowFromPrisma,
+  type MappedProxyMessage,
+  type MappedProxyRequestWrite,
+  type ModelCostRates,
+  mapLegacySpendToProxyRequest,
+  mapLegacyStatus,
+  parseLegacyMessages,
+  shouldSkipExistingRow,
+} from "./adapters/legacy-spend-adapter.js";
+export {
   fromModelProxyRow,
   fromModelRoute,
   type ModelProxyRowWrite,
@@ -54,6 +73,13 @@ export {
   getRouterSettingsWithFallback,
 } from "./dual-read/settings-dual-read.js";
 export { createRegistryServices, type RegistryServices } from "./factory.js";
+export type {
+  CloudSpendImportOptions,
+  CloudSpendImportSummary,
+  HistoryImportOptions,
+  HistoryImportPhase,
+  HistoryImportSummary,
+} from "./import/history-import-summary.js";
 export {
   createEmptyPhaseCounts,
   createEmptySummary,
@@ -67,6 +93,15 @@ export {
   parseImportCliArgs,
   printImportHelp,
 } from "./import/parse-cli-args.js";
+export {
+  parseHistoryImportCliArgs,
+  printHistoryImportHelp,
+} from "./import/parse-history-cli-args.js";
+export {
+  importCloudSpendLogs,
+  printHistoryImportSummary,
+  runHistoryImport,
+} from "./import/run-history-import.js";
 export {
   printImportSummary,
   runLegacyImport,

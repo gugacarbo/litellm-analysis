@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./logging/payload-redactor": "./src/logging/payload-redactor.ts",
+    "./logging/request-errors": "./src/logging/request-errors.ts"
   },
   "scripts": {
     "build": "tsc",
