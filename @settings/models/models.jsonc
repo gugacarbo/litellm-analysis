@@ -8,6 +8,12 @@
       "baseUrl": "http://localhost:3008/v1",
       "apiKey": "env:MODEL_PROXY_API_KEY",
       "defaultCredential": "ATplus Router"
+    },
+    "openai": {
+      "name": "OpenAI",
+      "adapter": "openai-compatible",
+      "baseUrl": "https://api.openai.com/v1",
+      "defaultCredential": "openai-main"
     }
   },
   "models": {

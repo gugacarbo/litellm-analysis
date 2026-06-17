@@ -5,7 +5,12 @@ export const providerSchema = z
     name: z
       .string()
       .meta({ title: "Name", description: "Provider display name" }),
-    ownedBy: z.string().meta({
+    adapter: z.enum(["openai-compatible"]).optional().meta({
+      title: "Adapter",
+      description:
+        "Upstream API adapter used for real provider calls (not local-proxy)",
+    }),
+    ownedBy: z.string().optional().meta({
       title: "Owned By",
       description: "Organization that owns this provider",
     }),
@@ -14,11 +19,11 @@ export const providerSchema = z
       .meta({ title: "Base URL", description: "Provider API base URL" }),
     apiKey: z
       .string()
+      .optional()
       .meta({ title: "API Key", description: "Provider API key" }),
     defaultCredential: z.string().default("").meta({
       title: "Default Credential",
-      description:
-        "Default LiteLLM credential alias used for models in this provider",
+      description: "Default credential alias used for models in this provider",
     }),
   })
   .strict();

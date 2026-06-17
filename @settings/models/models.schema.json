@@ -24,7 +24,7 @@
       "default": {},
       "title": "Models",
       "description": "Model specifications",
-      "$ref": "#/$defs/__schema4"
+      "$ref": "#/$defs/__schema7"
     }
   },
   "required": ["version", "provider", "models"],
@@ -49,10 +49,15 @@
             "title": "Name",
             "description": "Provider display name"
           },
+          "adapter": {
+            "title": "Adapter",
+            "description": "Upstream API adapter used for real provider calls (not local-proxy)",
+            "$ref": "#/$defs/__schema3"
+          },
           "ownedBy": {
-            "type": "string",
             "title": "Owned By",
-            "description": "Organization that owns this provider"
+            "description": "Organization that owns this provider",
+            "$ref": "#/$defs/__schema4"
           },
           "baseUrl": {
             "type": "string",
@@ -60,31 +65,35 @@
             "description": "Provider API base URL"
           },
           "apiKey": {
-            "type": "string",
             "title": "API Key",
-            "description": "Provider API key"
+            "description": "Provider API key",
+            "$ref": "#/$defs/__schema5"
           },
           "defaultCredential": {
             "default": "",
             "title": "Default Credential",
-            "description": "Default LiteLLM credential alias used for models in this provider",
-            "$ref": "#/$defs/__schema3"
+            "description": "Default credential alias used for models in this provider",
+            "$ref": "#/$defs/__schema6"
           }
         },
-        "required": [
-          "name",
-          "ownedBy",
-          "baseUrl",
-          "apiKey",
-          "defaultCredential"
-        ],
+        "required": ["name", "baseUrl", "defaultCredential"],
         "additionalProperties": false
       }
     },
     "__schema3": {
-      "type": "string"
+      "type": "string",
+      "enum": ["openai-compatible"]
     },
     "__schema4": {
+      "type": "string"
+    },
+    "__schema5": {
+      "type": "string"
+    },
+    "__schema6": {
+      "type": "string"
+    },
+    "__schema7": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -96,7 +105,7 @@
             "default": true,
             "title": "Enabled",
             "description": "Whether this model is enabled for routing and selection",
-            "$ref": "#/$defs/__schema5"
+            "$ref": "#/$defs/__schema8"
           },
           "displayName": {
             "type": "string",
@@ -106,16 +115,16 @@
           "family": {
             "title": "Family",
             "description": "Model family",
-            "$ref": "#/$defs/__schema6"
+            "$ref": "#/$defs/__schema9"
           },
           "limits": {
             "type": "object",
             "properties": {
               "length": {
-                "$ref": "#/$defs/__schema7"
+                "$ref": "#/$defs/__schema10"
               },
               "maxOutput": {
-                "$ref": "#/$defs/__schema8"
+                "$ref": "#/$defs/__schema11"
               }
             },
             "required": ["length", "maxOutput"],
@@ -126,80 +135,80 @@
           "cost": {
             "title": "Cost",
             "description": "Model pricing in USD per token (matches LiteLLM `input_cost_per_token` / `output_cost_per_token`)",
-            "$ref": "#/$defs/__schema9"
+            "$ref": "#/$defs/__schema12"
           },
           "thinking": {
             "title": "Thinking",
             "description": "Extended thinking configuration for this model",
-            "$ref": "#/$defs/__schema12"
+            "$ref": "#/$defs/__schema15"
           },
           "reasoning": {
             "description": "Reasoning/thinking runtime configuration for this model",
-            "$ref": "#/$defs/__schema14"
+            "$ref": "#/$defs/__schema17"
           },
           "apiMode": {
             "title": "API Mode",
             "description": "API provider mode used by consumers (e.g. openai, anthropic)",
-            "$ref": "#/$defs/__schema19"
+            "$ref": "#/$defs/__schema22"
           },
           "vision": {
             "title": "Vision",
             "description": "Whether this model supports vision/image inputs",
-            "$ref": "#/$defs/__schema20"
+            "$ref": "#/$defs/__schema23"
           },
           "ownedBy": {
             "title": "Owned By",
             "description": "Organization or provider that owns this model",
-            "$ref": "#/$defs/__schema21"
+            "$ref": "#/$defs/__schema24"
           }
         },
         "required": ["enabled", "displayName", "limits"],
         "additionalProperties": false
       }
     },
-    "__schema5": {
+    "__schema8": {
       "type": "boolean"
     },
-    "__schema6": {
+    "__schema9": {
       "type": "string"
     },
-    "__schema7": {
+    "__schema10": {
       "default": 200000,
       "type": "number",
       "title": "Context Length",
       "description": "Maximum context window size in tokens"
     },
-    "__schema8": {
+    "__schema11": {
       "default": 32768,
       "type": "number",
       "title": "Max Output",
       "description": "Maximum output tokens"
     },
-    "__schema9": {
+    "__schema12": {
       "type": "object",
       "properties": {
         "input": {
           "default": 0,
           "title": "Input Cost",
           "description": "Cost per input token in USD",
-          "$ref": "#/$defs/__schema10"
+          "$ref": "#/$defs/__schema13"
         },
         "output": {
           "default": 0,
           "title": "Output Cost",
           "description": "Cost per output token in USD",
-          "$ref": "#/$defs/__schema11"
+          "$ref": "#/$defs/__schema14"
         }
       },
       "additionalProperties": false
     },
-    "__schema10": {
+    "__schema13": {
       "type": "number"
     },
-    "__schema11": {
+    "__schema14": {
       "type": "number"
     },
-    "__schema12": {
+    "__schema15": {
       "default": {
         "levels": []
       },
@@ -209,62 +218,62 @@
           "default": [],
           "title": "Levels",
           "description": "Available thinking levels for this model",
-          "$ref": "#/$defs/__schema13"
+          "$ref": "#/$defs/__schema16"
         }
       },
       "required": ["levels"],
       "additionalProperties": false
     },
-    "__schema13": {
+    "__schema16": {
       "type": "array",
       "items": {
         "type": "string"
       }
     },
-    "__schema14": {
+    "__schema17": {
       "title": "Reasoning",
       "description": "Runtime reasoning configuration",
-      "$ref": "#/$defs/__schema15"
+      "$ref": "#/$defs/__schema18"
     },
-    "__schema15": {
+    "__schema18": {
       "type": "object",
       "properties": {
         "effort": {
           "title": "Reasoning Effort",
           "description": "Default reasoning budget level for this model",
-          "$ref": "#/$defs/__schema16"
+          "$ref": "#/$defs/__schema19"
         },
         "enableThinking": {
           "title": "Enable Thinking",
           "description": "Whether to request thinking/reasoning content",
-          "$ref": "#/$defs/__schema17"
+          "$ref": "#/$defs/__schema20"
         },
         "includeReasoningInRequest": {
           "title": "Include Reasoning in Request",
           "description": "Whether reasoning content is included in the request body",
-          "$ref": "#/$defs/__schema18"
+          "$ref": "#/$defs/__schema21"
         }
       },
       "additionalProperties": false
     },
-    "__schema16": {
-      "type": "string",
-      "enum": ["low", "medium", "high", "xhigh"]
-    },
-    "__schema17": {
-      "type": "boolean"
-    },
-    "__schema18": {
-      "type": "boolean"
-    },
     "__schema19": {
       "type": "string",
-      "enum": ["openai", "anthropic"]
+      "enum": ["low", "medium", "high", "xhigh"]
     },
     "__schema20": {
       "type": "boolean"
     },
     "__schema21": {
+      "type": "boolean"
+    },
+    "__schema22": {
+      "type": "string",
+      "enum": ["openai", "anthropic"]
+    },
+    "__schema23": {
+      "type": "boolean"
+    },
+    "__schema24": {
       "type": "string"
     }
   }
