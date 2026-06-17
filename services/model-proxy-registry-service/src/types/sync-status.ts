@@ -1,8 +1,5 @@
 /**
  * Sync presence and direction types for models.jsonc ↔ model_proxy_models.
- * Replaces legacy LiteLLM naming in Batch 3.
- *
- * @see docs/batch-3-field-mapping.md
  */
 
 import type { ModelRoute } from "./model-route.js";
@@ -16,23 +13,6 @@ export type ModelSyncPresenceStatus =
 /** Direction for resolving a field mismatch during sync-batch. */
 export type ModelSyncDirection = "config-to-registry" | "registry-to-config";
 
-/** @deprecated Use `registry-only` — API shim for one release. */
-export type LegacyModelSyncPresenceStatus = "litellm-only";
-
-/** @deprecated Use `config-to-registry` / `registry-to-config`. */
-export type LegacyModelSyncDirection =
-  | "config-to-litellm"
-  | "litellm-to-config";
-
-/** Union accepted on API input during transition. */
-export type ModelSyncPresenceStatusInput =
-  | ModelSyncPresenceStatus
-  | LegacyModelSyncPresenceStatus;
-
-export type ModelSyncDirectionInput =
-  | ModelSyncDirection
-  | LegacyModelSyncDirection;
-
 /** Fields compared between models.jsonc and registry route. */
 export type ModelSyncField =
   | "model_presence"
@@ -42,7 +22,7 @@ export type ModelSyncField =
   | "input_cost_per_token"
   | "output_cost_per_token";
 
-/** Reasoning/thinking metadata — stays in models.jsonc in Batch 3. */
+/** Reasoning/thinking metadata — stays in models.jsonc. */
 export interface ModelConfigReasoning {
   effort?: "low" | "medium" | "high" | "xhigh";
   enableThinking?: boolean;
@@ -66,8 +46,6 @@ export interface ModelWithSyncStatus {
   status: ModelSyncPresenceStatus;
   enabled?: boolean;
   modelRoute: ModelRoute;
-  /** @deprecated Response alias — same payload as modelRoute in snake_case via adapter. */
-  litellmParams?: Record<string, unknown>;
   config?: ModelConfigSpec;
 }
 
@@ -75,7 +53,6 @@ export interface ModelSyncDiffItem {
   modelName: string;
   field: ModelSyncField;
   configValue: unknown;
-  /** Registry / modelRoute value (was `litellmValue` in legacy API). */
   registryValue: unknown;
   defaultDirection: ModelSyncDirection;
 }
@@ -83,7 +60,7 @@ export interface ModelSyncDiffItem {
 export interface ModelSyncSelection {
   modelName: string;
   field: ModelSyncField;
-  direction: ModelSyncDirectionInput;
+  direction: ModelSyncDirection;
 }
 
 export interface ModelsWithConfigCounts {
@@ -98,25 +75,23 @@ export interface ModelsWithConfigResponse {
   counts: ModelsWithConfigCounts;
 }
 
-/** Map legacy API status labels to Batch 3 names. */
+/** Map legacy API status labels to current names. */
 export function normalizeSyncPresenceStatus(
-  status: ModelSyncPresenceStatusInput,
+  status: string,
 ): ModelSyncPresenceStatus {
   if (status === "litellm-only") {
     return "registry-only";
   }
-  return status;
+  return status as ModelSyncPresenceStatus;
 }
 
-/** Map legacy sync direction labels to Batch 3 names. */
-export function normalizeSyncDirection(
-  direction: ModelSyncDirectionInput,
-): ModelSyncDirection {
+/** Map legacy sync direction labels to current names. */
+export function normalizeSyncDirection(direction: string): ModelSyncDirection {
   if (direction === "config-to-litellm") {
     return "config-to-registry";
   }
   if (direction === "litellm-to-config") {
     return "registry-to-config";
   }
-  return direction;
+  return direction as ModelSyncDirection;
 }

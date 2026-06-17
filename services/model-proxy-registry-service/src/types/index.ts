@@ -1,22 +1,15 @@
 export type {
-  LegacyImportError,
-  LegacyImportOptions,
-  LegacyImportPhaseSummary,
-  LegacyRequiredEnvVar,
-} from "./legacy-import.js";
-export { createEmptyLegacyImportSummary } from "./legacy-import.js";
-export type {
-  LegacyLitellmParams,
   ModelApiMode,
   ModelProxyModelRecord,
   ModelRoute,
   ModelRouteUpdate,
-  ReservedLitellmParamKey,
+  ReservedRouteParamKey,
+  RouteParams,
 } from "./model-route.js";
 export {
-  LITELLM_PARAM_TO_MODEL_ROUTE,
-  MODEL_ROUTE_TO_LITELLM_PARAM,
-  RESERVED_LITELLM_PARAM_KEYS,
+  MODEL_ROUTE_TO_SNAKE_PARAM,
+  RESERVED_ROUTE_PARAM_KEYS,
+  ROUTE_PARAM_TO_MODEL_ROUTE,
 } from "./model-route.js";
 export type {
   DefaultCredentialSetting,
@@ -27,16 +20,12 @@ export type {
 } from "./settings.js";
 export { SETTING_KEYS } from "./settings.js";
 export type {
-  LegacyModelSyncDirection,
-  LegacyModelSyncPresenceStatus,
   ModelConfigReasoning,
   ModelConfigSpec,
   ModelSyncDiffItem,
   ModelSyncDirection,
-  ModelSyncDirectionInput,
   ModelSyncField,
   ModelSyncPresenceStatus,
-  ModelSyncPresenceStatusInput,
   ModelSyncSelection,
   ModelsWithConfigCounts,
   ModelsWithConfigResponse,

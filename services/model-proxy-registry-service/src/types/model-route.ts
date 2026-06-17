@@ -1,8 +1,5 @@
 /**
- * Structured model routing config — replaces legacy `litellmParams` in new code.
- * Maps 1:1 to `model_proxy_models` columns + `requestOptions` JSON.
- *
- * @see docs/batch-3-field-mapping.md
+ * Structured model routing config for `model_proxy_models`.
  */
 
 /** API / adapter mode for consumer-facing model metadata. */
@@ -30,10 +27,7 @@ export interface ModelRoute {
   credentialName?: string;
   /** Env var name holding upstream API key for this model (MVP). */
   secretRef?: string;
-  /**
-   * Provider-specific and legacy LiteLLM kwargs not mapped to dedicated columns.
-   * Keys remain snake_case when imported from `litellmParams`.
-   */
+  /** Provider-specific kwargs not mapped to dedicated columns. */
   requestOptions?: Record<string, unknown>;
 }
 
@@ -66,14 +60,14 @@ export interface ModelProxyModelRecord {
   updatedAt: Date;
 }
 
-/** Legacy LiteLLM `litellm_params` JSON object (snake_case keys). */
-export type LegacyLitellmParams = Record<string, unknown>;
+/** Snake_case route param object (import / API compatibility). */
+export type RouteParams = Record<string, unknown>;
 
 /**
- * Keys absorbed into dedicated `ModelProxyModel` columns during import.
- * All other `litellmParams` keys → `requestOptions`.
+ * Keys absorbed into dedicated `ModelProxyModel` columns.
+ * All other keys → `requestOptions`.
  */
-export const RESERVED_LITELLM_PARAM_KEYS = [
+export const RESERVED_ROUTE_PARAM_KEYS = [
   "model",
   "model_name",
   "enabled",
@@ -81,17 +75,17 @@ export const RESERVED_LITELLM_PARAM_KEYS = [
   "output_cost_per_token",
   "context_window_size",
   "max_tokens",
+  "credential_name",
   "litellm_credential_name",
   "api_base",
   "custom_llm_provider",
 ] as const;
 
-export type ReservedLitellmParamKey =
-  (typeof RESERVED_LITELLM_PARAM_KEYS)[number];
+export type ReservedRouteParamKey = (typeof RESERVED_ROUTE_PARAM_KEYS)[number];
 
-/** snake_case litellmParams → camelCase ModelRoute field */
-export const LITELLM_PARAM_TO_MODEL_ROUTE: Record<
-  ReservedLitellmParamKey,
+/** snake_case route params → camelCase ModelRoute field */
+export const ROUTE_PARAM_TO_MODEL_ROUTE: Record<
+  ReservedRouteParamKey,
   keyof ModelRoute | "modelName"
 > = {
   model: "modelName",
@@ -101,13 +95,14 @@ export const LITELLM_PARAM_TO_MODEL_ROUTE: Record<
   output_cost_per_token: "outputCostPerToken",
   context_window_size: "contextWindowSize",
   max_tokens: "maxOutputTokens",
+  credential_name: "credentialName",
   litellm_credential_name: "credentialName",
   api_base: "upstreamBaseUrl",
   custom_llm_provider: "ownedBy",
 };
 
-/** camelCase ModelRoute → snake_case litellmParams (legacy export shim). */
-export const MODEL_ROUTE_TO_LITELLM_PARAM: Partial<
+/** camelCase ModelRoute → snake_case route params. */
+export const MODEL_ROUTE_TO_SNAKE_PARAM: Partial<
   Record<keyof ModelRoute, string>
 > = {
   modelName: "model",
@@ -116,7 +111,7 @@ export const MODEL_ROUTE_TO_LITELLM_PARAM: Partial<
   outputCostPerToken: "output_cost_per_token",
   contextWindowSize: "context_window_size",
   maxOutputTokens: "max_tokens",
-  credentialName: "litellm_credential_name",
+  credentialName: "credential_name",
   upstreamBaseUrl: "api_base",
   ownedBy: "custom_llm_provider",
   family: "custom_llm_provider",

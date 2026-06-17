@@ -1,111 +1,30 @@
 export {
-  buildSettingsRows,
-  extractDefaultCredential,
-  extractHealthCheckPrompt,
-  importLegacyConfig,
-  type LegacyConfigAdapterOptions,
-  type LegacyConfigQueryFn,
-  type LegacyConfigReader,
-  type LegacyConfigSource,
-  type LegacySettingRow,
-  readLegacyConfigSource,
-} from "./adapters/legacy-config-adapter.js";
-export {
-  deriveSecretRef,
-  deriveSecretRefFromCredentialName,
-  importLegacyCredentials,
-  type LegacyCredentialRow,
-  type LegacyCredentialsAdapterOptions,
-  type LegacyCredentialsReader,
-  type LiteLLMCredentialRow,
-  type MappedLegacyCredential,
-  mapLegacyCredential,
-  mapLegacyCredentialRow,
-  type RequiredEnvVarEntry,
-} from "./adapters/legacy-credentials-adapter.js";
-export {
-  dedupeLegacyModels,
-  type LegacyModelRow,
-  toModelProxyRow as legacyToModelProxyRow,
-} from "./adapters/legacy-models-adapter.js";
-export {
-  deriveCostFields,
-  deriveUsageFields,
-  isImportMarkedRow,
-  isLedgerOwnedRow,
-  type LegacyErrorRow,
-  type LegacySpendRow,
-  LITELLM_IMPORT_SOURCE,
-  legacyErrorRowFromPrisma,
-  legacySpendRowFromCloudJson,
-  legacySpendRowFromPrisma,
-  type MappedProxyMessage,
-  type MappedProxyRequestWrite,
-  type ModelCostRates,
-  mapLegacySpendToProxyRequest,
-  mapLegacyStatus,
-  parseLegacyMessages,
-  shouldSkipExistingRow,
-} from "./adapters/legacy-spend-adapter.js";
-export {
   fromModelProxyRow,
   fromModelRoute,
   type ModelProxyRowWrite,
+  parseModelRouteFromApi,
   toModelProxyRow,
   toModelRoute,
-} from "./adapters/litellm-params-adapter.js";
+} from "./adapters/model-route-adapter.js";
 export { getRegistryPrisma, type RegistryClientOptions } from "./client.js";
 export {
   type CredentialListItem,
-  credentialExistsWithFallback,
-  listCredentialsWithFallback,
+  credentialExists,
+  listCredentials,
   toPublicCredential,
 } from "./dual-read/credentials-dual-read.js";
 export {
-  getModelRouteWithRegistryFirst,
-  type LegacyModelEntry,
-  listModelsWithRegistryFirst,
-  toLegacyEntry,
+  getModelRoute,
+  listRegistryModels,
+  type RegistryModelEntry,
+  toRegistryEntry,
 } from "./dual-read/models-dual-read.js";
 export {
-  getDefaultCredentialWithFallback,
-  getHealthCheckPromptWithFallback,
-  getRouterSettingsWithFallback,
+  getDefaultCredential,
+  getHealthCheckPrompt,
+  getRouterSettings,
 } from "./dual-read/settings-dual-read.js";
 export { createRegistryServices, type RegistryServices } from "./factory.js";
-export type {
-  CloudSpendImportOptions,
-  CloudSpendImportSummary,
-  HistoryImportOptions,
-  HistoryImportPhase,
-  HistoryImportSummary,
-} from "./import/history-import-summary.js";
-export {
-  createEmptyPhaseCounts,
-  createEmptySummary,
-  type ImportLegacyOptions,
-  type ImportPhase,
-  type ImportSummary,
-  mergePhaseCounts,
-  type PhaseCounts,
-} from "./import/import-summary.js";
-export {
-  parseImportCliArgs,
-  printImportHelp,
-} from "./import/parse-cli-args.js";
-export {
-  parseHistoryImportCliArgs,
-  printHistoryImportHelp,
-} from "./import/parse-history-cli-args.js";
-export {
-  importCloudSpendLogs,
-  printHistoryImportSummary,
-  runHistoryImport,
-} from "./import/run-history-import.js";
-export {
-  printImportSummary,
-  runLegacyImport,
-} from "./import/run-legacy-import.js";
 export {
   ApiKeysService,
   type ApiKeysServiceOptions,
@@ -129,10 +48,10 @@ export {
 
 export type * from "./types/index.js";
 export {
-  LITELLM_PARAM_TO_MODEL_ROUTE,
-  MODEL_ROUTE_TO_LITELLM_PARAM,
+  MODEL_ROUTE_TO_SNAKE_PARAM,
   normalizeSyncDirection,
   normalizeSyncPresenceStatus,
-  RESERVED_LITELLM_PARAM_KEYS,
+  RESERVED_ROUTE_PARAM_KEYS,
+  ROUTE_PARAM_TO_MODEL_ROUTE,
   SETTING_KEYS,
 } from "./types/index.js";

@@ -1,16 +1,16 @@
 import type { Prisma } from "@lite-llm/model-proxy-repository";
 import type {
-  LegacyLitellmParams,
   ModelProxyModelRecord,
   ModelRoute,
+  RouteParams,
 } from "../types/model-route.js";
 import {
-  MODEL_ROUTE_TO_LITELLM_PARAM,
-  RESERVED_LITELLM_PARAM_KEYS,
+  MODEL_ROUTE_TO_SNAKE_PARAM,
+  RESERVED_ROUTE_PARAM_KEYS,
 } from "../types/model-route.js";
 
-const RESERVED_KEY_SET = new Set<string>(RESERVED_LITELLM_PARAM_KEYS);
-const LITELLM_PROXY_SENTINEL = "litellm_proxy";
+const RESERVED_KEY_SET = new Set<string>(RESERVED_ROUTE_PARAM_KEYS);
+const PROXY_PROVIDER_SENTINEL = "litellm_proxy";
 
 const NUMERIC_PARAM_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
 
@@ -51,8 +51,8 @@ function coerceParamValue(value: unknown): unknown {
   return value;
 }
 
-function coerceLitellmParams(params: LegacyLitellmParams): LegacyLitellmParams {
-  const result: LegacyLitellmParams = {};
+function coerceRouteParams(params: RouteParams): RouteParams {
+  const result: RouteParams = {};
   for (const [key, value] of Object.entries(params)) {
     result[key] = coerceParamValue(value);
   }
@@ -94,10 +94,7 @@ function readInt(value: unknown): number | undefined {
   return Number.isInteger(num) ? num : Math.trunc(num);
 }
 
-function resolveModelName(
-  params: LegacyLitellmParams,
-  modelName?: string,
-): string {
+function resolveModelName(params: RouteParams, modelName?: string): string {
   return (
     modelName ?? readString(params.model_name) ?? readString(params.model) ?? ""
   );
@@ -105,17 +102,17 @@ function resolveModelName(
 
 function readOwnedByFromProvider(provider: unknown): string | undefined {
   const value = readString(provider);
-  if (!value || value === LITELLM_PROXY_SENTINEL) {
+  if (!value || value === PROXY_PROVIDER_SENTINEL) {
     return undefined;
   }
   return value;
 }
 
-function splitLitellmParams(params: LegacyLitellmParams): {
-  reserved: LegacyLitellmParams;
+function splitRouteParams(params: RouteParams): {
+  reserved: RouteParams;
   requestOptions: Record<string, unknown>;
 } {
-  const reserved: LegacyLitellmParams = {};
+  const reserved: RouteParams = {};
   const requestOptions: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(params)) {
@@ -133,11 +130,11 @@ function splitLitellmParams(params: LegacyLitellmParams): {
  * Convert legacy `litellm_params` JSON into a structured `ModelRoute`.
  */
 export function toModelRoute(
-  litellmParams: LegacyLitellmParams,
+  routeParams: RouteParams,
   modelName?: string,
 ): ModelRoute {
-  const params = coerceLitellmParams(litellmParams);
-  const { reserved, requestOptions } = splitLitellmParams(params);
+  const params = coerceRouteParams(routeParams);
+  const { reserved, requestOptions } = splitRouteParams(params);
   const resolvedName = resolveModelName(reserved, modelName);
 
   const route: ModelRoute = {
@@ -169,7 +166,9 @@ export function toModelRoute(
     route.maxOutputTokens = maxOutput;
   }
 
-  const credentialName = readString(reserved.litellm_credential_name);
+  const credentialName =
+    readString(reserved.credential_name) ??
+    readString(reserved.litellm_credential_name);
   if (credentialName) {
     route.credentialName = credentialName;
   }
@@ -196,18 +195,136 @@ export function toModelRoute(
   return route;
 }
 
+function hasSnakeCaseRouteParams(raw: RouteParams): boolean {
+  return RESERVED_ROUTE_PARAM_KEYS.some((key) => key in raw);
+}
+
+const MODEL_ROUTE_API_FIELD_KEYS = [
+  "enabled",
+  "displayName",
+  "family",
+  "ownedBy",
+  "apiMode",
+  "vision",
+  "contextWindowSize",
+  "maxOutputTokens",
+  "inputCostPerToken",
+  "outputCostPerToken",
+  "upstreamModel",
+  "upstreamBaseUrl",
+  "credentialName",
+  "secretRef",
+] as const satisfies ReadonlyArray<keyof ModelRoute>;
+
+/**
+ * Parse a model route from the HTTP API (`modelRoute` camelCase) or legacy
+ * snake_case route params (import compatibility).
+ */
+export function parseModelRouteFromApi(
+  raw: RouteParams,
+  fallbackModelName: string,
+): ModelRoute {
+  if (hasSnakeCaseRouteParams(raw)) {
+    return toModelRoute(raw, fallbackModelName);
+  }
+
+  const modelName = readString(raw.modelName) ?? fallbackModelName;
+  const route: ModelRoute = { modelName };
+
+  for (const key of MODEL_ROUTE_API_FIELD_KEYS) {
+    const value = raw[key];
+    if (value === undefined) {
+      continue;
+    }
+
+    if (key === "apiMode") {
+      if (value === "openai" || value === "anthropic") {
+        route.apiMode = value;
+      }
+      continue;
+    }
+
+    if (key === "vision" && typeof value === "boolean") {
+      route.vision = value;
+      continue;
+    }
+
+    if (
+      (key === "contextWindowSize" ||
+        key === "maxOutputTokens" ||
+        key === "inputCostPerToken" ||
+        key === "outputCostPerToken") &&
+      typeof value === "number" &&
+      Number.isFinite(value)
+    ) {
+      route[key] = value;
+      continue;
+    }
+
+    if (
+      (key === "enabled" && typeof value === "boolean") ||
+      (key !== "enabled" && typeof value === "string" && value.trim())
+    ) {
+      if (key === "enabled") {
+        route.enabled = value as boolean;
+      } else {
+        const trimmed = String(value).trim();
+        if (!trimmed) {
+          continue;
+        }
+        switch (key) {
+          case "displayName":
+            route.displayName = trimmed;
+            break;
+          case "family":
+            route.family = trimmed;
+            break;
+          case "ownedBy":
+            route.ownedBy = trimmed;
+            break;
+          case "upstreamModel":
+            route.upstreamModel = trimmed;
+            break;
+          case "upstreamBaseUrl":
+            route.upstreamBaseUrl = trimmed;
+            break;
+          case "credentialName":
+            route.credentialName = trimmed;
+            break;
+          case "secretRef":
+            route.secretRef = trimmed;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  const requestOptions = raw.requestOptions;
+  if (
+    requestOptions &&
+    typeof requestOptions === "object" &&
+    !Array.isArray(requestOptions)
+  ) {
+    route.requestOptions = requestOptions as Record<string, unknown>;
+  }
+
+  return route;
+}
+
 /**
  * Convert `ModelRoute` into legacy `litellm_params` (snake_case) for shim exports.
  * Callers writing to LiteLLM DB should run `applyRequiredLiteLLMParams` afterward.
  */
-export function fromModelRoute(route: ModelRoute): LegacyLitellmParams {
-  const result: LegacyLitellmParams = {
+export function fromModelRoute(route: ModelRoute): RouteParams {
+  const result: RouteParams = {
     model: route.modelName,
     model_name: route.modelName,
   };
 
   for (const [routeKey, paramKey] of Object.entries(
-    MODEL_ROUTE_TO_LITELLM_PARAM,
+    MODEL_ROUTE_TO_SNAKE_PARAM,
   )) {
     if (routeKey === "modelName" || routeKey === "family") {
       continue;
@@ -221,7 +338,7 @@ export function fromModelRoute(route: ModelRoute): LegacyLitellmParams {
     if (
       routeKey === "ownedBy" &&
       typeof value === "string" &&
-      value === LITELLM_PROXY_SENTINEL
+      value === PROXY_PROVIDER_SENTINEL
     ) {
       continue;
     }
@@ -231,7 +348,7 @@ export function fromModelRoute(route: ModelRoute): LegacyLitellmParams {
 
   const provider =
     route.ownedBy ??
-    (route.family && route.family !== LITELLM_PROXY_SENTINEL
+    (route.family && route.family !== PROXY_PROVIDER_SENTINEL
       ? route.family
       : undefined);
   if (provider) {

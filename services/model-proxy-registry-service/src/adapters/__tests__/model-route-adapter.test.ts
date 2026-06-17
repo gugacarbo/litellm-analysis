@@ -5,7 +5,7 @@ import {
   fromModelRoute,
   toModelProxyRow,
   toModelRoute,
-} from "../litellm-params-adapter.js";
+} from "../model-route-adapter.js";
 
 const MODEL_ALIAS = "gpt-test";
 
@@ -13,17 +13,14 @@ const builtParams = {
   model: MODEL_ALIAS,
   model_name: MODEL_ALIAS,
   custom_llm_provider: "litellm_proxy",
-  use_litellm_proxy: false,
-  use_in_pass_through: false,
-  merge_reasoning_content_in_choices: false,
   context_window_size: 128_000,
   max_tokens: 4096,
   input_cost_per_token: 0.000003,
   output_cost_per_token: 0.000015,
-  litellm_credential_name: "openai-main",
+  credential_name: "openai-main",
 };
 
-describe("litellm-params-adapter", () => {
+describe("model-route-adapter", () => {
   describe("toModelRoute", () => {
     it("maps buildLiteLLMParams output to ModelRoute", () => {
       const route = toModelRoute(builtParams, MODEL_ALIAS);
@@ -35,11 +32,6 @@ describe("litellm-params-adapter", () => {
         contextWindowSize: 128_000,
         maxOutputTokens: 4096,
         credentialName: "openai-main",
-        requestOptions: {
-          use_litellm_proxy: false,
-          use_in_pass_through: false,
-          merge_reasoning_content_in_choices: false,
-        },
       });
     });
 
@@ -53,7 +45,6 @@ describe("litellm-params-adapter", () => {
       expect(route.requestOptions).toMatchObject({
         temperature: 0.2,
         rpm: 100,
-        use_litellm_proxy: false,
       });
       expect(route).not.toHaveProperty("temperature");
     });
@@ -120,10 +111,9 @@ describe("litellm-params-adapter", () => {
         output_cost_per_token: 0.000015,
         context_window_size: 128_000,
         max_tokens: 4096,
-        litellm_credential_name: "openai-main",
+        credential_name: "openai-main",
         api_base: "https://api.openai.com/v1",
         custom_llm_provider: "openai",
-        use_litellm_proxy: false,
       });
     });
 
@@ -180,7 +170,6 @@ describe("litellm-params-adapter", () => {
         upstreamBaseUrl: null,
         credentialName: "openai-main",
         secretRef: null,
-        requestOptions: route.requestOptions,
       });
     });
 
