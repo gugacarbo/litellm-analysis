@@ -6,7 +6,7 @@ const multimodalContentItemSchema = z
   })
   .passthrough();
 
-export const chatMessageSchema = z
+const chatMessageSchema = z
   .object({
     role: z.string(),
     content: z.union([
@@ -33,7 +33,7 @@ export const chatCompletionsRequestSchema = z
   })
   .passthrough();
 
-export const modelListEntrySchema = z.object({
+const modelListEntrySchema = z.object({
   id: z.string(),
   object: z.literal("model"),
   created: z.number().int().nonnegative(),

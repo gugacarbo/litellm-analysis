@@ -8,10 +8,9 @@
     "scripts": {
       "entry": [
         "src/generate-schema/index.ts",
-        "src/litellm-backup/index.ts",
         "src/sync-aa-benchmarks/index.ts",
-        "src/sync-cloud-litellm/index.ts",
-        "src/validate-agents/index.ts"
+        "src/validate-agents/index.ts",
+        "src/model-proxy-backup/index.ts"
       ]
     }
   },

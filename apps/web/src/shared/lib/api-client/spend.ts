@@ -150,7 +150,7 @@ export function normalizeProxyRequestLog(
   };
 }
 
-export function normalizeProxyRequestLogs(
+function normalizeProxyRequestLogs(
   logs: RawSpendLogRecord[],
 ): ProxyRequestLog[] {
   return logs.map(normalizeProxyRequestLog);

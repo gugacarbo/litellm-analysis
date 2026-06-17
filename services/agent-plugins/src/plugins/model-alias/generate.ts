@@ -11,7 +11,7 @@ function normalizeModel(value: string | undefined): string {
 }
 
 /** Resolve which backend model id fills logical slot. */
-export function resolveSlotModelId(
+function resolveSlotModelId(
   slotIndex: number,
   _slotCount: number,
   primaryModelId: string,

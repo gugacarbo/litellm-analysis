@@ -1,7 +1,6 @@
 import type { PrismaClient } from "@lite-llm/model-proxy-repository";
 import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
-import { calculateCost } from "./logging/cost-calculator";
 import { redactHeaders } from "./logging/payload-redactor";
 import {
   createCancelledError,
@@ -515,6 +514,3 @@ export function createModelProxyService(
 ): IModelProxyService {
   return new ModelProxyService(options);
 }
-
-// Re-export for tests that assert cost calculation behavior.
-export { calculateCost };

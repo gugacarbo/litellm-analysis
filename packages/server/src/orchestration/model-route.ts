@@ -10,8 +10,3 @@ export {
   toModelProxyRow,
   toModelRoute,
 } from "@lite-llm/model-proxy-registry-service";
-
-export {
-  getCredentialNameFromParams,
-  resolveModelCredential,
-} from "./route-params";

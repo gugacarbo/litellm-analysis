@@ -37,7 +37,7 @@ function deepMergeObjects(
   return result;
 }
 
-export function asObject(value: unknown): Record<string, unknown> {
+function asObject(value: unknown): Record<string, unknown> {
   return isPlainObject(value) ? value : {};
 }
 

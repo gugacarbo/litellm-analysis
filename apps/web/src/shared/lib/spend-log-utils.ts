@@ -78,7 +78,7 @@ export function getProxyLogTotalCost(log: ProxyRequestLog): number {
   return log.total_cost ?? 0;
 }
 
-export function calculateTokensPerSecond(
+function calculateTokensPerSecond(
   outputTokens: number,
   startedAt: string,
   finishedAt: string | null,

@@ -11,7 +11,7 @@ type SpendLogFingerprintSource = Pick<
   "id" | "status" | "started_at" | "finished_at"
 >;
 
-export function spendLogFingerprint(log: SpendLogFingerprintSource): string {
+function spendLogFingerprint(log: SpendLogFingerprintSource): string {
   const updatedAt = log.finished_at ?? log.started_at;
   return `${log.status}|${updatedAt}`;
 }
