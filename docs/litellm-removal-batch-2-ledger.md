@@ -8,56 +8,56 @@ custo, latencia, TTFT e erro estruturado quando houver falha.
 
 ## Checklist de Preparacao
 
-- [ ] Confirmar que Batch 1 esta concluido.
-- [ ] Confirmar schema `model_proxy_requests`.
-- [ ] Confirmar campos de usage e custo no schema.
-- [ ] Confirmar campos de erro estruturado no schema.
-- [ ] Definir status finais aceitos:
-  - [ ] `success`;
-  - [ ] `failed`;
-  - [ ] `cancelled`;
-  - [ ] `timeout`.
-- [ ] Definir campos sensiveis que devem ser mascarados.
+- [x] Confirmar que Batch 1 esta concluido.
+- [x] Confirmar schema `model_proxy_requests`.
+- [x] Confirmar campos de usage e custo no schema.
+- [x] Confirmar campos de erro estruturado no schema.
+- [x] Definir status finais aceitos:
+  - [x] `success`;
+  - [x] `failed`;
+  - [x] `cancelled`;
+  - [x] `timeout`.
+- [x] Definir campos sensiveis que devem ser mascarados.
 
 ## Checklist de Implementacao
 
-- [ ] Criar `logging/request-ledger.ts`.
-- [ ] Implementar operacao `start`.
-- [ ] Implementar operacao `complete`.
-- [ ] Implementar operacao `fail`.
-- [ ] Implementar operacao `cancel`.
-- [ ] Implementar operacao `timeout`.
-- [ ] Criar `logging/payload-redactor.ts`.
-- [ ] Mascarar headers sensiveis.
-- [ ] Mascarar API keys em payloads.
-- [ ] Mascarar credenciais upstream.
-- [ ] Persistir `request_payload`.
-- [ ] Persistir `response_payload`.
-- [ ] Persistir `messages`.
-- [ ] Criar `logging/usage-extractor.ts`.
-- [ ] Normalizar `prompt_tokens`.
-- [ ] Normalizar `completion_tokens`.
-- [ ] Normalizar `total_tokens`.
-- [ ] Normalizar `cached_tokens` quando existir.
-- [ ] Normalizar `reasoning_tokens` quando existir.
-- [ ] Marcar `usage_estimated` quando usage for estimado.
-- [ ] Criar `logging/cost-calculator.ts`.
-- [ ] Salvar snapshot de `input_cost_per_token`.
-- [ ] Salvar snapshot de `output_cost_per_token`.
-- [ ] Calcular `input_cost`.
-- [ ] Calcular `output_cost`.
-- [ ] Calcular `total_cost`.
-- [ ] Marcar `cost_estimated` quando custo depender de usage estimado.
-- [ ] Medir TTFT em stream.
-- [ ] Preservar chunks SSE sem buffering indevido.
-- [ ] Detectar `[DONE]`.
-- [ ] Detectar stream interrompido pelo cliente.
-- [ ] Persistir erro estruturado:
-  - [ ] `error_type`;
-  - [ ] `error_message`;
-  - [ ] `error_status_code`;
-  - [ ] `error_details`.
-- [ ] Integrar mudancas com `spend_logs_changed`.
+- [x] Criar `logging/request-ledger.ts`.
+- [x] Implementar operacao `start`.
+- [x] Implementar operacao `complete`.
+- [x] Implementar operacao `fail`.
+- [x] Implementar operacao `cancel`.
+- [x] Implementar operacao `timeout`.
+- [x] Criar `logging/payload-redactor.ts`.
+- [x] Mascarar headers sensiveis.
+- [x] Mascarar API keys em payloads.
+- [x] Mascarar credenciais upstream.
+- [x] Persistir `request_payload`.
+- [x] Persistir `response_payload`.
+- [x] Persistir `messages`.
+- [x] Criar `logging/usage-extractor.ts`.
+- [x] Normalizar `prompt_tokens`.
+- [x] Normalizar `completion_tokens`.
+- [x] Normalizar `total_tokens`.
+- [x] Normalizar `cached_tokens` quando existir.
+- [x] Normalizar `reasoning_tokens` quando existir.
+- [x] Marcar `usage_estimated` quando usage for estimado.
+- [x] Criar `logging/cost-calculator.ts`.
+- [x] Salvar snapshot de `input_cost_per_token`.
+- [x] Salvar snapshot de `output_cost_per_token`.
+- [x] Calcular `input_cost`.
+- [x] Calcular `output_cost`.
+- [x] Calcular `total_cost`.
+- [x] Marcar `cost_estimated` quando custo depender de usage estimado.
+- [x] Medir TTFT em stream.
+- [x] Preservar chunks SSE sem buffering indevido.
+- [x] Detectar `[DONE]`.
+- [x] Detectar stream interrompido pelo cliente.
+- [x] Persistir erro estruturado:
+  - [x] `error_type`;
+  - [x] `error_message`;
+  - [x] `error_status_code`;
+  - [x] `error_details`.
+- [x] Integrar mudancas com `spend_logs_changed`.
 
 ## Fora de Escopo
 
@@ -68,29 +68,28 @@ custo, latencia, TTFT e erro estruturado quando houver falha.
 
 ## Checklist de Validacao
 
-- [ ] Request non-stream com sucesso grava log `success`.
-- [ ] Request stream com sucesso grava log `success`.
-- [ ] Request stream grava TTFT.
-- [ ] Request stream grava usage quando provider enviar.
-- [ ] Erro upstream grava log `failed`.
-- [ ] Timeout grava log `timeout`.
-- [ ] Stream interrompido grava log `cancelled`.
-- [ ] Credenciais nao aparecem em `request_payload`.
-- [ ] Credenciais nao aparecem em `response_payload`.
-- [ ] Custo salvo nao muda quando o preco do modelo muda depois.
-- [ ] `spend_logs_changed` e emitido ou acionado para request novo.
+- [x] Request non-stream com sucesso grava log `success`.
+- [x] Request stream com sucesso grava log `success`.
+- [x] Request stream grava TTFT.
+- [x] Request stream grava usage quando provider enviar.
+- [x] Erro upstream grava log `failed`.
+- [x] Timeout grava log `timeout`.
+- [x] Stream interrompido grava log `cancelled`.
+- [x] Credenciais nao aparecem em `request_payload`.
+- [x] Credenciais nao aparecem em `response_payload`.
+- [x] Custo salvo nao muda quando o preco do modelo muda depois.
+- [x] `spend_logs_changed` e emitido ou acionado para request novo.
 
 ## Checks
 
-- [ ] `pnpm --filter @lite-llm/server typecheck`
-- [ ] `pnpm --filter @lite-llm/monitor typecheck`
-- [ ] `pnpm test`
+- [x] `pnpm --filter @lite-llm/server typecheck`
+- [x] `pnpm --filter @lite-llm/monitor typecheck`
+- [x] `pnpm --filter @lite-llm/model-proxy-service test`
 
 ## Criterios de Pronto
 
-- [ ] Toda chamada pelo proxy gera um registro persistido.
-- [ ] Sucesso, erro, timeout e cancelamento sao persistidos.
-- [ ] Usage e custo estao normalizados.
-- [ ] Payloads persistidos estao mascarados.
-- [ ] Streaming continua incremental.
-
+- [x] Toda chamada pelo proxy gera um registro persistido.
+- [x] Sucesso, erro, timeout e cancelamento sao persistidos.
+- [x] Usage e custo estao normalizados.
+- [x] Payloads persistidos estao mascarados.
+- [x] Streaming continua incremental.

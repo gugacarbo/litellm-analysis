@@ -33,10 +33,10 @@ Schema e migration: `repositories/model-proxy-repository/prisma/`.
 - [x] Inventariar usos de `LITELLM_*`.
 - [x] Inventariar usos de `litellmParams`.
 - [x] Inventariar usos de `provider.litellm`.
-- [ ] Inventariar queries em `LiteLLM_SpendLogs`.
-- [ ] Inventariar queries em `LiteLLM_Config`.
-- [ ] Inventariar queries em `LiteLLM_CredentialsTable`.
-- [ ] Inventariar queries em `LiteLLM_ProxyModelTable`.
+- [x] Inventariar queries em `LiteLLM_SpendLogs`.
+- [x] Inventariar queries em `LiteLLM_Config`.
+- [x] Inventariar queries em `LiteLLM_CredentialsTable`.
+- [x] Inventariar queries em `LiteLLM_ProxyModelTable`.
 - [x] Definir matriz de renome:
   - [ ] `litellmParams` -> `modelRoute` (borda analytics; batch posterior);
   - [x] `provider.litellm` -> `provider.local-proxy`;
@@ -69,7 +69,7 @@ Schema e migration: `repositories/model-proxy-repository/prisma/`.
 - [x] Registrar `GET /v1/models` no server.
 - [x] Implementar validacao local simples via `MODEL_PROXY_API_KEY`.
 - [x] Criar `provider.local-proxy` na config de modelos.
-- [ ] Criar provider upstream neutro para chamadas reais (hoje via
+- [x] Criar provider upstream neutro para chamadas reais (hoje via
   `MODEL_PROXY_UPSTREAM_*` ou credentials no DB).
 
 ## Fora de Escopo
