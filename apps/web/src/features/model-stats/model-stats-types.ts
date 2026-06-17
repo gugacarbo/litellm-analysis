@@ -53,8 +53,6 @@ export type ColumnKey =
   | "success"
   | "errors"
   | "errorRate"
-  | "users"
-  | "keys"
   | "first"
   | "last"
   | "costPer1k"
@@ -127,8 +125,6 @@ export const MODEL_STATS_COLUMNS: Column[] = [
   { key: "errors", label: "Errors", align: "right", default: false },
   { key: "errorRate", label: "Error Rate", align: "right", default: false },
   { key: "costPer1k", label: "$/1K tok", align: "right", default: false },
-  { key: "users", label: "Users", align: "right", default: false },
-  { key: "keys", label: "API Keys", align: "right", default: false },
   { key: "first", label: "First Used", align: "right", default: false },
   { key: "last", label: "Last Used", align: "right", default: false },
   { key: "actions", label: "", align: "right", default: true },
