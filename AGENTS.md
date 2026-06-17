@@ -6,7 +6,7 @@
 
 ## OVERVIEW
 
-LiteLLM Analytics Dashboard — full-stack TypeScript monorepo for monitoring LLM API usage, costs, and errors via LiteLLM's PostgreSQL database. React 19 frontend + Express.js backend, deployed as a single web app with optional direct-DB or API-only data access modes. Configs split into `agents-manager` (agents/categories + plugin routing) and `models-manager` (providers/models + alias routing).
+LiteLLM Analytics Dashboard — full-stack TypeScript monorepo for monitoring LLM API usage, costs, and errors via the **local model proxy** (`model_proxy_*` PostgreSQL). Default `ANALYTICS_DATA_SOURCE=model-proxy`; LiteLLM DB is optional (compare/import CLIs only).
 
 ## STRUCTURE
 
@@ -187,9 +187,10 @@ pnpm --filter @lite-llm/litellm-repository db:sync        # Clone schema + migra
 pnpm --filter @lite-llm/litellm-repository db:pull        # Introspect DB tables
 pnpm --filter @lite-llm/litellm-repository db:validate    # Validate Prisma schema
 
-# LiteLLM database backup
-pnpm backup           # Run LiteLLM database backup with progress display
-pnpm backup:list      # List available backup files in backups/
+# Model proxy database backup
+pnpm backup           # MODEL_PROXY_DATABASE_URL (model_proxy_*)
+pnpm backup:list      # List model_proxy_* backup files
+pnpm backup:litellm   # Historical LiteLLM DB only
 
 # Model proxy registry (Batch 3)
 pnpm model-proxy:import-legacy  # Import LiteLLM_Config/Credentials/ProxyModel → model_proxy_*

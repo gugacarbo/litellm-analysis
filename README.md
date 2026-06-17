@@ -1,192 +1,68 @@
 # LiteLLM Analytics Dashboard
 
-Dashboard de analytics para monitoramento de uso e custos de APIs LLM via [LiteLLM](https://github.com/BerriAI/litellm).
+Dashboard de analytics para monitoramento de uso, custos e erros de LLMs via **model proxy local** (`model_proxy_*`).
 
 ## Funcionalidades
 
-- **Dashboard Principal**: Visão geral com métricas de spend, tokens, modelos ativos e erros
-- **Gráficos Interativos**: Tendências de spend diário, distribuição de tokens, padrões horários de uso
-- **Análise por Entidade**: Filtros por modelo, usuário e API key
-- **Logs de Requisições**: Histórico detalhado de todas as chamadas com paginação
-- **Error Tracking**: Monitoramento de erros com classificação por tipo (rate limit, timeout, auth)
-- **Estatísticas de Modelos**: Latência p50/p95/p99, success rate, custos por token
-- **Gerenciamento de Modelos**: CRUD completo com configuração de preços
-- **Merge de Logs**: Consolidação de logs entre modelos
+- **Dashboard**: métricas de spend, tokens, modelos ativos e erros
+- **Logs nativos**: `ProxyRequestLog` do ledger `model_proxy_requests`
+- **Model registry**: rotas em `model_proxy_models` + settings em `model_proxy_settings`
+- **Health-check / monitor**: proxy local OpenAI-compatible
+- **Agent routing**: plugins com provider `local-proxy`
 
 ## Stack
 
 | Camada   | Tecnologia                          |
 | -------- | ----------------------------------- |
 | Frontend | React 19, Vite 7, React Router 7    |
-| UI       | shadcn/ui, Radix UI, Tailwind CSS 4 |
-| Gráficos | Recharts                            |
+| UI       | shadcn/ui, Tailwind CSS 4           |
 | Backend  | Express.js                          |
-| ORM      | Drizzle ORM                         |
-| Database | PostgreSQL                          |
+| Database | PostgreSQL (`MODEL_PROXY_DATABASE_URL`) |
 | Monorepo | Turborepo, pnpm                     |
 
-## Estrutura do Projeto
-
-```
-lite-llm-analytics/
-├── apps/
-│   └── web/                    # Aplicação principal
-│       └── src/
-│           ├── components/      # Componentes UI (shadcn/ui)
-│           ├── db/             # Schema e queries Drizzle
-│           │   ├── schema.ts    # Definição das tabelas
-│           │   ├── queries.ts   # Funções de consulta
-│           │   └── client.ts    # Configuração do banco
-│           ├── hooks/          # React hooks
-│           ├── lib/            # Utilitários e API client
-│           ├── pages/          # Páginas da aplicação
-│           ├── server/         # API Express
-│           │   ├── api-server.ts  # Rotas da API
-│           │   └── db-server.ts  # Re-export das queries
-│           ├── styles/         # CSS global
-│           └── types/          # Definições TypeScript
-├── package.json               # Root package (monorepo)
-├── turbo.json                 # Configuração Turborepo
-└── biome.json                 # Configuração Biome (linter)
-```
-
-## Tabelas do Banco
-
-### LiteLLM_SpendLogs
-Registro de todas as requisições aos modelos LLM.
-
-| Campo             | Tipo      | Descrição                    |
-| ----------------- | --------- | ---------------------------- |
-| request_id        | varchar   | ID único da requisição (PK)  |
-| model             | varchar   | Nome do modelo utilizado     |
-| user              | varchar   | Usuário que fez a requisição |
-| total_tokens      | integer   | Total de tokens utilizados   |
-| prompt_tokens     | integer   | Tokens de input              |
-| completion_tokens | integer   | Tokens de output             |
-| spend             | real      | Custo da requisição          |
-| startTime         | timestamp | Início da requisição         |
-| endTime           | timestamp | Fim da requisição            |
-| apiKey            | varchar   | Chave API utilizada          |
-| status            | varchar   | Status (success/pending/etc) |
-
-### LiteLLM_ProxyModelTable
-Configuração de modelos e seus preços.
-
-| Campo          | Tipo    | Descrição           |
-| -------------- | ------- | ------------------- |
-| model_name     | varchar | Nome do modelo (PK) |
-| litellm_params | jsonb   | Parâmetros LiteLLM  |
-
-### LiteLLM_ErrorLogs
-Registro de erros ocorridos.
-
-| Campo              | Tipo      | Descrição                  |
-| ------------------ | --------- | -------------------------- |
-| request_id         | varchar   | ID da requisição (PK)      |
-| exception_type     | varchar   | Tipo da exceção            |
-| litellm_model_name | varchar   | Modelo que originou o erro |
-| request_kwargs     | jsonb     | Parâmetros da requisição   |
-| exception_string   | text      | Mensagem do erro           |
-| startTime          | timestamp | Quando ocorreu             |
-| status_code        | integer   | Código HTTP do erro        |
-
-## API Endpoints
-
-### Spend & Usage
-- `GET /spend/model` - Spend agrupado por modelo
-- `GET /spend/user` - Spend agrupado por usuário
-- `GET /spend/key` - Spend agrupado por API key
-- `GET /spend/logs` - Logs detalhados (com filtros)
-- `GET /spend/trend` - Tendência diária de spend
-
-### Analytics
-- `GET /metrics` - Métricas resumidas do dashboard
-- `GET /analytics/tokens` - Distribuição de tokens por modelo
-- `GET /analytics/performance` - Métricas de performance
-- `GET /analytics/temporal` - Padrões de uso por hora
-- `GET /analytics/keys` - Estatísticas detalhadas por API key
-- `GET /analytics/cost-efficiency` - Custo por 1K tokens
-- `GET /analytics/model-distribution` - Distribuição de requisições
-- `GET /analytics/token-trend` - Tendência diária de tokens
-- `GET /analytics/model-stats` - Estatísticas completas por modelo
-
-### Models
-- `GET /models` - Lista todos os modelos
-- `POST /models` - Cria novo modelo
-- `PUT /models/:name` - Atualiza modelo
-- `DELETE /models/:name` - Remove modelo
-- `POST /models/merge` - Mescla logs de um modelo em outro
-- `DELETE /models/logs/:model` - Remove logs de um modelo
-
-### Errors
-- `GET /errors` - Lista de erros
-
-## Setup
-
-### 1. Pré-requisitos
-
-- Node.js >= 20
-- pnpm 9
-- PostgreSQL 14+
-
-### 2. Instalar dependências
+## Quick start
 
 ```bash
+cp .env.example .env
+# Configure MODEL_PROXY_DATABASE_URL, MODEL_PROXY_API_KEY, MODEL_PROXY_BASE_URL
+
 pnpm install
+pnpm --filter @lite-llm/model-proxy-repository db:generate
+pnpm dev   # web :5178, API :3008
 ```
 
-### 3. Configurar variáveis de ambiente
+`ANALYTICS_DATA_SOURCE` default: **`model-proxy`** (sem PostgreSQL LiteLLM).
 
-Crie `apps/web/.env.local`:
+## Variáveis de ambiente (runtime)
 
-```env
-# Conexão com o banco LiteLLM
-VITE_DB_HOST=localhost
-VITE_DB_PORT=5432
-VITE_DB_NAME=litellm
-VITE_DB_USER=llmproxy
-VITE_DB_PASSWORD=sua_senha
+| Variável | Obrigatória | Descrição |
+|----------|-------------|-----------|
+| `MODEL_PROXY_DATABASE_URL` | Sim | PostgreSQL do proxy (`model_proxy_*`) |
+| `MODEL_PROXY_API_KEY` | Sim | Chave do proxy local |
+| `MODEL_PROXY_BASE_URL` | Recomendada | Base URL `/v1` para health-check |
+| `ANALYTICS_DATA_SOURCE` | Não | `model-proxy` (default), `litellm`, `hybrid` |
+| `DB_*` | Não | Só CLIs compare/import histórico |
 
-# Opcional: URL da API LiteLLM
-VITE_LITELLM_API_URL=http://0.0.0.0:4000
-VITE_LITELLM_API_KEY=sk-...
-```
-
-### 4. Iniciar o projeto
-
-Desenvolvimento (roda frontend + API server):
+## Operação
 
 ```bash
-pnpm dev
+pnpm backup              # pg_dump do banco model-proxy
+pnpm backup:list
+pnpm generate:plugin-configs   # @storage/output (local, gitignored)
+pnpm analytics:compare-sources --days 7   # gate LiteLLM vs proxy (ambos DBs)
 ```
 
-Produção:
+## Import / histórico (offline)
 
 ```bash
-pnpm build
-pnpm start
+pnpm model-proxy:import-legacy
+pnpm model-proxy:import-history
+pnpm sync:cloud          # LITELLM_CLOUD_* — não é runtime
+pnpm backup:litellm      # backup legado LiteLLM
 ```
 
-## Scripts Disponíveis
+## Documentação
 
-| Comando          | Descrição                       |
-| ---------------- | ------------------------------- |
-| `pnpm dev`       | Inicia desenvolvimento          |
-| `pnpm build`     | Build para produção             |
-| `pnpm lint`      | Executa linter (Biome)          |
-| `pnpm format`    | Formata código                  |
-| `pnpm typecheck` | Verificação de tipos TypeScript |
-
-## Páginas
-
-| Rota           | Descrição                                   |
-| -------------- | ------------------------------------------- |
-| `/`            | Dashboard principal com métricas e gráficos |
-| `/model-stats` | Estatísticas detalhadas por modelo          |
-| `/logs`        | Logs de spend com filtros e paginação       |
-| `/errors`      | Lista de erros com classificação            |
-| `/models`      | Gerenciamento de modelos e preços           |
-
-## License
-
-MIT
+- [AGENTS.md](./AGENTS.md) — mapa do monorepo
+- [docs/batch-5-decisions.md](./docs/batch-5-decisions.md) — cutover Batch 5
+- [docs/batch-5-inventory.md](./docs/batch-5-inventory.md) — consumidores LiteLLM restantes

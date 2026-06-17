@@ -1,9 +1,13 @@
 ---
 name: lite-llm-db-access
-description: How to access the LiteLLM PostgreSQL database, query tables using Drizzle ORM, understand schema structures, and maintain a local cache of table schemas and example records. Make sure to use this skill whenever the user asks to query the database, explore table schemas, fetch data from LiteLLM tables, or update database documentation.
+description: "HISTORICAL (import/compare only): LiteLLM PostgreSQL schema reference for offline CLIs. Runtime uses MODEL_PROXY_DATABASE_URL — see batch-5-inventory.md."
 ---
 
-# LiteLLM Database Access Skill
+# LiteLLM Database Access Skill (historical)
+
+> **Batch 5:** Este skill é **import/compare only**. O runtime principal usa
+> `MODEL_PROXY_DATABASE_URL` e `model_proxy_*`. Consulte
+> [batch-5-inventory.md](../../docs/batch-5-inventory.md).
 
 This skill helps you understand how to access the `lite-llm-analytics` database, extract schema definitions, run queries to see what's actually stored in the tables, and maintain a local reference of these schemas and sample records.
 
