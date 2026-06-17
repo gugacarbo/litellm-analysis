@@ -1,29 +1,34 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { Badge } from "@/shared/components/ui/badge";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 import {
-  calculateTokensPerSecond,
+  calculateProxyLogTokensPerSecond,
   formatCurrency,
   formatDuration,
   formatNumber,
   formatTimeRelative,
+  getProxyLogDurationMs,
+  getProxyLogInputTokens,
+  getProxyLogOutputTokens,
+  getProxyLogTotalCost,
+  isProxyLogSuccess,
 } from "@/shared/lib/spend-log-utils";
+import { LogEstimatedBadges } from "./log-estimated-badges";
 import type { TableColumn } from "./logs-table-columns";
 
 type RenderLogCellParams = {
-  log: SpendLog;
+  log: ProxyRequestLog;
   columnKey: TableColumn["key"];
 };
 
 export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
-  const durationMs =
-    new Date(log.end_time).getTime() - new Date(log.start_time).getTime();
-  const isSuccess = log.status === "200" || log.status === "success";
+  const durationMs = getProxyLogDurationMs(log);
+  const isSuccess = isProxyLogSuccess(log.status);
 
   switch (columnKey) {
     case "time":
       return (
         <span className="text-xs whitespace-nowrap text-muted-foreground">
-          <span>{formatTimeRelative(log.start_time)}</span>
+          <span>{formatTimeRelative(log.started_at)}</span>
         </span>
       );
     case "model":
@@ -32,32 +37,34 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
           {log.model}
         </span>
       );
-    case "user":
+    case "inputTokens":
       return (
-        <span className="text-sm text-muted-foreground">{log.user || "-"}</span>
+        <span className="inline-flex items-center justify-end gap-1">
+          {formatNumber(getProxyLogInputTokens(log))}
+          <LogEstimatedBadges usageEstimated={log.usage_estimated} />
+        </span>
       );
-    case "promptTokens":
-      return formatNumber(log.prompt_tokens);
-    case "completionTokens":
-      return formatNumber(log.completion_tokens);
+    case "outputTokens":
+      return formatNumber(getProxyLogOutputTokens(log));
     case "totalTokens":
       return (
-        <span className="font-medium">{formatNumber(log.total_tokens)}</span>
+        <span className="font-medium">
+          {formatNumber(log.total_tokens ?? 0)}
+        </span>
       );
     case "duration":
       return formatDuration(durationMs);
     case "timeToFirstToken":
-      return log.time_to_first_token_ms === null
-        ? "-"
-        : formatNumber(Math.round(log.time_to_first_token_ms));
+      return log.ttft_ms === null ? "-" : formatNumber(Math.round(log.ttft_ms));
     case "tokensPerSecond":
-      return calculateTokensPerSecond(
-        log.completion_tokens,
-        log.start_time,
-        log.end_time,
+      return calculateProxyLogTokensPerSecond(log);
+    case "totalCost":
+      return (
+        <span className="inline-flex items-center justify-end gap-1 font-medium">
+          {formatCurrency(getProxyLogTotalCost(log))}
+          <LogEstimatedBadges costEstimated={log.cost_estimated} />
+        </span>
       );
-    case "spend":
-      return <span className="font-medium">{formatCurrency(log.spend)}</span>;
     case "status":
       return (
         <Badge
@@ -74,15 +81,10 @@ export function renderLogCell({ log, columnKey }: RenderLogCellParams) {
     case "requestId":
       return (
         <span className="font-mono text-xs text-muted-foreground break-all">
-          {log.request_id}
+          {log.id}
         </span>
       );
     case "latencyHeat": {
-      const startTime = new Date(log.start_time).getTime();
-      const endTime = log.end_time
-        ? new Date(log.end_time).getTime()
-        : startTime;
-      const durationMs = endTime - startTime;
       const durationSec = durationMs / 1000;
 
       let barColor = "bg-emerald-500";

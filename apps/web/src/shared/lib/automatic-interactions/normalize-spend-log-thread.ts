@@ -1,4 +1,5 @@
-import type { ChatMessage, SpendLog } from "@lite-llm/contracts/analytics";
+import type { ChatMessage } from "@lite-llm/contracts/analytics";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 import type {
   NormalizedMessage,
   NormalizedMessageRole,
@@ -47,14 +48,16 @@ function toNormalizedMessage(
   };
 }
 
-export function normalizeSpendLogThread(log: SpendLog): NormalizedThread {
+export function normalizeSpendLogThread(
+  log: ProxyRequestLog,
+): NormalizedThread {
   const chatMessages = extractSpendLogMessages(log);
 
   return {
-    id: log.request_id,
+    id: log.id,
     source: "spend_log",
     messages: chatMessages.map((msg, index) =>
-      toNormalizedMessage(log.request_id, msg, index),
+      toNormalizedMessage(log.id, msg, index),
     ),
   };
 }

@@ -38,7 +38,7 @@ export function LogChatSimulationPage() {
       title="Chat Simulation"
       subtitle={
         log
-          ? `${log.model} • ${log.request_id.slice(0, 16)}...`
+          ? `${log.model} • ${log.id.slice(0, 16)}...`
           : `Request ${requestId.slice(0, 16)}...`
       }
       icon={MessageCircle}

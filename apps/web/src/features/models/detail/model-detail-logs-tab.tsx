@@ -1,7 +1,4 @@
-import type {
-  PaginationMetadata,
-  SpendLog,
-} from "@lite-llm/contracts/analytics";
+import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
 import { useState } from "react";
 import { LogDetailDialog } from "@/features/logs/components/log-detail-dialog";
 import { LogsSummaryCards } from "@/features/logs/components/logs-summary-cards";
@@ -10,9 +7,10 @@ import {
   LogsTable,
 } from "@/features/logs/components/logs-table";
 import type { LogColumnKey } from "@/features/logs/components/logs-table-columns";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 
 interface ModelDetailLogsTabProps {
-  logs: SpendLog[];
+  logs: ProxyRequestLog[];
   pagination: PaginationMetadata;
   loading: boolean;
   refreshing: boolean;
@@ -36,7 +34,7 @@ export function ModelDetailLogsTab({
   setPageSize,
   refetch,
 }: ModelDetailLogsTabProps) {
-  const [selectedLog, setSelectedLog] = useState<SpendLog | null>(null);
+  const [selectedLog, setSelectedLog] = useState<ProxyRequestLog | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<LogColumnKey[]>(
     DEFAULT_VISIBLE_LOG_COLUMNS,
   );

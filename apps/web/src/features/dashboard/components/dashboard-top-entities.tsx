@@ -40,6 +40,10 @@ export function DashboardTopEntities({
 }: DashboardTopEntitiesProps) {
   const [tab, setTab] = useState("keys");
 
+  if (!loading && apiKeyStats.length === 0 && spendByUser.length === 0) {
+    return null;
+  }
+
   const keySkeletonRows = Array.from({ length: 5 }).map((_, i) => (
     <TableRow key={i}>
       <TableCell>

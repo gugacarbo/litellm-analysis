@@ -1,14 +1,21 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
+import {
+  getProxyLogDurationMs,
+  getProxyLogInputTokens,
+  getProxyLogOutputTokens,
+  getProxyLogTotalCost,
+  isProxyLogSuccess,
+} from "@/shared/lib/spend-log-utils";
 
 export type LogGroup = {
   model: string;
-  logs: SpendLog[];
+  logs: ProxyRequestLog[];
 };
 
 export type GroupSummary = {
-  totalSpend: number;
-  totalPromptTokens: number;
-  totalCompletionTokens: number;
+  totalCost: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
   totalTokens: number;
   totalDurationMs: number;
   averageTokensPerSecond: number | null;
@@ -16,7 +23,7 @@ export type GroupSummary = {
   groupStatus: "success" | "error" | "partial";
 };
 
-export function groupLogsByModel(logs: SpendLog[]): LogGroup[] {
+export function groupLogsByModel(logs: ProxyRequestLog[]): LogGroup[] {
   const groupsByModel = new Map<string, LogGroup>();
   const groups: LogGroup[] = [];
 
@@ -36,34 +43,35 @@ export function groupLogsByModel(logs: SpendLog[]): LogGroup[] {
 }
 
 export function calculateGroupSummary(group: LogGroup): GroupSummary {
-  const totalSpend = group.logs.reduce((sum, log) => sum + log.spend, 0);
-  const totalPromptTokens = group.logs.reduce(
-    (sum, log) => sum + log.prompt_tokens,
+  const totalCost = group.logs.reduce(
+    (sum, log) => sum + getProxyLogTotalCost(log),
     0,
   );
-  const totalCompletionTokens = group.logs.reduce(
-    (sum, log) => sum + log.completion_tokens,
+  const totalInputTokens = group.logs.reduce(
+    (sum, log) => sum + getProxyLogInputTokens(log),
+    0,
+  );
+  const totalOutputTokens = group.logs.reduce(
+    (sum, log) => sum + getProxyLogOutputTokens(log),
     0,
   );
   const totalTokens = group.logs.reduce(
-    (sum, log) => sum + log.total_tokens,
+    (sum, log) => sum + (log.total_tokens ?? 0),
     0,
   );
-  const totalDurationMs = group.logs.reduce((sum, log) => {
-    const start = new Date(log.start_time).getTime();
-    const end = new Date(log.end_time).getTime();
-    return sum + (end - start);
-  }, 0);
+  const totalDurationMs = group.logs.reduce(
+    (sum, log) => sum + getProxyLogDurationMs(log),
+    0,
+  );
 
   const tokensPerSecondValues = group.logs
     .map((log) => {
-      const start = new Date(log.start_time).getTime();
-      const end = new Date(log.end_time).getTime();
-      const durationMs = end - start;
-      if (durationMs <= 0 || !log.completion_tokens) {
+      const durationMs = getProxyLogDurationMs(log);
+      const outputTokens = getProxyLogOutputTokens(log);
+      if (durationMs <= 0 || !outputTokens) {
         return null;
       }
-      return log.completion_tokens / (durationMs / 1000);
+      return outputTokens / (durationMs / 1000);
     })
     .filter((value): value is number => value !== null);
   const averageTokensPerSecond =
@@ -73,7 +81,7 @@ export function calculateGroupSummary(group: LogGroup): GroupSummary {
       : null;
 
   const timeToFirstTokenValues = group.logs
-    .map((log) => log.time_to_first_token_ms)
+    .map((log) => log.ttft_ms)
     .filter((value): value is number => value !== null && !Number.isNaN(value));
   const averageTimeToFirstTokenMs =
     timeToFirstTokenValues.length > 0
@@ -81,8 +89,8 @@ export function calculateGroupSummary(group: LogGroup): GroupSummary {
         timeToFirstTokenValues.length
       : null;
 
-  const successCount = group.logs.filter(
-    (log) => log.status === "200" || log.status === "success",
+  const successCount = group.logs.filter((log) =>
+    isProxyLogSuccess(log.status),
   ).length;
   const groupStatus =
     successCount === group.logs.length
@@ -92,9 +100,9 @@ export function calculateGroupSummary(group: LogGroup): GroupSummary {
         : "partial";
 
   return {
-    totalSpend,
-    totalPromptTokens,
-    totalCompletionTokens,
+    totalCost,
+    totalInputTokens,
+    totalOutputTokens,
     totalTokens,
     totalDurationMs,
     averageTokensPerSecond,

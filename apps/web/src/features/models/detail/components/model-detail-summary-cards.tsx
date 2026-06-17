@@ -105,15 +105,17 @@ export function ModelDetailSummaryCards({
           size="sm"
           loading={loading}
         />
-        <MetricCard
-          title="Unique Users"
-          value={summary ? formatNumber(summary.uniqueUsers) : "—"}
-          icon={Users}
-          variant="gradient"
-          colorScheme="green"
-          size="sm"
-          loading={loading}
-        />
+        {summary && summary.uniqueUsers > 0 ? (
+          <MetricCard
+            title="Unique Users"
+            value={formatNumber(summary.uniqueUsers)}
+            icon={Users}
+            variant="gradient"
+            colorScheme="green"
+            size="sm"
+            loading={loading}
+          />
+        ) : null}
         <MetricCard
           title="Tokens/s"
           value={summary ? formatNumber(Math.round(tokensPerSecond)) : "—"}

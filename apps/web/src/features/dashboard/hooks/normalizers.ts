@@ -20,7 +20,39 @@ export type RawMetrics = {
   error_count?: number;
   prompt_tokens?: number;
   completion_tokens?: number;
+  input_tokens?: number;
+  output_tokens?: number;
 };
+
+export function readInputTokens(raw: {
+  prompt_tokens?: number;
+  input_tokens?: number;
+  promptTokens?: number;
+  inputTokens?: number;
+}): number {
+  return Number(
+    raw.inputTokens ??
+      raw.input_tokens ??
+      raw.promptTokens ??
+      raw.prompt_tokens ??
+      0,
+  );
+}
+
+export function readOutputTokens(raw: {
+  completion_tokens?: number;
+  output_tokens?: number;
+  completionTokens?: number;
+  outputTokens?: number;
+}): number {
+  return Number(
+    raw.outputTokens ??
+      raw.output_tokens ??
+      raw.completionTokens ??
+      raw.completion_tokens ??
+      0,
+  );
+}
 
 export function normalizeMetrics(
   raw: RawMetrics | null | undefined,
@@ -30,10 +62,8 @@ export function normalizeMetrics(
     totalTokens: Number(raw?.totalTokens ?? raw?.total_tokens ?? 0),
     activeModels: Number(raw?.activeModels ?? raw?.active_models ?? 0),
     errorCount: Number(raw?.errorCount ?? raw?.error_count ?? 0),
-    promptTokens: Number(raw?.promptTokens ?? raw?.prompt_tokens ?? 0),
-    completionTokens: Number(
-      raw?.completionTokens ?? raw?.completion_tokens ?? 0,
-    ),
+    promptTokens: readInputTokens(raw ?? {}),
+    completionTokens: readOutputTokens(raw ?? {}),
   };
 }
 

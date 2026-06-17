@@ -1,12 +1,11 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { describe, expect, it } from "vitest";
+import { normalizeProxyRequestLog } from "@/shared/lib/api-client/spend";
 import { normalizeSpendLogThread } from "../normalize-spend-log-thread";
 
-function createSpendLog(overrides: Partial<SpendLog> = {}): SpendLog {
-  return {
+function createProxyLog(overrides: Record<string, unknown> = {}) {
+  return normalizeProxyRequestLog({
     request_id: "req-1",
     model: "gpt-4",
-    user: "test-user",
     total_tokens: 100,
     prompt_tokens: 50,
     completion_tokens: 50,
@@ -14,15 +13,14 @@ function createSpendLog(overrides: Partial<SpendLog> = {}): SpendLog {
     time_to_first_token_ms: 120,
     start_time: "2026-01-01T00:00:00Z",
     end_time: "2026-01-01T00:00:01Z",
-    api_key: "sk-test",
     status: "success",
     ...overrides,
-  };
+  });
 }
 
 describe("normalizeSpendLogThread", () => {
   it("normalizes basic user and assistant messages", () => {
-    const log = createSpendLog({
+    const log = createProxyLog({
       messages: [
         { role: "user", content: "Hello" },
         { role: "assistant", content: "Hi there" },
@@ -66,7 +64,7 @@ describe("normalizeSpendLogThread", () => {
       },
     ];
 
-    const log = createSpendLog({
+    const log = createProxyLog({
       messages: [
         { role: "user", content: "Weather?" },
         { role: "assistant", content: "", tool_calls: toolCalls },
@@ -81,7 +79,7 @@ describe("normalizeSpendLogThread", () => {
   });
 
   it("preserves tool_call_id on tool result messages", () => {
-    const log = createSpendLog({
+    const log = createProxyLog({
       messages: [
         { role: "user", content: "Weather?" },
         {
@@ -112,7 +110,7 @@ describe("normalizeSpendLogThread", () => {
   });
 
   it("deduplicates response messages already present in request", () => {
-    const log = createSpendLog({
+    const log = createProxyLog({
       messages: [
         { role: "user", content: "Hello" },
         { role: "assistant", content: "Hi there" },
@@ -139,7 +137,7 @@ describe("normalizeSpendLogThread", () => {
   });
 
   it("falls back to response.choices when messages are absent", () => {
-    const log = createSpendLog({
+    const log = createProxyLog({
       messages: undefined,
       response: {
         choices: [
@@ -163,7 +161,7 @@ describe("normalizeSpendLogThread", () => {
   });
 
   it("falls back to proxy_server_request.messages when log.messages are absent", () => {
-    const log = createSpendLog({
+    const log = createProxyLog({
       messages: undefined,
       proxy_server_request: {
         messages: [{ role: "user", content: "From proxy" }],
@@ -180,7 +178,7 @@ describe("normalizeSpendLogThread", () => {
   });
 
   it("merges unique response messages after request messages", () => {
-    const log = createSpendLog({
+    const log = createProxyLog({
       messages: [{ role: "user", content: "Hello" }],
       response: {
         choices: [
@@ -208,7 +206,7 @@ describe("normalizeSpendLogThread", () => {
   });
 
   it("normalizes multipart text content to a single string", () => {
-    const log = createSpendLog({
+    const log = createProxyLog({
       messages: [
         {
           role: "user",

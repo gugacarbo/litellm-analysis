@@ -1,16 +1,19 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+import { normalizeProxyRequestLog } from "@/shared/lib/api-client/spend";
 import { LogsTable } from "../logs-table";
 import type { LogColumnKey } from "../logs-table-columns";
 
-const SAMPLE_LOGS: SpendLog[] = [
-  {
+function makeLog(raw: Record<string, unknown>) {
+  return normalizeProxyRequestLog(raw);
+}
+
+const SAMPLE_LOGS = [
+  makeLog({
     request_id: "req-1",
     model: "gpt-4.1-mini",
-    user: "alice",
     total_tokens: 150,
     prompt_tokens: 100,
     completion_tokens: 50,
@@ -18,13 +21,11 @@ const SAMPLE_LOGS: SpendLog[] = [
     time_to_first_token_ms: 420,
     start_time: "2026-04-24T10:00:00.000Z",
     end_time: "2026-04-24T10:00:01.000Z",
-    api_key: "key-1",
     status: "200",
-  },
-  {
+  }),
+  makeLog({
     request_id: "req-2",
     model: "gpt-4.1-mini",
-    user: "alice",
     total_tokens: 90,
     prompt_tokens: 60,
     completion_tokens: 30,
@@ -32,20 +33,18 @@ const SAMPLE_LOGS: SpendLog[] = [
     time_to_first_token_ms: 180,
     start_time: "2026-04-24T10:01:00.000Z",
     end_time: "2026-04-24T10:01:01.000Z",
-    api_key: "key-1",
     status: "200",
-  },
+  }),
 ];
 
-const VISIBLE_COLUMNS: LogColumnKey[] = ["model", "spend", "status"];
+const VISIBLE_COLUMNS: LogColumnKey[] = ["model", "totalCost", "status"];
 
 describe("LogsTable", () => {
   it("renders logs sorted by start time (newest first)", () => {
-    const logs: SpendLog[] = [
-      {
+    const logs = [
+      makeLog({
         request_id: "req-old",
         model: "gpt-4.1-mini",
-        user: "alice",
         total_tokens: 100,
         prompt_tokens: 60,
         completion_tokens: 40,
@@ -53,13 +52,11 @@ describe("LogsTable", () => {
         time_to_first_token_ms: 200,
         start_time: "2026-04-24T10:00:00.000Z",
         end_time: "2026-04-24T10:00:01.000Z",
-        api_key: "key-1",
         status: "200",
-      },
-      {
+      }),
+      makeLog({
         request_id: "req-new",
         model: "gpt-4.1-mini",
-        user: "alice",
         total_tokens: 120,
         prompt_tokens: 70,
         completion_tokens: 50,
@@ -67,13 +64,11 @@ describe("LogsTable", () => {
         time_to_first_token_ms: 180,
         start_time: "2026-04-24T10:02:00.000Z",
         end_time: "2026-04-24T10:02:01.000Z",
-        api_key: "key-1",
         status: "200",
-      },
-      {
+      }),
+      makeLog({
         request_id: "req-mid",
         model: "gpt-4.1-mini",
-        user: "alice",
         total_tokens: 110,
         prompt_tokens: 65,
         completion_tokens: 45,
@@ -81,9 +76,8 @@ describe("LogsTable", () => {
         time_to_first_token_ms: 190,
         start_time: "2026-04-24T10:01:00.000Z",
         end_time: "2026-04-24T10:01:01.000Z",
-        api_key: "key-1",
         status: "200",
-      },
+      }),
     ];
 
     const { container } = render(
@@ -178,10 +172,9 @@ describe("LogsTable", () => {
       <BrowserRouter>
         <LogsTable
           logs={[
-            {
+            makeLog({
               request_id: "tps-1",
               model: "gpt-4.1-mini",
-              user: "alice",
               total_tokens: 30,
               prompt_tokens: 20,
               completion_tokens: 10,
@@ -189,13 +182,11 @@ describe("LogsTable", () => {
               time_to_first_token_ms: null,
               start_time: "2026-04-24T10:00:00.000Z",
               end_time: "2026-04-24T10:00:02.000Z",
-              api_key: "key-1",
               status: "200",
-            },
-            {
+            }),
+            makeLog({
               request_id: "tps-2",
               model: "gpt-4.1-mini",
-              user: "alice",
               total_tokens: 40,
               prompt_tokens: 10,
               completion_tokens: 30,
@@ -203,9 +194,8 @@ describe("LogsTable", () => {
               time_to_first_token_ms: null,
               start_time: "2026-04-24T10:01:00.000Z",
               end_time: "2026-04-24T10:01:03.000Z",
-              api_key: "key-1",
               status: "200",
-            },
+            }),
           ]}
           loading={false}
           refreshing={false}
@@ -241,10 +231,9 @@ describe("LogsTable", () => {
       <BrowserRouter>
         <LogsTable
           logs={[
-            {
+            makeLog({
               request_id: "ttft-1",
               model: "gpt-4.1-mini",
-              user: "alice",
               total_tokens: 30,
               prompt_tokens: 20,
               completion_tokens: 10,
@@ -252,13 +241,11 @@ describe("LogsTable", () => {
               time_to_first_token_ms: 250,
               start_time: "2026-04-24T10:00:00.000Z",
               end_time: "2026-04-24T10:00:02.000Z",
-              api_key: "key-1",
               status: "200",
-            },
-            {
+            }),
+            makeLog({
               request_id: "ttft-2",
               model: "gpt-4.1-mini",
-              user: "alice",
               total_tokens: 40,
               prompt_tokens: 10,
               completion_tokens: 30,
@@ -266,9 +253,8 @@ describe("LogsTable", () => {
               time_to_first_token_ms: 350,
               start_time: "2026-04-24T10:01:00.000Z",
               end_time: "2026-04-24T10:01:03.000Z",
-              api_key: "key-1",
               status: "200",
-            },
+            }),
           ]}
           loading={false}
           refreshing={false}
@@ -302,10 +288,9 @@ describe("LogsTable", () => {
       <BrowserRouter>
         <LogsTable
           logs={[
-            {
+            makeLog({
               request_id: "status-1",
               model: "gpt-4.1-mini",
-              user: "alice",
               total_tokens: 30,
               prompt_tokens: 20,
               completion_tokens: 10,
@@ -313,13 +298,11 @@ describe("LogsTable", () => {
               time_to_first_token_ms: 200,
               start_time: "2026-04-24T10:00:00.000Z",
               end_time: "2026-04-24T10:00:02.000Z",
-              api_key: "key-1",
               status: "200",
-            },
-            {
+            }),
+            makeLog({
               request_id: "status-2",
               model: "gpt-4.1-mini",
-              user: "alice",
               total_tokens: 40,
               prompt_tokens: 10,
               completion_tokens: 30,
@@ -327,9 +310,8 @@ describe("LogsTable", () => {
               time_to_first_token_ms: 300,
               start_time: "2026-04-24T10:01:00.000Z",
               end_time: "2026-04-24T10:01:03.000Z",
-              api_key: "key-1",
               status: "500",
-            },
+            }),
           ]}
           loading={false}
           refreshing={false}

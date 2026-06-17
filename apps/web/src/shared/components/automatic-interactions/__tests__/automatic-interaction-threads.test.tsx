@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { normalizeProxyRequestLog } from "@/shared/lib/api-client/spend";
 import { normalizeHealthCheckThread } from "@/shared/lib/automatic-interactions/normalize-health-check-thread";
 import { normalizeSpendLogThread } from "@/shared/lib/automatic-interactions/normalize-spend-log-thread";
 import { LiveHealthCheckThread } from "../live-health-check-thread";
@@ -72,42 +73,42 @@ vi.mock("@/shared/components/assistant-ui/thread", () => {
 
 describe("ReadonlyInteractionThread", () => {
   it("renders historical tool-call conversations", async () => {
-    const thread = normalizeSpendLogThread({
-      request_id: "req-render",
-      model: "gpt-4",
-      user: "test-user",
-      total_tokens: 100,
-      prompt_tokens: 50,
-      completion_tokens: 50,
-      spend: 0.01,
-      time_to_first_token_ms: 120,
-      start_time: "2026-01-01T00:00:00Z",
-      end_time: "2026-01-01T00:00:01Z",
-      api_key: "sk-test",
-      status: "success",
-      messages: [
-        { role: "user", content: "Weather?" },
-        {
-          role: "assistant",
-          content: "",
-          tool_calls: [
-            {
-              id: "call-1",
-              type: "function",
-              function: {
-                name: "get_weather",
-                arguments: '{"city":"NYC"}',
+    const thread = normalizeSpendLogThread(
+      normalizeProxyRequestLog({
+        request_id: "req-render",
+        model: "gpt-4",
+        total_tokens: 100,
+        prompt_tokens: 50,
+        completion_tokens: 50,
+        spend: 0.01,
+        time_to_first_token_ms: 120,
+        start_time: "2026-01-01T00:00:00Z",
+        end_time: "2026-01-01T00:00:01Z",
+        status: "success",
+        messages: [
+          { role: "user", content: "Weather?" },
+          {
+            role: "assistant",
+            content: "",
+            tool_calls: [
+              {
+                id: "call-1",
+                type: "function",
+                function: {
+                  name: "get_weather",
+                  arguments: '{"city":"NYC"}',
+                },
               },
-            },
-          ],
-        },
-        {
-          role: "tool",
-          content: '{"temp":72}',
-          tool_call_id: "call-1",
-        },
-      ],
-    });
+            ],
+          },
+          {
+            role: "tool",
+            content: '{"temp":72}',
+            tool_call_id: "call-1",
+          },
+        ],
+      }),
+    );
 
     render(<ReadonlyInteractionThread thread={thread} />);
 

@@ -1,4 +1,3 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import {
   AlertCircle,
   AlertTriangle,
@@ -28,24 +27,31 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { JsonViewer } from "@/shared/components/ui/json-viewer";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 import {
   extractSpendLogMessages,
   normalizeSpendLogThread,
   resolveSpendLogRawPayload,
 } from "@/shared/lib/automatic-interactions";
 import {
-  calculateTokensPerSecond,
+  calculateProxyLogTokensPerSecond,
   formatCurrency,
   formatDuration,
   formatFullDateTime,
   formatNumber,
+  getProxyLogDurationMs,
+  getProxyLogInputTokens,
+  getProxyLogOutputTokens,
+  getProxyLogTotalCost,
+  isProxyLogSuccess,
 } from "@/shared/lib/spend-log-utils";
 import { ContextBadge } from "./log-detail-context-badge";
 import { LogDetailInfoSections } from "./log-detail-info-section";
 import { MiniMetricCard } from "./log-detail-metric-card";
+import { LogEstimatedBadges } from "./log-estimated-badges";
 
 type LogDetailDialogProps = {
-  log: SpendLog | null;
+  log: ProxyRequestLog | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -69,14 +75,12 @@ export function LogDetailDialog({
 
   if (!log) return null;
 
-  const durationMs =
-    new Date(log.end_time).getTime() - new Date(log.start_time).getTime();
-  const tokensPerSec = calculateTokensPerSecond(
-    log.completion_tokens,
-    log.start_time,
-    log.end_time,
-  );
-  const isSuccess = log.status === "200" || log.status === "success";
+  const durationMs = getProxyLogDurationMs(log);
+  const tokensPerSec = calculateProxyLogTokensPerSecond(log);
+  const inputTokens = getProxyLogInputTokens(log);
+  const outputTokens = getProxyLogOutputTokens(log);
+  const totalTokens = log.total_tokens ?? inputTokens + outputTokens;
+  const isSuccess = isProxyLogSuccess(log.status);
 
   const statusConfig = isSuccess
     ? {
@@ -95,7 +99,7 @@ export function LogDetailDialog({
   const StatusIcon = statusConfig.icon;
 
   const handleCopyRequestId = async () => {
-    await navigator.clipboard.writeText(log.request_id);
+    await navigator.clipboard.writeText(log.id);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -106,23 +110,15 @@ export function LogDetailDialog({
     variant: "success" | "info" | "warning" | "purple" | "cyan" | "default";
   }[] = [];
 
-  if (log.call_type) {
+  if (log.cached_tokens != null && log.cached_tokens > 0) {
     contextBadges.push({
-      label: log.call_type.replace(/_/g, " ").replace(/\./g, " "),
-      icon: MessageSquare,
-      variant: "info",
-    });
-  }
-
-  if (log.cache_hit) {
-    contextBadges.push({
-      label: log.cache_hit === "true" ? "Cache Hit" : "Cache Miss",
+      label: `Cache ${formatNumber(log.cached_tokens)} tokens`,
       icon: Zap,
-      variant: log.cache_hit === "true" ? "success" : "warning",
+      variant: "success",
     });
   }
 
-  if (log.messages && log.messages.length > 0) {
+  if (log.messages.length > 0) {
     contextBadges.push({
       label: "Chat",
       icon: MessageSquare,
@@ -130,7 +126,7 @@ export function LogDetailDialog({
     });
   }
 
-  if (log.cache_hit || log.response) {
+  if (log.response_body) {
     contextBadges.push({
       label: "Streaming",
       icon: Webhook,
@@ -155,17 +151,17 @@ export function LogDetailDialog({
                 {log.model}
               </DialogTitle>
               <DialogDescription className="flex items-center gap-2 mt-1 flex-wrap">
-                <span>{formatFullDateTime(log.start_time)}</span>
+                <span>{formatFullDateTime(log.started_at)}</span>
                 <span className="text-muted-foreground/50">&bull;</span>
                 <span>{formatDuration(durationMs)}</span>
-                {log.call_type && (
+                {log.upstream_model ? (
                   <>
                     <span className="text-muted-foreground/50">&bull;</span>
-                    <span className="capitalize">
-                      {log.call_type.replace(/_/g, " ")}
+                    <span className="font-mono text-xs">
+                      {log.upstream_model}
                     </span>
                   </>
-                )}
+                ) : null}
               </DialogDescription>
             </div>
             <Badge
@@ -174,16 +170,17 @@ export function LogDetailDialog({
             >
               {log.status}
             </Badge>
-            <Badge variant="outline">{log.user || "anonymous"}</Badge>
+            <LogEstimatedBadges
+              usageEstimated={log.usage_estimated}
+              costEstimated={log.cost_estimated}
+            />
           </div>
 
           <div className="rounded-lg border bg-muted/30 px-3 py-2 flex items-center gap-3">
             <span className="text-xs text-muted-foreground uppercase tracking-wide shrink-0">
               Request ID
             </span>
-            <span className="font-mono text-xs break-all flex-1">
-              {log.request_id}
-            </span>
+            <span className="font-mono text-xs break-all flex-1">{log.id}</span>
             <button
               type="button"
               onClick={handleCopyRequestId}
@@ -197,7 +194,7 @@ export function LogDetailDialog({
               )}
             </button>
             <Button variant="outline" size="sm" asChild>
-              <Link to={`/logs/${log.request_id}/chat`}>
+              <Link to={`/logs/${log.id}/chat`}>
                 <MessageCircle className="h-4 w-4" />
                 Chat Simulation
               </Link>
@@ -205,7 +202,7 @@ export function LogDetailDialog({
           </div>
         </DialogHeader>
 
-        {hasContextBadges && (
+        {hasContextBadges ? (
           <div className="flex flex-wrap gap-2">
             {contextBadges.map((badge) => (
               <ContextBadge
@@ -216,13 +213,13 @@ export function LogDetailDialog({
               />
             ))}
           </div>
-        )}
+        ) : null}
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <MiniMetricCard
             icon={DollarSign}
-            label="Total Spend"
-            value={formatCurrency(log.spend)}
+            label="Total Cost"
+            value={formatCurrency(getProxyLogTotalCost(log))}
             accent="text-emerald-500"
           />
           <MiniMetricCard
@@ -234,7 +231,7 @@ export function LogDetailDialog({
           <MiniMetricCard
             icon={Zap}
             label="Total Tokens"
-            value={formatNumber(log.total_tokens)}
+            value={formatNumber(totalTokens)}
             accent="text-amber-500"
           />
           <MiniMetricCard
@@ -246,16 +243,12 @@ export function LogDetailDialog({
           <MiniMetricCard
             icon={Zap}
             label="Time to First Token"
-            value={
-              log.time_to_first_token_ms != null
-                ? `${Math.round(log.time_to_first_token_ms)}ms`
-                : "-"
-            }
+            value={log.ttft_ms != null ? `${Math.round(log.ttft_ms)}ms` : "-"}
             accent={
-              log.time_to_first_token_ms != null
-                ? log.time_to_first_token_ms < 500
+              log.ttft_ms != null
+                ? log.ttft_ms < 500
                   ? "text-emerald-500"
-                  : log.time_to_first_token_ms < 2000
+                  : log.ttft_ms < 2000
                     ? "text-amber-500"
                     : "text-red-500"
                 : "text-muted-foreground"
@@ -271,54 +264,30 @@ export function LogDetailDialog({
             <div className="flex items-center gap-4 text-sm flex-wrap">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm bg-blue-500" />
-                <span className="text-muted-foreground">Prompt</span>
-                <span className="font-medium">
-                  {formatNumber(log.prompt_tokens)}
-                </span>
+                <span className="text-muted-foreground">Input</span>
+                <span className="font-medium">{formatNumber(inputTokens)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm bg-amber-500" />
-                <span className="text-muted-foreground">Completion</span>
+                <span className="text-muted-foreground">Output</span>
                 <span className="font-medium">
-                  {formatNumber(log.completion_tokens)}
+                  {formatNumber(outputTokens)}
                 </span>
               </div>
-              <div className="ml-auto flex items-center gap-2 text-muted-foreground">
-                <span>Ratio</span>
-                <span className="font-medium text-foreground">
-                  {log.prompt_tokens > 0
-                    ? (log.completion_tokens / log.prompt_tokens).toFixed(2)
-                    : "0.00"}
-                  :1
-                </span>
-              </div>
-            </div>
-            <div className="mt-3 h-2.5 rounded-full bg-muted overflow-hidden flex">
-              <div
-                className="bg-blue-500 h-full transition-all"
-                style={{
-                  width: `${
-                    log.total_tokens > 0
-                      ? (log.prompt_tokens / log.total_tokens) * 100
-                      : 50
-                  }%`,
-                }}
-              />
-              <div
-                className="bg-amber-500 h-full transition-all"
-                style={{
-                  width: `${
-                    log.total_tokens > 0
-                      ? (log.completion_tokens / log.total_tokens) * 100
-                      : 50
-                  }%`,
-                }}
-              />
+              {log.cached_tokens != null && log.cached_tokens > 0 ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-sm bg-emerald-500" />
+                  <span className="text-muted-foreground">Cached</span>
+                  <span className="font-medium">
+                    {formatNumber(log.cached_tokens)}
+                  </span>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
 
-        {chatMessageCount > 0 && messageThread && (
+        {chatMessageCount > 0 && messageThread ? (
           <CollapsibleSection
             title={`Messages (${chatMessageCount})`}
             icon={MessageSquare}
@@ -330,59 +299,31 @@ export function LogDetailDialog({
               className="max-h-96 overflow-y-auto rounded-lg border bg-muted/10 p-2"
             />
           </CollapsibleSection>
-        )}
+        ) : null}
 
-        {log.metadata && Object.keys(log.metadata).length > 0 && (
+        {log.request_body && Object.keys(log.request_body).length > 0 ? (
           <CollapsibleSection
-            title="Metadata"
+            title="Request Body"
             icon={MessageSquare}
             defaultOpen={false}
           >
-            <JsonViewer data={log.metadata} defaultOpen={false} />
+            <JsonViewer data={log.request_body} defaultOpen={false} />
           </CollapsibleSection>
-        )}
+        ) : null}
 
-        {log.request_tags && log.request_tags.length > 0 && (
+        {isSuccess &&
+        log.response_body &&
+        Object.keys(log.response_body).length > 0 ? (
           <CollapsibleSection
-            title="Request Tags"
-            icon={Zap}
+            title="Response Body"
+            icon={FileText}
             defaultOpen={false}
           >
-            <div className="flex flex-wrap gap-2">
-              {log.request_tags.map((tag, index) => (
-                <Badge key={index} variant="outline">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+            <JsonViewer data={log.response_body} defaultOpen={false} />
           </CollapsibleSection>
-        )}
+        ) : null}
 
-        {log.proxy_server_request &&
-          typeof log.proxy_server_request === "object" &&
-          Object.keys(log.proxy_server_request).length > 0 && (
-            <CollapsibleSection
-              title="Request Body"
-              icon={MessageSquare}
-              defaultOpen={false}
-            >
-              <JsonViewer data={log.proxy_server_request} defaultOpen={false} />
-            </CollapsibleSection>
-          )}
-        {isSuccess &&
-          log.response &&
-          typeof log.response === "object" &&
-          Object.keys(log.response).length > 0 && (
-            <CollapsibleSection
-              title="Response"
-              icon={FileText}
-              defaultOpen={false}
-            >
-              <JsonViewer data={log.response} defaultOpen={false} />
-            </CollapsibleSection>
-          )}
-
-        {!isSuccess && (
+        {!isSuccess ? (
           <section className="overflow-hidden rounded-lg border border-red-500/30">
             <div className="border-b bg-red-500/10 px-3 py-2 text-xs font-medium uppercase tracking-wide text-red-700 dark:text-red-400 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
@@ -393,15 +334,19 @@ export function LogDetailDialog({
                 <Badge className="bg-red-500/15 text-red-700 border-red-500/30">
                   {log.status}
                 </Badge>
+                {log.error_type ? (
+                  <Badge variant="outline">{log.error_type}</Badge>
+                ) : null}
               </div>
               <pre className="text-sm whitespace-pre-wrap bg-muted/50 p-3 rounded font-mono overflow-x-auto">
-                {log.response
-                  ? JSON.stringify(log.response, null, 2)
-                  : "No error details available"}
+                {log.error_message ??
+                  (log.response_body
+                    ? JSON.stringify(log.response_body, null, 2)
+                    : "No error details available")}
               </pre>
             </div>
           </section>
-        )}
+        ) : null}
 
         <LogDetailInfoSections
           log={log}

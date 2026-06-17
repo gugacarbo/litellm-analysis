@@ -1,7 +1,4 @@
-import type {
-  PaginationMetadata,
-  SpendLog,
-} from "@lite-llm/contracts/analytics";
+import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
 import type {
   ColumnDef,
   Updater,
@@ -18,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 import { LogsPaginationControls } from "./logs-pagination-controls";
 import { renderLogCell } from "./logs-table-cell";
 import { LOG_COLUMNS, type LogColumnKey } from "./logs-table-columns";
@@ -29,7 +27,7 @@ import { calculateGroupSummary, groupLogsByModel } from "./logs-table-utils";
 export { DEFAULT_VISIBLE_LOG_COLUMNS } from "./logs-table-columns";
 
 type LogsTableProps = {
-  logs: SpendLog[];
+  logs: ProxyRequestLog[];
   loading: boolean;
   refreshing: boolean;
   page: number;
@@ -38,7 +36,7 @@ type LogsTableProps = {
   visibleColumns: LogColumnKey[];
   autoRefetchEnabled: boolean;
   groupByModel: boolean;
-  onSelectLog?: (log: SpendLog) => void;
+  onSelectLog?: (log: ProxyRequestLog) => void;
   onToggleColumn: (column: LogColumnKey) => void;
   onAutoRefetchChange: (enabled: boolean) => void;
   onGroupByModelChange: (enabled: boolean) => void;
@@ -69,14 +67,14 @@ export function LogsTable({
   const isFetching = loading || refreshing;
   const showGroupExpanderColumn = groupByModel;
 
-  const handleRowClick = (log: SpendLog) => {
+  const handleRowClick = (log: ProxyRequestLog) => {
     if (onSelectLog) {
       onSelectLog(log);
     }
-    navigate(`/logs/${encodeURIComponent(log.request_id)}`);
+    navigate(`/logs/${encodeURIComponent(log.id)}`);
   };
 
-  const columns: ColumnDef<SpendLog>[] = useMemo(
+  const columns: ColumnDef<ProxyRequestLog>[] = useMemo(
     () =>
       LOG_COLUMNS.map((col) => ({
         id: col.key,
@@ -103,13 +101,13 @@ export function LogsTable({
 
   const align: Record<string, "left" | "right" | "center"> = {
     latencyHeat: "right",
-    promptTokens: "right",
-    completionTokens: "right",
+    inputTokens: "right",
+    outputTokens: "right",
     totalTokens: "right",
     duration: "right",
     timeToFirstToken: "right",
     tokensPerSecond: "right",
-    spend: "right",
+    totalCost: "right",
   };
 
   const columnLabels = useMemo(() => {
@@ -144,8 +142,8 @@ export function LogsTable({
 
   const sortedLogs = useMemo(() => {
     return [...logs].sort((a, b) => {
-      const timeA = new Date(a.start_time).getTime();
-      const timeB = new Date(b.start_time).getTime();
+      const timeA = new Date(a.started_at).getTime();
+      const timeB = new Date(b.started_at).getTime();
       const normalizedA = Number.isNaN(timeA) ? 0 : timeA;
       const normalizedB = Number.isNaN(timeB) ? 0 : timeB;
 
@@ -153,7 +151,7 @@ export function LogsTable({
         return normalizedB - normalizedA;
       }
 
-      return b.request_id.localeCompare(a.request_id);
+      return b.id.localeCompare(a.id);
     });
   }, [logs]);
 
@@ -164,7 +162,7 @@ export function LogsTable({
 
     const initialExpanded: Record<string, boolean> = {};
     for (const group of groups) {
-      const key = `${group.model}-${group.logs[0].request_id}`;
+      const key = `${group.model}-${group.logs[0].id}`;
       if (expandedGroups[key] === undefined) {
         initialExpanded[key] = false;
       }
@@ -230,7 +228,7 @@ export function LogsTable({
               ) : (
                 <TableBody>
                   {groupedLogs.map((group) => {
-                    const groupKey = `${group.model}-${group.logs[0].request_id}`;
+                    const groupKey = `${group.model}-${group.logs[0].id}`;
                     const isExpanded = expandedGroups[groupKey] ?? false;
                     const summary = calculateGroupSummary(group);
 

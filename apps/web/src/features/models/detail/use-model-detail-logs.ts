@@ -1,7 +1,4 @@
-import type {
-  PaginationMetadata,
-  SpendLog,
-} from "@lite-llm/contracts/analytics";
+import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
 import type { SpendLogsChangedPayload } from "@lite-llm/contracts/ws-events";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -55,11 +52,8 @@ export function useModelDetailLogs(modelName: string) {
     };
   }, []);
 
-  const logs = (logsQuery.data?.logs ?? []) as SpendLog[];
-  const visibleRequestIds = useMemo(
-    () => logs.map((log) => log.request_id),
-    [logs],
-  );
+  const logs = logsQuery.data?.logs ?? [];
+  const visibleRequestIds = useMemo(() => logs.map((log) => log.id), [logs]);
   const visibleRequestIdsRef = useRef(visibleRequestIds);
   visibleRequestIdsRef.current = visibleRequestIds;
 

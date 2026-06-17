@@ -2,14 +2,13 @@ export type LogColumnKey =
   | "latencyHeat"
   | "time"
   | "model"
-  | "user"
-  | "promptTokens"
-  | "completionTokens"
+  | "inputTokens"
+  | "outputTokens"
   | "totalTokens"
   | "duration"
   | "timeToFirstToken"
   | "tokensPerSecond"
-  | "spend"
+  | "totalCost"
   | "status"
   | "requestId";
 
@@ -28,18 +27,13 @@ export const LOG_COLUMNS: LogColumn[] = [
   { key: "time", label: "Time" },
   { key: "model", label: "Model" },
   {
-    key: "user",
-    label: "User",
-    defaultVisible: false,
-  },
-  {
-    key: "promptTokens",
-    label: "Prompt Tokens",
+    key: "inputTokens",
+    label: "Input Tokens",
     align: "right",
   },
   {
-    key: "completionTokens",
-    label: "Completion Tokens",
+    key: "outputTokens",
+    label: "Output Tokens",
     align: "right",
   },
   { key: "totalTokens", label: "Total Tokens", align: "right" },
@@ -52,7 +46,7 @@ export const LOG_COLUMNS: LogColumn[] = [
     defaultVisible: false,
   },
   { key: "tokensPerSecond", label: "Tokens/s", align: "right" },
-  { key: "spend", label: "Spend", align: "right" },
+  { key: "totalCost", label: "Cost", align: "right" },
   { key: "status", label: "Status" },
   {
     key: "requestId",

@@ -1,5 +1,5 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { Badge } from "@/shared/components/ui/badge";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 import {
   formatCurrency,
   formatNumber,
@@ -16,7 +16,7 @@ export function renderGroupSummaryCell({
   column,
 }: {
   model: string;
-  groupLogs: SpendLog[];
+  groupLogs: ProxyRequestLog[];
   summary: GroupSummary;
   column: TableColumn;
 }) {
@@ -27,8 +27,8 @@ export function renderGroupSummaryCell({
   if (column.key === "time") {
     return (
       <span className="text-xs whitespace-nowrap text-muted-foreground">
-        {formatTimeRelative(groupLogs[0].start_time)} —{" "}
-        {formatTimeRelative(groupLogs[groupLogs.length - 1].start_time)}
+        {formatTimeRelative(groupLogs[0].started_at)} —{" "}
+        {formatTimeRelative(groupLogs[groupLogs.length - 1].started_at)}
       </span>
     );
   }
@@ -46,34 +46,18 @@ export function renderGroupSummaryCell({
     );
   }
 
-  if (column.key === "user") {
-    const uniqueUsers = new Set(groupLogs.map((l) => l.user));
-    if (uniqueUsers.size > 1) {
-      return (
-        <span className="text-sm text-muted-foreground">
-          {uniqueUsers.size} users
-        </span>
-      );
-    }
+  if (column.key === "inputTokens") {
     return (
-      <span className="text-sm text-muted-foreground">
-        {groupLogs[0].user || "—"}
+      <span className="text-right">
+        {formatNumber(summary.totalInputTokens)}
       </span>
     );
   }
 
-  if (column.key === "promptTokens") {
+  if (column.key === "outputTokens") {
     return (
       <span className="text-right">
-        {formatNumber(summary.totalPromptTokens)}
-      </span>
-    );
-  }
-
-  if (column.key === "completionTokens") {
-    return (
-      <span className="text-right">
-        {formatNumber(summary.totalCompletionTokens)}
+        {formatNumber(summary.totalOutputTokens)}
       </span>
     );
   }
@@ -128,10 +112,10 @@ export function renderGroupSummaryCell({
     );
   }
 
-  if (column.key === "spend") {
+  if (column.key === "totalCost") {
     return (
       <span className="text-right font-medium">
-        {formatCurrency(summary.totalSpend)}
+        {formatCurrency(summary.totalCost)}
       </span>
     );
   }

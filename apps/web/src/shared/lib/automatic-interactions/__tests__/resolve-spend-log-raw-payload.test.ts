@@ -1,11 +1,10 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { describe, expect, it } from "vitest";
+import { normalizeProxyRequestLog } from "@/shared/lib/api-client/spend";
 import { resolveSpendLogRawPayload } from "../resolve-spend-log-raw-payload";
 
-const baseLog: SpendLog = {
+const baseLog = normalizeProxyRequestLog({
   request_id: "req-raw",
   model: "gpt-4",
-  user: "test-user",
   total_tokens: 10,
   prompt_tokens: 5,
   completion_tokens: 5,
@@ -13,13 +12,12 @@ const baseLog: SpendLog = {
   time_to_first_token_ms: 100,
   start_time: "2026-01-01T00:00:00Z",
   end_time: "2026-01-01T00:00:01Z",
-  api_key: "sk-test",
   status: "success",
   messages: [
     { role: "user", content: "hello" },
     { role: "assistant", content: "hi" },
   ],
-};
+});
 
 describe("resolveSpendLogRawPayload", () => {
   it("returns extracted message by index ref", () => {

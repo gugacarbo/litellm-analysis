@@ -1,7 +1,7 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { Fragment } from "react";
 import { TableCell, TableRow } from "@/shared/components/ui/table";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 import { renderLogCell } from "./logs-table-cell";
 import type { TableColumn } from "./logs-table-columns";
 import { renderGroupSummaryCell } from "./logs-table-summary-row";
@@ -15,7 +15,7 @@ type LogsTableGroupRendererProps = {
   tableColumns: TableColumn[];
   showGroupExpanderColumn: boolean;
   onToggleGroup: () => void;
-  onSelectLog: (log: SpendLog) => void;
+  onSelectLog: (log: ProxyRequestLog) => void;
 };
 
 export function LogsTableGroupRenderer({
@@ -55,14 +55,14 @@ export function LogsTableGroupRenderer({
       {isExpanded &&
         groupLogs.map((log) => (
           <TableRow
-            key={log.request_id}
+            key={log.id}
             className="cursor-pointer hover:bg-muted/50"
             onClick={() => onSelectLog(log)}
           >
             {showGroupExpanderColumn ? <TableCell className="w-10" /> : null}
             {tableColumns.map((column) => (
               <TableCell
-                key={`${log.request_id}-${column.key}`}
+                key={`${log.id}-${column.key}`}
                 className={column.align === "right" ? "text-right" : ""}
               >
                 {renderLogCell({

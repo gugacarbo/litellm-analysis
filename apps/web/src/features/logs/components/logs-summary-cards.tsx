@@ -1,4 +1,3 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import {
   Activity,
   Clock,
@@ -9,65 +8,76 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { MetricCard } from "@/shared/components/metric-card";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 import {
   formatCurrency,
   formatDuration,
   formatNumber,
+  getProxyLogDurationMs,
+  getProxyLogOutputTokens,
+  getProxyLogTotalCost,
+  isProxyLogSuccess,
 } from "@/shared/lib/spend-log-utils";
 
 type LogsSummaryCardsProps = {
-  logs: SpendLog[];
+  logs: ProxyRequestLog[];
   loading: boolean;
 };
 
 export function LogsSummaryCards({ logs, loading }: LogsSummaryCardsProps) {
   const metrics = useMemo(() => {
     if (logs.length === 0) return null;
-    const totalSpend = logs.reduce((s, l) => s + l.spend, 0);
-    const totalTokens = logs.reduce((s, l) => s + l.total_tokens, 0);
+    const totalSpend = logs.reduce(
+      (sum, log) => sum + getProxyLogTotalCost(log),
+      0,
+    );
+    const totalTokens = logs.reduce(
+      (sum, log) => sum + (log.total_tokens ?? 0),
+      0,
+    );
     const totalRequests = logs.length;
     const avgSpend = totalSpend / totalRequests;
-    const successCount = logs.filter(
-      (l) => l.status === "200" || l.status === "success",
+    const successCount = logs.filter((log) =>
+      isProxyLogSuccess(log.status),
     ).length;
     const successRate = (successCount / totalRequests) * 100;
 
     const durations = logs
-      .filter((l) => l.end_time)
-      .map(
-        (l) =>
-          new Date(l.end_time).getTime() - new Date(l.start_time).getTime(),
-      );
+      .map((log) => getProxyLogDurationMs(log))
+      .filter((duration) => duration > 0);
     const avgDuration =
       durations.length > 0
-        ? durations.reduce((s, d) => s + d, 0) / durations.length
+        ? durations.reduce((sum, duration) => sum + duration, 0) /
+          durations.length
         : 0;
 
     const speeds = logs
-      .filter((l) => l.end_time && l.completion_tokens > 0)
-      .map((l) => {
-        const ms =
-          new Date(l.end_time).getTime() - new Date(l.start_time).getTime();
-        return ms > 0 ? (l.completion_tokens / ms) * 1000 : 0;
+      .filter((log) => getProxyLogOutputTokens(log) > 0)
+      .map((log) => {
+        const ms = getProxyLogDurationMs(log);
+        const outputTokens = getProxyLogOutputTokens(log);
+        return ms > 0 ? (outputTokens / ms) * 1000 : 0;
       });
     const avgSpeed =
-      speeds.length > 0 ? speeds.reduce((s, v) => s + v, 0) / speeds.length : 0;
+      speeds.length > 0
+        ? speeds.reduce((sum, value) => sum + value, 0) / speeds.length
+        : 0;
 
     const avgTokensPerRequest = totalTokens / totalRequests;
     const maxTokensPerSecond = speeds.length > 0 ? Math.max(...speeds) : 0;
 
-    const slowestRequest = logs
-      .filter((l) => l.end_time)
-      .map((l) => ({
-        id: l.request_id,
-        duration:
-          new Date(l.end_time).getTime() - new Date(l.start_time).getTime(),
-      }))
-      .sort((a, b) => b.duration - a.duration)[0].duration;
+    const slowestRequest =
+      logs
+        .map((log) => ({
+          id: log.id,
+          duration: getProxyLogDurationMs(log),
+        }))
+        .filter((entry) => entry.duration > 0)
+        .sort((a, b) => b.duration - a.duration)[0]?.duration ?? 0;
 
-    const topTotalTokens = logs.sort(
-      (a, b) => b.total_tokens - a.total_tokens,
-    )[0].total_tokens;
+    const topTotalTokens =
+      [...logs].sort((a, b) => (b.total_tokens ?? 0) - (a.total_tokens ?? 0))[0]
+        ?.total_tokens ?? 0;
 
     return {
       totalSpend,

@@ -1,13 +1,13 @@
-import type { SpendLog } from "@lite-llm/contracts/analytics";
 import { useEffect, useMemo, useRef } from "react";
 import { ReadonlyInteractionThread } from "@/shared/components/automatic-interactions";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 import {
   normalizeSpendLogThread,
   resolveSpendLogRawPayload,
 } from "@/shared/lib/automatic-interactions";
 
 type ChatSimulationProps = {
-  log: SpendLog;
+  log: ProxyRequestLog;
 };
 
 export function ChatSimulation({ log }: ChatSimulationProps) {

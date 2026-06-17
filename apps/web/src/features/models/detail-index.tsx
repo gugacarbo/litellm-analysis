@@ -253,26 +253,34 @@ export function ModelDetailOverviewContent({
         <ModelDetailProviderChart data={providerBreakdown} loading={loading} />
       </section>
 
-      <Separator />
-
       {/*** TOP ENTITIES ***/}
-      <section>
-        <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
-          Top Entities
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ModelDetailUserTable
-            users={topUsers}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-          <ModelDetailApiKeyTable
-            apiKeys={topApiKeys}
-            loading={loading}
-            rangeLabel={rangeLabel}
-          />
-        </div>
-      </section>
+      {(topUsers.length > 0 || topApiKeys.length > 0) && (
+        <>
+          <Separator />
+
+          <section>
+            <h2 className="text-lg font-semibold border-b border-border pb-2 mb-4">
+              Top Entities
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {topUsers.length > 0 ? (
+                <ModelDetailUserTable
+                  users={topUsers}
+                  loading={loading}
+                  rangeLabel={rangeLabel}
+                />
+              ) : null}
+              {topApiKeys.length > 0 ? (
+                <ModelDetailApiKeyTable
+                  apiKeys={topApiKeys}
+                  loading={loading}
+                  rangeLabel={rangeLabel}
+                />
+              ) : null}
+            </div>
+          </section>
+        </>
+      )}
     </>
   );
 }

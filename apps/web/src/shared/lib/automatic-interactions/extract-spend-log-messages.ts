@@ -1,9 +1,5 @@
-import type {
-  ChatMessage,
-  ChatMessageContentPart,
-  ChatToolCall,
-  SpendLog,
-} from "@lite-llm/contracts/analytics";
+import type { ChatMessage } from "@lite-llm/contracts/analytics";
+import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
 
 function isChatMessageArray(value: unknown): value is ChatMessage[] {
   if (!Array.isArray(value)) return false;
@@ -21,10 +17,8 @@ export function normalizeMessageContent(
   if (content == null) return "";
   if (!Array.isArray(content)) return "";
   return content
-    .filter(
-      (p): p is ChatMessageContentPart => p != null && typeof p === "object",
-    )
-    .map((p) => (p.type === "text" ? (p.text ?? "") : ""))
+    .filter((part) => part != null && typeof part === "object")
+    .map((part) => (part.type === "text" ? (part.text ?? "") : ""))
     .join("")
     .trim();
 }
@@ -48,28 +42,29 @@ function extractResponseMessages(
     const rawMsg = (choice as Record<string, unknown>).message;
     if (rawMsg == null || typeof rawMsg !== "object") continue;
 
-    const m = rawMsg as Record<string, unknown>;
-    const role = m.role;
+    const messageRecord = rawMsg as Record<string, unknown>;
+    const role = messageRecord.role;
     if (typeof role !== "string") continue;
 
     const message: ChatMessage = { role };
 
-    if (typeof m.content === "string") {
-      message.content = m.content;
-    } else if (Array.isArray(m.content)) {
-      message.content = m.content as ChatMessageContentPart[];
+    if (typeof messageRecord.content === "string") {
+      message.content = messageRecord.content;
+    } else if (Array.isArray(messageRecord.content)) {
+      message.content = messageRecord.content as ChatMessage["content"];
     }
 
-    if (Array.isArray(m.tool_calls)) {
-      message.tool_calls = m.tool_calls as ChatToolCall[];
+    if (Array.isArray(messageRecord.tool_calls)) {
+      message.tool_calls =
+        messageRecord.tool_calls as ChatMessage["tool_calls"];
     }
 
-    if (typeof m.tool_call_id === "string") {
-      message.tool_call_id = m.tool_call_id;
+    if (typeof messageRecord.tool_call_id === "string") {
+      message.tool_call_id = messageRecord.tool_call_id;
     }
 
-    if (typeof m.name === "string") {
-      message.name = m.name;
+    if (typeof messageRecord.name === "string") {
+      message.name = messageRecord.name;
     }
 
     result.push(message);
@@ -78,24 +73,20 @@ function extractResponseMessages(
   return result;
 }
 
-export function extractSpendLogMessages(log: SpendLog): ChatMessage[] {
+export function extractSpendLogMessages(log: ProxyRequestLog): ChatMessage[] {
   const requestMessages: ChatMessage[] = [];
 
   if (isChatMessageArray(log.messages) && log.messages.length > 0) {
     requestMessages.push(...log.messages);
   } else {
-    const proxyMessages = (
-      log.proxy_server_request as Record<string, unknown> | null
-    )?.messages;
-    if (isChatMessageArray(proxyMessages)) {
-      requestMessages.push(...proxyMessages);
+    const requestBodyMessages = log.request_body?.messages;
+    if (isChatMessageArray(requestBodyMessages)) {
+      requestMessages.push(...requestBodyMessages);
     }
   }
 
   const responseMessages: ChatMessage[] =
-    log.response != null && typeof log.response === "object"
-      ? extractResponseMessages(log.response)
-      : [];
+    log.response_body != null ? extractResponseMessages(log.response_body) : [];
 
   const seen = new Set(requestMessages.map(dedupKey));
   const combined = [...requestMessages];

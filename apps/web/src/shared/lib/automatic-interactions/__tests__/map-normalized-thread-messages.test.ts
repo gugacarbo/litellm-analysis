@@ -1,47 +1,48 @@
 import { describe, expect, it } from "vitest";
+import { normalizeProxyRequestLog } from "@/shared/lib/api-client/spend";
 import { mapNormalizedThreadToThreadMessages } from "../map-normalized-thread-messages";
 import { normalizeHealthCheckThread } from "../normalize-health-check-thread";
 import { normalizeSpendLogThread } from "../normalize-spend-log-thread";
 
 describe("mapNormalizedThreadToThreadMessages", () => {
   it("maps historical spend-log threads with linked tool calls and results", () => {
-    const thread = normalizeSpendLogThread({
-      request_id: "req-tools",
-      model: "gpt-4",
-      user: "test-user",
-      total_tokens: 100,
-      prompt_tokens: 50,
-      completion_tokens: 50,
-      spend: 0.01,
-      time_to_first_token_ms: 120,
-      start_time: "2026-01-01T00:00:00Z",
-      end_time: "2026-01-01T00:00:01Z",
-      api_key: "sk-test",
-      status: "success",
-      messages: [
-        { role: "user", content: "Weather?" },
-        {
-          role: "assistant",
-          content: "",
-          tool_calls: [
-            {
-              id: "call-1",
-              type: "function",
-              function: {
-                name: "get_weather",
-                arguments: '{"city":"NYC"}',
+    const thread = normalizeSpendLogThread(
+      normalizeProxyRequestLog({
+        request_id: "req-tools",
+        model: "gpt-4",
+        total_tokens: 100,
+        prompt_tokens: 50,
+        completion_tokens: 50,
+        spend: 0.01,
+        time_to_first_token_ms: 120,
+        start_time: "2026-01-01T00:00:00Z",
+        end_time: "2026-01-01T00:00:01Z",
+        status: "success",
+        messages: [
+          { role: "user", content: "Weather?" },
+          {
+            role: "assistant",
+            content: "",
+            tool_calls: [
+              {
+                id: "call-1",
+                type: "function",
+                function: {
+                  name: "get_weather",
+                  arguments: '{"city":"NYC"}',
+                },
               },
-            },
-          ],
-        },
-        {
-          role: "tool",
-          content: '{"temp":72}',
-          tool_call_id: "call-1",
-        },
-        { role: "assistant", content: "It is 72F in NYC." },
-      ],
-    });
+            ],
+          },
+          {
+            role: "tool",
+            content: '{"temp":72}',
+            tool_call_id: "call-1",
+          },
+          { role: "assistant", content: "It is 72F in NYC." },
+        ],
+      }),
+    );
 
     const messages = mapNormalizedThreadToThreadMessages(thread);
 

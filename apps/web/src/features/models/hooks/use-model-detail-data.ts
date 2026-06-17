@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef } from "react";
 import {
+  readInputTokens,
+  readOutputTokens,
+} from "@/features/dashboard/hooks/normalizers";
+import {
   getCostEfficiencyByModel,
   getModelCacheHitRate,
   getModelDailyErrors,
@@ -194,8 +198,8 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
       totalSpend: Number(modelData.total_spend),
       totalRequests: Number(modelData.request_count),
       totalTokens: Number(modelData.total_tokens),
-      promptTokens: Number(modelData.prompt_tokens),
-      completionTokens: Number(modelData.completion_tokens),
+      promptTokens: readInputTokens(modelData),
+      completionTokens: readOutputTokens(modelData),
       avgLatencyMs: Number(modelData.avg_latency_ms || 0),
       p50LatencyMs: Number(modelData.p50_latency_ms || 0),
       p95LatencyMs: Number(modelData.p95_latency_ms || 0),
@@ -232,8 +236,8 @@ export function useModelDetailData(modelName: string, days = DEFAULT_DAYS) {
     () =>
       (dailyTokensQuery.data ?? []).map((item) => ({
         date: String(item.date),
-        promptTokens: Number(item.prompt_tokens),
-        completionTokens: Number(item.completion_tokens),
+        promptTokens: readInputTokens(item),
+        completionTokens: readOutputTokens(item),
         totalTokens: Number(item.total_tokens),
       })),
     [dailyTokensQuery.data],

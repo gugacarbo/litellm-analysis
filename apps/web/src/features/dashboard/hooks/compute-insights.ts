@@ -33,11 +33,24 @@ export function computeInsights(
   )[0];
 
   const totalInputTokens = dailyTokenTrend.reduce(
-    (sum, day) => sum + Number(day.prompt_tokens || 0),
+    (sum, day) =>
+      sum +
+      Number(
+        (day as DailyTokenTrendItem & { input_tokens?: number }).input_tokens ??
+          day.prompt_tokens ??
+          0,
+      ),
     0,
   );
   const totalOutputTokens = dailyTokenTrend.reduce(
-    (sum, day) => sum + Number(day.completion_tokens || 0),
+    (sum, day) =>
+      sum +
+      Number(
+        (day as DailyTokenTrendItem & { output_tokens?: number })
+          .output_tokens ??
+          day.completion_tokens ??
+          0,
+      ),
     0,
   );
   const outputShare =
