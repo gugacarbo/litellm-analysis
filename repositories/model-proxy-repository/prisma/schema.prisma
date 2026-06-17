@@ -97,6 +97,7 @@ model ModelProxyModel {
   credentialName      String?  @map("credential_name")
   secretRef           String?  @map("secret_ref")
   requestOptions      Json?    @map("request_options")
+  metadata            Json?    @map("metadata")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
 

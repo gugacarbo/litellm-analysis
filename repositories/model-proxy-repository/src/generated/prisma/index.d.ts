@@ -5439,6 +5439,7 @@ export namespace Prisma {
     credentialName: number
     secretRef: number
     requestOptions: number
+    metadata: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5519,6 +5520,7 @@ export namespace Prisma {
     credentialName?: true
     secretRef?: true
     requestOptions?: true
+    metadata?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5628,6 +5630,7 @@ export namespace Prisma {
     credentialName: string | null
     secretRef: string | null
     requestOptions: JsonValue | null
+    metadata: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: ModelProxyModelCountAggregateOutputType | null
@@ -5669,6 +5672,7 @@ export namespace Prisma {
     credentialName?: boolean
     secretRef?: boolean
     requestOptions?: boolean
+    metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["modelProxyModel"]>
@@ -5691,6 +5695,7 @@ export namespace Prisma {
     credentialName?: boolean
     secretRef?: boolean
     requestOptions?: boolean
+    metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["modelProxyModel"]>
@@ -5713,6 +5718,7 @@ export namespace Prisma {
     credentialName?: boolean
     secretRef?: boolean
     requestOptions?: boolean
+    metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["modelProxyModel"]>
@@ -5735,11 +5741,12 @@ export namespace Prisma {
     credentialName?: boolean
     secretRef?: boolean
     requestOptions?: boolean
+    metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ModelProxyModelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "modelName" | "enabled" | "displayName" | "family" | "ownedBy" | "apiMode" | "vision" | "contextWindowSize" | "maxOutputTokens" | "inputCostPerToken" | "outputCostPerToken" | "upstreamModel" | "upstreamBaseUrl" | "credentialName" | "secretRef" | "requestOptions" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyModel"]>
+  export type ModelProxyModelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "modelName" | "enabled" | "displayName" | "family" | "ownedBy" | "apiMode" | "vision" | "contextWindowSize" | "maxOutputTokens" | "inputCostPerToken" | "outputCostPerToken" | "upstreamModel" | "upstreamBaseUrl" | "credentialName" | "secretRef" | "requestOptions" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyModel"]>
 
   export type $ModelProxyModelPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ModelProxyModel"
@@ -5762,6 +5769,7 @@ export namespace Prisma {
       credentialName: string | null
       secretRef: string | null
       requestOptions: Prisma.JsonValue | null
+      metadata: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["modelProxyModel"]>
@@ -6204,6 +6212,7 @@ export namespace Prisma {
     readonly credentialName: FieldRef<"ModelProxyModel", 'String'>
     readonly secretRef: FieldRef<"ModelProxyModel", 'String'>
     readonly requestOptions: FieldRef<"ModelProxyModel", 'Json'>
+    readonly metadata: FieldRef<"ModelProxyModel", 'Json'>
     readonly createdAt: FieldRef<"ModelProxyModel", 'DateTime'>
     readonly updatedAt: FieldRef<"ModelProxyModel", 'DateTime'>
   }
@@ -11726,6 +11735,7 @@ export namespace Prisma {
     credentialName: 'credentialName',
     secretRef: 'secretRef',
     requestOptions: 'requestOptions',
+    metadata: 'metadata',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -12276,6 +12286,7 @@ export namespace Prisma {
     credentialName?: StringNullableFilter<"ModelProxyModel"> | string | null
     secretRef?: StringNullableFilter<"ModelProxyModel"> | string | null
     requestOptions?: JsonNullableFilter<"ModelProxyModel">
+    metadata?: JsonNullableFilter<"ModelProxyModel">
     createdAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
     updatedAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
   }
@@ -12298,6 +12309,7 @@ export namespace Prisma {
     credentialName?: SortOrderInput | SortOrder
     secretRef?: SortOrderInput | SortOrder
     requestOptions?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -12323,6 +12335,7 @@ export namespace Prisma {
     credentialName?: StringNullableFilter<"ModelProxyModel"> | string | null
     secretRef?: StringNullableFilter<"ModelProxyModel"> | string | null
     requestOptions?: JsonNullableFilter<"ModelProxyModel">
+    metadata?: JsonNullableFilter<"ModelProxyModel">
     createdAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
     updatedAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
   }, "id" | "modelName">
@@ -12345,6 +12358,7 @@ export namespace Prisma {
     credentialName?: SortOrderInput | SortOrder
     secretRef?: SortOrderInput | SortOrder
     requestOptions?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ModelProxyModelCountOrderByAggregateInput
@@ -12375,6 +12389,7 @@ export namespace Prisma {
     credentialName?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
     secretRef?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
     requestOptions?: JsonNullableWithAggregatesFilter<"ModelProxyModel">
+    metadata?: JsonNullableWithAggregatesFilter<"ModelProxyModel">
     createdAt?: DateTimeWithAggregatesFilter<"ModelProxyModel"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ModelProxyModel"> | Date | string
   }
@@ -13083,6 +13098,7 @@ export namespace Prisma {
     credentialName?: string | null
     secretRef?: string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13105,6 +13121,7 @@ export namespace Prisma {
     credentialName?: string | null
     secretRef?: string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13127,6 +13144,7 @@ export namespace Prisma {
     credentialName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13149,6 +13167,7 @@ export namespace Prisma {
     credentialName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13171,6 +13190,7 @@ export namespace Prisma {
     credentialName?: string | null
     secretRef?: string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13193,6 +13213,7 @@ export namespace Prisma {
     credentialName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13215,6 +13236,7 @@ export namespace Prisma {
     credentialName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14137,6 +14159,7 @@ export namespace Prisma {
     credentialName?: SortOrder
     secretRef?: SortOrder
     requestOptions?: SortOrder
+    metadata?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }

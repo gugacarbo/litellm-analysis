@@ -194,6 +194,7 @@ exports.Prisma.ModelProxyModelScalarFieldEnum = {
   credentialName: 'credentialName',
   secretRef: 'secretRef',
   requestOptions: 'requestOptions',
+  metadata: 'metadata',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
