@@ -4,6 +4,7 @@ import type {
   AgentsManager,
   DbModelSpecLike,
   OrchestrationServices,
+  RegistryRouteServices,
 } from "../types/index";
 import {
   syncGeneratedArtifacts,
@@ -42,6 +43,7 @@ export {
   listModelsWithRegistryFirst,
   listRegistryRoutes,
   mergeRegistryModelFromSpec,
+  resolveLitellmParamsFromBody,
   routeUpdateFromParams,
   toLegacyEntry,
   toLitellmParamsShim,
@@ -53,12 +55,26 @@ export function createOrchestrationServices(
   dataSource: AnalyticsDataSource,
   agentsManager: AgentsManager,
   modelsService: IModelService,
+  registry: Pick<
+    RegistryRouteServices,
+    "registryModelsService" | "settingsService"
+  >,
 ): OrchestrationServices {
+  const { registryModelsService, settingsService } = registry;
   return {
     dataSource,
     syncGeneratedArtifacts: () =>
-      syncGeneratedArtifacts(dataSource, agentsManager, modelsService),
+      syncGeneratedArtifacts(
+        registryModelsService,
+        settingsService,
+        agentsManager,
+        modelsService,
+      ),
     syncModelsDirectlyToDatabase: (models: Record<string, DbModelSpecLike>) =>
-      syncModelsDirectlyToDatabase(dataSource, models),
+      syncModelsDirectlyToDatabase(
+        registryModelsService,
+        settingsService,
+        models,
+      ),
   };
 }

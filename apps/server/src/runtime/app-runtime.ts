@@ -165,6 +165,10 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     ctx.analytics.dataSource,
     agentPlugins,
     modelsService,
+    {
+      registryModelsService: registry.registryModelsService,
+      settingsService: registry.settingsService,
+    },
   );
 
   const app = createApiServer(
@@ -178,6 +182,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       registry: {
         settingsService: registry.settingsService,
         registryModelsService: registry.registryModelsService,
+        credentialsService: registry.credentialsService,
         apiKeysService: registry.apiKeysService,
       },
     },

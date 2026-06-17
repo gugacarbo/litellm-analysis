@@ -1,4 +1,5 @@
 import {
+  credentialExistsWithFallback,
   getDefaultCredentialWithFallback,
   type ModelSyncDirectionInput,
   type ModelSyncPresenceStatus,
@@ -19,6 +20,7 @@ import {
   createRegistryModelFromSpec,
   listModelsWithRegistryFirst,
   mergeRegistryModelFromSpec,
+  resolveLitellmParamsFromBody,
   updateRegistryModelFromParams,
 } from "../orchestration/registry-models-bridge";
 import type { DbModelSpecLike, RouteOptions } from "../types/index";
@@ -132,7 +134,8 @@ export function registerModelRoutes(
   opts: RouteOptions,
 ): void {
   const { dataSource, registry } = opts;
-  const { settingsService, registryModelsService } = registry;
+  const { settingsService, registryModelsService, credentialsService } =
+    registry;
 
   async function listMergedRegistryModels() {
     return listModelsWithRegistryFirst(registryModelsService, dataSource);
@@ -191,10 +194,9 @@ export function registerModelRoutes(
       if (typeof updates.defaultCredential === "string") {
         const normalizedDefaultCredential = updates.defaultCredential.trim();
         if (normalizedDefaultCredential.length > 0) {
-          const credentials = await dataSource.getCredentials();
-          const credentialExists = credentials.some(
-            (credential) =>
-              credential.credentialName === normalizedDefaultCredential,
+          const credentialExists = await credentialExistsWithFallback(
+            credentialsService,
+            normalizedDefaultCredential,
           );
           if (!credentialExists) {
             res.status(400).json({
@@ -307,16 +309,18 @@ export function registerModelRoutes(
 
   app.post("/models", async (req, res) => {
     try {
-      const { modelName, litellmParams } = req.body;
+      const { modelName, modelRoute, litellmParams } = req.body;
       const normalizedModelName = String(modelName || "").trim();
       if (!normalizedModelName) {
         res.status(400).json({ error: "modelName is required" });
         return;
       }
 
-      const baseParams = coerceLiteLLMParams(
-        isRecord(litellmParams) ? litellmParams : {},
-      );
+      const baseParams = resolveLitellmParamsFromBody({
+        modelRoute,
+        litellmParams,
+        modelName: normalizedModelName,
+      });
       const credentialName = await getResolvedDefaultCredential();
       await createRegistryModelFromParams(
         registryModelsService,
@@ -337,7 +341,7 @@ export function registerModelRoutes(
   app.put("/models/:name", async (req, res) => {
     try {
       const { name } = req.params;
-      const { litellmParams, modelName, config } = req.body;
+      const { litellmParams, modelRoute, modelName, config } = req.body;
       const normalizedNewName =
         typeof modelName === "string" && modelName.trim()
           ? modelName.trim()
@@ -357,10 +361,16 @@ export function registerModelRoutes(
         : {};
       const credentialName = await getResolvedDefaultCredential();
 
-      if (litellmParams !== undefined || modelName !== undefined) {
-        const incomingParams = coerceLiteLLMParams(
-          isRecord(litellmParams) ? litellmParams : {},
-        );
+      if (
+        litellmParams !== undefined ||
+        modelRoute !== undefined ||
+        modelName !== undefined
+      ) {
+        const incomingParams = resolveLitellmParamsFromBody({
+          modelRoute,
+          litellmParams,
+          modelName: normalizedNewName,
+        });
         const mergedParams = {
           ...existingParams,
           ...incomingParams,
@@ -378,7 +388,7 @@ export function registerModelRoutes(
               enabled: incomingParams.enabled,
             });
           } catch (configErr) {
-            // If model doesn't exist in config, that's fine — it may be litellm-only
+            // If model doesn't exist in config, that's fine — it may be registry-only
             if (!String(configErr).includes("not found")) {
               throw configErr;
             }
@@ -415,7 +425,7 @@ export function registerModelRoutes(
           try {
             await opts.modelsService.update(name, configUpdate);
           } catch (configErr) {
-            // If model doesn't exist in config, that's fine — it may be litellm-only
+            // If model doesn't exist in config, that's fine — it may be registry-only
             if (!String(configErr).includes("not found")) {
               throw configErr;
             }
@@ -464,6 +474,7 @@ export function registerModelRoutes(
       return;
     }
     try {
+      // Spend-log analytics only — does not mutate model_proxy_models.
       await dataSource.mergeModels(sourceModel, targetModel);
       res.json({ success: true });
     } catch (error) {
@@ -1059,6 +1070,7 @@ export function registerModelRoutes(
           throw error;
         }
       }
+      await registryModelsService.delete(name);
       await manager.registry.exportAll();
       res.json({ success: true });
     } catch (error) {

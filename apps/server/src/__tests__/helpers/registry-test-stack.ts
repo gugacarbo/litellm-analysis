@@ -1,6 +1,7 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import {
   ApiKeysService,
+  CredentialsService,
   RegistryModelsService,
   SettingsService,
 } from "@lite-llm/model-proxy-registry-service";
@@ -54,13 +55,26 @@ type ApiKeyRow = {
   updatedAt: Date;
 };
 
+type CredentialRow = {
+  id: string;
+  name: string;
+  provider: string | null;
+  baseUrl: string | null;
+  secretRef: string | null;
+  apiKey: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 function createInMemoryPrisma() {
   const settings = new Map<string, SettingRow>();
   const models = new Map<string, ModelRow>();
+  const credentials = new Map<string, CredentialRow>();
   const apiKeysById = new Map<string, ApiKeyRow>();
   const apiKeysByHash = new Map<string, ApiKeyRow>();
   let settingId = 1;
   let modelId = 1;
+  let credentialId = 1;
   let apiKeyId = 1;
 
   return {
@@ -235,6 +249,76 @@ function createInMemoryPrisma() {
         return existing;
       }),
     },
+    modelProxyCredential: {
+      findUnique: vi.fn(async ({ where }: { where: { name: string } }) => {
+        return credentials.get(where.name) ?? null;
+      }),
+      findMany: vi.fn(async () =>
+        [...credentials.values()].sort((a, b) => a.name.localeCompare(b.name)),
+      ),
+      create: vi.fn(
+        async (args: {
+          data: {
+            name: string;
+            provider?: string | null;
+            baseUrl?: string | null;
+            secretRef: string;
+            apiKey?: string | null;
+          };
+        }) => {
+          const now = new Date();
+          const row: CredentialRow = {
+            id: `cred_${credentialId++}`,
+            name: args.data.name,
+            provider: args.data.provider ?? null,
+            baseUrl: args.data.baseUrl ?? null,
+            secretRef: args.data.secretRef,
+            apiKey: args.data.apiKey ?? null,
+            createdAt: now,
+            updatedAt: now,
+          };
+          credentials.set(row.name, row);
+          return row;
+        },
+      ),
+      update: vi.fn(
+        async ({
+          where,
+          data,
+        }: {
+          where: { name: string };
+          data: Partial<{
+            name: string;
+            provider: string | null;
+            baseUrl: string | null;
+            secretRef: string;
+          }>;
+        }) => {
+          const existing = credentials.get(where.name);
+          if (!existing) {
+            const error = new Error("Not found") as Error & { code: string };
+            error.code = "P2025";
+            throw error;
+          }
+          const updated = { ...existing, ...data, updatedAt: new Date() };
+          if (data.name && data.name !== where.name) {
+            credentials.delete(where.name);
+          }
+          credentials.set(updated.name, updated);
+          return updated;
+        },
+      ),
+      delete: vi.fn(async ({ where }: { where: { name: string } }) => {
+        const existing = credentials.get(where.name);
+        if (!existing) {
+          const error = new Error("Not found") as Error & { code: string };
+          error.code = "P2025";
+          throw error;
+        }
+        credentials.delete(where.name);
+        return existing;
+      }),
+    },
     modelProxyApiKey: {
       findUnique: vi.fn(
         async ({ where }: { where: { id?: string; keyHash?: string } }) => {
@@ -335,6 +419,7 @@ export function createRegistryTestStack(): RegistryTestStack {
   const prisma = createInMemoryPrisma() as never;
   const settingsService = new SettingsService({ prisma });
   const registryModelsService = new RegistryModelsService({ prisma });
+  const credentialsService = new CredentialsService({ prisma });
   const apiKeysService = new ApiKeysService({
     prisma,
     hashKey: async (plain) => `hash:${plain}`,
@@ -415,6 +500,7 @@ export function createRegistryTestStack(): RegistryTestStack {
   const registry: RouteOptions["registry"] = {
     settingsService,
     registryModelsService,
+    credentialsService,
     apiKeysService,
   };
 

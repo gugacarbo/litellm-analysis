@@ -171,12 +171,81 @@ describe("registry integration", () => {
           );
         expect(route?.maxOutputTokens).toBe(8192);
 
-        expect(
-          await stack.registry.registryModelsService.delete("gpt-integration"),
-        ).toBe(true);
+        const deleteResponse = await fetch(
+          `http://127.0.0.1:${port}/models/gpt-integration`,
+          { method: "DELETE" },
+        );
+        expect(deleteResponse.status).toBe(200);
         expect(
           await stack.registry.registryModelsService.get("gpt-integration"),
         ).toBeNull();
+      } finally {
+        await closeServer(server);
+      }
+    });
+
+    it("creates a model when only modelRoute is provided", async () => {
+      const { port, server, stack } = await createRegistryHttpServer(
+        undefined,
+        "models",
+      );
+
+      try {
+        const createResponse = await fetch(`http://127.0.0.1:${port}/models`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            modelName: "route-only-model",
+            modelRoute: {
+              maxOutputTokens: 2048,
+              inputCostPerToken: 0.000002,
+            },
+          }),
+        });
+        expect(createResponse.status).toBe(201);
+
+        const route =
+          await stack.registry.registryModelsService.getRoute(
+            "route-only-model",
+          );
+        expect(route?.maxOutputTokens).toBe(2048);
+        expect(route?.inputCostPerToken).toBe(0.000002);
+      } finally {
+        await closeServer(server);
+      }
+    });
+  });
+
+  describe("credentials", () => {
+    it("lists credentials with secretRef and without api_key", async () => {
+      const stack = createRegistryTestStack();
+      await stack.registry.credentialsService.create({
+        name: "openai-main",
+        provider: "openai",
+        baseUrl: "https://api.openai.com/v1",
+        secretRef: "OPENAI_API_KEY",
+      });
+
+      const { port, server } = await createRegistryHttpServer(
+        stack,
+        "credentials",
+      );
+
+      try {
+        const response = await fetch(`http://127.0.0.1:${port}/credentials`);
+        expect(response.status).toBe(200);
+
+        const body = (await response.json()) as Array<Record<string, unknown>>;
+        expect(body).toHaveLength(1);
+        expect(body[0]).toMatchObject({
+          credentialName: "openai-main",
+          secretRef: "OPENAI_API_KEY",
+          provider: "openai",
+          baseUrl: "https://api.openai.com/v1",
+        });
+        expect(body[0]).not.toHaveProperty("api_key");
+        expect(body[0]).not.toHaveProperty("apiKey");
+        expect(body[0]).not.toHaveProperty("credentialValues");
       } finally {
         await closeServer(server);
       }

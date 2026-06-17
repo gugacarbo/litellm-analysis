@@ -1,16 +1,26 @@
-import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
+import {
+  fromModelRoute,
+  getDefaultCredentialWithFallback,
+  type IRegistryModelsService,
+  type ISettingsService,
+} from "@lite-llm/model-proxy-registry-service";
 import type { IModelService } from "@lite-llm/models-service";
 import type { AgentsManager, DbModelSpecLike } from "../types/index";
-import { buildMergedLiteLLMParams, isRecord } from "./lite-llm-params";
+import {
+  createRegistryModelFromSpec,
+  mergeRegistryModelFromSpec,
+} from "./registry-models-bridge";
 
 export async function syncModelsDirectlyToDatabase(
-  dataSource: AnalyticsDataSource,
+  registryModelsService: IRegistryModelsService,
+  settingsService: ISettingsService,
   models: Record<string, DbModelSpecLike>,
 ): Promise<void> {
-  const credentialName = await dataSource.getDefaultCredential();
+  const credentialName =
+    await getDefaultCredentialWithFallback(settingsService);
   const desiredEntries = Object.entries(models || {});
   const desiredNames = new Set(desiredEntries.map(([name]) => name));
-  const existing = await dataSource.getModels();
+  const existing = await registryModelsService.list();
 
   const existingCounts = new Map<string, number>();
   for (const item of existing) {
@@ -37,32 +47,37 @@ export async function syncModelsDirectlyToDatabase(
   }
 
   for (const modelName of namesToDelete) {
-    await dataSource.deleteModel(modelName);
+    await registryModelsService.delete(modelName);
     existingCounts.delete(modelName);
   }
 
-  const existingByName = new Map(
-    existing.map((item) => [item.modelName, item]),
-  );
+  const existingByName = new Map<string, Record<string, unknown>>();
+  for (const item of existing) {
+    const route = await registryModelsService.getRoute(item.modelName);
+    existingByName.set(item.modelName, route ? fromModelRoute(route) : {});
+  }
 
   for (const [modelName, spec] of desiredEntries) {
-    const existingModel = existingByName.get(modelName);
-    const existingParams = isRecord(existingModel?.litellmParams)
-      ? existingModel.litellmParams
-      : {};
-    const litellmParams = buildMergedLiteLLMParams(
-      modelName,
-      spec,
-      existingParams,
-      credentialName,
-    );
+    const existingParams = existingByName.get(modelName) ?? {};
 
     if (existingCounts.has(modelName)) {
-      await dataSource.updateModel(modelName, { litellmParams });
+      await mergeRegistryModelFromSpec(
+        registryModelsService,
+        modelName,
+        spec,
+        credentialName,
+        existingParams,
+      );
       continue;
     }
 
-    await dataSource.createModel({ modelName, litellmParams });
+    await createRegistryModelFromSpec(
+      registryModelsService,
+      modelName,
+      spec,
+      credentialName,
+      existingParams,
+    );
     existingCounts.set(modelName, 1);
   }
 }
@@ -80,17 +95,19 @@ export async function syncModelsDirectlyToDatabase(
  * is exported unless it has been registered via registry.register().
  */
 export async function syncGeneratedArtifacts(
-  dataSource: AnalyticsDataSource,
+  registryModelsService: IRegistryModelsService,
+  settingsService: ISettingsService,
   agentsManager: AgentsManager,
   modelsService: IModelService,
 ): Promise<void> {
   const { registry } = agentsManager;
 
-  // Sync models to database
   const configModels = await modelsService.getAll();
-  await syncModelsDirectlyToDatabase(dataSource, configModels);
+  await syncModelsDirectlyToDatabase(
+    registryModelsService,
+    settingsService,
+    configModels,
+  );
 
-  // Export config files via all registered plugins.
-  // Only built-in + any plugins explicitly registered elsewhere will produce output.
   await registry.exportAll();
 }

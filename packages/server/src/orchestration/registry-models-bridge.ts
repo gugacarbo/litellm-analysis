@@ -13,10 +13,35 @@ import {
   applyRequiredLiteLLMParams,
   buildLiteLLMParams,
   buildMergedLiteLLMParams,
+  coerceLiteLLMParams,
   isRecord,
 } from "./lite-llm-params";
 
 export { listModelsWithRegistryFirst, toLegacyEntry };
+
+export function resolveLitellmParamsFromBody(body: {
+  modelRoute?: unknown;
+  litellmParams?: unknown;
+  modelName?: string;
+}): Record<string, unknown> {
+  if (isRecord(body.modelRoute) && Object.keys(body.modelRoute).length > 0) {
+    const route = {
+      ...body.modelRoute,
+      modelName:
+        typeof body.modelRoute.modelName === "string" &&
+        body.modelRoute.modelName.trim()
+          ? body.modelRoute.modelName.trim()
+          : typeof body.modelName === "string"
+            ? body.modelName.trim()
+            : "",
+    } as ModelRoute;
+    return fromModelRoute(route);
+  }
+
+  return coerceLiteLLMParams(
+    isRecord(body.litellmParams) ? body.litellmParams : {},
+  );
+}
 
 export async function createRegistryModelFromSpec(
   registryModelsService: IRegistryModelsService,
