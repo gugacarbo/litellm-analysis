@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { getDateRangeDays } from "@/features/dashboard/utils/dashboard-utils";
 import { ModelDetailApiKeyTable } from "@/features/models/detail/components/model-detail-api-key-table";
 import { ModelDetailCostChart } from "@/features/models/detail/components/model-detail-cost-chart";
@@ -283,16 +283,4 @@ export function ModelDetailOverviewContent({
       )}
     </>
   );
-}
-
-export function ModelDetailPage() {
-  const { modelName } = useParams<{ modelName: string }>();
-  if (!modelName) {
-    return (
-      <div className="p-6">
-        <p className="text-muted-foreground">Model not specified</p>
-      </div>
-    );
-  }
-  return <ModelDetailOverviewContent modelName={modelName} />;
 }

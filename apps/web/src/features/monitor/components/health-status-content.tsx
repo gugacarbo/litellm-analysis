@@ -17,12 +17,7 @@ import { STATUS_COLORS } from "../utils/health-status-utils";
 import { HealthCheckTable } from "./health-check-table";
 import { StatusDetailsDialog } from "./status-details-dialog";
 
-interface HealthStatusContentProps {
-  embedded?: boolean;
-  runButton?: ReactNode;
-}
-
-export function SmallStat({
+function SmallStat({
   icon: Icon,
   label,
   value,
@@ -46,29 +41,9 @@ export function SmallStat({
   );
 }
 
-export function RunHealthCheckButton() {
-  const { actions } = useHealthStatusPage();
-
-  return (
-    <Button
-      size="sm"
-      variant="secondary"
-      onClick={() => actions.triggerRun()}
-      disabled={actions.isGlobalRunning}
-    >
-      {actions.isGlobalRunning ? (
-        <>
-          <Loader2 className="size-3.5 animate-spin" />
-          Running...
-        </>
-      ) : (
-        <>
-          <Activity className="size-3.5" />
-          Run health check
-        </>
-      )}
-    </Button>
-  );
+interface HealthStatusContentProps {
+  embedded?: boolean;
+  runButton?: ReactNode;
 }
 
 export function HealthStatusContent({
