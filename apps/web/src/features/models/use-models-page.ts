@@ -8,7 +8,6 @@ import {
   getModelProvider,
   getModelsSyncDiff,
   getModelsWithConfig,
-  litellmParamsToModelRoute,
   type ModelConfig,
   type ModelSyncDiffItem,
   mergeModels,
@@ -19,7 +18,7 @@ import {
   updateModel,
   updateModelProvider,
 } from "@/shared/lib/api-client";
-import { validateAndBuildModelParams } from "./models-form-utils";
+import { validateAndBuildModelRoute } from "./models-form-utils";
 import { useLatestHealthChecks } from "./use-latest-health-checks";
 import { useModelsFormState } from "./use-models-form-state";
 
@@ -84,9 +83,9 @@ export function useModelsPage() {
   const updateModelMutation = useMutation({
     mutationFn: (params: {
       modelName: string;
-      litellmParams: Record<string, unknown>;
+      modelRoute: ModelConfig["modelRoute"];
       newName?: string;
-    }) => updateModel(params.modelName, params.litellmParams, params.newName),
+    }) => updateModel(params.modelName, params.modelRoute, params.newName),
   });
 
   const deleteModelMutation = useMutation({
@@ -177,25 +176,21 @@ export function useModelsPage() {
     setMutationError(null);
 
     try {
-      const { params, error } = validateAndBuildModelParams(formData);
+      const { route, error } = validateAndBuildModelRoute(formData);
       if (error) {
         setFormError(error);
         return;
       }
 
-      const modelName = formData.modelName.trim();
-      const modelRoute = litellmParamsToModelRoute(params, modelName);
-
       if (editingModel) {
         await updateModelMutation.mutateAsync({
           modelName: editingModel.modelName,
-          litellmParams: params,
+          modelRoute: route,
         });
       } else {
         await createModelMutation.mutateAsync({
-          modelName,
-          modelRoute,
-          litellmParams: params,
+          modelName: route.modelName,
+          modelRoute: route,
         });
       }
 

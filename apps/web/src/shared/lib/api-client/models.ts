@@ -34,8 +34,6 @@ export type ModelRouteUpdate = Partial<Omit<ModelRoute, "modelName">>;
 export type ModelConfig = {
   modelName: string;
   modelRoute: ModelRoute;
-  /** @deprecated Snake_case shim — use `modelRoute` in new code. */
-  litellmParams?: Record<string, unknown>;
   enabled?: boolean;
   config?: {
     displayName?: string;
@@ -166,154 +164,12 @@ export function normalizeSyncDirection(direction: string): SyncDirection {
   return direction as SyncDirection;
 }
 
-/** Convert structured `modelRoute` to snake_case params for legacy callers. */
-export function modelRouteToLitellmParams(
-  route: ModelRoute,
-): Record<string, unknown> {
-  const result: Record<string, unknown> = {
-    model: route.modelName,
-    model_name: route.modelName,
-  };
-
-  if (route.enabled !== undefined) {
-    result.enabled = route.enabled;
-  }
-  if (route.inputCostPerToken !== undefined) {
-    result.input_cost_per_token = route.inputCostPerToken;
-  }
-  if (route.outputCostPerToken !== undefined) {
-    result.output_cost_per_token = route.outputCostPerToken;
-  }
-  if (route.contextWindowSize !== undefined) {
-    result.context_window_size = route.contextWindowSize;
-  }
-  if (route.maxOutputTokens !== undefined) {
-    result.max_tokens = route.maxOutputTokens;
-  }
-  if (route.credentialName) {
-    result.litellm_credential_name = route.credentialName;
-  }
-  if (route.upstreamBaseUrl) {
-    result.api_base = route.upstreamBaseUrl;
-  }
-  if (route.ownedBy) {
-    result.custom_llm_provider = route.ownedBy;
-  }
-  if (route.upstreamModel && route.upstreamModel !== route.modelName) {
-    result.model = route.upstreamModel;
-  }
-
-  const options = route.requestOptions ?? {};
-  for (const [key, value] of Object.entries(options)) {
-    if (!(key in result)) {
-      result[key] = value;
-    }
-  }
-
-  return result;
-}
-
-/** Convert snake_case params from legacy API payloads into `modelRoute`. */
-export function litellmParamsToModelRoute(
-  litellmParams: Record<string, unknown> | undefined,
-  modelName: string,
-): ModelRoute {
-  const params = litellmParams ?? {};
-  const route: ModelRoute = { modelName };
-
-  const enabled = readBoolean(params.enabled);
-  if (enabled !== undefined) {
-    route.enabled = enabled;
-  }
-
-  const inputCost = readNumber(params.input_cost_per_token);
-  if (inputCost !== undefined) {
-    route.inputCostPerToken = inputCost;
-  }
-
-  const outputCost = readNumber(params.output_cost_per_token);
-  if (outputCost !== undefined) {
-    route.outputCostPerToken = outputCost;
-  }
-
-  const contextWindow = readInt(params.context_window_size);
-  if (contextWindow !== undefined) {
-    route.contextWindowSize = contextWindow;
-  }
-
-  const maxOutput = readInt(params.max_tokens);
-  if (maxOutput !== undefined) {
-    route.maxOutputTokens = maxOutput;
-  }
-
-  const credentialName = readString(params.litellm_credential_name);
-  if (credentialName) {
-    route.credentialName = credentialName;
-  }
-
-  const upstreamBaseUrl = readString(params.api_base);
-  if (upstreamBaseUrl) {
-    route.upstreamBaseUrl = upstreamBaseUrl;
-  }
-
-  const ownedBy = readString(params.custom_llm_provider);
-  if (ownedBy && ownedBy !== "litellm_proxy") {
-    route.ownedBy = ownedBy;
-  }
-
-  const upstreamModel = readString(params.model);
-  if (upstreamModel && upstreamModel !== modelName) {
-    route.upstreamModel = upstreamModel;
-  }
-
-  const reserved = new Set([
-    "model",
-    "model_name",
-    "enabled",
-    "input_cost_per_token",
-    "output_cost_per_token",
-    "context_window_size",
-    "max_tokens",
-    "litellm_credential_name",
-    "api_base",
-    "custom_llm_provider",
-  ]);
-
-  const requestOptions: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(params)) {
-    if (!reserved.has(key)) {
-      requestOptions[key] = value;
-    }
-  }
-  if (Object.keys(requestOptions).length > 0) {
-    route.requestOptions = requestOptions;
-  }
-
-  return route;
-}
-
-/** Resolve `modelRoute` from a model config, normalizing legacy payloads. */
+/** Resolve `modelRoute` from a model config. */
 export function resolveModelRoute(model: {
   modelName: string;
   modelRoute?: ModelRoute;
-  litellmParams?: Record<string, unknown>;
 }): ModelRoute {
-  if (model.modelRoute) {
-    return model.modelRoute;
-  }
-  return litellmParamsToModelRoute(model.litellmParams, model.modelName);
-}
-
-/** Snake_case shim for legacy display helpers and API writes. */
-export function getLitellmParamsShim(model: {
-  modelName: string;
-  modelRoute?: ModelRoute;
-  litellmParams?: Record<string, unknown>;
-}): Record<string, unknown> {
-  if (model.litellmParams && Object.keys(model.litellmParams).length > 0) {
-    return model.litellmParams;
-  }
-  return modelRouteToLitellmParams(resolveModelRoute(model));
+  return model.modelRoute ?? { modelName: model.modelName };
 }
 
 function normalizeModelRoute(raw: unknown, modelName: string): ModelRoute {
@@ -351,21 +207,11 @@ export function normalizeModelConfig(
   const modelName = String(raw.modelName ?? "");
   const modelRoute = isRecord(raw.modelRoute)
     ? normalizeModelRoute(raw.modelRoute, modelName)
-    : litellmParamsToModelRoute(
-        isRecord(raw.litellmParams) ? raw.litellmParams : undefined,
-        modelName,
-      );
+    : { modelName };
 
   return {
     modelName,
     modelRoute,
-    litellmParams: getLitellmParamsShim({
-      modelName,
-      modelRoute,
-      litellmParams: isRecord(raw.litellmParams)
-        ? raw.litellmParams
-        : undefined,
-    }),
     enabled: readBoolean(raw.enabled),
     config: isRecord(raw.config)
       ? (raw.config as ModelConfig["config"])
@@ -433,50 +279,16 @@ function normalizeModelSyncDiffItem(
   };
 }
 
-function toLitellmParamsBody(
-  routeOrParams: ModelRouteUpdate | Record<string, unknown>,
-): Record<string, unknown> {
-  if (
-    "inputCostPerToken" in routeOrParams ||
-    "outputCostPerToken" in routeOrParams ||
-    "contextWindowSize" in routeOrParams ||
-    "maxOutputTokens" in routeOrParams ||
-    "upstreamBaseUrl" in routeOrParams ||
-    "credentialName" in routeOrParams ||
-    "requestOptions" in routeOrParams
-  ) {
-    return modelRouteToLitellmParams({
-      modelName: "",
-      ...(routeOrParams as ModelRouteUpdate),
-    });
-  }
-  return routeOrParams as Record<string, unknown>;
-}
-
 export async function updateModel(
   modelName: string,
-  routeOrParams: ModelRouteUpdate | Record<string, unknown>,
+  routeUpdate: ModelRouteUpdate,
   newName?: string,
   config?: ModelConfig["config"],
 ): Promise<{ success: boolean }> {
-  const litellmParams = toLitellmParamsBody(routeOrParams);
-  const modelRoute =
-    "inputCostPerToken" in routeOrParams ||
-    "outputCostPerToken" in routeOrParams ||
-    "contextWindowSize" in routeOrParams ||
-    "maxOutputTokens" in routeOrParams ||
-    "upstreamBaseUrl" in routeOrParams ||
-    "credentialName" in routeOrParams ||
-    "requestOptions" in routeOrParams ||
-    "enabled" in routeOrParams
-      ? (routeOrParams as ModelRouteUpdate)
-      : undefined;
-
   return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
     method: "PUT",
     body: JSON.stringify({
-      ...(modelRoute ? { modelRoute } : {}),
-      litellmParams,
+      modelRoute: routeUpdate,
       ...(newName ? { modelName: newName } : {}),
       ...(config ? { config } : {}),
     }),
@@ -491,13 +303,11 @@ export async function getAllModels(): Promise<ModelConfig[]> {
 export async function createModel(
   model: ModelConfig,
 ): Promise<{ success: boolean }> {
-  const litellmParams = getLitellmParamsShim(model);
   return fetchApi("/models", {
     method: "POST",
     body: JSON.stringify({
       modelName: model.modelName,
       modelRoute: model.modelRoute,
-      litellmParams,
     }),
   });
 }
@@ -575,7 +385,6 @@ export async function toggleModelEnabled(
     method: "PUT",
     body: JSON.stringify({
       modelRoute: { enabled },
-      litellmParams: { enabled },
     }),
   });
 }

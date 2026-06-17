@@ -69,7 +69,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
+import type { RegistryCredential } from "@/shared/lib/api-client/credentials";
 import type {
   ModelConfig,
   ModelSyncDiffItem,
@@ -77,7 +77,7 @@ import type {
   SyncDirection,
   SyncField,
 } from "@/shared/lib/api-client/models";
-import { getLitellmParamsShim } from "@/shared/lib/api-client/models";
+import { resolveModelRoute } from "@/shared/lib/api-client/models";
 
 const statusBadgeVariant: Record<
   string,
@@ -139,7 +139,7 @@ type ModelsTableCardProps = {
   onUpdateExtraParam: (key: string, value: string) => void;
   onSubmit: () => void;
 
-  credentials: LiteLLMCredential[];
+  credentials: RegistryCredential[];
   defaultCredential: string | null;
   providerLoading: boolean;
   providerSaving: boolean;
@@ -470,7 +470,7 @@ export function ModelsTableCard({
             <TableBody>
               {pageModels.map((model) => {
                 const health = getHealthCheck(model.modelName);
-                const routeParams = getLitellmParamsShim(model);
+                const routeParams = resolveModelRoute(model);
                 const inRegistry =
                   model.status === "synced" || model.status === "registry-only";
                 const inConfig = model.status !== "registry-only";

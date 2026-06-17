@@ -2,9 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
+import type { RegistryCredential } from "@/shared/lib/api-client/credentials";
 import {
-  getLitellmParamsShim,
   getModelsWithConfig,
   type ModelConfig,
   type ModelRouteUpdate,
@@ -63,24 +62,12 @@ function getEmptyFormData(): ModelConfigFormData {
 
 function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
   const route = resolveModelRoute(model);
-  const params = getLitellmParamsShim(model);
   const config = model.config ?? {};
   const extraParams: Record<string, string> = {};
-  const fixedKeys = [
-    "api_base",
-    "input_cost_per_token",
-    "output_cost_per_token",
-    "context_window_size",
-    "max_tokens",
-    "litellm_credential_name",
-    "enabled",
-  ];
 
-  if (params && typeof params === "object") {
-    for (const [key, value] of Object.entries(params)) {
-      if (!fixedKeys.includes(key) && value !== undefined) {
-        extraParams[key] = String(value);
-      }
+  for (const [key, value] of Object.entries(route.requestOptions ?? {})) {
+    if (value !== undefined) {
+      extraParams[key] = String(value);
     }
   }
 
@@ -125,16 +112,10 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     },
     apiMode: validApiMode,
     vision: config.vision === true,
-    apiBase: route.upstreamBaseUrl ?? (params?.api_base as string) ?? "",
+    apiBase: route.upstreamBaseUrl ?? "",
     credentialName,
-    inputCostPerToken:
-      route.inputCostPerToken?.toString() ??
-      params?.input_cost_per_token?.toString() ??
-      "",
-    outputCostPerToken:
-      route.outputCostPerToken?.toString() ??
-      params?.output_cost_per_token?.toString() ??
-      "",
+    inputCostPerToken: route.inputCostPerToken?.toString() ?? "",
+    outputCostPerToken: route.outputCostPerToken?.toString() ?? "",
     extraParams,
   };
 }
@@ -147,7 +128,7 @@ export interface UseModelConfigPageResult {
   formData: ModelConfigFormData;
   isDirty: boolean;
   saving: boolean;
-  credentials: LiteLLMCredential[];
+  credentials: RegistryCredential[];
   onFormDataChange: (next: ModelConfigFormData) => void;
   onAddExtraParam: () => void;
   onRemoveExtraParam: (key: string) => void;

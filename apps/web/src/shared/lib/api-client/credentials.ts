@@ -1,25 +1,25 @@
 import { fetchApi } from "./core";
 
-export type LiteLLMCredential = {
+export type RegistryCredential = {
   credentialId: string;
   credentialName: string;
-  credentialValues: Record<string, unknown> | null;
-  credentialInfo: Record<string, unknown> | null;
+  provider: string | null;
+  baseUrl: string | null;
+  secretRef: string | null;
   createdAt: string | null;
-  createdBy: string | null;
   updatedAt: string | null;
-  updatedBy: string | null;
 };
 
-export type DefaultCredentialResponse = {
-  defaultCredential: string | null;
-};
+/** @deprecated Use RegistryCredential */
+export type LiteLLMCredential = RegistryCredential;
 
-export async function getAllCredentials(): Promise<LiteLLMCredential[]> {
+export async function getAllCredentials(): Promise<RegistryCredential[]> {
   return fetchApi("/credentials");
 }
 
-export async function getDefaultCredential(): Promise<DefaultCredentialResponse> {
+export async function getDefaultCredential(): Promise<{
+  defaultCredential: string | null;
+}> {
   return fetchApi("/credentials/default");
 }
 

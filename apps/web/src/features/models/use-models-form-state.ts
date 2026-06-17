@@ -25,7 +25,7 @@ export function useModelsFormState() {
     setEditingModel(null);
     setFormData({
       ...EMPTY_MODEL_FORM_DATA,
-      litellmCredentialName: defaultCredential || "",
+      credentialName: defaultCredential || "",
     });
     setFormError(null);
     setDialogOpen(true);

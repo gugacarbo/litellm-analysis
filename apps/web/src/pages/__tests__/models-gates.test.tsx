@@ -32,11 +32,6 @@ vi.mock("@/shared/lib/api-client", () => {
         inputCostPerToken: 0.00003,
         outputCostPerToken: 0.00006,
       },
-      litellmParams: {
-        api_base: "https://api.openai.com/v1",
-        input_cost_per_token: 0.00003,
-        output_cost_per_token: 0.00006,
-      },
     },
     {
       modelName: "claude-3-opus",
@@ -46,11 +41,6 @@ vi.mock("@/shared/lib/api-client", () => {
         upstreamBaseUrl: "https://api.anthropic.com",
         inputCostPerToken: 0.000015,
         outputCostPerToken: 0.000075,
-      },
-      litellmParams: {
-        api_base: "https://api.anthropic.com",
-        input_cost_per_token: 0.000015,
-        output_cost_per_token: 0.000075,
       },
     },
   ];

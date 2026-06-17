@@ -437,9 +437,11 @@ function DatabaseSettingsSection({
                   >
                     <div className="flex flex-col">
                       <span>{cred.credentialName}</span>
-                      {cred.credentialInfo && (
+                      {(cred.provider || cred.baseUrl) && (
                         <span className="text-xs text-muted-foreground">
-                          {JSON.stringify(cred.credentialInfo).slice(0, 50)}
+                          {[cred.provider, cred.baseUrl]
+                            .filter(Boolean)
+                            .join(" · ")}
                         </span>
                       )}
                     </div>
