@@ -14,7 +14,7 @@ interface RawErrorLog {
   error_message: unknown;
   timestamp: unknown;
   status_code: unknown;
-  litellm_model_name: unknown;
+  upstream_model_name: unknown;
   request_kwargs: unknown;
   spend_status: unknown;
   total_tokens: unknown;
@@ -35,8 +35,8 @@ function mapErrorRow(item: RawErrorLog): ErrorLogEntry {
       ? new Date(item.timestamp as string | number | Date).toISOString()
       : "",
     status_code: Number(item.status_code || 0),
-    litellm_model_name: item.litellm_model_name
-      ? String(item.litellm_model_name)
+    upstream_model_name: item.upstream_model_name
+      ? String(item.upstream_model_name)
       : null,
     request_kwargs: item.request_kwargs
       ? (item.request_kwargs as Record<string, unknown>)

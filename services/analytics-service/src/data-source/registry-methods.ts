@@ -5,9 +5,9 @@ import {
 import type { ModelProxyModel, Prisma } from "@lite-llm/model-proxy-repository";
 import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import type {
-  LiteLLMCredential,
   ModelDetail,
   ModelEntry,
+  RegistryCredential,
 } from "../types/index";
 
 const DEFAULT_CREDENTIAL_KEY = "default_credential";
@@ -91,7 +91,6 @@ export async function getRegistryModelDetailsImpl(): Promise<ModelDetail[]> {
 
 export async function createRegistryModelImpl(model: {
   modelName: string;
-  litellmParams?: Record<string, unknown>;
   modelRoute?: Record<string, unknown>;
 }): Promise<void> {
   const prisma = getModelProxyPrisma();
@@ -99,7 +98,7 @@ export async function createRegistryModelImpl(model: {
     ? ({ modelName: model.modelName, ...model.modelRoute } as ReturnType<
         typeof prismaModelToRoute
       >)
-    : toModelRoute(model.litellmParams ?? {}, model.modelName);
+    : toModelRoute({}, model.modelName);
   await prisma.modelProxyModel.create({
     data: routeToCreateData(route),
   });
@@ -108,7 +107,6 @@ export async function createRegistryModelImpl(model: {
 export async function updateRegistryModelImpl(
   modelName: string,
   updates: {
-    litellmParams?: Record<string, unknown>;
     modelRoute?: Record<string, unknown>;
     modelName?: string;
   },
@@ -120,9 +118,7 @@ export async function updateRegistryModelImpl(
         modelName: targetName,
         ...updates.modelRoute,
       } as ReturnType<typeof prismaModelToRoute>)
-    : updates.litellmParams
-      ? toModelRoute(updates.litellmParams, targetName)
-      : null;
+    : null;
 
   if (targetName !== modelName) {
     const existing = await prisma.modelProxyModel.findUnique({
@@ -165,7 +161,7 @@ export async function deleteRegistryModelImpl(
 }
 
 export async function getRegistryCredentialsImpl(): Promise<
-  LiteLLMCredential[]
+  RegistryCredential[]
 > {
   const prisma = getModelProxyPrisma();
   const rows = await prisma.modelProxyCredential.findMany({

@@ -26,7 +26,7 @@ describe("proxy error-queries", () => {
     expect(sql).toContain(`"status" IN ('failed', 'timeout')`);
     expect(sql).not.toContain("LiteLLM_ErrorLogs");
     expect(sql).toContain('"error_type"');
-    expect(sql).toContain('"upstream_model" as "litellm_model_name"');
+    expect(sql).toContain('"upstream_model" as "upstream_model_name"');
     expect(sql).toContain("LIMIT 25");
   });
 });

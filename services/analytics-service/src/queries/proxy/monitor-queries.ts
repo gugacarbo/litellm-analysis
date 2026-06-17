@@ -26,7 +26,7 @@ export async function getErrorsSince(since: Date, limit = 100) {
       ) as "error_message",
       "${PROXY_TIME_COLUMN}" as "timestamp",
       COALESCE("error_status_code", 500) as "status_code",
-      "upstream_model" as "litellm_model_name",
+      "upstream_model" as "upstream_model_name",
       "error_details" as "request_kwargs",
       "status" as "spend_status",
       "total_tokens",

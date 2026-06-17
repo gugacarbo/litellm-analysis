@@ -1,9 +1,31 @@
 import type { TimeRangeParams } from "../../types/index";
-import {
-  buildWhereClause,
-  combineSqlConditions,
-  normalizeDays,
-} from "../helpers";
+
+function normalizeDays(
+  days: number | string | undefined,
+  fallback: number,
+): number {
+  const parsed = typeof days === "string" ? Number.parseFloat(days) : days;
+  if (typeof parsed !== "number" || Number.isNaN(parsed) || parsed < 0) {
+    return fallback;
+  }
+  return parsed;
+}
+
+function combineSqlConditions(conditions: Array<string>): string {
+  const valid = conditions.filter((c) => c.length > 0);
+  if (valid.length === 0) {
+    return "";
+  }
+  if (valid.length === 1) {
+    return valid[0];
+  }
+  return valid.map((c) => `(${c})`).join(" AND ");
+}
+
+function buildWhereClause(conditions: Array<string>): string {
+  const combined = combineSqlConditions(conditions);
+  return combined ? `WHERE ${combined}` : "";
+}
 
 export const PROXY_REQUESTS_TABLE = "model_proxy_requests";
 export const PROXY_USAGE_ADJUSTMENTS_TABLE = "model_proxy_usage_adjustments";

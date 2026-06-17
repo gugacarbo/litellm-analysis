@@ -85,11 +85,11 @@ export interface AnalyticsDataSource {
   getErrorLogs(limit: number, days?: number): Promise<ErrorLogEntry[]>;
   createModel(model: {
     modelName: string;
-    litellmParams: Record<string, unknown>;
+    modelRoute?: Record<string, unknown>;
   }): Promise<void>;
   updateModel(
     modelName: string,
-    updates: { litellmParams?: Record<string, unknown>; modelName?: string },
+    updates: { modelRoute?: Record<string, unknown>; modelName?: string },
   ): Promise<void>;
   deleteModel(modelName: string): Promise<void>;
   mergeModels(sourceModel: string, targetModel: string): Promise<void>;
@@ -126,8 +126,8 @@ export interface AnalyticsDataSource {
     model: string,
     days?: number,
   ): Promise<ModelProviderBreakdown[]>;
-  // Credentials — LiteLLM virtual key management
-  getCredentials(): Promise<LiteLLMCredential[]>;
+  // Credentials — upstream credential registry
+  getCredentials(): Promise<RegistryCredential[]>;
   getDefaultCredential(): Promise<string | null>;
   getHealthCheckPrompt(): Promise<string | null>;
   setDefaultCredential(credentialAlias: string | null): Promise<void>;
@@ -177,45 +177,8 @@ export interface ChatMessage {
   name?: string;
 }
 
-/** @deprecated Use ProxyRequestLog. Not exposed on HTTP routes (Batch 5). */
-export interface SpendLogEntry {
-  request_id: string;
-  model: string;
-  user: string | null;
-  total_tokens: number | null;
-  prompt_tokens: number | null;
-  completion_tokens: number | null;
-  spend: number;
-  time_to_first_token_ms: number | null;
-  start_time: string;
-  end_time: string | null;
-  api_key: string | null;
-  status: string;
-  call_type?: string | null;
-  api_base?: string | null;
-  team_id?: string | null;
-  end_user?: string | null;
-  organization_id?: string | null;
-  completion_start_time?: string | null;
-  request_duration_ms?: number | null;
-  cache_hit?: string | null;
-  cache_key?: string | null;
-  metadata?: Record<string, unknown> | null;
-  proxy_server_request?: Record<string, unknown> | null;
-  response?: Record<string, unknown> | null;
-  request_tags?: string[] | null;
-  requester_ip_address?: string | null;
-  session_id?: string | null;
-  agent_id?: string | null;
-  model_id?: string | null;
-  model_group?: string | null;
-  custom_llm_provider?: string | null;
-  mcp_namespaced_tool_name?: string | null;
-  messages?: ChatMessage[] | null;
-}
-
 export interface ErrorLogEntry {
-  litellm_model_name: string | null;
+  upstream_model_name: string | null;
   request_kwargs: Record<string, unknown> | null;
   id: string;
   error_type: string | null;
@@ -367,8 +330,6 @@ export interface ModelStatistics {
 export interface ModelInfo {
   modelName: string;
   modelRoute: Record<string, unknown>;
-  /** @deprecated Prefer modelRoute */
-  litellmParams?: Record<string, unknown> | null;
 }
 
 export type ModelEntry = ModelInfo;
@@ -420,7 +381,7 @@ export type {
 
 export interface ModelEntryConfig {
   modelName: string;
-  litellmParams: Record<string, unknown> | null;
+  modelRoute: Record<string, unknown> | null;
 }
 
 export interface ModelDailySpendTrend {
@@ -541,7 +502,7 @@ export interface ModelProviderBreakdown {
 }
 
 // Credentials types
-export interface LiteLLMCredential {
+export interface RegistryCredential {
   credentialId: string;
   credentialName: string;
   credentialValues: Record<string, unknown> | null;
