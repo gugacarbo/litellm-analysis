@@ -26,6 +26,12 @@ vi.mock("@/shared/lib/api-client", () => {
     {
       modelName: "gpt-4",
       status: "synced" as const,
+      modelRoute: {
+        modelName: "gpt-4",
+        upstreamBaseUrl: "https://api.openai.com/v1",
+        inputCostPerToken: 0.00003,
+        outputCostPerToken: 0.00006,
+      },
       litellmParams: {
         api_base: "https://api.openai.com/v1",
         input_cost_per_token: 0.00003,
@@ -35,6 +41,12 @@ vi.mock("@/shared/lib/api-client", () => {
     {
       modelName: "claude-3-opus",
       status: "synced" as const,
+      modelRoute: {
+        modelName: "claude-3-opus",
+        upstreamBaseUrl: "https://api.anthropic.com",
+        inputCostPerToken: 0.000015,
+        outputCostPerToken: 0.000075,
+      },
       litellmParams: {
         api_base: "https://api.anthropic.com",
         input_cost_per_token: 0.000015,
@@ -47,7 +59,7 @@ vi.mock("@/shared/lib/api-client", () => {
     getAllModels: vi.fn().mockResolvedValue(mockModels),
     getModelsWithConfig: vi.fn().mockResolvedValue({
       models: mockModels,
-      counts: { synced: 2, configOnly: 0, litellmOnly: 0, total: 2 },
+      counts: { synced: 2, configOnly: 0, registryOnly: 0, total: 2 },
     }),
     createModel: vi.fn().mockResolvedValue(undefined),
     updateModel: vi.fn().mockResolvedValue(undefined),

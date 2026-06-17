@@ -1,4 +1,5 @@
 import type { ModelConfig } from "@/shared/lib/api-client/models";
+import { getLitellmParamsShim } from "@/shared/lib/api-client/models";
 import { FIXED_KEYS, type ModelFormData } from "./model-form-data";
 
 const NUMERIC_PARAM_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
@@ -29,7 +30,7 @@ export function parseExtraParamValue(raw: string): unknown {
 }
 
 export function mapModelToFormData(model: ModelConfig): ModelFormData {
-  const params = model.litellmParams || {};
+  const params = getLitellmParamsShim(model);
   const extraParams: Record<string, string> = {};
 
   Object.entries(params).forEach(([key, value]) => {

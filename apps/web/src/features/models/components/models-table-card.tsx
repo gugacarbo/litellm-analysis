@@ -77,6 +77,7 @@ import type {
   SyncDirection,
   SyncField,
 } from "@/shared/lib/api-client/models";
+import { getLitellmParamsShim } from "@/shared/lib/api-client/models";
 
 const statusBadgeVariant: Record<
   string,
@@ -84,13 +85,13 @@ const statusBadgeVariant: Record<
 > = {
   synced: "success",
   "config-only": "secondary",
-  "litellm-only": "outline",
+  "registry-only": "outline",
 };
 
 const statusLabel: Record<string, string> = {
   synced: "Synced",
   "config-only": "Config Only",
-  "litellm-only": "LiteLLM Only",
+  "registry-only": "Registry Only",
 };
 
 type ModelsTableCardProps = {
@@ -108,7 +109,7 @@ type ModelsTableCardProps = {
   onToggleEnabled: (modelName: string, enabled: boolean) => void;
 
   // sync + form + credentials
-  counts: { configOnly: number; litellmOnly: number };
+  counts: { configOnly: number; registryOnly: number };
   syncing: boolean;
   syncDialogOpen: boolean;
   setSyncDialogOpen: (open: boolean) => void;
@@ -215,7 +216,7 @@ export function ModelsTableCard({
   const syncedCount = models.filter((m) => m.status === "synced").length;
   const healthyCount = models.filter(
     (m) =>
-      (m.status === "synced" || m.status === "litellm-only") &&
+      (m.status === "synced" || m.status === "registry-only") &&
       getHealthCheck(m.modelName)?.status === "healthy",
   ).length;
   const driftCount = counts.configOnly + defaultSettingsDriftCount;
@@ -469,9 +470,10 @@ export function ModelsTableCard({
             <TableBody>
               {pageModels.map((model) => {
                 const health = getHealthCheck(model.modelName);
-                const inLiteLLM =
-                  model.status === "synced" || model.status === "litellm-only";
-                const inConfig = model.status !== "litellm-only";
+                const routeParams = getLitellmParamsShim(model);
+                const inRegistry =
+                  model.status === "synced" || model.status === "registry-only";
+                const inConfig = model.status !== "registry-only";
 
                 return (
                   <TableRow
@@ -511,7 +513,7 @@ export function ModelsTableCard({
                       )}
                     </TableCell>
                     <TableCell>
-                      {inLiteLLM ? (
+                      {inRegistry ? (
                         healthChecksLoading &&
                         !healthChecksByModel.has(model.modelName) ? (
                           <Skeleton className="h-5 w-24" />
@@ -523,7 +525,7 @@ export function ModelsTableCard({
                       )}
                     </TableCell>
                     <TableCell>
-                      {inLiteLLM ? (
+                      {inRegistry ? (
                         <div className="flex items-center justify-end gap-2">
                           <span className="font-mono text-xs tabular-nums">
                             {formatResponseTime(health?.responseTimeMs ?? null)}
@@ -537,12 +539,12 @@ export function ModelsTableCard({
                       )}
                     </TableCell>
                     <TableCell className="text-right font-mono text-xs tabular-nums">
-                      {inLiteLLM
+                      {inRegistry
                         ? formatResponseTime(health?.ttftMs ?? null)
                         : "—"}
                     </TableCell>
                     <TableCell className="text-right font-mono text-xs tabular-nums">
-                      {inLiteLLM
+                      {inRegistry
                         ? formatTokensPerSecond(health?.tokensPerSecond ?? null)
                         : "—"}
                     </TableCell>
@@ -562,20 +564,20 @@ export function ModelsTableCard({
                         : "—"}
                     </TableCell>
                     <TableCell className="text-right">
-                      {getContextWindow(model.litellmParams)}
+                      {getContextWindow(routeParams)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {getMaxOutput(model.litellmParams)}
+                      {getMaxOutput(routeParams)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {getInputCost(model.litellmParams)}
+                      {getInputCost(routeParams)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {getOutputCost(model.litellmParams)}
+                      {getOutputCost(routeParams)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        {inLiteLLM ? (
+                        {inRegistry ? (
                           <>
                             <Button variant="ghost" size="icon-sm" asChild>
                               <Link
@@ -608,7 +610,7 @@ export function ModelsTableCard({
                                         {deleteModelName}
                                       </span>{" "}
                                       apenas da config local. A remoção no
-                                      LiteLLM DB é feita pelo fluxo de Sync.
+                                      registry é feita pelo fluxo de Sync.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
@@ -638,7 +640,7 @@ export function ModelsTableCard({
                             —
                           </span>
                         )}
-                        {model.status === "litellm-only" ? (
+                        {model.status === "registry-only" ? (
                           <Button
                             variant="outline"
                             size="sm"

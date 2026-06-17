@@ -8,6 +8,7 @@ import {
   getModelProvider,
   getModelsSyncDiff,
   getModelsWithConfig,
+  litellmParamsToModelRoute,
   type ModelConfig,
   type ModelSyncDiffItem,
   mergeModels,
@@ -182,6 +183,9 @@ export function useModelsPage() {
         return;
       }
 
+      const modelName = formData.modelName.trim();
+      const modelRoute = litellmParamsToModelRoute(params, modelName);
+
       if (editingModel) {
         await updateModelMutation.mutateAsync({
           modelName: editingModel.modelName,
@@ -189,7 +193,8 @@ export function useModelsPage() {
         });
       } else {
         await createModelMutation.mutateAsync({
-          modelName: formData.modelName.trim(),
+          modelName,
+          modelRoute,
           litellmParams: params,
         });
       }
@@ -367,7 +372,7 @@ export function useModelsPage() {
     counts: modelsQuery.data?.counts ?? {
       synced: 0,
       configOnly: 0,
-      litellmOnly: 0,
+      registryOnly: 0,
       total: 0,
     },
     handleOpenCreateWithDefaultCredential,

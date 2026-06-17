@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/shared/lib/utils";
 
 interface ModelSelectProps {
-  models: Array<{ modelName: string; litellmParams: Record<string, unknown> }>;
+  models: Array<{ modelName: string }>;
   value: string;
   onChange: (modelName: string) => void;
   placeholder?: string;

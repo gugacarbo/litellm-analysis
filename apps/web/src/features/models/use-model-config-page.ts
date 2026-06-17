@@ -4,9 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
 import {
+  getLitellmParamsShim,
   getModelsWithConfig,
   type ModelConfig,
+  type ModelRouteUpdate,
   type ModelWithStatus,
+  resolveModelRoute,
   updateModel,
 } from "@/shared/lib/api-client/models";
 import { useModelDetailContext } from "./detail/model-detail-context";
@@ -59,7 +62,8 @@ function getEmptyFormData(): ModelConfigFormData {
 }
 
 function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
-  const params = model.litellmParams;
+  const route = resolveModelRoute(model);
+  const params = getLitellmParamsShim(model);
   const config = model.config ?? {};
   const extraParams: Record<string, string> = {};
   const fixedKeys = [
@@ -80,11 +84,7 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     }
   }
 
-  const litellmCredName = params?.litellm_credential_name as string | undefined;
-  let credentialName = "";
-  if (litellmCredName) {
-    credentialName = litellmCredName;
-  }
+  const credentialName = route.credentialName ?? "";
 
   const reasoning = config.reasoning;
   const effort = reasoning?.effort;
@@ -125,10 +125,16 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     },
     apiMode: validApiMode,
     vision: config.vision === true,
-    apiBase: (params?.api_base as string) ?? "",
+    apiBase: route.upstreamBaseUrl ?? (params?.api_base as string) ?? "",
     credentialName,
-    inputCostPerToken: params?.input_cost_per_token?.toString() ?? "",
-    outputCostPerToken: params?.output_cost_per_token?.toString() ?? "",
+    inputCostPerToken:
+      route.inputCostPerToken?.toString() ??
+      params?.input_cost_per_token?.toString() ??
+      "",
+    outputCostPerToken:
+      route.outputCostPerToken?.toString() ??
+      params?.output_cost_per_token?.toString() ??
+      "",
     extraParams,
   };
 }
@@ -171,12 +177,12 @@ export function useModelConfigPage(): UseModelConfigPageResult {
   const updateMutation = useMutation({
     mutationFn: (params: {
       modelName: string;
-      litellmParams: Record<string, unknown>;
+      modelRoute: ModelRouteUpdate;
       config?: ModelConfig["config"];
     }) =>
       updateModel(
         params.modelName,
-        params.litellmParams,
+        params.modelRoute,
         undefined,
         params.config,
       ),
@@ -256,40 +262,42 @@ export function useModelConfigPage(): UseModelConfigPageResult {
         return;
       }
 
-      const litellmParams: Record<string, unknown> = {
-        ...model.litellmParams,
-        api_base: formData.apiBase || undefined,
-        litellm_credential_name: formData.credentialName || undefined,
+      const existingRoute = resolveModelRoute(model);
+      const routeUpdate: ModelRouteUpdate = {
+        ...existingRoute,
+        upstreamBaseUrl: formData.apiBase || undefined,
+        credentialName: formData.credentialName || undefined,
         enabled: formData.enabled,
+        inputCostPerToken: inputCost,
+        outputCostPerToken: outputCost,
+        requestOptions: { ...existingRoute.requestOptions },
       };
 
       if (inputCost === undefined) {
-        delete litellmParams.input_cost_per_token;
-      } else {
-        litellmParams.input_cost_per_token = inputCost;
+        delete routeUpdate.inputCostPerToken;
       }
-
       if (outputCost === undefined) {
-        delete litellmParams.output_cost_per_token;
-      } else {
-        litellmParams.output_cost_per_token = outputCost;
+        delete routeUpdate.outputCostPerToken;
       }
 
+      const requestOptions = { ...routeUpdate.requestOptions };
       for (const [key, value] of Object.entries(formData.extraParams)) {
         if (!key) {
           continue;
         }
         const parsed = parseExtraParamValue(value);
         if (parsed !== undefined) {
-          litellmParams[key] = parsed;
+          requestOptions[key] = parsed;
         } else {
-          delete litellmParams[key];
+          delete requestOptions[key];
         }
       }
+      routeUpdate.requestOptions =
+        Object.keys(requestOptions).length > 0 ? requestOptions : undefined;
 
       await updateMutation.mutateAsync({
         modelName: model.modelName,
-        litellmParams,
+        modelRoute: routeUpdate,
       });
 
       await queryClient.invalidateQueries({
@@ -338,12 +346,12 @@ export function useModelConfigPageFromContext(): Omit<
   const updateMutation = useMutation({
     mutationFn: (params: {
       modelName: string;
-      litellmParams: Record<string, unknown>;
+      modelRoute: ModelRouteUpdate;
       config?: ModelConfig["config"];
     }) =>
       updateModel(
         params.modelName,
-        params.litellmParams,
+        params.modelRoute,
         undefined,
         params.config,
       ),
@@ -416,40 +424,42 @@ export function useModelConfigPageFromContext(): Omit<
         return;
       }
 
-      const litellmParams: Record<string, unknown> = {
-        ...model.litellmParams,
-        api_base: formData.apiBase || undefined,
-        litellm_credential_name: formData.credentialName || undefined,
+      const existingRoute = resolveModelRoute(model);
+      const routeUpdate: ModelRouteUpdate = {
+        ...existingRoute,
+        upstreamBaseUrl: formData.apiBase || undefined,
+        credentialName: formData.credentialName || undefined,
         enabled: formData.enabled,
+        inputCostPerToken: inputCost,
+        outputCostPerToken: outputCost,
+        requestOptions: { ...existingRoute.requestOptions },
       };
 
       if (inputCost === undefined) {
-        delete litellmParams.input_cost_per_token;
-      } else {
-        litellmParams.input_cost_per_token = inputCost;
+        delete routeUpdate.inputCostPerToken;
       }
-
       if (outputCost === undefined) {
-        delete litellmParams.output_cost_per_token;
-      } else {
-        litellmParams.output_cost_per_token = outputCost;
+        delete routeUpdate.outputCostPerToken;
       }
 
+      const requestOptions = { ...routeUpdate.requestOptions };
       for (const [key, value] of Object.entries(formData.extraParams)) {
         if (!key) {
           continue;
         }
         const parsed = parseExtraParamValue(value);
         if (parsed !== undefined) {
-          litellmParams[key] = parsed;
+          requestOptions[key] = parsed;
         } else {
-          delete litellmParams[key];
+          delete requestOptions[key];
         }
       }
+      routeUpdate.requestOptions =
+        Object.keys(requestOptions).length > 0 ? requestOptions : undefined;
 
       await updateMutation.mutateAsync({
         modelName: model.modelName,
-        litellmParams,
+        modelRoute: routeUpdate,
       });
 
       await queryClient.invalidateQueries({

@@ -94,7 +94,7 @@ export function SyncModelsDialog({
                   <th className="p-2">Model</th>
                   <th className="p-2">Campo</th>
                   <th className="p-2">Config</th>
-                  <th className="p-2">LiteLLM</th>
+                  <th className="p-2">Registry</th>
                   <th className="p-2">Direção</th>
                 </tr>
               </thead>
@@ -115,10 +115,10 @@ export function SyncModelsDialog({
                       </td>
                       <td className="max-w-xs p-2 font-mono text-xs">
                         {item.field === "model_presence"
-                          ? item.litellmValue == null
+                          ? item.registryValue == null
                             ? "absent"
                             : "present"
-                          : formatValue(item.litellmValue)}
+                          : formatValue(item.registryValue)}
                       </td>
                       <td className="w-56 p-2">
                         <Select
@@ -135,11 +135,11 @@ export function SyncModelsDialog({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="config-to-litellm">
-                              config → LiteLLM
+                            <SelectItem value="config-to-registry">
+                              config → registry
                             </SelectItem>
-                            <SelectItem value="litellm-to-config">
-                              LiteLLM → config
+                            <SelectItem value="registry-to-config">
+                              registry → config
                             </SelectItem>
                           </SelectContent>
                         </Select>
