@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-13 (updated 2026-06-16)
+**Generated:** 2026-05-13 (updated 2026-06-17)
 **Commit:** a6a4e5d
 **Branch:** main
 
@@ -168,11 +168,19 @@ pnpm lint         # turbo lint (biome lint)
 pnpm format       # turbo format (biome check --write)
 pnpm typecheck    # turbo typecheck (tsc --noEmit)
 
+# Local PostgreSQL (docker-compose)
+pnpm db:up              # Start postgres (reads .env / .env.local)
+pnpm db:down            # Stop postgres container
+pnpm db:logs            # Follow postgres logs
+pnpm db:migrate         # Apply model-proxy Prisma migrations (deploy)
+
+
 # Single package (faster for iteration)
 pnpm --filter @lite-llm/analytics-service typecheck
 pnpm --filter @lite-llm/analytics-service build
 pnpm --filter @lite-llm/model-proxy-repository db:generate
 pnpm --filter @lite-llm/model-proxy-repository db:validate
+pnpm --filter @lite-llm/model-proxy-repository db:migrate
 pnpm --filter @lite-llm/model-proxy-repository typecheck
 pnpm --filter @lite-llm/model-proxy-service typecheck
 pnpm --filter @lite-llm/model-proxy-service test
