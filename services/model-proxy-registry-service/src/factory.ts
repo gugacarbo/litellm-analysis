@@ -7,6 +7,10 @@ import {
   type IApiKeysService,
 } from "./services/api-keys.service.js";
 import {
+  CredentialsService,
+  type ICredentialsService,
+} from "./services/credentials.service.js";
+import {
   type IRegistryModelsService,
   RegistryModelsService,
 } from "./services/registry-models.service.js";
@@ -19,6 +23,7 @@ export interface RegistryServices {
   prisma: PrismaClient;
   settingsService: ISettingsService;
   registryModelsService: IRegistryModelsService;
+  credentialsService: ICredentialsService;
   apiKeysService: IApiKeysService;
 }
 
@@ -35,6 +40,7 @@ export function createRegistryServices(
     prisma,
     settingsService: new SettingsService({ prisma }),
     registryModelsService: new RegistryModelsService({ prisma }),
+    credentialsService: new CredentialsService({ prisma }),
     apiKeysService: new ApiKeysService({ prisma }),
   };
 }

@@ -43,6 +43,12 @@ export {
   toLegacyEntry,
 } from "./dual-read/models-dual-read.js";
 export {
+  credentialExistsWithFallback,
+  type CredentialListItem,
+  listCredentialsWithFallback,
+  toPublicCredential,
+} from "./dual-read/credentials-dual-read.js";
+export {
   getDefaultCredentialWithFallback,
   getHealthCheckPromptWithFallback,
   getRouterSettingsWithFallback,
@@ -70,6 +76,11 @@ export {
   type ApiKeysServiceOptions,
   type IApiKeysService,
 } from "./services/api-keys.service.js";
+export {
+  CredentialsService,
+  type CredentialsServiceOptions,
+  type ICredentialsService,
+} from "./services/credentials.service.js";
 export {
   type IRegistryModelsService,
   RegistryModelsService,
