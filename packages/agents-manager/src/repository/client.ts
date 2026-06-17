@@ -1,6 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
+import { createDbRepository } from "@lite-llm/agents-repository/db-repository";
 import {
   createRepository,
   type IAgentsRepository,
@@ -16,6 +17,10 @@ export interface RepositoryClientOptions {
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IAgentsRepository {
+  if (serverEnv.SETTINGS_STORAGE === "database") {
+    return createDbRepository({ validateOnRead: false });
+  }
+
   const agentsSettingsBase = `${serverEnv.SETTINGS_PATH}/agents`;
   const pluginsSettingsBase = `${serverEnv.SETTINGS_PATH}/plugins`;
   const agentsFilePath =

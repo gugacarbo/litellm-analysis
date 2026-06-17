@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import * as path from "node:path";
 import { serverEnv } from "@lite-llm/config/server";
+import { createDbRepository } from "./db-repository";
 import {
   createRepository,
   type IModelsRepository,
@@ -47,6 +48,10 @@ function resolveModelsSettingsPath(): string {
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
 ): IModelsRepository {
+  if (serverEnv.SETTINGS_STORAGE === "database") {
+    return createDbRepository({ validateOnRead: false });
+  }
+
   const settingsBase = resolveModelsSettingsPath();
   const modelsFilePath =
     options.modelsFilePath ?? `${settingsBase}/models.jsonc`;

@@ -8,6 +8,8 @@
       "import": "./src/index.ts"
     },
     "./repository": "./src/repository.ts",
+    "./db-repository": "./src/db-repository.ts",
+    "./metadata": "./src/metadata.ts",
     "./schemas": "./src/schemas/index.ts",
     "./storage": "./src/storage.ts"
   },
@@ -18,6 +20,8 @@
   },
   "dependencies": {
     "@lite-llm/config": "workspace:*",
+    "@lite-llm/model-proxy-registry-service": "workspace:*",
+    "@lite-llm/model-proxy-repository": "workspace:*",
     "@lite-llm/repository-utils": "workspace:*",
     "zod": "catalog:"
   },
