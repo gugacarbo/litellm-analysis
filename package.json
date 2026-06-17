@@ -20,7 +20,8 @@
     "validate:agents:all": "tsx scripts/src/validate-agents/index.ts --strict",
     "generate:plugin-configs": "tsx scripts/src/generate-plugin-configs/index.ts",
     "backup": "pnpm --filter @lite-llm/scripts backup",
-    "backup:list": "ls -lh backups/*.sql.gz 2>/dev/null || echo 'No backups found'"
+    "backup:list": "ls -lh backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
+    "model-proxy:import-legacy": "pnpm --filter @lite-llm/model-proxy-registry-service import:legacy"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
