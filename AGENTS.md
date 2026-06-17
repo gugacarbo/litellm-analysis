@@ -37,9 +37,9 @@ lite-llm-analytics/
 │   ├── shared/             # Common types (AgentConfig, CategoryConfig)
 │   ├── env/                # Environment variable validation (t3-env, Zod)
 │   └── api-contracts/      # API type contracts (analytics, agent-routing)
-├── @settings/agents/                 # Agent config source-of-truth (agents.jsonc + schema)
-├── @settings/plugins/                # Plugin config source-of-truth (plugins.jsonc + schema)
-├── @settings/models/                 # Model/provider config source-of-truth (models.jsonc + schema)
+├── @settings/agents/                 # Agent config seed/backup (agents.jsonc + schema)
+├── @settings/plugins/                # Plugin config seed/backup (plugins.jsonc + schema)
+├── @settings/models/                 # Model/provider config seed/backup (models.jsonc + schema)
 ├── @storage/output/         # Generated JSON configs (OpenCode, VS Code, agent-routing)
 │   ├── oh-my-openagent.json
 │   ├── opencode.json
@@ -172,6 +172,9 @@ pnpm db:up              # Start postgres (reads .env / .env.local)
 pnpm db:down            # Stop postgres container
 pnpm db:logs            # Follow postgres logs
 pnpm db:migrate         # Apply model-proxy Prisma migrations (deploy)
+
+pnpm settings:import    # Import @settings → model_proxy_* (migration)
+pnpm settings:export    # Export database → @settings backup
 
 
 # Single package (faster for iteration)
