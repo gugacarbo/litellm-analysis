@@ -24,6 +24,12 @@ export function resolveLitellmParamsFromBody(body: {
   litellmParams?: unknown;
   modelName?: string;
 }): Record<string, unknown> {
+  if (body.litellmParams !== undefined) {
+    throw new Error(
+      "litellmParams is deprecated; send modelRoute instead (Batch 5)",
+    );
+  }
+
   if (isRecord(body.modelRoute) && Object.keys(body.modelRoute).length > 0) {
     const route = {
       ...body.modelRoute,

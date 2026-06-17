@@ -42,8 +42,7 @@ function buildModelConfigResponse(
 interface ConfigModelEntry {
   modelName: string;
   status: ModelSyncPresenceStatus;
-  litellmParams: Record<string, unknown>;
-  modelRoute?: Record<string, unknown>;
+  modelRoute: Record<string, unknown>;
   enabled?: boolean;
   config?: {
     displayName?: string;
@@ -310,6 +309,12 @@ export function registerModelRoutes(
   app.post("/models", async (req, res) => {
     try {
       const { modelName, modelRoute, litellmParams } = req.body;
+      if (litellmParams !== undefined) {
+        res.status(400).json({
+          error: "litellmParams is deprecated; send modelRoute instead",
+        });
+        return;
+      }
       const normalizedModelName = String(modelName || "").trim();
       if (!normalizedModelName) {
         res.status(400).json({ error: "modelName is required" });
@@ -342,6 +347,12 @@ export function registerModelRoutes(
     try {
       const { name } = req.params;
       const { litellmParams, modelRoute, modelName, config } = req.body;
+      if (litellmParams !== undefined) {
+        res.status(400).json({
+          error: "litellmParams is deprecated; send modelRoute instead",
+        });
+        return;
+      }
       const normalizedNewName =
         typeof modelName === "string" && modelName.trim()
           ? modelName.trim()
@@ -361,14 +372,9 @@ export function registerModelRoutes(
         : {};
       const credentialName = await getResolvedDefaultCredential();
 
-      if (
-        litellmParams !== undefined ||
-        modelRoute !== undefined ||
-        modelName !== undefined
-      ) {
+      if (modelRoute !== undefined || modelName !== undefined) {
         const incomingParams = resolveLitellmParamsFromBody({
           modelRoute,
-          litellmParams,
           modelName: normalizedNewName,
         });
         const mergedParams = {
@@ -944,7 +950,6 @@ export function registerModelRoutes(
         models.push({
           modelName,
           status,
-          litellmParams,
           modelRoute: modelRoute as unknown as Record<string, unknown>,
           enabled,
           config,

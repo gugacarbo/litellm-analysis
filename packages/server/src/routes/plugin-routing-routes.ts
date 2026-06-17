@@ -31,7 +31,7 @@ const asRecord = (value: unknown): Record<string, unknown> =>
   isRecord(value) ? value : {};
 
 function normalizePluginId(pluginId: string): string {
-  return pluginId === "litellm-alias" ? "model-alias" : pluginId;
+  return pluginId;
 }
 
 const normalizePluginConfigById = (
