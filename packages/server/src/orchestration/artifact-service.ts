@@ -1,3 +1,4 @@
+import { serverEnv } from "@lite-llm/config/server";
 import {
   getDefaultCredential,
   type IRegistryModelsService,
@@ -15,6 +16,10 @@ export async function syncModelsDirectlyToDatabase(
   settingsService: ISettingsService,
   models: Record<string, DbModelSpecLike>,
 ): Promise<void> {
+  if (serverEnv.SETTINGS_STORAGE === "database") {
+    return;
+  }
+
   const credentialName = await getDefaultCredential(settingsService);
   const desiredEntries = Object.entries(models || {});
   const desiredNames = new Set(desiredEntries.map(([name]) => name));

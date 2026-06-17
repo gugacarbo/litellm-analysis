@@ -128,11 +128,28 @@ export async function resolveHealthCheckPrompt(
   }
 }
 
+async function warnIfDatabaseSettingsEmpty(): Promise<void> {
+  if (env.SETTINGS_STORAGE !== "database") {
+    return;
+  }
+
+  const agentsManager = createAgentsManager();
+  const config = await agentsManager.repository.read();
+  const agentCount = Object.keys(config.agents ?? {}).length;
+
+  if (agentCount === 0) {
+    console.warn(
+      "[settings] dashboard.agents is empty. Run `pnpm settings:import` to seed configuration from @settings, then restart with SETTINGS_STORAGE=database.",
+    );
+  }
+}
+
 export async function startAppRuntime(): Promise<AppRuntime> {
   const projectRoot = getProjectRoot();
   const ctx = createAppContext();
   const registry = createRegistryServices();
   await seedBootstrapApiKey(env.MODEL_PROXY_API_KEY, registry);
+  await warnIfDatabaseSettingsEmpty();
 
   const aliasDbWriter = {
     updateAliases: async (aliases: Record<string, string>) => {
