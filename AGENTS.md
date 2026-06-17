@@ -90,7 +90,7 @@ lite-llm-analytics/
 - **Generated schemas are read-only** — do not edit generated JSON/Zod schema files manually; update the canonical Zod source and regenerate
 
 ### Architecture
-- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` as the sole implementation (method implementations composed from 9 \*-methods.ts files, backed by 13 query files via `prisma.$queryRawUnsafe`)
+- **Strategy pattern** for data access: `AnalyticsDataSource` interface (46 methods), with `DatabaseDataSource` (LiteLLM), `ModelProxyDataSource` (`model_proxy_*`), and `HybridDataSource` (transition/compare). Factory: `createDataSource()` in `services/analytics-service/src/data-source/index.ts`, controlled by `ANALYTICS_DATA_SOURCE` (`litellm` \| `model-proxy` \| `hybrid`).
 - **Page-level architecture**: Page subdirectories contain hooks/types/utils only (no JSX). Page root `.tsx` files contain JSX. Components live in `components/` and import from page directories
 - **State-Actions-Derived pattern**: Complex pages (agent-routing) split into `use-*-state.ts`, `use-*-actions.ts`, `use-*-derived.ts`, composed via `use-*-page.ts`
 
@@ -193,6 +193,10 @@ pnpm backup:list      # List available backup files in backups/
 
 # Model proxy registry (Batch 3)
 pnpm model-proxy:import-legacy  # Import LiteLLM_Config/Credentials/ProxyModel → model_proxy_*
+pnpm model-proxy:import-history # Import LiteLLM_SpendLogs/ErrorLogs → model_proxy_requests
+
+# Analytics source comparison (Batch 4)
+pnpm analytics:compare-sources --days 7   # Compare LiteLLM vs model-proxy totals
 ```
 
 ## BUILD & CI (Gaps)
