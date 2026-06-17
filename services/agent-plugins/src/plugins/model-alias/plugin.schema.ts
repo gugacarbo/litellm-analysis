@@ -6,7 +6,7 @@
 import { z } from "zod";
 
 export const modelAliasSchema = z.object({
-  $schema: z.string(),
-  model_group_alias: z.record(z.string(), z.string()),
+  "$schema": z.string(),
+  "model_group_alias": z.record(z.string(), z.string()),
 });
 export type ModelAliasSchemaType = z.infer<typeof modelAliasSchema>;
