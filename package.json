@@ -13,6 +13,8 @@
     "typecheck": "turbo typecheck",
     "lint-staged": "lint-staged",
     "prepare": "husky",
+    "settings:import": "tsx scripts/src/settings-import/index.ts",
+    "settings:export": "tsx scripts/src/settings-export/index.ts",
     "generate:agents-schema": "tsx scripts/src/generate-schema/index.ts",
     "sync:aa-benchmarks": "tsx scripts/src/sync-aa-benchmarks/index.ts",
     "validate:agents": "tsx scripts/src/validate-agents/index.ts",
@@ -27,7 +29,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
-    "@lite-llm/analytics-service": "workspace:*",
     "@lite-llm/model-proxy-registry-service": "workspace:*",
     "ajv-cli": "^5.0.0",
     "husky": "^9.1.7",

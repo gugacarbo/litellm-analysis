@@ -47,9 +47,6 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
-      '@lite-llm/analytics-service':
-        specifier: workspace:*
-        version: link:services/analytics-service
       '@lite-llm/model-proxy-registry-service':
         specifier: workspace:*
         version: link:services/model-proxy-registry-service
@@ -426,6 +423,9 @@ importers:
       '@lite-llm/analytics-service':
         specifier: workspace:*
         version: link:../../services/analytics-service
+      '@lite-llm/config':
+        specifier: workspace:*
+        version: link:../config
       '@lite-llm/contracts':
         specifier: workspace:*
         version: link:../contracts
@@ -460,6 +460,12 @@ importers:
       '@lite-llm/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@lite-llm/model-proxy-registry-service':
+        specifier: workspace:*
+        version: link:../../services/model-proxy-registry-service
+      '@lite-llm/model-proxy-repository':
+        specifier: workspace:*
+        version: link:../model-proxy-repository
       '@lite-llm/models-repository':
         specifier: workspace:*
         version: link:../models-repository
@@ -529,6 +535,12 @@ importers:
       '@lite-llm/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@lite-llm/model-proxy-registry-service':
+        specifier: workspace:*
+        version: link:../../services/model-proxy-registry-service
+      '@lite-llm/model-proxy-repository':
+        specifier: workspace:*
+        version: link:../model-proxy-repository
       '@lite-llm/repository-utils':
         specifier: workspace:*
         version: link:../repository-utils
@@ -554,6 +566,49 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  scripts:
+    dependencies:
+      '@lite-llm/agents-manager':
+        specifier: workspace:*
+        version: link:../packages/agents-manager
+      '@lite-llm/agents-repository':
+        specifier: workspace:*
+        version: link:../repositories/agents-repository
+      '@lite-llm/config':
+        specifier: workspace:*
+        version: link:../packages/config
+      '@lite-llm/model-proxy-registry-service':
+        specifier: workspace:*
+        version: link:../services/model-proxy-registry-service
+      '@lite-llm/model-proxy-repository':
+        specifier: workspace:*
+        version: link:../repositories/model-proxy-repository
+      '@lite-llm/models-repository':
+        specifier: workspace:*
+        version: link:../repositories/models-repository
+      '@lite-llm/repository-utils':
+        specifier: workspace:*
+        version: link:../repositories/repository-utils
+      '@lite-llm/server':
+        specifier: workspace:*
+        version: link:../packages/server
+      listr2:
+        specifier: ^10.2.1
+        version: 10.2.1
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
   services/agent-plugins:
     dependencies:
@@ -610,28 +665,16 @@ importers:
 
   services/model-proxy-registry-service:
     dependencies:
-      '@lite-llm/analytics-service':
-        specifier: workspace:*
-        version: link:../analytics-service
       '@lite-llm/model-proxy-repository':
         specifier: workspace:*
         version: link:../../repositories/model-proxy-repository
-      '@lite-llm/model-proxy-service':
-        specifier: workspace:*
-        version: link:../model-proxy-service
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.3
     devDependencies:
-      '@types/bcryptjs':
-        specifier: ^2.4.6
-        version: 2.4.6
       '@types/node':
         specifier: 'catalog:'
         version: 25.6.2
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -3718,9 +3761,6 @@ packages:
   '@types/aria-query@5.0.4':
     resolution: {integrity: sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==}
 
-  '@types/bcryptjs@2.4.6':
-    resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
-
   '@types/better-sqlite3@7.6.13':
     resolution: {integrity: sha512-NMv9ASNARoKksWtsq/SHakpYAYnhBrQgGD8zkLYk/jaK8jUGn08CfEdTRgYhMypUQAfzSP8W6gNLe0q19/t4VA==}
 
@@ -5221,6 +5261,10 @@ packages:
     engines: {node: '>=20.17'}
     hasBin: true
 
+  listr2@10.2.1:
+    resolution: {integrity: sha512-7I5knELsJKTUjXG+A6BkKAiGkW1i25fNa/xlUl9hFtk15WbE9jndA89xu5FzQKrY5llajE1hfZZFMILXkDHk/Q==}
+    engines: {node: '>=22.13.0'}
+
   listr2@9.0.5:
     resolution: {integrity: sha512-ME4Fb83LgEgwNw96RKNvKV4VTLuXfoKudAmm2lP8Kk87KaMK0/Xrx/aAkMWmT8mDb+3MlFDspfbCs7adjRxA2g==}
     engines: {node: '>=20.0.0'}
@@ -6625,6 +6669,10 @@ packages:
     resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
     engines: {node: '>=8'}
     hasBin: true
+
+  wrap-ansi@10.0.0:
+    resolution: {integrity: sha512-SGcvg80f0wUy2/fXES19feHMz8E0JoXv2uNgHOu4Dgi2OrCy1lqwFYEJz1BLbDI0exjPMe/ZdzZ/YpGECBG/aQ==}
+    engines: {node: '>=20'}
 
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
@@ -9534,8 +9582,6 @@ snapshots:
 
   '@types/aria-query@5.0.4': {}
 
-  '@types/bcryptjs@2.4.6': {}
-
   '@types/better-sqlite3@7.6.13':
     dependencies:
       '@types/node': 25.6.2
@@ -10994,6 +11040,14 @@ snapshots:
       string-argv: 0.3.2
       tinyexec: 1.1.2
       yaml: 2.8.4
+
+  listr2@10.2.1:
+    dependencies:
+      cli-truncate: 5.2.0
+      eventemitter3: 5.0.4
+      log-update: 6.1.0
+      rfdc: 1.4.1
+      wrap-ansi: 10.0.0
 
   listr2@9.0.5:
     dependencies:
@@ -12808,6 +12862,12 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  wrap-ansi@10.0.0:
+    dependencies:
+      ansi-styles: 6.2.3
+      string-width: 8.2.1
+      strip-ansi: 7.2.0
 
   wrap-ansi@7.0.0:
     dependencies:

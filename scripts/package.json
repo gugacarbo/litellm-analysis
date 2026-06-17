@@ -6,17 +6,24 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
     "backup": "tsx model-proxy-backup/index.ts"
   },
   "dependencies": {
+    "@lite-llm/agents-manager": "workspace:*",
+    "@lite-llm/agents-repository": "workspace:*",
     "@lite-llm/config": "workspace:*",
+    "@lite-llm/model-proxy-registry-service": "workspace:*",
+    "@lite-llm/model-proxy-repository": "workspace:*",
+    "@lite-llm/models-repository": "workspace:*",
+    "@lite-llm/repository-utils": "workspace:*",
+    "@lite-llm/server": "workspace:*",
     "listr2": "^10.2.1",
-    "pg": "^8.16.3",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/pg": "*",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
