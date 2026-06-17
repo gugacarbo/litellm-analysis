@@ -10,9 +10,14 @@ import {
   createTimeoutError,
   createUpstreamHttpError,
   createUpstreamNetworkError,
+  DEFAULT_REQUEST_TIMEOUT_MS,
   isAbortError,
+  isLedgerHandledError,
+  LedgerHandledError,
+  mergeAbortSignals,
   isTimeoutError,
   trimErrorMessage,
+  unwrapLedgerHandledError,
 } from "./logging/request-errors";
 import { RequestLedger } from "./logging/request-ledger";
 import {
@@ -133,8 +138,10 @@ export class ModelProxyService implements IModelProxyService {
           error,
           responseHeaders: redactHeaders(response.headers),
         });
-        throw new Error(
-          `Model proxy upstream failed (${response.status}): ${trimErrorMessage(responseText)}`,
+        throw new LedgerHandledError(
+          new Error(
+            `Model proxy upstream failed (${response.status}): ${trimErrorMessage(responseText)}`,
+          ),
         );
       }
 
@@ -151,7 +158,9 @@ export class ModelProxyService implements IModelProxyService {
           latencyMs,
           error,
         });
-        throw new SyntaxError(error.message);
+        throw new LedgerHandledError(
+          new SyntaxError("Failed to parse upstream JSON response"),
+        );
       }
 
       const usage = extractUsage(payload);
@@ -171,14 +180,16 @@ export class ModelProxyService implements IModelProxyService {
         payload,
       };
     } catch (error) {
-      await this.handleRequestError(
-        requestRow.id,
-        target,
-        startedAt,
-        error,
-        undefined,
-      );
-      throw error;
+      if (!isLedgerHandledError(error)) {
+        await this.handleRequestError(
+          requestRow.id,
+          target,
+          startedAt,
+          error,
+          undefined,
+        );
+      }
+      throw unwrapLedgerHandledError(error);
     }
   }
 
@@ -193,7 +204,12 @@ export class ModelProxyService implements IModelProxyService {
     const target = await this.resolveTarget(request.model);
     const startedAt = this.now();
     const requestRow = await this.ledger.start(request, target, startedAt);
-    const requestSignal = createRequestAbortSignal(signal);
+    const upstreamAbort = new AbortController();
+    const requestSignal = mergeAbortSignals(
+      signal,
+      upstreamAbort.signal,
+      AbortSignal.timeout(DEFAULT_REQUEST_TIMEOUT_MS),
+    );
 
     let response: Response;
     try {
@@ -242,6 +258,18 @@ export class ModelProxyService implements IModelProxyService {
     let usage: UsageSummary = {};
     let ttftMs: number | undefined;
     let upstreamRequestId: string | undefined;
+    let streamFinished = false;
+    let streamCancelled = false;
+
+    const finishStreamOnce = async (
+      finish: () => Promise<void>,
+    ): Promise<void> => {
+      if (streamFinished) {
+        return;
+      }
+      streamFinished = true;
+      await finish();
+    };
 
     const stream = new ReadableStream<Uint8Array>({
       start: async (controller) => {
@@ -253,6 +281,10 @@ export class ModelProxyService implements IModelProxyService {
           while (reader) {
             const result = await reader.read();
             if (result.done) {
+              break;
+            }
+
+            if (streamCancelled) {
               break;
             }
 
@@ -268,47 +300,64 @@ export class ModelProxyService implements IModelProxyService {
             usage = readUsageFromStreamBuffer(buffer, usage);
           }
 
+          if (streamCancelled) {
+            return;
+          }
+
           buffer += decoder.decode();
           usage = readUsageFromStreamBuffer(buffer, usage);
           const finishedAt = this.now();
           const latencyMs = finishedAt.getTime() - startedAt.getTime();
-          await this.ledger.complete(requestRow.id, target, {
-            status: "success",
-            finishedAt,
-            latencyMs,
-            ttftMs,
-            usage,
-            responseHeaders: redactHeaders(response.headers),
-            upstreamRequestId,
-          });
-          controller.close();
-        } catch (error) {
-          await this.handleRequestError(
-            requestRow.id,
-            target,
-            startedAt,
-            error,
-            {
+          await finishStreamOnce(() =>
+            this.ledger.complete(requestRow.id, target, {
+              status: "success",
+              finishedAt,
+              latencyMs,
               ttftMs,
               usage,
               responseHeaders: redactHeaders(response.headers),
               upstreamRequestId,
-            },
+            }),
           );
-          controller.error(error);
+          if (!streamCancelled) {
+            controller.close();
+          }
+        } catch (error) {
+          if (streamCancelled) {
+            return;
+          }
+          await finishStreamOnce(() =>
+            this.handleRequestError(requestRow.id, target, startedAt, error, {
+              ttftMs,
+              usage,
+              responseHeaders: redactHeaders(response.headers),
+              upstreamRequestId,
+            }),
+          );
+          if (!streamCancelled) {
+            controller.error(error);
+          }
+        } finally {
+          reader?.releaseLock();
         }
       },
       cancel: async () => {
-        await this.ledger.cancel(requestRow.id, target, {
-          status: "cancelled",
-          finishedAt: this.now(),
-          latencyMs: this.now().getTime() - startedAt.getTime(),
-          ttftMs,
-          usage,
-          error: createCancelledError("Client disconnected"),
-          responseHeaders: redactHeaders(response.headers),
-          upstreamRequestId,
-        });
+        streamCancelled = true;
+        upstreamAbort.abort(
+          new DOMException("Client disconnected", "AbortError"),
+        );
+        await finishStreamOnce(() =>
+          this.ledger.cancel(requestRow.id, target, {
+            status: "cancelled",
+            finishedAt: this.now(),
+            latencyMs: this.now().getTime() - startedAt.getTime(),
+            ttftMs,
+            usage,
+            error: createCancelledError("Client disconnected"),
+            responseHeaders: redactHeaders(response.headers),
+            upstreamRequestId,
+          }),
+        );
       },
     });
 

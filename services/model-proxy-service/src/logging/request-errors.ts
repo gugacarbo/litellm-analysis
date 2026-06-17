@@ -58,6 +58,26 @@ export function createCancelledError(
   };
 }
 
+export class LedgerHandledError extends Error {
+  constructor(cause: unknown) {
+    const message =
+      cause instanceof Error ? cause.message : trimErrorMessage(String(cause));
+    super(message, { cause });
+    this.name = "LedgerHandledError";
+  }
+}
+
+export function isLedgerHandledError(error: unknown): boolean {
+  return error instanceof LedgerHandledError;
+}
+
+export function unwrapLedgerHandledError(error: unknown): unknown {
+  if (error instanceof LedgerHandledError) {
+    return error.cause ?? error;
+  }
+  return error;
+}
+
 export function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === "AbortError";
 }

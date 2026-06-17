@@ -16,6 +16,13 @@ export type RequestFinishStatus =
   | "cancelled"
   | "timeout";
 
+const TERMINAL_REQUEST_STATUSES = new Set<string>([
+  "success",
+  "failed",
+  "cancelled",
+  "timeout",
+]);
+
 export interface LedgerTarget {
   cost: { input?: number; output?: number };
   model: string;
@@ -116,6 +123,15 @@ export class RequestLedger {
     target: LedgerTarget,
     params: FinishRequestParams,
   ): Promise<void> {
+    const existing = await this.database.modelProxyRequest.findUnique({
+      where: { id: requestId },
+      select: { status: true },
+    });
+
+    if (existing?.status && TERMINAL_REQUEST_STATUSES.has(existing.status)) {
+      return;
+    }
+
     const usage = params.usage ?? {};
     const cost = calculateCost(target.cost, usage);
 

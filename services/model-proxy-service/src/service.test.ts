@@ -39,6 +39,7 @@ function createModelServiceMock() {
 }
 
 function createDatabaseMock() {
+  let requestStatus = "started";
   return {
     modelProxyModel: {
       findMany: vi.fn().mockResolvedValue([]),
@@ -67,7 +68,15 @@ function createDatabaseMock() {
     },
     modelProxyRequest: {
       create: vi.fn().mockResolvedValue({ id: "req_1" }),
-      update: vi.fn().mockResolvedValue(undefined),
+      findUnique: vi.fn().mockImplementation(() =>
+        Promise.resolve({ id: "req_1", status: requestStatus }),
+      ),
+      update: vi.fn().mockImplementation((args: { data: { status?: string } }) => {
+        if (args.data.status) {
+          requestStatus = args.data.status;
+        }
+        return Promise.resolve(undefined);
+      }),
     },
     modelProxyMessage: {
       createMany: vi.fn().mockResolvedValue(undefined),
@@ -264,6 +273,7 @@ describe("ModelProxyService", () => {
       }),
     ).rejects.toThrow(/upstream failed/);
 
+    expect(database.modelProxyRequest.update).toHaveBeenCalledOnce();
     const updateCall = vi.mocked(database.modelProxyRequest.update).mock
       .calls[0];
     expect(updateCall?.[0]?.data).toEqual(
@@ -484,5 +494,73 @@ describe("ModelProxyService", () => {
     });
 
     expect(listener).toHaveBeenCalledWith("req_1");
+  });
+
+  it("records cancelled status when a streaming client disconnects", async () => {
+    const database = createDatabaseMock();
+    const encoder = new TextEncoder();
+    let upstreamSignal: AbortSignal | undefined;
+
+    const fetchFn = vi.fn().mockImplementation((_url, init) => {
+      upstreamSignal = init?.signal;
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(
+            encoder.encode('data: {"id":"chatcmpl_stream"}\n\n'),
+          );
+          const abortListener = () => {
+            controller.error(
+              Object.assign(new Error("aborted"), { name: "AbortError" }),
+            );
+          };
+          if (upstreamSignal?.aborted) {
+            abortListener();
+            return;
+          }
+          upstreamSignal?.addEventListener("abort", abortListener, {
+            once: true,
+          });
+        },
+      });
+
+      return Promise.resolve(
+        new Response(stream, {
+          status: 200,
+          headers: { "content-type": "text/event-stream" },
+        }),
+      );
+    });
+
+    const service = new ModelProxyService({
+      database: database as never,
+      fetchFn: fetchFn as never,
+      modelsService: createModelServiceMock() as never,
+      providerService: createProviderServiceMock() as never,
+      now: () => new Date("2026-06-16T00:00:00.000Z"),
+    });
+
+    const response = await service.createStreamingChatCompletion({
+      model: "gpt-test",
+      stream: true,
+      messages: [{ role: "user", content: "hello" }],
+    });
+
+    const reader = response.body.getReader();
+    await reader.read();
+    await reader.cancel();
+
+    await vi.waitFor(() => {
+      expect(database.modelProxyRequest.update).toHaveBeenCalledOnce();
+    });
+
+    expect(upstreamSignal?.aborted).toBe(true);
+    const updateCall = vi.mocked(database.modelProxyRequest.update).mock
+      .calls[0];
+    expect(updateCall?.[0]?.data).toEqual(
+      expect.objectContaining({
+        status: "cancelled",
+        errorType: "cancelled",
+      }),
+    );
   });
 });
