@@ -12,16 +12,20 @@
   },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@lite-llm/agents-manager": "workspace:*",
-    "@lite-llm/models-service": "workspace:*",
+    "@lite-llm/agent-schemas": "workspace:*",
+    "@lite-llm/config": "workspace:*",
     "@lite-llm/litellm-repository": "workspace:*",
-    "@lite-llm/agent-schemas": "workspace:*"
+    "@lite-llm/model-proxy-repository": "workspace:*",
+    "@lite-llm/models-service": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

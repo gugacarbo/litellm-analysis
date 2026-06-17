@@ -40,6 +40,10 @@ export const serverSchema = {
   APP_DB_PATH: z.string(),
   STORAGE_PATH: z.string().default("@storage"),
   SETTINGS_PATH: z.string().default("@settings"),
+
+  ANALYTICS_DATA_SOURCE: z
+    .enum(["litellm", "model-proxy", "hybrid"])
+    .default("litellm"),
 };
 
 export const serverEnv = createEnv({

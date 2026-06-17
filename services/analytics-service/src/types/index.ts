@@ -390,6 +390,11 @@ export interface SpendLogsResponse {
 
 export type { SystemAgent } from "@lite-llm/agent-schemas";
 
+export type {
+  ProxyRequestLog,
+  ProxyRequestLogListItem,
+} from "./proxy-request-log";
+
 export interface ModelEntryConfig {
   modelName: string;
   litellmParams: Record<string, unknown> | null;
