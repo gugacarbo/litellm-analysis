@@ -6,9 +6,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "backup": "tsx litellm-backup/index.ts"
+    "backup": "tsx model-proxy-backup/index.ts",
+    "backup:litellm": "tsx litellm-backup/index.ts"
   },
   "dependencies": {
+    "@lite-llm/config": "workspace:*",
     "listr2": "^10.2.1",
     "pg": "^8.16.3",
     "zod": "catalog:"
