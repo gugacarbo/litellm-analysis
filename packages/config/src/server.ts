@@ -15,6 +15,8 @@ dotenv.config({
 });
 
 export const serverSchema = {
+  SETTINGS_STORAGE: z.enum(["file", "database"]).default("file"),
+
   PORT: z.coerce.number().int().positive(),
 
   MODEL_PROXY_API_KEY: z
