@@ -611,6 +611,9 @@ importers:
       '@lite-llm/model-proxy-repository':
         specifier: workspace:*
         version: link:../../repositories/model-proxy-repository
+      '@lite-llm/models-repository':
+        specifier: workspace:*
+        version: link:../../repositories/models-repository
       '@lite-llm/models-service':
         specifier: workspace:*
         version: link:../models-service

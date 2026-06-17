@@ -1,11 +1,12 @@
 import type { PrismaClient } from "@lite-llm/model-proxy-repository";
-import type { IModelService } from "@lite-llm/models-service";
+import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import type { ChatCompletionsRequest, ModelListResponse } from "./schemas";
 
 export interface ModelProxyServiceOptions {
   database?: PrismaClient;
   fetchFn?: typeof fetch;
   modelsService: IModelService;
+  providerService: IProviderService;
   now?: () => Date;
 }
 
@@ -31,4 +32,5 @@ export interface IModelProxyService {
     request: ChatCompletionsRequest,
     signal?: AbortSignal,
   ): Promise<StreamingProxyResponse>;
+  onRequestFinished(listener: (requestId: string) => void): () => void;
 }

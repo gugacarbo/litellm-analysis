@@ -1,14 +1,29 @@
-import { serverEnv } from "@lite-llm/config/server";
-import type {
-  ModelProxyModel,
-  ModelProxyRequest,
-} from "@lite-llm/model-proxy-repository";
+import type { PrismaClient } from "@lite-llm/model-proxy-repository";
+import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
+import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import { calculateCost } from "./logging/cost-calculator";
+import { redactHeaders } from "./logging/payload-redactor";
 import {
-  getModelProxyPrisma,
-  type Prisma,
-  type PrismaClient,
-} from "@lite-llm/model-proxy-repository";
-import type { IModelService } from "@lite-llm/models-service";
+  createCancelledError,
+  createParseError,
+  createRequestAbortSignal,
+  createTimeoutError,
+  createUpstreamHttpError,
+  createUpstreamNetworkError,
+  isAbortError,
+  isTimeoutError,
+  trimErrorMessage,
+} from "./logging/request-errors";
+import { RequestLedger } from "./logging/request-ledger";
+import {
+  extractUsage,
+  readUsageFromStreamBuffer,
+  type UsageSummary,
+} from "./logging/usage-extractor";
+import {
+  type ResolvedUpstreamTarget,
+  resolveUpstreamTarget,
+} from "./resolver/upstream-provider";
 import {
   type ChatCompletionsRequest,
   chatCompletionsRequestSchema,
@@ -22,32 +37,11 @@ import type {
   StreamingProxyResponse,
 } from "./types";
 
-interface ResolvedModelTarget {
-  cost: { input?: number; output?: number };
-  displayName?: string;
-  model: string;
-  ownedBy: string;
-  upstreamBaseUrl: string;
-  upstreamHeaders: HeadersInit;
-  upstreamModel: string;
-}
-
-interface UsageSummary {
-  inputTokens?: number;
-  outputTokens?: number;
-  totalTokens?: number;
-}
-
-function normalizeBaseUrl(raw: string): string {
-  return raw.replace(/\/+$/, "");
-}
-
 function buildChatCompletionsUrl(baseUrl: string): string {
-  const normalized = normalizeBaseUrl(baseUrl);
-  if (normalized.endsWith("/chat/completions")) {
-    return normalized;
+  if (baseUrl.endsWith("/chat/completions")) {
+    return baseUrl;
   }
-  return `${normalized}/chat/completions`;
+  return `${baseUrl}/chat/completions`;
 }
 
 function toObject(value: unknown): Record<string, unknown> | null {
@@ -57,81 +51,29 @@ function toObject(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>;
 }
 
-function readUsage(payload: unknown): UsageSummary {
-  const root = toObject(payload);
-  const usage = toObject(root?.usage);
-  if (!usage) {
-    return {};
-  }
-
-  const inputTokens =
-    typeof usage.prompt_tokens === "number" ? usage.prompt_tokens : undefined;
-  const outputTokens =
-    typeof usage.completion_tokens === "number"
-      ? usage.completion_tokens
-      : undefined;
-  const totalTokens =
-    typeof usage.total_tokens === "number" ? usage.total_tokens : undefined;
-
-  return { inputTokens, outputTokens, totalTokens };
-}
-
-function estimateCostUsd(
-  cost: { input?: number; output?: number },
-  usage: UsageSummary,
-): number | undefined {
-  const promptCost =
-    usage.inputTokens !== undefined && cost.input !== undefined
-      ? usage.inputTokens * cost.input
-      : 0;
-  const completionCost =
-    usage.outputTokens !== undefined && cost.output !== undefined
-      ? usage.outputTokens * cost.output
-      : 0;
-  const total = promptCost + completionCost;
-  return total > 0 ? total : undefined;
-}
-
-function trimErrorMessage(message: string): string {
-  return message.length > 500 ? message.slice(0, 500) : message;
-}
-
-function sanitizeHeaders(headers: Headers): Record<string, string> {
-  const result: Record<string, string> = {};
-  for (const [key, value] of headers.entries()) {
-    const lower = key.toLowerCase();
-    if (lower === "authorization" || lower === "x-api-key") {
-      continue;
-    }
-    result[key] = value;
-  }
-  return result;
-}
-
-function readSecretRef(secretRef?: string | null): string | undefined {
-  const trimmed = secretRef?.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-  const envValue = process.env[trimmed];
-  return envValue?.trim() ? envValue.trim() : undefined;
-}
-
 export class ModelProxyService implements IModelProxyService {
   private readonly database?: PrismaClient;
   private readonly fetchFn: typeof fetch;
+  private readonly ledger: RequestLedger;
   private readonly modelsService: IModelService;
   private readonly now: () => Date;
+  private readonly providerService: IProviderService;
 
   constructor(options: ModelProxyServiceOptions) {
     this.database = options.database;
     this.fetchFn = options.fetchFn ?? fetch;
     this.modelsService = options.modelsService;
+    this.providerService = options.providerService;
     this.now = options.now ?? (() => new Date());
+    this.ledger = new RequestLedger(this.getDatabase());
   }
 
   private getDatabase(): PrismaClient {
     return this.database ?? getModelProxyPrisma();
+  }
+
+  onRequestFinished(listener: (requestId: string) => void): () => void {
+    return this.ledger.onRequestFinished(listener);
   }
 
   async listModels(): Promise<ModelListResponse> {
@@ -143,7 +85,7 @@ export class ModelProxyService implements IModelProxyService {
 
     const modelEntries =
       proxyModels.length > 0
-        ? proxyModels.map((row: ModelProxyModel) => this.toModelListEntry(row))
+        ? proxyModels.map((row) => this.toModelListEntry(row))
         : await this.listFallbackModels();
 
     return {
@@ -159,7 +101,8 @@ export class ModelProxyService implements IModelProxyService {
     const request = chatCompletionsRequestSchema.parse(rawRequest);
     const target = await this.resolveTarget(request.model);
     const startedAt = this.now();
-    const requestRow = await this.createRequestRow(request, target, startedAt);
+    const requestRow = await this.ledger.start(request, target, startedAt);
+    const requestSignal = createRequestAbortSignal(signal);
 
     try {
       const response = await this.fetchFn(
@@ -171,7 +114,7 @@ export class ModelProxyService implements IModelProxyService {
             ...target.upstreamHeaders,
           },
           body: JSON.stringify({ ...request, model: target.upstreamModel }),
-          signal,
+          signal: requestSignal,
         },
       );
 
@@ -180,30 +123,45 @@ export class ModelProxyService implements IModelProxyService {
       const latencyMs = finishedAt.getTime() - startedAt.getTime();
 
       if (!response.ok) {
-        await this.finishRequest(requestRow.id, {
+        const error = createUpstreamHttpError(response.status, responseText, {
+          body: responseText,
+        });
+        await this.ledger.fail(requestRow.id, target, {
           status: "failed",
           finishedAt,
           latencyMs,
-          errorSummary: trimErrorMessage(responseText),
-          responseHeaders: sanitizeHeaders(response.headers),
+          error,
+          responseHeaders: redactHeaders(response.headers),
         });
         throw new Error(
           `Model proxy upstream failed (${response.status}): ${trimErrorMessage(responseText)}`,
         );
       }
 
-      const payload = JSON.parse(responseText) as unknown;
-      const usage = readUsage(payload);
-      const estimatedCostUsd = estimateCostUsd(target.cost, usage);
+      let payload: unknown;
+      try {
+        payload = JSON.parse(responseText) as unknown;
+      } catch {
+        const error = createParseError(
+          "Failed to parse upstream JSON response",
+        );
+        await this.ledger.fail(requestRow.id, target, {
+          status: "failed",
+          finishedAt,
+          latencyMs,
+          error,
+        });
+        throw new SyntaxError(error.message);
+      }
 
-      await this.finishRequest(requestRow.id, {
+      const usage = extractUsage(payload);
+      await this.ledger.complete(requestRow.id, target, {
         status: "success",
         finishedAt,
         latencyMs,
         usage,
-        estimatedCostUsd,
         responseBody: payload,
-        responseHeaders: sanitizeHeaders(response.headers),
+        responseHeaders: redactHeaders(response.headers),
         upstreamRequestId: this.extractUpstreamRequestId(payload, response),
       });
 
@@ -213,29 +171,13 @@ export class ModelProxyService implements IModelProxyService {
         payload,
       };
     } catch (error) {
-      if (error instanceof SyntaxError) {
-        await this.finishRequest(requestRow.id, {
-          status: "failed",
-          finishedAt: this.now(),
-          latencyMs: this.now().getTime() - startedAt.getTime(),
-          errorSummary: "Failed to parse upstream JSON response",
-        });
-      } else if ((error as Error).name === "AbortError") {
-        await this.finishRequest(requestRow.id, {
-          status: "cancelled",
-          finishedAt: this.now(),
-          latencyMs: this.now().getTime() - startedAt.getTime(),
-          errorSummary: "Request cancelled",
-        });
-      } else {
-        await this.finishRequest(requestRow.id, {
-          status: "failed",
-          finishedAt: this.now(),
-          latencyMs: this.now().getTime() - startedAt.getTime(),
-          errorSummary: trimErrorMessage(String(error)),
-        });
-      }
-
+      await this.handleRequestError(
+        requestRow.id,
+        target,
+        startedAt,
+        error,
+        undefined,
+      );
       throw error;
     }
   }
@@ -250,7 +192,9 @@ export class ModelProxyService implements IModelProxyService {
     });
     const target = await this.resolveTarget(request.model);
     const startedAt = this.now();
-    const requestRow = await this.createRequestRow(request, target, startedAt);
+    const requestRow = await this.ledger.start(request, target, startedAt);
+    const requestSignal = createRequestAbortSignal(signal);
+
     let response: Response;
     try {
       response = await this.fetchFn(
@@ -262,34 +206,40 @@ export class ModelProxyService implements IModelProxyService {
             ...target.upstreamHeaders,
           },
           body: JSON.stringify({ ...request, model: target.upstreamModel }),
-          signal,
+          signal: requestSignal,
         },
       );
     } catch (error) {
-      await this.finishRequest(requestRow.id, {
-        status: (error as Error).name === "AbortError" ? "cancelled" : "failed",
-        finishedAt: this.now(),
-        latencyMs: this.now().getTime() - startedAt.getTime(),
-        errorSummary: trimErrorMessage(String(error)),
-      });
+      await this.handleRequestError(
+        requestRow.id,
+        target,
+        startedAt,
+        error,
+        undefined,
+      );
       throw error;
     }
 
     if (!response.ok || !response.body) {
       const errorText = await response.text();
-      await this.finishRequest(requestRow.id, {
+      const error = createUpstreamHttpError(
+        response.status,
+        errorText || `HTTP ${response.status}`,
+        { body: errorText },
+      );
+      await this.ledger.fail(requestRow.id, target, {
         status: "failed",
         finishedAt: this.now(),
         latencyMs: this.now().getTime() - startedAt.getTime(),
-        errorSummary: trimErrorMessage(errorText || `HTTP ${response.status}`),
-        responseHeaders: sanitizeHeaders(response.headers),
+        error,
+        responseHeaders: redactHeaders(response.headers),
       });
       throw new Error(
         `Model proxy upstream failed (${response.status}): ${trimErrorMessage(errorText)}`,
       );
     }
 
-    const usage: UsageSummary = {};
+    let usage: UsageSummary = {};
     let ttftMs: number | undefined;
     let upstreamRequestId: string | undefined;
 
@@ -315,50 +265,48 @@ export class ModelProxyService implements IModelProxyService {
             upstreamRequestId ??=
               this.extractUpstreamRequestIdFromStream(buffer) ??
               this.extractUpstreamRequestId(null, response);
-            this.readUsageFromStreamBuffer(buffer, usage);
+            usage = readUsageFromStreamBuffer(buffer, usage);
           }
 
           buffer += decoder.decode();
-          this.readUsageFromStreamBuffer(buffer, usage);
+          usage = readUsageFromStreamBuffer(buffer, usage);
           const finishedAt = this.now();
           const latencyMs = finishedAt.getTime() - startedAt.getTime();
-          await this.finishRequest(requestRow.id, {
+          await this.ledger.complete(requestRow.id, target, {
             status: "success",
             finishedAt,
             latencyMs,
             ttftMs,
             usage,
-            estimatedCostUsd: estimateCostUsd(target.cost, usage),
-            responseHeaders: sanitizeHeaders(response.headers),
+            responseHeaders: redactHeaders(response.headers),
             upstreamRequestId,
           });
           controller.close();
         } catch (error) {
-          await this.finishRequest(requestRow.id, {
-            status:
-              (error as Error).name === "AbortError" ? "cancelled" : "failed",
-            finishedAt: this.now(),
-            latencyMs: this.now().getTime() - startedAt.getTime(),
-            ttftMs,
-            usage,
-            estimatedCostUsd: estimateCostUsd(target.cost, usage),
-            errorSummary: trimErrorMessage(String(error)),
-            responseHeaders: sanitizeHeaders(response.headers),
-            upstreamRequestId,
-          });
+          await this.handleRequestError(
+            requestRow.id,
+            target,
+            startedAt,
+            error,
+            {
+              ttftMs,
+              usage,
+              responseHeaders: redactHeaders(response.headers),
+              upstreamRequestId,
+            },
+          );
           controller.error(error);
         }
       },
       cancel: async () => {
-        await this.finishRequest(requestRow.id, {
+        await this.ledger.cancel(requestRow.id, target, {
           status: "cancelled",
           finishedAt: this.now(),
           latencyMs: this.now().getTime() - startedAt.getTime(),
           ttftMs,
           usage,
-          estimatedCostUsd: estimateCostUsd(target.cost, usage),
-          errorSummary: "Client disconnected",
-          responseHeaders: sanitizeHeaders(response.headers),
+          error: createCancelledError("Client disconnected"),
+          responseHeaders: redactHeaders(response.headers),
           upstreamRequestId,
         });
       },
@@ -369,6 +317,65 @@ export class ModelProxyService implements IModelProxyService {
       headers: new Headers(response.headers),
       body: stream,
     };
+  }
+
+  private async handleRequestError(
+    requestId: string,
+    target: ResolvedUpstreamTarget,
+    startedAt: Date,
+    error: unknown,
+    partial:
+      | {
+          responseHeaders?: Record<string, string>;
+          ttftMs?: number;
+          upstreamRequestId?: string;
+          usage?: UsageSummary;
+        }
+      | undefined,
+  ): Promise<void> {
+    const finishedAt = this.now();
+    const latencyMs = finishedAt.getTime() - startedAt.getTime();
+    const usage = partial?.usage;
+
+    if (isTimeoutError(error)) {
+      await this.ledger.timeout(requestId, target, {
+        status: "timeout",
+        finishedAt,
+        latencyMs,
+        ttftMs: partial?.ttftMs,
+        usage,
+        error: createTimeoutError(),
+        responseHeaders: partial?.responseHeaders,
+        upstreamRequestId: partial?.upstreamRequestId,
+      });
+      return;
+    }
+
+    if (isAbortError(error)) {
+      await this.ledger.cancel(requestId, target, {
+        status: "cancelled",
+        finishedAt,
+        latencyMs,
+        ttftMs: partial?.ttftMs,
+        usage,
+        error: createCancelledError(),
+        responseHeaders: partial?.responseHeaders,
+        upstreamRequestId: partial?.upstreamRequestId,
+      });
+      return;
+    }
+
+    const message = trimErrorMessage(String(error));
+    await this.ledger.fail(requestId, target, {
+      status: "failed",
+      finishedAt,
+      latencyMs,
+      ttftMs: partial?.ttftMs,
+      usage,
+      error: createUpstreamNetworkError(message),
+      responseHeaders: partial?.responseHeaders,
+      upstreamRequestId: partial?.upstreamRequestId,
+    });
   }
 
   private async listFallbackModels(): Promise<ModelListEntry[]> {
@@ -386,7 +393,13 @@ export class ModelProxyService implements IModelProxyService {
       }));
   }
 
-  private toModelListEntry(row: ModelProxyModel): ModelListEntry {
+  private toModelListEntry(row: {
+    displayName?: string | null;
+    family?: string | null;
+    modelName: string;
+    ownedBy?: string | null;
+    updatedAt: Date;
+  }): ModelListEntry {
     return {
       id: row.modelName,
       object: "model",
@@ -395,136 +408,22 @@ export class ModelProxyService implements IModelProxyService {
     };
   }
 
-  private async resolveTarget(modelName: string): Promise<ResolvedModelTarget> {
+  private async resolveTarget(
+    modelName: string,
+  ): Promise<ResolvedUpstreamTarget> {
     const database = this.getDatabase();
     const row = await database.modelProxyModel.findUnique({
       where: { modelName },
     });
-
-    if (row?.enabled === false) {
-      throw new Error(`Model "${modelName}" is disabled`);
-    }
-
     const fallbackModels = await this.modelsService.getAll();
-    const fallbackSpec = fallbackModels[modelName];
+    const providers = await this.providerService.getAll();
 
-    if (!row && !fallbackSpec) {
-      throw new Error(`Model "${modelName}" not found`);
-    }
-
-    const credential = row?.credentialName
-      ? await database.modelProxyCredential.findUnique({
-          where: { name: row.credentialName },
-        })
-      : null;
-
-    const upstreamBaseUrl =
-      row?.upstreamBaseUrl?.trim() ||
-      credential?.baseUrl?.trim() ||
-      serverEnv.MODEL_PROXY_UPSTREAM_BASE_URL?.trim();
-
-    if (!upstreamBaseUrl) {
-      throw new Error(
-        `No upstream base URL configured for model "${modelName}"`,
-      );
-    }
-
-    const envSecret =
-      readSecretRef(row?.secretRef) ?? readSecretRef(credential?.secretRef);
-    const upstreamApiKey =
-      envSecret ||
-      credential?.apiKey?.trim() ||
-      serverEnv.MODEL_PROXY_UPSTREAM_API_KEY?.trim();
-
-    if (!upstreamApiKey) {
-      throw new Error(
-        `No upstream API key configured for model "${modelName}"`,
-      );
-    }
-
-    return {
-      model: modelName,
-      upstreamModel: row?.upstreamModel?.trim() || modelName,
-      upstreamBaseUrl,
-      upstreamHeaders: {
-        authorization: `Bearer ${upstreamApiKey}`,
-      },
-      ownedBy:
-        row?.ownedBy ??
-        fallbackSpec?.ownedBy ??
-        fallbackSpec?.family ??
-        "local-proxy",
-      displayName: row?.displayName ?? fallbackSpec?.displayName,
-      cost: {
-        input: row?.inputCostPerToken ?? fallbackSpec?.cost?.input,
-        output: row?.outputCostPerToken ?? fallbackSpec?.cost?.output,
-      },
-    };
-  }
-
-  private async createRequestRow(
-    request: ChatCompletionsRequest,
-    target: ResolvedModelTarget,
-    startedAt: Date,
-  ): Promise<ModelProxyRequest> {
-    const database = this.getDatabase();
-    const row = await database.modelProxyRequest.create({
-      data: {
-        model: request.model,
-        upstreamModel: target.upstreamModel,
-        upstreamBaseUrl: target.upstreamBaseUrl,
-        status: "started",
-        startedAt,
-        requestBody: request as Prisma.InputJsonValue,
-      },
-    });
-
-    await database.modelProxyMessage.createMany({
-      data: request.messages.map((message) => ({
-        requestId: row.id,
-        role: message.role,
-        content: message.content as Prisma.InputJsonValue,
-      })),
-    });
-
-    return row;
-  }
-
-  private async finishRequest(
-    requestId: string,
-    params: {
-      status: string;
-      finishedAt: Date;
-      latencyMs: number;
-      ttftMs?: number;
-      usage?: UsageSummary;
-      estimatedCostUsd?: number;
-      errorSummary?: string;
-      responseBody?: unknown;
-      responseHeaders?: Record<string, string>;
-      upstreamRequestId?: string;
-    },
-  ): Promise<void> {
-    const database = this.getDatabase();
-    await database.modelProxyRequest.update({
-      where: { id: requestId },
-      data: {
-        status: params.status,
-        finishedAt: params.finishedAt,
-        latencyMs: params.latencyMs,
-        ttftMs: params.ttftMs,
-        inputTokens: params.usage?.inputTokens,
-        outputTokens: params.usage?.outputTokens,
-        totalTokens: params.usage?.totalTokens,
-        estimatedCostUsd: params.estimatedCostUsd,
-        errorSummary: params.errorSummary,
-        responseBody:
-          params.responseBody !== undefined
-            ? (params.responseBody as object)
-            : undefined,
-        responseHeaders: params.responseHeaders,
-        upstreamRequestId: params.upstreamRequestId,
-      },
+    return resolveUpstreamTarget({
+      database,
+      modelName,
+      providers,
+      fallbackModels,
+      row,
     });
   }
 
@@ -551,36 +450,6 @@ export class ModelProxyService implements IModelProxyService {
     const matches = buffer.match(/"id"\s*:\s*"([^"]+)"/);
     return matches?.[1];
   }
-
-  private readUsageFromStreamBuffer(buffer: string, usage: UsageSummary): void {
-    const lines = buffer.split("\n\n");
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) {
-        continue;
-      }
-      const payload = trimmed.slice(5).trim();
-      if (!payload || payload === "[DONE]") {
-        continue;
-      }
-
-      try {
-        const parsed = JSON.parse(payload) as unknown;
-        const summary = readUsage(parsed);
-        if (summary.inputTokens !== undefined) {
-          usage.inputTokens = summary.inputTokens;
-        }
-        if (summary.outputTokens !== undefined) {
-          usage.outputTokens = summary.outputTokens;
-        }
-        if (summary.totalTokens !== undefined) {
-          usage.totalTokens = summary.totalTokens;
-        }
-      } catch {
-        // Ignore partial JSON fragments while the stream is still flowing.
-      }
-    }
-  }
 }
 
 export function createModelProxyService(
@@ -588,3 +457,6 @@ export function createModelProxyService(
 ): IModelProxyService {
   return new ModelProxyService(options);
 }
+
+// Re-export for tests that assert cost calculation behavior.
+export { calculateCost };

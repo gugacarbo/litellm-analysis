@@ -14,6 +14,7 @@
   "dependencies": {
     "@lite-llm/config": "workspace:*",
     "@lite-llm/model-proxy-repository": "workspace:*",
+    "@lite-llm/models-repository": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
     "zod": "catalog:"
   },
