@@ -38,7 +38,7 @@ Schema e migration: `repositories/model-proxy-repository/prisma/`.
 - [x] Inventariar queries em `LiteLLM_CredentialsTable`.
 - [x] Inventariar queries em `LiteLLM_ProxyModelTable`.
 - [x] Definir matriz de renome:
-  - [ ] `litellmParams` -> `modelRoute` (borda analytics; batch posterior);
+  - [x] `litellmParams` -> `modelRoute` (rotas HTTP e registry; adapters legado so import);
   - [x] `provider.litellm` -> `provider.local-proxy`;
   - [x] `litellm-alias` -> `model-alias`;
   - [x] tabelas `LiteLLM_*` -> `model_proxy_*` (schema novo);

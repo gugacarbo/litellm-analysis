@@ -63,6 +63,8 @@ Idempotência: skip se row existe e não foi criada por import (`error_details` 
 | `proxy_server_request` | `requestBody` | `request_body` | Aplicar `payload-redactor` no import |
 | `response` | `responseBody` | `response_body` | Redigir |
 | — | `responseHeaders` | `response_headers` | `null` no import (LiteLLM não persiste) |
+| `api_key` | `apiKeyAlias` | `api_key_alias` | Hash LiteLLM (não token bruto); label quando disponível no import |
+| `end_user`, `user` | `endUser` | `end_user` | Preferir `end_user`; fallback `user` |
 
 ¹ `litellm_model_name` vem de `LiteLLM_ErrorLogs` quando spend row não tem upstream explícito; senão inferir de `model` / `model_group` só para `upstreamModel`, **sem** coluna `model_group` no destino.
 
@@ -120,11 +122,8 @@ no contrato `ProxyRequestLog`. Dados auditáveis opcionais podem ir apenas em
 | LiteLLM_SpendLogs | Destino Batch 4 |
 |-------------------|-----------------|
 | `call_type` | DROP |
-| `api_key` | DROP |
-| `user` | DROP |
 | `team_id` | DROP |
 | `organization_id` | DROP |
-| `end_user` | DROP |
 | `metadata` | DROP (exceto chaves de tokens em `cached_tokens`/`reasoning_tokens` se mapeáveis) |
 | `cache_hit` | DROP — usar `cached_tokens` |
 | `cache_key` | DROP |
@@ -177,6 +176,20 @@ Cada execução `pnpm model-proxy:import-history` registra:
 7. **Payloads:** redigir antes de `requestBody` / `responseBody`.
 8. **Messages:** normalizar JSON → rows `model_proxy_messages`.
 9. **Skip:** row ledger existente com terminal status e sem marker import.
+10. **Adjustments:** correções manuais/importadas em `model_proxy_usage_adjustments` (deltas somados em analytics; request original imutável).
+
+### `model_proxy_usage_adjustments`
+
+| Campo | Uso |
+|-------|-----|
+| `request_id` | FK → `model_proxy_requests.id` |
+| `reason` | Código curto (`manual-correction`, `import-fix`, …) |
+| `prompt_tokens_delta` | Ajuste em `input_tokens` |
+| `completion_tokens_delta` | Ajuste em `output_tokens` |
+| `total_cost_delta` | Ajuste em `total_cost` |
+| `note` | Texto livre opcional |
+
+Analytics: `SUM(request + adjustments)` em totais; `/logs` expõe valores efetivos + `usage_adjustments[]` no detalhe.
 
 ---
 

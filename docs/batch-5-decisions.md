@@ -42,9 +42,24 @@
 
 ## 6. Critérios de pronto
 
-- [ ] `pnpm dev` sem container LiteLLM
-- [ ] Dashboard/logs com default `model-proxy`
-- [ ] `pnpm backup` no banco model-proxy
-- [ ] `.env.example` e README sem `LITELLM_API_*` como runtime
-- [ ] Rotas sem `litellmParams`, `SpendLogEntry`, plugin `litellm-alias`
-- [ ] `pnpm test` + `pnpm build` verdes
+- [x] `pnpm dev` sem container LiteLLM (DB_* opcional com `model-proxy`)
+- [x] Dashboard/logs com default `model-proxy` (user/key analytics via ledger)
+- [x] `pnpm backup` no banco model-proxy
+- [x] `.env.example` e README sem `LITELLM_API_*` como runtime
+- [x] Rotas sem `litellmParams`, `SpendLogEntry`, plugin `litellm-alias`
+- [x] `pnpm test` + `pnpm build` verdes (33 test tasks, 20 build tasks — 2026-06-17)
+
+## 7. Sprint 6 — decisões pendentes do plano mestre (RFC)
+
+**Status:** fechado (2026-06-17)
+
+| Decisão (plano mestre) | Escolha |
+|------------------------|---------|
+| Proxy como rota do server vs processo separado | **Rota do server** (`registerModelProxyRoutes` em `@lite-llm/server`) — já implementado |
+| Credenciais no banco local | **`secret_ref` + env** (Batch 3); `api_key` legado só em import; configs geradas nunca expõem upstream |
+| Adapter Anthropic nativo | **Adiado** — upstream via OpenAI-compatible; sem adapter Anthropic neste ciclo |
+| Janela adapters `litellm*` | **Somente CLIs offline** (`import-history`, `import-legacy`, `sync:cloud`, `analytics:compare-sources`); sem novos shims runtime |
+| `model_proxy_usage_adjustments` | **Implementado** — tabela + deltas em analytics agregados e `ProxyRequestLog` |
+| `POST /v1/responses` | **Stub 501** — documentado; clientes devem usar `/v1/chat/completions` |
+| Root `tsc` vs `turbo typecheck` | Root `tsconfig.json` com `"files": []` — typecheck por pacote via `pnpm typecheck` (turbo) |
+

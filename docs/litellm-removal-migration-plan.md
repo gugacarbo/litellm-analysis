@@ -777,11 +777,9 @@ pnpm build
 
 ## Decisoes Pendentes
 
-- O proxy deve rodar como rota do server atual ou como processo separado no
-  monorepo?
-- Credenciais devem ser criptografadas no banco local ou referenciadas por
-  variavel de ambiente/secret manager?
-- O primeiro adapter Anthropic deve converter para OpenAI-compatible ou expor
-  apenas via upstream OpenAI-compatible?
-- Qual a janela exata para manter adapters de leitura legado apos o renome
-  agressivo?
+Resolvidas em Sprint 6 — ver [batch-5-decisions.md](./batch-5-decisions.md) §7.
+
+- ~~O proxy deve rodar como rota do server atual ou como processo separado no monorepo?~~ → rota do server
+- ~~Credenciais devem ser criptografadas no banco local ou referenciadas por variavel de ambiente/secret manager?~~ → `secret_ref` + env
+- ~~O primeiro adapter Anthropic deve converter para OpenAI-compatible ou expor apenas via upstream OpenAI-compatible?~~ → adiado; upstream OpenAI-compatible
+- ~~Qual a janela exata para manter adapters de leitura legado apos o renome agressivo?~~ → somente CLIs offline

@@ -6,9 +6,9 @@
   `modelProxyConfig` / `MODEL_PROXY_*`.
 - [x] Plugin `litellm-alias` renomeado para `model-alias`; generators OpenCode e
   VS Code emitem `local-proxy`.
-- [ ] Analytics, backup, `.env.example`, README e runtime ainda dependem do
-  banco/schema LiteLLM (Batch 4 pendente).
-- [ ] `pnpm dev` ainda pode exigir PostgreSQL LiteLLM para dashboards de spend.
+- [x] Analytics user/key, backup e runtime usam `model_proxy_*` com
+  `ANALYTICS_DATA_SOURCE=model-proxy` (Batch 4 fechado).
+- [x] `pnpm dev` sobe com `MODEL_PROXY_*` sem PostgreSQL LiteLLM obrigatorio.
 
 ## Objetivo
 
@@ -92,9 +92,16 @@ Ver [batch-5-decisions.md](./batch-5-decisions.md), [batch-5-inventory.md](./bat
 
 ## Fora de Escopo
 
-- [ ] Nao adicionar budget/rate limit neste batch, salvo se ja decidido antes.
-- [ ] Nao adicionar adapter Anthropic nativo neste batch, salvo se ja existir.
+- [x] Nao adicionar budget/rate limit neste batch, salvo se ja decidido antes.
+- [x] Nao adicionar adapter Anthropic nativo neste batch, salvo se ja existir.
 - [ ] Nao manter suporte indefinido a arquivos gerados antigos.
+
+## Sprint 6 (opcional — 2026-06-17)
+
+- [x] `model_proxy_usage_adjustments` — schema, migration, analytics com deltas
+- [x] `POST /v1/responses` — stub 501 documentado
+- [x] RFC decisões pendentes — ver [batch-5-decisions.md](./batch-5-decisions.md) §7
+- [x] Root `tsconfig.json` — `files: []` para evitar `tsc` na raiz varrer o monorepo; `pnpm typecheck` (turbo) permanece o gate
 
 ## Checklist de Validacao
 

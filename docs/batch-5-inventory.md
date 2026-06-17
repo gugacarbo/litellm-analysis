@@ -53,13 +53,21 @@ pnpm analytics:compare-sources --days 7
 # Gate PASS quando todas as métricas within_tolerance
 ```
 
+_Executar com ambos os bancos populados após import histórico._
+
+**2026-06-17:** Compare gate não executado neste ambiente (LiteLLM DB indisponível).
+Código e queries user/key implementados; revalidar localmente com:
+
+```bash
+pnpm model-proxy:import-history   # se necessário
+pnpm analytics:compare-sources --days 7
+```
+
 | Métrica | litellm | proxy | within_tolerance |
 |---------|---------|-------|------------------|
-| request_count | — | — | — |
-| total_tokens | — | — | — |
-| total_cost | — | — | — |
-
-_Executar com ambos os bancos populados após import histórico._
+| request_count | _pending_ | _pending_ | _pending_ |
+| total_tokens | _pending_ | _pending_ | _pending_ |
+| total_cost | _pending_ | _pending_ | _pending_ |
 
 | Script | Classificação |
 |--------|---------------|
