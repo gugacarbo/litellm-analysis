@@ -43,7 +43,7 @@ export const serverSchema = {
 
   ANALYTICS_DATA_SOURCE: z
     .enum(["litellm", "model-proxy", "hybrid"])
-    .default("litellm"),
+    .default("model-proxy"),
 };
 
 export const serverEnv = createEnv({
@@ -61,6 +61,10 @@ const backupDbSchema = z.object({
 });
 
 export function getBackupDatabaseUrlFromEnv(): string {
+  if (process.env.MODEL_PROXY_DATABASE_URL) {
+    return process.env.MODEL_PROXY_DATABASE_URL;
+  }
+
   if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL;
   }
