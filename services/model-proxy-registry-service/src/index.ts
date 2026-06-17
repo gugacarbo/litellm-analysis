@@ -37,17 +37,17 @@ export {
 } from "./adapters/litellm-params-adapter.js";
 export { getRegistryPrisma, type RegistryClientOptions } from "./client.js";
 export {
+  type CredentialListItem,
+  credentialExistsWithFallback,
+  listCredentialsWithFallback,
+  toPublicCredential,
+} from "./dual-read/credentials-dual-read.js";
+export {
   getModelRouteWithRegistryFirst,
   type LegacyModelEntry,
   listModelsWithRegistryFirst,
   toLegacyEntry,
 } from "./dual-read/models-dual-read.js";
-export {
-  credentialExistsWithFallback,
-  type CredentialListItem,
-  listCredentialsWithFallback,
-  toPublicCredential,
-} from "./dual-read/credentials-dual-read.js";
 export {
   getDefaultCredentialWithFallback,
   getHealthCheckPromptWithFallback,
