@@ -29,6 +29,24 @@ describe("usage-extractor", () => {
     });
   });
 
+  it("extracts Responses API usage fields", () => {
+    expect(
+      extractUsage({
+        usage: {
+          input_tokens: 8,
+          output_tokens: 4,
+          total_tokens: 12,
+        },
+      }),
+    ).toEqual({
+      inputTokens: 8,
+      outputTokens: 4,
+      totalTokens: 12,
+      cachedTokens: undefined,
+      reasoningTokens: undefined,
+    });
+  });
+
   it("marks estimated usage", () => {
     expect(estimateUsageFromContent("hello world")).toEqual({
       inputTokens: 3,

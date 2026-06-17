@@ -127,6 +127,64 @@ describe("ModelProxyService", () => {
     });
   });
 
+  it("forwards custom payload fields without schema validation", async () => {
+    const database = createDatabaseMock();
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "chatcmpl_custom",
+          object: "chat.completion",
+          usage: {
+            prompt_tokens: 3,
+            completion_tokens: 2,
+            total_tokens: 5,
+          },
+          choices: [
+            {
+              index: 0,
+              message: { role: "assistant", content: "ok" },
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const service = new ModelProxyService({
+      database: database as never,
+      fetchFn: fetchFn as never,
+      modelsService: createModelServiceMock() as never,
+      providerService: createProviderServiceMock() as never,
+      now: (() => {
+        const times = [
+          new Date("2026-06-16T00:00:00.000Z"),
+          new Date("2026-06-16T00:00:00.100Z"),
+        ];
+        return () => times.shift() ?? new Date("2026-06-16T00:00:00.100Z");
+      })(),
+    });
+
+    await service.proxyOpenAiEndpoint("chat/completions", {
+      model: "gpt-test",
+      messages: [{ role: "user", content: "hello" }],
+      tools: [{ type: "function", function: { name: "lookup" } }],
+      custom_field: { nested: true },
+    });
+
+    const requestInit = vi.mocked(fetchFn).mock.calls[0]?.[1];
+    expect(requestInit?.body).toEqual(
+      JSON.stringify({
+        model: "gpt-test",
+        messages: [{ role: "user", content: "hello" }],
+        tools: [{ type: "function", function: { name: "lookup" } }],
+        custom_field: { nested: true },
+      }),
+    );
+  });
+
   it("records usage and cost for non-stream requests", async () => {
     const database = createDatabaseMock();
     const fetchFn = vi.fn().mockResolvedValue(
@@ -201,6 +259,78 @@ describe("ModelProxyService", () => {
           totalCost: expect.closeTo(0.00002, 8),
           estimatedCostUsd: expect.closeTo(0.00002, 8),
           upstreamRequestId: "chatcmpl_1",
+        }),
+      }),
+    );
+  });
+
+  it("records usage and cost for responses API requests", async () => {
+    const database = createDatabaseMock();
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "resp_1",
+          object: "response",
+          usage: {
+            input_tokens: 12,
+            output_tokens: 6,
+            total_tokens: 18,
+          },
+          output: [
+            {
+              type: "message",
+              role: "assistant",
+              content: "ok",
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const service = new ModelProxyService({
+      database: database as never,
+      fetchFn: fetchFn as never,
+      modelsService: createModelServiceMock() as never,
+      providerService: createProviderServiceMock() as never,
+      now: (() => {
+        const times = [
+          new Date("2026-06-16T00:00:00.000Z"),
+          new Date("2026-06-16T00:00:00.100Z"),
+        ];
+        return () => times.shift() ?? new Date("2026-06-16T00:00:00.100Z");
+      })(),
+    });
+
+    await service.createResponse(
+      {
+        model: "gpt-test",
+        input: "hello",
+        user: "alice",
+      },
+      undefined,
+      { apiKeyAlias: "test-key" },
+    );
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      "https://upstream.example.com/v1/responses",
+      expect.objectContaining({
+        method: "POST",
+      }),
+    );
+    const updateCall = vi.mocked(database.modelProxyRequest.update).mock
+      .calls[0];
+    expect(updateCall?.[0]).toEqual(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: "success",
+          inputTokens: 12,
+          outputTokens: 6,
+          totalTokens: 18,
+          upstreamRequestId: "resp_1",
         }),
       }),
     );

@@ -25,28 +25,48 @@ import {
   type UsageSummary,
 } from "./logging/usage-extractor";
 import {
+  extractEndUser,
+  extractModelName,
+  injectUpstreamModel,
+  isStreamingRequest,
+  MissingProxyModelError,
+} from "./proxy-payload";
+import {
   type ResolvedUpstreamTarget,
   resolveUpstreamTarget,
 } from "./resolver/upstream-provider";
-import {
-  type ChatCompletionsRequest,
-  chatCompletionsRequestSchema,
-  type ModelListEntry,
-  type ModelListResponse,
+import type {
+  ChatCompletionsRequest,
+  ModelListEntry,
+  ModelListResponse,
+  ResponsesRequest,
 } from "./schemas";
 import type {
   IModelProxyService,
   ModelProxyServiceOptions,
+  ProxyEndpointResult,
   ProxyRequestContext,
   ProxyResponse,
   StreamingProxyResponse,
 } from "./types";
 
-function buildChatCompletionsUrl(baseUrl: string): string {
-  if (baseUrl.endsWith("/chat/completions")) {
+function withStreamEnabled(body: unknown): unknown {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
+    return body;
+  }
+
+  return {
+    ...(body as Record<string, unknown>),
+    stream: true,
+  };
+}
+
+function buildUpstreamUrl(baseUrl: string, endpoint: string): string {
+  const suffix = `/${endpoint}`;
+  if (baseUrl.endsWith(suffix)) {
     return baseUrl;
   }
-  return `${baseUrl}/chat/completions`;
+  return `${baseUrl}${suffix}`;
 }
 
 function toObject(value: unknown): Record<string, unknown> | null {
@@ -99,30 +119,148 @@ export class ModelProxyService implements IModelProxyService {
     };
   }
 
+  async proxyOpenAiEndpoint(
+    endpoint: string,
+    rawBody: unknown,
+    signal?: AbortSignal,
+    context: ProxyRequestContext = {},
+  ): Promise<ProxyEndpointResult> {
+    const model = extractModelName(rawBody);
+    if (!model) {
+      throw new MissingProxyModelError();
+    }
+
+    const target = await this.resolveTarget(model);
+    const upstreamBody = injectUpstreamModel(rawBody, target.upstreamModel);
+    const startedAt = this.now();
+    const requestRow = await this.ledger.startTransparent(
+      model,
+      upstreamBody,
+      target,
+      startedAt,
+      {
+        apiKeyAlias: context.apiKeyAlias,
+        endUser: extractEndUser(rawBody),
+      },
+    );
+
+    if (isStreamingRequest(rawBody)) {
+      return {
+        kind: "stream",
+        response: await this.forwardStreamingRequest(
+          endpoint,
+          upstreamBody,
+          target,
+          requestRow.id,
+          startedAt,
+          signal,
+        ),
+      };
+    }
+
+    return {
+      kind: "json",
+      response: await this.forwardJsonRequest(
+        endpoint,
+        upstreamBody,
+        target,
+        requestRow.id,
+        startedAt,
+        signal,
+      ),
+    };
+  }
+
   async createChatCompletion(
-    rawRequest: ChatCompletionsRequest,
+    rawRequest: ChatCompletionsRequest | unknown,
     signal?: AbortSignal,
     context: ProxyRequestContext = {},
   ): Promise<ProxyResponse> {
-    const request = chatCompletionsRequestSchema.parse(rawRequest);
-    const target = await this.resolveTarget(request.model);
-    const startedAt = this.now();
-    const requestRow = await this.ledger.start(request, target, startedAt, {
-      apiKeyAlias: context.apiKeyAlias,
-      endUser: request.user,
-    });
+    const result = await this.proxyOpenAiEndpoint(
+      "chat/completions",
+      rawRequest,
+      signal,
+      context,
+    );
+    if (result.kind !== "json") {
+      throw new Error("Expected non-streaming response");
+    }
+    return result.response;
+  }
+
+  async createStreamingChatCompletion(
+    rawRequest: ChatCompletionsRequest | unknown,
+    signal?: AbortSignal,
+    context: ProxyRequestContext = {},
+  ): Promise<StreamingProxyResponse> {
+    const body = withStreamEnabled(rawRequest);
+    const result = await this.proxyOpenAiEndpoint(
+      "chat/completions",
+      body,
+      signal,
+      context,
+    );
+    if (result.kind !== "stream") {
+      throw new Error("Expected streaming response");
+    }
+    return result.response;
+  }
+
+  async createResponse(
+    rawRequest: ResponsesRequest | unknown,
+    signal?: AbortSignal,
+    context: ProxyRequestContext = {},
+  ): Promise<ProxyResponse> {
+    const result = await this.proxyOpenAiEndpoint(
+      "responses",
+      rawRequest,
+      signal,
+      context,
+    );
+    if (result.kind !== "json") {
+      throw new Error("Expected non-streaming response");
+    }
+    return result.response;
+  }
+
+  async createStreamingResponse(
+    rawRequest: ResponsesRequest | unknown,
+    signal?: AbortSignal,
+    context: ProxyRequestContext = {},
+  ): Promise<StreamingProxyResponse> {
+    const body = withStreamEnabled(rawRequest);
+    const result = await this.proxyOpenAiEndpoint(
+      "responses",
+      body,
+      signal,
+      context,
+    );
+    if (result.kind !== "stream") {
+      throw new Error("Expected streaming response");
+    }
+    return result.response;
+  }
+
+  private async forwardJsonRequest(
+    endpoint: string,
+    upstreamBody: unknown,
+    target: ResolvedUpstreamTarget,
+    requestRowId: string,
+    startedAt: Date,
+    signal?: AbortSignal,
+  ): Promise<ProxyResponse> {
     const requestSignal = createRequestAbortSignal(signal);
 
     try {
       const response = await this.fetchFn(
-        buildChatCompletionsUrl(target.upstreamBaseUrl),
+        buildUpstreamUrl(target.upstreamBaseUrl, endpoint),
         {
           method: "POST",
           headers: {
             "content-type": "application/json",
             ...target.upstreamHeaders,
           },
-          body: JSON.stringify({ ...request, model: target.upstreamModel }),
+          body: JSON.stringify(upstreamBody),
           signal: requestSignal,
         },
       );
@@ -135,7 +273,7 @@ export class ModelProxyService implements IModelProxyService {
         const error = createUpstreamHttpError(response.status, responseText, {
           body: responseText,
         });
-        await this.ledger.fail(requestRow.id, target, {
+        await this.ledger.fail(requestRowId, target, {
           status: "failed",
           finishedAt,
           latencyMs,
@@ -156,7 +294,7 @@ export class ModelProxyService implements IModelProxyService {
         const error = createParseError(
           "Failed to parse upstream JSON response",
         );
-        await this.ledger.fail(requestRow.id, target, {
+        await this.ledger.fail(requestRowId, target, {
           status: "failed",
           finishedAt,
           latencyMs,
@@ -168,7 +306,7 @@ export class ModelProxyService implements IModelProxyService {
       }
 
       const usage = extractUsage(payload);
-      await this.ledger.complete(requestRow.id, target, {
+      await this.ledger.complete(requestRowId, target, {
         status: "success",
         finishedAt,
         latencyMs,
@@ -186,7 +324,7 @@ export class ModelProxyService implements IModelProxyService {
     } catch (error) {
       if (!isLedgerHandledError(error)) {
         await this.handleRequestError(
-          requestRow.id,
+          requestRowId,
           target,
           startedAt,
           error,
@@ -197,21 +335,14 @@ export class ModelProxyService implements IModelProxyService {
     }
   }
 
-  async createStreamingChatCompletion(
-    rawRequest: ChatCompletionsRequest,
+  private async forwardStreamingRequest(
+    endpoint: string,
+    upstreamBody: unknown,
+    target: ResolvedUpstreamTarget,
+    requestRowId: string,
+    startedAt: Date,
     signal?: AbortSignal,
-    context: ProxyRequestContext = {},
   ): Promise<StreamingProxyResponse> {
-    const request = chatCompletionsRequestSchema.parse({
-      ...rawRequest,
-      stream: true,
-    });
-    const target = await this.resolveTarget(request.model);
-    const startedAt = this.now();
-    const requestRow = await this.ledger.start(request, target, startedAt, {
-      apiKeyAlias: context.apiKeyAlias,
-      endUser: request.user,
-    });
     const upstreamAbort = new AbortController();
     const requestSignal = mergeAbortSignals(
       signal,
@@ -222,20 +353,20 @@ export class ModelProxyService implements IModelProxyService {
     let response: Response;
     try {
       response = await this.fetchFn(
-        buildChatCompletionsUrl(target.upstreamBaseUrl),
+        buildUpstreamUrl(target.upstreamBaseUrl, endpoint),
         {
           method: "POST",
           headers: {
             "content-type": "application/json",
             ...target.upstreamHeaders,
           },
-          body: JSON.stringify({ ...request, model: target.upstreamModel }),
+          body: JSON.stringify(upstreamBody),
           signal: requestSignal,
         },
       );
     } catch (error) {
       await this.handleRequestError(
-        requestRow.id,
+        requestRowId,
         target,
         startedAt,
         error,
@@ -251,7 +382,7 @@ export class ModelProxyService implements IModelProxyService {
         errorText || `HTTP ${response.status}`,
         { body: errorText },
       );
-      await this.ledger.fail(requestRow.id, target, {
+      await this.ledger.fail(requestRowId, target, {
         status: "failed",
         finishedAt: this.now(),
         latencyMs: this.now().getTime() - startedAt.getTime(),
@@ -317,7 +448,7 @@ export class ModelProxyService implements IModelProxyService {
           const finishedAt = this.now();
           const latencyMs = finishedAt.getTime() - startedAt.getTime();
           await finishStreamOnce(() =>
-            this.ledger.complete(requestRow.id, target, {
+            this.ledger.complete(requestRowId, target, {
               status: "success",
               finishedAt,
               latencyMs,
@@ -335,7 +466,7 @@ export class ModelProxyService implements IModelProxyService {
             return;
           }
           await finishStreamOnce(() =>
-            this.handleRequestError(requestRow.id, target, startedAt, error, {
+            this.handleRequestError(requestRowId, target, startedAt, error, {
               ttftMs,
               usage,
               responseHeaders: redactHeaders(response.headers),
@@ -355,7 +486,7 @@ export class ModelProxyService implements IModelProxyService {
           new DOMException("Client disconnected", "AbortError"),
         );
         await finishStreamOnce(() =>
-          this.ledger.cancel(requestRow.id, target, {
+          this.ledger.cancel(requestRowId, target, {
             status: "cancelled",
             finishedAt: this.now(),
             latencyMs: this.now().getTime() - startedAt.getTime(),
@@ -375,7 +506,6 @@ export class ModelProxyService implements IModelProxyService {
       body: stream,
     };
   }
-
   private async handleRequestError(
     requestId: string,
     target: ResolvedUpstreamTarget,

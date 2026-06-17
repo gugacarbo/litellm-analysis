@@ -1,9 +1,10 @@
 import { Readable } from "node:stream";
 import {
-  chatCompletionsRequestSchema,
+  MissingProxyModelError,
   modelListResponseSchema,
+  type ProxyEndpointResult,
 } from "@lite-llm/model-proxy-service";
-import type { Application } from "express";
+import type { Application, Request, Response } from "express";
 import type { RouteOptions } from "../types/index";
 
 interface ProxyAuthResult {
@@ -61,6 +62,87 @@ async function hasConfiguredAuth(opts: RouteOptions): Promise<boolean> {
   return keys.some((key) => key.enabled);
 }
 
+function writeProxyResponse(
+  res: Response,
+  result: ProxyEndpointResult,
+): void {
+  if (result.kind === "stream") {
+    const response = result.response;
+    res.status(response.status);
+    response.headers.forEach((value, key) => {
+      if (key.toLowerCase() === "content-length") {
+        return;
+      }
+      res.setHeader(key, value);
+    });
+
+    const body = Readable.fromWeb(response.body as never);
+    body.on("error", (error) => {
+      if (!res.headersSent) {
+        res.status(500).json({ error: String(error) });
+        return;
+      }
+      res.end();
+    });
+    body.pipe(res);
+    return;
+  }
+
+  const response = result.response;
+  res.status(response.status);
+  response.headers.forEach((value, key) => {
+    if (key.toLowerCase() === "content-length") {
+      return;
+    }
+    res.setHeader(key, value);
+  });
+  res.json(response.payload);
+}
+
+async function handleOpenAiProxyPost(
+  req: Request,
+  res: Response,
+  opts: RouteOptions,
+  endpoint: string,
+): Promise<void> {
+  if (!(await hasConfiguredAuth(opts))) {
+    res.status(503).json({
+      error:
+        "No model proxy API keys configured (set MODEL_PROXY_API_KEY or seed model_proxy_api_keys)",
+    });
+    return;
+  }
+
+  if (!(await isAuthorized(req.header("authorization"), opts))) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const auth = await authorizeRequest(req.header("authorization"), opts);
+    const abortController = new AbortController();
+    res.on("close", () => {
+      if (!res.writableEnded) {
+        abortController.abort();
+      }
+    });
+
+    const result = await opts.modelProxyService.proxyOpenAiEndpoint(
+      endpoint,
+      req.body,
+      abortController.signal,
+      { apiKeyAlias: auth.apiKeyAlias },
+    );
+    writeProxyResponse(res, result);
+  } catch (error) {
+    if (error instanceof MissingProxyModelError) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    res.status(500).json({ error: String(error) });
+  }
+}
+
 export function registerModelProxyRoutes(
   app: Application,
   opts: RouteOptions,
@@ -96,108 +178,11 @@ export function registerModelProxyRoutes(
     }
   });
 
-  app.post("/v1/chat/completions", async (req, res) => {
-    if (!(await hasConfiguredAuth(opts))) {
-      res.status(503).json({
-        error:
-          "No model proxy API keys configured (set MODEL_PROXY_API_KEY or seed model_proxy_api_keys)",
-      });
-      return;
-    }
-
-    if (!(await isAuthorized(req.header("authorization"), opts))) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-
-    try {
-      const request = chatCompletionsRequestSchema.parse(req.body);
-      const auth = await authorizeRequest(req.header("authorization"), opts);
-      if (request.stream) {
-        const abortController = new AbortController();
-        res.on("close", () => {
-          if (!res.writableEnded) {
-            abortController.abort();
-          }
-        });
-
-        const response =
-          await opts.modelProxyService.createStreamingChatCompletion(
-            request,
-            abortController.signal,
-            { apiKeyAlias: auth.apiKeyAlias },
-          );
-
-        res.status(response.status);
-        response.headers.forEach((value, key) => {
-          if (key.toLowerCase() === "content-length") {
-            return;
-          }
-          res.setHeader(key, value);
-        });
-
-        const body = Readable.fromWeb(response.body as never);
-        body.on("error", (error) => {
-          if (!res.headersSent) {
-            res.status(500).json({ error: String(error) });
-            return;
-          }
-          res.end();
-        });
-        body.pipe(res);
-        return;
-      }
-
-      const response = await opts.modelProxyService.createChatCompletion(
-        request,
-        undefined,
-        { apiKeyAlias: auth.apiKeyAlias },
-      );
-      res.status(response.status);
-      response.headers.forEach((value, key) => {
-        if (key.toLowerCase() === "content-length") {
-          return;
-        }
-        res.setHeader(key, value);
-      });
-      res.json(response.payload);
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "name" in error &&
-        error.name === "ZodError"
-      ) {
-        const message =
-          "message" in error ? String(error.message) : "Invalid request";
-        res.status(400).json({ error: message });
-        return;
-      }
-      res.status(500).json({ error: String(error) });
-    }
+  app.post("/v1/chat/completions", (req, res) => {
+    void handleOpenAiProxyPost(req, res, opts, "chat/completions");
   });
 
-  app.post("/v1/responses", async (req, res) => {
-    if (!(await hasConfiguredAuth(opts))) {
-      res.status(503).json({
-        error:
-          "No model proxy API keys configured (set MODEL_PROXY_API_KEY or seed model_proxy_api_keys)",
-      });
-      return;
-    }
-
-    if (!(await isAuthorized(req.header("authorization"), opts))) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-
-    res.status(501).json({
-      error: {
-        message:
-          "The OpenAI Responses API is not implemented by the local model proxy yet. Use POST /v1/chat/completions instead.",
-        type: "not_implemented",
-        code: "responses_api_not_supported",
-      },
-    });
+  app.post("/v1/responses", (req, res) => {
+    void handleOpenAiProxyPost(req, res, opts, "responses");
   });
 }

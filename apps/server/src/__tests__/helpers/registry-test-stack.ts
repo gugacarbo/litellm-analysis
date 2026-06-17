@@ -509,8 +509,11 @@ export function createRegistryTestStack(): RegistryTestStack {
     orchestration,
     modelProxyService: {
       listModels: vi.fn(async () => ({ object: "list", data: [] })),
+      proxyOpenAiEndpoint: vi.fn(),
       createChatCompletion: vi.fn(),
       createStreamingChatCompletion: vi.fn(),
+      createResponse: vi.fn(),
+      createStreamingResponse: vi.fn(),
       onRequestFinished: vi.fn(() => () => undefined),
     },
     modelsService,

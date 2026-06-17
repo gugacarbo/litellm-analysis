@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { FloatingChatWidget } from "@/features/floating-chat/floating-chat-widget";
 import { DateRangeFilter } from "@/shared/components/ui/date-range-filter";
 import {
   SidebarInset,
@@ -22,6 +23,7 @@ export function AppLayout() {
             </div>
             <SidebarInset className="min-h-0 min-w-0 overflow-x-hidden">
               <Outlet />
+              <FloatingChatWidget />
             </SidebarInset>
           </div>
         </SidebarProvider>

@@ -77,6 +77,8 @@ lite-llm-analytics/
 | Add model config logic   | `services/models-service/src/`                   | Provider/model CRUD, alias management                 |
 | Modify model API routes  | `packages/server-core/src/routes/model-routes.ts`| Express routes using models-manager                  |
 | Add a Models sub-route   | `apps/web/src/features/models/models-layout.tsx` + `App.tsx` | Tab navigation lives in the layout; children render via `Outlet` |
+| Floating chat widget     | `apps/web/src/features/floating-chat/` | assistant-ui + AI SDK; `FloatingChatWidget` in `app-layout.tsx` |
+| Dashboard chat API       | `packages/server/src/routes/chat-routes.ts` | POST `/chat` streams completions via `MODEL_PROXY_*` |
 
 ## CONVENTIONS
 

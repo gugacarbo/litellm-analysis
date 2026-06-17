@@ -185,11 +185,15 @@ async function loadBenchmarkDataset(
   return JSON.parse(raw) as StoredModelBenchmarkDataset;
 }
 
+const MODEL_PROXY_BODY_LIMIT = "50mb";
+
 export function createApiServer(
   opts: RouteOptions,
   ctx: AppContext,
 ): Application {
   const app = express();
+  const proxyJsonParser = express.json({ limit: MODEL_PROXY_BODY_LIMIT });
+  app.use("/v1", proxyJsonParser);
   app.use(express.json());
 
   // Health / liveness probe — always returns 200

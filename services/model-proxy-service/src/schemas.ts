@@ -45,9 +45,19 @@ export const modelListResponseSchema = z.object({
   data: z.array(modelListEntrySchema),
 });
 
+export const responsesRequestSchema = z
+  .object({
+    model: z.string().min(1),
+    input: z.union([z.string(), z.array(z.unknown())]),
+    stream: z.boolean().optional().default(false),
+    user: z.string().optional(),
+  })
+  .passthrough();
+
 export type ChatCompletionsRequest = z.infer<
   typeof chatCompletionsRequestSchema
 >;
+export type ResponsesRequest = z.infer<typeof responsesRequestSchema>;
 export type ChatMessage = z.infer<typeof chatMessageSchema>;
 export type ModelListEntry = z.infer<typeof modelListEntrySchema>;
 export type ModelListResponse = z.infer<typeof modelListResponseSchema>;

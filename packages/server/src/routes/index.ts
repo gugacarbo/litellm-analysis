@@ -3,6 +3,7 @@ import type { RouteOptions } from "../types/index";
 import { registerAgentCatalogRoutes } from "./agent-catalog-routes";
 import { registerAnalyticsRoutes } from "./analytics-routes";
 import { registerCategoryCatalogRoutes } from "./category-catalog-routes";
+import { registerChatRoutes } from "./chat-routes";
 import { registerCredentialRoutes } from "./credential-routes";
 import { registerModelProxyRoutes } from "./model-proxy-routes";
 import { registerModelRoutes } from "./model-routes";
@@ -20,4 +21,5 @@ export function registerAllRoutes(app: Application, opts: RouteOptions): void {
   registerModelProxyRoutes(app, opts);
   registerPluginRoutingRoutes(app, opts);
   registerCredentialRoutes(app, opts);
+  registerChatRoutes(app, opts);
 }

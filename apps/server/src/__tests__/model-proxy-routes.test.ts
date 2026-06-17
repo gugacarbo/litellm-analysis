@@ -1,4 +1,5 @@
 import type { AddressInfo } from "node:net";
+import type { ProxyEndpointResult } from "@lite-llm/model-proxy-service";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 function createStreamingBody(chunks: string[]): ReadableStream<Uint8Array> {
@@ -51,23 +52,60 @@ async function createTestServer() {
         },
       ],
     }),
-    createChatCompletion: vi.fn().mockResolvedValue({
-      status: 200,
-      headers: new Headers({ "content-type": "application/json" }),
-      payload: {
-        id: "chatcmpl_1",
-        object: "chat.completion",
-        choices: [{ index: 0, message: { role: "assistant", content: "ok" } }],
+    proxyOpenAiEndpoint: vi.fn(
+      async (
+        endpoint: string,
+        body: { stream?: boolean },
+      ): Promise<ProxyEndpointResult> => {
+        if (body.stream) {
+          return {
+            kind: "stream",
+            response: {
+              status: 200,
+              headers: new Headers({ "content-type": "text/event-stream" }),
+              body: createStreamingBody(
+                endpoint === "responses"
+                  ? [
+                      'data: {"type":"response.output_text.delta","delta":"ok"}\n\n',
+                      "data: [DONE]\n\n",
+                    ]
+                  : [
+                      'data: {"choices":[{"delta":{"content":"ok"}}]}\n\n',
+                      "data: [DONE]\n\n",
+                    ],
+              ),
+            },
+          };
+        }
+
+        return {
+          kind: "json",
+          response: {
+            status: 200,
+            headers: new Headers({ "content-type": "application/json" }),
+            payload:
+              endpoint === "responses"
+                ? {
+                    id: "resp_1",
+                    object: "response",
+                    output: [
+                      { type: "message", role: "assistant", content: "ok" },
+                    ],
+                  }
+                : {
+                    id: "chatcmpl_1",
+                    object: "chat.completion",
+                    choices: [
+                      {
+                        index: 0,
+                        message: { role: "assistant", content: "ok" },
+                      },
+                    ],
+                  },
+          },
+        };
       },
-    }),
-    createStreamingChatCompletion: vi.fn().mockResolvedValue({
-      status: 200,
-      headers: new Headers({ "content-type": "text/event-stream" }),
-      body: createStreamingBody([
-        'data: {"choices":[{"delta":{"content":"ok"}}]}\n\n',
-        "data: [DONE]\n\n",
-      ]),
-    }),
+    ),
     onRequestFinished: vi.fn().mockReturnValue(() => undefined),
   };
 
@@ -234,9 +272,10 @@ describe("model proxy routes", () => {
       );
 
       expect(response.status).toBe(200);
-      expect(modelProxyService.createChatCompletion).toHaveBeenCalledWith(
+      expect(modelProxyService.proxyOpenAiEndpoint).toHaveBeenCalledWith(
+        "chat/completions",
         expect.objectContaining({ user: "alice" }),
-        undefined,
+        expect.any(AbortSignal),
         { apiKeyAlias: "MODEL_PROXY_API_KEY" },
       );
     } finally {
@@ -246,8 +285,8 @@ describe("model proxy routes", () => {
     }
   });
 
-  it("returns 501 for OpenAI Responses API stub", async () => {
-    const { port, server } = await createTestServer();
+  it("proxies OpenAI Responses API requests", async () => {
+    const { port, server, modelProxyService } = await createTestServer();
     try {
       const response = await fetch(`http://127.0.0.1:${port}/v1/responses`, {
         method: "POST",
@@ -258,9 +297,49 @@ describe("model proxy routes", () => {
         body: JSON.stringify({ model: "gpt-test", input: "hello" }),
       });
 
-      expect(response.status).toBe(501);
+      expect(response.status).toBe(200);
       const body = await response.json();
-      expect(body.error.code).toBe("responses_api_not_supported");
+      expect(body.object).toBe("response");
+      expect(modelProxyService.proxyOpenAiEndpoint).toHaveBeenCalledWith(
+        "responses",
+        expect.objectContaining({ model: "gpt-test", input: "hello" }),
+        expect.any(AbortSignal),
+        { apiKeyAlias: "MODEL_PROXY_API_KEY" },
+      );
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+    }
+  });
+
+  it("streams Responses API SSE payloads", async () => {
+    const { port, server, modelProxyService } = await createTestServer();
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/v1/responses`, {
+        method: "POST",
+        headers: {
+          authorization: "Bearer proxy-secret",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-test",
+          input: "hello",
+          stream: true,
+        }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("content-type")).toContain(
+        "text/event-stream",
+      );
+      expect(await response.text()).toContain("[DONE]");
+      expect(modelProxyService.proxyOpenAiEndpoint).toHaveBeenCalledWith(
+        "responses",
+        expect.objectContaining({ stream: true }),
+        expect.any(AbortSignal),
+        { apiKeyAlias: "MODEL_PROXY_API_KEY" },
+      );
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
@@ -292,9 +371,12 @@ describe("model proxy routes", () => {
         "text/event-stream",
       );
       expect(await response.text()).toContain("[DONE]");
-      expect(
-        modelProxyService.createStreamingChatCompletion,
-      ).toHaveBeenCalledOnce();
+      expect(modelProxyService.proxyOpenAiEndpoint).toHaveBeenCalledWith(
+        "chat/completions",
+        expect.objectContaining({ stream: true }),
+        expect.any(AbortSignal),
+        { apiKeyAlias: "MODEL_PROXY_API_KEY" },
+      );
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));

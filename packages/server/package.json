@@ -15,15 +15,17 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.50",
     "@lite-llm/agent-plugins": "workspace:*",
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/agents-repository": "workspace:*",
-    "@lite-llm/contracts": "workspace:*",
     "@lite-llm/analytics-service": "workspace:*",
     "@lite-llm/config": "workspace:*",
+    "@lite-llm/contracts": "workspace:*",
     "@lite-llm/model-proxy-registry-service": "workspace:*",
     "@lite-llm/model-proxy-service": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
+    "ai": "^6.0.206",
     "express": "catalog:"
   },
   "devDependencies": {

@@ -28,8 +28,10 @@ function readNestedUsage(root: Record<string, unknown>): UsageSummary {
   const completionDetails = toObject(usage.completion_tokens_details);
 
   return {
-    inputTokens: readNumber(usage.prompt_tokens),
-    outputTokens: readNumber(usage.completion_tokens),
+    inputTokens:
+      readNumber(usage.prompt_tokens) ?? readNumber(usage.input_tokens),
+    outputTokens:
+      readNumber(usage.completion_tokens) ?? readNumber(usage.output_tokens),
     totalTokens: readNumber(usage.total_tokens),
     cachedTokens:
       readNumber(usage.cached_tokens) ?? readNumber(details?.cached_tokens),

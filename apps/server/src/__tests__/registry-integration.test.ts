@@ -339,6 +339,7 @@ describe("registry integration", () => {
             registryOnly: number;
             total: number;
           };
+          settingsStorage: string;
         };
 
         const byName = new Map(
@@ -353,6 +354,7 @@ describe("registry integration", () => {
           registryOnly: 1,
           total: 3,
         });
+        expect(body.settingsStorage).toBe("database");
 
         for (const model of body.models) {
           expect(model.status).not.toMatch(/litellm/i);
@@ -387,6 +389,23 @@ describe("registry integration", () => {
         );
         expect(response.status).toBe(200);
         expect(await response.json()).toMatchObject({ success: true });
+      } finally {
+        await closeServer(server);
+      }
+    });
+
+    it("exports consumer configs via POST /models/export-configs", async () => {
+      const stack = createRegistryTestStack();
+      const { port, server } = await createRegistryHttpServer(stack, "models");
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:${port}/models/export-configs`,
+          { method: "POST" },
+        );
+        expect(response.status).toBe(200);
+        expect(await response.json()).toMatchObject({ success: true });
+        expect(stack.agentsManager.registry.exportAll).toHaveBeenCalled();
       } finally {
         await closeServer(server);
       }

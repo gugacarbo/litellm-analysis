@@ -3,6 +3,7 @@ import type {
   Prisma,
   PrismaClient,
 } from "@lite-llm/model-proxy-repository";
+import { extractEndUser, extractLedgerMessages } from "../proxy-payload";
 import type { ChatCompletionsRequest } from "../schemas";
 import { type CostSnapshot, calculateCost } from "./cost-calculator";
 import { redactHeaders, redactPayload } from "./payload-redactor";
@@ -70,6 +71,62 @@ export class RequestLedger {
     startedAt: Date,
     context: LedgerStartContext = {},
   ): Promise<ModelProxyRequest> {
+    return this.startWithMessages(
+      {
+        model: request.model,
+        user: request.user,
+        messages: request.messages,
+        requestBody: request,
+      },
+      target,
+      startedAt,
+      context,
+    );
+  }
+
+  async startResponses(
+    request: { model: string; input: unknown; user?: string },
+    target: LedgerTarget,
+    startedAt: Date,
+    context: LedgerStartContext = {},
+  ): Promise<ModelProxyRequest> {
+    return this.startTransparent(request.model, request, target, startedAt, {
+      apiKeyAlias: context.apiKeyAlias,
+      endUser: context.endUser ?? request.user,
+    });
+  }
+
+  async startTransparent(
+    model: string,
+    requestBody: unknown,
+    target: LedgerTarget,
+    startedAt: Date,
+    context: LedgerStartContext = {},
+  ): Promise<ModelProxyRequest> {
+    return this.startWithMessages(
+      {
+        model,
+        user: extractEndUser(requestBody),
+        messages: extractLedgerMessages(requestBody),
+        requestBody,
+      },
+      target,
+      startedAt,
+      context,
+    );
+  }
+
+  private async startWithMessages(
+    request: {
+      model: string;
+      user?: string;
+      messages: Array<{ role: string; content: unknown }>;
+      requestBody: unknown;
+    },
+    target: LedgerTarget,
+    startedAt: Date,
+    context: LedgerStartContext = {},
+  ): Promise<ModelProxyRequest> {
     const row = await this.database.modelProxyRequest.create({
       data: {
         model: request.model,
@@ -79,7 +136,9 @@ export class RequestLedger {
         startedAt,
         apiKeyAlias: context.apiKeyAlias ?? null,
         endUser: context.endUser ?? request.user ?? null,
-        requestBody: redactPayload(request) as Prisma.InputJsonValue,
+        requestBody: redactPayload(
+          request.requestBody,
+        ) as Prisma.InputJsonValue,
       },
     });
 
