@@ -185,16 +185,19 @@ async function loadBenchmarkDataset(
   return JSON.parse(raw) as StoredModelBenchmarkDataset;
 }
 
-const MODEL_PROXY_BODY_LIMIT = "50mb";
-
 export function createApiServer(
   opts: RouteOptions,
   ctx: AppContext,
 ): Application {
   const app = express();
-  const proxyJsonParser = express.json({ limit: MODEL_PROXY_BODY_LIMIT });
-  app.use("/v1", proxyJsonParser);
-  app.use(express.json());
+  const jsonParser = express.json();
+  app.use((req, res, next) => {
+    if (req.path === "/v1" || req.path.startsWith("/v1/")) {
+      next();
+      return;
+    }
+    jsonParser(req, res, next);
+  });
 
   // Health / liveness probe — always returns 200
   app.get("/health", (_req, res) => {

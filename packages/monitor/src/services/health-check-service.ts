@@ -434,7 +434,6 @@ export class HealthCheckService {
       requestBody.thinking = { type: "disabled" };
     }
     if (this.isMiniMaxModel(modelName)) {
-      extraBody.reasoning_split = true;
       requestBody.reasoning_split = true;
     }
     if (Object.keys(extraBody).length > 0) {

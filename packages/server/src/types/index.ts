@@ -6,7 +6,7 @@ import type {
   IRegistryModelsService,
   ISettingsService,
 } from "@lite-llm/model-proxy-registry-service";
-import type { IModelProxyService } from "@lite-llm/model-proxy-service";
+import type { HeboModelProxyGateway } from "@lite-llm/model-proxy-service/hebo";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 
 export interface RegistryRouteServices {
@@ -54,7 +54,7 @@ export interface OrchestrationServices {
 export interface RouteOptions {
   dataSource: AnalyticsDataSource;
   orchestration: OrchestrationServices;
-  modelProxyService: IModelProxyService;
+  heboGateway: HeboModelProxyGateway;
   modelsService: IModelService;
   providerService: IProviderService;
   registry: RegistryRouteServices;

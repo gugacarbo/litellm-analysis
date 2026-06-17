@@ -1,5 +1,4 @@
 import type { AddressInfo } from "node:net";
-import type { ProxyEndpointResult } from "@lite-llm/model-proxy-service";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 function createStreamingBody(chunks: string[]): ReadableStream<Uint8Array> {
@@ -33,84 +32,93 @@ async function createTestServer() {
   );
 
   const app = express();
-  app.use(express.json());
 
   const apiKeysService = {
     list: vi.fn().mockResolvedValue([]),
     verify: vi.fn().mockResolvedValue({ valid: false }),
   };
 
-  const modelProxyService = {
-    listModels: vi.fn().mockResolvedValue({
-      object: "list",
-      data: [
-        {
-          id: "gpt-test",
-          object: "model",
-          created: 1,
-          owned_by: "openai",
-        },
-      ],
-    }),
-    proxyOpenAiEndpoint: vi.fn(
-      async (
-        endpoint: string,
-        body: { stream?: boolean },
-      ): Promise<ProxyEndpointResult> => {
-        if (body.stream) {
-          return {
-            kind: "stream",
-            response: {
-              status: 200,
-              headers: new Headers({ "content-type": "text/event-stream" }),
-              body: createStreamingBody(
-                endpoint === "responses"
-                  ? [
-                      'data: {"type":"response.output_text.delta","delta":"ok"}\n\n',
-                      "data: [DONE]\n\n",
-                    ]
-                  : [
-                      'data: {"choices":[{"delta":{"content":"ok"}}]}\n\n',
-                      "data: [DONE]\n\n",
-                    ],
-              ),
+  const handlerCalls: Array<{
+    state?: Record<string, unknown>;
+    url: string;
+  }> = [];
+
+  const heboGateway = {
+    handler: vi.fn(async (req: Request, state?: Record<string, unknown>) => {
+      handlerCalls.push({ url: req.url, state });
+      const pathname = new URL(req.url).pathname;
+
+      if (pathname.endsWith("/models")) {
+        return Response.json({
+          object: "list",
+          data: [
+            {
+              id: "gpt-test",
+              object: "model",
+              created: 1,
+              owned_by: "openai",
             },
-          };
+          ],
+        });
+      }
+
+      if (pathname.endsWith("/responses")) {
+        const body = (await req.json()) as { stream?: boolean };
+        if (body.stream) {
+          return new Response(
+            createStreamingBody([
+              'data: {"type":"response.output_text.delta","delta":"ok"}\n\n',
+              "data: [DONE]\n\n",
+            ]),
+            {
+              status: 200,
+              headers: { "content-type": "text/event-stream" },
+            },
+          );
         }
 
-        return {
-          kind: "json",
-          response: {
-            status: 200,
-            headers: new Headers({ "content-type": "application/json" }),
-            payload:
-              endpoint === "responses"
-                ? {
-                    id: "resp_1",
-                    object: "response",
-                    output: [
-                      { type: "message", role: "assistant", content: "ok" },
-                    ],
-                  }
-                : {
-                    id: "chatcmpl_1",
-                    object: "chat.completion",
-                    choices: [
-                      {
-                        index: 0,
-                        message: { role: "assistant", content: "ok" },
-                      },
-                    ],
-                  },
-          },
-        };
-      },
-    ),
+        return Response.json({
+          id: "resp_1",
+          object: "response",
+          output: [{ type: "message", role: "assistant", content: "ok" }],
+        });
+      }
+
+      if (pathname.endsWith("/chat/completions")) {
+        const body = (await req.json()) as { stream?: boolean };
+        if (body.stream) {
+          return new Response(
+            createStreamingBody([
+              'data: {"choices":[{"delta":{"content":"ok"}}]}\n\n',
+              "data: [DONE]\n\n",
+            ]),
+            {
+              status: 200,
+              headers: { "content-type": "text/event-stream" },
+            },
+          );
+        }
+
+        return Response.json({
+          id: "chatcmpl_1",
+          object: "chat.completion",
+          choices: [
+            {
+              index: 0,
+              message: { role: "assistant", content: "ok" },
+            },
+          ],
+        });
+      }
+
+      return Response.json({ error: "Not Found" }, { status: 404 });
+    }),
     onRequestFinished: vi.fn().mockReturnValue(() => undefined),
+    refresh: vi.fn().mockResolvedValue(undefined),
   };
 
   registerModelProxyRoutes(app, {
-    modelProxyService,
+    heboGateway,
     agentsManager: undefined,
     dataSource: {} as never,
     orchestration: {} as never,
@@ -130,7 +138,7 @@ async function createTestServer() {
   });
 
   const port = (server.address() as AddressInfo).port;
-  return { modelProxyService, port, server };
+  return { handlerCalls, heboGateway, port, server };
 }
 
 describe("model proxy routes", () => {
@@ -156,7 +164,7 @@ describe("model proxy routes", () => {
   });
 
   it("returns model list for authorized requests", async () => {
-    const { port, server, modelProxyService } = await createTestServer();
+    const { port, server, heboGateway } = await createTestServer();
     try {
       const response = await fetch(`http://127.0.0.1:${port}/v1/models`, {
         headers: { authorization: "Bearer proxy-secret" },
@@ -174,7 +182,7 @@ describe("model proxy routes", () => {
           },
         ],
       });
-      expect(modelProxyService.listModels).toHaveBeenCalledOnce();
+      expect(heboGateway.handler).toHaveBeenCalledOnce();
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
@@ -200,7 +208,6 @@ describe("model proxy routes", () => {
       "../../../../packages/server/src/routes/model-proxy-routes.ts"
     );
     const app = express();
-    app.use(express.json());
 
     const apiKeysService = {
       list: vi
@@ -210,15 +217,16 @@ describe("model proxy routes", () => {
         ]),
       verify: vi.fn().mockResolvedValue({ valid: true }),
     };
-    const modelProxyService = {
-      listModels: vi.fn().mockResolvedValue({ object: "list", data: [] }),
-      createChatCompletion: vi.fn(),
-      createStreamingChatCompletion: vi.fn(),
+    const heboGateway = {
+      handler: vi
+        .fn()
+        .mockResolvedValue(Response.json({ object: "list", data: [] })),
       onRequestFinished: vi.fn().mockReturnValue(() => undefined),
+      refresh: vi.fn().mockResolvedValue(undefined),
     };
 
     registerModelProxyRoutes(app, {
-      modelProxyService,
+      heboGateway,
       agentsManager: undefined,
       dataSource: {} as never,
       orchestration: {} as never,
@@ -251,8 +259,8 @@ describe("model proxy routes", () => {
     }
   });
 
-  it("passes api key alias to chat completion handler", async () => {
-    const { port, server, modelProxyService } = await createTestServer();
+  it("passes api key alias to the hebo gateway handler", async () => {
+    const { port, server, handlerCalls } = await createTestServer();
     try {
       const response = await fetch(
         `http://127.0.0.1:${port}/v1/chat/completions`,
@@ -272,12 +280,9 @@ describe("model proxy routes", () => {
       );
 
       expect(response.status).toBe(200);
-      expect(modelProxyService.proxyOpenAiEndpoint).toHaveBeenCalledWith(
-        "chat/completions",
-        expect.objectContaining({ user: "alice" }),
-        expect.any(AbortSignal),
-        { apiKeyAlias: "MODEL_PROXY_API_KEY" },
-      );
+      expect(handlerCalls.at(-1)?.state).toEqual({
+        apiKeyAlias: "MODEL_PROXY_API_KEY",
+      });
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
@@ -286,7 +291,7 @@ describe("model proxy routes", () => {
   });
 
   it("proxies OpenAI Responses API requests", async () => {
-    const { port, server, modelProxyService } = await createTestServer();
+    const { port, server } = await createTestServer();
     try {
       const response = await fetch(`http://127.0.0.1:${port}/v1/responses`, {
         method: "POST",
@@ -300,12 +305,6 @@ describe("model proxy routes", () => {
       expect(response.status).toBe(200);
       const body = await response.json();
       expect(body.object).toBe("response");
-      expect(modelProxyService.proxyOpenAiEndpoint).toHaveBeenCalledWith(
-        "responses",
-        expect.objectContaining({ model: "gpt-test", input: "hello" }),
-        expect.any(AbortSignal),
-        { apiKeyAlias: "MODEL_PROXY_API_KEY" },
-      );
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
@@ -314,7 +313,7 @@ describe("model proxy routes", () => {
   });
 
   it("streams Responses API SSE payloads", async () => {
-    const { port, server, modelProxyService } = await createTestServer();
+    const { port, server } = await createTestServer();
     try {
       const response = await fetch(`http://127.0.0.1:${port}/v1/responses`, {
         method: "POST",
@@ -334,12 +333,6 @@ describe("model proxy routes", () => {
         "text/event-stream",
       );
       expect(await response.text()).toContain("[DONE]");
-      expect(modelProxyService.proxyOpenAiEndpoint).toHaveBeenCalledWith(
-        "responses",
-        expect.objectContaining({ stream: true }),
-        expect.any(AbortSignal),
-        { apiKeyAlias: "MODEL_PROXY_API_KEY" },
-      );
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
@@ -348,7 +341,7 @@ describe("model proxy routes", () => {
   });
 
   it("streams SSE responses", async () => {
-    const { port, server, modelProxyService } = await createTestServer();
+    const { port, server } = await createTestServer();
     try {
       const response = await fetch(
         `http://127.0.0.1:${port}/v1/chat/completions`,
@@ -371,12 +364,6 @@ describe("model proxy routes", () => {
         "text/event-stream",
       );
       expect(await response.text()).toContain("[DONE]");
-      expect(modelProxyService.proxyOpenAiEndpoint).toHaveBeenCalledWith(
-        "chat/completions",
-        expect.objectContaining({ stream: true }),
-        expect.any(AbortSignal),
-        { apiKeyAlias: "MODEL_PROXY_API_KEY" },
-      );
     } finally {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));

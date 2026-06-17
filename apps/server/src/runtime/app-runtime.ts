@@ -8,7 +8,7 @@ import {
   getHealthCheckPrompt,
 } from "@lite-llm/model-proxy-registry-service";
 import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
-import { createModelProxyService } from "@lite-llm/model-proxy-service";
+import { createHeboModelProxyGateway } from "@lite-llm/model-proxy-service/hebo";
 import {
   createRepositoryClient as createModelsRepositoryClient,
   ModelService,
@@ -166,7 +166,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   const providerService = new ProviderService({
     repository: modelsRepository,
   });
-  const modelProxyService = createModelProxyService({
+  const heboGateway = await createHeboModelProxyGateway({
     modelsService,
     providerService,
   });
@@ -185,7 +185,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       dataSource: ctx.analytics.dataSource,
       orchestration,
       agentsManager: agentPlugins,
-      modelProxyService,
+      heboGateway,
       modelsService,
       providerService,
       registry: {
@@ -211,7 +211,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
   });
 
-  modelProxyService.onRequestFinished((requestId) => {
+  heboGateway.onRequestFinished((requestId) => {
     monitorRuntime.wsServer.broadcast({
       type: "spend_logs_changed",
       data: {

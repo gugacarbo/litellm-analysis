@@ -25,6 +25,7 @@
     "@lite-llm/model-proxy-registry-service": "workspace:*",
     "@lite-llm/model-proxy-service": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
+    "@mjackson/node-fetch-server": "^0.7.0",
     "ai": "^6.0.206",
     "express": "catalog:"
   },

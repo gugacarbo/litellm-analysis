@@ -507,14 +507,10 @@ export function createRegistryTestStack(): RegistryTestStack {
   const routeOptions: RouteOptions = {
     dataSource,
     orchestration,
-    modelProxyService: {
-      listModels: vi.fn(async () => ({ object: "list", data: [] })),
-      proxyOpenAiEndpoint: vi.fn(),
-      createChatCompletion: vi.fn(),
-      createStreamingChatCompletion: vi.fn(),
-      createResponse: vi.fn(),
-      createStreamingResponse: vi.fn(),
+    heboGateway: {
+      handler: vi.fn(async () => Response.json({ object: "list", data: [] })),
       onRequestFinished: vi.fn(() => () => undefined),
+      refresh: vi.fn(async () => undefined),
     },
     modelsService,
     providerService,

@@ -5,6 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./hebo": "./src/hebo/create-gateway.ts",
+    "./hebo/sanitize-request-body": "./src/hebo/sanitize-request-body.ts",
     "./logging/payload-redactor": "./src/logging/payload-redactor.ts",
     "./logging/request-errors": "./src/logging/request-errors.ts"
   },
@@ -14,6 +16,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.50",
+    "@ai-sdk/provider": "^3.0.10",
+    "@hebo-ai/gateway": "^0.11.5",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/model-proxy-repository": "workspace:*",
     "@lite-llm/models-repository": "workspace:*",
