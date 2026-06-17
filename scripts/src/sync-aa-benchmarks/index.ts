@@ -20,6 +20,7 @@ const rootDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
   "..",
+  "..",
 );
 const skillDir = path.join(rootDir, ".agents", "skills", "artificial-analysis");
 
