@@ -4,10 +4,7 @@ import dotenv from "dotenv";
 import { z } from "zod";
 import { assertAnalyticsDataSourceEnv } from "./server-env-validation";
 
-export type {
-  AnalyticsDataSourceEnv,
-  AnalyticsDataSourceMode,
-} from "./server-env-validation";
+export type { AnalyticsDataSourceEnv } from "./server-env-validation";
 export { assertAnalyticsDataSourceEnv } from "./server-env-validation";
 
 const packageRoot = resolve(import.meta.dirname, "..");
@@ -19,12 +16,6 @@ dotenv.config({
 
 export const serverSchema = {
   PORT: z.coerce.number().int().positive(),
-
-  DB_HOST: z.string().optional(),
-  DB_PORT: z.coerce.number().int().positive().optional(),
-  DB_NAME: z.string().optional(),
-  DB_USER: z.string().optional(),
-  DB_PASSWORD: z.string().min(1, "DB_PASSWORD cannot be empty").optional(),
 
   MODEL_PROXY_API_KEY: z
     .string()
@@ -47,10 +38,6 @@ export const serverSchema = {
   APP_DB_PATH: z.string(),
   STORAGE_PATH: z.string().default("@storage"),
   SETTINGS_PATH: z.string().default("@settings"),
-
-  ANALYTICS_DATA_SOURCE: z
-    .enum(["litellm", "model-proxy", "hybrid"])
-    .default("model-proxy"),
 };
 
 export const serverEnv = createEnv({
@@ -61,29 +48,12 @@ export const serverEnv = createEnv({
 
 assertAnalyticsDataSourceEnv(serverEnv);
 
-const backupDbSchema = z.object({
-  DB_HOST: z.string().min(1, "DB_HOST is required"),
-  DB_PORT: z.coerce.number().int().positive(),
-  DB_NAME: z.string().min(1, "DB_NAME is required"),
-  DB_USER: z.string().min(1, "DB_USER is required"),
-  DB_PASSWORD: z.string().min(1, "DB_PASSWORD is required"),
-});
-
 export function getBackupDatabaseUrlFromEnv(): string {
-  if (process.env.MODEL_PROXY_DATABASE_URL) {
-    return process.env.MODEL_PROXY_DATABASE_URL;
+  const url = process.env.MODEL_PROXY_DATABASE_URL;
+  if (!url) {
+    throw new Error("MODEL_PROXY_DATABASE_URL is required for database backup");
   }
-
-  if (process.env.DATABASE_URL) {
-    return process.env.DATABASE_URL;
-  }
-
-  const env = backupDbSchema.parse(process.env);
-  const user = encodeURIComponent(env.DB_USER);
-  const password = encodeURIComponent(env.DB_PASSWORD);
-  const dbName = encodeURIComponent(env.DB_NAME);
-
-  return `postgresql://${user}:${password}@${env.DB_HOST}:${env.DB_PORT}/${dbName}`;
+  return url;
 }
 
 export type ServerEnv = typeof serverEnv;

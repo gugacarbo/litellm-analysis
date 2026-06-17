@@ -1,6 +1,6 @@
 import {
-  getDefaultCredentialWithFallback,
-  listCredentialsWithFallback,
+  getDefaultCredential,
+  listCredentials,
 } from "@lite-llm/model-proxy-registry-service";
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index";
@@ -15,7 +15,7 @@ export function registerCredentialRoutes(
   // GET /credentials - List all credentials (registry first, no raw api_key)
   app.get("/credentials", async (_req, res) => {
     try {
-      const credentials = await listCredentialsWithFallback(credentialsService);
+      const credentials = await listCredentials(credentialsService);
       res.json(credentials);
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -25,8 +25,7 @@ export function registerCredentialRoutes(
   // GET /credentials/default - Get default credential (registry first)
   app.get("/credentials/default", async (_req, res) => {
     try {
-      const defaultCredential =
-        await getDefaultCredentialWithFallback(settingsService);
+      const defaultCredential = await getDefaultCredential(settingsService);
       res.json({ defaultCredential });
     } catch (error) {
       res.status(500).json({ error: String(error) });

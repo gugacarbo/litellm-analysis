@@ -1,5 +1,5 @@
 import type { Application, NextFunction, Request, Response } from "express";
-import { parseDays } from "../orchestration/lite-llm-params";
+import { parseDays } from "../orchestration/route-params";
 import type { RouteOptions } from "../types/index";
 
 const modelStore = new WeakMap<Request, { model: string }>();

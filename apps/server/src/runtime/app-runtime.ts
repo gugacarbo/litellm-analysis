@@ -3,10 +3,9 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
-import { serverEnv } from "@lite-llm/config/server";
 import {
   createRegistryServices,
-  getHealthCheckPromptWithFallback,
+  getHealthCheckPrompt,
 } from "@lite-llm/model-proxy-registry-service";
 import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import { createModelProxyService } from "@lite-llm/model-proxy-service";
@@ -111,20 +110,12 @@ function registerShutdownHooks(stop: () => void): void {
 
 export async function resolveHealthCheckPrompt(
   settingsService: ReturnType<typeof createRegistryServices>["settingsService"],
-  dataSource?: HealthCheckPromptSource,
+  _dataSource?: HealthCheckPromptSource,
 ): Promise<string> {
   try {
-    const fromRegistry =
-      await getHealthCheckPromptWithFallback(settingsService);
+    const fromRegistry = await getHealthCheckPrompt(settingsService);
     if (fromRegistry) {
       return fromRegistry;
-    }
-
-    if (dataSource) {
-      const fromLegacy = await dataSource.getHealthCheckPrompt();
-      if (fromLegacy) {
-        return fromLegacy;
-      }
     }
 
     return DEFAULT_HEALTH_CHECK_PROMPT;
@@ -266,14 +257,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     healthCheckRuntime.stop();
     monitorRuntime.stop();
     httpServer.close(async () => {
-      if (serverEnv.ANALYTICS_DATA_SOURCE === "model-proxy") {
-        await getModelProxyPrisma().$disconnect();
-      } else {
-        const { prisma } = await import(
-          "@lite-llm/analytics-service/queries/client"
-        );
-        await prisma.$disconnect();
-      }
+      await getModelProxyPrisma().$disconnect();
       process.exit(0);
     });
   };

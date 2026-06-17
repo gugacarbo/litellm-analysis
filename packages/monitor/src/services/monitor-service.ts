@@ -133,7 +133,7 @@ export class MonitorService {
       const models = [
         ...new Set([
           ...(recentErrors
-            .map((e) => e.model ?? e.litellm_model_name)
+            .map((e) => e.model ?? e.upstream_model_name)
             .filter(Boolean) as string[]),
           ...errorCountsByModel.map((e) => e.model),
           ...nonSuccessCountsByModel.map((e) => e.model),

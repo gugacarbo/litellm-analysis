@@ -274,7 +274,7 @@ async function runChatCompletion(
   request: ChatCompletionsRequest,
   signal?: AbortSignal,
 ): Promise<string> {
-  if (options.provider !== "model-proxy" && options.provider !== "litellm") {
+  if (options.provider !== "model-proxy") {
     return "";
   }
 
@@ -318,8 +318,7 @@ export function createPromptfooAdapter(
   options: EvalAdapterOptions,
 ): PromptEvalAdapter {
   const provider = options.provider.trim().toLowerCase();
-  const isModelProxyProvider =
-    provider === "model-proxy" || provider === "litellm";
+  const isModelProxyProvider = provider === "model-proxy";
 
   return {
     async classify(input: ClassifyInput): Promise<ClassifyOutput> {

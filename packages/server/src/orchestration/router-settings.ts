@@ -1,6 +1,6 @@
 import { createRepositoryClient } from "@lite-llm/agents-manager";
 import {
-  getRouterSettingsWithFallback,
+  getRouterSettings,
   type ISettingsService,
   type RouterSettingsValue,
 } from "@lite-llm/model-proxy-registry-service";
@@ -50,8 +50,7 @@ export async function updateRouterAliasesInRegistry(
   const categoryKeys = Object.keys(config.categories || {});
 
   const existing =
-    (await getRouterSettingsWithFallback(settingsService)) ??
-    ({} as RouterSettingsValue);
+    (await getRouterSettings(settingsService)) ?? ({} as RouterSettingsValue);
   const merged: Record<string, unknown> = { ...existing };
   const existingAliases =
     typeof merged.model_group_alias === "object" &&

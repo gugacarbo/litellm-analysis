@@ -91,7 +91,7 @@ describe("@lite-llm/api-contracts", () => {
         spend_status: null,
         timestamp: "2024-01-01T00:00:00Z",
         status_code: 500,
-        litellm_model_name: null,
+        upstream_model_name: null,
         request_kwargs: null,
         total_tokens: null,
         prompt_tokens: null,
@@ -141,7 +141,10 @@ describe("@lite-llm/api-contracts", () => {
       };
       const modelConfig: ModelConfig = {
         modelName: "gpt-4",
-        litellmParams: { temperature: 0.7 },
+        modelRoute: {
+          modelName: "gpt-4",
+          requestOptions: { temperature: 0.7 },
+        },
       };
       const modelStats: ModelStatistics = {
         model: "gpt-4",

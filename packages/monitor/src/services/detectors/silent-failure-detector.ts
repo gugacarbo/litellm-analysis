@@ -61,7 +61,7 @@ export function detectSilentFailure(
       continue;
     }
 
-    const model = error.model ?? error.litellm_model_name ?? "unknown";
+    const model = error.model ?? error.upstream_model_name ?? "unknown";
     if (!errorsByModel.has(model)) {
       errorsByModel.set(model, []);
     }

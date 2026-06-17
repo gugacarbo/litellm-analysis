@@ -18,7 +18,7 @@ function createProxyLikeDataSource(): AnalyticsDataSource {
         error_message: "upstream timeout",
         timestamp: new Date().toISOString(),
         status_code: 504,
-        litellm_model_name: "gpt-4o",
+        upstream_model_name: "gpt-4o",
         request_kwargs: null,
         api_key: null,
         spend_status: "failed",

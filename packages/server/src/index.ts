@@ -1,6 +1,5 @@
 export {
-  applyRequiredLiteLLMParams,
-  buildLiteLLMParams,
+  buildModelRouteFromSpec,
   createOrchestrationServices,
   fromModelRoute,
   getCredentialNameFromParams,
@@ -9,11 +8,10 @@ export {
   type ModelRouteUpdate,
   parseDays,
   resolveModelCredential,
-  routeUpdateFromParams,
+  routeUpdateFromBody,
   syncGeneratedArtifacts,
   syncModelsDirectlyToDatabase,
   toCostPerToken,
-  toLitellmParamsShim,
   toModelRoute,
 } from "./orchestration/index";
 

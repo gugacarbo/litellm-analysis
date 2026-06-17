@@ -19,7 +19,7 @@ export function detectModelOffline(
 
   // Add models from recent errors
   for (const error of input.recentErrors) {
-    const model = error.model ?? error.litellm_model_name;
+    const model = error.model ?? error.upstream_model_name;
     if (model) {
       activeModels.add(model);
     }
@@ -44,7 +44,7 @@ export function detectModelOffline(
     // Check if model has 0 successful requests AND at least 1 failure in last 15 min
     const recentErrorsForModel = input.recentErrors.filter(
       (e) =>
-        (e.model ?? e.litellm_model_name) === model &&
+        (e.model ?? e.upstream_model_name) === model &&
         new Date(e.timestamp) >= lookbackTime,
     );
 

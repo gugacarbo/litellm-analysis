@@ -16,39 +16,37 @@ export {
   syncModelsDirectlyToDatabase,
 } from "./artifact-service";
 export {
-  applyRequiredLiteLLMParams,
-  buildLiteLLMParams,
-  buildMergedLiteLLMParams,
-  coerceLiteLLMParams,
-  coerceLiteLLMParamValue,
-  coerceStringParamValue,
-  isRecord,
-  parseDays,
-  toCostPerToken,
-} from "./lite-llm-params";
-export {
   fromModelProxyRow,
   fromModelRoute,
-  getCredentialNameFromParams,
   type ModelProxyRowWrite,
   type ModelRoute,
   type ModelRouteUpdate,
-  resolveModelCredential,
   toModelProxyRow,
   toModelRoute,
 } from "./model-route";
 export {
-  createRegistryModelFromParams,
+  createRegistryModelFromRoute,
   createRegistryModelFromSpec,
-  listModelsWithRegistryFirst,
+  listRegistryModels,
   listRegistryRoutes,
   mergeRegistryModelFromSpec,
-  resolveLitellmParamsFromBody,
-  routeUpdateFromParams,
-  toLegacyEntry,
-  toLitellmParamsShim,
-  updateRegistryModelFromParams,
+  resolveModelRouteFromBody,
+  routeUpdateFromBody,
+  updateRegistryModelFromRoute,
 } from "./registry-models-bridge";
+export {
+  buildModelRouteFromSpec,
+  coerceRouteParams,
+  coerceRouteParamValue,
+  coerceStringParamValue,
+  getCredentialNameFromParams,
+  isRecord,
+  mergeModelRouteFromSpec,
+  normalizeModelRoute,
+  parseDays,
+  resolveModelCredential,
+  toCostPerToken,
+} from "./route-params";
 export { updateRouterAliasesInRegistry } from "./router-settings";
 
 export function createOrchestrationServices(

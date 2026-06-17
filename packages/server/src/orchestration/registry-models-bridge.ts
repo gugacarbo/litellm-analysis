@@ -1,52 +1,42 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import {
-  fromModelRoute,
   type IRegistryModelsService,
-  listModelsWithRegistryFirst,
+  listRegistryModels,
   type ModelRoute,
   type ModelRouteUpdate,
-  toLegacyEntry,
-  toModelRoute,
+  parseModelRouteFromApi,
 } from "@lite-llm/model-proxy-registry-service";
 import type { DbModelSpecLike } from "../types/index";
 import {
-  applyRequiredLiteLLMParams,
-  buildLiteLLMParams,
-  buildMergedLiteLLMParams,
-  coerceLiteLLMParams,
+  buildModelRouteFromSpec,
   isRecord,
-} from "./lite-llm-params";
+  mergeModelRouteFromSpec,
+  normalizeModelRoute,
+} from "./route-params";
 
-export { listModelsWithRegistryFirst, toLegacyEntry };
+export { listRegistryModels };
 
-export function resolveLitellmParamsFromBody(body: {
+export function resolveModelRouteFromBody(body: {
   modelRoute?: unknown;
-  litellmParams?: unknown;
   modelName?: string;
-}): Record<string, unknown> {
-  if (body.litellmParams !== undefined) {
-    throw new Error(
-      "litellmParams is deprecated; send modelRoute instead (Batch 5)",
-    );
+}): ModelRoute {
+  if (!isRecord(body.modelRoute) || Object.keys(body.modelRoute).length === 0) {
+    throw new Error("modelRoute is required");
   }
 
-  if (isRecord(body.modelRoute) && Object.keys(body.modelRoute).length > 0) {
-    const route = {
-      ...body.modelRoute,
-      modelName:
-        typeof body.modelRoute.modelName === "string" &&
-        body.modelRoute.modelName.trim()
-          ? body.modelRoute.modelName.trim()
-          : typeof body.modelName === "string"
-            ? body.modelName.trim()
-            : "",
-    } as ModelRoute;
-    return fromModelRoute(route);
+  const modelName =
+    typeof body.modelRoute.modelName === "string" &&
+    body.modelRoute.modelName.trim()
+      ? body.modelRoute.modelName.trim()
+      : typeof body.modelName === "string"
+        ? body.modelName.trim()
+        : "";
+
+  if (!modelName) {
+    throw new Error("modelName is required");
   }
 
-  return coerceLiteLLMParams(
-    isRecord(body.litellmParams) ? body.litellmParams : {},
-  );
+  return parseModelRouteFromApi(body.modelRoute, modelName);
 }
 
 export async function createRegistryModelFromSpec(
@@ -54,10 +44,8 @@ export async function createRegistryModelFromSpec(
   modelName: string,
   spec: DbModelSpecLike,
   credentialName: string | null,
-  existingParams: Record<string, unknown> = {},
 ): Promise<void> {
-  const litellmParams = buildLiteLLMParams(modelName, spec, credentialName);
-  const route = toModelRoute(litellmParams, modelName);
+  const route = buildModelRouteFromSpec(modelName, spec, credentialName);
   await registryModelsService.upsert(modelName, route);
 }
 
@@ -66,80 +54,61 @@ export async function mergeRegistryModelFromSpec(
   modelName: string,
   spec: DbModelSpecLike,
   credentialName: string | null,
-  existingParams: Record<string, unknown> = {},
+  existingRoute: ModelRoute,
 ): Promise<void> {
-  const litellmParams = buildMergedLiteLLMParams(
+  const route = mergeModelRouteFromSpec(
     modelName,
     spec,
-    existingParams,
+    existingRoute,
     credentialName,
   );
-  const route = toModelRoute(litellmParams, modelName);
   await registryModelsService.upsert(modelName, route);
 }
 
-export async function createRegistryModelFromParams(
+export async function createRegistryModelFromRoute(
   registryModelsService: IRegistryModelsService,
   modelName: string,
-  litellmParams: Record<string, unknown>,
+  route: ModelRoute,
   credentialName: string | null,
 ): Promise<void> {
-  const normalized = applyRequiredLiteLLMParams(
-    modelName,
-    litellmParams,
-    credentialName,
-  );
-  const route = toModelRoute(normalized, modelName);
-  await registryModelsService.create(modelName, route);
+  const normalized = normalizeModelRoute(modelName, route, credentialName);
+  await registryModelsService.create(modelName, normalized);
 }
 
-export async function updateRegistryModelFromParams(
+export async function updateRegistryModelFromRoute(
   registryModelsService: IRegistryModelsService,
   modelName: string,
-  litellmParams: Record<string, unknown>,
+  route: ModelRoute,
   credentialName: string | null,
   newModelName?: string,
 ): Promise<void> {
-  const normalized = applyRequiredLiteLLMParams(
-    newModelName ?? modelName,
-    litellmParams,
-    credentialName,
-  );
-  const route = toModelRoute(normalized, newModelName ?? modelName);
+  const targetName = newModelName ?? modelName;
+  const normalized = normalizeModelRoute(targetName, route, credentialName);
 
   if (newModelName && newModelName !== modelName) {
-    await registryModelsService.create(newModelName, route);
+    await registryModelsService.create(newModelName, normalized);
     await registryModelsService.delete(modelName);
     return;
   }
 
   try {
-    await registryModelsService.update(modelName, route);
+    await registryModelsService.update(modelName, normalized);
   } catch {
-    await registryModelsService.create(modelName, route);
+    await registryModelsService.create(modelName, normalized);
   }
 }
 
-export function routeUpdateFromParams(
-  litellmParams: Record<string, unknown>,
+export function routeUpdateFromBody(
+  route: Record<string, unknown>,
   modelName: string,
 ): ModelRouteUpdate {
-  return toModelRoute(litellmParams, modelName);
+  return parseModelRouteFromApi(route, modelName);
 }
 
 export async function listRegistryRoutes(
   registryModelsService: IRegistryModelsService,
-  dataSource: AnalyticsDataSource,
+  _dataSource: AnalyticsDataSource,
 ): Promise<ModelRoute[]> {
-  const models = await listModelsWithRegistryFirst(
-    registryModelsService,
-    dataSource,
-  );
+  const models = await listRegistryModels(registryModelsService);
   return models.map((model) => model.modelRoute);
-}
-
-export function toLitellmParamsShim(
-  route: ModelRoute,
-): Record<string, unknown> {
-  return fromModelRoute(route);
 }

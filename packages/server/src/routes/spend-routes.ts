@@ -1,5 +1,5 @@
 import type { Application, Request } from "express";
-import { parseDays } from "../orchestration/lite-llm-params";
+import { parseDays } from "../orchestration/route-params";
 import type { RouteOptions } from "../types/index";
 
 type TimeRangeParams = {

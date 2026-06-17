@@ -1,6 +1,5 @@
 import {
-  fromModelRoute,
-  getDefaultCredentialWithFallback,
+  getDefaultCredential,
   type IRegistryModelsService,
   type ISettingsService,
 } from "@lite-llm/model-proxy-registry-service";
@@ -16,8 +15,7 @@ export async function syncModelsDirectlyToDatabase(
   settingsService: ISettingsService,
   models: Record<string, DbModelSpecLike>,
 ): Promise<void> {
-  const credentialName =
-    await getDefaultCredentialWithFallback(settingsService);
+  const credentialName = await getDefaultCredential(settingsService);
   const desiredEntries = Object.entries(models || {});
   const desiredNames = new Set(desiredEntries.map(([name]) => name));
   const existing = await registryModelsService.list();
@@ -51,22 +49,16 @@ export async function syncModelsDirectlyToDatabase(
     existingCounts.delete(modelName);
   }
 
-  const existingByName = new Map<string, Record<string, unknown>>();
-  for (const item of existing) {
-    const route = await registryModelsService.getRoute(item.modelName);
-    existingByName.set(item.modelName, route ? fromModelRoute(route) : {});
-  }
-
   for (const [modelName, spec] of desiredEntries) {
-    const existingParams = existingByName.get(modelName) ?? {};
+    const existingRoute = await registryModelsService.getRoute(modelName);
 
-    if (existingCounts.has(modelName)) {
+    if (existingRoute) {
       await mergeRegistryModelFromSpec(
         registryModelsService,
         modelName,
         spec,
         credentialName,
-        existingParams,
+        existingRoute,
       );
       continue;
     }
@@ -76,7 +68,6 @@ export async function syncModelsDirectlyToDatabase(
       modelName,
       spec,
       credentialName,
-      existingParams,
     );
     existingCounts.set(modelName, 1);
   }
@@ -84,15 +75,6 @@ export async function syncModelsDirectlyToDatabase(
 
 /**
  * Syncs generated artifact files (configs, provider models) to disk.
- *
- * Only built-in plugins (those registered automatically by createAgentPluginsOrchestrator,
- * currently OpenCodePlugin) are exported by default. External plugins such as
- * OpenAgentPlugin or VsCodePlugin must be explicitly registered on the registry
- * instance before calling this function (or before exportAll()) to be included
- * in the output.
- *
- * This means only intentionally enabled plugins produce output files — no plugin
- * is exported unless it has been registered via registry.register().
  */
 export async function syncGeneratedArtifacts(
   registryModelsService: IRegistryModelsService,

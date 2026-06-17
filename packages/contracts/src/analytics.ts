@@ -77,7 +77,7 @@ export interface SpendLogWithError extends SpendLog {
   error_status_code?: number;
   error_exception_string?: string;
   request_kwargs?: Record<string, unknown>;
-  litellm_model_name?: string;
+  upstream_model_name?: string;
 }
 
 export interface UserSpend {
@@ -114,7 +114,7 @@ export interface ModelDetail {
 
 export interface ModelConfig {
   modelName: string;
-  litellmParams: Record<string, unknown>;
+  modelRoute: Record<string, unknown>;
 }
 
 export interface ModelStatistics {
@@ -149,7 +149,7 @@ export interface ErrorLog {
   spend_status: string | null;
   timestamp: string;
   status_code: number;
-  litellm_model_name: string | null;
+  upstream_model_name: string | null;
   request_kwargs: Record<string, unknown> | null;
   total_tokens: number | null;
   prompt_tokens: number | null;
