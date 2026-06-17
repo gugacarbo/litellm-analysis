@@ -47,6 +47,9 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
+      '@lite-llm/model-proxy-registry-service':
+        specifier: workspace:*
+        version: link:services/model-proxy-registry-service
       ajv-cli:
         specifier: ^5.0.0
         version: 5.0.0
@@ -598,9 +601,15 @@ importers:
       '@lite-llm/agents-manager':
         specifier: workspace:*
         version: link:../../packages/agents-manager
+      '@lite-llm/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@lite-llm/litellm-repository':
         specifier: workspace:*
         version: link:../../repositories/litellm-repository
+      '@lite-llm/model-proxy-repository':
+        specifier: workspace:*
+        version: link:../../repositories/model-proxy-repository
       '@lite-llm/models-service':
         specifier: workspace:*
         version: link:../models-service
@@ -611,6 +620,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
   services/model-proxy-registry-service:
     dependencies:
@@ -623,6 +635,9 @@ importers:
       '@lite-llm/model-proxy-repository':
         specifier: workspace:*
         version: link:../../repositories/model-proxy-repository
+      '@lite-llm/model-proxy-service':
+        specifier: workspace:*
+        version: link:../model-proxy-service
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.3

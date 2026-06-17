@@ -12,22 +12,18 @@
  * Etapas:
  *   1. fetch  → baixa spend logs do LiteLLM cloud via API REST e salva como JSON
  *   2. review → (manual) veja o JSON gerado, confira os dados
- *   3. import  → lê o JSON e insere no PostgreSQL local
+ *   3. import  → lê o JSON e grava em model_proxy_requests via legacy spend adapter
  *
  * Variáveis de ambiente:
- *   LITELLM_CLOUD_URL       (obrigatório no fetch) URL base do LiteLLM cloud
- *   LITELLM_CLOUD_API_KEY   (obrigatório no fetch) API key do LiteLLM cloud
- *   DB_PASSWORD             (obrigatório no import) senha do PostgreSQL local
- *   DB_HOST                 (default: localhost)
- *   DB_PORT                 (default: 5432)
- *   DB_NAME                 (default: litellm)
- *   DB_USER                 (default: llmproxy)
+ *   LITELLM_CLOUD_URL        (obrigatório no fetch) URL base do LiteLLM cloud
+ *   LITELLM_CLOUD_API_KEY    (obrigatório no fetch) API key do LiteLLM cloud
+ *   MODEL_PROXY_DATABASE_URL (obrigatório no import) PostgreSQL model_proxy_*
  */
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Client } from "pg";
+import { importCloudSpendLogs } from "@lite-llm/model-proxy-registry-service";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..", "..");
@@ -65,18 +61,18 @@ COMANDOS:
     Exemplo:
       pnpm tsx scripts/sync-cloud-litellm/index.ts stats @storage/output/cloud-sync/spend-logs.json
 
-  import <arquivo>
-    Importa o JSON para o PostgreSQL local usando a tabela LiteLLM_SpendLogs.
+  import <arquivo> [opções]
+    Importa o JSON para model_proxy_requests (MODEL_PROXY_DATABASE_URL).
+
+    Opções:
+      --dry-run   Simula import sem gravar
+      --force     Atualiza rows já importadas
 
     Env:
-      DB_PASSWORD   (obrigatório)
-      DB_HOST       (default: localhost)
-      DB_PORT       (default: 5432)
-      DB_NAME       (default: litellm)
-      DB_USER       (default: llmproxy)
+      MODEL_PROXY_DATABASE_URL  (obrigatório)
 
     Exemplo:
-      DB_PASSWORD=minha-senha \
+      MODEL_PROXY_DATABASE_URL=postgresql://... \
         pnpm tsx scripts/sync-cloud-litellm/index.ts import @storage/output/cloud-sync/spend-logs.json
 `);
 }
@@ -337,31 +333,50 @@ async function cmdStats(args: string[]): Promise<void> {
 
 // ─── Import ──────────────────────────────────────────────────────────────────
 
-interface DbConfig {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
+interface ImportOptions {
+  dryRun: boolean;
+  force: boolean;
 }
 
-function getDbConfig(): DbConfig {
-  const host = process.env.DB_HOST ?? "localhost";
-  const port = Number.parseInt(process.env.DB_PORT ?? "5432", 10);
-  const user = process.env.DB_USER ?? "llmproxy";
-  const database = process.env.DB_NAME ?? "litellm";
-  const password = process.env.DB_PASSWORD;
+function parseImportOptions(args: string[]): {
+  file: string;
+  options: ImportOptions;
+} {
+  let dryRun = false;
+  let force = false;
+  const positional: string[] = [];
 
-  if (!password) {
-    console.error("ERRO: DB_PASSWORD não definida");
+  for (const arg of args) {
+    if (arg === "--dry-run") {
+      dryRun = true;
+      continue;
+    }
+    if (arg === "--force") {
+      force = true;
+      continue;
+    }
+    positional.push(arg);
+  }
+
+  const file = positional[0];
+  if (!file) {
+    console.error("Uso: import <arquivo> [--dry-run] [--force]");
     process.exit(1);
   }
 
-  return { host, port, user, password, database };
+  return {
+    file,
+    options: { dryRun, force },
+  };
 }
 
 async function cmdImport(args: string[]): Promise<void> {
-  const file = getRequiredFileArg(args, "import");
+  if (!process.env.MODEL_PROXY_DATABASE_URL?.trim()) {
+    console.error("ERRO: MODEL_PROXY_DATABASE_URL não definida");
+    process.exit(1);
+  }
+
+  const { file, options } = parseImportOptions(args);
   const absoluteFile = path.resolve(ROOT, file);
   const raw = await readFile(absoluteFile, "utf-8");
   const parsed = JSON.parse(raw) as SpendLogFile;
@@ -375,93 +390,31 @@ async function cmdImport(args: string[]): Promise<void> {
     return;
   }
 
-  const db = getDbConfig();
-  const client = new Client(db);
-  await client.connect();
+  const summary = await importCloudSpendLogs(
+    logs as Record<string, unknown>[],
+    {
+      dryRun: options.dryRun,
+      force: options.force,
+      source: "cloud-sync",
+    },
+  );
 
-  try {
-    await client.query("BEGIN");
+  console.log(
+    `\n✅  Import finalizado. imported=${summary.imported} skipped=${summary.skipped} errors=${summary.errors}`,
+  );
 
-    let imported = 0;
-    for (const rawLog of logs) {
-      const log = rawLog as Record<string, unknown>;
-      const requestId = String(log.request_id ?? "");
-      if (!requestId) {
-        continue;
-      }
-
-      await client.query(
-        `
-          INSERT INTO "LiteLLM_SpendLogs" (
-            "request_id", "call_type", "api_key", "spend", "total_tokens",
-            "prompt_tokens", "completion_tokens", "startTime", "endTime",
-            "request_duration_ms", "completionStartTime", "model", "model_id",
-            "model_group", "custom_llm_provider", "api_base", "user",
-            "metadata", "cache_hit", "cache_key", "request_tags", "team_id",
-            "organization_id", "end_user", "requester_ip_address", "messages",
-            "response", "session_id", "status", "mcp_namespaced_tool_name",
-            "agent_id", "proxy_server_request"
-          ) VALUES (
-            $1, $2, $3, $4, $5,
-            $6, $7, $8, $9,
-            $10, $11, $12, $13,
-            $14, $15, $16, $17,
-            $18, $19, $20, $21, $22,
-            $23, $24, $25, $26,
-            $27, $28, $29, $30,
-            $31, $32
-          )
-          ON CONFLICT ("request_id") DO NOTHING
-        `,
-        [
-          requestId,
-          String(log.call_type ?? ""),
-          String(log.api_key ?? ""),
-          Number(log.spend ?? 0),
-          Number(log.total_tokens ?? 0),
-          Number(log.prompt_tokens ?? 0),
-          Number(log.completion_tokens ?? 0),
-          toDate(log.startTime) ?? new Date(0),
-          toDate(log.endTime) ?? new Date(0),
-          toIntOrNull(log.request_duration_ms),
-          toDate(log.completionStartTime),
-          String(log.model ?? ""),
-          toStringOrNull(log.model_id),
-          toStringOrNull(log.model_group),
-          toStringOrNull(log.custom_llm_provider),
-          toStringOrNull(log.api_base),
-          toStringOrNull(log.user),
-          toJsonValue(log.metadata, "{}"),
-          toStringOrNull(log.cache_hit),
-          toStringOrNull(log.cache_key),
-          toJsonValue(log.request_tags, "[]"),
-          toStringOrNull(log.team_id),
-          toStringOrNull(log.organization_id),
-          toStringOrNull(log.end_user),
-          toStringOrNull(log.requester_ip_address),
-          toJsonValue(log.messages, "{}"),
-          toJsonValue(log.response, "{}"),
-          toStringOrNull(log.session_id),
-          toStringOrNull(log.status),
-          toStringOrNull(log.mcp_namespaced_tool_name),
-          toStringOrNull(log.agent_id),
-          toJsonValue(log.proxy_server_request, "{}"),
-        ],
-      );
-
-      imported += 1;
-      if (imported % 500 === 0) {
-        console.log(`   ✅  ${imported}/${logs.length} processados`);
-      }
+  if (summary.warnings.length > 0) {
+    console.log("\nWarnings:");
+    for (const warning of summary.warnings.slice(0, 20)) {
+      console.log(`  - ${warning}`);
     }
+    if (summary.warnings.length > 20) {
+      console.log(`  ... +${summary.warnings.length - 20} more`);
+    }
+  }
 
-    await client.query("COMMIT");
-    console.log(`✅  Import finalizado. Registros processados: ${imported}`);
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    await client.end();
+  if (summary.errors > 0) {
+    process.exit(1);
   }
 }
 
@@ -472,39 +425,6 @@ function getRequiredFileArg(args: string[], command: string): string {
     process.exit(1);
   }
   return file;
-}
-
-function toStringOrNull(value: unknown): string | null {
-  if (typeof value === "string") {
-    return value;
-  }
-  if (value === null || value === undefined) {
-    return null;
-  }
-  return String(value);
-}
-
-function toIntOrNull(value: unknown): number | null {
-  if (value === null || value === undefined || value === "") {
-    return null;
-  }
-  const number = Number(value);
-  return Number.isFinite(number) ? Math.trunc(number) : null;
-}
-
-function toDate(value: unknown): Date | null {
-  if (typeof value !== "string" || value.length === 0) {
-    return null;
-  }
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function toJsonValue(value: unknown, fallback: string): unknown {
-  if (value === null || value === undefined) {
-    return JSON.parse(fallback);
-  }
-  return value;
 }
 
 main().catch((error: unknown) => {

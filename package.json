@@ -21,10 +21,13 @@
     "generate:plugin-configs": "tsx scripts/src/generate-plugin-configs/index.ts",
     "backup": "pnpm --filter @lite-llm/scripts backup",
     "backup:list": "ls -lh backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
-    "model-proxy:import-legacy": "pnpm --filter @lite-llm/model-proxy-registry-service import:legacy"
+    "model-proxy:import-legacy": "pnpm --filter @lite-llm/model-proxy-registry-service import:legacy",
+    "model-proxy:import-history": "pnpm --filter @lite-llm/model-proxy-registry-service import:history",
+    "analytics:compare-sources": "tsx scripts/src/compare-analytics-sources/index.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@lite-llm/model-proxy-registry-service": "workspace:*",
     "ajv-cli": "^5.0.0",
     "husky": "^9.1.7",
     "knip": "^6.6.2",
