@@ -35,6 +35,8 @@ function prismaModelToRoute(row: ModelProxyModel) {
       row.requestOptions === null
         ? null
         : (row.requestOptions as Record<string, unknown>),
+    metadata:
+      row.metadata === null ? null : (row.metadata as Record<string, unknown>),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   });
@@ -60,6 +62,10 @@ function routeToCreateData(route: ReturnType<typeof prismaModelToRoute>) {
     requestOptions:
       route.requestOptions !== undefined
         ? (route.requestOptions as Prisma.InputJsonValue)
+        : undefined,
+    metadata:
+      route.metadata !== undefined
+        ? (route.metadata as Prisma.InputJsonValue)
         : undefined,
   };
 }
