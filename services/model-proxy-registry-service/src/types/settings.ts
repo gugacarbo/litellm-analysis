@@ -1,6 +1,7 @@
 export const SETTING_KEYS = {
   DEFAULT_CREDENTIAL: "default_credential",
   HEALTH_CHECK_PROMPT: "health_check_prompt",
+  OPENAI_OAUTH_CONNECTION: "openai_oauth_connection",
   ROUTER_SETTINGS: "router_settings",
   DASHBOARD_AGENTS: "dashboard.agents",
   DASHBOARD_PLUGINS: "dashboard.plugins",

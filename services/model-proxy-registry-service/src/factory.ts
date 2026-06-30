@@ -11,6 +11,10 @@ import {
   type ICredentialsService,
 } from "./services/credentials.service.js";
 import {
+  type IOpenAiOAuthService,
+  OpenAiOAuthService,
+} from "./services/openai-oauth.service.js";
+import {
   type IRegistryModelsService,
   RegistryModelsService,
 } from "./services/registry-models.service.js";
@@ -25,6 +29,7 @@ export interface RegistryServices {
   registryModelsService: IRegistryModelsService;
   credentialsService: ICredentialsService;
   apiKeysService: IApiKeysService;
+  openAiOAuthService: IOpenAiOAuthService;
 }
 
 export interface CreateRegistryServicesOptions {
@@ -42,5 +47,6 @@ export function createRegistryServices(
     registryModelsService: new RegistryModelsService({ prisma }),
     credentialsService: new CredentialsService({ prisma }),
     apiKeysService: new ApiKeysService({ prisma }),
+    openAiOAuthService: new OpenAiOAuthService({ prisma }),
   };
 }

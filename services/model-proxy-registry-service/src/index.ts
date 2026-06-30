@@ -39,6 +39,11 @@ export {
   type ICredentialsService,
 } from "./services/credentials.service.js";
 export {
+  type IOpenAiOAuthService,
+  OpenAiOAuthService,
+  type OpenAiOAuthServiceOptions,
+} from "./services/openai-oauth.service.js";
+export {
   type IRegistryModelsService,
   RegistryModelsService,
   type RegistryModelsServiceOptions,
@@ -58,3 +63,13 @@ export {
   ROUTE_PARAM_TO_MODEL_ROUTE,
   SETTING_KEYS,
 } from "./types/index.js";
+export type * from "./types/openai-oauth.js";
+export {
+  OPENAI_CHATGPT_API_BASE,
+  OPENAI_CHATGPT_AUTH_BASE,
+  OPENAI_CHATGPT_CLIENT_ID,
+  OPENAI_CHATGPT_DEVICE_CODE_URL,
+  OPENAI_CHATGPT_DEVICE_TOKEN_URL,
+  OPENAI_CHATGPT_DEVICE_VERIFY_URL,
+  OPENAI_CHATGPT_OAUTH_TOKEN_URL,
+} from "./types/openai-oauth.js";

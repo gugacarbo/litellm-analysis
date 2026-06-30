@@ -199,6 +199,7 @@ describe("model-route-adapter", () => {
         credentialName: "openai-main",
         secretRef: "OPENAI_MAIN_API_KEY",
         requestOptions: { temperature: 0.2 },
+        metadata: null,
         createdAt: now,
         updatedAt: now,
       };
