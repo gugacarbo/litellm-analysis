@@ -19,6 +19,10 @@ import {
   updateModel,
   updateModelProvider,
 } from "@/shared/lib/api-client";
+import type {
+  OpenAiOAuthConnectionStatus,
+  OpenAiOAuthDeviceCodeStartResult,
+} from "@/shared/lib/api-client/credentials";
 import { validateAndBuildModelRoute } from "./models-form-utils";
 import { useLatestHealthChecks } from "./use-latest-health-checks";
 import { useModelsFormState } from "./use-models-form-state";
@@ -58,8 +62,19 @@ export function useModelsPage() {
     queryFn: () => getModelProvider("local-proxy"),
   });
 
+  const openAiOAuthQuery = useQuery({
+    queryKey: ["openai-oauth-connection"],
+    queryFn: () =>
+      import("@/shared/lib/api-client/credentials").then((m) =>
+        m.getOpenAiOAuthConnectionStatus(),
+      ),
+  });
+
   const [providerDefaultCredential, setProviderDefaultCredential] =
     useState("");
+  const [oauthDeviceFlow, setOauthDeviceFlow] =
+    useState<OpenAiOAuthDeviceCodeStartResult | null>(null);
+  const [oauthError, setOauthError] = useState<string | null>(null);
 
   const updateProviderMutation = useMutation({
     mutationFn: (defaultCredential: string) =>
@@ -73,6 +88,32 @@ export function useModelsPage() {
       });
       await queryClient.invalidateQueries({
         queryKey: ["models-default-settings-diff"],
+      });
+    },
+  });
+
+  const startOpenAiOAuthMutation = useMutation({
+    mutationFn: () =>
+      import("@/shared/lib/api-client/credentials").then((m) =>
+        m.startOpenAiOAuthDeviceFlow(),
+      ),
+  });
+
+  const pollOpenAiOAuthMutation = useMutation({
+    mutationFn: (input: { deviceAuthId: string; userCode: string }) =>
+      import("@/shared/lib/api-client/credentials").then((m) =>
+        m.pollOpenAiOAuthDeviceFlow(input),
+      ),
+  });
+
+  const disconnectOpenAiOAuthMutation = useMutation({
+    mutationFn: () =>
+      import("@/shared/lib/api-client/credentials").then((m) =>
+        m.disconnectOpenAiOAuth(),
+      ),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["openai-oauth-connection"],
       });
     },
   });
@@ -175,6 +216,43 @@ export function useModelsPage() {
     if (!providerQuery.data) return;
     setProviderDefaultCredential(providerQuery.data.defaultCredential);
   }, [providerQuery.data]);
+
+  useEffect(() => {
+    if (!oauthDeviceFlow) {
+      return;
+    }
+
+    const expiresAt = new Date(oauthDeviceFlow.expiresAt).getTime();
+    if (Number.isFinite(expiresAt) && expiresAt <= Date.now()) {
+      setOauthDeviceFlow(null);
+      setOauthError("O código expirou. Gere um novo para continuar.");
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const result = await pollOpenAiOAuthMutation.mutateAsync({
+            deviceAuthId: oauthDeviceFlow.deviceAuthId,
+            userCode: oauthDeviceFlow.userCode,
+          });
+
+          if (result.status === "approved") {
+            setOauthDeviceFlow(null);
+            setOauthError(null);
+            await queryClient.invalidateQueries({
+              queryKey: ["openai-oauth-connection"],
+            });
+          }
+        } catch (error) {
+          setOauthError(String(error));
+          setOauthDeviceFlow(null);
+        }
+      })();
+    }, Math.max(oauthDeviceFlow.intervalSeconds, 2) * 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [oauthDeviceFlow, pollOpenAiOAuthMutation, queryClient]);
 
   async function handleSubmit() {
     setFormError(null);
@@ -333,9 +411,46 @@ export function useModelsPage() {
         ? String(updateProviderMutation.error)
         : null,
     providerDefaultCredential,
+    openAiOAuthConnection:
+      openAiOAuthQuery.data ??
+      ({
+        connected: false,
+        accountId: null,
+        expiresAt: null,
+        baseUrl: "",
+      } satisfies OpenAiOAuthConnectionStatus),
+    openAiOAuthPending: !!oauthDeviceFlow,
+    openAiOAuthDeviceFlow: oauthDeviceFlow,
+    openAiOAuthLoading: openAiOAuthQuery.isLoading,
+    openAiOAuthBusy:
+      startOpenAiOAuthMutation.isPending ||
+      pollOpenAiOAuthMutation.isPending ||
+      disconnectOpenAiOAuthMutation.isPending,
+    openAiOAuthError:
+      oauthError ??
+      (openAiOAuthQuery.error
+        ? String(openAiOAuthQuery.error)
+        : startOpenAiOAuthMutation.error
+          ? String(startOpenAiOAuthMutation.error)
+          : disconnectOpenAiOAuthMutation.error
+            ? String(disconnectOpenAiOAuthMutation.error)
+            : null),
     handleProviderDefaultCredentialChange: async (value: string) => {
       setProviderDefaultCredential(value);
       await updateProviderMutation.mutateAsync(value);
+    },
+    handleStartOpenAiOAuth: async () => {
+      setOauthError(null);
+      const flow = await startOpenAiOAuthMutation.mutateAsync();
+      setOauthDeviceFlow(flow);
+    },
+    handleCancelOpenAiOAuth: () => {
+      setOauthDeviceFlow(null);
+    },
+    handleDisconnectOpenAiOAuth: async () => {
+      setOauthError(null);
+      await disconnectOpenAiOAuthMutation.mutateAsync();
+      setOauthDeviceFlow(null);
     },
     handleAddToConfig: (modelName: string) =>
       addToConfigMutation.mutateAsync(modelName),
@@ -375,7 +490,7 @@ export function useModelsPage() {
       }
     },
     models: modelsQuery.data?.models ?? [],
-    settingsStorage: modelsQuery.data?.settingsStorage ?? "file",
+    settingsStorage: "database" as const,
     healthChecksByModel: checksByModel,
     getHealthCheck: getCheck,
     healthChecksQuery,

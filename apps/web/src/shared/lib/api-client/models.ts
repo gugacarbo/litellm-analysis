@@ -256,15 +256,12 @@ export function normalizeModelsWithConfigResponse(
         .map((model) => normalizeModelWithStatus(model))
     : [];
 
-  const settingsStorage =
-    raw.settingsStorage === "database" ? "database" : "file";
-
   return {
     models,
     counts: isRecord(raw.counts)
       ? normalizeModelsCounts(raw.counts)
       : { synced: 0, configOnly: 0, registryOnly: 0, total: 0 },
-    settingsStorage,
+    settingsStorage: "database",
   };
 }
 

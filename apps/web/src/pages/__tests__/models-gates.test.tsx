@@ -69,6 +69,7 @@ vi.mock("@/shared/lib/api-client", () => {
     syncDefaultSettings: vi.fn().mockResolvedValue({ success: true }),
     toggleModelEnabled: vi.fn().mockResolvedValue({ success: true }),
     updateModelProvider: vi.fn().mockResolvedValue({ success: true }),
+    exportConsumerConfigs: vi.fn().mockResolvedValue({ success: true }),
     getAgentRoutingConfig: vi.fn().mockResolvedValue({}),
     getAgentDefinitions: vi.fn().mockResolvedValue({
       agents: [],

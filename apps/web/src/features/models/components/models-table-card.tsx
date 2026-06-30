@@ -75,7 +75,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-import type { RegistryCredential } from "@/shared/lib/api-client/credentials";
+import type {
+  OpenAiOAuthConnectionStatus,
+  OpenAiOAuthDeviceCodeStartResult,
+  RegistryCredential,
+} from "@/shared/lib/api-client/credentials";
 import type {
   ModelConfig,
   ModelSyncDiffItem,
@@ -155,6 +159,15 @@ type ModelsTableCardProps = {
   providerSaving: boolean;
   providerDefaultCredential: string | null;
   onProviderDefaultCredentialChange: (value: string) => void;
+  openAiOAuthConnection: OpenAiOAuthConnectionStatus;
+  openAiOAuthPending: boolean;
+  openAiOAuthDeviceFlow: OpenAiOAuthDeviceCodeStartResult | null;
+  openAiOAuthLoading: boolean;
+  openAiOAuthBusy: boolean;
+  openAiOAuthError: string | null;
+  onStartOpenAiOAuth: () => void;
+  onCancelOpenAiOAuth: () => void;
+  onDisconnectOpenAiOAuth: () => void;
   defaultSettingsDriftCount: number;
   defaultSettingsMismatchedModels: string[];
   defaultSettingsLoading: boolean;
@@ -206,6 +219,15 @@ export function ModelsTableCard({
   providerSaving,
   providerDefaultCredential,
   onProviderDefaultCredentialChange,
+  openAiOAuthConnection,
+  openAiOAuthPending,
+  openAiOAuthDeviceFlow,
+  openAiOAuthLoading,
+  openAiOAuthBusy,
+  openAiOAuthError,
+  onStartOpenAiOAuth,
+  onCancelOpenAiOAuth,
+  onDisconnectOpenAiOAuth,
   defaultSettingsDriftCount,
   defaultSettingsMismatchedModels,
   defaultSettingsLoading,
@@ -375,6 +397,107 @@ export function ModelsTableCard({
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">OpenAI OAuth</p>
+                  <div className="rounded-md border p-3 text-sm">
+                    {openAiOAuthLoading ? (
+                      <p className="text-muted-foreground">
+                        Carregando status…
+                      </p>
+                    ) : openAiOAuthConnection.connected ? (
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="success">Connected</Badge>
+                          {openAiOAuthConnection.accountId ? (
+                            <span className="font-mono text-xs">
+                              {openAiOAuthConnection.accountId}
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Use `ownedBy` ou `family` ={" "}
+                          <span className="font-mono">
+                            chatgpt-subscription
+                          </span>{" "}
+                          para rotear um modelo pelo plano Codex via
+                          `/v1/responses`.
+                        </p>
+                        {openAiOAuthConnection.expiresAt ? (
+                          <p className="text-xs text-muted-foreground">
+                            Expira em{" "}
+                            {new Date(
+                              openAiOAuthConnection.expiresAt,
+                            ).toLocaleString()}
+                          </p>
+                        ) : null}
+                        <div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={onDisconnectOpenAiOAuth}
+                            disabled={openAiOAuthBusy}
+                          >
+                            Desconectar
+                          </Button>
+                        </div>
+                      </div>
+                    ) : openAiOAuthPending && openAiOAuthDeviceFlow ? (
+                      <div className="space-y-2">
+                        <p>
+                          Abra{" "}
+                          <a
+                            href={openAiOAuthDeviceFlow.verificationUri}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline"
+                          >
+                            {openAiOAuthDeviceFlow.verificationUri}
+                          </a>{" "}
+                          e informe o código:
+                        </p>
+                        <div className="rounded bg-muted px-3 py-2 font-mono text-lg tracking-[0.25em]">
+                          {openAiOAuthDeviceFlow.userCode}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Verificando automaticamente até{" "}
+                          {new Date(
+                            openAiOAuthDeviceFlow.expiresAt,
+                          ).toLocaleString()}
+                          .
+                        </p>
+                        <div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={onCancelOpenAiOAuth}
+                            disabled={openAiOAuthBusy}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-muted-foreground">
+                          Conecte uma conta OpenAI/ChatGPT para rotear modelos
+                          pelo plano Codex usando `/v1/responses`.
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={onStartOpenAiOAuth}
+                          disabled={openAiOAuthBusy}
+                        >
+                          Conectar com OpenAI
+                        </Button>
+                      </div>
+                    )}
+                    {openAiOAuthError ? (
+                      <p className="mt-2 text-xs text-destructive">
+                        {openAiOAuthError}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Default credential</p>
                   <Select

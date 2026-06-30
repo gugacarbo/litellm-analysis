@@ -153,6 +153,10 @@ function GlobalSettingsSection({
               }
               placeholder="e.g., atplus"
             />
+            <p className="text-xs text-muted-foreground">
+              Use <span className="font-mono">chatgpt-subscription</span> para
+              rotear via OpenAI OAuth/Codex plan.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="api-mode" className="text-sm font-medium">

@@ -13,7 +13,6 @@ export function ModelsConfiguredPage() {
     formError,
     formLoading,
     models,
-    settingsStorage,
     healthChecksByModel,
     getHealthCheck,
     modelsQuery,
@@ -47,6 +46,15 @@ export function ModelsConfiguredPage() {
     providerSaving,
     providerDefaultCredential,
     handleProviderDefaultCredentialChange,
+    openAiOAuthConnection,
+    openAiOAuthPending,
+    openAiOAuthDeviceFlow,
+    openAiOAuthLoading,
+    openAiOAuthBusy,
+    openAiOAuthError,
+    handleStartOpenAiOAuth,
+    handleCancelOpenAiOAuth,
+    handleDisconnectOpenAiOAuth,
     defaultSettingsDriftCount,
     defaultSettingsMismatchedModels,
     defaultSettingsLoading,
@@ -78,7 +86,7 @@ export function ModelsConfiguredPage() {
         onAddToConfig={handleAddToConfig}
         onToggleEnabled={handleToggleEnabled}
         counts={counts}
-        settingsStorage={settingsStorage}
+        settingsStorage={"database"}
         syncing={syncing}
         exportingConfigs={exportingConfigs}
         onExportConfigs={() => {
@@ -118,6 +126,19 @@ export function ModelsConfiguredPage() {
         onProviderDefaultCredentialChange={
           handleProviderDefaultCredentialChange
         }
+        openAiOAuthConnection={openAiOAuthConnection}
+        openAiOAuthPending={openAiOAuthPending}
+        openAiOAuthDeviceFlow={openAiOAuthDeviceFlow}
+        openAiOAuthLoading={openAiOAuthLoading}
+        openAiOAuthBusy={openAiOAuthBusy}
+        openAiOAuthError={openAiOAuthError}
+        onStartOpenAiOAuth={() => {
+          void handleStartOpenAiOAuth();
+        }}
+        onCancelOpenAiOAuth={handleCancelOpenAiOAuth}
+        onDisconnectOpenAiOAuth={() => {
+          void handleDisconnectOpenAiOAuth();
+        }}
         defaultSettingsDriftCount={defaultSettingsDriftCount}
         defaultSettingsMismatchedModels={defaultSettingsMismatchedModels}
         defaultSettingsLoading={defaultSettingsLoading}
