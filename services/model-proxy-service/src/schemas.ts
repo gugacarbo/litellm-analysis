@@ -58,6 +58,5 @@ export type ChatCompletionsRequest = z.infer<
   typeof chatCompletionsRequestSchema
 >;
 export type ResponsesRequest = z.infer<typeof responsesRequestSchema>;
-export type ChatMessage = z.infer<typeof chatMessageSchema>;
 export type ModelListEntry = z.infer<typeof modelListEntrySchema>;
 export type ModelListResponse = z.infer<typeof modelListResponseSchema>;

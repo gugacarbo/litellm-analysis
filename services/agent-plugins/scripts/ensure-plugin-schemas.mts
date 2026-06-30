@@ -1,4 +1,4 @@
-import { generatePluginSchemasFromManifests } from "./generate-plugin-schemas.mjs";
+import { ensurePluginSchemas } from "../src/lib/ensure-plugin-schemas";
 
-await generatePluginSchemasFromManifests({ skipUpToDate: true });
+await ensurePluginSchemas();
 console.log("[agent-plugins] plugin schemas ensured");

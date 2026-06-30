@@ -13,7 +13,7 @@ import type { NormalizedThread } from "@/shared/types/automatic-interaction-thre
 
 const noopOnNew = async () => {};
 
-export type ReadonlyInteractionThreadProps = {
+type ReadonlyInteractionThreadProps = {
   thread: NormalizedThread;
   className?: string;
   resolveRawPayload?: (ref: string) => unknown;

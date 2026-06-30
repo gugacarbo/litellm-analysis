@@ -16,7 +16,7 @@ export interface TransformContext {
   modelNames?: readonly string[];
 }
 
-export type TypedPluginRouting<TConfig> = Omit<PluginRouting, "config"> & {
+type TypedPluginRouting<TConfig> = Omit<PluginRouting, "config"> & {
   config?: TConfig;
 };
 

@@ -14,9 +14,16 @@ export type RegisteredPluginSchema = {
   generatedSchemaPath: string;
 };
 
+function resolveGeneratedSchemaPath(pluginId: string): string {
+  if (pluginId === "opencode") {
+    return `src/plugins/${pluginId}/plugin.schema.ts`;
+  }
+  return `src/plugins/${pluginId}/schema/schema.ts`;
+}
+
 export const registeredPluginSchemas: RegisteredPluginSchema[] =
   pluginManifests.map((manifest) => ({
     pluginId: manifest.id,
     schemaUrl: manifest.$schema,
-    generatedSchemaPath: `src/plugins/${manifest.id}/plugin.schema.ts`,
+    generatedSchemaPath: resolveGeneratedSchemaPath(manifest.id),
   }));

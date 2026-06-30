@@ -1,12 +1,10 @@
 import { mergeConfig } from "../../../lib/merge-config";
-import type { PluginDefinition, PluginRuntimeContext } from "../../../sdk";
+import type { PluginDefinition } from "../../../sdk";
 import { adaptVsCodeOutput } from "../adapters/output-adapter";
 import type { VsCodePluginConfig } from "../config/config";
 import { vsCodePluginConfigDefaults } from "../config/config";
 import { vsCodeManifest } from "../manifest/manifest";
 import { type VscodeSchemaType, vscodeSchema } from "../schema/schema";
-
-export type VsCodeBuildContext = PluginRuntimeContext;
 
 export function createVsCodePlugin(): PluginDefinition<
   "vscode",

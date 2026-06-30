@@ -1,10 +1,10 @@
 import type { ChatToolCall } from "@lite-llm/contracts/analytics";
 
-export type AutomaticInteractionSource = "spend_log" | "health_check";
+type AutomaticInteractionSource = "spend_log" | "health_check";
 
 export type NormalizedMessageRole = "user" | "assistant" | "system" | "tool";
 
-export interface NormalizedMessageMetadata {
+interface NormalizedMessageMetadata {
   tool_calls?: ChatToolCall[];
   tool_call_id?: string;
   source?: AutomaticInteractionSource;

@@ -1,6 +1,6 @@
 import type { ChatMessage } from "./index";
 
-export interface ProxyUsageAdjustment {
+interface ProxyUsageAdjustment {
   id: string;
   reason: string;
   prompt_tokens_delta: number;

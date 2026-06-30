@@ -57,7 +57,7 @@ import { TooltipIconButton } from "@/shared/components/assistant-ui/tooltip-icon
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
-export type ThreadGroupPart = MessagePrimitive.GroupedParts.GroupPart;
+type ThreadGroupPart = MessagePrimitive.GroupedParts.GroupPart;
 
 /**
  * Optional component overrides for the thread. `AssistantMessage` and

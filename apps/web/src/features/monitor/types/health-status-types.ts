@@ -24,8 +24,3 @@ export interface HealthCheckSummaryData {
   error: number;
   total: number;
 }
-
-export interface HealthCheckUpdatePayload {
-  type: "health_check_result";
-  data: HealthCheckResultEntry;
-}

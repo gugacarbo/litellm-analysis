@@ -8,7 +8,7 @@ export interface PluginRouting {
   };
 }
 
-export interface AgentConfig {
+interface AgentConfig {
   mode?: string;
   tools?: Record<string, unknown>;
   color?: string;

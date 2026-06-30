@@ -112,21 +112,21 @@ export type HealthCheckRequestResult = {
 
 export const COOLDOWN_MS = 5_000;
 
-export interface HealthCheckStreamStartedPayload {
+interface HealthCheckStreamStartedPayload {
   executionId: string;
   modelName: string;
   prompt: string;
   timestamp: number;
 }
 
-export interface HealthCheckStreamDeltaPayload {
+interface HealthCheckStreamDeltaPayload {
   executionId: string;
   modelName: string;
   delta: string;
   timestamp: number;
 }
 
-export interface HealthCheckStreamTerminalPayload {
+interface HealthCheckStreamTerminalPayload {
   executionId: string;
   modelName: string;
   result: HealthCheckResult;

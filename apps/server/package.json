@@ -31,6 +31,7 @@
     "ws": "^8.20.0"
   },
   "devDependencies": {
+    "@lite-llm/models-repository": "workspace:*",
     "@biomejs/biome": "catalog:",
     "@types/express": "catalog:",
     "@types/node": "catalog:",

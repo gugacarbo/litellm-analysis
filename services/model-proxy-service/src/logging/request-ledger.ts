@@ -11,11 +11,7 @@ import type { StructuredError } from "./request-errors";
 import { trimErrorMessage } from "./request-errors";
 import type { UsageSummary } from "./usage-extractor";
 
-export type RequestFinishStatus =
-  | "success"
-  | "failed"
-  | "cancelled"
-  | "timeout";
+type RequestFinishStatus = "success" | "failed" | "cancelled" | "timeout";
 
 const TERMINAL_REQUEST_STATUSES = new Set<string>([
   "success",

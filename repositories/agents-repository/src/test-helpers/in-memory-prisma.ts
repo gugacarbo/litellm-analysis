@@ -289,5 +289,3 @@ export function createInMemoryPrisma() {
     $disconnect: vi.fn(async () => undefined),
   };
 }
-
-export type InMemoryPrisma = ReturnType<typeof createInMemoryPrisma>;

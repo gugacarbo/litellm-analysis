@@ -27,7 +27,7 @@ import { cn } from "@/shared/lib/utils";
 
 const ANIMATION_DURATION = 200;
 
-export type ToolFallbackRootProps = Omit<
+type ToolFallbackRootProps = Omit<
   React.ComponentProps<typeof Collapsible>,
   "open" | "onOpenChange"
 > & {
@@ -572,13 +572,4 @@ ToolFallback.Result = ToolFallbackResult;
 ToolFallback.Error = ToolFallbackError;
 ToolFallback.Approval = ToolFallbackApproval;
 
-export {
-  ToolFallback,
-  ToolFallbackApproval,
-  ToolFallbackArgs,
-  ToolFallbackContent,
-  ToolFallbackError,
-  ToolFallbackResult,
-  ToolFallbackRoot,
-  ToolFallbackTrigger,
-};
+export { ToolFallback };

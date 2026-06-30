@@ -1,6 +1,6 @@
 import { fetchApi } from "./core";
 
-export interface HealthCheckResult {
+interface HealthCheckResult {
   id: number;
   modelName: string;
   status: "healthy" | "unhealthy" | "error";

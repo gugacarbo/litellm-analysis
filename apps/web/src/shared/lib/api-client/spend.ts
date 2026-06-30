@@ -40,11 +40,6 @@ export interface ProxyRequestLog {
   messages: ChatMessage[];
 }
 
-export type ProxyRequestLogListItem = Omit<
-  ProxyRequestLog,
-  "error_details" | "response_headers"
->;
-
 type RawSpendLogRecord = Record<string, unknown>;
 
 function readNumber(value: unknown): number | null {

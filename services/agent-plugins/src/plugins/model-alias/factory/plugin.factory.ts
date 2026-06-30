@@ -6,10 +6,6 @@ import { modelAliasPluginConfigDefaults } from "../config/config";
 import { modelAliasManifest } from "../manifest/manifest";
 import { type ModelAliasSchemaType, modelAliasSchema } from "../schema/schema";
 
-export interface AliasDbWriter {
-  updateAliases(aliases: Record<string, string>): Promise<void>;
-}
-
 export function createModelAliasPlugin(
   options: CreatePluginOptions = {},
 ): PluginDefinition<

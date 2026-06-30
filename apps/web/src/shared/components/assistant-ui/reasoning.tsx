@@ -43,7 +43,7 @@ const reasoningVariants = cva("aui-reasoning-root mb-4 w-full", {
   },
 });
 
-export type ReasoningRootProps = Omit<
+type ReasoningRootProps = Omit<
   React.ComponentProps<typeof Collapsible>,
   "open" | "onOpenChange"
 > &
@@ -355,10 +355,7 @@ ReasoningGroup.displayName = "ReasoningGroup";
 export {
   Reasoning,
   ReasoningContent,
-  ReasoningFade,
-  ReasoningGroup,
   ReasoningRoot,
   ReasoningText,
   ReasoningTrigger,
-  reasoningVariants,
 };

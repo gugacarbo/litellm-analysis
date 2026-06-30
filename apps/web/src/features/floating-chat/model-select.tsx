@@ -9,21 +9,21 @@ import {
 } from "@/shared/components/ui/select";
 import { getAllModels } from "@/shared/lib/api-client/models";
 
-export const FLOATING_CHAT_MODEL_STORAGE_KEY = "floating-chat-model";
+const FLOATING_CHAT_MODEL_STORAGE_KEY = "floating-chat-model";
 
 type ModelSelectProps = {
   value: string;
   onValueChange: (modelName: string) => void;
 };
 
-export function readFloatingChatModel(): string {
+function readFloatingChatModel(): string {
   if (typeof localStorage === "undefined") {
     return "";
   }
   return localStorage.getItem(FLOATING_CHAT_MODEL_STORAGE_KEY) ?? "";
 }
 
-export function writeFloatingChatModel(modelName: string): void {
+function writeFloatingChatModel(modelName: string): void {
   localStorage.setItem(FLOATING_CHAT_MODEL_STORAGE_KEY, modelName);
 }
 

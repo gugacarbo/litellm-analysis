@@ -5,7 +5,7 @@ export interface ImportFlags {
   createStubs: boolean;
 }
 
-export interface ImportCounters {
+interface ImportCounters {
   inserted: number;
   updated: number;
   skipped: number;

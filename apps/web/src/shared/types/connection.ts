@@ -1,14 +1,10 @@
-import type { AutomaticInteractionWsEventType } from "@lite-llm/contracts/ws-events";
-
-export type { AutomaticInteractionWsEventType } from "@lite-llm/contracts/ws-events";
-
 export type ConnectionState =
   | "connecting"
   | "connected"
   | "disconnected"
   | "reconnecting";
 
-export type WsMessageType =
+type WsMessageType =
   | "alert"
   | "health_update"
   | "connected"
@@ -17,7 +13,7 @@ export type WsMessageType =
   | "health_check_rejected"
   | "prompt_eval_run_update"
   | "prompt_eval_run_completed"
-  | AutomaticInteractionWsEventType;
+  | import("@lite-llm/contracts/ws-events").AutomaticInteractionWsEventType;
 
 export interface WsMessage {
   type: WsMessageType;

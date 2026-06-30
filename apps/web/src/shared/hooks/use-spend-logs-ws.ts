@@ -8,13 +8,9 @@ function getWsUrl(): string {
   return `${proto}//${window.location.host}/ws/monitor`;
 }
 
-export type SpendLogsChangedHandler = (
-  payload: SpendLogsChangedPayload,
-) => void;
-
 export interface UseSpendLogsWsOptions {
   enabled?: boolean;
-  onSpendLogsChanged: SpendLogsChangedHandler;
+  onSpendLogsChanged: (payload: SpendLogsChangedPayload) => void;
 }
 
 export function useSpendLogsWs({

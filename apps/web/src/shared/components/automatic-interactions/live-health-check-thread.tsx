@@ -10,7 +10,7 @@ import { mapNormalizedThreadToThreadMessages } from "@/shared/lib/automatic-inte
 import { cn } from "@/shared/lib/utils";
 import type { NormalizedThread } from "@/shared/types/automatic-interaction-thread";
 
-export type LiveHealthCheckThreadProps = {
+type LiveHealthCheckThreadProps = {
   executionId: string;
   initialThread: NormalizedThread;
   onDelta?: (appendDelta: (delta: string) => void) => void;

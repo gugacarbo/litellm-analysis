@@ -3,8 +3,6 @@ import {
   type PrismaClient,
 } from "@lite-llm/model-proxy-repository";
 
-export type { PrismaClient };
-
 export interface RegistryClientOptions {
   prisma?: PrismaClient;
 }
