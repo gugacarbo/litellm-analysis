@@ -103,6 +103,7 @@ export interface HealthCheckServiceOptions {
   analyticsDataSource: import("@lite-llm/analytics-service/data-source").AnalyticsDataSource;
   monitorDb: ReturnType<typeof import("../db/monitor-client").getMonitorDb>;
   enabledModelNames?: string[];
+  requestModeByModelName?: Record<string, "chat" | "responses">;
 }
 
 export type HealthCheckRequestResult = {

@@ -52,6 +52,26 @@ interface ParsedStreamChunk {
   error?: { message?: string };
 }
 
+interface ParsedResponsesStreamChunk {
+  type?: string;
+  delta?: string;
+  error?: { message?: string };
+  response?: {
+    error?: { message?: string };
+    usage?: {
+      output_tokens?: number;
+      completion_tokens?: number;
+    };
+    output?: Array<{
+      type?: string;
+      content?: Array<{
+        type?: string;
+        text?: string;
+      }>;
+    }>;
+  };
+}
+
 interface StreamReadResult {
   responseText: string | null;
   ttftMs: number | null;
@@ -334,28 +354,40 @@ export class HealthCheckService {
     prompt: string;
     timeoutMs: number;
   }): Promise<FetchHealthCheckResponseResult> {
-    const url = `${normalizedApiUrl}/chat/completions`;
+    const mode = this.options.requestModeByModelName?.[modelName] ?? "chat";
+    const url =
+      mode === "responses"
+        ? `${normalizedApiUrl}/responses`
+        : `${normalizedApiUrl}/chat/completions`;
     const attempts: Array<Record<string, unknown>> = [];
 
-    const requestBody = this.buildHealthCheckRequestBody({
-      modelName,
-      prompt,
-      includeReasoningEffort: true,
-    });
+    const requestBody =
+      mode === "responses"
+        ? this.buildResponsesHealthCheckRequestBody({ modelName, prompt })
+        : this.buildHealthCheckRequestBody({
+            modelName,
+            prompt,
+            includeReasoningEffort: true,
+          });
     attempts.push(this.buildRequestAttemptSnapshot(url, headers, requestBody));
 
-    const withReasoningDisabled = await fetch(url, {
+    const firstResponse = await fetch(url, {
       method: "POST",
       headers,
       body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(timeoutMs),
     });
 
-    if (
-      !(await this.shouldRetryWithoutReasoningEffort(withReasoningDisabled))
-    ) {
+    if (mode === "responses") {
       return {
-        response: withReasoningDisabled,
+        response: firstResponse,
+        requestPayload: JSON.stringify({ attempts }),
+      };
+    }
+
+    if (!(await this.shouldRetryWithoutReasoningEffort(firstResponse))) {
+      return {
+        response: firstResponse,
         requestPayload: JSON.stringify({ attempts }),
       };
     }
@@ -445,6 +477,23 @@ export class HealthCheckService {
     }
 
     return requestBody;
+  }
+
+  private buildResponsesHealthCheckRequestBody({
+    modelName,
+    prompt,
+  }: {
+    modelName: string;
+    prompt: string;
+  }): Record<string, unknown> {
+    return {
+      model: modelName,
+      input: [{ type: "message", role: "user", content: prompt }],
+      max_output_tokens: HEALTH_CHECK_MAX_TOKENS,
+      stream: true,
+      store: false,
+      include: ["reasoning.encrypted_content"],
+    };
   }
 
   private isDeepSeekModel(modelName: string): boolean {
@@ -626,25 +675,41 @@ export class HealthCheckService {
 
       onStreamEvent();
 
-      let chunk: ParsedStreamChunk;
+      let chunk: ParsedStreamChunk | ParsedResponsesStreamChunk;
       try {
-        chunk = JSON.parse(payload) as ParsedStreamChunk;
+        chunk = JSON.parse(payload) as
+          | ParsedStreamChunk
+          | ParsedResponsesStreamChunk;
       } catch {
         continue;
       }
 
+      if ("type" in chunk && typeof chunk.type === "string") {
+        this.consumeResponsesEventChunk({
+          chunk,
+          contentParts,
+          firstTokenAtRef,
+          completionTokensRef,
+          responseErrorMessageRef,
+          onDelta,
+        });
+        continue;
+      }
+
+      const chatChunk = chunk as ParsedStreamChunk;
+
       if (
-        typeof chunk.usage?.completion_tokens === "number" &&
-        Number.isFinite(chunk.usage.completion_tokens)
+        typeof chatChunk.usage?.completion_tokens === "number" &&
+        Number.isFinite(chatChunk.usage.completion_tokens)
       ) {
-        completionTokensRef.set(chunk.usage.completion_tokens);
+        completionTokensRef.set(chatChunk.usage.completion_tokens);
       }
 
-      if (chunk.error?.message && !responseErrorMessageRef.get()) {
-        responseErrorMessageRef.set(chunk.error.message);
+      if (chatChunk.error?.message && !responseErrorMessageRef.get()) {
+        responseErrorMessageRef.set(chatChunk.error.message);
       }
 
-      const delta = chunk.choices?.[0]?.delta;
+      const delta = chatChunk.choices?.[0]?.delta;
       const content = this.normalizeDeltaContent(delta?.content);
       const reasoning =
         delta?.reasoning_content ??
@@ -666,6 +731,66 @@ export class HealthCheckService {
     }
   }
 
+  private consumeResponsesEventChunk({
+    chunk,
+    contentParts,
+    firstTokenAtRef,
+    completionTokensRef,
+    responseErrorMessageRef,
+    onDelta,
+  }: {
+    chunk: ParsedResponsesStreamChunk;
+    contentParts: string[];
+    firstTokenAtRef: { get: () => number | null; set: (value: number) => void };
+    completionTokensRef: {
+      get: () => number | null;
+      set: (value: number | null) => void;
+    };
+    responseErrorMessageRef: {
+      get: () => string | null;
+      set: (value: string | null) => void;
+    };
+    onDelta?: (text: string) => void;
+  }): void {
+    const eventType = chunk.type ?? "";
+    const usage = chunk.response?.usage;
+    const outputTokens =
+      typeof usage?.output_tokens === "number"
+        ? usage.output_tokens
+        : typeof usage?.completion_tokens === "number"
+          ? usage.completion_tokens
+          : null;
+
+    if (outputTokens !== null && Number.isFinite(outputTokens)) {
+      completionTokensRef.set(outputTokens);
+    }
+
+    const errorMessage =
+      chunk.error?.message ?? chunk.response?.error?.message ?? null;
+    if (errorMessage && !responseErrorMessageRef.get()) {
+      responseErrorMessageRef.set(errorMessage);
+    }
+
+    if (eventType === "response.output_text.delta" && chunk.delta?.trim()) {
+      if (firstTokenAtRef.get() === null) {
+        firstTokenAtRef.set(Date.now());
+      }
+      contentParts.push(chunk.delta);
+      onDelta?.(chunk.delta);
+      return;
+    }
+
+    if (eventType === "response.completed") {
+      const completedText = this.extractResponsesOutputText(chunk.response);
+      if (completedText && contentParts.length === 0) {
+        if (firstTokenAtRef.get() === null) {
+          firstTokenAtRef.set(Date.now());
+        }
+        contentParts.push(completedText);
+      }
+    }
+  }
+
   private readNonStreamResponse(
     response: Response,
     rawBody: string,
@@ -682,6 +807,17 @@ export class HealthCheckService {
 
     try {
       const json = JSON.parse(rawBody) as ParsedChatResponse;
+      if ("output" in (json as Record<string, unknown>)) {
+        return {
+          responseText: this.extractResponsesOutputText(
+            json as ParsedResponsesStreamChunk["response"],
+          ),
+          ttftMs: null,
+          completionTokens: null,
+          responseErrorMessage: null,
+          responsePayload: this.buildResponsePayload(response, rawBody),
+        };
+      }
       return {
         responseText: this.extractResponseText(json),
         ttftMs: null,
@@ -758,6 +894,22 @@ export class HealthCheckService {
     }
 
     return null;
+  }
+
+  private extractResponsesOutputText(
+    response: ParsedResponsesStreamChunk["response"] | undefined,
+  ): string | null {
+    if (!response?.output?.length) {
+      return null;
+    }
+
+    const text = response.output
+      .flatMap((item) => item.content ?? [])
+      .filter((item) => item.type === "output_text" && item.text?.trim())
+      .map((item) => item.text?.trim() ?? "")
+      .join("");
+
+    return text ? text.slice(0, MAX_CAPTURED_RESPONSE_CHARS) : null;
   }
 
   private normalizeContentText(content: unknown): string | null {

@@ -172,4 +172,31 @@ describe("HealthCheckService stream events", () => {
     ]);
     expect(result.status).toBe("error");
   });
+
+  it("supports responses-mode health checks", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          createStreamingResponse([
+            'data: {"type":"response.output_text.delta","delta":"gpt"}\n\n',
+            'data: {"type":"response.output_text.delta","delta":"-5-codex"}\n\n',
+            'data: {"type":"response.completed","response":{"usage":{"output_tokens":2}}}\n\n',
+          ]),
+        ),
+    );
+
+    const service = new HealthCheckService({
+      ...createServiceOptions(),
+      requestModeByModelName: {
+        "gpt-5-codex": "responses",
+      },
+    });
+
+    const result = await service.runCheck("gpt-5-codex", "manual");
+
+    expect(result.status).toBe("healthy");
+    expect(result.responseReceived).toBe("gpt-5-codex");
+  });
 });

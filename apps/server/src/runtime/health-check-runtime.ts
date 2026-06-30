@@ -14,6 +14,7 @@ interface HealthCheckRuntimeOptions {
   modelProxyBaseUrl: string;
   modelProxyApiKey: string;
   enabledModelNames?: string[];
+  requestModeByModelName?: Record<string, "chat" | "responses">;
 }
 
 export interface HealthCheckRuntime {
@@ -35,6 +36,7 @@ export function createHealthCheckRuntime(
     analyticsDataSource: options.ctx.analytics.dataSource,
     monitorDb: options.ctx.monitor.monitorDb,
     enabledModelNames: options.enabledModelNames,
+    requestModeByModelName: options.requestModeByModelName,
   });
 
   healthCheckService.on("health_check_update", (data) => {
