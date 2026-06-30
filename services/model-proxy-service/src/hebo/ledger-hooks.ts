@@ -1,4 +1,6 @@
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { GatewayHooks } from "@hebo-ai/gateway";
+import type { IOpenAiOAuthService } from "@lite-llm/model-proxy-registry-service";
 import type { PrismaClient } from "@lite-llm/model-proxy-repository";
 import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
@@ -20,6 +22,7 @@ import {
   resolveUpstreamTarget,
 } from "../resolver/upstream-provider";
 import type { HeboGatewayBuildResult } from "./build-config";
+import { sanitizeHeboRequestBody } from "./sanitize-request-body";
 
 const FIFTY_MB = 50 * 1024 * 1024;
 
@@ -27,6 +30,10 @@ interface LedgerState {
   requestRowId: string;
   startedAt: Date;
   target: ResolvedUpstreamTarget;
+}
+
+function isChatGptSubscriptionTarget(target: ResolvedUpstreamTarget): boolean {
+  return target.authMode === "openai-chatgpt-oauth";
 }
 
 function isLedgerOperation(
@@ -72,6 +79,46 @@ async function resolveTargetForModel(
     fallbackModels,
     row,
   });
+}
+
+function readPathname(request: Request): string {
+  return new URL(request.url).pathname;
+}
+
+async function readModelFromRequest(request: Request): Promise<string | null> {
+  try {
+    const body = (await request.clone().json()) as unknown;
+    return readModelFromBody(body);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeChatGptResponsesBody(
+  body: Record<string, unknown>,
+): Record<string, unknown> {
+  const include = Array.isArray(body.include) ? [...body.include] : [];
+  if (!include.includes("reasoning.encrypted_content")) {
+    include.push("reasoning.encrypted_content");
+  }
+
+  const trimmed: Record<string, unknown> = {
+    model: body.model,
+    input: body.input,
+    instructions: body.instructions,
+    stream: true,
+    store: false,
+    include,
+    tools: body.tools,
+    tool_choice: body.tool_choice,
+    reasoning: body.reasoning,
+    previous_response_id: body.previous_response_id,
+    truncation: body.truncation,
+  };
+
+  return Object.fromEntries(
+    Object.entries(trimmed).filter(([, value]) => value !== undefined),
+  );
 }
 
 function toResponse(response: Response | ResponseInit): Response {
@@ -198,10 +245,40 @@ export function createLedgerHooks(options: {
   ledger: RequestLedger;
   modelsService: IModelService;
   providerService: IProviderService;
+  openAiOAuthService: IOpenAiOAuthService;
 }): GatewayHooks {
   const database = options.database ?? getModelProxyPrisma();
 
   return {
+    onRequest: async (ctx) => {
+      const pathname = readPathname(ctx.request);
+      if (!pathname.endsWith("/chat/completions")) {
+        return;
+      }
+
+      const modelName = await readModelFromRequest(ctx.request);
+      if (!modelName) {
+        return;
+      }
+
+      const target = await resolveTargetForModel(modelName, options.build, {
+        database,
+        modelsService: options.modelsService,
+        providerService: options.providerService,
+      });
+
+      if (!isChatGptSubscriptionTarget(target)) {
+        return;
+      }
+
+      return Response.json(
+        {
+          error:
+            "This model is configured for OpenAI OAuth and only supports /v1/responses",
+        },
+        { status: 400 },
+      );
+    },
     before: async (ctx) => {
       if (!isLedgerOperation(ctx.operation)) {
         return;
@@ -219,9 +296,20 @@ export function createLedgerHooks(options: {
         providerService: options.providerService,
       });
 
+      const pathname = readPathname(ctx.request);
+      const sanitizedBody = sanitizeHeboRequestBody(ctx.body, {
+        path: pathname,
+      }) as typeof ctx.body;
+      const normalizedBody =
+        isChatGptSubscriptionTarget(target) && ctx.operation === "responses"
+          ? normalizeChatGptResponsesBody(
+              sanitizedBody as Record<string, unknown>,
+            )
+          : sanitizedBody;
+
       const requestRow = await options.ledger.startTransparent(
         modelName,
-        ctx.body,
+        normalizedBody,
         target,
         startedAt,
         {
@@ -238,6 +326,33 @@ export function createLedgerHooks(options: {
         startedAt,
         target,
       } satisfies LedgerState;
+
+      return normalizedBody as typeof ctx.body;
+    },
+    resolveProvider: async (ctx) => {
+      const modelName = readModelFromBody(ctx.body);
+      if (!modelName) {
+        return;
+      }
+
+      const target = await resolveTargetForModel(modelName, options.build, {
+        database,
+        modelsService: options.modelsService,
+        providerService: options.providerService,
+      });
+      if (!isChatGptSubscriptionTarget(target)) {
+        return;
+      }
+
+      const auth =
+        await options.openAiOAuthService.getAuthenticatedRequestConfig();
+
+      return createOpenAICompatible({
+        name: `oauth-${modelName}`,
+        baseURL: auth.baseUrl,
+        apiKey: auth.accessToken,
+        headers: auth.headers,
+      });
     },
     onResponse: async (ctx) => {
       const ledgerState = ctx.state.ledger as LedgerState | undefined;

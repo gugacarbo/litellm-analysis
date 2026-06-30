@@ -26,6 +26,7 @@ const DEFAULT_OUTPUT_MODALITIES = ["text"] as const;
 
 interface ProviderGroup {
   apiKey: string;
+  authMode: ResolvedUpstreamTarget["authMode"];
   baseUrl: string;
   id: string;
   mapping: Record<string, string>;
@@ -68,6 +69,9 @@ function readBearerToken(headers: HeadersInit): string {
 }
 
 function providerKey(target: ResolvedUpstreamTarget): string {
+  if (target.authMode === "openai-chatgpt-oauth") {
+    return `${target.authMode}|${target.upstreamBaseUrl}`;
+  }
   const token = readBearerToken(target.upstreamHeaders);
   return `${target.upstreamBaseUrl}|${token}`;
 }
@@ -133,7 +137,11 @@ export async function buildHeboGatewayConfig(options: {
       group = {
         id: `upstream-${providerGroups.size}`,
         baseUrl: target.upstreamBaseUrl,
-        apiKey: readBearerToken(target.upstreamHeaders),
+        apiKey:
+          target.authMode === "openai-chatgpt-oauth"
+            ? "oauth-placeholder"
+            : readBearerToken(target.upstreamHeaders),
+        authMode: target.authMode,
         mapping: {},
       };
       providerGroups.set(key, group);

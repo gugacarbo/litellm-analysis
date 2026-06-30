@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  CHATGPT_SUBSCRIPTION_PROVIDER,
   findUpstreamProvider,
   resolveUpstreamTarget,
 } from "./upstream-provider";
@@ -76,5 +77,32 @@ describe("upstream-provider", () => {
     expect(database.modelProxyCredential.findUnique).toHaveBeenCalledWith({
       where: { name: "openai-main" },
     });
+  });
+
+  it("resolves chatgpt subscription models without api key", async () => {
+    const target = await resolveUpstreamTarget({
+      database: {
+        modelProxyCredential: {
+          findUnique: vi.fn().mockResolvedValue(null),
+        },
+      } as never,
+      modelName: "gpt-5-codex",
+      providers: {},
+      fallbackModels: {
+        "gpt-5-codex": {
+          enabled: true,
+          displayName: "GPT-5 Codex",
+          ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
+          limits: { length: 200_000, maxOutput: 8_192 },
+        },
+      },
+      row: null,
+    });
+
+    expect(target.authMode).toBe("openai-chatgpt-oauth");
+    expect(target.upstreamBaseUrl).toBe(
+      "https://chatgpt.com/backend-api/codex",
+    );
+    expect(target.upstreamHeaders).toEqual({});
   });
 });

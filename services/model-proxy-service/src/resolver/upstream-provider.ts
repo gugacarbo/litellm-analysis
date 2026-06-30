@@ -1,4 +1,5 @@
 import { serverEnv } from "@lite-llm/config/server";
+import { OPENAI_CHATGPT_API_BASE } from "@lite-llm/model-proxy-registry-service";
 import type {
   ModelProxyModel,
   PrismaClient,
@@ -8,7 +9,12 @@ import type {
   Provider,
 } from "@lite-llm/models-repository/repository";
 
+export const CHATGPT_SUBSCRIPTION_PROVIDER = "chatgpt-subscription";
+
+type UpstreamAuthMode = "bearer" | "openai-chatgpt-oauth";
+
 export interface ResolvedUpstreamTarget {
+  authMode: UpstreamAuthMode;
   cost: { input?: number; output?: number };
   displayName?: string;
   model: string;
@@ -60,6 +66,16 @@ export function findUpstreamProvider(
   ].filter((value): value is string => !!value?.trim());
 
   for (const key of candidateKeys) {
+    if (key === CHATGPT_SUBSCRIPTION_PROVIDER) {
+      return {
+        name: "ChatGPT Subscription",
+        adapter: "openai-compatible",
+        ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
+        baseUrl: OPENAI_CHATGPT_API_BASE,
+        defaultCredential: "",
+      };
+    }
+
     const provider = providers[key];
     if (provider?.adapter && key !== "local-proxy") {
       return provider;
@@ -112,23 +128,29 @@ export async function resolveUpstreamTarget(params: {
 
   const envSecret =
     readSecretRef(row?.secretRef) ?? readSecretRef(credential?.secretRef);
+  const isChatGptSubscription =
+    upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
+
   const upstreamApiKey =
     envSecret ||
     credential?.apiKey?.trim() ||
     readProviderApiKey(upstreamProvider) ||
     serverEnv.MODEL_PROXY_UPSTREAM_API_KEY?.trim();
 
-  if (!upstreamApiKey) {
+  if (!isChatGptSubscription && !upstreamApiKey) {
     throw new Error(`No upstream API key configured for model "${modelName}"`);
   }
 
   return {
+    authMode: isChatGptSubscription ? "openai-chatgpt-oauth" : "bearer",
     model: modelName,
     upstreamModel: row?.upstreamModel?.trim() || modelName,
     upstreamBaseUrl: normalizeBaseUrl(upstreamBaseUrl),
-    upstreamHeaders: {
-      authorization: `Bearer ${upstreamApiKey}`,
-    },
+    upstreamHeaders: isChatGptSubscription
+      ? {}
+      : {
+          authorization: `Bearer ${upstreamApiKey}`,
+        },
     ownedBy:
       row?.ownedBy ??
       fallbackSpec?.ownedBy ??

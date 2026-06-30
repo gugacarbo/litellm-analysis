@@ -1,4 +1,5 @@
 import { gateway } from "@hebo-ai/gateway";
+import type { IOpenAiOAuthService } from "@lite-llm/model-proxy-registry-service";
 import type { PrismaClient } from "@lite-llm/model-proxy-repository";
 import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
@@ -16,6 +17,7 @@ export interface HeboModelProxyGatewayOptions {
   database?: PrismaClient;
   modelsService: IModelService;
   providerService: IProviderService;
+  openAiOAuthService: IOpenAiOAuthService;
 }
 
 interface GatewayInstance {
@@ -38,6 +40,7 @@ async function createGatewayInstance(
     ledger,
     modelsService: options.modelsService,
     providerService: options.providerService,
+    openAiOAuthService: options.openAiOAuthService,
   });
 
   const gw = gateway({
@@ -48,6 +51,8 @@ async function createGatewayInstance(
       before: ledgerHooks.before,
       onResponse: ledgerHooks.onResponse,
       onError: ledgerHooks.onError,
+      onRequest: ledgerHooks.onRequest,
+      resolveProvider: ledgerHooks.resolveProvider,
     },
     advanced: {
       maxBodySize: HEBO_MAX_BODY_SIZE,

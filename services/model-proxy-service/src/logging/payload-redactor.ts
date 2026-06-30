@@ -36,7 +36,9 @@ function redactObject(value: Record<string, unknown>): Record<string, unknown> {
       lower === "authorization" ||
       lower === "x-api-key" ||
       lower === "api_key" ||
-      lower === "apikey"
+      lower === "apikey" ||
+      lower.endsWith("_token") ||
+      lower === "session_id"
     ) {
       result[key] = REDACTED;
       continue;
