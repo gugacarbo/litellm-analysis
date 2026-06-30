@@ -41,6 +41,7 @@ type ModelRow = {
   credentialName: string | null;
   secretRef: string | null;
   requestOptions: Record<string, unknown> | null;
+  metadata: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -169,6 +170,7 @@ function createInMemoryPrisma() {
             secretRef: data.secretRef ?? null,
             requestOptions:
               (data.requestOptions as Record<string, unknown> | null) ?? null,
+            metadata: (data.metadata as Record<string, unknown> | null) ?? null,
             createdAt: now,
             updatedAt: now,
           };
@@ -231,6 +233,8 @@ function createInMemoryPrisma() {
             secretRef: create.secretRef ?? null,
             requestOptions:
               (create.requestOptions as Record<string, unknown> | null) ?? null,
+            metadata:
+              (create.metadata as Record<string, unknown> | null) ?? null,
             createdAt: now,
             updatedAt: now,
           };
@@ -494,7 +498,6 @@ export function createRegistryTestStack(): RegistryTestStack {
   const orchestration: OrchestrationServices = {
     dataSource,
     syncGeneratedArtifacts: vi.fn(async () => undefined),
-    syncModelsDirectlyToDatabase: vi.fn(async () => undefined),
   };
 
   const registry: RouteOptions["registry"] = {
@@ -502,6 +505,35 @@ export function createRegistryTestStack(): RegistryTestStack {
     registryModelsService,
     credentialsService,
     apiKeysService,
+    openAiOAuthService: {
+      getConnectionStatus: vi.fn(async () => ({
+        connected: false,
+        accountId: null,
+        expiresAt: null,
+        baseUrl: "https://chatgpt.com/backend-api/codex",
+      })),
+      startDeviceAuthorization: vi.fn(async () => ({
+        deviceAuthId: "device-auth-id",
+        userCode: "ABCD-1234",
+        verificationUri: "https://auth.openai.com/codex/device",
+        intervalSeconds: 5,
+        expiresAt: new Date(Date.now() + 300_000).toISOString(),
+      })),
+      pollDeviceAuthorization: vi.fn(async () => ({
+        status: "pending" as const,
+        intervalSeconds: 5,
+      })),
+      disconnect: vi.fn(async () => undefined),
+      getAuthenticatedRequestConfig: vi.fn(async () => ({
+        accessToken: "oauth-token",
+        accountId: "acct_test",
+        baseUrl: "https://chatgpt.com/backend-api/codex",
+        headers: {
+          Authorization: "Bearer oauth-token",
+        },
+        sessionId: "session-test",
+      })),
+    },
   };
 
   const routeOptions: RouteOptions = {

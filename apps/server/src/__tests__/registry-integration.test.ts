@@ -104,6 +104,35 @@ describe("registry integration", () => {
       }
     });
 
+    it("exposes OpenAI OAuth connection status routes", async () => {
+      const { port, server } = await createRegistryHttpServer(
+        undefined,
+        "credentials",
+      );
+
+      try {
+        const statusResponse = await fetch(
+          `http://127.0.0.1:${port}/credentials/openai-oauth`,
+        );
+        expect(statusResponse.status).toBe(200);
+        expect(await statusResponse.json()).toMatchObject({
+          connected: false,
+          baseUrl: "https://chatgpt.com/backend-api/codex",
+        });
+
+        const startResponse = await fetch(
+          `http://127.0.0.1:${port}/credentials/openai-oauth/device/start`,
+          { method: "POST" },
+        );
+        expect(startResponse.status).toBe(200);
+        expect(await startResponse.json()).toMatchObject({
+          userCode: "ABCD-1234",
+        });
+      } finally {
+        await closeServer(server);
+      }
+    });
+
     it("roundtrips health check prompt and router settings in registry", async () => {
       const stack = createRegistryTestStack();
       const { settingsService } = stack.registry;
@@ -354,7 +383,6 @@ describe("registry integration", () => {
           registryOnly: 1,
           total: 3,
         });
-        expect(body.settingsStorage).toBe("database");
 
         for (const model of body.models) {
           expect(model.status).not.toMatch(/litellm/i);
@@ -410,48 +438,5 @@ describe("registry integration", () => {
         await closeServer(server);
       }
     });
-  });
-});
-
-describe("SETTINGS_STORAGE=database", () => {
-  beforeEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-    vi.unstubAllEnvs();
-  });
-
-  it("skips syncModelsDirectlyToDatabase when storage backend is database", async () => {
-    vi.stubEnv("SETTINGS_STORAGE", "database");
-    vi.resetModules();
-
-    const { syncModelsDirectlyToDatabase } = await import(
-      "../../../../packages/server/src/orchestration/artifact-service.ts"
-    );
-
-    const registryModelsService = {
-      list: vi.fn(async () => []),
-      getRoute: vi.fn(),
-      delete: vi.fn(),
-      upsert: vi.fn(),
-    };
-    const settingsService = {
-      getDefaultCredential: vi.fn(async () => null),
-    };
-
-    await syncModelsDirectlyToDatabase(
-      registryModelsService as never,
-      settingsService as never,
-      {
-        "gpt-4": {
-          displayName: "GPT-4",
-          limits: { length: 128000, maxOutput: 4096 },
-        },
-      },
-    );
-
-    expect(registryModelsService.list).not.toHaveBeenCalled();
   });
 });
