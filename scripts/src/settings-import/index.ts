@@ -82,7 +82,7 @@ function printSummary(summary: ImportSummary, dryRun: boolean): void {
     console.log("\nDry run complete — no database writes were made.");
   } else {
     console.log(
-      "\nImport complete. Set SETTINGS_STORAGE=database in .env and restart the server.",
+      "\nImport complete. Restart the server for changes to take effect.",
     );
   }
 }

@@ -1,7 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import { createRepositoryClient as createAgentsClient } from "@lite-llm/agents-manager";
-import { serverEnv } from "@lite-llm/config/server";
 import { createRepositoryClient as createModelsClient } from "@lite-llm/models-repository";
 import {
   findRepoRoot,
@@ -19,7 +18,6 @@ function printExportHelp(): void {
   console.log(`Usage: pnpm settings:export [options]
 
 Export database settings to @settings/*.jsonc backup files.
-Requires SETTINGS_STORAGE=database.
 
 Options:
   --help  Show this help message
@@ -33,13 +31,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (serverEnv.SETTINGS_STORAGE !== "database") {
-    console.warn(
-      "SETTINGS_STORAGE is not database; export reads from the active repository backend.",
-    );
-  }
-
-  const paths = resolveSettingsPaths(serverEnv.SETTINGS_PATH);
+  const paths = resolveSettingsPaths();
   const agentsRepository = createAgentsClient();
   const modelsRepository = createModelsClient();
   const config = await agentsRepository.read();
@@ -66,9 +58,8 @@ async function main(): Promise<void> {
     "utf-8",
   );
 
-  console.log(
-    `Exported settings backup to ${findRepoRoot()}/${serverEnv.SETTINGS_PATH}`,
-  );
+  const settingsPath = process.env.SETTINGS_PATH ?? "@settings";
+  console.log(`Exported settings backup to ${findRepoRoot()}/${settingsPath}`);
   console.log(`  agents:  ${paths.agentsFile}`);
   console.log(`  plugins: ${paths.pluginsFile}`);
   console.log(`  models:  ${paths.modelsFile}`);
