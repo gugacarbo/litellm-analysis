@@ -1,4 +1,3 @@
-import { serverEnv } from "@lite-llm/config/server";
 import {
   fromModelRoute,
   getDefaultCredential,
@@ -968,7 +967,6 @@ export function registerModelRoutes(
             .length,
           total: models.length,
         },
-        settingsStorage: serverEnv.SETTINGS_STORAGE,
       });
     } catch (error) {
       res.status(500).json({ error: String(error) });

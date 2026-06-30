@@ -3,6 +3,7 @@ import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import type {
   IApiKeysService,
   ICredentialsService,
+  IOpenAiOAuthService,
   IRegistryModelsService,
   ISettingsService,
 } from "@lite-llm/model-proxy-registry-service";
@@ -14,6 +15,7 @@ export interface RegistryRouteServices {
   registryModelsService: IRegistryModelsService;
   credentialsService: ICredentialsService;
   apiKeysService: IApiKeysService;
+  openAiOAuthService: IOpenAiOAuthService;
 }
 
 export type AgentsManager = AgentPluginsOrchestrator;
@@ -46,9 +48,6 @@ export interface DbModelSpecLike {
 export interface OrchestrationServices {
   dataSource: AnalyticsDataSource;
   syncGeneratedArtifacts: () => Promise<void>;
-  syncModelsDirectlyToDatabase(
-    models: Record<string, DbModelSpecLike>,
-  ): Promise<void>;
 }
 
 export interface RouteOptions {

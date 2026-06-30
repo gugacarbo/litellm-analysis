@@ -2,19 +2,12 @@ import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import type { IModelService } from "@lite-llm/models-service";
 import type {
   AgentsManager,
-  DbModelSpecLike,
   OrchestrationServices,
   RegistryRouteServices,
 } from "../types/index";
-import {
-  syncGeneratedArtifacts,
-  syncModelsDirectlyToDatabase,
-} from "./artifact-service";
+import { syncGeneratedArtifacts } from "./artifact-service";
 
-export {
-  syncGeneratedArtifacts,
-  syncModelsDirectlyToDatabase,
-} from "./artifact-service";
+export { syncGeneratedArtifacts } from "./artifact-service";
 export {
   fromModelProxyRow,
   fromModelRoute,
@@ -67,12 +60,6 @@ export function createOrchestrationServices(
         settingsService,
         agentsManager,
         modelsService,
-      ),
-    syncModelsDirectlyToDatabase: (models: Record<string, DbModelSpecLike>) =>
-      syncModelsDirectlyToDatabase(
-        registryModelsService,
-        settingsService,
-        models,
       ),
   };
 }

@@ -15,8 +15,6 @@ dotenv.config({
 });
 
 export const serverSchema = {
-  SETTINGS_STORAGE: z.enum(["file", "database"]).default("database"),
-
   PORT: z.coerce.number().int().positive(),
 
   MODEL_PROXY_API_KEY: z
@@ -32,6 +30,10 @@ export const serverSchema = {
   MODEL_PROXY_UPSTREAM_API_KEY: z
     .string()
     .min(1, "MODEL_PROXY_UPSTREAM_API_KEY cannot be empty")
+    .optional(),
+  MODEL_PROXY_OAUTH_ENCRYPTION_KEY: z
+    .string()
+    .min(1, "MODEL_PROXY_OAUTH_ENCRYPTION_KEY cannot be empty")
     .optional(),
 
   HEALTH_CHECK_INTERVAL_MS: z.coerce.number().int().positive(),

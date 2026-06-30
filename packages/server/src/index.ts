@@ -10,7 +10,6 @@ export {
   resolveModelCredential,
   routeUpdateFromBody,
   syncGeneratedArtifacts,
-  syncModelsDirectlyToDatabase,
   toCostPerToken,
   toModelRoute,
 } from "./orchestration/index";
