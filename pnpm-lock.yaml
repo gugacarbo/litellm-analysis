@@ -716,6 +716,9 @@ importers:
       '@lite-llm/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@lite-llm/model-proxy-registry-service':
+        specifier: workspace:*
+        version: link:../model-proxy-registry-service
       '@lite-llm/model-proxy-repository':
         specifier: workspace:*
         version: link:../../repositories/model-proxy-repository

@@ -75,7 +75,7 @@ lite-llm-analytics/
 | Add agent config logic   | `services/agent-plugins/src/`                   | Adapters, transformers, CRUD, file generators        |
 | Modify agent API routes  | `packages/server-core/src/routes/agent-config-routes.ts` | Express routes using agents-manager                  |
 | Add model config logic   | `services/models-service/src/`                   | Provider/model CRUD, alias management                 |
-| Modify model API routes  | `packages/server/src/routes/model-routes.ts` | Express routes; `POST /models/export-configs` regenerates `@storage/output` when `SETTINGS_STORAGE=database` |
+| Modify model API routes  | `packages/server/src/routes/model-routes.ts` | Express routes; `POST /models/export-configs` regenerates `@storage/output` |
 | Add a Models sub-route   | `apps/web/src/features/models/models-layout.tsx` + `App.tsx` | Tab navigation lives in the layout; children render via `Outlet` |
 | Floating chat widget     | `apps/web/src/features/floating-chat/` | assistant-ui + AI SDK; `FloatingChatWidget` in `app-layout.tsx` |
 | Dashboard chat API       | `packages/server/src/routes/chat-routes.ts` | POST `/chat` streams completions via `MODEL_PROXY_*` |

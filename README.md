@@ -38,17 +38,14 @@ pnpm dev   # web :5178, API :3008
 | `MODEL_PROXY_DATABASE_URL` | Sim | PostgreSQL do proxy (`model_proxy_*`) |
 | `MODEL_PROXY_API_KEY` | Sim | Chave do proxy local |
 | `MODEL_PROXY_BASE_URL` | Recomendada | Base URL `/v1` para health-check |
-| `SETTINGS_STORAGE` | Não (`file`) | `file` ou `database` — fonte de agents/plugins/models |
-
 ## Settings no banco
 
-Com `SETTINGS_STORAGE=database`, agents/plugins/models vivem em `model_proxy_settings` e `model_proxy_*`. `@settings` vira seed/backup opcional.
+Agents, plugins e models vivem em `model_proxy_settings` e `model_proxy_*`. `@settings` vira seed/backup opcional.
 
 ```bash
 pnpm db:up && pnpm db:migrate
 pnpm settings:import --dry-run   # conferir mapeamento
 pnpm settings:import             # importar @settings → PostgreSQL
-# Defina SETTINGS_STORAGE=database no .env
 pnpm dev
 pnpm settings:export             # snapshot opcional para git
 ```
