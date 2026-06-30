@@ -38,6 +38,53 @@ export type OpenAiOAuthDeviceCodePollResult =
 /** @deprecated Use RegistryCredential */
 export type LiteLLMCredential = RegistryCredential;
 
+export type CredentialInput = {
+  name: string;
+  provider?: string | null;
+  baseUrl?: string | null;
+  secretRef: string;
+};
+
+export type CredentialUpdateInput = {
+  name?: string;
+  provider?: string | null;
+  baseUrl?: string | null;
+  secretRef?: string;
+};
+
+export async function getCredential(
+  name: string,
+): Promise<RegistryCredential | null> {
+  return fetchApi(`/credentials/${encodeURIComponent(name)}`);
+}
+
+export async function createCredential(
+  input: CredentialInput,
+): Promise<RegistryCredential> {
+  return fetchApi("/credentials", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateCredential(
+  name: string,
+  input: CredentialUpdateInput,
+): Promise<RegistryCredential> {
+  return fetchApi(`/credentials/${encodeURIComponent(name)}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function deleteCredential(
+  name: string,
+): Promise<{ success: boolean }> {
+  return fetchApi(`/credentials/${encodeURIComponent(name)}`, {
+    method: "DELETE",
+  });
+}
+
 export async function getAllCredentials(): Promise<RegistryCredential[]> {
   return fetchApi("/credentials");
 }

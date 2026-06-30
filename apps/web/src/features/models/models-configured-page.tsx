@@ -60,6 +60,18 @@ export function ModelsConfiguredPage() {
     defaultSettingsLoading,
     syncingDefaultSettings,
     handleSyncDefaultSettings,
+    credentialFormOpen,
+    setCredentialFormOpen,
+    editingCredential,
+    credentialFormData,
+    setCredentialFormData,
+    credentialFormError,
+    credentialFormLoading,
+    handleOpenCreateCredential,
+    handleOpenEditCredential,
+    handleCredentialFormSubmit,
+    handleDeleteCredential,
+    deleteCredentialLoading,
   } = useModelsPage();
 
   return (
@@ -146,6 +158,22 @@ export function ModelsConfiguredPage() {
         onSyncDefaultSettings={() => {
           void handleSyncDefaultSettings();
         }}
+        credentialFormOpen={credentialFormOpen}
+        setCredentialFormOpen={setCredentialFormOpen}
+        editingCredential={editingCredential}
+        credentialFormData={credentialFormData}
+        setCredentialFormData={setCredentialFormData}
+        credentialFormError={credentialFormError}
+        credentialFormLoading={credentialFormLoading}
+        onOpenCreateCredential={handleOpenCreateCredential}
+        onOpenEditCredential={handleOpenEditCredential}
+        onCredentialFormSubmit={() => {
+          void handleCredentialFormSubmit();
+        }}
+        onDeleteCredential={(name) => {
+          void handleDeleteCredential(name);
+        }}
+        deleteCredentialLoading={deleteCredentialLoading}
       />
     </>
   );

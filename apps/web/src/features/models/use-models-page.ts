@@ -22,6 +22,14 @@ import {
 import type {
   OpenAiOAuthConnectionStatus,
   OpenAiOAuthDeviceCodeStartResult,
+  RegistryCredential,
+} from "@/shared/lib/api-client/credentials";
+import {
+  type CredentialInput,
+  type CredentialUpdateInput,
+  createCredential,
+  deleteCredential,
+  updateCredential,
 } from "@/shared/lib/api-client/credentials";
 import { validateAndBuildModelRoute } from "./models-form-utils";
 import { useLatestHealthChecks } from "./use-latest-health-checks";
@@ -178,6 +186,104 @@ export function useModelsPage() {
       queryClient.invalidateQueries({ queryKey: ["models-with-config"] });
     },
   });
+
+  const createCredentialMutation = useMutation({
+    mutationFn: (input: CredentialInput) => createCredential(input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["credentials"] });
+    },
+  });
+
+  const updateCredentialMutation = useMutation({
+    mutationFn: (params: { name: string; input: CredentialUpdateInput }) =>
+      updateCredential(params.name, params.input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["credentials"] });
+    },
+  });
+
+  const deleteCredentialMutation = useMutation({
+    mutationFn: (name: string) => deleteCredential(name),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["credentials"] });
+    },
+  });
+
+  // Credential form state
+  const [credentialFormOpen, setCredentialFormOpen] = useState(false);
+  const [editingCredential, setEditingCredential] =
+    useState<RegistryCredential | null>(null);
+  const [credentialFormData, setCredentialFormData] = useState<CredentialInput>(
+    {
+      name: "",
+      provider: null,
+      baseUrl: null,
+      secretRef: "",
+    },
+  );
+  const [credentialFormError, setCredentialFormError] = useState<string | null>(
+    null,
+  );
+  const credentialFormLoading =
+    createCredentialMutation.isPending || updateCredentialMutation.isPending;
+
+  function handleOpenCreateCredential() {
+    setEditingCredential(null);
+    setCredentialFormData({
+      name: "",
+      provider: null,
+      baseUrl: null,
+      secretRef: "",
+    });
+    setCredentialFormError(null);
+    setCredentialFormOpen(true);
+  }
+
+  function handleOpenEditCredential(credential: RegistryCredential) {
+    setEditingCredential(credential);
+    setCredentialFormData({
+      name: credential.credentialName,
+      provider: credential.provider,
+      baseUrl: credential.baseUrl,
+      secretRef: credential.secretRef ?? "",
+    });
+    setCredentialFormError(null);
+    setCredentialFormOpen(true);
+  }
+
+  async function handleCredentialFormSubmit() {
+    setCredentialFormError(null);
+    try {
+      if (editingCredential) {
+        await updateCredentialMutation.mutateAsync({
+          name: editingCredential.credentialName,
+          input: {
+            ...(credentialFormData.name !== editingCredential.credentialName
+              ? { name: credentialFormData.name }
+              : {}),
+            provider: credentialFormData.provider,
+            baseUrl: credentialFormData.baseUrl,
+            ...(credentialFormData.secretRef
+              ? { secretRef: credentialFormData.secretRef }
+              : {}),
+          },
+        });
+      } else {
+        await createCredentialMutation.mutateAsync(credentialFormData);
+      }
+      setCredentialFormOpen(false);
+    } catch (e) {
+      setCredentialFormError(String(e));
+    }
+  }
+
+  async function handleDeleteCredential(name: string) {
+    try {
+      await deleteCredentialMutation.mutateAsync(name);
+    } catch (e) {
+      setCredentialFormError(String(e));
+    }
+  }
 
   // Merge state
   const [mergeMode, setMergeMode] = useState(false);
@@ -519,5 +625,17 @@ export function useModelsPage() {
     sourceModel,
     targetModel,
     updateExtraParam,
+    credentialFormOpen,
+    setCredentialFormOpen,
+    editingCredential,
+    credentialFormData,
+    setCredentialFormData,
+    credentialFormError,
+    credentialFormLoading,
+    handleOpenCreateCredential,
+    handleOpenEditCredential,
+    handleCredentialFormSubmit,
+    handleDeleteCredential,
+    deleteCredentialLoading: deleteCredentialMutation.isPending,
   };
 }

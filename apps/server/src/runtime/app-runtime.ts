@@ -36,6 +36,7 @@ interface AppRuntime {
 
 const DEFAULT_HEALTH_CHECK_PROMPT =
   "Respond with ONLY your model name. Example: gpt-5.3-codex";
+const CHATGPT_SUBSCRIPTION_PROVIDER = "chatgpt-subscription";
 
 interface HealthCheckPromptSource {
   getHealthCheckPrompt(): Promise<string | null>;
@@ -128,28 +129,11 @@ export async function resolveHealthCheckPrompt(
   }
 }
 
-async function warnIfDatabaseSettingsEmpty(): Promise<void> {
-  if (env.SETTINGS_STORAGE !== "database") {
-    return;
-  }
-
-  const agentsManager = createAgentsManager();
-  const config = await agentsManager.repository.read();
-  const agentCount = Object.keys(config.agents ?? {}).length;
-
-  if (agentCount === 0) {
-    console.warn(
-      "[settings] dashboard.agents is empty. Run `pnpm settings:import` to seed configuration from @settings, then restart with SETTINGS_STORAGE=database.",
-    );
-  }
-}
-
 export async function startAppRuntime(): Promise<AppRuntime> {
   const projectRoot = getProjectRoot();
   const ctx = createAppContext();
   const registry = createRegistryServices();
   await seedBootstrapApiKey(env.MODEL_PROXY_API_KEY, registry);
-  await warnIfDatabaseSettingsEmpty();
 
   const aliasDbWriter = {
     updateAliases: async (aliases: Record<string, string>) => {
@@ -169,6 +153,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   const heboGateway = await createHeboModelProxyGateway({
     modelsService,
     providerService,
+    openAiOAuthService: registry.openAiOAuthService,
   });
   const orchestration = createOrchestrationServices(
     ctx.analytics.dataSource,
@@ -193,6 +178,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
         registryModelsService: registry.registryModelsService,
         credentialsService: registry.credentialsService,
         apiKeysService: registry.apiKeysService,
+        openAiOAuthService: registry.openAiOAuthService,
       },
     },
     ctx,
@@ -222,6 +208,31 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   });
 
   const enabledModelNames = await modelsService.getEnabledModelNames();
+  const allProviders = await providerService.getAll();
+  const allModels = await modelsService.getAll();
+  const requestModeByModelName: Record<string, "chat" | "responses"> = {};
+  for (const modelName of enabledModelNames) {
+    const route = await registry.registryModelsService.getRoute(modelName);
+    const modelSpec = allModels[modelName];
+    const providerKeys = [
+      route?.ownedBy,
+      route?.family,
+      modelSpec?.ownedBy,
+      modelSpec?.family,
+    ].filter((value): value is string => !!value?.trim());
+
+    const usesChatGptSubscription = providerKeys.some((key) => {
+      if (key === CHATGPT_SUBSCRIPTION_PROVIDER) {
+        return true;
+      }
+      const provider = allProviders[key];
+      return provider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
+    });
+
+    if (usesChatGptSubscription) {
+      requestModeByModelName[modelName] = "responses";
+    }
+  }
   const healthCheckPrompt = await resolveHealthCheckPrompt(
     registry.settingsService,
     ctx.analytics.dataSource,
@@ -238,6 +249,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     modelProxyBaseUrl: env.MODEL_PROXY_BASE_URL?.trim() || "",
     modelProxyApiKey: env.MODEL_PROXY_API_KEY?.trim() || "",
     enabledModelNames: [...enabledModelNames],
+    requestModeByModelName,
   });
 
   app.post("/health-check/run", async (req, res) => {

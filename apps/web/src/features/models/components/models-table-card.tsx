@@ -12,7 +12,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ModelFormDialog } from "@/features/models/components/model-form-dialog";
 import { SyncModelsDialog } from "@/features/models/components/sync-models-dialog";
@@ -53,6 +53,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -76,6 +78,7 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 import type {
+  CredentialInput,
   OpenAiOAuthConnectionStatus,
   OpenAiOAuthDeviceCodeStartResult,
   RegistryCredential,
@@ -173,6 +176,19 @@ type ModelsTableCardProps = {
   defaultSettingsLoading: boolean;
   syncingDefaultSettings: boolean;
   onSyncDefaultSettings: () => void;
+
+  credentialFormOpen: boolean;
+  setCredentialFormOpen: (open: boolean) => void;
+  editingCredential: RegistryCredential | null;
+  credentialFormData: CredentialInput;
+  setCredentialFormData: (data: CredentialInput) => void;
+  credentialFormError: string | null;
+  credentialFormLoading: boolean;
+  onOpenCreateCredential: () => void;
+  onOpenEditCredential: (credential: RegistryCredential) => void;
+  onCredentialFormSubmit: () => void;
+  onDeleteCredential: (name: string) => void;
+  deleteCredentialLoading: boolean;
 };
 
 export function ModelsTableCard({
@@ -233,6 +249,18 @@ export function ModelsTableCard({
   defaultSettingsLoading,
   syncingDefaultSettings,
   onSyncDefaultSettings,
+  credentialFormOpen,
+  setCredentialFormOpen,
+  editingCredential,
+  credentialFormData,
+  setCredentialFormData,
+  credentialFormError,
+  credentialFormLoading,
+  onOpenCreateCredential,
+  onOpenEditCredential,
+  onCredentialFormSubmit,
+  onDeleteCredential,
+  deleteCredentialLoading,
 }: ModelsTableCardProps) {
   const [credentialsDialogOpen, setCredentialsDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -259,6 +287,12 @@ export function ModelsTableCard({
       ? defaultSettingsDriftCount
       : counts.configOnly + defaultSettingsDriftCount;
   const usesDatabaseStorage = settingsStorage === "database";
+
+  useEffect(() => {
+    if (!credentialsDialogOpen && credentialFormOpen) {
+      setCredentialFormOpen(false);
+    }
+  }, [credentialsDialogOpen, credentialFormOpen, setCredentialFormOpen]);
 
   return (
     <div className="space-y-4">
@@ -397,6 +431,236 @@ export function ModelsTableCard({
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">Proxy Credentials</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7"
+                      onClick={() => {
+                        void onOpenCreateCredential();
+                      }}
+                    >
+                      <Plus className="mr-1.5 h-3 w-3" />
+                      Add
+                    </Button>
+                  </div>
+                  {credentials.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Nenhuma credencial configurada.
+                    </p>
+                  ) : (
+                    <div className="max-h-48 overflow-auto rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Provider</TableHead>
+                            <TableHead>Base URL</TableHead>
+                            <TableHead className="w-20">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {credentials.map((cred) => (
+                            <TableRow key={cred.credentialId}>
+                              <TableCell className="font-mono text-xs">
+                                {cred.credentialName}
+                              </TableCell>
+                              <TableCell className="text-xs">
+                                {cred.provider ?? "—"}
+                              </TableCell>
+                              <TableCell className="text-xs">
+                                {cred.baseUrl ?? "—"}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={() => {
+                                      void onOpenEditCredential(cred);
+                                    }}
+                                  >
+                                    <Pencil className="h-3 w-3" />
+                                  </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        disabled={deleteCredentialLoading}
+                                      >
+                                        <Trash2 className="h-3 w-3 text-destructive" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                          Delete Credential
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to delete{" "}
+                                          <span className="font-semibold">
+                                            {cred.credentialName}
+                                          </span>
+                                          ? This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>
+                                          Cancel
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction asChild>
+                                          <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => {
+                                              void onDeleteCredential(
+                                                cred.credentialName,
+                                              );
+                                            }}
+                                          >
+                                            Delete
+                                          </Button>
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+
+                {credentialFormOpen && (
+                  <div className="space-y-3 rounded-md border p-3">
+                    <p className="text-sm font-medium">
+                      {editingCredential ? "Edit Credential" : "Add Credential"}
+                    </p>
+                    <div className="grid gap-2">
+                      <div className="grid gap-1">
+                        <Label
+                          htmlFor="cred-name"
+                          className="text-xs font-medium"
+                        >
+                          Name
+                        </Label>
+                        <Input
+                          id="cred-name"
+                          value={credentialFormData.name}
+                          onChange={(e) => {
+                            setCredentialFormData({
+                              ...credentialFormData,
+                              name: e.target.value,
+                            });
+                          }}
+                          placeholder="e.g., openai-prod"
+                          disabled={Boolean(editingCredential)}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="grid gap-1">
+                        <Label
+                          htmlFor="cred-provider"
+                          className="text-xs font-medium"
+                        >
+                          Provider
+                        </Label>
+                        <Input
+                          id="cred-provider"
+                          value={credentialFormData.provider ?? ""}
+                          onChange={(e) => {
+                            setCredentialFormData({
+                              ...credentialFormData,
+                              provider: e.target.value || null,
+                            });
+                          }}
+                          placeholder="e.g., openai"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="grid gap-1">
+                        <Label
+                          htmlFor="cred-baseurl"
+                          className="text-xs font-medium"
+                        >
+                          Base URL
+                        </Label>
+                        <Input
+                          id="cred-baseurl"
+                          value={credentialFormData.baseUrl ?? ""}
+                          onChange={(e) => {
+                            setCredentialFormData({
+                              ...credentialFormData,
+                              baseUrl: e.target.value || null,
+                            });
+                          }}
+                          placeholder="https://api.openai.com/v1"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="grid gap-1">
+                        <Label
+                          htmlFor="cred-secretref"
+                          className="text-xs font-medium"
+                        >
+                          Secret Ref (env var name)
+                        </Label>
+                        <Input
+                          id="cred-secretref"
+                          value={credentialFormData.secretRef}
+                          onChange={(e) => {
+                            setCredentialFormData({
+                              ...credentialFormData,
+                              secretRef: e.target.value,
+                            });
+                          }}
+                          placeholder="e.g., OPENAI_API_KEY"
+                          className="h-8 text-sm font-mono"
+                        />
+                      </div>
+                    </div>
+                    {credentialFormError && (
+                      <p className="text-xs text-destructive">
+                        {credentialFormError}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setCredentialFormOpen(false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          void onCredentialFormSubmit();
+                        }}
+                        disabled={
+                          credentialFormLoading ||
+                          !credentialFormData.name ||
+                          !credentialFormData.secretRef
+                        }
+                      >
+                        {credentialFormLoading
+                          ? "Saving..."
+                          : editingCredential
+                            ? "Update"
+                            : "Create"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <p className="text-sm font-medium">OpenAI OAuth</p>
                   <div className="rounded-md border p-3 text-sm">
