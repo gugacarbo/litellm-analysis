@@ -212,7 +212,7 @@ export class DbModelsRepository implements IModelsRepository {
 
   readSync(): ModelsConfig {
     throw new Error(
-      "readSync() is not supported when SETTINGS_STORAGE=database; use read() instead",
+      "readSync() is not supported with database-backed storage; use read() instead",
     );
   }
 

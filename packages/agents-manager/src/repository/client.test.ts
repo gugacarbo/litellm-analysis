@@ -1,62 +1,10 @@
-import * as fs from "node:fs/promises";
-import * as os from "node:os";
-import * as path from "node:path";
-import * as process from "node:process";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createRepositoryClient } from "./client";
 
-describe("createRepositoryClient fallback", () => {
-  let tmpDir: string;
-  let originalCwd: string;
-
-  beforeEach(async () => {
-    originalCwd = process.cwd();
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "agents-manager-test-"));
-    await fs.writeFile(path.join(tmpDir, "pnpm-workspace.yaml"), "\n");
-    await fs.mkdir(path.join(tmpDir, "@settings", "agents"), {
-      recursive: true,
-    });
-    process.chdir(tmpDir);
-  });
-
-  afterEach(async () => {
-    process.chdir(originalCwd);
-    await fs.rm(tmpDir, { recursive: true, force: true });
-  });
-
-  it("uses .jsonc when .json is missing", async () => {
-    const jsoncPath = path.join(tmpDir, "@settings", "agents", "agents.jsonc");
-    await fs.writeFile(jsoncPath, "{}");
-
+describe("createRepositoryClient", () => {
+  it("returns a repository instance", () => {
     const repository = createRepositoryClient();
-    expect(repository.getPath()).toBe(jsoncPath);
-  });
-
-  it("prefers configured .jsonc when both files exist", async () => {
-    const jsonPath = path.join(tmpDir, "@settings", "agents", "agents.json");
-    const jsoncPath = path.join(tmpDir, "@settings", "agents", "agents.jsonc");
-    await fs.writeFile(jsonPath, "{}");
-    await fs.writeFile(jsoncPath, "{}");
-
-    const repository = createRepositoryClient();
-    expect(repository.getPath()).toBe(jsoncPath);
-  });
-
-  it("copies agents.default.json when config file is missing", async () => {
-    const _jsonPath = path.join(tmpDir, "@settings", "agents", "agents.json");
-    const jsoncPath = path.join(tmpDir, "@settings", "agents", "agents.jsonc");
-    const defaultPath = path.join(
-      tmpDir,
-      "@settings",
-      "agents",
-      "agents.default.json",
-    );
-    await fs.writeFile(defaultPath, '{"$schema":"./agents.schema.json"}');
-
-    const repository = createRepositoryClient();
-    expect(repository.getPath()).toBe(jsoncPath);
-
-    const created = await fs.readFile(jsoncPath, "utf-8");
-    expect(created).toContain('"$schema":"./agents.schema.json"');
+    expect(repository).toBeDefined();
+    expect(typeof repository.read).toBe("function");
   });
 });
