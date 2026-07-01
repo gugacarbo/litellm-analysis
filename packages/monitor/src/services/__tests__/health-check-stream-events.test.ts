@@ -173,6 +173,49 @@ describe("HealthCheckService stream events", () => {
     expect(result.status).toBe("error");
   });
 
+  it("marks unhealthy when proxy returns 200 with stream error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          createStreamingResponse([
+            'data: {"error":{"message":"upstream authentication failed"}}\n\n',
+            "data: [DONE]\n\n",
+          ]),
+        ),
+    );
+
+    const service = new HealthCheckService(createServiceOptions());
+
+    const result = await service.runCheck("broken-model", "manual");
+
+    expect(result.status).toBe("unhealthy");
+    expect(result.statusCode).toBe(200);
+    expect(result.errorMessage).toBe("upstream authentication failed");
+  });
+
+  it("marks unhealthy when proxy returns 200 with empty body", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          createStreamingResponse([
+            'data: {"choices":[{"delta":{"content":""}}]}\n\n',
+            "data: [DONE]\n\n",
+          ]),
+        ),
+    );
+
+    const service = new HealthCheckService(createServiceOptions());
+
+    const result = await service.runCheck("empty-model", "manual");
+
+    expect(result.status).toBe("unhealthy");
+    expect(result.statusCode).toBe(200);
+  });
+
   it("supports responses-mode health checks", async () => {
     vi.stubGlobal(
       "fetch",
