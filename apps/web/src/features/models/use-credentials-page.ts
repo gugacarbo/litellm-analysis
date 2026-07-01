@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   getDefaultSettingsDiff,
   getModelProvider,
+  getModelsWithConfig,
   syncDefaultSettings,
   updateModelProvider,
 } from "@/shared/lib/api-client";
@@ -10,7 +11,9 @@ import {
   type CredentialInput,
   type CredentialUpdateInput,
   createCredential,
+  type DiscoveredCredentialModel,
   deleteCredential,
+  discoverCredentialModels,
   discoverOpenAiModels,
   getAllCredentials,
   getDefaultCredential,
@@ -19,11 +22,21 @@ import {
   type OpenAiOAuthDeviceCodeStartResult,
   pollOpenAiOAuthDeviceFlow,
   type RegistryCredential,
+  registerCredentialModels,
   registerOpenAiModels,
   startOpenAiOAuthDeviceFlow,
+  testCredentialModel,
   testOpenAIModel,
   updateCredential,
 } from "@/shared/lib/api-client/credentials";
+
+type DiscoverModelsSource =
+  | { kind: "openai-oauth" }
+  | {
+      kind: "credential";
+      credentialName: string;
+      provider: string | null;
+    };
 
 export function useCredentialsPage() {
   const queryClient = useQueryClient();
@@ -52,6 +65,10 @@ export function useCredentialsPage() {
     queryKey: ["models-default-settings-diff"],
     queryFn: getDefaultSettingsDiff,
   });
+  const modelsWithConfigQuery = useQuery({
+    queryKey: ["models-with-config"],
+    queryFn: getModelsWithConfig,
+  });
 
   const [providerDefaultCredential, setProviderDefaultCredential] =
     useState("");
@@ -59,8 +76,10 @@ export function useCredentialsPage() {
     useState<OpenAiOAuthDeviceCodeStartResult | null>(null);
   const [oauthError, setOauthError] = useState<string | null>(null);
   const [discoverModelsOpen, setDiscoverModelsOpen] = useState(false);
+  const [discoverModelsSource, setDiscoverModelsSource] =
+    useState<DiscoverModelsSource | null>(null);
   const [discoverModelsResult, setDiscoverModelsResult] = useState<
-    { id: string; ownedBy: string }[]
+    DiscoveredCredentialModel[]
   >([]);
   const [discoverModelsError, setDiscoverModelsError] = useState<string | null>(
     null,
@@ -109,27 +128,76 @@ export function useCredentialsPage() {
   const discoverOpenAiModelsMutation = useMutation({
     mutationFn: () => discoverOpenAiModels(),
   });
+  const discoverCredentialModelsMutation = useMutation({
+    mutationFn: (credentialName: string) =>
+      discoverCredentialModels(credentialName),
+  });
 
   const [registerLoading, setRegisterLoading] = useState(false);
+  const [registeredModelIds, setRegisteredModelIds] = useState<string[]>([]);
   const [registerResult, setRegisterResult] = useState<{
     registered: string[];
     skipped: string[];
   } | null>(null);
   const [registerError, setRegisterError] = useState<string | null>(null);
 
-  async function handleRegisterModels(modelIds: string[]) {
+  const existingModelIds = new Set(
+    modelsWithConfigQuery.data?.models.map((model) => model.modelName) ?? [],
+  );
+  for (const modelId of registeredModelIds) {
+    existingModelIds.add(modelId);
+  }
+
+  async function handleRegisterModels(modelIds: string[], closeAfter = false) {
+    if (!discoverModelsSource) {
+      setRegisterError("No discovery source selected.");
+      return;
+    }
+
+    const modelsToRegister = discoverModelsResult.filter((model) =>
+      modelIds.includes(model.id),
+    );
+
     setRegisterLoading(true);
     setRegisterError(null);
     setRegisterResult(null);
     try {
-      const result = await registerOpenAiModels(modelIds);
-      setRegisterResult(result);
+      const result =
+        discoverModelsSource.kind === "openai-oauth"
+          ? await registerOpenAiModels(modelsToRegister)
+          : await registerCredentialModels(
+              discoverModelsSource.credentialName,
+              modelsToRegister,
+            );
+      setRegisterResult((current) => ({
+        registered: [
+          ...(current?.registered ?? []),
+          ...result.registered.filter(
+            (modelId) => !(current?.registered ?? []).includes(modelId),
+          ),
+        ],
+        skipped: [
+          ...(current?.skipped ?? []),
+          ...result.skipped.filter(
+            (modelId) => !(current?.skipped ?? []).includes(modelId),
+          ),
+        ],
+      }));
+      if (result.registered.length > 0) {
+        setRegisteredModelIds((current) => [
+          ...current,
+          ...result.registered.filter((modelId) => !current.includes(modelId)),
+        ]);
+      }
       await queryClient.invalidateQueries({
         queryKey: ["models-with-config"],
       });
       await queryClient.invalidateQueries({
         queryKey: ["models-sync-diff"],
       });
+      if (closeAfter) {
+        setDiscoverModelsOpen(false);
+      }
     } catch (e) {
       setRegisterError(String(e));
     } finally {
@@ -139,7 +207,13 @@ export function useCredentialsPage() {
 
   const testModelMutation = useMutation({
     mutationFn: (input: { model: string; prompt: string }) =>
-      testOpenAIModel(input.model, input.prompt),
+      discoverModelsSource?.kind === "credential"
+        ? testCredentialModel(
+            discoverModelsSource.credentialName,
+            input.model,
+            input.prompt,
+          )
+        : testOpenAIModel(input.model, input.prompt),
     onSuccess: (data) => {
       setTestResult(data.content);
       setTestError(null);
@@ -196,7 +270,7 @@ export function useCredentialsPage() {
       name: "",
       provider: null,
       baseUrl: null,
-      secretRef: "",
+      apiKey: "",
     },
   );
   const [credentialFormError, setCredentialFormError] = useState<string | null>(
@@ -207,8 +281,12 @@ export function useCredentialsPage() {
 
   async function handleDiscoverModels() {
     setDiscoverModelsOpen(true);
+    setDiscoverModelsSource({ kind: "openai-oauth" });
     setDiscoverModelsResult([]);
     setDiscoverModelsError(null);
+    setRegisterError(null);
+    setRegisterResult(null);
+    setRegisteredModelIds([]);
     setTestModelId(null);
     setTestResult(null);
     setTestError(null);
@@ -220,11 +298,47 @@ export function useCredentialsPage() {
     }
   }
 
+  async function handleDiscoverCredentialModels(
+    credential: RegistryCredential,
+  ) {
+    setDiscoverModelsOpen(true);
+    setDiscoverModelsSource({
+      kind: "credential",
+      credentialName: credential.credentialName,
+      provider: credential.provider,
+    });
+    setDiscoverModelsResult([]);
+    setDiscoverModelsError(null);
+    setRegisterError(null);
+    setRegisterResult(null);
+    setRegisteredModelIds([]);
+    setTestModelId(null);
+    setTestResult(null);
+    setTestError(null);
+    try {
+      const result = await discoverCredentialModelsMutation.mutateAsync(
+        credential.credentialName,
+      );
+      setDiscoverModelsResult(result.models);
+    } catch (e) {
+      setDiscoverModelsError(String(e));
+    }
+  }
+
   async function handleRegisterAllModels() {
-    const modelIds = discoverModelsResult.map((m) => m.id);
+    const modelIds = discoverModelsResult
+      .map((m) => m.id)
+      .filter((modelId) => !existingModelIds.has(modelId));
     if (modelIds.length === 0) return;
-    await handleRegisterModels(modelIds);
-    setDiscoverModelsOpen(false);
+    await handleRegisterModels(modelIds, true);
+  }
+
+  async function handleRegisterSingleModel(modelId: string) {
+    if (existingModelIds.has(modelId)) {
+      return;
+    }
+
+    await handleRegisterModels([modelId]);
   }
 
   function handleTestModel(modelId: string) {
@@ -257,7 +371,7 @@ export function useCredentialsPage() {
       name: "",
       provider: null,
       baseUrl: null,
-      secretRef: "",
+      apiKey: "",
     });
     setCredentialFormError(null);
     setCredentialFormOpen(true);
@@ -269,7 +383,7 @@ export function useCredentialsPage() {
       name: credential.credentialName,
       provider: credential.provider,
       baseUrl: credential.baseUrl,
-      secretRef: credential.secretRef ?? "",
+      apiKey: "",
     });
     setCredentialFormError(null);
     setCredentialFormOpen(true);
@@ -287,8 +401,8 @@ export function useCredentialsPage() {
               : {}),
             provider: credentialFormData.provider,
             baseUrl: credentialFormData.baseUrl,
-            ...(credentialFormData.secretRef
-              ? { secretRef: credentialFormData.secretRef }
+            ...(credentialFormData.apiKey
+              ? { apiKey: credentialFormData.apiKey }
               : {}),
           },
         });
@@ -429,10 +543,14 @@ export function useCredentialsPage() {
     deleteCredentialLoading: deleteCredentialMutation.isPending,
     discoverModelsOpen,
     setDiscoverModelsOpen,
+    discoverModelsSource,
     discoverModelsResult,
-    discoverModelsLoading: discoverOpenAiModelsMutation.isPending,
+    discoverModelsLoading:
+      discoverOpenAiModelsMutation.isPending ||
+      discoverCredentialModelsMutation.isPending,
     discoverModelsError,
     handleDiscoverModels,
+    handleDiscoverCredentialModels,
     testModelId,
     testPrompt,
     setTestPrompt,
@@ -445,5 +563,7 @@ export function useCredentialsPage() {
     registerModelsResult: registerResult,
     registerModelsError: registerError,
     handleRegisterModels: handleRegisterAllModels,
+    handleRegisterSingleModel,
+    existingModelIds,
   };
 }

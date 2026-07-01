@@ -44,7 +44,24 @@ export async function fetchApi<T>(
   });
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    const contentType = response.headers.get("content-type") ?? "";
+
+    if (contentType.includes("application/json")) {
+      const payload = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      if (payload?.error) {
+        message = payload.error;
+      }
+    } else {
+      const text = await response.text().catch(() => "");
+      if (text.trim()) {
+        message = text.trim();
+      }
+    }
+
+    throw new Error(message);
   }
 
   return response.json();

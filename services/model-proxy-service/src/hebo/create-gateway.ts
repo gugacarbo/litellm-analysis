@@ -6,6 +6,7 @@ import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import { RequestLedger } from "../logging/request-ledger";
 import { buildHeboGatewayConfig } from "./build-config";
 import { createLedgerHooks, HEBO_MAX_BODY_SIZE } from "./ledger-hooks";
+import { createHeboLogger } from "./logger";
 
 export interface HeboModelProxyGateway {
   handler: (req: Request, state?: Record<string, unknown>) => Promise<Response>;
@@ -45,6 +46,7 @@ async function createGatewayInstance(
 
   const gw = gateway({
     basePath: "/v1",
+    logger: createHeboLogger(),
     providers: build.providers,
     models: build.models,
     hooks: {

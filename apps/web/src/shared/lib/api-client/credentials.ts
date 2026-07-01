@@ -5,7 +5,7 @@ export type RegistryCredential = {
   credentialName: string;
   provider: string | null;
   baseUrl: string | null;
-  secretRef: string | null;
+  hasStoredSecret: boolean;
   createdAt: string | null;
   updatedAt: string | null;
 };
@@ -42,14 +42,14 @@ export type CredentialInput = {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
-  secretRef: string;
+  apiKey: string;
 };
 
 export type CredentialUpdateInput = {
   name?: string;
   provider?: string | null;
   baseUrl?: string | null;
-  secretRef?: string;
+  apiKey?: string;
 };
 
 export async function getCredential(
@@ -137,10 +137,18 @@ export type OpenAiDiscoveredModel = {
   created?: number;
 };
 
+export type DiscoveredCredentialModel = OpenAiDiscoveredModel;
+
 export async function discoverOpenAiModels(): Promise<{
   models: OpenAiDiscoveredModel[];
 }> {
   return fetchApi("/credentials/openai-oauth/discover-models");
+}
+
+export async function discoverCredentialModels(name: string): Promise<{
+  models: DiscoveredCredentialModel[];
+}> {
+  return fetchApi(`/credentials/${encodeURIComponent(name)}/discover-models`);
 }
 
 export async function testOpenAIModel(
@@ -155,10 +163,33 @@ export async function testOpenAIModel(
   });
 }
 
+export async function testCredentialModel(
+  name: string,
+  model: string,
+  prompt: string,
+): Promise<{
+  content: string;
+}> {
+  return fetchApi(`/credentials/${encodeURIComponent(name)}/test-chat`, {
+    method: "POST",
+    body: JSON.stringify({ model, prompt }),
+  });
+}
+
 export async function registerOpenAiModels(
-  models: Array<{ id: string; ownedBy?: string }>,
-): Promise<{ registered: number; skipped: number; errors: string[] }> {
+  models: DiscoveredCredentialModel[],
+): Promise<{ registered: string[]; skipped: string[]; errors: string[] }> {
   return fetchApi("/credentials/openai-oauth/register-models", {
+    method: "POST",
+    body: JSON.stringify({ models }),
+  });
+}
+
+export async function registerCredentialModels(
+  name: string,
+  models: DiscoveredCredentialModel[],
+): Promise<{ registered: string[]; skipped: string[]; errors: string[] }> {
+  return fetchApi(`/credentials/${encodeURIComponent(name)}/register-models`, {
     method: "POST",
     body: JSON.stringify({ models }),
   });

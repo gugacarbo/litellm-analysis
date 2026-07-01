@@ -27,7 +27,8 @@ export interface CredentialWriteData {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
-  secretRef: string;
+  apiKey?: string | null;
+  secretRef?: string | null;
 }
 
 export interface LegacyCredentialImportData {
@@ -66,7 +67,8 @@ export class CredentialsRepository {
         name: data.name,
         provider: data.provider ?? null,
         baseUrl: data.baseUrl ?? null,
-        secretRef: data.secretRef,
+        apiKey: data.apiKey ?? null,
+        secretRef: data.secretRef ?? null,
       },
     });
     return toRecord(row);
@@ -83,6 +85,7 @@ export class CredentialsRepository {
           ...(data.name !== undefined ? { name: data.name } : {}),
           ...(data.provider !== undefined ? { provider: data.provider } : {}),
           ...(data.baseUrl !== undefined ? { baseUrl: data.baseUrl } : {}),
+          ...(data.apiKey !== undefined ? { apiKey: data.apiKey } : {}),
           ...(data.secretRef !== undefined
             ? { secretRef: data.secretRef }
             : {}),

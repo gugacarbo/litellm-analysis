@@ -38,10 +38,16 @@ function parseApiKeyToSecretRef(apiKey: string | undefined): string | null {
 }
 
 function secretRefToApiKey(secretRef: string | null): string | undefined {
-  if (!secretRef?.trim()) {
+  const trimmed = secretRef?.trim();
+  if (!trimmed) {
     return undefined;
   }
-  return `env:${secretRef.trim()}`;
+
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(trimmed)) {
+    return `env:${trimmed}`;
+  }
+
+  return undefined;
 }
 
 function resolveProviderField(

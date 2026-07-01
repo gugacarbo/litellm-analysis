@@ -178,7 +178,9 @@ export async function getRegistryCredentialsImpl(): Promise<
     credentialName: record.name,
     credentialValues: null,
     credentialInfo: {
-      secretRef: record.secretRef,
+      hasStoredSecret: Boolean(
+        record.apiKey?.trim() || record.secretRef?.trim(),
+      ),
       provider: record.provider,
     },
     createdAt: record.createdAt.toISOString(),

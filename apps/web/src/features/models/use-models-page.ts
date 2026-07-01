@@ -218,7 +218,7 @@ export function useModelsPage() {
       name: "",
       provider: null,
       baseUrl: null,
-      secretRef: "",
+      apiKey: "",
     },
   );
   const [credentialFormError, setCredentialFormError] = useState<string | null>(
@@ -233,7 +233,7 @@ export function useModelsPage() {
       name: "",
       provider: null,
       baseUrl: null,
-      secretRef: "",
+      apiKey: "",
     });
     setCredentialFormError(null);
     setCredentialFormOpen(true);
@@ -245,7 +245,7 @@ export function useModelsPage() {
       name: credential.credentialName,
       provider: credential.provider,
       baseUrl: credential.baseUrl,
-      secretRef: credential.secretRef ?? "",
+      apiKey: "",
     });
     setCredentialFormError(null);
     setCredentialFormOpen(true);
@@ -263,8 +263,8 @@ export function useModelsPage() {
               : {}),
             provider: credentialFormData.provider,
             baseUrl: credentialFormData.baseUrl,
-            ...(credentialFormData.secretRef
-              ? { secretRef: credentialFormData.secretRef }
+            ...(credentialFormData.apiKey
+              ? { apiKey: credentialFormData.apiKey }
               : {}),
           },
         });

@@ -238,4 +238,31 @@ describe("DbModelsRepository", () => {
     });
     expect(credential?.secretRef).toBe("OPENAI_API_KEY");
   });
+
+  it("does not expose literal credential secrets through provider config reads", async () => {
+    const prisma = createInMemoryPrisma();
+    const repository = createDbRepository({
+      prisma: prisma as never,
+      validateOnRead: false,
+    });
+
+    await prisma.modelProxyCredential.create({
+      data: {
+        name: "Iproute",
+        provider: "openai",
+        baseUrl: "https://llm.iproute.cloud/",
+        secretRef: "sk-live-literal-secret",
+      },
+    });
+
+    const readBack = await repository.read();
+
+    expect(readBack.provider.openai).toMatchObject({
+      name: "Iproute",
+      baseUrl: "https://llm.iproute.cloud/",
+      defaultCredential: "Iproute",
+      ownedBy: "openai",
+    });
+    expect(readBack.provider.openai?.apiKey).toBeUndefined();
+  });
 });

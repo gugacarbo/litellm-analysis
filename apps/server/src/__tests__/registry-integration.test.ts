@@ -1,3 +1,4 @@
+import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRegistryTestStack } from "./helpers/registry-test-stack";
@@ -40,9 +41,9 @@ async function createRegistryHttpServer(
   return { port, server, stack };
 }
 
-async function closeServer(
-  server: Awaited<ReturnType<typeof createRegistryHttpServer>>["server"],
-) {
+async function closeServer(server: {
+  close: (cb: (error?: Error) => void) => void;
+}) {
   await new Promise<void>((resolve, reject) => {
     server.close((error) => (error ? reject(error) : resolve()));
   });
@@ -51,6 +52,10 @@ async function closeServer(
 describe("registry integration", () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
+    vi.stubEnv(
+      "MODEL_PROXY_OAUTH_ENCRYPTION_KEY",
+      "01234567890123456789012345678901",
+    );
   });
 
   afterEach(() => {
@@ -104,6 +109,50 @@ describe("registry integration", () => {
       }
     });
 
+    it("stores raw api keys securely and never returns them in credential responses", async () => {
+      const { port, server } = await createRegistryHttpServer(
+        undefined,
+        "credentials",
+      );
+
+      try {
+        const createResponse = await fetch(
+          `http://127.0.0.1:${port}/credentials`,
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              name: "iproute",
+              provider: "openai",
+              baseUrl: "https://llm.iproute.cloud/v1",
+              apiKey: "sk-raw-secret",
+            }),
+          },
+        );
+        expect(createResponse.status).toBe(201);
+        expect(await createResponse.json()).toEqual(
+          expect.objectContaining({
+            credentialName: "iproute",
+            baseUrl: "https://llm.iproute.cloud/v1",
+            hasStoredSecret: true,
+          }),
+        );
+
+        const listResponse = await fetch(
+          `http://127.0.0.1:${port}/credentials`,
+        );
+        expect(listResponse.status).toBe(200);
+        expect(await listResponse.json()).toEqual([
+          expect.objectContaining({
+            credentialName: "iproute",
+            hasStoredSecret: true,
+          }),
+        ]);
+      } finally {
+        await closeServer(server);
+      }
+    });
+
     it("exposes OpenAI OAuth connection status routes", async () => {
       const { port, server } = await createRegistryHttpServer(
         undefined,
@@ -128,8 +177,210 @@ describe("registry integration", () => {
         expect(await startResponse.json()).toMatchObject({
           userCode: "ABCD-1234",
         });
+
+        const registerResponse = await fetch(
+          `http://127.0.0.1:${port}/credentials/openai-oauth/register-models`,
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              models: [{ id: "gpt-4.1" }, { id: "gpt-4.1" }],
+            }),
+          },
+        );
+        expect(registerResponse.status).toBe(200);
+        expect(await registerResponse.json()).toEqual({
+          registered: ["gpt-4.1"],
+          skipped: ["gpt-4.1"],
+          errors: [],
+        });
       } finally {
         await closeServer(server);
+      }
+    });
+
+    it("discovers provider models through saved credentials", async () => {
+      let receivedAuthorization = "";
+      let receivedPath = "";
+      const upstreamServer = createServer((req, res) => {
+        receivedAuthorization = req.headers.authorization ?? "";
+        receivedPath = req.url ?? "";
+        if (req.url === "/models") {
+          res.statusCode = 404;
+          res.end("not found");
+          return;
+        }
+        res.setHeader("content-type", "application/json");
+        res.end(
+          JSON.stringify({
+            data: [{ id: "llama-3.3-70b", owned_by: "groq" }],
+          }),
+        );
+      });
+
+      upstreamServer.listen(0);
+      await new Promise<void>((resolve) => {
+        upstreamServer.once("listening", () => resolve());
+      });
+
+      const upstreamPort = (upstreamServer.address() as AddressInfo).port;
+      const stack = createRegistryTestStack();
+      await stack.registry.credentialsService.create({
+        name: "groq-main",
+        provider: "groq",
+        baseUrl: `http://127.0.0.1:${upstreamPort}`,
+        secretRef: "secret-123",
+      });
+
+      const { port, server } = await createRegistryHttpServer(
+        stack,
+        "credentials",
+      );
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:${port}/credentials/groq-main/discover-models`,
+        );
+        expect(response.status).toBe(200);
+        expect(await response.json()).toEqual({
+          models: [
+            {
+              id: "llama-3.3-70b",
+              ownedBy: "groq",
+            },
+          ],
+        });
+        expect(receivedAuthorization).toBe("Bearer secret-123");
+        expect(receivedPath).toBe("/v1/models");
+      } finally {
+        await closeServer(server);
+        await closeServer(upstreamServer);
+      }
+    });
+
+    it("registers discovered provider models with credential routing", async () => {
+      const stack = createRegistryTestStack();
+      await stack.registry.credentialsService.create({
+        name: "groq-main",
+        provider: "groq",
+        baseUrl: "https://api.groq.com/openai/v1",
+        secretRef: "GROQ_API_KEY",
+      });
+
+      const { port, server } = await createRegistryHttpServer(
+        stack,
+        "credentials",
+      );
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:${port}/credentials/groq-main/register-models`,
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              models: [
+                { id: "llama-3.3-70b", ownedBy: "groq" },
+                { id: "llama-3.3-70b", ownedBy: "groq" },
+              ],
+            }),
+          },
+        );
+
+        expect(response.status).toBe(200);
+        expect(await response.json()).toEqual({
+          registered: ["llama-3.3-70b"],
+          skipped: ["llama-3.3-70b"],
+          errors: [],
+        });
+
+        const route =
+          await stack.registry.registryModelsService.getRoute("llama-3.3-70b");
+        expect(route).toMatchObject({
+          modelName: "llama-3.3-70b",
+          upstreamModel: "llama-3.3-70b",
+          upstreamBaseUrl: "https://api.groq.com/openai/v1",
+          credentialName: "groq-main",
+          ownedBy: "groq",
+        });
+      } finally {
+        await closeServer(server);
+      }
+    });
+
+    it("tests discovered provider models through saved credentials", async () => {
+      let receivedAuthorization = "";
+      let receivedPath = "";
+      let receivedBody = "";
+      const upstreamServer = createServer((req, res) => {
+        receivedAuthorization = req.headers.authorization ?? "";
+        receivedPath = req.url ?? "";
+
+        req.setEncoding("utf8");
+        req.on("data", (chunk) => {
+          receivedBody += chunk;
+        });
+        req.on("end", () => {
+          res.setHeader("content-type", "application/json");
+          res.end(
+            JSON.stringify({
+              choices: [
+                {
+                  message: {
+                    content: "quick ok",
+                  },
+                },
+              ],
+            }),
+          );
+        });
+      });
+
+      upstreamServer.listen(0);
+      await new Promise<void>((resolve) => {
+        upstreamServer.once("listening", () => resolve());
+      });
+
+      const upstreamPort = (upstreamServer.address() as AddressInfo).port;
+      const stack = createRegistryTestStack();
+      await stack.registry.credentialsService.create({
+        name: "groq-main",
+        provider: "groq",
+        baseUrl: `http://127.0.0.1:${upstreamPort}`,
+        secretRef: "secret-123",
+      });
+
+      const { port, server } = await createRegistryHttpServer(
+        stack,
+        "credentials",
+      );
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:${port}/credentials/groq-main/test-chat`,
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              model: "llama-3.3-70b",
+              prompt: "say hi",
+            }),
+          },
+        );
+
+        expect(response.status).toBe(200);
+        expect(await response.json()).toEqual({ content: "quick ok" });
+        expect(receivedAuthorization).toBe("Bearer secret-123");
+        expect(receivedPath).toBe("/v1/chat/completions");
+        expect(JSON.parse(receivedBody)).toMatchObject({
+          model: "llama-3.3-70b",
+          stream: false,
+          max_tokens: 64,
+          messages: [{ role: "user", content: "say hi" }],
+        });
+      } finally {
+        await closeServer(server);
+        await closeServer(upstreamServer);
       }
     });
 
@@ -322,7 +573,7 @@ describe("registry integration", () => {
   });
 
   describe("credentials", () => {
-    it("lists credentials with secretRef and without api_key", async () => {
+    it("lists credentials without exposing stored secrets", async () => {
       const stack = createRegistryTestStack();
       await stack.registry.credentialsService.create({
         name: "openai-main",
@@ -344,10 +595,11 @@ describe("registry integration", () => {
         expect(body).toHaveLength(1);
         expect(body[0]).toMatchObject({
           credentialName: "openai-main",
-          secretRef: "OPENAI_API_KEY",
+          hasStoredSecret: true,
           provider: "openai",
           baseUrl: "https://api.openai.com/v1",
         });
+        expect(body[0]).not.toHaveProperty("secretRef");
         expect(body[0]).not.toHaveProperty("api_key");
         expect(body[0]).not.toHaveProperty("apiKey");
         expect(body[0]).not.toHaveProperty("credentialValues");

@@ -192,9 +192,20 @@ export class HealthCheckService {
         streamResult.ttftMs,
       );
 
-      const status: HealthCheckResult["status"] = response.ok
-        ? "healthy"
-        : "unhealthy";
+      const upstreamReportedError =
+        !!streamResult.responseErrorMessage ||
+        (!streamResult.responseText && !streamResult.completionTokens);
+
+      const status: HealthCheckResult["status"] = !response.ok
+        ? "unhealthy"
+        : upstreamReportedError
+          ? "unhealthy"
+          : "healthy";
+
+      const errorMessage = !response.ok
+        ? (streamResult.responseErrorMessage ??
+          `HTTP ${statusCode}: ${response.statusText}`)
+        : (streamResult.responseErrorMessage ?? null);
 
       const check: HealthCheckResult = {
         id: 0,
@@ -209,10 +220,7 @@ export class HealthCheckService {
         responseReceived: streamResult.responseText,
         requestPayload,
         responsePayload: streamResult.responsePayload,
-        errorMessage: response.ok
-          ? null
-          : (streamResult.responseErrorMessage ??
-            `HTTP ${statusCode}: ${response.statusText}`),
+        errorMessage,
         source,
         checkedAt: Math.floor(startTime / 1000),
       };

@@ -81,10 +81,12 @@ export function CredentialsPage() {
     deleteCredentialLoading,
     discoverModelsOpen,
     setDiscoverModelsOpen,
+    discoverModelsSource,
     discoverModelsResult,
     discoverModelsLoading,
     discoverModelsError,
     handleDiscoverModels,
+    handleDiscoverCredentialModels,
     testModelId,
     testPrompt,
     setTestPrompt,
@@ -97,6 +99,8 @@ export function CredentialsPage() {
     registerModelsResult,
     registerModelsError,
     handleRegisterModels,
+    handleRegisterSingleModel,
+    existingModelIds,
   } = useCredentialsPage();
 
   return (
@@ -143,8 +147,8 @@ export function CredentialsPage() {
         </div>
         <p className="text-sm text-muted-foreground">
           Manage credentials used by the proxy to authenticate with model
-          providers. The <span className="font-mono text-xs">secretRef</span> is
-          the environment variable name that holds the API key.
+          providers. API keys are encrypted at rest and are never shown again
+          after saving.
         </p>
 
         {credentials.length === 0 ? (
@@ -161,8 +165,8 @@ export function CredentialsPage() {
                   <TableHead>Name</TableHead>
                   <TableHead>Provider</TableHead>
                   <TableHead>Base URL</TableHead>
-                  <TableHead>Secret Ref</TableHead>
-                  <TableHead className="w-24">Actions</TableHead>
+                  <TableHead>Stored Secret</TableHead>
+                  <TableHead className="w-40">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -185,11 +189,25 @@ export function CredentialsPage() {
                     <TableCell className="text-xs">
                       {cred.baseUrl ?? "—"}
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {cred.secretRef ?? "—"}
+                    <TableCell className="text-xs">
+                      {cred.hasStoredSecret ? (
+                        <Badge variant="outline">Stored securely</Badge>
+                      ) : (
+                        "—"
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => {
+                            void handleDiscoverCredentialModels(cred);
+                          }}
+                          title="Discover provider models"
+                        >
+                          <Search className="h-3 w-3" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon-sm"
@@ -308,19 +326,25 @@ export function CredentialsPage() {
                 />
               </div>
               <div className="grid gap-1">
-                <Label htmlFor="cred-secretref" className="text-xs font-medium">
-                  Secret Ref (env var name)
+                <Label htmlFor="cred-apikey" className="text-xs font-medium">
+                  API Key
                 </Label>
                 <Input
-                  id="cred-secretref"
-                  value={credentialFormData.secretRef}
+                  id="cred-apikey"
+                  type="password"
+                  autoComplete="new-password"
+                  value={credentialFormData.apiKey}
                   onChange={(e) => {
                     setCredentialFormData({
                       ...credentialFormData,
-                      secretRef: e.target.value,
+                      apiKey: e.target.value,
                     });
                   }}
-                  placeholder="e.g., OPENAI_API_KEY"
+                  placeholder={
+                    editingCredential
+                      ? "Leave blank to keep the stored key"
+                      : "Paste provider API key"
+                  }
                   className="h-8 text-sm font-mono"
                 />
               </div>
@@ -346,7 +370,7 @@ export function CredentialsPage() {
                 disabled={
                   credentialFormLoading ||
                   !credentialFormData.name ||
-                  !credentialFormData.secretRef
+                  (!editingCredential && !credentialFormData.apiKey)
                 }
               >
                 {credentialFormLoading
@@ -531,9 +555,17 @@ export function CredentialsPage() {
       <Dialog open={discoverModelsOpen} onOpenChange={setDiscoverModelsOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>OpenAI Models</DialogTitle>
+            <DialogTitle>
+              {discoverModelsSource?.kind === "credential"
+                ? `Models for ${discoverModelsSource.credentialName}`
+                : "OpenAI Models"}
+            </DialogTitle>
             <DialogDescription>
-              Models available on the connected OpenAI account.
+              {discoverModelsSource?.kind === "credential"
+                ? `Models available from ${
+                    discoverModelsSource.provider || "this provider"
+                  } using the selected credential.`
+                : "Models available on the connected OpenAI account."}
             </DialogDescription>
           </DialogHeader>
           {discoverModelsLoading ? (
@@ -572,10 +604,17 @@ export function CredentialsPage() {
                   {discoverModelsResult.map((model) => (
                     <li
                       key={model.id}
-                      className="flex items-center justify-between px-4 py-2"
+                      className="flex items-center justify-between gap-3 px-4 py-2"
                     >
-                      <span className="font-mono text-sm">{model.id}</span>
-                      <div className="flex gap-2">
+                      <div className="min-w-0">
+                        <span className="font-mono text-sm">{model.id}</span>
+                        {model.ownedBy ? (
+                          <p className="truncate text-xs text-muted-foreground">
+                            {model.ownedBy}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="flex shrink-0 gap-2">
                         <Button
                           variant={
                             testModelId === model.id ? "default" : "outline"
@@ -585,21 +624,35 @@ export function CredentialsPage() {
                           onClick={() => handleTestModel(model.id)}
                           disabled={testLoading}
                         >
-                          Test
+                          Testar
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 text-xs"
-                          onClick={() => {
-                            window.open(
-                              `/models/${encodeURIComponent(model.id)}`,
-                              "_blank",
-                            );
-                          }}
-                        >
-                          Configure
-                        </Button>
+                        {existingModelIds.has(model.id) ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => {
+                              window.open(
+                                `/models/${encodeURIComponent(model.id)}`,
+                                "_blank",
+                              );
+                            }}
+                          >
+                            Configurar
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => {
+                              void handleRegisterSingleModel(model.id);
+                            }}
+                            disabled={registerModelsLoading}
+                          >
+                            Adicionar
+                          </Button>
+                        )}
                       </div>
                     </li>
                   ))}
@@ -608,7 +661,7 @@ export function CredentialsPage() {
               {testModelId && (
                 <div className="space-y-2 rounded-md border p-4">
                   <div className="flex items-center gap-2">
-                    <Label className="text-xs font-medium">Test</Label>
+                    <Label className="text-xs font-medium">Teste rapido</Label>
                     <span className="font-mono text-xs text-muted-foreground">
                       {testModelId}
                     </span>
@@ -655,7 +708,12 @@ export function CredentialsPage() {
                 onClick={() => {
                   void handleRegisterModels();
                 }}
-                disabled={registerModelsLoading}
+                disabled={
+                  registerModelsLoading ||
+                  discoverModelsResult.every((model) =>
+                    existingModelIds.has(model.id),
+                  )
+                }
               >
                 {registerModelsLoading ? "Registering..." : "Register All"}
               </Button>

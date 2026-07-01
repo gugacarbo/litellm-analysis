@@ -14,7 +14,8 @@ export interface CredentialCreateInput {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
-  secretRef: string;
+  apiKey?: string;
+  secretRef?: string;
 }
 
 export type CredentialUpdateInput = Partial<

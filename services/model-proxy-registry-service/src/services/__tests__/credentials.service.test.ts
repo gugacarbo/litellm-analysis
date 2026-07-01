@@ -18,6 +18,7 @@ function createCredentialsPrismaMock() {
   let idCounter = 1;
 
   return {
+    rows,
     modelProxyCredential: {
       findUnique: vi.fn(async ({ where }: { where: { name: string } }) => {
         return rows.get(where.name) ?? null;
@@ -31,7 +32,8 @@ function createCredentialsPrismaMock() {
             name: string;
             provider: string | null;
             baseUrl: string | null;
-            secretRef: string;
+            apiKey?: string | null;
+            secretRef?: string | null;
           };
         }) => {
           const now = new Date();
@@ -40,8 +42,8 @@ function createCredentialsPrismaMock() {
             name: args.data.name,
             provider: args.data.provider,
             baseUrl: args.data.baseUrl,
-            apiKey: null,
-            secretRef: args.data.secretRef,
+            apiKey: args.data.apiKey ?? null,
+            secretRef: args.data.secretRef ?? null,
             createdAt: now,
             updatedAt: now,
           };
@@ -59,7 +61,8 @@ function createCredentialsPrismaMock() {
             name: string;
             provider: string | null;
             baseUrl: string | null;
-            secretRef: string;
+            apiKey: string | null;
+            secretRef: string | null;
           }>;
         }) => {
           const existing = rows.get(where.name);
@@ -98,49 +101,64 @@ function createCredentialsPrismaMock() {
 
 describe("CredentialsService", () => {
   let service: CredentialsService;
+  let prisma: ReturnType<typeof createCredentialsPrismaMock>;
 
   beforeEach(() => {
-    const prisma = createCredentialsPrismaMock();
+    vi.stubEnv(
+      "MODEL_PROXY_OAUTH_ENCRYPTION_KEY",
+      "01234567890123456789012345678901",
+    );
+    prisma = createCredentialsPrismaMock();
     service = new CredentialsService({
       repository: new CredentialsRepository(prisma as never),
     });
   });
 
-  it("creates credential with secretRef only", async () => {
+  it("creates credential with encrypted apiKey storage", async () => {
     const record = await service.create({
       name: "openai-main",
       provider: "openai",
       baseUrl: "https://api.openai.com/v1",
+      apiKey: "sk-secret",
+    });
+    expect(record.secretRef).toBeNull();
+    expect(record.apiKey).toBeTruthy();
+    expect(record.apiKey).not.toBe("sk-secret");
+  });
+
+  it("creates credential with env-based secretRef", async () => {
+    const record = await service.create({
+      name: "openai-main",
       secretRef: "OPENAI_API_KEY",
     });
     expect(record.secretRef).toBe("OPENAI_API_KEY");
     expect(record.apiKey).toBeNull();
   });
 
-  it("rejects raw apiKey on create", async () => {
+  it("treats non-env secretRef input as an encrypted raw api key", async () => {
+    const record = await service.create({
+      name: "iproute",
+      secretRef: "sk-legacy-secret",
+    });
+    expect(record.secretRef).toBeNull();
+    expect(record.apiKey).toBeTruthy();
+    expect(record.apiKey).not.toBe("sk-legacy-secret");
+  });
+
+  it("requires apiKey or secretRef on create", async () => {
+    await expect(
+      service.create({ name: "openai-main", secretRef: "  " }),
+    ).rejects.toThrow(/apiKey or secretRef is required/);
+  });
+
+  it("rejects passing both apiKey and secretRef", async () => {
     await expect(
       service.create({
         name: "bad",
         secretRef: "OPENAI_API_KEY",
         apiKey: "sk-secret",
-      } as never),
-    ).rejects.toThrow(/Raw apiKey is not allowed/);
-  });
-
-  it("rejects raw apiKey on update", async () => {
-    await service.create({
-      name: "openai-main",
-      secretRef: "OPENAI_API_KEY",
-    });
-    await expect(
-      service.update("openai-main", { apiKey: "sk-secret" } as never),
-    ).rejects.toThrow(/Raw apiKey is not allowed/);
-  });
-
-  it("requires secretRef on create", async () => {
-    await expect(
-      service.create({ name: "openai-main", secretRef: "  " }),
-    ).rejects.toThrow(/secretRef is required/);
+      }),
+    ).rejects.toThrow(/either apiKey or secretRef, not both/);
   });
 
   it("throws on duplicate create", async () => {
@@ -163,10 +181,28 @@ describe("CredentialsService", () => {
     });
     const updated = await service.update("openai-main", {
       baseUrl: "https://custom.example/v1",
-      secretRef: "CUSTOM_OPENAI_KEY",
+      apiKey: "sk-replacement",
     });
     expect(updated.baseUrl).toBe("https://custom.example/v1");
-    expect(updated.secretRef).toBe("CUSTOM_OPENAI_KEY");
+    expect(updated.secretRef).toBeNull();
+    expect(updated.apiKey).toBeTruthy();
+    expect(updated.apiKey).not.toBe("sk-replacement");
+  });
+
+  it("migrates legacy literal secretRef values on read", async () => {
+    await prisma.modelProxyCredential.create({
+      data: {
+        name: "legacy",
+        provider: "openai",
+        baseUrl: "https://example.com/v1",
+        secretRef: "sk-legacy-secret",
+      },
+    });
+
+    const record = await service.get("legacy");
+    expect(record?.secretRef).toBeNull();
+    expect(record?.apiKey).toBeTruthy();
+    expect(record?.apiKey).not.toBe("sk-legacy-secret");
   });
 
   it("deletes credential", async () => {

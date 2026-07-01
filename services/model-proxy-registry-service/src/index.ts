@@ -25,6 +25,15 @@ export {
   getRouterSettings,
 } from "./dual-read/settings-dual-read.js";
 export { createRegistryServices, type RegistryServices } from "./factory.js";
+export {
+  decryptCredentialSecret,
+  encryptCredentialSecret,
+  hasStoredCredentialSecret,
+  isEncryptedCredentialSecret,
+  looksLikeEnvVarName,
+  parseCredentialEncryptionKey,
+  resolveCredentialSecret,
+} from "./lib/credential-secrets.js";
 export { CredentialsRepository } from "./repositories/credentials-repository.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
 export { SettingsRepository } from "./repositories/settings-repository.js";

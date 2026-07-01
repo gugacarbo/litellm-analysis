@@ -1,4 +1,10 @@
 import type { PrismaClient } from "@lite-llm/model-proxy-repository";
+import {
+  encryptCredentialSecret,
+  isEncryptedCredentialSecret,
+  looksLikeEnvVarName,
+  parseCredentialEncryptionKey,
+} from "../lib/credential-secrets.js";
 import { CredentialsRepository } from "../repositories/credentials-repository.js";
 import type {
   CredentialCreateInput,
@@ -11,21 +17,31 @@ export interface CredentialsServiceOptions {
   repository?: CredentialsRepository;
 }
 
-function assertNoRawApiKey(
+function normalizeSecretInput(
   input: CredentialCreateInput | CredentialUpdateInput,
-): void {
-  if ("apiKey" in input && input.apiKey !== undefined) {
+  action: string,
+): { apiKey?: string; secretRef?: string } {
+  const apiKey = input.apiKey?.trim() ?? "";
+  const secretRef = input.secretRef?.trim() ?? "";
+
+  const normalizedSecretRef =
+    secretRef && looksLikeEnvVarName(secretRef) ? secretRef : "";
+  const normalizedApiKey =
+    apiKey || (secretRef && !looksLikeEnvVarName(secretRef) ? secretRef : "");
+
+  if (!normalizedApiKey && !normalizedSecretRef) {
     throw new Error(
-      "Raw apiKey is not allowed; use secretRef (env var name) instead",
+      `apiKey or secretRef is required to ${action} a credential`,
     );
   }
-}
 
-function assertSecretRef(secretRef: string | undefined, action: string): void {
-  const trimmed = secretRef?.trim();
-  if (!trimmed) {
-    throw new Error(`secretRef is required to ${action} a credential`);
+  if (normalizedApiKey && normalizedSecretRef) {
+    throw new Error("Provide either apiKey or secretRef, not both");
   }
+
+  return normalizedApiKey
+    ? { apiKey: normalizedApiKey }
+    : { secretRef: normalizedSecretRef };
 }
 
 export interface ICredentialsService {
@@ -38,6 +54,7 @@ export interface ICredentialsService {
 
 export class CredentialsService implements ICredentialsService {
   private readonly repository: CredentialsRepository;
+  private encryptionKey: Buffer | null = null;
 
   constructor(options: CredentialsServiceOptions = {}) {
     this.repository =
@@ -50,18 +67,52 @@ export class CredentialsService implements ICredentialsService {
       );
   }
 
+  private getEncryptionKey(): Buffer {
+    if (!this.encryptionKey) {
+      this.encryptionKey = parseCredentialEncryptionKey();
+    }
+    return this.encryptionKey;
+  }
+
+  private async migrateStoredSecretIfNeeded(
+    record: CredentialRecord,
+  ): Promise<CredentialRecord> {
+    const rawApiKey = record.apiKey?.trim() ?? "";
+    if (rawApiKey && !isEncryptedCredentialSecret(rawApiKey)) {
+      const updated = await this.repository.update(record.name, {
+        apiKey: encryptCredentialSecret(rawApiKey, this.getEncryptionKey()),
+      });
+      return updated ?? record;
+    }
+
+    const secretRef = record.secretRef?.trim() ?? "";
+    if (secretRef && !looksLikeEnvVarName(secretRef)) {
+      const updated = await this.repository.update(record.name, {
+        apiKey: encryptCredentialSecret(secretRef, this.getEncryptionKey()),
+        secretRef: null,
+      });
+      return updated ?? record;
+    }
+
+    return record;
+  }
+
   async get(name: string): Promise<CredentialRecord | null> {
-    return this.repository.findByName(name);
+    const record = await this.repository.findByName(name);
+    if (!record) {
+      return null;
+    }
+    return this.migrateStoredSecretIfNeeded(record);
   }
 
   async list(): Promise<CredentialRecord[]> {
-    return this.repository.list();
+    const records = await this.repository.list();
+    return Promise.all(
+      records.map((record) => this.migrateStoredSecretIfNeeded(record)),
+    );
   }
 
   async create(input: CredentialCreateInput): Promise<CredentialRecord> {
-    assertNoRawApiKey(input);
-    assertSecretRef(input.secretRef, "create");
-
     const trimmedName = input.name.trim();
     if (!trimmedName) {
       throw new Error("Credential name must be a non-empty string");
@@ -72,11 +123,23 @@ export class CredentialsService implements ICredentialsService {
       throw new Error(`Credential "${trimmedName}" already exists`);
     }
 
+    const secret = normalizeSecretInput(input, "create");
     return this.repository.create({
       name: trimmedName,
       provider: input.provider ?? null,
       baseUrl: input.baseUrl ?? null,
-      secretRef: input.secretRef.trim(),
+      ...(secret.apiKey
+        ? {
+            apiKey: encryptCredentialSecret(
+              secret.apiKey,
+              this.getEncryptionKey(),
+            ),
+            secretRef: null,
+          }
+        : {
+            apiKey: null,
+            secretRef: secret.secretRef ?? null,
+          }),
     });
   }
 
@@ -84,24 +147,33 @@ export class CredentialsService implements ICredentialsService {
     name: string,
     input: CredentialUpdateInput,
   ): Promise<CredentialRecord> {
-    assertNoRawApiKey(input);
-
     const existing = await this.repository.findByName(name);
     if (!existing) {
       throw new Error(`Credential "${name}" not found`);
     }
 
-    if (input.secretRef !== undefined) {
-      assertSecretRef(input.secretRef, "update");
-    }
-
+    const secretUpdate =
+      input.apiKey !== undefined || input.secretRef !== undefined
+        ? normalizeSecretInput(input, "update")
+        : null;
     const updated = await this.repository.update(name, {
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),
       ...(input.provider !== undefined ? { provider: input.provider } : {}),
       ...(input.baseUrl !== undefined ? { baseUrl: input.baseUrl } : {}),
-      ...(input.secretRef !== undefined
-        ? { secretRef: input.secretRef.trim() }
-        : {}),
+      ...(secretUpdate?.apiKey
+        ? {
+            apiKey: encryptCredentialSecret(
+              secretUpdate.apiKey,
+              this.getEncryptionKey(),
+            ),
+            secretRef: null,
+          }
+        : secretUpdate?.secretRef
+          ? {
+              apiKey: null,
+              secretRef: secretUpdate.secretRef,
+            }
+          : {}),
     });
 
     if (!updated) {

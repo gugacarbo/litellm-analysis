@@ -1,3 +1,4 @@
+import { hasStoredCredentialSecret } from "../lib/credential-secrets.js";
 import type { ICredentialsService } from "../services/credentials.service.js";
 import type { CredentialRecord } from "../types/credentials.js";
 
@@ -6,7 +7,7 @@ export interface CredentialListItem {
   credentialName: string;
   provider: string | null;
   baseUrl: string | null;
-  secretRef: string | null;
+  hasStoredSecret: boolean;
   createdAt: string | null;
   updatedAt: string | null;
 }
@@ -19,7 +20,7 @@ export function toPublicCredential(
     credentialName: record.name,
     provider: record.provider,
     baseUrl: record.baseUrl,
-    secretRef: record.secretRef,
+    hasStoredSecret: hasStoredCredentialSecret(record),
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
   };
