@@ -1,47 +1,49 @@
-# apps/web/src/types/
+# APPS/WEB/SRC/SHARED/TYPES
+
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
 ## OVERVIEW
 
-Shared TypeScript type definitions consumed by pages, components, and hooks. Contains domain types for agent routing, agent configs, and OpenAgent output format.
+Browser-safe mirror of domain types from `@lite-llm/agent-schemas`. Avoids runtime Zod imports in the web bundle. Types are plain interfaces — no runtime validation (use `@lite-llm/agent-plugins` schemas for validation server-side).
 
 ## STRUCTURE
 
 ```
-types/
-├── agent-routing.ts  # AgentConfig, CategoryConfig, AgentDefinition,
-│                     # CategoryDefinition, AgentRoutingConfig,
-│                     # OhMyOpenAgentConfig
-└── vitest.d.ts       # Vitest type declarations
+apps/web/src/shared/types/
+├── connection.ts                       # WebSocket connection state types
+├── monitor.ts                          # Monitor alert/state types (mirror packages/monitor/src/services/monitor-types.ts)
+├── automatic-interaction-thread.ts     # assistant-ui thread types
+└── index.ts                            # Barrel re-exports
 ```
 
 ## KEY TYPES
 
-### agent-routing.ts
-
-| Type                  | Purpose                                                                      |
-| --------------------- | ---------------------------------------------------------------------------- |
-| `AgentConfig`         | Full agent configuration (model, fallbacks, skills, permissions, mode, etc.) |
-| `CategoryConfig`      | Category configuration (model, fallbacks, thinking, verbosity, etc.)         |
-| `AgentDefinition`     | Agent metadata for UI display (key, name, description, icon)                 |
-| `CategoryDefinition`  | Category metadata for UI display (key, name, description)                    |
-| `AgentRoutingConfig`  | Alias map (`Record<string, string>`)                                         |
-| `OhMyOpenAgentConfig` | Top-level OpenAgent output format                                            |
+| File                                | Types                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------- |
+| `connection.ts`                     | WebSocket connection state (`Connected`, `Disconnected`, `Reconnecting`)   |
+| `monitor.ts`                        | `MonitorAlert`, `AlertSeverity`, `DetectorResult` (mirrors `@lite-llm/monitor`) |
+| `automatic-interaction-thread.ts`   | assistant-ui thread message/role types                                    |
 
 ## WHERE TO LOOK
 
-| Task                   | Location                           | Notes                           |
-| ---------------------- | ---------------------------------- | ------------------------------- |
-| Add agent config field | `agent-routing.ts` → `AgentConfig` | Mirrors `@litellm/shared` types |
+| Task                              | Location                                  | Notes                                                |
+| --------------------------------- | ----------------------------------------- | ---------------------------------------------------- |
+| Add a UI-side type                | `shared/types/<name>.ts`                  | Mirror from `@lite-llm/agent-schemas` or `@lite-llm/monitor`; export via `index.ts` |
+| Add a new feature type            | `features/<feature>/types/`               | Feature owns its types; only cross-feature types go here |
+| Server-side validation            | `@lite-llm/agent-plugins/src/plugin-config-schemas.ts` | Types here are runtime-free for browser bundle size |
 
 ## CONVENTIONS
 
-- **Types are plain interfaces** — no Zod schemas here (those live in `@litellm/shared`)
-- **Agent/category metadata comes from the API** — fetched via Agent Catalog API
-- **Types consumed by**: `pages/agent-routing/*`, `components/agent-routing/*`, `components/agent-config-editor.tsx`
-- **No JSX or runtime logic** — types only
+- **Plain interfaces only** — no Zod schemas in the web bundle (browser bundle size constraint)
+- **Types consumed by**: `features/*`, `shared/components/*`, `shared/lib/api-client/*`
+- **Mirrored, not imported**: types here mirror `@lite-llm/agent-schemas` and `@lite-llm/monitor` to keep the web bundle free of Node-only deps
+- **Sync mirror required**: when changing a mirrored type, update both sides in the same PR
+- **No JSX, no runtime logic** — types only
 
-## ANTI-PATTERNS
+## ANTI-PATTERNS (THIS PROJECT)
 
-- Don't add Zod schemas — use `@litellm/shared` for validation
-- Don't forget to sync AGENT_DEFINITIONS when adding agents to db.json — agent won't appear in UI
-- Don't add types here that belong in page directories — only shared types
+- Do not add Zod schemas here — keep web bundle Zod-free; use `@lite-llm/agent-plugins` server-side
+- Do not duplicate types that belong in `features/<feature>/types/` — only cross-feature shared types go here
+- Do not import from `@lite-llm/agent-schemas` at runtime — it's a Node-only package
+- Do not add types that exist elsewhere — extend the existing `*.ts` file instead

@@ -1,47 +1,76 @@
-# packages/analytics/src/
+# SERVICES/ANALYTICS-SERVICE/SRC
+
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
 ## OVERVIEW
-DB queries (Prisma raw SQL via `$queryRawUnsafe`) + data source implementation. Strategy pattern with 46-method interface.
+
+`@lite-llm/analytics-service` — Prisma raw SQL queries + `AnalyticsDataSource` (46-method interface) against `model_proxy_*` PostgreSQL. Single source of truth for read access to proxy logs, errors, models, and spend.
 
 ## STRUCTURE
 
 ```
-analytics/src/
+services/analytics-service/src/
 ├── data-source/
-│   ├── index.ts      # Factory: createDataSource()
-│   ├── database.ts   # DatabaseDataSource (composed from 14 *-queries.ts files via Prisma)
-│   └── utils.ts      # Data source utilities
+│   ├── index.ts                       # createDataSource() factory
+│   ├── model-proxy.ts                 # ModelProxyDataSource — composes all method implementations
+│   ├── proxy-dashboard-methods.ts     # Dashboard widgets (cost efficiency, distribution)
+│   ├── proxy-error-methods.ts          # Error log retrieval
+│   ├── proxy-model-methods.ts          # Model CRUD + statistics
+│   ├── proxy-monitor-methods.ts        # Health/anomaly queries
+│   ├── proxy-spend-methods.ts          # Spend aggregations
+│   ├── registry-methods.ts             # Registry-side methods (model_proxy_* tables)
+│   ├── routing-methods.ts              # Agent routing config queries
+│   └── utils.ts                        # toNullableNumber() and helpers
 ├── queries/
-│   ├── index.ts      # All raw SQL queries (prisma.$queryRawUnsafe)
-│   └── client.ts     # DB connection (re-exports prisma from @lite-llm/litellm-repository)
-├── types/
-│   └── index.ts      # AnalyticsDataSource interface (46 methods) + all data types + exports from @litellm/shared
-└── index.ts         # Barrel: re-exports from submodules
+│   ├── index.ts                       # Barrel re-exporting from proxy/
+│   └── proxy/
+│       ├── client.ts                  # Prisma client from @lite-llm/model-proxy-repository
+│       ├── helpers.ts                 # normalizeDays, getTimeFilterWhere, buildWhereClause
+│       ├── time-buckets.ts            # Time-bucketing helpers
+│       ├── analytics-queries.ts       # Cost efficiency, performance metrics
+│       ├── distribution-queries.ts    # Token/request distributions, API key stats
+│       ├── error-queries.ts           # Error log retrieval
+│       ├── model-queries.ts           # Model CRUD, statistics, trends (~481 lines)
+│       ├── monitor-queries.ts         # Health/anomaly queries
+│       ├── spend-queries.ts           # Spend logs + aggregations
+│       └── trend-queries.ts           # Daily/hourly spend + token trends
+├── presenter/
+│   ├── proxy-request-log.ts            # Request log presenter (raw → domain)
+│   ├── usage-adjustments.ts           # Cost adjustment helpers
+│   └── *.test.ts
+└── types/
+    └── index.ts                       # AnalyticsDataSource interface (46 methods) + domain types
 ```
 
 ## WHERE TO LOOK
 
-| Task                    | Location                                                | Notes                                                         |
-| ----------------------- | ------------------------------------------------------- | ------------------------------------------------------------- |
-| Add query               | `queries/index.ts`                                      | Write raw SQL via `prisma.$queryRawUnsafe`                    |
-| Add data method         | `types/index.ts` interface → implement in `database.ts` | Add method to DatabaseDataSource class                        |
-| Check available queries | `queries/`                                              | 14 files: spend, model, error, trend, distribution, key, etc. |
+| Task                              | Location                                                | Notes                                              |
+| --------------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
+| Add a new data source method      | `types/index.ts` (interface) → `data-source/model-proxy.ts` → `data-source/proxy-*-methods.ts` | Three-file concern |
+| Add a raw SQL query               | `queries/proxy/<topic>-queries.ts`                      | `prisma.$queryRawUnsafe<Type>(sql)` pattern         |
+| Add a presenter                   | `presenter/<topic>.ts`                                 | Pure functions; no I/O                             |
+| Add a new domain type             | `types/index.ts`                                       | Re-export from public barrel                        |
 
 ## CONVENTIONS
 
-### Adding Queries
-1. Add to `queries/index.ts`
-2. Use `prisma.$queryRawUnsafe<Type>(sql_string)` pattern
-3. Use explicit column aliases for camelCase → snake_case mapping
-4. Wrap numerics with `::int` or `::float` in SQL
+- **Query pattern**:
+  ```typescript
+  export async function getSpendByModel(days = 30): Promise<SpendByModel[]> {
+    return prisma.$queryRawUnsafe<SpendByModel[]>(
+      `SELECT model, SUM(spend)::float AS total_spend FROM "model_proxy_spend_logs" WHERE ...`,
+    );
+  }
+  ```
+- **Method implementation**: `rows.map((r) => ({ model: r.model, total_spend: Number(r.total_spend) }))`
+- **Time conditions**: `buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))])`
+- **Numeric casts in SQL**: always `::int` / `::float` for type-safe numerics
+- **Pagination**: `Promise.all([getSpendLogs(filters), getSpendLogsCount(filters)])`
+- **All queries in `queries/proxy/`** — `queries/` is a barrel only
 
-### Adding Data Source Methods
-1. Add method signature to `AnalyticsDataSource` interface in `types/index.ts`
-2. Implement in `data-source/database.ts` (the single DatabaseDataSource class)
-3. Implement corresponding query in `queries/` if new DB logic needed
+## ANTI-PATTERNS (THIS PROJECT)
 
-## ANTI-PATTERNS
-
-- Don't use class inheritance to split large data source classes
-- Don't assume `null` from DB — always `Number()` or default
-- Don't hardcode mode detection outside `detectMode()`
+- Do not add business logic to queries — keep pure SQL
+- Do not use class inheritance to split `ModelProxyDataSource` — composition only
+- Do not assume `null` from DB — always `Number()` or default
+- Do not skip `::int`/`::float` casts for numeric columns

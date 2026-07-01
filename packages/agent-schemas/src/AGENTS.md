@@ -1,58 +1,49 @@
-# packages/shared/src/
+# @LITE-LLM/AGENT-SCHEMAS/SRC
+
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
 ## OVERVIEW
-Shared TypeScript types and Zod schemas for agent/category configuration. Single source of truth for config interfaces consumed by `@lite-llm/agents-manager`.
+
+`@lite-llm/agent-schemas` — shared TypeScript types for agent/category configuration. Source of truth for interfaces consumed by `@lite-llm/agents-manager` and `apps/web/src/shared/types/`. Migration note: previously known as `@lite-llm/shared`; the old `AgentConfig`/`CategoryConfig` types were removed in favor of `SystemAgent` (see `index.ts`).
 
 ## STRUCTURE
 
 ```
-shared/src/
+packages/agent-schemas/src/
+├── index.ts             # Public barrel — 4 type exports
 ├── types/
-│   └── agent-config.ts  # AgentConfig, CategoryConfig, Zod schemas
-└── index.ts             # Barrel: 7 type exports + 6 schema exports
+│   └── agent-config.ts  # AgentExtraConfig, PluginRouting, PluginRoutingRule, SystemAgent
+└── (no Zod schemas — types only; runtime validation is in repositories/*)
 ```
-
-## WHERE TO LOOK
-
-| Task | Location | Notes |
-|------|----------|-------|
-| Add config type | `types/agent-config.ts` | Add interface + Zod schema |
-| Add permission type | `types/agent-config.ts` | `Permission` interface |
-| Change schema validation | `types/agent-config.ts` | Zod schemas exported alongside types |
-| Add subpath export | `package.json` → `exports` | Use `"./types/*"` pattern |
 
 ## KEY TYPES
 
-| Type | Purpose |
-|------|---------|
-| `AgentConfig` | Single agent definition (name, model, permissions) |
-| `CategoryConfig` | Agent category grouping |
-| `AgentConfigFile` | Full config file (agents + categories) |
-| `OhMyOpenAgentConfig` | OpenAgent output format |
-| `Permission` | Agent permission flags |
-| `Thinking` | Thinking mode configuration |
-| `GitMaster` | Git master configuration |
+| Type                  | Purpose                                                              |
+| --------------------- | -------------------------------------------------------------------- |
+| `AgentExtraConfig`    | Per-agent extra config (model, fallbacks, thinking, permissions)     |
+| `PluginRouting`       | Routing rule container                                                |
+| `PluginRoutingRule`   | Single routing rule (match criteria → target agent)                   |
+| `SystemAgent`         | Canonical agent record consumed by agents-manager services            |
 
-## KEY SCHEMAS
+## WHERE TO LOOK
 
-| Schema | Validates |
-|--------|-----------|
-| `agentConfigSchema` | `AgentConfig` |
-| `categoryConfigSchema` | `CategoryConfig` |
-| `agentConfigFileSchema` | `AgentConfigFile` |
-| `ohMyOpenAgentConfigSchema` | `OhMyOpenAgentConfig` |
-| `permissionSchema` | `Permission` |
-| `thinkingSchema` | `Thinking` |
+| Task                              | Location                          | Notes                                    |
+| --------------------------------- | --------------------------------- | ---------------------------------------- |
+| Add an agent config field         | `types/agent-config.ts`           | Add to `AgentExtraConfig` or `SystemAgent`|
+| Add a routing rule type           | `types/agent-config.ts`           | Extend `PluginRoutingRule`               |
+| Add a subpath export              | `package.json` → `exports`        | Use `"./types/*"` pattern                |
 
 ## CONVENTIONS
 
-- Types and schemas defined together in `agent-config.ts`
-- Zod schemas exported alongside TypeScript types
-- Uses `zod` v3 for schema validation
-- No I/O — types only, no file operations
+- **Types only — no Zod schemas.** Runtime validation lives in `repositories/agents-repository`/`repositories/models-repository`.
+- **Mirrored in web app**: `apps/web/src/shared/types/` mirrors these types without runtime imports (avoids Zod in browser bundle).
+- **`SystemAgent` replaces legacy `AgentConfig`/`CategoryConfig`**: do not reintroduce old types.
+- **No I/O**: this package has no runtime file operations.
 
-## ANTI-PATTERNS
+## ANTI-PATTERNS (THIS PROJECT)
 
-- Don't add file I/O — this package is types/schemas only
-- Don't duplicate types in consuming packages — import from here
-- Don't use `as any` in schema definitions — use proper Zod typing
+- Do not add Zod schemas here — runtime validation is in repositories
+- Do not duplicate types in consuming packages — import from here
+- Do not reintroduce `AgentConfig`/`CategoryConfig` — use `SystemAgent`
+- Do not add `as any` in type definitions — proper typing required

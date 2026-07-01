@@ -1,88 +1,49 @@
-# apps/ KNOWLEDGE BASE
+# APPS KNOWLEDGE BASE
+
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
 ## OVERVIEW
 
-Apps directory with React 19 frontend (web) and Express.js backend (server). 307 TypeScript files.
+Two deployable apps in a pnpm + Turborepo monorepo: a React 19 SPA (`apps/web`) and an Express.js server (`apps/server`). Both depend on `@lite-llm/*` workspace packages and run via `pnpm dev` (parallel via turbo).
 
 ## STRUCTURE
 
 ```
 apps/
-├── web/                    # React 19 + Vite 7 SPA
+├── web/                # React 19 + Vite 7 SPA (shadcn/ui, Recharts, Tailwind 4)
 │   └── src/
-│       ├── components/      # shadcn/ui primitives + domain modules
-│       ├── pages/           # Route pages (JSX) + hooks/types/utils
-│       ├── hooks/           # React Query data-fetching hooks
-│       ├── lib/             # API client, utils
-│       └── types/           # Shared TypeScript interfaces
-└── server/                 # Express.js entry point + monitor + WebSocket
-    └── src/
-        ├── runtime/         # Express app factory, server bootstrap, monitor runtime
-        ├── application/     # Business services (monitor application service)
-        ├── routes/          # Monitor-specific routes
-        ├── ws/              # WebSocket server for live data
-        ├── __tests__/       # Integration tests
-        └── env.ts           # Environment config re-export
+│       ├── features/   # Domain feature modules (logs, models, monitor, etc.) — main code home
+│       ├── shared/     # Cross-feature primitives (components, types, utils, hooks, lib)
+│       ├── pages/      # Empty: legacy `pages/` migrated to `features/`; kept for back-compat
+│       ├── app.tsx     # Root component
+│       └── main.tsx    # Vite entry
+└── server/             # Express.js entry point + monitor runtime + WebSocket
+    └── src/            # See apps/server/AGENTS.md
 ```
-
-## SUBAGENTS.md LOCATIONS
-
-| Location                            | Content                                    |
-| ----------------------------------- | ------------------------------------------ |
-| `apps/web/src/components/AGENTS.md` | UI components, shadcn primitives, Recharts |
-| `apps/web/src/pages/AGENTS.md`      | Route pages, State-Actions-Derived pattern |
-| `apps/web/src/hooks/AGENTS.md`      | React Query hooks, WebSocket               |
-| `apps/web/src/lib/AGENTS.md`        | API client, React Query setup              |
-| `apps/web/src/types/AGENTS.md`      | Agent/category types                       |
 
 ## WHERE TO LOOK
 
-| Task               | Location                                       | Notes                                     |
-| ------------------ | ---------------------------------------------- | ----------------------------------------- |
-| Add a page/route   | `apps/web/src/App.tsx` + `apps/web/src/pages/` | Pages own types/hooks/utils               |
-| Add UI component   | `apps/web/src/components/`                     | shadcn at root, domain in subdirs         |
-| Add API endpoint   | `packages/server-core/src/routes/`             | Express routes registered via server-core |
-| Add monitor routes | `apps/server/src/routes/monitor-routes.ts`     | Monitor-specific endpoints                |
-| Change dev proxy   | `apps/web/vite.config.ts`                      | `/api` → `localhost:3008`                 |
+| Task                              | Location                                  | Notes                                                  |
+| --------------------------------- | ----------------------------------------- | ------------------------------------------------------ |
+| Add a new feature/route (web)     | `apps/web/src/features/<name>/`           | Owns components, hooks, types, utils; mount in App.tsx |
+| Add a shared UI primitive         | `apps/web/src/shared/components/`         | Cross-feature; keep narrow                             |
+| Add a backend route               | `apps/server/src/runtime/`                | See `apps/server/AGENTS.md` for the runtime split      |
+| Change dev port / proxy           | `apps/web/vite.config.ts`                 | `/api` → `localhost:3008`                              |
+| Add a monitor runtime service     | `apps/server/src/application/`            | Business services, no Express knowledge                |
+| Add a monitor route               | `apps/server/src/routes/`                 | Thin Express adapters over application services        |
 
 ## CONVENTIONS
 
-### Code Style (Biome 2.x)
-- Double quotes, 2-space indent, 80-char line width
-- `verbatimModuleSyntax` — must use `import type` for type-only imports
-- `erasableSyntaxOnly` — only TS features that erase at compile time
+- **Feature isolation:** features import from `shared/`, never the reverse; features don't import each other except via App.tsx composition
+- **State hooks own their types:** page-level hooks colocated with pages, complex state split into `use-*-state.ts` / `use-*-actions.ts` / `use-*-derived.ts`
+- **Server runtime layering:** `runtime/` (Express app factory) + `application/` (business services) + `routes/` (thin adapters) + `ws/` (WebSocket)
+- **Shared types:** types duplicated in `apps/web/src/shared/types/` (mirrored from `@lite-llm/agent-schemas` in packages) — web app avoids runtime imports of Zod schemas
+- **No server code in web app:** keep `apps/web` browser-only; Node-only libs must live in shared packages
 
-### Architecture
-- **Strategy pattern** — data access via `AnalyticsDataSource` interface
-- **Page-level isolation** — pages own hooks/types/utils, components import from pages
-- **State-Actions-Derived** — complex pages split into 3 hook files
-- **Reverse deps** — components → pages → types/hooks (never the other way)
+## ANTI-PATTERNS (THIS PROJECT)
 
-### TypeScript
-- Web: `@/` alias → `./src/`
-- Server: `declaration: true`, emits `.d.ts`
-
-## ANTI-PATTERNS
-
-- No `as any`, `@ts-ignore`, `@ts-expect-error`
-- No `TODO`/`FIXME`/`HACK` comments
-- No barrel `index.ts` exports in component subdirectories
-- No imports from `../../types/` when page-level types exist
-
-## COMMANDS
-
-```bash
-pnpm dev          # Start web (:5178) + server (:3008)
-pnpm build        # Turbo build
-pnpm test         # Vitest run per app
-pnpm lint         # Biome lint
-pnpm format       # Biome format
-pnpm typecheck    # TypeScript check
-```
-
-## NOTES
-
-- Web dev proxy strips `/api` prefix before forwarding to server
-- Server port defaults to 3000 but `.env` uses 3008
-- Monitor routes registered separately from server-core routes
-- No CI/CD — all checks run manually
+- Do not reintroduce `apps/web/src/components/`, `apps/web/src/hooks/`, `apps/web/src/lib/`, `apps/web/src/types/` as top-level — they were refactored into `features/` + `shared/`
+- Do not put routes in `apps/web/src/pages/` — that directory is empty by design
+- Do not import Node-only modules from `apps/web`
+- Do not add `tsconfig.json` path aliases beyond `@/` → `./src/`

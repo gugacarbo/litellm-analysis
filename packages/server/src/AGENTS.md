@@ -1,55 +1,80 @@
-# @lite-llm/server-core
+# @LITE-LLM/SERVER/SRC
+
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
 ## OVERVIEW
 
-Server orchestration layer. Contains business logic that coordinates between
-@lite-llm/queries (data access), @lite-llm/agents-manager (agent/category services),
-and @lite-llm/agent-plugins (config file generation).
+Internal layout of `@lite-llm/server`. Two top-level subdirs: `orchestration/` (multi-source coordinators) and `routes/` (Express adapters). All cross-package coordination lives here — services don't import each other directly.
 
 ## STRUCTURE
 
 ```
-packages/server-core/src/
-├── index.ts                    # Barrel exports
+packages/server/src/
+├── index.ts                    # Public barrel (re-exports orchestration + routes)
 ├── orchestration/
-│   ├── index.ts                # Factory + re-exports
+│   ├── index.ts                # Factory: createOrchestrationServices(4 args)
 │   ├── artifact-service.ts     # syncGeneratedArtifacts, syncModelsDirectlyToDatabase
-│   └── lite-llm-params.ts     # parseDays, toCostPerToken, buildLiteLLMParams, etc.
-├── routes/
-│   ├── index.ts               # registerAllRoutes, RouteOptions
-│   ├── spend-routes.ts        # GET /spend/*
-│   ├── analytics-routes.ts    # GET /analytics/*
-│   ├── model-routes.ts        # CRUD /models/*
-│   ├── plugin-routing-routes.ts # GET/PUT /agent-routing
-│   ├── agent-config-routes.ts  # CRUD /agent-config/*
-│   ├── agent-catalog-routes.ts # Agent catalog endpoints
-│   ├── category-catalog-routes.ts # Category catalog endpoints
-│   ├── agent-definitions-routes.ts # Agent definitions endpoints
-│   ├── credential-routes.ts   # LiteLLM credential management
-│   └── mode-routes.ts         # GET /mode
-└── types/
-    └── index.ts               # DbModelSpecLike, RouteOptions, AgentsManager
+│   ├── model-route.ts          # Route a request to a concrete model via registry
+│   ├── registry-models-bridge.ts # Sync registry ↔ models DB
+│   ├── route-params.ts         # parseDays, toCostPerToken, buildLiteLLMParams, coerceLiteLLMParams
+│   ├── router-settings.ts      # Routing configuration operations
+│   └── __tests__/
+└── routes/
+    ├── index.ts                # registerAllRoutes(app, opts)
+    ├── analytics-routes.ts     # GET /analytics/*
+    ├── spend-routes.ts        # GET /spend/*
+    ├── model-routes.ts        # CRUD /models/* (~1096 lines)
+    ├── model-proxy-routes.ts  # /model-proxy/* health and admin
+    ├── plugin-routing-routes.ts # GET/PUT /agent-routing
+    ├── chat-routes.ts         # POST /chat (streaming completions)
+    ├── credential-routes.ts   # Credential management
+    ├── agent-catalog-routes.ts
+    ├── category-catalog-routes.ts
+    └── hebo-express.ts
 ```
-
-## DEPENDENCIES
-
-- `@lite-llm/queries` — data access interface
-- `@lite-llm/agents-manager` — agent/category services
-- `@lite-llm/agent-plugins` — config file generation (PluginRegistry)
-- `@lite-llm/models-manager` — model services
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Add orchestration function | `orchestration/` | Depends on analytics + agents-manager + agent-plugins |
-| Add route handler | `routes/` | Uses RouteOptions with dataSource + orchestration |
-| Add shared type | `types/index.ts` | DbModelSpecLike, RouteOptions |
-| Change route registration | `routes/index.ts` | registerAllRoutes() convenience |
+| Task                              | Location                                  | Notes                                            |
+| --------------------------------- | ----------------------------------------- | ------------------------------------------------ |
+| Add an orchestration function     | `orchestration/<name>.ts`                 | Add to factory in `orchestration/index.ts`       |
+| Add a route handler               | `routes/<name>-routes.ts`                 | Register in `routes/index.ts`                    |
+| Change cost normalization         | `orchestration/route-params.ts`           | `toCostPerToken()` assumes per-token USD         |
+| Coerce free-form form input       | `orchestration/route-params.ts`           | `coerceLiteLLMParams()` parses strings→primitives|
+| Wire a new route                  | `routes/index.ts`                         | `registerAllRoutes()` is the single entry point  |
 
-## ANTI-PATTERNS
+## CONVENTIONS
 
-- Don't add Express-specific logic to orchestration functions
-- Don't bypass dataSource — always use the interface
-- Don't import from `apps/server/` — this package is standalone
-- Don't add new dependencies without updating package.json exports
+- **Route pattern**:
+  ```typescript
+  export function registerXxxRoutes(app: Application, opts: RouteOptions): void {
+    app.get('/endpoint', async (req, res) => {
+      try {
+        const data = await opts.dataSource.someMethod();
+        res.json(data);
+      } catch (error) {
+        res.status(500).json({ error: String(error) });
+      }
+    });
+  }
+  ```
+- **Orchestration template**:
+  ```typescript
+  export async function orchestrationFn(dataSource, param): Promise<void> {
+    // 1. Read from dataSource
+    // 2. Process via agentsManager / modelsService / registry
+    // 3. Write back via dataSource
+  }
+  ```
+- **Factory template (4-arg)**:
+  ```typescript
+  export function createOrchestrationServices(dataSource, agentsManager, modelsService, registry): OrchestrationServices
+  ```
+
+## ANTI-PATTERNS (THIS PROJECT)
+
+- Do not add Express imports to orchestration files
+- Do not bypass `RouteOptions.dataSource` — every route goes through the interface
+- Do not import from `apps/server/` — this package is standalone
+- Do not duplicate `coerceLiteLLMParams` logic — extract helpers to `route-params.ts`

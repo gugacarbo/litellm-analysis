@@ -1,98 +1,63 @@
-# AGENTS.md — @lite-llm/server
+# @LITE-LLM/SERVER KNOWLEDGE BASE
+
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
 ## OVERVIEW
 
-Server orchestration layer. Contains business logic that coordinates between
-@lite-llm/analytics-service (data access) and @lite-llm/agents-manager (config CRUD + plugins).
-Alias generation is handled by the ModelAliasPlugin in agents-manager.
+`@lite-llm/server` — shared Express routes and orchestration services consumed by `apps/server` and other consumers. Owns business logic that coordinates `@lite-llm/analytics-service` (data access), `@lite-llm/agents-manager` (config CRUD), and `@lite-llm/agent-plugins` (config file generation). Distinct from `apps/server` (which is the runtime/entry point).
 
 ## STRUCTURE
 
 ```
-packages/server-core/src/
-├── index.ts                    # Barrel exports
-├── orchestration/
-│   ├── index.ts                # Factory + re-exports
-│   ├── alias-db-writer.ts      # AliasDbWriterImpl — bridges plugin to dataSource
-│   ├── artifact-service.ts     # syncGeneratedArtifacts, syncModelsDirectlyToDatabase
-│   └── lite-llm-params.ts     # parseDays, toCostPerToken, buildLiteLLMParams, coerceLiteLLMParams, etc.
-├── routes/
-│   ├── index.ts               # registerAllRoutes, RouteOptions
-│   ├── spend-routes.ts         # GET /spend/*
-│   ├── analytics-routes.ts     # GET /analytics/*
-│   ├── model-routes.ts         # CRUD /models/*
-│   ├── plugin-routing-routes.ts # GET/PUT /agent-routing
-│   ├── agent-config-routes.ts  # CRUD /agent-config/*
-│   ├── agent-config/           # Sub-routes: agent + category CRUD
-│   ├── agent-definitions-routes.ts # Agent definitions endpoints
-│   ├── credential-routes.ts    # LiteLLM credential management
-│   └── mode-routes.ts          # GET /mode
-└── types/
-    └── index.ts               # DbModelSpecLike, RouteOptions
+packages/server/
+├── src/
+│   ├── index.ts                    # Public barrel
+│   ├── orchestration/              # Multi-source coordinators (model alias sync, artifact sync, registry bridge)
+│   │   ├── artifact-service.ts
+│   │   ├── model-route.ts
+│   │   ├── registry-models-bridge.ts
+│   │   ├── route-params.ts
+│   │   ├── router-settings.ts
+│   │   └── index.ts
+│   ├── routes/                     # Shared Express route registrations
+│   │   ├── index.ts                # registerAllRoutes() convenience
+│   │   ├── spend-routes.ts
+│   │   ├── analytics-routes.ts
+│   │   ├── model-routes.ts
+│   │   ├── model-proxy-routes.ts
+│   │   ├── plugin-routing-routes.ts
+│   │   ├── chat-routes.ts          # Dashboard chat streaming endpoint
+│   │   ├── credential-routes.ts
+│   │   ├── agent-catalog-routes.ts
+│   │   ├── category-catalog-routes.ts
+│   │   └── hebo-express.ts
+│   └── types/                      # Shared types (DbModelSpecLike, RouteOptions, AgentsManager)
+└── package.json
 ```
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Add orchestration function | `orchestration/` | Depends on analytics + agents-manager |
-| Add route handler | `routes/` | Uses RouteOptions with dataSource + orchestration |
-| Add shared type | `types/index.ts` | DbModelSpecLike, RouteOptions |
-| Change route registration | `routes/index.ts` | registerAllRoutes() convenience |
+| Task                              | Location                                  | Notes                                                  |
+| --------------------------------- | ----------------------------------------- | ------------------------------------------------------ |
+| Add an orchestration coordinator  | `src/orchestration/`                      | Coordinates across `analytics-service`, `agents-manager`, `agent-plugins` |
+| Add a shared route                | `src/routes/`                             | Use `RouteOptions` pattern (dataSource + orchestration)|
+| Register all routes               | `src/routes/index.ts`                     | `registerAllRoutes(app, opts)` for one-line wiring    |
+| Change cost normalization         | `src/orchestration/route-params.ts`       | `toCostPerToken()` assumes canonical per-token USD     |
+| Add chat streaming endpoint       | `src/routes/chat-routes.ts`               | Streams completions via `MODEL_PROXY_*`; mounted in apps/server |
 
 ## CONVENTIONS
 
-### Route Pattern
-```typescript
-export function registerXxxRoutes(
-  app: Application,
-  opts: RouteOptions,
-): void {
-  app.get('/endpoint', async (req, res) => {
-    try {
-      const data = await opts.dataSource.someMethod();
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: String(error) });
-    }
-  });
-}
-```
+- **Route pattern**: `registerXxxRoutes(app: Application, opts: RouteOptions): void` — pure Express adapter
+- **Orchestration pattern**: functions take `AnalyticsDataSource` + collaborators, return domain objects; no Express knowledge
+- **Cost convention**: canonical per-token USD; `* 1_000_000` for display. `toCostPerToken()` normalizes incoming values
+- **Alias generation**: handled by `ModelAliasPlugin` in `services/agent-plugins/`; this package only consumes the output
+- **4-arg factory**: `createOrchestrationServices(dataSource, agentsManager, modelsService, registry)` returns the orchestration bundle
 
-### Orchestration Pattern
-```typescript
-export async function orchestrationFunction(
-  dataSource: AnalyticsDataSource,
-  param: SomeType,
-): Promise<void> {
-  // 1. Read from dataSource
-  // 2. Process with agents-manager or models-manager alias-router
-  // 3. Write back to dataSource
-}
-```
+## ANTI-PATTERNS (THIS PROJECT)
 
-### Factory Pattern
-```typescript
-export function createOrchestrationServices(
-  dataSource: AnalyticsDataSource,
-): OrchestrationServices {
-  return {
-    dataSource,
-    syncGeneratedArtifacts: () => syncGeneratedArtifacts(dataSource, agentsManager),
-    syncModelsDirectlyToDatabase: (models) => syncModelsDirectlyToDatabase(dataSource, models),
-  };
-}
-```
-
-## COST AND PARAM CONVENTIONS
-
-- `toCostPerToken()` normalizes incoming cost values to USD per token. It assumes config files already store per-token USD, so it no longer divides by 1,000,000.
-- `coerceLiteLLMParams()` parses extra `litellm_params` values from form/body input, coercing strings to boolean, number, bigint, date, or JSON when possible.
-- Route handlers should coerce incoming free-form params before passing them to `buildLiteLLMParams()` or the data source.
-
-## ANTI-PATTERNS
-
-- Don't add Express-specific logic to orchestration functions
-- Don't bypass dataSource — always use the interface
-- Don't import from `apps/server/` — this package is standalone
-- Don't add new dependencies without updating package.json exports
+- Do not add Express-specific logic to orchestration functions
+- Do not bypass the `AnalyticsDataSource` interface — always go through it
+- Do not import from `apps/server/` — this package is standalone and consumed by external tools
+- Do not add new dependencies without updating `package.json` `exports` field
+- Do not duplicate cost normalization logic — use `route-params.ts` helpers

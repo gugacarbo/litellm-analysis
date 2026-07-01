@@ -1,27 +1,31 @@
----
-description: Raw SQL queries (via Prisma) for LiteLLM Analytics
----
+# SERVICES/ANALYTICS-SERVICE/SRC/QUERIES
 
-# packages/analytics/src/queries/
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
-Raw SQL queries backed by `prisma.$queryRawUnsafe`. Pure I/O — no business logic transformation.
+## OVERVIEW
 
-## FILES (14)
+Raw SQL queries against `model_proxy_*` PostgreSQL tables, executed via Prisma `$queryRawUnsafe`. Pure I/O — no business logic, no transformation. All query files live in `proxy/` subdirectory; `queries/index.ts` is a barrel re-export.
 
-| File | Purpose |
-|------|---------|
-| `client.ts` | `prisma` client connection (re-exports from `@lite-llm/litellm-repository`) |
-| `helpers.ts` | Time condition builders (`normalizeDays`, `getTimeFilterWhere`, `buildWhereClause`) |
-| `analytics-queries.ts` | Cost efficiency, performance metrics, summary stats |
-| `credential-settings-queries.ts` | Default credential get/set |
-| `distribution-queries.ts` | Token/request distributions, API key stats |
-| `error-queries.ts` | Error log retrieval |
-| `key-queries.ts` | API key listing |
-| `model-queries.ts` | Model CRUD, statistics, trends (534 lines — largest) |
-| `monitor-queries.ts` | Health checks, anomaly detection, stuck requests |
-| `router-queries.ts` | Router settings |
-| `spend-queries.ts` | Spend logs, aggregated spend by model/user/key |
-| `trend-queries.ts` | Daily/hourly spend and token trends |
+## FILES
+
+```
+queries/
+├── index.ts                       # Barrel: re-exports from proxy/
+└── proxy/
+    ├── client.ts                  # Prisma client (re-export from @lite-llm/model-proxy-repository)
+    ├── helpers.ts                 # normalizeDays, getTimeFilterWhere, buildWhereClause
+    ├── time-buckets.ts            # Shared time-bucketing helpers
+    ├── analytics-queries.ts       # Cost efficiency, performance metrics
+    ├── distribution-queries.ts    # Token/request distributions, API key stats
+    ├── error-queries.ts           # Error log retrieval
+    ├── model-queries.ts           # Model CRUD, statistics, trends (~481 lines)
+    ├── monitor-queries.ts         # Health/anomaly queries
+    ├── spend-queries.ts           # Spend logs + aggregations
+    └── trend-queries.ts           # Daily/hourly spend + token trends
+```
+
+Each `*-queries.ts` has a colocated `*-queries.test.ts` for SQL regression coverage.
 
 ## PATTERNS
 
@@ -29,31 +33,37 @@ Raw SQL queries backed by `prisma.$queryRawUnsafe`. Pure I/O — no business log
 ```typescript
 const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
 ```
-`normalizeDays()` handles string/number, NaN, negative → fallback defaults.
+- `normalizeDays(days, defaultDays)` — handles string/number, NaN, negative → fallback
+- `getTimeFilterWhere(days)` — returns SQL fragment for `start_time >= now() - interval`
+- `buildWhereClause(conditions[])` — joins with `AND`, returns `""` if empty
 
 ### SQL Aggregations
 ```sql
-SELECT SUM("spend")::float as "total_spend", COUNT(*)::int as "request_count"
-FROM "LiteLLM_SpendLogs"
+SELECT
+  model,
+  SUM(spend)::float AS total_spend,
+  COUNT(*)::int AS request_count
+FROM "model_proxy_spend_logs"
+WHERE ...
 ```
-Use `::int` and `::float` casts in SQL for type-safe numerics.
+**Always** use `::int` / `::float` casts for numeric types — Prisma returns them as `String` otherwise.
 
 ### Column Mapping
-Query returns DB columns directly. Column aliases (`as "camelCaseName"`) handle mapping.
-
-### Conditions
-```typescript
-buildWhereClause([timeCondition, modelCondition])
-```
-`buildWhereClause()` constructs `WHERE ...` from string conditions, returns empty string if none.
+Queries return DB columns directly. Use snake_case aliases (`as "total_spend"`) and let `proxy-*-methods.ts` transform to camelCase domain types.
 
 ## SCHEMA TABLES
 
-Tables are accessed via raw SQL against `LiteLLM_SpendLogs`, `LiteLLM_ErrorLogs`, etc.
-Schema managed by Prisma via `repositories/litellm-repository/prisma/schema.prisma`.
+All tables prefixed `model_proxy_*` (PostgreSQL). Schema managed by Prisma via `repositories/model-proxy-repository/prisma/schema.prisma`. Common tables:
+- `model_proxy_spend_logs` — request-level spend records
+- `model_proxy_error_logs` — error records
+- `model_proxy_models` — model registry rows
+- `model_proxy_settings` — global proxy settings (single-row)
+- `model_proxy_credentials` — encrypted credential storage
 
-## ANTI-PATTERNS
+## ANTI-PATTERNS (THIS PROJECT)
 
-- Don't transform data in queries — keep pure SQL
-- Don't use Drizzle query builder — this package uses raw SQL only
-- Don't forget `::int` / `::float` casts for numeric types
+- Do not transform data in queries — pure SQL only; transformation belongs in `data-source/proxy-*-methods.ts`
+- Do not use Drizzle query builder — this package uses raw SQL via Prisma only
+- Do not skip `::int` / `::float` casts for numeric types
+- Do not add new query files at `queries/` root — they belong in `queries/proxy/`
+- Do not import the Prisma client directly — use `queries/proxy/client.ts` re-export

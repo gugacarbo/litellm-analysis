@@ -1,81 +1,76 @@
----
-description: DatabaseDataSource implementation and method organization
----
+# SERVICES/ANALYTICS-SERVICE/SRC/DATA-SOURCE
 
-# packages/analytics/src/data-source/
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
-Implements `AnalyticsDataSource` interface (46 methods). Composition pattern — each `*-methods.ts` file contains the implementation for related methods.
+## OVERVIEW
 
-## FILES (12)
+Implements the 46-method `AnalyticsDataSource` interface against `model_proxy_*` PostgreSQL. Composition pattern: `ModelProxyDataSource` class delegates each method to a topic-specific `proxy-*-methods.ts` file.
 
-| File | Implements |
-|------|------------|
-| `database.ts` | `DatabaseDataSource` class — composes all method implementations |
-| `analytics-methods.ts` | Cost efficiency, token distribution, performance |
-| `credential-methods.ts` | Credential get/set |
-| `error-methods.ts` | Error log retrieval |
-| `metrics-methods.ts` | Daily/hourly spend trends, metrics summary |
-| `model-methods.ts` | Model CRUD, statistics, trends, cache hit rate |
-| `monitor-methods.ts` | Health checks, anomaly detection, stuck requests |
-| `routing-methods.ts` | Agent routing config |
-| `spend-methods.ts` | Spend by model/user/key, spend logs pagination |
-| `stats-methods.ts` | Model statistics, API key stats, cost efficiency |
-| `utils.ts` | `toNullableNumber()` helper |
-| `index.ts` | Factory: `createDataSource()` |
+## FILES
+
+| File                          | Implements                                                           |
+| ----------------------------- | -------------------------------------------------------------------- |
+| `model-proxy.ts`              | `ModelProxyDataSource` class — composes all method impls             |
+| `proxy-dashboard-methods.ts`  | Cost efficiency, token distribution, performance widgets            |
+| `proxy-error-methods.ts`      | Error log retrieval                                                  |
+| `proxy-model-methods.ts`      | Model CRUD, statistics, trends, cache hit rate                       |
+| `proxy-monitor-methods.ts`    | Health checks, anomaly detection, stuck requests                      |
+| `proxy-spend-methods.ts`      | Spend by model/user/key, spend logs pagination                        |
+| `registry-methods.ts`          | Registry queries (settings, credentials, model registrations)         |
+| `routing-methods.ts`          | Agent routing config queries                                         |
+| `utils.ts`                    | `toNullableNumber()`, shared helpers                                 |
+| `index.ts`                    | `createDataSource()` factory                                         |
 
 ## ARCHITECTURE
 
 ```
-AnalyticsDataSource (interface)
-  └── DatabaseDataSource (class)
-        ├── analytics-methods.ts
-        ├── credential-methods.ts
-        ├── error-methods.ts
-        ├── metrics-methods.ts
-        ├── model-methods.ts
-        ├── monitor-methods.ts
-        ├── routing-methods.ts
-        ├── spend-methods.ts
-        └── stats-methods.ts
+AnalyticsDataSource (interface, 46 methods)
+        │
+        ▼
+ModelProxyDataSource (class, model-proxy.ts)
+        │
+        ├─ proxy-dashboard-methods.ts
+        ├─ proxy-error-methods.ts
+        ├─ proxy-model-methods.ts
+        ├─ proxy-monitor-methods.ts
+        ├─ proxy-spend-methods.ts
+        ├─ registry-methods.ts
+        └─ routing-methods.ts
+                │
+                ▼
+        queries/proxy/* (raw SQL via Prisma)
 ```
 
 ## PATTERNS
 
 ### Adding a Method
-1. Add signature to `AnalyticsDataSource` interface in `types/index.ts`
-2. Create `getXxxImpl()` in appropriate `*-methods.ts`
-3. Add to `DatabaseDataSource` class in `database.ts`
+1. Add signature to `AnalyticsDataSource` interface in `services/analytics-service/src/types/index.ts`
+2. Create `getXxxImpl()` in appropriate `proxy-*-methods.ts`
+3. Add to `ModelProxyDataSource` class in `model-proxy.ts` (one-line delegation)
+4. Add underlying raw SQL in `queries/proxy/<topic>-queries.ts` if new DB logic needed
 
-### Method Implementation Pattern
+### Method Implementation
 ```typescript
 export async function getSpendByModelImpl(days = 30): Promise<SpendByModel[]> {
-  const result = await getSpendByModel(days);  // from queries/
-  return result.map((item) => ({
-    model: item.model,
-    total_spend: Number(item.total_spend),  // safe coercion
-  }));
+  const rows = await getSpendByModel(days);
+  return rows.map((r) => ({ model: r.model, total_spend: Number(r.total_spend) }));
 }
 ```
 
-### Pagination Pattern
+### Pagination
 ```typescript
-export async function getSpendLogsImpl(
-  filters: SpendLogsFilters,
-  getSpendLogsCountFn: (filters: SpendLogsFilters) => Promise<number>,
-): Promise<SpendLogsResponse> {
-  const [result, total] = await Promise.all([...]);
-  return { logs: result.map(...), pagination: { total, ... } };
-}
+const [rows, total] = await Promise.all([getSpendLogs(filters), getSpendLogsCount(filters)]);
+return { logs: rows.map(...), pagination: { total, ... } };
 ```
 
 ## UTILITIES
 
-### `toNullableNumber()`
-Converts potentially null/undefined values to numbers with fallback.
-Used throughout for safe DB column → number conversion.
+- `toNullableNumber(value, fallback)` — converts possibly-null/undefined DB values to numbers with fallback. Used throughout for safe column → number conversion.
 
-## ANTI-PATTERNS
+## ANTI-PATTERNS (THIS PROJECT)
 
-- Don't add business logic in `*-methods.ts` — delegate to queries/
-- Don't use `as any` for type assertions
-- Don't skip `Number()` wrapping for DB numerics
+- Do not add business logic in `proxy-*-methods.ts` — delegate to `queries/proxy/`
+- Do not use `as any` for type assertions
+- Do not skip `Number()` wrapping for DB numerics (Postgres returns string for some numeric types via Prisma)
+- Do not split `ModelProxyDataSource` via class inheritance — composition only

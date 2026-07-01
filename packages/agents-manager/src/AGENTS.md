@@ -1,35 +1,34 @@
-# packages/agents-manager/src/
+# @LITE-LLM/AGENTS-MANAGER/SRC
+
+**Generated:** 2026-07-01
+**Commit:** 3029bcb
 
 ## OVERVIEW
 
-Manages agent and category configurations with a repository client and 4 domain services.
-
-**Note:** Plugin system moved to `@lite-llm/agent-plugins` package.
+`@lite-llm/agents-manager` — agent/category CRUD, repository client wrapper, and routing service. Plugin system moved to `@lite-llm/agent-plugins` (separate package).
 
 ## STRUCTURE
 
 ```
-agents-manager/src/
-├── index.ts                     # Barrel + createAgentsManager() factory
+packages/agents-manager/src/
+├── index.ts                     # Public barrel + createAgentsManager() factory
 ├── config/
-│   └── defaults.ts              # DEFAULT_DB_PATH, DEFAULT_ROUTING, DEFAULT_SYSTEM_AGENTS
+│   └── defaults.ts              # DEFAULT_AGENTS_PATH, DEFAULT_AGENTS
 ├── repository/
-│   └── client.ts                # createRepositoryClient() with JSONC fallback
+│   └── client.ts                # createRepositoryClient() over @lite-llm/agents-repository
 ├── services/
-│   ├── agent.service.ts         # Agent CRUD operations
+│   ├── agent.service.ts         # Agent CRUD
 │   ├── agent-catalog.service.ts # Agent catalog queries
-│   ├── category.service.ts      # Category CRUD operations
+│   ├── category.service.ts      # Category CRUD
 │   ├── routing.service.ts       # Routing config operations
-│   └── index.ts                # Barrel exports
-├── types/
-│   ├── routing.ts               # PluginRoutingConfig, PluginRoutingRule
-│   └── system-agent.ts          # SystemAgent, AgentVersion, AgentExtraConfig
+│   └── __tests__/
+└── types/                       # (empty — types consolidated into @lite-llm/agent-schemas)
 ```
 
 ## KEY EXPORTS
 
 ### Factory
-- `createAgentsManager(options?)` — creates `{ repository, services }` object
+- `createAgentsManager(options?)` → `{ repository, services }`
 
 ### Services
 - `AgentService` — CRUD for agents
@@ -38,30 +37,38 @@ agents-manager/src/
 - `AgentCatalogService` — catalog queries
 
 ### Repository
-- `createRepositoryClient({ filePath? })` — wraps `@lite-llm/agents-repository`, handles JSONC fallback
+- `createRepositoryClient({ filePath? })` — wraps `@lite-llm/agents-repository`; resolves `@settings/agents/` from monorepo root
 
 ## DATA FLOW
 
 ```
-db.json (source of truth via @lite-llm/agents-repository)
-    ↓
+@settings/agents/agents.jsonc  (source of truth)
+        ↓
+agents-repository (SQLite/PostgreSQL via Prisma)
+        ↓
 RepositoryClient → Services (agent/category/routing)
+        ↓
+apps/server routes via @lite-llm/server
 ```
-
-## CONVENTIONS
-
-- Repository client handles `@settings/agents/` path resolution from monorepo root
-- JSON/JSONC fallback: `.json` → `.jsonc` if file not found
-
-## ANTI-PATTERNS
-
-- Don't import from `apps/server/` — this package is standalone
-- Don't skip `validateOnRead` in repository options
 
 ## WHERE TO LOOK
 
-| Task                      | Location                      | Notes                         |
-| ------------------------- | ----------------------------- | ----------------------------- |
-| Add agent CRUD logic      | `services/agent.service.ts`   | Uses repository client        |
-| Change DB path resolution | `repository/client.ts`        | Handles @settings/agents/ paths        |
-| Add routing config field  | `services/routing.service.ts` | RoutingService                |
+| Task                              | Location                              | Notes                              |
+| --------------------------------- | ------------------------------------- | ---------------------------------- |
+| Add agent CRUD logic              | `services/agent.service.ts`           | Uses repository client             |
+| Change DB path resolution         | `repository/client.ts`                | Handles `@settings/agents/` paths  |
+| Add routing config field          | `services/routing.service.ts`         | RoutingService methods             |
+| Add a new default                 | `config/defaults.ts`                  | DEFAULT_AGENTS_PATH, DEFAULT_AGENTS |
+
+## CONVENTIONS
+
+- Repository client resolves `@settings/agents/` path from monorepo root automatically
+- All agents/categories go through services; never mutate the repository directly
+- Types live in `@lite-llm/agent-schemas`, not here — this `types/` directory is intentionally empty (migration artifact)
+
+## ANTI-PATTERNS (THIS PROJECT)
+
+- Do not import from `apps/server/` — this package is standalone
+- Do not skip `validateOnRead` in repository options
+- Do not put types here — use `@lite-llm/agent-schemas`
+- Do not re-implement plugin logic — it lives in `@lite-llm/agent-plugins`
