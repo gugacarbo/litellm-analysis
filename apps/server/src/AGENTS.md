@@ -32,6 +32,10 @@ apps/server/src/
 ├── ws/
 │   ├── websocket-server.ts        # Single WS server, channel-based subscriptions
 │   └── spend-logs-watcher.ts      # Background watcher that emits to WS
+├── services/
+│   └── health-check/              # Health check service: types, DB query re-exports
+│       ├── types.ts               # HealthCheckResult, events, options types
+│       └── db.ts                  # Re-exports from @lite-llm/app-repository/queries
 ├── __tests__/                     # Integration tests (supertest)
 │   ├── helpers/                   # Shared test fixtures (registry-test-stack.ts, etc.)
 │   ├── chat-routes.test.ts
