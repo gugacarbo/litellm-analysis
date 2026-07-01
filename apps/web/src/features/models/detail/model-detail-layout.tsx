@@ -14,17 +14,17 @@ import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { getModelsWithConfig } from "@/shared/lib/api-client/models";
 import { ModelDetailContext } from "./model-detail-context";
 
-const TAB_SEGMENTS = ["overview", "logs", "settings"] as const;
+const TAB_SEGMENTS = ["settings", "overview", "logs"] as const;
 
 export function ModelDetailLayout() {
   const { modelName } = useParams() as { modelName: string };
   const location = useLocation();
   const navigate = useNavigate();
 
-  const lastSegment = location.pathname.split("/").pop() ?? "overview";
+  const lastSegment = location.pathname.split("/").pop() ?? "settings";
   const tabValue = (TAB_SEGMENTS as readonly string[]).includes(lastSegment)
     ? lastSegment
-    : "overview";
+    : "settings";
 
   const modelsQuery = useQuery({
     queryKey: ["models-with-config"],
@@ -151,9 +151,9 @@ export function ModelDetailLayout() {
           }}
         >
           <TabsList>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
         </Tabs>
 

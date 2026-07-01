@@ -57,7 +57,13 @@ export class ModelService implements IModelService {
     if (config.models[key] === undefined) {
       throw new Error(`Model "${key}" not found`);
     }
-    config.models[key] = { ...config.models[key], ...spec };
+    const next = { ...config.models[key], ...spec };
+    for (const [field, value] of Object.entries(spec)) {
+      if (value === undefined) {
+        delete next[field as keyof ModelSpec];
+      }
+    }
+    config.models[key] = next;
     await this.repository.write(config);
   }
 

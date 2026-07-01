@@ -12,6 +12,7 @@ import { LogsPage } from "@/features/logs";
 import { LogChatSimulationPage } from "@/features/logs/chat-simulation";
 import { LogDetailPage } from "@/features/logs/detail";
 import { ModelStatsPage } from "@/features/model-stats/index";
+import { CredentialsPage } from "@/features/models/credentials-page";
 import { ModelDetailLayout } from "@/features/models/detail/model-detail-layout";
 import { ModelDetailLogsRoute } from "@/features/models/detail/model-detail-logs-route";
 import { ModelDetailOverviewTab } from "@/features/models/detail/model-detail-overview-tab";
@@ -152,6 +153,14 @@ function App() {
               ),
             },
             {
+              path: "credentials",
+              element: (
+                <ErrorBoundary>
+                  <CredentialsPage />
+                </ErrorBoundary>
+              ),
+            },
+            {
               path: "health-check",
               element: (
                 <ErrorBoundary>
@@ -169,7 +178,7 @@ function App() {
               children: [
                 {
                   index: true,
-                  element: <Navigate to="overview" replace />,
+                  element: <Navigate to="settings" replace />,
                 },
                 {
                   path: "overview",
