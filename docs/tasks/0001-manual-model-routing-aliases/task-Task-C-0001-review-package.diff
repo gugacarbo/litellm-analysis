@@ -1,0 +1,491 @@
+FILES
+=====
+apps/web/src/features/models/components/model-config-form.tsx
+apps/web/src/features/models/use-model-config-page.ts
+apps/web/src/features/models/components/model-aliases-editor.tsx
+
+DIFF
+====
+diff --git a/apps/web/src/features/models/components/model-config-form.tsx b/apps/web/src/features/models/components/model-config-form.tsx
+index 8b2e690..71d017b 100644
+--- a/apps/web/src/features/models/components/model-config-form.tsx
++++ b/apps/web/src/features/models/components/model-config-form.tsx
+@@ -20,6 +20,7 @@ import {
+ } from "@/shared/components/ui/select";
+ import { Switch } from "@/shared/components/ui/switch";
+ import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
++import { ModelAliasesEditor } from "./model-aliases-editor";
+ 
+ interface ModelConfigFormProps {
+   modelName: string;
+@@ -55,6 +56,14 @@ export function ModelConfigForm({
+         formData={formData}
+         onFormDataChange={onFormDataChange}
+       />
++      <ModelAliasesEditor
++        aliases={formData.aliases}
++        loading={formData.aliasesLoading}
++        disabled={saving}
++        onChange={(nextAliases) =>
++          onFormDataChange({ ...formData, aliases: nextAliases })
++        }
++      />
+       <DatabaseSettingsSection
+         formData={formData}
+         credentials={credentials}
+@@ -71,7 +80,10 @@ export function ModelConfigForm({
+           <Button variant="outline" onClick={onBack}>
+             Back
+           </Button>
+-          <Button onClick={onSave} disabled={saving || !isDirty}>
++          <Button
++            onClick={onSave}
++            disabled={saving || formData.aliasesLoading || !isDirty}
++          >
+             {saving ? "Saving..." : "Save"}
+           </Button>
+         </div>
+diff --git a/apps/web/src/features/models/use-model-config-page.ts b/apps/web/src/features/models/use-model-config-page.ts
+index d6bf771..46d8e63 100644
+--- a/apps/web/src/features/models/use-model-config-page.ts
++++ b/apps/web/src/features/models/use-model-config-page.ts
+@@ -1,8 +1,12 @@
+-import { useMutation, useQueryClient } from "@tanstack/react-query";
++import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+ import { useCallback, useEffect, useState } from "react";
+ import { useNavigate } from "react-router-dom";
+ import { toast } from "sonner";
+ import type { RegistryCredential } from "@/shared/lib/api-client/credentials";
++import {
++  getModelAliases,
++  updateModelAliases,
++} from "@/shared/lib/api-client/model-aliases";
+ import {
+   type ModelConfig,
+   type ModelRouteUpdate,
+@@ -17,6 +21,8 @@ export interface ModelConfigFormData {
+   displayName: string;
+   family: string;
+   ownedBy: string;
++  aliases: string[];
++  aliasesLoading: boolean;
+   apiMode: "openai" | "anthropic" | "";
+   vision: boolean;
+   enabled: boolean;
+@@ -40,6 +46,8 @@ function getEmptyFormData(): ModelConfigFormData {
+     displayName: "",
+     family: "",
+     ownedBy: "",
++    aliases: [],
++    aliasesLoading: false,
+     apiMode: "",
+     vision: false,
+     enabled: true,
+@@ -98,6 +106,8 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
+     displayName: (config.displayName as string) ?? route.displayName ?? "",
+     family: (config.family as string) ?? route.family ?? "",
+     ownedBy: (config.ownedBy as string) ?? route.ownedBy ?? "",
++    aliases: [],
++    aliasesLoading: true,
+     enabled: model.enabled !== false,
+     thinkingLevels: Array.isArray(config.thinking?.levels)
+       ? config.thinking.levels
+@@ -146,6 +156,45 @@ function buildConfigFromFormData(
+   return config;
+ }
+ 
++function normalizeAliases(aliases: string[]): string[] {
++  return aliases
++    .map((alias) => alias.trim())
++    .filter(Boolean)
++    .filter(
++      (alias, index, allAliases) =>
++        allAliases.findIndex(
++          (candidate) => candidate.toLowerCase() === alias.toLowerCase(),
++        ) === index,
++    );
++}
++
++function getAliasValidationError(aliases: string[]): string | null {
++  const normalizedAliases = aliases.map((alias) => alias.trim());
++
++  for (const alias of normalizedAliases) {
++    if (!alias) {
++      return "Manual aliases cannot be empty.";
++    }
++  }
++
++  const uniqueAliases = new Set(
++    normalizedAliases.map((alias) => alias.toLowerCase()),
++  );
++
++  if (uniqueAliases.size !== normalizedAliases.length) {
++    return "Manual aliases must be unique for this model.";
++  }
++
++  return null;
++}
++
++function areFormDataEqual(
++  left: ModelConfigFormData,
++  right: ModelConfigFormData,
++): boolean {
++  return JSON.stringify(left) === JSON.stringify(right);
++}
++
+ export interface UseModelConfigPageResult {
+   model: ModelWithStatus | null;
+   loading: boolean;
+@@ -170,6 +219,13 @@ export function useModelConfigPageFromContext(): Omit<
+   const { model, credentials } = useModelDetailContext();
+   const queryClient = useQueryClient();
+   const navigate = useNavigate();
++  const modelName = model?.modelName ?? "";
++
++  const aliasesQuery = useQuery({
++    queryKey: ["model-aliases", modelName],
++    queryFn: () => getModelAliases(modelName),
++    enabled: modelName.length > 0,
++  });
+ 
+   const updateMutation = useMutation({
+     mutationFn: (params: {
+@@ -187,18 +243,71 @@ export function useModelConfigPageFromContext(): Omit<
+ 
+   const [formData, setFormData] =
+     useState<ModelConfigFormData>(getEmptyFormData);
+-  const [isDirty, setIsDirty] = useState(false);
++  const [initialFormData, setInitialFormData] =
++    useState<ModelConfigFormData>(getEmptyFormData);
++  const [isSaving, setIsSaving] = useState(false);
+ 
+   useEffect(() => {
+     if (model) {
+-      setFormData(modelToFormData(model));
+-      setIsDirty(false);
++      const nextFormData = modelToFormData(model);
++      setFormData(nextFormData);
++      setInitialFormData(nextFormData);
++    } else {
++      const emptyFormData = getEmptyFormData();
++      setFormData(emptyFormData);
++      setInitialFormData(emptyFormData);
+     }
+   }, [model]);
+ 
++  useEffect(() => {
++    if (!modelName) {
++      setFormData((prev) => ({
++        ...prev,
++        aliases: [],
++        aliasesLoading: false,
++      }));
++      setInitialFormData((prev) => ({
++        ...prev,
++        aliases: [],
++        aliasesLoading: false,
++      }));
++      return;
++    }
++
++    if (aliasesQuery.isPending && !aliasesQuery.data) {
++      setFormData((prev) => ({ ...prev, aliasesLoading: true }));
++      setInitialFormData((prev) => ({ ...prev, aliasesLoading: true }));
++      return;
++    }
++
++    if (aliasesQuery.isError) {
++      setFormData((prev) => ({ ...prev, aliasesLoading: false }));
++      setInitialFormData((prev) => ({ ...prev, aliasesLoading: false }));
++      return;
++    }
++
++    if (aliasesQuery.data) {
++      const nextAliases = aliasesQuery.data.aliases;
++      setFormData((prev) => ({
++        ...prev,
++        aliases: nextAliases,
++        aliasesLoading: false,
++      }));
++      setInitialFormData((prev) => ({
++        ...prev,
++        aliases: nextAliases,
++        aliasesLoading: false,
++      }));
++    }
++  }, [
++    aliasesQuery.data,
++    aliasesQuery.isError,
++    aliasesQuery.isPending,
++    modelName,
++  ]);
++
+   const handleFormDataChange = useCallback((next: ModelConfigFormData) => {
+     setFormData(next);
+-    setIsDirty(true);
+   }, []);
+ 
+   const handleAddExtraParam = useCallback(() => {
+@@ -206,7 +315,6 @@ export function useModelConfigPageFromContext(): Omit<
+       ...prev,
+       extraParams: { ...prev.extraParams, "": "" },
+     }));
+-    setIsDirty(true);
+   }, []);
+ 
+   const handleRemoveExtraParam = useCallback((key: string) => {
+@@ -214,7 +322,6 @@ export function useModelConfigPageFromContext(): Omit<
+       const { [key]: _, ...rest } = prev.extraParams;
+       return { ...prev, extraParams: rest };
+     });
+-    setIsDirty(true);
+   }, []);
+ 
+   const handleUpdateExtraParam = useCallback((key: string, value: string) => {
+@@ -222,13 +329,16 @@ export function useModelConfigPageFromContext(): Omit<
+       ...prev,
+       extraParams: { ...prev.extraParams, [key]: value },
+     }));
+-    setIsDirty(true);
+   }, []);
+ 
++  const isDirty = !areFormDataEqual(formData, initialFormData);
++
+   const handleSave = useCallback(async () => {
+     if (!model) return;
+ 
+     try {
++      setIsSaving(true);
++
+       const inputCost = formData.inputCostPerToken.trim()
+         ? Number(formData.inputCostPerToken)
+         : undefined;
+@@ -293,20 +403,54 @@ export function useModelConfigPageFromContext(): Omit<
+       routeUpdate.requestOptions =
+         Object.keys(requestOptions).length > 0 ? requestOptions : undefined;
+ 
++      const nextAliases = normalizeAliases(formData.aliases);
++      const aliasValidationError = getAliasValidationError(formData.aliases);
++
++      if (aliasValidationError) {
++        toast.error(aliasValidationError);
++        return;
++      }
++
+       await updateMutation.mutateAsync({
+         modelName: model.modelName,
+         modelRoute: routeUpdate,
+         config: buildConfigFromFormData(formData),
+       });
+ 
+-      await queryClient.invalidateQueries({
+-        queryKey: ["models-with-config"],
+-      });
+-
+-      toast.success("Model configuration saved");
+-      setIsDirty(false);
++      try {
++        await updateModelAliases(model.modelName, nextAliases);
++
++        await queryClient.invalidateQueries({
++          queryKey: ["models-with-config"],
++        });
++        await queryClient.invalidateQueries({
++          queryKey: ["model-aliases", model.modelName],
++        });
++
++        setFormData((prev) => ({ ...prev, aliases: nextAliases }));
++        setInitialFormData({
++          ...formData,
++          aliases: nextAliases,
++          aliasesLoading: false,
++        });
++        toast.success("Model configuration and routing aliases saved");
++      } catch (aliasError) {
++        await queryClient.invalidateQueries({
++          queryKey: ["models-with-config"],
++        });
++        await queryClient.invalidateQueries({
++          queryKey: ["model-aliases", model.modelName],
++        });
++
++        toast.error(
++          "Model settings saved, but manual routing aliases failed to save. " +
++            `Latest saved aliases were reloaded. ${String(aliasError)}`,
++        );
++      }
+     } catch (e) {
+       toast.error(`Failed to save: ${e}`);
++    } finally {
++      setIsSaving(false);
+     }
+   }, [model, formData, updateMutation, queryClient]);
+ 
+@@ -314,7 +458,7 @@ export function useModelConfigPageFromContext(): Omit<
+     model,
+     formData,
+     isDirty,
+-    saving: updateMutation.isPending,
++    saving: isSaving || updateMutation.isPending,
+     credentials,
+     onFormDataChange: handleFormDataChange,
+     onAddExtraParam: handleAddExtraParam,
+
+NEW FILE: apps/web/src/features/models/components/model-aliases-editor.tsx
+===================================================================
+diff --git a/apps/web/src/features/models/components/model-aliases-editor.tsx b/apps/web/src/features/models/components/model-aliases-editor.tsx
+new file mode 100644
+index 0000000..c0b618b
+--- /dev/null
++++ b/apps/web/src/features/models/components/model-aliases-editor.tsx
+@@ -0,0 +1,150 @@
++import { Plus, Route, Trash2 } from "lucide-react";
++import { Button } from "@/shared/components/ui/button";
++import {
++  Card,
++  CardContent,
++  CardDescription,
++  CardHeader,
++  CardTitle,
++} from "@/shared/components/ui/card";
++import { Input } from "@/shared/components/ui/input";
++import { Label } from "@/shared/components/ui/label";
++
++interface ModelAliasesEditorProps {
++  aliases: string[];
++  loading: boolean;
++  disabled?: boolean;
++  onChange: (aliases: string[]) => void;
++}
++
++function getAliasIssue(
++  alias: string,
++  index: number,
++  aliases: string[],
++): string | null {
++  const trimmedAlias = alias.trim();
++
++  if (!trimmedAlias) {
++    return "Alias cannot be empty.";
++  }
++
++  const duplicateIndex = aliases.findIndex(
++    (candidate, candidateIndex) =>
++      candidateIndex !== index &&
++      candidate.trim().toLowerCase() === trimmedAlias.toLowerCase(),
++  );
++
++  if (duplicateIndex >= 0) {
++    return "Alias must be unique within this routing list.";
++  }
++
++  return null;
++}
++
++export function ModelAliasesEditor({
++  aliases,
++  loading,
++  disabled = false,
++  onChange,
++}: ModelAliasesEditorProps) {
++  const handleAliasChange = (index: number, value: string) => {
++    const nextAliases = aliases.map((alias, aliasIndex) =>
++      aliasIndex === index ? value : alias,
++    );
++    onChange(nextAliases);
++  };
++
++  const handleAddAlias = () => {
++    onChange([...aliases, ""]);
++  };
++
++  const handleRemoveAlias = (index: number) => {
++    onChange(aliases.filter((_, aliasIndex) => aliasIndex !== index));
++  };
++
++  return (
++    <Card>
++      <CardHeader>
++        <CardTitle className="flex items-center gap-2">
++          <Route className="h-5 w-5" />
++          Manual Routing Aliases
++        </CardTitle>
++        <CardDescription>
++          Add alternate request names that should route to this model. These
++          aliases only affect routing names and do not create model metadata.
++        </CardDescription>
++      </CardHeader>
++      <CardContent className="space-y-4">
++        <div className="rounded-md border border-dashed bg-muted/30 p-3">
++          <p className="text-sm text-muted-foreground">
++            Use aliases for manual routing compatibility, like legacy client
++            names or provider-specific handles. The model detail and metadata
++            stay attached to the primary model name only.
++          </p>
++        </div>
++
++        {loading ? (
++          <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
++            Loading saved aliases...
++          </div>
++        ) : aliases.length === 0 ? (
++          <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
++            No manual aliases yet. Add one if requests should route here under
++            additional names.
++          </div>
++        ) : (
++          <div className="space-y-3">
++            {aliases.map((alias, index) => {
++              const issue = getAliasIssue(alias, index, aliases);
++              const inputId = `manual-alias-${index}`;
++
++              return (
++                <div key={inputId} className="space-y-2 rounded-md border p-3">
++                  <div className="flex items-start gap-3">
++                    <div className="min-w-0 flex-1 space-y-2">
++                      <Label htmlFor={inputId}>Alias {index + 1}</Label>
++                      <Input
++                        id={inputId}
++                        value={alias}
++                        onChange={(event) =>
++                          handleAliasChange(index, event.target.value)
++                        }
++                        placeholder="e.g., gpt-4o-latest"
++                        disabled={disabled}
++                        aria-invalid={issue ? true : undefined}
++                      />
++                    </div>
++                    <Button
++                      type="button"
++                      variant="outline"
++                      size="icon"
++                      className="mt-7"
++                      onClick={() => handleRemoveAlias(index)}
++                      disabled={disabled}
++                      aria-label={`Remove alias ${index + 1}`}
++                    >
++                      <Trash2 className="h-4 w-4" />
++                    </Button>
++                  </div>
++                  <p className="text-xs text-muted-foreground">
++                    {issue ?? "Requests using this exact name will route here."}
++                  </p>
++                </div>
++              );
++            })}
++          </div>
++        )}
++
++        <Button
++          type="button"
++          variant="outline"
++          onClick={handleAddAlias}
++          disabled={disabled || loading}
++        >
++          <Plus className="mr-2 h-4 w-4" />
++          Add alias
++        </Button>
++      </CardContent>
++    </Card>
++  );
++}

@@ -1,0 +1,539 @@
+FILES
+=====
+packages/server/src/orchestration/index.ts
+packages/server/src/orchestration/router-settings.ts
+packages/server/src/orchestration/manual-model-aliases.ts
+packages/server/src/orchestration/__tests__/manual-model-aliases.test.ts
+
+DIFF
+====
+diff --git a/packages/server/src/orchestration/index.ts b/packages/server/src/orchestration/index.ts
+index 293036b..1e981c5 100644
+--- a/packages/server/src/orchestration/index.ts
++++ b/packages/server/src/orchestration/index.ts
+@@ -8,6 +8,14 @@ import type {
+ import { syncGeneratedArtifacts } from "./artifact-service";
+ 
+ export { syncGeneratedArtifacts } from "./artifact-service";
++export {
++  listBlockingManualAliases,
++  listManualAliasesForTarget,
++  listManualModelAliases,
++  type ManualModelAliasEntry,
++  replaceManualAliasesForTarget,
++  retargetManualAliases,
++} from "./manual-model-aliases";
+ export {
+   fromModelProxyRow,
+   fromModelRoute,
+diff --git a/packages/server/src/orchestration/router-settings.ts b/packages/server/src/orchestration/router-settings.ts
+index 3d223de..94afe00 100644
+--- a/packages/server/src/orchestration/router-settings.ts
++++ b/packages/server/src/orchestration/router-settings.ts
+@@ -9,37 +9,53 @@ import {
+   sortAliasesByDefinitionOrder,
+ } from "@lite-llm/models-service";
+ 
+-const ANALYTICS_META_KEY = "__lite_llm_analytics";
+-const MANAGED_ALIAS_KEYS_KEY = "managedModelGroupAliasKeys";
++export const ANALYTICS_META_KEY = "__lite_llm_analytics";
++export const MANAGED_ALIAS_KEYS_KEY = "managedModelGroupAliasKeys";
++export const MANUAL_ALIAS_KEYS_KEY = "manualModelAliasKeys";
+ 
+-function isRecord(value: unknown): value is Record<string, unknown> {
++export function isRecord(value: unknown): value is Record<string, unknown> {
+   return typeof value === "object" && value !== null && !Array.isArray(value);
+ }
+ 
+-function readManagedAliasKeys(settings: Record<string, unknown>): string[] {
++export function readAnalyticsStringArray(
++  settings: Record<string, unknown>,
++  key: string,
++): string[] {
+   const metadata = settings[ANALYTICS_META_KEY];
+   if (!isRecord(metadata)) {
+     return [];
+   }
+ 
+-  const managedKeys = metadata[MANAGED_ALIAS_KEYS_KEY];
+-  if (!Array.isArray(managedKeys)) {
++  const values = metadata[key];
++  if (!Array.isArray(values)) {
+     return [];
+   }
+ 
+-  return managedKeys.filter((item): item is string => typeof item === "string");
++  return values.filter((item): item is string => typeof item === "string");
+ }
+ 
+-function writeManagedAliasKeys(
++function readManagedAliasKeys(settings: Record<string, unknown>): string[] {
++  return readAnalyticsStringArray(settings, MANAGED_ALIAS_KEYS_KEY);
++}
++
++export function writeAnalyticsStringArray(
+   settings: Record<string, unknown>,
+-  managedAliasKeys: readonly string[],
++  key: string,
++  values: readonly string[],
+ ): void {
+   const previous = settings[ANALYTICS_META_KEY];
+   const metadata = isRecord(previous) ? { ...previous } : {};
+-  metadata[MANAGED_ALIAS_KEYS_KEY] = [...managedAliasKeys];
++  metadata[key] = [...values];
+   settings[ANALYTICS_META_KEY] = metadata;
+ }
+ 
++function writeManagedAliasKeys(
++  settings: Record<string, unknown>,
++  managedAliasKeys: readonly string[],
++): void {
++  writeAnalyticsStringArray(settings, MANAGED_ALIAS_KEYS_KEY, managedAliasKeys);
++}
++
+ export async function updateRouterAliasesInRegistry(
+   settingsService: ISettingsService,
+   modelGroupAlias: Record<string, string>,
+
+NEW FILE: packages/server/src/orchestration/manual-model-aliases.ts
+===========================================================
+diff --git a/packages/server/src/orchestration/manual-model-aliases.ts b/packages/server/src/orchestration/manual-model-aliases.ts
+new file mode 100644
+index 0000000..7f365c2
+--- /dev/null
++++ b/packages/server/src/orchestration/manual-model-aliases.ts
+@@ -0,0 +1,201 @@
++import {
++  getRouterSettings,
++  type ISettingsService,
++  type RouterSettingsValue,
++} from "@lite-llm/model-proxy-registry-service";
++import {
++  ANALYTICS_META_KEY,
++  isRecord,
++  MANAGED_ALIAS_KEYS_KEY,
++  MANUAL_ALIAS_KEYS_KEY,
++  readAnalyticsStringArray,
++  writeAnalyticsStringArray,
++} from "./router-settings";
++
++export interface ManualModelAliasEntry {
++  alias: string;
++  targetModel: string;
++}
++
++function normalizeAliasKeys(aliasKeys: readonly string[]): string[] {
++  return Array.from(
++    new Set(
++      aliasKeys
++        .map((aliasKey) => aliasKey.trim())
++        .filter((aliasKey) => aliasKey.length > 0),
++    ),
++  ).sort((left, right) => left.localeCompare(right));
++}
++
++function readRouterSettingsRecord(
++  settings: RouterSettingsValue | null,
++): Record<string, unknown> {
++  return settings && isRecord(settings) ? { ...settings } : {};
++}
++
++function readAliasRecord(
++  settings: Record<string, unknown>,
++): Record<string, unknown> {
++  const aliases = settings.model_group_alias;
++  return isRecord(aliases) ? { ...aliases } : {};
++}
++
++function readManualAliasKeys(settings: Record<string, unknown>): string[] {
++  const managedAliasKeys = new Set(
++    normalizeAliasKeys(
++      readAnalyticsStringArray(settings, MANAGED_ALIAS_KEYS_KEY),
++    ),
++  );
++  return normalizeAliasKeys(
++    readAnalyticsStringArray(settings, MANUAL_ALIAS_KEYS_KEY).filter(
++      (aliasKey) => !managedAliasKeys.has(aliasKey),
++    ),
++  );
++}
++
++function readManualAliasMap(
++  settings: Record<string, unknown>,
++): Record<string, string> {
++  const aliases = readAliasRecord(settings);
++  const manualAliasMap: Record<string, string> = {};
++
++  for (const aliasKey of readManualAliasKeys(settings)) {
++    const targetModel = aliases[aliasKey];
++    if (typeof targetModel === "string" && targetModel.length > 0) {
++      manualAliasMap[aliasKey] = targetModel;
++    }
++  }
++
++  return manualAliasMap;
++}
++
++function toEntries(aliasMap: Record<string, string>): ManualModelAliasEntry[] {
++  return Object.entries(aliasMap)
++    .map(([alias, targetModel]) => ({ alias, targetModel }))
++    .sort((left, right) => left.alias.localeCompare(right.alias));
++}
++
++async function saveManualAliasMap(
++  settingsService: ISettingsService,
++  settings: Record<string, unknown>,
++  nextManualAliasMap: Record<string, string>,
++): Promise<void> {
++  const existingAliases = readAliasRecord(settings);
++  const previousManualAliasKeys = new Set(readManualAliasKeys(settings));
++  const managedAliasKeys = new Set(
++    normalizeAliasKeys(
++      readAnalyticsStringArray(settings, MANAGED_ALIAS_KEYS_KEY),
++    ),
++  );
++  const nextManualAliasKeys = normalizeAliasKeys(
++    Object.keys(nextManualAliasMap),
++  ).filter((aliasKey) => !managedAliasKeys.has(aliasKey));
++  const mergedAliases = Object.fromEntries(
++    Object.entries(existingAliases).filter(
++      ([aliasKey]) => !previousManualAliasKeys.has(aliasKey),
++    ),
++  );
++
++  for (const aliasKey of nextManualAliasKeys) {
++    mergedAliases[aliasKey] = nextManualAliasMap[aliasKey];
++  }
++
++  settings.model_group_alias = mergedAliases;
++  writeAnalyticsStringArray(
++    settings,
++    MANUAL_ALIAS_KEYS_KEY,
++    nextManualAliasKeys,
++  );
++
++  const metadata = settings[ANALYTICS_META_KEY];
++  if (isRecord(metadata) && Object.keys(metadata).length === 0) {
++    delete settings[ANALYTICS_META_KEY];
++  }
++
++  await settingsService.setRouterSettings(settings as RouterSettingsValue);
++}
++
++export async function listManualModelAliases(
++  settingsService: ISettingsService,
++): Promise<ManualModelAliasEntry[]> {
++  const settings = readRouterSettingsRecord(
++    await getRouterSettings(settingsService),
++  );
++  return toEntries(readManualAliasMap(settings));
++}
++
++export async function listManualAliasesForTarget(
++  settingsService: ISettingsService,
++  targetModel: string,
++): Promise<string[]> {
++  return (await listManualModelAliases(settingsService))
++    .filter((entry) => entry.targetModel === targetModel)
++    .map((entry) => entry.alias);
++}
++
++export async function replaceManualAliasesForTarget(
++  settingsService: ISettingsService,
++  targetModel: string,
++  aliases: string[],
++): Promise<ManualModelAliasEntry[]> {
++  const settings = readRouterSettingsRecord(
++    await getRouterSettings(settingsService),
++  );
++  const manualAliasMap = readManualAliasMap(settings);
++  const managedAliasKeys = new Set(
++    normalizeAliasKeys(
++      readAnalyticsStringArray(settings, MANAGED_ALIAS_KEYS_KEY),
++    ),
++  );
++  const nextTargetAliases = normalizeAliasKeys(aliases).filter(
++    (aliasKey) => !managedAliasKeys.has(aliasKey),
++  );
++
++  for (const [aliasKey, currentTarget] of Object.entries(manualAliasMap)) {
++    if (currentTarget === targetModel) {
++      delete manualAliasMap[aliasKey];
++    }
++  }
++
++  for (const aliasKey of nextTargetAliases) {
++    manualAliasMap[aliasKey] = targetModel;
++  }
++
++  await saveManualAliasMap(settingsService, settings, manualAliasMap);
++
++  return toEntries(manualAliasMap);
++}
++
++export async function retargetManualAliases(
++  settingsService: ISettingsService,
++  previousModelName: string,
++  nextModelName: string,
++): Promise<void> {
++  const settings = readRouterSettingsRecord(
++    await getRouterSettings(settingsService),
++  );
++  const manualAliasMap = readManualAliasMap(settings);
++  let changed = false;
++
++  for (const aliasKey of Object.keys(manualAliasMap)) {
++    if (manualAliasMap[aliasKey] === previousModelName) {
++      manualAliasMap[aliasKey] = nextModelName;
++      changed = true;
++    }
++  }
++
++  if (!changed) {
++    return;
++  }
++
++  await saveManualAliasMap(settingsService, settings, manualAliasMap);
++}
++
++export async function listBlockingManualAliases(
++  settingsService: ISettingsService,
++  targetModel: string,
++): Promise<string[]> {
++  return (await listManualModelAliases(settingsService))
++    .filter((entry) => entry.targetModel === targetModel)
++    .map((entry) => entry.alias);
++}
+
+NEW FILE: packages/server/src/orchestration/__tests__/manual-model-aliases.test.ts
+================================================================================
+diff --git a/packages/server/src/orchestration/__tests__/manual-model-aliases.test.ts b/packages/server/src/orchestration/__tests__/manual-model-aliases.test.ts
+new file mode 100644
+index 0000000..ebd4c11
+--- /dev/null
++++ b/packages/server/src/orchestration/__tests__/manual-model-aliases.test.ts
+@@ -0,0 +1,224 @@
++import type {
++  ISettingsService,
++  RouterSettingsValue,
++} from "@lite-llm/model-proxy-registry-service";
++import { describe, expect, it, vi } from "vitest";
++import {
++  listBlockingManualAliases,
++  listManualAliasesForTarget,
++  listManualModelAliases,
++  replaceManualAliasesForTarget,
++  retargetManualAliases,
++} from "../index";
++
++function createSettingsService(
++  initialSettings: RouterSettingsValue | null,
++): ISettingsService & {
++  getStoredRouterSettings: () => RouterSettingsValue | null;
++  setRouterSettingsMock: ReturnType<typeof vi.fn>;
++} {
++  let routerSettings = initialSettings;
++  const setRouterSettingsMock = vi.fn(
++    async (value: RouterSettingsValue): Promise<void> => {
++      routerSettings = value;
++    },
++  );
++
++  return {
++    getByKey: async () => null,
++    list: async () => [],
++    upsertByKey: async () => {
++      throw new Error("not implemented");
++    },
++    deleteByKey: async () => false,
++    getDefaultCredential: async () => null,
++    setDefaultCredential: async () => undefined,
++    deleteDefaultCredential: async () => false,
++    getHealthCheckPrompt: async () => null,
++    setHealthCheckPrompt: async () => undefined,
++    getRouterSettings: async () => routerSettings,
++    setRouterSettings: setRouterSettingsMock,
++    getStoredRouterSettings: () => routerSettings,
++    setRouterSettingsMock,
++  };
++}
++
++describe("manual model aliases orchestration", () => {
++  it("lists manual aliases globally and for one target model", async () => {
++    const settingsService = createSettingsService({
++      model_group_alias: {
++        generated: "gpt-generated",
++        beta: "model-b",
++        alpha: "model-a",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["beta", "alpha"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++
++    await expect(listManualModelAliases(settingsService)).resolves.toEqual([
++      { alias: "alpha", targetModel: "model-a" },
++      { alias: "beta", targetModel: "model-b" },
++    ]);
++    await expect(
++      listManualAliasesForTarget(settingsService, "model-b"),
++    ).resolves.toEqual(["beta"]);
++  });
++
++  it("replaces one target's manual aliases without clobbering managed data", async () => {
++    const settingsService = createSettingsService({
++      routing_strategy: "latency-based-routing",
++      model_group_alias: {
++        generated: "plugin-target",
++        beta: "model-a",
++        shared: "model-b",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["shared", "beta", "beta", "missing"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++
++    const updated = await replaceManualAliasesForTarget(
++      settingsService,
++      "model-a",
++      [" zeta ", "alpha", "alpha"],
++    );
++
++    expect(updated).toEqual([
++      { alias: "alpha", targetModel: "model-a" },
++      { alias: "shared", targetModel: "model-b" },
++      { alias: "zeta", targetModel: "model-a" },
++    ]);
++    expect(settingsService.getStoredRouterSettings()).toEqual({
++      routing_strategy: "latency-based-routing",
++      model_group_alias: {
++        generated: "plugin-target",
++        shared: "model-b",
++        alpha: "model-a",
++        zeta: "model-a",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["alpha", "shared", "zeta"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++    expect(settingsService.setRouterSettingsMock).toHaveBeenCalledOnce();
++  });
++
++  it("ignores incoming manual aliases that collide with managed ownership", async () => {
++    const settingsService = createSettingsService({
++      model_group_alias: {
++        generated: "plugin-target",
++        beta: "model-a",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["beta"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++
++    const updated = await replaceManualAliasesForTarget(
++      settingsService,
++      "model-a",
++      ["generated", "alpha"],
++    );
++
++    expect(updated).toEqual([{ alias: "alpha", targetModel: "model-a" }]);
++    expect(settingsService.getStoredRouterSettings()).toEqual({
++      model_group_alias: {
++        generated: "plugin-target",
++        alpha: "model-a",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["alpha"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++  });
++
++  it("cleans duplicate cross-owner metadata so managed ownership wins", async () => {
++    const settingsService = createSettingsService({
++      model_group_alias: {
++        generated: "plugin-target",
++        alpha: "model-a",
++        beta: "model-b",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["generated", "alpha", "generated"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++
++    await expect(listManualModelAliases(settingsService)).resolves.toEqual([
++      { alias: "alpha", targetModel: "model-a" },
++    ]);
++
++    const updated = await replaceManualAliasesForTarget(
++      settingsService,
++      "model-a",
++      ["alpha"],
++    );
++
++    expect(updated).toEqual([{ alias: "alpha", targetModel: "model-a" }]);
++    expect(settingsService.getStoredRouterSettings()).toEqual({
++      model_group_alias: {
++        generated: "plugin-target",
++        beta: "model-b",
++        alpha: "model-a",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["alpha"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++  });
++
++  it("retargets only manual aliases during model rename", async () => {
++    const settingsService = createSettingsService({
++      model_group_alias: {
++        generated: "model-a",
++        alpha: "model-a",
++        beta: "model-b",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["beta", "alpha"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++
++    await retargetManualAliases(settingsService, "model-a", "model-a-renamed");
++
++    expect(settingsService.getStoredRouterSettings()).toEqual({
++      model_group_alias: {
++        generated: "model-a",
++        alpha: "model-a-renamed",
++        beta: "model-b",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["alpha", "beta"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++  });
++
++  it("lists manual aliases that block deleting a target model", async () => {
++    const settingsService = createSettingsService({
++      model_group_alias: {
++        gamma: "model-a",
++        alpha: "model-a",
++        generated: "model-a",
++        beta: "model-b",
++      },
++      __lite_llm_analytics: {
++        manualModelAliasKeys: ["gamma", "beta", "alpha"],
++        managedModelGroupAliasKeys: ["generated"],
++      },
++    });
++
++    await expect(
++      listBlockingManualAliases(settingsService, "model-a"),
++    ).resolves.toEqual(["alpha", "gamma"]);
++  });
++});
