@@ -129,3 +129,37 @@ export async function disconnectOpenAiOAuth(): Promise<{ success: boolean }> {
     method: "DELETE",
   });
 }
+
+export type OpenAiDiscoveredModel = {
+  id: string;
+  ownedBy: string;
+  object?: string;
+  created?: number;
+};
+
+export async function discoverOpenAiModels(): Promise<{
+  models: OpenAiDiscoveredModel[];
+}> {
+  return fetchApi("/credentials/openai-oauth/discover-models");
+}
+
+export async function testOpenAIModel(
+  model: string,
+  prompt: string,
+): Promise<{
+  content: string;
+}> {
+  return fetchApi("/credentials/openai-oauth/test-chat", {
+    method: "POST",
+    body: JSON.stringify({ model, prompt }),
+  });
+}
+
+export async function registerOpenAiModels(
+  models: Array<{ id: string; ownedBy?: string }>,
+): Promise<{ registered: number; skipped: number; errors: string[] }> {
+  return fetchApi("/credentials/openai-oauth/register-models", {
+    method: "POST",
+    body: JSON.stringify({ models }),
+  });
+}

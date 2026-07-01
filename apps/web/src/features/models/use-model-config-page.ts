@@ -95,9 +95,9 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
       : "";
 
   return {
-    displayName: (config.displayName as string) ?? "",
-    family: (config.family as string) ?? "",
-    ownedBy: (config.ownedBy as string) ?? "",
+    displayName: (config.displayName as string) ?? route.displayName ?? "",
+    family: (config.family as string) ?? route.family ?? "",
+    ownedBy: (config.ownedBy as string) ?? route.ownedBy ?? "",
     enabled: model.enabled !== false,
     thinkingLevels: Array.isArray(config.thinking?.levels)
       ? config.thinking.levels
@@ -117,6 +117,33 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     outputCostPerToken: route.outputCostPerToken?.toString() ?? "",
     extraParams,
   };
+}
+
+function buildConfigFromFormData(
+  formData: ModelConfigFormData,
+): ModelConfig["config"] {
+  const config: ModelConfig["config"] = {
+    displayName: formData.displayName || undefined,
+    family: formData.family || undefined,
+    ownedBy: formData.ownedBy || undefined,
+    apiMode: formData.apiMode || undefined,
+    vision: formData.vision,
+  };
+
+  if (formData.thinkingLevels.length > 0) {
+    config.thinking = { levels: formData.thinkingLevels };
+  }
+
+  if (formData.reasoning.enabled) {
+    config.reasoning = {
+      effort: formData.reasoning.effort || undefined,
+      apiMode: formData.reasoning.apiMode || undefined,
+      enableThinking: formData.reasoning.enableThinking,
+      includeReasoningInRequest: formData.reasoning.includeReasoningInRequest,
+    };
+  }
+
+  return config;
 }
 
 export interface UseModelConfigPageResult {
@@ -226,8 +253,16 @@ export function useModelConfigPageFromContext(): Omit<
       }
 
       const existingRoute = resolveModelRoute(model);
+      const {
+        displayName: _displayName,
+        family: _family,
+        ownedBy: _ownedBy,
+        apiMode: _apiMode,
+        vision: _vision,
+        ...existingRouteRest
+      } = existingRoute;
       const routeUpdate: ModelRouteUpdate = {
-        ...existingRoute,
+        ...existingRouteRest,
         upstreamBaseUrl: formData.apiBase || undefined,
         credentialName: formData.credentialName || undefined,
         enabled: formData.enabled,
@@ -261,6 +296,7 @@ export function useModelConfigPageFromContext(): Omit<
       await updateMutation.mutateAsync({
         modelName: model.modelName,
         modelRoute: routeUpdate,
+        config: buildConfigFromFormData(formData),
       });
 
       await queryClient.invalidateQueries({

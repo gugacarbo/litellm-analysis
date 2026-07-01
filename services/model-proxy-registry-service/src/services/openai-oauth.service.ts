@@ -202,6 +202,7 @@ export interface IOpenAiOAuthService {
   }): Promise<OpenAiOAuthDeviceCodePollResult>;
   disconnect(): Promise<void>;
   getAuthenticatedRequestConfig(): Promise<OpenAiOAuthAuthenticatedRequestConfig>;
+  discoverModels(): Promise<{ id: string; ownedBy?: string }[]>;
 }
 
 export class OpenAiOAuthService implements IOpenAiOAuthService {
@@ -358,6 +359,47 @@ export class OpenAiOAuthService implements IOpenAiOAuthService {
       }),
       sessionId,
     };
+  }
+
+  async discoverModels(): Promise<{ id: string; ownedBy?: string }[]> {
+    const tokens = await this.ensureValidTokens();
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+
+    try {
+      const response = await fetch("https://api.openai.com/v1/models", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokens.accessToken}`,
+          accept: "application/json",
+        },
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const body = await response.text().catch(() => "");
+        throw new Error(
+          `OpenAI /v1/models returned ${response.status}: ${body.slice(0, 300)}`,
+        );
+      }
+
+      const json = (await response.json()) as {
+        data?: Array<{ id: string; owned_by?: string }>;
+      };
+
+      const models = Array.isArray(json.data) ? json.data : [];
+      return models.map((model) => ({
+        id: model.id,
+        ownedBy: model.owned_by ?? "chatgpt-subscription",
+      }));
+    } catch (error) {
+      throw new Error(
+        `Failed to discover OpenAI models: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   private async ensureValidTokens(): Promise<OpenAiOAuthConnectionTokens> {

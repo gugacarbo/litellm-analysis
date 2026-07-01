@@ -55,3 +55,15 @@ export interface OpenAiOAuthAuthenticatedRequestConfig {
   headers: Record<string, string>;
   sessionId: string;
 }
+
+export interface OpenAiDiscoveredModel {
+  id: string;
+  ownedBy: string | null;
+  createdAt: string | null;
+}
+
+export interface OpenAiDiscoverModelsResult {
+  success: boolean;
+  models: OpenAiDiscoveredModel[];
+  error?: string;
+}
