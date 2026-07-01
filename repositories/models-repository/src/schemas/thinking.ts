@@ -23,6 +23,10 @@ export const reasoningSchema = z
       title: "Include Reasoning in Request",
       description: "Whether reasoning content is included in the request body",
     }),
+    apiMode: z.enum(["openai", "anthropic"]).optional().meta({
+      title: "API Mode",
+      description: "API provider mode for reasoning/thinking requests",
+    }),
   })
   .optional()
   .meta({ title: "Reasoning", description: "Runtime reasoning configuration" });

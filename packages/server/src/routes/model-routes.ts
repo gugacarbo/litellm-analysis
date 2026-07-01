@@ -373,11 +373,24 @@ export function registerModelRoutes(
           modelRoute,
           modelName: normalizedNewName,
         });
+
+        // Config-only fields (displayName, family, ownedBy, apiMode, vision)
+        // belong in models.jsonc, not the registry route. Strip them from the
+        // incoming route so they never leak into requestOptions or DB columns.
+        const {
+          displayName: _displayName,
+          family: _family,
+          ownedBy: _ownedBy,
+          apiMode: _apiMode,
+          vision: _vision,
+          ...strippedIncomingRoute
+        } = incomingRoute;
+
         nextRoute = normalizeModelRoute(
           normalizedNewName,
           {
             ...existingRoute,
-            ...incomingRoute,
+            ...strippedIncomingRoute,
             modelName: normalizedNewName,
           },
           credentialName,
@@ -409,6 +422,8 @@ export function registerModelRoutes(
         }
         if (config.apiMode === "openai" || config.apiMode === "anthropic") {
           configUpdate.apiMode = config.apiMode;
+        } else if ("apiMode" in config) {
+          configUpdate.apiMode = undefined;
         }
         if (typeof config.vision === "boolean") {
           configUpdate.vision = config.vision;
@@ -416,10 +431,14 @@ export function registerModelRoutes(
         if (isRecord(config.thinking)) {
           configUpdate.thinking =
             config.thinking as DbModelSpecLike["thinking"];
+        } else if ("thinking" in config) {
+          configUpdate.thinking = undefined;
         }
         if (isRecord(config.reasoning)) {
           configUpdate.reasoning =
             config.reasoning as DbModelSpecLike["reasoning"];
+        } else if ("reasoning" in config) {
+          configUpdate.reasoning = undefined;
         }
         if (Object.keys(configUpdate).length > 0) {
           try {

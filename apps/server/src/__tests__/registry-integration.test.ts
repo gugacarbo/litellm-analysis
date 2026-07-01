@@ -251,6 +251,74 @@ describe("registry integration", () => {
         await closeServer(server);
       }
     });
+
+    it("keeps displayName in config and out of registry requestOptions", async () => {
+      const stack = createRegistryTestStack();
+      await stack.seedConfigModel("display-name-model");
+      await stack.seedRegistryModel("display-name-model");
+
+      const { port, server } = await createRegistryHttpServer(stack, "models");
+
+      try {
+        const updateResponse = await fetch(
+          `http://127.0.0.1:${port}/models/display-name-model`,
+          {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              modelRoute: {
+                displayName: "Should be ignored in route",
+                inputCostPerToken: 0.000003,
+              },
+              config: {
+                displayName: "GPT Display Name",
+                family: "gpt-family",
+                ownedBy: "openai",
+                apiMode: "openai",
+                vision: true,
+              },
+            }),
+          },
+        );
+        expect(updateResponse.status).toBe(200);
+
+        const configModel = await stack.modelsService.get("display-name-model");
+        expect(configModel?.displayName).toBe("GPT Display Name");
+        expect(configModel?.family).toBe("gpt-family");
+        expect(configModel?.ownedBy).toBe("openai");
+        expect(configModel?.apiMode).toBe("openai");
+        expect(configModel?.vision).toBe(true);
+
+        const route =
+          await stack.registry.registryModelsService.getRoute(
+            "display-name-model",
+          );
+        expect(route?.displayName).toBeUndefined();
+        expect(route?.family).toBeUndefined();
+        expect(route?.ownedBy).toBeUndefined();
+        expect(route?.apiMode).toBeUndefined();
+        expect(route?.vision).toBeUndefined();
+        expect(route?.inputCostPerToken).toBe(0.000003);
+        expect(route?.requestOptions).toBeUndefined();
+
+        const withConfig = await fetch(
+          `http://127.0.0.1:${port}/models/with-config`,
+        );
+        expect(withConfig.status).toBe(200);
+        const body = (await withConfig.json()) as {
+          models: Array<{
+            modelName: string;
+            config?: { displayName?: string };
+          }>;
+        };
+        const entry = body.models.find(
+          (m) => m.modelName === "display-name-model",
+        );
+        expect(entry?.config?.displayName).toBe("GPT Display Name");
+      } finally {
+        await closeServer(server);
+      }
+    });
   });
 
   describe("credentials", () => {
