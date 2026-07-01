@@ -20,6 +20,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
+import { ModelAliasesEditor } from "./model-aliases-editor";
 
 interface ModelConfigFormProps {
   modelName: string;
@@ -55,6 +56,15 @@ export function ModelConfigForm({
         formData={formData}
         onFormDataChange={onFormDataChange}
       />
+      <ModelAliasesEditor
+        aliases={formData.aliases}
+        errorMessage={formData.aliasesLoadError}
+        loading={formData.aliasesLoading}
+        disabled={saving}
+        onChange={(nextAliases) =>
+          onFormDataChange({ ...formData, aliases: nextAliases })
+        }
+      />
       <DatabaseSettingsSection
         formData={formData}
         credentials={credentials}
@@ -71,7 +81,10 @@ export function ModelConfigForm({
           <Button variant="outline" onClick={onBack}>
             Back
           </Button>
-          <Button onClick={onSave} disabled={saving || !isDirty}>
+          <Button
+            onClick={onSave}
+            disabled={saving || formData.aliasesLoading || !isDirty}
+          >
             {saving ? "Saving..." : "Save"}
           </Button>
         </div>

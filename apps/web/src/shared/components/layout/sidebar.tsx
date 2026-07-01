@@ -145,6 +145,12 @@ export function AppSidebar() {
       children: [
         { id: "models-list", to: "/models", icon: Cpu, label: "Models" },
         {
+          id: "models-aliases",
+          to: "/models/aliases",
+          icon: GitBranch,
+          label: "Aliases",
+        },
+        {
           id: "models-credentials",
           to: "/models/credentials",
           icon: Settings,

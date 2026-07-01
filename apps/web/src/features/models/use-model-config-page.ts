@@ -1,8 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import type { RegistryCredential } from "@/shared/lib/api-client/credentials";
+import {
+  getModelAliases,
+  updateModelAliases,
+} from "@/shared/lib/api-client/model-aliases";
 import {
   type ModelConfig,
   type ModelRouteUpdate,
@@ -17,6 +21,10 @@ export interface ModelConfigFormData {
   displayName: string;
   family: string;
   ownedBy: string;
+  aliases: string[];
+  aliasesLoaded: boolean;
+  aliasesLoading: boolean;
+  aliasesLoadError: string | null;
   apiMode: "openai" | "anthropic" | "";
   vision: boolean;
   enabled: boolean;
@@ -40,6 +48,10 @@ function getEmptyFormData(): ModelConfigFormData {
     displayName: "",
     family: "",
     ownedBy: "",
+    aliases: [],
+    aliasesLoaded: false,
+    aliasesLoading: false,
+    aliasesLoadError: null,
     apiMode: "",
     vision: false,
     enabled: true,
@@ -98,6 +110,10 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     displayName: (config.displayName as string) ?? route.displayName ?? "",
     family: (config.family as string) ?? route.family ?? "",
     ownedBy: (config.ownedBy as string) ?? route.ownedBy ?? "",
+    aliases: [],
+    aliasesLoaded: false,
+    aliasesLoading: true,
+    aliasesLoadError: null,
     enabled: model.enabled !== false,
     thinkingLevels: Array.isArray(config.thinking?.levels)
       ? config.thinking.levels
@@ -146,6 +162,67 @@ function buildConfigFromFormData(
   return config;
 }
 
+function normalizeAliases(aliases: string[]): string[] {
+  return aliases
+    .map((alias) => alias.trim())
+    .filter(Boolean)
+    .filter(
+      (alias, index, allAliases) =>
+        allAliases.findIndex(
+          (candidate) => candidate.toLowerCase() === alias.toLowerCase(),
+        ) === index,
+    );
+}
+
+function getAliasValidationError(aliases: string[]): string | null {
+  const normalizedAliases = aliases.map((alias) => alias.trim());
+
+  for (const alias of normalizedAliases) {
+    if (!alias) {
+      return "Manual aliases cannot be empty.";
+    }
+  }
+
+  const uniqueAliases = new Set(
+    normalizedAliases.map((alias) => alias.toLowerCase()),
+  );
+
+  if (uniqueAliases.size !== normalizedAliases.length) {
+    return "Manual aliases must be unique for this model.";
+  }
+
+  return null;
+}
+
+function getComparableFormData(formData: ModelConfigFormData) {
+  return {
+    displayName: formData.displayName,
+    family: formData.family,
+    ownedBy: formData.ownedBy,
+    aliases: formData.aliases,
+    apiMode: formData.apiMode,
+    vision: formData.vision,
+    enabled: formData.enabled,
+    thinkingLevels: formData.thinkingLevels,
+    reasoning: formData.reasoning,
+    apiBase: formData.apiBase,
+    credentialName: formData.credentialName,
+    inputCostPerToken: formData.inputCostPerToken,
+    outputCostPerToken: formData.outputCostPerToken,
+    extraParams: formData.extraParams,
+  };
+}
+
+function areFormDataEqual(
+  left: ModelConfigFormData,
+  right: ModelConfigFormData,
+): boolean {
+  return (
+    JSON.stringify(getComparableFormData(left)) ===
+    JSON.stringify(getComparableFormData(right))
+  );
+}
+
 export interface UseModelConfigPageResult {
   model: ModelWithStatus | null;
   loading: boolean;
@@ -170,6 +247,13 @@ export function useModelConfigPageFromContext(): Omit<
   const { model, credentials } = useModelDetailContext();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const modelName = model?.modelName ?? "";
+
+  const aliasesQuery = useQuery({
+    queryKey: ["model-aliases", modelName],
+    queryFn: () => getModelAliases(modelName),
+    enabled: modelName.length > 0,
+  });
 
   const updateMutation = useMutation({
     mutationFn: (params: {
@@ -187,26 +271,149 @@ export function useModelConfigPageFromContext(): Omit<
 
   const [formData, setFormData] =
     useState<ModelConfigFormData>(getEmptyFormData);
-  const [isDirty, setIsDirty] = useState(false);
+  const [initialFormData, setInitialFormData] =
+    useState<ModelConfigFormData>(getEmptyFormData);
+  const [isSaving, setIsSaving] = useState(false);
+  const [aliasesTouched, setAliasesTouched] = useState(false);
+  const hydratedAliasesModelRef = useRef<string | null>(null);
+  const aliasErrorToastModelRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (model) {
-      setFormData(modelToFormData(model));
-      setIsDirty(false);
+      const nextFormData = modelToFormData(model);
+      setFormData(nextFormData);
+      setInitialFormData(nextFormData);
+      setAliasesTouched(false);
+      hydratedAliasesModelRef.current = null;
+      aliasErrorToastModelRef.current = null;
+    } else {
+      const emptyFormData = getEmptyFormData();
+      setFormData(emptyFormData);
+      setInitialFormData(emptyFormData);
+      setAliasesTouched(false);
+      hydratedAliasesModelRef.current = null;
+      aliasErrorToastModelRef.current = null;
     }
   }, [model]);
 
-  const handleFormDataChange = useCallback((next: ModelConfigFormData) => {
-    setFormData(next);
-    setIsDirty(true);
-  }, []);
+  useEffect(() => {
+    if (!modelName) {
+      setFormData((prev) => ({
+        ...prev,
+        aliases: [],
+        aliasesLoaded: false,
+        aliasesLoading: false,
+        aliasesLoadError: null,
+      }));
+      setInitialFormData((prev) => ({
+        ...prev,
+        aliases: [],
+        aliasesLoaded: false,
+        aliasesLoading: false,
+        aliasesLoadError: null,
+      }));
+      return;
+    }
+
+    if (aliasesQuery.data) {
+      const nextAliases = aliasesQuery.data.aliases;
+      const shouldHydrateAliases =
+        hydratedAliasesModelRef.current !== modelName && !aliasesTouched;
+
+      hydratedAliasesModelRef.current = modelName;
+      aliasErrorToastModelRef.current = null;
+
+      setFormData((prev) => ({
+        ...prev,
+        aliases: shouldHydrateAliases ? nextAliases : prev.aliases,
+        aliasesLoaded: true,
+        aliasesLoading: false,
+        aliasesLoadError: null,
+      }));
+      setInitialFormData((prev) => ({
+        ...prev,
+        aliases: shouldHydrateAliases ? nextAliases : prev.aliases,
+        aliasesLoaded: true,
+        aliasesLoading: false,
+        aliasesLoadError: null,
+      }));
+
+      return;
+    }
+
+    if (aliasesQuery.isError) {
+      const aliasLoadError =
+        "Failed to load saved routing aliases. Model settings can still be " +
+        "saved, but alias changes will stay local until aliases load " +
+        "successfully.";
+
+      const isNewModelOrUnhydrated =
+        hydratedAliasesModelRef.current !== modelName;
+      if (isNewModelOrUnhydrated) {
+        hydratedAliasesModelRef.current = modelName;
+      }
+      aliasErrorToastModelRef.current = null;
+
+      setFormData((prev) => ({
+        ...prev,
+        aliasesLoaded: false,
+        aliasesLoading: false,
+        aliasesLoadError: aliasLoadError,
+      }));
+      setInitialFormData((prev) => ({
+        ...prev,
+        aliasesLoaded: false,
+        aliasesLoading: false,
+        aliasesLoadError: aliasLoadError,
+      }));
+
+      if (
+        isNewModelOrUnhydrated &&
+        aliasErrorToastModelRef.current !== modelName
+      ) {
+        aliasErrorToastModelRef.current = modelName;
+        toast.error(aliasLoadError);
+      }
+
+      return;
+    }
+
+    if (aliasesQuery.isPending) {
+      setFormData((prev) => ({
+        ...prev,
+        aliasesLoading: true,
+        aliasesLoadError: null,
+      }));
+      setInitialFormData((prev) => ({
+        ...prev,
+        aliasesLoading: true,
+        aliasesLoadError: null,
+      }));
+    }
+  }, [
+    aliasesTouched,
+    aliasesQuery.data,
+    aliasesQuery.isError,
+    aliasesQuery.isPending,
+    modelName,
+  ]);
+
+  const handleFormDataChange = useCallback(
+    (next: ModelConfigFormData) => {
+      if (JSON.stringify(formData.aliases) !== JSON.stringify(next.aliases)) {
+        setAliasesTouched(true);
+      }
+
+      setFormData(next);
+    },
+    [formData.aliases],
+  );
 
   const handleAddExtraParam = useCallback(() => {
     setFormData((prev) => ({
       ...prev,
       extraParams: { ...prev.extraParams, "": "" },
     }));
-    setIsDirty(true);
   }, []);
 
   const handleRemoveExtraParam = useCallback((key: string) => {
@@ -214,7 +421,6 @@ export function useModelConfigPageFromContext(): Omit<
       const { [key]: _, ...rest } = prev.extraParams;
       return { ...prev, extraParams: rest };
     });
-    setIsDirty(true);
   }, []);
 
   const handleUpdateExtraParam = useCallback((key: string, value: string) => {
@@ -222,13 +428,16 @@ export function useModelConfigPageFromContext(): Omit<
       ...prev,
       extraParams: { ...prev.extraParams, [key]: value },
     }));
-    setIsDirty(true);
   }, []);
+
+  const isDirty = !areFormDataEqual(formData, initialFormData);
 
   const handleSave = useCallback(async () => {
     if (!model) return;
 
     try {
+      setIsSaving(true);
+
       const inputCost = formData.inputCostPerToken.trim()
         ? Number(formData.inputCostPerToken)
         : undefined;
@@ -293,20 +502,88 @@ export function useModelConfigPageFromContext(): Omit<
       routeUpdate.requestOptions =
         Object.keys(requestOptions).length > 0 ? requestOptions : undefined;
 
+      const nextAliases = normalizeAliases(formData.aliases);
+      const aliasValidationError = getAliasValidationError(formData.aliases);
+
+      if (formData.aliasesLoaded && aliasValidationError) {
+        toast.error(aliasValidationError);
+        return;
+      }
+
       await updateMutation.mutateAsync({
         modelName: model.modelName,
         modelRoute: routeUpdate,
         config: buildConfigFromFormData(formData),
       });
 
-      await queryClient.invalidateQueries({
-        queryKey: ["models-with-config"],
-      });
+      if (!formData.aliasesLoaded) {
+        await queryClient.invalidateQueries({
+          queryKey: ["models-with-config"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["model-aliases", model.modelName],
+        });
 
-      toast.success("Model configuration saved");
-      setIsDirty(false);
+        setInitialFormData((prev) => ({
+          ...formData,
+          aliases: prev.aliases,
+          aliasesLoaded: false,
+          aliasesLoading: false,
+          aliasesLoadError:
+            formData.aliasesLoadError ??
+            "Routing aliases were not loaded, so alias changes were not saved.",
+        }));
+
+        toast.error(
+          "Model settings saved, but routing aliases were not loaded, so " +
+            "alias changes were not saved.",
+        );
+        return;
+      }
+
+      try {
+        await updateModelAliases(model.modelName, nextAliases);
+
+        await queryClient.invalidateQueries({
+          queryKey: ["models-with-config"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["model-aliases", model.modelName],
+        });
+
+        setAliasesTouched(false);
+        setFormData((prev) => ({
+          ...prev,
+          aliases: nextAliases,
+          aliasesLoaded: true,
+          aliasesLoading: false,
+          aliasesLoadError: null,
+        }));
+        setInitialFormData({
+          ...formData,
+          aliases: nextAliases,
+          aliasesLoaded: true,
+          aliasesLoading: false,
+          aliasesLoadError: null,
+        });
+        toast.success("Model configuration and routing aliases saved");
+      } catch (aliasError) {
+        await queryClient.invalidateQueries({
+          queryKey: ["models-with-config"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["model-aliases", model.modelName],
+        });
+
+        toast.error(
+          "Model settings saved, but manual routing aliases failed to save. " +
+            `Latest saved aliases were reloaded. ${String(aliasError)}`,
+        );
+      }
     } catch (e) {
       toast.error(`Failed to save: ${e}`);
+    } finally {
+      setIsSaving(false);
     }
   }, [model, formData, updateMutation, queryClient]);
 
@@ -314,7 +591,7 @@ export function useModelConfigPageFromContext(): Omit<
     model,
     formData,
     isDirty,
-    saving: updateMutation.isPending,
+    saving: isSaving || updateMutation.isPending,
     credentials,
     onFormDataChange: handleFormDataChange,
     onAddExtraParam: handleAddExtraParam,

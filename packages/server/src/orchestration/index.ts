@@ -9,6 +9,14 @@ import { syncGeneratedArtifacts } from "./artifact-service";
 
 export { syncGeneratedArtifacts } from "./artifact-service";
 export {
+  listBlockingManualAliases,
+  listManualAliasesForTarget,
+  listManualModelAliases,
+  type ManualModelAliasEntry,
+  replaceManualAliasesForTarget,
+  retargetManualAliases,
+} from "./manual-model-aliases";
+export {
   fromModelProxyRow,
   fromModelRoute,
   type ModelProxyRowWrite,

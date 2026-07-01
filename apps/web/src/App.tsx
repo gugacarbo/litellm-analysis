@@ -17,6 +17,7 @@ import { ModelDetailLayout } from "@/features/models/detail/model-detail-layout"
 import { ModelDetailLogsRoute } from "@/features/models/detail/model-detail-logs-route";
 import { ModelDetailOverviewTab } from "@/features/models/detail/model-detail-overview-tab";
 import { ModelDetailSettingsTab } from "@/features/models/detail/model-detail-settings-tab";
+import { ModelsAliasesPage } from "@/features/models/models-aliases-page";
 import { ModelsConfiguredPage } from "@/features/models/models-configured-page";
 import { ModelsHealthCheckPage } from "@/features/models/models-health-check-page";
 import { ModelsLayout } from "@/features/models/models-layout";
@@ -165,6 +166,14 @@ function App() {
               element: (
                 <ErrorBoundary>
                   <ModelsHealthCheckPage />
+                </ErrorBoundary>
+              ),
+            },
+            {
+              path: "aliases",
+              element: (
+                <ErrorBoundary>
+                  <ModelsAliasesPage />
                 </ErrorBoundary>
               ),
             },

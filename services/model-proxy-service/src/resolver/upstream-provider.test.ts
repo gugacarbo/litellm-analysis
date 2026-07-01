@@ -79,6 +79,43 @@ describe("upstream-provider", () => {
     });
   });
 
+  it("uses literal secretRef values when the credential stores a raw key", async () => {
+    const target = await resolveUpstreamTarget({
+      database: {
+        modelProxyCredential: {
+          findUnique: vi.fn().mockResolvedValue({
+            name: "iproute-main",
+            apiKey: null,
+            baseUrl: "https://llm.iproute.cloud",
+            secretRef: "sk-live-literal-secret",
+          }),
+        },
+      } as never,
+      modelName: "gpt-test",
+      providers: {
+        openai: {
+          name: "OpenAI",
+          adapter: "openai-compatible",
+          baseUrl: "https://api.openai.com/v1",
+          defaultCredential: "iproute-main",
+        },
+      },
+      fallbackModels: {
+        "gpt-test": {
+          enabled: true,
+          displayName: "GPT Test",
+          family: "openai",
+          limits: { length: 128000, maxOutput: 4096 },
+        },
+      },
+      row: null,
+    });
+
+    expect(target.upstreamHeaders).toEqual({
+      authorization: "Bearer sk-live-literal-secret",
+    });
+  });
+
   it("resolves chatgpt subscription models without api key", async () => {
     const target = await resolveUpstreamTarget({
       database: {

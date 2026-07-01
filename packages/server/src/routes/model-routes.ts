@@ -10,6 +10,13 @@ import {
 } from "@lite-llm/model-proxy-registry-service";
 import type { Application, Response } from "express";
 import {
+  listBlockingManualAliases,
+  listManualAliasesForTarget,
+  listManualModelAliases,
+  replaceManualAliasesForTarget,
+  retargetManualAliases,
+} from "../orchestration";
+import {
   createRegistryModelFromRoute,
   createRegistryModelFromSpec,
   listRegistryModels,
@@ -85,6 +92,11 @@ type ModelSyncDiffItem = {
   defaultDirection: ModelSyncDirection;
 };
 
+type AliasInventory = {
+  aliasMap: Map<string, string>;
+  managedAliasKeys: Set<string>;
+};
+
 function valuesAreDifferent(a: unknown, b: unknown): boolean {
   return JSON.stringify(a ?? null) !== JSON.stringify(b ?? null);
 }
@@ -147,6 +159,75 @@ function setRouteFieldValue(
   return next;
 }
 
+function normalizeAliasValue(value: string): string {
+  return value.trim();
+}
+
+function normalizeModelNameParam(value: string): string {
+  return value.trim();
+}
+
+function readAliasInventory(settings: unknown): AliasInventory {
+  const aliasMap = new Map<string, string>();
+  const managedAliasKeys = new Set<string>();
+
+  if (!isRecord(settings)) {
+    return { aliasMap, managedAliasKeys };
+  }
+
+  if (isRecord(settings.model_group_alias)) {
+    for (const [alias, target] of Object.entries(settings.model_group_alias)) {
+      if (typeof target !== "string") {
+        continue;
+      }
+      const normalizedAlias = normalizeAliasValue(alias);
+      const normalizedTarget = target.trim();
+      if (!normalizedAlias || !normalizedTarget) {
+        continue;
+      }
+      aliasMap.set(normalizedAlias, normalizedTarget);
+    }
+  }
+
+  const analyticsMeta = settings.__lite_llm_analytics;
+  if (isRecord(analyticsMeta)) {
+    const managedKeys = analyticsMeta.managedModelGroupAliasKeys;
+    if (Array.isArray(managedKeys)) {
+      for (const key of managedKeys) {
+        if (typeof key !== "string") {
+          continue;
+        }
+        const normalizedKey = normalizeAliasValue(key);
+        if (normalizedKey) {
+          managedAliasKeys.add(normalizedKey);
+        }
+      }
+    }
+  }
+
+  return { aliasMap, managedAliasKeys };
+}
+
+function readAliasListFromBody(body: unknown): string[] {
+  if (!isRecord(body) || !Array.isArray(body.aliases)) {
+    throw new Error('Request body must include an "aliases" array.');
+  }
+
+  const aliases: string[] = [];
+  for (const alias of body.aliases) {
+    if (typeof alias !== "string") {
+      throw new Error("Each alias must be a string.");
+    }
+    const normalizedAlias = normalizeAliasValue(alias);
+    if (!normalizedAlias) {
+      throw new Error("Aliases cannot be empty.");
+    }
+    aliases.push(normalizedAlias);
+  }
+
+  return aliases;
+}
+
 export function registerModelRoutes(
   app: Application,
   opts: RouteOptions,
@@ -166,6 +247,150 @@ export function registerModelRoutes(
       return providerDefault;
     }
     return getDefaultCredential(settingsService);
+  }
+
+  async function listCanonicalModelNames(): Promise<Set<string>> {
+    const models = await listMergedRegistryModels();
+    return new Set(models.map((model) => model.modelName));
+  }
+
+  async function getAliasInventory(): Promise<AliasInventory> {
+    return readAliasInventory(await settingsService.getRouterSettings());
+  }
+
+  async function getAliasTargetValidationError(
+    modelName: string,
+  ): Promise<{ status: number; error: string } | null> {
+    const normalizedModelName = normalizeModelNameParam(modelName);
+    if (!normalizedModelName) {
+      return {
+        status: 400,
+        error: "Model name is required.",
+      };
+    }
+    const [modelNames, aliasInventory] = await Promise.all([
+      listCanonicalModelNames(),
+      getAliasInventory(),
+    ]);
+
+    if (modelNames.has(normalizedModelName)) {
+      return null;
+    }
+
+    const aliasTarget = aliasInventory.aliasMap.get(normalizedModelName);
+    if (aliasTarget) {
+      return {
+        status: 400,
+        error: `Manual aliases must target a real model name. "${normalizedModelName}" is already an alias for "${aliasTarget}".`,
+      };
+    }
+
+    return {
+      status: 404,
+      error: `Model "${normalizedModelName}" not found. Create the target model before assigning manual aliases.`,
+    };
+  }
+
+  async function getAliasWriteValidationError(
+    modelName: string,
+    aliases: string[],
+  ): Promise<{ status: number; error: string } | null> {
+    const targetError = await getAliasTargetValidationError(modelName);
+    if (targetError) {
+      return targetError;
+    }
+
+    const duplicates = Array.from(
+      aliases.reduce((acc, alias) => {
+        const count = acc.get(alias) ?? 0;
+        acc.set(alias, count + 1);
+        return acc;
+      }, new Map<string, number>()),
+    )
+      .filter(([, count]) => count > 1)
+      .map(([alias]) => alias)
+      .sort((left, right) => left.localeCompare(right));
+
+    if (duplicates.length > 0) {
+      return {
+        status: 400,
+        error: `Duplicate aliases are not allowed: ${duplicates.join(", ")}.`,
+      };
+    }
+
+    const [canonicalModelNames, aliasInventory] = await Promise.all([
+      listCanonicalModelNames(),
+      getAliasInventory(),
+    ]);
+
+    for (const alias of aliases) {
+      if (canonicalModelNames.has(alias)) {
+        return {
+          status: 400,
+          error: `Alias "${alias}" matches an existing model name. Choose a name that does not collide with a real model.`,
+        };
+      }
+
+      if (aliasInventory.managedAliasKeys.has(alias)) {
+        return {
+          status: 409,
+          error: `Alias "${alias}" is managed by generated routing. Remove or rename the managed alias before assigning it manually.`,
+        };
+      }
+
+      const existingTarget = aliasInventory.aliasMap.get(alias);
+      if (existingTarget && existingTarget !== modelName) {
+        return {
+          status: 409,
+          error: `Alias "${alias}" already routes to "${existingTarget}". Remove or retarget that alias before assigning it to "${modelName}".`,
+        };
+      }
+    }
+
+    return null;
+  }
+
+  async function getModelRenameValidationError(
+    currentName: string,
+    nextName: string,
+  ): Promise<{ status: number; error: string } | null> {
+    const normalizedCurrentName = normalizeModelNameParam(currentName);
+    const normalizedNextName = normalizeModelNameParam(nextName);
+    if (!normalizedNextName || normalizedNextName === normalizedCurrentName) {
+      return null;
+    }
+    if (!normalizedCurrentName) {
+      return {
+        status: 400,
+        error: "Model name is required.",
+      };
+    }
+
+    const aliasInventory = await getAliasInventory();
+    const aliasTarget = aliasInventory.aliasMap.get(normalizedNextName);
+    if (!aliasTarget) {
+      return null;
+    }
+
+    return {
+      status: 409,
+      error: `Model name "${normalizedNextName}" collides with alias routing to "${aliasTarget}". Rename or remove that alias before renaming the model.`,
+    };
+  }
+
+  async function rollbackRenamedRegistryModel(
+    previousName: string,
+    previousRoute: ModelRoute,
+    currentName: string,
+    credentialName: string | null,
+  ): Promise<void> {
+    await updateRegistryModelFromRoute(
+      registryModelsService,
+      currentName,
+      previousRoute,
+      credentialName,
+      previousName,
+    );
   }
 
   app.get("/models/providers/:providerId", async (req, res) => {
@@ -243,6 +468,115 @@ export function registerModelRoutes(
           modelRoute: model.modelRoute,
         })),
       );
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/models/aliases", async (_req, res) => {
+    try {
+      const aliases = await listManualModelAliases(settingsService);
+      res.json({ aliases });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/models/:name/aliases", async (req, res) => {
+    try {
+      const modelName = normalizeModelNameParam(req.params.name);
+      const validationError = await getAliasTargetValidationError(modelName);
+      if (validationError) {
+        res
+          .status(validationError.status)
+          .json({ error: validationError.error });
+        return;
+      }
+
+      const aliases = await listManualAliasesForTarget(
+        settingsService,
+        modelName,
+      );
+      res.json({ modelName, aliases });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.put("/models/:name/aliases", async (req, res) => {
+    try {
+      const modelName = normalizeModelNameParam(req.params.name);
+      const aliases = readAliasListFromBody(req.body);
+      const validationError = await getAliasWriteValidationError(
+        modelName,
+        aliases,
+      );
+      if (validationError) {
+        res
+          .status(validationError.status)
+          .json({ error: validationError.error });
+        return;
+      }
+
+      const updated = await replaceManualAliasesForTarget(
+        settingsService,
+        modelName,
+        aliases,
+      );
+      res.json({ aliases: updated });
+    } catch (error) {
+      const message = String(error);
+      if (
+        message === 'Request body must include an "aliases" array.' ||
+        message === "Each alias must be a string." ||
+        message === "Aliases cannot be empty."
+      ) {
+        res.status(400).json({ error: message });
+        return;
+      }
+      res.status(500).json({ error: message });
+    }
+  });
+
+  app.delete("/models/aliases/:alias", async (req, res) => {
+    try {
+      const alias = normalizeAliasValue(req.params.alias);
+      if (!alias) {
+        res.status(400).json({ error: "Alias is required." });
+        return;
+      }
+
+      const [manualAliases, aliasInventory] = await Promise.all([
+        listManualModelAliases(settingsService),
+        getAliasInventory(),
+      ]);
+      const manualEntry = manualAliases.find((entry) => entry.alias === alias);
+
+      if (!manualEntry) {
+        if (aliasInventory.aliasMap.has(alias)) {
+          res.status(409).json({
+            error: `Alias "${alias}" is managed by generated routing and cannot be deleted from the manual aliases API.`,
+          });
+          return;
+        }
+        res.status(404).json({
+          error: `Manual alias "${alias}" not found.`,
+        });
+        return;
+      }
+
+      const remainingAliases = (
+        await listManualAliasesForTarget(
+          settingsService,
+          manualEntry.targetModel,
+        )
+      ).filter((entryAlias) => entryAlias !== alias);
+      await replaceManualAliasesForTarget(
+        settingsService,
+        manualEntry.targetModel,
+        remainingAliases,
+      );
+      res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
@@ -351,12 +685,22 @@ export function registerModelRoutes(
 
   app.put("/models/:name", async (req, res) => {
     try {
-      const { name } = req.params;
+      const name = normalizeModelNameParam(req.params.name);
       const { modelRoute, modelName, config } = req.body;
       const normalizedNewName =
         typeof modelName === "string" && modelName.trim()
           ? modelName.trim()
           : name;
+      const renameValidationError = await getModelRenameValidationError(
+        name,
+        normalizedNewName,
+      );
+      if (renameValidationError) {
+        res.status(renameValidationError.status).json({
+          error: renameValidationError.error,
+        });
+        return;
+      }
 
       const existingModels = await listMergedRegistryModels();
       const existingModel = existingModels.find(
@@ -367,6 +711,7 @@ export function registerModelRoutes(
       };
       const credentialName = await getResolvedDefaultCredential();
       let nextRoute: ModelRoute | undefined;
+      let renamedRegistryModel = false;
 
       if (modelRoute !== undefined || modelName !== undefined) {
         const incomingRoute = resolveModelRouteFromBody({
@@ -460,6 +805,7 @@ export function registerModelRoutes(
             credentialName,
             normalizedNewName !== name ? normalizedNewName : undefined,
           );
+          renamedRegistryModel = normalizedNewName !== name;
         }
       } catch (dbErr) {
         if (
@@ -467,6 +813,22 @@ export function registerModelRoutes(
           !String(dbErr).includes("No row")
         ) {
           throw dbErr;
+        }
+      }
+
+      if (normalizedNewName !== name) {
+        try {
+          await retargetManualAliases(settingsService, name, normalizedNewName);
+        } catch (aliasErr) {
+          if (renamedRegistryModel) {
+            await rollbackRenamedRegistryModel(
+              name,
+              existingRoute,
+              normalizedNewName,
+              credentialName,
+            );
+          }
+          throw aliasErr;
         }
       }
 
@@ -1090,6 +1452,16 @@ export function registerModelRoutes(
       const manager = opts.agentsManager;
       if (!manager) {
         res.status(500).json({ error: "AgentsManager not configured" });
+        return;
+      }
+      const blockingAliases = await listBlockingManualAliases(
+        settingsService,
+        name,
+      );
+      if (blockingAliases.length > 0) {
+        res.status(409).json({
+          error: `Cannot delete model "${name}" because manual aliases still point to it: ${blockingAliases.join(", ")}. Remove or retarget those aliases first.`,
+        });
         return;
       }
       try {

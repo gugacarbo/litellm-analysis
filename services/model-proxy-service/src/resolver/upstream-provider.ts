@@ -1,5 +1,8 @@
 import { serverEnv } from "@lite-llm/config/server";
-import { OPENAI_CHATGPT_API_BASE } from "@lite-llm/model-proxy-registry-service";
+import {
+  OPENAI_CHATGPT_API_BASE,
+  resolveCredentialSecret,
+} from "@lite-llm/model-proxy-registry-service";
 import type {
   ModelProxyModel,
   PrismaClient,
@@ -28,10 +31,18 @@ function normalizeBaseUrl(raw: string): string {
   return raw.replace(/\/+$/, "");
 }
 
+function looksLikeEnvVarName(value: string): boolean {
+  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(value);
+}
+
 function readSecretRef(secretRef?: string | null): string | undefined {
   const trimmed = secretRef?.trim();
   if (!trimmed) {
     return undefined;
+  }
+
+  if (!looksLikeEnvVarName(trimmed)) {
+    return trimmed;
   }
 
   const envValue = process.env[trimmed];
@@ -126,14 +137,13 @@ export async function resolveUpstreamTarget(params: {
     throw new Error(`No upstream base URL configured for model "${modelName}"`);
   }
 
-  const envSecret =
-    readSecretRef(row?.secretRef) ?? readSecretRef(credential?.secretRef);
+  const envSecret = readSecretRef(row?.secretRef);
   const isChatGptSubscription =
     upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
 
   const upstreamApiKey =
     envSecret ||
-    credential?.apiKey?.trim() ||
+    (credential ? resolveCredentialSecret(credential) : undefined) ||
     readProviderApiKey(upstreamProvider) ||
     serverEnv.MODEL_PROXY_UPSTREAM_API_KEY?.trim();
 
