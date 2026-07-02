@@ -1,0 +1,731 @@
+{
+	"title": "Database becomes the single source of truth for agents and plugins",
+	"description": "Remove @settings/ as a source of truth so agents and plugins are read and written exclusively through the database.",
+	"tasks": [
+		{
+			"id": "Task-A-0001",
+			"title": "Clean dead model settings code",
+			"description": "Remove leftover code that references @settings/models/ (already deleted from disk): readModelsFile, modelsFile path resolution, broken imports in tests, and stale schema generation.",
+			"dependencies": [],
+			"batch": "A",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"No TypeScript file imports or references readModelsFile, importModelsFromFile, or modelsFile paths.",
+				"settings-import/index.test.ts no longer imports a missing module and still passes if relevant tests remain.",
+				"generate-schema/index.ts no longer attempts to emit @settings/models/models.schema.json.",
+				"npm run typecheck passes."
+			],
+			"requirements": [
+				"SPEC-0003: Eliminate @settings/ as source of truth.",
+				"No migration of model data (database already owns models)."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Open scripts/src/settings-import/parse.ts",
+					"description": "Remove readModelsFile function and its imports (modelsConfigSchema, models repo).",
+					"command": null,
+					"expectedResult": "File no longer contains readModelsFile."
+				},
+				{
+					"order": 2,
+					"title": "Open scripts/src/settings-import/paths.ts",
+					"description": "Remove modelsFile property from SettingsPaths and any fallback resolution for models.jsonc.",
+					"command": null,
+					"expectedResult": "SettingsPaths has only agentsFile and pluginsFile (or none if those are removed in later tasks)."
+				},
+				{
+					"order": 3,
+					"title": "Open scripts/src/settings-import/index.test.ts",
+					"description": "Delete the test file or remove importModelsFromFile references. Since models import is dead, delete the test if it only covers models import.",
+					"command": null,
+					"expectedResult": "No broken import of importModelsFromFile remains."
+				},
+				{
+					"order": 4,
+					"title": "Open scripts/src/generate-schema/index.ts",
+					"description": "Remove the modelsConfigSchema import and the logic that writes @settings/models/models.schema.json.",
+					"command": null,
+					"expectedResult": "Only agents and/or plugins schemas are generated (plugins schema generation may also be removed later)."
+				},
+				{
+					"order": 5,
+					"title": "Run typecheck",
+					"description": "Ensure no compile errors from removal.",
+					"command": "npm run typecheck",
+					"expectedResult": "exit 0"
+				}
+			],
+			"filesTouched": [
+				"scripts/src/settings-import/parse.ts",
+				"scripts/src/settings-import/paths.ts",
+				"scripts/src/settings-import/index.test.ts",
+				"scripts/src/generate-schema/index.ts"
+			],
+			"files": {
+				"created": [],
+				"modified": [
+					"scripts/src/settings-import/parse.ts",
+					"scripts/src/settings-import/paths.ts",
+					"scripts/src/generate-schema/index.ts"
+				],
+				"deleted": [
+					"scripts/src/settings-import/index.test.ts"
+				]
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"Stop and escalate if removing model code exposes consumers that still need it.",
+				"Do not add new functionality; only delete or trim dead code."
+			]
+		},
+		{
+			"id": "Task-A-0002",
+			"title": "Delete settings import/export/validation scripts",
+			"description": "Remove the scripts that read from or write to @settings: settings-import, settings-export, generate-schema, and validate-agents.",
+			"dependencies": [
+				"Task-A-0001"
+			],
+			"batch": "A",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"Directories scripts/src/settings-import, scripts/src/settings-export, scripts/src/generate-schema, and scripts/src/validate-agents are deleted.",
+				"No other file imports from those directories.",
+				"npm run typecheck passes."
+			],
+			"requirements": [
+				"SPEC-0003: Remove or adapt settings:import / settings:export.",
+				"SPEC-0003: No future code depends on @settings JSONC files."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Search for importers",
+					"description": "Find any workspace file that imports from scripts/src/settings-import, settings-export, generate-schema, or validate-agents.",
+					"command": "grep -rE 'settings-import|settings-export|generate-schema|validate-agents' --include='*.ts' --include='*.json' --include='*.md' .",
+					"expectedResult": "Only references are inside the directories to be deleted, plus root package.json scripts and docs (handled later)."
+				},
+				{
+					"order": 2,
+					"title": "Delete script directories",
+					"description": "Remove the four directories from scripts/src/.",
+					"command": "rm -rf scripts/src/settings-import scripts/src/settings-export scripts/src/generate-schema scripts/src/validate-agents",
+					"expectedResult": "Directories no longer exist."
+				},
+				{
+					"order": 3,
+					"title": "Run typecheck",
+					"description": "Ensure no broken imports remain.",
+					"command": "npm run typecheck",
+					"expectedResult": "exit 0"
+				}
+			],
+			"filesTouched": [
+				"scripts/src/settings-import",
+				"scripts/src/settings-export",
+				"scripts/src/generate-schema",
+				"scripts/src/validate-agents"
+			],
+			"files": {
+				"created": [],
+				"modified": [],
+				"deleted": [
+					"scripts/src/settings-import",
+					"scripts/src/settings-export",
+					"scripts/src/generate-schema",
+					"scripts/src/validate-agents"
+				]
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"If any remaining import is found outside these directories, that file must be updated first."
+			]
+		},
+		{
+			"id": "Task-A-0003",
+			"title": "Remove SETTINGS_PATH from server environment",
+			"description": "Remove the SETTINGS_PATH env variable from the server config schema and environment examples because nothing will read @settings anymore.",
+			"dependencies": [
+				"Task-A-0002"
+			],
+			"batch": "A",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"packages/config/src/server.ts no longer definesSETTINGS_PATH.",
+				".env.example and .env.local no longer contain SETTINGS_PATH.",				"npm run typecheck passes."
+			],
+			"requirements": [
+				"SPEC-0003: No service depends on @settings path."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Open packages/config/src/server.ts",
+					"description": "Remove the SETTINGS_PATH z.string().default('@settings') line.",
+					"command": null,
+					"expectedResult": "Server env schema no longer exposes SETTINGS_PATH."
+				},
+				{
+					"order": 2,
+					"title": "Open .env.example and .env.local",
+					"description": "Remove SETTINGS_PATH lines.",
+					"command": null,
+					"expectedResult": "No SETTINGS_PATH in env files."
+				},
+				{
+					"order": 3,
+					"title": "Run typecheck",
+					"description": "Catch any consumer of SETTINGS_PATH.",
+					"command": "npm run typecheck",
+					"expectedResult": "exit 0"
+				}
+			],
+			"filesTouched": [
+				"packages/config/src/server.ts",
+				".env.example",
+				".env.local"
+			],
+			"files": {
+				"created": [],
+				"modified": [
+					"packages/config/src/server.ts",
+					".env.example",
+					".env.local"
+				],
+				"deleted": []
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"If typecheck fails because SETTINGS_PATH is consumed elsewhere, upgrade that failure to the implementing agent as a BLOCKED issue."
+			]
+		},
+		{
+			"id": "Task-B-0001",
+			"title": "Update agents-manager runtime to not reference @settings",
+			"description": "Remove the DEFAULT_AGENTS_PATH that points to @settings and stop the server runtime from passing an @settings file path to createAgentsManager.",
+			"dependencies": [
+				"Task-A-0003"
+			],
+			"batch": "B",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"apps/server/src/runtime/app-runtime.ts no longer constructs a path from SETTINGS_PATH/agents/agents.json.",
+				"packages/agents-manager/src/config/defaults.ts no longer references SETTINGS_PATH or @settings.",
+				"packages/agents-manager/src/index.ts createAgentsManager no longer requires or defaults to a filesystem path for agents.",
+				"Repository client still uses createDbRepository (DB source).",
+				"npm run typecheck passes."
+			],
+			"requirements": [
+				"SPEC-0003: Runtime reads agents from the database only."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Open packages/agents-manager/src/config/defaults.ts",
+					"description": "Delete DEFAULT_AGENTS_PATH (or make it undefined/empty). If serverEnv.SETTINGS_PATH is the only reason to import serverEnv here, remove that import too.",
+					"command": null,
+					"expectedResult": "No @settings path in defaults."
+				},
+				{
+					"order": 2,
+					"title": "Open packages/agents-manager/src/index.ts",
+					"description": "Update createAgentsManager signature and defaults so dbPath is not defaulted to DEFAULT_AGENTS_PATH. Prefer requiring dbUrl/db repository instead of a JSON file path.",
+					"command": null,
+					"expectedResult": "Factory does not construct or require a JSON file path."
+				},
+				{
+					"order": 3,
+					"title": "Open apps/server/src/runtime/app-runtime.ts",
+					"description": "Remove the line that builds @settings/agents/agents.json path and passes it to createAgentsManager. Pass connection/repository options or leave as already configured by createAgentsManager internally.",
+					"command": null,
+					"expectedResult": "app-runtime.ts no longer builds a path under @settings."
+				},
+				{
+					"order": 4,
+					"title": "Clean repository/client.ts options",
+					"description": "If agentsFilePath or pluginsFilePath options are unused because createDbRepository ignores them, remove those option fields from the options interface.",
+					"command": null,
+					"expectedResult": "No dead file-path options in repository client."
+				},
+				{
+					"order": 5,
+					"title": "Run typecheck",
+					"description": "Ensure runtime still compiles.",
+					"command": "npm run typecheck",
+					"expectedResult": "exit 0"
+				}
+			],
+			"filesTouched": [
+				"packages/agents-manager/src/config/defaults.ts",
+				"packages/agents-manager/src/index.ts",
+				"apps/server/src/runtime/app-runtime.ts",
+				"packages/agents-manager/src/repository/client.ts"
+			],
+			"files": {
+				"created": [],
+				"modified": [
+					"packages/agents-manager/src/config/defaults.ts",
+					"packages/agents-manager/src/index.ts",
+					"apps/server/src/runtime/app-runtime.ts",
+					"packages/agents-manager/src/repository/client.ts"
+				],
+				"deleted": []
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"The repository already uses createDbRepository; this task is about removing the unused file-path surface, not redesigning the repository."
+			]
+		},
+		{
+			"id": "Task-B-0002",
+			"title": "Update repository validation scripts and schema tests",
+			"description": "Remove AJV validation scripts and update the schema JSON test so it no longer reads files from @settings.",
+			"dependencies": [
+				"Task-A-0002"
+			],
+			"batch": "B",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"repositories/agents-repository/package.json no longer has ajv validate scripts pointing to @settings.",
+				"repositories/agents-repository/src/schemas/__tests__/validate-json-schema.test.ts either validates against an in-repo schema or is removed if its only purpose was the generated @settings file.",
+				"npm test -- --run for the affected scope passes."
+			],
+			"requirements": [
+				"SPEC-0003: No more validation against @settings schema files."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Open repositories/agents-repository/package.json",
+					"description": "Delete the scripts that run 'ajv validate -s ... -d ...' against @settings files.",
+					"command": null,
+					"expectedResult": "No remaining scripts reference agents.jsonc, plugins.jsonc, or @settings."
+				},
+				{
+					"order": 2,
+					"title": "Open agents-repository schema test",
+					"description": "If the test only validates the generated schema file under @settings, delete the test. If it tests a reusable schema (Zod-to-JSON conversion), keep the reusable part and remove the filesystem reader.",
+					"command": null,
+					"expectedResult": "No test reads @settings/agents/agents.schema.json."
+				},
+				{
+					"order": 3,
+					"title": "Run tests for the repository scope",
+					"description": "Run the repository's test suite to confirm nothing breaks.",
+					"command": "npm test -- --run repositories/agents-repository",
+					"expectedResult": "all green"
+				}
+			],
+			"filesTouched": [
+				"repositories/agents-repository/package.json",
+				"repositories/agents-repository/src/schemas/__tests__/validate-json-schema.test.ts"
+			],
+			"files": {
+				"created": [],
+				"modified": [
+					"repositories/agents-repository/package.json"
+				],
+				"deleted": [
+					"repositories/agents-repository/src/schemas/__tests__/validate-json-schema.test.ts"
+				]
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"Do not create a replacement validation unless required by another task."
+			]
+		},
+		{
+			"id": "Task-B-0003",
+			"title": "Verify and document plugin runners source from database",
+			"description": "Confirm services/agent-plugins reads plugin configuration from the database and generates output files to @storage/output/. Update outdated documentation.",
+			"dependencies": [
+				"Task-A-0002"
+			],
+			"batch": "B",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"No code under services/agent-plugins imports or reads files from @settings.",
+				"services/agent-plugins/AGENTS.md no longer says plugin metadata is edited in @settings or that schemas output to @settings.",
+				"If the plugin runner still uses a JSONC file as input, it is sourced from the database and not from @settings."
+			],
+			"requirements": [
+				"SPEC-0003: Plugin artifacts in @storage/output/ continue to be generated from the database."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Search for @settings references in agent-plugins",
+					"description": "Look for any import, path, or docstring referencing @settings.",
+					"command": "grep -rE '@settings' services/agent-plugins/",
+					"expectedResult": "Only AGENTS.md mentions @settings."
+				},
+				{
+					"order": 2,
+					"title": "Identify source of plugin configs",
+					"description": "Find where plugin runner reads agents/plugins definitions (DB query/repo call vs file).",
+					"command": null,
+					"expectedResult": "Code reads from a repository or API backed by the database."
+				},
+				{
+					"order": 3,
+					"title": "Update services/agent-plugins/AGENTS.md",
+					"description": "Replace statements that point to @settings with instructions to use the database/API as the source of truth.",
+					"command": null,
+					"expectedResult": "AGENTS.md no longer says @settings is the source of plugin metadata."
+				}
+			],
+			"filesTouched": [
+				"services/agent-plugins/AGENTS.md"
+			],
+			"files": {
+				"created": [],
+				"modified": [
+					"services/agent-plugins/AGENTS.md"
+				],
+				"deleted": []
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"If actual code is found reading @settings, create a separate fix task and BLOCK until the plan is updated."
+			]
+		},
+		{
+			"id": "Task-C-0001",
+			"title": "Update project documentation",
+			"description": "Update README.md and package-level AGENTS.md files to state that the database is the single source of truth. Delete documentation that describes @settings as canonical.",
+			"dependencies": [
+				"Task-B-0001",
+				"Task-B-0003"
+			],
+			"batch": "C",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"README.md no longer lists @settings as seed/backup optional source or documents pnpm settings:import/settings:export.",
+				"packages/agents-manager/src/AGENTS.md no longer says repository resolves @settings path automatically.",
+				"docs-check passes after doc changes."
+			],
+			"requirements": [
+				"SPEC-0003: Documentation reflects database as single source of truth."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Open README.md",
+					"description": "Remove lines that describe @settings as optional seed/backup and the pnpm settings:import command. Replace with a brief note that the database is the source of truth.",
+					"command": null,
+					"expectedResult": "README.md no longer points to @settings."
+				},
+				{
+					"order": 2,
+					"title": "Open packages/agents-manager/src/AGENTS.md",
+					"description": "Remove or rewrite sentences that say the repository client resolves @settings path. State that it reads from the database.",
+					"command": null,
+					"expectedResult": "AGENTS.md is consistent with database source."
+				},
+				{
+					"order": 3,
+					"title": "Run docs-check",
+					"description": "Ensure regenerated indices and links remain valid.",
+					"command": "pnpm docs-check",
+					"expectedResult": "exit 0"
+				}
+			],
+			"filesTouched": [
+				"README.md",
+				"packages/agents-manager/src/AGENTS.md",
+				"services/agent-plugins/AGENTS.md"
+			],
+			"files": {
+				"created": [],
+				"modified": [
+					"README.md",
+					"packages/agents-manager/src/AGENTS.md",
+					"services/agent-plugins/AGENTS.md"
+				],
+				"deleted": []
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"Keep documentation concise; do not add elaborate migration guides since no data migration is being done."
+			]
+		},
+		{
+			"id": "Task-C-0002",
+			"title": "Clean root package.json scripts and references",
+			"description": "Remove root package.json scripts that operate on @settings, and any workspace package.json that references the deleted scripts.",
+			"dependencies": [
+				"Task-A-0002"
+			],
+			"batch": "C",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"Root package.json no longer has settings:import, settings:export, generate:agents-schema, validate:agents, or validate:agents:all.",
+				"No turbo/pipeline entries depend on those scripts.",
+				"pnpm docs-check passes."
+			],
+			"requirements": [
+				"SPEC-0003: Scripts that read @settings are removed."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Open root package.json",
+					"description": "Delete the five scripts that reference @settings operations.",
+					"command": null,
+					"expectedResult": "No settings:*, generate:agents-schema, or validate:agents scripts remain."
+				},
+				{
+					"order": 2,
+					"title": "Check turbo.json and pnpm-workspace.yaml",
+					"description": "Remove any task entries that reference the deleted scripts.",
+					"command": null,
+					"expectedResult": "No orchestration config references deleted scripts."
+				},
+				{
+					"order": 3,
+					"title": "Run docs-check",
+					"description": "Validate workspace metadata consistency.",
+					"command": "pnpm docs-check",
+					"expectedResult": "exit 0"
+				}
+			],
+			"filesTouched": [
+				"package.json",
+				"turbo.json",
+				"pnpm-workspace.yaml"
+			],
+			"files": {
+				"created": [],
+				"modified": [
+					"package.json",
+					"turbo.json"
+				],
+				"deleted": []
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"Do not add replacement seed/import scripts per user request (no migration)."
+			]
+		},
+		{
+			"id": "Task-C-0003",
+			"title": "Delete @settings directory",
+			"description": "Remove the entire @settings folder from the workspace after all references are eliminated.",
+			"dependencies": [
+				"Task-A-0003",
+				"Task-C-0001",
+				"Task-C-0002"
+			],
+			"batch": "C",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"@settings/ directory is deleted.",
+				"No workspace file references @settings.",
+				"npm run typecheck, npm test, and pnpm docs-check pass."
+			],
+			"requirements": [
+				"SPEC-0003: @settings/ is removed from the workspace."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Final reference search",
+					"description": "Confirm nothing references @settings before deletion.",
+					"command": "grep -rE '@settings' --exclude-dir=node_modules --exclude-dir=.git .",
+					"expectedResult": "Only references are inside @settings itself (which will be deleted)."
+				},
+				{
+					"order": 2,
+					"title": "Delete @settings directory",
+					"description": "Remove @settings and its contents.",
+					"command": "rm -rf @settings",
+					"expectedResult": "Directory no longer exists."
+				},
+				{
+					"order": 3,
+					"title": "Run full validation",
+					"description": "Run the DoD commands.",
+					"command": "npm run typecheck && npm test && pnpm docs-check",
+					"expectedResult": "all exit 0"
+				}
+			],
+			"filesTouched": [
+				"@settings"
+			],
+			"files": {
+				"created": [],
+				"modified": [],
+				"deleted": [
+					"@settings"
+				]
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"If any reference outside @settings remains, stop deletion and fix that reference first."
+			]
+		},
+		{
+			"id": "Task-D-0001",
+			"title": "Final repository-wide validation",
+			"description": "Run all required checks and a residual grep to prove no @settings dependency remains.",
+			"dependencies": [
+				"Task-C-0003"
+			],
+			"batch": "D",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"npm run typecheck passes.",
+				"npm test passes (all suites).",
+				"pnpm docs-check passes.",
+				"Final grep for '@settings' excluding version-control artifacts returns nothing."
+			],
+			"requirements": [
+				"SPEC-0003 Definition of Done."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Run typecheck",
+					"command": "npm run typecheck",
+					"expectedResult": "exit 0"
+				},
+				{
+					"order": 2,
+					"title": "Run tests",
+					"command": "npm test",
+					"expectedResult": "all green"
+				},
+				{
+					"order": 3,
+					"title": "Run docs-check",
+					"command": "pnpm docs-check",
+					"expectedResult": "exit 0"
+				},
+				{
+					"order": 4,
+					"title": "Residual reference check",
+					"command": "grep -rE '@settings' --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=@storage .",
+					"expectedResult": "no output"
+				}
+			],
+			"filesTouched": [],
+			"files": {
+				"created": [],
+				"modified": [],
+				"deleted": []
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"This is a validation task; no code changes unless fixes are needed to make the checks pass."
+			]
+		},
+		{
+			"id": "Task-D-0002",
+			"title": "Mark spec as implemented and record evidence",
+			"description": "Update docs/specs/0003-db-single-source-of-truth-spec.md status to implemented, fill implemented-by with impacted paths, and add any new gotchas to AGENTS.md.",
+			"dependencies": [
+				"Task-D-0001"
+			],
+			"batch": "D",
+			"status": "pending",
+			"tryCount": 1,
+			"acceptanceCriteria": [
+				"Spec status changed from draft to implemented.",
+				"implemented-by section lists the key paths changed/deleted.",
+				"Verification section contains the commands run and their results.",
+				"New gotchas recorded in root AGENTS.md if any surfaced during the work."
+			],
+			"requirements": [
+				"SPEC-0003 closure checklist."
+			],
+			"steps": [
+				{
+					"order": 1,
+					"title": "Open docs/specs/0003-db-single-source-of-truth-spec.md",
+					"description": "Change status to implemented and fill implemented-by with paths from the task reports.",
+					"command": null,
+					"expectedResult": "Spec header updated."
+				},
+				{
+					"order": 2,
+					"title": "Document verification evidence",
+					"description": "Fill the Verification section with command outputs from Task-D-0001.",
+					"command": null,
+					"expectedResult": "Verification block contains real outputs."
+				},
+				{
+					"order": 3,
+					"title": "Record gotchas",
+					"description": "If any non-obvious behavior was found (e.g. repository client ignoring file path already used DB), add a concise note to root AGENTS.md.",
+					"command": null,
+					"expectedResult": "Root AGENTS.md updated or unchanged if no gotchas."
+				},
+				{
+					"order": 4,
+					"title": "Run docs-check",
+					"command": "pnpm docs-check",
+					"expectedResult": "exit 0"
+				}
+			],
+			"filesTouched": [
+				"docs/specs/0003-db-single-source-of-truth-spec.md",
+				"AGENTS.md"
+			],
+			"files": {
+				"created": [],
+				"modified": [
+					"docs/specs/0003-db-single-source-of-truth-spec.md",
+					"AGENTS.md"
+				],
+				"deleted": []
+			},
+			"interfaces": {
+				"consumes": [],
+				"produces": []
+			},
+			"notes": [
+				"Do not mark implemented until Task-D-0001 is green."
+			]
+		}
+	]
+}

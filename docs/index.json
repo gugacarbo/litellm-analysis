@@ -1,0 +1,32 @@
+[
+  {
+    "id": "SPEC-0001",
+    "path": "docs/specs/0001-manual-model-routing-aliases-spec.md",
+    "layer": "specs",
+    "title": "Manual model routing aliases can be created from a model detail page and managed from a global aliases view",
+    "status": "accepted",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "SPEC-0002",
+    "path": "docs/specs/0002-provider-model-routing-and-db-source-spec.md",
+    "layer": "specs",
+    "title": "Provider-scoped model routing with default provider resolution and database as single source of truth",
+    "status": "draft",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "SPEC-0003",
+    "path": "docs/specs/0003-db-single-source-of-truth-spec.md",
+    "layer": "specs",
+    "title": "Database becomes the single source of truth for agents, models, and plugins",
+    "status": "draft",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
+  }
+]

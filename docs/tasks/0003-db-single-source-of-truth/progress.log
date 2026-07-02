@@ -1,0 +1,3 @@
+# Task Progress Log
+
+# Append-only. One JSON object per line written by subagents via scripts/log-task.sh.
