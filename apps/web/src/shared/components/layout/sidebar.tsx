@@ -8,7 +8,6 @@ import {
   FileText,
   GitBranch,
   HeartPulse,
-  ListChecks,
   PanelLeftIcon,
   Scale,
   Settings,
@@ -127,12 +126,6 @@ export function AppSidebar() {
       children: [
         { id: "agents-config", to: "/agents", label: "Config", icon: Settings },
         { id: "plugins", to: "/plugins", label: "Plugins", icon: GitBranch },
-        {
-          id: "prompt-evals",
-          to: "/prompt-evals",
-          label: "Evals",
-          icon: ListChecks,
-        },
       ],
     },
     {

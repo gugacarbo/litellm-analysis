@@ -23,8 +23,6 @@ import { ModelsLayout } from "@/features/models/models-layout";
 import { ProvidersPage } from "@/features/models/providers-page";
 import { PluginConfigPage } from "@/features/plugins";
 import { PluginsPage } from "@/features/plugins/list-index";
-import { PromptEvalDetailPage } from "@/features/prompts/detail";
-import { PromptEvalsPage } from "@/features/prompts/list-index";
 import { ErrorBoundary } from "@/shared/components/error-boundary";
 import { AppLayout } from "@/shared/components/layout/app-layout";
 
@@ -89,18 +87,6 @@ const routes: RouteConfig[] = [
     path: "/plugins/:pluginId",
     title: "Plugin Configuration",
     component: PluginConfigPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/prompt-evals",
-    title: "Prompt Evaluations",
-    component: PromptEvalsPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/prompt-evals/:id",
-    title: "Prompt Evaluation Detail",
-    component: PromptEvalDetailPage,
     withErrorBoundary: true,
   },
 ];

@@ -71,14 +71,6 @@ vi.mock("@/features/plugins/list-index", () => ({
   PluginsPage: () => <div>Plugins Page</div>,
 }));
 
-vi.mock("@/features/prompts/detail", () => ({
-  PromptEvalDetailPage: () => <div>Prompt Eval Detail Page</div>,
-}));
-
-vi.mock("@/features/prompts/list-index", () => ({
-  PromptEvalsPage: () => <div>Prompt Evals Page</div>,
-}));
-
 vi.mock("@/features/floating-chat/floating-chat-widget", () => ({
   FloatingChatWidget: () => null,
 }));
