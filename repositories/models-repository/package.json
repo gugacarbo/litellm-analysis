@@ -7,11 +7,9 @@
     ".": {
       "import": "./src/index.ts"
     },
-    "./repository": "./src/repository.ts",
     "./db-repository": "./src/db-repository.ts",
     "./metadata": "./src/metadata.ts",
-    "./schemas": "./src/schemas/index.ts",
-    "./storage": "./src/storage.ts"
+    "./schemas": "./src/schemas/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

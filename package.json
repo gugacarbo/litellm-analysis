@@ -29,11 +29,9 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@lite-llm/model-proxy-config-service": "workspace:*",
-    "ajv-cli": "^5.0.0",
     "husky": "^9.1.7",
     "knip": "^6.6.2",
     "lint-staged": "^16.4.0",
-    "test-staged": "^1.1.11",
     "tsx": "catalog:",
     "turbo": "^2.9.6",
     "typescript": "catalog:",

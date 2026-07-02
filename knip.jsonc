@@ -1,33 +1,18 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "ignore": [
-    "**/components/ui/*",
-    "shared/lib/**",
-    "shared/hooks/**"
+    "**/components/ui/*"
   ],
   "workspaces": {
     ".": {
       "entry": [
         "apps/web/src/main.tsx",
-        "apps/server/src/index.ts"
-      ]
-    },
-    "scripts": {
-      "entry": [
-        "src/generate-schema/index.ts",
-        "src/sync-aa-benchmarks/index.ts",
-        "src/validate-agents/index.ts"
+        "apps/server/src/index.ts",
+        "scripts/src/**/index.ts"
       ]
     }
   },
-  "ignoreFiles": [
-    "**/generated/**"
-  ],
-  "ignoreUnresolved": [
-    "../../../../packages/config/src/server"
-  ],
   "ignoreDependencies": [
-    "@lite-llm/agents-manager",
     "@lite-llm/config",
     "zod"
   ]
