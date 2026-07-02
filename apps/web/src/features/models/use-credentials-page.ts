@@ -1,10 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
-  getDefaultSettingsDiff,
   getModelProvider,
   getModelsWithConfig,
-  syncDefaultSettings,
   updateModelProvider,
 } from "@/shared/lib/api-client";
 import {
@@ -61,10 +59,6 @@ export function useCredentialsPage() {
     queryFn: () => getOpenAiOAuthConnectionStatus(),
   });
 
-  const defaultSettingsDiffQuery = useQuery({
-    queryKey: ["models-default-settings-diff"],
-    queryFn: getDefaultSettingsDiff,
-  });
   const modelsWithConfigQuery = useQuery({
     queryKey: ["models-with-config"],
     queryFn: getModelsWithConfig,
@@ -221,16 +215,6 @@ export function useCredentialsPage() {
     onError: (error) => {
       setTestError(String(error));
       setTestResult(null);
-    },
-  });
-
-  const syncDefaultSettingsMutation = useMutation({
-    mutationFn: syncDefaultSettings,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["models-with-config"] });
-      await queryClient.invalidateQueries({
-        queryKey: ["models-default-settings-diff"],
-      });
     },
   });
 
@@ -516,18 +500,6 @@ export function useCredentialsPage() {
       setOauthError(null);
       await disconnectOpenAiOAuthMutation.mutateAsync();
       setOauthDeviceFlow(null);
-    },
-    defaultSettingsDriftCount: defaultSettingsDiffQuery.data?.count ?? 0,
-    defaultSettingsMismatchedModels:
-      defaultSettingsDiffQuery.data?.mismatchedModels ?? [],
-    defaultSettingsLoading: defaultSettingsDiffQuery.isLoading,
-    syncingDefaultSettings: syncDefaultSettingsMutation.isPending,
-    handleSyncDefaultSettings: async () => {
-      try {
-        await syncDefaultSettingsMutation.mutateAsync();
-      } catch (e) {
-        setOauthError(String(e));
-      }
     },
     credentialFormOpen,
     setCredentialFormOpen,

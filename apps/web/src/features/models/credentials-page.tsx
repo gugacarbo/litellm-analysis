@@ -1,11 +1,4 @@
-import {
-  Activity,
-  Pencil,
-  Plus,
-  RefreshCw,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,11 +55,6 @@ export function CredentialsPage() {
     handleStartOpenAiOAuth,
     handleCancelOpenAiOAuth,
     handleDisconnectOpenAiOAuth,
-    defaultSettingsDriftCount,
-    defaultSettingsMismatchedModels,
-    defaultSettingsLoading,
-    syncingDefaultSettings,
-    handleSyncDefaultSettings,
     credentialFormOpen,
     setCredentialFormOpen,
     editingCredential,
@@ -107,27 +95,6 @@ export function CredentialsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 px-2 text-xs"
-            onClick={() => {
-              void handleSyncDefaultSettings();
-            }}
-            disabled={syncingDefaultSettings || defaultSettingsDriftCount === 0}
-          >
-            <RefreshCw
-              className={`mr-1.5 h-3 w-3 ${
-                syncingDefaultSettings ? "animate-spin" : ""
-              }`}
-            />
-            Sync defaults
-            {defaultSettingsDriftCount > 0
-              ? ` (${defaultSettingsDriftCount})`
-              : null}
-          </Button>
-        </div>
       </div>
 
       <section className="space-y-3">
@@ -517,39 +484,6 @@ export function CredentialsPage() {
             ))}
           </SelectContent>
         </Select>
-      </section>
-
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">
-            Models Without Default Credential
-          </h2>
-          {defaultSettingsDriftCount > 0 && (
-            <span className="flex items-center gap-1.5 rounded-md border bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
-              <Activity className="h-3 w-3" />
-              {defaultSettingsDriftCount} out of sync
-            </span>
-          )}
-        </div>
-        {defaultSettingsLoading ? (
-          <p className="text-sm text-muted-foreground">Carregando...</p>
-        ) : defaultSettingsMismatchedModels.length === 0 ? (
-          <div className="rounded-md border p-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              All models are using the default credential.
-            </p>
-          </div>
-        ) : (
-          <div className="rounded-md border">
-            <ul className="divide-y">
-              {defaultSettingsMismatchedModels.map((modelName) => (
-                <li key={modelName} className="px-4 py-2 font-mono text-sm">
-                  {modelName}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </section>
 
       <Dialog open={discoverModelsOpen} onOpenChange={setDiscoverModelsOpen}>
