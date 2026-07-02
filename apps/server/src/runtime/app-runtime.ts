@@ -3,11 +3,11 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
+import { disconnectDb } from "@lite-llm/database/client";
 import {
   createRegistryServices,
   getHealthCheckPrompt,
 } from "@lite-llm/model-proxy-registry-service";
-import { disconnectDb } from "@lite-llm/database/client";
 import { createHeboModelProxyGateway } from "@lite-llm/model-proxy-service/hebo";
 import {
   createRepositoryClient as createModelsRepositoryClient,
@@ -28,7 +28,6 @@ import {
   createHealthCheckRuntime,
   type HealthCheckRuntime,
 } from "./health-check-runtime";
-import { createPromptEvalRuntime } from "./prompt-eval-runtime";
 
 interface AppRuntime {
   stop: () => void;
@@ -236,8 +235,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     ctx,
     httpServer,
     wsServer,
-    pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
-    timeoutMs: env.HEALTH_CHECK_TIMEOUT_MS,
+    timeoutMs: 30_000,
     prompt: healthCheckPrompt,
     maxConcurrency: 6,
     modelProxyBaseUrl: env.MODEL_PROXY_BASE_URL?.trim() || "",
@@ -256,14 +254,6 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       res.status(500).json({ error: "Failed to trigger health check" });
     }
   });
-
-  const promptEvalRuntime = createPromptEvalRuntime({
-    wsServer,
-    projectRoot,
-    categories: [],
-  });
-  app.use("/prompt-evals/runs", promptEvalRuntime.router);
-  app.use("/prompt-evals", promptEvalRuntime.router);
 
   const spendLogsWatcher: SpendLogsWatcher = createSpendLogsWatcher({
     analyticsDataSource: ctx.analytics.dataSource,

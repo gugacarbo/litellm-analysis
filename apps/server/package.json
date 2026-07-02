@@ -24,7 +24,6 @@
     "@lite-llm/model-proxy-repository": "workspace:*",
     "@lite-llm/model-proxy-service": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
-    "@lite-llm/prompt-eval": "workspace:*",
     "@lite-llm/server": "workspace:*",
     "drizzle-orm": "catalog:",
     "dotenv": "catalog:",
