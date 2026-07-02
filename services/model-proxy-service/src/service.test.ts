@@ -42,7 +42,24 @@ function createDatabaseMock() {
   let requestStatus = "started";
   return {
     modelProxyModel: {
-      findMany: vi.fn().mockResolvedValue([]),
+      findMany: vi.fn().mockResolvedValue([
+        {
+          modelName: "gpt-test",
+          enabled: true,
+          upstreamBaseUrl: "https://upstream.example.com/v1",
+          upstreamModel: null,
+          inputCostPerToken: null,
+          outputCostPerToken: null,
+          ownedBy: null,
+          family: null,
+          displayName: null,
+          providerName: "default",
+          secretRef: null,
+          isDefaultProvider: false,
+          updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+        },
+      ]),
+      findFirst: vi.fn().mockResolvedValue(null),
       findUnique: vi.fn().mockResolvedValue({
         modelName: "gpt-test",
         enabled: true,
@@ -55,6 +72,7 @@ function createDatabaseMock() {
         displayName: null,
         providerName: "default",
         secretRef: null,
+        isDefaultProvider: false,
         updatedAt: new Date("2026-06-16T00:00:00.000Z"),
       }),
     },
@@ -557,20 +575,23 @@ describe("ModelProxyService", () => {
 
   it("keeps cost snapshot immutable when model pricing changes later", async () => {
     const database = createDatabaseMock();
-    vi.mocked(database.modelProxyModel.findUnique).mockResolvedValue({
-      modelName: "gpt-test",
-      enabled: true,
-      upstreamBaseUrl: "https://upstream.example.com/v1",
-      upstreamModel: null,
-      inputCostPerToken: 0.000001,
+    vi.mocked(database.modelProxyModel.findMany).mockResolvedValue([
+      {
+        modelName: "gpt-test",
+        enabled: true,
+        upstreamBaseUrl: "https://upstream.example.com/v1",
+        upstreamModel: null,
+        inputCostPerToken: 0.000001,
       outputCostPerToken: 0.000002,
       ownedBy: null,
-      family: null,
-      displayName: null,
-      providerName: "default",
-      secretRef: null,
-      updatedAt: new Date("2026-06-16T00:00:00.000Z"),
-    });
+        family: null,
+        displayName: null,
+        providerName: "default",
+        secretRef: null,
+        isDefaultProvider: false,
+        updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+      },
+    ]);
 
     const fetchFn = vi.fn().mockResolvedValue(
       new Response(
