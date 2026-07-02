@@ -1,8 +1,20 @@
 ---
-status: accepted
+status: implemented
 date: 2026-07-01
 builds-on: []
-implemented-by: []
+implemented-by:
+  - packages/config/src/server.ts
+  - .env.example
+  - .env.local
+  - packages/agents-manager/src/config/defaults.ts
+  - packages/agents-manager/src/index.ts
+  - packages/agents-manager/src/repository/client.ts
+  - apps/server/src/runtime/app-runtime.ts
+  - repositories/agents-repository/package.json
+  - services/agent-plugins/AGENTS.md
+  - packages/agents-manager/src/AGENTS.md
+  - README.md
+  - package.json
 ---
 
 # Database becomes the single source of truth for agents, models, and plugins
@@ -73,5 +85,18 @@ Além disso:
 ## Verificação
 
 ```text
-(preencher no fechamento)
+$ npm run typecheck
+ Tasks:    19 successful, 19 total
+  Time:    125ms >>> FULL TURBO
+
+$ npm test
+ Tasks:    31 successful, 31 total
+  Time:    164ms >>> FULL TURBO
+
+$ pnpm docs-check
+10 docs · 0 erro(s) · 0 aviso(s)
+
+$ grep -rE '@settings' --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=docs .
+# Apenas README.md menciona @settings/ (documentando que foi removido).
+# Nenhuma referência em código fonte.
 ```

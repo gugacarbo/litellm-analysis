@@ -88,10 +88,23 @@
     "path": "docs/specs/0003-db-single-source-of-truth-spec.md",
     "layer": "specs",
     "title": "Database becomes the single source of truth for agents, models, and plugins",
-    "status": "accepted",
+    "status": "implemented",
     "builds-on": [],
     "superseded-by": null,
-    "implemented-by": []
+    "implemented-by": [
+      "packages/config/src/server.ts",
+      ".env.example",
+      ".env.local",
+      "packages/agents-manager/src/config/defaults.ts",
+      "packages/agents-manager/src/index.ts",
+      "packages/agents-manager/src/repository/client.ts",
+      "apps/server/src/runtime/app-runtime.ts",
+      "repositories/agents-repository/package.json",
+      "services/agent-plugins/AGENTS.md",
+      "packages/agents-manager/src/AGENTS.md",
+      "README.md",
+      "package.json"
+    ]
   },
   {
     "id": "SPEC-0004",

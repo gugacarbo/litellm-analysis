@@ -38,8 +38,8 @@ services/agent-plugins/
 | Task                              | Location                                                | Notes                                                |
 | --------------------------------- | ------------------------------------------------------- | ---------------------------------------------------- |
 | Add a new consumer plugin         | `src/plugins/<name>/`                                   | Implement `Plugin<Input, Output>` from `sdk.ts`; register in `plugin-registry.ts` |
-| Update plugin metadata            | `@settings/plugins/plugins.jsonc`                       | Regenerated schemas live next to it                   |
-| Regenerate JSON schemas           | `pnpm generate:plugin-schemas`                         | Outputs to `@settings/plugins/*.schema.json`          |
+| Update plugin metadata            | Database (via `@lite-llm/agents-manager`)              | Plugin manifests are stored in the DB                 |
+| Regenerate Zod schemas            | `pnpm generate:plugin-schemas`                         | Outputs to `src/plugins/<name>/plugin.schema.ts`      |
 | Ensure schemas are current         | `pnpm ensure:plugin-schemas`                           | Idempotent; safe in CI                               |
 | Add a shared helper               | `src/helpers.ts` or `src/sdk.ts`                        | Helpers are pure functions                           |
 | Change error taxonomy             | `src/errors.ts`                                         | Export `PluginError` subtypes                        |
@@ -48,7 +48,7 @@ services/agent-plugins/
 
 - **Plugin contract**: implement the `Plugin<Input, Output>` interface from `sdk.ts`. Plugins are pure: input → output, no I/O
 - **Output writes happen outside the plugin**: the plugin returns a structured `PluginOutput`; the consumer (e.g. `factory.ts`) writes to disk
-- **Schema generation**: every plugin's Zod schema feeds `@settings/plugins/*.schema.json` via `lib/schema-generator.ts`. Generated files are read-only
+- **Schema generation**: every plugin's Zod schema is generated via `lib/schema-generator.ts` and written to `src/plugins/<name>/plugin.schema.ts`. Generated files are read-only
 - **Manifest-only plugins**: plugins without output (e.g. info banners) live in `plugins/manifests/`
 - **No Express, no HTTP**: this is a config-generation library
 - **Plugin isolation**: plugins do not import each other; cross-plugin composition happens in `factory.ts`
