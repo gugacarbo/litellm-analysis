@@ -4,8 +4,7 @@ import {
   ProvidersService,
   RegistryModelsService,
   SettingsService,
-} from "@lite-llm/model-proxy-registry-service";
-import { Prisma } from "@lite-llm/model-proxy-repository";
+} from "@lite-llm/model-proxy-config-service";
 import type { ModelSpec } from "@lite-llm/models-repository";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import type {
@@ -15,10 +14,12 @@ import type {
 } from "@lite-llm/server";
 import { vi } from "vitest";
 
+type JsonValue = unknown;
+
 type SettingRow = {
   id: string;
   key: string;
-  value: Prisma.JsonValue;
+  value: JsonValue;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -108,8 +109,8 @@ function createInMemoryPrisma() {
           update,
         }: {
           where: { key: string };
-          create: { key: string; value: Prisma.JsonValue };
-          update: { value: Prisma.JsonValue };
+          create: { key: string; value: JsonValue };
+          update: { value: JsonValue };
         }) => {
           const existing = settings.get(where.key);
           const now = new Date();

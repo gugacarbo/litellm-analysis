@@ -1,4 +1,4 @@
-import type { ISettingsService } from "@lite-llm/model-proxy-registry-service";
+import type { ISettingsService } from "@lite-llm/model-proxy-config-service";
 import { describe, expect, it, vi } from "vitest";
 import { resolveHealthCheckPrompt } from "../runtime/app-runtime";
 
