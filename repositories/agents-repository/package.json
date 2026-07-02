@@ -16,8 +16,8 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "test": "vitest run",
-    "validate:agents": "ajv validate -s ../../${SETTINGS_PATH:-@settings}/agents/agents.schema.json -d ../../${SETTINGS_PATH:-@settings}/agents/agents.jsonc",
-    "validate:plugins": "ajv validate -s ../../${SETTINGS_PATH:-@settings}/plugins/plugins.schema.json -d ../../${SETTINGS_PATH:-@settings}/plugins/plugins.jsonc"
+    "validate:agents": "echo 'Validation is removed; agents are sourced from the database.'",
+    "validate:plugins": "echo 'Validation is removed; plugins are sourced from the database.'"
   },
   "dependencies": {
     "@lite-llm/agent-plugins": "workspace:*",

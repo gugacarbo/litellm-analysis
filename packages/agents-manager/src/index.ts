@@ -12,12 +12,9 @@ export type {
 } from "@lite-llm/agents-repository/repository";
 
 // Repository client (wraps agents-repository)
-import {
-  createRepositoryClient,
-  type RepositoryClientOptions,
-} from "./repository/client";
+import { createRepositoryClient } from "./repository/client";
 
-export { createRepositoryClient, type RepositoryClientOptions };
+export { createRepositoryClient };
 
 // Services
 import {
@@ -63,18 +60,14 @@ export type {
 export { AgentCatalogService, AgentService, CategoryService, RoutingService };
 
 // Config
-import { DEFAULT_AGENTS, DEFAULT_AGENTS_PATH } from "./config/defaults";
+import { DEFAULT_AGENTS } from "./config/defaults";
 
-export { DEFAULT_AGENTS, DEFAULT_AGENTS_PATH };
+export { DEFAULT_AGENTS };
 
 // ── Factory ──
 
-export interface AgentsManagerFactoryOptions {
-  dbPath?: string;
-}
-
-export function createAgentsManager(options: AgentsManagerFactoryOptions = {}) {
-  const repository = createRepositoryClient({ agentsFilePath: options.dbPath });
+export function createAgentsManager() {
+  const repository = createRepositoryClient();
 
   const services = {
     agents: new AgentService({ repository }),
