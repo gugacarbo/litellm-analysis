@@ -138,9 +138,7 @@ describe("registry integration", () => {
           }),
         );
 
-        const listResponse = await fetch(
-          `http://127.0.0.1:${port}/providers`,
-        );
+        const listResponse = await fetch(`http://127.0.0.1:${port}/providers`);
         expect(listResponse.status).toBe(200);
         expect(await listResponse.json()).toEqual([
           expect.objectContaining({

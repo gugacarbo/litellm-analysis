@@ -25,10 +25,10 @@ import type {
   RegistryProvider,
 } from "@/shared/lib/api-client/providers";
 import {
-  type ProviderInput,
-  type ProviderUpdateInput,
   createProvider,
   deleteProvider,
+  type ProviderInput,
+  type ProviderUpdateInput,
   updateProvider,
 } from "@/shared/lib/api-client/providers";
 import { validateAndBuildModelRoute } from "./models-form-utils";
@@ -78,8 +78,7 @@ export function useModelsPage() {
       ),
   });
 
-  const [providerDefaultProvider, setProviderDefaultProvider] =
-    useState("");
+  const [providerDefaultProvider, setProviderDefaultProvider] = useState("");
   const [oauthDeviceFlow, setOauthDeviceFlow] =
     useState<OpenAiOAuthDeviceCodeStartResult | null>(null);
   const [oauthError, setOauthError] = useState<string | null>(null);
@@ -213,14 +212,12 @@ export function useModelsPage() {
   const [providerFormOpen, setProviderFormOpen] = useState(false);
   const [editingProvider, setEditingProvider] =
     useState<RegistryProvider | null>(null);
-  const [providerFormData, setProviderFormData] = useState<ProviderInput>(
-    {
-      name: "",
-      provider: null,
-      baseUrl: null,
-      apiKey: "",
-    },
-  );
+  const [providerFormData, setProviderFormData] = useState<ProviderInput>({
+    name: "",
+    provider: null,
+    baseUrl: null,
+    apiKey: "",
+  });
   const [providerFormError, setProviderFormError] = useState<string | null>(
     null,
   );

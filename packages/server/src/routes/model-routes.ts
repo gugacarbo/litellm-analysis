@@ -233,8 +233,7 @@ export function registerModelRoutes(
   opts: RouteOptions,
 ): void {
   const { dataSource, registry } = opts;
-  const { settingsService, registryModelsService, providersService } =
-    registry;
+  const { settingsService, registryModelsService, providersService } = registry;
 
   async function listMergedRegistryModels() {
     return listRegistryModels(registryModelsService);

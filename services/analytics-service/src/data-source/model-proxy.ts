@@ -48,11 +48,11 @@ import {
 import {
   createRegistryModelImpl,
   deleteRegistryModelImpl,
-  getRegistryProvidersImpl,
   getRegistryDefaultProviderImpl,
   getRegistryHealthCheckPromptImpl,
   getRegistryModelDetailsImpl,
   getRegistryModelsImpl,
+  getRegistryProvidersImpl,
   setRegistryDefaultProviderImpl,
   updateRegistryModelImpl,
 } from "./registry-methods";

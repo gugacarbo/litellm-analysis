@@ -448,10 +448,7 @@ function DatabaseSettingsSection({
                   <span className="text-muted-foreground">No provider</span>
                 </SelectItem>
                 {providers.map((cred) => (
-                  <SelectItem
-                    key={cred.providerId}
-                    value={cred.providerName}
-                  >
+                  <SelectItem key={cred.providerId} value={cred.providerName}>
                     <div className="flex flex-col">
                       <span>{cred.providerName}</span>
                       {(cred.provider || cred.baseUrl) && (

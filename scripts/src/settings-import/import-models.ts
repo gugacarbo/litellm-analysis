@@ -144,10 +144,7 @@ export async function importModelsFromFile(
       continue;
     }
 
-    const secretRef = parseApiKeyToSecretRef(
-      providerSpec.apiKey,
-      providerName,
-    );
+    const secretRef = parseApiKeyToSecretRef(providerSpec.apiKey, providerName);
     const existing = await providers.findByName(providerName);
 
     if (existing && !flags.force) {

@@ -2,8 +2,8 @@ import type { AgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import type {
   IApiKeysService,
-  IProvidersService,
   IOpenAiOAuthService,
+  IProvidersService,
   IRegistryModelsService,
   ISettingsService,
 } from "@lite-llm/model-proxy-registry-service";

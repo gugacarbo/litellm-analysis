@@ -7,10 +7,10 @@ export {
 export type {
   ModelProxyAlias,
   ModelProxyApiKey,
-  ModelProxyProvider,
   ModelProxyImportJob,
   ModelProxyMessage,
   ModelProxyModel,
+  ModelProxyProvider,
   ModelProxyRequest,
   ModelProxySetting,
   ModelProxyUsageAdjustment,

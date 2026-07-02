@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
-import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
 import type { ModelWithStatus } from "@/shared/lib/api-client/models";
+import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
 
 export interface ModelDetailContextValue {
   model: ModelWithStatus | null;

@@ -7,13 +7,13 @@ import {
   type IApiKeysService,
 } from "./services/api-keys.service.js";
 import {
-  ProvidersService,
-  type IProvidersService,
-} from "./services/providers.service.js";
-import {
   type IOpenAiOAuthService,
   OpenAiOAuthService,
 } from "./services/openai-oauth.service.js";
+import {
+  type IProvidersService,
+  ProvidersService,
+} from "./services/providers.service.js";
 import {
   type IRegistryModelsService,
   RegistryModelsService,

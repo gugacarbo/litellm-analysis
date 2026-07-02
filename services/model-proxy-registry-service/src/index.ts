@@ -8,17 +8,17 @@ export {
 } from "./adapters/model-route-adapter.js";
 export { getRegistryPrisma, type RegistryClientOptions } from "./client.js";
 export {
-  type ProviderListItem,
-  providerExists,
-  listProviders,
-  toPublicProvider,
-} from "./dual-read/providers-dual-read.js";
-export {
   getModelRoute,
   listRegistryModels,
   type RegistryModelEntry,
   toRegistryEntry,
 } from "./dual-read/models-dual-read.js";
+export {
+  listProviders,
+  type ProviderListItem,
+  providerExists,
+  toPublicProvider,
+} from "./dual-read/providers-dual-read.js";
 export {
   getDefaultProvider,
   getHealthCheckPrompt,
@@ -34,8 +34,8 @@ export {
   parseProviderEncryptionKey,
   resolveProviderSecret,
 } from "./lib/provider-secrets.js";
-export { ProvidersRepository } from "./repositories/providers-repository.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
+export { ProvidersRepository } from "./repositories/providers-repository.js";
 export { SettingsRepository } from "./repositories/settings-repository.js";
 export {
   ApiKeysService,
@@ -43,15 +43,15 @@ export {
   type IApiKeysService,
 } from "./services/api-keys.service.js";
 export {
-  ProvidersService,
-  type ProvidersServiceOptions,
-  type IProvidersService,
-} from "./services/providers.service.js";
-export {
   type IOpenAiOAuthService,
   OpenAiOAuthService,
   type OpenAiOAuthServiceOptions,
 } from "./services/openai-oauth.service.js";
+export {
+  type IProvidersService,
+  ProvidersService,
+  type ProvidersServiceOptions,
+} from "./services/providers.service.js";
 export {
   type IRegistryModelsService,
   RegistryModelsService,

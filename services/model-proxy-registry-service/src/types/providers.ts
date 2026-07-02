@@ -18,8 +18,6 @@ export interface ProviderCreateInput {
   secretRef?: string;
 }
 
-export type ProviderUpdateInput = Partial<
-  Omit<ProviderCreateInput, "name">
-> & {
+export type ProviderUpdateInput = Partial<Omit<ProviderCreateInput, "name">> & {
   name?: string;
 };

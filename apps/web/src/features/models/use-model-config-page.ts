@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import {
   getModelAliases,
   updateModelAliases,
@@ -14,6 +13,7 @@ import {
   resolveModelRoute,
   updateModel,
 } from "@/shared/lib/api-client/models";
+import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import { useModelDetailContext } from "./detail/model-detail-context";
 import { parseExtraParamValue } from "./models-form-utils";
 

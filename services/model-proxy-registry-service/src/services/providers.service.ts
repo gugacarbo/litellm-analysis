@@ -30,9 +30,7 @@ function normalizeSecretInput(
     apiKey || (secretRef && !looksLikeEnvVarName(secretRef) ? secretRef : "");
 
   if (!normalizedApiKey && !normalizedSecretRef) {
-    throw new Error(
-      `apiKey or secretRef is required to ${action} a provider`,
-    );
+    throw new Error(`apiKey or secretRef is required to ${action} a provider`);
   }
 
   if (normalizedApiKey && normalizedSecretRef) {

@@ -457,8 +457,8 @@ export function ProvidersPage() {
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Default Provider</h2>
         <p className="text-sm text-muted-foreground">
-          Set the default provider applied to all models that don{"'"}t have
-          an explicit provider configured.
+          Set the default provider applied to all models that don{"'"}t have an
+          explicit provider configured.
         </p>
         <Select
           value={providerDefaultProvider || "none"}

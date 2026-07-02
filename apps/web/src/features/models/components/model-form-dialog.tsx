@@ -20,8 +20,8 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
-import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
 import type { ModelConfig } from "@/shared/lib/api-client/models";
+import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
 
 type ModelFormDialogProps = {
   open: boolean;
@@ -149,10 +149,7 @@ export function ModelFormDialog({
                   <span className="text-muted-foreground">No provider</span>
                 </SelectItem>
                 {providers.map((cred) => (
-                  <SelectItem
-                    key={cred.providerId}
-                    value={cred.providerName}
-                  >
+                  <SelectItem key={cred.providerId} value={cred.providerName}>
                     <div className="flex flex-col">
                       <span>{cred.providerName}</span>
                       {(cred.provider || cred.baseUrl) && (

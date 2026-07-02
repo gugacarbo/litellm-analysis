@@ -6,25 +6,25 @@ import {
   updateModelProvider,
 } from "@/shared/lib/api-client";
 import {
-  type ProviderInput,
-  type ProviderUpdateInput,
   createProvider,
   type DiscoveredProviderModel,
   deleteProvider,
-  discoverProviderModels,
   discoverOpenAiModels,
+  discoverProviderModels,
   getAllProviders,
   getDefaultProvider,
   getOpenAiOAuthConnectionStatus,
   type OpenAiOAuthConnectionStatus,
   type OpenAiOAuthDeviceCodeStartResult,
+  type ProviderInput,
+  type ProviderUpdateInput,
   pollOpenAiOAuthDeviceFlow,
   type RegistryProvider,
-  registerProviderModels,
   registerOpenAiModels,
+  registerProviderModels,
   startOpenAiOAuthDeviceFlow,
-  testProviderModel,
   testOpenAIModel,
+  testProviderModel,
   updateProvider,
 } from "@/shared/lib/api-client/providers";
 
@@ -64,8 +64,7 @@ export function useProvidersPage() {
     queryFn: getModelsWithConfig,
   });
 
-  const [providerDefaultProvider, setProviderDefaultProvider] =
-    useState("");
+  const [providerDefaultProvider, setProviderDefaultProvider] = useState("");
   const [oauthDeviceFlow, setOauthDeviceFlow] =
     useState<OpenAiOAuthDeviceCodeStartResult | null>(null);
   const [oauthError, setOauthError] = useState<string | null>(null);
@@ -123,8 +122,7 @@ export function useProvidersPage() {
     mutationFn: () => discoverOpenAiModels(),
   });
   const discoverProviderModelsMutation = useMutation({
-    mutationFn: (providerName: string) =>
-      discoverProviderModels(providerName),
+    mutationFn: (providerName: string) => discoverProviderModels(providerName),
   });
 
   const [registerLoading, setRegisterLoading] = useState(false);
@@ -249,14 +247,12 @@ export function useProvidersPage() {
   const [providerFormOpen, setProviderFormOpen] = useState(false);
   const [editingProvider, setEditingProvider] =
     useState<RegistryProvider | null>(null);
-  const [providerFormData, setProviderFormData] = useState<ProviderInput>(
-    {
-      name: "",
-      provider: null,
-      baseUrl: null,
-      apiKey: "",
-    },
-  );
+  const [providerFormData, setProviderFormData] = useState<ProviderInput>({
+    name: "",
+    provider: null,
+    baseUrl: null,
+    apiKey: "",
+  });
   const [providerFormError, setProviderFormError] = useState<string | null>(
     null,
   );
@@ -282,9 +278,7 @@ export function useProvidersPage() {
     }
   }
 
-  async function handleDiscoverProviderModels(
-    provider: RegistryProvider,
-  ) {
+  async function handleDiscoverProviderModels(provider: RegistryProvider) {
     setDiscoverModelsOpen(true);
     setDiscoverModelsSource({
       kind: "provider",

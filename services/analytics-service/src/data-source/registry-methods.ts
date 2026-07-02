@@ -4,11 +4,7 @@ import {
 } from "@lite-llm/model-proxy-registry-service";
 import type { ModelProxyModel, Prisma } from "@lite-llm/model-proxy-repository";
 import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
-import type {
-  ModelDetail,
-  ModelEntry,
-  RegistryProvider,
-} from "../types/index";
+import type { ModelDetail, ModelEntry, RegistryProvider } from "../types/index";
 
 const DEFAULT_PROVIDER_KEY = "default_provider";
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
@@ -166,9 +162,7 @@ export async function deleteRegistryModelImpl(
   }
 }
 
-export async function getRegistryProvidersImpl(): Promise<
-  RegistryProvider[]
-> {
+export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
   const prisma = getModelProxyPrisma();
   const rows = await prisma.modelProxyProvider.findMany({
     orderBy: { name: "asc" },
@@ -190,9 +184,7 @@ export async function getRegistryProvidersImpl(): Promise<
   }));
 }
 
-export async function getRegistryDefaultProviderImpl(): Promise<
-  string | null
-> {
+export async function getRegistryDefaultProviderImpl(): Promise<string | null> {
   const prisma = getModelProxyPrisma();
   const row = await prisma.modelProxySetting.findUnique({
     where: { key: DEFAULT_PROVIDER_KEY },

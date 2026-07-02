@@ -83,9 +83,7 @@ export function getProviderNameFromParams(
 ): string | undefined {
   return (
     normalizeProviderName(params.provider_name as string | undefined) ??
-    normalizeProviderName(
-      params.litellm_provider_name as string | undefined,
-    )
+    normalizeProviderName(params.litellm_provider_name as string | undefined)
   );
 }
 
@@ -94,8 +92,7 @@ export function resolveModelProvider(
   fallbackProvider?: string | null,
 ): string | undefined {
   return (
-    getProviderNameFromParams(params) ??
-    normalizeProviderName(fallbackProvider)
+    getProviderNameFromParams(params) ?? normalizeProviderName(fallbackProvider)
   );
 }
 

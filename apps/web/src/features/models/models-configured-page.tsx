@@ -87,9 +87,7 @@ export function ModelsConfiguredPage() {
       formData={formData}
       formError={formError}
       formLoading={formLoading}
-      onOpenCreate={() =>
-        handleOpenCreateWithDefaultProvider(defaultProvider)
-      }
+      onOpenCreate={() => handleOpenCreateWithDefaultProvider(defaultProvider)}
       onFormDataChange={setFormData}
       onAddExtraParam={addExtraParam}
       onRemoveExtraParam={removeExtraParam}

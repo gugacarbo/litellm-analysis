@@ -19,9 +19,7 @@ export function useModelsFormState() {
     setDialogOpen(true);
   }
 
-  function handleOpenCreateWithDefaultProvider(
-    defaultProvider: string | null,
-  ) {
+  function handleOpenCreateWithDefaultProvider(defaultProvider: string | null) {
     setEditingModel(null);
     setFormData({
       ...EMPTY_MODEL_FORM_DATA,

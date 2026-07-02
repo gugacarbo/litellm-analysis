@@ -59,7 +59,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import type {
   ModelConfig,
   ModelSyncDiffItem,
@@ -69,6 +68,7 @@ import type {
   SyncField,
 } from "@/shared/lib/api-client/models";
 import { resolveModelRoute } from "@/shared/lib/api-client/models";
+import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 
 const statusBadgeVariant: Record<
   string,

@@ -77,9 +77,7 @@ export class SettingsService implements ISettingsService {
   }
 
   async getDefaultProvider(): Promise<string | null> {
-    const row = await this.repository.findByKey(
-      SETTING_KEYS.DEFAULT_PROVIDER,
-    );
+    const row = await this.repository.findByKey(SETTING_KEYS.DEFAULT_PROVIDER);
     if (!row) {
       return null;
     }

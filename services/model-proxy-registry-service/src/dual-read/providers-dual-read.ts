@@ -12,9 +12,7 @@ export interface ProviderListItem {
   updatedAt: string | null;
 }
 
-export function toPublicProvider(
-  record: ProviderRecord,
-): ProviderListItem {
+export function toPublicProvider(record: ProviderRecord): ProviderListItem {
   return {
     providerId: record.id,
     providerName: record.name,
