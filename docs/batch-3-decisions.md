@@ -19,9 +19,9 @@
 > the current source of truth for operational model routing is the database-backed
 > registry in `model_proxy_models` and `model_proxy_providers`.
 
-**Status:** fechado  
-**Data:** 2026-06-16  
-**Escopo:** settings, registry e credenciais (`model_proxy_*`)  
+**Status:** fechado
+**Data:** 2026-06-16
+**Escopo:** settings, registry e credenciais (`model_proxy_*`)
 **Pré-requisitos:** Batch 1 concluído; Batch 2 ledger sem persistir segredos brutos em payloads
 
 Este RFC fixa as decisões de arquitetura para a Onda 0+ do Batch 3. Implementação
@@ -41,10 +41,10 @@ Credenciais upstream novas **não** persistem segredo bruto. O campo canônico d
 escrita é `secretRef` (coluna `secret_ref`), contendo **apenas o nome de uma
 variável de ambiente** — nunca o valor da chave.
 
-| Campo | Papel | Writes novos |
-|-------|-------|--------------|
-| `secretRef` | Nome da env var (ex. `OPENAI_API_KEY`) | Obrigatório para credencial utilizável |
-| `apiKey` | Valor bruto legado | **Proibido** — rejeitar no service layer |
+| Campo       | Papel                                  | Writes novos                             |
+| ----------- | -------------------------------------- | ---------------------------------------- |
+| `secretRef` | Nome da env var (ex. `OPENAI_API_KEY`) | Obrigatório para credencial utilizável   |
+| `apiKey`    | Valor bruto legado                     | **Proibido** — rejeitar no service layer |
 
 ### Resolução em runtime
 
@@ -83,13 +83,13 @@ local).
 Chaves que clientes usam para chamar o proxy (`Authorization: Bearer …`) são
 distintas de credenciais upstream. Persistência mínima conforme schema Prisma:
 
-| Coluna Prisma | Campo | Regra |
-|---------------|-------|-------|
-| `label` | Identificador humano | Obrigatório; não único |
-| `keyHash` | Hash da chave | Obrigatório, único; nunca armazenar plaintext |
-| `enabled` | Ativo/inativo | Default `true` |
-| `lastUsedAt` | Último uso bem-sucedido | Atualizado na validação auth |
-| `createdAt` / `updatedAt` | Auditoria | Automáticos |
+| Coluna Prisma             | Campo                   | Regra                                         |
+| ------------------------- | ----------------------- | --------------------------------------------- |
+| `label`                   | Identificador humano    | Obrigatório; não único                        |
+| `keyHash`                 | Hash da chave           | Obrigatório, único; nunca armazenar plaintext |
+| `enabled`                 | Ativo/inativo           | Default `true`                                |
+| `lastUsedAt`              | Último uso bem-sucedido | Atualizado na validação auth                  |
+| `createdAt` / `updatedAt` | Auditoria               | Automáticos                                   |
 
 ### Hashing
 
@@ -100,12 +100,12 @@ distintas de credenciais upstream. Persistência mínima conforme schema Prisma:
 
 ### `MODEL_PROXY_API_KEY` — bootstrap e fallback
 
-| Modo | Comportamento |
-|------|---------------|
-| **Bootstrap (dev)** | Se `MODEL_PROXY_API_KEY` está definida e `model_proxy_api_keys` está vazia, auth aceita a env var sem exigir linha no DB. |
-| **Seed opcional (boot)** | Script/init pode inserir hash da env key com `label: "env-bootstrap"` para ambientes que exigem só DB. |
-| **Produção alvo** | Validar contra `model_proxy_api_keys` (enabled + hash); env como fallback documentado apenas para dev/migração. |
-| **Ordem de auth** | 1) DB (`keyHash` match + `enabled`) → atualiza `lastUsedAt`; 2) fallback `process.env.MODEL_PROXY_API_KEY`. |
+| Modo                     | Comportamento                                                                                                             |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| **Bootstrap (dev)**      | Se `MODEL_PROXY_API_KEY` está definida e `model_proxy_api_keys` está vazia, auth aceita a env var sem exigir linha no DB. |
+| **Seed opcional (boot)** | Script/init pode inserir hash da env key com `label: "env-bootstrap"` para ambientes que exigem só DB.                    |
+| **Produção alvo**        | Validar contra `model_proxy_api_keys` (enabled + hash); env como fallback documentado apenas para dev/migração.           |
+| **Ordem de auth**        | 1) DB (`keyHash` match + `enabled`) → atualiza `lastUsedAt`; 2) fallback `process.env.MODEL_PROXY_API_KEY`.               |
 
 Comportamento atual (`model-proxy-routes.ts`: só env) será estendido na Onda 3
 (SA-3D); esta decisão não altera o runtime até lá.
@@ -119,11 +119,11 @@ Comportamento atual (`model-proxy-routes.ts`: só env) será estendido na Onda 3
 Substituir usos operacionais de `LiteLLM_Config` por linhas em
 `model_proxy_settings` (`key` único, `value` JSON).
 
-| `key` | Origem LiteLLM | Formato `value` (JSON) |
-|-------|----------------|------------------------|
-| `default_credential` | `param_name = 'default_credential'` | `{ "default_credential": "<credentialName>" }` |
-| `health_check_prompt` | `param_name = 'general_settings'` → campo `health_check_prompt` | `{ "health_check_prompt": "<prompt>" }` |
-| `router_settings` | `param_name = 'router_settings'` | Objeto completo legado, incl. `model_group_alias` e metadados `__lite_llm_analytics.managedModelGroupAliasKeys` |
+| `key`                 | Origem LiteLLM                                                  | Formato `value` (JSON)                                                                                          |
+| --------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `default_credential`  | `param_name = 'default_credential'`                             | `{ "default_credential": "<credentialName>" }`                                                                  |
+| `health_check_prompt` | `param_name = 'general_settings'` → campo `health_check_prompt` | `{ "health_check_prompt": "<prompt>" }`                                                                         |
+| `router_settings`     | `param_name = 'router_settings'`                                | Objeto completo legado, incl. `model_group_alias` e metadados `__lite_llm_analytics.managedModelGroupAliasKeys` |
 
 ### Leitura / escrita
 
@@ -145,13 +145,13 @@ Permanecem **dentro** de `router_settings.value` sob
 
 ### Decisão
 
-| Tópico | Escolha |
-|--------|---------|
-| Fonte primária (dados novos) | `model_proxy_models` |
-| Tipo / API novo | `modelRoute` |
-| Compat entrada | API aceita `litellmParams` via shim → normaliza para `modelRoute` |
-| Compat saída | Resposta expõe `modelRoute`; `litellmParams` deprecado (alias temporário) |
-| Código novo | Usa `modelRoute` e `model-route.ts`; adapters isolam legado |
+| Tópico                       | Escolha                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------- |
+| Fonte primária (dados novos) | `model_proxy_models`                                                      |
+| Tipo / API novo              | `modelRoute`                                                              |
+| Compat entrada               | API aceita `litellmParams` via shim → normaliza para `modelRoute`         |
+| Compat saída                 | Resposta expõe `modelRoute`; `litellmParams` deprecado (alias temporário) |
+| Código novo                  | Usa `modelRoute` e `model-route.ts`; adapters isolam legado               |
 
 Colunas Prisma já cobrem o mapeamento (`modelName`, custos, `credentialName`,
 `requestOptions`, etc.). Matriz campo-a-campo: SA-0B.
@@ -164,13 +164,13 @@ Colunas Prisma já cobrem o mapeamento (`modelName`, custos, `credentialName`,
 
 Abandonar nomenclatura LiteLLM na UI e contratos novos.
 
-| Legado (hoje) | Novo (Batch 3) | Significado |
-|---------------|----------------|-------------|
-| `synced` | `synced` | Presente e alinhado em registry + dashboard config |
-| `config-only` | `config-only` | Só no dashboard config legado |
-| `litellm-only` | `registry-only` | Só em `model_proxy_models` (ex-ProxyModelTable) |
-| `config-to-litellm` | `config-to-registry` | Sync: config → registry |
-| `litellm-to-config` | `registry-to-config` | Sync: registry → config |
+| Legado (hoje)       | Novo (Batch 3)       | Significado                                        |
+| ------------------- | -------------------- | -------------------------------------------------- |
+| `synced`            | `synced`             | Presente e alinhado em registry + dashboard config |
+| `config-only`       | `config-only`        | Só no dashboard config legado                      |
+| `litellm-only`      | `registry-only`      | Só em `model_proxy_models` (ex-ProxyModelTable)    |
+| `config-to-litellm` | `config-to-registry` | Sync: config → registry                            |
+| `litellm-to-config` | `registry-to-config` | Sync: registry → config                            |
 
 ### Compatibilidade temporária (1 release)
 
@@ -211,23 +211,23 @@ flowchart TB
   end
 ```
 
-| Operação | Destino | LiteLLM DB |
-|----------|---------|------------|
-| Create/update/delete settings | `model_proxy_settings` | Read-only via adapter |
-| CRUD modelos registry | `model_proxy_models` | Read-only via adapter |
-| CRUD credenciais upstream | `model_proxy_providers` / provider-adjacent registry rows | Read-only via adapter |
-| CRUD API keys locais | `model_proxy_api_keys` | N/A (não existia em LiteLLM) |
-| Sync batch / import one-shot | Upsert em `model_proxy_*` | Source read para migração |
-| Analytics / spend | Sem mudança neste batch | Continua via `analytics-service` |
+| Operação                      | Destino                                                   | LiteLLM DB                       |
+| ----------------------------- | --------------------------------------------------------- | -------------------------------- |
+| Create/update/delete settings | `model_proxy_settings`                                    | Read-only via adapter            |
+| CRUD modelos registry         | `model_proxy_models`                                      | Read-only via adapter            |
+| CRUD credenciais upstream     | `model_proxy_providers` / provider-adjacent registry rows | Read-only via adapter            |
+| CRUD API keys locais          | `model_proxy_api_keys`                                    | N/A (não existia em LiteLLM)     |
+| Sync batch / import one-shot  | Upsert em `model_proxy_*`                                 | Source read para migração        |
+| Analytics / spend             | Sem mudança neste batch                                   | Continua via `analytics-service` |
 
 ### Adapters temporários (escopo fechado)
 
-| Adapter | Função |
-|---------|--------|
-| `litellm-params-adapter` | `litellmParams` ↔ `ModelRoute` ↔ row Prisma |
-| `legacy-config-adapter` | `LiteLLM_Config` → `model_proxy_settings` |
+| Adapter                      | Função                                                   |
+| ---------------------------- | -------------------------------------------------------- |
+| `litellm-params-adapter`     | `litellmParams` ↔ `ModelRoute` ↔ row Prisma              |
+| `legacy-config-adapter`      | `LiteLLM_Config` → `model_proxy_settings`                |
 | `legacy-credentials-adapter` | `LiteLLM_CredentialsTable` → provider/config no registry |
-| `import-legacy-registry` | `LiteLLM_ProxyModelTable` → `model_proxy_models` |
+| `import-legacy-registry`     | `LiteLLM_ProxyModelTable` → `model_proxy_models`         |
 
 `repositories/litellm-repository` **não** é removido neste batch.
 Queries em `analytics-service` permanecem; rotas operacionais migram para
@@ -251,11 +251,11 @@ operacionais novos; apenas leitura e import.
 
 ## 8. Gates para ondas seguintes
 
-| Gate | Condição |
-|------|----------|
-| Onda 1 | Este RFC + SA-0B field mapping aprovados |
-| Onda 3D (auth proxy) | SA-0D fixes ledger (double-finish) com testes verdes |
-| Onda 5 | Checklists em [`litellm-removal-batch-3-settings-registry-credentials.md`](./litellm-removal-batch-3-settings-registry-credentials.md) |
+| Gate                 | Condição                                                                                                                               |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Onda 1               | Este RFC + SA-0B field mapping aprovados                                                                                               |
+| Onda 3D (auth proxy) | SA-0D fixes ledger (double-finish) com testes verdes                                                                                   |
+| Onda 5               | Checklists em [`litellm-removal-batch-3-settings-registry-credentials.md`](./litellm-removal-batch-3-settings-registry-credentials.md) |
 
 ---
 

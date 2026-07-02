@@ -1,15 +1,15 @@
+import { db } from "@lite-llm/database/client";
+import {
+  modelProxyModels,
+  modelProxyProviders,
+} from "@lite-llm/database/schema/model-proxy";
 import {
   OPENAI_CHATGPT_API_BASE,
   resolveProviderSecret,
 } from "@lite-llm/model-proxy-registry-service";
-import { db } from "@lite-llm/database/client";
-import { modelProxyModels, modelProxyProviders } from "@lite-llm/database/schema/model-proxy";
-import { eq, and } from "drizzle-orm";
 import type { ModelProxyModel } from "@lite-llm/model-proxy-repository";
-import type {
-  ModelSpec,
-  Provider,
-} from "@lite-llm/models-repository";
+import type { ModelSpec, Provider } from "@lite-llm/models-repository";
+import { and, eq } from "drizzle-orm";
 
 export const CHATGPT_SUBSCRIPTION_PROVIDER = "chatgpt-subscription";
 
@@ -129,19 +129,23 @@ export async function resolveUpstreamTarget(params: {
 
   if (!resolvedRow) {
     if (providerPrefix) {
-      const [found] = await db.select()
+      const [found] = await db
+        .select()
         .from(modelProxyModels)
-        .where(and(
-          eq(modelProxyModels.modelName, bareModelName),
-          eq(modelProxyModels.providerName, providerPrefix),
-        ))
+        .where(
+          and(
+            eq(modelProxyModels.modelName, bareModelName),
+            eq(modelProxyModels.providerName, providerPrefix),
+          ),
+        )
         .limit(1);
       resolvedRow = found ?? null;
       if (!resolvedRow) {
         throw new Error(`Model "${modelName}" not found`);
       }
     } else {
-      const rows = await db.select()
+      const rows = await db
+        .select()
         .from(modelProxyModels)
         .where(eq(modelProxyModels.modelName, bareModelName));
 
@@ -186,7 +190,8 @@ export async function resolveUpstreamTarget(params: {
     undefined;
 
   const [provider] = providerName
-    ? await db.select()
+    ? await db
+        .select()
         .from(modelProxyProviders)
         .where(eq(modelProxyProviders.name, providerName))
         .limit(1)
