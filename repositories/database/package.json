@@ -1,0 +1,34 @@
+{
+  "name": "@lite-llm/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./schema": "./src/schema/index.ts",
+    "./schema/model-proxy": "./src/schema/model-proxy.ts",
+    "./schema/app": "./src/schema/app.ts",
+    "./queries": "./src/queries.ts",
+    "./test-helpers": "./src/test-helpers/createTestDb.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@lite-llm/config": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "pg": "^8.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pg": "^8.11.0",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "catalog:"
+  }
+}
