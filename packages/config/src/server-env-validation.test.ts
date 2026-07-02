@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest";
 import { assertAnalyticsDataSourceEnv } from "./server-env-validation";
 
 describe("assertAnalyticsDataSourceEnv", () => {
-  it("accepts model-proxy when MODEL_PROXY_DATABASE_URL is set", () => {
+  it("accepts model-proxy when DATABASE_URL is set", () => {
     expect(() =>
       assertAnalyticsDataSourceEnv({
-        MODEL_PROXY_DATABASE_URL:
+        DATABASE_URL:
           "postgresql://proxy:secret@localhost:5432/model_proxy",
       }),
     ).not.toThrow();
   });
 
-  it("requires MODEL_PROXY_DATABASE_URL", () => {
+  it("requires DATABASE_URL", () => {
     expect(() => assertAnalyticsDataSourceEnv({})).toThrow(
-      "MODEL_PROXY_DATABASE_URL is required",
+      "DATABASE_URL is required",
     );
   });
 });

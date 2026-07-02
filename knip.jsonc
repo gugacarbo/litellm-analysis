@@ -15,16 +15,12 @@
     }
   },
   "ignoreFiles": [
-    "repositories/litellm-repository/src/generated/prisma/schema.prisma",
-    "repositories/litellm-repository/src/generated/prisma/wasm-edge-light-loader.mjs",
-    "repositories/litellm-repository/src/generated/prisma/wasm-worker-loader.mjs",
     "**/generated/**"
   ],
   "ignoreUnresolved": ["../../../../packages/config/src/server"],
   "ignoreDependencies": [
     "@lite-llm/agents-manager",
     "@lite-llm/config",
-    "@prisma/client",
     "zod"
   ]
 }

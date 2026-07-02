@@ -1,8 +1,8 @@
 ---
-status: draft
+status: implemented
 date: 2026-07-02
 builds-on: []
-implemented-by: []
+implemented-by: [docs/tasks/0004-prisma-to-drizzle-migration/tasks.json]
 ---
 
 # Migrar toda a camada de dados de Prisma para Drizzle, unificando PostgreSQL
@@ -243,6 +243,12 @@ grep -ri "better-sqlite3" --include="*.ts" --include="*.json" \
 
 ## Verificação
 
-```text
-(preencher no fechamento)
-```
+- [x] 13/13 packages passam typecheck com 0 erros
+- [x] `better-sqlite3` eliminado do código-fonte
+- [x] Prisma gerado removido de `model-proxy-repository/src/generated/prisma/`
+- [x] Migrations SQLite removidas de `app-repository/drizzle/`
+- [x] Migrations Prisma removidas de `model-proxy-repository/prisma/migrations/`
+- [x] `pnpm-workspace.yaml` sem `allowBuilds` para prisma/better-sqlite3
+- [x] `knip.jsonc` sem ignores de prisma
+- [x] Root `db:migrate` delega para `@lite-llm/database`
+- [x] Spec status alterado para `implemented`

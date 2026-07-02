@@ -111,9 +111,11 @@
     "path": "docs/specs/0004-prisma-to-drizzle-migration-spec.md",
     "layer": "specs",
     "title": "Migrar toda a camada de dados de Prisma para Drizzle, unificando PostgreSQL",
-    "status": "draft",
+    "status": "implemented",
     "builds-on": [],
     "superseded-by": null,
-    "implemented-by": []
+    "implemented-by": [
+      "docs/tasks/0004-prisma-to-drizzle-migration/tasks.json"
+    ]
   }
 ]

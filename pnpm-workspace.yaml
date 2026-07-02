@@ -15,7 +15,7 @@ catalog:
   "@biomejs/biome": ^2.4.13
   typescript: ^6.0.3
   vitest: ^4.1.5
-  drizzle-orm: ^0.38.0
+  drizzle-orm: ^0.38.4
   dotenv: ^17.4.2
   express: ^4.21.0
   "@types/express": ^5.0.0
@@ -25,10 +25,6 @@ catalog:
   vite: ^8.0.10
 
 allowBuilds:
-  '@prisma/client': true
-  '@prisma/engines': true
   argon2: set this to true or false
-  better-sqlite3: true
   esbuild: true
   msw: true
-  prisma: true
