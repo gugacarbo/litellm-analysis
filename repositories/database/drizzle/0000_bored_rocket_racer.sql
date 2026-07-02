@@ -1,12 +1,3 @@
-CREATE TABLE "model_proxy_aliases" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"alias" text NOT NULL,
-	"target_model" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "model_proxy_aliases_alias_unique" UNIQUE("alias")
-);
---> statement-breakpoint
 CREATE TABLE "model_proxy_api_keys" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"label" text NOT NULL,
@@ -16,16 +7,6 @@ CREATE TABLE "model_proxy_api_keys" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "model_proxy_api_keys_key_hash_unique" UNIQUE("key_hash")
-);
---> statement-breakpoint
-CREATE TABLE "model_proxy_import_jobs" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"source" text NOT NULL,
-	"status" text NOT NULL,
-	"started_at" timestamp DEFAULT now() NOT NULL,
-	"finished_at" timestamp,
-	"summary" jsonb,
-	"error" text
 );
 --> statement-breakpoint
 CREATE TABLE "model_proxy_messages" (
@@ -128,16 +109,6 @@ CREATE TABLE "model_proxy_usage_adjustments" (
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "alert_rules" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
-	"anomaly_type" text NOT NULL,
-	"threshold_config" jsonb,
-	"enabled" boolean DEFAULT true NOT NULL,
-	"cooldown_seconds" integer DEFAULT 300 NOT NULL,
-	"created_at" timestamp NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "alerts" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"anomaly_type" text NOT NULL,
@@ -205,7 +176,6 @@ ALTER TABLE "model_proxy_usage_adjustments" ADD CONSTRAINT "model_proxy_usage_ad
 ALTER TABLE "prompt_eval_run_artifacts" ADD CONSTRAINT "prompt_eval_run_artifacts_run_id_prompt_eval_runs_id_fk" FOREIGN KEY ("run_id") REFERENCES "public"."prompt_eval_runs"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prompt_eval_run_steps" ADD CONSTRAINT "prompt_eval_run_steps_run_id_prompt_eval_runs_id_fk" FOREIGN KEY ("run_id") REFERENCES "public"."prompt_eval_runs"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "idx_api_keys_enabled_label" ON "model_proxy_api_keys" USING btree ("enabled","label");--> statement-breakpoint
-CREATE INDEX "idx_import_jobs_status_started" ON "model_proxy_import_jobs" USING btree ("status","started_at");--> statement-breakpoint
 CREATE INDEX "idx_messages_request_created" ON "model_proxy_messages" USING btree ("request_id","created_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "uq_model_proxy_models_model_provider" ON "model_proxy_models" USING btree ("model_name","provider_name");--> statement-breakpoint
 CREATE INDEX "idx_model_proxy_models_enabled_name" ON "model_proxy_models" USING btree ("enabled","model_name");--> statement-breakpoint

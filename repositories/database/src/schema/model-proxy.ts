@@ -133,26 +133,6 @@ export const modelProxySettings = pgTable("model_proxy_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 });
 
-export const modelProxyAliases = pgTable("model_proxy_aliases", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  alias: text("alias").unique().notNull(),
-  targetModel: text("target_model").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
-});
-
-export const modelProxyImportJobs = pgTable("model_proxy_import_jobs", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  source: text("source").notNull(),
-  status: text("status").notNull(),
-  startedAt: timestamp("started_at").defaultNow().notNull(),
-  finishedAt: timestamp("finished_at"),
-  summary: jsonb("summary"),
-  error: text("error"),
-}, (table) => [
-  index("idx_import_jobs_status_started").on(table.status, table.startedAt),
-]);
-
 export type ModelProxyRequest = typeof modelProxyRequests.$inferSelect;
 export type NewModelProxyRequest = typeof modelProxyRequests.$inferInsert;
 export type ModelProxyUsageAdjustment = typeof modelProxyUsageAdjustments.$inferSelect;
@@ -167,7 +147,3 @@ export type ModelProxyApiKey = typeof modelProxyApiKeys.$inferSelect;
 export type NewModelProxyApiKey = typeof modelProxyApiKeys.$inferInsert;
 export type ModelProxySetting = typeof modelProxySettings.$inferSelect;
 export type NewModelProxySetting = typeof modelProxySettings.$inferInsert;
-export type ModelProxyAlias = typeof modelProxyAliases.$inferSelect;
-export type NewModelProxyAlias = typeof modelProxyAliases.$inferInsert;
-export type ModelProxyImportJob = typeof modelProxyImportJobs.$inferSelect;
-export type NewModelProxyImportJob = typeof modelProxyImportJobs.$inferInsert;

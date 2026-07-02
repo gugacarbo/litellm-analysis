@@ -22,6 +22,8 @@ export function getDb(): ReturnType<typeof drizzle> {
   return dbInstance;
 }
 
+export type DatabaseClient = ReturnType<typeof getDb>;
+
 export const db = getDb();
 
 export async function disconnectDb(): Promise<void> {

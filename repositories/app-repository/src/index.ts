@@ -21,14 +21,11 @@ export {
 } from "./queries";
 export type {
   Alert,
-  AlertRule,
   ModelHealthCheck,
   NewAlert,
-  NewAlertRule,
   NewModelHealthCheck,
 } from "./schema";
 export {
-  alertRules,
   alerts,
   modelHealthChecks,
 } from "./schema";
