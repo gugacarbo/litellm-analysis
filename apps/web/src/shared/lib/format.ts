@@ -80,7 +80,7 @@ export function safeDivide(
   return numerator / denominator;
 }
 
-export function formatDateTime(date: string | Date): string {
+function formatDateTime(date: string | Date): string {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleString(APP_LOCALE, {

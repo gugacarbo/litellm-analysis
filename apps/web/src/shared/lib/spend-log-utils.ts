@@ -4,7 +4,6 @@ import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
 // Re-export common formatters from the canonical source
 export {
   formatCurrency,
-  formatDateTime,
   formatDuration,
   formatNumber,
 } from "@/shared/lib/format";

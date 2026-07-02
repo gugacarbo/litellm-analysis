@@ -1,13 +1,13 @@
 import { fetchApi } from "./core";
 
-export type ModelReasoningConfig = {
+type ModelReasoningConfig = {
   effort?: "low" | "medium" | "high" | "xhigh";
   enableThinking?: boolean;
   includeReasoningInRequest?: boolean;
   apiMode?: "openai" | "anthropic";
 };
 
-export type ModelApiMode = "openai" | "anthropic";
+type ModelApiMode = "openai" | "anthropic";
 
 /** Structured model routing config — primary Batch 3 contract. */
 export type ModelRoute = {
@@ -46,7 +46,7 @@ export type ModelConfig = {
   };
 };
 
-export type ModelSyncPresenceStatus =
+type ModelSyncPresenceStatus =
   | "synced"
   | "config-only"
   | "registry-only";
@@ -55,7 +55,7 @@ export type ModelWithStatus = ModelConfig & {
   status: ModelSyncPresenceStatus;
 };
 
-export type ModelsWithConfigCounts = {
+type ModelsWithConfigCounts = {
   synced: number;
   configOnly: number;
   registryOnly: number;
@@ -75,7 +75,7 @@ export type ModelsWithConfigResponse = {
 export type SyncDirection = "config-to-registry" | "registry-to-config";
 
 /** @deprecated Use `config-to-registry` / `registry-to-config`. */
-export type LegacySyncDirection = "config-to-litellm" | "litellm-to-config";
+type LegacySyncDirection = "config-to-litellm" | "litellm-to-config";
 
 export type SyncField =
   | "model_presence"
@@ -147,7 +147,7 @@ function readInt(value: unknown): number | undefined {
 }
 
 /** Map legacy presence labels to Batch 3 names. */
-export function normalizeSyncPresenceStatus(
+function normalizeSyncPresenceStatus(
   status: string,
 ): ModelSyncPresenceStatus {
   if (status === "litellm-only") {
@@ -157,7 +157,7 @@ export function normalizeSyncPresenceStatus(
 }
 
 /** Map legacy sync direction labels to Batch 3 names. */
-export function normalizeSyncDirection(direction: string): SyncDirection {
+function normalizeSyncDirection(direction: string): SyncDirection {
   if (direction === "config-to-litellm") {
     return "config-to-registry";
   }
@@ -204,7 +204,7 @@ function normalizeModelRoute(raw: unknown, modelName: string): ModelRoute {
   return { modelName };
 }
 
-export function normalizeModelConfig(
+function normalizeModelConfig(
   raw: Record<string, unknown>,
 ): ModelConfig {
   const modelName = String(raw.modelName ?? "");
@@ -222,7 +222,7 @@ export function normalizeModelConfig(
   };
 }
 
-export function normalizeModelWithStatus(
+function normalizeModelWithStatus(
   raw: Record<string, unknown>,
 ): ModelWithStatus {
   const base = normalizeModelConfig(raw);
@@ -247,7 +247,7 @@ function normalizeModelsCounts(
   };
 }
 
-export function normalizeModelsWithConfigResponse(
+function normalizeModelsWithConfigResponse(
   raw: Record<string, unknown>,
 ): ModelsWithConfigResponse {
   const models = Array.isArray(raw.models)
@@ -337,7 +337,7 @@ export async function getModelsWithConfig(): Promise<ModelsWithConfigResponse> {
   return normalizeModelsWithConfigResponse(data);
 }
 
-export async function syncModelsFromConfig(): Promise<{ success: boolean }> {
+async function syncModelsFromConfig(): Promise<{ success: boolean }> {
   return fetchApi("/models/sync-from-config", {
     method: "POST",
   });
