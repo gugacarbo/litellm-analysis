@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@lite-llm/agents-manager": "workspace:*",
-    "@lite-llm/agent-schemas": "workspace:*",
+    "@lite-llm/agents-repository": "workspace:*",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/database": "workspace:*",
     "@lite-llm/model-proxy-repository": "workspace:*",

@@ -372,7 +372,7 @@ export interface SpendLogsResponse {
   pagination: PaginationMetadata;
 }
 
-export type { SystemAgent } from "@lite-llm/agent-schemas";
+export type { SystemAgent } from "@lite-llm/agents-repository/schemas";
 
 export type {
   ProxyRequestLog,

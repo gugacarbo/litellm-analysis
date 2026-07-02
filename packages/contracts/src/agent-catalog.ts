@@ -2,7 +2,7 @@ import type {
   PluginRouting,
   PluginRoutingRule,
   SystemAgent,
-} from "@lite-llm/agent-schemas";
+} from "@lite-llm/agents-repository/schemas";
 
 export type { PluginRouting, PluginRoutingRule, SystemAgent };
 
