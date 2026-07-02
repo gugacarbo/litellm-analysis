@@ -63,10 +63,6 @@ vi.mock("@/features/models/models-health-check-page", () => ({
   ModelsHealthCheckPage: () => <div>Models Health Check Page</div>,
 }));
 
-vi.mock("@/features/monitor", () => ({
-  MonitorPage: () => <div>Monitor Page</div>,
-}));
-
 vi.mock("@/features/plugins", () => ({
   PluginConfigPage: () => <div>Plugin Config Page</div>,
 }));

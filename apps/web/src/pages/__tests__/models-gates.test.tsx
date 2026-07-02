@@ -2,11 +2,11 @@ import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "../../__tests__/react-query-test-utils";
 
-vi.mock("@/features/monitor/components/health-status-content", () => ({
+vi.mock("@/features/health-check/components/health-status-content", () => ({
   HealthStatusContent: () => <div>Mock health check content</div>,
 }));
 
-vi.mock("@/features/monitor/hooks/use-health-status-websocket", () => ({
+vi.mock("@/features/health-check/hooks/use-health-status-websocket", () => ({
   useHealthStatusWebSocket: () => ({
     status: "disconnected",
     latestResults: [],
