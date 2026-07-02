@@ -53,5 +53,5 @@ npm test                 # tudo verde
 | (nenhum ainda) | —               |
 
 ## Mapa de docs
-- Decisões: `docs/adr/` · Comportamento: `docs/specs/` (READMEs GERADOS — não editar)
+- Decisões: `docs/adr/` (ADR-0001 … ADR-0006) · Comportamento: `docs/specs/` (READMEs GERADOS — não editar)
 - Validar: `scripts/docs-check` · Regenerar índices: `scripts/docs-check --emit-index`

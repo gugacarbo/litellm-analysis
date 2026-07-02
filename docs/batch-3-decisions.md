@@ -1,5 +1,19 @@
 # Batch 3: decisões fechadas (RFC)
 
+> ⚠️ **Este RFC foi formalizado em ADRs individuais.** Cada seção abaixo tem
+> um ADR correspondente em `docs/adr/`. Consulte os ADRs para a decisão
+> vigente e o bloco VERDADE ATUAL. Este documento mantém-se como registro
+> histórico do contexto original.
+>
+> | Seção | ADR |
+> |-------|-----|
+> | 1. Estratégia `secret_ref` | [ADR-0001](./adr/0001-secret-ref-upstream-credentials.md) |
+> | 2. API keys locais | [ADR-0002](./adr/0002-local-api-keys-model-proxy-api-keys.md) |
+> | 3. Settings em `model_proxy_settings` | [ADR-0003](./adr/0003-settings-in-model-proxy-settings.md) |
+> | 4. Registry e rename `litellmParams` | [ADR-0004](./adr/0004-model-registry-and-litellmparams-rename.md) |
+> | 5. Estados de sync | [ADR-0005](./adr/0005-sync-state-names-rename.md) |
+> | 6. Política dual-read / single-write | [ADR-0006](./adr/0006-dual-read-single-write-policy.md) |
+
 > Historical note: this RFC records the Batch 3 decisions as they were made. References
 > below to `models.jsonc` are historical and are superseded by spec 0002 / Task-C-0002:
 > the current source of truth for operational model routing is the database-backed
