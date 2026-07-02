@@ -1,20 +1,20 @@
 import { and, desc, eq, isNull, notInArray, sql } from "drizzle-orm";
-import { getAppDb } from "./client";
+import { db } from "@lite-llm/database/client";
 import type {
   Alert,
   EvalRun,
   EvalRunArtifact,
   EvalRunStep,
   ModelHealthCheck,
+  NewAlert,
   NewEvalRun,
   NewEvalRunArtifact,
   NewEvalRunStep,
+  NewModelHealthCheck,
 } from "./schema";
 import {
   alerts,
   modelHealthChecks,
-  type NewAlert,
-  type NewModelHealthCheck,
   promptEvalRunArtifacts,
   promptEvalRunSteps,
   promptEvalRuns,
@@ -34,13 +34,12 @@ export interface GetAlertsResult {
   total: number;
 }
 
-export function insertAlert(alert: NewAlert): Alert {
-  const db = getAppDb();
-  const now = Math.floor(Date.now() / 1000);
+export async function insertAlert(alert: NewAlert): Promise<Alert> {
+  const now = new Date();
   const createdAt = alert.createdAt ?? now;
   const detectedAt = alert.detectedAt ?? now;
 
-  const result = db
+  const result = await db
     .insert(alerts)
     .values({
       anomalyType: alert.anomalyType,
@@ -52,14 +51,12 @@ export function insertAlert(alert: NewAlert): Alert {
       acknowledgedAt: alert.acknowledgedAt,
       createdAt: createdAt,
     })
-    .returning()
-    .get();
+    .returning();
 
-  return result;
+  return result[0];
 }
 
-export function getAlerts(opts: GetAlertsOptions = {}): GetAlertsResult {
-  const db = getAppDb();
+export async function getAlerts(opts: GetAlertsOptions = {}): Promise<GetAlertsResult> {
   const {
     anomalyType,
     model,
@@ -89,58 +86,46 @@ export function getAlerts(opts: GetAlertsOptions = {}): GetAlertsResult {
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const row = db
+  const [countRow] = await db
     .select({ count: sql<number>`count(*)` })
     .from(alerts)
-    .where(whereClause)
-    .get();
-  const total = row?.count ?? 0;
+    .where(whereClause);
+  const total = Number(countRow?.count ?? 0);
 
-  const alertRows = db
+  const alertRows = await db
     .select()
     .from(alerts)
     .where(whereClause)
     .orderBy(desc(alerts.detectedAt))
     .limit(limit)
-    .offset(offset)
-    .all();
+    .offset(offset);
 
   return { alerts: alertRows, total };
 }
 
-export function acknowledgeAlert(id: number): Alert | null {
-  const db = getAppDb();
-  const now = Math.floor(Date.now() / 1000);
-
-  const result = db
+export async function acknowledgeAlert(id: number): Promise<Alert | null> {
+  const [result] = await db
     .update(alerts)
-    .set({ acknowledgedAt: now })
+    .set({ acknowledgedAt: new Date() })
     .where(eq(alerts.id, id))
-    .returning()
-    .get();
+    .returning();
 
-  return result;
+  return result ?? null;
 }
 
-export function getActiveAlerts(): Alert[] {
-  const db = getAppDb();
-
+export async function getActiveAlerts(): Promise<Alert[]> {
   return db
     .select()
     .from(alerts)
     .where(isNull(alerts.acknowledgedAt))
-    .orderBy(desc(alerts.detectedAt))
-    .all();
+    .orderBy(desc(alerts.detectedAt));
 }
 
-export function countAlertsSince(timestamp: number): number {
-  const db = getAppDb();
-
-  const result = db
+export async function countAlertsSince(timestamp: Date): Promise<number> {
+  const [result] = await db
     .select({ count: sql<number>`count(*)` })
     .from(alerts)
-    .where(sql`${alerts.detectedAt} > ${timestamp}`)
-    .get();
+    .where(sql`${alerts.detectedAt} > ${timestamp}`);
 
   return result?.count ?? 0;
 }
@@ -149,7 +134,7 @@ export interface GetHealthChecksOptions {
   model?: string;
   limit?: number;
   offset?: number;
-  since?: number;
+  since?: Date;
 }
 
 export interface GetHealthChecksResult {
@@ -157,13 +142,12 @@ export interface GetHealthChecksResult {
   total: number;
 }
 
-export function insertHealthCheck(
+export async function insertHealthCheck(
   check: NewModelHealthCheck,
-): ModelHealthCheck {
-  const db = getAppDb();
-  const now = Math.floor(Date.now() / 1000);
+): Promise<ModelHealthCheck> {
+  const now = new Date();
 
-  return db
+  const [result] = await db
     .insert(modelHealthChecks)
     .values({
       modelName: check.modelName,
@@ -181,14 +165,14 @@ export function insertHealthCheck(
       source: check.source ?? "scheduled",
       checkedAt: check.checkedAt ?? now,
     })
-    .returning()
-    .get();
+    .returning();
+
+  return result;
 }
 
-export function getHealthChecks(
+export async function getHealthChecks(
   opts: GetHealthChecksOptions = {},
-): GetHealthChecksResult {
-  const db = getAppDb();
+): Promise<GetHealthChecksResult> {
   const { model, limit = 50, offset = 0, since } = opts;
 
   const conditions = [];
@@ -197,40 +181,34 @@ export function getHealthChecks(
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const row = db
+  const [countRow] = await db
     .select({ count: sql<number>`count(*)` })
     .from(modelHealthChecks)
-    .where(whereClause)
-    .get();
-  const total = row?.count ?? 0;
+    .where(whereClause);
+  const total = Number(countRow?.count ?? 0);
 
-  const checks = db
+  const checks = await db
     .select()
     .from(modelHealthChecks)
     .where(whereClause)
     .orderBy(desc(modelHealthChecks.checkedAt))
     .limit(limit)
-    .offset(offset)
-    .all();
+    .offset(offset);
 
   return { checks, total };
 }
 
-export function getLatestHealthChecks(): ModelHealthCheck[] {
-  const db = getAppDb();
-
+export async function getLatestHealthChecks(): Promise<ModelHealthCheck[]> {
   const latestSubquery = db
     .select({
       modelName: modelHealthChecks.modelName,
-      maxCheckedAt: sql<number>`max(${modelHealthChecks.checkedAt})`.as(
-        "maxCheckedAt",
-      ),
+      maxCheckedAt: sql<Date>`max(${modelHealthChecks.checkedAt})`.as("maxCheckedAt"),
     })
     .from(modelHealthChecks)
     .groupBy(modelHealthChecks.modelName)
     .as("latest");
 
-  const rows = db
+  const rows = await db
     .select()
     .from(modelHealthChecks)
     .innerJoin(
@@ -240,8 +218,7 @@ export function getLatestHealthChecks(): ModelHealthCheck[] {
         eq(modelHealthChecks.checkedAt, latestSubquery.maxCheckedAt),
       ),
     )
-    .orderBy(desc(modelHealthChecks.checkedAt))
-    .all();
+    .orderBy(desc(modelHealthChecks.checkedAt));
 
   return rows.map((r) => r.model_health_checks);
 }
@@ -253,8 +230,8 @@ export interface HealthCheckSummaryResult {
   total: number;
 }
 
-export function getHealthCheckSummary(): HealthCheckSummaryResult {
-  const latest = getLatestHealthChecks();
+export async function getHealthCheckSummary(): Promise<HealthCheckSummaryResult> {
+  const latest = await getLatestHealthChecks();
 
   const summary: HealthCheckSummaryResult = {
     healthy: 0,
@@ -272,140 +249,119 @@ export function getHealthCheckSummary(): HealthCheckSummaryResult {
   return summary;
 }
 
-export function cleanupOldHealthChecks(retentionDays: number): {
-  deleted: number;
-} {
-  const db = getAppDb();
-  const cutoff = Math.floor(Date.now() / 1000) - retentionDays * 86_400;
+export async function cleanupOldHealthChecks(retentionDays: number): Promise<{ deleted: number }> {
+  const cutoff = new Date(Date.now() - retentionDays * 86_400_000);
 
-  const result = db
+  const result = await db
     .delete(modelHealthChecks)
-    .where(sql`${modelHealthChecks.checkedAt} < ${cutoff}`)
-    .run();
+    .where(sql`${modelHealthChecks.checkedAt} < ${cutoff}`);
 
-  return { deleted: result.changes };
+  return { deleted: result.rowCount ?? 0 };
 }
 
 // --- Prompt Eval Queries ---
 
-export function insertEvalRun(run: NewEvalRun): EvalRun {
-  const db = getAppDb();
-  return db.insert(promptEvalRuns).values(run).returning().get();
+export async function insertEvalRun(run: NewEvalRun): Promise<EvalRun> {
+  const [result] = await db.insert(promptEvalRuns).values(run).returning();
+  return result;
 }
 
-export function getEvalRun(id: string): EvalRun | undefined {
-  const db = getAppDb();
-  return db
+export async function getEvalRun(id: string): Promise<EvalRun | undefined> {
+  const [result] = await db
     .select()
     .from(promptEvalRuns)
-    .where(eq(promptEvalRuns.id, id))
-    .get();
+    .where(eq(promptEvalRuns.id, id));
+  return result;
 }
 
-export function updateEvalRun(
+export async function updateEvalRun(
   id: string,
   updates: Partial<
     Pick<EvalRun, "status" | "macroF1" | "error" | "finishedAt">
   >,
-): void {
-  const db = getAppDb();
-  db.update(promptEvalRuns).set(updates).where(eq(promptEvalRuns.id, id)).run();
+): Promise<void> {
+  await db.update(promptEvalRuns).set(updates).where(eq(promptEvalRuns.id, id));
 }
 
-export function listEvalRuns(
+export async function listEvalRuns(
   limit: number,
   offset: number,
-): { runs: EvalRun[]; total: number } {
-  const db = getAppDb();
-  const runs = db
+): Promise<{ runs: EvalRun[]; total: number }> {
+  const runs = await db
     .select()
     .from(promptEvalRuns)
     .orderBy(desc(promptEvalRuns.startedAt))
     .limit(limit)
-    .offset(offset)
-    .all();
+    .offset(offset);
 
-  const row = db
+  const [countRow] = await db
     .select({ count: sql<number>`count(*)` })
-    .from(promptEvalRuns)
-    .get();
-  const total = row?.count ?? 0;
+    .from(promptEvalRuns);
+  const total = Number(countRow?.count ?? 0);
 
-  return { runs, total: Number(total) };
+  return { runs, total };
 }
 
-export function failOrphanedRuns(): number {
-  const db = getAppDb();
-  const now = Math.floor(Date.now() / 1000);
-  const result = db
+export async function failOrphanedRuns(): Promise<number> {
+  const result = await db
     .update(promptEvalRuns)
     .set({
       status: "failed",
       error: "server restarted during run",
-      finishedAt: now,
+      finishedAt: new Date(),
     })
     .where(
       notInArray(promptEvalRuns.status, ["succeeded", "failed", "cancelled"]),
-    )
-    .run();
-  return result.changes;
+    );
+  return result.rowCount ?? 0;
 }
 
-export function insertEvalRunStep(step: NewEvalRunStep): EvalRunStep {
-  const db = getAppDb();
-  return db.insert(promptEvalRunSteps).values(step).returning().get();
+export async function insertEvalRunStep(step: NewEvalRunStep): Promise<EvalRunStep> {
+  const [result] = await db.insert(promptEvalRunSteps).values(step).returning();
+  return result;
 }
 
-export function updateEvalRunStep(
+export async function updateEvalRunStep(
   id: number,
   updates: Partial<
     Pick<EvalRunStep, "status" | "progressPct" | "message" | "finishedAt">
   >,
-): void {
-  const db = getAppDb();
-  db.update(promptEvalRunSteps)
+): Promise<void> {
+  await db.update(promptEvalRunSteps)
     .set(updates)
-    .where(eq(promptEvalRunSteps.id, id))
-    .run();
+    .where(eq(promptEvalRunSteps.id, id));
 }
 
-export function getEvalRunSteps(runId: string): EvalRunStep[] {
-  const db = getAppDb();
+export async function getEvalRunSteps(runId: string): Promise<EvalRunStep[]> {
   return db
     .select()
     .from(promptEvalRunSteps)
     .where(eq(promptEvalRunSteps.runId, runId))
-    .orderBy(promptEvalRunSteps.id)
-    .all();
+    .orderBy(promptEvalRunSteps.id);
 }
 
-export function failOrphanedSteps(): number {
-  const db = getAppDb();
-  const now = Math.floor(Date.now() / 1000);
-  const result = db
+export async function failOrphanedSteps(): Promise<number> {
+  const result = await db
     .update(promptEvalRunSteps)
     .set({
       status: "failed",
       message: "server restarted during step",
-      finishedAt: now,
+      finishedAt: new Date(),
     })
-    .where(eq(promptEvalRunSteps.status, "running"))
-    .run();
-  return result.changes;
+    .where(eq(promptEvalRunSteps.status, "running"));
+  return result.rowCount ?? 0;
 }
 
-export function insertEvalRunArtifact(
+export async function insertEvalRunArtifact(
   artifact: NewEvalRunArtifact,
-): EvalRunArtifact {
-  const db = getAppDb();
-  return db.insert(promptEvalRunArtifacts).values(artifact).returning().get();
+): Promise<EvalRunArtifact> {
+  const [result] = await db.insert(promptEvalRunArtifacts).values(artifact).returning();
+  return result;
 }
 
-export function getEvalRunArtifacts(runId: string): EvalRunArtifact[] {
-  const db = getAppDb();
+export async function getEvalRunArtifacts(runId: string): Promise<EvalRunArtifact[]> {
   return db
     .select()
     .from(promptEvalRunArtifacts)
-    .where(eq(promptEvalRunArtifacts.runId, runId))
-    .all();
+    .where(eq(promptEvalRunArtifacts.runId, runId));
 }

@@ -1,34 +1,41 @@
-import { serverEnv } from "@lite-llm/config/server";
-import { Prisma, PrismaClient } from "./generated/prisma/index";
+import { db, getDb, disconnectDb, queryRaw } from "@lite-llm/database/client";
 
-function getDatabaseUrl(): string {
-  const explicit = serverEnv.MODEL_PROXY_DATABASE_URL?.trim();
-  if (explicit) {
-    return explicit;
-  }
+export { db, getDb, disconnectDb as disconnectModelProxyPrisma, queryRaw };
 
-  throw new Error(
-    "MODEL_PROXY_DATABASE_URL is required to use @lite-llm/model-proxy-repository",
-  );
+export function getModelProxyPrisma() {
+  return getDb();
 }
 
-let prismaInstance: PrismaClient | null = null;
+export type PrismaClient = ReturnType<typeof getDb>;
 
-export function getModelProxyPrisma(): PrismaClient {
-  prismaInstance ??= new PrismaClient({
-    datasourceUrl: getDatabaseUrl(),
-  });
-
-  return prismaInstance;
+export namespace Prisma {
+  export type JsonValue = unknown;
+  export type InputJsonValue = unknown;
+  export type ModelProxyRequestWhereInput = Record<string, unknown>;
+  export type ModelProxyRequestInclude = Record<string, unknown>;
+  export type ModelProxyRequestUpdateInput = Record<string, unknown>;
+  export type ModelProxyRequestCreateInput = Record<string, unknown>;
+  export type ModelProxyModelUpdateInput = Record<string, unknown>;
+  export type ModelProxyModelCreateInput = Record<string, unknown>;
+  export type ModelProxyModelUncheckedCreateInput = Record<string, unknown>;
+  export type ModelProxyModelUncheckedUpdateInput = Record<string, unknown>;
+  export type SortOrder = "asc" | "desc";
+  export type ModelProxyRequestOrderByWithRelationInput = Record<string, unknown>;
+  export type ModelProxySettingUpdateInput = Record<string, unknown>;
+  export type ModelProxySettingCreateInput = Record<string, unknown>;
+  export type ModelProxySettingWhereInput = Record<string, unknown>;
+  export type ModelProxyModelWhereInput = Record<string, unknown>;
+  export type ModelProxyModelWhereUniqueInput = Record<string, unknown>;
+  export type ModelProxyProviderWhereInput = Record<string, unknown>;
+  export type ModelProxyProviderWhereUniqueInput = Record<string, unknown>;
+  export type ModelProxyApiKeyWhereInput = Record<string, unknown>;
+  export type ModelProxyApiKeyWhereUniqueInput = Record<string, unknown>;
+  export type ModelProxyApiKeyUpdateInput = Record<string, unknown>;
+  export type ModelProxyProviderUpdateInput = Record<string, unknown>;
+  export type ModelProxyProviderCreateInput = Record<string, unknown>;
+  export type ModelProxyApiKeyCreateInput = Record<string, unknown>;
+  export type ModelProxySettingWhereUniqueInput = Record<string, unknown>;
+  export const DbNull = "DbNull";
+  export const JsonNull = "JsonNull";
+  export const AnyNull = "AnyNull";
 }
-
-export async function disconnectModelProxyPrisma(): Promise<void> {
-  if (!prismaInstance) {
-    return;
-  }
-
-  await prismaInstance.$disconnect();
-  prismaInstance = null;
-}
-
-export { Prisma, PrismaClient };

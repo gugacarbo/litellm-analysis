@@ -1,9 +1,12 @@
 export {
+  db,
+  getDb,
   disconnectModelProxyPrisma,
   getModelProxyPrisma,
-  Prisma,
-  PrismaClient,
+  queryRaw,
 } from "./client";
+export type { PrismaClient } from "./client";
+export { Prisma } from "./client";
 export type {
   ModelProxyAlias,
   ModelProxyApiKey,
@@ -14,4 +17,24 @@ export type {
   ModelProxyRequest,
   ModelProxySetting,
   ModelProxyUsageAdjustment,
-} from "./generated/prisma/index";
+  NewModelProxyAlias,
+  NewModelProxyApiKey,
+  NewModelProxyImportJob,
+  NewModelProxyMessage,
+  NewModelProxyModel,
+  NewModelProxyProvider,
+  NewModelProxyRequest,
+  NewModelProxySetting,
+  NewModelProxyUsageAdjustment,
+} from "./schema";
+export {
+  modelProxyAliases,
+  modelProxyApiKeys,
+  modelProxyImportJobs,
+  modelProxyMessages,
+  modelProxyModels,
+  modelProxyProviders,
+  modelProxyRequests,
+  modelProxySettings,
+  modelProxyUsageAdjustments,
+} from "./schema";

@@ -5,22 +5,19 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./client": "./src/client.ts"
+    "./client": "./src/client.ts",
+    "./schema": "./src/schema.ts",
+    "./queries": "./src/queries.ts"
   },
   "scripts": {
-    "build": "prisma generate && tsc",
-    "typecheck": "tsc --noEmit",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
-    "db:validate": "prisma validate"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lite-llm/config": "workspace:*",
-    "@prisma/client": "6.19.3"
+    "@lite-llm/database": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "prisma": "^6.8.2",
     "typescript": "catalog:"
   }
 }
