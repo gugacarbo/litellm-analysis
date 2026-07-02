@@ -12,7 +12,6 @@ Browser-safe mirror of domain types from `@lite-llm/agent-schemas`. Avoids runti
 ```
 apps/web/src/shared/types/
 ├── connection.ts                       # WebSocket connection state types
-├── monitor.ts                          # Monitor alert/state types (mirror packages/monitor/src/services/monitor-types.ts)
 ├── automatic-interaction-thread.ts     # assistant-ui thread types
 └── index.ts                            # Barrel re-exports
 ```
@@ -22,14 +21,13 @@ apps/web/src/shared/types/
 | File                                | Types                                                                     |
 | ----------------------------------- | ------------------------------------------------------------------------- |
 | `connection.ts`                     | WebSocket connection state (`Connected`, `Disconnected`, `Reconnecting`)   |
-| `monitor.ts`                        | `MonitorAlert`, `AlertSeverity`, `DetectorResult` (mirrors `@lite-llm/monitor`) |
 | `automatic-interaction-thread.ts`   | assistant-ui thread message/role types                                    |
 
 ## WHERE TO LOOK
 
 | Task                              | Location                                  | Notes                                                |
 | --------------------------------- | ----------------------------------------- | ---------------------------------------------------- |
-| Add a UI-side type                | `shared/types/<name>.ts`                  | Mirror from `@lite-llm/agent-schemas` or `@lite-llm/monitor`; export via `index.ts` |
+| Add a UI-side type                | `shared/types/<name>.ts`                  | Mirror from `@lite-llm/agent-schemas`; export via `index.ts` |
 | Add a new feature type            | `features/<feature>/types/`               | Feature owns its types; only cross-feature types go here |
 | Server-side validation            | `@lite-llm/agent-plugins/src/plugin-config-schemas.ts` | Types here are runtime-free for browser bundle size |
 
@@ -37,7 +35,7 @@ apps/web/src/shared/types/
 
 - **Plain interfaces only** — no Zod schemas in the web bundle (browser bundle size constraint)
 - **Types consumed by**: `features/*`, `shared/components/*`, `shared/lib/api-client/*`
-- **Mirrored, not imported**: types here mirror `@lite-llm/agent-schemas` and `@lite-llm/monitor` to keep the web bundle free of Node-only deps
+- **Mirrored, not imported**: types here mirror `@lite-llm/agent-schemas` to keep the web bundle free of Node-only deps
 - **Sync mirror required**: when changing a mirrored type, update both sides in the same PR
 - **No JSX, no runtime logic** — types only
 

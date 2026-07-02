@@ -143,7 +143,6 @@ pnpm settings:export           # model_proxy_* → @settings backup
 
 # Single package
 pnpm --filter @lite-llm/analytics-service typecheck
-pnpm --filter @lite-llm/monitor typecheck
 
 # Model proxy database backup
 pnpm backup                    # MODEL_PROXY_DATABASE_URL (model_proxy_*)
