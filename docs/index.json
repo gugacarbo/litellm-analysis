@@ -23,7 +23,7 @@
     "id": "ADR-0003",
     "path": "docs/adr/0003-settings-in-model-proxy-settings.md",
     "layer": "adr",
-    "title": "Substituir `LiteLLM_Config` por `model_proxy_settings` como fonte de configuração operacional",
+    "title": "Usar `model_proxy_settings` como tabela chave-valor para configuração operacional",
     "status": "accepted",
     "builds-on": [],
     "superseded-by": null,
@@ -57,8 +57,7 @@
     "status": "accepted",
     "builds-on": [
       "ADR-0001",
-      "ADR-0003",
-      "ADR-0004"
+      "ADR-0003"
     ],
     "superseded-by": null,
     "implemented-by": []

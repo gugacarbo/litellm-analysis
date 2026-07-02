@@ -6,7 +6,7 @@ superseded-by: null
 deciders: [architecture-team]
 ---
 
-> ⚠️ **VERDADE ATUAL:** Os estados de sync usam a nova nomenclatura: `synced`, `config-only`, `registry-only`, `config-to-registry`, `registry-to-config`. A API aceita valores legados e normaliza internamente. A saída expõe apenas nomes novos, com suporte opcional via header `legacySyncNames=1`. A UI usa exclusivamente os nomes novos.
+> ⚠️ VERDADE ATUAL: A decisão de renomear os estados de sync foi absorvida como convenção de nomenclatura. Os nomes vigentes e regras de uso estão em `docs/context/CONVENTIONS.md` (seção Nomenclatura).
 
 # Renomear estados de sync para eliminar nomenclatura LiteLLM
 

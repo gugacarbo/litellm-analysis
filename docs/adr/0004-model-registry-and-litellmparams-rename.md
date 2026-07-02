@@ -6,7 +6,7 @@ superseded-by: null
 deciders: [architecture-team]
 ---
 
-> ⚠️ **VERDADE ATUAL:** A fonte primária para dados novos de modelos é `model_proxy_models`. O tipo/API novo é `modelRoute`. A API aceita `litellmParams` via shim e normaliza para `modelRoute`; a resposta expõe `modelRoute` com `litellmParams` como alias deprecado. Código novo usa `modelRoute` e `model-route.ts`; adapters isolam o legado.
+> ⚠️ VERDADE ATUAL: A decisão de usar `model_proxy_models` como registry primário e `modelRoute` como tipo canônico foi absorvida como convenção de projeto. A nomenclatura e regras vigentes estão em `docs/context/CONVENTIONS.md` (seções Nomenclatura e Modelos e providers). A política de leitura/escrita que rege o registry está no ADR-0006.
 
 # Adotar `model_proxy_models` como registry primário e renomear `litellmParams` para `modelRoute`
 
