@@ -1,10 +1,11 @@
 /**
- * Sync presence and direction types for models.jsonc ↔ model_proxy_models.
+ * Sync presence and direction types for dashboard config compatibility ↔
+ * the `model_proxy_models` registry.
  */
 
 import type { ModelRoute } from "./model-route.js";
 
-/** Where a model exists relative to registry and models.jsonc. */
+/** Where a model exists relative to the registry and compatibility config payloads. */
 export type ModelSyncPresenceStatus =
   | "synced"
   | "config-only"
@@ -13,7 +14,7 @@ export type ModelSyncPresenceStatus =
 /** Direction for resolving a field mismatch during sync-batch. */
 export type ModelSyncDirection = "config-to-registry" | "registry-to-config";
 
-/** Fields compared between models.jsonc and registry route. */
+/** Fields compared between compatibility config payloads and registry routes. */
 export type ModelSyncField =
   | "model_presence"
   | "enabled"
@@ -22,7 +23,7 @@ export type ModelSyncField =
   | "input_cost_per_token"
   | "output_cost_per_token";
 
-/** Reasoning/thinking metadata — stays in models.jsonc. */
+/** Reasoning/thinking metadata retained in compatibility config payloads. */
 export interface ModelConfigReasoning {
   effort?: "low" | "medium" | "high" | "xhigh";
   enableThinking?: boolean;
@@ -30,7 +31,7 @@ export interface ModelConfigReasoning {
   apiMode?: "openai" | "anthropic";
 }
 
-/** models.jsonc `ModelSpec` slice attached to API responses. */
+/** Compatibility config slice attached to API responses. */
 export interface ModelConfigSpec {
   displayName?: string;
   family?: string;

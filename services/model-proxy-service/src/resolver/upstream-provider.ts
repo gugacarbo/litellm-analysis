@@ -145,13 +145,18 @@ export async function resolveUpstreamTarget(params: {
       if (rows.length === 1) {
         resolvedRow = rows[0];
       } else if (rows.length > 1) {
-        const defaultRow = rows.find((r) => r.isDefaultProvider);
-        if (!defaultRow) {
+        const defaultRows = rows.filter((r) => r.isDefaultProvider);
+        if (defaultRows.length === 1) {
+          resolvedRow = defaultRows[0];
+        } else if (defaultRows.length === 0) {
           throw new Error(
             `Ambiguous model "${bareModelName}" — multiple providers available. Use "provider/${bareModelName}" to specify.`,
           );
+        } else {
+          throw new Error(
+            `Multiple default providers configured for model "${bareModelName}"`,
+          );
         }
-        resolvedRow = defaultRow;
       }
     }
   }
