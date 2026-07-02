@@ -22,7 +22,7 @@ packages/agents-manager/src/
 │   ├── category.service.ts      # Category CRUD
 │   ├── routing.service.ts       # Routing config operations
 │   └── __tests__/
-└── types/                       # (empty — types consolidated into @lite-llm/agent-schemas)
+└── types/                       # (empty — types live in @lite-llm/agents-repository/schemas)
 ```
 
 ## KEY EXPORTS
@@ -64,11 +64,11 @@ apps/server routes via @lite-llm/server
 
 - Repository client reads agents from the database via `@lite-llm/models-repository`
 - All agents/categories go through services; never mutate the repository directly
-- Types live in `@lite-llm/agent-schemas`, not here — this `types/` directory is intentionally empty (migration artifact)
+- Types live in `@lite-llm/agents-repository/schemas`, not here — this `types/` directory is intentionally empty (migration artifact)
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
 - Do not import from `apps/server/` — this package is standalone
 - Do not skip `validateOnRead` in repository options
-- Do not put types here — use `@lite-llm/agent-schemas`
+- Do not put types here — use `@lite-llm/agents-repository/schemas`
 - Do not re-implement plugin logic — it lives in `@lite-llm/agent-plugins`

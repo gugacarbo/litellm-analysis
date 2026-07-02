@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Express.js HTTP/WebSocket server for the analytics dashboard. Bootstraps the runtime, wires `packages/server` shared routes, instantiates monitor/health/prompt-eval runtimes, and exposes the dashboard API on port 3008 (configurable via `SERVER_PORT`).
+Express.js HTTP/WebSocket server for the analytics dashboard. Bootstraps the runtime, wires `packages/server` shared routes, instantiates monitor/health runtimes, and exposes the dashboard API on port 3008 (configurable via `SERVER_PORT`).
 
 ## STRUCTURE
 
@@ -13,8 +13,8 @@ Express.js HTTP/WebSocket server for the analytics dashboard. Bootstraps the run
 apps/server/
 ├── src/
 │   ├── runtime/        # Express app factory, server bootstrap, monitor runtime
-│   ├── application/    # Business services (monitor, health-check, prompt-eval)
-│   ├── routes/         # App-specific Express routes (health-check, monitor, prompt-eval)
+│   ├── application/    # Business services (monitor, health-check)
+│   ├── routes/         # App-specific Express routes (health-check, monitor)
 │   ├── ws/             # WebSocket server for live data
 │   ├── contexts/       # Dependency-injection contexts (analytics, monitor)
 │   ├── __tests__/      # Integration tests
@@ -31,7 +31,6 @@ apps/server/
 | Add a monitor business service    | `src/application/monitor-application-service.ts` | Pure functions; no Express imports                  |
 | Add a health-check endpoint       | `src/routes/health-check-routes.ts`       | Thin Express adapter over `health-check-application-service.ts` |
 | Add a monitor endpoint            | `src/routes/monitor-routes.ts`            | Adapter over `monitor-application-service.ts`        |
-| Add a prompt-eval endpoint        | `src/routes/prompt-eval-routes.ts`        | Adapter over `prompt-eval-application-service.ts`    |
 | Add WebSocket channel             | `src/ws/websocket-server.ts`              | Single `WebSocketServer`; broadcasts to subscribed clients |
 | Add a DI context                  | `src/contexts/`                           | One file per concern; re-export via `index.ts`       |
 | Add integration tests             | `src/__tests__/`                          | Use `helpers/` for shared setup                      |

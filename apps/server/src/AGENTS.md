@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Internal layout of `apps/server/src/`. Follows runtime → application → routes layering with explicit DI contexts. Each concern (analytics, monitor, health-check, prompt-eval) gets its own context, application service, runtime, and routes.
+Internal layout of `apps/server/src/`. Follows runtime → application → routes layering with explicit DI contexts. Each concern (analytics, monitor, health-check) gets its own context, application service, runtime, and routes.
 
 ## STRUCTURE
 
@@ -15,20 +15,17 @@ apps/server/src/
 │   ├── api-server.ts              # Express app factory + listen
 │   ├── app-runtime.ts             # Boot orchestrator (contexts → runtimes → listen)
 │   ├── monitor-runtime.ts         # Background ticker (MonitorService)
-│   ├── health-check-runtime.ts    # Periodic health probes
-│   └── prompt-eval-runtime.ts     # Prompt eval scheduling (if enabled)
+│   └── health-check-runtime.ts    # Periodic health probes
 ├── application/
 │   ├── monitor-application-service.ts       # Monitor query/read model
-│   ├── health-check-application-service.ts  # Health probe results
-│   └── prompt-eval-application-service.ts   # Prompt eval job management
+│   └── health-check-application-service.ts  # Health probe results
 ├── contexts/
 │   ├── analytics-context.ts       # AnalyticsDataSource + downstream services
 │   ├── monitor-context.ts         # MonitorService + alert reader
 │   └── index.ts                   # Context barrel
 ├── routes/
 │   ├── monitor-routes.ts          # GET /monitor/* endpoints
-│   ├── health-check-routes.ts     # GET /health/* endpoints
-│   └── prompt-eval-routes.ts      # POST /prompt-eval/* endpoints
+│   └── health-check-routes.ts     # GET /health/* endpoints
 ├── ws/
 │   ├── websocket-server.ts        # Single WS server, channel-based subscriptions
 │   └── spend-logs-watcher.ts      # Background watcher that emits to WS

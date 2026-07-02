@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Browser-safe mirror of domain types from `@lite-llm/agent-schemas`. Avoids runtime Zod imports in the web bundle. Types are plain interfaces — no runtime validation (use `@lite-llm/agent-plugins` schemas for validation server-side).
+Browser-safe mirror of domain types from `@lite-llm/agents-repository/schemas`. Avoids runtime repository imports in the web bundle. Types are plain interfaces — no runtime validation (use `@lite-llm/agent-plugins` schemas for validation server-side).
 
 ## STRUCTURE
 
@@ -27,7 +27,7 @@ apps/web/src/shared/types/
 
 | Task                              | Location                                  | Notes                                                |
 | --------------------------------- | ----------------------------------------- | ---------------------------------------------------- |
-| Add a UI-side type                | `shared/types/<name>.ts`                  | Mirror from `@lite-llm/agent-schemas`; export via `index.ts` |
+| Add a UI-side type                | `shared/types/<name>.ts`                  | Mirror from `@lite-llm/agents-repository/schemas`; export via `index.ts` |
 | Add a new feature type            | `features/<feature>/types/`               | Feature owns its types; only cross-feature types go here |
 | Server-side validation            | `@lite-llm/agent-plugins/src/plugin-config-schemas.ts` | Types here are runtime-free for browser bundle size |
 
@@ -35,7 +35,7 @@ apps/web/src/shared/types/
 
 - **Plain interfaces only** — no Zod schemas in the web bundle (browser bundle size constraint)
 - **Types consumed by**: `features/*`, `shared/components/*`, `shared/lib/api-client/*`
-- **Mirrored, not imported**: types here mirror `@lite-llm/agent-schemas` to keep the web bundle free of Node-only deps
+- **Mirrored, not imported**: types here mirror `@lite-llm/agents-repository/schemas` to keep the web bundle free of repository/runtime deps
 - **Sync mirror required**: when changing a mirrored type, update both sides in the same PR
 - **No JSX, no runtime logic** — types only
 
@@ -43,5 +43,5 @@ apps/web/src/shared/types/
 
 - Do not add Zod schemas here — keep web bundle Zod-free; use `@lite-llm/agent-plugins` server-side
 - Do not duplicate types that belong in `features/<feature>/types/` — only cross-feature shared types go here
-- Do not import from `@lite-llm/agent-schemas` at runtime — it's a Node-only package
+- Do not import from `@lite-llm/agents-repository` or `@lite-llm/agents-repository/schemas` at runtime — keep browser types local
 - Do not add types that exist elsewhere — extend the existing `*.ts` file instead

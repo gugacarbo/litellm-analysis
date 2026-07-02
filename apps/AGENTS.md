@@ -38,7 +38,7 @@ apps/
 - **Feature isolation:** features import from `shared/`, never the reverse; features don't import each other except via App.tsx composition
 - **State hooks own their types:** page-level hooks colocated with pages, complex state split into `use-*-state.ts` / `use-*-actions.ts` / `use-*-derived.ts`
 - **Server runtime layering:** `runtime/` (Express app factory) + `application/` (business services) + `routes/` (thin adapters) + `ws/` (WebSocket)
-- **Shared types:** types duplicated in `apps/web/src/shared/types/` (mirrored from `@lite-llm/agent-schemas` in packages) — web app avoids runtime imports of Zod schemas
+- **Shared types:** types duplicated in `apps/web/src/shared/types/` (mirrored from `@lite-llm/agents-repository/schemas`) — web app avoids runtime imports of repository/runtime deps
 - **No server code in web app:** keep `apps/web` browser-only; Node-only libs must live in shared packages
 
 ## ANTI-PATTERNS (THIS PROJECT)
