@@ -1,8 +1,8 @@
-export type HealthCheckStatus = "healthy" | "unhealthy" | "error";
+type HealthCheckStatus = "healthy" | "unhealthy" | "error";
 
-export type HealthCheckSource = "scheduled" | "manual";
+type HealthCheckSource = "scheduled" | "manual";
 
-export interface HealthCheckResult {
+interface HealthCheckResult {
   id: number;
   modelName: string;
   status: HealthCheckStatus;
@@ -20,7 +20,7 @@ export interface HealthCheckResult {
   checkedAt: number;
 }
 
-export interface HealthCheckServiceOptions {
+interface HealthCheckServiceOptions {
   timeoutMs: number;
   prompt: string;
   maxConcurrency: number;
@@ -31,12 +31,12 @@ export interface HealthCheckServiceOptions {
   requestModeByModelName?: Record<string, "chat" | "responses">;
 }
 
-export type HealthCheckRequestResult = {
+type HealthCheckRequestResult = {
   accepted: boolean;
   reason?: string;
 };
 
-export const COOLDOWN_MS = 5_000;
+const COOLDOWN_MS = 5_000;
 
 interface HealthCheckStreamStartedPayload {
   executionId: string;
@@ -59,7 +59,7 @@ interface HealthCheckStreamTerminalPayload {
   timestamp: number;
 }
 
-export type HealthCheckServiceEvents = {
+type HealthCheckServiceEvents = {
   health_check_update: (data: {
     results: HealthCheckResult[];
     timestamp: number;
@@ -77,7 +77,7 @@ export type HealthCheckServiceEvents = {
   health_check_stream_failed: (data: HealthCheckStreamTerminalPayload) => void;
 };
 
-export interface HealthCheckSummary {
+interface HealthCheckSummary {
   healthy: number;
   unhealthy: number;
   error: number;
