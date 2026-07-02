@@ -3,6 +3,17 @@ import type { Prisma } from "@lite-llm/model-proxy-repository";
 import { describe, expect, it, vi } from "vitest";
 import { createDbRepository } from "./db-repository";
 
+type InMemoryModelRow = Record<string, unknown> & {
+  id: string;
+  modelName: string;
+  providerName?: string | null;
+  updatedAt: Date;
+};
+
+function buildModelKey(modelName: string, providerName?: string | null): string {
+  return providerName ? `${providerName}/${modelName}` : modelName;
+}
+
 function createInMemoryPrisma() {
   const settings = new Map<
     string,
@@ -14,7 +25,7 @@ function createInMemoryPrisma() {
       updatedAt: Date;
     }
   >();
-  const models = new Map<string, Record<string, unknown>>();
+  const models = new Map<string, InMemoryModelRow>();
   const providers = new Map<string, Record<string, unknown>>();
   let settingId = 1;
   let modelId = 1;
@@ -74,12 +85,78 @@ function createInMemoryPrisma() {
         async ({ where }: { where: { modelName: string } }) =>
           models.get(where.modelName) ?? null,
       ),
+      findFirst: vi.fn(
+        async ({
+          where,
+        }: {
+          where: { modelName: string; providerName?: string | null };
+        }) =>
+          [...models.values()].find(
+            (row) =>
+              row.modelName === where.modelName &&
+              (where.providerName === undefined ||
+                (row.providerName ?? null) === where.providerName),
+          ) ?? null,
+      ),
       findMany: vi.fn(async () =>
         [...models.values()].sort((a, b) =>
-          String(a.modelName).localeCompare(String(b.modelName)),
+          buildModelKey(
+            String(a.modelName),
+            (a.providerName as string | null | undefined) ?? null,
+          ).localeCompare(
+            buildModelKey(
+              String(b.modelName),
+              (b.providerName as string | null | undefined) ?? null,
+            ),
+          ),
         ),
       ),
       count: vi.fn(async () => models.size),
+      create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => {
+        const now = new Date();
+        const row: InMemoryModelRow = {
+          id: `model_${modelId++}`,
+          ...(data as Record<string, unknown>),
+          modelName: String(data.modelName),
+          providerName:
+            typeof data.providerName === "string" ? data.providerName : null,
+          createdAt: now,
+          updatedAt: now,
+        };
+        models.set(buildModelKey(row.modelName, row.providerName), row);
+        return row;
+      }),
+      update: vi.fn(
+        async ({
+          where,
+          data,
+        }: {
+          where: { id: string };
+          data: Record<string, unknown>;
+        }) => {
+          const existing = [...models.values()].find(
+            (row) => row.id === where.id,
+          );
+          if (!existing) {
+            const error = new Error("Not found") as Error & { code: string };
+            error.code = "P2025";
+            throw error;
+          }
+          const updated = {
+            ...existing,
+            ...data,
+            updatedAt: new Date(),
+          };
+          models.delete(
+            buildModelKey(existing.modelName, existing.providerName),
+          );
+          models.set(
+            buildModelKey(updated.modelName, updated.providerName),
+            updated,
+          );
+          return updated;
+        },
+      ),
       upsert: vi.fn(
         async ({
           where,
@@ -97,26 +174,42 @@ function createInMemoryPrisma() {
             models.set(where.modelName, updated);
             return updated;
           }
-          const row = {
+          const row: InMemoryModelRow = {
             id: `model_${modelId++}`,
-            ...create,
+            ...(create as Record<string, unknown>),
+            modelName: String(create.modelName),
+            providerName:
+              typeof create.providerName === "string"
+                ? create.providerName
+                : null,
             createdAt: now,
             updatedAt: now,
           };
-          models.set(where.modelName, row);
+          models.set(buildModelKey(row.modelName, row.providerName), row);
           return row;
         },
       ),
-      delete: vi.fn(async ({ where }: { where: { modelName: string } }) => {
-        const existing = models.get(where.modelName);
-        if (!existing) {
-          const error = new Error("Not found") as Error & { code: string };
-          error.code = "P2025";
-          throw error;
-        }
-        models.delete(where.modelName);
-        return existing;
-      }),
+      delete: vi.fn(
+        async ({
+          where,
+        }: {
+          where: { id?: string; modelName?: string };
+        }) => {
+          const existing =
+            where.id !== undefined
+              ? [...models.values()].find((row) => row.id === where.id)
+              : where.modelName
+                ? models.get(where.modelName)
+                : null;
+          if (!existing) {
+            const error = new Error("Not found") as Error & { code: string };
+            error.code = "P2025";
+            throw error;
+          }
+          models.delete(buildModelKey(existing.modelName, existing.providerName));
+          return existing;
+        },
+      ),
     },
     modelProxyProvider: {
       findUnique: vi.fn(
@@ -264,5 +357,63 @@ describe("DbModelsRepository", () => {
       ownedBy: "openai",
     });
     expect(readBack.provider.openai?.apiKey).toBeUndefined();
+  });
+
+  it("preserves provider-scoped model keys on read and write", async () => {
+    const prisma = createInMemoryPrisma();
+    const repository = createDbRepository({
+      prisma: prisma as never,
+      validateOnRead: false,
+    });
+
+    await repository.write({
+      version: 1,
+      provider: {
+        "local-proxy": {
+          name: "Local Model Proxy",
+          baseUrl: "http://localhost:3008/v1",
+          defaultProvider: "router-main",
+          apiKey: "env:MODEL_PROXY_API_KEY",
+        },
+      },
+      models: {
+        "provider-a/gpt-4": {
+          enabled: true,
+          displayName: "GPT-4 A",
+          limits: { length: 128000, maxOutput: 4096 },
+        },
+        "provider-b/gpt-4": {
+          enabled: true,
+          displayName: "GPT-4 B",
+          limits: { length: 64000, maxOutput: 2048 },
+        },
+      },
+    });
+
+    const readBack = await repository.read();
+
+    expect(readBack.models["provider-a/gpt-4"]?.displayName).toBe("GPT-4 A");
+    expect(readBack.models["provider-b/gpt-4"]?.displayName).toBe("GPT-4 B");
+    expect(readBack.models["gpt-4"]).toBeUndefined();
+
+    await repository.write({
+      ...readBack,
+      models: {
+        ...readBack.models,
+        "provider-b/gpt-4": {
+          ...readBack.models["provider-b/gpt-4"],
+          displayName: "GPT-4 B Updated",
+        },
+      },
+    });
+
+    const updatedReadBack = await repository.read();
+
+    expect(updatedReadBack.models["provider-a/gpt-4"]?.displayName).toBe(
+      "GPT-4 A",
+    );
+    expect(updatedReadBack.models["provider-b/gpt-4"]?.displayName).toBe(
+      "GPT-4 B Updated",
+    );
   });
 });

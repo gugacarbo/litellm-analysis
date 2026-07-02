@@ -1,6 +1,5 @@
 import {
   ProvidersRepository,
-  ModelsRepository as RegistryModelsRepository,
   SETTING_KEYS,
   SettingsRepository,
 } from "@lite-llm/model-proxy-registry-service";
@@ -11,7 +10,7 @@ import {
 } from "@lite-llm/model-proxy-repository";
 import { normalizeConfig } from "@lite-llm/repository-utils/jsonc";
 import { applyMetadataToModelSpec, metadataFromModelSpec } from "./metadata";
-import type { IModelsRepository } from "./repository";
+import type { IModelsRepository } from "./interfaces";
 import {
   type ModelSpec,
   type ModelsConfig,
@@ -22,6 +21,33 @@ import type { Provider } from "./schemas/provider";
 export interface DbModelsRepositoryOptions {
   prisma?: PrismaClient;
   validateOnRead?: boolean;
+}
+
+function buildModelKey(modelName: string, providerName?: string | null): string {
+  const trimmedProviderName = providerName?.trim();
+  return trimmedProviderName
+    ? `${trimmedProviderName}/${modelName}`
+    : modelName;
+}
+
+function parseModelKey(modelKey: string): {
+  modelName: string;
+  providerName: string | null;
+} {
+  const trimmedKey = modelKey.trim();
+  const slashIndex = trimmedKey.indexOf("/");
+
+  if (slashIndex <= 0 || slashIndex === trimmedKey.length - 1) {
+    return {
+      modelName: trimmedKey,
+      providerName: null,
+    };
+  }
+
+  return {
+    providerName: trimmedKey.slice(0, slashIndex).trim() || null,
+    modelName: trimmedKey.slice(slashIndex + 1).trim(),
+  };
 }
 
 function parseApiKeyToSecretRef(apiKey: string | undefined): string | null {
@@ -110,12 +136,14 @@ function modelSpecFromRow(row: {
 
 function modelRowFromSpec(
   modelName: string,
+  providerName: string | null,
   spec: ModelSpec,
-): Prisma.ModelProxyModelCreateInput {
+): Prisma.ModelProxyModelUncheckedCreateInput {
   const metadata = metadataFromModelSpec(spec);
 
   return {
     modelName,
+    providerName,
     enabled: spec.enabled ?? true,
     displayName: spec.displayName || modelName,
     family: spec.family ?? null,
@@ -133,14 +161,12 @@ function modelRowFromSpec(
 export class DbModelsRepository implements IModelsRepository {
   private readonly prisma: PrismaClient;
   private readonly settings: SettingsRepository;
-  private readonly models: RegistryModelsRepository;
   private readonly providers: ProvidersRepository;
   private readonly validateOnRead: boolean;
 
   constructor(options: DbModelsRepositoryOptions = {}) {
     this.prisma = options.prisma ?? getModelProxyPrisma();
     this.settings = new SettingsRepository(this.prisma);
-    this.models = new RegistryModelsRepository(this.prisma);
     this.providers = new ProvidersRepository(this.prisma);
     this.validateOnRead = options.validateOnRead ?? true;
   }
@@ -194,7 +220,9 @@ export class DbModelsRepository implements IModelsRepository {
 
     const models: Record<string, ModelSpec> = {};
     for (const row of modelRows) {
-      models[row.modelName] = modelSpecFromRow(row);
+      models[buildModelKey(row.modelName, row.providerName)] = modelSpecFromRow(
+        row,
+      );
     }
 
     const config: ModelsConfig = {
@@ -272,32 +300,50 @@ export class DbModelsRepository implements IModelsRepository {
     }
 
     const desiredNames = new Set(Object.keys(validated.models));
-    const existingModels = await this.models.list();
+    const existingModels = await this.prisma.modelProxyModel.findMany();
     for (const existing of existingModels) {
-      if (!desiredNames.has(existing.modelName)) {
-        await this.models.delete(existing.modelName);
+      const existingKey = buildModelKey(
+        existing.modelName,
+        existing.providerName,
+      );
+      if (!desiredNames.has(existingKey)) {
+        await this.prisma.modelProxyModel.delete({
+          where: { id: existing.id },
+        });
       }
     }
 
-    for (const [modelName, spec] of Object.entries(validated.models)) {
-      const data = modelRowFromSpec(modelName, spec);
-      await this.prisma.modelProxyModel.upsert({
-        where: { modelName },
-        create: data,
-        update: {
-          enabled: data.enabled,
-          displayName: data.displayName,
-          family: data.family,
-          ownedBy: data.ownedBy,
-          apiMode: data.apiMode,
-          vision: data.vision,
-          contextWindowSize: data.contextWindowSize,
-          maxOutputTokens: data.maxOutputTokens,
-          inputCostPerToken: data.inputCostPerToken,
-          outputCostPerToken: data.outputCostPerToken,
-          metadata: data.metadata,
-        },
-      });
+    const existingByKey = new Map(
+      existingModels.map((row) => [
+        buildModelKey(row.modelName, row.providerName),
+        row,
+      ]),
+    );
+
+    for (const [modelKey, spec] of Object.entries(validated.models)) {
+      const { modelName, providerName } = parseModelKey(modelKey);
+      const data = modelRowFromSpec(modelName, providerName, spec);
+      const existing = existingByKey.get(modelKey);
+      if (existing) {
+        await this.prisma.modelProxyModel.update({
+          where: { id: existing.id },
+          data: {
+            enabled: data.enabled,
+            displayName: data.displayName,
+            family: data.family,
+            ownedBy: data.ownedBy,
+            apiMode: data.apiMode,
+            vision: data.vision,
+            contextWindowSize: data.contextWindowSize,
+            maxOutputTokens: data.maxOutputTokens,
+            inputCostPerToken: data.inputCostPerToken,
+            outputCostPerToken: data.outputCostPerToken,
+            metadata: data.metadata,
+          },
+        });
+      } else {
+        await this.prisma.modelProxyModel.create({ data });
+      }
     }
   }
 

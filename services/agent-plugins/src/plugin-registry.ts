@@ -1,6 +1,6 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { IModelsRepository } from "@lite-llm/models-repository/repository";
+import type { IModelsRepository } from "@lite-llm/models-repository";
 import { PluginExecutionError } from "./errors";
 import { getPluginConfigJsonSchema } from "./plugin-config-schemas";
 import type { ConfigField, InternalAgent } from "./plugins/plugin-types";

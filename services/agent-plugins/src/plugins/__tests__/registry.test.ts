@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
-import type { IModelsRepository } from "@lite-llm/models-repository/repository";
+import type { IModelsRepository } from "@lite-llm/models-repository";
 import { describe, expect, it, vi } from "vitest";
+import { createPluginRegistry } from "../../plugin-registry";
+import type { PluginDefinition } from "../../sdk";
 import type { AgentsRepositoryLike } from "../../types";
 import type { IPlugin } from "../plugin";
 import { PluginRegistry } from "../registry";
@@ -49,34 +51,43 @@ function createMockPlugin(
 function createMockModelsRepository(
   overrides: Partial<IModelsRepository> = {},
 ): IModelsRepository {
-  return {
-    read: vi.fn().mockResolvedValue({
-      $schema: "./models.schema.json",
-      version: 1,
-      provider: {
-        "local-proxy": {
-          name: "Local Model Proxy",
-          ownedBy: "team",
-          baseUrl: "http://localhost:4000/v1",
-          apiKey: "sk-test",
-        },
+  const config = {
+    version: 1,
+    provider: {
+      "local-proxy": {
+        name: "Local Model Proxy",
+        ownedBy: "team",
+        baseUrl: "http://localhost:4000/v1",
+        apiKey: "sk-test",
       },
-      models: {
-        "gpt-5": {
-          displayName: "GPT-5",
-          limits: { length: 200000, maxOutput: 32768 },
-        },
+    },
+    models: {
+      "gpt-5": {
+        displayName: "GPT-5",
+        limits: { length: 200000, maxOutput: 32768 },
       },
-    }),
-    readSync: vi.fn(),
-    write: vi.fn(),
-    validate: ((_config: unknown): _config is never =>
-      true) as IModelsRepository["validate"],
-    exists: vi.fn().mockResolvedValue(true),
-    getPath: vi.fn().mockReturnValue("/tmp/models.jsonc"),
-    ...overrides,
+    },
   };
+
+  return {
+    read: vi.fn().mockResolvedValue(config),
+    readSync: vi.fn(() => config),
+    write: vi.fn(),
+    validate: vi.fn((value: unknown): value is typeof config => !!value),
+    exists: vi.fn().mockResolvedValue(true),
+    getPath: vi.fn(() => "/tmp/model-proxy-db"),
+    ...overrides,
+  } as IModelsRepository;
 }
+
+type TestPluginDefinition = PluginDefinition<
+  "test-plugin",
+  Record<string, unknown>,
+  { result: boolean }
+>;
+type TestPluginBuildInput = Parameters<
+  TestPluginDefinition["handlers"]["build"]
+>[0];
 
 describe("PluginRegistry", () => {
   describe("register / unregister / get / list", () => {
@@ -279,22 +290,34 @@ describe("PluginRegistry", () => {
 
     it("carrega allModels e modelProxyConfig do models repository", async () => {
       const mockRepo = createMockRepository();
-      const buildOutputSpy = vi.fn((..._args: unknown[]) => ({ result: true }));
-      const plugin = createMockPlugin({ buildOutput: buildOutputSpy });
+      const buildOutputSpy = vi.fn((input: TestPluginBuildInput) => {
+        return { result: Boolean(input.context.modelProxyConfig.baseUrl) };
+      });
+      const plugin: TestPluginDefinition = {
+        manifest: {
+          id: "test-plugin",
+          displayName: "Test Plugin",
+          version: 1,
+          output: { fileName: "test.json" },
+          $schema: "https://example.com/test.schema.json",
+        },
+        handlers: {
+          build: buildOutputSpy,
+        },
+      };
 
-      const registry = new PluginRegistry({
+      const registry = createPluginRegistry({
         repository: mockRepo,
         modelsRepository: createMockModelsRepository(),
         outputDir: createUniqueOutputDir(),
-        allPlugins: [plugin],
+        catalog: [plugin],
       });
 
       await registry.exportOne("test-plugin");
 
-      const ctx = buildOutputSpy.mock.calls[0][2] as {
-        allModels: Record<string, unknown>;
-        modelProxyConfig: { baseUrl: string; apiKey: string };
-      };
+      const firstCall = buildOutputSpy.mock.calls[0];
+      expect(firstCall).toBeDefined();
+      const ctx = firstCall[0].context;
 
       expect(Object.keys(ctx.allModels)).toEqual(["gpt-5"]);
       expect(ctx.modelProxyConfig.baseUrl).toBe("http://localhost:4000/v1");
