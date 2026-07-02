@@ -22,12 +22,12 @@ import {
   createSpendLogsWatcher,
   type SpendLogsWatcher,
 } from "../ws/spend-logs-watcher";
+import { WebSocketServer } from "../ws/websocket-server";
 import { createApiServer } from "./api-server";
 import {
   createHealthCheckRuntime,
   type HealthCheckRuntime,
 } from "./health-check-runtime";
-import { createMonitorRuntime, type MonitorRuntime } from "./monitor-runtime";
 import { createPromptEvalRuntime } from "./prompt-eval-runtime";
 
 interface AppRuntime {
@@ -63,7 +63,6 @@ async function seedBootstrapApiKey(
 }
 
 function getProjectRoot(): string {
-  // Resolve workspace root by walking up to the pnpm workspace marker.
   const serverRuntimeDir = path.dirname(fileURLToPath(import.meta.url));
   return findWorkspaceRoot(serverRuntimeDir);
 }
@@ -191,14 +190,11 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     console.log(`Config files location: ${path.join(projectRoot, "data")}`);
   });
 
-  const monitorRuntime: MonitorRuntime = createMonitorRuntime({
-    ctx,
-    httpServer,
-    pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
-  });
+  const wsServer = new WebSocketServer(httpServer);
+  wsServer.start();
 
   heboGateway.onRequestFinished((requestId) => {
-    monitorRuntime.wsServer.broadcast({
+    wsServer.broadcast({
       type: "spend_logs_changed",
       data: {
         changedRequestIds: [requestId],
@@ -241,7 +237,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   const healthCheckRuntime: HealthCheckRuntime = createHealthCheckRuntime({
     ctx,
     httpServer,
-    wsServer: monitorRuntime.wsServer,
+    wsServer,
     pollIntervalMs: env.HEALTH_CHECK_INTERVAL_MS,
     timeoutMs: env.HEALTH_CHECK_TIMEOUT_MS,
     prompt: healthCheckPrompt,
@@ -264,7 +260,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   });
 
   const promptEvalRuntime = createPromptEvalRuntime({
-    wsServer: monitorRuntime.wsServer,
+    wsServer,
     projectRoot,
     categories: [],
   });
@@ -273,10 +269,9 @@ export async function startAppRuntime(): Promise<AppRuntime> {
 
   const spendLogsWatcher: SpendLogsWatcher = createSpendLogsWatcher({
     analyticsDataSource: ctx.analytics.dataSource,
-    wsServer: monitorRuntime.wsServer,
+    wsServer,
   });
 
-  monitorRuntime.start();
   healthCheckRuntime.start();
   spendLogsWatcher.start();
 
@@ -284,7 +279,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     console.log("\nShutting down gracefully...");
     spendLogsWatcher.stop();
     healthCheckRuntime.stop();
-    monitorRuntime.stop();
+    wsServer.stop();
     httpServer.close(async () => {
       await getModelProxyPrisma().$disconnect();
       process.exit(0);

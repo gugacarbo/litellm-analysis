@@ -3,8 +3,6 @@ import type { AutomaticInteractionWsEventType } from "@lite-llm/contracts/ws-eve
 import { WebSocket, WebSocketServer as WsServer } from "ws";
 
 type MessageType =
-  | "alert"
-  | "health_update"
   | "health_check_update"
   | "connected"
   | "prompt_eval_run_update"

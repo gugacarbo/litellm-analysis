@@ -13,11 +13,9 @@ import { registerAllRoutes } from "@lite-llm/server/routes";
 import type { RouteOptions } from "@lite-llm/server/types";
 import express, { type Application } from "express";
 import { createHealthCheckApplicationService } from "../application/health-check-application-service";
-import { createMonitorApplicationService } from "../application/monitor-application-service";
 import type { AppContext } from "../contexts";
 import { env } from "../env";
 import { createHealthCheckRouter } from "../routes/health-check-routes";
-import { createMonitorRouter } from "../routes/monitor-routes";
 
 const execFileAsync = promisify(execFile);
 const BENCHMARK_TTL_MS = 15 * 24 * 60 * 60 * 1000;
@@ -391,9 +389,6 @@ export function createApiServer(
   );
 
   registerAllRoutes(app, opts);
-
-  const monitorService = createMonitorApplicationService();
-  app.use("/monitor", createMonitorRouter(monitorService));
 
   const healthCheckService = createHealthCheckApplicationService();
   app.use("/health-check", createHealthCheckRouter(healthCheckService));
