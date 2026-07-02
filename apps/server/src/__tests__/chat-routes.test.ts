@@ -8,8 +8,6 @@ function stubBaseEnv(apiKey = "proxy-secret") {
     "MODEL_PROXY_DATABASE_URL",
     "postgresql://proxy:secret@localhost:5432/model_proxy",
   );
-  vi.stubEnv("HEALTH_CHECK_INTERVAL_MS", "60000");
-  vi.stubEnv("HEALTH_CHECK_TIMEOUT_MS", "30000");
   vi.stubEnv("APP_DB_PATH", "/tmp/chat-routes-test.db");
   vi.stubEnv("MODEL_PROXY_API_KEY", apiKey);
   vi.stubEnv("MODEL_PROXY_BASE_URL", "http://localhost:3008/v1");

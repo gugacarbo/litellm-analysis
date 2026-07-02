@@ -21,8 +21,6 @@ async function createTestServer() {
     "MODEL_PROXY_DATABASE_URL",
     "postgresql://proxy:secret@localhost:5432/model_proxy",
   );
-  vi.stubEnv("HEALTH_CHECK_INTERVAL_MS", "60000");
-  vi.stubEnv("HEALTH_CHECK_TIMEOUT_MS", "30000");
   vi.stubEnv("APP_DB_PATH", "/tmp/model-proxy-test.db");
   vi.stubEnv("MODEL_PROXY_API_KEY", "proxy-secret");
 
@@ -199,8 +197,6 @@ describe("model proxy routes", () => {
       "MODEL_PROXY_DATABASE_URL",
       "postgresql://proxy:secret@localhost:5432/model_proxy",
     );
-    vi.stubEnv("HEALTH_CHECK_INTERVAL_MS", "60000");
-    vi.stubEnv("HEALTH_CHECK_TIMEOUT_MS", "30000");
     vi.stubEnv("APP_DB_PATH", "/tmp/model-proxy-test.db");
 
     const express = (await import("express")).default;

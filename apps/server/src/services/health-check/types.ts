@@ -21,7 +21,6 @@ export interface HealthCheckResult {
 }
 
 export interface HealthCheckServiceOptions {
-  pollIntervalMs: number;
   timeoutMs: number;
   prompt: string;
   maxConcurrency: number;

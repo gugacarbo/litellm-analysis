@@ -7,7 +7,6 @@ interface HealthCheckRuntimeOptions {
   ctx: AppContext;
   httpServer: HttpServer;
   wsServer: WebSocketServer;
-  pollIntervalMs: number;
   timeoutMs: number;
   prompt: string;
   maxConcurrency: number;
@@ -27,7 +26,6 @@ export function createHealthCheckRuntime(
   options: HealthCheckRuntimeOptions,
 ): HealthCheckRuntime {
   const healthCheckService = new HealthCheckService({
-    pollIntervalMs: options.pollIntervalMs,
     timeoutMs: options.timeoutMs,
     prompt: options.prompt,
     maxConcurrency: options.maxConcurrency,

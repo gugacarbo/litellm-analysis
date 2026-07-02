@@ -69,7 +69,6 @@ describe("health-check-runtime stream WS bridge", () => {
       } as unknown as AppContext,
       httpServer: {} as HttpServer,
       wsServer: wsServer as unknown as WebSocketServer,
-      pollIntervalMs: 60_000,
       timeoutMs: 30_000,
       prompt: "test prompt",
       maxConcurrency: 1,

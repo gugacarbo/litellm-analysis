@@ -85,7 +85,6 @@ interface FetchHealthCheckResponseResult {
 export class HealthCheckService {
   private options: HealthCheckServiceOptions;
   private emitter = new EventEmitter();
-  private timer: ReturnType<typeof setInterval> | null = null;
   private running = false;
   private inFlightModels = new Set<string>();
   private cooldownMap = new Map<string, number>();
@@ -108,16 +107,10 @@ export class HealthCheckService {
         }
       }
     }, 1_000);
-    this.tick();
-    this.timer = setInterval(() => this.tick(), this.options.pollIntervalMs);
   }
 
   stop(): void {
     this.running = false;
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
     if (this.cooldownTimer) {
       clearInterval(this.cooldownTimer);
       this.cooldownTimer = null;
@@ -973,19 +966,6 @@ export class HealthCheckService {
     }
 
     return null;
-  }
-
-  private async tick(): Promise<void> {
-    try {
-      const models = await this.getConfiguredModels();
-      if (models.length === 0) {
-        return;
-      }
-      await this.probeAndEmit(models, "scheduled");
-      cleanupOldHealthChecks(7);
-    } catch (err) {
-      console.error("[HealthCheckService] Tick failed:", err);
-    }
   }
 
   async runAllChecks(modelNames?: string[]): Promise<void> {
