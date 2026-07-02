@@ -1,24 +1,12 @@
-import { and, desc, eq, isNull, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@lite-llm/database/client";
 import type {
   Alert,
-  EvalRun,
-  EvalRunArtifact,
-  EvalRunStep,
   ModelHealthCheck,
   NewAlert,
-  NewEvalRun,
-  NewEvalRunArtifact,
-  NewEvalRunStep,
   NewModelHealthCheck,
 } from "./schema";
-import {
-  alerts,
-  modelHealthChecks,
-  promptEvalRunArtifacts,
-  promptEvalRunSteps,
-  promptEvalRuns,
-} from "./schema";
+import { alerts, modelHealthChecks } from "./schema";
 
 export interface GetAlertsOptions {
   anomalyType?: string;
@@ -257,111 +245,4 @@ export async function cleanupOldHealthChecks(retentionDays: number): Promise<{ d
     .where(sql`${modelHealthChecks.checkedAt} < ${cutoff}`);
 
   return { deleted: result.rowCount ?? 0 };
-}
-
-// --- Prompt Eval Queries ---
-
-export async function insertEvalRun(run: NewEvalRun): Promise<EvalRun> {
-  const [result] = await db.insert(promptEvalRuns).values(run).returning();
-  return result;
-}
-
-export async function getEvalRun(id: string): Promise<EvalRun | undefined> {
-  const [result] = await db
-    .select()
-    .from(promptEvalRuns)
-    .where(eq(promptEvalRuns.id, id));
-  return result;
-}
-
-export async function updateEvalRun(
-  id: string,
-  updates: Partial<
-    Pick<EvalRun, "status" | "macroF1" | "error" | "finishedAt">
-  >,
-): Promise<void> {
-  await db.update(promptEvalRuns).set(updates).where(eq(promptEvalRuns.id, id));
-}
-
-export async function listEvalRuns(
-  limit: number,
-  offset: number,
-): Promise<{ runs: EvalRun[]; total: number }> {
-  const runs = await db
-    .select()
-    .from(promptEvalRuns)
-    .orderBy(desc(promptEvalRuns.startedAt))
-    .limit(limit)
-    .offset(offset);
-
-  const [countRow] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(promptEvalRuns);
-  const total = Number(countRow?.count ?? 0);
-
-  return { runs, total };
-}
-
-export async function failOrphanedRuns(): Promise<number> {
-  const result = await db
-    .update(promptEvalRuns)
-    .set({
-      status: "failed",
-      error: "server restarted during run",
-      finishedAt: new Date(),
-    })
-    .where(
-      notInArray(promptEvalRuns.status, ["succeeded", "failed", "cancelled"]),
-    );
-  return result.rowCount ?? 0;
-}
-
-export async function insertEvalRunStep(step: NewEvalRunStep): Promise<EvalRunStep> {
-  const [result] = await db.insert(promptEvalRunSteps).values(step).returning();
-  return result;
-}
-
-export async function updateEvalRunStep(
-  id: number,
-  updates: Partial<
-    Pick<EvalRunStep, "status" | "progressPct" | "message" | "finishedAt">
-  >,
-): Promise<void> {
-  await db.update(promptEvalRunSteps)
-    .set(updates)
-    .where(eq(promptEvalRunSteps.id, id));
-}
-
-export async function getEvalRunSteps(runId: string): Promise<EvalRunStep[]> {
-  return db
-    .select()
-    .from(promptEvalRunSteps)
-    .where(eq(promptEvalRunSteps.runId, runId))
-    .orderBy(promptEvalRunSteps.id);
-}
-
-export async function failOrphanedSteps(): Promise<number> {
-  const result = await db
-    .update(promptEvalRunSteps)
-    .set({
-      status: "failed",
-      message: "server restarted during step",
-      finishedAt: new Date(),
-    })
-    .where(eq(promptEvalRunSteps.status, "running"));
-  return result.rowCount ?? 0;
-}
-
-export async function insertEvalRunArtifact(
-  artifact: NewEvalRunArtifact,
-): Promise<EvalRunArtifact> {
-  const [result] = await db.insert(promptEvalRunArtifacts).values(artifact).returning();
-  return result;
-}
-
-export async function getEvalRunArtifacts(runId: string): Promise<EvalRunArtifact[]> {
-  return db
-    .select()
-    .from(promptEvalRunArtifacts)
-    .where(eq(promptEvalRunArtifacts.runId, runId));
 }

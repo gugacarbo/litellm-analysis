@@ -1,13 +1,4 @@
-import {
-  boolean,
-  doublePrecision,
-  integer,
-  jsonb,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { boolean, doublePrecision, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const alerts = pgTable("alerts", {
   id: serial("id").primaryKey(),
@@ -49,46 +40,9 @@ export const modelHealthChecks = pgTable("model_health_checks", {
   checkedAt: timestamp("checked_at").notNull(),
 });
 
-export const promptEvalRuns = pgTable("prompt_eval_runs", {
-  id: text("id").primaryKey(),
-  type: text("type").notNull(),
-  status: text("status").notNull(),
-  model: text("model").notNull(),
-  macroF1: doublePrecision("macro_f1"),
-  threshold: doublePrecision("threshold").notNull(),
-  error: text("error"),
-  startedAt: timestamp("started_at").notNull(),
-  finishedAt: timestamp("finished_at"),
-});
-
-export const promptEvalRunSteps = pgTable("prompt_eval_run_steps", {
-  id: serial("id").primaryKey(),
-  runId: text("run_id").notNull().references(() => promptEvalRuns.id),
-  step: text("step").notNull(),
-  status: text("status").notNull(),
-  startedAt: timestamp("started_at").notNull(),
-  finishedAt: timestamp("finished_at"),
-  message: text("message"),
-  progressPct: integer("progress_pct").default(0).notNull(),
-});
-
-export const promptEvalRunArtifacts = pgTable("prompt_eval_run_artifacts", {
-  id: serial("id").primaryKey(),
-  runId: text("run_id").notNull().references(() => promptEvalRuns.id),
-  kind: text("kind").notNull(),
-  path: text("path").notNull(),
-  summaryJson: jsonb("summary_json"),
-});
-
 export type Alert = typeof alerts.$inferSelect;
 export type NewAlert = typeof alerts.$inferInsert;
 export type AlertRule = typeof alertRules.$inferSelect;
 export type NewAlertRule = typeof alertRules.$inferInsert;
 export type ModelHealthCheck = typeof modelHealthChecks.$inferSelect;
 export type NewModelHealthCheck = typeof modelHealthChecks.$inferInsert;
-export type EvalRun = typeof promptEvalRuns.$inferSelect;
-export type NewEvalRun = typeof promptEvalRuns.$inferInsert;
-export type EvalRunStep = typeof promptEvalRunSteps.$inferSelect;
-export type NewEvalRunStep = typeof promptEvalRunSteps.$inferInsert;
-export type EvalRunArtifact = typeof promptEvalRunArtifacts.$inferSelect;
-export type NewEvalRunArtifact = typeof promptEvalRunArtifacts.$inferInsert;

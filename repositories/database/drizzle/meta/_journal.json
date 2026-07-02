@@ -8,6 +8,13 @@
       "when": 1783001115573,
       "tag": "0000_bored_rocket_racer",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783027054374,
+      "tag": "0001_true_cobalt_man",
+      "breakpoints": true
     }
   ]
 }
