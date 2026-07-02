@@ -2,7 +2,10 @@ import {
   SETTING_KEYS,
   SettingsRepository,
 } from "@lite-llm/model-proxy-registry-service";
-import type { PrismaClient } from "@lite-llm/model-proxy-repository";
+import {
+  type Prisma,
+  type PrismaClient,
+} from "@lite-llm/model-proxy-repository";
 import { readAgentsFile } from "./parse.js";
 import type { ImportFlags, ImportSummary } from "./types.js";
 
@@ -34,7 +37,10 @@ export async function importAgentsFromFile(
     return agents;
   }
 
-  await settings.upsert(SETTING_KEYS.DASHBOARD_AGENTS, agents);
+  await settings.upsert(
+    SETTING_KEYS.DASHBOARD_AGENTS,
+    agents as Prisma.InputJsonValue,
+  );
   if (existing) {
     summary.agents.updated += 1;
     console.log(`[agents] updated dashboard.agents from ${filePath}`);

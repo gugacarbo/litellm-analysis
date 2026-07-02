@@ -22,7 +22,6 @@ export interface SettingsPaths {
   repoRoot: string;
   agentsFile: string;
   pluginsFile: string;
-  modelsFile: string;
 }
 
 function resolveWithJsoncFallback(basePath: string): string {
@@ -64,9 +63,6 @@ export function resolveSettingsPaths(
     ),
     pluginsFile: resolveWithJsoncFallback(
       path.join(settingsRoot, "plugins", "plugins.jsonc"),
-    ),
-    modelsFile: resolveWithJsoncFallback(
-      path.join(settingsRoot, "models", "models.jsonc"),
     ),
   };
 }

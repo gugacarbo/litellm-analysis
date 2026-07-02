@@ -2,13 +2,31 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { SETTING_KEYS, SettingsRepository } from "@lite-llm/model-proxy-registry-service";
+import { updateRouterAliasesInRegistry } from "@lite-llm/server/orchestration/router-settings";
 import { createInMemoryPrisma } from "../../../repositories/agents-repository/src/test-helpers/in-memory-prisma";
 import { importAgentsFromFile } from "./import-agents";
-import { importModelsFromFile } from "./import-models";
+import { importPluginsFromFile } from "./import-plugins";
 import { createEmptySummary } from "./types";
 
 vi.mock("@lite-llm/model-proxy-repository", () => ({
   getModelProxyPrisma: vi.fn(),
+}));
+
+vi.mock("@lite-llm/model-proxy-registry-service", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@lite-llm/model-proxy-registry-service")>();
+
+  return {
+    ...actual,
+    createRegistryServices: vi.fn(() => ({
+      settingsService: { mocked: true },
+    })),
+  };
+});
+
+vi.mock("@lite-llm/server/orchestration/router-settings", () => ({
+  updateRouterAliasesInRegistry: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe("settings-import", () => {
@@ -42,8 +60,6 @@ describe("settings-import", () => {
     const flags = {
       dryRun: false,
       force: false,
-      skipMissingModels: true,
-      createStubs: false,
     };
 
     await importAgentsFromFile(prisma as never, agentsFile, flags, summary);
@@ -53,66 +69,63 @@ describe("settings-import", () => {
     expect(summary.agents.skipped).toBe(1);
   });
 
-  it("imports models and providers skipping local-proxy provider", async () => {
+  it("imports plugins and syncs model aliases into router settings", async () => {
     const prisma = createInMemoryPrisma();
-    const dir = mkdtempSync(path.join(tmpdir(), "settings-import-models-"));
-    const modelsFile = path.join(dir, "models.jsonc");
+    const dir = mkdtempSync(path.join(tmpdir(), "settings-import-plugins-"));
+    const pluginsFile = path.join(dir, "plugins.jsonc");
     writeFileSync(
-      modelsFile,
+      pluginsFile,
       JSON.stringify({
-        version: 1,
-        provider: {
-          "local-proxy": {
-            name: "Local Model Proxy",
-            baseUrl: "http://localhost:3008/v1",
-            defaultProvider: "router-main",
-            apiKey: "env:MODEL_PROXY_API_KEY",
-          },
-          openai: {
-            name: "OpenAI",
-            adapter: "openai-compatible",
-            baseUrl: "https://api.openai.com/v1",
-            defaultProvider: "openai-main",
-            apiKey: "env:OPENAI_API_KEY",
-          },
-        },
-        models: {
-          "gpt-4": {
+        version: 2,
+        plugins: {
+          "model-alias": {
             enabled: true,
-            displayName: "GPT-4",
-            limits: { length: 128000, maxOutput: 4096 },
-            thinking: { levels: ["low"] },
+            outputFile: "model-alias.json",
+            config: {
+              $schema:
+                "https://raw.githubusercontent.com/opensoft/lite-llm-analytics/main/services/agent-plugins/src/plugins/model-alias/schemas/model-alias.schema.json",
+              model_group_alias: {
+                fast: "openai-main/gpt-5",
+              },
+            },
+            routing: {
+              agents: {},
+              categories: {},
+            },
           },
         },
       }),
     );
 
     const summary = createEmptySummary();
-    await importModelsFromFile(
+    await importPluginsFromFile(
       prisma as never,
-      modelsFile,
-      { agents: {}, categories: {} },
+      pluginsFile,
       {
         dryRun: false,
         force: true,
-        skipMissingModels: true,
-        createStubs: false,
       },
       summary,
     );
 
-    expect(summary.models.inserted).toBe(1);
-    expect(summary.providers.inserted).toBe(1);
-    expect(summary.settings.inserted).toBe(1);
+    expect(summary.plugins.inserted).toBe(1);
 
-    const localProxyProvider = await prisma.modelProxyProvider.findUnique({
-      where: { name: "router-main" },
-    });
-    expect(localProxyProvider).toBeNull();
+    const settings = new SettingsRepository(prisma as never);
+    const pluginsRow = await settings.findByKey(SETTING_KEYS.DASHBOARD_PLUGINS);
 
-    const openaiProvider = await prisma.modelProxyProvider.findUnique({
-      where: { name: "openai-main" },
+    expect(pluginsRow?.value).toMatchObject({
+      "model-alias": {
+        enabled: true,
+      },
     });
-    expect(openaiProvider?.secretRef).toBe("OPENAI_API_KEY");
+    expect(updateRouterAliasesInRegistry).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        fast: "openai-main/gpt-5",
+      },
+    );
+    expect(
+      await settings.findByKey(SETTING_KEYS.ROUTER_SETTINGS),
+    ).toBeNull();
   });
 });

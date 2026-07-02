@@ -3,7 +3,10 @@ import {
   SETTING_KEYS,
   SettingsRepository,
 } from "@lite-llm/model-proxy-registry-service";
-import type { PrismaClient } from "@lite-llm/model-proxy-repository";
+import {
+  type Prisma,
+  type PrismaClient,
+} from "@lite-llm/model-proxy-repository";
 import { updateRouterAliasesInRegistry } from "@lite-llm/server/orchestration/router-settings";
 import { readPluginsFile } from "./parse.js";
 import type { ImportFlags, ImportSummary } from "./types.js";
@@ -62,7 +65,10 @@ export async function importPluginsFromFile(
       summary.plugins.inserted += 1;
     }
   } else {
-    await settings.upsert(SETTING_KEYS.DASHBOARD_PLUGINS, plugins);
+    await settings.upsert(
+      SETTING_KEYS.DASHBOARD_PLUGINS,
+      plugins as Prisma.InputJsonValue,
+    );
     if (existing) {
       summary.plugins.updated += 1;
       console.log(`[plugins] updated dashboard.plugins from ${filePath}`);

@@ -1,7 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import { createRepositoryClient as createAgentsClient } from "@lite-llm/agents-manager";
-import { createRepositoryClient as createModelsClient } from "@lite-llm/models-repository";
 import {
   findRepoRoot,
   resolveSettingsPaths,
@@ -33,14 +32,11 @@ async function main(): Promise<void> {
 
   const paths = resolveSettingsPaths();
   const agentsRepository = createAgentsClient();
-  const modelsRepository = createModelsClient();
   const config = await agentsRepository.read();
-  const modelsConfig = await modelsRepository.read();
   const { agentsPart, plugins } = splitAgentsConfig(config);
 
   mkdirSync(path.dirname(paths.agentsFile), { recursive: true });
   mkdirSync(path.dirname(paths.pluginsFile), { recursive: true });
-  mkdirSync(path.dirname(paths.modelsFile), { recursive: true });
 
   writeFileSync(
     paths.agentsFile,
@@ -52,17 +48,11 @@ async function main(): Promise<void> {
     `${JSON.stringify({ version: 2, plugins }, null, 2)}\n`,
     "utf-8",
   );
-  writeFileSync(
-    paths.modelsFile,
-    `${JSON.stringify(modelsConfig, null, 2)}\n`,
-    "utf-8",
-  );
 
   const settingsPath = process.env.SETTINGS_PATH ?? "@settings";
   console.log(`Exported settings backup to ${findRepoRoot()}/${settingsPath}`);
   console.log(`  agents:  ${paths.agentsFile}`);
   console.log(`  plugins: ${paths.pluginsFile}`);
-  console.log(`  models:  ${paths.modelsFile}`);
 }
 
 main().catch((error) => {
