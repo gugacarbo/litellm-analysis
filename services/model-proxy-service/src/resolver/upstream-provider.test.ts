@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { Provider } from "@lite-llm/models-repository";
 import {
   CHATGPT_SUBSCRIPTION_PROVIDER,
   findUpstreamProvider,
@@ -6,7 +7,7 @@ import {
   resolveUpstreamTarget,
 } from "./upstream-provider";
 
-function createProviderMap() {
+function createProviderMap(): Record<string, Provider> {
   return {
     "local-proxy": {
       name: "Local Model Proxy",
