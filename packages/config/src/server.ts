@@ -41,7 +41,6 @@ export const serverSchema = {
 
   APP_DB_PATH: z.string(),
   STORAGE_PATH: z.string().default("@storage"),
-  SETTINGS_PATH: z.string().default("@settings"),
 };
 
 export const serverEnv = createEnv({

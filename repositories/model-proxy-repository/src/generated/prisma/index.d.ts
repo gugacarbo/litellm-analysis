@@ -1625,6 +1625,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type ModelProxyProviderCountOutputType
+   */
+
+  export type ModelProxyProviderCountOutputType = {
+    models: number
+  }
+
+  export type ModelProxyProviderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    models?: boolean | ModelProxyProviderCountOutputTypeCountModelsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ModelProxyProviderCountOutputType without action
+   */
+  export type ModelProxyProviderCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyProviderCountOutputType
+     */
+    select?: ModelProxyProviderCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ModelProxyProviderCountOutputType without action
+   */
+  export type ModelProxyProviderCountOutputTypeCountModelsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelProxyModelWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -5382,6 +5413,7 @@ export namespace Prisma {
   export type ModelProxyModelMinAggregateOutputType = {
     id: string | null
     modelName: string | null
+    isDefaultProvider: boolean | null
     enabled: boolean | null
     displayName: string | null
     family: string | null
@@ -5403,6 +5435,7 @@ export namespace Prisma {
   export type ModelProxyModelMaxAggregateOutputType = {
     id: string | null
     modelName: string | null
+    isDefaultProvider: boolean | null
     enabled: boolean | null
     displayName: string | null
     family: string | null
@@ -5424,6 +5457,7 @@ export namespace Prisma {
   export type ModelProxyModelCountAggregateOutputType = {
     id: number
     modelName: number
+    isDefaultProvider: number
     enabled: number
     displayName: number
     family: number
@@ -5463,6 +5497,7 @@ export namespace Prisma {
   export type ModelProxyModelMinAggregateInputType = {
     id?: true
     modelName?: true
+    isDefaultProvider?: true
     enabled?: true
     displayName?: true
     family?: true
@@ -5484,6 +5519,7 @@ export namespace Prisma {
   export type ModelProxyModelMaxAggregateInputType = {
     id?: true
     modelName?: true
+    isDefaultProvider?: true
     enabled?: true
     displayName?: true
     family?: true
@@ -5505,6 +5541,7 @@ export namespace Prisma {
   export type ModelProxyModelCountAggregateInputType = {
     id?: true
     modelName?: true
+    isDefaultProvider?: true
     enabled?: true
     displayName?: true
     family?: true
@@ -5615,6 +5652,7 @@ export namespace Prisma {
   export type ModelProxyModelGroupByOutputType = {
     id: string
     modelName: string
+    isDefaultProvider: boolean
     enabled: boolean
     displayName: string | null
     family: string | null
@@ -5657,6 +5695,7 @@ export namespace Prisma {
   export type ModelProxyModelSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     modelName?: boolean
+    isDefaultProvider?: boolean
     enabled?: boolean
     displayName?: boolean
     family?: boolean
@@ -5675,11 +5714,13 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    provider?: boolean | ModelProxyModel$providerArgs<ExtArgs>
   }, ExtArgs["result"]["modelProxyModel"]>
 
   export type ModelProxyModelSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     modelName?: boolean
+    isDefaultProvider?: boolean
     enabled?: boolean
     displayName?: boolean
     family?: boolean
@@ -5698,11 +5739,13 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    provider?: boolean | ModelProxyModel$providerArgs<ExtArgs>
   }, ExtArgs["result"]["modelProxyModel"]>
 
   export type ModelProxyModelSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     modelName?: boolean
+    isDefaultProvider?: boolean
     enabled?: boolean
     displayName?: boolean
     family?: boolean
@@ -5721,11 +5764,13 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    provider?: boolean | ModelProxyModel$providerArgs<ExtArgs>
   }, ExtArgs["result"]["modelProxyModel"]>
 
   export type ModelProxyModelSelectScalar = {
     id?: boolean
     modelName?: boolean
+    isDefaultProvider?: boolean
     enabled?: boolean
     displayName?: boolean
     family?: boolean
@@ -5746,14 +5791,26 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ModelProxyModelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "modelName" | "enabled" | "displayName" | "family" | "ownedBy" | "apiMode" | "vision" | "contextWindowSize" | "maxOutputTokens" | "inputCostPerToken" | "outputCostPerToken" | "upstreamModel" | "upstreamBaseUrl" | "providerName" | "secretRef" | "requestOptions" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyModel"]>
+  export type ModelProxyModelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "modelName" | "isDefaultProvider" | "enabled" | "displayName" | "family" | "ownedBy" | "apiMode" | "vision" | "contextWindowSize" | "maxOutputTokens" | "inputCostPerToken" | "outputCostPerToken" | "upstreamModel" | "upstreamBaseUrl" | "providerName" | "secretRef" | "requestOptions" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyModel"]>
+  export type ModelProxyModelInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    provider?: boolean | ModelProxyModel$providerArgs<ExtArgs>
+  }
+  export type ModelProxyModelIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    provider?: boolean | ModelProxyModel$providerArgs<ExtArgs>
+  }
+  export type ModelProxyModelIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    provider?: boolean | ModelProxyModel$providerArgs<ExtArgs>
+  }
 
   export type $ModelProxyModelPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ModelProxyModel"
-    objects: {}
+    objects: {
+      provider: Prisma.$ModelProxyProviderPayload<ExtArgs> | null
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       modelName: string
+      isDefaultProvider: boolean
       enabled: boolean
       displayName: string | null
       family: string | null
@@ -6166,6 +6223,7 @@ export namespace Prisma {
    */
   export interface Prisma__ModelProxyModelClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    provider<T extends ModelProxyModel$providerArgs<ExtArgs> = {}>(args?: Subset<T, ModelProxyModel$providerArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6197,6 +6255,7 @@ export namespace Prisma {
   interface ModelProxyModelFieldRefs {
     readonly id: FieldRef<"ModelProxyModel", 'String'>
     readonly modelName: FieldRef<"ModelProxyModel", 'String'>
+    readonly isDefaultProvider: FieldRef<"ModelProxyModel", 'Boolean'>
     readonly enabled: FieldRef<"ModelProxyModel", 'Boolean'>
     readonly displayName: FieldRef<"ModelProxyModel", 'String'>
     readonly family: FieldRef<"ModelProxyModel", 'String'>
@@ -6232,6 +6291,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
+    /**
      * Filter, which ModelProxyModel to fetch.
      */
     where: ModelProxyModelWhereUniqueInput
@@ -6250,6 +6313,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
+    /**
      * Filter, which ModelProxyModel to fetch.
      */
     where: ModelProxyModelWhereUniqueInput
@@ -6267,6 +6334,10 @@ export namespace Prisma {
      * Omit specific fields from the ModelProxyModel
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
     /**
      * Filter, which ModelProxyModel to fetch.
      */
@@ -6316,6 +6387,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
+    /**
      * Filter, which ModelProxyModel to fetch.
      */
     where?: ModelProxyModelWhereInput
@@ -6364,6 +6439,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
+    /**
      * Filter, which ModelProxyModels to fetch.
      */
     where?: ModelProxyModelWhereInput
@@ -6407,6 +6486,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
+    /**
      * The data needed to create a ModelProxyModel.
      */
     data: XOR<ModelProxyModelCreateInput, ModelProxyModelUncheckedCreateInput>
@@ -6440,6 +6523,10 @@ export namespace Prisma {
      */
     data: ModelProxyModelCreateManyInput | ModelProxyModelCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -6454,6 +6541,10 @@ export namespace Prisma {
      * Omit specific fields from the ModelProxyModel
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
     /**
      * The data needed to update a ModelProxyModel.
      */
@@ -6506,6 +6597,10 @@ export namespace Prisma {
      * Limit how many ModelProxyModels to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -6520,6 +6615,10 @@ export namespace Prisma {
      * Omit specific fields from the ModelProxyModel
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
     /**
      * The filter to search for the ModelProxyModel to update in case it exists.
      */
@@ -6547,6 +6646,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
+    /**
      * Filter which ModelProxyModel to delete.
      */
     where: ModelProxyModelWhereUniqueInput
@@ -6567,6 +6670,25 @@ export namespace Prisma {
   }
 
   /**
+   * ModelProxyModel.provider
+   */
+  export type ModelProxyModel$providerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyProvider
+     */
+    select?: ModelProxyProviderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyProvider
+     */
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
+    where?: ModelProxyProviderWhereInput
+  }
+
+  /**
    * ModelProxyModel without action
    */
   export type ModelProxyModelDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6578,6 +6700,10 @@ export namespace Prisma {
      * Omit specific fields from the ModelProxyModel
      */
     omit?: ModelProxyModelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
   }
 
 
@@ -6769,6 +6895,8 @@ export namespace Prisma {
     secretRef?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    models?: boolean | ModelProxyProvider$modelsArgs<ExtArgs>
+    _count?: boolean | ModelProxyProviderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["modelProxyProvider"]>
 
   export type ModelProxyProviderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6805,10 +6933,18 @@ export namespace Prisma {
   }
 
   export type ModelProxyProviderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "provider" | "baseUrl" | "apiKey" | "secretRef" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyProvider"]>
+  export type ModelProxyProviderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    models?: boolean | ModelProxyProvider$modelsArgs<ExtArgs>
+    _count?: boolean | ModelProxyProviderCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ModelProxyProviderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ModelProxyProviderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $ModelProxyProviderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ModelProxyProvider"
-    objects: {}
+    objects: {
+      models: Prisma.$ModelProxyModelPayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
@@ -7212,6 +7348,7 @@ export namespace Prisma {
    */
   export interface Prisma__ModelProxyProviderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    models<T extends ModelProxyProvider$modelsArgs<ExtArgs> = {}>(args?: Subset<T, ModelProxyProvider$modelsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyModelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7266,6 +7403,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
+    /**
      * Filter, which ModelProxyProvider to fetch.
      */
     where: ModelProxyProviderWhereUniqueInput
@@ -7284,6 +7425,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
+    /**
      * Filter, which ModelProxyProvider to fetch.
      */
     where: ModelProxyProviderWhereUniqueInput
@@ -7301,6 +7446,10 @@ export namespace Prisma {
      * Omit specific fields from the ModelProxyProvider
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
     /**
      * Filter, which ModelProxyProvider to fetch.
      */
@@ -7350,6 +7499,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
+    /**
      * Filter, which ModelProxyProvider to fetch.
      */
     where?: ModelProxyProviderWhereInput
@@ -7398,6 +7551,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
+    /**
      * Filter, which ModelProxyProviders to fetch.
      */
     where?: ModelProxyProviderWhereInput
@@ -7440,6 +7597,10 @@ export namespace Prisma {
      * Omit specific fields from the ModelProxyProvider
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
     /**
      * The data needed to create a ModelProxyProvider.
      */
@@ -7488,6 +7649,10 @@ export namespace Prisma {
      * Omit specific fields from the ModelProxyProvider
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
     /**
      * The data needed to update a ModelProxyProvider.
      */
@@ -7555,6 +7720,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
+    /**
      * The filter to search for the ModelProxyProvider to update in case it exists.
      */
     where: ModelProxyProviderWhereUniqueInput
@@ -7581,6 +7750,10 @@ export namespace Prisma {
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
+    /**
      * Filter which ModelProxyProvider to delete.
      */
     where: ModelProxyProviderWhereUniqueInput
@@ -7601,6 +7774,30 @@ export namespace Prisma {
   }
 
   /**
+   * ModelProxyProvider.models
+   */
+  export type ModelProxyProvider$modelsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelProxyModel
+     */
+    select?: ModelProxyModelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelProxyModel
+     */
+    omit?: ModelProxyModelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyModelInclude<ExtArgs> | null
+    where?: ModelProxyModelWhereInput
+    orderBy?: ModelProxyModelOrderByWithRelationInput | ModelProxyModelOrderByWithRelationInput[]
+    cursor?: ModelProxyModelWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ModelProxyModelScalarFieldEnum | ModelProxyModelScalarFieldEnum[]
+  }
+
+  /**
    * ModelProxyProvider without action
    */
   export type ModelProxyProviderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7612,6 +7809,10 @@ export namespace Prisma {
      * Omit specific fields from the ModelProxyProvider
      */
     omit?: ModelProxyProviderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelProxyProviderInclude<ExtArgs> | null
   }
 
 
@@ -11720,6 +11921,7 @@ export namespace Prisma {
   export const ModelProxyModelScalarFieldEnum: {
     id: 'id',
     modelName: 'modelName',
+    isDefaultProvider: 'isDefaultProvider',
     enabled: 'enabled',
     displayName: 'displayName',
     family: 'family',
@@ -12271,6 +12473,7 @@ export namespace Prisma {
     NOT?: ModelProxyModelWhereInput | ModelProxyModelWhereInput[]
     id?: StringFilter<"ModelProxyModel"> | string
     modelName?: StringFilter<"ModelProxyModel"> | string
+    isDefaultProvider?: BoolFilter<"ModelProxyModel"> | boolean
     enabled?: BoolFilter<"ModelProxyModel"> | boolean
     displayName?: StringNullableFilter<"ModelProxyModel"> | string | null
     family?: StringNullableFilter<"ModelProxyModel"> | string | null
@@ -12289,11 +12492,13 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"ModelProxyModel">
     createdAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
     updatedAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
+    provider?: XOR<ModelProxyProviderNullableScalarRelationFilter, ModelProxyProviderWhereInput> | null
   }
 
   export type ModelProxyModelOrderByWithRelationInput = {
     id?: SortOrder
     modelName?: SortOrder
+    isDefaultProvider?: SortOrder
     enabled?: SortOrder
     displayName?: SortOrderInput | SortOrder
     family?: SortOrderInput | SortOrder
@@ -12312,14 +12517,17 @@ export namespace Prisma {
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    provider?: ModelProxyProviderOrderByWithRelationInput
   }
 
   export type ModelProxyModelWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    modelName?: string
+    modelName_providerName?: ModelProxyModelModelNameProviderNameCompoundUniqueInput
     AND?: ModelProxyModelWhereInput | ModelProxyModelWhereInput[]
     OR?: ModelProxyModelWhereInput[]
     NOT?: ModelProxyModelWhereInput | ModelProxyModelWhereInput[]
+    modelName?: StringFilter<"ModelProxyModel"> | string
+    isDefaultProvider?: BoolFilter<"ModelProxyModel"> | boolean
     enabled?: BoolFilter<"ModelProxyModel"> | boolean
     displayName?: StringNullableFilter<"ModelProxyModel"> | string | null
     family?: StringNullableFilter<"ModelProxyModel"> | string | null
@@ -12338,11 +12546,13 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"ModelProxyModel">
     createdAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
     updatedAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
-  }, "id" | "modelName">
+    provider?: XOR<ModelProxyProviderNullableScalarRelationFilter, ModelProxyProviderWhereInput> | null
+  }, "id" | "modelName_providerName">
 
   export type ModelProxyModelOrderByWithAggregationInput = {
     id?: SortOrder
     modelName?: SortOrder
+    isDefaultProvider?: SortOrder
     enabled?: SortOrder
     displayName?: SortOrderInput | SortOrder
     family?: SortOrderInput | SortOrder
@@ -12374,6 +12584,7 @@ export namespace Prisma {
     NOT?: ModelProxyModelScalarWhereWithAggregatesInput | ModelProxyModelScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ModelProxyModel"> | string
     modelName?: StringWithAggregatesFilter<"ModelProxyModel"> | string
+    isDefaultProvider?: BoolWithAggregatesFilter<"ModelProxyModel"> | boolean
     enabled?: BoolWithAggregatesFilter<"ModelProxyModel"> | boolean
     displayName?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
     family?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
@@ -12406,6 +12617,7 @@ export namespace Prisma {
     secretRef?: StringNullableFilter<"ModelProxyProvider"> | string | null
     createdAt?: DateTimeFilter<"ModelProxyProvider"> | Date | string
     updatedAt?: DateTimeFilter<"ModelProxyProvider"> | Date | string
+    models?: ModelProxyModelListRelationFilter
   }
 
   export type ModelProxyProviderOrderByWithRelationInput = {
@@ -12417,6 +12629,7 @@ export namespace Prisma {
     secretRef?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    models?: ModelProxyModelOrderByRelationAggregateInput
   }
 
   export type ModelProxyProviderWhereUniqueInput = Prisma.AtLeast<{
@@ -12431,6 +12644,7 @@ export namespace Prisma {
     secretRef?: StringNullableFilter<"ModelProxyProvider"> | string | null
     createdAt?: DateTimeFilter<"ModelProxyProvider"> | Date | string
     updatedAt?: DateTimeFilter<"ModelProxyProvider"> | Date | string
+    models?: ModelProxyModelListRelationFilter
   }, "id" | "name">
 
   export type ModelProxyProviderOrderByWithAggregationInput = {
@@ -13083,6 +13297,7 @@ export namespace Prisma {
   export type ModelProxyModelCreateInput = {
     id?: string
     modelName: string
+    isDefaultProvider?: boolean
     enabled?: boolean
     displayName?: string | null
     family?: string | null
@@ -13095,17 +13310,18 @@ export namespace Prisma {
     outputCostPerToken?: number | null
     upstreamModel?: string | null
     upstreamBaseUrl?: string | null
-    providerName?: string | null
     secretRef?: string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    provider?: ModelProxyProviderCreateNestedOneWithoutModelsInput
   }
 
   export type ModelProxyModelUncheckedCreateInput = {
     id?: string
     modelName: string
+    isDefaultProvider?: boolean
     enabled?: boolean
     displayName?: string | null
     family?: string | null
@@ -13129,6 +13345,7 @@ export namespace Prisma {
   export type ModelProxyModelUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     modelName?: StringFieldUpdateOperationsInput | string
+    isDefaultProvider?: BoolFieldUpdateOperationsInput | boolean
     enabled?: BoolFieldUpdateOperationsInput | boolean
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     family?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13141,17 +13358,18 @@ export namespace Prisma {
     outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
     upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
     upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    providerName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    provider?: ModelProxyProviderUpdateOneWithoutModelsNestedInput
   }
 
   export type ModelProxyModelUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     modelName?: StringFieldUpdateOperationsInput | string
+    isDefaultProvider?: BoolFieldUpdateOperationsInput | boolean
     enabled?: BoolFieldUpdateOperationsInput | boolean
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     family?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13175,6 +13393,7 @@ export namespace Prisma {
   export type ModelProxyModelCreateManyInput = {
     id?: string
     modelName: string
+    isDefaultProvider?: boolean
     enabled?: boolean
     displayName?: string | null
     family?: string | null
@@ -13198,6 +13417,7 @@ export namespace Prisma {
   export type ModelProxyModelUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     modelName?: StringFieldUpdateOperationsInput | string
+    isDefaultProvider?: BoolFieldUpdateOperationsInput | boolean
     enabled?: BoolFieldUpdateOperationsInput | boolean
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     family?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13210,7 +13430,6 @@ export namespace Prisma {
     outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
     upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
     upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    providerName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
@@ -13221,6 +13440,7 @@ export namespace Prisma {
   export type ModelProxyModelUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     modelName?: StringFieldUpdateOperationsInput | string
+    isDefaultProvider?: BoolFieldUpdateOperationsInput | boolean
     enabled?: BoolFieldUpdateOperationsInput | boolean
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     family?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13250,6 +13470,7 @@ export namespace Prisma {
     secretRef?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    models?: ModelProxyModelCreateNestedManyWithoutProviderInput
   }
 
   export type ModelProxyProviderUncheckedCreateInput = {
@@ -13261,6 +13482,7 @@ export namespace Prisma {
     secretRef?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    models?: ModelProxyModelUncheckedCreateNestedManyWithoutProviderInput
   }
 
   export type ModelProxyProviderUpdateInput = {
@@ -13272,6 +13494,7 @@ export namespace Prisma {
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    models?: ModelProxyModelUpdateManyWithoutProviderNestedInput
   }
 
   export type ModelProxyProviderUncheckedUpdateInput = {
@@ -13283,6 +13506,7 @@ export namespace Prisma {
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    models?: ModelProxyModelUncheckedUpdateManyWithoutProviderNestedInput
   }
 
   export type ModelProxyProviderCreateManyInput = {
@@ -14141,9 +14365,20 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type ModelProxyProviderNullableScalarRelationFilter = {
+    is?: ModelProxyProviderWhereInput | null
+    isNot?: ModelProxyProviderWhereInput | null
+  }
+
+  export type ModelProxyModelModelNameProviderNameCompoundUniqueInput = {
+    modelName: string
+    providerName: string
+  }
+
   export type ModelProxyModelCountOrderByAggregateInput = {
     id?: SortOrder
     modelName?: SortOrder
+    isDefaultProvider?: SortOrder
     enabled?: SortOrder
     displayName?: SortOrder
     family?: SortOrder
@@ -14174,6 +14409,7 @@ export namespace Prisma {
   export type ModelProxyModelMaxOrderByAggregateInput = {
     id?: SortOrder
     modelName?: SortOrder
+    isDefaultProvider?: SortOrder
     enabled?: SortOrder
     displayName?: SortOrder
     family?: SortOrder
@@ -14195,6 +14431,7 @@ export namespace Prisma {
   export type ModelProxyModelMinOrderByAggregateInput = {
     id?: SortOrder
     modelName?: SortOrder
+    isDefaultProvider?: SortOrder
     enabled?: SortOrder
     displayName?: SortOrder
     family?: SortOrder
@@ -14226,6 +14463,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type ModelProxyModelListRelationFilter = {
+    every?: ModelProxyModelWhereInput
+    some?: ModelProxyModelWhereInput
+    none?: ModelProxyModelWhereInput
+  }
+
+  export type ModelProxyModelOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type ModelProxyProviderCountOrderByAggregateInput = {
@@ -14529,8 +14776,66 @@ export namespace Prisma {
     update?: XOR<XOR<ModelProxyRequestUpdateToOneWithWhereWithoutMessagesInput, ModelProxyRequestUpdateWithoutMessagesInput>, ModelProxyRequestUncheckedUpdateWithoutMessagesInput>
   }
 
+  export type ModelProxyProviderCreateNestedOneWithoutModelsInput = {
+    create?: XOR<ModelProxyProviderCreateWithoutModelsInput, ModelProxyProviderUncheckedCreateWithoutModelsInput>
+    connectOrCreate?: ModelProxyProviderCreateOrConnectWithoutModelsInput
+    connect?: ModelProxyProviderWhereUniqueInput
+  }
+
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type ModelProxyProviderUpdateOneWithoutModelsNestedInput = {
+    create?: XOR<ModelProxyProviderCreateWithoutModelsInput, ModelProxyProviderUncheckedCreateWithoutModelsInput>
+    connectOrCreate?: ModelProxyProviderCreateOrConnectWithoutModelsInput
+    upsert?: ModelProxyProviderUpsertWithoutModelsInput
+    disconnect?: ModelProxyProviderWhereInput | boolean
+    delete?: ModelProxyProviderWhereInput | boolean
+    connect?: ModelProxyProviderWhereUniqueInput
+    update?: XOR<XOR<ModelProxyProviderUpdateToOneWithWhereWithoutModelsInput, ModelProxyProviderUpdateWithoutModelsInput>, ModelProxyProviderUncheckedUpdateWithoutModelsInput>
+  }
+
+  export type ModelProxyModelCreateNestedManyWithoutProviderInput = {
+    create?: XOR<ModelProxyModelCreateWithoutProviderInput, ModelProxyModelUncheckedCreateWithoutProviderInput> | ModelProxyModelCreateWithoutProviderInput[] | ModelProxyModelUncheckedCreateWithoutProviderInput[]
+    connectOrCreate?: ModelProxyModelCreateOrConnectWithoutProviderInput | ModelProxyModelCreateOrConnectWithoutProviderInput[]
+    createMany?: ModelProxyModelCreateManyProviderInputEnvelope
+    connect?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+  }
+
+  export type ModelProxyModelUncheckedCreateNestedManyWithoutProviderInput = {
+    create?: XOR<ModelProxyModelCreateWithoutProviderInput, ModelProxyModelUncheckedCreateWithoutProviderInput> | ModelProxyModelCreateWithoutProviderInput[] | ModelProxyModelUncheckedCreateWithoutProviderInput[]
+    connectOrCreate?: ModelProxyModelCreateOrConnectWithoutProviderInput | ModelProxyModelCreateOrConnectWithoutProviderInput[]
+    createMany?: ModelProxyModelCreateManyProviderInputEnvelope
+    connect?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+  }
+
+  export type ModelProxyModelUpdateManyWithoutProviderNestedInput = {
+    create?: XOR<ModelProxyModelCreateWithoutProviderInput, ModelProxyModelUncheckedCreateWithoutProviderInput> | ModelProxyModelCreateWithoutProviderInput[] | ModelProxyModelUncheckedCreateWithoutProviderInput[]
+    connectOrCreate?: ModelProxyModelCreateOrConnectWithoutProviderInput | ModelProxyModelCreateOrConnectWithoutProviderInput[]
+    upsert?: ModelProxyModelUpsertWithWhereUniqueWithoutProviderInput | ModelProxyModelUpsertWithWhereUniqueWithoutProviderInput[]
+    createMany?: ModelProxyModelCreateManyProviderInputEnvelope
+    set?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+    disconnect?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+    delete?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+    connect?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+    update?: ModelProxyModelUpdateWithWhereUniqueWithoutProviderInput | ModelProxyModelUpdateWithWhereUniqueWithoutProviderInput[]
+    updateMany?: ModelProxyModelUpdateManyWithWhereWithoutProviderInput | ModelProxyModelUpdateManyWithWhereWithoutProviderInput[]
+    deleteMany?: ModelProxyModelScalarWhereInput | ModelProxyModelScalarWhereInput[]
+  }
+
+  export type ModelProxyModelUncheckedUpdateManyWithoutProviderNestedInput = {
+    create?: XOR<ModelProxyModelCreateWithoutProviderInput, ModelProxyModelUncheckedCreateWithoutProviderInput> | ModelProxyModelCreateWithoutProviderInput[] | ModelProxyModelUncheckedCreateWithoutProviderInput[]
+    connectOrCreate?: ModelProxyModelCreateOrConnectWithoutProviderInput | ModelProxyModelCreateOrConnectWithoutProviderInput[]
+    upsert?: ModelProxyModelUpsertWithWhereUniqueWithoutProviderInput | ModelProxyModelUpsertWithWhereUniqueWithoutProviderInput[]
+    createMany?: ModelProxyModelCreateManyProviderInputEnvelope
+    set?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+    disconnect?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+    delete?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+    connect?: ModelProxyModelWhereUniqueInput | ModelProxyModelWhereUniqueInput[]
+    update?: ModelProxyModelUpdateWithWhereUniqueWithoutProviderInput | ModelProxyModelUpdateWithWhereUniqueWithoutProviderInput[]
+    updateMany?: ModelProxyModelUpdateManyWithWhereWithoutProviderInput | ModelProxyModelUpdateManyWithWhereWithoutProviderInput[]
+    deleteMany?: ModelProxyModelScalarWhereInput | ModelProxyModelScalarWhereInput[]
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -15264,6 +15569,165 @@ export namespace Prisma {
     usageAdjustments?: ModelProxyUsageAdjustmentUncheckedUpdateManyWithoutRequestNestedInput
   }
 
+  export type ModelProxyProviderCreateWithoutModelsInput = {
+    id?: string
+    name: string
+    provider?: string | null
+    baseUrl?: string | null
+    apiKey?: string | null
+    secretRef?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ModelProxyProviderUncheckedCreateWithoutModelsInput = {
+    id?: string
+    name: string
+    provider?: string | null
+    baseUrl?: string | null
+    apiKey?: string | null
+    secretRef?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ModelProxyProviderCreateOrConnectWithoutModelsInput = {
+    where: ModelProxyProviderWhereUniqueInput
+    create: XOR<ModelProxyProviderCreateWithoutModelsInput, ModelProxyProviderUncheckedCreateWithoutModelsInput>
+  }
+
+  export type ModelProxyProviderUpsertWithoutModelsInput = {
+    update: XOR<ModelProxyProviderUpdateWithoutModelsInput, ModelProxyProviderUncheckedUpdateWithoutModelsInput>
+    create: XOR<ModelProxyProviderCreateWithoutModelsInput, ModelProxyProviderUncheckedCreateWithoutModelsInput>
+    where?: ModelProxyProviderWhereInput
+  }
+
+  export type ModelProxyProviderUpdateToOneWithWhereWithoutModelsInput = {
+    where?: ModelProxyProviderWhereInput
+    data: XOR<ModelProxyProviderUpdateWithoutModelsInput, ModelProxyProviderUncheckedUpdateWithoutModelsInput>
+  }
+
+  export type ModelProxyProviderUpdateWithoutModelsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    baseUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    apiKey?: NullableStringFieldUpdateOperationsInput | string | null
+    secretRef?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyProviderUncheckedUpdateWithoutModelsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    baseUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    apiKey?: NullableStringFieldUpdateOperationsInput | string | null
+    secretRef?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyModelCreateWithoutProviderInput = {
+    id?: string
+    modelName: string
+    isDefaultProvider?: boolean
+    enabled?: boolean
+    displayName?: string | null
+    family?: string | null
+    ownedBy?: string | null
+    apiMode?: string | null
+    vision?: boolean | null
+    contextWindowSize?: number | null
+    maxOutputTokens?: number | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    upstreamModel?: string | null
+    upstreamBaseUrl?: string | null
+    secretRef?: string | null
+    requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ModelProxyModelUncheckedCreateWithoutProviderInput = {
+    id?: string
+    modelName: string
+    isDefaultProvider?: boolean
+    enabled?: boolean
+    displayName?: string | null
+    family?: string | null
+    ownedBy?: string | null
+    apiMode?: string | null
+    vision?: boolean | null
+    contextWindowSize?: number | null
+    maxOutputTokens?: number | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    upstreamModel?: string | null
+    upstreamBaseUrl?: string | null
+    secretRef?: string | null
+    requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ModelProxyModelCreateOrConnectWithoutProviderInput = {
+    where: ModelProxyModelWhereUniqueInput
+    create: XOR<ModelProxyModelCreateWithoutProviderInput, ModelProxyModelUncheckedCreateWithoutProviderInput>
+  }
+
+  export type ModelProxyModelCreateManyProviderInputEnvelope = {
+    data: ModelProxyModelCreateManyProviderInput | ModelProxyModelCreateManyProviderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ModelProxyModelUpsertWithWhereUniqueWithoutProviderInput = {
+    where: ModelProxyModelWhereUniqueInput
+    update: XOR<ModelProxyModelUpdateWithoutProviderInput, ModelProxyModelUncheckedUpdateWithoutProviderInput>
+    create: XOR<ModelProxyModelCreateWithoutProviderInput, ModelProxyModelUncheckedCreateWithoutProviderInput>
+  }
+
+  export type ModelProxyModelUpdateWithWhereUniqueWithoutProviderInput = {
+    where: ModelProxyModelWhereUniqueInput
+    data: XOR<ModelProxyModelUpdateWithoutProviderInput, ModelProxyModelUncheckedUpdateWithoutProviderInput>
+  }
+
+  export type ModelProxyModelUpdateManyWithWhereWithoutProviderInput = {
+    where: ModelProxyModelScalarWhereInput
+    data: XOR<ModelProxyModelUpdateManyMutationInput, ModelProxyModelUncheckedUpdateManyWithoutProviderInput>
+  }
+
+  export type ModelProxyModelScalarWhereInput = {
+    AND?: ModelProxyModelScalarWhereInput | ModelProxyModelScalarWhereInput[]
+    OR?: ModelProxyModelScalarWhereInput[]
+    NOT?: ModelProxyModelScalarWhereInput | ModelProxyModelScalarWhereInput[]
+    id?: StringFilter<"ModelProxyModel"> | string
+    modelName?: StringFilter<"ModelProxyModel"> | string
+    isDefaultProvider?: BoolFilter<"ModelProxyModel"> | boolean
+    enabled?: BoolFilter<"ModelProxyModel"> | boolean
+    displayName?: StringNullableFilter<"ModelProxyModel"> | string | null
+    family?: StringNullableFilter<"ModelProxyModel"> | string | null
+    ownedBy?: StringNullableFilter<"ModelProxyModel"> | string | null
+    apiMode?: StringNullableFilter<"ModelProxyModel"> | string | null
+    vision?: BoolNullableFilter<"ModelProxyModel"> | boolean | null
+    contextWindowSize?: IntNullableFilter<"ModelProxyModel"> | number | null
+    maxOutputTokens?: IntNullableFilter<"ModelProxyModel"> | number | null
+    inputCostPerToken?: FloatNullableFilter<"ModelProxyModel"> | number | null
+    outputCostPerToken?: FloatNullableFilter<"ModelProxyModel"> | number | null
+    upstreamModel?: StringNullableFilter<"ModelProxyModel"> | string | null
+    upstreamBaseUrl?: StringNullableFilter<"ModelProxyModel"> | string | null
+    providerName?: StringNullableFilter<"ModelProxyModel"> | string | null
+    secretRef?: StringNullableFilter<"ModelProxyModel"> | string | null
+    requestOptions?: JsonNullableFilter<"ModelProxyModel">
+    metadata?: JsonNullableFilter<"ModelProxyModel">
+    createdAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
+    updatedAt?: DateTimeFilter<"ModelProxyModel"> | Date | string
+  }
+
   export type ModelProxyMessageCreateManyRequestInput = {
     id?: string
     role: string
@@ -15330,6 +15794,98 @@ export namespace Prisma {
     totalCostDelta?: FloatFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyModelCreateManyProviderInput = {
+    id?: string
+    modelName: string
+    isDefaultProvider?: boolean
+    enabled?: boolean
+    displayName?: string | null
+    family?: string | null
+    ownedBy?: string | null
+    apiMode?: string | null
+    vision?: boolean | null
+    contextWindowSize?: number | null
+    maxOutputTokens?: number | null
+    inputCostPerToken?: number | null
+    outputCostPerToken?: number | null
+    upstreamModel?: string | null
+    upstreamBaseUrl?: string | null
+    secretRef?: string | null
+    requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ModelProxyModelUpdateWithoutProviderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    modelName?: StringFieldUpdateOperationsInput | string
+    isDefaultProvider?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    family?: NullableStringFieldUpdateOperationsInput | string | null
+    ownedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    apiMode?: NullableStringFieldUpdateOperationsInput | string | null
+    vision?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    contextWindowSize?: NullableIntFieldUpdateOperationsInput | number | null
+    maxOutputTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
+    upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    secretRef?: NullableStringFieldUpdateOperationsInput | string | null
+    requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyModelUncheckedUpdateWithoutProviderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    modelName?: StringFieldUpdateOperationsInput | string
+    isDefaultProvider?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    family?: NullableStringFieldUpdateOperationsInput | string | null
+    ownedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    apiMode?: NullableStringFieldUpdateOperationsInput | string | null
+    vision?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    contextWindowSize?: NullableIntFieldUpdateOperationsInput | number | null
+    maxOutputTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
+    upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    secretRef?: NullableStringFieldUpdateOperationsInput | string | null
+    requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelProxyModelUncheckedUpdateManyWithoutProviderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    modelName?: StringFieldUpdateOperationsInput | string
+    isDefaultProvider?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    family?: NullableStringFieldUpdateOperationsInput | string | null
+    ownedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    apiMode?: NullableStringFieldUpdateOperationsInput | string | null
+    vision?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    contextWindowSize?: NullableIntFieldUpdateOperationsInput | number | null
+    maxOutputTokens?: NullableIntFieldUpdateOperationsInput | number | null
+    inputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
+    upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
+    upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    secretRef?: NullableStringFieldUpdateOperationsInput | string | null
+    requestOptions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

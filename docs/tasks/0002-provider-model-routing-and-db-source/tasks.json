@@ -8,7 +8,7 @@
       "description": "Modify the model_proxy_models table schema to support multiple providers with the same model name. Drop the global unique on modelName, add composite unique on (model_name, provider_name), add is_default_provider column with partial unique index, and add FK to model_proxy_providers.",
       "dependencies": [],
       "batch": "A",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "acceptanceCriteria": [
         "model_proxy_models.modelName is no longer @unique",
@@ -83,7 +83,7 @@
       "description": "Update resolveUpstreamTarget() in upstream-provider.ts to parse provider/model prefixes from the model name, query by (modelName, providerName) when a prefix is present, and resolve by is_default_provider flag when multiple rows exist for a bare model name. Add comprehensive tests.",
       "dependencies": ["Task-A-0001"],
       "batch": "B",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "acceptanceCriteria": [
         "parseProviderModel('provider-a/glm-5.1') returns { providerPrefix: 'provider-a', bareModelName: 'glm-5.1' }",
@@ -180,7 +180,7 @@
       "description": "Update buildHeboGatewayConfig() to handle models that appear under multiple providers. For models with a single row, register under the bare modelName (backward compatible). For models with multiple rows, register each under providerName/modelName as the canonical id, and additionally register the default provider's row under the bare modelName.",
       "dependencies": ["Task-A-0001", "Task-B-0001"],
       "batch": "B",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "acceptanceCriteria": [
         "Single-provider models registered under bare modelName (no change in behavior)",
@@ -238,7 +238,7 @@
       "description": "Delete the file-based ModelsRepository class, storage abstraction, models.jsonc, models.schema.json, and all model-related import/export code. Simplify createRepositoryClient to always return DbModelsRepository. Update all imports and consumers.",
       "dependencies": ["Task-B-0001"],
       "batch": "C",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "acceptanceCriteria": [
         "repositories/models-repository/src/repository.ts is deleted",
@@ -395,7 +395,7 @@
       "description": "Update all documentation files and source code comments that reference models.jsonc as a source of truth. Replace with references to model_proxy_models / model_proxy_providers DB tables.",
       "dependencies": ["Task-C-0001"],
       "batch": "C",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "acceptanceCriteria": [
         "@settings/AGENTS.md no longer references models.jsonc as canonical config",
@@ -489,7 +489,7 @@
         "Task-C-0002"
       ],
       "batch": "D",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "acceptanceCriteria": [
         "pnpm typecheck exits 0 across all packages",

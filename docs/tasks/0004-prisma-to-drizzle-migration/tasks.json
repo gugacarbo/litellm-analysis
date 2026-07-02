@@ -1,0 +1,889 @@
+{
+  "title": "Migrar camada de dados de Prisma para Drizzle",
+  "description": "Eliminar Prisma e SQLite, migrar toda a camada de dados para Drizzle ORM sobre PostgreSQL, unificando os dois bancos em um único PostgreSQL via novo package @lite-llm/database.",
+  "tasks": [
+    {
+      "id": "Task-A-0001",
+      "title": "Ajustar configuração server e variáveis de ambiente",
+      "description": "Renomear MODEL_PROXY_DATABASE_URL para DATABASE_URL e remover APP_DB_PATH do server env. Atualizar .env.example, .env.test, .env.local e qualquer documentação de deploy.",
+      "dependencies": [],
+      "batch": "A",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "serverEnv expõe DATABASE_URL obrigatório e remove MODEL_PROXY_DATABASE_URL e APP_DB_PATH",
+        ".env.example, .env.test e .env.local usam DATABASE_URL e não contêm APP_DB_PATH",
+        "Nenhuma referência a MODEL_PROXY_DATABASE_URL ou APP_DB_PATH fora de node_modules/dist"
+      ],
+      "requirements": [
+        "REQ-25 da spec — renomear variável e remover variáveis SQLite"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Editar packages/config/src/server.ts",
+          "description": "Substituir MODEL_PROXY_DATABASE_URL por DATABASE_URL. Remover APP_DB_PATH. Ajustar getBackupDatabaseUrlFromEnv se necessário.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Atualizar .env.example e .env.test",
+          "description": "Substituir MODEL_PROXY_DATABASE_URL por DATABASE_URL e remover APP_DB_PATH.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Atualizar .env.local",
+          "description": "Renomear variável no arquivo local.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "packages/config/src/server.ts",
+        ".env.example",
+        ".env.test",
+        ".env.local"
+      ],
+      "files": {
+        "created": [],
+        "modified": ["packages/config/src/server.ts", ".env.example", ".env.test", ".env.local"],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": ["import { serverEnv } from '@lite-llm/config/server'"],
+        "produces": ["export const serverEnv: { DATABASE_URL: string }"]
+      },
+      "notes": [
+        "Não renomear referências que tenham valor de fallback hardcoded.",
+        "Confirmar que docker-compose.yml já usa postgres; se houver variáveis obsoletas, ajustar."
+      ]
+    },
+    {
+      "id": "Task-A-0002",
+      "title": "Criar package @lite-llm/database com conexão e helper raw",
+      "description": "Criar o package repositories/database com pool pg, drizzle-orm/node-postgres client, queryRaw<T>() e createTestDb() usando pg-mem.",
+      "dependencies": ["Task-A-0001"],
+      "batch": "A",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "repositories/database/package.json criado com scripts db:generate, db:migrate, db:push, db:studio",
+        "db singleton exportado em src/client.ts usando DATABASE_URL",
+        "queryRaw<T>(sql, params) implementado com sql template tag do drizzle-orm/node-postgres",
+        "createTestDb() monta banco pg-mem e aplica migrations do drizzle/",
+        "disconnectDb() exposto e usável em teardowns",
+        "Build typecheck passa para o package database"
+      ],
+      "requirements": [
+        "Contrato do package database na spec",
+        "REQ-2, REQ-10, REQ-18 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Estruturar package",
+          "description": "Criar package.json, tsconfig.json, drizzle.config.ts, src/index.ts e src/client.ts. Configurar exports './client', './schema', './schema/model-proxy', './schema/app', './queries'.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Implementar client.ts",
+          "description": "Usar pg Pool com DATABASE_URL via serverEnv. Criar drizzle client singleton. Expor db, disconnectDb e queryRaw<T>(). queryRaw deve aceitar sql template string e array de params, retornando T[].",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Implementar test-helpers/createTestDb.ts",
+          "description": "Usar pg-mem para criar banco in-memory, aplicar migrations do drizzle/ via drizzle-kit/migrator, e retornar instância de db. Expor helper de reset se útil.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "repositories/database/package.json",
+        "repositories/database/tsconfig.json",
+        "repositories/database/drizzle.config.ts",
+        "repositories/database/src/client.ts",
+        "repositories/database/src/index.ts",
+        "repositories/database/src/queries.ts",
+        "repositories/database/src/test-helpers/createTestDb.ts"
+      ],
+      "files": {
+        "created": [
+          "repositories/database/package.json",
+          "repositories/database/tsconfig.json",
+          "repositories/database/drizzle.config.ts",
+          "repositories/database/src/client.ts",
+          "repositories/database/src/index.ts",
+          "repositories/database/src/queries.ts",
+          "repositories/database/src/test-helpers/createTestDb.ts"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": ["import { serverEnv } from '@lite-llm/config/server'", "import { Pool } from 'pg'", "import { drizzle } from 'drizzle-orm/node-postgres'", "import { sql } from 'drizzle-orm'"],
+        "produces": [
+          "export const db: NodePgDatabase",
+          "export function disconnectDb(): Promise<void>",
+          "export async function queryRaw<T>(query: SQL, params: unknown[]): Promise<T[]>",
+          "export function createTestDb(): Promise<{ db: NodePgDatabase; stop: () => void }>"
+        ]
+      },
+      "notes": [
+        "queryRaw<T> deve retornar array tipado, não { rows: T[] }.",
+        "Em createTestDb, aplicar migrations via migrate(db, { migrationsFolder: './drizzle' }).",
+        "Se pg-mem não suportar algum cast, documentar workaround e avisar agente principal."
+      ]
+    },
+    {
+      "id": "Task-A-0003",
+      "title": "Reescrever schema Drizzle do model-proxy em PostgreSQL",
+      "description": "Traduzir os 7 models Prisma para pgTable em src/schema/model-proxy.ts preservando índices, unique, relações, onDelete e defaults.",
+      "dependencies": ["Task-A-0002"],
+      "batch": "A",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "Todas as 8 model_proxy_* tabelas (requests, usage_adjustments, messages, models, providers, api_keys, settings, aliases, import_jobs) definidas com pgTable",
+        "@id @default(cuid()) convertido para defaultRandom()",
+        "@default(now()) convertido para defaultNow()",
+        "@updatedAt convertido para defaultNow().$onUpdate(() => new Date())",
+        "Json convertido para jsonb.$type<T>()",
+        "@@unique, @unique, @@index, @relation/onDelete: Cascade/SetNull preservados",
+        "Tipo de providerName unique refletido na FK de models"
+      ],
+      "requirements": [
+        "REQ-4, REQ-5, REQ-6, REQ-9 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Mapear enums explícitos",
+          "description": "Identificar campos que eram strings no Prisma mas são enumeráveis (status de import_job, status de request) e criar pgEnum correspondente se semântica justificar.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Definir tabelas model_proxy_*",
+          "description": "Implementar pgTable para cada model Prisma, usando snake_case explícito e .notNull() onde o Prisma exigia.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Inferir tipos de insert/select",
+          "description": "Exportar types inferidos a partir de cada tabela para consumers.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": ["repositories/database/src/schema/model-proxy.ts"],
+      "files": {
+        "created": ["repositories/database/src/schema/model-proxy.ts"],
+        "modified": [],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": ["import { pgEnum, pgTable, uuid, varchar, integer, bigint, doublePrecision, boolean, jsonb, text, timestamp } from 'drizzle-orm/pg-core'"],
+        "produces": [
+          "export const modelProxyRequests = pgTable(...)",
+          "export const modelProxyUsageAdjustments = pgTable(...)",
+          "export const modelProxyMessages = pgTable(...)",
+          "export const modelProxyModels = pgTable(...)",
+          "export const modelProxyProviders = pgTable(...)",
+          "export const modelProxyApiKeys = pgTable(...)",
+          "export const modelProxySettings = pgTable(...)",
+          "export const modelProxyAliases = pgTable(...)",
+          "export const modelProxyImportJobs = pgTable(...)",
+          "export type ModelProxyRequest = typeof modelProxyRequests.$inferSelect"
+        ]
+      },
+      "notes": [
+        "providerName em modelProxyModels é FK para providers.name (unique).",
+        "Ajustar defaults em timestamps para defaultNow() e adicionar .onUpdate para @updatedAt.",
+        "Não criar enums para campos arbitrários a menos que a spec/Prisma indique enum."
+      ]
+    },
+    {
+      "id": "Task-A-0004",
+      "title": "Reescrever schema Drizzle do app-repository em PostgreSQL",
+      "description": "Traduzir tabelas SQLite para pgTable em src/schema/app.ts, convertendo tipos epoch/JSON/real adequadamente e formalizando ttft_ms.",
+      "dependencies": ["Task-A-0002"],
+      "batch": "A",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "Tabelas alerts, alert_rules, model_health_checks, prompt_eval_runs, prompt_eval_run_steps, prompt_eval_run_artifacts definidas em pgTable",
+        "Campos epoch integer mantidos como timestamp com defaultNow() quando semântica é de data; text JSON convertidos para jsonb.$type<T>()",
+        "ttft_ms presente normalmente no schema de model_health_checks",
+        "Relações e FKs preservadas com references/onDelete"
+      ],
+      "requirements": [
+        "REQ-8, REQ-9, REQ-10 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Mapear tipos SQLite → PostgreSQL",
+          "description": "Para cada coluna decidir bigint/integer, timestamp, doublePrecision/real, text/varchar, jsonb. Definir defaults e notNull.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Implementar schema/app.ts",
+          "description": "Criar arquivo com pgTable e infer types.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": ["repositories/database/src/schema/app.ts"],
+      "files": {
+        "created": ["repositories/database/src/schema/app.ts"],
+        "modified": [],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": ["import { pgTable, serial, text, varchar, integer, boolean, doublePrecision, jsonb, timestamp } from 'drizzle-orm/pg-core'"],
+        "produces": [
+          "export const alerts = pgTable(...)",
+          "export const alertRules = pgTable(...)",
+          "export const modelHealthChecks = pgTable(...)",
+          "export const promptEvalRuns = pgTable(...)",
+          "export const promptEvalRunSteps = pgTable(...)",
+          "export const promptEvalRunArtifacts = pgTable(...)"
+        ]
+      },
+      "notes": [
+        "Manter ids auto increment como serial ou generatedAlwaysAsIdentity.",
+        "promptEvalRuns.id continua text PK (uuid gerado pela aplicação).",
+        "Campos JSONC como threshold_config tornam-se jsonb.$type<ThresholdConfig>()."
+      ]
+    },
+    {
+      "id": "Task-A-0005",
+      "title": "Criar barrel de schema e migration inicial única",
+      "description": "Criar src/schema/index.ts re-exportando model-proxy e app. Gerar migration inicial via drizzle-kit criando todas as tabelas do zero.",
+      "dependencies": ["Task-A-0003", "Task-A-0004"],
+      "batch": "A",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "src/schema/index.ts exporta os dois subschemas",
+        "drizzle.config.ts aponta schema e migrationsFolder corretos",
+        "Migration inicial em drizzle/ cria todas as tabelas sem CREATE TABLE IF NOT EXISTS",
+        "db:generate e db:migrate funcionam via pnpm"
+      ],
+      "requirements": [
+        "REQ-2 exports, REQ-11, REQ-12 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Criar src/schema/index.ts",
+          "description": "Re-exportar * from './model-proxy' e * from './app'.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Executar db:generate",
+          "description": "Rodar pnpm --filter @lite-llm/database db:generate para gerar migration inicial.",
+          "command": "pnpm --filter @lite-llm/database db:generate",
+          "expectedResult": "Arquivos gerados em repositories/database/drizzle/ e meta/",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "repositories/database/src/schema/index.ts",
+        "repositories/database/drizzle.config.ts",
+        "repositories/database/drizzle/*"
+      ],
+      "files": {
+        "created": ["repositories/database/src/schema/index.ts", "repositories/database/drizzle/0000_*", "repositories/database/drizzle/meta/*"],
+        "modified": ["repositories/database/drizzle.config.ts"],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": ["import * as modelProxySchema from './model-proxy'", "import * as appSchema from './app'"],
+        "produces": ["export * from './model-proxy'", "export * from './app'"]
+      },
+      "notes": [
+        "Se drizzle-kit gerar IF NOT EXISTS, editar manualmente para removê-lo — spec proíbe.",
+        "Migration deve incluir tanto model_proxy_* quanto app_* em ordem correta de dependências FK."
+      ]
+    },
+    {
+      "id": "Task-B-0001",
+      "title": "Converter model-proxy-registry-service repositories para Drizzle",
+      "description": "Refatorar api-keys-repository, models-repository, providers-repository e settings-repository para usar db.select/insert/update/delete do @lite-llm/database.",
+      "dependencies": ["Task-A-0005"],
+      "batch": "B",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "4 repositories não importam PrismaClient/Prisma de model-proxy-repository",
+        "Todas as operações traduzidas para Drizzle ORM queries",
+        "Updates setam explicitamente updatedAt: new Date()",
+        "Tipos baseados em $inferSelect/$inferInsert do schema",
+        "Tests do service passam se houver (pelo menos typecheck passa)"
+      ],
+      "requirements": [
+        "REQ-14 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Reescrever api-keys-repository.ts",
+          "description": "Trocar prisma.modelProxyApiKey.* por db.select/update/insert/delete. Manter API pública da classe.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Reescrever models-repository.ts",
+          "description": "Trocar prisma.modelProxyModel.* por Drizzle. Preservar upsert por insert+onConflictDoUpdate.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Reescrever providers-repository.ts",
+          "description": "Mesmo que acima para modelProxyProviders e importLegacy.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Reescrever settings-repository.ts",
+          "description": "Trocar findUnique/findMany/upsert por Drizzle. JSON value continua jsonb.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "services/model-proxy-registry-service/src/repositories/api-keys-repository.ts",
+        "services/model-proxy-registry-service/src/repositories/models-repository.ts",
+        "services/model-proxy-registry-service/src/repositories/providers-repository.ts",
+        "services/model-proxy-registry-service/src/repositories/settings-repository.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "services/model-proxy-registry-service/src/repositories/api-keys-repository.ts",
+          "services/model-proxy-registry-service/src/repositories/models-repository.ts",
+          "services/model-proxy-registry-service/src/repositories/providers-repository.ts",
+          "services/model-proxy-registry-service/src/repositories/settings-repository.ts"
+        ],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": ["import { db } from '@lite-llm/database/client'", "import { modelProxyApiKeys, modelProxyModels, modelProxyProviders, modelProxySettings } from '@lite-llm/database/schema'"],
+        "produces": ["API pública dos repositories mantida compatível com services consumidores"]
+      },
+      "notes": [
+        "Upsert em Drizzle: insert(...).onConflictDoUpdate(...).",
+        "Garantir updatedAt em toda operação de update/upsert.",
+        "Verificar imports de Prisma.JsonValue e substituir por unknown/Json."
+      ]
+    },
+    {
+      "id": "Task-B-0002",
+      "title": "Converter analytics-service raw queries e data source para Drizzle",
+      "description": "Manter SQL idêntico das ~46 queries raw; trocar executor prisma.$queryRawUnsafe por queryRaw<T>(sql, params) e prisma.$transaction por db.transaction.",
+      "dependencies": ["Task-A-0005"],
+      "batch": "B",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "Nenhum getModelProxyPrisma() importado nos arquivos de queries/data-source",
+        "Todas as raw queries usam queryRaw<T>() do @lite-llm/database",
+        "Transações Prisma trocadas por db.transaction com db => ...",
+        "SQL permanece idêntico (casts ::int, date_trunc, CTEs preservados)",
+        "AnalyticsDataSource interface mantida inalterada",
+        "Typecheck e tests do analytics-service passam"
+      ],
+      "requirements": [
+        "REQ-15, REQ-16, REQ-26 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Substituir executor raw",
+          "description": "Atualizar analytics-queries.ts, distribution-queries.ts, trend-queries.ts, error-queries.ts, monitor-queries.ts, model-queries.ts, spend-queries.ts, registry-methods.ts e helpers.ts para importar db e queryRaw.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Converter transações",
+          "description": "Identificar prisma.$transaction e migrar para db.transaction(...).",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Ajustar imports de tipos",
+          "description": "Substituir tipos Prisma por inferidos do Drizzle ou unknown onde JSON.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "services/analytics-service/src/queries/proxy/analytics-queries.ts",
+        "services/analytics-service/src/queries/proxy/distribution-queries.ts",
+        "services/analytics-service/src/queries/proxy/trend-queries.ts",
+        "services/analytics-service/src/queries/proxy/error-queries.ts",
+        "services/analytics-service/src/queries/proxy/monitor-queries.ts",
+        "services/analytics-service/src/queries/proxy/model-queries.ts",
+        "services/analytics-service/src/queries/proxy/spend-queries.ts",
+        "services/analytics-service/src/queries/proxy/helpers.ts",
+        "services/analytics-service/src/data-source/registry-methods.ts",
+        "services/analytics-service/src/data-source/index.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "services/analytics-service/src/queries/proxy/analytics-queries.ts",
+          "services/analytics-service/src/queries/proxy/distribution-queries.ts",
+          "services/analytics-service/src/queries/proxy/trend-queries.ts",
+          "services/analytics-service/src/queries/proxy/error-queries.ts",
+          "services/analytics-service/src/queries/proxy/monitor-queries.ts",
+          "services/analytics-service/src/queries/proxy/model-queries.ts",
+          "services/analytics-service/src/queries/proxy/spend-queries.ts",
+          "services/analytics-service/src/queries/proxy/helpers.ts",
+          "services/analytics-service/src/data-source/registry-methods.ts",
+          "services/analytics-service/src/data-source/index.ts"
+        ],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": ["import { db, queryRaw } from '@lite-llm/database/client'", "import { sql } from 'drizzle-orm'"],
+        "produces": ["export interface AnalyticsDataSource inalterado", "queries retornam Promise<T[]>"]
+      },
+      "notes": [
+        "queryRaw aceita SQL template string parametrizada. Prevenir SQL injection mantendo binds.",
+        "Se pg-mem não cobrir alguma query, anotar e testar com fixture real no postgres de teste."
+      ]
+    },
+    {
+      "id": "Task-B-0003",
+      "title": "Converter app-repository para re-exportar @lite-llm/database",
+      "description": "Substituir SQLite/better-sqlite3 em app-repository; re-exportar db, schema e queries de database. Remover ensureHealthCheckColumns e ALTER TABLE runtime.",
+      "dependencies": ["Task-A-0005"],
+      "batch": "B",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "app-repository exporta './client', './schema', './queries' delegando para @lite-llm/database",
+        "better-sqlite3 e @types/better-sqlite3 removidos",
+        "ensureHealthCheckColumns e SQL ALTER TABLE removidos de src/client.ts",
+        "Queries em src/queries.ts portadas para db Drizzle PostgreSQL",
+        "Typecheck e tests do app-repository passam"
+      ],
+      "requirements": [
+        "REQ-3, REQ-8, REQ-10, REQ-22, REQ-27 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Refatorar client.ts e package.json",
+          "description": "Remover better-sqlite3 dependência e scripts SQLite. Re-exportar client do database.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Re-exportar schema e queries",
+          "description": "Criar barrels que exportam de @lite-llm/database/schema e /queries. Adaptar queries.ts se necessário para manter API pública.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "repositories/app-repository/package.json",
+        "repositories/app-repository/src/client.ts",
+        "repositories/app-repository/src/schema.ts",
+        "repositories/app-repository/src/queries.ts",
+        "repositories/app-repository/drizzle.config.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "repositories/app-repository/package.json",
+          "repositories/app-repository/src/client.ts",
+          "repositories/app-repository/src/schema.ts",
+          "repositories/app-repository/src/queries.ts"
+        ],
+        "deleted": ["repositories/app-repository/drizzle.config.ts"]
+      },
+      "interfaces": {
+        "consumes": ["export * from '@lite-llm/database/client'", "export * from '@lite-llm/database/schema'", "export * from '@lite-llm/database/queries'"],
+        "produces": ["getAppDb() exposto como alias de getDb() do database"]
+      },
+      "notes": [
+        "app-repository continua existindo apenas como barrel para compatibilidade.",
+        "Remover diretório drizzle antigo SQLite? Verificar se outro package o usa."
+      ]
+    },
+    {
+      "id": "Task-B-0004",
+      "title": "Converter model-proxy-repository para re-exportar @lite-llm/database",
+      "description": "Substituir cliente Prisma por re-exports de @lite-llm/database. Remover prisma/schema, migrations e cliente gerado.",
+      "dependencies": ["Task-A-0005"],
+      "batch": "B",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "model-proxy-repository expõe './client', './schema', './queries' re-exportando @lite-llm/database",
+        "Nenhum prisma/schema.prisma, migrations ou src/generated/prisma restante",
+        "Tipos Prisma substituídos por tipos Drizzle",
+        "Todos os consumers antigos (agents-repository, models-repository, services) continuam compilando"
+      ],
+      "requirements": [
+        "REQ-3 da spec",
+        "REQ-20, REQ-21, REQ-27 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Re-exportar database",
+          "description": "Substituir client.ts, schema/index.ts e queries.ts por re-exports.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Limpar Prisma do package.json",
+          "description": "Remover @prisma/client, prisma, scripts prisma e outputs de build.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Deletar prisma/ e src/generated/prisma/",
+          "description": "Remover todo o diretório de schema, migrations e cliente gerado.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "repositories/model-proxy-repository/package.json",
+        "repositories/model-proxy-repository/src/client.ts",
+        "repositories/model-proxy-repository/src/schema.ts",
+        "repositories/model-proxy-repository/src/queries.ts",
+        "repositories/model-proxy-repository/src/index.ts",
+        "repositories/model-proxy-repository/prisma/*",
+        "repositories/model-proxy-repository/src/generated/prisma/*"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "repositories/model-proxy-repository/package.json",
+          "repositories/model-proxy-repository/src/client.ts",
+          "repositories/model-proxy-repository/src/schema.ts",
+          "repositories/model-proxy-repository/src/queries.ts",
+          "repositories/model-proxy-repository/src/index.ts"
+        ],
+        "deleted": [
+          "repositories/model-proxy-repository/prisma/",
+          "repositories/model-proxy-repository/src/generated/prisma/"
+        ]
+      },
+      "interfaces": {
+        "consumes": ["export * from '@lite-llm/database/client'", "export * from '@lite-llm/database/schema'", "export * from '@lite-llm/database/queries'"],
+        "produces": ["export { db, disconnectDb, queryRaw }", "export { modelProxyRequests, ... }"]
+      },
+      "notes": [
+        "getModelProxyPrisma pode virar alias getDb/db. Manter exports antigos para compatibilidade?",
+        "Se consumers importam getModelProxyPrisma, deixar função compatível throwando ou delegando."
+      ]
+    },
+    {
+      "id": "Task-B-0005",
+      "title": "Atualizar consumidores indiretos (agents-repository, models-repository, agents-manager)",
+      "description": "Substituir imports de Prisma/PrismaClient por tipos Drizzle. Remover in-memory-prisma e usar createTestDb.",
+      "dependencies": ["Task-B-0001", "Task-B-0004"],
+      "batch": "B",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "agents-repository e models-repository não importam Prisma",
+        "in-memory-prisma.ts deletados em ambos",
+        "Testes usam createTestDb() do @lite-llm/database",
+        "packages/agents-manager sem referências a Prisma",
+        "Typecheck e tests passam"
+      ],
+      "requirements": [
+        "REQ-16, REQ-17, REQ-18, REQ-19 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "agents-repository: remover Prisma imports e in-memory-prisma",
+          "description": "Trocar tipos e mocks para Drizzle. Adaptar db-repository.test.ts para createTestDb.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "models-repository: remover Prisma imports e mock inline",
+          "description": "Remover mock de createInMemoryPrisma. Adaptar db-repository.test.ts para createTestDb.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "packages/agents-manager references",
+          "description": "Atualizar imports e AGENTS.md se mencionar Prisma.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "repositories/agents-repository/src/**/*.ts",
+        "repositories/agents-repository/src/test-helpers/in-memory-prisma.ts",
+        "repositories/models-repository/src/**/*.ts",
+        "packages/agents-manager/src/**/*.ts",
+        "packages/agents-manager/src/AGENTS.md"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "repositories/agents-repository/src/db-repository.test.ts",
+          "repositories/models-repository/src/db-repository.test.ts",
+          "packages/agents-manager/src/repository/client.ts",
+          "packages/agents-manager/src/AGENTS.md"
+        ],
+        "deleted": [
+          "repositories/agents-repository/src/test-helpers/in-memory-prisma.ts"
+        ]
+      },
+      "interfaces": {
+        "consumes": ["import { createTestDb } from '@lite-llm/database/test-helpers'"],
+        "produces": ["testes portados para Drizzle/pg-mem"]
+      },
+      "notes": [
+        "createTestDb será exposto por '@lite-llm/database/test-helpers' via package.json exports.",
+        "Se mocks utilizavam métodos Prisma específicos, adaptar para query builder Drizzle equivalentes."
+      ]
+    },
+    {
+      "id": "Task-C-0001",
+      "title": "Limpar root, package scripts e Docker/CI de qualquer referência Prisma",
+      "description": "Remover commands e configs de prisma e better-sqlite3 de todos os package.json, docker-compose, scripts de setup e knip.jsonc.",
+      "dependencies": ["Task-B-0003", "Task-B-0004", "Task-B-0005"],
+      "batch": "C",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "Root package.json sem scripts prisma e sem deps @prisma/client/prisma",
+        "knip.jsonc sem ignores de @prisma/client ou generated/prisma",
+        "docker-compose.yml sem entrypoints prisma",
+        "Nenhuma referência better-sqlite3 no repo fora node_modules/dist",
+        "pnpm-workspace.yaml ajustado sem allowBuilds prisma se remover packages"
+      ],
+      "requirements": [
+        "REQ-21, REQ-22, REQ-26, REQ-27 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Atualizar root package.json",
+          "description": "Remover scripts db:migrate prisma, dependências prisma. Substituir por delegação ao database se necessário.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Atualizar knip.jsonc",
+          "description": "Remover entradas @prisma/client e generated/prisma.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Revisar pnpm-workspace.yaml e Docker",
+          "description": "Remover allowBuilds desnecessários. Confirmar docker-compose apenas postgres.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "package.json",
+        "knip.jsonc",
+        "pnpm-workspace.yaml",
+        "docker-compose.yml",
+        "scripts/db-compose.sh"
+      ],
+      "files": {
+        "created": [],
+        "modified": ["package.json", "knip.jsonc", "pnpm-workspace.yaml", "docker-compose.yml", "scripts/db-compose.sh"],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": [],
+        "produces": ["scripts db:generate/migrate delegam ao @lite-llm/database"]
+      },
+      "notes": [
+        "Se pnpm-workspace allowBuilds é global, ajustar removendo prisma e better-sqlite3.",
+        "Documentar no root package.json novo db:migrate via database."
+      ]
+    },
+    {
+      "id": "Task-C-0002",
+      "title": "Atualizar documentação de runtime e AGENTS.md",
+      "description": "Remover referências a Prisma, better-sqlite3 e SQLite de AGENTS.md e specs. Adicionar notas sobre DATABASE_URL e novo package database.",
+      "dependencies": ["Task-C-0001"],
+      "batch": "C",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "AGENTS.md sem menções a Prisma ou SQLite",
+        "docs/specs/0004-prisma-to-drizzle-migration-spec.md status atualizado para implemented com data de fechamento",
+        "docs-check passa sem erros"
+      ],
+      "requirements": [
+        "REQ-23 da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Revisar AGENTS.md root",
+          "description": "Substituir instruções de Prisma por Drizzle/database.",
+          "command": null,
+          "expectedResult": null,
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Atualizar specs/README index",
+          "description": "Rodar pnpm docs-check --emit-index e corrigir inconsistências.",
+          "command": "pnpm docs-check",
+          "expectedResult": "exit 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": ["AGENTS.md", "docs/specs/0004-prisma-to-drizzle-migration-spec.md"],
+      "files": {
+        "created": [],
+        "modified": ["AGENTS.md", "docs/specs/0004-prisma-to-drizzle-migration-spec.md"],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": [],
+        "produces": [
+          "seção Infra/Ambientes e Como rodar localmente refletem PostgreSQL único com Drizzle"
+        ]
+      },
+      "notes": [
+        "Spec 0004 deve ter status 'implemented' e Verificação preenchida na data de fechamento."
+      ]
+    },
+    {
+      "id": "Task-D-0001",
+      "title": "Verificação final e limpeza",
+      "description": "Executar validação final: typecheck, tests, docs-check e grep confirmando ausência de Prisma/better-sqlite3.",
+      "dependencies": ["Task-C-0002"],
+      "batch": "D",
+      "status": "pending",
+      "tryCount": 1,
+      "acceptanceCriteria": [
+        "pnpm typecheck passa em todos os packages",
+        "pnpm test passa em todos os packages",
+        "pnpm docs-check passa",
+        "grep -ri '\\bprisma\\b' ... retorna vazio fora node_modules/dist",
+        "grep -ri 'better-sqlite3' ... retorna vazio fora node_modules/dist",
+        "Nenhum fallback/legacy/deprecated restante"
+      ],
+      "requirements": [
+        "Definition of Done da spec"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Typecheck e tests",
+          "description": "Rodar pnpm typecheck e pnpm test.",
+          "command": "pnpm typecheck && pnpm test",
+          "expectedResult": "exit 0",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Docs-check",
+          "description": "Rodar pnpm docs-check.",
+          "command": "pnpm docs-check",
+          "expectedResult": "exit 0",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Grep de ausência",
+          "description": "Executar greps definidos no DoD.",
+          "command": "grep -ri '\\bprisma\\b' --include='*.ts' --include='*.json' --include='*.prisma' repositories/ services/ packages/ apps/ | grep -v node_modules | grep -v dist",
+          "expectedResult": "vazio",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Grep better-sqlite3",
+          "description": "Executar segundo grep.",
+          "command": "grep -ri 'better-sqlite3' --include='*.ts' --include='*.json' repositories/ services/ packages/ apps/ | grep -v node_modules | grep -v dist",
+          "expectedResult": "vazio",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [],
+      "files": {
+        "created": [],
+        "modified": [],
+        "deleted": []
+      },
+      "interfaces": {
+        "consumes": [],
+        "produces": ["relatório de verificação registrado no progress-ledger"]
+      },
+      "notes": [
+        "Se algum teste falhar, documentar e corrigir. Não ignorar sem análise.",
+        "Qualquer resultado de grep fora node_modules/dist deve originar task de fix."
+      ]
+    }
+  ]
+}

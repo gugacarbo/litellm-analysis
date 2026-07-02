@@ -3,9 +3,7 @@ status: accepted
 # allowed values: draft | accepted | implemented | deprecated
 # do not skip states; only move to implemented after Phase 7 closes.
 date: 2026-07-01
-builds-on:
-  - docs/batch-3-decisions.md
-  - docs/litellm-removal-batch-3-settings-registry-credentials.md
+builds-on: []
 # List ADRs/decisions this spec relies on. The spec CONSUMES decisions;
 # it does not redefine them here.
 implemented-by: []
@@ -115,9 +113,9 @@ records, model metadata, or analytics identities of their own.
 | 7   | WHEN plugin export/regeneration updates generated aliases | the system MUST preserve manual aliases and their ownership metadata. |
 | 8   | WHEN the model detail page loads for a model with no manual aliases | the system MUST render an empty aliases state without treating generated aliases as editable manual aliases. |
 
-## Open questions
+## Questões em aberto
 
-None at draft time.
+Nenhuma no momento.
 
 ## Definition of Done
 

@@ -1,0 +1,31 @@
+# Task Progress Log
+
+# Append-only. One JSON object per line written by subagents via scripts/log-task.sh.
+{"timestamp":"2026-07-02T03:55:12Z","task":"Task-A-0001","event":"started","try":1,"maxTries":3,"message":"Starting implementation: remove readModelsFile, modelsFile, dead test, and stale schema generation\n"}
+{"timestamp":"2026-07-02T03:56:40Z","task":"Task-A-0001","event":"completed","try":1,"maxTries":3,"message":"All acceptance criteria met — model dead code already removed by prior task, typecheck passes, test remains valid\n"}
+{"timestamp":"2026-07-02T03:57:06Z","task":"Task-A-0001","event":"completed","try":1,"maxTries":3,"message":"Already done by prior work (plan 0002). No changes needed. Typecheck passes.\n"}
+{"timestamp":"2026-07-02T03:57:34Z","task":"Task-A-0002","event":"started","try":1,"maxTries":3,"message":"Starting implementation: delete settings-import, settings-export, generate-schema, validate-agents directories\n"}
+{"timestamp":"2026-07-02T04:03:29Z","task":"Task-A-0002","event":"completed","try":1,"maxTries":3,"message":"All acceptance criteria met: 4 directories deleted, no external imports, typecheck passes\n"}
+{"timestamp":"2026-07-02T04:03:49Z","task":"Task-A-0002","event":"completed","try":1,"maxTries":3,"message":"Deleted 4 script directories. Typecheck passes.\n"}
+{"timestamp":"2026-07-02T04:04:14Z","task":"Task-A-0003","event":"started","try":1,"maxTries":3,"message":"Starting Task-A-0003: Remove SETTINGS_PATH from server environment\n"}
+{"timestamp":"2026-07-02T04:05:22Z","task":"Task-A-0003","event":"blocked","try":1,"maxTries":3,"message":"Typecheck fails: repositories/agents-repository/src/schemas/__tests__/validate-json-schema.test.ts:83 still references serverEnv.SETTINGS_PATH (outside filesTouched). Needs Task-B-0002 to remove that test file first, or this task's scope must be expanded.\n"}
+{"timestamp":"2026-07-02T04:05:42Z","task":"Task-A-0003","event":"completed","try":1,"maxTries":3,"message":"Files edited. Typecheck blocked by Task-B-0002 dependency (validate-json-schema.test.ts still refs SETTINGS_PATH).\n"}
+{"timestamp":"2026-07-02T04:06:42Z","task":"Task-B-0001","event":"started","try":1,"maxTries":3,"message":"Starting implementation: remove DEFAULT_AGENTS_PATH, simplify createAgentsManager, clean app-runtime.ts and repository client.ts\n"}
+{"timestamp":"2026-07-02T04:07:43Z","task":"Task-B-0001","event":"blocked","try":1,"maxTries":3,"message":"Typecheck fails in repositories/agents-repository/src/schemas/__tests__/validate-json-schema.test.ts (outside filesTouched, belongs to Task-B-0002). Error: serverEnv.SETTINGS_PATH no longer exists after Task-A-0003. Cannot satisfy acceptance criteria without touching a file outside scope.\n"}
+{"timestamp":"2026-07-02T04:08:09Z","task":"Task-B-0001","event":"completed","try":1,"maxTries":3,"message":"Code changes done. Typecheck blocked by B-0002 (validate-json-schema.test.ts).\n"}
+{"timestamp":"2026-07-02T04:08:33Z","task":"Task-B-0002","event":"started","try":1,"maxTries":3,"message":"Starting implementation: remove AJV validate scripts from package.json and delete validate-json-schema.test.ts\n"}
+{"timestamp":"2026-07-02T04:10:55Z","task":"Task-B-0002","event":"completed","try":1,"maxTries":3,"message":"Removed AJV scripts and deleted validate-json-schema.test.ts. Typecheck 19/19.\n"}
+{"timestamp":"2026-07-02T04:11:19Z","task":"Task-B-0003","event":"started","try":1,"maxTries":3,"message":"Starting Task-B-0003: Verify plugin runners source from database and update AGENTS.md\n"}
+{"timestamp":"2026-07-02T04:12:13Z","task":"Task-B-0003","event":"completed","try":1,"maxTries":3,"message":"All acceptance criteria met: no @settings in agent-plugins code, AGENTS.md updated, plugin runner sources from DB\n"}
+{"timestamp":"2026-07-02T04:12:28Z","task":"Task-B-0003","event":"completed","try":1,"maxTries":3,"message":"Verified no @settings refs in agent-plugins code. Updated AGENTS.md.\n"}
+{"timestamp":"2026-07-02T04:13:00Z","task":"Task-C-0001","event":"started","try":1,"maxTries":3,"message":"Starting documentation update: README.md, agents-manager AGENTS.md, agent-plugins AGENTS.md\n"}
+{"timestamp":"2026-07-02T04:13:04Z","task":"Task-C-0002","event":"started","try":1,"maxTries":3,"message":"Starting Task-C-0002: Clean root package.json scripts and references\n"}
+{"timestamp":"2026-07-02T04:13:54Z","task":"Task-C-0002","event":"completed","try":1,"maxTries":3,"message":"All acceptance criteria met: removed 5 scripts from root package.json, docs-check passes\n"}
+{"timestamp":"2026-07-02T04:14:08Z","task":"Task-C-0001","event":"completed","try":1,"maxTries":3,"message":"All acceptance criteria met: README.md and agents-manager AGENTS.md updated, docs-check passes\n"}
+{"timestamp":"2026-07-02T04:14:40Z","task":"Task-C-0001","event":"completed","try":1,"maxTries":3,"message":"Updated README.md and agents-manager AGENTS.md. docs-check passes.\n"}
+{"timestamp":"2026-07-02T04:14:40Z","task":"Task-C-0002","event":"completed","try":1,"maxTries":3,"message":"Removed 5 @settings scripts from root package.json. docs-check passes.\n"}
+{"timestamp":"2026-07-02T04:15:13Z","task":"Task-C-0003","event":"started","try":1,"maxTries":3,"message":"Starting Task-C-0003: delete @settings directory\n"}
+{"timestamp":"2026-07-02T04:19:19Z","task":"Task-C-0003","event":"completed","try":1,"maxTries":3,"message":"Deleted @settings/ directory. All acceptance criteria met: typecheck, tests, docs-check pass.\n"}
+{"timestamp":"2026-07-02T04:19:30Z","task":"Task-C-0003","event":"completed","try":1,"maxTries":3,"message":"Deleted @settings/. Typecheck 19/19, tests 31/31, docs-check 0 errors.\n"}
+{"timestamp":"2026-07-02T04:20:43Z","task":"Task-D-0001","event":"completed","try":1,"maxTries":3,"message":"Typecheck 19/19, tests 31/31, docs-check 0 errors. No @settings refs outside docs.\n"}
+{"timestamp":"2026-07-02T04:22:05Z","task":"Task-D-0002","event":"completed","try":1,"maxTries":3,"message":"Spec marked implemented. Docs-check 0 errors.\n"}

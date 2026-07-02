@@ -20,6 +20,7 @@ type ModelRow = {
   providerName: string | null;
   secretRef: string | null;
   requestOptions: Record<string, unknown> | null;
+  metadata: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -28,17 +29,38 @@ function createModelsPrismaMock() {
   const rows = new Map<string, ModelRow>();
   let idCounter = 1;
 
+  const resolveProviderName = (
+    data: Partial<ModelRow> & {
+      provider?: { connect?: { name: string }; disconnect?: boolean };
+    },
+    existingProviderName: string | null = null,
+  ) => {
+    if (data.provider?.disconnect) {
+      return null;
+    }
+    if (data.provider?.connect?.name) {
+      return data.provider.connect.name;
+    }
+    return data.providerName ?? existingProviderName;
+  };
+
   const applyUpdate = (
     existing: ModelRow,
-    data: Partial<ModelRow>,
+    data: Partial<ModelRow> & {
+      provider?: { connect?: { name: string }; disconnect?: boolean };
+    },
   ): ModelRow => ({
     ...existing,
     ...data,
+    providerName: resolveProviderName(data, existing.providerName),
     updatedAt: new Date(),
   });
 
   return {
     modelProxyModel: {
+      findFirst: vi.fn(async ({ where }: { where: { modelName: string } }) => {
+        return rows.get(where.modelName) ?? null;
+      }),
       findUnique: vi.fn(async ({ where }: { where: { modelName: string } }) => {
         return rows.get(where.modelName) ?? null;
       }),
@@ -57,7 +79,10 @@ function createModelsPrismaMock() {
         async ({
           data,
         }: {
-          data: Partial<ModelRow> & { modelName: string };
+          data: Partial<ModelRow> & {
+            modelName: string;
+            provider?: { connect?: { name: string }; disconnect?: boolean };
+          };
         }) => {
           const now = new Date();
           const row: ModelRow = {
@@ -75,10 +100,11 @@ function createModelsPrismaMock() {
             outputCostPerToken: data.outputCostPerToken ?? null,
             upstreamModel: data.upstreamModel ?? null,
             upstreamBaseUrl: data.upstreamBaseUrl ?? null,
-            providerName: data.providerName ?? null,
+            providerName: resolveProviderName(data),
             secretRef: data.secretRef ?? null,
             requestOptions:
               (data.requestOptions as Record<string, unknown> | null) ?? null,
+            metadata: (data.metadata as Record<string, unknown> | null) ?? null,
             createdAt: now,
             updatedAt: now,
           };
@@ -91,17 +117,19 @@ function createModelsPrismaMock() {
           where,
           data,
         }: {
-          where: { modelName: string };
-          data: Partial<ModelRow>;
+          where: { id: string };
+          data: Partial<ModelRow> & {
+            provider?: { connect?: { name: string }; disconnect?: boolean };
+          };
         }) => {
-          const existing = rows.get(where.modelName);
+          const existing = [...rows.values()].find((row) => row.id === where.id);
           if (!existing) {
             const error = new Error("Not found") as Error & { code: string };
             error.code = "P2025";
             throw error;
           }
           const updated = applyUpdate(existing, data);
-          rows.set(where.modelName, updated);
+          rows.set(existing.modelName, updated);
           return updated;
         },
       ),
@@ -112,8 +140,13 @@ function createModelsPrismaMock() {
           update,
         }: {
           where: { modelName: string };
-          create: Partial<ModelRow> & { modelName: string };
-          update: Partial<ModelRow>;
+          create: Partial<ModelRow> & {
+            modelName: string;
+            provider?: { connect?: { name: string }; disconnect?: boolean };
+          };
+          update: Partial<ModelRow> & {
+            provider?: { connect?: { name: string }; disconnect?: boolean };
+          };
         }) => {
           const existing = rows.get(where.modelName);
           if (existing) {
@@ -137,10 +170,12 @@ function createModelsPrismaMock() {
             outputCostPerToken: create.outputCostPerToken ?? null,
             upstreamModel: create.upstreamModel ?? null,
             upstreamBaseUrl: create.upstreamBaseUrl ?? null,
-            providerName: create.providerName ?? null,
+            providerName: resolveProviderName(create),
             secretRef: create.secretRef ?? null,
             requestOptions:
               (create.requestOptions as Record<string, unknown> | null) ?? null,
+            metadata:
+              (create.metadata as Record<string, unknown> | null) ?? null,
             createdAt: now,
             updatedAt: now,
           };
@@ -148,14 +183,14 @@ function createModelsPrismaMock() {
           return row;
         },
       ),
-      delete: vi.fn(async ({ where }: { where: { modelName: string } }) => {
-        const existing = rows.get(where.modelName);
+      delete: vi.fn(async ({ where }: { where: { id: string } }) => {
+        const existing = [...rows.values()].find((row) => row.id === where.id);
         if (!existing) {
           const error = new Error("Not found") as Error & { code: string };
           error.code = "P2025";
           throw error;
         }
-        rows.delete(where.modelName);
+        rows.delete(existing.modelName);
         return existing;
       }),
     },

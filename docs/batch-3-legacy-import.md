@@ -1,5 +1,10 @@
 # Batch 3: Legacy One-Shot Import (SA-0C)
 
+> Historical note: this import spec is preserved for migration history. References to
+> `models.jsonc` below are historical and superseded by spec 0002 / Task-C-0002: the
+> live operational source of truth is now the registry stored in `model_proxy_models`
+> and `model_proxy_providers`.
+
 **Status:** specification (implementation in Onda 1+)  
 **Date:** 2026-06-16  
 **Scope:** one-shot migration of operational settings, upstream credentials, and model
@@ -14,7 +19,7 @@ import adapters named in the Batch 3 RFC:
 | Adapter | Source | Target |
 |---------|--------|--------|
 | `legacy-config-adapter` | `LiteLLM_Config` | `model_proxy_settings` |
-| `legacy-credentials-adapter` | `LiteLLM_CredentialsTable` | `model_proxy_credentials` |
+| `legacy-credentials-adapter` | `LiteLLM_CredentialsTable` | `model_proxy_providers` / provider-adjacent registry data |
 | `import-legacy-registry` | `LiteLLM_ProxyModelTable` | `model_proxy_models` |
 
 The import is **one-shot / idempotent**: safe to re-run; does not dual-write back to
@@ -51,8 +56,8 @@ configure env vars **before** the model proxy can resolve upstream credentials
 
 | Variable | When needed |
 |----------|-------------|
-| Per-credential `secretRef` values | **Required** for production upstream auth after import |
-| `MODEL_PROXY_UPSTREAM_API_KEY` | Dev/migration fallback when no per-credential secret resolves |
+| Per-provider / per-model `secretRef` values | **Required** for production upstream auth after import |
+| `MODEL_PROXY_UPSTREAM_API_KEY` | Dev/migration fallback when no per-row secret resolves |
 | `MODEL_PROXY_UPSTREAM_BASE_URL` | Optional global upstream base URL fallback |
 | `MODEL_PROXY_API_KEY` | Local proxy client auth (unrelated to upstream credentials; see decisions §2) |
 
@@ -73,7 +78,7 @@ Implementation target: a script or `pnpm` task (e.g.
 |------|---------|----------|
 | `--dry-run` | off | Log actions; no writes to `model_proxy_*` |
 | `--force` | off | Overwrite existing rows matched by natural key (see [Idempotency](#idempotency)) |
-| `--only` | all | Restrict to `settings`, `credentials`, or `models` |
+| `--only` | all | Restrict to `settings`, `providers`, or `models` |
 
 Without `--force`, rows that already exist in the target (by natural key) are
 **skipped** and counted in `summary.skipped`.
@@ -86,17 +91,15 @@ Foreign references are by **name**, not FK. Recommended phase order:
 
 ```mermaid
 flowchart LR
-  C[credentials] --> S[settings]
-  C --> M[models]
+  P[providers] --> S[settings]
+  P --> M[models]
   S --> M
 ```
 
-1. **Credentials** — `model_proxy_models.credential_name` and
-   `default_credential` setting reference credential **names**.
+1. **Providers** — `model_proxy_models.provider_name` and provider resolution
+   defaults reference provider **names**.
 2. **Settings** — `default_credential`, `health_check_prompt`, `router_settings`.
-3. **Models** — `litellm_params.litellm_credential_name` must resolve to an
-   imported credential name (warn if missing; do not fail the whole job unless
-   `--strict` is added later).
+3. **Models** — registry rows can then reference provider names already present.
 
 ---
 
@@ -124,9 +127,6 @@ Current read paths (analytics-service):
 **Absent source row:** skip (no delete of target). Deleting the default credential
 in the new system is a separate CRUD operation (remove row with
 `key = 'default_credential'`).
-
-**Validation:** if `default_credential` names a credential not present in
-`model_proxy_credentials` after phase 1, emit a **warning** in the job summary.
 
 ### 1.2 `health_check_prompt`
 
@@ -161,11 +161,11 @@ fallback only.
 
 ---
 
-## 2. `LiteLLM_CredentialsTable` → `model_proxy_credentials`
+## 2. Legacy provider/config import → registry provider rows
 
-**Source table:** `LiteLLM_CredentialsTable`  
-**Target table:** `model_proxy_credentials`  
-**Natural key:** `credential_name` → `name` (unique)
+**Source table:** `LiteLLM_CredentialsTable` plus provider hints carried in legacy config  
+**Target table:** `model_proxy_providers` (and related registry metadata)  
+**Natural key:** provider `name`
 
 Current read path: `getAllCredentials()` in `key-queries.ts` (full table scan,
 ordered by `credential_name`).
@@ -174,12 +174,10 @@ ordered by `credential_name`).
 
 | LiteLLM column / JSON path | Target column | Import rule |
 |----------------------------|---------------|-------------|
-| `credential_name` | `name` | Required; unique |
-| `credential_info.custom_llm_provider` | `provider` | String or null |
+| `credential_info.custom_llm_provider` | `name` | Prefer explicit provider hint when present |
 | `credential_values.api_base` | `base_url` | String or null |
-| `credential_values.api_key` | `secret_ref` + optional `api_key` | See [secret_ref policy](#secret_ref-policy) |
-| `credential_id` | — | **Not** stored; new row gets `cuid()` |
-| `created_at` / `updated_at` / `created_by` / `updated_by` | — | Dropped; target uses Prisma `@default(now())` / `@updatedAt` |
+| `credential_values.api_key` | `secret_ref` or env handoff note | See [secret_ref policy](#secret_ref-policy) |
+| `credential_name` | metadata / summary only | Credential labels may still be noted for operator follow-up |
 
 Other keys inside `credential_values` (e.g. `api_version`, provider-specific
 fields) are **not** persisted in Batch 3 MVP unless added to the Prisma schema
@@ -193,29 +191,19 @@ Aligned with [`batch-3-decisions.md`](./batch-3-decisions.md) §1:
 |------|--------|
 | **New writes after import** | Service layer rejects raw `apiKey` on create/update |
 | **Import-time handling of `credential_values.api_key`** | Never copy plaintext into logs or `model_proxy_import_jobs.summary` |
-| **Preferred outcome** | Set `secret_ref` to a derived env var name; leave `api_key` **null** on insert |
-| **Transitional outcome** | If operator passes `--allow-legacy-api-key` (discouraged): one-time copy into `api_key` for read-only runtime fallback (`upstream-provider.ts` order: `secretRef` → `apiKey` → provider env → `MODEL_PROXY_UPSTREAM_API_KEY`) |
-| **No re-write on `--force`** | `--force` updates `provider`, `base_url`, `secret_ref`; still **must not** write new plaintext into `api_key` unless `--allow-legacy-api-key` |
+| **Preferred outcome** | Set `secret_ref` to a derived env var name; leave raw secret material outside the database rows written by the import |
+| **No re-write on `--force`** | `--force` updates provider metadata and `secret_ref`; still **must not** write new plaintext into persisted rows |
 
-#### Deriving `secret_ref` from `credential_name`
+#### Deriving `secret_ref`
 
-When `credential_values.api_key` is present (typical legacy row):
+When legacy source material implies a provider API key:
 
-1. Normalize `credential_name`: uppercase, non-alphanumeric → `_`, collapse repeats.
+1. Normalize the provider/credential name: uppercase, non-alphanumeric → `_`, collapse repeats.
 2. Append `_API_KEY` if the result does not already end with `_API_KEY`.
-3. Set `secret_ref` to that string (e.g. `"ATplus Router"` → `ATPLUS_ROUTER_API_KEY`).
-4. Add to job summary `requiredEnvVars`: `{ "credential": "<name>", "secretRef": "<VAR>", "action": "set env var before proxy start" }`.
+3. Set `secret_ref` to that string.
+4. Add to job summary `requiredEnvVars`: `{ "provider": "<name>", "secretRef": "<VAR>", "action": "set env var before proxy start" }`.
 
-If `credential_values` has **no** `api_key` but references an env-style value
-elsewhere, set `secret_ref` only when the source already stores an env **name**
-(not a value).
-
-If no `api_key` and no derivable ref: import row with `secret_ref = null`;
-runtime falls back to provider `models.jsonc` or `MODEL_PROXY_UPSTREAM_API_KEY`.
-
-**Operator action:** for each `requiredEnvVars` entry, export the former
-`api_key` value into the named env var (secret manager, `.env`, deployment
-config). The import script **must not** print secret values.
+The import script **must not** print secret values.
 
 ---
 
@@ -223,7 +211,7 @@ config). The import script **must not** print secret values.
 
 **Source table:** `LiteLLM_ProxyModelTable`  
 **Target table:** `model_proxy_models`  
-**Natural key:** `model_name` → `model_name` (unique)
+**Natural key:** `model_name` or `(model_name, provider_name)` when provider-scoped routing is enabled
 
 Current read paths: `getAllModels()`, `getModelDetails()`, CRUD in
 `model-queries.ts`.
@@ -250,17 +238,15 @@ Apply conversion rules from [`batch-3-field-mapping.md`](./batch-3-field-mapping
 | `output_cost_per_token` | `output_cost_per_token` |
 | `context_window_size` | `context_window_size` |
 | `max_tokens` | `max_output_tokens` |
-| `litellm_credential_name` | `credential_name` |
+| `provider_name` / `litellm_provider_name` | `provider_name` |
 | `api_base` | `upstream_base_url` |
-| `custom_llm_provider` | `owned_by` and/or `family` (ignore sentinel `litellm_proxy` when config supplies real provider) |
+| `custom_llm_provider` | `owned_by` and/or `family` |
 | `model` (upstream id ≠ alias) | `upstream_model` |
 | All other keys | `request_options` JSON |
 
-**Display / config-only fields** (`display_name`, `api_mode`, `vision`) stay
-empty unless present in `models.jsonc` sync later — import does not read JSONC.
-
-**Per-model `secret_ref`:** not set from LiteLLM rows today; upstream auth
-resolves via `credential_name` → `model_proxy_credentials`.
+**Display / config-adjacent fields** (`display_name`, `api_mode`, `vision`) may
+still be synchronized for compatibility payloads later, but import is centered
+on registry rows, not a file-backed model catalog.
 
 ### Duplicate `model_name` in LiteLLM
 
@@ -268,7 +254,7 @@ resolves via `credential_name` → `model_proxy_credentials`.
 deployments. Import should:
 
 - Process rows ordered by `updated_at DESC`.
-- Keep the first row per `model_name`; log duplicates as warnings.
+- Keep the first row per natural key; log duplicates as warnings.
 
 ---
 
@@ -277,15 +263,12 @@ deployments. Import should:
 | Target table | Natural key | Default re-import | With `--force` |
 |--------------|-------------|-------------------|----------------|
 | `model_proxy_settings` | `key` | Skip if row exists | `UPDATE value` (+ `updated_at`) from LiteLLM source |
-| `model_proxy_credentials` | `name` | Skip if row exists | Update `provider`, `base_url`, `secret_ref` per policy; never refresh `api_key` without `--allow-legacy-api-key` |
-| `model_proxy_models` | `model_name` | Skip if row exists | Full column refresh from latest `litellm_params` conversion |
+| `model_proxy_providers` | `name` | Skip if row exists | Update provider metadata and `secret_ref` per policy |
+| `model_proxy_models` | natural key | Skip if row exists | Full column refresh from latest `litellm_params` conversion |
 
 **Upsert semantics:** implement as `findUnique` on natural key → insert or skip/update.
 Use a single transaction per phase optional; partial completion is recorded in
 `model_proxy_import_jobs.summary`.
-
-**Checksum (optional enhancement):** store a hash of source JSON in job summary to
-detect LiteLLM drift; re-run with `--force` only when drift is intentional.
 
 **LiteLLM source:** always read-only. Import never executes the write paths in
 `credential-settings-queries.ts`, `router-queries.ts`, or `model-queries.ts`
@@ -295,53 +278,18 @@ against LiteLLM.
 
 ## Post-import credential env vars
 
-After a successful import, upstream requests resolve credentials in this order
-(`upstream-provider.ts`):
+After a successful import, upstream requests resolve provider/model secrets in this order:
 
 1. `model_proxy_models.secret_ref` → `process.env[secretRef]`
-2. `model_proxy_credentials.secret_ref` → `process.env[secretRef]`
-3. `model_proxy_credentials.api_key` (legacy column; empty if policy followed)
-4. Provider entry in `models.jsonc` (`apiKey` with optional `env:` prefix)
-5. `MODEL_PROXY_UPSTREAM_API_KEY`
+2. `model_proxy_providers.secret_ref` → `process.env[secretRef]`
+3. `MODEL_PROXY_UPSTREAM_API_KEY`
 
 ### Checklist for operators
 
-1. Read `model_proxy_import_jobs.summary.requiredEnvVars` (or query
-   `model_proxy_credentials` where `secret_ref IS NOT NULL`).
-2. For each `secret_ref`, set `export <SECRET_REF>='<former-api-key>'` in the
-   deployment environment (never commit values to git).
+1. Read `model_proxy_import_jobs.summary.requiredEnvVars`.
+2. For each `secret_ref`, set the corresponding env var in the deployment environment.
 3. Restart model proxy / server processes so `process.env` is reloaded.
 4. Run a health-check or single chat completion against each provider alias.
-5. (Optional) Rotate keys: create new upstream keys, update env vars, clear any
-   transitional `api_key` column rows.
-
-### Example
-
-Legacy row (`LiteLLM_CredentialsTable`):
-
-```json
-{
-  "credential_name": "openai-main",
-  "credential_values": { "api_key": "sk-…", "api_base": "https://api.openai.com/v1" },
-  "credential_info": { "custom_llm_provider": "openai" }
-}
-```
-
-Imported row (`model_proxy_credentials`):
-
-| Column | Value |
-|--------|-------|
-| `name` | `openai-main` |
-| `provider` | `openai` |
-| `base_url` | `https://api.openai.com/v1` |
-| `secret_ref` | `OPENAI_MAIN_API_KEY` |
-| `api_key` | `null` |
-
-Required before proxy works:
-
-```bash
-export OPENAI_MAIN_API_KEY='sk-…'   # value from legacy store, not from import logs
-```
 
 ---
 

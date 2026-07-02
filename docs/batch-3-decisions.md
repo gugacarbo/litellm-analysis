@@ -1,5 +1,24 @@
 # Batch 3: decisões fechadas (RFC)
 
+> ⚠️ **Este RFC foi formalizado em ADRs individuais.** Cada seção abaixo tem
+> um ADR correspondente em `docs/adr/`. Consulte os ADRs para a decisão
+> vigente e o bloco VERDADE ATUAL. Este documento mantém-se como registro
+> histórico do contexto original.
+>
+> | Seção | ADR |
+> |-------|-----|
+> | 1. Estratégia `secret_ref` | [ADR-0001](./adr/0001-secret-ref-upstream-credentials.md) |
+> | 2. API keys locais | [ADR-0002](./adr/0002-local-api-keys-model-proxy-api-keys.md) |
+> | 3. Settings em `model_proxy_settings` | [ADR-0003](./adr/0003-settings-in-model-proxy-settings.md) |
+> | 4. Registry e rename `litellmParams` | [ADR-0004](./adr/0004-model-registry-and-litellmparams-rename.md) |
+> | 5. Estados de sync | [ADR-0005](./adr/0005-sync-state-names-rename.md) |
+> | 6. Política dual-read / single-write | [ADR-0006](./adr/0006-dual-read-single-write-policy.md) |
+
+> Historical note: this RFC records the Batch 3 decisions as they were made. References
+> below to `models.jsonc` are historical and are superseded by spec 0002 / Task-C-0002:
+> the current source of truth for operational model routing is the database-backed
+> registry in `model_proxy_models` and `model_proxy_providers`.
+
 **Status:** fechado  
 **Data:** 2026-06-16  
 **Escopo:** settings, registry e credenciais (`model_proxy_*`)  
@@ -33,13 +52,13 @@ Ordem já implementada em `upstream-provider.ts` (mantida):
 
 1. `readSecretRef(row.secretRef)` → `readSecretRef(credential.secretRef)`
 2. `credential.apiKey` (somente leitura de dados importados/legados)
-3. `provider.apiKey` com prefixo `env:` em `models.jsonc`
+3. Provider row / env fallback resolvido a partir do registry
 4. `MODEL_PROXY_UPSTREAM_API_KEY` (fallback global de dev)
 
 ### Formato de `secretRef`
 
 - Valor: string não vazia = **nome exato** da env var (`OPENAI_API_KEY`).
-- **Não** usar prefixo `env:` em `secret_ref` (diferente de `models.jsonc`).
+- **Não** usar prefixo `env:` em `secret_ref`.
 - Resolução: `process.env[secretRef.trim()]`.
 
 ### Import legado (`LiteLLM_CredentialsTable`)
@@ -148,8 +167,8 @@ Abandonar nomenclatura LiteLLM na UI e contratos novos.
 
 | Legado (hoje) | Novo (Batch 3) | Significado |
 |---------------|----------------|-------------|
-| `synced` | `synced` | Presente e alinhado em registry + `models.jsonc` |
-| `config-only` | `config-only` | Só em `models.jsonc` |
+| `synced` | `synced` | Presente e alinhado em registry + dashboard config |
+| `config-only` | `config-only` | Só no dashboard config legado |
 | `litellm-only` | `registry-only` | Só em `model_proxy_models` (ex-ProxyModelTable) |
 | `config-to-litellm` | `config-to-registry` | Sync: config → registry |
 | `litellm-to-config` | `registry-to-config` | Sync: registry → config |
@@ -197,7 +216,7 @@ flowchart TB
 |----------|---------|------------|
 | Create/update/delete settings | `model_proxy_settings` | Read-only via adapter |
 | CRUD modelos registry | `model_proxy_models` | Read-only via adapter |
-| CRUD credenciais upstream | `model_proxy_credentials` | Read-only via adapter |
+| CRUD credenciais upstream | `model_proxy_providers` / provider-adjacent registry rows | Read-only via adapter |
 | CRUD API keys locais | `model_proxy_api_keys` | N/A (não existia em LiteLLM) |
 | Sync batch / import one-shot | Upsert em `model_proxy_*` | Source read para migração |
 | Analytics / spend | Sem mudança neste batch | Continua via `analytics-service` |
@@ -208,7 +227,7 @@ flowchart TB
 |---------|--------|
 | `litellm-params-adapter` | `litellmParams` ↔ `ModelRoute` ↔ row Prisma |
 | `legacy-config-adapter` | `LiteLLM_Config` → `model_proxy_settings` |
-| `legacy-credentials-adapter` | `LiteLLM_CredentialsTable` → `model_proxy_credentials` |
+| `legacy-credentials-adapter` | `LiteLLM_CredentialsTable` → provider/config no registry |
 | `import-legacy-registry` | `LiteLLM_ProxyModelTable` → `model_proxy_models` |
 
 `repositories/litellm-repository` **não** é removido neste batch.

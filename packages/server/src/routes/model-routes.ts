@@ -718,9 +718,9 @@ export function registerModelRoutes(
           modelName: normalizedNewName,
         });
 
-        // Config-only fields (displayName, family, ownedBy, apiMode, vision)
-        // belong in models.jsonc, not the registry route. Strip them from the
-        // incoming route so they never leak into requestOptions or DB columns.
+        // Config-adjacent display metadata is handled separately from the
+        // registry route. Strip it here so it never leaks into requestOptions
+        // or the registry-backed routing columns.
         const {
           displayName: _displayName,
           family: _family,
@@ -903,7 +903,7 @@ export function registerModelRoutes(
         }
       }
 
-      // 2. Pull registry → config (add missing models to models.jsonc)
+      // 2. Pull registry → compatibility config store for models missing there
       for (const model of litellmModels) {
         if (configNames.has(model.modelName)) continue;
 

@@ -1,4 +1,4 @@
-import type { IModelsRepository } from "@lite-llm/models-repository/repository";
+import type { IModelsRepository } from "@lite-llm/models-repository";
 import { ensurePluginSchemas } from "./lib/ensure-plugin-schemas";
 import { createPluginCatalog } from "./plugin-catalog";
 import {

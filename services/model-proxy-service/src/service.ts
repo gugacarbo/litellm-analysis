@@ -599,9 +599,6 @@ export class ModelProxyService implements IModelProxyService {
     modelName: string,
   ): Promise<ResolvedUpstreamTarget> {
     const database = this.getDatabase();
-    const row = await database.modelProxyModel.findUnique({
-      where: { modelName },
-    });
     const fallbackModels = await this.modelsService.getAll();
     const providers = await this.providerService.getAll();
 
@@ -610,7 +607,6 @@ export class ModelProxyService implements IModelProxyService {
       modelName,
       providers,
       fallbackModels,
-      row,
     });
   }
 

@@ -17,8 +17,10 @@ const NUMERIC_PARAM_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
 /** Writable Prisma fields for `model_proxy_models` create/update. */
 export type ModelProxyRowWrite = Omit<
   Prisma.ModelProxyModelCreateInput,
-  "id" | "createdAt" | "updatedAt"
->;
+  "id" | "createdAt" | "updatedAt" | "provider"
+> & {
+  providerName?: string | null;
+};
 
 function coerceStringParamValue(raw: string): unknown {
   const trimmed = raw.trim();

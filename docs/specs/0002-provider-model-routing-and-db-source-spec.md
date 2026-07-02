@@ -1,9 +1,7 @@
 ---
 status: draft
 date: 2026-07-01
-builds-on:
-  - docs/litellm-removal-batch-3-settings-registry-credentials.md
-  - docs/litellm-removal-migration-plan.md
+builds-on: []
 implemented-by: []
 ---
 

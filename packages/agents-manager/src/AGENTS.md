@@ -37,14 +37,14 @@ packages/agents-manager/src/
 - `AgentCatalogService` — catalog queries
 
 ### Repository
-- `createRepositoryClient({ filePath? })` — wraps `@lite-llm/agents-repository`; resolves `@settings/agents/` from monorepo root
+- `createRepositoryClient({ filePath? })` — wraps `@lite-llm/agents-repository`; reads from the database via `@lite-llm/models-repository`
 
 ## DATA FLOW
 
 ```
-@settings/agents/agents.jsonc  (source of truth)
+model_proxy_settings (PostgreSQL — single source of truth)
         ↓
-agents-repository (SQLite/PostgreSQL via Prisma)
+agents-repository (via Prisma/Drizzle)
         ↓
 RepositoryClient → Services (agent/category/routing)
         ↓
@@ -56,13 +56,13 @@ apps/server routes via @lite-llm/server
 | Task                              | Location                              | Notes                              |
 | --------------------------------- | ------------------------------------- | ---------------------------------- |
 | Add agent CRUD logic              | `services/agent.service.ts`           | Uses repository client             |
-| Change DB path resolution         | `repository/client.ts`                | Handles `@settings/agents/` paths  |
+| Change DB path resolution         | `repository/client.ts`                | Reads from database via models-repository |
 | Add routing config field          | `services/routing.service.ts`         | RoutingService methods             |
 | Add a new default                 | `config/defaults.ts`                  | DEFAULT_AGENTS_PATH, DEFAULT_AGENTS |
 
 ## CONVENTIONS
 
-- Repository client resolves `@settings/agents/` path from monorepo root automatically
+- Repository client reads agents from the database via `@lite-llm/models-repository`
 - All agents/categories go through services; never mutate the repository directly
 - Types live in `@lite-llm/agent-schemas`, not here — this `types/` directory is intentionally empty (migration artifact)
 

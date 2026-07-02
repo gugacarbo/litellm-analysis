@@ -88,9 +88,7 @@ function setupAgentPluginsOrchestrator(
     updateAliases(aliases: Record<string, string>): Promise<void>;
   },
 ) {
-  const agentsManager = createAgentsManager({
-    dbPath: `${env.SETTINGS_PATH}/agents/agents.json`,
-  });
+  const agentsManager = createAgentsManager();
 
   const modelsRepository = createModelsRepositoryClient();
 

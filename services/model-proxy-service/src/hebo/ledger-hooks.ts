@@ -66,7 +66,7 @@ async function resolveTargetForModel(
   }
 
   const database = options.database;
-  const row = await database.modelProxyModel.findUnique({
+  const row = await database.modelProxyModel.findFirst({
     where: { modelName },
   });
   const providers = await options.providerService.getAll();

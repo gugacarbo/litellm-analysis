@@ -1,14 +1,18 @@
-import { createDbRepository } from "./db-repository";
-import type { IModelsRepository } from "./repository";
+import {
+  createDbRepository,
+  type DbModelsRepositoryOptions,
+} from "./db-repository";
+import type { IModelsRepository } from "./interfaces";
 
 export type { IModelsRepository };
-
-export interface RepositoryClientOptions {
-  modelsFilePath?: string;
-}
+export type RepositoryOptions = DbModelsRepositoryOptions;
+export type RepositoryClientOptions = DbModelsRepositoryOptions;
 
 export function createRepositoryClient(
-  _options: RepositoryClientOptions = {},
+  options: RepositoryClientOptions = {},
 ): IModelsRepository {
-  return createDbRepository({ validateOnRead: false });
+  return createDbRepository({
+    ...options,
+    validateOnRead: options.validateOnRead ?? false,
+  });
 }

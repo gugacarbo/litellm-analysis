@@ -1,5 +1,11 @@
 # Plano: migrar do LiteLLM para um proxy TypeScript leve
 
+> Historical note: this plan is kept as a migration record. Where it previously described
+> `@settings/models/models.jsonc` or `model_proxy_credentials` as the long-term source of
+> truth, read those passages as superseded by Task-C-0002 / spec 0002: the current
+> operational source of truth for model routing is the database-backed registry in
+> `model_proxy_models` and `model_proxy_providers`.
+
 ## Objetivo
 
 Remover o LiteLLM como dependencia de runtime do projeto, mantendo o app como
@@ -58,8 +64,9 @@ ser o runtime de proxy; a troca do schema de analytics vem depois.
   devem usar nomes neutros como `modelProxy`, `modelRoute`, `provider`,
   `credential`, `model-alias` e `local-proxy`. Nomes `litellm*` entram apenas
   em adaptadores de importacao ou aliases temporarios.
-- Uma fonte de verdade: `@settings/models/models.jsonc` deve virar a fonte
-  principal para modelos, limites, custos e familias.
+- Uma fonte de verdade: o estado operacional de modelos e providers deve viver
+  no registry em `model_proxy_models` e `model_proxy_providers`. Arquivos em
+  `@settings/` nao sao mais a fonte canônica de routing.
 - Credenciais fora de configs geradas: configs exportadas devem apontar para o
   proxy local, nao expor chaves upstream.
 - Logs proprios antes de remover schema antigo: o dashboard so pode deixar de
@@ -67,8 +74,8 @@ ser o runtime de proxy; a troca do schema de analytics vem depois.
 - Ledger de custo como core: toda chamada que passa pelo proxy deve gerar um
   registro persistido, inclusive erro, timeout e stream interrompido.
 - Custo reproduzivel: salvar o custo calculado e tambem o snapshot de preco
-  usado naquele request, para que mudancas futuras em `@settings/models` nao
-  alterem historico.
+  usado naquele request, para que mudancas futuras no registry nao alterem
+  historico.
 - Compatibilidade de analytics: manter o contrato atual de `/logs`,
   dashboards de gasto e evento WebSocket `spend_logs_changed` enquanto a fonte
   fisica troca de `LiteLLM_SpendLogs` para tabelas do proxy.
@@ -102,7 +109,7 @@ Model Proxy TS
               model_proxy_messages
               model_proxy_usage_adjustments
               model_proxy_models
-              model_proxy_credentials
+              model_proxy_providers
 ```
 
 ## Novos Modulos Propostos
@@ -253,13 +260,14 @@ model_proxy_models
   created_at
   updated_at
 
-model_proxy_credentials
+model_proxy_providers
   id
-  alias
-  provider_id
-  credential_kind
-  secret_ref_or_encrypted_value
-  credential_info
+  name
+  display_name
+  adapter
+  base_url
+  secret_ref
+  config
   created_at
   updated_at
 
@@ -316,7 +324,8 @@ Notas de persistencia:
   o request original.
 - `model_proxy_models` substitui `LiteLLM_ProxyModelTable` como registry dos
   modelos roteaveis pelo proxy.
-- `model_proxy_credentials` guarda credenciais upstream dos providers.
+- `model_proxy_providers` guarda os dados de provider/upstream usados na
+  resolucao do registry.
 - `model_proxy_api_keys` guarda chaves locais usadas por OpenCode, VS Code,
   health-check e outros clientes para chamar o proxy.
 - `model_proxy_settings` substitui usos atuais de `LiteLLM_Config`, incluindo
@@ -450,7 +459,7 @@ Entregaveis:
 - Implementar adapter `openai-compatible`.
 - Suportar request com e sem stream.
 - Encaminhar SSE preservando `data: ...` e `[DONE]`.
-- Usar `@settings/models/models.jsonc` para listar modelos habilitados.
+- Usar o registry do banco para listar modelos habilitados.
 - Criar `provider.local-proxy` e `provider` upstream neutro desde o primeiro
   corte. Se `provider.litellm` existir em config antiga, ler apenas por adapter
   de migracao e gravar de volta como `provider.local-proxy`.
@@ -500,7 +509,7 @@ Entregaveis:
   adapter de entrada/saida temporario.
 - Ajustar UI de modelos para falar em proxy/local provider, nao em LiteLLM DB.
 - Criar storage PostgreSQL para `model_proxy_settings`,
-  `model_proxy_credentials` e `model_proxy_api_keys`.
+  `model_proxy_providers` e `model_proxy_api_keys`.
 - Migrar default credential, health-check prompt e router settings para
   `model_proxy_settings`.
 
@@ -530,7 +539,7 @@ Entregaveis:
   - TTFT quando stream;
   - usage retornado pelo provider;
   - usage normalizado;
-  - custo calculado com `@settings/models`;
+  - custo calculado com os custos armazenados no registry;
   - snapshot do preco usado no calculo;
   - payload de request e response mascarado.
 - Gravar erro estruturado no mesmo ledger, suficiente para substituir
@@ -609,7 +618,7 @@ LiteLLM_ErrorLogs.exception_type      -> model_proxy_requests.error_type
 LiteLLM_ErrorLogs.exception_string    -> model_proxy_requests.error_message
 LiteLLM_ErrorLogs.status_code         -> model_proxy_requests.error_status_code
 LiteLLM_Config.param_name/value       -> model_proxy_settings.key/value
-LiteLLM_CredentialsTable              -> model_proxy_credentials
+LiteLLM_CredentialsTable              -> model_proxy_providers
 LiteLLM_ProxyModelTable               -> model_proxy_models
 ```
 
@@ -629,8 +638,7 @@ ANALYTICS_DATA_SOURCE=litellm | model-proxy | hybrid
   - copia dados historicos de `LiteLLM_SpendLogs` para `model_proxy_requests`;
   - copia dados de erro de `LiteLLM_ErrorLogs` quando existirem;
   - copia settings relevantes de `LiteLLM_Config`;
-  - copia credenciais de `LiteLLM_CredentialsTable` com redacao/criptografia
-    apropriada;
+  - copia providers/configuracoes operacionais para o novo schema;
   - preserva `request_id`;
   - marca `metadata.source = "litellm-import"`;
   - nao sobrescreve requests ja gravados pelo proxy.

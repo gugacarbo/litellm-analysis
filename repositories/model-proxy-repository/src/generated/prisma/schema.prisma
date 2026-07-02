@@ -80,40 +80,44 @@ model ModelProxyMessage {
 }
 
 model ModelProxyModel {
-  id                 String   @id @default(cuid())
-  modelName          String   @unique @map("model_name")
-  enabled            Boolean  @default(true)
-  displayName        String?  @map("display_name")
+  id                 String              @id @default(cuid())
+  modelName          String              @map("model_name")
+  isDefaultProvider  Boolean             @default(false) @map("is_default_provider")
+  enabled            Boolean             @default(true)
+  displayName        String?             @map("display_name")
   family             String?
-  ownedBy            String?  @map("owned_by")
-  apiMode            String?  @map("api_mode")
+  ownedBy            String?             @map("owned_by")
+  apiMode            String?             @map("api_mode")
   vision             Boolean?
-  contextWindowSize  Int?     @map("context_window_size")
-  maxOutputTokens    Int?     @map("max_output_tokens")
-  inputCostPerToken  Float?   @map("input_cost_per_token")
-  outputCostPerToken Float?   @map("output_cost_per_token")
-  upstreamModel      String?  @map("upstream_model")
-  upstreamBaseUrl    String?  @map("upstream_base_url")
-  providerName       String?  @map("provider_name")
-  secretRef          String?  @map("secret_ref")
-  requestOptions     Json?    @map("request_options")
-  metadata           Json?    @map("metadata")
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+  contextWindowSize  Int?                @map("context_window_size")
+  maxOutputTokens    Int?                @map("max_output_tokens")
+  inputCostPerToken  Float?              @map("input_cost_per_token")
+  outputCostPerToken Float?              @map("output_cost_per_token")
+  upstreamModel      String?             @map("upstream_model")
+  upstreamBaseUrl    String?             @map("upstream_base_url")
+  providerName       String?             @map("provider_name")
+  provider           ModelProxyProvider? @relation(fields: [providerName], references: [name], onDelete: SetNull)
+  secretRef          String?             @map("secret_ref")
+  requestOptions     Json?               @map("request_options")
+  metadata           Json?               @map("metadata")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([modelName, providerName])
   @@index([enabled, modelName])
   @@map("model_proxy_models")
 }
 
 model ModelProxyProvider {
-  id        String   @id @default(cuid())
-  name      String   @unique
+  id        String            @id @default(cuid())
+  name      String            @unique
   provider  String?
-  baseUrl   String?  @map("base_url")
-  apiKey    String?  @map("api_key")
-  secretRef String?  @map("secret_ref")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  baseUrl   String?           @map("base_url")
+  apiKey    String?           @map("api_key")
+  secretRef String?           @map("secret_ref")
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @default(now()) @updatedAt @map("updated_at")
+  models    ModelProxyModel[]
 
   @@map("model_proxy_providers")
 }

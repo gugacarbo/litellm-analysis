@@ -29,7 +29,7 @@ export interface ModelRoute {
   secretRef?: string;
   /** Provider-specific kwargs not mapped to dedicated columns. */
   requestOptions?: Record<string, unknown>;
-  /** Extra model config (thinking, reasoning) from dashboard models.jsonc. */
+  /** Extra dashboard-facing metadata (thinking, reasoning) outside first-class registry columns. */
   metadata?: Record<string, unknown>;
 }
 

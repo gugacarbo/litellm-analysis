@@ -1,13 +1,24 @@
-import { createRepository } from "@lite-llm/models-repository/repository";
-import { MemoryStorage } from "@lite-llm/repository-utils";
+import type {
+  IModelsRepository,
+  ModelsConfig,
+} from "@lite-llm/models-repository";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ProviderService } from "../provider.service";
 
-function createTestRepo(files: Record<string, string>) {
-  return createRepository({
-    filePath: "/test/models.json",
-    storage: new MemoryStorage(files),
-  });
+function createTestRepo(initialConfig: ModelsConfig): IModelsRepository {
+  let config = structuredClone(initialConfig);
+
+  return {
+    read: async () => structuredClone(config),
+    readSync: () => structuredClone(config),
+    write: async (nextConfig) => {
+      config = structuredClone(nextConfig);
+    },
+    validate: (value): value is ModelsConfig =>
+      typeof value === "object" && value !== null,
+    exists: async () => true,
+    getPath: () => "memory://models-config",
+  };
 }
 
 describe("ProviderService", () => {
@@ -15,19 +26,17 @@ describe("ProviderService", () => {
 
   beforeEach(() => {
     const repo = createTestRepo({
-      "/test/models.json": JSON.stringify({
-        version: 1,
-        provider: {
-          "local-proxy": {
-            name: "Local Model Proxy",
-            ownedBy: "lite-llm-analytics",
-            baseUrl: "http://localhost:3008/v1",
-            apiKey: "env:MODEL_PROXY_API_KEY",
-            defaultProvider: "ATplus Router",
-          },
+      version: 1,
+      provider: {
+        "local-proxy": {
+          name: "Local Model Proxy",
+          ownedBy: "lite-llm-analytics",
+          baseUrl: "http://localhost:3008/v1",
+          apiKey: "env:MODEL_PROXY_API_KEY",
+          defaultProvider: "ATplus Router",
         },
-        models: {},
-      }),
+      },
+      models: {},
     });
     service = new ProviderService({ repository: repo });
   });

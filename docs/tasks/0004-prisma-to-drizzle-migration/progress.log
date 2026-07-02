@@ -1,0 +1,5 @@
+[2026-07-02T00:00:00Z] plan created — 0004-prisma-to-drizzle-migration
+  tasks: Task-A-0001, Task-A-0002, Task-A-0003, Task-A-0004, Task-B-0001, Task-B-0002, Task-C-0001, Task-C-0002, Task-C-0003, Task-D-0001
+  status: pending
+  note: plan written from approved spec docs/specs/0004-prisma-to-drizzle-migration-spec.md
+{"timestamp":"2026-07-02T04:30:11Z","task":"PLAN-0004","event":"completed","try":1,"maxTries":3,"message":"Implementation plan, tasks.json, progress log, and ledger created.\n"}
