@@ -1,36 +1,54 @@
 import { describe, expect, it, vi } from "vitest";
 
-const mockPrisma = {
-  modelProxyModel: {
-    findMany: vi.fn().mockResolvedValue([
-      {
-        modelName: "gpt-4o",
-        enabled: true,
-        upstreamModel: "gpt-4o",
-        upstreamBaseUrl: "https://api.openai.com/v1",
-        providerName: "openai",
-        contextWindowSize: 128000,
-        maxOutputTokens: 4096,
-        inputCostPerToken: 0.0000025,
-        outputCostPerToken: 0.00001,
-        requestOptions: null,
-      },
-    ]),
+const mockModelRows = [
+  {
+    id: "model-1",
+    modelName: "gpt-4o",
+    enabled: true,
+    upstreamModel: "gpt-4o",
+    upstreamBaseUrl: "https://api.openai.com/v1",
+    providerName: "openai",
+    contextWindowSize: 128000,
+    maxOutputTokens: 4096,
+    inputCostPerToken: 0.0000025,
+    outputCostPerToken: 0.00001,
+    requestOptions: null,
+    displayName: null,
+    family: null,
+    ownedBy: null,
+    apiMode: null,
+    vision: null,
+    secretRef: null,
+    metadata: null,
+    createdAt: new Date("2026-07-02T00:00:00.000Z"),
+    updatedAt: new Date("2026-07-02T00:00:00.000Z"),
   },
-  modelProxySetting: {
-    findUnique: vi.fn().mockResolvedValue({
-      value: { model_group_alias: { agent: "gpt-4o" } },
-    }),
-    upsert: vi.fn(),
-    deleteMany: vi.fn(),
-  },
-  modelProxyProvider: {
-    findMany: vi.fn().mockResolvedValue([]),
-  },
-};
+];
 
-vi.mock("@lite-llm/model-proxy-repository", () => ({
-  getModelProxyPrisma: () => mockPrisma,
+vi.mock("@lite-llm/database/client", () => ({
+  db: {
+    select: () => ({
+      from: (table: unknown) => {
+        if (typeof table === "object" && table !== null && "modelName" in table) {
+          return {
+            orderBy: vi.fn().mockResolvedValue(mockModelRows),
+          };
+        }
+
+        return {
+          where: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue([
+              {
+                id: "setting-1",
+                key: "router_settings",
+                value: { model_group_alias: { agent: "gpt-4o" } },
+              },
+            ]),
+          }),
+        };
+      },
+    }),
+  },
 }));
 
 vi.mock("@lite-llm/agents-manager", () => ({

@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Raw SQL queries against `model_proxy_*` PostgreSQL tables, executed via Prisma `$queryRawUnsafe`. Pure I/O — no business logic, no transformation. All query files live in `proxy/` subdirectory; `queries/index.ts` is a barrel re-export.
+Raw SQL queries against `model_proxy_*` PostgreSQL tables, executed via `@lite-llm/database/queryRaw()`. Pure I/O — no business logic, no transformation. All query files live in `proxy/` subdirectory; `queries/index.ts` is a barrel re-export.
 
 ## FILES
 
@@ -13,7 +13,7 @@ Raw SQL queries against `model_proxy_*` PostgreSQL tables, executed via Prisma `
 queries/
 ├── index.ts                       # Barrel: re-exports from proxy/
 └── proxy/
-    ├── client.ts                  # Prisma client (re-export from @lite-llm/model-proxy-repository)
+    ├── client.ts                  # Database client re-export (from @lite-llm/database/client)
     ├── helpers.ts                 # normalizeDays, getTimeFilterWhere, buildWhereClause
     ├── time-buckets.ts            # Shared time-bucketing helpers
     ├── analytics-queries.ts       # Cost efficiency, performance metrics
@@ -46,14 +46,14 @@ SELECT
 FROM "model_proxy_spend_logs"
 WHERE ...
 ```
-**Always** use `::int` / `::float` casts for numeric types — Prisma returns them as `String` otherwise.
+**Always** use `::int` / `::float` casts for numeric types — raw PostgreSQL numerics should be normalized explicitly.
 
 ### Column Mapping
 Queries return DB columns directly. Use snake_case aliases (`as "total_spend"`) and let `proxy-*-methods.ts` transform to camelCase domain types.
 
 ## SCHEMA TABLES
 
-All tables prefixed `model_proxy_*` (PostgreSQL). Schema managed by Prisma via `repositories/model-proxy-repository/prisma/schema.prisma`. Common tables:
+All tables prefixed `model_proxy_*` (PostgreSQL). Schema lives in `repositories/database/src/schema/model-proxy.ts`. Common tables:
 - `model_proxy_spend_logs` — request-level spend records
 - `model_proxy_error_logs` — error records
 - `model_proxy_models` — model registry rows
@@ -63,7 +63,7 @@ All tables prefixed `model_proxy_*` (PostgreSQL). Schema managed by Prisma via `
 ## ANTI-PATTERNS (THIS PROJECT)
 
 - Do not transform data in queries — pure SQL only; transformation belongs in `data-source/proxy-*-methods.ts`
-- Do not use Drizzle query builder — this package uses raw SQL via Prisma only
+- Do not replace raw SQL with Drizzle builder unless the query is truly simpler to maintain
 - Do not skip `::int` / `::float` casts for numeric types
 - Do not add new query files at `queries/` root — they belong in `queries/proxy/`
-- Do not import the Prisma client directly — use `queries/proxy/client.ts` re-export
+- Do not reach for ad-hoc pools — use `queries/proxy/client.ts` or `@lite-llm/database/client`

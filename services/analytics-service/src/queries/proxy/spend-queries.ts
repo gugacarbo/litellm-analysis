@@ -1,11 +1,9 @@
-import { db, queryRaw } from "@lite-llm/database/client";
-import { sql, eq, asc } from "drizzle-orm";
-import { modelProxyRequests, modelProxyMessages, modelProxyUsageAdjustments } from "@lite-llm/database/schema/model-proxy";
+import { queryRaw } from "@lite-llm/database/client";
 import type {
   ModelProxyMessage,
-  ModelProxyRequest,
   ModelProxyUsageAdjustment,
-} from "@lite-llm/model-proxy-repository";
+} from "@lite-llm/database/schema/model-proxy";
+import { sql } from "drizzle-orm";
 import {
   adjustedTotalCostSql,
   adjustedTotalTokensSql,
@@ -69,11 +67,15 @@ export async function getSpendLogs(params: ProxySpendLogsQueryParams) {
 
   const [messages, adjustments] = await Promise.all([
     queryRaw<ModelProxyMessage>(
-      sql.raw(`SELECT * FROM "model_proxy_messages" WHERE "request_id" IN (${idList}) ORDER BY "created_at" ASC`),
+      sql.raw(
+        `SELECT * FROM "model_proxy_messages" WHERE "request_id" IN (${idList}) ORDER BY "created_at" ASC`,
+      ),
       [],
     ),
     queryRaw<ModelProxyUsageAdjustment>(
-      sql.raw(`SELECT * FROM "model_proxy_usage_adjustments" WHERE "request_id" IN (${idList}) ORDER BY "created_at" ASC`),
+      sql.raw(
+        `SELECT * FROM "model_proxy_usage_adjustments" WHERE "request_id" IN (${idList}) ORDER BY "created_at" ASC`,
+      ),
       [],
     ),
   ]);
@@ -123,11 +125,15 @@ export async function getSpendLogDetail(requestId: string) {
 
   const [messages, adjustments] = await Promise.all([
     queryRaw<ModelProxyMessage>(
-      sql.raw(`SELECT * FROM "model_proxy_messages" WHERE "request_id" = '${requestId.replace(/'/g, "''")}' ORDER BY "created_at" ASC`),
+      sql.raw(
+        `SELECT * FROM "model_proxy_messages" WHERE "request_id" = '${requestId.replace(/'/g, "''")}' ORDER BY "created_at" ASC`,
+      ),
       [],
     ),
     queryRaw<ModelProxyUsageAdjustment>(
-      sql.raw(`SELECT * FROM "model_proxy_usage_adjustments" WHERE "request_id" = '${requestId.replace(/'/g, "''")}' ORDER BY "created_at" ASC`),
+      sql.raw(
+        `SELECT * FROM "model_proxy_usage_adjustments" WHERE "request_id" = '${requestId.replace(/'/g, "''")}' ORDER BY "created_at" ASC`,
+      ),
       [],
     ),
   ]);
@@ -213,9 +219,7 @@ export async function getSpendTotals(
 }
 
 function buildIdList(ids: string[]): string {
-  return ids
-    .map((id) => `'${String(id).replace(/'/g, "''")}'`)
-    .join(",");
+  return ids.map((id) => `'${String(id).replace(/'/g, "''")}'`).join(",");
 }
 
 function groupByRequestId<T extends Record<string, unknown>>(
