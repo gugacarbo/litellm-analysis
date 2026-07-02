@@ -4,7 +4,7 @@ import type { AppContext } from "../contexts";
 import { createHealthCheckRuntime } from "../runtime/health-check-runtime";
 import type { WebSocketServer } from "../ws/websocket-server";
 
-vi.mock("../../../packages/monitor/src/db/monitor-queries", () => ({
+vi.mock("../services/health-check/db", () => ({
   insertHealthCheck: vi.fn().mockReturnValue({ id: 1 }),
   cleanupOldHealthChecks: vi.fn(),
 }));
@@ -65,9 +65,6 @@ describe("health-check-runtime stream WS bridge", () => {
           dataSource: {
             getModels: vi.fn().mockResolvedValue([]),
           },
-        },
-        monitor: {
-          monitorDb: {},
         },
       } as unknown as AppContext,
       httpServer: {} as HttpServer,

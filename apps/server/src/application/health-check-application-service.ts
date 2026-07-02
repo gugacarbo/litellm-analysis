@@ -2,7 +2,7 @@ import {
   getHealthCheckSummary,
   getHealthChecks,
   getLatestHealthChecks,
-} from "@lite-llm/monitor";
+} from "@lite-llm/app-repository/queries";
 
 interface GetResultsInput {
   model?: string;

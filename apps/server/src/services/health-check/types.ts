@@ -28,9 +28,6 @@ export interface HealthCheckServiceOptions {
   modelProxyBaseUrl: string;
   modelProxyApiKey: string;
   analyticsDataSource: import("@lite-llm/analytics-service/data-source").AnalyticsDataSource;
-  monitorDb: ReturnType<
-    typeof import("@lite-llm/app-repository/client").getAppDb
-  >;
   enabledModelNames?: string[];
   requestModeByModelName?: Record<string, "chat" | "responses">;
 }

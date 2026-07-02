@@ -1,6 +1,6 @@
 import type { Server as HttpServer } from "node:http";
-import { HealthCheckService } from "@lite-llm/monitor";
 import type { AppContext } from "../contexts";
+import { HealthCheckService } from "../services/health-check";
 import type { WebSocketServer } from "../ws/websocket-server";
 
 interface HealthCheckRuntimeOptions {
@@ -34,7 +34,6 @@ export function createHealthCheckRuntime(
     modelProxyBaseUrl: options.modelProxyBaseUrl,
     modelProxyApiKey: options.modelProxyApiKey,
     analyticsDataSource: options.ctx.analytics.dataSource,
-    monitorDb: options.ctx.monitor.monitorDb,
     enabledModelNames: options.enabledModelNames,
     requestModeByModelName: options.requestModeByModelName,
   });
