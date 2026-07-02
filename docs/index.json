@@ -24,7 +24,7 @@
     "path": "docs/specs/0003-db-single-source-of-truth-spec.md",
     "layer": "specs",
     "title": "Database becomes the single source of truth for agents, models, and plugins",
-    "status": "draft",
+    "status": "accepted",
     "builds-on": [],
     "superseded-by": null,
     "implemented-by": []

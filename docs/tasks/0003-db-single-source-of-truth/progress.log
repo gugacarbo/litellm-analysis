@@ -1,3 +1,7 @@
 # Task Progress Log
 
 # Append-only. One JSON object per line written by subagents via scripts/log-task.sh.
+{"timestamp":"2026-07-02T03:55:12Z","task":"Task-A-0001","event":"started","try":1,"maxTries":3,"message":"Starting implementation: remove readModelsFile, modelsFile, dead test, and stale schema generation\n"}
+{"timestamp":"2026-07-02T03:56:40Z","task":"Task-A-0001","event":"completed","try":1,"maxTries":3,"message":"All acceptance criteria met — model dead code already removed by prior task, typecheck passes, test remains valid\n"}
+{"timestamp":"2026-07-02T03:57:06Z","task":"Task-A-0001","event":"completed","try":1,"maxTries":3,"message":"Already done by prior work (plan 0002). No changes needed. Typecheck passes.\n"}
+{"timestamp":"2026-07-02T03:57:34Z","task":"Task-A-0002","event":"started","try":1,"maxTries":3,"message":"Starting implementation: delete settings-import, settings-export, generate-schema, validate-agents directories\n"}

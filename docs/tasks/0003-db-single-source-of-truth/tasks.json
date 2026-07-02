@@ -160,8 +160,9 @@
 			"status": "pending",
 			"tryCount": 1,
 			"acceptanceCriteria": [
-				"packages/config/src/server.ts no longer definesSETTINGS_PATH.",
-				".env.example and .env.local no longer contain SETTINGS_PATH.",				"npm run typecheck passes."
+				"packages/config/src/server.ts no longer defines SETTINGS_PATH.",
+				".env.example and .env.local no longer contain SETTINGS_PATH.",
+				"npm run typecheck passes."
 			],
 			"requirements": [
 				"SPEC-0003: No service depends on @settings path."

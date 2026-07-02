@@ -6,3 +6,10 @@
 2026-07-01T00:00:00Z started Task-C-0001 (try 1/3) — Sequential subagent pass started with blocking repository contract and import cleanup foundation work
 2026-07-02T00:00:00Z started Task-C-0001 (try 2/3) — Continuing same task with scripts/settings-import-export cleanup after foundation slice review completed clean
 2026-07-02T00:00:00Z completed Task-C-0001 (try 2/3) — File-based model config removal completed across repository contract, scripts/settings flows, and agent-plugins reachability blockers
+2026-07-02T03:39:39Z started Task-B-0001 (try 1/3) — Sequential worker pass started for resolver prefix/default behavior and stale test contract alignment in model-proxy-service
+2026-07-02T03:39:39Z completed Task-B-0001 (try 1/3) — Resolver-focused tests aligned to the new provider/model lookup contract and focused verification passed
+2026-07-02T03:39:39Z completed Task-C-0002 (try 1/3) — Documentation/comments updated for DB-only model routing source of truth and scoped review passed with no findings
+2026-07-02T03:43:55Z started Task-B-0002 (try 1/3) — Sequential worker pass started for Hebo catalog canonical ids and focused test coverage
+2026-07-02T03:49:21Z completed Task-B-0002 (try 1/3) — Hebo catalog now publishes canonical provider/model ids with focused tests and clean scoped review
+2026-07-02T03:49:21Z started Task-D-0001 (try 1/3) — Final verification pass started across typecheck, tests, lint, deletion checks, and migration validation
+2026-07-02T03:56:39Z completed Task-D-0001 (try 1/3) — Full verification passed after aligning registry/server test doubles with current Prisma contract and making the provider-scoped migration idempotent for local replay
