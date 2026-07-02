@@ -175,7 +175,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       registry: {
         settingsService: registry.settingsService,
         registryModelsService: registry.registryModelsService,
-        credentialsService: registry.credentialsService,
+        providersService: registry.providersService,
         apiKeysService: registry.apiKeysService,
         openAiOAuthService: registry.openAiOAuthService,
       },

@@ -21,9 +21,9 @@ export const providerSchema = z
       .string()
       .optional()
       .meta({ title: "API Key", description: "Provider API key" }),
-    defaultCredential: z.string().default("").meta({
-      title: "Default Credential",
-      description: "Default credential alias used for models in this provider",
+    defaultProvider: z.string().default("").meta({
+      title: "Default Provider",
+      description: "Default provider alias used for models in this provider",
     }),
   })
   .strict();

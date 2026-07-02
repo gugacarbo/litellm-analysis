@@ -5,7 +5,7 @@ export type ModelFormData = {
   outputCostPerToken: string;
   contextWindowSize: string;
   maxTokens: string;
-  credentialName: string;
+  providerName: string;
   extraParams: Record<string, string>;
   enabled: boolean;
 };
@@ -16,7 +16,7 @@ export const FIXED_KEYS = [
   "output_cost_per_token",
   "context_window_size",
   "max_tokens",
-  "credential_name",
+  "provider_name",
   "enabled",
 ];
 
@@ -27,7 +27,7 @@ export const EMPTY_MODEL_FORM_DATA: ModelFormData = {
   outputCostPerToken: "",
   contextWindowSize: "",
   maxTokens: "",
-  credentialName: "",
+  providerName: "",
   extraParams: {},
   enabled: true,
 };

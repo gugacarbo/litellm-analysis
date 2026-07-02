@@ -1,5 +1,5 @@
 import {
-  CredentialsRepository,
+  ProvidersRepository,
   ModelsRepository as RegistryModelsRepository,
   SETTING_KEYS,
   SettingsRepository,
@@ -134,14 +134,14 @@ export class DbModelsRepository implements IModelsRepository {
   private readonly prisma: PrismaClient;
   private readonly settings: SettingsRepository;
   private readonly models: RegistryModelsRepository;
-  private readonly credentials: CredentialsRepository;
+  private readonly providers: ProvidersRepository;
   private readonly validateOnRead: boolean;
 
   constructor(options: DbModelsRepositoryOptions = {}) {
     this.prisma = options.prisma ?? getModelProxyPrisma();
     this.settings = new SettingsRepository(this.prisma);
     this.models = new RegistryModelsRepository(this.prisma);
-    this.credentials = new CredentialsRepository(this.prisma);
+    this.providers = new ProvidersRepository(this.prisma);
     this.validateOnRead = options.validateOnRead ?? true;
   }
 
@@ -149,45 +149,45 @@ export class DbModelsRepository implements IModelsRepository {
     const modelRows = await this.prisma.modelProxyModel.findMany({
       orderBy: { modelName: "asc" },
     });
-    const credentialRows = await this.credentials.list();
-    const defaultCredentialRow = await this.settings.findByKey(
-      SETTING_KEYS.DEFAULT_CREDENTIAL,
+    const providerRows = await this.providers.list();
+    const defaultProviderRow = await this.settings.findByKey(
+      SETTING_KEYS.DEFAULT_PROVIDER,
     );
 
-    const defaultCredential =
-      defaultCredentialRow &&
-      typeof defaultCredentialRow.value === "object" &&
-      defaultCredentialRow.value !== null &&
-      "default_credential" in defaultCredentialRow.value &&
-      typeof (defaultCredentialRow.value as { default_credential?: unknown })
-        .default_credential === "string"
-        ? (defaultCredentialRow.value as { default_credential: string })
-            .default_credential
+    const defaultProvider =
+      defaultProviderRow &&
+      typeof defaultProviderRow.value === "object" &&
+      defaultProviderRow.value !== null &&
+      "default_provider" in defaultProviderRow.value &&
+      typeof (defaultProviderRow.value as { default_provider?: unknown })
+        .default_provider === "string"
+        ? (defaultProviderRow.value as { default_provider: string })
+            .default_provider
         : "";
 
     const provider: Record<string, Provider> = {
       "local-proxy": {
         name: "Local Model Proxy",
         baseUrl: "http://localhost:3008/v1",
-        defaultCredential,
+        defaultProvider,
         apiKey: "env:MODEL_PROXY_API_KEY",
       },
     };
 
-    for (const credential of credentialRows) {
-      const providerKey = credential.provider ?? credential.name;
+    for (const row of providerRows) {
+      const providerKey = row.provider ?? row.name;
       provider[providerKey] = {
-        name: credential.name,
-        baseUrl: credential.baseUrl ?? "",
-        defaultCredential: credential.name,
-        ...(credential.provider === "openai-compatible"
+        name: row.name,
+        baseUrl: row.baseUrl ?? "",
+        defaultProvider: row.name,
+        ...(row.provider === "openai-compatible"
           ? { adapter: "openai-compatible" as const }
           : {}),
-        ...(credential.provider && credential.provider !== "openai-compatible"
-          ? { ownedBy: credential.provider }
+        ...(row.provider && row.provider !== "openai-compatible"
+          ? { ownedBy: row.provider }
           : {}),
-        ...(secretRefToApiKey(credential.secretRef)
-          ? { apiKey: secretRefToApiKey(credential.secretRef) }
+        ...(secretRefToApiKey(row.secretRef)
+          ? { apiKey: secretRefToApiKey(row.secretRef) }
           : {}),
       };
     }
@@ -231,14 +231,14 @@ export class DbModelsRepository implements IModelsRepository {
 
     const validated = result.data;
     const localProxy = validated.provider["local-proxy"];
-    const defaultCredentialName = localProxy?.defaultCredential?.trim() ?? "";
+    const defaultProviderName = localProxy?.defaultProvider?.trim() ?? "";
 
-    if (defaultCredentialName) {
-      await this.settings.upsert(SETTING_KEYS.DEFAULT_CREDENTIAL, {
-        default_credential: defaultCredentialName,
+    if (defaultProviderName) {
+      await this.settings.upsert(SETTING_KEYS.DEFAULT_PROVIDER, {
+        default_provider: defaultProviderName,
       });
     } else {
-      await this.settings.deleteByKey(SETTING_KEYS.DEFAULT_CREDENTIAL);
+      await this.settings.deleteByKey(SETTING_KEYS.DEFAULT_PROVIDER);
     }
 
     for (const [providerKey, providerSpec] of Object.entries(
@@ -248,26 +248,26 @@ export class DbModelsRepository implements IModelsRepository {
         continue;
       }
 
-      const credentialName = providerSpec.defaultCredential?.trim();
-      if (!credentialName) {
+      const providerName = providerSpec.defaultProvider?.trim();
+      if (!providerName) {
         continue;
       }
 
       const secretRef = parseApiKeyToSecretRef(providerSpec.apiKey);
-      const credentialData = {
-        name: credentialName,
+      const providerData = {
+        name: providerName,
         provider: resolveProviderField(providerKey, providerSpec),
         baseUrl: providerSpec.baseUrl || null,
         secretRef:
           secretRef ??
-          `${credentialName.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_API_KEY`,
+          `${providerName.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_API_KEY`,
       };
 
-      const existing = await this.credentials.findByName(credentialName);
+      const existing = await this.providers.findByName(providerName);
       if (existing) {
-        await this.credentials.update(credentialName, credentialData);
+        await this.providers.update(providerName, providerData);
       } else {
-        await this.credentials.create(credentialData);
+        await this.providers.create(providerData);
       }
     }
 

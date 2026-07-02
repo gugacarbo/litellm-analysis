@@ -1,8 +1,8 @@
 import { fetchApi } from "./core";
 
-export type RegistryCredential = {
-  credentialId: string;
-  credentialName: string;
+export type RegistryProvider = {
+  providerId: string;
+  providerName: string;
   provider: string | null;
   baseUrl: string | null;
   hasStoredSecret: boolean;
@@ -35,81 +35,81 @@ export type OpenAiOAuthDeviceCodePollResult =
       connection: OpenAiOAuthConnectionStatus;
     };
 
-/** @deprecated Use RegistryCredential */
-export type LiteLLMCredential = RegistryCredential;
+/** @deprecated Use RegistryProvider */
+export type LiteLLMProvider = RegistryProvider;
 
-export type CredentialInput = {
+export type ProviderInput = {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
   apiKey: string;
 };
 
-export type CredentialUpdateInput = {
+export type ProviderUpdateInput = {
   name?: string;
   provider?: string | null;
   baseUrl?: string | null;
   apiKey?: string;
 };
 
-export async function getCredential(
+export async function getProvider(
   name: string,
-): Promise<RegistryCredential | null> {
-  return fetchApi(`/credentials/${encodeURIComponent(name)}`);
+): Promise<RegistryProvider | null> {
+  return fetchApi(`/providers/${encodeURIComponent(name)}`);
 }
 
-export async function createCredential(
-  input: CredentialInput,
-): Promise<RegistryCredential> {
-  return fetchApi("/credentials", {
+export async function createProvider(
+  input: ProviderInput,
+): Promise<RegistryProvider> {
+  return fetchApi("/providers", {
     method: "POST",
     body: JSON.stringify(input),
   });
 }
 
-export async function updateCredential(
+export async function updateProvider(
   name: string,
-  input: CredentialUpdateInput,
-): Promise<RegistryCredential> {
-  return fetchApi(`/credentials/${encodeURIComponent(name)}`, {
+  input: ProviderUpdateInput,
+): Promise<RegistryProvider> {
+  return fetchApi(`/providers/${encodeURIComponent(name)}`, {
     method: "PUT",
     body: JSON.stringify(input),
   });
 }
 
-export async function deleteCredential(
+export async function deleteProvider(
   name: string,
 ): Promise<{ success: boolean }> {
-  return fetchApi(`/credentials/${encodeURIComponent(name)}`, {
+  return fetchApi(`/providers/${encodeURIComponent(name)}`, {
     method: "DELETE",
   });
 }
 
-export async function getAllCredentials(): Promise<RegistryCredential[]> {
-  return fetchApi("/credentials");
+export async function getAllProviders(): Promise<RegistryProvider[]> {
+  return fetchApi("/providers");
 }
 
-export async function getDefaultCredential(): Promise<{
-  defaultCredential: string | null;
+export async function getDefaultProvider(): Promise<{
+  defaultProvider: string | null;
 }> {
-  return fetchApi("/credentials/default");
+  return fetchApi("/providers/default");
 }
 
-export async function setDefaultCredential(
-  credentialAlias: string | null,
+export async function setDefaultProvider(
+  providerAlias: string | null,
 ): Promise<{ success: boolean }> {
-  return fetchApi("/credentials/default", {
+  return fetchApi("/providers/default", {
     method: "PUT",
-    body: JSON.stringify({ credentialAlias }),
+    body: JSON.stringify({ providerAlias }),
   });
 }
 
 export async function getOpenAiOAuthConnectionStatus(): Promise<OpenAiOAuthConnectionStatus> {
-  return fetchApi("/credentials/openai-oauth");
+  return fetchApi("/providers/openai-oauth");
 }
 
 export async function startOpenAiOAuthDeviceFlow(): Promise<OpenAiOAuthDeviceCodeStartResult> {
-  return fetchApi("/credentials/openai-oauth/device/start", {
+  return fetchApi("/providers/openai-oauth/device/start", {
     method: "POST",
   });
 }
@@ -118,14 +118,14 @@ export async function pollOpenAiOAuthDeviceFlow(input: {
   deviceAuthId: string;
   userCode: string;
 }): Promise<OpenAiOAuthDeviceCodePollResult> {
-  return fetchApi("/credentials/openai-oauth/device/poll", {
+  return fetchApi("/providers/openai-oauth/device/poll", {
     method: "POST",
     body: JSON.stringify(input),
   });
 }
 
 export async function disconnectOpenAiOAuth(): Promise<{ success: boolean }> {
-  return fetchApi("/credentials/openai-oauth", {
+  return fetchApi("/providers/openai-oauth", {
     method: "DELETE",
   });
 }
@@ -137,18 +137,18 @@ export type OpenAiDiscoveredModel = {
   created?: number;
 };
 
-export type DiscoveredCredentialModel = OpenAiDiscoveredModel;
+export type DiscoveredProviderModel = OpenAiDiscoveredModel;
 
 export async function discoverOpenAiModels(): Promise<{
   models: OpenAiDiscoveredModel[];
 }> {
-  return fetchApi("/credentials/openai-oauth/discover-models");
+  return fetchApi("/providers/openai-oauth/discover-models");
 }
 
-export async function discoverCredentialModels(name: string): Promise<{
-  models: DiscoveredCredentialModel[];
+export async function discoverProviderModels(name: string): Promise<{
+  models: DiscoveredProviderModel[];
 }> {
-  return fetchApi(`/credentials/${encodeURIComponent(name)}/discover-models`);
+  return fetchApi(`/providers/${encodeURIComponent(name)}/discover-models`);
 }
 
 export async function testOpenAIModel(
@@ -157,39 +157,39 @@ export async function testOpenAIModel(
 ): Promise<{
   content: string;
 }> {
-  return fetchApi("/credentials/openai-oauth/test-chat", {
+  return fetchApi("/providers/openai-oauth/test-chat", {
     method: "POST",
     body: JSON.stringify({ model, prompt }),
   });
 }
 
-export async function testCredentialModel(
+export async function testProviderModel(
   name: string,
   model: string,
   prompt: string,
 ): Promise<{
   content: string;
 }> {
-  return fetchApi(`/credentials/${encodeURIComponent(name)}/test-chat`, {
+  return fetchApi(`/providers/${encodeURIComponent(name)}/test-chat`, {
     method: "POST",
     body: JSON.stringify({ model, prompt }),
   });
 }
 
 export async function registerOpenAiModels(
-  models: DiscoveredCredentialModel[],
+  models: DiscoveredProviderModel[],
 ): Promise<{ registered: string[]; skipped: string[]; errors: string[] }> {
-  return fetchApi("/credentials/openai-oauth/register-models", {
+  return fetchApi("/providers/openai-oauth/register-models", {
     method: "POST",
     body: JSON.stringify({ models }),
   });
 }
 
-export async function registerCredentialModels(
+export async function registerProviderModels(
   name: string,
-  models: DiscoveredCredentialModel[],
+  models: DiscoveredProviderModel[],
 ): Promise<{ registered: string[]; skipped: string[]; errors: string[] }> {
-  return fetchApi(`/credentials/${encodeURIComponent(name)}/register-models`, {
+  return fetchApi(`/providers/${encodeURIComponent(name)}/register-models`, {
     method: "POST",
     body: JSON.stringify({ models }),
   });

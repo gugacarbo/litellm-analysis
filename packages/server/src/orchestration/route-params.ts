@@ -67,52 +67,52 @@ export function coerceRouteParams(
   return result;
 }
 
-function normalizeCredentialName(
-  credentialName?: string | null,
+function normalizeProviderName(
+  providerName?: string | null,
 ): string | undefined {
-  if (typeof credentialName !== "string") {
+  if (typeof providerName !== "string") {
     return undefined;
   }
 
-  const normalized = credentialName.trim();
+  const normalized = providerName.trim();
   return normalized ? normalized : undefined;
 }
 
-export function getCredentialNameFromParams(
+export function getProviderNameFromParams(
   params: Record<string, unknown>,
 ): string | undefined {
   return (
-    normalizeCredentialName(params.credential_name as string | undefined) ??
-    normalizeCredentialName(
-      params.litellm_credential_name as string | undefined,
+    normalizeProviderName(params.provider_name as string | undefined) ??
+    normalizeProviderName(
+      params.litellm_provider_name as string | undefined,
     )
   );
 }
 
-export function resolveModelCredential(
+export function resolveModelProvider(
   params: Record<string, unknown>,
-  fallbackCredential?: string | null,
+  fallbackProvider?: string | null,
 ): string | undefined {
   return (
-    getCredentialNameFromParams(params) ??
-    normalizeCredentialName(fallbackCredential)
+    getProviderNameFromParams(params) ??
+    normalizeProviderName(fallbackProvider)
   );
 }
 
 export function normalizeModelRoute(
   modelName: string,
   route: ModelRoute,
-  credentialName?: string | null,
+  providerName?: string | null,
 ): ModelRoute {
-  const resolvedCredential = resolveModelCredential(
+  const resolvedProvider = resolveModelProvider(
     route as unknown as Record<string, unknown>,
-    credentialName,
+    providerName,
   );
 
   return {
     ...route,
     modelName,
-    credentialName: resolvedCredential ?? route.credentialName,
+    providerName: resolvedProvider ?? route.providerName,
   };
 }
 
@@ -122,7 +122,7 @@ export function buildModelRouteFromSpec(
     limits: { length: number; maxOutput: number };
     cost?: { input?: number; output?: number };
   },
-  credentialName?: string | null,
+  providerName?: string | null,
 ): ModelRoute {
   const route: ModelRoute = {
     modelName,
@@ -140,7 +140,7 @@ export function buildModelRouteFromSpec(
     route.outputCostPerToken = outputCostPerToken;
   }
 
-  return normalizeModelRoute(modelName, route, credentialName);
+  return normalizeModelRoute(modelName, route, providerName);
 }
 
 export function mergeModelRouteFromSpec(
@@ -150,15 +150,15 @@ export function mergeModelRouteFromSpec(
     cost?: { input?: number; output?: number };
   },
   existingRoute: ModelRoute,
-  defaultCredential?: string | null,
+  defaultProvider?: string | null,
 ): ModelRoute {
-  const modelCredential =
-    existingRoute.credentialName ??
-    getCredentialNameFromParams(
+  const modelProvider =
+    existingRoute.providerName ??
+    getProviderNameFromParams(
       existingRoute as unknown as Record<string, unknown>,
     ) ??
-    defaultCredential;
-  const builtRoute = buildModelRouteFromSpec(modelName, spec, modelCredential);
+    defaultProvider;
+  const builtRoute = buildModelRouteFromSpec(modelName, spec, modelProvider);
 
   return normalizeModelRoute(
     modelName,
@@ -166,6 +166,6 @@ export function mergeModelRouteFromSpec(
       ...existingRoute,
       ...builtRoute,
     },
-    modelCredential,
+    modelProvider,
   );
 }

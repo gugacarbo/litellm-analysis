@@ -14,13 +14,13 @@ describe("upstream-provider", () => {
           ownedBy: "lite-llm-analytics",
           baseUrl: "http://localhost:3008/v1",
           apiKey: "env:MODEL_PROXY_API_KEY",
-          defaultCredential: "router",
+          defaultProvider: "router",
         },
         openai: {
           name: "OpenAI",
           adapter: "openai-compatible",
           baseUrl: "https://api.openai.com/v1",
-          defaultCredential: "openai-main",
+          defaultProvider: "openai-main",
         },
       },
       {
@@ -32,12 +32,12 @@ describe("upstream-provider", () => {
     );
 
     expect(provider?.baseUrl).toBe("https://api.openai.com/v1");
-    expect(provider?.defaultCredential).toBe("openai-main");
+    expect(provider?.defaultProvider).toBe("openai-main");
   });
 
   it("resolves upstream from provider registry without global env", async () => {
     const database = {
-      modelProxyCredential: {
+      modelProxyProvider: {
         findUnique: vi.fn().mockResolvedValue({
           name: "openai-main",
           apiKey: "upstream-secret",
@@ -55,7 +55,7 @@ describe("upstream-provider", () => {
           name: "OpenAI",
           adapter: "openai-compatible",
           baseUrl: "https://api.openai.com/v1",
-          defaultCredential: "openai-main",
+          defaultProvider: "openai-main",
         },
       },
       fallbackModels: {
@@ -74,15 +74,15 @@ describe("upstream-provider", () => {
     expect(target.upstreamHeaders).toEqual({
       authorization: "Bearer upstream-secret",
     });
-    expect(database.modelProxyCredential.findUnique).toHaveBeenCalledWith({
+    expect(database.modelProxyProvider.findUnique).toHaveBeenCalledWith({
       where: { name: "openai-main" },
     });
   });
 
-  it("uses literal secretRef values when the credential stores a raw key", async () => {
+  it("uses literal secretRef values when the provider stores a raw key", async () => {
     const target = await resolveUpstreamTarget({
       database: {
-        modelProxyCredential: {
+        modelProxyProvider: {
           findUnique: vi.fn().mockResolvedValue({
             name: "iproute-main",
             apiKey: null,
@@ -97,7 +97,7 @@ describe("upstream-provider", () => {
           name: "OpenAI",
           adapter: "openai-compatible",
           baseUrl: "https://api.openai.com/v1",
-          defaultCredential: "iproute-main",
+          defaultProvider: "iproute-main",
         },
       },
       fallbackModels: {
@@ -119,7 +119,7 @@ describe("upstream-provider", () => {
   it("resolves chatgpt subscription models without api key", async () => {
     const target = await resolveUpstreamTarget({
       database: {
-        modelProxyCredential: {
+        modelProxyProvider: {
           findUnique: vi.fn().mockResolvedValue(null),
         },
       } as never,

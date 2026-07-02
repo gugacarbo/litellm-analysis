@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
-import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
+import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
 import type { ModelConfig } from "@/shared/lib/api-client/models";
 
 type ModelFormDialogProps = {
@@ -36,8 +36,8 @@ type ModelFormDialogProps = {
   onRemoveExtraParam: (key: string) => void;
   onUpdateExtraParam: (key: string, value: string) => void;
   onSubmit: () => void;
-  credentials: LiteLLMCredential[];
-  defaultCredential: string | null;
+  providers: LiteLLMProvider[];
+  defaultProvider: string | null;
 };
 
 export function ModelFormDialog({
@@ -53,8 +53,8 @@ export function ModelFormDialog({
   onRemoveExtraParam,
   onUpdateExtraParam,
   onSubmit,
-  credentials,
-  defaultCredential,
+  providers,
+  defaultProvider,
 }: ModelFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -126,35 +126,35 @@ export function ModelFormDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="credential" className="text-sm font-medium">
-              Credential
+            <Label htmlFor="provider" className="text-sm font-medium">
+              Provider
               <span className="text-muted-foreground font-normal ml-1">
                 (LiteLLM virtual key)
               </span>
             </Label>
             <Select
-              value={formData.credentialName}
+              value={formData.providerName}
               onValueChange={(value) =>
                 onFormDataChange({
                   ...formData,
-                  credentialName: value === "none" ? "" : value,
+                  providerName: value === "none" ? "" : value,
                 })
               }
             >
-              <SelectTrigger id="credential">
-                <SelectValue placeholder="Select a credential (optional)" />
+              <SelectTrigger id="provider">
+                <SelectValue placeholder="Select a provider (optional)" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">
-                  <span className="text-muted-foreground">No credential</span>
+                  <span className="text-muted-foreground">No provider</span>
                 </SelectItem>
-                {credentials.map((cred) => (
+                {providers.map((cred) => (
                   <SelectItem
-                    key={cred.credentialId}
-                    value={cred.credentialName}
+                    key={cred.providerId}
+                    value={cred.providerName}
                   >
                     <div className="flex flex-col">
-                      <span>{cred.credentialName}</span>
+                      <span>{cred.providerName}</span>
                       {(cred.provider || cred.baseUrl) && (
                         <span className="text-xs text-muted-foreground">
                           {[cred.provider, cred.baseUrl]
@@ -167,9 +167,9 @@ export function ModelFormDialog({
                 ))}
               </SelectContent>
             </Select>
-            {defaultCredential && !editingModel && (
+            {defaultProvider && !editingModel && (
               <p className="text-xs text-muted-foreground">
-                Default: {defaultCredential}
+                Default: {defaultProvider}
               </p>
             )}
           </div>

@@ -8,7 +8,7 @@ export function ModelDetailSettingsTab() {
     formData,
     isDirty,
     saving,
-    credentials,
+    providers,
     onFormDataChange,
     onAddExtraParam,
     onRemoveExtraParam,
@@ -25,7 +25,7 @@ export function ModelDetailSettingsTab() {
     <ModelConfigForm
       modelName={model.modelName}
       formData={formData}
-      credentials={credentials}
+      providers={providers}
       onFormDataChange={onFormDataChange}
       onAddExtraParam={onAddExtraParam}
       onRemoveExtraParam={onRemoveExtraParam}

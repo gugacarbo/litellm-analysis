@@ -5,7 +5,7 @@ import { createRegistryTestStack } from "./helpers/registry-test-stack";
 
 async function createRegistryHttpServer(
   stack = createRegistryTestStack(),
-  routes: "models" | "credentials" | "proxy" | "all" = "all",
+  routes: "models" | "providers" | "proxy" | "all" = "all",
 ) {
   const express = (await import("express")).default;
   const app = express();
@@ -18,11 +18,11 @@ async function createRegistryHttpServer(
     registerModelRoutes(app, stack.routeOptions);
   }
 
-  if (routes === "credentials" || routes === "all") {
-    const { registerCredentialRoutes } = await import(
-      "../../../../packages/server/src/routes/credential-routes.ts"
+  if (routes === "providers" || routes === "all") {
+    const { registerProviderRoutes } = await import(
+      "../../../../packages/server/src/routes/provider-routes.ts"
     );
-    registerCredentialRoutes(app, stack.routeOptions);
+    registerProviderRoutes(app, stack.routeOptions);
   }
 
   if (routes === "proxy" || routes === "all") {
@@ -64,60 +64,60 @@ describe("registry integration", () => {
   });
 
   describe("settings roundtrip", () => {
-    it("persists default credential through credential routes", async () => {
+    it("persists default provider through provider routes", async () => {
       const { port, server } = await createRegistryHttpServer(
         undefined,
-        "credentials",
+        "providers",
       );
 
       try {
         const putResponse = await fetch(
-          `http://127.0.0.1:${port}/credentials/default`,
+          `http://127.0.0.1:${port}/providers/default`,
           {
             method: "PUT",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ credentialAlias: "openai-main" }),
+            body: JSON.stringify({ providerAlias: "openai-main" }),
           },
         );
         expect(putResponse.status).toBe(200);
         expect(await putResponse.json()).toEqual({ success: true });
 
         const getResponse = await fetch(
-          `http://127.0.0.1:${port}/credentials/default`,
+          `http://127.0.0.1:${port}/providers/default`,
         );
         expect(getResponse.status).toBe(200);
         expect(await getResponse.json()).toEqual({
-          defaultCredential: "openai-main",
+          defaultProvider: "openai-main",
         });
 
         const clearResponse = await fetch(
-          `http://127.0.0.1:${port}/credentials/default`,
+          `http://127.0.0.1:${port}/providers/default`,
           {
             method: "PUT",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ credentialAlias: null }),
+            body: JSON.stringify({ providerAlias: null }),
           },
         );
         expect(clearResponse.status).toBe(200);
 
         const clearedGet = await fetch(
-          `http://127.0.0.1:${port}/credentials/default`,
+          `http://127.0.0.1:${port}/providers/default`,
         );
-        expect(await clearedGet.json()).toEqual({ defaultCredential: null });
+        expect(await clearedGet.json()).toEqual({ defaultProvider: null });
       } finally {
         await closeServer(server);
       }
     });
 
-    it("stores raw api keys securely and never returns them in credential responses", async () => {
+    it("stores raw api keys securely and never returns them in provider responses", async () => {
       const { port, server } = await createRegistryHttpServer(
         undefined,
-        "credentials",
+        "providers",
       );
 
       try {
         const createResponse = await fetch(
-          `http://127.0.0.1:${port}/credentials`,
+          `http://127.0.0.1:${port}/providers`,
           {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -132,19 +132,19 @@ describe("registry integration", () => {
         expect(createResponse.status).toBe(201);
         expect(await createResponse.json()).toEqual(
           expect.objectContaining({
-            credentialName: "iproute",
+            providerName: "iproute",
             baseUrl: "https://llm.iproute.cloud/v1",
             hasStoredSecret: true,
           }),
         );
 
         const listResponse = await fetch(
-          `http://127.0.0.1:${port}/credentials`,
+          `http://127.0.0.1:${port}/providers`,
         );
         expect(listResponse.status).toBe(200);
         expect(await listResponse.json()).toEqual([
           expect.objectContaining({
-            credentialName: "iproute",
+            providerName: "iproute",
             hasStoredSecret: true,
           }),
         ]);
@@ -156,12 +156,12 @@ describe("registry integration", () => {
     it("exposes OpenAI OAuth connection status routes", async () => {
       const { port, server } = await createRegistryHttpServer(
         undefined,
-        "credentials",
+        "providers",
       );
 
       try {
         const statusResponse = await fetch(
-          `http://127.0.0.1:${port}/credentials/openai-oauth`,
+          `http://127.0.0.1:${port}/providers/openai-oauth`,
         );
         expect(statusResponse.status).toBe(200);
         expect(await statusResponse.json()).toMatchObject({
@@ -170,7 +170,7 @@ describe("registry integration", () => {
         });
 
         const startResponse = await fetch(
-          `http://127.0.0.1:${port}/credentials/openai-oauth/device/start`,
+          `http://127.0.0.1:${port}/providers/openai-oauth/device/start`,
           { method: "POST" },
         );
         expect(startResponse.status).toBe(200);
@@ -179,7 +179,7 @@ describe("registry integration", () => {
         });
 
         const registerResponse = await fetch(
-          `http://127.0.0.1:${port}/credentials/openai-oauth/register-models`,
+          `http://127.0.0.1:${port}/providers/openai-oauth/register-models`,
           {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -199,7 +199,7 @@ describe("registry integration", () => {
       }
     });
 
-    it("discovers provider models through saved credentials", async () => {
+    it("discovers provider models through saved providers", async () => {
       let receivedAuthorization = "";
       let receivedPath = "";
       const upstreamServer = createServer((req, res) => {
@@ -225,7 +225,7 @@ describe("registry integration", () => {
 
       const upstreamPort = (upstreamServer.address() as AddressInfo).port;
       const stack = createRegistryTestStack();
-      await stack.registry.credentialsService.create({
+      await stack.registry.providersService.create({
         name: "groq-main",
         provider: "groq",
         baseUrl: `http://127.0.0.1:${upstreamPort}`,
@@ -234,12 +234,12 @@ describe("registry integration", () => {
 
       const { port, server } = await createRegistryHttpServer(
         stack,
-        "credentials",
+        "providers",
       );
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:${port}/credentials/groq-main/discover-models`,
+          `http://127.0.0.1:${port}/providers/groq-main/discover-models`,
         );
         expect(response.status).toBe(200);
         expect(await response.json()).toEqual({
@@ -258,9 +258,9 @@ describe("registry integration", () => {
       }
     });
 
-    it("registers discovered provider models with credential routing", async () => {
+    it("registers discovered provider models with provider routing", async () => {
       const stack = createRegistryTestStack();
-      await stack.registry.credentialsService.create({
+      await stack.registry.providersService.create({
         name: "groq-main",
         provider: "groq",
         baseUrl: "https://api.groq.com/openai/v1",
@@ -269,12 +269,12 @@ describe("registry integration", () => {
 
       const { port, server } = await createRegistryHttpServer(
         stack,
-        "credentials",
+        "providers",
       );
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:${port}/credentials/groq-main/register-models`,
+          `http://127.0.0.1:${port}/providers/groq-main/register-models`,
           {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -300,7 +300,7 @@ describe("registry integration", () => {
           modelName: "llama-3.3-70b",
           upstreamModel: "llama-3.3-70b",
           upstreamBaseUrl: "https://api.groq.com/openai/v1",
-          credentialName: "groq-main",
+          providerName: "groq-main",
           ownedBy: "groq",
         });
       } finally {
@@ -308,7 +308,7 @@ describe("registry integration", () => {
       }
     });
 
-    it("tests discovered provider models through saved credentials", async () => {
+    it("tests discovered provider models through saved providers", async () => {
       let receivedAuthorization = "";
       let receivedPath = "";
       let receivedBody = "";
@@ -343,7 +343,7 @@ describe("registry integration", () => {
 
       const upstreamPort = (upstreamServer.address() as AddressInfo).port;
       const stack = createRegistryTestStack();
-      await stack.registry.credentialsService.create({
+      await stack.registry.providersService.create({
         name: "groq-main",
         provider: "groq",
         baseUrl: `http://127.0.0.1:${upstreamPort}`,
@@ -352,12 +352,12 @@ describe("registry integration", () => {
 
       const { port, server } = await createRegistryHttpServer(
         stack,
-        "credentials",
+        "providers",
       );
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:${port}/credentials/groq-main/test-chat`,
+          `http://127.0.0.1:${port}/providers/groq-main/test-chat`,
           {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -572,10 +572,10 @@ describe("registry integration", () => {
     });
   });
 
-  describe("credentials", () => {
-    it("lists credentials without exposing stored secrets", async () => {
+  describe("providers", () => {
+    it("lists providers without exposing stored secrets", async () => {
       const stack = createRegistryTestStack();
-      await stack.registry.credentialsService.create({
+      await stack.registry.providersService.create({
         name: "openai-main",
         provider: "openai",
         baseUrl: "https://api.openai.com/v1",
@@ -584,17 +584,17 @@ describe("registry integration", () => {
 
       const { port, server } = await createRegistryHttpServer(
         stack,
-        "credentials",
+        "providers",
       );
 
       try {
-        const response = await fetch(`http://127.0.0.1:${port}/credentials`);
+        const response = await fetch(`http://127.0.0.1:${port}/providers`);
         expect(response.status).toBe(200);
 
         const body = (await response.json()) as Array<Record<string, unknown>>;
         expect(body).toHaveLength(1);
         expect(body[0]).toMatchObject({
-          credentialName: "openai-main",
+          providerName: "openai-main",
           hasStoredSecret: true,
           provider: "openai",
           baseUrl: "https://api.openai.com/v1",
@@ -602,7 +602,7 @@ describe("registry integration", () => {
         expect(body[0]).not.toHaveProperty("secretRef");
         expect(body[0]).not.toHaveProperty("api_key");
         expect(body[0]).not.toHaveProperty("apiKey");
-        expect(body[0]).not.toHaveProperty("credentialValues");
+        expect(body[0]).not.toHaveProperty("providerValues");
       } finally {
         await closeServer(server);
       }

@@ -20,7 +20,7 @@ export function ModelsConfiguredPage() {
     mutationError,
     handleAddToConfig,
     handleDelete,
-    handleOpenCreateWithDefaultCredential,
+    handleOpenCreateWithDefaultProvider,
     handleOpenSync,
     handleApplySyncSelections,
     handleSyncSelectionChange,
@@ -39,8 +39,8 @@ export function ModelsConfiguredPage() {
     setDialogOpen,
     setFormData,
     updateExtraParam,
-    credentials,
-    defaultCredential,
+    providers,
+    defaultProvider,
     defaultSettingsDriftCount,
   } = useModelsPage();
 
@@ -88,15 +88,15 @@ export function ModelsConfiguredPage() {
       formError={formError}
       formLoading={formLoading}
       onOpenCreate={() =>
-        handleOpenCreateWithDefaultCredential(defaultCredential)
+        handleOpenCreateWithDefaultProvider(defaultProvider)
       }
       onFormDataChange={setFormData}
       onAddExtraParam={addExtraParam}
       onRemoveExtraParam={removeExtraParam}
       onUpdateExtraParam={updateExtraParam}
       onSubmit={handleSubmit}
-      credentials={credentials}
-      defaultCredential={defaultCredential}
+      providers={providers}
+      defaultProvider={defaultProvider}
       defaultSettingsDriftCount={defaultSettingsDriftCount}
     />
   );

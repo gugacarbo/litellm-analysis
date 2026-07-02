@@ -166,11 +166,11 @@ export function toModelRoute(
     route.maxOutputTokens = maxOutput;
   }
 
-  const credentialName =
-    readString(reserved.credential_name) ??
-    readString(reserved.litellm_credential_name);
-  if (credentialName) {
-    route.credentialName = credentialName;
+  const providerName =
+    readString(reserved.provider_name) ??
+    readString(reserved.litellm_provider_name);
+  if (providerName) {
+    route.providerName = providerName;
   }
 
   const upstreamBaseUrl = readString(reserved.api_base);
@@ -212,7 +212,7 @@ const MODEL_ROUTE_API_FIELD_KEYS = [
   "outputCostPerToken",
   "upstreamModel",
   "upstreamBaseUrl",
-  "credentialName",
+  "providerName",
   "secretRef",
 ] as const satisfies ReadonlyArray<keyof ModelRoute>;
 
@@ -288,8 +288,8 @@ export function parseModelRouteFromApi(
           case "upstreamBaseUrl":
             route.upstreamBaseUrl = trimmed;
             break;
-          case "credentialName":
-            route.credentialName = trimmed;
+          case "providerName":
+            route.providerName = trimmed;
             break;
           case "secretRef":
             route.secretRef = trimmed;
@@ -390,7 +390,7 @@ export function toModelProxyRow(route: ModelRoute): ModelProxyRowWrite {
     outputCostPerToken: route.outputCostPerToken ?? null,
     upstreamModel: route.upstreamModel ?? null,
     upstreamBaseUrl: route.upstreamBaseUrl ?? null,
-    credentialName: route.credentialName ?? null,
+    providerName: route.providerName ?? null,
     secretRef: route.secretRef ?? null,
     ...(requestOptions !== undefined ? { requestOptions } : {}),
   };
@@ -436,8 +436,8 @@ export function fromModelProxyRow(row: ModelProxyModelRecord): ModelRoute {
   if (row.upstreamBaseUrl !== null) {
     route.upstreamBaseUrl = row.upstreamBaseUrl;
   }
-  if (row.credentialName !== null) {
-    route.credentialName = row.credentialName;
+  if (row.providerName !== null) {
+    route.providerName = row.providerName;
   }
   if (row.secretRef !== null) {
     route.secretRef = row.secretRef;

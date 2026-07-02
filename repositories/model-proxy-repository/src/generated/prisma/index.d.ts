@@ -34,10 +34,10 @@ export type ModelProxyMessage = $Result.DefaultSelection<Prisma.$ModelProxyMessa
  */
 export type ModelProxyModel = $Result.DefaultSelection<Prisma.$ModelProxyModelPayload>
 /**
- * Model ModelProxyCredential
+ * Model ModelProxyProvider
  * 
  */
-export type ModelProxyCredential = $Result.DefaultSelection<Prisma.$ModelProxyCredentialPayload>
+export type ModelProxyProvider = $Result.DefaultSelection<Prisma.$ModelProxyProviderPayload>
 /**
  * Model ModelProxyApiKey
  * 
@@ -218,14 +218,14 @@ export class PrismaClient<
   get modelProxyModel(): Prisma.ModelProxyModelDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.modelProxyCredential`: Exposes CRUD operations for the **ModelProxyCredential** model.
+   * `prisma.modelProxyProvider`: Exposes CRUD operations for the **ModelProxyProvider** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ModelProxyCredentials
-    * const modelProxyCredentials = await prisma.modelProxyCredential.findMany()
+    * // Fetch zero or more ModelProxyProviders
+    * const modelProxyProviders = await prisma.modelProxyProvider.findMany()
     * ```
     */
-  get modelProxyCredential(): Prisma.ModelProxyCredentialDelegate<ExtArgs, ClientOptions>;
+  get modelProxyProvider(): Prisma.ModelProxyProviderDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.modelProxyApiKey`: Exposes CRUD operations for the **ModelProxyApiKey** model.
@@ -711,7 +711,7 @@ export namespace Prisma {
     ModelProxyUsageAdjustment: 'ModelProxyUsageAdjustment',
     ModelProxyMessage: 'ModelProxyMessage',
     ModelProxyModel: 'ModelProxyModel',
-    ModelProxyCredential: 'ModelProxyCredential',
+    ModelProxyProvider: 'ModelProxyProvider',
     ModelProxyApiKey: 'ModelProxyApiKey',
     ModelProxySetting: 'ModelProxySetting',
     ModelProxyAlias: 'ModelProxyAlias',
@@ -734,7 +734,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "modelProxyRequest" | "modelProxyUsageAdjustment" | "modelProxyMessage" | "modelProxyModel" | "modelProxyCredential" | "modelProxyApiKey" | "modelProxySetting" | "modelProxyAlias" | "modelProxyImportJob"
+      modelProps: "modelProxyRequest" | "modelProxyUsageAdjustment" | "modelProxyMessage" | "modelProxyModel" | "modelProxyProvider" | "modelProxyApiKey" | "modelProxySetting" | "modelProxyAlias" | "modelProxyImportJob"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1034,77 +1034,77 @@ export namespace Prisma {
           }
         }
       }
-      ModelProxyCredential: {
-        payload: Prisma.$ModelProxyCredentialPayload<ExtArgs>
-        fields: Prisma.ModelProxyCredentialFieldRefs
+      ModelProxyProvider: {
+        payload: Prisma.$ModelProxyProviderPayload<ExtArgs>
+        fields: Prisma.ModelProxyProviderFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ModelProxyCredentialFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload> | null
+            args: Prisma.ModelProxyProviderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ModelProxyCredentialFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>
+            args: Prisma.ModelProxyProviderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>
           }
           findFirst: {
-            args: Prisma.ModelProxyCredentialFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload> | null
+            args: Prisma.ModelProxyProviderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ModelProxyCredentialFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>
+            args: Prisma.ModelProxyProviderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>
           }
           findMany: {
-            args: Prisma.ModelProxyCredentialFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>[]
+            args: Prisma.ModelProxyProviderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>[]
           }
           create: {
-            args: Prisma.ModelProxyCredentialCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>
+            args: Prisma.ModelProxyProviderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>
           }
           createMany: {
-            args: Prisma.ModelProxyCredentialCreateManyArgs<ExtArgs>
+            args: Prisma.ModelProxyProviderCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ModelProxyCredentialCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>[]
+            args: Prisma.ModelProxyProviderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>[]
           }
           delete: {
-            args: Prisma.ModelProxyCredentialDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>
+            args: Prisma.ModelProxyProviderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>
           }
           update: {
-            args: Prisma.ModelProxyCredentialUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>
+            args: Prisma.ModelProxyProviderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>
           }
           deleteMany: {
-            args: Prisma.ModelProxyCredentialDeleteManyArgs<ExtArgs>
+            args: Prisma.ModelProxyProviderDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ModelProxyCredentialUpdateManyArgs<ExtArgs>
+            args: Prisma.ModelProxyProviderUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.ModelProxyCredentialUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>[]
+            args: Prisma.ModelProxyProviderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>[]
           }
           upsert: {
-            args: Prisma.ModelProxyCredentialUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ModelProxyCredentialPayload>
+            args: Prisma.ModelProxyProviderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelProxyProviderPayload>
           }
           aggregate: {
-            args: Prisma.ModelProxyCredentialAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateModelProxyCredential>
+            args: Prisma.ModelProxyProviderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateModelProxyProvider>
           }
           groupBy: {
-            args: Prisma.ModelProxyCredentialGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ModelProxyCredentialGroupByOutputType>[]
+            args: Prisma.ModelProxyProviderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ModelProxyProviderGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ModelProxyCredentialCountArgs<ExtArgs>
-            result: $Utils.Optional<ModelProxyCredentialCountAggregateOutputType> | number
+            args: Prisma.ModelProxyProviderCountArgs<ExtArgs>
+            result: $Utils.Optional<ModelProxyProviderCountAggregateOutputType> | number
           }
         }
       }
@@ -1504,7 +1504,7 @@ export namespace Prisma {
     modelProxyUsageAdjustment?: ModelProxyUsageAdjustmentOmit
     modelProxyMessage?: ModelProxyMessageOmit
     modelProxyModel?: ModelProxyModelOmit
-    modelProxyCredential?: ModelProxyCredentialOmit
+    modelProxyProvider?: ModelProxyProviderOmit
     modelProxyApiKey?: ModelProxyApiKeyOmit
     modelProxySetting?: ModelProxySettingOmit
     modelProxyAlias?: ModelProxyAliasOmit
@@ -5394,7 +5394,7 @@ export namespace Prisma {
     outputCostPerToken: number | null
     upstreamModel: string | null
     upstreamBaseUrl: string | null
-    credentialName: string | null
+    providerName: string | null
     secretRef: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5415,7 +5415,7 @@ export namespace Prisma {
     outputCostPerToken: number | null
     upstreamModel: string | null
     upstreamBaseUrl: string | null
-    credentialName: string | null
+    providerName: string | null
     secretRef: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5436,7 +5436,7 @@ export namespace Prisma {
     outputCostPerToken: number
     upstreamModel: number
     upstreamBaseUrl: number
-    credentialName: number
+    providerName: number
     secretRef: number
     requestOptions: number
     metadata: number
@@ -5475,7 +5475,7 @@ export namespace Prisma {
     outputCostPerToken?: true
     upstreamModel?: true
     upstreamBaseUrl?: true
-    credentialName?: true
+    providerName?: true
     secretRef?: true
     createdAt?: true
     updatedAt?: true
@@ -5496,7 +5496,7 @@ export namespace Prisma {
     outputCostPerToken?: true
     upstreamModel?: true
     upstreamBaseUrl?: true
-    credentialName?: true
+    providerName?: true
     secretRef?: true
     createdAt?: true
     updatedAt?: true
@@ -5517,7 +5517,7 @@ export namespace Prisma {
     outputCostPerToken?: true
     upstreamModel?: true
     upstreamBaseUrl?: true
-    credentialName?: true
+    providerName?: true
     secretRef?: true
     requestOptions?: true
     metadata?: true
@@ -5627,7 +5627,7 @@ export namespace Prisma {
     outputCostPerToken: number | null
     upstreamModel: string | null
     upstreamBaseUrl: string | null
-    credentialName: string | null
+    providerName: string | null
     secretRef: string | null
     requestOptions: JsonValue | null
     metadata: JsonValue | null
@@ -5669,7 +5669,7 @@ export namespace Prisma {
     outputCostPerToken?: boolean
     upstreamModel?: boolean
     upstreamBaseUrl?: boolean
-    credentialName?: boolean
+    providerName?: boolean
     secretRef?: boolean
     requestOptions?: boolean
     metadata?: boolean
@@ -5692,7 +5692,7 @@ export namespace Prisma {
     outputCostPerToken?: boolean
     upstreamModel?: boolean
     upstreamBaseUrl?: boolean
-    credentialName?: boolean
+    providerName?: boolean
     secretRef?: boolean
     requestOptions?: boolean
     metadata?: boolean
@@ -5715,7 +5715,7 @@ export namespace Prisma {
     outputCostPerToken?: boolean
     upstreamModel?: boolean
     upstreamBaseUrl?: boolean
-    credentialName?: boolean
+    providerName?: boolean
     secretRef?: boolean
     requestOptions?: boolean
     metadata?: boolean
@@ -5738,7 +5738,7 @@ export namespace Prisma {
     outputCostPerToken?: boolean
     upstreamModel?: boolean
     upstreamBaseUrl?: boolean
-    credentialName?: boolean
+    providerName?: boolean
     secretRef?: boolean
     requestOptions?: boolean
     metadata?: boolean
@@ -5746,7 +5746,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ModelProxyModelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "modelName" | "enabled" | "displayName" | "family" | "ownedBy" | "apiMode" | "vision" | "contextWindowSize" | "maxOutputTokens" | "inputCostPerToken" | "outputCostPerToken" | "upstreamModel" | "upstreamBaseUrl" | "credentialName" | "secretRef" | "requestOptions" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyModel"]>
+  export type ModelProxyModelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "modelName" | "enabled" | "displayName" | "family" | "ownedBy" | "apiMode" | "vision" | "contextWindowSize" | "maxOutputTokens" | "inputCostPerToken" | "outputCostPerToken" | "upstreamModel" | "upstreamBaseUrl" | "providerName" | "secretRef" | "requestOptions" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyModel"]>
 
   export type $ModelProxyModelPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ModelProxyModel"
@@ -5766,7 +5766,7 @@ export namespace Prisma {
       outputCostPerToken: number | null
       upstreamModel: string | null
       upstreamBaseUrl: string | null
-      credentialName: string | null
+      providerName: string | null
       secretRef: string | null
       requestOptions: Prisma.JsonValue | null
       metadata: Prisma.JsonValue | null
@@ -6209,7 +6209,7 @@ export namespace Prisma {
     readonly outputCostPerToken: FieldRef<"ModelProxyModel", 'Float'>
     readonly upstreamModel: FieldRef<"ModelProxyModel", 'String'>
     readonly upstreamBaseUrl: FieldRef<"ModelProxyModel", 'String'>
-    readonly credentialName: FieldRef<"ModelProxyModel", 'String'>
+    readonly providerName: FieldRef<"ModelProxyModel", 'String'>
     readonly secretRef: FieldRef<"ModelProxyModel", 'String'>
     readonly requestOptions: FieldRef<"ModelProxyModel", 'Json'>
     readonly metadata: FieldRef<"ModelProxyModel", 'Json'>
@@ -6582,16 +6582,16 @@ export namespace Prisma {
 
 
   /**
-   * Model ModelProxyCredential
+   * Model ModelProxyProvider
    */
 
-  export type AggregateModelProxyCredential = {
-    _count: ModelProxyCredentialCountAggregateOutputType | null
-    _min: ModelProxyCredentialMinAggregateOutputType | null
-    _max: ModelProxyCredentialMaxAggregateOutputType | null
+  export type AggregateModelProxyProvider = {
+    _count: ModelProxyProviderCountAggregateOutputType | null
+    _min: ModelProxyProviderMinAggregateOutputType | null
+    _max: ModelProxyProviderMaxAggregateOutputType | null
   }
 
-  export type ModelProxyCredentialMinAggregateOutputType = {
+  export type ModelProxyProviderMinAggregateOutputType = {
     id: string | null
     name: string | null
     provider: string | null
@@ -6602,7 +6602,7 @@ export namespace Prisma {
     updatedAt: Date | null
   }
 
-  export type ModelProxyCredentialMaxAggregateOutputType = {
+  export type ModelProxyProviderMaxAggregateOutputType = {
     id: string | null
     name: string | null
     provider: string | null
@@ -6613,7 +6613,7 @@ export namespace Prisma {
     updatedAt: Date | null
   }
 
-  export type ModelProxyCredentialCountAggregateOutputType = {
+  export type ModelProxyProviderCountAggregateOutputType = {
     id: number
     name: number
     provider: number
@@ -6626,7 +6626,7 @@ export namespace Prisma {
   }
 
 
-  export type ModelProxyCredentialMinAggregateInputType = {
+  export type ModelProxyProviderMinAggregateInputType = {
     id?: true
     name?: true
     provider?: true
@@ -6637,7 +6637,7 @@ export namespace Prisma {
     updatedAt?: true
   }
 
-  export type ModelProxyCredentialMaxAggregateInputType = {
+  export type ModelProxyProviderMaxAggregateInputType = {
     id?: true
     name?: true
     provider?: true
@@ -6648,7 +6648,7 @@ export namespace Prisma {
     updatedAt?: true
   }
 
-  export type ModelProxyCredentialCountAggregateInputType = {
+  export type ModelProxyProviderCountAggregateInputType = {
     id?: true
     name?: true
     provider?: true
@@ -6660,79 +6660,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type ModelProxyCredentialAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ModelProxyCredential to aggregate.
+     * Filter which ModelProxyProvider to aggregate.
      */
-    where?: ModelProxyCredentialWhereInput
+    where?: ModelProxyProviderWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ModelProxyCredentials to fetch.
+     * Determine the order of ModelProxyProviders to fetch.
      */
-    orderBy?: ModelProxyCredentialOrderByWithRelationInput | ModelProxyCredentialOrderByWithRelationInput[]
+    orderBy?: ModelProxyProviderOrderByWithRelationInput | ModelProxyProviderOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ModelProxyCredentialWhereUniqueInput
+    cursor?: ModelProxyProviderWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ModelProxyCredentials from the position of the cursor.
+     * Take `±n` ModelProxyProviders from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ModelProxyCredentials.
+     * Skip the first `n` ModelProxyProviders.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ModelProxyCredentials
+     * Count returned ModelProxyProviders
     **/
-    _count?: true | ModelProxyCredentialCountAggregateInputType
+    _count?: true | ModelProxyProviderCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ModelProxyCredentialMinAggregateInputType
+    _min?: ModelProxyProviderMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ModelProxyCredentialMaxAggregateInputType
+    _max?: ModelProxyProviderMaxAggregateInputType
   }
 
-  export type GetModelProxyCredentialAggregateType<T extends ModelProxyCredentialAggregateArgs> = {
-        [P in keyof T & keyof AggregateModelProxyCredential]: P extends '_count' | 'count'
+  export type GetModelProxyProviderAggregateType<T extends ModelProxyProviderAggregateArgs> = {
+        [P in keyof T & keyof AggregateModelProxyProvider]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateModelProxyCredential[P]>
-      : GetScalarType<T[P], AggregateModelProxyCredential[P]>
+        : GetScalarType<T[P], AggregateModelProxyProvider[P]>
+      : GetScalarType<T[P], AggregateModelProxyProvider[P]>
   }
 
 
 
 
-  export type ModelProxyCredentialGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ModelProxyCredentialWhereInput
-    orderBy?: ModelProxyCredentialOrderByWithAggregationInput | ModelProxyCredentialOrderByWithAggregationInput[]
-    by: ModelProxyCredentialScalarFieldEnum[] | ModelProxyCredentialScalarFieldEnum
-    having?: ModelProxyCredentialScalarWhereWithAggregatesInput
+  export type ModelProxyProviderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelProxyProviderWhereInput
+    orderBy?: ModelProxyProviderOrderByWithAggregationInput | ModelProxyProviderOrderByWithAggregationInput[]
+    by: ModelProxyProviderScalarFieldEnum[] | ModelProxyProviderScalarFieldEnum
+    having?: ModelProxyProviderScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ModelProxyCredentialCountAggregateInputType | true
-    _min?: ModelProxyCredentialMinAggregateInputType
-    _max?: ModelProxyCredentialMaxAggregateInputType
+    _count?: ModelProxyProviderCountAggregateInputType | true
+    _min?: ModelProxyProviderMinAggregateInputType
+    _max?: ModelProxyProviderMaxAggregateInputType
   }
 
-  export type ModelProxyCredentialGroupByOutputType = {
+  export type ModelProxyProviderGroupByOutputType = {
     id: string
     name: string
     provider: string | null
@@ -6741,26 +6741,26 @@ export namespace Prisma {
     secretRef: string | null
     createdAt: Date
     updatedAt: Date
-    _count: ModelProxyCredentialCountAggregateOutputType | null
-    _min: ModelProxyCredentialMinAggregateOutputType | null
-    _max: ModelProxyCredentialMaxAggregateOutputType | null
+    _count: ModelProxyProviderCountAggregateOutputType | null
+    _min: ModelProxyProviderMinAggregateOutputType | null
+    _max: ModelProxyProviderMaxAggregateOutputType | null
   }
 
-  type GetModelProxyCredentialGroupByPayload<T extends ModelProxyCredentialGroupByArgs> = Prisma.PrismaPromise<
+  type GetModelProxyProviderGroupByPayload<T extends ModelProxyProviderGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ModelProxyCredentialGroupByOutputType, T['by']> &
+      PickEnumerable<ModelProxyProviderGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ModelProxyCredentialGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ModelProxyProviderGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ModelProxyCredentialGroupByOutputType[P]>
-            : GetScalarType<T[P], ModelProxyCredentialGroupByOutputType[P]>
+              : GetScalarType<T[P], ModelProxyProviderGroupByOutputType[P]>
+            : GetScalarType<T[P], ModelProxyProviderGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ModelProxyCredentialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ModelProxyProviderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
     provider?: boolean
@@ -6769,9 +6769,9 @@ export namespace Prisma {
     secretRef?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-  }, ExtArgs["result"]["modelProxyCredential"]>
+  }, ExtArgs["result"]["modelProxyProvider"]>
 
-  export type ModelProxyCredentialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ModelProxyProviderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
     provider?: boolean
@@ -6780,9 +6780,9 @@ export namespace Prisma {
     secretRef?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-  }, ExtArgs["result"]["modelProxyCredential"]>
+  }, ExtArgs["result"]["modelProxyProvider"]>
 
-  export type ModelProxyCredentialSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ModelProxyProviderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
     provider?: boolean
@@ -6791,9 +6791,9 @@ export namespace Prisma {
     secretRef?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-  }, ExtArgs["result"]["modelProxyCredential"]>
+  }, ExtArgs["result"]["modelProxyProvider"]>
 
-  export type ModelProxyCredentialSelectScalar = {
+  export type ModelProxyProviderSelectScalar = {
     id?: boolean
     name?: boolean
     provider?: boolean
@@ -6804,10 +6804,10 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ModelProxyCredentialOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "provider" | "baseUrl" | "apiKey" | "secretRef" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyCredential"]>
+  export type ModelProxyProviderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "provider" | "baseUrl" | "apiKey" | "secretRef" | "createdAt" | "updatedAt", ExtArgs["result"]["modelProxyProvider"]>
 
-  export type $ModelProxyCredentialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ModelProxyCredential"
+  export type $ModelProxyProviderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ModelProxyProvider"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6818,136 +6818,136 @@ export namespace Prisma {
       secretRef: string | null
       createdAt: Date
       updatedAt: Date
-    }, ExtArgs["result"]["modelProxyCredential"]>
+    }, ExtArgs["result"]["modelProxyProvider"]>
     composites: {}
   }
 
-  type ModelProxyCredentialGetPayload<S extends boolean | null | undefined | ModelProxyCredentialDefaultArgs> = $Result.GetResult<Prisma.$ModelProxyCredentialPayload, S>
+  type ModelProxyProviderGetPayload<S extends boolean | null | undefined | ModelProxyProviderDefaultArgs> = $Result.GetResult<Prisma.$ModelProxyProviderPayload, S>
 
-  type ModelProxyCredentialCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ModelProxyCredentialFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ModelProxyCredentialCountAggregateInputType | true
+  type ModelProxyProviderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ModelProxyProviderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ModelProxyProviderCountAggregateInputType | true
     }
 
-  export interface ModelProxyCredentialDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ModelProxyCredential'], meta: { name: 'ModelProxyCredential' } }
+  export interface ModelProxyProviderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ModelProxyProvider'], meta: { name: 'ModelProxyProvider' } }
     /**
-     * Find zero or one ModelProxyCredential that matches the filter.
-     * @param {ModelProxyCredentialFindUniqueArgs} args - Arguments to find a ModelProxyCredential
+     * Find zero or one ModelProxyProvider that matches the filter.
+     * @param {ModelProxyProviderFindUniqueArgs} args - Arguments to find a ModelProxyProvider
      * @example
-     * // Get one ModelProxyCredential
-     * const modelProxyCredential = await prisma.modelProxyCredential.findUnique({
+     * // Get one ModelProxyProvider
+     * const modelProxyProvider = await prisma.modelProxyProvider.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ModelProxyCredentialFindUniqueArgs>(args: SelectSubset<T, ModelProxyCredentialFindUniqueArgs<ExtArgs>>): Prisma__ModelProxyCredentialClient<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends ModelProxyProviderFindUniqueArgs>(args: SelectSubset<T, ModelProxyProviderFindUniqueArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one ModelProxyCredential that matches the filter or throw an error with `error.code='P2025'`
+     * Find one ModelProxyProvider that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {ModelProxyCredentialFindUniqueOrThrowArgs} args - Arguments to find a ModelProxyCredential
+     * @param {ModelProxyProviderFindUniqueOrThrowArgs} args - Arguments to find a ModelProxyProvider
      * @example
-     * // Get one ModelProxyCredential
-     * const modelProxyCredential = await prisma.modelProxyCredential.findUniqueOrThrow({
+     * // Get one ModelProxyProvider
+     * const modelProxyProvider = await prisma.modelProxyProvider.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ModelProxyCredentialFindUniqueOrThrowArgs>(args: SelectSubset<T, ModelProxyCredentialFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ModelProxyCredentialClient<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends ModelProxyProviderFindUniqueOrThrowArgs>(args: SelectSubset<T, ModelProxyProviderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first ModelProxyCredential that matches the filter.
+     * Find the first ModelProxyProvider that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ModelProxyCredentialFindFirstArgs} args - Arguments to find a ModelProxyCredential
+     * @param {ModelProxyProviderFindFirstArgs} args - Arguments to find a ModelProxyProvider
      * @example
-     * // Get one ModelProxyCredential
-     * const modelProxyCredential = await prisma.modelProxyCredential.findFirst({
+     * // Get one ModelProxyProvider
+     * const modelProxyProvider = await prisma.modelProxyProvider.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ModelProxyCredentialFindFirstArgs>(args?: SelectSubset<T, ModelProxyCredentialFindFirstArgs<ExtArgs>>): Prisma__ModelProxyCredentialClient<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends ModelProxyProviderFindFirstArgs>(args?: SelectSubset<T, ModelProxyProviderFindFirstArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first ModelProxyCredential that matches the filter or
+     * Find the first ModelProxyProvider that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ModelProxyCredentialFindFirstOrThrowArgs} args - Arguments to find a ModelProxyCredential
+     * @param {ModelProxyProviderFindFirstOrThrowArgs} args - Arguments to find a ModelProxyProvider
      * @example
-     * // Get one ModelProxyCredential
-     * const modelProxyCredential = await prisma.modelProxyCredential.findFirstOrThrow({
+     * // Get one ModelProxyProvider
+     * const modelProxyProvider = await prisma.modelProxyProvider.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ModelProxyCredentialFindFirstOrThrowArgs>(args?: SelectSubset<T, ModelProxyCredentialFindFirstOrThrowArgs<ExtArgs>>): Prisma__ModelProxyCredentialClient<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends ModelProxyProviderFindFirstOrThrowArgs>(args?: SelectSubset<T, ModelProxyProviderFindFirstOrThrowArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more ModelProxyCredentials that matches the filter.
+     * Find zero or more ModelProxyProviders that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ModelProxyCredentialFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ModelProxyProviderFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ModelProxyCredentials
-     * const modelProxyCredentials = await prisma.modelProxyCredential.findMany()
+     * // Get all ModelProxyProviders
+     * const modelProxyProviders = await prisma.modelProxyProvider.findMany()
      * 
-     * // Get first 10 ModelProxyCredentials
-     * const modelProxyCredentials = await prisma.modelProxyCredential.findMany({ take: 10 })
+     * // Get first 10 ModelProxyProviders
+     * const modelProxyProviders = await prisma.modelProxyProvider.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const modelProxyCredentialWithIdOnly = await prisma.modelProxyCredential.findMany({ select: { id: true } })
+     * const modelProxyProviderWithIdOnly = await prisma.modelProxyProvider.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ModelProxyCredentialFindManyArgs>(args?: SelectSubset<T, ModelProxyCredentialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends ModelProxyProviderFindManyArgs>(args?: SelectSubset<T, ModelProxyProviderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a ModelProxyCredential.
-     * @param {ModelProxyCredentialCreateArgs} args - Arguments to create a ModelProxyCredential.
+     * Create a ModelProxyProvider.
+     * @param {ModelProxyProviderCreateArgs} args - Arguments to create a ModelProxyProvider.
      * @example
-     * // Create one ModelProxyCredential
-     * const ModelProxyCredential = await prisma.modelProxyCredential.create({
+     * // Create one ModelProxyProvider
+     * const ModelProxyProvider = await prisma.modelProxyProvider.create({
      *   data: {
-     *     // ... data to create a ModelProxyCredential
+     *     // ... data to create a ModelProxyProvider
      *   }
      * })
      * 
      */
-    create<T extends ModelProxyCredentialCreateArgs>(args: SelectSubset<T, ModelProxyCredentialCreateArgs<ExtArgs>>): Prisma__ModelProxyCredentialClient<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends ModelProxyProviderCreateArgs>(args: SelectSubset<T, ModelProxyProviderCreateArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many ModelProxyCredentials.
-     * @param {ModelProxyCredentialCreateManyArgs} args - Arguments to create many ModelProxyCredentials.
+     * Create many ModelProxyProviders.
+     * @param {ModelProxyProviderCreateManyArgs} args - Arguments to create many ModelProxyProviders.
      * @example
-     * // Create many ModelProxyCredentials
-     * const modelProxyCredential = await prisma.modelProxyCredential.createMany({
+     * // Create many ModelProxyProviders
+     * const modelProxyProvider = await prisma.modelProxyProvider.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ModelProxyCredentialCreateManyArgs>(args?: SelectSubset<T, ModelProxyCredentialCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ModelProxyProviderCreateManyArgs>(args?: SelectSubset<T, ModelProxyProviderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ModelProxyCredentials and returns the data saved in the database.
-     * @param {ModelProxyCredentialCreateManyAndReturnArgs} args - Arguments to create many ModelProxyCredentials.
+     * Create many ModelProxyProviders and returns the data saved in the database.
+     * @param {ModelProxyProviderCreateManyAndReturnArgs} args - Arguments to create many ModelProxyProviders.
      * @example
-     * // Create many ModelProxyCredentials
-     * const modelProxyCredential = await prisma.modelProxyCredential.createManyAndReturn({
+     * // Create many ModelProxyProviders
+     * const modelProxyProvider = await prisma.modelProxyProvider.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ModelProxyCredentials and only return the `id`
-     * const modelProxyCredentialWithIdOnly = await prisma.modelProxyCredential.createManyAndReturn({
+     * // Create many ModelProxyProviders and only return the `id`
+     * const modelProxyProviderWithIdOnly = await prisma.modelProxyProvider.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -6957,28 +6957,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ModelProxyCredentialCreateManyAndReturnArgs>(args?: SelectSubset<T, ModelProxyCredentialCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends ModelProxyProviderCreateManyAndReturnArgs>(args?: SelectSubset<T, ModelProxyProviderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a ModelProxyCredential.
-     * @param {ModelProxyCredentialDeleteArgs} args - Arguments to delete one ModelProxyCredential.
+     * Delete a ModelProxyProvider.
+     * @param {ModelProxyProviderDeleteArgs} args - Arguments to delete one ModelProxyProvider.
      * @example
-     * // Delete one ModelProxyCredential
-     * const ModelProxyCredential = await prisma.modelProxyCredential.delete({
+     * // Delete one ModelProxyProvider
+     * const ModelProxyProvider = await prisma.modelProxyProvider.delete({
      *   where: {
-     *     // ... filter to delete one ModelProxyCredential
+     *     // ... filter to delete one ModelProxyProvider
      *   }
      * })
      * 
      */
-    delete<T extends ModelProxyCredentialDeleteArgs>(args: SelectSubset<T, ModelProxyCredentialDeleteArgs<ExtArgs>>): Prisma__ModelProxyCredentialClient<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends ModelProxyProviderDeleteArgs>(args: SelectSubset<T, ModelProxyProviderDeleteArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one ModelProxyCredential.
-     * @param {ModelProxyCredentialUpdateArgs} args - Arguments to update one ModelProxyCredential.
+     * Update one ModelProxyProvider.
+     * @param {ModelProxyProviderUpdateArgs} args - Arguments to update one ModelProxyProvider.
      * @example
-     * // Update one ModelProxyCredential
-     * const modelProxyCredential = await prisma.modelProxyCredential.update({
+     * // Update one ModelProxyProvider
+     * const modelProxyProvider = await prisma.modelProxyProvider.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -6988,30 +6988,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ModelProxyCredentialUpdateArgs>(args: SelectSubset<T, ModelProxyCredentialUpdateArgs<ExtArgs>>): Prisma__ModelProxyCredentialClient<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends ModelProxyProviderUpdateArgs>(args: SelectSubset<T, ModelProxyProviderUpdateArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more ModelProxyCredentials.
-     * @param {ModelProxyCredentialDeleteManyArgs} args - Arguments to filter ModelProxyCredentials to delete.
+     * Delete zero or more ModelProxyProviders.
+     * @param {ModelProxyProviderDeleteManyArgs} args - Arguments to filter ModelProxyProviders to delete.
      * @example
-     * // Delete a few ModelProxyCredentials
-     * const { count } = await prisma.modelProxyCredential.deleteMany({
+     * // Delete a few ModelProxyProviders
+     * const { count } = await prisma.modelProxyProvider.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ModelProxyCredentialDeleteManyArgs>(args?: SelectSubset<T, ModelProxyCredentialDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ModelProxyProviderDeleteManyArgs>(args?: SelectSubset<T, ModelProxyProviderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ModelProxyCredentials.
+     * Update zero or more ModelProxyProviders.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ModelProxyCredentialUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ModelProxyProviderUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ModelProxyCredentials
-     * const modelProxyCredential = await prisma.modelProxyCredential.updateMany({
+     * // Update many ModelProxyProviders
+     * const modelProxyProvider = await prisma.modelProxyProvider.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -7021,14 +7021,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ModelProxyCredentialUpdateManyArgs>(args: SelectSubset<T, ModelProxyCredentialUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ModelProxyProviderUpdateManyArgs>(args: SelectSubset<T, ModelProxyProviderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ModelProxyCredentials and returns the data updated in the database.
-     * @param {ModelProxyCredentialUpdateManyAndReturnArgs} args - Arguments to update many ModelProxyCredentials.
+     * Update zero or more ModelProxyProviders and returns the data updated in the database.
+     * @param {ModelProxyProviderUpdateManyAndReturnArgs} args - Arguments to update many ModelProxyProviders.
      * @example
-     * // Update many ModelProxyCredentials
-     * const modelProxyCredential = await prisma.modelProxyCredential.updateManyAndReturn({
+     * // Update many ModelProxyProviders
+     * const modelProxyProvider = await prisma.modelProxyProvider.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -7037,8 +7037,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more ModelProxyCredentials and only return the `id`
-     * const modelProxyCredentialWithIdOnly = await prisma.modelProxyCredential.updateManyAndReturn({
+     * // Update zero or more ModelProxyProviders and only return the `id`
+     * const modelProxyProviderWithIdOnly = await prisma.modelProxyProvider.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -7051,56 +7051,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends ModelProxyCredentialUpdateManyAndReturnArgs>(args: SelectSubset<T, ModelProxyCredentialUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends ModelProxyProviderUpdateManyAndReturnArgs>(args: SelectSubset<T, ModelProxyProviderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one ModelProxyCredential.
-     * @param {ModelProxyCredentialUpsertArgs} args - Arguments to update or create a ModelProxyCredential.
+     * Create or update one ModelProxyProvider.
+     * @param {ModelProxyProviderUpsertArgs} args - Arguments to update or create a ModelProxyProvider.
      * @example
-     * // Update or create a ModelProxyCredential
-     * const modelProxyCredential = await prisma.modelProxyCredential.upsert({
+     * // Update or create a ModelProxyProvider
+     * const modelProxyProvider = await prisma.modelProxyProvider.upsert({
      *   create: {
-     *     // ... data to create a ModelProxyCredential
+     *     // ... data to create a ModelProxyProvider
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ModelProxyCredential we want to update
+     *     // ... the filter for the ModelProxyProvider we want to update
      *   }
      * })
      */
-    upsert<T extends ModelProxyCredentialUpsertArgs>(args: SelectSubset<T, ModelProxyCredentialUpsertArgs<ExtArgs>>): Prisma__ModelProxyCredentialClient<$Result.GetResult<Prisma.$ModelProxyCredentialPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends ModelProxyProviderUpsertArgs>(args: SelectSubset<T, ModelProxyProviderUpsertArgs<ExtArgs>>): Prisma__ModelProxyProviderClient<$Result.GetResult<Prisma.$ModelProxyProviderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of ModelProxyCredentials.
+     * Count the number of ModelProxyProviders.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ModelProxyCredentialCountArgs} args - Arguments to filter ModelProxyCredentials to count.
+     * @param {ModelProxyProviderCountArgs} args - Arguments to filter ModelProxyProviders to count.
      * @example
-     * // Count the number of ModelProxyCredentials
-     * const count = await prisma.modelProxyCredential.count({
+     * // Count the number of ModelProxyProviders
+     * const count = await prisma.modelProxyProvider.count({
      *   where: {
-     *     // ... the filter for the ModelProxyCredentials we want to count
+     *     // ... the filter for the ModelProxyProviders we want to count
      *   }
      * })
     **/
-    count<T extends ModelProxyCredentialCountArgs>(
-      args?: Subset<T, ModelProxyCredentialCountArgs>,
+    count<T extends ModelProxyProviderCountArgs>(
+      args?: Subset<T, ModelProxyProviderCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ModelProxyCredentialCountAggregateOutputType>
+          : GetScalarType<T['select'], ModelProxyProviderCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ModelProxyCredential.
+     * Allows you to perform aggregations operations on a ModelProxyProvider.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ModelProxyCredentialAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ModelProxyProviderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -7120,13 +7120,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ModelProxyCredentialAggregateArgs>(args: Subset<T, ModelProxyCredentialAggregateArgs>): Prisma.PrismaPromise<GetModelProxyCredentialAggregateType<T>>
+    aggregate<T extends ModelProxyProviderAggregateArgs>(args: Subset<T, ModelProxyProviderAggregateArgs>): Prisma.PrismaPromise<GetModelProxyProviderAggregateType<T>>
 
     /**
-     * Group by ModelProxyCredential.
+     * Group by ModelProxyProvider.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ModelProxyCredentialGroupByArgs} args - Group by arguments.
+     * @param {ModelProxyProviderGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -7141,14 +7141,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ModelProxyCredentialGroupByArgs,
+      T extends ModelProxyProviderGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ModelProxyCredentialGroupByArgs['orderBy'] }
-        : { orderBy?: ModelProxyCredentialGroupByArgs['orderBy'] },
+        ? { orderBy: ModelProxyProviderGroupByArgs['orderBy'] }
+        : { orderBy?: ModelProxyProviderGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -7197,20 +7197,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ModelProxyCredentialGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetModelProxyCredentialGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ModelProxyProviderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetModelProxyProviderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ModelProxyCredential model
+   * Fields of the ModelProxyProvider model
    */
-  readonly fields: ModelProxyCredentialFieldRefs;
+  readonly fields: ModelProxyProviderFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ModelProxyCredential.
+   * The delegate class that acts as a "Promise-like" for ModelProxyProvider.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ModelProxyCredentialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ModelProxyProviderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -7238,380 +7238,380 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ModelProxyCredential model
+   * Fields of the ModelProxyProvider model
    */
-  interface ModelProxyCredentialFieldRefs {
-    readonly id: FieldRef<"ModelProxyCredential", 'String'>
-    readonly name: FieldRef<"ModelProxyCredential", 'String'>
-    readonly provider: FieldRef<"ModelProxyCredential", 'String'>
-    readonly baseUrl: FieldRef<"ModelProxyCredential", 'String'>
-    readonly apiKey: FieldRef<"ModelProxyCredential", 'String'>
-    readonly secretRef: FieldRef<"ModelProxyCredential", 'String'>
-    readonly createdAt: FieldRef<"ModelProxyCredential", 'DateTime'>
-    readonly updatedAt: FieldRef<"ModelProxyCredential", 'DateTime'>
+  interface ModelProxyProviderFieldRefs {
+    readonly id: FieldRef<"ModelProxyProvider", 'String'>
+    readonly name: FieldRef<"ModelProxyProvider", 'String'>
+    readonly provider: FieldRef<"ModelProxyProvider", 'String'>
+    readonly baseUrl: FieldRef<"ModelProxyProvider", 'String'>
+    readonly apiKey: FieldRef<"ModelProxyProvider", 'String'>
+    readonly secretRef: FieldRef<"ModelProxyProvider", 'String'>
+    readonly createdAt: FieldRef<"ModelProxyProvider", 'DateTime'>
+    readonly updatedAt: FieldRef<"ModelProxyProvider", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ModelProxyCredential findUnique
+   * ModelProxyProvider findUnique
    */
-  export type ModelProxyCredentialFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * Filter, which ModelProxyCredential to fetch.
+     * Filter, which ModelProxyProvider to fetch.
      */
-    where: ModelProxyCredentialWhereUniqueInput
+    where: ModelProxyProviderWhereUniqueInput
   }
 
   /**
-   * ModelProxyCredential findUniqueOrThrow
+   * ModelProxyProvider findUniqueOrThrow
    */
-  export type ModelProxyCredentialFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * Filter, which ModelProxyCredential to fetch.
+     * Filter, which ModelProxyProvider to fetch.
      */
-    where: ModelProxyCredentialWhereUniqueInput
+    where: ModelProxyProviderWhereUniqueInput
   }
 
   /**
-   * ModelProxyCredential findFirst
+   * ModelProxyProvider findFirst
    */
-  export type ModelProxyCredentialFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * Filter, which ModelProxyCredential to fetch.
+     * Filter, which ModelProxyProvider to fetch.
      */
-    where?: ModelProxyCredentialWhereInput
+    where?: ModelProxyProviderWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ModelProxyCredentials to fetch.
+     * Determine the order of ModelProxyProviders to fetch.
      */
-    orderBy?: ModelProxyCredentialOrderByWithRelationInput | ModelProxyCredentialOrderByWithRelationInput[]
+    orderBy?: ModelProxyProviderOrderByWithRelationInput | ModelProxyProviderOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ModelProxyCredentials.
+     * Sets the position for searching for ModelProxyProviders.
      */
-    cursor?: ModelProxyCredentialWhereUniqueInput
+    cursor?: ModelProxyProviderWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ModelProxyCredentials from the position of the cursor.
+     * Take `±n` ModelProxyProviders from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ModelProxyCredentials.
+     * Skip the first `n` ModelProxyProviders.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ModelProxyCredentials.
+     * Filter by unique combinations of ModelProxyProviders.
      */
-    distinct?: ModelProxyCredentialScalarFieldEnum | ModelProxyCredentialScalarFieldEnum[]
+    distinct?: ModelProxyProviderScalarFieldEnum | ModelProxyProviderScalarFieldEnum[]
   }
 
   /**
-   * ModelProxyCredential findFirstOrThrow
+   * ModelProxyProvider findFirstOrThrow
    */
-  export type ModelProxyCredentialFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * Filter, which ModelProxyCredential to fetch.
+     * Filter, which ModelProxyProvider to fetch.
      */
-    where?: ModelProxyCredentialWhereInput
+    where?: ModelProxyProviderWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ModelProxyCredentials to fetch.
+     * Determine the order of ModelProxyProviders to fetch.
      */
-    orderBy?: ModelProxyCredentialOrderByWithRelationInput | ModelProxyCredentialOrderByWithRelationInput[]
+    orderBy?: ModelProxyProviderOrderByWithRelationInput | ModelProxyProviderOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ModelProxyCredentials.
+     * Sets the position for searching for ModelProxyProviders.
      */
-    cursor?: ModelProxyCredentialWhereUniqueInput
+    cursor?: ModelProxyProviderWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ModelProxyCredentials from the position of the cursor.
+     * Take `±n` ModelProxyProviders from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ModelProxyCredentials.
+     * Skip the first `n` ModelProxyProviders.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ModelProxyCredentials.
+     * Filter by unique combinations of ModelProxyProviders.
      */
-    distinct?: ModelProxyCredentialScalarFieldEnum | ModelProxyCredentialScalarFieldEnum[]
+    distinct?: ModelProxyProviderScalarFieldEnum | ModelProxyProviderScalarFieldEnum[]
   }
 
   /**
-   * ModelProxyCredential findMany
+   * ModelProxyProvider findMany
    */
-  export type ModelProxyCredentialFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * Filter, which ModelProxyCredentials to fetch.
+     * Filter, which ModelProxyProviders to fetch.
      */
-    where?: ModelProxyCredentialWhereInput
+    where?: ModelProxyProviderWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ModelProxyCredentials to fetch.
+     * Determine the order of ModelProxyProviders to fetch.
      */
-    orderBy?: ModelProxyCredentialOrderByWithRelationInput | ModelProxyCredentialOrderByWithRelationInput[]
+    orderBy?: ModelProxyProviderOrderByWithRelationInput | ModelProxyProviderOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ModelProxyCredentials.
+     * Sets the position for listing ModelProxyProviders.
      */
-    cursor?: ModelProxyCredentialWhereUniqueInput
+    cursor?: ModelProxyProviderWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ModelProxyCredentials from the position of the cursor.
+     * Take `±n` ModelProxyProviders from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ModelProxyCredentials.
+     * Skip the first `n` ModelProxyProviders.
      */
     skip?: number
-    distinct?: ModelProxyCredentialScalarFieldEnum | ModelProxyCredentialScalarFieldEnum[]
+    distinct?: ModelProxyProviderScalarFieldEnum | ModelProxyProviderScalarFieldEnum[]
   }
 
   /**
-   * ModelProxyCredential create
+   * ModelProxyProvider create
    */
-  export type ModelProxyCredentialCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * The data needed to create a ModelProxyCredential.
+     * The data needed to create a ModelProxyProvider.
      */
-    data: XOR<ModelProxyCredentialCreateInput, ModelProxyCredentialUncheckedCreateInput>
+    data: XOR<ModelProxyProviderCreateInput, ModelProxyProviderUncheckedCreateInput>
   }
 
   /**
-   * ModelProxyCredential createMany
+   * ModelProxyProvider createMany
    */
-  export type ModelProxyCredentialCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ModelProxyCredentials.
+     * The data used to create many ModelProxyProviders.
      */
-    data: ModelProxyCredentialCreateManyInput | ModelProxyCredentialCreateManyInput[]
+    data: ModelProxyProviderCreateManyInput | ModelProxyProviderCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ModelProxyCredential createManyAndReturn
+   * ModelProxyProvider createManyAndReturn
    */
-  export type ModelProxyCredentialCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ModelProxyProviderSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * The data used to create many ModelProxyCredentials.
+     * The data used to create many ModelProxyProviders.
      */
-    data: ModelProxyCredentialCreateManyInput | ModelProxyCredentialCreateManyInput[]
+    data: ModelProxyProviderCreateManyInput | ModelProxyProviderCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ModelProxyCredential update
+   * ModelProxyProvider update
    */
-  export type ModelProxyCredentialUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * The data needed to update a ModelProxyCredential.
+     * The data needed to update a ModelProxyProvider.
      */
-    data: XOR<ModelProxyCredentialUpdateInput, ModelProxyCredentialUncheckedUpdateInput>
+    data: XOR<ModelProxyProviderUpdateInput, ModelProxyProviderUncheckedUpdateInput>
     /**
-     * Choose, which ModelProxyCredential to update.
+     * Choose, which ModelProxyProvider to update.
      */
-    where: ModelProxyCredentialWhereUniqueInput
+    where: ModelProxyProviderWhereUniqueInput
   }
 
   /**
-   * ModelProxyCredential updateMany
+   * ModelProxyProvider updateMany
    */
-  export type ModelProxyCredentialUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ModelProxyCredentials.
+     * The data used to update ModelProxyProviders.
      */
-    data: XOR<ModelProxyCredentialUpdateManyMutationInput, ModelProxyCredentialUncheckedUpdateManyInput>
+    data: XOR<ModelProxyProviderUpdateManyMutationInput, ModelProxyProviderUncheckedUpdateManyInput>
     /**
-     * Filter which ModelProxyCredentials to update
+     * Filter which ModelProxyProviders to update
      */
-    where?: ModelProxyCredentialWhereInput
+    where?: ModelProxyProviderWhereInput
     /**
-     * Limit how many ModelProxyCredentials to update.
+     * Limit how many ModelProxyProviders to update.
      */
     limit?: number
   }
 
   /**
-   * ModelProxyCredential updateManyAndReturn
+   * ModelProxyProvider updateManyAndReturn
    */
-  export type ModelProxyCredentialUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: ModelProxyProviderSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * The data used to update ModelProxyCredentials.
+     * The data used to update ModelProxyProviders.
      */
-    data: XOR<ModelProxyCredentialUpdateManyMutationInput, ModelProxyCredentialUncheckedUpdateManyInput>
+    data: XOR<ModelProxyProviderUpdateManyMutationInput, ModelProxyProviderUncheckedUpdateManyInput>
     /**
-     * Filter which ModelProxyCredentials to update
+     * Filter which ModelProxyProviders to update
      */
-    where?: ModelProxyCredentialWhereInput
+    where?: ModelProxyProviderWhereInput
     /**
-     * Limit how many ModelProxyCredentials to update.
+     * Limit how many ModelProxyProviders to update.
      */
     limit?: number
   }
 
   /**
-   * ModelProxyCredential upsert
+   * ModelProxyProvider upsert
    */
-  export type ModelProxyCredentialUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * The filter to search for the ModelProxyCredential to update in case it exists.
+     * The filter to search for the ModelProxyProvider to update in case it exists.
      */
-    where: ModelProxyCredentialWhereUniqueInput
+    where: ModelProxyProviderWhereUniqueInput
     /**
-     * In case the ModelProxyCredential found by the `where` argument doesn't exist, create a new ModelProxyCredential with this data.
+     * In case the ModelProxyProvider found by the `where` argument doesn't exist, create a new ModelProxyProvider with this data.
      */
-    create: XOR<ModelProxyCredentialCreateInput, ModelProxyCredentialUncheckedCreateInput>
+    create: XOR<ModelProxyProviderCreateInput, ModelProxyProviderUncheckedCreateInput>
     /**
-     * In case the ModelProxyCredential was found with the provided `where` argument, update it with this data.
+     * In case the ModelProxyProvider was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ModelProxyCredentialUpdateInput, ModelProxyCredentialUncheckedUpdateInput>
+    update: XOR<ModelProxyProviderUpdateInput, ModelProxyProviderUncheckedUpdateInput>
   }
 
   /**
-   * ModelProxyCredential delete
+   * ModelProxyProvider delete
    */
-  export type ModelProxyCredentialDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
     /**
-     * Filter which ModelProxyCredential to delete.
+     * Filter which ModelProxyProvider to delete.
      */
-    where: ModelProxyCredentialWhereUniqueInput
+    where: ModelProxyProviderWhereUniqueInput
   }
 
   /**
-   * ModelProxyCredential deleteMany
+   * ModelProxyProvider deleteMany
    */
-  export type ModelProxyCredentialDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ModelProxyCredentials to delete
+     * Filter which ModelProxyProviders to delete
      */
-    where?: ModelProxyCredentialWhereInput
+    where?: ModelProxyProviderWhereInput
     /**
-     * Limit how many ModelProxyCredentials to delete.
+     * Limit how many ModelProxyProviders to delete.
      */
     limit?: number
   }
 
   /**
-   * ModelProxyCredential without action
+   * ModelProxyProvider without action
    */
-  export type ModelProxyCredentialDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ModelProxyProviderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ModelProxyCredential
+     * Select specific fields to fetch from the ModelProxyProvider
      */
-    select?: ModelProxyCredentialSelect<ExtArgs> | null
+    select?: ModelProxyProviderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ModelProxyCredential
+     * Omit specific fields from the ModelProxyProvider
      */
-    omit?: ModelProxyCredentialOmit<ExtArgs> | null
+    omit?: ModelProxyProviderOmit<ExtArgs> | null
   }
 
 
@@ -11732,7 +11732,7 @@ export namespace Prisma {
     outputCostPerToken: 'outputCostPerToken',
     upstreamModel: 'upstreamModel',
     upstreamBaseUrl: 'upstreamBaseUrl',
-    credentialName: 'credentialName',
+    providerName: 'providerName',
     secretRef: 'secretRef',
     requestOptions: 'requestOptions',
     metadata: 'metadata',
@@ -11743,7 +11743,7 @@ export namespace Prisma {
   export type ModelProxyModelScalarFieldEnum = (typeof ModelProxyModelScalarFieldEnum)[keyof typeof ModelProxyModelScalarFieldEnum]
 
 
-  export const ModelProxyCredentialScalarFieldEnum: {
+  export const ModelProxyProviderScalarFieldEnum: {
     id: 'id',
     name: 'name',
     provider: 'provider',
@@ -11754,7 +11754,7 @@ export namespace Prisma {
     updatedAt: 'updatedAt'
   };
 
-  export type ModelProxyCredentialScalarFieldEnum = (typeof ModelProxyCredentialScalarFieldEnum)[keyof typeof ModelProxyCredentialScalarFieldEnum]
+  export type ModelProxyProviderScalarFieldEnum = (typeof ModelProxyProviderScalarFieldEnum)[keyof typeof ModelProxyProviderScalarFieldEnum]
 
 
   export const ModelProxyApiKeyScalarFieldEnum: {
@@ -12283,7 +12283,7 @@ export namespace Prisma {
     outputCostPerToken?: FloatNullableFilter<"ModelProxyModel"> | number | null
     upstreamModel?: StringNullableFilter<"ModelProxyModel"> | string | null
     upstreamBaseUrl?: StringNullableFilter<"ModelProxyModel"> | string | null
-    credentialName?: StringNullableFilter<"ModelProxyModel"> | string | null
+    providerName?: StringNullableFilter<"ModelProxyModel"> | string | null
     secretRef?: StringNullableFilter<"ModelProxyModel"> | string | null
     requestOptions?: JsonNullableFilter<"ModelProxyModel">
     metadata?: JsonNullableFilter<"ModelProxyModel">
@@ -12306,7 +12306,7 @@ export namespace Prisma {
     outputCostPerToken?: SortOrderInput | SortOrder
     upstreamModel?: SortOrderInput | SortOrder
     upstreamBaseUrl?: SortOrderInput | SortOrder
-    credentialName?: SortOrderInput | SortOrder
+    providerName?: SortOrderInput | SortOrder
     secretRef?: SortOrderInput | SortOrder
     requestOptions?: SortOrderInput | SortOrder
     metadata?: SortOrderInput | SortOrder
@@ -12332,7 +12332,7 @@ export namespace Prisma {
     outputCostPerToken?: FloatNullableFilter<"ModelProxyModel"> | number | null
     upstreamModel?: StringNullableFilter<"ModelProxyModel"> | string | null
     upstreamBaseUrl?: StringNullableFilter<"ModelProxyModel"> | string | null
-    credentialName?: StringNullableFilter<"ModelProxyModel"> | string | null
+    providerName?: StringNullableFilter<"ModelProxyModel"> | string | null
     secretRef?: StringNullableFilter<"ModelProxyModel"> | string | null
     requestOptions?: JsonNullableFilter<"ModelProxyModel">
     metadata?: JsonNullableFilter<"ModelProxyModel">
@@ -12355,7 +12355,7 @@ export namespace Prisma {
     outputCostPerToken?: SortOrderInput | SortOrder
     upstreamModel?: SortOrderInput | SortOrder
     upstreamBaseUrl?: SortOrderInput | SortOrder
-    credentialName?: SortOrderInput | SortOrder
+    providerName?: SortOrderInput | SortOrder
     secretRef?: SortOrderInput | SortOrder
     requestOptions?: SortOrderInput | SortOrder
     metadata?: SortOrderInput | SortOrder
@@ -12386,7 +12386,7 @@ export namespace Prisma {
     outputCostPerToken?: FloatNullableWithAggregatesFilter<"ModelProxyModel"> | number | null
     upstreamModel?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
     upstreamBaseUrl?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
-    credentialName?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
+    providerName?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
     secretRef?: StringNullableWithAggregatesFilter<"ModelProxyModel"> | string | null
     requestOptions?: JsonNullableWithAggregatesFilter<"ModelProxyModel">
     metadata?: JsonNullableWithAggregatesFilter<"ModelProxyModel">
@@ -12394,21 +12394,21 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ModelProxyModel"> | Date | string
   }
 
-  export type ModelProxyCredentialWhereInput = {
-    AND?: ModelProxyCredentialWhereInput | ModelProxyCredentialWhereInput[]
-    OR?: ModelProxyCredentialWhereInput[]
-    NOT?: ModelProxyCredentialWhereInput | ModelProxyCredentialWhereInput[]
-    id?: StringFilter<"ModelProxyCredential"> | string
-    name?: StringFilter<"ModelProxyCredential"> | string
-    provider?: StringNullableFilter<"ModelProxyCredential"> | string | null
-    baseUrl?: StringNullableFilter<"ModelProxyCredential"> | string | null
-    apiKey?: StringNullableFilter<"ModelProxyCredential"> | string | null
-    secretRef?: StringNullableFilter<"ModelProxyCredential"> | string | null
-    createdAt?: DateTimeFilter<"ModelProxyCredential"> | Date | string
-    updatedAt?: DateTimeFilter<"ModelProxyCredential"> | Date | string
+  export type ModelProxyProviderWhereInput = {
+    AND?: ModelProxyProviderWhereInput | ModelProxyProviderWhereInput[]
+    OR?: ModelProxyProviderWhereInput[]
+    NOT?: ModelProxyProviderWhereInput | ModelProxyProviderWhereInput[]
+    id?: StringFilter<"ModelProxyProvider"> | string
+    name?: StringFilter<"ModelProxyProvider"> | string
+    provider?: StringNullableFilter<"ModelProxyProvider"> | string | null
+    baseUrl?: StringNullableFilter<"ModelProxyProvider"> | string | null
+    apiKey?: StringNullableFilter<"ModelProxyProvider"> | string | null
+    secretRef?: StringNullableFilter<"ModelProxyProvider"> | string | null
+    createdAt?: DateTimeFilter<"ModelProxyProvider"> | Date | string
+    updatedAt?: DateTimeFilter<"ModelProxyProvider"> | Date | string
   }
 
-  export type ModelProxyCredentialOrderByWithRelationInput = {
+  export type ModelProxyProviderOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
     provider?: SortOrderInput | SortOrder
@@ -12419,21 +12419,21 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type ModelProxyCredentialWhereUniqueInput = Prisma.AtLeast<{
+  export type ModelProxyProviderWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     name?: string
-    AND?: ModelProxyCredentialWhereInput | ModelProxyCredentialWhereInput[]
-    OR?: ModelProxyCredentialWhereInput[]
-    NOT?: ModelProxyCredentialWhereInput | ModelProxyCredentialWhereInput[]
-    provider?: StringNullableFilter<"ModelProxyCredential"> | string | null
-    baseUrl?: StringNullableFilter<"ModelProxyCredential"> | string | null
-    apiKey?: StringNullableFilter<"ModelProxyCredential"> | string | null
-    secretRef?: StringNullableFilter<"ModelProxyCredential"> | string | null
-    createdAt?: DateTimeFilter<"ModelProxyCredential"> | Date | string
-    updatedAt?: DateTimeFilter<"ModelProxyCredential"> | Date | string
+    AND?: ModelProxyProviderWhereInput | ModelProxyProviderWhereInput[]
+    OR?: ModelProxyProviderWhereInput[]
+    NOT?: ModelProxyProviderWhereInput | ModelProxyProviderWhereInput[]
+    provider?: StringNullableFilter<"ModelProxyProvider"> | string | null
+    baseUrl?: StringNullableFilter<"ModelProxyProvider"> | string | null
+    apiKey?: StringNullableFilter<"ModelProxyProvider"> | string | null
+    secretRef?: StringNullableFilter<"ModelProxyProvider"> | string | null
+    createdAt?: DateTimeFilter<"ModelProxyProvider"> | Date | string
+    updatedAt?: DateTimeFilter<"ModelProxyProvider"> | Date | string
   }, "id" | "name">
 
-  export type ModelProxyCredentialOrderByWithAggregationInput = {
+  export type ModelProxyProviderOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     provider?: SortOrderInput | SortOrder
@@ -12442,23 +12442,23 @@ export namespace Prisma {
     secretRef?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    _count?: ModelProxyCredentialCountOrderByAggregateInput
-    _max?: ModelProxyCredentialMaxOrderByAggregateInput
-    _min?: ModelProxyCredentialMinOrderByAggregateInput
+    _count?: ModelProxyProviderCountOrderByAggregateInput
+    _max?: ModelProxyProviderMaxOrderByAggregateInput
+    _min?: ModelProxyProviderMinOrderByAggregateInput
   }
 
-  export type ModelProxyCredentialScalarWhereWithAggregatesInput = {
-    AND?: ModelProxyCredentialScalarWhereWithAggregatesInput | ModelProxyCredentialScalarWhereWithAggregatesInput[]
-    OR?: ModelProxyCredentialScalarWhereWithAggregatesInput[]
-    NOT?: ModelProxyCredentialScalarWhereWithAggregatesInput | ModelProxyCredentialScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ModelProxyCredential"> | string
-    name?: StringWithAggregatesFilter<"ModelProxyCredential"> | string
-    provider?: StringNullableWithAggregatesFilter<"ModelProxyCredential"> | string | null
-    baseUrl?: StringNullableWithAggregatesFilter<"ModelProxyCredential"> | string | null
-    apiKey?: StringNullableWithAggregatesFilter<"ModelProxyCredential"> | string | null
-    secretRef?: StringNullableWithAggregatesFilter<"ModelProxyCredential"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"ModelProxyCredential"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"ModelProxyCredential"> | Date | string
+  export type ModelProxyProviderScalarWhereWithAggregatesInput = {
+    AND?: ModelProxyProviderScalarWhereWithAggregatesInput | ModelProxyProviderScalarWhereWithAggregatesInput[]
+    OR?: ModelProxyProviderScalarWhereWithAggregatesInput[]
+    NOT?: ModelProxyProviderScalarWhereWithAggregatesInput | ModelProxyProviderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ModelProxyProvider"> | string
+    name?: StringWithAggregatesFilter<"ModelProxyProvider"> | string
+    provider?: StringNullableWithAggregatesFilter<"ModelProxyProvider"> | string | null
+    baseUrl?: StringNullableWithAggregatesFilter<"ModelProxyProvider"> | string | null
+    apiKey?: StringNullableWithAggregatesFilter<"ModelProxyProvider"> | string | null
+    secretRef?: StringNullableWithAggregatesFilter<"ModelProxyProvider"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ModelProxyProvider"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ModelProxyProvider"> | Date | string
   }
 
   export type ModelProxyApiKeyWhereInput = {
@@ -13095,7 +13095,7 @@ export namespace Prisma {
     outputCostPerToken?: number | null
     upstreamModel?: string | null
     upstreamBaseUrl?: string | null
-    credentialName?: string | null
+    providerName?: string | null
     secretRef?: string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
@@ -13118,7 +13118,7 @@ export namespace Prisma {
     outputCostPerToken?: number | null
     upstreamModel?: string | null
     upstreamBaseUrl?: string | null
-    credentialName?: string | null
+    providerName?: string | null
     secretRef?: string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
@@ -13141,7 +13141,7 @@ export namespace Prisma {
     outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
     upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
     upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    credentialName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
@@ -13164,7 +13164,7 @@ export namespace Prisma {
     outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
     upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
     upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    credentialName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
@@ -13187,7 +13187,7 @@ export namespace Prisma {
     outputCostPerToken?: number | null
     upstreamModel?: string | null
     upstreamBaseUrl?: string | null
-    credentialName?: string | null
+    providerName?: string | null
     secretRef?: string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
@@ -13210,7 +13210,7 @@ export namespace Prisma {
     outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
     upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
     upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    credentialName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
@@ -13233,7 +13233,7 @@ export namespace Prisma {
     outputCostPerToken?: NullableFloatFieldUpdateOperationsInput | number | null
     upstreamModel?: NullableStringFieldUpdateOperationsInput | string | null
     upstreamBaseUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    credentialName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerName?: NullableStringFieldUpdateOperationsInput | string | null
     secretRef?: NullableStringFieldUpdateOperationsInput | string | null
     requestOptions?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
@@ -13241,7 +13241,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ModelProxyCredentialCreateInput = {
+  export type ModelProxyProviderCreateInput = {
     id?: string
     name: string
     provider?: string | null
@@ -13252,7 +13252,7 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type ModelProxyCredentialUncheckedCreateInput = {
+  export type ModelProxyProviderUncheckedCreateInput = {
     id?: string
     name: string
     provider?: string | null
@@ -13263,7 +13263,7 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type ModelProxyCredentialUpdateInput = {
+  export type ModelProxyProviderUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     provider?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13274,7 +13274,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ModelProxyCredentialUncheckedUpdateInput = {
+  export type ModelProxyProviderUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     provider?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13285,7 +13285,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ModelProxyCredentialCreateManyInput = {
+  export type ModelProxyProviderCreateManyInput = {
     id?: string
     name: string
     provider?: string | null
@@ -13296,7 +13296,7 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type ModelProxyCredentialUpdateManyMutationInput = {
+  export type ModelProxyProviderUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     provider?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13307,7 +13307,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ModelProxyCredentialUncheckedUpdateManyInput = {
+  export type ModelProxyProviderUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     provider?: NullableStringFieldUpdateOperationsInput | string | null
@@ -14156,7 +14156,7 @@ export namespace Prisma {
     outputCostPerToken?: SortOrder
     upstreamModel?: SortOrder
     upstreamBaseUrl?: SortOrder
-    credentialName?: SortOrder
+    providerName?: SortOrder
     secretRef?: SortOrder
     requestOptions?: SortOrder
     metadata?: SortOrder
@@ -14186,7 +14186,7 @@ export namespace Prisma {
     outputCostPerToken?: SortOrder
     upstreamModel?: SortOrder
     upstreamBaseUrl?: SortOrder
-    credentialName?: SortOrder
+    providerName?: SortOrder
     secretRef?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -14207,7 +14207,7 @@ export namespace Prisma {
     outputCostPerToken?: SortOrder
     upstreamModel?: SortOrder
     upstreamBaseUrl?: SortOrder
-    credentialName?: SortOrder
+    providerName?: SortOrder
     secretRef?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -14228,7 +14228,7 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
-  export type ModelProxyCredentialCountOrderByAggregateInput = {
+  export type ModelProxyProviderCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     provider?: SortOrder
@@ -14239,7 +14239,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type ModelProxyCredentialMaxOrderByAggregateInput = {
+  export type ModelProxyProviderMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     provider?: SortOrder
@@ -14250,7 +14250,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type ModelProxyCredentialMinOrderByAggregateInput = {
+  export type ModelProxyProviderMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     provider?: SortOrder

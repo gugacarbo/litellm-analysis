@@ -1,11 +1,11 @@
 import {
   fromModelRoute,
-  getDefaultCredential,
+  getDefaultProvider,
   type ModelRoute,
   type ModelSyncDirection,
   type ModelSyncPresenceStatus,
   normalizeSyncDirection,
-  credentialExists as registryCredentialExists,
+  providerExists as registryProviderExists,
   toModelRoute,
 } from "@lite-llm/model-proxy-registry-service";
 import type { Application, Response } from "express";
@@ -26,7 +26,7 @@ import {
 } from "../orchestration/registry-models-bridge";
 import {
   buildModelRouteFromSpec,
-  getCredentialNameFromParams,
+  getProviderNameFromParams,
   isRecord,
   normalizeModelRoute,
 } from "../orchestration/route-params";
@@ -233,20 +233,20 @@ export function registerModelRoutes(
   opts: RouteOptions,
 ): void {
   const { dataSource, registry } = opts;
-  const { settingsService, registryModelsService, credentialsService } =
+  const { settingsService, registryModelsService, providersService } =
     registry;
 
   async function listMergedRegistryModels() {
     return listRegistryModels(registryModelsService);
   }
 
-  async function getResolvedDefaultCredential(): Promise<string | null> {
+  async function getResolvedDefaultProvider(): Promise<string | null> {
     const preferredProvider = await opts.providerService.get("local-proxy");
-    const providerDefault = preferredProvider?.defaultCredential?.trim();
+    const providerDefault = preferredProvider?.defaultProvider?.trim();
     if (providerDefault) {
       return providerDefault;
     }
-    return getDefaultCredential(settingsService);
+    return getDefaultProvider(settingsService);
   }
 
   async function listCanonicalModelNames(): Promise<Set<string>> {
@@ -382,13 +382,13 @@ export function registerModelRoutes(
     previousName: string,
     previousRoute: ModelRoute,
     currentName: string,
-    credentialName: string | null,
+    providerName: string | null,
   ): Promise<void> {
     await updateRegistryModelFromRoute(
       registryModelsService,
       currentName,
       previousRoute,
-      credentialName,
+      providerName,
       previousName,
     );
   }
@@ -421,34 +421,34 @@ export function registerModelRoutes(
         ownedBy?: string;
         baseUrl?: string;
         apiKey?: string;
-        defaultCredential?: string;
+        defaultProvider?: string;
       };
 
       if (
-        updates.defaultCredential !== undefined &&
-        typeof updates.defaultCredential !== "string"
+        updates.defaultProvider !== undefined &&
+        typeof updates.defaultProvider !== "string"
       ) {
         res.status(400).json({
-          error: "defaultCredential must be a string",
+          error: "defaultProvider must be a string",
         });
         return;
       }
 
-      if (typeof updates.defaultCredential === "string") {
-        const normalizedDefaultCredential = updates.defaultCredential.trim();
-        if (normalizedDefaultCredential.length > 0) {
-          const hasCredential = await registryCredentialExists(
-            credentialsService,
-            normalizedDefaultCredential,
+      if (typeof updates.defaultProvider === "string") {
+        const normalizedDefaultProvider = updates.defaultProvider.trim();
+        if (normalizedDefaultProvider.length > 0) {
+          const hasProvider = await registryProviderExists(
+            providersService,
+            normalizedDefaultProvider,
           );
-          if (!hasCredential) {
+          if (!hasProvider) {
             res.status(400).json({
-              error: `Credential "${normalizedDefaultCredential}" not found`,
+              error: `Provider "${normalizedDefaultProvider}" not found`,
             });
             return;
           }
         }
-        updates.defaultCredential = normalizedDefaultCredential;
+        updates.defaultProvider = normalizedDefaultProvider;
       }
 
       await opts.providerService.update(providerId, updates);
@@ -584,22 +584,22 @@ export function registerModelRoutes(
 
   app.get("/models/default-settings-diff", async (_req, res) => {
     try {
-      const [credentialName, litellmModels] = await Promise.all([
-        getResolvedDefaultCredential(),
+      const [providerName, litellmModels] = await Promise.all([
+        getResolvedDefaultProvider(),
         listMergedRegistryModels(),
       ]);
-      const normalizedDefault = credentialName?.trim() ?? "";
+      const normalizedDefault = providerName?.trim() ?? "";
       const mismatchedModels = litellmModels
         .filter((model) => {
           const params = registryEntryParams(model);
-          const modelCredential = getCredentialNameFromParams(params) ?? "";
-          return modelCredential !== normalizedDefault;
+          const modelProvider = getProviderNameFromParams(params) ?? "";
+          return modelProvider !== normalizedDefault;
         })
         .map((model) => model.modelName)
         .sort((a, b) => a.localeCompare(b));
 
       res.json({
-        defaultCredential: normalizedDefault,
+        defaultProvider: normalizedDefault,
         mismatchedModels,
         count: mismatchedModels.length,
       });
@@ -610,14 +610,14 @@ export function registerModelRoutes(
 
   app.post("/models/sync-default-settings", async (_req, res) => {
     try {
-      const credentialName = await getResolvedDefaultCredential();
-      const normalizedDefault = credentialName?.trim() ?? "";
+      const providerName = await getResolvedDefaultProvider();
+      const normalizedDefault = providerName?.trim() ?? "";
       const litellmModels = await listMergedRegistryModels();
       let updated = 0;
 
       for (const model of litellmModels) {
-        const normalizedDefaultCredential = normalizedDefault || undefined;
-        if (model.modelRoute.credentialName === normalizedDefaultCredential) {
+        const normalizedDefaultProvider = normalizedDefault || undefined;
+        if (model.modelRoute.providerName === normalizedDefaultProvider) {
           continue;
         }
 
@@ -625,7 +625,7 @@ export function registerModelRoutes(
           model.modelName,
           {
             ...model.modelRoute,
-            credentialName: normalizedDefaultCredential,
+            providerName: normalizedDefaultProvider,
           },
           normalizedDefault,
         );
@@ -641,7 +641,7 @@ export function registerModelRoutes(
       res.json({
         success: true,
         updated,
-        defaultCredential: normalizedDefault,
+        defaultProvider: normalizedDefault,
       });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -670,12 +670,12 @@ export function registerModelRoutes(
         modelRoute,
         modelName: normalizedModelName,
       });
-      const credentialName = await getResolvedDefaultCredential();
+      const providerName = await getResolvedDefaultProvider();
       await createRegistryModelFromRoute(
         registryModelsService,
         normalizedModelName,
-        normalizeModelRoute(normalizedModelName, route, credentialName),
-        credentialName,
+        normalizeModelRoute(normalizedModelName, route, providerName),
+        providerName,
       );
       res.status(201).json({ success: true });
     } catch (error) {
@@ -709,7 +709,7 @@ export function registerModelRoutes(
       const existingRoute = existingModel?.modelRoute ?? {
         modelName: name,
       };
-      const credentialName = await getResolvedDefaultCredential();
+      const providerName = await getResolvedDefaultProvider();
       let nextRoute: ModelRoute | undefined;
       let renamedRegistryModel = false;
 
@@ -738,7 +738,7 @@ export function registerModelRoutes(
             ...strippedIncomingRoute,
             modelName: normalizedNewName,
           },
-          credentialName,
+          providerName,
         );
 
         if (typeof incomingRoute.enabled === "boolean") {
@@ -802,7 +802,7 @@ export function registerModelRoutes(
             registryModelsService,
             name,
             nextRoute,
-            credentialName,
+            providerName,
             normalizedNewName !== name ? normalizedNewName : undefined,
           );
           renamedRegistryModel = normalizedNewName !== name;
@@ -825,7 +825,7 @@ export function registerModelRoutes(
               name,
               existingRoute,
               normalizedNewName,
-              credentialName,
+              providerName,
             );
           }
           throw aliasErr;
@@ -873,7 +873,7 @@ export function registerModelRoutes(
         modelsService.getAll(),
         listMergedRegistryModels(),
       ]);
-      const credentialName = await getResolvedDefaultCredential();
+      const providerName = await getResolvedDefaultProvider();
 
       const configNames = new Set(Object.keys(configModels || {}));
       const litellmNames = new Set(litellmModels.map((m) => m.modelName));
@@ -891,7 +891,7 @@ export function registerModelRoutes(
             registryModelsService,
             name,
             spec,
-            credentialName,
+            providerName,
             existingRoute,
           );
         } else {
@@ -899,7 +899,7 @@ export function registerModelRoutes(
             registryModelsService,
             name,
             spec,
-            credentialName,
+            providerName,
           );
         }
       }
@@ -1044,10 +1044,10 @@ export function registerModelRoutes(
         }
       }
 
-      const [configModels, litellmModels, credentialName] = await Promise.all([
+      const [configModels, litellmModels, providerName] = await Promise.all([
         opts.modelsService.getAll(),
         listMergedRegistryModels(),
-        getResolvedDefaultCredential(),
+        getResolvedDefaultProvider(),
       ]);
       const litellmByName = new Map(
         litellmModels.map((model) => [model.modelName, model]),
@@ -1076,13 +1076,13 @@ export function registerModelRoutes(
               const route = buildModelRouteFromSpec(
                 modelName,
                 spec,
-                credentialName,
+                providerName,
               );
               await createRegistryModelFromRoute(
                 registryModelsService,
                 modelName,
                 route,
-                credentialName,
+                providerName,
               );
               litellmByName.set(modelName, {
                 modelName,
@@ -1102,13 +1102,13 @@ export function registerModelRoutes(
             const route = buildModelRouteFromSpec(
               modelName,
               spec,
-              credentialName,
+              providerName,
             );
             await createRegistryModelFromRoute(
               registryModelsService,
               modelName,
               route,
-              credentialName,
+              providerName,
             );
             litellmByName.set(modelName, {
               modelName,
@@ -1125,13 +1125,13 @@ export function registerModelRoutes(
               field,
               getConfigFieldValue(spec, field),
             ),
-            credentialName,
+            providerName,
           );
           await updateRegistryModelFromRoute(
             registryModelsService,
             modelName,
             nextRoute,
-            credentialName,
+            providerName,
           );
           litellmByName.set(modelName, {
             ...existing,

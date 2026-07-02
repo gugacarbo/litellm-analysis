@@ -1,7 +1,7 @@
 import type { Prisma, PrismaClient } from "@lite-llm/model-proxy-repository";
 import { SettingsRepository } from "../repositories/settings-repository.js";
 import {
-  type DefaultCredentialSetting,
+  type DefaultProviderSetting,
   type HealthCheckPromptSetting,
   type ModelProxySettingRecord,
   type RouterSettingsValue,
@@ -34,9 +34,9 @@ export interface ISettingsService {
     value: unknown,
   ): Promise<ModelProxySettingRecord>;
   deleteByKey(key: SettingKey): Promise<boolean>;
-  getDefaultCredential(): Promise<string | null>;
-  setDefaultCredential(credentialName: string): Promise<void>;
-  deleteDefaultCredential(): Promise<boolean>;
+  getDefaultProvider(): Promise<string | null>;
+  setDefaultProvider(providerName: string): Promise<void>;
+  deleteDefaultProvider(): Promise<boolean>;
   getHealthCheckPrompt(): Promise<string | null>;
   setHealthCheckPrompt(prompt: string): Promise<void>;
   getRouterSettings(): Promise<RouterSettingsValue | null>;
@@ -76,32 +76,32 @@ export class SettingsService implements ISettingsService {
     return this.repository.deleteByKey(key);
   }
 
-  async getDefaultCredential(): Promise<string | null> {
+  async getDefaultProvider(): Promise<string | null> {
     const row = await this.repository.findByKey(
-      SETTING_KEYS.DEFAULT_CREDENTIAL,
+      SETTING_KEYS.DEFAULT_PROVIDER,
     );
     if (!row) {
       return null;
     }
-    return readStringField(row.value, "default_credential") ?? null;
+    return readStringField(row.value, "default_provider") ?? null;
   }
 
-  async setDefaultCredential(credentialName: string): Promise<void> {
-    const trimmed = credentialName.trim();
+  async setDefaultProvider(providerName: string): Promise<void> {
+    const trimmed = providerName.trim();
     if (!trimmed) {
-      throw new Error("default_credential must be a non-empty string");
+      throw new Error("default_provider must be a non-empty string");
     }
-    const value: DefaultCredentialSetting = {
-      default_credential: trimmed,
+    const value: DefaultProviderSetting = {
+      default_provider: trimmed,
     };
     await this.repository.upsert(
-      SETTING_KEYS.DEFAULT_CREDENTIAL,
+      SETTING_KEYS.DEFAULT_PROVIDER,
       value as unknown as Prisma.InputJsonValue,
     );
   }
 
-  async deleteDefaultCredential(): Promise<boolean> {
-    return this.repository.deleteByKey(SETTING_KEYS.DEFAULT_CREDENTIAL);
+  async deleteDefaultProvider(): Promise<boolean> {
+    return this.repository.deleteByKey(SETTING_KEYS.DEFAULT_PROVIDER);
   }
 
   async getHealthCheckPrompt(): Promise<string | null> {

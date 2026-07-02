@@ -9,7 +9,7 @@ function createProviderServiceMock() {
         ownedBy: "lite-llm-analytics",
         baseUrl: "http://localhost:3008/v1",
         apiKey: "env:MODEL_PROXY_API_KEY",
-        defaultCredential: "router",
+        defaultProvider: "router",
       },
     }),
     get: vi.fn(),
@@ -53,12 +53,12 @@ function createDatabaseMock() {
         ownedBy: null,
         family: null,
         displayName: null,
-        credentialName: "default",
+        providerName: "default",
         secretRef: null,
         updatedAt: new Date("2026-06-16T00:00:00.000Z"),
       }),
     },
-    modelProxyCredential: {
+    modelProxyProvider: {
       findUnique: vi.fn().mockResolvedValue({
         name: "default",
         apiKey: "upstream-secret",
@@ -567,7 +567,7 @@ describe("ModelProxyService", () => {
       ownedBy: null,
       family: null,
       displayName: null,
-      credentialName: "default",
+      providerName: "default",
       secretRef: null,
       updatedAt: new Date("2026-06-16T00:00:00.000Z"),
     });

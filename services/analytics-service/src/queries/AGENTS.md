@@ -58,7 +58,7 @@ All tables prefixed `model_proxy_*` (PostgreSQL). Schema managed by Prisma via `
 - `model_proxy_error_logs` — error records
 - `model_proxy_models` — model registry rows
 - `model_proxy_settings` — global proxy settings (single-row)
-- `model_proxy_credentials` — encrypted credential storage
+- `model_proxy_providers` — encrypted provider storage
 
 ## ANTI-PATTERNS (THIS PROJECT)
 

@@ -1,5 +1,5 @@
 import {
-  CredentialsRepository,
+  ProvidersRepository,
   SETTING_KEYS,
   SettingsRepository,
 } from "@lite-llm/model-proxy-registry-service";
@@ -23,7 +23,7 @@ function metadataFromModelSpec(
 
 function parseApiKeyToSecretRef(
   apiKey: string | undefined,
-  credentialName: string,
+  providerName: string,
 ): string {
   if (apiKey?.trim().startsWith("env:")) {
     const envName = apiKey.trim().slice(4).trim();
@@ -32,7 +32,7 @@ function parseApiKeyToSecretRef(
     }
   }
 
-  return `${credentialName.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_API_KEY`;
+  return `${providerName.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_API_KEY`;
 }
 
 function resolveProviderField(
@@ -93,23 +93,23 @@ export async function importModelsFromFile(
 ): Promise<void> {
   const modelsConfig = readModelsFile(modelsFilePath);
   const settings = new SettingsRepository(prisma);
-  const credentials = new CredentialsRepository(prisma);
+  const providers = new ProvidersRepository(prisma);
 
   const localProxy = modelsConfig.provider["local-proxy"];
-  const defaultCredentialName = localProxy?.defaultCredential?.trim() ?? "";
+  const defaultProviderName = localProxy?.defaultProvider?.trim() ?? "";
 
-  if (defaultCredentialName) {
+  if (defaultProviderName) {
     const existingDefault = await settings.findByKey(
-      SETTING_KEYS.DEFAULT_CREDENTIAL,
+      SETTING_KEYS.DEFAULT_PROVIDER,
     );
     if (existingDefault && !flags.force) {
       summary.settings.skipped += 1;
       console.log(
-        `[settings] skipped default_credential (already exists; use --force)`,
+        `[settings] skipped default_provider (already exists; use --force)`,
       );
     } else if (flags.dryRun) {
       console.log(
-        `[settings] dry-run would set default_credential=${defaultCredentialName}`,
+        `[settings] dry-run would set default_provider=${defaultProviderName}`,
       );
       if (existingDefault) {
         summary.settings.updated += 1;
@@ -117,15 +117,15 @@ export async function importModelsFromFile(
         summary.settings.inserted += 1;
       }
     } else {
-      await settings.upsert(SETTING_KEYS.DEFAULT_CREDENTIAL, {
-        default_credential: defaultCredentialName,
+      await settings.upsert(SETTING_KEYS.DEFAULT_PROVIDER, {
+        default_provider: defaultProviderName,
       });
       if (existingDefault) {
         summary.settings.updated += 1;
       } else {
         summary.settings.inserted += 1;
       }
-      console.log(`[settings] set default_credential=${defaultCredentialName}`);
+      console.log(`[settings] set default_provider=${defaultProviderName}`);
     }
   }
 
@@ -136,28 +136,28 @@ export async function importModelsFromFile(
       continue;
     }
 
-    const credentialName = providerSpec.defaultCredential?.trim();
-    if (!credentialName) {
+    const providerName = providerSpec.defaultProvider?.trim();
+    if (!providerName) {
       summary.warnings.push(
-        `Provider "${providerKey}" has no defaultCredential; skipped credential import`,
+        `Provider "${providerKey}" has no defaultProvider; skipped provider import`,
       );
       continue;
     }
 
     const secretRef = parseApiKeyToSecretRef(
       providerSpec.apiKey,
-      credentialName,
+      providerName,
     );
-    const existing = await credentials.findByName(credentialName);
+    const existing = await providers.findByName(providerName);
 
     if (existing && !flags.force) {
-      summary.credentials.skipped += 1;
-      console.log(`[credentials] skipped ${credentialName}`);
+      summary.providers.skipped += 1;
+      console.log(`[providers] skipped ${providerName}`);
       continue;
     }
 
-    const credentialData = {
-      name: credentialName,
+    const providerData = {
+      name: providerName,
       provider: resolveProviderField(providerKey, providerSpec),
       baseUrl: providerSpec.baseUrl || null,
       secretRef,
@@ -165,25 +165,25 @@ export async function importModelsFromFile(
 
     if (flags.dryRun) {
       console.log(
-        `[credentials] dry-run would ${existing ? "update" : "insert"} ${credentialName} (secret_ref=${secretRef})`,
+        `[providers] dry-run would ${existing ? "update" : "insert"} ${providerName} (secret_ref=${secretRef})`,
       );
       if (existing) {
-        summary.credentials.updated += 1;
+        summary.providers.updated += 1;
       } else {
-        summary.credentials.inserted += 1;
+        summary.providers.inserted += 1;
       }
     } else if (existing) {
-      await credentials.update(credentialName, credentialData);
-      summary.credentials.updated += 1;
-      console.log(`[credentials] updated ${credentialName}`);
+      await providers.update(providerName, providerData);
+      summary.providers.updated += 1;
+      console.log(`[providers] updated ${providerName}`);
     } else {
-      await credentials.create(credentialData);
-      summary.credentials.inserted += 1;
-      console.log(`[credentials] inserted ${credentialName}`);
+      await providers.create(providerData);
+      summary.providers.inserted += 1;
+      console.log(`[providers] inserted ${providerName}`);
     }
 
     summary.requiredEnvVars.push({
-      credential: credentialName,
+      provider: providerName,
       secretRef,
       action: "set env var before proxy start",
     });

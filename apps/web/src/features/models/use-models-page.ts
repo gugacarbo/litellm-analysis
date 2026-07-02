@@ -22,15 +22,15 @@ import {
 import type {
   OpenAiOAuthConnectionStatus,
   OpenAiOAuthDeviceCodeStartResult,
-  RegistryCredential,
-} from "@/shared/lib/api-client/credentials";
+  RegistryProvider,
+} from "@/shared/lib/api-client/providers";
 import {
-  type CredentialInput,
-  type CredentialUpdateInput,
-  createCredential,
-  deleteCredential,
-  updateCredential,
-} from "@/shared/lib/api-client/credentials";
+  type ProviderInput,
+  type ProviderUpdateInput,
+  createProvider,
+  deleteProvider,
+  updateProvider,
+} from "@/shared/lib/api-client/providers";
 import { validateAndBuildModelRoute } from "./models-form-utils";
 import { useLatestHealthChecks } from "./use-latest-health-checks";
 import { useModelsFormState } from "./use-models-form-state";
@@ -49,19 +49,19 @@ export function useModelsPage() {
     query: healthChecksQuery,
   } = useLatestHealthChecks();
 
-  const credentialsQuery = useQuery({
-    queryKey: ["credentials"],
+  const providersQuery = useQuery({
+    queryKey: ["providers"],
     queryFn: () =>
-      import("@/shared/lib/api-client/credentials").then((m) =>
-        m.getAllCredentials(),
+      import("@/shared/lib/api-client/providers").then((m) =>
+        m.getAllProviders(),
       ),
   });
 
-  const defaultCredentialQuery = useQuery({
-    queryKey: ["default-credential"],
+  const defaultProviderQuery = useQuery({
+    queryKey: ["default-provider"],
     queryFn: () =>
-      import("@/shared/lib/api-client/credentials").then((m) =>
-        m.getDefaultCredential(),
+      import("@/shared/lib/api-client/providers").then((m) =>
+        m.getDefaultProvider(),
       ),
   });
 
@@ -73,26 +73,26 @@ export function useModelsPage() {
   const openAiOAuthQuery = useQuery({
     queryKey: ["openai-oauth-connection"],
     queryFn: () =>
-      import("@/shared/lib/api-client/credentials").then((m) =>
+      import("@/shared/lib/api-client/providers").then((m) =>
         m.getOpenAiOAuthConnectionStatus(),
       ),
   });
 
-  const [providerDefaultCredential, setProviderDefaultCredential] =
+  const [providerDefaultProvider, setProviderDefaultProvider] =
     useState("");
   const [oauthDeviceFlow, setOauthDeviceFlow] =
     useState<OpenAiOAuthDeviceCodeStartResult | null>(null);
   const [oauthError, setOauthError] = useState<string | null>(null);
 
-  const updateProviderMutation = useMutation({
-    mutationFn: (defaultCredential: string) =>
-      updateModelProvider("local-proxy", { defaultCredential }),
+  const updateModelProxyProviderMutation = useMutation({
+    mutationFn: (defaultProvider: string) =>
+      updateModelProvider("local-proxy", { defaultProvider }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["model-provider", "local-proxy"],
       });
       await queryClient.invalidateQueries({
-        queryKey: ["default-credential"],
+        queryKey: ["default-provider"],
       });
       await queryClient.invalidateQueries({
         queryKey: ["models-default-settings-diff"],
@@ -102,21 +102,21 @@ export function useModelsPage() {
 
   const startOpenAiOAuthMutation = useMutation({
     mutationFn: () =>
-      import("@/shared/lib/api-client/credentials").then((m) =>
+      import("@/shared/lib/api-client/providers").then((m) =>
         m.startOpenAiOAuthDeviceFlow(),
       ),
   });
 
   const pollOpenAiOAuthMutation = useMutation({
     mutationFn: (input: { deviceAuthId: string; userCode: string }) =>
-      import("@/shared/lib/api-client/credentials").then((m) =>
+      import("@/shared/lib/api-client/providers").then((m) =>
         m.pollOpenAiOAuthDeviceFlow(input),
       ),
   });
 
   const disconnectOpenAiOAuthMutation = useMutation({
     mutationFn: () =>
-      import("@/shared/lib/api-client/credentials").then((m) =>
+      import("@/shared/lib/api-client/providers").then((m) =>
         m.disconnectOpenAiOAuth(),
       ),
     onSuccess: async () => {
@@ -187,33 +187,33 @@ export function useModelsPage() {
     },
   });
 
-  const createCredentialMutation = useMutation({
-    mutationFn: (input: CredentialInput) => createCredential(input),
+  const createProviderMutation = useMutation({
+    mutationFn: (input: ProviderInput) => createProvider(input),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["credentials"] });
+      await queryClient.invalidateQueries({ queryKey: ["providers"] });
     },
   });
 
-  const updateCredentialMutation = useMutation({
-    mutationFn: (params: { name: string; input: CredentialUpdateInput }) =>
-      updateCredential(params.name, params.input),
+  const updateProviderMutation = useMutation({
+    mutationFn: (params: { name: string; input: ProviderUpdateInput }) =>
+      updateProvider(params.name, params.input),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["credentials"] });
+      await queryClient.invalidateQueries({ queryKey: ["providers"] });
     },
   });
 
-  const deleteCredentialMutation = useMutation({
-    mutationFn: (name: string) => deleteCredential(name),
+  const deleteProviderMutation = useMutation({
+    mutationFn: (name: string) => deleteProvider(name),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["credentials"] });
+      await queryClient.invalidateQueries({ queryKey: ["providers"] });
     },
   });
 
-  // Credential form state
-  const [credentialFormOpen, setCredentialFormOpen] = useState(false);
-  const [editingCredential, setEditingCredential] =
-    useState<RegistryCredential | null>(null);
-  const [credentialFormData, setCredentialFormData] = useState<CredentialInput>(
+  // Provider form state
+  const [providerFormOpen, setProviderFormOpen] = useState(false);
+  const [editingProvider, setEditingProvider] =
+    useState<RegistryProvider | null>(null);
+  const [providerFormData, setProviderFormData] = useState<ProviderInput>(
     {
       name: "",
       provider: null,
@@ -221,67 +221,67 @@ export function useModelsPage() {
       apiKey: "",
     },
   );
-  const [credentialFormError, setCredentialFormError] = useState<string | null>(
+  const [providerFormError, setProviderFormError] = useState<string | null>(
     null,
   );
-  const credentialFormLoading =
-    createCredentialMutation.isPending || updateCredentialMutation.isPending;
+  const providerFormLoading =
+    createProviderMutation.isPending || updateProviderMutation.isPending;
 
-  function handleOpenCreateCredential() {
-    setEditingCredential(null);
-    setCredentialFormData({
+  function handleOpenCreateProvider() {
+    setEditingProvider(null);
+    setProviderFormData({
       name: "",
       provider: null,
       baseUrl: null,
       apiKey: "",
     });
-    setCredentialFormError(null);
-    setCredentialFormOpen(true);
+    setProviderFormError(null);
+    setProviderFormOpen(true);
   }
 
-  function handleOpenEditCredential(credential: RegistryCredential) {
-    setEditingCredential(credential);
-    setCredentialFormData({
-      name: credential.credentialName,
-      provider: credential.provider,
-      baseUrl: credential.baseUrl,
+  function handleOpenEditProvider(provider: RegistryProvider) {
+    setEditingProvider(provider);
+    setProviderFormData({
+      name: provider.providerName,
+      provider: provider.provider,
+      baseUrl: provider.baseUrl,
       apiKey: "",
     });
-    setCredentialFormError(null);
-    setCredentialFormOpen(true);
+    setProviderFormError(null);
+    setProviderFormOpen(true);
   }
 
-  async function handleCredentialFormSubmit() {
-    setCredentialFormError(null);
+  async function handleProviderFormSubmit() {
+    setProviderFormError(null);
     try {
-      if (editingCredential) {
-        await updateCredentialMutation.mutateAsync({
-          name: editingCredential.credentialName,
+      if (editingProvider) {
+        await updateProviderMutation.mutateAsync({
+          name: editingProvider.providerName,
           input: {
-            ...(credentialFormData.name !== editingCredential.credentialName
-              ? { name: credentialFormData.name }
+            ...(providerFormData.name !== editingProvider.providerName
+              ? { name: providerFormData.name }
               : {}),
-            provider: credentialFormData.provider,
-            baseUrl: credentialFormData.baseUrl,
-            ...(credentialFormData.apiKey
-              ? { apiKey: credentialFormData.apiKey }
+            provider: providerFormData.provider,
+            baseUrl: providerFormData.baseUrl,
+            ...(providerFormData.apiKey
+              ? { apiKey: providerFormData.apiKey }
               : {}),
           },
         });
       } else {
-        await createCredentialMutation.mutateAsync(credentialFormData);
+        await createProviderMutation.mutateAsync(providerFormData);
       }
-      setCredentialFormOpen(false);
+      setProviderFormOpen(false);
     } catch (e) {
-      setCredentialFormError(String(e));
+      setProviderFormError(String(e));
     }
   }
 
-  async function handleDeleteCredential(name: string) {
+  async function handleDeleteProvider(name: string) {
     try {
-      await deleteCredentialMutation.mutateAsync(name);
+      await deleteProviderMutation.mutateAsync(name);
     } catch (e) {
-      setCredentialFormError(String(e));
+      setProviderFormError(String(e));
     }
   }
 
@@ -300,7 +300,7 @@ export function useModelsPage() {
     formError,
     setFormError,
     handleOpenCreate,
-    handleOpenCreateWithDefaultCredential,
+    handleOpenCreateWithDefaultProvider,
     addExtraParam,
     removeExtraParam,
     updateExtraParam,
@@ -320,7 +320,7 @@ export function useModelsPage() {
 
   useEffect(() => {
     if (!providerQuery.data) return;
-    setProviderDefaultCredential(providerQuery.data.defaultCredential);
+    setProviderDefaultProvider(providerQuery.data.defaultProvider);
   }, [providerQuery.data]);
 
   useEffect(() => {
@@ -500,8 +500,8 @@ export function useModelsPage() {
   return {
     addExtraParam,
     addToConfigPending: addToConfigMutation.isPending,
-    credentials: credentialsQuery.data ?? [],
-    defaultCredential: defaultCredentialQuery.data?.defaultCredential ?? null,
+    providers: providersQuery.data ?? [],
+    defaultProvider: defaultProviderQuery.data?.defaultProvider ?? null,
     deleteModelName,
     dialogOpen,
     editingModel,
@@ -510,13 +510,13 @@ export function useModelsPage() {
     setFormError,
     formLoading,
     providerLoading: providerQuery.isLoading,
-    providerSaving: updateProviderMutation.isPending,
+    providerSaving: updateModelProxyProviderMutation.isPending,
     providerError: providerQuery.error
       ? String(providerQuery.error)
-      : updateProviderMutation.error
-        ? String(updateProviderMutation.error)
+      : updateModelProxyProviderMutation.error
+        ? String(updateModelProxyProviderMutation.error)
         : null,
-    providerDefaultCredential,
+    providerDefaultProvider,
     openAiOAuthConnection:
       openAiOAuthQuery.data ??
       ({
@@ -541,9 +541,9 @@ export function useModelsPage() {
           : disconnectOpenAiOAuthMutation.error
             ? String(disconnectOpenAiOAuthMutation.error)
             : null),
-    handleProviderDefaultCredentialChange: async (value: string) => {
-      setProviderDefaultCredential(value);
-      await updateProviderMutation.mutateAsync(value);
+    handleProviderDefaultProviderChange: async (value: string) => {
+      setProviderDefaultProvider(value);
+      await updateModelProxyProviderMutation.mutateAsync(value);
     },
     handleStartOpenAiOAuth: async () => {
       setOauthError(null);
@@ -606,7 +606,7 @@ export function useModelsPage() {
       registryOnly: 0,
       total: 0,
     },
-    handleOpenCreateWithDefaultCredential,
+    handleOpenCreateWithDefaultProvider,
     handleToggleEnabled,
     handleSubmit,
     modelsQuery,
@@ -625,17 +625,17 @@ export function useModelsPage() {
     sourceModel,
     targetModel,
     updateExtraParam,
-    credentialFormOpen,
-    setCredentialFormOpen,
-    editingCredential,
-    credentialFormData,
-    setCredentialFormData,
-    credentialFormError,
-    credentialFormLoading,
-    handleOpenCreateCredential,
-    handleOpenEditCredential,
-    handleCredentialFormSubmit,
-    handleDeleteCredential,
-    deleteCredentialLoading: deleteCredentialMutation.isPending,
+    providerFormOpen,
+    setProviderFormOpen,
+    editingProvider,
+    providerFormData,
+    setProviderFormData,
+    providerFormError,
+    providerFormLoading,
+    handleOpenCreateProvider,
+    handleOpenEditProvider,
+    handleProviderFormSubmit,
+    handleDeleteProvider,
+    deleteProviderLoading: deleteProviderMutation.isPending,
   };
 }

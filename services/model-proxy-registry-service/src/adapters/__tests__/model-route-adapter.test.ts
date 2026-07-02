@@ -17,7 +17,7 @@ const builtParams = {
   max_tokens: 4096,
   input_cost_per_token: 0.000003,
   output_cost_per_token: 0.000015,
-  credential_name: "openai-main",
+  provider_name: "openai-main",
 };
 
 describe("model-route-adapter", () => {
@@ -31,7 +31,7 @@ describe("model-route-adapter", () => {
         outputCostPerToken: 0.000015,
         contextWindowSize: 128_000,
         maxOutputTokens: 4096,
-        credentialName: "openai-main",
+        providerName: "openai-main",
       });
     });
 
@@ -111,7 +111,7 @@ describe("model-route-adapter", () => {
         output_cost_per_token: 0.000015,
         context_window_size: 128_000,
         max_tokens: 4096,
-        credential_name: "openai-main",
+        provider_name: "openai-main",
         api_base: "https://api.openai.com/v1",
         custom_llm_provider: "openai",
       });
@@ -168,7 +168,7 @@ describe("model-route-adapter", () => {
         outputCostPerToken: 0.000015,
         upstreamModel: null,
         upstreamBaseUrl: null,
-        credentialName: "openai-main",
+        providerName: "openai-main",
         secretRef: null,
       });
     });
@@ -196,7 +196,7 @@ describe("model-route-adapter", () => {
         outputCostPerToken: 0.000015,
         upstreamModel: "gpt-4o",
         upstreamBaseUrl: "https://api.openai.com/v1",
-        credentialName: "openai-main",
+        providerName: "openai-main",
         secretRef: "OPENAI_MAIN_API_KEY",
         requestOptions: { temperature: 0.2 },
         metadata: null,

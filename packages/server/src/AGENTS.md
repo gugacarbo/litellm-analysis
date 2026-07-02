@@ -28,7 +28,7 @@ packages/server/src/
     ├── model-proxy-routes.ts  # /model-proxy/* health and admin
     ├── plugin-routing-routes.ts # GET/PUT /agent-routing
     ├── chat-routes.ts         # POST /chat (streaming completions)
-    ├── credential-routes.ts   # Credential management
+    ├── provider-routes.ts   # Provider management
     ├── agent-catalog-routes.ts
     ├── category-catalog-routes.ts
     └── hebo-express.ts

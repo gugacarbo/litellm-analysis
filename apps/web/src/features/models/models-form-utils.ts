@@ -46,7 +46,7 @@ export function mapModelToFormData(model: ModelConfig): ModelFormData {
     outputCostPerToken: route.outputCostPerToken?.toString() || "",
     contextWindowSize: route.contextWindowSize?.toString() || "",
     maxTokens: route.maxOutputTokens?.toString() || "",
-    credentialName: route.credentialName ?? "",
+    providerName: route.providerName ?? "",
     extraParams,
     enabled: route.enabled ?? true,
   };
@@ -126,8 +126,8 @@ export function validateAndBuildModelRoute(formData: ModelFormData): {
   if (maxTokens > 0) {
     route.maxOutputTokens = maxTokens;
   }
-  if (formData.credentialName.trim()) {
-    route.credentialName = formData.credentialName.trim();
+  if (formData.providerName.trim()) {
+    route.providerName = formData.providerName.trim();
   }
   if (Object.keys(requestOptions).length > 0) {
     route.requestOptions = requestOptions;

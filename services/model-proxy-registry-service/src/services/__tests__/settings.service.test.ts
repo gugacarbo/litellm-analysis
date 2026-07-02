@@ -80,16 +80,16 @@ describe("SettingsService", () => {
     });
   });
 
-  it("gets and sets default credential", async () => {
-    expect(await service.getDefaultCredential()).toBeNull();
-    await service.setDefaultCredential("openai-main");
-    expect(await service.getDefaultCredential()).toBe("openai-main");
+  it("gets and sets default provider", async () => {
+    expect(await service.getDefaultProvider()).toBeNull();
+    await service.setDefaultProvider("openai-main");
+    expect(await service.getDefaultProvider()).toBe("openai-main");
   });
 
-  it("deletes default credential", async () => {
-    await service.setDefaultCredential("openai-main");
-    expect(await service.deleteDefaultCredential()).toBe(true);
-    expect(await service.getDefaultCredential()).toBeNull();
+  it("deletes default provider", async () => {
+    await service.setDefaultProvider("openai-main");
+    expect(await service.deleteDefaultProvider()).toBe(true);
+    expect(await service.getDefaultProvider()).toBeNull();
   });
 
   it("gets and sets health check prompt", async () => {
@@ -106,8 +106,8 @@ describe("SettingsService", () => {
     expect(await service.getRouterSettings()).toEqual(payload);
   });
 
-  it("rejects empty default credential", async () => {
-    await expect(service.setDefaultCredential("   ")).rejects.toThrow(
+  it("rejects empty default provider", async () => {
+    await expect(service.setDefaultProvider("   ")).rejects.toThrow(
       /non-empty/,
     );
   });
@@ -119,12 +119,12 @@ describe("SettingsService", () => {
   });
 
   it("lists all settings rows", async () => {
-    await service.setDefaultCredential("cred-a");
+    await service.setDefaultProvider("cred-a");
     await service.setHealthCheckPrompt("hello");
     const rows = await service.list();
     expect(rows).toHaveLength(2);
     expect(rows.map((row) => row.key).sort()).toEqual([
-      "default_credential",
+      "default_provider",
       "health_check_prompt",
     ]);
   });

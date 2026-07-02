@@ -50,7 +50,7 @@ CREATE TABLE "model_proxy_models" (
   "output_cost_per_token" DOUBLE PRECISION,
   "upstream_model" TEXT,
   "upstream_base_url" TEXT,
-  "credential_name" TEXT,
+  "provider_name" TEXT,
   "secret_ref" TEXT,
   "request_options" JSONB,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -60,7 +60,7 @@ CREATE TABLE "model_proxy_models" (
 CREATE INDEX "model_proxy_models_enabled_model_name_idx"
   ON "model_proxy_models" ("enabled", "model_name");
 
-CREATE TABLE "model_proxy_credentials" (
+CREATE TABLE "model_proxy_providers" (
   "id" TEXT PRIMARY KEY,
   "name" TEXT NOT NULL UNIQUE,
   "provider" TEXT,

@@ -8,7 +8,7 @@ const mockPrisma = {
         enabled: true,
         upstreamModel: "gpt-4o",
         upstreamBaseUrl: "https://api.openai.com/v1",
-        credentialName: "openai",
+        providerName: "openai",
         contextWindowSize: 128000,
         maxOutputTokens: 4096,
         inputCostPerToken: 0.0000025,
@@ -24,7 +24,7 @@ const mockPrisma = {
     upsert: vi.fn(),
     deleteMany: vi.fn(),
   },
-  modelProxyCredential: {
+  modelProxyProvider: {
     findMany: vi.fn().mockResolvedValue([]),
   },
 };

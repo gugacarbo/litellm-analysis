@@ -12,7 +12,7 @@ export {
   ROUTE_PARAM_TO_MODEL_ROUTE,
 } from "./model-route.js";
 export type {
-  DefaultCredentialSetting,
+  DefaultProviderSetting,
   HealthCheckPromptSetting,
   ModelProxySettingRecord,
   RouterSettingsValue,

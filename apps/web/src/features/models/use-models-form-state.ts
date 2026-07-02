@@ -19,13 +19,13 @@ export function useModelsFormState() {
     setDialogOpen(true);
   }
 
-  function handleOpenCreateWithDefaultCredential(
-    defaultCredential: string | null,
+  function handleOpenCreateWithDefaultProvider(
+    defaultProvider: string | null,
   ) {
     setEditingModel(null);
     setFormData({
       ...EMPTY_MODEL_FORM_DATA,
-      credentialName: defaultCredential || "",
+      providerName: defaultProvider || "",
     });
     setFormError(null);
     setDialogOpen(true);
@@ -70,7 +70,7 @@ export function useModelsFormState() {
     formData,
     formError,
     handleOpenCreate,
-    handleOpenCreateWithDefaultCredential,
+    handleOpenCreateWithDefaultProvider,
     handleOpenEdit,
     addExtraParam,
     removeExtraParam,

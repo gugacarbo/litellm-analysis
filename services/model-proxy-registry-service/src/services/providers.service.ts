@@ -1,24 +1,24 @@
 import type { PrismaClient } from "@lite-llm/model-proxy-repository";
 import {
-  encryptCredentialSecret,
-  isEncryptedCredentialSecret,
+  encryptProviderSecret,
+  isEncryptedProviderSecret,
   looksLikeEnvVarName,
-  parseCredentialEncryptionKey,
-} from "../lib/credential-secrets.js";
-import { CredentialsRepository } from "../repositories/credentials-repository.js";
+  parseProviderEncryptionKey,
+} from "../lib/provider-secrets.js";
+import { ProvidersRepository } from "../repositories/providers-repository.js";
 import type {
-  CredentialCreateInput,
-  CredentialRecord,
-  CredentialUpdateInput,
-} from "../types/credentials.js";
+  ProviderCreateInput,
+  ProviderRecord,
+  ProviderUpdateInput,
+} from "../types/providers.js";
 
-export interface CredentialsServiceOptions {
+export interface ProvidersServiceOptions {
   prisma?: PrismaClient;
-  repository?: CredentialsRepository;
+  repository?: ProvidersRepository;
 }
 
 function normalizeSecretInput(
-  input: CredentialCreateInput | CredentialUpdateInput,
+  input: ProviderCreateInput | ProviderUpdateInput,
   action: string,
 ): { apiKey?: string; secretRef?: string } {
   const apiKey = input.apiKey?.trim() ?? "";
@@ -31,7 +31,7 @@ function normalizeSecretInput(
 
   if (!normalizedApiKey && !normalizedSecretRef) {
     throw new Error(
-      `apiKey or secretRef is required to ${action} a credential`,
+      `apiKey or secretRef is required to ${action} a provider`,
     );
   }
 
@@ -44,43 +44,43 @@ function normalizeSecretInput(
     : { secretRef: normalizedSecretRef };
 }
 
-export interface ICredentialsService {
-  get(name: string): Promise<CredentialRecord | null>;
-  list(): Promise<CredentialRecord[]>;
-  create(input: CredentialCreateInput): Promise<CredentialRecord>;
-  update(name: string, input: CredentialUpdateInput): Promise<CredentialRecord>;
+export interface IProvidersService {
+  get(name: string): Promise<ProviderRecord | null>;
+  list(): Promise<ProviderRecord[]>;
+  create(input: ProviderCreateInput): Promise<ProviderRecord>;
+  update(name: string, input: ProviderUpdateInput): Promise<ProviderRecord>;
   delete(name: string): Promise<boolean>;
 }
 
-export class CredentialsService implements ICredentialsService {
-  private readonly repository: CredentialsRepository;
+export class ProvidersService implements IProvidersService {
+  private readonly repository: ProvidersRepository;
   private encryptionKey: Buffer | null = null;
 
-  constructor(options: CredentialsServiceOptions = {}) {
+  constructor(options: ProvidersServiceOptions = {}) {
     this.repository =
       options.repository ??
-      new CredentialsRepository(
+      new ProvidersRepository(
         options.prisma ??
           (() => {
-            throw new Error("CredentialsService requires prisma or repository");
+            throw new Error("ProvidersService requires prisma or repository");
           })(),
       );
   }
 
   private getEncryptionKey(): Buffer {
     if (!this.encryptionKey) {
-      this.encryptionKey = parseCredentialEncryptionKey();
+      this.encryptionKey = parseProviderEncryptionKey();
     }
     return this.encryptionKey;
   }
 
   private async migrateStoredSecretIfNeeded(
-    record: CredentialRecord,
-  ): Promise<CredentialRecord> {
+    record: ProviderRecord,
+  ): Promise<ProviderRecord> {
     const rawApiKey = record.apiKey?.trim() ?? "";
-    if (rawApiKey && !isEncryptedCredentialSecret(rawApiKey)) {
+    if (rawApiKey && !isEncryptedProviderSecret(rawApiKey)) {
       const updated = await this.repository.update(record.name, {
-        apiKey: encryptCredentialSecret(rawApiKey, this.getEncryptionKey()),
+        apiKey: encryptProviderSecret(rawApiKey, this.getEncryptionKey()),
       });
       return updated ?? record;
     }
@@ -88,7 +88,7 @@ export class CredentialsService implements ICredentialsService {
     const secretRef = record.secretRef?.trim() ?? "";
     if (secretRef && !looksLikeEnvVarName(secretRef)) {
       const updated = await this.repository.update(record.name, {
-        apiKey: encryptCredentialSecret(secretRef, this.getEncryptionKey()),
+        apiKey: encryptProviderSecret(secretRef, this.getEncryptionKey()),
         secretRef: null,
       });
       return updated ?? record;
@@ -97,7 +97,7 @@ export class CredentialsService implements ICredentialsService {
     return record;
   }
 
-  async get(name: string): Promise<CredentialRecord | null> {
+  async get(name: string): Promise<ProviderRecord | null> {
     const record = await this.repository.findByName(name);
     if (!record) {
       return null;
@@ -105,22 +105,22 @@ export class CredentialsService implements ICredentialsService {
     return this.migrateStoredSecretIfNeeded(record);
   }
 
-  async list(): Promise<CredentialRecord[]> {
+  async list(): Promise<ProviderRecord[]> {
     const records = await this.repository.list();
     return Promise.all(
       records.map((record) => this.migrateStoredSecretIfNeeded(record)),
     );
   }
 
-  async create(input: CredentialCreateInput): Promise<CredentialRecord> {
+  async create(input: ProviderCreateInput): Promise<ProviderRecord> {
     const trimmedName = input.name.trim();
     if (!trimmedName) {
-      throw new Error("Credential name must be a non-empty string");
+      throw new Error("Provider name must be a non-empty string");
     }
 
     const existing = await this.repository.findByName(trimmedName);
     if (existing) {
-      throw new Error(`Credential "${trimmedName}" already exists`);
+      throw new Error(`Provider "${trimmedName}" already exists`);
     }
 
     const secret = normalizeSecretInput(input, "create");
@@ -130,7 +130,7 @@ export class CredentialsService implements ICredentialsService {
       baseUrl: input.baseUrl ?? null,
       ...(secret.apiKey
         ? {
-            apiKey: encryptCredentialSecret(
+            apiKey: encryptProviderSecret(
               secret.apiKey,
               this.getEncryptionKey(),
             ),
@@ -145,11 +145,11 @@ export class CredentialsService implements ICredentialsService {
 
   async update(
     name: string,
-    input: CredentialUpdateInput,
-  ): Promise<CredentialRecord> {
+    input: ProviderUpdateInput,
+  ): Promise<ProviderRecord> {
     const existing = await this.repository.findByName(name);
     if (!existing) {
-      throw new Error(`Credential "${name}" not found`);
+      throw new Error(`Provider "${name}" not found`);
     }
 
     const secretUpdate =
@@ -162,7 +162,7 @@ export class CredentialsService implements ICredentialsService {
       ...(input.baseUrl !== undefined ? { baseUrl: input.baseUrl } : {}),
       ...(secretUpdate?.apiKey
         ? {
-            apiKey: encryptCredentialSecret(
+            apiKey: encryptProviderSecret(
               secretUpdate.apiKey,
               this.getEncryptionKey(),
             ),
@@ -177,7 +177,7 @@ export class CredentialsService implements ICredentialsService {
     });
 
     if (!updated) {
-      throw new Error(`Credential "${name}" not found`);
+      throw new Error(`Provider "${name}" not found`);
     }
 
     return updated;

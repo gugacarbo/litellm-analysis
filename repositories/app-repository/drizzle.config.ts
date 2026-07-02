@@ -12,7 +12,7 @@ export default defineConfig({
   schema: "./src/schema.ts",
   out: "./drizzle",
   dialect: "sqlite",
-  dbCredentials: {
+  dbProviders: {
     url: path.resolve(MONOREPO_ROOT, APP_DB_PATH),
   },
 });

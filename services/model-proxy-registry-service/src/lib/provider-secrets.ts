@@ -5,9 +5,9 @@ import {
   randomBytes,
 } from "node:crypto";
 
-const CREDENTIAL_SECRET_PREFIX = "enc:v1:";
+const PROVIDER_SECRET_PREFIX = "enc:v1:";
 
-type EncryptedCredentialSecret = {
+type EncryptedProviderSecret = {
   version: 1;
   cipherText: string;
   iv: string;
@@ -18,15 +18,15 @@ export function looksLikeEnvVarName(value: string): boolean {
   return /^[A-Za-z_][A-Za-z0-9_]*$/.test(value);
 }
 
-export function parseCredentialEncryptionKey(
+export function parseProviderEncryptionKey(
   env: NodeJS.ProcessEnv = process.env,
 ): Buffer {
   const trimmed =
-    env.MODEL_PROXY_CREDENTIAL_ENCRYPTION_KEY?.trim() ||
+    env.MODEL_PROXY_PROVIDER_ENCRYPTION_KEY?.trim() ||
     env.MODEL_PROXY_OAUTH_ENCRYPTION_KEY?.trim();
   if (!trimmed) {
     throw new Error(
-      "MODEL_PROXY_CREDENTIAL_ENCRYPTION_KEY or MODEL_PROXY_OAUTH_ENCRYPTION_KEY is required for encrypted credential storage",
+      "MODEL_PROXY_PROVIDER_ENCRYPTION_KEY or MODEL_PROXY_OAUTH_ENCRYPTION_KEY is required for encrypted provider storage",
     );
   }
 
@@ -47,11 +47,11 @@ export function parseCredentialEncryptionKey(
   return createHash("sha256").update(trimmed).digest();
 }
 
-export function isEncryptedCredentialSecret(value: string): boolean {
-  return value.startsWith(CREDENTIAL_SECRET_PREFIX);
+export function isEncryptedProviderSecret(value: string): boolean {
+  return value.startsWith(PROVIDER_SECRET_PREFIX);
 }
 
-export function encryptCredentialSecret(
+export function encryptProviderSecret(
   secret: string,
   encryptionKey: Buffer,
 ): string {
@@ -63,31 +63,31 @@ export function encryptCredentialSecret(
   ]);
   const tag = cipher.getAuthTag();
 
-  const payload: EncryptedCredentialSecret = {
+  const payload: EncryptedProviderSecret = {
     version: 1,
     cipherText: cipherText.toString("base64url"),
     iv: iv.toString("base64url"),
     tag: tag.toString("base64url"),
   };
 
-  return `${CREDENTIAL_SECRET_PREFIX}${Buffer.from(
+  return `${PROVIDER_SECRET_PREFIX}${Buffer.from(
     JSON.stringify(payload),
     "utf8",
   ).toString("base64url")}`;
 }
 
-export function decryptCredentialSecret(
+export function decryptProviderSecret(
   storedSecret: string,
   encryptionKey: Buffer,
 ): string {
-  if (!isEncryptedCredentialSecret(storedSecret)) {
+  if (!isEncryptedProviderSecret(storedSecret)) {
     return storedSecret;
   }
 
-  const encodedPayload = storedSecret.slice(CREDENTIAL_SECRET_PREFIX.length);
+  const encodedPayload = storedSecret.slice(PROVIDER_SECRET_PREFIX.length);
   const payload = JSON.parse(
     Buffer.from(encodedPayload, "base64url").toString("utf8"),
-  ) as Partial<EncryptedCredentialSecret>;
+  ) as Partial<EncryptedProviderSecret>;
 
   if (
     payload.version !== 1 ||
@@ -95,7 +95,7 @@ export function decryptCredentialSecret(
     !payload.iv ||
     !payload.tag
   ) {
-    throw new Error("Stored credential secret is invalid");
+    throw new Error("Stored provider secret is invalid");
   }
 
   const decipher = createDecipheriv(
@@ -110,14 +110,14 @@ export function decryptCredentialSecret(
   ]).toString("utf8");
 }
 
-export function hasStoredCredentialSecret(input: {
+export function hasStoredProviderSecret(input: {
   apiKey?: string | null;
   secretRef?: string | null;
 }): boolean {
   return Boolean(input.apiKey?.trim() || input.secretRef?.trim());
 }
 
-export function resolveCredentialSecret(
+export function resolveProviderSecret(
   input: {
     apiKey?: string | null;
     secretRef?: string | null;
@@ -126,10 +126,10 @@ export function resolveCredentialSecret(
 ): string | undefined {
   const storedApiKey = input.apiKey?.trim();
   if (storedApiKey) {
-    if (isEncryptedCredentialSecret(storedApiKey)) {
-      return decryptCredentialSecret(
+    if (isEncryptedProviderSecret(storedApiKey)) {
+      return decryptProviderSecret(
         storedApiKey,
-        parseCredentialEncryptionKey(env),
+        parseProviderEncryptionKey(env),
       );
     }
     return storedApiKey;

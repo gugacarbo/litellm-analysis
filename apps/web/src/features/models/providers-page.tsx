@@ -37,15 +37,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { useCredentialsPage } from "./use-credentials-page";
+import { useProvidersPage } from "./use-providers-page";
 
-export function CredentialsPage() {
+export function ProvidersPage() {
   const {
-    credentials,
-    providerDefaultCredential,
+    providers,
+    providerDefaultProvider,
     providerLoading,
     providerSaving,
-    handleProviderDefaultCredentialChange,
+    handleProviderDefaultProviderChange,
     openAiOAuthConnection,
     openAiOAuthPending,
     openAiOAuthDeviceFlow,
@@ -55,18 +55,18 @@ export function CredentialsPage() {
     handleStartOpenAiOAuth,
     handleCancelOpenAiOAuth,
     handleDisconnectOpenAiOAuth,
-    credentialFormOpen,
-    setCredentialFormOpen,
-    editingCredential,
-    credentialFormData,
-    setCredentialFormData,
-    credentialFormError,
-    credentialFormLoading,
-    handleOpenCreateCredential,
-    handleOpenEditCredential,
-    handleCredentialFormSubmit,
-    handleDeleteCredential,
-    deleteCredentialLoading,
+    providerFormOpen,
+    setProviderFormOpen,
+    editingProvider,
+    providerFormData,
+    setProviderFormData,
+    providerFormError,
+    providerFormLoading,
+    handleOpenCreateProvider,
+    handleOpenEditProvider,
+    handleProviderFormSubmit,
+    handleDeleteProvider,
+    deleteProviderLoading,
     discoverModelsOpen,
     setDiscoverModelsOpen,
     discoverModelsSource,
@@ -74,7 +74,7 @@ export function CredentialsPage() {
     discoverModelsLoading,
     discoverModelsError,
     handleDiscoverModels,
-    handleDiscoverCredentialModels,
+    handleDiscoverProviderModels,
     testModelId,
     testPrompt,
     setTestPrompt,
@@ -89,23 +89,23 @@ export function CredentialsPage() {
     handleRegisterModels,
     handleRegisterSingleModel,
     existingModelIds,
-  } = useCredentialsPage();
+  } = useProvidersPage();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Providers</h1>
       </div>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Proxy Credentials</h2>
+          <h2 className="text-lg font-semibold">Proxy Providers</h2>
           <Button
             variant="outline"
             size="sm"
             className="h-7"
             onClick={() => {
-              void handleOpenCreateCredential();
+              void handleOpenCreateProvider();
             }}
           >
             <Plus className="mr-1.5 h-3 w-3" />
@@ -113,15 +113,15 @@ export function CredentialsPage() {
           </Button>
         </div>
         <p className="text-sm text-muted-foreground">
-          Manage credentials used by the proxy to authenticate with model
+          Manage providers used by the proxy to authenticate with model
           providers. API keys are encrypted at rest and are never shown again
           after saving.
         </p>
 
-        {credentials.length === 0 ? (
+        {providers.length === 0 ? (
           <div className="rounded-md border p-6 text-center">
             <p className="text-sm text-muted-foreground">
-              No credentials configured. Click "Add" to create one.
+              No providers configured. Click "Add" to create one.
             </p>
           </div>
         ) : (
@@ -137,11 +137,11 @@ export function CredentialsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {credentials.map((cred) => (
-                  <TableRow key={cred.credentialId}>
+                {providers.map((cred) => (
+                  <TableRow key={cred.providerId}>
                     <TableCell className="font-mono text-xs">
-                      {cred.credentialName}
-                      {providerDefaultCredential === cred.credentialName && (
+                      {cred.providerName}
+                      {providerDefaultProvider === cred.providerName && (
                         <Badge
                           variant="success"
                           className="ml-2 text-[10px] px-1.5 py-0"
@@ -169,7 +169,7 @@ export function CredentialsPage() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => {
-                            void handleDiscoverCredentialModels(cred);
+                            void handleDiscoverProviderModels(cred);
                           }}
                           title="Discover provider models"
                         >
@@ -179,7 +179,7 @@ export function CredentialsPage() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => {
-                            void handleOpenEditCredential(cred);
+                            void handleOpenEditProvider(cred);
                           }}
                         >
                           <Pencil className="h-3 w-3" />
@@ -189,7 +189,7 @@ export function CredentialsPage() {
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              disabled={deleteCredentialLoading}
+                              disabled={deleteProviderLoading}
                             >
                               <Trash2 className="h-3 w-3 text-destructive" />
                             </Button>
@@ -197,12 +197,12 @@ export function CredentialsPage() {
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                Delete Credential
+                                Delete Provider
                               </AlertDialogTitle>
                               <AlertDialogDescription>
                                 Are you sure you want to delete{" "}
                                 <span className="font-semibold">
-                                  {cred.credentialName}
+                                  {cred.providerName}
                                 </span>
                                 ? This action cannot be undone.
                               </AlertDialogDescription>
@@ -214,8 +214,8 @@ export function CredentialsPage() {
                                   variant="destructive"
                                   size="sm"
                                   onClick={() => {
-                                    void handleDeleteCredential(
-                                      cred.credentialName,
+                                    void handleDeleteProvider(
+                                      cred.providerName,
                                     );
                                   }}
                                 >
@@ -234,10 +234,10 @@ export function CredentialsPage() {
           </div>
         )}
 
-        {credentialFormOpen && (
+        {providerFormOpen && (
           <div className="space-y-3 rounded-md border p-4">
             <p className="text-sm font-medium">
-              {editingCredential ? "Edit Credential" : "Add Credential"}
+              {editingProvider ? "Edit Provider" : "Add Provider"}
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               <div className="grid gap-1">
@@ -246,15 +246,15 @@ export function CredentialsPage() {
                 </Label>
                 <Input
                   id="cred-name"
-                  value={credentialFormData.name}
+                  value={providerFormData.name}
                   onChange={(e) => {
-                    setCredentialFormData({
-                      ...credentialFormData,
+                    setProviderFormData({
+                      ...providerFormData,
                       name: e.target.value,
                     });
                   }}
                   placeholder="e.g., openai-prod"
-                  disabled={Boolean(editingCredential)}
+                  disabled={Boolean(editingProvider)}
                   className="h-8 text-sm"
                 />
               </div>
@@ -264,10 +264,10 @@ export function CredentialsPage() {
                 </Label>
                 <Input
                   id="cred-provider"
-                  value={credentialFormData.provider ?? ""}
+                  value={providerFormData.provider ?? ""}
                   onChange={(e) => {
-                    setCredentialFormData({
-                      ...credentialFormData,
+                    setProviderFormData({
+                      ...providerFormData,
                       provider: e.target.value || null,
                     });
                   }}
@@ -281,10 +281,10 @@ export function CredentialsPage() {
                 </Label>
                 <Input
                   id="cred-baseurl"
-                  value={credentialFormData.baseUrl ?? ""}
+                  value={providerFormData.baseUrl ?? ""}
                   onChange={(e) => {
-                    setCredentialFormData({
-                      ...credentialFormData,
+                    setProviderFormData({
+                      ...providerFormData,
                       baseUrl: e.target.value || null,
                     });
                   }}
@@ -300,15 +300,15 @@ export function CredentialsPage() {
                   id="cred-apikey"
                   type="password"
                   autoComplete="new-password"
-                  value={credentialFormData.apiKey}
+                  value={providerFormData.apiKey}
                   onChange={(e) => {
-                    setCredentialFormData({
-                      ...credentialFormData,
+                    setProviderFormData({
+                      ...providerFormData,
                       apiKey: e.target.value,
                     });
                   }}
                   placeholder={
-                    editingCredential
+                    editingProvider
                       ? "Leave blank to keep the stored key"
                       : "Paste provider API key"
                   }
@@ -316,15 +316,15 @@ export function CredentialsPage() {
                 />
               </div>
             </div>
-            {credentialFormError && (
-              <p className="text-xs text-destructive">{credentialFormError}</p>
+            {providerFormError && (
+              <p className="text-xs text-destructive">{providerFormError}</p>
             )}
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setCredentialFormOpen(false);
+                  setProviderFormOpen(false);
                 }}
               >
                 Cancel
@@ -332,17 +332,17 @@ export function CredentialsPage() {
               <Button
                 size="sm"
                 onClick={() => {
-                  void handleCredentialFormSubmit();
+                  void handleProviderFormSubmit();
                 }}
                 disabled={
-                  credentialFormLoading ||
-                  !credentialFormData.name ||
-                  (!editingCredential && !credentialFormData.apiKey)
+                  providerFormLoading ||
+                  !providerFormData.name ||
+                  (!editingProvider && !providerFormData.apiKey)
                 }
               >
-                {credentialFormLoading
+                {providerFormLoading
                   ? "Saving..."
-                  : editingCredential
+                  : editingProvider
                     ? "Update"
                     : "Create"}
               </Button>
@@ -455,31 +455,31 @@ export function CredentialsPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Default Credential</h2>
+        <h2 className="text-lg font-semibold">Default Provider</h2>
         <p className="text-sm text-muted-foreground">
-          Set the default credential applied to all models that don{"'"}t have
-          an explicit credential configured.
+          Set the default provider applied to all models that don{"'"}t have
+          an explicit provider configured.
         </p>
         <Select
-          value={providerDefaultCredential || "none"}
+          value={providerDefaultProvider || "none"}
           onValueChange={(value) => {
-            void handleProviderDefaultCredentialChange(
+            void handleProviderDefaultProviderChange(
               value === "none" ? "" : value,
             );
           }}
           disabled={providerLoading || providerSaving}
         >
           <SelectTrigger className="w-64">
-            <SelectValue placeholder="Default credential" />
+            <SelectValue placeholder="Default provider" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">Sem credencial padrão</SelectItem>
-            {credentials.map((credential) => (
+            <SelectItem value="none">Sem provider padrão</SelectItem>
+            {providers.map((provider) => (
               <SelectItem
-                key={credential.credentialId}
-                value={credential.credentialName}
+                key={provider.providerId}
+                value={provider.providerName}
               >
-                {credential.credentialName}
+                {provider.providerName}
               </SelectItem>
             ))}
           </SelectContent>
@@ -490,15 +490,15 @@ export function CredentialsPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {discoverModelsSource?.kind === "credential"
-                ? `Models for ${discoverModelsSource.credentialName}`
+              {discoverModelsSource?.kind === "provider"
+                ? `Models for ${discoverModelsSource.providerName}`
                 : "OpenAI Models"}
             </DialogTitle>
             <DialogDescription>
-              {discoverModelsSource?.kind === "credential"
+              {discoverModelsSource?.kind === "provider"
                 ? `Models available from ${
                     discoverModelsSource.provider || "this provider"
-                  } using the selected credential.`
+                  } using the selected provider.`
                 : "Models available on the connected OpenAI account."}
             </DialogDescription>
           </DialogHeader>

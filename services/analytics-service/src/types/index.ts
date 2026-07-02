@@ -126,11 +126,11 @@ export interface AnalyticsDataSource {
     model: string,
     days?: number,
   ): Promise<ModelProviderBreakdown[]>;
-  // Credentials — upstream credential registry
-  getCredentials(): Promise<RegistryCredential[]>;
-  getDefaultCredential(): Promise<string | null>;
+  // Providers — upstream provider registry
+  getProviders(): Promise<RegistryProvider[]>;
+  getDefaultProvider(): Promise<string | null>;
   getHealthCheckPrompt(): Promise<string | null>;
-  setDefaultCredential(credentialAlias: string | null): Promise<void>;
+  setDefaultProvider(providerAlias: string | null): Promise<void>;
 }
 
 // Analytics Types
@@ -501,12 +501,12 @@ export interface ModelProviderBreakdown {
   avg_latency_ms: number;
 }
 
-// Credentials types
-export interface RegistryCredential {
-  credentialId: string;
-  credentialName: string;
-  credentialValues: Record<string, unknown> | null;
-  credentialInfo: Record<string, unknown> | null;
+// Providers types
+export interface RegistryProvider {
+  providerId: string;
+  providerName: string;
+  providerValues: Record<string, unknown> | null;
+  providerInfo: Record<string, unknown> | null;
   createdAt: string | null;
   createdBy: string | null;
   updatedAt: string | null;

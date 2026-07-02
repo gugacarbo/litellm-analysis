@@ -27,7 +27,7 @@ const validProvider = {
   ownedBy: "lite-llm-analytics",
   baseUrl: "http://localhost:4000",
   apiKey: "sk-test",
-  defaultCredential: "ATplus Router",
+  defaultProvider: "ATplus Router",
 };
 
 const validModel = {

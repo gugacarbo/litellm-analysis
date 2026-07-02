@@ -7,7 +7,7 @@ export {
 export type {
   ModelProxyAlias,
   ModelProxyApiKey,
-  ModelProxyCredential,
+  ModelProxyProvider,
   ModelProxyImportJob,
   ModelProxyMessage,
   ModelProxyModel,

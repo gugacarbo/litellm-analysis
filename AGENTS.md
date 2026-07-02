@@ -28,7 +28,7 @@ lite-llm-analytics/
 ├── services/               # 8 backend service packages
 │   ├── analytics-service/        # 46-method AnalyticsDataSource, Prisma raw SQL
 │   ├── model-proxy-service/      # Local OpenAI-compatible proxy, upstream forwarding
-│   ├── model-proxy-registry-service/ # model_proxy_* settings, registry, credentials
+│   ├── model-proxy-registry-service/ # model_proxy_* settings, registry, providers
 │   ├── models-service/           # Provider/model CRUD, alias DB management
 │   └── agent-plugins/            # OpenCode/OpenAgent/VS Code plugin system
 ├── packages/               # 7 shared libraries

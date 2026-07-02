@@ -127,7 +127,7 @@ async function createTestServer() {
     registry: {
       settingsService: {} as never,
       registryModelsService: {} as never,
-      credentialsService: {} as never,
+      providersService: {} as never,
       apiKeysService,
     },
   });
@@ -235,7 +235,7 @@ describe("model proxy routes", () => {
       registry: {
         settingsService: {} as never,
         registryModelsService: {} as never,
-        credentialsService: {} as never,
+        providersService: {} as never,
         apiKeysService,
       },
     });

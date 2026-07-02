@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { LiteLLMCredential } from "@/shared/lib/api-client/credentials";
+import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
 import type { ModelWithStatus } from "@/shared/lib/api-client/models";
 
 export interface ModelDetailContextValue {
@@ -7,7 +7,7 @@ export interface ModelDetailContextValue {
   loading: boolean;
   error: string | null;
   notFound: boolean;
-  credentials: LiteLLMCredential[];
+  providers: LiteLLMProvider[];
 }
 
 export const ModelDetailContext = createContext<ModelDetailContextValue>({
@@ -15,7 +15,7 @@ export const ModelDetailContext = createContext<ModelDetailContextValue>({
   loading: true,
   error: null,
   notFound: false,
-  credentials: [],
+  providers: [],
 });
 
 export function useModelDetailContext(): ModelDetailContextValue {

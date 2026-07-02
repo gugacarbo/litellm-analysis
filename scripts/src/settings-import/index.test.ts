@@ -53,7 +53,7 @@ describe("settings-import", () => {
     expect(summary.agents.skipped).toBe(1);
   });
 
-  it("imports models and credentials skipping local-proxy provider", async () => {
+  it("imports models and providers skipping local-proxy provider", async () => {
     const prisma = createInMemoryPrisma();
     const dir = mkdtempSync(path.join(tmpdir(), "settings-import-models-"));
     const modelsFile = path.join(dir, "models.jsonc");
@@ -65,14 +65,14 @@ describe("settings-import", () => {
           "local-proxy": {
             name: "Local Model Proxy",
             baseUrl: "http://localhost:3008/v1",
-            defaultCredential: "router-main",
+            defaultProvider: "router-main",
             apiKey: "env:MODEL_PROXY_API_KEY",
           },
           openai: {
             name: "OpenAI",
             adapter: "openai-compatible",
             baseUrl: "https://api.openai.com/v1",
-            defaultCredential: "openai-main",
+            defaultProvider: "openai-main",
             apiKey: "env:OPENAI_API_KEY",
           },
         },
@@ -102,17 +102,17 @@ describe("settings-import", () => {
     );
 
     expect(summary.models.inserted).toBe(1);
-    expect(summary.credentials.inserted).toBe(1);
+    expect(summary.providers.inserted).toBe(1);
     expect(summary.settings.inserted).toBe(1);
 
-    const localProxyCredential = await prisma.modelProxyCredential.findUnique({
+    const localProxyProvider = await prisma.modelProxyProvider.findUnique({
       where: { name: "router-main" },
     });
-    expect(localProxyCredential).toBeNull();
+    expect(localProxyProvider).toBeNull();
 
-    const openaiCredential = await prisma.modelProxyCredential.findUnique({
+    const openaiProvider = await prisma.modelProxyProvider.findUnique({
       where: { name: "openai-main" },
     });
-    expect(openaiCredential?.secretRef).toBe("OPENAI_API_KEY");
+    expect(openaiProvider?.secretRef).toBe("OPENAI_API_KEY");
   });
 });

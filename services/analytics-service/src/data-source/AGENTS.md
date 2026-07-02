@@ -17,7 +17,7 @@ Implements the 46-method `AnalyticsDataSource` interface against `model_proxy_*`
 | `proxy-model-methods.ts`      | Model CRUD, statistics, trends, cache hit rate                       |
 | `proxy-monitor-methods.ts`    | Health checks, anomaly detection, stuck requests                      |
 | `proxy-spend-methods.ts`      | Spend by model/user/key, spend logs pagination                        |
-| `registry-methods.ts`          | Registry queries (settings, credentials, model registrations)         |
+| `registry-methods.ts`          | Registry queries (settings, providers, model registrations)         |
 | `routing-methods.ts`          | Agent routing config queries                                         |
 | `utils.ts`                    | `toNullableNumber()`, shared helpers                                 |
 | `index.ts`                    | `createDataSource()` factory                                         |

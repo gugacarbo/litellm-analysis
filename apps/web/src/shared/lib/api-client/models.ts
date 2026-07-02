@@ -24,7 +24,7 @@ export type ModelRoute = {
   outputCostPerToken?: number;
   upstreamModel?: string;
   upstreamBaseUrl?: string;
-  credentialName?: string;
+  providerName?: string;
   secretRef?: string;
   requestOptions?: Record<string, unknown>;
 };
@@ -106,11 +106,11 @@ export type ModelProviderConfig = {
   ownedBy: string;
   baseUrl: string;
   apiKey: string;
-  defaultCredential: string;
+  defaultProvider: string;
 };
 
 export type DefaultSettingsDiffResponse = {
-  defaultCredential: string;
+  defaultProvider: string;
   mismatchedModels: string[];
   count: number;
 };
@@ -194,7 +194,7 @@ function normalizeModelRoute(raw: unknown, modelName: string): ModelRoute {
       outputCostPerToken: readNumber(raw.outputCostPerToken),
       upstreamModel: readString(raw.upstreamModel),
       upstreamBaseUrl: readString(raw.upstreamBaseUrl),
-      credentialName: readString(raw.credentialName),
+      providerName: readString(raw.providerName),
       secretRef: readString(raw.secretRef),
       requestOptions: isRecord(raw.requestOptions)
         ? raw.requestOptions
@@ -432,7 +432,7 @@ export async function getDefaultSettingsDiff(): Promise<DefaultSettingsDiffRespo
 export async function syncDefaultSettings(): Promise<{
   success: boolean;
   updated: number;
-  defaultCredential: string;
+  defaultProvider: string;
 }> {
   return fetchApi("/models/sync-default-settings", {
     method: "POST",

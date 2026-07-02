@@ -65,7 +65,7 @@ vi.mock("@/shared/lib/api-client", () => {
       .mockResolvedValue({ count: 0, mismatchedModels: [] }),
     getModelProvider: vi
       .fn()
-      .mockResolvedValue({ defaultCredential: "", provider: "local-proxy" }),
+      .mockResolvedValue({ defaultProvider: "", provider: "local-proxy" }),
     syncDefaultSettings: vi.fn().mockResolvedValue({ success: true }),
     toggleModelEnabled: vi.fn().mockResolvedValue({ success: true }),
     updateModelProvider: vi.fn().mockResolvedValue({ success: true }),

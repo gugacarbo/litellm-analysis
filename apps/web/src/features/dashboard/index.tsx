@@ -59,7 +59,7 @@ export function DashboardPage() {
           onValueChange={(v) => setChartTab(v as ChartTabKey)}
           className="gap-0"
         >
-          <TabsList variant="line">
+          <TabsList variant="line" className="mb-4">
             <TabsTrigger value="usage">Usage</TabsTrigger>
             <TabsTrigger value="models">Models</TabsTrigger>
             <TabsTrigger value="efficiency">Efficiency</TabsTrigger>

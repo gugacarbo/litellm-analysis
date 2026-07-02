@@ -191,7 +191,7 @@ exports.Prisma.ModelProxyModelScalarFieldEnum = {
   outputCostPerToken: 'outputCostPerToken',
   upstreamModel: 'upstreamModel',
   upstreamBaseUrl: 'upstreamBaseUrl',
-  credentialName: 'credentialName',
+  providerName: 'providerName',
   secretRef: 'secretRef',
   requestOptions: 'requestOptions',
   metadata: 'metadata',
@@ -199,7 +199,7 @@ exports.Prisma.ModelProxyModelScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.ModelProxyCredentialScalarFieldEnum = {
+exports.Prisma.ModelProxyProviderScalarFieldEnum = {
   id: 'id',
   name: 'name',
   provider: 'provider',
@@ -282,7 +282,7 @@ exports.Prisma.ModelName = {
   ModelProxyUsageAdjustment: 'ModelProxyUsageAdjustment',
   ModelProxyMessage: 'ModelProxyMessage',
   ModelProxyModel: 'ModelProxyModel',
-  ModelProxyCredential: 'ModelProxyCredential',
+  ModelProxyProvider: 'ModelProxyProvider',
   ModelProxyApiKey: 'ModelProxyApiKey',
   ModelProxySetting: 'ModelProxySetting',
   ModelProxyAlias: 'ModelProxyAlias',

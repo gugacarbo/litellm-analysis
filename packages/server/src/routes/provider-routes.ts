@@ -1,14 +1,14 @@
 import {
-  getDefaultCredential,
-  listCredentials,
-  resolveCredentialSecret,
-  toPublicCredential,
+  getDefaultProvider,
+  listProviders,
+  resolveProviderSecret,
+  toPublicProvider,
 } from "@lite-llm/model-proxy-registry-service";
 import type { Application } from "express";
 import { createRegistryModelFromRoute } from "../orchestration/registry-models-bridge";
 import type { RouteOptions } from "../types/index";
 
-type DiscoveredCredentialModel = {
+type DiscoveredProviderModel = {
   id: string;
   ownedBy: string;
   object?: string;
@@ -18,12 +18,12 @@ type DiscoveredCredentialModel = {
 function toDiscoveredModelRoute(
   rawModel: unknown,
   defaults?: {
-    credentialName?: string | null;
+    providerName?: string | null;
     upstreamBaseUrl?: string | null;
     provider?: string | null;
   },
 ) {
-  const discovered = toDiscoveredCredentialModel(
+  const discovered = toDiscoveredProviderModel(
     rawModel,
     defaults?.provider ?? "",
   );
@@ -35,7 +35,7 @@ function toDiscoveredModelRoute(
     modelName: discovered.id,
     upstreamModel: discovered.id,
     upstreamBaseUrl: readString(defaults?.upstreamBaseUrl),
-    credentialName: readString(defaults?.credentialName),
+    providerName: readString(defaults?.providerName),
     ownedBy: discovered.ownedBy || undefined,
   };
 }
@@ -68,10 +68,10 @@ function buildChatCompletionsUrl(baseUrl: string): string {
   return `${normalized}/v1/chat/completions`;
 }
 
-function toDiscoveredCredentialModel(
+function toDiscoveredProviderModel(
   value: unknown,
   fallbackOwnedBy: string,
-): DiscoveredCredentialModel | null {
+): DiscoveredProviderModel | null {
   if (!isRecord(value)) {
     return null;
   }
@@ -95,21 +95,21 @@ function toDiscoveredCredentialModel(
   };
 }
 
-async function discoverModelsFromCredential(input: {
+async function discoverModelsFromProvider(input: {
   apiKey: string | null;
   baseUrl: string | null;
   provider: string | null;
   secretRef: string | null;
-}): Promise<DiscoveredCredentialModel[]> {
+}): Promise<DiscoveredProviderModel[]> {
   const resolvedBaseUrl = readString(input.baseUrl);
   if (!resolvedBaseUrl) {
-    throw new Error("Credential must have a baseUrl to discover models");
+    throw new Error("Provider must have a baseUrl to discover models");
   }
 
-  const apiKey = resolveCredentialSecret(input);
+  const apiKey = resolveProviderSecret(input);
   if (!apiKey) {
     throw new Error(
-      "Credential secret could not be resolved for model discovery",
+      "Provider secret could not be resolved for model discovery",
     );
   }
 
@@ -154,63 +154,63 @@ async function discoverModelsFromCredential(input: {
     }
 
     return rawModels
-      .map((model) => toDiscoveredCredentialModel(model, input.provider ?? ""))
-      .filter((model): model is DiscoveredCredentialModel => model !== null);
+      .map((model) => toDiscoveredProviderModel(model, input.provider ?? ""))
+      .filter((model): model is DiscoveredProviderModel => model !== null);
   }
 
   throw new Error(lastFailure ?? "Provider model discovery failed");
 }
 
-export function registerCredentialRoutes(
+export function registerProviderRoutes(
   app: Application,
   opts: RouteOptions,
 ): void {
   const { registry } = opts;
   const {
     settingsService,
-    credentialsService,
+    providersService,
     openAiOAuthService,
     registryModelsService,
   } = registry;
 
-  // GET /credentials - List all credentials (registry first, no raw api_key)
-  app.get("/credentials", async (_req, res) => {
+  // GET /providers - List all providers (registry first, no raw api_key)
+  app.get("/providers", async (_req, res) => {
     try {
-      const credentials = await listCredentials(credentialsService);
-      res.json(credentials);
+      const providers = await listProviders(providersService);
+      res.json(providers);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  // Specific routes MUST be registered before /credentials/:name
+  // Specific routes MUST be registered before /providers/:name
   // to avoid Express matching them as :name parameter values
 
-  // GET /credentials/default - Get default credential (registry first)
-  app.get("/credentials/default", async (_req, res) => {
+  // GET /providers/default - Get default provider (registry first)
+  app.get("/providers/default", async (_req, res) => {
     try {
-      const defaultCredential = await getDefaultCredential(settingsService);
-      res.json({ defaultCredential });
+      const defaultProvider = await getDefaultProvider(settingsService);
+      res.json({ defaultProvider });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  // PUT /credentials/default - Set default credential (registry only)
-  app.put("/credentials/default", async (req, res) => {
+  // PUT /providers/default - Set default provider (registry only)
+  app.put("/providers/default", async (req, res) => {
     try {
-      const { credentialAlias } = req.body;
-      if (credentialAlias !== null && typeof credentialAlias !== "string") {
+      const { providerAlias } = req.body;
+      if (providerAlias !== null && typeof providerAlias !== "string") {
         res
           .status(400)
-          .json({ error: "credentialAlias must be a string or null" });
+          .json({ error: "providerAlias must be a string or null" });
         return;
       }
 
-      if (credentialAlias === null || !credentialAlias.trim()) {
-        await settingsService.deleteDefaultCredential();
+      if (providerAlias === null || !providerAlias.trim()) {
+        await settingsService.deleteDefaultProvider();
       } else {
-        await settingsService.setDefaultCredential(credentialAlias.trim());
+        await settingsService.setDefaultProvider(providerAlias.trim());
       }
 
       res.json({ success: true });
@@ -219,7 +219,7 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.get("/credentials/openai-oauth", async (_req, res) => {
+  app.get("/providers/openai-oauth", async (_req, res) => {
     try {
       const connection = await openAiOAuthService.getConnectionStatus();
       res.json(connection);
@@ -228,7 +228,7 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.post("/credentials/openai-oauth/device/start", async (_req, res) => {
+  app.post("/providers/openai-oauth/device/start", async (_req, res) => {
     try {
       const result = await openAiOAuthService.startDeviceAuthorization();
       res.json(result);
@@ -237,7 +237,7 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.post("/credentials/openai-oauth/device/poll", async (req, res) => {
+  app.post("/providers/openai-oauth/device/poll", async (req, res) => {
     try {
       const deviceAuthId =
         typeof req.body?.deviceAuthId === "string"
@@ -263,7 +263,7 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.delete("/credentials/openai-oauth", async (_req, res) => {
+  app.delete("/providers/openai-oauth", async (_req, res) => {
     try {
       await openAiOAuthService.disconnect();
       res.json({ success: true });
@@ -272,7 +272,7 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.get("/credentials/openai-oauth/discover-models", async (_req, res) => {
+  app.get("/providers/openai-oauth/discover-models", async (_req, res) => {
     try {
       const models = await openAiOAuthService.discoverModels();
       res.json({ models });
@@ -281,7 +281,7 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.post("/credentials/openai-oauth/register-models", async (req, res) => {
+  app.post("/providers/openai-oauth/register-models", async (req, res) => {
     try {
       const rawModels = Array.isArray(req.body?.models) ? req.body.models : [];
       const registered: string[] = [];
@@ -328,7 +328,7 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.post("/credentials/openai-oauth/test-chat", async (req, res) => {
+  app.post("/providers/openai-oauth/test-chat", async (req, res) => {
     try {
       const { model, prompt } = req.body as { model?: string; prompt?: string };
       if (!model || typeof model !== "string" || !model.trim()) {
@@ -388,12 +388,12 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.post("/credentials/:name/test-chat", async (req, res) => {
+  app.post("/providers/:name/test-chat", async (req, res) => {
     try {
       const name = String(req.params.name);
-      const credential = await credentialsService.get(name);
-      if (!credential) {
-        res.status(404).json({ error: `Credential "${name}" not found` });
+      const provider = await providersService.get(name);
+      if (!provider) {
+        res.status(404).json({ error: `Provider "${name}" not found` });
         return;
       }
 
@@ -407,18 +407,18 @@ export function registerCredentialRoutes(
         return;
       }
 
-      const baseUrl = readString(credential.baseUrl);
+      const baseUrl = readString(provider.baseUrl);
       if (!baseUrl) {
         res.status(400).json({
-          error: "Credential must have a baseUrl to test discovered models",
+          error: "Provider must have a baseUrl to test discovered models",
         });
         return;
       }
 
-      const apiKey = resolveCredentialSecret(credential);
+      const apiKey = resolveProviderSecret(provider);
       if (!apiKey) {
         res.status(400).json({
-          error: "Credential secret could not be resolved for test request",
+          error: "Provider secret could not be resolved for test request",
         });
         return;
       }
@@ -473,20 +473,20 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.get("/credentials/:name/discover-models", async (req, res) => {
+  app.get("/providers/:name/discover-models", async (req, res) => {
     try {
       const name = String(req.params.name);
-      const credential = await credentialsService.get(name);
-      if (!credential) {
-        res.status(404).json({ error: `Credential "${name}" not found` });
+      const provider = await providersService.get(name);
+      if (!provider) {
+        res.status(404).json({ error: `Provider "${name}" not found` });
         return;
       }
 
-      const models = await discoverModelsFromCredential({
-        apiKey: credential.apiKey,
-        baseUrl: credential.baseUrl,
-        provider: credential.provider,
-        secretRef: credential.secretRef,
+      const models = await discoverModelsFromProvider({
+        apiKey: provider.apiKey,
+        baseUrl: provider.baseUrl,
+        provider: provider.provider,
+        secretRef: provider.secretRef,
       });
 
       res.json({ models });
@@ -495,19 +495,19 @@ export function registerCredentialRoutes(
     }
   });
 
-  app.post("/credentials/:name/register-models", async (req, res) => {
+  app.post("/providers/:name/register-models", async (req, res) => {
     try {
       const name = String(req.params.name);
-      const credential = await credentialsService.get(name);
-      if (!credential) {
-        res.status(404).json({ error: `Credential "${name}" not found` });
+      const provider = await providersService.get(name);
+      if (!provider) {
+        res.status(404).json({ error: `Provider "${name}" not found` });
         return;
       }
 
-      const baseUrl = readString(credential.baseUrl);
+      const baseUrl = readString(provider.baseUrl);
       if (!baseUrl) {
         res.status(400).json({
-          error: "Credential must have a baseUrl to register discovered models",
+          error: "Provider must have a baseUrl to register discovered models",
         });
         return;
       }
@@ -519,9 +519,9 @@ export function registerCredentialRoutes(
 
       for (const rawModel of rawModels) {
         const route = toDiscoveredModelRoute(rawModel, {
-          credentialName: credential.name,
+          providerName: provider.name,
           upstreamBaseUrl: baseUrl,
-          provider: credential.provider,
+          provider: provider.provider,
         });
         if (!route) {
           errors.push("Encountered a discovered model without an id");
@@ -534,7 +534,7 @@ export function registerCredentialRoutes(
             registryModelsService,
             modelId,
             route,
-            credential.name,
+            provider.name,
           );
           registered.push(modelId);
         } catch (error) {
@@ -559,23 +559,23 @@ export function registerCredentialRoutes(
     }
   });
 
-  // GET /credentials/:name - Get credential by name
-  app.get("/credentials/:name", async (req, res) => {
+  // GET /providers/:name - Get provider by name
+  app.get("/providers/:name", async (req, res) => {
     try {
       const name = String(req.params.name);
-      const credential = await credentialsService.get(name);
-      if (!credential) {
-        res.status(404).json({ error: `Credential "${name}" not found` });
+      const provider = await providersService.get(name);
+      if (!provider) {
+        res.status(404).json({ error: `Provider "${name}" not found` });
         return;
       }
-      res.json(toPublicCredential(credential));
+      res.json(toPublicProvider(provider));
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
   });
 
-  // POST /credentials - Create a new credential
-  app.post("/credentials", async (req, res) => {
+  // POST /providers - Create a new provider
+  app.post("/providers", async (req, res) => {
     try {
       const { name, provider, baseUrl, apiKey, secretRef } = req.body as {
         name?: string;
@@ -586,7 +586,7 @@ export function registerCredentialRoutes(
       };
 
       if (!name || typeof name !== "string" || !name.trim()) {
-        res.status(400).json({ error: "Credential name is required" });
+        res.status(400).json({ error: "Provider name is required" });
         return;
       }
       if (
@@ -609,14 +609,14 @@ export function registerCredentialRoutes(
         return;
       }
 
-      const created = await credentialsService.create({
+      const created = await providersService.create({
         name: name.trim(),
         provider: provider ?? null,
         baseUrl: baseUrl ?? null,
         ...(typeof apiKey === "string" ? { apiKey: apiKey.trim() } : {}),
         ...(secretRef ? { secretRef: secretRef.trim() } : {}),
       });
-      res.status(201).json(toPublicCredential(created));
+      res.status(201).json(toPublicProvider(created));
     } catch (error) {
       if (error instanceof Error && error.message.includes("already exists")) {
         res.status(409).json({ error: error.message });
@@ -626,8 +626,8 @@ export function registerCredentialRoutes(
     }
   });
 
-  // PUT /credentials/:name - Update a credential
-  app.put("/credentials/:name", async (req, res) => {
+  // PUT /providers/:name - Update a provider
+  app.put("/providers/:name", async (req, res) => {
     try {
       const name = String(req.params.name);
       const {
@@ -650,7 +650,7 @@ export function registerCredentialRoutes(
       ) {
         res
           .status(400)
-          .json({ error: "Credential name must be a non-empty string" });
+          .json({ error: "Provider name must be a non-empty string" });
         return;
       }
       if (
@@ -672,14 +672,14 @@ export function registerCredentialRoutes(
         return;
       }
 
-      const updated = await credentialsService.update(name, {
+      const updated = await providersService.update(name, {
         ...(newName !== undefined ? { name: newName.trim() } : {}),
         ...(provider !== undefined ? { provider } : {}),
         ...(baseUrl !== undefined ? { baseUrl } : {}),
         ...(apiKey !== undefined ? { apiKey: apiKey.trim() } : {}),
         ...(secretRef !== undefined ? { secretRef: secretRef.trim() } : {}),
       });
-      res.json(toPublicCredential(updated));
+      res.json(toPublicProvider(updated));
     } catch (error) {
       if (
         error instanceof Error &&
@@ -693,13 +693,13 @@ export function registerCredentialRoutes(
     }
   });
 
-  // DELETE /credentials/:name - Delete a credential
-  app.delete("/credentials/:name", async (req, res) => {
+  // DELETE /providers/:name - Delete a provider
+  app.delete("/providers/:name", async (req, res) => {
     try {
       const name = String(req.params.name);
-      const deleted = await credentialsService.delete(name);
+      const deleted = await providersService.delete(name);
       if (!deleted) {
-        res.status(404).json({ error: `Credential "${name}" not found` });
+        res.status(404).json({ error: `Provider "${name}" not found` });
         return;
       }
       res.json({ success: true });

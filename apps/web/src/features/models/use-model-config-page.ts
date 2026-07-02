@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import type { RegistryCredential } from "@/shared/lib/api-client/credentials";
+import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import {
   getModelAliases,
   updateModelAliases,
@@ -37,7 +37,7 @@ export interface ModelConfigFormData {
     includeReasoningInRequest: boolean;
   };
   apiBase: string;
-  credentialName: string;
+  providerName: string;
   inputCostPerToken: string;
   outputCostPerToken: string;
   extraParams: Record<string, string>;
@@ -64,7 +64,7 @@ function getEmptyFormData(): ModelConfigFormData {
       includeReasoningInRequest: false,
     },
     apiBase: "",
-    credentialName: "",
+    providerName: "",
     inputCostPerToken: "",
     outputCostPerToken: "",
     extraParams: {},
@@ -82,7 +82,7 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     }
   }
 
-  const credentialName = route.credentialName ?? "";
+  const providerName = route.providerName ?? "";
 
   const reasoning = config.reasoning;
   const effort = reasoning?.effort;
@@ -128,7 +128,7 @@ function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     apiMode: validApiMode,
     vision: config.vision === true,
     apiBase: route.upstreamBaseUrl ?? "",
-    credentialName,
+    providerName,
     inputCostPerToken: route.inputCostPerToken?.toString() ?? "",
     outputCostPerToken: route.outputCostPerToken?.toString() ?? "",
     extraParams,
@@ -206,7 +206,7 @@ function getComparableFormData(formData: ModelConfigFormData) {
     thinkingLevels: formData.thinkingLevels,
     reasoning: formData.reasoning,
     apiBase: formData.apiBase,
-    credentialName: formData.credentialName,
+    providerName: formData.providerName,
     inputCostPerToken: formData.inputCostPerToken,
     outputCostPerToken: formData.outputCostPerToken,
     extraParams: formData.extraParams,
@@ -231,7 +231,7 @@ export interface UseModelConfigPageResult {
   formData: ModelConfigFormData;
   isDirty: boolean;
   saving: boolean;
-  credentials: RegistryCredential[];
+  providers: RegistryProvider[];
   onFormDataChange: (next: ModelConfigFormData) => void;
   onAddExtraParam: () => void;
   onRemoveExtraParam: (key: string) => void;
@@ -244,7 +244,7 @@ export function useModelConfigPageFromContext(): Omit<
   UseModelConfigPageResult,
   "loading" | "error" | "notFound" | "model"
 > & { model: ModelWithStatus | null } {
-  const { model, credentials } = useModelDetailContext();
+  const { model, providers } = useModelDetailContext();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const modelName = model?.modelName ?? "";
@@ -473,7 +473,7 @@ export function useModelConfigPageFromContext(): Omit<
       const routeUpdate: ModelRouteUpdate = {
         ...existingRouteRest,
         upstreamBaseUrl: formData.apiBase || undefined,
-        credentialName: formData.credentialName || undefined,
+        providerName: formData.providerName || undefined,
         enabled: formData.enabled,
         inputCostPerToken: inputCost,
         outputCostPerToken: outputCost,
@@ -592,7 +592,7 @@ export function useModelConfigPageFromContext(): Omit<
     formData,
     isDirty,
     saving: isSaving || updateMutation.isPending,
-    credentials,
+    providers,
     onFormDataChange: handleFormDataChange,
     onAddExtraParam: handleAddExtraParam,
     onRemoveExtraParam: handleRemoveExtraParam,

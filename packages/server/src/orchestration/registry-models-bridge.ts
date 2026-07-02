@@ -43,9 +43,9 @@ export async function createRegistryModelFromSpec(
   registryModelsService: IRegistryModelsService,
   modelName: string,
   spec: DbModelSpecLike,
-  credentialName: string | null,
+  providerName: string | null,
 ): Promise<void> {
-  const route = buildModelRouteFromSpec(modelName, spec, credentialName);
+  const route = buildModelRouteFromSpec(modelName, spec, providerName);
   await registryModelsService.upsert(modelName, route);
 }
 
@@ -53,14 +53,14 @@ export async function mergeRegistryModelFromSpec(
   registryModelsService: IRegistryModelsService,
   modelName: string,
   spec: DbModelSpecLike,
-  credentialName: string | null,
+  providerName: string | null,
   existingRoute: ModelRoute,
 ): Promise<void> {
   const route = mergeModelRouteFromSpec(
     modelName,
     spec,
     existingRoute,
-    credentialName,
+    providerName,
   );
   await registryModelsService.upsert(modelName, route);
 }
@@ -69,9 +69,9 @@ export async function createRegistryModelFromRoute(
   registryModelsService: IRegistryModelsService,
   modelName: string,
   route: ModelRoute,
-  credentialName: string | null,
+  providerName: string | null,
 ): Promise<void> {
-  const normalized = normalizeModelRoute(modelName, route, credentialName);
+  const normalized = normalizeModelRoute(modelName, route, providerName);
   await registryModelsService.create(modelName, normalized);
 }
 
@@ -79,11 +79,11 @@ export async function updateRegistryModelFromRoute(
   registryModelsService: IRegistryModelsService,
   modelName: string,
   route: ModelRoute,
-  credentialName: string | null,
+  providerName: string | null,
   newModelName?: string,
 ): Promise<void> {
   const targetName = newModelName ?? modelName;
-  const normalized = normalizeModelRoute(targetName, route, credentialName);
+  const normalized = normalizeModelRoute(targetName, route, providerName);
 
   if (newModelName && newModelName !== modelName) {
     await registryModelsService.create(newModelName, normalized);

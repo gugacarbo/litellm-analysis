@@ -24,7 +24,7 @@ export interface ModelRoute {
   outputCostPerToken?: number;
   upstreamModel?: string;
   upstreamBaseUrl?: string;
-  credentialName?: string;
+  providerName?: string;
   /** Env var name holding upstream API key for this model (MVP). */
   secretRef?: string;
   /** Provider-specific kwargs not mapped to dedicated columns. */
@@ -55,7 +55,7 @@ export interface ModelProxyModelRecord {
   outputCostPerToken: number | null;
   upstreamModel: string | null;
   upstreamBaseUrl: string | null;
-  credentialName: string | null;
+  providerName: string | null;
   secretRef: string | null;
   requestOptions: Record<string, unknown> | null;
   metadata: Record<string, unknown> | null;
@@ -78,8 +78,8 @@ export const RESERVED_ROUTE_PARAM_KEYS = [
   "output_cost_per_token",
   "context_window_size",
   "max_tokens",
-  "credential_name",
-  "litellm_credential_name",
+  "provider_name",
+  "litellm_provider_name",
   "api_base",
   "custom_llm_provider",
 ] as const;
@@ -98,8 +98,8 @@ export const ROUTE_PARAM_TO_MODEL_ROUTE: Record<
   output_cost_per_token: "outputCostPerToken",
   context_window_size: "contextWindowSize",
   max_tokens: "maxOutputTokens",
-  credential_name: "credentialName",
-  litellm_credential_name: "credentialName",
+  provider_name: "providerName",
+  litellm_provider_name: "providerName",
   api_base: "upstreamBaseUrl",
   custom_llm_provider: "ownedBy",
 };
@@ -114,7 +114,7 @@ export const MODEL_ROUTE_TO_SNAKE_PARAM: Partial<
   outputCostPerToken: "output_cost_per_token",
   contextWindowSize: "context_window_size",
   maxOutputTokens: "max_tokens",
-  credentialName: "credential_name",
+  providerName: "provider_name",
   upstreamBaseUrl: "api_base",
   ownedBy: "custom_llm_provider",
   family: "custom_llm_provider",

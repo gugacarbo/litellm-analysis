@@ -1,7 +1,7 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import {
   ApiKeysService,
-  CredentialsService,
+  ProvidersService,
   RegistryModelsService,
   SettingsService,
 } from "@lite-llm/model-proxy-registry-service";
@@ -38,7 +38,7 @@ type ModelRow = {
   outputCostPerToken: number | null;
   upstreamModel: string | null;
   upstreamBaseUrl: string | null;
-  credentialName: string | null;
+  providerName: string | null;
   secretRef: string | null;
   requestOptions: Record<string, unknown> | null;
   metadata: Record<string, unknown> | null;
@@ -56,7 +56,7 @@ type ApiKeyRow = {
   updatedAt: Date;
 };
 
-type CredentialRow = {
+type ProviderRow = {
   id: string;
   name: string;
   provider: string | null;
@@ -70,12 +70,12 @@ type CredentialRow = {
 function createInMemoryPrisma() {
   const settings = new Map<string, SettingRow>();
   const models = new Map<string, ModelRow>();
-  const credentials = new Map<string, CredentialRow>();
+  const providers = new Map<string, ProviderRow>();
   const apiKeysById = new Map<string, ApiKeyRow>();
   const apiKeysByHash = new Map<string, ApiKeyRow>();
   let settingId = 1;
   let modelId = 1;
-  let credentialId = 1;
+  let providerId = 1;
   let apiKeyId = 1;
 
   return {
@@ -166,7 +166,7 @@ function createInMemoryPrisma() {
             outputCostPerToken: data.outputCostPerToken ?? null,
             upstreamModel: data.upstreamModel ?? null,
             upstreamBaseUrl: data.upstreamBaseUrl ?? null,
-            credentialName: data.credentialName ?? null,
+            providerName: data.providerName ?? null,
             secretRef: data.secretRef ?? null,
             requestOptions:
               (data.requestOptions as Record<string, unknown> | null) ?? null,
@@ -229,7 +229,7 @@ function createInMemoryPrisma() {
             outputCostPerToken: create.outputCostPerToken ?? null,
             upstreamModel: create.upstreamModel ?? null,
             upstreamBaseUrl: create.upstreamBaseUrl ?? null,
-            credentialName: create.credentialName ?? null,
+            providerName: create.providerName ?? null,
             secretRef: create.secretRef ?? null,
             requestOptions:
               (create.requestOptions as Record<string, unknown> | null) ?? null,
@@ -253,12 +253,12 @@ function createInMemoryPrisma() {
         return existing;
       }),
     },
-    modelProxyCredential: {
+    modelProxyProvider: {
       findUnique: vi.fn(async ({ where }: { where: { name: string } }) => {
-        return credentials.get(where.name) ?? null;
+        return providers.get(where.name) ?? null;
       }),
       findMany: vi.fn(async () =>
-        [...credentials.values()].sort((a, b) => a.name.localeCompare(b.name)),
+        [...providers.values()].sort((a, b) => a.name.localeCompare(b.name)),
       ),
       create: vi.fn(
         async (args: {
@@ -271,8 +271,8 @@ function createInMemoryPrisma() {
           };
         }) => {
           const now = new Date();
-          const row: CredentialRow = {
-            id: `cred_${credentialId++}`,
+          const row: ProviderRow = {
+            id: `cred_${providerId++}`,
             name: args.data.name,
             provider: args.data.provider ?? null,
             baseUrl: args.data.baseUrl ?? null,
@@ -281,7 +281,7 @@ function createInMemoryPrisma() {
             createdAt: now,
             updatedAt: now,
           };
-          credentials.set(row.name, row);
+          providers.set(row.name, row);
           return row;
         },
       ),
@@ -298,7 +298,7 @@ function createInMemoryPrisma() {
             secretRef: string;
           }>;
         }) => {
-          const existing = credentials.get(where.name);
+          const existing = providers.get(where.name);
           if (!existing) {
             const error = new Error("Not found") as Error & { code: string };
             error.code = "P2025";
@@ -306,20 +306,20 @@ function createInMemoryPrisma() {
           }
           const updated = { ...existing, ...data, updatedAt: new Date() };
           if (data.name && data.name !== where.name) {
-            credentials.delete(where.name);
+            providers.delete(where.name);
           }
-          credentials.set(updated.name, updated);
+          providers.set(updated.name, updated);
           return updated;
         },
       ),
       delete: vi.fn(async ({ where }: { where: { name: string } }) => {
-        const existing = credentials.get(where.name);
+        const existing = providers.get(where.name);
         if (!existing) {
           const error = new Error("Not found") as Error & { code: string };
           error.code = "P2025";
           throw error;
         }
-        credentials.delete(where.name);
+        providers.delete(where.name);
         return existing;
       }),
     },
@@ -423,7 +423,7 @@ export function createRegistryTestStack(): RegistryTestStack {
   const prisma = createInMemoryPrisma() as never;
   const settingsService = new SettingsService({ prisma });
   const registryModelsService = new RegistryModelsService({ prisma });
-  const credentialsService = new CredentialsService({ prisma });
+  const providersService = new ProvidersService({ prisma });
   const apiKeysService = new ApiKeysService({
     prisma,
     hashKey: async (plain) => `hash:${plain}`,
@@ -484,7 +484,7 @@ export function createRegistryTestStack(): RegistryTestStack {
 
   const dataSource = {
     getModels: vi.fn(async () => []),
-    getCredentials: vi.fn(async () => []),
+    getProviders: vi.fn(async () => []),
     getModelDetails: vi.fn(async () => []),
     deleteModelLogs: vi.fn(async () => undefined),
   } as unknown as AnalyticsDataSource;
@@ -503,7 +503,7 @@ export function createRegistryTestStack(): RegistryTestStack {
   const registry: RouteOptions["registry"] = {
     settingsService,
     registryModelsService,
-    credentialsService,
+    providersService,
     apiKeysService,
     openAiOAuthService: {
       getConnectionStatus: vi.fn(async () => ({

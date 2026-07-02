@@ -22,8 +22,8 @@ services/
 │       ├── upstream/               # Upstream provider forwarding
 │       ├── health/                 # Health-check probes
 │       └── routes/                 # OpenAI-compatible HTTP routes
-├── model-proxy-registry-service/   # Settings/registry/credentials management
-│   └── src/                        # CRUD over model_proxy_settings, model_proxy_models, model_proxy_credentials
+├── model-proxy-registry-service/   # Settings/registry/providers management
+│   └── src/                        # CRUD over model_proxy_settings, model_proxy_models, model_proxy_providers
 ├── models-service/                 # Provider/model CRUD + alias DB management
 │   └── src/
 │       ├── alias-router/           # Managed alias reconciliation

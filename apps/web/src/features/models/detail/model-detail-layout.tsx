@@ -31,11 +31,11 @@ export function ModelDetailLayout() {
     queryFn: getModelsWithConfig,
   });
 
-  const credentialsQuery = useQuery({
-    queryKey: ["credentials"],
+  const providersQuery = useQuery({
+    queryKey: ["providers"],
     queryFn: () =>
-      import("@/shared/lib/api-client/credentials").then((m) =>
-        m.getAllCredentials(),
+      import("@/shared/lib/api-client/providers").then((m) =>
+        m.getAllProviders(),
       ),
   });
 
@@ -58,9 +58,9 @@ export function ModelDetailLayout() {
       loading,
       error,
       notFound,
-      credentials: credentialsQuery.data ?? [],
+      providers: providersQuery.data ?? [],
     }),
-    [model, loading, error, notFound, credentialsQuery.data],
+    [model, loading, error, notFound, providersQuery.data],
   );
 
   if (loading) {

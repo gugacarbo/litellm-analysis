@@ -67,7 +67,7 @@ function printSummary(summary: ImportSummary, dryRun: boolean): void {
   if (summary.requiredEnvVars.length > 0) {
     console.log("\nRequired env vars:");
     for (const entry of summary.requiredEnvVars) {
-      console.log(`  ${entry.secretRef} (${entry.credential})`);
+      console.log(`  ${entry.secretRef} (${entry.provider})`);
     }
   }
 

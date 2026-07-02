@@ -28,7 +28,7 @@ packages/server/
 │   │   ├── model-proxy-routes.ts
 │   │   ├── plugin-routing-routes.ts
 │   │   ├── chat-routes.ts          # Dashboard chat streaming endpoint
-│   │   ├── credential-routes.ts
+│   │   ├── provider-routes.ts
 │   │   ├── agent-catalog-routes.ts
 │   │   ├── category-catalog-routes.ts
 │   │   └── hebo-express.ts

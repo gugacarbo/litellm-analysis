@@ -15,10 +15,10 @@ function createInMemoryPrisma() {
     }
   >();
   const models = new Map<string, Record<string, unknown>>();
-  const credentials = new Map<string, Record<string, unknown>>();
+  const providers = new Map<string, Record<string, unknown>>();
   let settingId = 1;
   let modelId = 1;
-  let credentialId = 1;
+  let providerId = 1;
 
   return {
     modelProxySetting: {
@@ -118,26 +118,26 @@ function createInMemoryPrisma() {
         return existing;
       }),
     },
-    modelProxyCredential: {
+    modelProxyProvider: {
       findUnique: vi.fn(
         async ({ where }: { where: { name: string } }) =>
-          credentials.get(where.name) ?? null,
+          providers.get(where.name) ?? null,
       ),
       findMany: vi.fn(async () =>
-        [...credentials.values()].sort((a, b) =>
+        [...providers.values()].sort((a, b) =>
           String(a.name).localeCompare(String(b.name)),
         ),
       ),
       create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => {
         const now = new Date();
         const row = {
-          id: `cred_${credentialId++}`,
+          id: `cred_${providerId++}`,
           ...data,
           apiKey: null,
           createdAt: now,
           updatedAt: now,
         };
-        credentials.set(String(data.name), row);
+        providers.set(String(data.name), row);
         return row;
       }),
       update: vi.fn(
@@ -148,7 +148,7 @@ function createInMemoryPrisma() {
           where: { name: string };
           data: Record<string, unknown>;
         }) => {
-          const existing = credentials.get(where.name);
+          const existing = providers.get(where.name);
           if (!existing) {
             const error = new Error("Not found") as Error & { code: string };
             error.code = "P2025";
@@ -160,18 +160,18 @@ function createInMemoryPrisma() {
             name: String(data.name ?? where.name),
             updatedAt: new Date(),
           };
-          credentials.set(updated.name, updated);
+          providers.set(updated.name, updated);
           return updated;
         },
       ),
       delete: vi.fn(async ({ where }: { where: { name: string } }) => {
-        const existing = credentials.get(where.name);
+        const existing = providers.get(where.name);
         if (!existing) {
           const error = new Error("Not found") as Error & { code: string };
           error.code = "P2025";
           throw error;
         }
-        credentials.delete(where.name);
+        providers.delete(where.name);
         return existing;
       }),
     },
@@ -192,14 +192,14 @@ describe("DbModelsRepository", () => {
         "local-proxy": {
           name: "Local Model Proxy",
           baseUrl: "http://localhost:3008/v1",
-          defaultCredential: "router-main",
+          defaultProvider: "router-main",
           apiKey: "env:MODEL_PROXY_API_KEY",
         },
         openai: {
           name: "OpenAI",
           adapter: "openai-compatible" as const,
           baseUrl: "https://api.openai.com/v1",
-          defaultCredential: "openai-main",
+          defaultProvider: "openai-main",
           apiKey: "env:OPENAI_API_KEY",
         },
       },
@@ -221,32 +221,32 @@ describe("DbModelsRepository", () => {
     expect(readBack.models["gpt-4"]?.thinking).toEqual({
       levels: ["low", "high"],
     });
-    expect(readBack.provider["local-proxy"]?.defaultCredential).toBe(
+    expect(readBack.provider["local-proxy"]?.defaultProvider).toBe(
       "router-main",
     );
 
     const defaultSetting = await prisma.modelProxySetting.findUnique({
-      where: { key: SETTING_KEYS.DEFAULT_CREDENTIAL },
+      where: { key: SETTING_KEYS.DEFAULT_PROVIDER },
     });
     expect(
-      (defaultSetting?.value as { default_credential?: string })
-        ?.default_credential,
+      (defaultSetting?.value as { default_provider?: string })
+        ?.default_provider,
     ).toBe("router-main");
 
-    const credential = await prisma.modelProxyCredential.findUnique({
+    const provider = await prisma.modelProxyProvider.findUnique({
       where: { name: "openai-main" },
     });
-    expect(credential?.secretRef).toBe("OPENAI_API_KEY");
+    expect(provider?.secretRef).toBe("OPENAI_API_KEY");
   });
 
-  it("does not expose literal credential secrets through provider config reads", async () => {
+  it("does not expose literal provider secrets through provider config reads", async () => {
     const prisma = createInMemoryPrisma();
     const repository = createDbRepository({
       prisma: prisma as never,
       validateOnRead: false,
     });
 
-    await prisma.modelProxyCredential.create({
+    await prisma.modelProxyProvider.create({
       data: {
         name: "Iproute",
         provider: "openai",
@@ -260,7 +260,7 @@ describe("DbModelsRepository", () => {
     expect(readBack.provider.openai).toMatchObject({
       name: "Iproute",
       baseUrl: "https://llm.iproute.cloud/",
-      defaultCredential: "Iproute",
+      defaultProvider: "Iproute",
       ownedBy: "openai",
     });
     expect(readBack.provider.openai?.apiKey).toBeUndefined();

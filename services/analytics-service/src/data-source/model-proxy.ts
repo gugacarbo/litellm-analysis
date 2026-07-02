@@ -48,12 +48,12 @@ import {
 import {
   createRegistryModelImpl,
   deleteRegistryModelImpl,
-  getRegistryCredentialsImpl,
-  getRegistryDefaultCredentialImpl,
+  getRegistryProvidersImpl,
+  getRegistryDefaultProviderImpl,
   getRegistryHealthCheckPromptImpl,
   getRegistryModelDetailsImpl,
   getRegistryModelsImpl,
-  setRegistryDefaultCredentialImpl,
+  setRegistryDefaultProviderImpl,
   updateRegistryModelImpl,
 } from "./registry-methods";
 import {
@@ -79,10 +79,10 @@ export class ModelProxyDataSource implements AnalyticsDataSource {
   createModel = createRegistryModelImpl;
   updateModel = updateRegistryModelImpl;
   deleteModel = deleteRegistryModelImpl;
-  getCredentials = getRegistryCredentialsImpl;
-  getDefaultCredential = getRegistryDefaultCredentialImpl;
+  getProviders = getRegistryProvidersImpl;
+  getDefaultProvider = getRegistryDefaultProviderImpl;
   getHealthCheckPrompt = getRegistryHealthCheckPromptImpl;
-  setDefaultCredential = setRegistryDefaultCredentialImpl;
+  setDefaultProvider = setRegistryDefaultProviderImpl;
   getAgentRoutingConfig = getAgentRoutingConfigImpl;
   updateAgentRoutingConfig = updateAgentRoutingConfigImpl;
 

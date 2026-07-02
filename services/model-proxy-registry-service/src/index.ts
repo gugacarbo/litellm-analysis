@@ -8,11 +8,11 @@ export {
 } from "./adapters/model-route-adapter.js";
 export { getRegistryPrisma, type RegistryClientOptions } from "./client.js";
 export {
-  type CredentialListItem,
-  credentialExists,
-  listCredentials,
-  toPublicCredential,
-} from "./dual-read/credentials-dual-read.js";
+  type ProviderListItem,
+  providerExists,
+  listProviders,
+  toPublicProvider,
+} from "./dual-read/providers-dual-read.js";
 export {
   getModelRoute,
   listRegistryModels,
@@ -20,21 +20,21 @@ export {
   toRegistryEntry,
 } from "./dual-read/models-dual-read.js";
 export {
-  getDefaultCredential,
+  getDefaultProvider,
   getHealthCheckPrompt,
   getRouterSettings,
 } from "./dual-read/settings-dual-read.js";
 export { createRegistryServices, type RegistryServices } from "./factory.js";
 export {
-  decryptCredentialSecret,
-  encryptCredentialSecret,
-  hasStoredCredentialSecret,
-  isEncryptedCredentialSecret,
+  decryptProviderSecret,
+  encryptProviderSecret,
+  hasStoredProviderSecret,
+  isEncryptedProviderSecret,
   looksLikeEnvVarName,
-  parseCredentialEncryptionKey,
-  resolveCredentialSecret,
-} from "./lib/credential-secrets.js";
-export { CredentialsRepository } from "./repositories/credentials-repository.js";
+  parseProviderEncryptionKey,
+  resolveProviderSecret,
+} from "./lib/provider-secrets.js";
+export { ProvidersRepository } from "./repositories/providers-repository.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
 export { SettingsRepository } from "./repositories/settings-repository.js";
 export {
@@ -43,10 +43,10 @@ export {
   type IApiKeysService,
 } from "./services/api-keys.service.js";
 export {
-  CredentialsService,
-  type CredentialsServiceOptions,
-  type ICredentialsService,
-} from "./services/credentials.service.js";
+  ProvidersService,
+  type ProvidersServiceOptions,
+  type IProvidersService,
+} from "./services/providers.service.js";
 export {
   type IOpenAiOAuthService,
   OpenAiOAuthService,

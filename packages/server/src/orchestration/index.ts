@@ -40,12 +40,12 @@ export {
   coerceRouteParams,
   coerceRouteParamValue,
   coerceStringParamValue,
-  getCredentialNameFromParams,
+  getProviderNameFromParams,
   isRecord,
   mergeModelRouteFromSpec,
   normalizeModelRoute,
   parseDays,
-  resolveModelCredential,
+  resolveModelProvider,
   toCostPerToken,
 } from "./route-params";
 export { updateRouterAliasesInRegistry } from "./router-settings";

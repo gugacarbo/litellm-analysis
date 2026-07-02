@@ -17,7 +17,7 @@ type ModelRow = {
   outputCostPerToken: number | null;
   upstreamModel: string | null;
   upstreamBaseUrl: string | null;
-  credentialName: string | null;
+  providerName: string | null;
   secretRef: string | null;
   requestOptions: Record<string, unknown> | null;
   createdAt: Date;
@@ -75,7 +75,7 @@ function createModelsPrismaMock() {
             outputCostPerToken: data.outputCostPerToken ?? null,
             upstreamModel: data.upstreamModel ?? null,
             upstreamBaseUrl: data.upstreamBaseUrl ?? null,
-            credentialName: data.credentialName ?? null,
+            providerName: data.providerName ?? null,
             secretRef: data.secretRef ?? null,
             requestOptions:
               (data.requestOptions as Record<string, unknown> | null) ?? null,
@@ -137,7 +137,7 @@ function createModelsPrismaMock() {
             outputCostPerToken: create.outputCostPerToken ?? null,
             upstreamModel: create.upstreamModel ?? null,
             upstreamBaseUrl: create.upstreamBaseUrl ?? null,
-            credentialName: create.credentialName ?? null,
+            providerName: create.providerName ?? null,
             secretRef: create.secretRef ?? null,
             requestOptions:
               (create.requestOptions as Record<string, unknown> | null) ?? null,
@@ -176,11 +176,11 @@ describe("RegistryModelsService", () => {
     await service.create("gpt-test", {
       displayName: "GPT Test",
       inputCostPerToken: 0.000001,
-      credentialName: "openai-main",
+      providerName: "openai-main",
     });
     const route = await service.getRoute("gpt-test");
     expect(route?.displayName).toBe("GPT Test");
-    expect(route?.credentialName).toBe("openai-main");
+    expect(route?.providerName).toBe("openai-main");
   });
 
   it("throws on duplicate create", async () => {

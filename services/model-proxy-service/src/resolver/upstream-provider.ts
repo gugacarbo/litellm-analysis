@@ -1,7 +1,7 @@
 import { serverEnv } from "@lite-llm/config/server";
 import {
   OPENAI_CHATGPT_API_BASE,
-  resolveCredentialSecret,
+  resolveProviderSecret,
 } from "@lite-llm/model-proxy-registry-service";
 import type {
   ModelProxyModel,
@@ -83,7 +83,7 @@ export function findUpstreamProvider(
         adapter: "openai-compatible",
         ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
         baseUrl: OPENAI_CHATGPT_API_BASE,
-        defaultCredential: "",
+        defaultProvider: "",
       };
     }
 
@@ -116,21 +116,21 @@ export async function resolveUpstreamTarget(params: {
 
   const upstreamProvider = findUpstreamProvider(providers, fallbackSpec, row);
 
-  const credentialName =
-    row?.credentialName?.trim() ||
-    upstreamProvider?.defaultCredential?.trim() ||
+  const providerName =
+    row?.providerName?.trim() ||
+    upstreamProvider?.defaultProvider?.trim() ||
     undefined;
 
-  const credential = credentialName
-    ? await database.modelProxyCredential.findUnique({
-        where: { name: credentialName },
+  const provider = providerName
+    ? await database.modelProxyProvider.findUnique({
+        where: { name: providerName },
       })
     : null;
 
   const upstreamBaseUrl =
     row?.upstreamBaseUrl?.trim() ||
     upstreamProvider?.baseUrl?.trim() ||
-    credential?.baseUrl?.trim() ||
+    provider?.baseUrl?.trim() ||
     serverEnv.MODEL_PROXY_UPSTREAM_BASE_URL?.trim();
 
   if (!upstreamBaseUrl) {
@@ -143,7 +143,7 @@ export async function resolveUpstreamTarget(params: {
 
   const upstreamApiKey =
     envSecret ||
-    (credential ? resolveCredentialSecret(credential) : undefined) ||
+    (provider ? resolveProviderSecret(provider) : undefined) ||
     readProviderApiKey(upstreamProvider) ||
     serverEnv.MODEL_PROXY_UPSTREAM_API_KEY?.trim();
 

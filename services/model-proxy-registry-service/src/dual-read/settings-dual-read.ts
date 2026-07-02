@@ -1,10 +1,10 @@
 import type { ISettingsService } from "../services/settings.service.js";
 import type { RouterSettingsValue } from "../types/settings.js";
 
-export async function getDefaultCredential(
+export async function getDefaultProvider(
   settingsService: ISettingsService,
 ): Promise<string | null> {
-  return settingsService.getDefaultCredential();
+  return settingsService.getDefaultProvider();
 }
 
 export async function getHealthCheckPrompt(

@@ -149,10 +149,10 @@ export function AppSidebar() {
           label: "Aliases",
         },
         {
-          id: "models-credentials",
-          to: "/models/credentials",
+          id: "models-providers",
+          to: "/models/providers",
           icon: Settings,
-          label: "Credentials",
+          label: "Providers",
         },
         {
           id: "models-health-check",

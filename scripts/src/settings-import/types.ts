@@ -15,11 +15,11 @@ export interface ImportSummary {
   agents: ImportCounters;
   plugins: ImportCounters;
   models: ImportCounters;
-  credentials: ImportCounters;
+  providers: ImportCounters;
   settings: ImportCounters;
   warnings: string[];
   requiredEnvVars: Array<{
-    credential: string;
+    provider: string;
     secretRef: string;
     action: string;
   }>;
@@ -30,7 +30,7 @@ export function createEmptySummary(): ImportSummary {
     agents: { inserted: 0, updated: 0, skipped: 0 },
     plugins: { inserted: 0, updated: 0, skipped: 0 },
     models: { inserted: 0, updated: 0, skipped: 0 },
-    credentials: { inserted: 0, updated: 0, skipped: 0 },
+    providers: { inserted: 0, updated: 0, skipped: 0 },
     settings: { inserted: 0, updated: 0, skipped: 0 },
     warnings: [],
     requiredEnvVars: [],

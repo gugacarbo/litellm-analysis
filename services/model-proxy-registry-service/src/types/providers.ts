@@ -1,4 +1,4 @@
-export interface CredentialRecord {
+export interface ProviderRecord {
   id: string;
   name: string;
   provider: string | null;
@@ -10,7 +10,7 @@ export interface CredentialRecord {
   updatedAt: Date;
 }
 
-export interface CredentialCreateInput {
+export interface ProviderCreateInput {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
@@ -18,8 +18,8 @@ export interface CredentialCreateInput {
   secretRef?: string;
 }
 
-export type CredentialUpdateInput = Partial<
-  Omit<CredentialCreateInput, "name">
+export type ProviderUpdateInput = Partial<
+  Omit<ProviderCreateInput, "name">
 > & {
   name?: string;
 };

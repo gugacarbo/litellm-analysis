@@ -45,4 +45,4 @@ Seed/backup configuration directory — version-controlled canonical source of t
 - Do not hand-edit `*.schema.json` files
 - Do not commit raw database exports here — use `pnpm settings:export` (normalizes to JSONC)
 - Do not introduce new top-level directories under `@settings/` (only `agents/`, `models/`, `plugins/`)
-- Do not add secret values — credentials belong in `.env` or `model_proxy_credentials` table
+- Do not add secret values — credentials belong in `.env` or `model_proxy_providers` table

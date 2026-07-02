@@ -25,7 +25,7 @@ function toModelProxyModelRecord(row: ModelProxyModel): ModelProxyModelRecord {
     outputCostPerToken: row.outputCostPerToken,
     upstreamModel: row.upstreamModel,
     upstreamBaseUrl: row.upstreamBaseUrl,
-    credentialName: row.credentialName,
+    providerName: row.providerName,
     secretRef: row.secretRef,
     requestOptions:
       row.requestOptions === null
@@ -56,7 +56,7 @@ export function toModelRoute(record: ModelProxyModelRecord): ModelRoute {
     outputCostPerToken: record.outputCostPerToken ?? undefined,
     upstreamModel: record.upstreamModel ?? undefined,
     upstreamBaseUrl: record.upstreamBaseUrl ?? undefined,
-    credentialName: record.credentialName ?? undefined,
+    providerName: record.providerName ?? undefined,
     secretRef: record.secretRef ?? undefined,
     requestOptions: record.requestOptions ?? undefined,
   };
@@ -92,8 +92,8 @@ function toPrismaModelData(
     ...(route.upstreamBaseUrl !== undefined
       ? { upstreamBaseUrl: route.upstreamBaseUrl }
       : {}),
-    ...(route.credentialName !== undefined
-      ? { credentialName: route.credentialName }
+    ...(route.providerName !== undefined
+      ? { providerName: route.providerName }
       : {}),
     ...(route.secretRef !== undefined ? { secretRef: route.secretRef } : {}),
     ...(route.requestOptions !== undefined
@@ -124,7 +124,7 @@ function toPrismaModelCreate(
     outputCostPerToken: route.outputCostPerToken ?? null,
     upstreamModel: route.upstreamModel ?? null,
     upstreamBaseUrl: route.upstreamBaseUrl ?? null,
-    credentialName: route.credentialName ?? null,
+    providerName: route.providerName ?? null,
     secretRef: route.secretRef ?? null,
     ...(route.requestOptions !== undefined
       ? {

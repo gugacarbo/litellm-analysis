@@ -7,10 +7,10 @@ import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import type {
   ModelDetail,
   ModelEntry,
-  RegistryCredential,
+  RegistryProvider,
 } from "../types/index";
 
-const DEFAULT_CREDENTIAL_KEY = "default_credential";
+const DEFAULT_PROVIDER_KEY = "default_provider";
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
 
 function prismaModelToRoute(row: ModelProxyModel) {
@@ -29,7 +29,7 @@ function prismaModelToRoute(row: ModelProxyModel) {
     outputCostPerToken: row.outputCostPerToken,
     upstreamModel: row.upstreamModel,
     upstreamBaseUrl: row.upstreamBaseUrl,
-    credentialName: row.credentialName,
+    providerName: row.providerName,
     secretRef: row.secretRef,
     requestOptions:
       row.requestOptions === null
@@ -57,7 +57,7 @@ function routeToCreateData(route: ReturnType<typeof prismaModelToRoute>) {
     outputCostPerToken: route.outputCostPerToken,
     upstreamModel: route.upstreamModel ?? route.modelName,
     upstreamBaseUrl: route.upstreamBaseUrl ?? "",
-    credentialName: route.credentialName,
+    providerName: route.providerName,
     secretRef: route.secretRef,
     requestOptions:
       route.requestOptions !== undefined
@@ -166,18 +166,18 @@ export async function deleteRegistryModelImpl(
   }
 }
 
-export async function getRegistryCredentialsImpl(): Promise<
-  RegistryCredential[]
+export async function getRegistryProvidersImpl(): Promise<
+  RegistryProvider[]
 > {
   const prisma = getModelProxyPrisma();
-  const rows = await prisma.modelProxyCredential.findMany({
+  const rows = await prisma.modelProxyProvider.findMany({
     orderBy: { name: "asc" },
   });
   return rows.map((record) => ({
-    credentialId: record.id,
-    credentialName: record.name,
-    credentialValues: null,
-    credentialInfo: {
+    providerId: record.id,
+    providerName: record.name,
+    providerValues: null,
+    providerInfo: {
       hasStoredSecret: Boolean(
         record.apiKey?.trim() || record.secretRef?.trim(),
       ),
@@ -190,12 +190,12 @@ export async function getRegistryCredentialsImpl(): Promise<
   }));
 }
 
-export async function getRegistryDefaultCredentialImpl(): Promise<
+export async function getRegistryDefaultProviderImpl(): Promise<
   string | null
 > {
   const prisma = getModelProxyPrisma();
   const row = await prisma.modelProxySetting.findUnique({
-    where: { key: DEFAULT_CREDENTIAL_KEY },
+    where: { key: DEFAULT_PROVIDER_KEY },
   });
   if (
     !row?.value ||
@@ -205,29 +205,29 @@ export async function getRegistryDefaultCredentialImpl(): Promise<
     return null;
   }
   const value = row.value as Record<string, unknown>;
-  return typeof value.default_credential === "string"
-    ? value.default_credential
+  return typeof value.default_provider === "string"
+    ? value.default_provider
     : null;
 }
 
-export async function setRegistryDefaultCredentialImpl(
-  credentialAlias: string | null,
+export async function setRegistryDefaultProviderImpl(
+  providerAlias: string | null,
 ): Promise<void> {
   const prisma = getModelProxyPrisma();
-  if (credentialAlias === null || credentialAlias.trim() === "") {
+  if (providerAlias === null || providerAlias.trim() === "") {
     await prisma.modelProxySetting.deleteMany({
-      where: { key: DEFAULT_CREDENTIAL_KEY },
+      where: { key: DEFAULT_PROVIDER_KEY },
     });
     return;
   }
   await prisma.modelProxySetting.upsert({
-    where: { key: DEFAULT_CREDENTIAL_KEY },
+    where: { key: DEFAULT_PROVIDER_KEY },
     create: {
-      key: DEFAULT_CREDENTIAL_KEY,
-      value: { default_credential: credentialAlias.trim() },
+      key: DEFAULT_PROVIDER_KEY,
+      value: { default_provider: providerAlias.trim() },
     },
     update: {
-      value: { default_credential: credentialAlias.trim() },
+      value: { default_provider: providerAlias.trim() },
     },
   });
 }

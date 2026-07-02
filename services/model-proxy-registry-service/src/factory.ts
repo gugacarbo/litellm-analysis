@@ -7,9 +7,9 @@ import {
   type IApiKeysService,
 } from "./services/api-keys.service.js";
 import {
-  CredentialsService,
-  type ICredentialsService,
-} from "./services/credentials.service.js";
+  ProvidersService,
+  type IProvidersService,
+} from "./services/providers.service.js";
 import {
   type IOpenAiOAuthService,
   OpenAiOAuthService,
@@ -27,7 +27,7 @@ export interface RegistryServices {
   prisma: PrismaClient;
   settingsService: ISettingsService;
   registryModelsService: IRegistryModelsService;
-  credentialsService: ICredentialsService;
+  providersService: IProvidersService;
   apiKeysService: IApiKeysService;
   openAiOAuthService: IOpenAiOAuthService;
 }
@@ -45,7 +45,7 @@ export function createRegistryServices(
     prisma,
     settingsService: new SettingsService({ prisma }),
     registryModelsService: new RegistryModelsService({ prisma }),
-    credentialsService: new CredentialsService({ prisma }),
+    providersService: new ProvidersService({ prisma }),
     apiKeysService: new ApiKeysService({ prisma }),
     openAiOAuthService: new OpenAiOAuthService({ prisma }),
   };

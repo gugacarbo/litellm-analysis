@@ -23,7 +23,7 @@ describe("ProviderService", () => {
             ownedBy: "lite-llm-analytics",
             baseUrl: "http://localhost:3008/v1",
             apiKey: "env:MODEL_PROXY_API_KEY",
-            defaultCredential: "ATplus Router",
+            defaultProvider: "ATplus Router",
           },
         },
         models: {},
@@ -54,7 +54,7 @@ describe("ProviderService", () => {
       ownedBy: "openai",
       baseUrl: "https://api.openai.com",
       apiKey: "sk-key",
-      defaultCredential: "ATplus Router",
+      defaultProvider: "ATplus Router",
     });
     const provider = await service.get("openai");
     expect(provider?.name).toBe("OpenAI");
@@ -67,7 +67,7 @@ describe("ProviderService", () => {
         ownedBy: "",
         baseUrl: "",
         apiKey: "",
-        defaultCredential: "ATplus Router",
+        defaultProvider: "ATplus Router",
       }),
     ).rejects.toThrow(/already exists/);
   });

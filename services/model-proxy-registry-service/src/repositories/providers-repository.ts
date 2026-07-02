@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@lite-llm/model-proxy-repository";
-import type { CredentialRecord } from "../types/credentials.js";
+import type { ProviderRecord } from "../types/providers.js";
 
 function toRecord(row: {
   id: string;
@@ -10,7 +10,7 @@ function toRecord(row: {
   secretRef: string | null;
   createdAt: Date;
   updatedAt: Date;
-}): CredentialRecord {
+}): ProviderRecord {
   return {
     id: row.id,
     name: row.name,
@@ -23,7 +23,7 @@ function toRecord(row: {
   };
 }
 
-export interface CredentialWriteData {
+export interface ProviderWriteData {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
@@ -31,38 +31,38 @@ export interface CredentialWriteData {
   secretRef?: string | null;
 }
 
-export interface LegacyCredentialImportData {
+export interface LegacyProviderImportData {
   name: string;
   provider: string | null;
   baseUrl: string | null;
   secretRef: string | null;
 }
 
-export type LegacyCredentialImportOutcome = "inserted" | "updated" | "skipped";
+export type LegacyProviderImportOutcome = "inserted" | "updated" | "skipped";
 
-export class CredentialsRepository {
+export class ProvidersRepository {
   private readonly prisma: PrismaClient;
 
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
 
-  async findByName(name: string): Promise<CredentialRecord | null> {
-    const row = await this.prisma.modelProxyCredential.findUnique({
+  async findByName(name: string): Promise<ProviderRecord | null> {
+    const row = await this.prisma.modelProxyProvider.findUnique({
       where: { name },
     });
     return row ? toRecord(row) : null;
   }
 
-  async list(): Promise<CredentialRecord[]> {
-    const rows = await this.prisma.modelProxyCredential.findMany({
+  async list(): Promise<ProviderRecord[]> {
+    const rows = await this.prisma.modelProxyProvider.findMany({
       orderBy: { name: "asc" },
     });
     return rows.map(toRecord);
   }
 
-  async create(data: CredentialWriteData): Promise<CredentialRecord> {
-    const row = await this.prisma.modelProxyCredential.create({
+  async create(data: ProviderWriteData): Promise<ProviderRecord> {
+    const row = await this.prisma.modelProxyProvider.create({
       data: {
         name: data.name,
         provider: data.provider ?? null,
@@ -76,10 +76,10 @@ export class CredentialsRepository {
 
   async update(
     name: string,
-    data: Partial<CredentialWriteData>,
-  ): Promise<CredentialRecord | null> {
+    data: Partial<ProviderWriteData>,
+  ): Promise<ProviderRecord | null> {
     try {
-      const row = await this.prisma.modelProxyCredential.update({
+      const row = await this.prisma.modelProxyProvider.update({
         where: { name },
         data: {
           ...(data.name !== undefined ? { name: data.name } : {}),
@@ -106,7 +106,7 @@ export class CredentialsRepository {
 
   async delete(name: string): Promise<boolean> {
     try {
-      await this.prisma.modelProxyCredential.delete({ where: { name } });
+      await this.prisma.modelProxyProvider.delete({ where: { name } });
       return true;
     } catch (error) {
       if (
@@ -121,9 +121,9 @@ export class CredentialsRepository {
   }
 
   async previewLegacyImport(
-    data: LegacyCredentialImportData,
+    data: LegacyProviderImportData,
     force: boolean,
-  ): Promise<LegacyCredentialImportOutcome> {
+  ): Promise<LegacyProviderImportOutcome> {
     const existing = await this.findByName(data.name);
     if (existing && !force) {
       return "skipped";
@@ -132,17 +132,17 @@ export class CredentialsRepository {
   }
 
   async upsertLegacyImport(
-    data: LegacyCredentialImportData,
+    data: LegacyProviderImportData,
     force: boolean,
     options: { allowLegacyApiKey?: boolean; apiKey?: string | null } = {},
-  ): Promise<LegacyCredentialImportOutcome> {
+  ): Promise<LegacyProviderImportOutcome> {
     const existing = await this.findByName(data.name);
     if (existing && !force) {
       return "skipped";
     }
 
     if (existing) {
-      await this.prisma.modelProxyCredential.update({
+      await this.prisma.modelProxyProvider.update({
         where: { name: data.name },
         data: {
           provider: data.provider,
@@ -156,7 +156,7 @@ export class CredentialsRepository {
       return "updated";
     }
 
-    await this.prisma.modelProxyCredential.create({
+    await this.prisma.modelProxyProvider.create({
       data: {
         name: data.name,
         provider: data.provider,

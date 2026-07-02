@@ -69,14 +69,14 @@
             "description": "Provider API key",
             "$ref": "#/$defs/__schema5"
           },
-          "defaultCredential": {
+          "defaultProvider": {
             "default": "",
-            "title": "Default Credential",
-            "description": "Default credential alias used for models in this provider",
+            "title": "Default Provider",
+            "description": "Default provider alias used for models in this provider",
             "$ref": "#/$defs/__schema6"
           }
         },
-        "required": ["name", "baseUrl", "defaultCredential"],
+        "required": ["name", "baseUrl", "defaultProvider"],
         "additionalProperties": false
       }
     },

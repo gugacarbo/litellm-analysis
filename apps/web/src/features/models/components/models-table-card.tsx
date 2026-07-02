@@ -59,7 +59,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-import type { RegistryCredential } from "@/shared/lib/api-client/credentials";
+import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import type {
   ModelConfig,
   ModelSyncDiffItem,
@@ -99,7 +99,7 @@ type ModelsTableCardProps = {
   onAddToConfig: (modelName: string) => void;
   onToggleEnabled: (modelName: string, enabled: boolean) => void;
 
-  // sync + form + credentials
+  // sync + form + providers
   settingsStorage: SettingsStorage;
   counts: { configOnly: number; registryOnly: number };
   syncing: boolean;
@@ -133,8 +133,8 @@ type ModelsTableCardProps = {
   onUpdateExtraParam: (key: string, value: string) => void;
   onSubmit: () => void;
 
-  credentials: RegistryCredential[];
-  defaultCredential: string | null;
+  providers: RegistryProvider[];
+  defaultProvider: string | null;
   defaultSettingsDriftCount: number;
 };
 
@@ -177,8 +177,8 @@ export function ModelsTableCard({
   onUpdateExtraParam,
   onSubmit,
   defaultSettingsDriftCount,
-  credentials,
-  defaultCredential,
+  providers,
+  defaultProvider,
 }: ModelsTableCardProps) {
   const [page, setPage] = useState(1);
 
@@ -327,8 +327,8 @@ export function ModelsTableCard({
             className="h-7 px-2 text-xs"
             asChild
           >
-            <Link to="/models/credentials">
-              Credentials
+            <Link to="/models/providers">
+              Providers
               {defaultSettingsDriftCount > 0
                 ? ` (${defaultSettingsDriftCount})`
                 : null}
@@ -348,8 +348,8 @@ export function ModelsTableCard({
             onRemoveExtraParam={onRemoveExtraParam}
             onUpdateExtraParam={onUpdateExtraParam}
             onSubmit={onSubmit}
-            credentials={credentials}
-            defaultCredential={defaultCredential}
+            providers={providers}
+            defaultProvider={defaultProvider}
           />
         </div>
       </div>
@@ -374,6 +374,7 @@ export function ModelsTableCard({
             <TableHeader>
               <TableRow>
                 <TableHead>Model Name</TableHead>
+                <TableHead>Provider</TableHead>
                 <TableHead>Enabled</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Health</TableHead>
@@ -396,6 +397,7 @@ export function ModelsTableCard({
                 const inRegistry =
                   model.status === "synced" || model.status === "registry-only";
                 const inConfig = model.status !== "registry-only";
+                const providerName = model.modelRoute.providerName;
 
                 return (
                   <TableRow
@@ -411,6 +413,9 @@ export function ModelsTableCard({
                       >
                         {model.modelName}
                       </Link>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {providerName || "—"}
                     </TableCell>
                     <TableCell>
                       <Switch

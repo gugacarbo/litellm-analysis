@@ -35,8 +35,8 @@ vi.mock("@/features/model-stats/index", () => ({
   ModelStatsPage: () => <div>Model Stats Page</div>,
 }));
 
-vi.mock("@/features/models/credentials-page", () => ({
-  CredentialsPage: () => <div>Credentials Page</div>,
+vi.mock("@/features/models/providers-page", () => ({
+  ProvidersPage: () => <div>Providers Page</div>,
 }));
 
 vi.mock("@/features/models/detail/model-detail-layout", () => ({

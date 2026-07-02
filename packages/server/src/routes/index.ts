@@ -4,7 +4,7 @@ import { registerAgentCatalogRoutes } from "./agent-catalog-routes";
 import { registerAnalyticsRoutes } from "./analytics-routes";
 import { registerCategoryCatalogRoutes } from "./category-catalog-routes";
 import { registerChatRoutes } from "./chat-routes";
-import { registerCredentialRoutes } from "./credential-routes";
+import { registerProviderRoutes } from "./provider-routes";
 import { registerModelProxyRoutes } from "./model-proxy-routes";
 import { registerModelRoutes } from "./model-routes";
 import { registerPluginRoutingRoutes } from "./plugin-routing-routes";
@@ -20,6 +20,6 @@ export function registerAllRoutes(app: Application, opts: RouteOptions): void {
   registerModelRoutes(app, opts);
   registerModelProxyRoutes(app, opts);
   registerPluginRoutingRoutes(app, opts);
-  registerCredentialRoutes(app, opts);
+  registerProviderRoutes(app, opts);
   registerChatRoutes(app, opts);
 }

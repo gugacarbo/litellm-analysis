@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CredentialsRepository } from "../../repositories/credentials-repository.js";
-import { CredentialsService } from "../credentials.service.js";
+import { ProvidersRepository } from "../../repositories/providers-repository.js";
+import { ProvidersService } from "../providers.service.js";
 
-type CredentialRow = {
+type ProviderRow = {
   id: string;
   name: string;
   provider: string | null;
@@ -13,13 +13,13 @@ type CredentialRow = {
   updatedAt: Date;
 };
 
-function createCredentialsPrismaMock() {
-  const rows = new Map<string, CredentialRow>();
+function createProvidersPrismaMock() {
+  const rows = new Map<string, ProviderRow>();
   let idCounter = 1;
 
   return {
     rows,
-    modelProxyCredential: {
+    modelProxyProvider: {
       findUnique: vi.fn(async ({ where }: { where: { name: string } }) => {
         return rows.get(where.name) ?? null;
       }),
@@ -37,7 +37,7 @@ function createCredentialsPrismaMock() {
           };
         }) => {
           const now = new Date();
-          const row: CredentialRow = {
+          const row: ProviderRow = {
             id: `cred_${idCounter++}`,
             name: args.data.name,
             provider: args.data.provider,
@@ -71,7 +71,7 @@ function createCredentialsPrismaMock() {
             error.code = "P2025";
             throw error;
           }
-          const updated: CredentialRow = {
+          const updated: ProviderRow = {
             ...existing,
             ...data,
             updatedAt: new Date(),
@@ -99,22 +99,22 @@ function createCredentialsPrismaMock() {
   };
 }
 
-describe("CredentialsService", () => {
-  let service: CredentialsService;
-  let prisma: ReturnType<typeof createCredentialsPrismaMock>;
+describe("ProvidersService", () => {
+  let service: ProvidersService;
+  let prisma: ReturnType<typeof createProvidersPrismaMock>;
 
   beforeEach(() => {
     vi.stubEnv(
       "MODEL_PROXY_OAUTH_ENCRYPTION_KEY",
       "01234567890123456789012345678901",
     );
-    prisma = createCredentialsPrismaMock();
-    service = new CredentialsService({
-      repository: new CredentialsRepository(prisma as never),
+    prisma = createProvidersPrismaMock();
+    service = new ProvidersService({
+      repository: new ProvidersRepository(prisma as never),
     });
   });
 
-  it("creates credential with encrypted apiKey storage", async () => {
+  it("creates provider with encrypted apiKey storage", async () => {
     const record = await service.create({
       name: "openai-main",
       provider: "openai",
@@ -126,7 +126,7 @@ describe("CredentialsService", () => {
     expect(record.apiKey).not.toBe("sk-secret");
   });
 
-  it("creates credential with env-based secretRef", async () => {
+  it("creates provider with env-based secretRef", async () => {
     const record = await service.create({
       name: "openai-main",
       secretRef: "OPENAI_API_KEY",
@@ -174,7 +174,7 @@ describe("CredentialsService", () => {
     ).rejects.toThrow(/already exists/);
   });
 
-  it("updates credential metadata", async () => {
+  it("updates provider metadata", async () => {
     await service.create({
       name: "openai-main",
       secretRef: "OPENAI_API_KEY",
@@ -190,7 +190,7 @@ describe("CredentialsService", () => {
   });
 
   it("migrates legacy literal secretRef values on read", async () => {
-    await prisma.modelProxyCredential.create({
+    await prisma.modelProxyProvider.create({
       data: {
         name: "legacy",
         provider: "openai",
@@ -205,7 +205,7 @@ describe("CredentialsService", () => {
     expect(record?.apiKey).not.toBe("sk-legacy-secret");
   });
 
-  it("deletes credential", async () => {
+  it("deletes provider", async () => {
     await service.create({
       name: "openai-main",
       secretRef: "OPENAI_API_KEY",

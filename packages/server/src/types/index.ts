@@ -2,7 +2,7 @@ import type { AgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import type {
   IApiKeysService,
-  ICredentialsService,
+  IProvidersService,
   IOpenAiOAuthService,
   IRegistryModelsService,
   ISettingsService,
@@ -13,7 +13,7 @@ import type { IModelService, IProviderService } from "@lite-llm/models-service";
 export interface RegistryRouteServices {
   settingsService: ISettingsService;
   registryModelsService: IRegistryModelsService;
-  credentialsService: ICredentialsService;
+  providersService: IProvidersService;
   apiKeysService: IApiKeysService;
   openAiOAuthService: IOpenAiOAuthService;
 }
