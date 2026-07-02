@@ -8,7 +8,7 @@
       "description": "Modify the model_proxy_models table schema to support multiple providers with the same model name. Drop the global unique on modelName, add composite unique on (model_name, provider_name), add is_default_provider column with partial unique index, and add FK to model_proxy_providers.",
       "dependencies": [],
       "batch": "A",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "acceptanceCriteria": [
         "model_proxy_models.modelName is no longer @unique",
