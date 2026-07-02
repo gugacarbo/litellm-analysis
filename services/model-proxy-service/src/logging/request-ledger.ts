@@ -1,8 +1,6 @@
-import type {
-  ModelProxyRequest,
-  Prisma,
-  PrismaClient,
-} from "@lite-llm/model-proxy-repository";
+import { db } from "@lite-llm/database/client";
+import { modelProxyRequests, modelProxyMessages } from "@lite-llm/database/schema/model-proxy";
+import { eq } from "drizzle-orm";
 import { extractEndUser, extractLedgerMessages } from "../proxy-payload";
 import type { ChatCompletionsRequest } from "../schemas";
 import { type CostSnapshot, calculateCost } from "./cost-calculator";
@@ -47,12 +45,7 @@ export interface LedgerStartContext {
 type RequestFinishedListener = (requestId: string) => void;
 
 export class RequestLedger {
-  private readonly database: PrismaClient;
   private readonly listeners = new Set<RequestFinishedListener>();
-
-  constructor(database: PrismaClient) {
-    this.database = database;
-  }
 
   onRequestFinished(listener: RequestFinishedListener): () => void {
     this.listeners.add(listener);
@@ -66,7 +59,7 @@ export class RequestLedger {
     target: LedgerTarget,
     startedAt: Date,
     context: LedgerStartContext = {},
-  ): Promise<ModelProxyRequest> {
+  ): Promise<typeof modelProxyRequests.$inferSelect> {
     return this.startWithMessages(
       {
         model: request.model,
@@ -85,7 +78,7 @@ export class RequestLedger {
     target: LedgerTarget,
     startedAt: Date,
     context: LedgerStartContext = {},
-  ): Promise<ModelProxyRequest> {
+  ): Promise<typeof modelProxyRequests.$inferSelect> {
     return this.startTransparent(request.model, request, target, startedAt, {
       apiKeyAlias: context.apiKeyAlias,
       endUser: context.endUser ?? request.user,
@@ -98,7 +91,7 @@ export class RequestLedger {
     target: LedgerTarget,
     startedAt: Date,
     context: LedgerStartContext = {},
-  ): Promise<ModelProxyRequest> {
+  ): Promise<typeof modelProxyRequests.$inferSelect> {
     return this.startWithMessages(
       {
         model,
@@ -122,29 +115,27 @@ export class RequestLedger {
     target: LedgerTarget,
     startedAt: Date,
     context: LedgerStartContext = {},
-  ): Promise<ModelProxyRequest> {
-    const row = await this.database.modelProxyRequest.create({
-      data: {
-        model: request.model,
-        upstreamModel: target.upstreamModel,
-        upstreamBaseUrl: target.upstreamBaseUrl,
-        status: "started",
-        startedAt,
-        apiKeyAlias: context.apiKeyAlias ?? null,
-        endUser: context.endUser ?? request.user ?? null,
-        requestBody: redactPayload(
-          request.requestBody,
-        ) as Prisma.InputJsonValue,
-      },
-    });
+  ): Promise<typeof modelProxyRequests.$inferSelect> {
+    const [row] = await db.insert(modelProxyRequests).values({
+      model: request.model,
+      upstreamModel: target.upstreamModel,
+      upstreamBaseUrl: target.upstreamBaseUrl,
+      status: "started",
+      startedAt,
+      apiKeyAlias: context.apiKeyAlias ?? null,
+      endUser: context.endUser ?? request.user ?? null,
+      requestBody: redactPayload(request.requestBody) as unknown,
+    }).returning();
 
-    await this.database.modelProxyMessage.createMany({
-      data: request.messages.map((message) => ({
-        requestId: row.id,
-        role: message.role,
-        content: redactPayload(message.content) as Prisma.InputJsonValue,
-      })),
-    });
+    if (request.messages.length > 0) {
+      await db.insert(modelProxyMessages).values(
+        request.messages.map((message) => ({
+          requestId: row.id,
+          role: message.role,
+          content: redactPayload(message.content) as unknown,
+        })),
+      );
+    }
 
     return row;
   }
@@ -186,10 +177,10 @@ export class RequestLedger {
     target: LedgerTarget,
     params: FinishRequestParams,
   ): Promise<void> {
-    const existing = await this.database.modelProxyRequest.findUnique({
-      where: { id: requestId },
-      select: { status: true },
-    });
+    const [existing] = await db.select({ status: modelProxyRequests.status })
+      .from(modelProxyRequests)
+      .where(eq(modelProxyRequests.id, requestId))
+      .limit(1);
 
     if (existing?.status && TERMINAL_REQUEST_STATUSES.has(existing.status)) {
       return;
@@ -198,10 +189,9 @@ export class RequestLedger {
     const usage = params.usage ?? {};
     const cost = calculateCost(target.cost, usage);
 
-    await this.database.modelProxyRequest.update({
-      where: { id: requestId },
-      data: this.buildUpdateData(params, cost),
-    });
+    await db.update(modelProxyRequests)
+      .set(this.buildUpdateData(params, cost))
+      .where(eq(modelProxyRequests.id, requestId));
 
     for (const listener of this.listeners) {
       listener(requestId);
@@ -211,7 +201,7 @@ export class RequestLedger {
   private buildUpdateData(
     params: FinishRequestParams,
     cost: CostSnapshot,
-  ): Prisma.ModelProxyRequestUpdateInput {
+  ): Record<string, unknown> {
     const error = params.error;
 
     return {
@@ -242,11 +232,11 @@ export class RequestLedger {
       errorStatusCode: error?.statusCode,
       errorDetails:
         error?.details !== undefined
-          ? (redactPayload(error.details) as Prisma.InputJsonValue)
+          ? (redactPayload(error.details) as unknown)
           : undefined,
       responseBody:
         params.responseBody !== undefined
-          ? (redactPayload(params.responseBody) as Prisma.InputJsonValue)
+          ? (redactPayload(params.responseBody) as unknown)
           : undefined,
       responseHeaders: params.responseHeaders
         ? redactHeaders(params.responseHeaders)

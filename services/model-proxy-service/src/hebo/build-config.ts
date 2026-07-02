@@ -5,8 +5,9 @@ import {
   type ModelCatalog,
   withCanonicalIds,
 } from "@hebo-ai/gateway";
-import type { PrismaClient } from "@lite-llm/model-proxy-repository";
-import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
+import { db } from "@lite-llm/database/client";
+import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
+import { eq, asc } from "drizzle-orm";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import {
   type ResolvedUpstreamTarget,
@@ -83,18 +84,16 @@ function providerKey(target: ResolvedUpstreamTarget): string {
   return `${target.upstreamBaseUrl}|${token}`;
 }
 
-async function listProxyCatalogRows(
-  database: PrismaClient,
-): Promise<ProxyCatalogRow[]> {
-  return database.modelProxyModel.findMany({
-    where: { enabled: true },
-    orderBy: [{ modelName: "asc" }, { providerName: "asc" }],
-    select: {
-      modelName: true,
-      providerName: true,
-      isDefaultProvider: true,
-    },
-  });
+async function listProxyCatalogRows(): Promise<ProxyCatalogRow[]> {
+  const rows = await db.select({
+    modelName: modelProxyModels.modelName,
+    providerName: modelProxyModels.providerName,
+    isDefaultProvider: modelProxyModels.isDefaultProvider,
+  })
+    .from(modelProxyModels)
+    .where(eq(modelProxyModels.enabled, true))
+    .orderBy(asc(modelProxyModels.modelName), asc(modelProxyModels.providerName));
+  return rows;
 }
 
 async function listProxyModelNames(
@@ -117,14 +116,12 @@ async function listProxyModelNames(
 }
 
 export async function buildHeboGatewayConfig(options: {
-  database?: PrismaClient;
   modelsService: IModelService;
   providerService: IProviderService;
 }): Promise<HeboGatewayBuildResult> {
-  const database = options.database ?? getModelProxyPrisma();
   const providers = await options.providerService.getAll();
   const fallbackModels = await options.modelsService.getAll();
-  const proxyCatalogRows = await listProxyCatalogRows(database);
+  const proxyCatalogRows = await listProxyCatalogRows();
   const modelNames = await listProxyModelNames(
     options.modelsService,
     proxyCatalogRows,
@@ -145,7 +142,6 @@ export async function buildHeboGatewayConfig(options: {
     let target: ResolvedUpstreamTarget;
     try {
       target = await resolveUpstreamTarget({
-        database,
         modelName,
         providers,
         fallbackModels,

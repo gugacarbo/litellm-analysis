@@ -1,8 +1,9 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { GatewayHooks } from "@hebo-ai/gateway";
 import type { IOpenAiOAuthService } from "@lite-llm/model-proxy-registry-service";
-import type { PrismaClient } from "@lite-llm/model-proxy-repository";
-import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
+import { db } from "@lite-llm/database/client";
+import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
+import { eq } from "drizzle-orm";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import { redactHeaders } from "../logging/payload-redactor";
 import {
@@ -55,7 +56,6 @@ async function resolveTargetForModel(
   modelName: string,
   build: HeboGatewayBuildResult,
   options: {
-    database: PrismaClient;
     modelsService: IModelService;
     providerService: IProviderService;
   },
@@ -65,15 +65,14 @@ async function resolveTargetForModel(
     return cached;
   }
 
-  const database = options.database;
-  const row = await database.modelProxyModel.findFirst({
-    where: { modelName },
-  });
+  const [row] = await db.select()
+    .from(modelProxyModels)
+    .where(eq(modelProxyModels.modelName, modelName))
+    .limit(1);
   const providers = await options.providerService.getAll();
   const fallbackModels = await options.modelsService.getAll();
 
   return resolveUpstreamTarget({
-    database,
     modelName,
     providers,
     fallbackModels,
@@ -241,13 +240,11 @@ function wrapStreamForLedger(
 
 export function createLedgerHooks(options: {
   build: HeboGatewayBuildResult;
-  database?: PrismaClient;
   ledger: RequestLedger;
   modelsService: IModelService;
   providerService: IProviderService;
   openAiOAuthService: IOpenAiOAuthService;
 }): GatewayHooks {
-  const database = options.database ?? getModelProxyPrisma();
 
   return {
     onRequest: async (ctx) => {
@@ -262,7 +259,6 @@ export function createLedgerHooks(options: {
       }
 
       const target = await resolveTargetForModel(modelName, options.build, {
-        database,
         modelsService: options.modelsService,
         providerService: options.providerService,
       });
@@ -291,7 +287,6 @@ export function createLedgerHooks(options: {
 
       const startedAt = new Date();
       const target = await resolveTargetForModel(modelName, options.build, {
-        database,
         modelsService: options.modelsService,
         providerService: options.providerService,
       });
@@ -336,7 +331,6 @@ export function createLedgerHooks(options: {
       }
 
       const target = await resolveTargetForModel(modelName, options.build, {
-        database,
         modelsService: options.modelsService,
         providerService: options.providerService,
       });

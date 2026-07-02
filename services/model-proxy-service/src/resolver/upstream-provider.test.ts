@@ -116,7 +116,6 @@ describe("upstream-provider", () => {
     const database = createDatabaseMock();
 
     const target = await resolveUpstreamTarget({
-      database: database as never,
       modelName: "gpt-test",
       providers: createProviderMap(),
       fallbackModels: {
@@ -151,7 +150,6 @@ describe("upstream-provider", () => {
     const database = createDatabaseMock({ rows: [row] });
 
     const target = await resolveUpstreamTarget({
-      database: database as never,
       modelName: "gpt-test",
       providers: createProviderMap(),
       fallbackModels: {},
@@ -178,7 +176,6 @@ describe("upstream-provider", () => {
     });
 
     const target = await resolveUpstreamTarget({
-      database: database as never,
       modelName: "gpt-test",
       providers: createProviderMap(),
       fallbackModels: {},
@@ -200,7 +197,6 @@ describe("upstream-provider", () => {
 
     await expect(
       resolveUpstreamTarget({
-        database: database as never,
         modelName: "gpt-test",
         providers: createProviderMap(),
         fallbackModels: {},
@@ -225,7 +221,6 @@ describe("upstream-provider", () => {
 
     await expect(
       resolveUpstreamTarget({
-        database: database as never,
         modelName: "gpt-test",
         providers: createProviderMap(),
         fallbackModels: {},
@@ -243,7 +238,6 @@ describe("upstream-provider", () => {
     const database = createDatabaseMock({ prefixedRow: row });
 
     const target = await resolveUpstreamTarget({
-      database: database as never,
       modelName: "deepseek-main/gpt-test",
       providers: createProviderMap(),
       fallbackModels: {},
@@ -263,7 +257,6 @@ describe("upstream-provider", () => {
 
     await expect(
       resolveUpstreamTarget({
-        database: database as never,
         modelName: "unknown/gpt-test",
         providers: createProviderMap(),
         fallbackModels: {},
@@ -284,7 +277,6 @@ describe("upstream-provider", () => {
     });
 
     const target = await resolveUpstreamTarget({
-      database: database as never,
       modelName: "gpt-test",
       providers: createProviderMap(),
       fallbackModels: {},
@@ -303,7 +295,6 @@ describe("upstream-provider", () => {
 
     await expect(
       resolveUpstreamTarget({
-        database: database as never,
         modelName: "gpt-test",
         providers: createProviderMap(),
         fallbackModels: {},
@@ -313,20 +304,6 @@ describe("upstream-provider", () => {
 
   it("uses literal secretRef values when the provider stores a raw key", async () => {
     const target = await resolveUpstreamTarget({
-      database: {
-        modelProxyModel: {
-          findMany: vi.fn().mockResolvedValue([]),
-          findFirst: vi.fn().mockResolvedValue(null),
-        },
-        modelProxyProvider: {
-          findUnique: vi.fn().mockResolvedValue({
-            name: "iproute-main",
-            apiKey: null,
-            baseUrl: "https://llm.iproute.cloud",
-            secretRef: "sk-live-literal-secret",
-          }),
-        },
-      } as never,
       modelName: "gpt-test",
       providers: {
         openai: {
@@ -354,15 +331,6 @@ describe("upstream-provider", () => {
 
   it("resolves chatgpt subscription models without api key", async () => {
     const target = await resolveUpstreamTarget({
-      database: {
-        modelProxyModel: {
-          findMany: vi.fn().mockResolvedValue([]),
-          findFirst: vi.fn().mockResolvedValue(null),
-        },
-        modelProxyProvider: {
-          findUnique: vi.fn().mockResolvedValue(null),
-        },
-      } as never,
       modelName: "gpt-5-codex",
       providers: {},
       fallbackModels: {

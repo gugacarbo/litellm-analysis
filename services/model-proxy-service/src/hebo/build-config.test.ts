@@ -63,18 +63,6 @@ function createTarget(modelName: string, overrides: Partial<Record<string, unkno
   };
 }
 
-function createDatabase(rows: Array<{
-  isDefaultProvider: boolean;
-  modelName: string;
-  providerName: string | null;
-}>) {
-  return {
-    modelProxyModel: {
-      findMany: vi.fn().mockResolvedValue(rows),
-    },
-  };
-}
-
 function createServices() {
   return {
     modelsService: {
@@ -97,13 +85,6 @@ describe("buildHeboGatewayConfig", () => {
     );
 
     const result = await buildHeboGatewayConfig({
-      database: createDatabase([
-        {
-          modelName: "gpt-4.1",
-          providerName: "openai-main",
-          isDefaultProvider: false,
-        },
-      ]) as never,
       ...createServices(),
     });
 
@@ -127,18 +108,6 @@ describe("buildHeboGatewayConfig", () => {
     );
 
     const result = await buildHeboGatewayConfig({
-      database: createDatabase([
-        {
-          modelName: "gpt-4.1",
-          providerName: "deepseek-main",
-          isDefaultProvider: false,
-        },
-        {
-          modelName: "gpt-4.1",
-          providerName: "openai-main",
-          isDefaultProvider: true,
-        },
-      ]) as never,
       ...createServices(),
     });
 
@@ -165,18 +134,6 @@ describe("buildHeboGatewayConfig", () => {
     );
 
     const result = await buildHeboGatewayConfig({
-      database: createDatabase([
-        {
-          modelName: "gpt-4.1",
-          providerName: "deepseek-main",
-          isDefaultProvider: false,
-        },
-        {
-          modelName: "gpt-4.1",
-          providerName: "openai-main",
-          isDefaultProvider: false,
-        },
-      ]) as never,
       ...createServices(),
     });
 

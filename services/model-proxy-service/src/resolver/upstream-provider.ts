@@ -3,10 +3,10 @@ import {
   OPENAI_CHATGPT_API_BASE,
   resolveProviderSecret,
 } from "@lite-llm/model-proxy-registry-service";
-import type {
-  ModelProxyModel,
-  PrismaClient,
-} from "@lite-llm/model-proxy-repository";
+import { db } from "@lite-llm/database/client";
+import { modelProxyModels, modelProxyProviders } from "@lite-llm/database/schema/model-proxy";
+import { eq, and } from "drizzle-orm";
+import type { ModelProxyModel } from "@lite-llm/model-proxy-repository";
 import type {
   ModelSpec,
   Provider,
@@ -118,29 +118,33 @@ export function parseProviderModel(rawModel: string): {
 }
 
 export async function resolveUpstreamTarget(params: {
-  database: PrismaClient;
   modelName: string;
   providers: Record<string, Provider>;
   fallbackModels: Record<string, ModelSpec>;
   row?: ModelProxyModel | null;
 }): Promise<ResolvedUpstreamTarget> {
-  const { database, modelName, providers, fallbackModels, row } = params;
+  const { modelName, providers, fallbackModels, row } = params;
   const { providerPrefix, bareModelName } = parseProviderModel(modelName);
 
   let resolvedRow: ModelProxyModel | null = row ?? null;
 
   if (!resolvedRow) {
     if (providerPrefix) {
-      resolvedRow = await database.modelProxyModel.findFirst({
-        where: { modelName: bareModelName, providerName: providerPrefix },
-      });
+      const [found] = await db.select()
+        .from(modelProxyModels)
+        .where(and(
+          eq(modelProxyModels.modelName, bareModelName),
+          eq(modelProxyModels.providerName, providerPrefix),
+        ))
+        .limit(1);
+      resolvedRow = found ?? null;
       if (!resolvedRow) {
         throw new Error(`Model "${modelName}" not found`);
       }
     } else {
-      const rows = await database.modelProxyModel.findMany({
-        where: { modelName: bareModelName },
-      });
+      const rows = await db.select()
+        .from(modelProxyModels)
+        .where(eq(modelProxyModels.modelName, bareModelName));
 
       if (rows.length === 1) {
         resolvedRow = rows[0];
@@ -182,11 +186,12 @@ export async function resolveUpstreamTarget(params: {
     upstreamProvider?.defaultProvider?.trim() ||
     undefined;
 
-  const provider = providerName
-    ? await database.modelProxyProvider.findUnique({
-        where: { name: providerName },
-      })
-    : null;
+  const [provider] = providerName
+    ? await db.select()
+        .from(modelProxyProviders)
+        .where(eq(modelProxyProviders.name, providerName))
+        .limit(1)
+    : [null];
 
   const upstreamBaseUrl =
     resolvedRow?.upstreamBaseUrl?.trim() ||

@@ -1,5 +1,6 @@
-import type { PrismaClient } from "@lite-llm/model-proxy-repository";
-import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
+import { db } from "@lite-llm/database/client";
+import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
+import { eq, asc } from "drizzle-orm";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import { redactHeaders } from "./logging/payload-redactor";
 import {
@@ -77,7 +78,6 @@ function toObject(value: unknown): Record<string, unknown> | null {
 }
 
 export class ModelProxyService implements IModelProxyService {
-  private readonly database?: PrismaClient;
   private readonly fetchFn: typeof fetch;
   private readonly ledger: RequestLedger;
   private readonly modelsService: IModelService;
@@ -85,16 +85,11 @@ export class ModelProxyService implements IModelProxyService {
   private readonly providerService: IProviderService;
 
   constructor(options: ModelProxyServiceOptions) {
-    this.database = options.database;
     this.fetchFn = options.fetchFn ?? fetch;
     this.modelsService = options.modelsService;
     this.providerService = options.providerService;
     this.now = options.now ?? (() => new Date());
-    this.ledger = new RequestLedger(this.getDatabase());
-  }
-
-  private getDatabase(): PrismaClient {
-    return this.database ?? getModelProxyPrisma();
+    this.ledger = new RequestLedger();
   }
 
   onRequestFinished(listener: (requestId: string) => void): () => void {
@@ -102,11 +97,10 @@ export class ModelProxyService implements IModelProxyService {
   }
 
   async listModels(): Promise<ModelListResponse> {
-    const database = this.getDatabase();
-    const proxyModels = await database.modelProxyModel.findMany({
-      where: { enabled: true },
-      orderBy: { modelName: "asc" },
-    });
+    const proxyModels = await db.select()
+      .from(modelProxyModels)
+      .where(eq(modelProxyModels.enabled, true))
+      .orderBy(asc(modelProxyModels.modelName));
 
     const modelEntries =
       proxyModels.length > 0
@@ -598,12 +592,10 @@ export class ModelProxyService implements IModelProxyService {
   private async resolveTarget(
     modelName: string,
   ): Promise<ResolvedUpstreamTarget> {
-    const database = this.getDatabase();
     const fallbackModels = await this.modelsService.getAll();
     const providers = await this.providerService.getAll();
 
     return resolveUpstreamTarget({
-      database,
       modelName,
       providers,
       fallbackModels,

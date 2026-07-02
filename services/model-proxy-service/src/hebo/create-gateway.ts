@@ -1,7 +1,5 @@
 import { gateway } from "@hebo-ai/gateway";
 import type { IOpenAiOAuthService } from "@lite-llm/model-proxy-registry-service";
-import type { PrismaClient } from "@lite-llm/model-proxy-repository";
-import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import { RequestLedger } from "../logging/request-ledger";
 import { buildHeboGatewayConfig } from "./build-config";
@@ -15,7 +13,6 @@ export interface HeboModelProxyGateway {
 }
 
 export interface HeboModelProxyGatewayOptions {
-  database?: PrismaClient;
   modelsService: IModelService;
   providerService: IProviderService;
   openAiOAuthService: IOpenAiOAuthService;
@@ -30,14 +27,12 @@ async function createGatewayInstance(
   ledger: RequestLedger,
 ): Promise<GatewayInstance> {
   const build = await buildHeboGatewayConfig({
-    database: options.database,
     modelsService: options.modelsService,
     providerService: options.providerService,
   });
 
   const ledgerHooks = createLedgerHooks({
     build,
-    database: options.database,
     ledger,
     modelsService: options.modelsService,
     providerService: options.providerService,
@@ -67,15 +62,14 @@ async function createGatewayInstance(
 export async function createHeboModelProxyGateway(
   options: HeboModelProxyGatewayOptions,
 ): Promise<HeboModelProxyGateway> {
-  const database = options.database ?? getModelProxyPrisma();
-  const ledger = new RequestLedger(database);
-  let current = await createGatewayInstance({ ...options, database }, ledger);
+  const ledger = new RequestLedger();
+  let current = await createGatewayInstance(options, ledger);
 
   return {
     handler: (req, state) => current.handler(req, state),
     onRequestFinished: (listener) => ledger.onRequestFinished(listener),
     refresh: async () => {
-      current = await createGatewayInstance({ ...options, database }, ledger);
+      current = await createGatewayInstance(options, ledger);
     },
   };
 }

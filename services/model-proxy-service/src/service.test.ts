@@ -117,13 +117,6 @@ describe("ModelProxyService", () => {
 
   it("lists fallback models when proxy registry is empty", async () => {
     const service = new ModelProxyService({
-      database: {
-        ...createDatabaseMock(),
-        modelProxyModel: {
-          findMany: vi.fn().mockResolvedValue([]),
-          findUnique: vi.fn().mockResolvedValue(null),
-        },
-      } as never,
       fetchFn: vi.fn() as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -172,7 +165,6 @@ describe("ModelProxyService", () => {
     );
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -230,7 +222,6 @@ describe("ModelProxyService", () => {
     );
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -310,7 +301,6 @@ describe("ModelProxyService", () => {
     );
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -383,7 +373,6 @@ describe("ModelProxyService", () => {
     ];
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -425,7 +414,6 @@ describe("ModelProxyService", () => {
     );
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -461,7 +449,6 @@ describe("ModelProxyService", () => {
     );
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -502,7 +489,6 @@ describe("ModelProxyService", () => {
     });
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -549,7 +535,6 @@ describe("ModelProxyService", () => {
     );
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -607,7 +592,6 @@ describe("ModelProxyService", () => {
     );
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -648,7 +632,6 @@ describe("ModelProxyService", () => {
     );
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
@@ -702,7 +685,6 @@ describe("ModelProxyService", () => {
     });
 
     const service = new ModelProxyService({
-      database: database as never,
       fetchFn: fetchFn as never,
       modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
