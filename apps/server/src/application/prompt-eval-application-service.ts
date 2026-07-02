@@ -135,20 +135,20 @@ export function createPromptEvalApplicationService(
     }
   }
 
-  function finalizeRunningSteps(
+  async function finalizeRunningSteps(
     runId: string,
     status: "completed" | "failed",
     message: string | null,
-  ): void {
-    const now = Math.floor(Date.now() / 1000);
-    const steps = getEvalRunSteps(runId);
+  ): Promise<void> {
+    const now = new Date();
+    const steps = await getEvalRunSteps(runId);
 
     for (const step of steps) {
       if (step.status !== "running") {
         continue;
       }
 
-      updateEvalRunStep(step.id, {
+      await updateEvalRunStep(step.id, {
         status,
         finishedAt: now,
         progressPct: status === "completed" ? 100 : step.progressPct,
@@ -163,7 +163,7 @@ export function createPromptEvalApplicationService(
     cases: CategoryEvalCase[],
   ): Promise<{ id: string }> {
     const runId = randomUUID();
-    const now = Math.floor(Date.now() / 1000);
+    const now = new Date();
 
     const run: NewEvalRun = {
       id: runId,
@@ -176,7 +176,7 @@ export function createPromptEvalApplicationService(
       startedAt: now,
       finishedAt: null,
     };
-    insertEvalRun(run);
+    await insertEvalRun(run);
 
     const controller = new AbortController();
     activeRuns.set(runId, { runId, controller });
@@ -204,7 +204,7 @@ export function createPromptEvalApplicationService(
     signal: AbortSignal,
   ): Promise<void> {
     try {
-      updateEvalRun(runId, { status: "loading_dataset" });
+      await updateEvalRun(runId, { status: "loading_dataset" });
       signal.throwIfAborted();
 
       // Run evaluation with event bridge
@@ -226,12 +226,12 @@ export function createPromptEvalApplicationService(
       // Gate: macroF1 >= threshold
       const passed = report.metrics.macroF1 >= threshold;
       if (!passed) {
-        finalizeRunningSteps(runId, "completed", null);
-        updateEvalRun(runId, {
+        await finalizeRunningSteps(runId, "completed", null);
+        await updateEvalRun(runId, {
           status: "failed",
           macroF1: report.metrics.macroF1,
           error: `macroF1 ${report.metrics.macroF1.toFixed(4)} < threshold ${threshold}`,
-          finishedAt: Math.floor(Date.now() / 1000),
+          finishedAt: new Date(),
         });
         broadcastRunCompleted(
           runId,
@@ -243,7 +243,7 @@ export function createPromptEvalApplicationService(
       }
 
       // AI Review (non-blocking for gate, but we run it)
-      updateEvalRun(runId, { status: "reviewing" });
+      await updateEvalRun(runId, { status: "reviewing" });
       signal.throwIfAborted();
 
       const review = await runCategoryAiReview(
@@ -258,15 +258,15 @@ export function createPromptEvalApplicationService(
       );
 
       // Generate reports
-      updateEvalRun(runId, { status: "reporting" });
+      await updateEvalRun(runId, { status: "reporting" });
       await generateReports(runId, report, review);
 
       // Mark succeeded
-      finalizeRunningSteps(runId, "completed", null);
-      updateEvalRun(runId, {
+      await finalizeRunningSteps(runId, "completed", null);
+      await updateEvalRun(runId, {
         status: "succeeded",
         macroF1: report.metrics.macroF1,
-        finishedAt: Math.floor(Date.now() / 1000),
+        finishedAt: new Date(),
       });
       broadcastRunCompleted(runId, "succeeded", report.metrics.macroF1, null);
     } catch (err) {
@@ -275,10 +275,10 @@ export function createPromptEvalApplicationService(
         (err instanceof DOMException && err.name === "AbortError") ||
         message.toLowerCase().includes("abort");
 
-      updateEvalRun(runId, {
+      await updateEvalRun(runId, {
         status: isAbort ? "cancelled" : "failed",
         error: isAbort ? "cancelled by user" : message,
-        finishedAt: Math.floor(Date.now() / 1000),
+        finishedAt: new Date(),
       });
       finalizeRunningSteps(
         runId,
@@ -297,8 +297,8 @@ export function createPromptEvalApplicationService(
     }
   }
 
-  function handleEvalEvent(runId: string, event: EvalEvent): void {
-    const now = Math.floor(Date.now() / 1000);
+  async function handleEvalEvent(runId: string, event: EvalEvent): Promise<void> {
+    const now = new Date();
 
     switch (event.type) {
       case "step:start": {
@@ -311,7 +311,7 @@ export function createPromptEvalApplicationService(
           message: event.message,
           progressPct: 0,
         };
-        const insertedStep = insertEvalRunStep(step);
+        const insertedStep = await insertEvalRunStep(step);
         setStepId(runId, event.step, insertedStep.id);
         broadcastRunUpdate(runId, event.step, "running", 0, event.message);
         break;
@@ -319,7 +319,7 @@ export function createPromptEvalApplicationService(
       case "step:progress": {
         const stepId = getStepId(runId, event.step);
         if (stepId !== undefined) {
-          updateEvalRunStep(stepId, {
+          await updateEvalRunStep(stepId, {
             progressPct: event.progressPct,
             message: event.message,
           });
@@ -336,7 +336,7 @@ export function createPromptEvalApplicationService(
       case "step:end": {
         const stepId = getStepId(runId, event.step);
         if (stepId !== undefined) {
-          updateEvalRunStep(stepId, {
+          await updateEvalRunStep(stepId, {
             status: "completed",
             progressPct: 100,
             finishedAt: now,
@@ -368,7 +368,7 @@ export function createPromptEvalApplicationService(
     // Eval JSON
     const evalJsonPath = pathMod.join(runDir, "category-eval.json");
     await fs.writeFile(evalJsonPath, JSON.stringify(report, null, 2));
-    insertEvalRunArtifact({
+    await insertEvalRunArtifact({
       runId,
       kind: "eval_report_json",
       path: evalJsonPath,
@@ -382,7 +382,7 @@ export function createPromptEvalApplicationService(
     const evalMdPath = pathMod.join(runDir, "category-eval.md");
     const md = generateMarkdownReport(report);
     await fs.writeFile(evalMdPath, md);
-    insertEvalRunArtifact({
+    await insertEvalRunArtifact({
       runId,
       kind: "eval_report_md",
       path: evalMdPath,
@@ -392,7 +392,7 @@ export function createPromptEvalApplicationService(
     // Review JSON
     const reviewJsonPath = pathMod.join(runDir, "category-review.json");
     await fs.writeFile(reviewJsonPath, JSON.stringify(review, null, 2));
-    insertEvalRunArtifact({
+    await insertEvalRunArtifact({
       runId,
       kind: "review_report_json",
       path: reviewJsonPath,
@@ -406,7 +406,7 @@ export function createPromptEvalApplicationService(
     const reviewMdPath = pathMod.join(runDir, "category-review.md");
     const reviewMd = generateReviewMarkdown(review);
     await fs.writeFile(reviewMdPath, reviewMd);
-    insertEvalRunArtifact({
+    await insertEvalRunArtifact({
       runId,
       kind: "review_report_md",
       path: reviewMdPath,

@@ -17,6 +17,7 @@
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/analytics-service": "workspace:*",
     "@lite-llm/contracts": "workspace:^",
+    "@lite-llm/database": "workspace:*",
     "@lite-llm/app-repository": "workspace:*",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/model-proxy-registry-service": "workspace:*",
@@ -25,6 +26,7 @@
     "@lite-llm/models-service": "workspace:*",
     "@lite-llm/prompt-eval": "workspace:*",
     "@lite-llm/server": "workspace:*",
+    "drizzle-orm": "catalog:",
     "dotenv": "catalog:",
     "express": "catalog:",
     "ws": "^8.20.0"

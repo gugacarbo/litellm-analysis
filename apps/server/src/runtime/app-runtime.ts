@@ -7,7 +7,7 @@ import {
   createRegistryServices,
   getHealthCheckPrompt,
 } from "@lite-llm/model-proxy-registry-service";
-import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
+import { disconnectDb } from "@lite-llm/database/client";
 import { createHeboModelProxyGateway } from "@lite-llm/model-proxy-service/hebo";
 import {
   createRepositoryClient as createModelsRepositoryClient,
@@ -279,7 +279,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     healthCheckRuntime.stop();
     wsServer.stop();
     httpServer.close(async () => {
-      await getModelProxyPrisma().$disconnect();
+      await disconnectDb();
       process.exit(0);
     });
   };

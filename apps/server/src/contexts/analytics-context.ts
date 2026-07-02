@@ -1,6 +1,7 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/data-source";
 import { createDataSource } from "@lite-llm/analytics-service/data-source";
-import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
+import { queryRaw } from "@lite-llm/database/client";
+import { sql } from "drizzle-orm";
 
 export interface AnalyticsProvider {
   dataSource: AnalyticsDataSource;
@@ -12,8 +13,7 @@ export function createAnalyticsProvider(): AnalyticsProvider {
   return {
     dataSource,
     async checkReadiness() {
-      const prisma = getModelProxyPrisma();
-      await prisma.$queryRaw`SELECT 1`;
+      await queryRaw(sql`SELECT 1`, []);
     },
   };
 }

@@ -236,7 +236,7 @@ export class HealthCheckService {
         responsePayload: check.responsePayload,
         errorMessage: check.errorMessage,
         source: check.source,
-        checkedAt: check.checkedAt,
+        checkedAt: new Date(startTime),
       });
 
       this.emitter.emit(
@@ -288,7 +288,7 @@ export class HealthCheckService {
         responsePayload: check.responsePayload,
         errorMessage: check.errorMessage,
         source: check.source,
-        checkedAt: check.checkedAt,
+        checkedAt: new Date(startTime),
       });
 
       this.emitter.emit("health_check_stream_failed", {

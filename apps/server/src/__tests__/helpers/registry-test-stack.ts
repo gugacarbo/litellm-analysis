@@ -5,7 +5,7 @@ import {
   RegistryModelsService,
   SettingsService,
 } from "@lite-llm/model-proxy-registry-service";
-import type { Prisma } from "@lite-llm/model-proxy-repository";
+import { Prisma } from "@lite-llm/model-proxy-repository";
 import type { ModelSpec } from "@lite-llm/models-repository";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import type {

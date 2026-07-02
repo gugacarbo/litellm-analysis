@@ -27,12 +27,10 @@ export function createHealthCheckApplicationService(
   storeApi: HealthCheckStoreApi = defaultStoreApi,
 ) {
   return {
-    listResults(input: GetResultsInput) {
-      const since = input.since
-        ? Math.floor(new Date(input.since).getTime() / 1000)
-        : undefined;
+    async listResults(input: GetResultsInput) {
+      const since = input.since ? new Date(input.since) : undefined;
 
-      const result = storeApi.getHealthChecks({
+      const result = await storeApi.getHealthChecks({
         model: input.model,
         limit: input.limit,
         offset: input.offset,
