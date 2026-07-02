@@ -28,5 +28,15 @@
     "builds-on": [],
     "superseded-by": null,
     "implemented-by": []
+  },
+  {
+    "id": "SPEC-0004",
+    "path": "docs/specs/0004-prisma-to-drizzle-migration-spec.md",
+    "layer": "specs",
+    "title": "Migrar toda a camada de dados de Prisma para Drizzle, unificando PostgreSQL",
+    "status": "draft",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
   }
 ]

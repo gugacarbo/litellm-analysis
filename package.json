@@ -10,6 +10,7 @@
     "lint": "turbo lint",
     "format": "biome check --write",
     "format:all": "turbo format -- --write",
+    "format:md": "pnpm prettier --write \"**/*.{md,mdx}\" --log-level=warn --no-error-on-unmatched-pattern  --cache",
     "typecheck": "turbo typecheck",
     "lint-staged": "lint-staged",
     "prepare": "husky",
@@ -25,7 +26,8 @@
     "db:logs": "sh scripts/db-compose.sh logs -f postgres",
     "db:migrate": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec pnpm --filter @lite-llm/model-proxy-repository db:migrate'",
     "backup": "pnpm --filter @lite-llm/scripts backup",
-    "backup:list": "ls -lh backups/model_proxy_* backups/*.sql.gz 2>/dev/null || echo 'No backups found'"
+    "backup:list": "ls -lh backups/model_proxy_* backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
+    "docs-check": "python3 ./scripts/docs-check"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
