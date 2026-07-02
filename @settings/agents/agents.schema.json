@@ -30,10 +30,14 @@
       "default": "",
       "title": "Global Fallback Model",
       "description": "Default fallback model",
-      "$ref": "#/$defs/__schema52"
+      "$ref": "#/$defs/__schema53"
     }
   },
-  "required": ["version", "agents", "categories"],
+  "required": [
+    "version",
+    "agents",
+    "categories"
+  ],
   "additionalProperties": false,
   "$defs": {
     "__schema0": {
@@ -140,7 +144,10 @@
           "$ref": "#/$defs/__schema9"
         }
       },
-      "required": ["context", "output"],
+      "required": [
+        "context",
+        "output"
+      ],
       "additionalProperties": false
     },
     "__schema8": {
@@ -256,7 +263,11 @@
     },
     "__schema15": {
       "type": "string",
-      "enum": ["subagent", "primary", "all"]
+      "enum": [
+        "subagent",
+        "primary",
+        "all"
+      ]
     },
     "__schema16": {
       "type": "object",
@@ -398,40 +409,43 @@
             "default": "medium",
             "title": "Reasoning Effort",
             "description": "Reasoning budget level",
-            "$ref": "#/$defs/__schema45"
+            "$ref": "#/$defs/__schema46"
           },
           "textVerbosity": {
             "default": "medium",
             "title": "Text Verbosity",
             "description": "Response verbosity level",
-            "$ref": "#/$defs/__schema46"
+            "$ref": "#/$defs/__schema47"
           },
           "tools": {
             "default": {},
             "title": "Tools",
             "description": "Tool enable/disable map",
-            "$ref": "#/$defs/__schema47"
+            "$ref": "#/$defs/__schema48"
           },
           "promptAppend": {
             "default": "",
             "title": "Prompt Append",
             "description": "Text to append to prompts",
-            "$ref": "#/$defs/__schema49"
+            "$ref": "#/$defs/__schema50"
           },
           "isUnstableAgent": {
             "default": false,
             "title": "Unstable Agent",
             "description": "Mark as experimental/unstable",
-            "$ref": "#/$defs/__schema50"
+            "$ref": "#/$defs/__schema51"
           },
           "config": {
             "default": {},
             "title": "Config",
             "description": "Extra agent configuration",
-            "$ref": "#/$defs/__schema51"
+            "$ref": "#/$defs/__schema52"
           }
         },
-        "required": ["model", "limits"],
+        "required": [
+          "model",
+          "limits"
+        ],
         "additionalProperties": false
       }
     },
@@ -460,7 +474,10 @@
           "description": "Maximum output tokens"
         }
       },
-      "required": ["context", "output"],
+      "required": [
+        "context",
+        "output"
+      ],
       "additionalProperties": false
     },
     "__schema33": {
@@ -488,7 +505,9 @@
           "$ref": "#/$defs/__schema39"
         }
       },
-      "required": ["levels"],
+      "required": [
+        "levels"
+      ],
       "additionalProperties": false
     },
     "__schema39": {
@@ -519,13 +538,23 @@
           "title": "Include Reasoning in Request",
           "description": "Whether reasoning content is included in the request body",
           "$ref": "#/$defs/__schema44"
+        },
+        "apiMode": {
+          "title": "API Mode",
+          "description": "API provider mode for reasoning/thinking requests",
+          "$ref": "#/$defs/__schema45"
         }
       },
       "additionalProperties": false
     },
     "__schema42": {
       "type": "string",
-      "enum": ["low", "medium", "high", "xhigh"]
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
     },
     "__schema43": {
       "type": "boolean"
@@ -535,13 +564,29 @@
     },
     "__schema45": {
       "type": "string",
-      "enum": ["low", "medium", "high", "xhigh"]
+      "enum": [
+        "openai",
+        "anthropic"
+      ]
     },
     "__schema46": {
       "type": "string",
-      "enum": ["low", "medium", "high"]
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
     },
     "__schema47": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "__schema48": {
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -550,22 +595,22 @@
         "default": false,
         "title": "Tool",
         "description": "Tool enabled state",
-        "$ref": "#/$defs/__schema48"
+        "$ref": "#/$defs/__schema49"
       }
     },
-    "__schema48": {
-      "type": "boolean"
-    },
     "__schema49": {
-      "type": "string"
+      "type": "boolean"
     },
     "__schema50": {
-      "type": "boolean"
+      "type": "string"
     },
     "__schema51": {
-      "$ref": "#/$defs/__schema14"
+      "type": "boolean"
     },
     "__schema52": {
+      "$ref": "#/$defs/__schema14"
+    },
+    "__schema53": {
       "type": "string"
     }
   }
