@@ -1,12 +1,14 @@
 import { join } from "node:path";
-import { getBackupDatabaseUrlFromEnv } from "@lite-llm/config/server";
 import type { BackupConfig, CliOptions } from "../types/backup";
 import { createTimestamp } from "../utils/create-timestamp";
 import { extractDbName } from "../utils/extract-db-name";
 import { extractHost } from "../utils/extract-host";
 
 export function buildBackupConfig(options: CliOptions): BackupConfig {
-  const databaseUrl = getBackupDatabaseUrlFromEnv();
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is required for database backup");
+  }
   const retentionDays =
     parseInt(process.env.RETENTION_DAYS ?? "", 10) || options.retention;
   const backupDir = process.env.BACKUP_DIR ?? options.outputDir;

@@ -5,8 +5,6 @@ import { WebSocket, WebSocketServer as WsServer } from "ws";
 type MessageType =
   | "health_check_update"
   | "connected"
-  | "prompt_eval_run_update"
-  | "prompt_eval_run_completed"
   | "request_health_check"
   | "health_check_rejected"
   | AutomaticInteractionWsEventType;
