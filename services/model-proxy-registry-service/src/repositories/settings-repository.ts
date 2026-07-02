@@ -1,10 +1,12 @@
-import type { Prisma, PrismaClient } from "@lite-llm/model-proxy-repository";
+import { db as drizzleDb } from "@lite-llm/database/client";
+import { modelProxySettings } from "@lite-llm/database/schema";
+import { asc, eq } from "drizzle-orm";
 import type { ModelProxySettingRecord } from "../types/settings.js";
 
 function toRecord(row: {
   id: string;
   key: string;
-  value: Prisma.JsonValue;
+  value: unknown;
   createdAt: Date;
   updatedAt: Date;
 }): ModelProxySettingRecord {
@@ -18,51 +20,49 @@ function toRecord(row: {
 }
 
 export class SettingsRepository {
-  private readonly prisma: PrismaClient;
+  private readonly db: typeof drizzleDb;
 
-  constructor(prisma: PrismaClient) {
-    this.prisma = prisma;
+  constructor(db: typeof drizzleDb) {
+    this.db = db;
   }
 
   async findByKey(key: string): Promise<ModelProxySettingRecord | null> {
-    const row = await this.prisma.modelProxySetting.findUnique({
-      where: { key },
-    });
+    const [row] = await this.db
+      .select()
+      .from(modelProxySettings)
+      .where(eq(modelProxySettings.key, key))
+      .limit(1);
     return row ? toRecord(row) : null;
   }
 
   async list(): Promise<ModelProxySettingRecord[]> {
-    const rows = await this.prisma.modelProxySetting.findMany({
-      orderBy: { key: "asc" },
-    });
+    const rows = await this.db
+      .select()
+      .from(modelProxySettings)
+      .orderBy(asc(modelProxySettings.key));
     return rows.map(toRecord);
   }
 
   async upsert(
     key: string,
-    value: Prisma.InputJsonValue,
+    value: unknown,
   ): Promise<ModelProxySettingRecord> {
-    const row = await this.prisma.modelProxySetting.upsert({
-      where: { key },
-      create: { key, value },
-      update: { value },
-    });
+    const [row] = await this.db
+      .insert(modelProxySettings)
+      .values({ key, value: value as never })
+      .onConflictDoUpdate({
+        target: modelProxySettings.key,
+        set: { value: value as never, updatedAt: new Date() },
+      })
+      .returning();
     return toRecord(row);
   }
 
   async deleteByKey(key: string): Promise<boolean> {
-    try {
-      await this.prisma.modelProxySetting.delete({ where: { key } });
-      return true;
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        (error as { code?: string }).code === "P2025"
-      ) {
-        return false;
-      }
-      throw error;
-    }
+    const [deleted] = await this.db
+      .delete(modelProxySettings)
+      .where(eq(modelProxySettings.key, key))
+      .returning({ id: modelProxySettings.id });
+    return !!deleted;
   }
 }

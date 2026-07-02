@@ -2,14 +2,15 @@ import {
   fromModelProxyRow,
   toModelRoute,
 } from "@lite-llm/model-proxy-registry-service";
-import type { ModelProxyModel, Prisma } from "@lite-llm/model-proxy-repository";
-import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
+import { db } from "@lite-llm/database/client";
+import { modelProxyModels, modelProxyProviders, modelProxySettings } from "@lite-llm/database/schema/model-proxy";
+import { eq, asc } from "drizzle-orm";
 import type { ModelDetail, ModelEntry, RegistryProvider } from "../types/index";
 
 const DEFAULT_PROVIDER_KEY = "default_provider";
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
 
-function prismaModelToRoute(row: ModelProxyModel) {
+function prismaModelToRoute(row: typeof modelProxyModels.$inferSelect) {
   return fromModelProxyRow({
     id: row.id,
     modelName: row.modelName,
@@ -57,20 +58,17 @@ function routeToCreateData(route: ReturnType<typeof prismaModelToRoute>) {
     secretRef: route.secretRef,
     requestOptions:
       route.requestOptions !== undefined
-        ? (route.requestOptions as Prisma.InputJsonValue)
+        ? (route.requestOptions as Record<string, unknown>)
         : undefined,
     metadata:
       route.metadata !== undefined
-        ? (route.metadata as Prisma.InputJsonValue)
+        ? (route.metadata as Record<string, unknown>)
         : undefined,
   };
 }
 
 export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
-  const prisma = getModelProxyPrisma();
-  const rows = await prisma.modelProxyModel.findMany({
-    orderBy: { modelName: "asc" },
-  });
+  const rows = await db.select().from(modelProxyModels).orderBy(asc(modelProxyModels.modelName));
   return rows.map((row) => ({
     modelName: row.modelName,
     modelRoute: prismaModelToRoute(row) as unknown as Record<string, unknown>,
@@ -78,10 +76,7 @@ export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
 }
 
 export async function getRegistryModelDetailsImpl(): Promise<ModelDetail[]> {
-  const prisma = getModelProxyPrisma();
-  const rows = await prisma.modelProxyModel.findMany({
-    orderBy: { modelName: "asc" },
-  });
+  const rows = await db.select().from(modelProxyModels).orderBy(asc(modelProxyModels.modelName));
   return rows.map((row) => ({
     model_name: row.modelName,
     input_cost_per_token:
@@ -95,15 +90,12 @@ export async function createRegistryModelImpl(model: {
   modelName: string;
   modelRoute?: Record<string, unknown>;
 }): Promise<void> {
-  const prisma = getModelProxyPrisma();
   const route: ReturnType<typeof prismaModelToRoute> = model.modelRoute
     ? ({ modelName: model.modelName, ...model.modelRoute } as ReturnType<
         typeof prismaModelToRoute
       >)
     : toModelRoute({}, model.modelName);
-  await prisma.modelProxyModel.create({
-    data: routeToCreateData(route),
-  });
+  await db.insert(modelProxyModels).values(routeToCreateData(route));
 }
 
 export async function updateRegistryModelImpl(
@@ -113,7 +105,6 @@ export async function updateRegistryModelImpl(
     modelName?: string;
   },
 ): Promise<void> {
-  const prisma = getModelProxyPrisma();
   const targetName = updates.modelName ?? modelName;
   const route = updates.modelRoute
     ? ({
@@ -123,18 +114,14 @@ export async function updateRegistryModelImpl(
     : null;
 
   if (targetName !== modelName) {
-    const existing = await prisma.modelProxyModel.findFirst({
-      where: { modelName },
-    });
+    const [existing] = await db.select().from(modelProxyModels).where(eq(modelProxyModels.modelName, modelName)).limit(1);
     if (!existing) {
       throw new Error(`Model "${modelName}" not found`);
     }
     const existingRoute = prismaModelToRoute(existing);
     const mergedRoute = route ?? existingRoute;
-    await prisma.modelProxyModel.delete({ where: { id: existing.id } });
-    await prisma.modelProxyModel.create({
-      data: routeToCreateData({ ...mergedRoute, modelName: targetName }),
-    });
+    await db.delete(modelProxyModels).where(eq(modelProxyModels.id, existing.id));
+    await db.insert(modelProxyModels).values(routeToCreateData({ ...mergedRoute, modelName: targetName }));
     return;
   }
 
@@ -142,36 +129,25 @@ export async function updateRegistryModelImpl(
     return;
   }
 
-  const existing = await prisma.modelProxyModel.findFirst({
-    where: { modelName },
-  });
+  const [existing] = await db.select().from(modelProxyModels).where(eq(modelProxyModels.modelName, modelName)).limit(1);
   if (!existing) {
     throw new Error(`Model "${modelName}" not found`);
   }
-  const updated = await prisma.modelProxyModel.update({
-    where: { id: existing.id },
-    data: routeToCreateData(route),
-  });
+  await db.update(modelProxyModels).set(routeToCreateData(route)).where(eq(modelProxyModels.id, existing.id));
 }
 
 export async function deleteRegistryModelImpl(
   modelName: string,
 ): Promise<void> {
-  const prisma = getModelProxyPrisma();
-  const existing = await prisma.modelProxyModel.findFirst({
-    where: { modelName },
-  });
+  const [existing] = await db.select().from(modelProxyModels).where(eq(modelProxyModels.modelName, modelName)).limit(1);
   if (!existing) {
     throw new Error(`Model "${modelName}" not found`);
   }
-  await prisma.modelProxyModel.delete({ where: { id: existing.id } });
+  await db.delete(modelProxyModels).where(eq(modelProxyModels.id, existing.id));
 }
 
 export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
-  const prisma = getModelProxyPrisma();
-  const rows = await prisma.modelProxyProvider.findMany({
-    orderBy: { name: "asc" },
-  });
+  const rows = await db.select().from(modelProxyProviders).orderBy(asc(modelProxyProviders.name));
   return rows.map((record) => ({
     providerId: record.id,
     providerName: record.name,
@@ -190,10 +166,7 @@ export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
 }
 
 export async function getRegistryDefaultProviderImpl(): Promise<string | null> {
-  const prisma = getModelProxyPrisma();
-  const row = await prisma.modelProxySetting.findUnique({
-    where: { key: DEFAULT_PROVIDER_KEY },
-  });
+  const [row] = await db.select().from(modelProxySettings).where(eq(modelProxySettings.key, DEFAULT_PROVIDER_KEY)).limit(1);
   if (
     !row?.value ||
     typeof row.value !== "object" ||
@@ -210,32 +183,23 @@ export async function getRegistryDefaultProviderImpl(): Promise<string | null> {
 export async function setRegistryDefaultProviderImpl(
   providerAlias: string | null,
 ): Promise<void> {
-  const prisma = getModelProxyPrisma();
   if (providerAlias === null || providerAlias.trim() === "") {
-    await prisma.modelProxySetting.deleteMany({
-      where: { key: DEFAULT_PROVIDER_KEY },
-    });
+    await db.delete(modelProxySettings).where(eq(modelProxySettings.key, DEFAULT_PROVIDER_KEY));
     return;
   }
-  await prisma.modelProxySetting.upsert({
-    where: { key: DEFAULT_PROVIDER_KEY },
-    create: {
-      key: DEFAULT_PROVIDER_KEY,
-      value: { default_provider: providerAlias.trim() },
-    },
-    update: {
-      value: { default_provider: providerAlias.trim() },
-    },
+  await db.insert(modelProxySettings).values({
+    key: DEFAULT_PROVIDER_KEY,
+    value: { default_provider: providerAlias.trim() },
+  }).onConflictDoUpdate({
+    target: modelProxySettings.key,
+    set: { value: { default_provider: providerAlias.trim() } },
   });
 }
 
 export async function getRegistryHealthCheckPromptImpl(): Promise<
   string | null
 > {
-  const prisma = getModelProxyPrisma();
-  const row = await prisma.modelProxySetting.findUnique({
-    where: { key: HEALTH_CHECK_PROMPT_KEY },
-  });
+  const [row] = await db.select().from(modelProxySettings).where(eq(modelProxySettings.key, HEALTH_CHECK_PROMPT_KEY)).limit(1);
   if (
     !row?.value ||
     typeof row.value !== "object" ||

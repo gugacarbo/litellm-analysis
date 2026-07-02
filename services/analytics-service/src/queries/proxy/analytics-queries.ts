@@ -1,5 +1,6 @@
 import type { TimeRangeParams } from "../../types/index";
-import { getModelProxyPrisma } from "./client";
+import { db, queryRaw } from "@lite-llm/database/client";
+import { sql } from "drizzle-orm";
 import {
   adjustedInputTokensSql,
   adjustedOutputTokensSql,
@@ -24,7 +25,6 @@ export async function getMetricsSummary(params: TimeRangeParams = {}) {
       : getProxyTimeRangeFilterWhere({ days: normalizedDays });
   const errorTimeFilter = timeFilter;
 
-  const prisma = getModelProxyPrisma();
   const summaryWhere = timeFilter
     ? `WHERE ${prefixProxyRequestColumns(timeFilter)}`
     : "";
@@ -33,32 +33,36 @@ export async function getMetricsSummary(params: TimeRangeParams = {}) {
     : `WHERE ${prefixProxyRequestColumns(getProxyErrorFilter())}`;
 
   const [spendResult, errorResult] = await Promise.all([
-    prisma.$queryRawUnsafe<
-      Array<{
-        totalSpend: number;
-        totalTokens: number;
-        activeModels: number;
-        promptTokens: number;
-        completionTokens: number;
-        cachedTokens: number;
-      }>
-    >(`
-      SELECT
-        COALESCE(SUM(${adjustedTotalCostSql("r")}), 0)::float as "totalSpend",
-        COALESCE(SUM(${adjustedTotalTokensSql("r")}), 0)::float as "totalTokens",
-        COUNT(DISTINCT r."model")::float as "activeModels",
-        COALESCE(SUM(${adjustedInputTokensSql("r")}), 0)::float as "promptTokens",
-        COALESCE(SUM(${adjustedOutputTokensSql("r")}), 0)::float as "completionTokens",
-        COALESCE(SUM(r."cached_tokens"), 0)::float as "cachedTokens"
-      FROM "${PROXY_REQUESTS_TABLE}" r
-      ${proxyAdjustmentsJoin("r")}
-      ${summaryWhere}
-    `),
-    prisma.$queryRawUnsafe<Array<{ errorCount: number }>>(`
-      SELECT COUNT(*)::float as "errorCount"
-      FROM "${PROXY_REQUESTS_TABLE}" r
-      ${errorWhere}
-    `),
+    queryRaw<{
+      totalSpend: number;
+      totalTokens: number;
+      activeModels: number;
+      promptTokens: number;
+      completionTokens: number;
+      cachedTokens: number;
+    }>(
+      sql.raw(`
+        SELECT
+          COALESCE(SUM(${adjustedTotalCostSql("r")}), 0)::float as "totalSpend",
+          COALESCE(SUM(${adjustedTotalTokensSql("r")}), 0)::float as "totalTokens",
+          COUNT(DISTINCT r."model")::float as "activeModels",
+          COALESCE(SUM(${adjustedInputTokensSql("r")}), 0)::float as "promptTokens",
+          COALESCE(SUM(${adjustedOutputTokensSql("r")}), 0)::float as "completionTokens",
+          COALESCE(SUM(r."cached_tokens"), 0)::float as "cachedTokens"
+        FROM "${PROXY_REQUESTS_TABLE}" r
+        ${proxyAdjustmentsJoin("r")}
+        ${summaryWhere}
+      `),
+      [],
+    ),
+    queryRaw<{ errorCount: number }>(
+      sql.raw(`
+        SELECT COUNT(*)::float as "errorCount"
+        FROM "${PROXY_REQUESTS_TABLE}" r
+        ${errorWhere}
+      `),
+      [],
+    ),
   ]);
 
   const summary = spendResult[0];
@@ -86,15 +90,7 @@ export async function getPerformanceMetrics(params: TimeRangeParams = {}) {
     `"latency_ms" >= 100`,
   ]);
 
-  const prisma = getModelProxyPrisma();
-  const result = await prisma.$queryRawUnsafe<
-    Array<{
-      total_requests: number;
-      avg_duration_ms: number;
-      success_rate: number;
-      avg_tokens_per_second: number;
-    }>
-  >(`
+  const query = sql.raw(`
     SELECT
       COUNT(*)::float as "total_requests",
       AVG("latency_ms")::float as "avg_duration_ms",
@@ -103,6 +99,12 @@ export async function getPerformanceMetrics(params: TimeRangeParams = {}) {
     FROM "${PROXY_REQUESTS_TABLE}"
     ${where}
   `);
+  const result = await queryRaw<{
+    total_requests: number;
+    avg_duration_ms: number;
+    success_rate: number;
+    avg_tokens_per_second: number;
+  }>(query, []);
 
   return (
     result[0] || {
@@ -123,33 +125,33 @@ export async function getCostEfficiency(params: TimeRangeParams = {}) {
     prefixProxyRequestColumns(proxyTimeCondition(timeParams)),
   ]);
 
-  const prisma = getModelProxyPrisma();
-  const result = await prisma.$queryRawUnsafe<
-    Array<{
-      model: string;
-      total_spend: number;
-      total_tokens: number;
-      cost_per_1k_tokens: number;
-      request_count: number;
-    }>
-  >(`
-    SELECT
-      r."model",
-      SUM(${adjustedTotalCostSql("r")})::float as "total_spend",
-      SUM(${adjustedTotalTokensSql("r")})::float as "total_tokens",
-      CASE
-        WHEN SUM(${adjustedTotalTokensSql("r")}) > 0
-        THEN SUM(${adjustedTotalCostSql("r")}) / SUM(${adjustedTotalTokensSql("r")}) * 1000
-        ELSE 0
-      END::float as "cost_per_1k_tokens",
-      COUNT(*)::float as "request_count"
-    FROM "${PROXY_REQUESTS_TABLE}" r
-    ${proxyAdjustmentsJoin("r")}
-    ${where}
-    GROUP BY r."model"
-    ORDER BY SUM(${adjustedTotalCostSql("r")}) DESC
-    LIMIT 20
-  `);
+  const result = await queryRaw<{
+    model: string;
+    total_spend: number;
+    total_tokens: number;
+    cost_per_1k_tokens: number;
+    request_count: number;
+  }>(
+    sql.raw(`
+      SELECT
+        r."model",
+        SUM(${adjustedTotalCostSql("r")})::float as "total_spend",
+        SUM(${adjustedTotalTokensSql("r")})::float as "total_tokens",
+        CASE
+          WHEN SUM(${adjustedTotalTokensSql("r")}) > 0
+          THEN SUM(${adjustedTotalCostSql("r")}) / SUM(${adjustedTotalTokensSql("r")}) * 1000
+          ELSE 0
+        END::float as "cost_per_1k_tokens",
+        COUNT(*)::float as "request_count"
+      FROM "${PROXY_REQUESTS_TABLE}" r
+      ${proxyAdjustmentsJoin("r")}
+      ${where}
+      GROUP BY r."model"
+      ORDER BY SUM(${adjustedTotalCostSql("r")}) DESC
+      LIMIT 20
+    `),
+    [],
+  );
 
   return result;
 }

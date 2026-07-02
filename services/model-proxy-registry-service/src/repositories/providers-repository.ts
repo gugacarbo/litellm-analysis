@@ -1,4 +1,6 @@
-import type { PrismaClient } from "@lite-llm/model-proxy-repository";
+import { db as drizzleDb } from "@lite-llm/database/client";
+import { modelProxyProviders } from "@lite-llm/database/schema";
+import { asc, eq } from "drizzle-orm";
 import type { ProviderRecord } from "../types/providers.js";
 
 function toRecord(row: {
@@ -41,36 +43,40 @@ export interface LegacyProviderImportData {
 export type LegacyProviderImportOutcome = "inserted" | "updated" | "skipped";
 
 export class ProvidersRepository {
-  private readonly prisma: PrismaClient;
+  private readonly db: typeof drizzleDb;
 
-  constructor(prisma: PrismaClient) {
-    this.prisma = prisma;
+  constructor(db: typeof drizzleDb) {
+    this.db = db;
   }
 
   async findByName(name: string): Promise<ProviderRecord | null> {
-    const row = await this.prisma.modelProxyProvider.findUnique({
-      where: { name },
-    });
+    const [row] = await this.db
+      .select()
+      .from(modelProxyProviders)
+      .where(eq(modelProxyProviders.name, name))
+      .limit(1);
     return row ? toRecord(row) : null;
   }
 
   async list(): Promise<ProviderRecord[]> {
-    const rows = await this.prisma.modelProxyProvider.findMany({
-      orderBy: { name: "asc" },
-    });
+    const rows = await this.db
+      .select()
+      .from(modelProxyProviders)
+      .orderBy(asc(modelProxyProviders.name));
     return rows.map(toRecord);
   }
 
   async create(data: ProviderWriteData): Promise<ProviderRecord> {
-    const row = await this.prisma.modelProxyProvider.create({
-      data: {
+    const [row] = await this.db
+      .insert(modelProxyProviders)
+      .values({
         name: data.name,
         provider: data.provider ?? null,
         baseUrl: data.baseUrl ?? null,
         apiKey: data.apiKey ?? null,
         secretRef: data.secretRef ?? null,
-      },
-    });
+      })
+      .returning();
     return toRecord(row);
   }
 
@@ -78,46 +84,36 @@ export class ProvidersRepository {
     name: string,
     data: Partial<ProviderWriteData>,
   ): Promise<ProviderRecord | null> {
-    try {
-      const row = await this.prisma.modelProxyProvider.update({
-        where: { name },
-        data: {
-          ...(data.name !== undefined ? { name: data.name } : {}),
-          ...(data.provider !== undefined ? { provider: data.provider } : {}),
-          ...(data.baseUrl !== undefined ? { baseUrl: data.baseUrl } : {}),
-          ...(data.apiKey !== undefined ? { apiKey: data.apiKey } : {}),
-          ...(data.secretRef !== undefined
-            ? { secretRef: data.secretRef }
-            : {}),
-        },
-      });
-      return toRecord(row);
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        (error as { code?: string }).code === "P2025"
-      ) {
-        return null;
-      }
-      throw error;
+    const [existing] = await this.db
+      .select()
+      .from(modelProxyProviders)
+      .where(eq(modelProxyProviders.name, name))
+      .limit(1);
+    if (!existing) {
+      return null;
     }
+
+    const setData: Record<string, unknown> = { updatedAt: new Date() };
+    if (data.name !== undefined) setData.name = data.name;
+    if (data.provider !== undefined) setData.provider = data.provider;
+    if (data.baseUrl !== undefined) setData.baseUrl = data.baseUrl;
+    if (data.apiKey !== undefined) setData.apiKey = data.apiKey;
+    if (data.secretRef !== undefined) setData.secretRef = data.secretRef;
+
+    const [row] = await this.db
+      .update(modelProxyProviders)
+      .set(setData as never)
+      .where(eq(modelProxyProviders.name, name))
+      .returning();
+    return toRecord(row);
   }
 
   async delete(name: string): Promise<boolean> {
-    try {
-      await this.prisma.modelProxyProvider.delete({ where: { name } });
-      return true;
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        (error as { code?: string }).code === "P2025"
-      ) {
-        return false;
-      }
-      throw error;
-    }
+    const [deleted] = await this.db
+      .delete(modelProxyProviders)
+      .where(eq(modelProxyProviders.name, name))
+      .returning({ id: modelProxyProviders.id });
+    return !!deleted;
   }
 
   async previewLegacyImport(
@@ -142,30 +138,32 @@ export class ProvidersRepository {
     }
 
     if (existing) {
-      await this.prisma.modelProxyProvider.update({
-        where: { name: data.name },
-        data: {
-          provider: data.provider,
-          baseUrl: data.baseUrl,
-          secretRef: data.secretRef,
-          ...(options.allowLegacyApiKey && options.apiKey !== undefined
-            ? { apiKey: options.apiKey }
-            : {}),
-        },
-      });
+      const setData: Record<string, unknown> = {
+        provider: data.provider,
+        baseUrl: data.baseUrl,
+        secretRef: data.secretRef,
+        updatedAt: new Date(),
+      };
+      if (options.allowLegacyApiKey && options.apiKey !== undefined) {
+        setData.apiKey = options.apiKey;
+      }
+      await this.db
+        .update(modelProxyProviders)
+        .set(setData as never)
+        .where(eq(modelProxyProviders.name, data.name));
       return "updated";
     }
 
-    await this.prisma.modelProxyProvider.create({
-      data: {
+    await this.db
+      .insert(modelProxyProviders)
+      .values({
         name: data.name,
         provider: data.provider,
         baseUrl: data.baseUrl,
         secretRef: data.secretRef,
         apiKey:
           options.allowLegacyApiKey && options.apiKey ? options.apiKey : null,
-      },
-    });
+      });
     return "inserted";
   }
 }

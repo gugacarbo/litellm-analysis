@@ -1,15 +1,34 @@
-import type {
-  ModelProxyModel,
-  Prisma,
-  PrismaClient,
-} from "@lite-llm/model-proxy-repository";
+import { db as drizzleDb } from "@lite-llm/database/client";
+import { modelProxyModels } from "@lite-llm/database/schema";
+import { asc, eq } from "drizzle-orm";
 import type {
   ModelProxyModelRecord,
   ModelRoute,
   ModelRouteUpdate,
 } from "../types/model-route.js";
 
-function toModelProxyModelRecord(row: ModelProxyModel): ModelProxyModelRecord {
+function toModelProxyModelRecord(row: {
+  id: string;
+  modelName: string;
+  enabled: boolean;
+  displayName: string | null;
+  family: string | null;
+  ownedBy: string | null;
+  apiMode: string | null;
+  vision: boolean | null;
+  contextWindowSize: number | null;
+  maxOutputTokens: number | null;
+  inputCostPerToken: number | null;
+  outputCostPerToken: number | null;
+  upstreamModel: string | null;
+  upstreamBaseUrl: string | null;
+  providerName: string | null;
+  secretRef: string | null;
+  requestOptions: unknown;
+  metadata: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+}): ModelProxyModelRecord {
   return {
     id: row.id,
     modelName: row.modelName,
@@ -62,61 +81,43 @@ export function toModelRoute(record: ModelProxyModelRecord): ModelRoute {
   };
 }
 
-function toPrismaModelData(
+function toModelUpdateData(
   route: ModelRouteUpdate,
-): Prisma.ModelProxyModelUpdateInput {
-  const data: Prisma.ModelProxyModelUpdateInput = {
-    ...(route.enabled !== undefined ? { enabled: route.enabled } : {}),
-    ...(route.displayName !== undefined
-      ? { displayName: route.displayName }
-      : {}),
-    ...(route.family !== undefined ? { family: route.family } : {}),
-    ...(route.ownedBy !== undefined ? { ownedBy: route.ownedBy } : {}),
-    ...(route.apiMode !== undefined ? { apiMode: route.apiMode } : {}),
-    ...(route.vision !== undefined ? { vision: route.vision } : {}),
-    ...(route.contextWindowSize !== undefined
-      ? { contextWindowSize: route.contextWindowSize }
-      : {}),
-    ...(route.maxOutputTokens !== undefined
-      ? { maxOutputTokens: route.maxOutputTokens }
-      : {}),
-    ...(route.inputCostPerToken !== undefined
-      ? { inputCostPerToken: route.inputCostPerToken }
-      : {}),
-    ...(route.outputCostPerToken !== undefined
-      ? { outputCostPerToken: route.outputCostPerToken }
-      : {}),
-    ...(route.upstreamModel !== undefined
-      ? { upstreamModel: route.upstreamModel }
-      : {}),
-    ...(route.upstreamBaseUrl !== undefined
-      ? { upstreamBaseUrl: route.upstreamBaseUrl }
-      : {}),
-    ...(route.secretRef !== undefined ? { secretRef: route.secretRef } : {}),
-    ...(route.requestOptions !== undefined
-      ? { requestOptions: route.requestOptions as Prisma.InputJsonValue }
-      : {}),
-    ...(route.metadata !== undefined
-      ? { metadata: route.metadata as Prisma.InputJsonValue }
-      : {}),
-  };
+): Record<string, unknown> {
+  const data: Record<string, unknown> = {};
 
-  if (route.providerName !== undefined) {
-    if (route.providerName === null) {
-      data.provider = { disconnect: true };
-    } else {
-      data.provider = { connect: { name: route.providerName } };
-    }
-  }
+  if (route.enabled !== undefined) data.enabled = route.enabled;
+  if (route.displayName !== undefined) data.displayName = route.displayName;
+  if (route.family !== undefined) data.family = route.family;
+  if (route.ownedBy !== undefined) data.ownedBy = route.ownedBy;
+  if (route.apiMode !== undefined) data.apiMode = route.apiMode;
+  if (route.vision !== undefined) data.vision = route.vision;
+  if (route.contextWindowSize !== undefined)
+    data.contextWindowSize = route.contextWindowSize;
+  if (route.maxOutputTokens !== undefined)
+    data.maxOutputTokens = route.maxOutputTokens;
+  if (route.inputCostPerToken !== undefined)
+    data.inputCostPerToken = route.inputCostPerToken;
+  if (route.outputCostPerToken !== undefined)
+    data.outputCostPerToken = route.outputCostPerToken;
+  if (route.upstreamModel !== undefined)
+    data.upstreamModel = route.upstreamModel;
+  if (route.upstreamBaseUrl !== undefined)
+    data.upstreamBaseUrl = route.upstreamBaseUrl;
+  if (route.secretRef !== undefined) data.secretRef = route.secretRef;
+  if (route.requestOptions !== undefined)
+    data.requestOptions = route.requestOptions;
+  if (route.metadata !== undefined) data.metadata = route.metadata;
+  if (route.providerName !== undefined) data.providerName = route.providerName;
 
   return data;
 }
 
-function toPrismaModelCreate(
+function toModelCreateData(
   modelName: string,
   route: ModelRouteUpdate = {},
-): Prisma.ModelProxyModelCreateInput {
-  const data: Prisma.ModelProxyModelCreateInput = {
+): Record<string, unknown> {
+  return {
     modelName,
     enabled: route.enabled ?? true,
     displayName: route.displayName ?? null,
@@ -131,23 +132,10 @@ function toPrismaModelCreate(
     upstreamModel: route.upstreamModel ?? null,
     upstreamBaseUrl: route.upstreamBaseUrl ?? null,
     secretRef: route.secretRef ?? null,
-    ...(route.requestOptions !== undefined
-      ? {
-          requestOptions: route.requestOptions as Prisma.InputJsonValue,
-        }
-      : {}),
-    ...(route.metadata !== undefined
-      ? {
-          metadata: route.metadata as Prisma.InputJsonValue,
-        }
-      : {}),
+    requestOptions: route.requestOptions ?? null,
+    metadata: route.metadata ?? null,
+    providerName: route.providerName ?? null,
   };
-
-  if (route.providerName) {
-    data.provider = { connect: { name: route.providerName } };
-  }
-
-  return data;
 }
 
 export interface ModelsListOptions {
@@ -155,28 +143,35 @@ export interface ModelsListOptions {
 }
 
 export class ModelsRepository {
-  private readonly prisma: PrismaClient;
+  private readonly db: typeof drizzleDb;
 
-  constructor(prisma: PrismaClient) {
-    this.prisma = prisma;
+  constructor(db: typeof drizzleDb) {
+    this.db = db;
   }
 
   async findByModelName(
     modelName: string,
   ): Promise<ModelProxyModelRecord | null> {
-    const row = await this.prisma.modelProxyModel.findFirst({
-      where: { modelName },
-    });
+    const [row] = await this.db
+      .select()
+      .from(modelProxyModels)
+      .where(eq(modelProxyModels.modelName, modelName))
+      .limit(1);
     return row ? toModelProxyModelRecord(row) : null;
   }
 
   async list(
     options: ModelsListOptions = {},
   ): Promise<ModelProxyModelRecord[]> {
-    const rows = await this.prisma.modelProxyModel.findMany({
-      where: options.enabledOnly ? { enabled: true } : undefined,
-      orderBy: { modelName: "asc" },
-    });
+    const rows = await this.db
+      .select()
+      .from(modelProxyModels)
+      .where(
+        options.enabledOnly
+          ? eq(modelProxyModels.enabled, true)
+          : undefined,
+      )
+      .orderBy(asc(modelProxyModels.modelName));
     return rows.map(toModelProxyModelRecord);
   }
 
@@ -184,9 +179,10 @@ export class ModelsRepository {
     modelName: string,
     route: ModelRouteUpdate = {},
   ): Promise<ModelProxyModelRecord> {
-    const row = await this.prisma.modelProxyModel.create({
-      data: toPrismaModelCreate(modelName, route),
-    });
+    const [row] = await this.db
+      .insert(modelProxyModels)
+      .values(toModelCreateData(modelName, route) as never)
+      .returning();
     return toModelProxyModelRecord(row);
   }
 
@@ -194,16 +190,19 @@ export class ModelsRepository {
     modelName: string,
     route: ModelRouteUpdate,
   ): Promise<ModelProxyModelRecord | null> {
-    const existing = await this.prisma.modelProxyModel.findFirst({
-      where: { modelName },
-    });
+    const [existing] = await this.db
+      .select()
+      .from(modelProxyModels)
+      .where(eq(modelProxyModels.modelName, modelName))
+      .limit(1);
     if (!existing) {
       return null;
     }
-    const row = await this.prisma.modelProxyModel.update({
-      where: { id: existing.id },
-      data: toPrismaModelData(route),
-    });
+    const [row] = await this.db
+      .update(modelProxyModels)
+      .set({ ...toModelUpdateData(route), updatedAt: new Date() } as never)
+      .where(eq(modelProxyModels.id, existing.id))
+      .returning();
     return toModelProxyModelRecord(row);
   }
 
@@ -211,19 +210,23 @@ export class ModelsRepository {
     modelName: string,
     route: ModelRouteUpdate = {},
   ): Promise<ModelProxyModelRecord> {
-    const existing = await this.prisma.modelProxyModel.findFirst({
-      where: { modelName },
-    });
+    const [existing] = await this.db
+      .select()
+      .from(modelProxyModels)
+      .where(eq(modelProxyModels.modelName, modelName))
+      .limit(1);
     if (existing) {
-      const row = await this.prisma.modelProxyModel.update({
-        where: { id: existing.id },
-        data: toPrismaModelData(route),
-      });
+      const [row] = await this.db
+        .update(modelProxyModels)
+        .set({ ...toModelUpdateData(route), updatedAt: new Date() } as never)
+        .where(eq(modelProxyModels.id, existing.id))
+        .returning();
       return toModelProxyModelRecord(row);
     }
-    const row = await this.prisma.modelProxyModel.create({
-      data: toPrismaModelCreate(modelName, route),
-    });
+    const [row] = await this.db
+      .insert(modelProxyModels)
+      .values(toModelCreateData(modelName, route) as never)
+      .returning();
     return toModelProxyModelRecord(row);
   }
 
@@ -235,13 +238,17 @@ export class ModelsRepository {
   }
 
   async delete(modelName: string): Promise<boolean> {
-    const existing = await this.prisma.modelProxyModel.findFirst({
-      where: { modelName },
-    });
+    const [existing] = await this.db
+      .select()
+      .from(modelProxyModels)
+      .where(eq(modelProxyModels.modelName, modelName))
+      .limit(1);
     if (!existing) {
       return false;
     }
-    await this.prisma.modelProxyModel.delete({ where: { id: existing.id } });
+    await this.db
+      .delete(modelProxyModels)
+      .where(eq(modelProxyModels.id, existing.id));
     return true;
   }
 }

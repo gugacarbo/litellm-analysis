@@ -1,5 +1,7 @@
 import type { TimeRangeParams } from "../../types/index";
-import { getModelProxyPrisma } from "./client";
+import { db, queryRaw } from "@lite-llm/database/client";
+import { sql, eq } from "drizzle-orm";
+import { modelProxyRequests } from "@lite-llm/database/schema/model-proxy";
 import {
   buildProxyWhereClause,
   combineProxyConditions,
@@ -25,62 +27,59 @@ export async function getModelStatistics(params: TimeRangeParams = {}) {
     `"finished_at" IS NOT NULL`,
     `"latency_ms" >= 100`,
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(`
-    SELECT
-      "model",
-      COUNT(*)::float as "request_count",
-      SUM("total_cost")::float as "total_spend",
-      SUM("total_tokens")::float as "total_tokens",
-      SUM("input_tokens")::float as "prompt_tokens",
-      SUM("output_tokens")::float as "completion_tokens",
-      AVG("total_tokens")::float as "avg_tokens_per_request",
-      AVG("latency_ms")::float as "avg_latency_ms",
-      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
-      SUM(CASE WHEN "status" != 'success' THEN 1 ELSE 0 END)::float as "error_count",
-      AVG(CASE WHEN "input_tokens" > 0 THEN "total_cost" * "input_tokens"::float / NULLIF("total_tokens", 0) ELSE 0 END)::float as "avg_input_cost",
-      AVG(CASE WHEN "output_tokens" > 0 THEN "total_cost" * "output_tokens"::float / NULLIF("total_tokens", 0) ELSE 0 END)::float as "avg_output_cost",
-      PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY "latency_ms")::float as "p50_latency_ms",
-      PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY "latency_ms")::float as "p95_latency_ms",
-      PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY "latency_ms")::float as "p99_latency_ms",
-      MIN("${PROXY_TIME_COLUMN}") as "first_seen",
-      MAX("${PROXY_TIME_COLUMN}") as "last_seen",
-      COUNT(DISTINCT NULLIF(BTRIM("end_user"), ''))::float as "unique_users",
-      COUNT(DISTINCT NULLIF(BTRIM("api_key_alias"), ''))::float as "unique_api_keys",
-      AVG(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "avg_tokens_per_second",
-      PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "p50_tokens_per_second",
-      MAX(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "max_tokens_per_second"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY "model"
-    ORDER BY SUM("total_cost") DESC
-    LIMIT 50
-  `);
+  return queryRaw<Record<string, unknown>>(
+    sql.raw(`
+      SELECT
+        "model",
+        COUNT(*)::float as "request_count",
+        SUM("total_cost")::float as "total_spend",
+        SUM("total_tokens")::float as "total_tokens",
+        SUM("input_tokens")::float as "prompt_tokens",
+        SUM("output_tokens")::float as "completion_tokens",
+        AVG("total_tokens")::float as "avg_tokens_per_request",
+        AVG("latency_ms")::float as "avg_latency_ms",
+        (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
+        SUM(CASE WHEN "status" != 'success' THEN 1 ELSE 0 END)::float as "error_count",
+        AVG(CASE WHEN "input_tokens" > 0 THEN "total_cost" * "input_tokens"::float / NULLIF("total_tokens", 0) ELSE 0 END)::float as "avg_input_cost",
+        AVG(CASE WHEN "output_tokens" > 0 THEN "total_cost" * "output_tokens"::float / NULLIF("total_tokens", 0) ELSE 0 END)::float as "avg_output_cost",
+        PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY "latency_ms")::float as "p50_latency_ms",
+        PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY "latency_ms")::float as "p95_latency_ms",
+        PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY "latency_ms")::float as "p99_latency_ms",
+        MIN("${PROXY_TIME_COLUMN}") as "first_seen",
+        MAX("${PROXY_TIME_COLUMN}") as "last_seen",
+        COUNT(DISTINCT NULLIF(BTRIM("end_user"), ''))::float as "unique_users",
+        COUNT(DISTINCT NULLIF(BTRIM("api_key_alias"), ''))::float as "unique_api_keys",
+        AVG(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "avg_tokens_per_second",
+        PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "p50_tokens_per_second",
+        MAX(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "max_tokens_per_second"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY "model"
+      ORDER BY SUM("total_cost") DESC
+      LIMIT 50
+    `),
+    [],
+  );
 }
 
 export async function mergeModels(sourceModel: string, targetModel: string) {
-  const prisma = getModelProxyPrisma();
-  await prisma.modelProxyRequest.updateMany({
-    where: { model: sourceModel },
-    data: { model: targetModel },
-  });
+  await db.update(modelProxyRequests)
+    .set({ model: targetModel })
+    .where(eq(modelProxyRequests.model, sourceModel));
 }
 
 export async function deleteModelLogs(modelName: string) {
-  const prisma = getModelProxyPrisma();
-
   if (modelName.trim() === "") {
-    await prisma.$executeRawUnsafe(`
+    await db.execute(sql.raw(`
       DELETE FROM "${PROXY_REQUESTS_TABLE}"
       WHERE NULLIF(BTRIM("model"), '') IS NULL
-    `);
+    `));
     return;
   }
 
-  await prisma.modelProxyRequest.deleteMany({
-    where: { model: modelName },
-  });
+  await db.delete(modelProxyRequests)
+    .where(eq(modelProxyRequests.model, modelName));
 }
 
 export async function getDailySpendTrendByModel(model: string, days?: number) {
@@ -91,28 +90,28 @@ export async function getDailySpendTrendByModel(model: string, days?: number) {
     `"model" = '${model}'`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      date: string;
-      spend: number;
-      total_tokens: number;
-      request_count: number;
-      granularity: string;
-    }>
-  >(`
-    SELECT
-      ${sqlLabel} as "date",
-      SUM("total_cost")::float as "spend",
-      SUM("total_tokens")::float as "total_tokens",
-      COUNT(*)::float as "request_count",
-      '${granularity}' as "granularity"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY ${sqlBucket}
-    ORDER BY MIN("${PROXY_TIME_COLUMN}") ASC
-  `);
+  return queryRaw<{
+    date: string;
+    spend: number;
+    total_tokens: number;
+    request_count: number;
+    granularity: string;
+  }>(
+    sql.raw(`
+      SELECT
+        ${sqlLabel} as "date",
+        SUM("total_cost")::float as "spend",
+        SUM("total_tokens")::float as "total_tokens",
+        COUNT(*)::float as "request_count",
+        '${granularity}' as "granularity"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY ${sqlBucket}
+      ORDER BY MIN("${PROXY_TIME_COLUMN}") ASC
+    `),
+    [],
+  );
 }
 
 export async function getDailyTokenTrendByModel(model: string, days?: number) {
@@ -123,28 +122,28 @@ export async function getDailyTokenTrendByModel(model: string, days?: number) {
     `"model" = '${model}'`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      date: string;
-      prompt_tokens: number;
-      completion_tokens: number;
-      total_tokens: number;
-      granularity: string;
-    }>
-  >(`
-    SELECT
-      ${sqlLabel} as "date",
-      SUM("input_tokens")::float as "prompt_tokens",
-      SUM("output_tokens")::float as "completion_tokens",
-      SUM("total_tokens")::float as "total_tokens",
-      '${granularity}' as "granularity"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY ${sqlBucket}
-    ORDER BY MIN("${PROXY_TIME_COLUMN}") ASC
-  `);
+  return queryRaw<{
+    date: string;
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+    granularity: string;
+  }>(
+    sql.raw(`
+      SELECT
+        ${sqlLabel} as "date",
+        SUM("input_tokens")::float as "prompt_tokens",
+        SUM("output_tokens")::float as "completion_tokens",
+        SUM("total_tokens")::float as "total_tokens",
+        '${granularity}' as "granularity"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY ${sqlBucket}
+      ORDER BY MIN("${PROXY_TIME_COLUMN}") ASC
+    `),
+    [],
+  );
 }
 
 export async function getHourlyUsageByModel(model: string, days?: number) {
@@ -153,26 +152,26 @@ export async function getHourlyUsageByModel(model: string, days?: number) {
     `"model" = '${model}'`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      hour: number;
-      request_count: number;
-      total_spend: number;
-      total_tokens: number;
-    }>
-  >(`
-    SELECT
-      EXTRACT(HOUR FROM "${PROXY_TIME_COLUMN}")::int as "hour",
-      COUNT(*)::float as "request_count",
-      SUM("total_cost")::float as "total_spend",
-      SUM("total_tokens")::float as "total_tokens"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY EXTRACT(HOUR FROM "${PROXY_TIME_COLUMN}")
-    ORDER BY EXTRACT(HOUR FROM "${PROXY_TIME_COLUMN}")
-  `);
+  return queryRaw<{
+    hour: number;
+    request_count: number;
+    total_spend: number;
+    total_tokens: number;
+  }>(
+    sql.raw(`
+      SELECT
+        EXTRACT(HOUR FROM "${PROXY_TIME_COLUMN}")::int as "hour",
+        COUNT(*)::float as "request_count",
+        SUM("total_cost")::float as "total_spend",
+        SUM("total_tokens")::float as "total_tokens"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY EXTRACT(HOUR FROM "${PROXY_TIME_COLUMN}")
+      ORDER BY EXTRACT(HOUR FROM "${PROXY_TIME_COLUMN}")
+    `),
+    [],
+  );
 }
 
 export async function getDailyLatencyTrendByModel(
@@ -188,30 +187,30 @@ export async function getDailyLatencyTrendByModel(
     `"latency_ms" IS NOT NULL`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      date: string;
-      avg_latency_ms: number;
-      p50_latency_ms: number;
-      p95_latency_ms: number;
-      p99_latency_ms: number;
-      granularity: string;
-    }>
-  >(`
-    SELECT
-      ${sqlLabel} as "date",
-      AVG("latency_ms")::float as "avg_latency_ms",
-      PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "latency_ms")::float as "p50_latency_ms",
-      PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY "latency_ms")::float as "p95_latency_ms",
-      PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY "latency_ms")::float as "p99_latency_ms",
-      '${granularity}' as "granularity"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY ${sqlBucket}
-    ORDER BY MIN("${PROXY_TIME_COLUMN}") ASC
-  `);
+  return queryRaw<{
+    date: string;
+    avg_latency_ms: number;
+    p50_latency_ms: number;
+    p95_latency_ms: number;
+    p99_latency_ms: number;
+    granularity: string;
+  }>(
+    sql.raw(`
+      SELECT
+        ${sqlLabel} as "date",
+        AVG("latency_ms")::float as "avg_latency_ms",
+        PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "latency_ms")::float as "p50_latency_ms",
+        PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY "latency_ms")::float as "p95_latency_ms",
+        PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY "latency_ms")::float as "p99_latency_ms",
+        '${granularity}' as "granularity"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY ${sqlBucket}
+      ORDER BY MIN("${PROXY_TIME_COLUMN}") ASC
+    `),
+    [],
+  );
 }
 
 export async function getErrorBreakdownByModel(model: string, days?: number) {
@@ -221,25 +220,25 @@ export async function getErrorBreakdownByModel(model: string, days?: number) {
     `"status" != 'success'`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      error_type: string;
-      count: number;
-      last_occurred: Date;
-    }>
-  >(`
-    SELECT
-      COALESCE(NULLIF(BTRIM("error_type"), ''), "status", 'error') as "error_type",
-      COUNT(*)::float as "count",
-      MAX("${PROXY_TIME_COLUMN}") as "last_occurred"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY COALESCE(NULLIF(BTRIM("error_type"), ''), "status", 'error')
-    ORDER BY COUNT(*) DESC
-    LIMIT 10
-  `);
+  return queryRaw<{
+    error_type: string;
+    count: number;
+    last_occurred: Date;
+  }>(
+    sql.raw(`
+      SELECT
+        COALESCE(NULLIF(BTRIM("error_type"), ''), "status", 'error') as "error_type",
+        COUNT(*)::float as "count",
+        MAX("${PROXY_TIME_COLUMN}") as "last_occurred"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY COALESCE(NULLIF(BTRIM("error_type"), ''), "status", 'error')
+      ORDER BY COUNT(*) DESC
+      LIMIT 10
+    `),
+    [],
+  );
 }
 
 export async function getDailyErrorTrendByModel(model: string, days?: number) {
@@ -251,20 +250,20 @@ export async function getDailyErrorTrendByModel(model: string, days?: number) {
     `"status" != 'success'`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{ date: string; error_count: number; granularity: string }>
-  >(`
-    SELECT
-      ${sqlLabel} as "date",
-      COUNT(*)::float as "error_count",
-      '${granularity}' as "granularity"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY ${sqlBucket}
-    ORDER BY MIN("${PROXY_TIME_COLUMN}") ASC
-  `);
+  return queryRaw<{ date: string; error_count: number; granularity: string }>(
+    sql.raw(`
+      SELECT
+        ${sqlLabel} as "date",
+        COUNT(*)::float as "error_count",
+        '${granularity}' as "granularity"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY ${sqlBucket}
+      ORDER BY MIN("${PROXY_TIME_COLUMN}") ASC
+    `),
+    [],
+  );
 }
 
 export async function getModelCacheHitRateByModel(
@@ -276,26 +275,26 @@ export async function getModelCacheHitRateByModel(
     `"model" = '${model}'`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  const result = await prisma.$queryRawUnsafe<
-    Array<{
-      cache_hits: number;
-      total_requests: number;
-      cache_hit_rate: number;
-    }>
-  >(`
-    SELECT
-      COALESCE(SUM("cached_tokens"), 0)::float as "cache_hits",
-      COALESCE(SUM("input_tokens"), 0)::float as "total_requests",
-      ROUND(
-        COALESCE(SUM("cached_tokens"), 0) * 100.0
-        / NULLIF(SUM("input_tokens"), 0),
-        2
-      )::float as "cache_hit_rate"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-  `);
+  const result = await queryRaw<{
+    cache_hits: number;
+    total_requests: number;
+    cache_hit_rate: number;
+  }>(
+    sql.raw(`
+      SELECT
+        COALESCE(SUM("cached_tokens"), 0)::float as "cache_hits",
+        COALESCE(SUM("input_tokens"), 0)::float as "total_requests",
+        ROUND(
+          COALESCE(SUM("cached_tokens"), 0) * 100.0
+          / NULLIF(SUM("input_tokens"), 0),
+          2
+        )::float as "cache_hit_rate"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+    `),
+    [],
+  );
 
   return result[0] || { cache_hits: 0, total_requests: 0, cache_hit_rate: 0 };
 }
@@ -310,28 +309,28 @@ export async function getModelTTFTPercentilesByModel(
     `"ttft_ms" IS NOT NULL`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  const result = await prisma.$queryRawUnsafe<
-    Array<{
-      avg_ttft_ms: number;
-      p50_ttft_ms: number;
-      p95_ttft_ms: number;
-      p99_ttft_ms: number;
-      min_ttft_ms: number;
-      max_ttft_ms: number;
-    }>
-  >(`
-    SELECT
-      AVG("ttft_ms")::float as "avg_ttft_ms",
-      PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY "ttft_ms")::float as "p50_ttft_ms",
-      PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY "ttft_ms")::float as "p95_ttft_ms",
-      PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY "ttft_ms")::float as "p99_ttft_ms",
-      MIN("ttft_ms")::float as "min_ttft_ms",
-      MAX("ttft_ms")::float as "max_ttft_ms"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-  `);
+  const result = await queryRaw<{
+    avg_ttft_ms: number;
+    p50_ttft_ms: number;
+    p95_ttft_ms: number;
+    p99_ttft_ms: number;
+    min_ttft_ms: number;
+    max_ttft_ms: number;
+  }>(
+    sql.raw(`
+      SELECT
+        AVG("ttft_ms")::float as "avg_ttft_ms",
+        PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY "ttft_ms")::float as "p50_ttft_ms",
+        PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY "ttft_ms")::float as "p95_ttft_ms",
+        PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY "ttft_ms")::float as "p99_ttft_ms",
+        MIN("ttft_ms")::float as "min_ttft_ms",
+        MAX("ttft_ms")::float as "max_ttft_ms"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+    `),
+    [],
+  );
 
   return (
     result[0] || {
@@ -354,28 +353,28 @@ export async function getModelStatusDistributionByModel(
     `"model" = '${model}'`,
     getProxyTimeFilterWhere(normalizedDays),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      status: string;
-      count: number;
-      percentage: number;
-    }>
-  >(`
-    SELECT
-      COALESCE("status", 'started') as "status",
-      COUNT(*)::float as "count",
-      ROUND(
-        COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER (), 0),
-        2
-      )::float as "percentage"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY COALESCE("status", 'started')
-    ORDER BY COUNT(*) DESC
-    LIMIT 20
-  `);
+  return queryRaw<{
+    status: string;
+    count: number;
+    percentage: number;
+  }>(
+    sql.raw(`
+      SELECT
+        COALESCE("status", 'started') as "status",
+        COUNT(*)::float as "count",
+        ROUND(
+          COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER (), 0),
+          2
+        )::float as "percentage"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY COALESCE("status", 'started')
+      ORDER BY COUNT(*) DESC
+      LIMIT 20
+    `),
+    [],
+  );
 }
 
 export async function getModelProviderBreakdownByModel(
@@ -391,27 +390,27 @@ export async function getModelProviderBreakdownByModel(
       `r."${PROXY_TIME_COLUMN}"`,
     ),
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      provider: string;
-      request_count: number;
-      total_spend: number;
-      avg_latency_ms: number;
-    }>
-  >(`
-    SELECT
-      COALESCE(NULLIF(BTRIM(m."owned_by"), ''), NULLIF(BTRIM(r."upstream_base_url"), ''), 'unknown') as "provider",
-      COUNT(*)::float as "request_count",
-      SUM(r."total_cost")::float as "total_spend",
-      AVG(r."latency_ms")::float as "avg_latency_ms"
-    FROM "${PROXY_REQUESTS_TABLE}" r
-    LEFT JOIN "${MODELS_TABLE}" m ON m."model_name" = r."model"
-    WHERE ${where}
-    GROUP BY COALESCE(NULLIF(BTRIM(m."owned_by"), ''), NULLIF(BTRIM(r."upstream_base_url"), ''), 'unknown')
-    ORDER BY SUM(r."total_cost") DESC
-  `);
+  return queryRaw<{
+    provider: string;
+    request_count: number;
+    total_spend: number;
+    avg_latency_ms: number;
+  }>(
+    sql.raw(`
+      SELECT
+        COALESCE(NULLIF(BTRIM(m."owned_by"), ''), NULLIF(BTRIM(r."upstream_base_url"), ''), 'unknown') as "provider",
+        COUNT(*)::float as "request_count",
+        SUM(r."total_cost")::float as "total_spend",
+        AVG(r."latency_ms")::float as "avg_latency_ms"
+      FROM "${PROXY_REQUESTS_TABLE}" r
+      LEFT JOIN "${MODELS_TABLE}" m ON m."model_name" = r."model"
+      WHERE ${where}
+      GROUP BY COALESCE(NULLIF(BTRIM(m."owned_by"), ''), NULLIF(BTRIM(r."upstream_base_url"), ''), 'unknown')
+      ORDER BY SUM(r."total_cost") DESC
+    `),
+    [],
+  );
 }
 
 export async function getTopUsersByModel(model: string, days?: number) {
@@ -422,27 +421,27 @@ export async function getTopUsersByModel(model: string, days?: number) {
     `"end_user" IS NOT NULL`,
     `NULLIF(BTRIM("end_user"), '') IS NOT NULL`,
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      user: string;
-      total_spend: number;
-      total_tokens: number;
-      request_count: number;
-    }>
-  >(`
-    SELECT
-      COALESCE(NULLIF(BTRIM("end_user"), ''), 'unknown') as "user",
-      SUM("total_cost")::float as "total_spend",
-      SUM("total_tokens")::float as "total_tokens",
-      COUNT(*)::float as "request_count"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY COALESCE(NULLIF(BTRIM("end_user"), ''), 'unknown')
-    ORDER BY SUM("total_cost") DESC
-    LIMIT 20
-  `);
+  return queryRaw<{
+    user: string;
+    total_spend: number;
+    total_tokens: number;
+    request_count: number;
+  }>(
+    sql.raw(`
+      SELECT
+        COALESCE(NULLIF(BTRIM("end_user"), ''), 'unknown') as "user",
+        SUM("total_cost")::float as "total_spend",
+        SUM("total_tokens")::float as "total_tokens",
+        COUNT(*)::float as "request_count"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY COALESCE(NULLIF(BTRIM("end_user"), ''), 'unknown')
+      ORDER BY SUM("total_cost") DESC
+      LIMIT 20
+    `),
+    [],
+  );
 }
 
 export async function getTopApiKeysByModel(model: string, days?: number) {
@@ -453,29 +452,29 @@ export async function getTopApiKeysByModel(model: string, days?: number) {
     `"api_key_alias" IS NOT NULL`,
     `NULLIF(BTRIM("api_key_alias"), '') IS NOT NULL`,
   ]);
-  const prisma = getModelProxyPrisma();
 
-  return prisma.$queryRawUnsafe<
-    Array<{
-      api_key: string;
-      total_spend: number;
-      total_tokens: number;
-      request_count: number;
-      success_rate: number;
-      avg_tokens_per_second: number;
-    }>
-  >(`
-    SELECT
-      COALESCE(NULLIF(BTRIM("api_key_alias"), ''), 'unknown') as "api_key",
-      SUM("total_cost")::float as "total_spend",
-      SUM("total_tokens")::float as "total_tokens",
-      COUNT(*)::float as "request_count",
-      (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
-      AVG(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "avg_tokens_per_second"
-    FROM "${PROXY_REQUESTS_TABLE}"
-    ${where}
-    GROUP BY COALESCE(NULLIF(BTRIM("api_key_alias"), ''), 'unknown')
-    ORDER BY SUM("total_cost") DESC
-    LIMIT 20
-  `);
+  return queryRaw<{
+    api_key: string;
+    total_spend: number;
+    total_tokens: number;
+    request_count: number;
+    success_rate: number;
+    avg_tokens_per_second: number;
+  }>(
+    sql.raw(`
+      SELECT
+        COALESCE(NULLIF(BTRIM("api_key_alias"), ''), 'unknown') as "api_key",
+        SUM("total_cost")::float as "total_spend",
+        SUM("total_tokens")::float as "total_tokens",
+        COUNT(*)::float as "request_count",
+        (SUM(CASE WHEN "status" = 'success' THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) * 100)::float as "success_rate",
+        AVG(CASE WHEN "latency_ms" >= 500 THEN "output_tokens"::float / ("latency_ms"::float / 1000) ELSE NULL END)::float as "avg_tokens_per_second"
+      FROM "${PROXY_REQUESTS_TABLE}"
+      ${where}
+      GROUP BY COALESCE(NULLIF(BTRIM("api_key_alias"), ''), 'unknown')
+      ORDER BY SUM("total_cost") DESC
+      LIMIT 20
+    `),
+    [],
+  );
 }

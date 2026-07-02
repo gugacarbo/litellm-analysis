@@ -1,4 +1,4 @@
-import type { Prisma } from "@lite-llm/model-proxy-repository";
+import { Prisma } from "@lite-llm/model-proxy-repository";
 import type {
   ModelProxyModelRecord,
   ModelRoute,

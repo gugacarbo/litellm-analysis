@@ -1,6 +1,7 @@
 import { createRepositoryClient } from "@lite-llm/agents-manager";
-import type { Prisma } from "@lite-llm/model-proxy-repository";
-import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
+import { db } from "@lite-llm/database/client";
+import { modelProxySettings } from "@lite-llm/database/schema/model-proxy";
+import { eq } from "drizzle-orm";
 import {
   reconcileManagedAliases,
   sortAliasesByDefinitionOrder,
@@ -49,10 +50,7 @@ export async function getAgentRoutingConfigImpl(): Promise<Record<
   const agentKeys = Object.keys(config.agents || {});
   const categoryKeys = Object.keys(config.categories || {});
 
-  const prisma = getModelProxyPrisma();
-  const row = await prisma.modelProxySetting.findUnique({
-    where: { key: ROUTER_SETTINGS_KEY },
-  });
+  const [row] = await db.select().from(modelProxySettings).where(eq(modelProxySettings.key, ROUTER_SETTINGS_KEY)).limit(1);
   if (row?.value && isRecord(row.value)) {
     const modelGroupAlias = row.value.model_group_alias;
     if (typeof modelGroupAlias === "object" && modelGroupAlias !== null) {
@@ -80,10 +78,7 @@ export async function updateAgentRoutingConfigImpl(
 
   await repository.write(config);
 
-  const prisma = getModelProxyPrisma();
-  const existingRow = await prisma.modelProxySetting.findUnique({
-    where: { key: ROUTER_SETTINGS_KEY },
-  });
+  const [existingRow] = await db.select().from(modelProxySettings).where(eq(modelProxySettings.key, ROUTER_SETTINGS_KEY)).limit(1);
   const existing =
     existingRow?.value && isRecord(existingRow.value) ? existingRow.value : {};
   const merged: Record<string, unknown> = { ...existing };
@@ -107,10 +102,12 @@ export async function updateAgentRoutingConfigImpl(
   );
   writeManagedAliasKeys(merged, managedAliasKeys);
 
-  const jsonValue = merged as Prisma.InputJsonValue;
-  await prisma.modelProxySetting.upsert({
-    where: { key: ROUTER_SETTINGS_KEY },
-    create: { key: ROUTER_SETTINGS_KEY, value: jsonValue },
-    update: { value: jsonValue },
+  const jsonValue = merged as Record<string, unknown>;
+  await db.insert(modelProxySettings).values({
+    key: ROUTER_SETTINGS_KEY,
+    value: jsonValue,
+  }).onConflictDoUpdate({
+    target: modelProxySettings.key,
+    set: { value: jsonValue },
   });
 }

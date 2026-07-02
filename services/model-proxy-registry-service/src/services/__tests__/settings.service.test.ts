@@ -1,4 +1,4 @@
-import type { Prisma } from "@lite-llm/model-proxy-repository";
+import { Prisma } from "@lite-llm/model-proxy-repository";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SettingsRepository } from "../../repositories/settings-repository.js";
 import { SettingsService } from "../settings.service.js";

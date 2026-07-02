@@ -1,4 +1,5 @@
-import { getModelProxyPrisma } from "./client";
+import { queryRaw } from "@lite-llm/database/client";
+import { sql } from "drizzle-orm";
 import { PROXY_REQUESTS_TABLE, PROXY_TIME_COLUMN } from "./helpers";
 
 export interface ProxyTimeBucketConfig {
@@ -85,9 +86,9 @@ async function getDateRange(): Promise<{ min: Date; max: Date }> {
     return { min: rangeCache.min, max: rangeCache.max };
   }
 
-  const prisma = getModelProxyPrisma();
-  const result = await prisma.$queryRawUnsafe<Array<{ min: Date; max: Date }>>(
-    `SELECT MIN("${PROXY_TIME_COLUMN}") as min, MAX("${PROXY_TIME_COLUMN}") as max FROM "${PROXY_REQUESTS_TABLE}"`,
+  const result = await queryRaw<{ min: Date; max: Date }>(
+    sql.raw(`SELECT MIN("${PROXY_TIME_COLUMN}") as min, MAX("${PROXY_TIME_COLUMN}") as max FROM "${PROXY_REQUESTS_TABLE}"`),
+    [],
   );
 
   rangeCache = {

@@ -52,7 +52,7 @@ export async function getProxySpendLogsImpl(
     getSpendLogsCountFn(filters),
   ]);
 
-  const logs = rows.map((row) => presentProxyRequestLogListItem(row));
+  const logs = rows.map((row) => presentProxyRequestLogListItem(row as any));
 
   return {
     logs,
@@ -73,7 +73,7 @@ export async function getProxySpendLogDetailImpl(
     throw new Error(`Spend log not found: ${requestId}`);
   }
 
-  return presentProxyRequestLog(row, { includeDetailFields: true });
+  return presentProxyRequestLog(row as any, { includeDetailFields: true });
 }
 
 export async function getProxySpendTotalsImpl(
