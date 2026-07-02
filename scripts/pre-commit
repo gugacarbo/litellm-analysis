@@ -6,3 +6,4 @@
 set -euo pipefail
 exec python3 "$(git rev-parse --show-toplevel)/scripts/docs-check"
 pnpm lint-staged
+# pnpm test-staged
