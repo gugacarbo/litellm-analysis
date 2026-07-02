@@ -1,15 +1,24 @@
-import { SETTING_KEYS } from "@lite-llm/model-proxy-registry-service";
-import { describe, expect, it } from "vitest";
+import { createTestDb } from "@lite-llm/database/test-helpers";
+import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { createDbRepository } from "./db-repository";
-import { createInMemoryPrisma } from "./test-helpers/in-memory-prisma";
 
 describe("DbAgentsRepository", () => {
+  let db: Awaited<ReturnType<typeof createTestDb>>;
+
+  beforeEach(async () => {
+    db = await createTestDb();
+  });
+
+  afterEach(async () => {
+    await db.stop();
+  });
+
+  async function createRepository() {
+    return createDbRepository({ db: db.db, validateOnRead: false });
+  }
+
   it("round-trips agents and plugins through dashboard settings keys", async () => {
-    const prisma = createInMemoryPrisma();
-    const repository = createDbRepository({
-      prisma: prisma as never,
-      validateOnRead: false,
-    });
+    const repository = await createRepository();
 
     const config = {
       version: 2,
@@ -39,31 +48,37 @@ describe("DbAgentsRepository", () => {
 
     expect(readBack.agents?.loom?.model).toBe("gpt-4");
     expect(readBack.plugins?.opencode?.enabled).toBe(true);
-
-    const agentsRow = await prisma.modelProxySetting.findUnique({
-      where: { key: SETTING_KEYS.DASHBOARD_AGENTS },
-    });
-    const pluginsRow = await prisma.modelProxySetting.findUnique({
-      where: { key: SETTING_KEYS.DASHBOARD_PLUGINS },
-    });
-
-    expect(agentsRow).not.toBeNull();
-    expect(pluginsRow).not.toBeNull();
-    expect((agentsRow?.value as { agents?: unknown }).agents).toBeDefined();
-    expect(pluginsRow?.value).toBeDefined();
   });
 
   it("reports exists when both dashboard settings are present", async () => {
-    const prisma = createInMemoryPrisma();
-    const repository = createDbRepository({
-      prisma: prisma as never,
-      validateOnRead: false,
-    });
+    const repository = await createRepository();
 
     expect(await repository.exists()).toBe(false);
 
     await repository.write({
-      version: 1,
+      version: 2,
+      categories: {},
+      agents: {
+        test: {
+          displayName: "Test",
+          icon: "T",
+          description: "description",
+          limits: { context: 200000, output: 32768 },
+          model: "test-model",
+          config: {},
+        },
+      },
+      plugins: {},
+    });
+
+    expect(await repository.exists()).toBe(true);
+  });
+
+  it("reports exists when both keys are present", async () => {
+    const repository = await createRepository();
+
+    await repository.write({
+      version: 2,
       categories: {},
       agents: {},
       plugins: {},

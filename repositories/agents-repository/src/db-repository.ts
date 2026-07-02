@@ -2,11 +2,7 @@ import {
   SETTING_KEYS,
   SettingsRepository,
 } from "@lite-llm/model-proxy-registry-service";
-import {
-  getModelProxyPrisma,
-  type Prisma,
-  type PrismaClient,
-} from "@lite-llm/model-proxy-repository";
+import { db as drizzleDb, getDb } from "@lite-llm/database/client";
 import { normalizeConfig } from "@lite-llm/repository-utils/jsonc";
 import type { IAgentsRepository } from "./repository";
 import {
@@ -19,7 +15,7 @@ export const DASHBOARD_AGENTS_KEY = SETTING_KEYS.DASHBOARD_AGENTS;
 export const DASHBOARD_PLUGINS_KEY = SETTING_KEYS.DASHBOARD_PLUGINS;
 
 export interface DbAgentsRepositoryOptions {
-  prisma?: PrismaClient;
+  db?: typeof drizzleDb;
   validateOnRead?: boolean;
 }
 
@@ -83,8 +79,8 @@ export class DbAgentsRepository implements IAgentsRepository {
   private readonly validateOnRead: boolean;
 
   constructor(options: DbAgentsRepositoryOptions = {}) {
-    const prisma = options.prisma ?? getModelProxyPrisma();
-    this.settings = new SettingsRepository(prisma);
+    const db = options.db ?? getDb();
+    this.settings = new SettingsRepository(db);
     this.validateOnRead = options.validateOnRead ?? true;
   }
 
@@ -131,11 +127,11 @@ export class DbAgentsRepository implements IAgentsRepository {
 
     await this.settings.upsert(
       DASHBOARD_AGENTS_KEY,
-      agentsResult.data as Prisma.InputJsonValue,
+      agentsResult.data,
     );
     await this.settings.upsert(
       DASHBOARD_PLUGINS_KEY,
-      pluginsResult.data.plugins as Prisma.InputJsonValue,
+      pluginsResult.data.plugins,
     );
   }
 

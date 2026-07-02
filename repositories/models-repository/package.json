@@ -20,9 +20,10 @@
   },
   "dependencies": {
     "@lite-llm/config": "workspace:*",
+    "@lite-llm/database": "workspace:*",
     "@lite-llm/model-proxy-registry-service": "workspace:*",
-    "@lite-llm/model-proxy-repository": "workspace:*",
     "@lite-llm/repository-utils": "workspace:*",
+    "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

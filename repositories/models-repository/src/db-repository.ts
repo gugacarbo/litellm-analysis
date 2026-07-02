@@ -3,11 +3,9 @@ import {
   SETTING_KEYS,
   SettingsRepository,
 } from "@lite-llm/model-proxy-registry-service";
-import {
-  getModelProxyPrisma,
-  Prisma,
-  type PrismaClient,
-} from "@lite-llm/model-proxy-repository";
+import { db as drizzleDb, getDb } from "@lite-llm/database/client";
+import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
+import { eq, asc, count } from "drizzle-orm";
 import { normalizeConfig } from "@lite-llm/repository-utils/jsonc";
 import { applyMetadataToModelSpec, metadataFromModelSpec } from "./metadata";
 import type { IModelsRepository } from "./interfaces";
@@ -19,7 +17,7 @@ import {
 import type { Provider } from "./schemas/provider";
 
 export interface DbModelsRepositoryOptions {
-  prisma?: PrismaClient;
+  db?: typeof drizzleDb;
   validateOnRead?: boolean;
 }
 
@@ -101,7 +99,7 @@ function modelSpecFromRow(row: {
   maxOutputTokens: number | null;
   inputCostPerToken: number | null;
   outputCostPerToken: number | null;
-  metadata: Prisma.JsonValue;
+  metadata: unknown;
 }): ModelSpec {
   const base: ModelSpec = {
     enabled: row.enabled,
@@ -138,7 +136,7 @@ function modelRowFromSpec(
   modelName: string,
   providerName: string | null,
   spec: ModelSpec,
-): Prisma.ModelProxyModelUncheckedCreateInput {
+): typeof modelProxyModels.$inferInsert {
   const metadata = metadataFromModelSpec(spec);
 
   return {
@@ -154,27 +152,28 @@ function modelRowFromSpec(
     maxOutputTokens: spec.limits.maxOutput,
     inputCostPerToken: spec.cost?.input ?? null,
     outputCostPerToken: spec.cost?.output ?? null,
-    metadata: metadata ? (metadata as Prisma.InputJsonValue) : Prisma.DbNull,
+    metadata,
   };
 }
 
 export class DbModelsRepository implements IModelsRepository {
-  private readonly prisma: PrismaClient;
+  private readonly db: typeof drizzleDb;
   private readonly settings: SettingsRepository;
   private readonly providers: ProvidersRepository;
   private readonly validateOnRead: boolean;
 
   constructor(options: DbModelsRepositoryOptions = {}) {
-    this.prisma = options.prisma ?? getModelProxyPrisma();
-    this.settings = new SettingsRepository(this.prisma);
-    this.providers = new ProvidersRepository(this.prisma);
+    this.db = options.db ?? getDb();
+    this.settings = new SettingsRepository(this.db);
+    this.providers = new ProvidersRepository(this.db);
     this.validateOnRead = options.validateOnRead ?? true;
   }
 
   async read(): Promise<ModelsConfig> {
-    const modelRows = await this.prisma.modelProxyModel.findMany({
-      orderBy: { modelName: "asc" },
-    });
+    const modelRows = await this.db
+      .select()
+      .from(modelProxyModels)
+      .orderBy(asc(modelProxyModels.modelName));
     const providerRows = await this.providers.list();
     const defaultProviderRow = await this.settings.findByKey(
       SETTING_KEYS.DEFAULT_PROVIDER,
@@ -300,16 +299,16 @@ export class DbModelsRepository implements IModelsRepository {
     }
 
     const desiredNames = new Set(Object.keys(validated.models));
-    const existingModels = await this.prisma.modelProxyModel.findMany();
+    const existingModels = await this.db.select().from(modelProxyModels);
     for (const existing of existingModels) {
       const existingKey = buildModelKey(
         existing.modelName,
         existing.providerName,
       );
       if (!desiredNames.has(existingKey)) {
-        await this.prisma.modelProxyModel.delete({
-          where: { id: existing.id },
-        });
+        await this.db
+          .delete(modelProxyModels)
+          .where(eq(modelProxyModels.id, existing.id));
       }
     }
 
@@ -325,9 +324,9 @@ export class DbModelsRepository implements IModelsRepository {
       const data = modelRowFromSpec(modelName, providerName, spec);
       const existing = existingByKey.get(modelKey);
       if (existing) {
-        await this.prisma.modelProxyModel.update({
-          where: { id: existing.id },
-          data: {
+        await this.db
+          .update(modelProxyModels)
+          .set({
             enabled: data.enabled,
             displayName: data.displayName,
             family: data.family,
@@ -339,10 +338,10 @@ export class DbModelsRepository implements IModelsRepository {
             inputCostPerToken: data.inputCostPerToken,
             outputCostPerToken: data.outputCostPerToken,
             metadata: data.metadata,
-          },
-        });
+          })
+          .where(eq(modelProxyModels.id, existing.id));
       } else {
-        await this.prisma.modelProxyModel.create({ data });
+        await this.db.insert(modelProxyModels).values(data);
       }
     }
   }
@@ -353,8 +352,10 @@ export class DbModelsRepository implements IModelsRepository {
   }
 
   async exists(): Promise<boolean> {
-    const count = await this.prisma.modelProxyModel.count();
-    return count > 0;
+    const result = await this.db
+      .select({ count: count() })
+      .from(modelProxyModels);
+    return result[0].count > 0;
   }
 
   getPath(): string {

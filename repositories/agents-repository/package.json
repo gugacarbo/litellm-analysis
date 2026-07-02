@@ -23,8 +23,9 @@
     "@lite-llm/agent-plugins": "workspace:*",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/model-proxy-registry-service": "workspace:*",
-    "@lite-llm/model-proxy-repository": "workspace:*",
+    "@lite-llm/database": "workspace:*",
     "@lite-llm/models-repository": "workspace:*",
+    "drizzle-orm": "catalog:",
     "@lite-llm/repository-utils": "workspace:*",
     "zod": "catalog:"
   },
