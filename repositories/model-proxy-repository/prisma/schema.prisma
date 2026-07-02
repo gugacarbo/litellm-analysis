@@ -81,7 +81,8 @@ model ModelProxyMessage {
 
 model ModelProxyModel {
   id                  String   @id @default(cuid())
-  modelName           String   @unique @map("model_name")
+  modelName           String   @map("model_name")
+  isDefaultProvider   Boolean  @default(false) @map("is_default_provider")
   enabled             Boolean  @default(true)
   displayName         String?  @map("display_name")
   family              String?
@@ -95,25 +96,28 @@ model ModelProxyModel {
   upstreamModel       String?  @map("upstream_model")
   upstreamBaseUrl     String?  @map("upstream_base_url")
   providerName        String?  @map("provider_name")
+  provider            ModelProxyProvider? @relation(fields: [providerName], references: [name], onDelete: SetNull)
   secretRef           String?  @map("secret_ref")
   requestOptions      Json?    @map("request_options")
   metadata            Json?    @map("metadata")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([modelName, providerName])
   @@map("model_proxy_models")
   @@index([enabled, modelName])
 }
 
 model ModelProxyProvider {
-  id            String   @id @default(cuid())
-  name          String   @unique
+  id            String             @id @default(cuid())
+  name          String             @unique
   provider      String?
-  baseUrl       String?  @map("base_url")
-  apiKey        String?  @map("api_key")
-  secretRef     String?  @map("secret_ref")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+  baseUrl       String?            @map("base_url")
+  apiKey        String?            @map("api_key")
+  secretRef     String?            @map("secret_ref")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @default(now()) @updatedAt @map("updated_at")
+  models        ModelProxyModel[]
 
   @@map("model_proxy_providers")
 }

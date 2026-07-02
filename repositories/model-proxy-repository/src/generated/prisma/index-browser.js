@@ -179,6 +179,7 @@ exports.Prisma.ModelProxyMessageScalarFieldEnum = {
 exports.Prisma.ModelProxyModelScalarFieldEnum = {
   id: 'id',
   modelName: 'modelName',
+  isDefaultProvider: 'isDefaultProvider',
   enabled: 'enabled',
   displayName: 'displayName',
   family: 'family',
