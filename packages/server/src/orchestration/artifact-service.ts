@@ -1,7 +1,7 @@
 import type {
   IRegistryModelsService,
   ISettingsService,
-} from "@lite-llm/model-proxy-config-service";
+} from "@lite-llm/llm-config-service";
 import type { IModelService } from "@lite-llm/models-service";
 import type { AgentsManager } from "../types/index";
 

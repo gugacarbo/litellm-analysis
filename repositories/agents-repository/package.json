@@ -22,7 +22,7 @@
   "dependencies": {
     "@lite-llm/agent-plugins": "workspace:*",
     "@lite-llm/config": "workspace:*",
-    "@lite-llm/model-proxy-config-service": "workspace:*",
+    "@lite-llm/llm-config-service": "workspace:*",
     "@lite-llm/database": "workspace:*",
     "@lite-llm/models-repository": "workspace:*",
     "@lite-llm/repository-utils": "workspace:*",

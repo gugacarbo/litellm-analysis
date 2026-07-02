@@ -1,4 +1,4 @@
-import { SETTING_KEYS } from "@lite-llm/model-proxy-config-service";
+import { SETTING_KEYS } from "@lite-llm/llm-config-service";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
 import { describe, expect, it, vi } from "vitest";
 import { createDbRepository } from "./db-repository";

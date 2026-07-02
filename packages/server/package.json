@@ -22,7 +22,7 @@
     "@lite-llm/analytics-service": "workspace:*",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/contracts": "workspace:*",
-    "@lite-llm/model-proxy-config-service": "workspace:*",
+    "@lite-llm/llm-config-service": "workspace:*",
     "@lite-llm/llm-gateway": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
     "@mjackson/node-fetch-server": "^0.7.0",

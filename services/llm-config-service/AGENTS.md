@@ -1,4 +1,4 @@
-# MODEL PROXY CONFIG SERVICE
+# LLM CONFIG SERVICE
 
 **Generated:** 2026-07-01
 **Commit:** 3029bcb
@@ -10,7 +10,7 @@ Manages the `model_proxy_*` settings, model registry, and providers tables. Expo
 ## STRUCTURE
 
 ```
-services/model-proxy-config-service/
+services/llm-config-service/
 ├── src/
 │   ├── settings/        # model_proxy_settings CRUD (global proxy config)
 │   ├── models/          # model_proxy_models CRUD (per-model overrides)

@@ -7,7 +7,7 @@ import { disconnectDb } from "@lite-llm/database/client";
 import {
   createRegistryServices,
   getHealthCheckPrompt,
-} from "@lite-llm/model-proxy-config-service";
+} from "@lite-llm/llm-config-service";
 import { createHeboModelProxyGateway } from "@lite-llm/llm-gateway/hebo";
 import {
   createRepositoryClient as createModelsRepositoryClient,

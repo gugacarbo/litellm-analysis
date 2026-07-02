@@ -52,9 +52,9 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.15
-      '@lite-llm/model-proxy-config-service':
+      '@lite-llm/llm-config-service':
         specifier: workspace:*
-        version: link:services/model-proxy-config-service
+        version: link:services/llm-config-service
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -100,12 +100,12 @@ importers:
       '@lite-llm/database':
         specifier: workspace:*
         version: link:../../repositories/database
+      '@lite-llm/llm-config-service':
+        specifier: workspace:*
+        version: link:../../services/llm-config-service
       '@lite-llm/llm-gateway':
         specifier: workspace:*
         version: link:../../services/llm-gateway
-      '@lite-llm/model-proxy-config-service':
-        specifier: workspace:*
-        version: link:../../services/model-proxy-config-service
       '@lite-llm/models-service':
         specifier: workspace:*
         version: link:../../services/models-service
@@ -387,12 +387,12 @@ importers:
       '@lite-llm/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@lite-llm/llm-config-service':
+        specifier: workspace:*
+        version: link:../../services/llm-config-service
       '@lite-llm/llm-gateway':
         specifier: workspace:*
         version: link:../../services/llm-gateway
-      '@lite-llm/model-proxy-config-service':
-        specifier: workspace:*
-        version: link:../../services/model-proxy-config-service
       '@lite-llm/models-service':
         specifier: workspace:*
         version: link:../../services/models-service
@@ -427,9 +427,9 @@ importers:
       '@lite-llm/database':
         specifier: workspace:*
         version: link:../database
-      '@lite-llm/model-proxy-config-service':
+      '@lite-llm/llm-config-service':
         specifier: workspace:*
-        version: link:../../services/model-proxy-config-service
+        version: link:../../services/llm-config-service
       '@lite-llm/models-repository':
         specifier: workspace:*
         version: link:../models-repository
@@ -499,9 +499,9 @@ importers:
       '@lite-llm/database':
         specifier: workspace:*
         version: link:../database
-      '@lite-llm/model-proxy-config-service':
+      '@lite-llm/llm-config-service':
         specifier: workspace:*
-        version: link:../../services/model-proxy-config-service
+        version: link:../../services/llm-config-service
       '@lite-llm/repository-utils':
         specifier: workspace:*
         version: link:../repository-utils
@@ -603,6 +603,28 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
+  services/llm-config-service:
+    dependencies:
+      '@lite-llm/database':
+        specifier: workspace:*
+        version: link:../../repositories/database
+      bcryptjs:
+        specifier: ^3.0.2
+        version: 3.0.3
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.38.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/react@19.2.14)(pg@8.22.0)(react@19.2.6)
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+
   services/llm-gateway:
     dependencies:
       '@ai-sdk/openai-compatible':
@@ -620,9 +642,9 @@ importers:
       '@lite-llm/database':
         specifier: workspace:*
         version: link:../../repositories/database
-      '@lite-llm/model-proxy-config-service':
+      '@lite-llm/llm-config-service':
         specifier: workspace:*
-        version: link:../model-proxy-config-service
+        version: link:../llm-config-service
       '@lite-llm/models-repository':
         specifier: workspace:*
         version: link:../../repositories/models-repository
@@ -635,28 +657,6 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.4.3
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 25.6.2
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
-
-  services/model-proxy-config-service:
-    dependencies:
-      '@lite-llm/database':
-        specifier: workspace:*
-        version: link:../../repositories/database
-      bcryptjs:
-        specifier: ^3.0.2
-        version: 3.0.3
-      drizzle-orm:
-        specifier: 'catalog:'
-        version: 0.38.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(@types/react@19.2.14)(pg@8.22.0)(react@19.2.6)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

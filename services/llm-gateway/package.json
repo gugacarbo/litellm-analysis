@@ -21,7 +21,7 @@
     "@hebo-ai/gateway": "^0.11.5",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/database": "workspace:*",
-    "@lite-llm/model-proxy-config-service": "workspace:*",
+    "@lite-llm/llm-config-service": "workspace:*",
     "@lite-llm/models-repository": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
     "drizzle-orm": "catalog:",

@@ -20,7 +20,7 @@
     "@lite-llm/database": "workspace:*",
     "@lite-llm/app-repository": "workspace:*",
     "@lite-llm/config": "workspace:*",
-    "@lite-llm/model-proxy-config-service": "workspace:*",
+    "@lite-llm/llm-config-service": "workspace:*",
     "@lite-llm/llm-gateway": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
     "@lite-llm/server": "workspace:*",

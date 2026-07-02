@@ -7,7 +7,7 @@ import {
 import {
   OPENAI_CHATGPT_API_BASE,
   resolveProviderSecret,
-} from "@lite-llm/model-proxy-config-service";
+} from "@lite-llm/llm-config-service";
 import type { ModelSpec, Provider } from "@lite-llm/models-repository";
 import { and, eq } from "drizzle-orm";
 

@@ -9,4 +9,4 @@ export {
   type ModelRouteUpdate,
   toModelProxyRow,
   toModelRoute,
-} from "@lite-llm/model-proxy-config-service";
+} from "@lite-llm/llm-config-service";

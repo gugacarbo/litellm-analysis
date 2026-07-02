@@ -1,7 +1,7 @@
 import {
   SETTING_KEYS,
   SettingsRepository,
-} from "@lite-llm/model-proxy-config-service";
+} from "@lite-llm/llm-config-service";
 import { db as drizzleDb, getDb } from "@lite-llm/database/client";
 import { normalizeConfig } from "@lite-llm/repository-utils/jsonc";
 import type { IAgentsRepository } from "./repository";

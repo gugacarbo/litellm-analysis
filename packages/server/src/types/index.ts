@@ -6,7 +6,7 @@ import type {
   IProvidersService,
   IRegistryModelsService,
   ISettingsService,
-} from "@lite-llm/model-proxy-config-service";
+} from "@lite-llm/llm-config-service";
 import type { HeboModelProxyGateway } from "@lite-llm/llm-gateway/hebo";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 

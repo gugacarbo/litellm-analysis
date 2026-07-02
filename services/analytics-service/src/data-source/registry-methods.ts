@@ -1,7 +1,7 @@
 import {
   fromModelProxyRow,
   toModelRoute,
-} from "@lite-llm/model-proxy-config-service";
+} from "@lite-llm/llm-config-service";
 import { db } from "@lite-llm/database/client";
 import { modelProxyModels, modelProxyProviders, modelProxySettings } from "@lite-llm/database/schema/model-proxy";
 import { eq, asc } from "drizzle-orm";

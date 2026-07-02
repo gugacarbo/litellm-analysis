@@ -1,6 +1,6 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { GatewayHooks } from "@hebo-ai/gateway";
-import type { IOpenAiOAuthService } from "@lite-llm/model-proxy-config-service";
+import type { IOpenAiOAuthService } from "@lite-llm/llm-config-service";
 import { db } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
 import { eq } from "drizzle-orm";

@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
-    "@lite-llm/model-proxy-config-service": "workspace:*",
+    "@lite-llm/llm-config-service": "workspace:*",
     "husky": "^9.1.7",
     "knip": "^6.6.2",
     "lint-staged": "^16.4.0",

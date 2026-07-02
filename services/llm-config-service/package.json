@@ -1,5 +1,5 @@
 {
-  "name": "@lite-llm/model-proxy-config-service",
+  "name": "@lite-llm/llm-config-service",
   "version": "0.1.0",
   "private": true,
   "type": "module",

@@ -6,54 +6,48 @@ superseded-by: null
 deciders: [architecture-team]
 ---
 
-> ⚠️ **VERDADE ATUAL:** Credenciais upstream novas usam `secretRef` (nome de env var) e nunca persistem segredo bruto. O campo `apiKey` é rejeitado no service layer para writes novos. A resolução em runtime segue a ordem: `readSecretRef` → `credential.apiKey` (legado) → provider row.
-
 # Usar `secretRef` em vez de segredo bruto para credenciais upstream
 
 ## Contexto e problema
 
-O sistema precisa armazenar credenciais de provedores upstream (ex. `OPENAI_API_KEY`) para roteamento de modelos. O schema legado (`LiteLLM_CredentialsTable`) persiste a chave bruta em uma coluna `api_key`, o que é indesejável por segurança. É necessário um mecanismo que nunca armazene o valor do segredo, apenas uma referência indireta.
+O sistema precisa armazenar credenciais de provedores upstream (ex. `OPENAI_API_KEY`) para roteamento de modelos. Persistir a chave bruta no banco de dados é indesejável por segurança: qualquer vazamento do DB ou log expõe o segredo.
 
 ## Direcionadores da decisão
 
-- Segurança: não expor segredos em payloads HTTP, logs, ou backups do banco de dados.
-- Compatibilidade com dados legados importados do LiteLLM.
-- Simplicidade operacional: usar variáveis de ambiente já é o padrão para configuração de provedores.
+- Segurança: não expor segredos em payloads HTTP, logs, ou backups do banco.
+- Simplicidade operacional: variáveis de ambiente já são o padrão para configuração de provedores.
 - Credenciais upstream não devem vazar para artefatos de configuração gerados (OpenCode, VS Code, OpenAgent).
 
 ## Opções consideradas
 
 ### Opção 1 — `secretRef` com nome de env var (escolhida)
 **Prós:** Segredo nunca persiste no DB; compatível com 12-factor app; resolução trivial via `process.env`; fácil de auditar.
-**Contras:** Requer que o operador gerencie env vars externamente; não criptografa em repouso (mas não há segredo para criptografar).
+**Contras:** Requer que o operador gerencie env vars externamente.
 
 ### Opção 2 — Criptografar `apiKey` no DB
 **Prós:** Mantém o valor no banco de forma ofuscada.
 **Contras:** Complexidade de gerenciamento de chave de criptografia; ataque no runtime ainda expõe o segredo; falso senso de segurança.
 
-### Opção 3 — Usar um cofre de segredos (Vault, AWS Secrets Manager)
+### Opção 3 — Cofre de segredos externo (Vault, AWS Secrets Manager)
 **Prós:** Máxima segurança; rotação centralizada.
-**Contras:** Overhead operacional para o escopo atual; dependência externa; não justificado para o estágio do projeto.
+**Contras:** Overhead operacional desproporcional ao escopo; dependência externa.
 
 ## Decisão
 
-Adotar `secretRef` (coluna `secret_ref`) como campo canônico de escrita para credenciais upstream. O campo contém apenas o nome exato de uma variável de ambiente (ex. `OPENAI_API_KEY`), nunca o valor da chave. Writes novos no campo `apiKey` são rejeitados no service layer. Dados legados com `api_key` bruto são lidos por adapters de import que convertem para `secretRef` quando possível ou marcam para rotação manual.
+Adotar `secretRef` (coluna `secret_ref`) como campo canônico para credenciais upstream. O campo contém apenas o **nome exato** de uma variável de ambiente (ex. `OPENAI_API_KEY`), nunca o valor da chave. O formato não usa prefixo `env:` — é o nome literal da env var. Writes no campo `apiKey` são rejeitados no service layer.
 
 ## Consequências
 
-- Positivas: Segredos nunca persistem no DB; compatível com 12-factor app; resolução trivial.
-- Negativas: Dados legados com `api_key` bruto precisam de migração manual ou adapters temporários.
-- Proibido: Escrever `apiKey` em novos registros; expor credenciais upstream em artefatos OpenCode/VS Code/OpenAgent.
+- **Positivas:** Segredos nunca persistem no DB; compatível com 12-factor app; resolução trivial.
+- **Negativas:** Operador precisa gerenciar env vars externamente.
+- **Proibido:** Escrever `apiKey` em novos registros; expor credenciais upstream em artefatos gerados.
+- **Resolução em runtime:** `readSecretRef(row.secretRef)` → `credential.apiKey` (legado) → provider row/env fallback.
 
 ## Confirmação
 
 ```bash
-# Verificar se não há writes de apiKey no service layer
+# Nenhum write de apiKey no service layer (exceto adapters legados)
 grep -rn "apiKey" packages/server/src/services/credentials/ | grep -v "legacy\|import\|adapter" && exit 1
-# Verificar que secret_ref não usa prefixo env:
-grep -rn "env:" repositories/model-proxy-repository/prisma/ && exit 1
+# secret_ref não usa prefixo env:
+grep -rn '"env:' repositories/database/src/schema/ && exit 1
 ```
-
-## Notas
-
-A resolução em runtime segue a ordem já implementada em `upstream-provider.ts`: (1) `readSecretRef(row.secretRef)`, (2) `credential.apiKey` (legado), (3) provider row / env fallback. O formato de `secretRef` é o nome exato da env var, sem prefixo `env:`.

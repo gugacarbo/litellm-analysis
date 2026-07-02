@@ -48,10 +48,13 @@ npm test                 # tudo verde
 <!-- Índice dos capítulos (docs/context/), cada um com QUANDO carregar.
      Capítulo = estado atual, imperativo, atemporal. Decisão datada = ADR. -->
 
-| Capítulo       | Quando carregar |
-| -------------- | --------------- |
-| (nenhum ainda) | —               |
+| Capítulo | Quando carregar |
+|----------|-----------------|
+| `docs/context/CONVENTIONS.md` | ao implementar features, code review ou onboarding |
+| `docs/context/INFRA.md` | ao configurar ambiente, deploy ou diagnosticar infra |
 
 ## Mapa de docs
-- Decisões: `docs/adr/` (ADR-0001 … ADR-0006) · Comportamento: `docs/specs/` (READMEs GERADOS — não editar)
+- Decisões: `docs/adr/` (ADR-0001 … ADR-0006) · Comportamento: `docs/specs/` (SPEC-0001 … SPEC-0004)
+- Contexto: `docs/context/` (capítulos imperativos e atemporais)
+- Templates: `docs/templates/`
 - Validar: `scripts/docs-check` · Regenerar índices: `scripts/docs-check --emit-index`

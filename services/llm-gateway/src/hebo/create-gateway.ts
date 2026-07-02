@@ -1,5 +1,5 @@
 import { gateway } from "@hebo-ai/gateway";
-import type { IOpenAiOAuthService } from "@lite-llm/model-proxy-config-service";
+import type { IOpenAiOAuthService } from "@lite-llm/llm-config-service";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import { RequestLedger } from "../logging/request-ledger";
 import { buildHeboGatewayConfig } from "./build-config";
