@@ -14,6 +14,15 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { StatusBadge } from "@/features/health-check/components/status-badge";
+import type { HealthCheckResultEntry } from "@/features/health-check/types/health-status-types";
+import {
+  formatRelativeTime,
+  formatResponseTime,
+  formatTimestamp,
+  formatTokensPerSecond,
+  STATUS_COLORS,
+} from "@/features/health-check/utils/health-status-utils";
 import { ModelFormDialog } from "@/features/models/components/model-form-dialog";
 import { SyncModelsDialog } from "@/features/models/components/sync-models-dialog";
 import {
@@ -22,15 +31,6 @@ import {
   getMaxOutput,
   getOutputCost,
 } from "@/features/models/models-utils";
-import { StatusBadge } from "@/features/monitor/components/status-badge";
-import type { HealthCheckResultEntry } from "@/features/monitor/types/health-status-types";
-import {
-  formatRelativeTime,
-  formatResponseTime,
-  formatTimestamp,
-  formatTokensPerSecond,
-  STATUS_COLORS,
-} from "@/features/monitor/utils/health-status-utils";
 import {
   AlertDialog,
   AlertDialogAction,

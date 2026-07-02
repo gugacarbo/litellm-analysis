@@ -1,4 +1,4 @@
-import { HealthStatusContent } from "@/features/monitor/components/health-status-content";
+import { HealthStatusContent } from "@/features/health-check";
 
 export function ModelsHealthCheckPage() {
   return <HealthStatusContent embedded />;

@@ -21,7 +21,6 @@ import { ModelsAliasesPage } from "@/features/models/models-aliases-page";
 import { ModelsConfiguredPage } from "@/features/models/models-configured-page";
 import { ModelsHealthCheckPage } from "@/features/models/models-health-check-page";
 import { ModelsLayout } from "@/features/models/models-layout";
-import { MonitorPage } from "@/features/monitor";
 import { PluginConfigPage } from "@/features/plugins";
 import { PluginsPage } from "@/features/plugins/list-index";
 import { PromptEvalDetailPage } from "@/features/prompts/detail";
@@ -102,12 +101,6 @@ const routes: RouteConfig[] = [
     path: "/prompt-evals/:id",
     title: "Prompt Evaluation Detail",
     component: PromptEvalDetailPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/monitor",
-    title: "Monitor",
-    component: MonitorPage,
     withErrorBoundary: true,
   },
 ];

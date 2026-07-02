@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useHealthStatusWebSocket } from "@/features/monitor/hooks/use-health-status-websocket";
-import type { HealthCheckResultEntry } from "@/features/monitor/types/health-status-types";
-import { mergeLatestHealthChecks } from "@/features/monitor/utils/health-status-utils";
+import { useHealthStatusWebSocket } from "@/features/health-check/hooks/use-health-status-websocket";
+import type { HealthCheckResultEntry } from "@/features/health-check/types/health-status-types";
+import { mergeLatestHealthChecks } from "@/features/health-check/utils/health-status-utils";
 import { getLatestHealthChecks } from "@/shared/lib/api-client/health-check";
 import { queryKeys } from "@/shared/lib/query-keys";
 

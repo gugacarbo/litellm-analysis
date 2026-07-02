@@ -10,7 +10,6 @@ import {
   HeartPulse,
   ListChecks,
   PanelLeftIcon,
-  Radar,
   Scale,
   Settings,
   TrendingUp,
@@ -119,7 +118,6 @@ function NavItemBranch({ item }: { item: NavBranch }) {
 export function AppSidebar() {
   const navItems: NavItem[] = [
     { id: "dashboard", to: "/", icon: Activity, label: "Dashboard" },
-    { id: "monitor", to: "/monitor", icon: Radar, label: "Monitor" },
     { id: "model-stats", to: "/model-stats", icon: TrendingUp, label: "Stats" },
     { id: "logs", to: "/logs", icon: FileText, label: "Logs" },
     {
