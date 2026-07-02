@@ -92,9 +92,6 @@ function toPrismaModelData(
     ...(route.upstreamBaseUrl !== undefined
       ? { upstreamBaseUrl: route.upstreamBaseUrl }
       : {}),
-    ...(route.providerName !== undefined
-      ? { providerName: route.providerName }
-      : {}),
     ...(route.secretRef !== undefined ? { secretRef: route.secretRef } : {}),
     ...(route.requestOptions !== undefined
       ? { requestOptions: route.requestOptions as Prisma.InputJsonValue }
@@ -103,6 +100,15 @@ function toPrismaModelData(
       ? { metadata: route.metadata as Prisma.InputJsonValue }
       : {}),
   };
+
+  if (route.providerName !== undefined) {
+    if (route.providerName === null) {
+      data.provider = { disconnect: true };
+    } else {
+      data.provider = { connect: { name: route.providerName } };
+    }
+  }
+
   return data;
 }
 
@@ -110,7 +116,7 @@ function toPrismaModelCreate(
   modelName: string,
   route: ModelRouteUpdate = {},
 ): Prisma.ModelProxyModelCreateInput {
-  return {
+  const data: Prisma.ModelProxyModelCreateInput = {
     modelName,
     enabled: route.enabled ?? true,
     displayName: route.displayName ?? null,
@@ -124,7 +130,6 @@ function toPrismaModelCreate(
     outputCostPerToken: route.outputCostPerToken ?? null,
     upstreamModel: route.upstreamModel ?? null,
     upstreamBaseUrl: route.upstreamBaseUrl ?? null,
-    providerName: route.providerName ?? null,
     secretRef: route.secretRef ?? null,
     ...(route.requestOptions !== undefined
       ? {
@@ -137,6 +142,12 @@ function toPrismaModelCreate(
         }
       : {}),
   };
+
+  if (route.providerName) {
+    data.provider = { connect: { name: route.providerName } };
+  }
+
+  return data;
 }
 
 export interface ModelsListOptions {
@@ -153,7 +164,7 @@ export class ModelsRepository {
   async findByModelName(
     modelName: string,
   ): Promise<ModelProxyModelRecord | null> {
-    const row = await this.prisma.modelProxyModel.findUnique({
+    const row = await this.prisma.modelProxyModel.findFirst({
       where: { modelName },
     });
     return row ? toModelProxyModelRecord(row) : null;
@@ -183,32 +194,35 @@ export class ModelsRepository {
     modelName: string,
     route: ModelRouteUpdate,
   ): Promise<ModelProxyModelRecord | null> {
-    try {
-      const row = await this.prisma.modelProxyModel.update({
-        where: { modelName },
-        data: toPrismaModelData(route),
-      });
-      return toModelProxyModelRecord(row);
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        (error as { code?: string }).code === "P2025"
-      ) {
-        return null;
-      }
-      throw error;
+    const existing = await this.prisma.modelProxyModel.findFirst({
+      where: { modelName },
+    });
+    if (!existing) {
+      return null;
     }
+    const row = await this.prisma.modelProxyModel.update({
+      where: { id: existing.id },
+      data: toPrismaModelData(route),
+    });
+    return toModelProxyModelRecord(row);
   }
 
   async upsert(
     modelName: string,
     route: ModelRouteUpdate = {},
   ): Promise<ModelProxyModelRecord> {
-    const row = await this.prisma.modelProxyModel.upsert({
+    const existing = await this.prisma.modelProxyModel.findFirst({
       where: { modelName },
-      create: toPrismaModelCreate(modelName, route),
-      update: toPrismaModelData(route),
+    });
+    if (existing) {
+      const row = await this.prisma.modelProxyModel.update({
+        where: { id: existing.id },
+        data: toPrismaModelData(route),
+      });
+      return toModelProxyModelRecord(row);
+    }
+    const row = await this.prisma.modelProxyModel.create({
+      data: toPrismaModelCreate(modelName, route),
     });
     return toModelProxyModelRecord(row);
   }
@@ -221,18 +235,13 @@ export class ModelsRepository {
   }
 
   async delete(modelName: string): Promise<boolean> {
-    try {
-      await this.prisma.modelProxyModel.delete({ where: { modelName } });
-      return true;
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        (error as { code?: string }).code === "P2025"
-      ) {
-        return false;
-      }
-      throw error;
+    const existing = await this.prisma.modelProxyModel.findFirst({
+      where: { modelName },
+    });
+    if (!existing) {
+      return false;
     }
+    await this.prisma.modelProxyModel.delete({ where: { id: existing.id } });
+    return true;
   }
 }

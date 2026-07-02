@@ -10,7 +10,7 @@ import type {
 import type {
   ModelSpec,
   Provider,
-} from "@lite-llm/models-repository/repository";
+} from "@lite-llm/models-repository";
 
 export const CHATGPT_SUBSCRIPTION_PROVIDER = "chatgpt-subscription";
 
@@ -96,6 +96,27 @@ export function findUpstreamProvider(
   return undefined;
 }
 
+export function parseProviderModel(rawModel: string): {
+  providerPrefix?: string;
+  bareModelName: string;
+} {
+  const trimmed = rawModel.trim();
+  const slashIndex = trimmed.indexOf("/");
+
+  if (slashIndex === -1 || slashIndex === 0) {
+    return { bareModelName: trimmed };
+  }
+
+  const prefix = trimmed.slice(0, slashIndex);
+  const model = trimmed.slice(slashIndex + 1);
+
+  if (!model) {
+    return { bareModelName: trimmed };
+  }
+
+  return { providerPrefix: prefix, bareModelName: model };
+}
+
 export async function resolveUpstreamTarget(params: {
   database: PrismaClient;
   modelName: string;
@@ -104,20 +125,55 @@ export async function resolveUpstreamTarget(params: {
   row?: ModelProxyModel | null;
 }): Promise<ResolvedUpstreamTarget> {
   const { database, modelName, providers, fallbackModels, row } = params;
-  const fallbackSpec = fallbackModels[modelName];
+  const { providerPrefix, bareModelName } = parseProviderModel(modelName);
 
-  if (!row && !fallbackSpec) {
+  let resolvedRow: ModelProxyModel | null = row ?? null;
+
+  if (!resolvedRow) {
+    if (providerPrefix) {
+      resolvedRow = await database.modelProxyModel.findFirst({
+        where: { modelName: bareModelName, providerName: providerPrefix },
+      });
+      if (!resolvedRow) {
+        throw new Error(`Model "${modelName}" not found`);
+      }
+    } else {
+      const rows = await database.modelProxyModel.findMany({
+        where: { modelName: bareModelName },
+      });
+
+      if (rows.length === 1) {
+        resolvedRow = rows[0];
+      } else if (rows.length > 1) {
+        const defaultRow = rows.find((r) => r.isDefaultProvider);
+        if (!defaultRow) {
+          throw new Error(
+            `Ambiguous model "${bareModelName}" — multiple providers available. Use "provider/${bareModelName}" to specify.`,
+          );
+        }
+        resolvedRow = defaultRow;
+      }
+    }
+  }
+
+  const fallbackSpec = fallbackModels[bareModelName];
+
+  if (!resolvedRow && !fallbackSpec) {
     throw new Error(`Model "${modelName}" not found`);
   }
 
-  if (row?.enabled === false) {
+  if (resolvedRow?.enabled === false) {
     throw new Error(`Model "${modelName}" is disabled`);
   }
 
-  const upstreamProvider = findUpstreamProvider(providers, fallbackSpec, row);
+  const upstreamProvider = findUpstreamProvider(
+    providers,
+    fallbackSpec,
+    resolvedRow,
+  );
 
   const providerName =
-    row?.providerName?.trim() ||
+    resolvedRow?.providerName?.trim() ||
     upstreamProvider?.defaultProvider?.trim() ||
     undefined;
 
@@ -128,7 +184,7 @@ export async function resolveUpstreamTarget(params: {
     : null;
 
   const upstreamBaseUrl =
-    row?.upstreamBaseUrl?.trim() ||
+    resolvedRow?.upstreamBaseUrl?.trim() ||
     upstreamProvider?.baseUrl?.trim() ||
     provider?.baseUrl?.trim() ||
     serverEnv.MODEL_PROXY_UPSTREAM_BASE_URL?.trim();
@@ -137,7 +193,7 @@ export async function resolveUpstreamTarget(params: {
     throw new Error(`No upstream base URL configured for model "${modelName}"`);
   }
 
-  const envSecret = readSecretRef(row?.secretRef);
+  const envSecret = readSecretRef(resolvedRow?.secretRef);
   const isChatGptSubscription =
     upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
 
@@ -154,7 +210,7 @@ export async function resolveUpstreamTarget(params: {
   return {
     authMode: isChatGptSubscription ? "openai-chatgpt-oauth" : "bearer",
     model: modelName,
-    upstreamModel: row?.upstreamModel?.trim() || modelName,
+    upstreamModel: resolvedRow?.upstreamModel?.trim() || bareModelName,
     upstreamBaseUrl: normalizeBaseUrl(upstreamBaseUrl),
     upstreamHeaders: isChatGptSubscription
       ? {}
@@ -162,14 +218,14 @@ export async function resolveUpstreamTarget(params: {
           authorization: `Bearer ${upstreamApiKey}`,
         },
     ownedBy:
-      row?.ownedBy ??
+      resolvedRow?.ownedBy ??
       fallbackSpec?.ownedBy ??
       fallbackSpec?.family ??
       "local-proxy",
-    displayName: row?.displayName ?? fallbackSpec?.displayName,
+    displayName: resolvedRow?.displayName ?? fallbackSpec?.displayName,
     cost: {
-      input: row?.inputCostPerToken ?? fallbackSpec?.cost?.input,
-      output: row?.outputCostPerToken ?? fallbackSpec?.cost?.output,
+      input: resolvedRow?.inputCostPerToken ?? fallbackSpec?.cost?.input,
+      output: resolvedRow?.outputCostPerToken ?? fallbackSpec?.cost?.output,
     },
   };
 }

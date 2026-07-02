@@ -123,7 +123,7 @@ export async function updateRegistryModelImpl(
     : null;
 
   if (targetName !== modelName) {
-    const existing = await prisma.modelProxyModel.findUnique({
+    const existing = await prisma.modelProxyModel.findFirst({
       where: { modelName },
     });
     if (!existing) {
@@ -131,7 +131,7 @@ export async function updateRegistryModelImpl(
     }
     const existingRoute = prismaModelToRoute(existing);
     const mergedRoute = route ?? existingRoute;
-    await prisma.modelProxyModel.delete({ where: { modelName } });
+    await prisma.modelProxyModel.delete({ where: { id: existing.id } });
     await prisma.modelProxyModel.create({
       data: routeToCreateData({ ...mergedRoute, modelName: targetName }),
     });
@@ -142,24 +142,29 @@ export async function updateRegistryModelImpl(
     return;
   }
 
-  const updated = await prisma.modelProxyModel.update({
+  const existing = await prisma.modelProxyModel.findFirst({
     where: { modelName },
-    data: routeToCreateData(route),
   });
-  if (!updated) {
+  if (!existing) {
     throw new Error(`Model "${modelName}" not found`);
   }
+  const updated = await prisma.modelProxyModel.update({
+    where: { id: existing.id },
+    data: routeToCreateData(route),
+  });
 }
 
 export async function deleteRegistryModelImpl(
   modelName: string,
 ): Promise<void> {
   const prisma = getModelProxyPrisma();
-  try {
-    await prisma.modelProxyModel.delete({ where: { modelName } });
-  } catch {
+  const existing = await prisma.modelProxyModel.findFirst({
+    where: { modelName },
+  });
+  if (!existing) {
     throw new Error(`Model "${modelName}" not found`);
   }
+  await prisma.modelProxyModel.delete({ where: { id: existing.id } });
 }
 
 export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {

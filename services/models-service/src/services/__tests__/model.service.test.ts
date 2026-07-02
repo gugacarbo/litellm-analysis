@@ -1,13 +1,24 @@
-import { createRepository } from "@lite-llm/models-repository/repository";
-import { MemoryStorage } from "@lite-llm/repository-utils";
+import type {
+  IModelsRepository,
+  ModelsConfig,
+} from "@lite-llm/models-repository";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ModelService } from "../model.service";
 
-function createTestRepo(files: Record<string, string>) {
-  return createRepository({
-    filePath: "/test/models.json",
-    storage: new MemoryStorage(files),
-  });
+function createTestRepo(initialConfig: ModelsConfig): IModelsRepository {
+  let config = structuredClone(initialConfig);
+
+  return {
+    read: async () => structuredClone(config),
+    readSync: () => structuredClone(config),
+    write: async (nextConfig) => {
+      config = structuredClone(nextConfig);
+    },
+    validate: (value): value is ModelsConfig =>
+      typeof value === "object" && value !== null,
+    exists: async () => true,
+    getPath: () => "memory://models-config",
+  };
 }
 
 describe("ModelService", () => {
@@ -15,17 +26,15 @@ describe("ModelService", () => {
 
   beforeEach(() => {
     const repo = createTestRepo({
-      "/test/models.json": JSON.stringify({
-        version: 1,
-        provider: {},
-        models: {
-          "test-model": {
-            enabled: true,
-            displayName: "Test Model",
-            limits: { length: 1000, maxOutput: 500 },
-          },
+      version: 1,
+      provider: {},
+      models: {
+        "test-model": {
+          enabled: true,
+          displayName: "Test Model",
+          limits: { length: 1000, maxOutput: 500 },
         },
-      }),
+      },
     });
     service = new ModelService({ repository: repo });
   });

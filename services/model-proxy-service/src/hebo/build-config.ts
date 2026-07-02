@@ -10,6 +10,7 @@ import { getModelProxyPrisma } from "@lite-llm/model-proxy-repository";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 import {
   type ResolvedUpstreamTarget,
+  parseProviderModel,
   resolveUpstreamTarget,
 } from "../resolver/upstream-provider";
 
@@ -83,11 +84,15 @@ async function listProxyModelNames(
   const proxyModels = await database.modelProxyModel.findMany({
     where: { enabled: true },
     orderBy: { modelName: "asc" },
-    select: { modelName: true },
+    select: { modelName: true, providerName: true },
   });
 
   if (proxyModels.length > 0) {
-    return proxyModels.map((row) => row.modelName);
+    return proxyModels.map((row) =>
+      row.providerName
+        ? `${row.providerName}/${row.modelName}`
+        : row.modelName,
+    );
   }
 
   const fallbackModels = await modelsService.getAll();
@@ -111,11 +116,19 @@ export async function buildHeboGatewayConfig(options: {
   const providerGroups = new Map<string, ProviderGroup>();
   const providerByModel = new Map<string, string>();
 
+  // Batch-count rows per bare model name for multi-provider detection
+  const bareNameCounts = new Map<string, number>();
   for (const modelName of modelNames) {
-    const row = await database.modelProxyModel.findUnique({
-      where: { modelName },
-    });
+    const { bareModelName } = parseProviderModel(modelName);
+    if (!bareNameCounts.has(bareModelName)) {
+      const count = await database.modelProxyModel.count({
+        where: { modelName: bareModelName },
+      });
+      bareNameCounts.set(bareModelName, count);
+    }
+  }
 
+  for (const modelName of modelNames) {
     let target: ResolvedUpstreamTarget;
     try {
       target = await resolveUpstreamTarget({
@@ -123,35 +136,85 @@ export async function buildHeboGatewayConfig(options: {
         modelName,
         providers,
         fallbackModels,
-        row,
       });
     } catch {
       continue;
     }
 
-    targetsByModel.set(modelName, target);
+    const { bareModelName, providerPrefix } = parseProviderModel(modelName);
+    const rowCount = bareNameCounts.get(bareModelName) ?? 1;
 
-    const key = providerKey(target);
-    let group = providerGroups.get(key);
-    if (!group) {
-      group = {
-        id: `upstream-${providerGroups.size}`,
-        baseUrl: target.upstreamBaseUrl,
-        apiKey:
-          target.authMode === "openai-chatgpt-oauth"
-            ? "oauth-placeholder"
-            : readBearerToken(target.upstreamHeaders),
-        authMode: target.authMode,
-        mapping: {},
-      };
-      providerGroups.set(key, group);
+    // Determine catalog keys for this model
+    const catalogKeys: string[] = [];
+
+    if (rowCount === 1) {
+      // Single-provider: register under bare name
+      catalogKeys.push(bareModelName);
+    } else {
+      // Multi-provider: always register under provider/model
+      catalogKeys.push(modelName);
+
+      // Also register under bare name if this is the default provider
+      if (providerPrefix) {
+        const resolvedRow = await database.modelProxyModel.findFirst({
+          where: {
+            modelName: bareModelName,
+            providerName: providerPrefix,
+          },
+        });
+        if (resolvedRow?.isDefaultProvider) {
+          catalogKeys.push(bareModelName);
+        }
+      }
     }
 
-    if (target.upstreamModel !== modelName) {
-      group.mapping[modelName] = target.upstreamModel;
-    }
+    for (const catalogKey of catalogKeys) {
+      targetsByModel.set(catalogKey, target);
 
-    providerByModel.set(modelName, group.id);
+      const key = providerKey(target);
+      let group = providerGroups.get(key);
+      if (!group) {
+        group = {
+          id: `upstream-${providerGroups.size}`,
+          baseUrl: target.upstreamBaseUrl,
+          apiKey:
+            target.authMode === "openai-chatgpt-oauth"
+              ? "oauth-placeholder"
+              : readBearerToken(target.upstreamHeaders),
+          authMode: target.authMode,
+          mapping: {},
+        };
+        providerGroups.set(key, group);
+      }
+
+      if (target.upstreamModel !== catalogKey) {
+        group.mapping[catalogKey] = target.upstreamModel;
+      }
+
+      providerByModel.set(catalogKey, group.id);
+    }
+  }
+
+  // Warn about ambiguous models with no default
+  const processedBareNames = new Set<string>();
+  for (const modelName of modelNames) {
+    const { bareModelName } = parseProviderModel(modelName);
+    if (processedBareNames.has(bareModelName)) {
+      continue;
+    }
+    processedBareNames.add(bareModelName);
+
+    const rowCount = bareNameCounts.get(bareModelName) ?? 1;
+    if (rowCount > 1) {
+      const hasDefault = await database.modelProxyModel.findFirst({
+        where: { modelName: bareModelName, isDefaultProvider: true },
+      });
+      if (!hasDefault) {
+        console.warn(
+          `[hebo] Ambiguous model "${bareModelName}" has ${rowCount} providers but no default — use "provider/${bareModelName}" to specify`,
+        );
+      }
+    }
   }
 
   const providerRegistry: Record<string, ProviderV3> = {};
