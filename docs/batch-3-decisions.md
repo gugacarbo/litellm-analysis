@@ -53,7 +53,6 @@ Ordem já implementada em `upstream-provider.ts` (mantida):
 1. `readSecretRef(row.secretRef)` → `readSecretRef(credential.secretRef)`
 2. `credential.apiKey` (somente leitura de dados importados/legados)
 3. Provider row / env fallback resolvido a partir do registry
-4. `MODEL_PROXY_UPSTREAM_API_KEY` (fallback global de dev)
 
 ### Formato de `secretRef`
 

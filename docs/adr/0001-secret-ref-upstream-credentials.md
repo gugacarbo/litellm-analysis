@@ -6,7 +6,7 @@ superseded-by: null
 deciders: [architecture-team]
 ---
 
-> ⚠️ **VERDADE ATUAL:** Credenciais upstream novas usam `secretRef` (nome de env var) e nunca persistem segredo bruto. O campo `apiKey` é rejeitado no service layer para writes novos. A resolução em runtime segue a ordem: `readSecretRef` → `credential.apiKey` (legado) → provider row → `MODEL_PROXY_UPSTREAM_API_KEY`.
+> ⚠️ **VERDADE ATUAL:** Credenciais upstream novas usam `secretRef` (nome de env var) e nunca persistem segredo bruto. O campo `apiKey` é rejeitado no service layer para writes novos. A resolução em runtime segue a ordem: `readSecretRef` → `credential.apiKey` (legado) → provider row.
 
 # Usar `secretRef` em vez de segredo bruto para credenciais upstream
 
@@ -56,4 +56,4 @@ grep -rn "env:" repositories/model-proxy-repository/prisma/ && exit 1
 
 ## Notas
 
-A resolução em runtime segue a ordem já implementada em `upstream-provider.ts`: (1) `readSecretRef(row.secretRef)`, (2) `credential.apiKey` (legado), (3) provider row / env fallback, (4) `MODEL_PROXY_UPSTREAM_API_KEY` (fallback global de dev). O formato de `secretRef` é o nome exato da env var, sem prefixo `env:`.
+A resolução em runtime segue a ordem já implementada em `upstream-provider.ts`: (1) `readSecretRef(row.secretRef)`, (2) `credential.apiKey` (legado), (3) provider row / env fallback. O formato de `secretRef` é o nome exato da env var, sem prefixo `env:`.

@@ -57,8 +57,6 @@ configure env vars **before** the model proxy can resolve upstream credentials
 | Variable | When needed |
 |----------|-------------|
 | Per-provider / per-model `secretRef` values | **Required** for production upstream auth after import |
-| `MODEL_PROXY_UPSTREAM_API_KEY` | Dev/migration fallback when no per-row secret resolves |
-| `MODEL_PROXY_UPSTREAM_BASE_URL` | Optional global upstream base URL fallback |
 | `MODEL_PROXY_API_KEY` | Local proxy client auth (unrelated to upstream credentials; see decisions §2) |
 
 ---
@@ -282,7 +280,6 @@ After a successful import, upstream requests resolve provider/model secrets in t
 
 1. `model_proxy_models.secret_ref` → `process.env[secretRef]`
 2. `model_proxy_providers.secret_ref` → `process.env[secretRef]`
-3. `MODEL_PROXY_UPSTREAM_API_KEY`
 
 ### Checklist for operators
 

@@ -1,4 +1,3 @@
-import { serverEnv } from "@lite-llm/config/server";
 import {
   OPENAI_CHATGPT_API_BASE,
   resolveProviderSecret,
@@ -196,8 +195,7 @@ export async function resolveUpstreamTarget(params: {
   const upstreamBaseUrl =
     resolvedRow?.upstreamBaseUrl?.trim() ||
     upstreamProvider?.baseUrl?.trim() ||
-    provider?.baseUrl?.trim() ||
-    serverEnv.MODEL_PROXY_UPSTREAM_BASE_URL?.trim();
+    provider?.baseUrl?.trim();
 
   if (!upstreamBaseUrl) {
     throw new Error(`No upstream base URL configured for model "${modelName}"`);
@@ -210,8 +208,7 @@ export async function resolveUpstreamTarget(params: {
   const upstreamApiKey =
     envSecret ||
     (provider ? resolveProviderSecret(provider) : undefined) ||
-    readProviderApiKey(upstreamProvider) ||
-    serverEnv.MODEL_PROXY_UPSTREAM_API_KEY?.trim();
+    readProviderApiKey(upstreamProvider);
 
   if (!isChatGptSubscription && !upstreamApiKey) {
     throw new Error(`No upstream API key configured for model "${modelName}"`);
