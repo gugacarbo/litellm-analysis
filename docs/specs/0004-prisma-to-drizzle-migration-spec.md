@@ -100,7 +100,7 @@ sobreviver no repositório e o único ORM do monorepo é Drizzle.
 
 ### Migração dos consumidores
 
-14. `services/model-proxy-registry-service` — os repositórios
+14. `services/model-proxy-config-service` — os repositórios
     (`api-keys-repository.ts`, `models-repository.ts`,
     `providers-repository.ts`, `settings-repository.ts`) trocam
     `prisma.modelProxyX.findMany()` etc. por `db.select().from(modelProxyX)`

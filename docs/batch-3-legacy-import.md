@@ -64,7 +64,7 @@ configure env vars **before** the model proxy can resolve upstream credentials
 ## Planned CLI
 
 Implementation target: a script or `pnpm` task (e.g.
-`pnpm --filter @lite-llm/model-proxy-registry-service import:legacy`) that:
+`pnpm --filter @lite-llm/model-proxy-config-service import:legacy`) that:
 
 1. Creates a row in `model_proxy_import_jobs` (`source = "litellm-operational"`,
    `status = "running"`).
@@ -314,6 +314,6 @@ After a successful import, upstream requests resolve provider/model secrets in t
   - [`model-queries.ts`](../services/analytics-service/src/queries/model-queries.ts)
   - [`key-queries.ts`](../services/analytics-service/src/queries/key-queries.ts)
 - Upstream resolution:
-  [`upstream-provider.ts`](../services/model-proxy-service/src/resolver/upstream-provider.ts)
+  [`upstream-provider.ts`](../services/llm-gateway/src/resolver/upstream-provider.ts)
 - Batch 3 checklist:
   [`litellm-removal-batch-3-settings-registry-credentials.md`](./litellm-removal-batch-3-settings-registry-credentials.md)

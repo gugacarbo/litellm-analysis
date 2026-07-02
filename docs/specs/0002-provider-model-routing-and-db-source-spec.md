@@ -113,7 +113,7 @@ priority chain runs unchanged.
 
 ### Hebo gateway catalog
 
-`buildHeboGatewayConfig()` in `services/model-proxy-service/src/hebo/build-config.ts`:
+`buildHeboGatewayConfig()` in `services/llm-gateway/src/hebo/build-config.ts`:
 
 - For each model name that has exactly one row in `model_proxy_models`, register
   it under its bare `modelName` (backward compatible).
@@ -150,8 +150,8 @@ priority chain runs unchanged.
 | `docs/litellm-removal-migration-plan.md` | Update source-of-truth references |
 | `docs/batch-3-*.md` | Update `models.jsonc` references |
 | `packages/server/src/routes/model-routes.ts` | Remove comment referencing `models.jsonc` as config source |
-| `services/model-proxy-registry-service/src/types/model-route.ts` | Remove comment referencing `models.jsonc` |
-| `services/model-proxy-registry-service/src/types/sync-status.ts` | Remove `models.jsonc` references from sync types |
+| `services/model-proxy-config-service/src/types/model-route.ts` | Remove comment referencing `models.jsonc` |
+| `services/model-proxy-config-service/src/types/sync-status.ts` | Remove `models.jsonc` references from sync types |
 
 ### Preserved (not removed)
 

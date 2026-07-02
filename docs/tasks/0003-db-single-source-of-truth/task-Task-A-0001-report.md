@@ -28,7 +28,7 @@ None. All model-related dead code was already removed by a prior task.
 
 ## 5. Self-review findings
 
-- The test file (`index.test.ts`) imports from `@lite-llm/model-proxy-repository` and `@lite-llm/model-proxy-registry-service` — these are model-related packages but the imports are for the test's actual functionality (testing agents/plugins import with model proxy registry), not dead code. They are valid.
+- The test file (`index.test.ts`) imports from `@lite-llm/model-proxy-repository` and `@lite-llm/model-proxy-config-service` — these are model-related packages but the imports are for the test's actual functionality (testing agents/plugins import with model proxy registry), not dead code. They are valid.
 - The `generate-schema/index.ts` still writes to `@settings/agents/agents.schema.json` and `@settings/plugins/plugins.schema.json` — this is expected to be handled by Task-A-0002 which deletes the entire `generate-schema` directory.
 
 ## 6. Issues or concerns

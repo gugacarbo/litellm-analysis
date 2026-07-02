@@ -17,17 +17,17 @@ Dashboard de analytics para monitoramento de uso, custos e erros de LLMs via **m
 | Frontend | React 19, Vite 7, React Router 7    |
 | UI       | shadcn/ui, Tailwind CSS 4           |
 | Backend  | Express.js                          |
-| Database | PostgreSQL (`MODEL_PROXY_DATABASE_URL`) |
+| Database | PostgreSQL (`DATABASE_URL`) |
 | Monorepo | Turborepo, pnpm                     |
 
 ## Quick start
 
 ```bash
 cp .env.example .env
-# Configure MODEL_PROXY_DATABASE_URL, MODEL_PROXY_API_KEY, MODEL_PROXY_BASE_URL
+# Configure DATABASE_URL, MODEL_PROXY_API_KEY, MODEL_PROXY_BASE_URL
 
 pnpm install
-pnpm --filter @lite-llm/model-proxy-repository db:generate
+pnpm --filter @lite-llm/database db:generate
 pnpm dev   # web :5178, API :3008
 ```
 
@@ -35,7 +35,7 @@ pnpm dev   # web :5178, API :3008
 
 | Variável | Obrigatória | Descrição |
 |----------|-------------|-----------|
-| `MODEL_PROXY_DATABASE_URL` | Sim | PostgreSQL do proxy (`model_proxy_*`) |
+| `DATABASE_URL` | Sim | PostgreSQL do proxy (`model_proxy_*`) |
 | `MODEL_PROXY_API_KEY` | Sim | Chave do proxy local |
 | `MODEL_PROXY_BASE_URL` | Recomendada | Base URL `/v1` para health-check |
 ## Database as single source of truth

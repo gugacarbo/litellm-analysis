@@ -59,10 +59,10 @@ Dado o alto grau de dependência entre arquivos, a execução será **sequencial
 | `repositories/database/src/schema/app.ts` | Task-A-0004 | Tabelas `app_*` migradas do SQLite para PostgreSQL. |
 | `repositories/database/src/schema/index.ts` | Task-A-0005 | Re-exporta `model-proxy` e `app`. |
 | `repositories/database/drizzle/*` | Task-A-0005 | Migration inicial Drizzle criando todas as tabelas do zero. |
-| `services/model-proxy-registry-service/src/repositories/api-keys-repository.ts` | Task-B-0001 | Migra queries Prisma para Drizzle; garante `updatedAt` em updates. |
-| `services/model-proxy-registry-service/src/repositories/models-repository.ts` | Task-B-0001 | Migra queries Prisma para Drizzle; garante `updatedAt` em updates. |
-| `services/model-proxy-registry-service/src/repositories/providers-repository.ts` | Task-B-0001 | Migra queries Prisma para Drizzle; garante `updatedAt` em updates. |
-| `services/model-proxy-registry-service/src/repositories/settings-repository.ts` | Task-B-0001 | Migra queries Prisma para Drizzle; garante `updatedAt` em upserts. |
+| `services/model-proxy-config-service/src/repositories/api-keys-repository.ts` | Task-B-0001 | Migra queries Prisma para Drizzle; garante `updatedAt` em updates. |
+| `services/model-proxy-config-service/src/repositories/models-repository.ts` | Task-B-0001 | Migra queries Prisma para Drizzle; garante `updatedAt` em updates. |
+| `services/model-proxy-config-service/src/repositories/providers-repository.ts` | Task-B-0001 | Migra queries Prisma para Drizzle; garante `updatedAt` em updates. |
+| `services/model-proxy-config-service/src/repositories/settings-repository.ts` | Task-B-0001 | Migra queries Prisma para Drizzle; garante `updatedAt` em upserts. |
 | `services/analytics-service/src/data-source/index.ts` | Task-B-0002 | Trocar `getModelProxyPrisma()` por `db`; migrar interface interna. |
 | `services/analytics-service/src/queries/proxy/*.ts` | Task-B-0002 | Substituir `prisma.$queryRawUnsafe<T>` por `queryRaw<T>`; SQL idêntico. |
 | `services/analytics-service/src/queries/proxy/spend-queries.ts` | Task-B-0002 | Migrar Prisma Client queries para Drizzle. |

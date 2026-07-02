@@ -193,7 +193,7 @@ contrato novo (shim de resposta pode manter ambos até Onda 4).
 flowchart TB
   subgraph writes [Writes — somente model_proxy_*]
     Routes[model-routes / credential-routes]
-    Registry[model-proxy-registry-service]
+    Registry[model-proxy-config-service]
     ProxyDB[(model_proxy_*)]
     Routes --> Registry --> ProxyDB
   end

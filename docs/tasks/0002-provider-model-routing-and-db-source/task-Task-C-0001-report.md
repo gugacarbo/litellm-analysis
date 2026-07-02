@@ -17,7 +17,7 @@ Focused on the remaining blocking repository-contract subset needed to stabilize
 - `services/models-service/src/services/provider.service.ts`
 - `services/models-service/src/services/__tests__/model.service.test.ts`
 - `services/models-service/src/services/__tests__/provider.service.test.ts`
-- `services/model-proxy-service/src/resolver/upstream-provider.ts`
+- `services/llm-gateway/src/resolver/upstream-provider.ts`
 - `apps/server/src/__tests__/helpers/registry-test-stack.ts`
 
 ## Contract chosen and why
@@ -58,12 +58,12 @@ Passed:
 - `pnpm --filter @lite-llm/models-service typecheck`
 - `pnpm --filter @lite-llm/models-service test -- --run`
   - Result: 3 test files passed, 21 tests passed
-- `pnpm --filter @lite-llm/model-proxy-service typecheck`
+- `pnpm --filter @lite-llm/llm-gateway typecheck`
 - `pnpm --filter server typecheck`
 
 Not clean yet:
 
-- `pnpm --filter @lite-llm/model-proxy-service test -- --run upstream-provider`
+- `pnpm --filter @lite-llm/llm-gateway test -- --run upstream-provider`
   - Failed with 4 tests in the current branch state
   - `src/resolver/upstream-provider.test.ts`: 3 failures because the test mocks still assume the pre-lookup path and do not provide `database.modelProxyModel.findMany`
   - `src/service.test.ts`: 1 failure because the expected upstream URL no longer matches current provider-resolution behavior in branch state
@@ -72,7 +72,7 @@ Not clean yet:
 
 - `ModelsConfig.models` is still keyed only by bare `modelName`, so provider-scoped duplicate model names cannot be represented losslessly in the config map. This task intentionally did not broaden that shape; compile/runtime stabilization was prioritized.
 - The temporary `findAll()` alias should be removed after downstream consumers migrate to `read()`.
-- `services/model-proxy-service` resolver tests still need their mocks/expectations updated to the provider-scoped lookup behavior introduced on this branch.
+- `services/llm-gateway` resolver tests still need their mocks/expectations updated to the provider-scoped lookup behavior introduced on this branch.
 
 ## Fix pass addendum
 
@@ -96,7 +96,7 @@ Focused validation rerun for this fix pass:
 - `pnpm --filter @lite-llm/models-service typecheck`
 - `pnpm --filter @lite-llm/models-service test -- --run`
   - Result: 3 test files passed, 21 tests passed
-- `pnpm --filter @lite-llm/model-proxy-service typecheck`
+- `pnpm --filter @lite-llm/llm-gateway typecheck`
 
 Updated residual risk:
 

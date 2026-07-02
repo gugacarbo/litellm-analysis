@@ -31,9 +31,9 @@
 | `repositories/model-proxy-repository/prisma/schema.prisma` | `Task-A-0001` | Drop `@unique` on `modelName`, add composite `@@unique([model_name, provider_name])`, add `is_default_provider`, add FK, add partial index via `@@index` or raw SQL. |
 | `repositories/model-proxy-repository/prisma/migrations/20260701XXXXXX_provider_scoped_models/migration.sql` | `Task-A-0001` | Migration SQL for the above changes. |
 | `repositories/models-repository/src/db-repository.ts` | `Task-A-0001` | Update `modelSpecFromRow` to include `providerName` and `is_default_provider`; update `modelRowFromSpec` to accept and write these fields; update `read()` to include `providerName` in model keys when non-null. |
-| `services/model-proxy-service/src/resolver/upstream-provider.ts` | `Task-B-0001` | Add `parseProviderModel()` helper; update `resolveUpstreamTarget()` to accept raw model name, parse prefix, and query by `(modelName, providerName)` or `modelName` + default flag. |
-| `services/model-proxy-service/src/resolver/upstream-provider.test.ts` | `Task-B-0001` | Add tests for prefix parsing, default resolution, ambiguity error, unknown provider, NULL provider backward compat. |
-| `services/model-proxy-service/src/hebo/build-config.ts` | `Task-B-0002` | Update `buildHeboGatewayConfig()` to register `provider/model` canonical ids for ambiguous models and bare names for unique/default models. |
+| `services/llm-gateway/src/resolver/upstream-provider.ts` | `Task-B-0001` | Add `parseProviderModel()` helper; update `resolveUpstreamTarget()` to accept raw model name, parse prefix, and query by `(modelName, providerName)` or `modelName` + default flag. |
+| `services/llm-gateway/src/resolver/upstream-provider.test.ts` | `Task-B-0001` | Add tests for prefix parsing, default resolution, ambiguity error, unknown provider, NULL provider backward compat. |
+| `services/llm-gateway/src/hebo/build-config.ts` | `Task-B-0002` | Update `buildHeboGatewayConfig()` to register `provider/model` canonical ids for ambiguous models and bare names for unique/default models. |
 | `repositories/models-repository/src/repository.ts` | `Task-C-0001` | **DELETE** — file-based `ModelsRepository` class. |
 | `repositories/models-repository/src/storage.ts` | `Task-C-0001` | **DELETE** — file storage abstraction. |
 | `repositories/models-repository/src/repository.test.ts` | `Task-C-0001` | **DELETE** — file-based tests. |
@@ -56,8 +56,8 @@
 | `docs/batch-3-field-mapping.md` | `Task-C-0002` | Update `models.jsonc` references. |
 | `docs/batch-3-legacy-import.md` | `Task-C-0002` | Update `models.jsonc` references. |
 | `packages/server/src/routes/model-routes.ts` | `Task-C-0002` | Remove comment referencing `models.jsonc` as config source. |
-| `services/model-proxy-registry-service/src/types/model-route.ts` | `Task-C-0002` | Remove comment referencing `models.jsonc`. |
-| `services/model-proxy-registry-service/src/types/sync-status.ts` | `Task-C-0002` | Remove `models.jsonc` references from sync types. |
+| `services/model-proxy-config-service/src/types/model-route.ts` | `Task-C-0002` | Remove comment referencing `models.jsonc`. |
+| `services/model-proxy-config-service/src/types/sync-status.ts` | `Task-C-0002` | Remove `models.jsonc` references from sync types. |
 
 ## Task Registry
 

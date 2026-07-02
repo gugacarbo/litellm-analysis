@@ -112,7 +112,7 @@
         {
           "order": 1,
           "title": "Add parseProviderModel helper",
-          "description": "In services/model-proxy-service/src/resolver/upstream-provider.ts, add an exported function parseProviderModel(rawModel: string): { providerPrefix?: string; bareModelName: string }. Split on the FIRST '/'. If the segment before '/' is non-empty, it's the providerPrefix. The segment after '/' is bareModelName. If no '/' or empty prefix, providerPrefix is undefined and bareModelName is the whole string.",
+          "description": "In services/llm-gateway/src/resolver/upstream-provider.ts, add an exported function parseProviderModel(rawModel: string): { providerPrefix?: string; bareModelName: string }. Split on the FIRST '/'. If the segment before '/' is non-empty, it's the providerPrefix. The segment after '/' is bareModelName. If no '/' or empty prefix, providerPrefix is undefined and bareModelName is the whole string.",
           "command": null,
           "expectedResult": "Function parses correctly for all cases",
           "codeExample": "export function parseProviderModel(rawModel: string): {\n  providerPrefix?: string;\n  bareModelName: string;\n} {\n  const trimmed = rawModel.trim();\n  const slashIndex = trimmed.indexOf('/');\n  if (slashIndex === -1 || slashIndex === 0) {\n    return { bareModelName: trimmed };\n  }\n  const prefix = trimmed.slice(0, slashIndex);\n  const model = trimmed.slice(slashIndex + 1);\n  if (!model) {\n    return { bareModelName: trimmed };\n  }\n  return { providerPrefix: prefix, bareModelName: model };\n}"
@@ -128,7 +128,7 @@
         {
           "order": 3,
           "title": "Update callers of resolveUpstreamTarget",
-          "description": "In services/model-proxy-service/src/service.ts, update the resolveTarget method to pass the raw model name (no longer pre-looked-up). The row parameter becomes optional — the resolver now does its own lookup. In services/model-proxy-service/src/hebo/build-config.ts, update listProxyModelNames to return all model names (including duplicates across providers) and update the loop to pass model names directly to resolveUpstreamTarget without pre-looking-up rows.",
+          "description": "In services/llm-gateway/src/service.ts, update the resolveTarget method to pass the raw model name (no longer pre-looked-up). The row parameter becomes optional — the resolver now does its own lookup. In services/llm-gateway/src/hebo/build-config.ts, update listProxyModelNames to return all model names (including duplicates across providers) and update the loop to pass model names directly to resolveUpstreamTarget without pre-looking-up rows.",
           "command": null,
           "expectedResult": "All callers compile and work with new resolver signature",
           "codeExample": null
@@ -136,25 +136,25 @@
         {
           "order": 4,
           "title": "Write resolver tests",
-          "description": "In services/model-proxy-service/src/resolver/upstream-provider.test.ts, add tests for: (1) parseProviderModel with various inputs (bare name, provider/model, a/b/c, empty prefix '/model', trailing slash 'provider/'), (2) resolveUpstreamTarget with bare name + single row, (3) bare name + multiple rows + default flag, (4) bare name + multiple rows + no default → error, (5) provider/model prefix → specific row, (6) unknown provider prefix → error, (7) NULL provider backward compat, (8) disabled model → error. Mock database.modelProxyModel.findMany and findFirst appropriately.",
+          "description": "In services/llm-gateway/src/resolver/upstream-provider.test.ts, add tests for: (1) parseProviderModel with various inputs (bare name, provider/model, a/b/c, empty prefix '/model', trailing slash 'provider/'), (2) resolveUpstreamTarget with bare name + single row, (3) bare name + multiple rows + default flag, (4) bare name + multiple rows + no default → error, (5) provider/model prefix → specific row, (6) unknown provider prefix → error, (7) NULL provider backward compat, (8) disabled model → error. Mock database.modelProxyModel.findMany and findFirst appropriately.",
           "command": null,
           "expectedResult": "All new tests pass; existing tests still pass",
           "codeExample": "it('resolves bare model name with single row', async () => {\n  const database = mockDb({\n    modelProxyModel: {\n      findMany: vi.fn().mockResolvedValue([\n        { modelName: 'glm-5.1', providerName: 'openai-main', isDefaultProvider: true, enabled: true, ownedBy: 'openai', upstreamModel: null, upstreamBaseUrl: null, secretRef: null, displayName: 'GLM 5.1', inputCostPerToken: 0.0000014, outputCostPerToken: 0.0000044 },\n      ]),\n      findFirst: vi.fn(),\n    },\n  });\n  const result = await resolveUpstreamTarget({\n    database,\n    modelName: 'glm-5.1',\n    providers: { openai: { name: 'OpenAI', adapter: 'openai-compatible', baseUrl: 'https://api.openai.com/v1', defaultProvider: 'openai-main', apiKey: 'env:OPENAI_API_KEY' } },\n    fallbackModels: {},\n  });\n  expect(result.model).toBe('glm-5.1');\n  expect(result.upstreamBaseUrl).toBe('https://api.openai.com/v1');\n});"
         }
       ],
       "filesTouched": [
-        "services/model-proxy-service/src/resolver/upstream-provider.ts",
-        "services/model-proxy-service/src/resolver/upstream-provider.test.ts",
-        "services/model-proxy-service/src/service.ts",
-        "services/model-proxy-service/src/hebo/build-config.ts"
+        "services/llm-gateway/src/resolver/upstream-provider.ts",
+        "services/llm-gateway/src/resolver/upstream-provider.test.ts",
+        "services/llm-gateway/src/service.ts",
+        "services/llm-gateway/src/hebo/build-config.ts"
       ],
       "files": {
         "created": [],
         "modified": [
-          "services/model-proxy-service/src/resolver/upstream-provider.ts:1-175",
-          "services/model-proxy-service/src/resolver/upstream-provider.test.ts:1-end",
-          "services/model-proxy-service/src/service.ts:598-613",
-          "services/model-proxy-service/src/hebo/build-config.ts:80-170"
+          "services/llm-gateway/src/resolver/upstream-provider.ts:1-175",
+          "services/llm-gateway/src/resolver/upstream-provider.test.ts:1-end",
+          "services/llm-gateway/src/service.ts:598-613",
+          "services/llm-gateway/src/hebo/build-config.ts:80-170"
         ],
         "deleted": []
       },
@@ -211,11 +211,11 @@
           "codeExample": "// After resolving target, determine catalog keys:\nconst rowCount = await database.modelProxyModel.count({\n  where: { modelName: bareModelName },\n});\nconst catalogKeys: string[] = [];\nif (rowCount === 1) {\n  catalogKeys.push(bareModelName);\n} else {\n  catalogKeys.push(modelName); // providerName/modelName\n  if (resolvedRow?.isDefaultProvider) {\n    catalogKeys.push(bareModelName);\n  }\n}\n// Register each catalogKey in catalogEntries"
         }
       ],
-      "filesTouched": ["services/model-proxy-service/src/hebo/build-config.ts"],
+      "filesTouched": ["services/llm-gateway/src/hebo/build-config.ts"],
       "files": {
         "created": [],
         "modified": [
-          "services/model-proxy-service/src/hebo/build-config.ts:80-170"
+          "services/llm-gateway/src/hebo/build-config.ts:80-170"
         ],
         "deleted": []
       },
@@ -320,7 +320,7 @@
         {
           "order": 8,
           "title": "Update all imports across the workspace",
-          "description": "Search for any remaining imports from '@lite-llm/models-repository/repository' that reference the deleted file. These should be updated to import from '@lite-llm/models-repository' (the index) instead, which now re-exports types from schemas/. The IModelsRepository interface was defined in repository.ts — it needs to be re-exported from db-repository.ts or a new shared types file. Check all consumers: services/model-proxy-service, services/agent-plugins, packages/server, apps/server.",
+          "description": "Search for any remaining imports from '@lite-llm/models-repository/repository' that reference the deleted file. These should be updated to import from '@lite-llm/models-repository' (the index) instead, which now re-exports types from schemas/. The IModelsRepository interface was defined in repository.ts — it needs to be re-exported from db-repository.ts or a new shared types file. Check all consumers: services/llm-gateway, services/agent-plugins, packages/server, apps/server.",
           "command": null,
           "expectedResult": "All imports resolve; pnpm typecheck passes",
           "codeExample": "// In db-repository.ts, add:\nexport type { IModelsRepository } from './repository-types';\n// Where repository-types.ts contains just the interface (extracted from deleted repository.ts)"
@@ -328,7 +328,7 @@
         {
           "order": 9,
           "title": "Update tests that reference deleted files",
-          "description": "Find and update any tests that import from the deleted repository.ts, storage.ts, or reference models.jsonc. Key files to check: services/model-proxy-service/src/service.test.ts (mocks IModelService/IProviderService — should still work), services/agent-plugins/src/plugins/__tests__/registry.test.ts (mocks getPath returning '/tmp/models.jsonc' — update mock), scripts/src/settings-import/index.test.ts (remove models-related test cases), repositories/models-repository/src/db-repository.test.ts (should still work — uses DbModelsRepository).",
+          "description": "Find and update any tests that import from the deleted repository.ts, storage.ts, or reference models.jsonc. Key files to check: services/llm-gateway/src/service.test.ts (mocks IModelService/IProviderService — should still work), services/agent-plugins/src/plugins/__tests__/registry.test.ts (mocks getPath returning '/tmp/models.jsonc' — update mock), scripts/src/settings-import/index.test.ts (remove models-related test cases), repositories/models-repository/src/db-repository.test.ts (should still work — uses DbModelsRepository).",
           "command": null,
           "expectedResult": "All tests pass with pnpm test -- --run",
           "codeExample": null
@@ -350,7 +350,7 @@
         "scripts/src/settings-import/types.ts",
         "scripts/src/settings-export/index.ts",
         "scripts/src/generate-schema/index.ts",
-        "services/model-proxy-service/src/service.test.ts",
+        "services/llm-gateway/src/service.test.ts",
         "services/agent-plugins/src/plugins/__tests__/registry.test.ts",
         "scripts/src/settings-import/index.test.ts"
       ],
@@ -403,8 +403,8 @@
         "docs/litellm-removal-migration-plan.md updated source-of-truth references",
         "docs/batch-3-*.md updated models.jsonc references",
         "packages/server/src/routes/model-routes.ts comment about models.jsonc removed",
-        "services/model-proxy-registry-service/src/types/model-route.ts comment updated",
-        "services/model-proxy-registry-service/src/types/sync-status.ts references updated"
+        "services/model-proxy-config-service/src/types/model-route.ts comment updated",
+        "services/model-proxy-config-service/src/types/sync-status.ts references updated"
       ],
       "requirements": ["REQ-12: Docs atualizados"],
       "steps": [
@@ -435,7 +435,7 @@
         {
           "order": 4,
           "title": "Update source code comments",
-          "description": "In packages/server/src/routes/model-routes.ts, remove the comment at line 723 about fields belonging in models.jsonc. In services/model-proxy-registry-service/src/types/model-route.ts, update line 32 comment about 'dashboard models.jsonc'. In services/model-proxy-registry-service/src/types/sync-status.ts, update lines 2-4 about 'models.jsonc ↔ model_proxy_models'.",
+          "description": "In packages/server/src/routes/model-routes.ts, remove the comment at line 723 about fields belonging in models.jsonc. In services/model-proxy-config-service/src/types/model-route.ts, update line 32 comment about 'dashboard models.jsonc'. In services/model-proxy-config-service/src/types/sync-status.ts, update lines 2-4 about 'models.jsonc ↔ model_proxy_models'.",
           "command": null,
           "expectedResult": "No source comments reference models.jsonc as config source",
           "codeExample": null
@@ -449,8 +449,8 @@
         "docs/batch-3-field-mapping.md",
         "docs/batch-3-legacy-import.md",
         "packages/server/src/routes/model-routes.ts",
-        "services/model-proxy-registry-service/src/types/model-route.ts",
-        "services/model-proxy-registry-service/src/types/sync-status.ts"
+        "services/model-proxy-config-service/src/types/model-route.ts",
+        "services/model-proxy-config-service/src/types/sync-status.ts"
       ],
       "files": {
         "created": [],
@@ -462,8 +462,8 @@
           "docs/batch-3-field-mapping.md:24",
           "docs/batch-3-legacy-import.md:214",
           "packages/server/src/routes/model-routes.ts:723",
-          "services/model-proxy-registry-service/src/types/model-route.ts:32",
-          "services/model-proxy-registry-service/src/types/sync-status.ts:2-4"
+          "services/model-proxy-config-service/src/types/model-route.ts:32",
+          "services/model-proxy-config-service/src/types/sync-status.ts:2-4"
         ],
         "deleted": []
       },
@@ -516,7 +516,7 @@
         {
           "order": 2,
           "title": "Run full test suite",
-          "description": "Run pnpm test -- --run from the workspace root. Fix any test failures. Pay special attention to tests in services/model-proxy-service, services/agent-plugins, scripts, and apps/server.",
+          "description": "Run pnpm test -- --run from the workspace root. Fix any test failures. Pay special attention to tests in services/llm-gateway, services/agent-plugins, scripts, and apps/server.",
           "command": "pnpm test -- --run",
           "expectedResult": "All tests pass",
           "codeExample": null

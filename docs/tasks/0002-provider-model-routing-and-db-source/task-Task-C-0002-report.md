@@ -14,8 +14,8 @@ historical-notes preservation. No behavior changes were made.
 - `docs/batch-3-field-mapping.md`
 - `docs/batch-3-legacy-import.md`
 - `packages/server/src/routes/model-routes.ts`
-- `services/model-proxy-registry-service/src/types/model-route.ts`
-- `services/model-proxy-registry-service/src/types/sync-status.ts`
+- `services/model-proxy-config-service/src/types/model-route.ts`
+- `services/model-proxy-config-service/src/types/sync-status.ts`
 
 ## Files intentionally not changed
 
@@ -49,9 +49,9 @@ historical-notes preservation. No behavior changes were made.
 - Reworded comments in `packages/server/src/routes/model-routes.ts` to avoid
   presenting `models.jsonc` as the authoritative routing source.
 - Reworded `ModelRoute.metadata` docs in
-  `services/model-proxy-registry-service/src/types/model-route.ts`.
+  `services/model-proxy-config-service/src/types/model-route.ts`.
 - Reworded sync/config comments in
-  `services/model-proxy-registry-service/src/types/sync-status.ts` to describe
+  `services/model-proxy-config-service/src/types/sync-status.ts` to describe
   compatibility config payloads versus the registry.
 
 ## Search checks run
@@ -59,11 +59,11 @@ historical-notes preservation. No behavior changes were made.
 Commands run from repo root:
 
 ```bash
-rtk rg -n "models\\.jsonc|models\\.schema\\.json|source of truth|file-based|DbModelsRepository|model_proxy_models|model_proxy_providers" AGENTS.md @settings/AGENTS.md docs/litellm-removal-migration-plan.md docs/batch-3-decisions.md docs/batch-3-field-mapping.md docs/batch-3-legacy-import.md packages/server/src/routes/model-routes.ts services/model-proxy-registry-service/src/types/model-route.ts services/model-proxy-registry-service/src/types/sync-status.ts
+rtk rg -n "models\\.jsonc|models\\.schema\\.json|source of truth|file-based|DbModelsRepository|model_proxy_models|model_proxy_providers" AGENTS.md @settings/AGENTS.md docs/litellm-removal-migration-plan.md docs/batch-3-decisions.md docs/batch-3-field-mapping.md docs/batch-3-legacy-import.md packages/server/src/routes/model-routes.ts services/model-proxy-config-service/src/types/model-route.ts services/model-proxy-config-service/src/types/sync-status.ts
 ```
 
 ```bash
-rtk rg -n "models\\.jsonc" @settings/AGENTS.md docs/litellm-removal-migration-plan.md docs/batch-3-decisions.md docs/batch-3-field-mapping.md docs/batch-3-legacy-import.md packages/server/src/routes/model-routes.ts services/model-proxy-registry-service/src/types/model-route.ts services/model-proxy-registry-service/src/types/sync-status.ts
+rtk rg -n "models\\.jsonc" @settings/AGENTS.md docs/litellm-removal-migration-plan.md docs/batch-3-decisions.md docs/batch-3-field-mapping.md docs/batch-3-legacy-import.md packages/server/src/routes/model-routes.ts services/model-proxy-config-service/src/types/model-route.ts services/model-proxy-config-service/src/types/sync-status.ts
 ```
 
 ```bash

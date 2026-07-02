@@ -4,7 +4,7 @@
 
 # Open Questions / Assumptions
 
-- Assumi o escopo pedido: revisão focada em `services/model-proxy-service/src/hebo/build-config.ts` e `services/model-proxy-service/src/hebo/build-config.test.ts`, consultando o contrato de `resolveUpstreamTarget()` apenas para validar a semântica do catálogo.
+- Assumi o escopo pedido: revisão focada em `services/llm-gateway/src/hebo/build-config.ts` e `services/llm-gateway/src/hebo/build-config.test.ts`, consultando o contrato de `resolveUpstreamTarget()` apenas para validar a semântica do catálogo.
 - Assumi também que o contrato desta task cobre os três cenários descritos no task e na sua resolução: single-provider sob bare `modelName`, multi-provider sob `provider/model` com alias bare apenas para o default provider, e warning sem alias bare quando há ambiguidade sem default.
 - Não levantei finding para estados legados fora desse contrato explícito, como combinações mistas de `providerName = NULL` com providers nomeados para o mesmo `modelName`, porque esse comportamento não está especificado nesta task.
 

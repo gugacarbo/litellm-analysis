@@ -185,7 +185,7 @@ preserved in `requestOptions` when importing existing LiteLLM rows.
 | `output_cost_per_token` | `cost.output` | `outputCostPerToken` |
 
 Legacy sync direction names map to Batch 3 names (see
-[`sync-status.ts`](../services/model-proxy-registry-service/src/types/sync-status.ts)).
+[`sync-status.ts`](../services/model-proxy-config-service/src/types/sync-status.ts)).
 
 ## API response shape (target)
 
@@ -215,5 +215,5 @@ Legacy sync direction names map to Batch 3 names (see
 
 - Prisma schema: [`repositories/model-proxy-repository/prisma/schema.prisma`](../repositories/model-proxy-repository/prisma/schema.prisma)
 - Legacy builders: [`packages/server/src/orchestration/lite-llm-params.ts`](../packages/server/src/orchestration/lite-llm-params.ts)
-- Upstream resolver: [`services/model-proxy-service/src/resolver/upstream-provider.ts`](../services/model-proxy-service/src/resolver/upstream-provider.ts)
+- Upstream resolver: [`services/llm-gateway/src/resolver/upstream-provider.ts`](../services/llm-gateway/src/resolver/upstream-provider.ts)
 - Batch 3 plan: [`.cursor/plans/batch_3_implementation_plan_73d35577.plan.md`](../../.cursor/plans/batch_3_implementation_plan_73d35577.plan.md)

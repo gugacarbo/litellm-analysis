@@ -10,8 +10,8 @@
 
 ## Arquivos alterados
 
-- `services/model-proxy-service/src/hebo/build-config.ts`
-- `services/model-proxy-service/src/hebo/build-config.test.ts`
+- `services/llm-gateway/src/hebo/build-config.ts`
+- `services/llm-gateway/src/hebo/build-config.test.ts`
 - `docs/tasks/0002-provider-model-routing-and-db-source/task-Task-B-0002-report.md`
 
 ## Decisoes
@@ -27,7 +27,7 @@
 - Comando:
 
 ```bash
-rtk proxy pnpm --filter @lite-llm/model-proxy-service exec vitest run src/hebo/build-config.test.ts src/resolver/upstream-provider.test.ts
+rtk proxy pnpm --filter @lite-llm/llm-gateway exec vitest run src/hebo/build-config.test.ts src/resolver/upstream-provider.test.ts
 ```
 
 - Resultado:
@@ -37,11 +37,11 @@ rtk proxy pnpm --filter @lite-llm/model-proxy-service exec vitest run src/hebo/b
 - Comando:
 
 ```bash
-rtk proxy pnpm --filter @lite-llm/model-proxy-service typecheck
+rtk proxy pnpm --filter @lite-llm/llm-gateway typecheck
 ```
 
 - Resultado:
-  - falhou por erros preexistentes em `services/model-proxy-service/src/resolver/upstream-provider.test.ts`
+  - falhou por erros preexistentes em `services/llm-gateway/src/resolver/upstream-provider.test.ts`
   - nao houve erro novo atribuido ao slice de `build-config`
 
 ## Riscos pendentes

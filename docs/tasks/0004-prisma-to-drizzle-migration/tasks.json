@@ -334,7 +334,7 @@
     },
     {
       "id": "Task-B-0001",
-      "title": "Converter model-proxy-registry-service repositories para Drizzle",
+      "title": "Converter model-proxy-config-service repositories para Drizzle",
       "description": "Refatorar api-keys-repository, models-repository, providers-repository e settings-repository para usar db.select/insert/update/delete do @lite-llm/database.",
       "dependencies": ["Task-A-0005"],
       "batch": "B",
@@ -385,18 +385,18 @@
         }
       ],
       "filesTouched": [
-        "services/model-proxy-registry-service/src/repositories/api-keys-repository.ts",
-        "services/model-proxy-registry-service/src/repositories/models-repository.ts",
-        "services/model-proxy-registry-service/src/repositories/providers-repository.ts",
-        "services/model-proxy-registry-service/src/repositories/settings-repository.ts"
+        "services/model-proxy-config-service/src/repositories/api-keys-repository.ts",
+        "services/model-proxy-config-service/src/repositories/models-repository.ts",
+        "services/model-proxy-config-service/src/repositories/providers-repository.ts",
+        "services/model-proxy-config-service/src/repositories/settings-repository.ts"
       ],
       "files": {
         "created": [],
         "modified": [
-          "services/model-proxy-registry-service/src/repositories/api-keys-repository.ts",
-          "services/model-proxy-registry-service/src/repositories/models-repository.ts",
-          "services/model-proxy-registry-service/src/repositories/providers-repository.ts",
-          "services/model-proxy-registry-service/src/repositories/settings-repository.ts"
+          "services/model-proxy-config-service/src/repositories/api-keys-repository.ts",
+          "services/model-proxy-config-service/src/repositories/models-repository.ts",
+          "services/model-proxy-config-service/src/repositories/providers-repository.ts",
+          "services/model-proxy-config-service/src/repositories/settings-repository.ts"
         ],
         "deleted": []
       },

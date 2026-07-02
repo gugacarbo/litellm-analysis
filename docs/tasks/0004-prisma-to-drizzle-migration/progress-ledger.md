@@ -13,7 +13,7 @@
 | Task-A-0003 | Reescrever schema Drizzle do model-proxy em PostgreSQL               | ✅ done   | -      | -      |
 | Task-A-0004 | Reescrever schema Drizzle do app-repository em PostgreSQL            | ✅ done   | -      | -      |
 | Task-A-0005 | Criar barrel de schema e migration inicial única                     | ✅ done   | -      | -      |
-| Task-B-0001 | Converter model-proxy-registry-service repositories para Drizzle     | ✅ done   | -      | -      |
+| Task-B-0001 | Converter model-proxy-config-service repositories para Drizzle     | ✅ done   | -      | -      |
 | Task-B-0002 | Converter analytics-service raw queries e data source para Drizzle   | ✅ done   | -      | -      |
 | Task-B-0003 | Converter app-repository para re-exportar @lite-llm/database         | ✅ done   | -      | -      |
 | Task-B-0004 | Converter model-proxy-repository para re-exportar @lite-llm/database | ✅ done   | -      | -      |
@@ -39,6 +39,6 @@
 - **Verification**: 13/13 packages pass typecheck (0 errors); better-sqlite3 eliminated from source; remaining "prisma" strings are only backward-compat variable names
 
 ## Remaining cosmetic cleanup
-- `model-proxy-registry-service` service files still name their constructor param `prisma` (backward-compat, type is Drizzle db)
+- `model-proxy-config-service` service files still name their constructor param `prisma` (backward-compat, type is Drizzle db)
 - `apps/server/src/__tests__/helpers/registry-test-stack.ts` still uses `createInMemoryPrisma()` mock
 - Test descriptions in some files mention "prisma" — purely cosmetic
