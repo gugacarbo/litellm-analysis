@@ -78,6 +78,21 @@ function createInMemoryPrisma() {
   let providerId = 1;
   let apiKeyId = 1;
 
+  const resolveProviderName = (
+    data: Partial<ModelRow> & {
+      provider?: { connect?: { name: string }; disconnect?: boolean };
+    },
+    existingProviderName: string | null = null,
+  ) => {
+    if (data.provider?.disconnect) {
+      return null;
+    }
+    if (data.provider?.connect?.name) {
+      return data.provider.connect.name;
+    }
+    return data.providerName ?? existingProviderName;
+  };
+
   return {
     modelProxySetting: {
       findUnique: vi.fn(async ({ where }: { where: { key: string } }) => {
@@ -130,6 +145,9 @@ function createInMemoryPrisma() {
       }),
     },
     modelProxyModel: {
+      findFirst: vi.fn(async ({ where }: { where: { modelName: string } }) => {
+        return models.get(where.modelName) ?? null;
+      }),
       findUnique: vi.fn(async ({ where }: { where: { modelName: string } }) => {
         return models.get(where.modelName) ?? null;
       }),
@@ -148,7 +166,10 @@ function createInMemoryPrisma() {
         async ({
           data,
         }: {
-          data: Partial<ModelRow> & { modelName: string };
+          data: Partial<ModelRow> & {
+            modelName: string;
+            provider?: { connect?: { name: string }; disconnect?: boolean };
+          };
         }) => {
           const now = new Date();
           const row: ModelRow = {
@@ -166,7 +187,7 @@ function createInMemoryPrisma() {
             outputCostPerToken: data.outputCostPerToken ?? null,
             upstreamModel: data.upstreamModel ?? null,
             upstreamBaseUrl: data.upstreamBaseUrl ?? null,
-            providerName: data.providerName ?? null,
+            providerName: resolveProviderName(data),
             secretRef: data.secretRef ?? null,
             requestOptions:
               (data.requestOptions as Record<string, unknown> | null) ?? null,
@@ -183,17 +204,24 @@ function createInMemoryPrisma() {
           where,
           data,
         }: {
-          where: { modelName: string };
-          data: Partial<ModelRow>;
+          where: { id: string };
+          data: Partial<ModelRow> & {
+            provider?: { connect?: { name: string }; disconnect?: boolean };
+          };
         }) => {
-          const existing = models.get(where.modelName);
+          const existing = [...models.values()].find((row) => row.id === where.id);
           if (!existing) {
             const error = new Error("Not found") as Error & { code: string };
             error.code = "P2025";
             throw error;
           }
-          const updated = { ...existing, ...data, updatedAt: new Date() };
-          models.set(where.modelName, updated);
+          const updated = {
+            ...existing,
+            ...data,
+            providerName: resolveProviderName(data, existing.providerName),
+            updatedAt: new Date(),
+          };
+          models.set(existing.modelName, updated);
           return updated;
         },
       ),
@@ -204,12 +232,22 @@ function createInMemoryPrisma() {
           update,
         }: {
           where: { modelName: string };
-          create: Partial<ModelRow> & { modelName: string };
-          update: Partial<ModelRow>;
+          create: Partial<ModelRow> & {
+            modelName: string;
+            provider?: { connect?: { name: string }; disconnect?: boolean };
+          };
+          update: Partial<ModelRow> & {
+            provider?: { connect?: { name: string }; disconnect?: boolean };
+          };
         }) => {
           const existing = models.get(where.modelName);
           if (existing) {
-            const updated = { ...existing, ...update, updatedAt: new Date() };
+            const updated = {
+              ...existing,
+              ...update,
+              providerName: resolveProviderName(update, existing.providerName),
+              updatedAt: new Date(),
+            };
             models.set(where.modelName, updated);
             return updated;
           }
@@ -229,7 +267,7 @@ function createInMemoryPrisma() {
             outputCostPerToken: create.outputCostPerToken ?? null,
             upstreamModel: create.upstreamModel ?? null,
             upstreamBaseUrl: create.upstreamBaseUrl ?? null,
-            providerName: create.providerName ?? null,
+            providerName: resolveProviderName(create),
             secretRef: create.secretRef ?? null,
             requestOptions:
               (create.requestOptions as Record<string, unknown> | null) ?? null,
@@ -242,14 +280,14 @@ function createInMemoryPrisma() {
           return row;
         },
       ),
-      delete: vi.fn(async ({ where }: { where: { modelName: string } }) => {
-        const existing = models.get(where.modelName);
+      delete: vi.fn(async ({ where }: { where: { id: string } }) => {
+        const existing = [...models.values()].find((row) => row.id === where.id);
         if (!existing) {
           const error = new Error("Not found") as Error & { code: string };
           error.code = "P2025";
           throw error;
         }
-        models.delete(where.modelName);
+        models.delete(existing.modelName);
         return existing;
       }),
     },
