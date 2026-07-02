@@ -1,0 +1,5 @@
+# Progress Log — 0002-provider-model-routing-and-db-source
+# Format: [TIMESTAMP] [EVENT] [TASK] (try N/M) — message
+# Events: started | completed | failed | blocked
+
+2026-07-01T00:00:00Z created plan — Plan and tasks.json initialized, all tasks pending
