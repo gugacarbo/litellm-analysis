@@ -1,8 +1,8 @@
 ---
-status: implemented
+status: deprecated
 date: 2026-07-02
 builds-on: []
-implemented-by: [docs/tasks/0004-prisma-to-drizzle-migration/tasks.json]
+implemented-by: []
 ---
 
 # Migrar toda a camada de dados de Prisma para Drizzle, unificando PostgreSQL
