@@ -1,6 +1,7 @@
 packages:
   - "apps/*"
   - "services/*-service"
+  - "services/llm-gateway"
   - "services/agent-plugins"
   - "packages/*"
   - "repositories/*"

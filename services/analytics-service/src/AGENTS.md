@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-`@lite-llm/analytics-service` — Prisma raw SQL queries + `AnalyticsDataSource` (46-method interface) against `model_proxy_*` PostgreSQL. Single source of truth for read access to proxy logs, errors, models, and spend.
+`@lite-llm/analytics-service` — raw SQL queries + `AnalyticsDataSource` (46-method interface) against `model_proxy_*` PostgreSQL through `@lite-llm/database`. Single source of truth for read access to proxy logs, errors, models, and spend.
 
 ## STRUCTURE
 
@@ -25,7 +25,7 @@ services/analytics-service/src/
 ├── queries/
 │   ├── index.ts                       # Barrel re-exporting from proxy/
 │   └── proxy/
-│       ├── client.ts                  # Prisma client from @lite-llm/model-proxy-repository
+│       ├── client.ts                  # Database client re-export from @lite-llm/database/client
 │       ├── helpers.ts                 # normalizeDays, getTimeFilterWhere, buildWhereClause
 │       ├── time-buckets.ts            # Time-bucketing helpers
 │       ├── analytics-queries.ts       # Cost efficiency, performance metrics
@@ -48,7 +48,7 @@ services/analytics-service/src/
 | Task                              | Location                                                | Notes                                              |
 | --------------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
 | Add a new data source method      | `types/index.ts` (interface) → `data-source/model-proxy.ts` → `data-source/proxy-*-methods.ts` | Three-file concern |
-| Add a raw SQL query               | `queries/proxy/<topic>-queries.ts`                      | `prisma.$queryRawUnsafe<Type>(sql)` pattern         |
+| Add a raw SQL query               | `queries/proxy/<topic>-queries.ts`                      | `queryRaw<Type>(sql.raw(...))` pattern              |
 | Add a presenter                   | `presenter/<topic>.ts`                                 | Pure functions; no I/O                             |
 | Add a new domain type             | `types/index.ts`                                       | Re-export from public barrel                        |
 
@@ -57,7 +57,7 @@ services/analytics-service/src/
 - **Query pattern**:
   ```typescript
   export async function getSpendByModel(days = 30): Promise<SpendByModel[]> {
-    return prisma.$queryRawUnsafe<SpendByModel[]>(
+    return queryRaw<SpendByModel>(
       `SELECT model, SUM(spend)::float AS total_spend FROM "model_proxy_spend_logs" WHERE ...`,
     );
   }

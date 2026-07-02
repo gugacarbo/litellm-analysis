@@ -2,7 +2,7 @@ import {
   ProvidersRepository,
   SETTING_KEYS,
   SettingsRepository,
-} from "@lite-llm/model-proxy-registry-service";
+} from "@lite-llm/model-proxy-config-service";
 import { db as drizzleDb, getDb } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
 import { eq, asc, count } from "drizzle-orm";

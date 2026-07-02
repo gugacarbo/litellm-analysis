@@ -3,7 +3,7 @@ import {
   listProviders,
   resolveProviderSecret,
   toPublicProvider,
-} from "@lite-llm/model-proxy-registry-service";
+} from "@lite-llm/model-proxy-config-service";
 import type { Application } from "express";
 import { createRegistryModelFromRoute } from "../orchestration/registry-models-bridge";
 import type { RouteOptions } from "../types/index";

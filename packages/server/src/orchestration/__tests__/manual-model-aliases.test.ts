@@ -1,7 +1,7 @@
 import type {
   ISettingsService,
   RouterSettingsValue,
-} from "@lite-llm/model-proxy-registry-service";
+} from "@lite-llm/model-proxy-config-service";
 import { describe, expect, it, vi } from "vitest";
 import {
   listBlockingManualAliases,

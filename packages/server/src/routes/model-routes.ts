@@ -7,7 +7,7 @@ import {
   normalizeSyncDirection,
   providerExists as registryProviderExists,
   toModelRoute,
-} from "@lite-llm/model-proxy-registry-service";
+} from "@lite-llm/model-proxy-config-service";
 import type { Application, Response } from "express";
 import {
   listBlockingManualAliases,

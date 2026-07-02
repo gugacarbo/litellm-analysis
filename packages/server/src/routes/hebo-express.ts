@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { HeboModelProxyGateway } from "@lite-llm/model-proxy-service/hebo";
-import { sanitizeHeboRequestBody } from "@lite-llm/model-proxy-service/hebo/sanitize-request-body";
+import type { HeboModelProxyGateway } from "@lite-llm/llm-gateway/hebo";
+import { sanitizeHeboRequestBody } from "@lite-llm/llm-gateway/hebo/sanitize-request-body";
 import { createRequest, sendResponse } from "@mjackson/node-fetch-server";
 
 const METHODS_WITH_BODY = new Set(["POST", "PUT", "PATCH", "DELETE"]);

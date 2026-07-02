@@ -5,7 +5,7 @@ import {
   type ModelRoute,
   type ModelRouteUpdate,
   parseModelRouteFromApi,
-} from "@lite-llm/model-proxy-registry-service";
+} from "@lite-llm/model-proxy-config-service";
 import type { DbModelSpecLike } from "../types/index";
 import {
   buildModelRouteFromSpec,

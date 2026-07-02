@@ -2,7 +2,7 @@ import type {
   ModelProxyMessage,
   ModelProxyRequest,
   ModelProxyUsageAdjustment,
-} from "@lite-llm/model-proxy-repository";
+} from "@lite-llm/database/schema/model-proxy";
 import { toNullableNumber } from "../data-source/utils";
 import type { ChatMessage } from "../types/index";
 import type {

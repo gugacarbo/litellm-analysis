@@ -16,13 +16,13 @@ services/
 │       ├── data-source/            # ModelProxyDataSource implements AnalyticsDataSource
 │       ├── queries/proxy/          # Prisma $queryRawUnsafe queries
 │       └── types/                  # Request/response/domain types
-├── model-proxy-service/            # Local OpenAI-compatible proxy
+├── llm-gateway/            # Local OpenAI-compatible proxy
 │   └── src/
 │       ├── logging/                # Request/response logging
 │       ├── upstream/               # Upstream provider forwarding
 │       ├── health/                 # Health-check probes
 │       └── routes/                 # OpenAI-compatible HTTP routes
-├── model-proxy-registry-service/   # Settings/registry/providers management
+├── model-proxy-config-service/    # Settings/registry/providers management
 │   └── src/                        # CRUD over model_proxy_settings, model_proxy_models, model_proxy_providers
 ├── models-service/                 # Provider/model CRUD + alias DB management
 │   └── src/
@@ -37,8 +37,8 @@ services/
 | Task                              | Location                                        | Notes                                                  |
 | --------------------------------- | ----------------------------------------------- | ------------------------------------------------------ |
 | Add an analytics query            | `services/analytics-service/src/queries/proxy/` | New method on `AnalyticsDataSource` + impl in `data-source/` |
-| Add a proxy route                 | `services/model-proxy-service/src/routes/`      | OpenAI-compatible; forwards to upstream                |
-| Add settings CRUD                 | `services/model-proxy-registry-service/src/`    | Direct repository access; no Express                   |
+| Add a proxy route                 | `services/llm-gateway/src/routes/`      | OpenAI-compatible; forwards to upstream                |
+| Add settings CRUD                 | `services/model-proxy-config-service/src/`     | Direct repository access; no Express                   |
 | Add a provider adapter            | `services/models-service/src/providers/`        | Provider-specific model normalization                 |
 | Add a new consumer plugin         | `services/agent-plugins/src/`                   | Per-consumer config generator                          |
 

@@ -2,7 +2,7 @@ import {
   getRouterSettings,
   type ISettingsService,
   type RouterSettingsValue,
-} from "@lite-llm/model-proxy-registry-service";
+} from "@lite-llm/model-proxy-config-service";
 import {
   ANALYTICS_META_KEY,
   isRecord,

@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
-    "@lite-llm/model-proxy-registry-service": "workspace:*",
+    "@lite-llm/model-proxy-config-service": "workspace:*",
     "ajv-cli": "^5.0.0",
     "husky": "^9.1.7",
     "knip": "^6.6.2",

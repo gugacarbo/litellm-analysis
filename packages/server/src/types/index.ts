@@ -6,8 +6,8 @@ import type {
   IProvidersService,
   IRegistryModelsService,
   ISettingsService,
-} from "@lite-llm/model-proxy-registry-service";
-import type { HeboModelProxyGateway } from "@lite-llm/model-proxy-service/hebo";
+} from "@lite-llm/model-proxy-config-service";
+import type { HeboModelProxyGateway } from "@lite-llm/llm-gateway/hebo";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
 
 export interface RegistryRouteServices {

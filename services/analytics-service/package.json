@@ -20,7 +20,6 @@
     "@lite-llm/agents-repository": "workspace:*",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/database": "workspace:*",
-    "@lite-llm/model-proxy-repository": "workspace:*",
     "@lite-llm/models-service": "workspace:*",
     "drizzle-orm": "catalog:"
   },

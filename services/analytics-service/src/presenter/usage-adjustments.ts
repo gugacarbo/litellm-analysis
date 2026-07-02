@@ -1,4 +1,4 @@
-import type { ModelProxyUsageAdjustment } from "@lite-llm/model-proxy-repository";
+import type { ModelProxyUsageAdjustment } from "@lite-llm/database/schema/model-proxy";
 
 export interface UsageAdjustmentTotals {
   prompt_tokens_delta: number;

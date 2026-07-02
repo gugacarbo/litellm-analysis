@@ -1,4 +1,4 @@
-import type { ModelRoute } from "@lite-llm/model-proxy-registry-service";
+import type { ModelRoute } from "@lite-llm/model-proxy-config-service";
 
 export function parseDays(rawValue: unknown, fallback: number): number {
   if (typeof rawValue !== "string") {
