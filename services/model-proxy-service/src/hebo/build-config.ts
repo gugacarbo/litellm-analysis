@@ -33,6 +33,12 @@ interface ProviderGroup {
   mapping: Record<string, string>;
 }
 
+interface ProxyCatalogRow {
+  isDefaultProvider: boolean;
+  modelName: string;
+  providerName: string | null;
+}
+
 export interface HeboGatewayBuildResult {
   models: ModelCatalog;
   providerByModel: Map<string, string>;
@@ -77,16 +83,24 @@ function providerKey(target: ResolvedUpstreamTarget): string {
   return `${target.upstreamBaseUrl}|${token}`;
 }
 
-async function listProxyModelNames(
+async function listProxyCatalogRows(
   database: PrismaClient,
-  modelsService: IModelService,
-): Promise<string[]> {
-  const proxyModels = await database.modelProxyModel.findMany({
+): Promise<ProxyCatalogRow[]> {
+  return database.modelProxyModel.findMany({
     where: { enabled: true },
-    orderBy: { modelName: "asc" },
-    select: { modelName: true, providerName: true },
+    orderBy: [{ modelName: "asc" }, { providerName: "asc" }],
+    select: {
+      modelName: true,
+      providerName: true,
+      isDefaultProvider: true,
+    },
   });
+}
 
+async function listProxyModelNames(
+  modelsService: IModelService,
+  proxyModels: ProxyCatalogRow[],
+): Promise<string[]> {
   if (proxyModels.length > 0) {
     return proxyModels.map((row) =>
       row.providerName
@@ -110,22 +124,21 @@ export async function buildHeboGatewayConfig(options: {
   const database = options.database ?? getModelProxyPrisma();
   const providers = await options.providerService.getAll();
   const fallbackModels = await options.modelsService.getAll();
-  const modelNames = await listProxyModelNames(database, options.modelsService);
+  const proxyCatalogRows = await listProxyCatalogRows(database);
+  const modelNames = await listProxyModelNames(
+    options.modelsService,
+    proxyCatalogRows,
+  );
 
   const targetsByModel = new Map<string, ResolvedUpstreamTarget>();
   const providerGroups = new Map<string, ProviderGroup>();
   const providerByModel = new Map<string, string>();
 
-  // Batch-count rows per bare model name for multi-provider detection
-  const bareNameCounts = new Map<string, number>();
-  for (const modelName of modelNames) {
-    const { bareModelName } = parseProviderModel(modelName);
-    if (!bareNameCounts.has(bareModelName)) {
-      const count = await database.modelProxyModel.count({
-        where: { modelName: bareModelName },
-      });
-      bareNameCounts.set(bareModelName, count);
-    }
+  const rowsByBareModel = new Map<string, ProxyCatalogRow[]>();
+  for (const row of proxyCatalogRows) {
+    const existingRows = rowsByBareModel.get(row.modelName) ?? [];
+    existingRows.push(row);
+    rowsByBareModel.set(row.modelName, existingRows);
   }
 
   for (const modelName of modelNames) {
@@ -142,29 +155,22 @@ export async function buildHeboGatewayConfig(options: {
     }
 
     const { bareModelName, providerPrefix } = parseProviderModel(modelName);
-    const rowCount = bareNameCounts.get(bareModelName) ?? 1;
+    const matchingRows = rowsByBareModel.get(bareModelName) ?? [];
+    const rowCount = matchingRows.length || 1;
+    const defaultRows = matchingRows.filter((row) => row.isDefaultProvider);
 
-    // Determine catalog keys for this model
     const catalogKeys: string[] = [];
 
     if (rowCount === 1) {
-      // Single-provider: register under bare name
       catalogKeys.push(bareModelName);
     } else {
-      // Multi-provider: always register under provider/model
       catalogKeys.push(modelName);
-
-      // Also register under bare name if this is the default provider
-      if (providerPrefix) {
-        const resolvedRow = await database.modelProxyModel.findFirst({
-          where: {
-            modelName: bareModelName,
-            providerName: providerPrefix,
-          },
-        });
-        if (resolvedRow?.isDefaultProvider) {
-          catalogKeys.push(bareModelName);
-        }
+      if (
+        providerPrefix &&
+        defaultRows.length === 1 &&
+        defaultRows[0]?.providerName === providerPrefix
+      ) {
+        catalogKeys.push(bareModelName);
       }
     }
 
@@ -195,25 +201,14 @@ export async function buildHeboGatewayConfig(options: {
     }
   }
 
-  // Warn about ambiguous models with no default
-  const processedBareNames = new Set<string>();
-  for (const modelName of modelNames) {
-    const { bareModelName } = parseProviderModel(modelName);
-    if (processedBareNames.has(bareModelName)) {
-      continue;
-    }
-    processedBareNames.add(bareModelName);
-
-    const rowCount = bareNameCounts.get(bareModelName) ?? 1;
-    if (rowCount > 1) {
-      const hasDefault = await database.modelProxyModel.findFirst({
-        where: { modelName: bareModelName, isDefaultProvider: true },
-      });
-      if (!hasDefault) {
-        console.warn(
-          `[hebo] Ambiguous model "${bareModelName}" has ${rowCount} providers but no default — use "provider/${bareModelName}" to specify`,
-        );
-      }
+  for (const [bareModelName, rows] of rowsByBareModel) {
+    if (
+      rows.length > 1 &&
+      !rows.some((row) => row.isDefaultProvider)
+    ) {
+      console.warn(
+        `[hebo] Ambiguous model "${bareModelName}" has ${rows.length} providers but no default - use "provider/${bareModelName}" to specify`,
+      );
     }
   }
 

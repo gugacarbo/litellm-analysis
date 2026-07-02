@@ -1,5 +1,5 @@
 ---
-status: draft
+status: accepted
 date: 2026-07-01
 builds-on: []
 implemented-by: []
@@ -50,7 +50,7 @@ A pasta `@settings/` e seus arquivos JSONC/JSON Schema gerados são removidos do
 
 ## Questões em aberto
 
-- [ ] Nenhuma.
+- [x] Nenhuma.
 
 ## Definition of Done
 
@@ -61,9 +61,9 @@ pnpm docs-check          # exit 0
 ```
 
 Além disso:
-- [ ] Nenhuma referência a `@settings/` em código, scripts, configurações ou documentação.
-- [ ] Plugin runners geram `@storage/output/` a partir do banco.
-- [ ] API CRUD de agentes, modelos e plugins continua operacional.
+- [x] Nenhuma referência a `@settings/` em código, scripts, configurações ou documentação.
+- [x] Plugin runners geram `@storage/output/` a partir do banco.
+- [x] API CRUD de agentes, modelos e plugins continua operacional.
 
 ## Revisão humana
 
