@@ -35,9 +35,7 @@ const DEFAULT_USER_AGENT = "hebo_ai_gateway/0.1.0";
 function parseEncryptionKey(raw: string | undefined): Buffer {
   const trimmed = raw?.trim();
   if (!trimmed) {
-    throw new Error(
-      "MODEL_PROXY_OAUTH_ENCRYPTION_KEY is required for OpenAI OAuth",
-    );
+    throw new Error("APP_ENCRYPTION_KEY is required for OpenAI OAuth");
   }
 
   const utf8 = Buffer.from(trimmed, "utf8");
@@ -212,9 +210,7 @@ export class OpenAiOAuthService implements IOpenAiOAuthService {
   constructor(options: OpenAiOAuthServiceOptions = {}) {
     this.settingsService =
       options.settingsService ?? new SettingsService(options);
-    this.encryptionKey = parseEncryptionKey(
-      process.env.MODEL_PROXY_OAUTH_ENCRYPTION_KEY,
-    );
+    this.encryptionKey = parseEncryptionKey(process.env.APP_ENCRYPTION_KEY);
   }
 
   async getConnectionStatus(): Promise<OpenAiOAuthConnectionStatus> {

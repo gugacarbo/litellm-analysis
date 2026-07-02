@@ -23,10 +23,10 @@ export function parseProviderEncryptionKey(
 ): Buffer {
   const trimmed =
     env.MODEL_PROXY_PROVIDER_ENCRYPTION_KEY?.trim() ||
-    env.MODEL_PROXY_OAUTH_ENCRYPTION_KEY?.trim();
+    env.APP_ENCRYPTION_KEY?.trim();
   if (!trimmed) {
     throw new Error(
-      "MODEL_PROXY_PROVIDER_ENCRYPTION_KEY or MODEL_PROXY_OAUTH_ENCRYPTION_KEY is required for encrypted provider storage",
+      "MODEL_PROXY_PROVIDER_ENCRYPTION_KEY or APP_ENCRYPTION_KEY is required for encrypted provider storage",
     );
   }
 

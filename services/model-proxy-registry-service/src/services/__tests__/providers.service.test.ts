@@ -104,10 +104,7 @@ describe("ProvidersService", () => {
   let prisma: ReturnType<typeof createProvidersPrismaMock>;
 
   beforeEach(() => {
-    vi.stubEnv(
-      "MODEL_PROXY_OAUTH_ENCRYPTION_KEY",
-      "01234567890123456789012345678901",
-    );
+    vi.stubEnv("APP_ENCRYPTION_KEY", "01234567890123456789012345678901");
     prisma = createProvidersPrismaMock();
     service = new ProvidersService({
       repository: new ProvidersRepository(prisma as never),

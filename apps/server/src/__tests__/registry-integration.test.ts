@@ -52,10 +52,7 @@ async function closeServer(server: {
 describe("registry integration", () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
-    vi.stubEnv(
-      "MODEL_PROXY_OAUTH_ENCRYPTION_KEY",
-      "01234567890123456789012345678901",
-    );
+    vi.stubEnv("APP_ENCRYPTION_KEY", "01234567890123456789012345678901");
   });
 
   afterEach(() => {
