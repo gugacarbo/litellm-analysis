@@ -105,6 +105,30 @@ describe("createModelAliasPlugin", () => {
     }
   });
 
+  it("preserves model ids with a litellm prefix instead of rewriting them", () => {
+    const agents = [makeAgent("coder", { model: "litellm/gpt-4" })];
+    const routing: PluginRouting = {
+      enabled: true,
+      outputFile: "model-aliases.json",
+      routing: { agents: { coder: "coder" }, categories: {} },
+    };
+    const ctx = makeCtx({
+      allModels: {
+        "litellm/gpt-4": {
+          displayName: "Legacy Named GPT-4",
+          limits: { length: 128000, maxOutput: 4096 },
+          enabled: true,
+        },
+      },
+    });
+
+    const output = buildOutput(plugin, agents, routing, ctx) as {
+      model_group_alias: Record<string, string>;
+    };
+
+    expect(output.model_group_alias["coder/gpt-5.5"]).toBe("litellm/gpt-4");
+  });
+
   it("ignora campos de config fora do schema", () => {
     const agents = [makeAgent("coder")];
     const routing: PluginRouting = {

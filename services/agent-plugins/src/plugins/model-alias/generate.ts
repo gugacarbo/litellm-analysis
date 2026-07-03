@@ -1,13 +1,7 @@
-import { stripLitellmPrefix } from "./utils/strip-prefix";
-
 export type ModelSlotNames = readonly string[];
 
 function normalizeModel(value: string | undefined): string {
-  const trimmed = (value || "").trim();
-  if (!trimmed) {
-    return "";
-  }
-  return stripLitellmPrefix(trimmed);
+  return (value || "").trim();
 }
 
 /** Resolve which backend model id fills logical slot. */
@@ -42,7 +36,7 @@ function resolveSlotModel(
 }
 
 /**
- * Generate litellm aliases for agent/category key using single slot.
+ * Generate model aliases for agent/category key using single slot.
  * Uses primary model, fallback only when primary absent.
  */
 export function generateModelAliases(

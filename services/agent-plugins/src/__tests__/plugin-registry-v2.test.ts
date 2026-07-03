@@ -67,6 +67,20 @@ function createTestPlugin(
 }
 
 describe("PluginRegistryV2", () => {
+  it("exposes internal agents and JSON schema from the current registry API", () => {
+    const repository = createMockRepository();
+    const registry = createPluginRegistry({
+      repository,
+      outputDir: createUniqueOutputDir(),
+      catalog: [createTestPlugin()],
+    });
+
+    expect(registry.getInternalAgents("test-v2")).toEqual([]);
+    expect(registry.getJsonSchema("opencode")).toMatchObject({
+      type: "object",
+    });
+  });
+
   it("registra catálogo e exporta plugin habilitado", async () => {
     const repository = createMockRepository();
     const registry = createPluginRegistry({
