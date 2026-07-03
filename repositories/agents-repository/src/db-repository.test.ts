@@ -1,5 +1,5 @@
 import { createTestDb } from "@lite-llm/database/test-helpers";
-import { describe, expect, it, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createDbRepository } from "./db-repository";
 
 describe("DbAgentsRepository", () => {

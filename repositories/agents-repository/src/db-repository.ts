@@ -1,8 +1,5 @@
-import {
-  SETTING_KEYS,
-  SettingsRepository,
-} from "@lite-llm/llm-config-service";
-import { db as drizzleDb, getDb } from "@lite-llm/database/client";
+import { type db as drizzleDb, getDb } from "@lite-llm/database/client";
+import { SETTING_KEYS, SettingsRepository } from "@lite-llm/llm-config-service";
 import { normalizeConfig } from "@lite-llm/repository-utils/jsonc";
 import type { IAgentsRepository } from "./repository";
 import {
@@ -125,10 +122,7 @@ export class DbAgentsRepository implements IAgentsRepository {
       throw new Error(`Invalid plugins config: ${pluginsResult.error.message}`);
     }
 
-    await this.settings.upsert(
-      DASHBOARD_AGENTS_KEY,
-      agentsResult.data,
-    );
+    await this.settings.upsert(DASHBOARD_AGENTS_KEY, agentsResult.data);
     await this.settings.upsert(
       DASHBOARD_PLUGINS_KEY,
       pluginsResult.data.plugins,

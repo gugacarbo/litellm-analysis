@@ -1,5 +1,5 @@
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@lite-llm/database/client";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import type {
   Alert,
   ModelHealthCheck,
@@ -44,7 +44,9 @@ export async function insertAlert(alert: NewAlert): Promise<Alert> {
   return result[0];
 }
 
-export async function getAlerts(opts: GetAlertsOptions = {}): Promise<GetAlertsResult> {
+export async function getAlerts(
+  opts: GetAlertsOptions = {},
+): Promise<GetAlertsResult> {
   const {
     anomalyType,
     model,
@@ -190,7 +192,9 @@ export async function getLatestHealthChecks(): Promise<ModelHealthCheck[]> {
   const latestSubquery = db
     .select({
       modelName: modelHealthChecks.modelName,
-      maxCheckedAt: sql<Date>`max(${modelHealthChecks.checkedAt})`.as("maxCheckedAt"),
+      maxCheckedAt: sql<Date>`max(${modelHealthChecks.checkedAt})`.as(
+        "maxCheckedAt",
+      ),
     })
     .from(modelHealthChecks)
     .groupBy(modelHealthChecks.modelName)
@@ -237,7 +241,9 @@ export async function getHealthCheckSummary(): Promise<HealthCheckSummaryResult>
   return summary;
 }
 
-export async function cleanupOldHealthChecks(retentionDays: number): Promise<{ deleted: number }> {
+export async function cleanupOldHealthChecks(
+  retentionDays: number,
+): Promise<{ deleted: number }> {
   const cutoff = new Date(Date.now() - retentionDays * 86_400_000);
 
   const result = await db

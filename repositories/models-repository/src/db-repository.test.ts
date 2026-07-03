@@ -1,5 +1,5 @@
-import { SETTING_KEYS } from "@lite-llm/llm-config-service";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
+import { SETTING_KEYS } from "@lite-llm/llm-config-service";
 import { describe, expect, it, vi } from "vitest";
 import { createDbRepository } from "./db-repository";
 
@@ -10,25 +10,40 @@ type InMemoryModelRow = Record<string, unknown> & {
   updatedAt: Date;
 };
 
-function buildModelKey(modelName: string, providerName?: string | null): string {
+function buildModelKey(
+  modelName: string,
+  providerName?: string | null,
+): string {
   return providerName ? `${providerName}/${modelName}` : modelName;
 }
 
 function createInMemoryDb() {
   const settings = new Map<
     string,
-    { id: string; key: string; value: unknown; createdAt: Date; updatedAt: Date }
+    {
+      id: string;
+      key: string;
+      value: unknown;
+      createdAt: Date;
+      updatedAt: Date;
+    }
   >();
   const models = new Map<string, InMemoryModelRow>();
   const providers = new Map<string, Record<string, unknown>>();
-  let settingId = 1;
+  const settingId = 1;
   let modelId = 1;
-  let providerId = 1;
+  const providerId = 1;
 
   function modelData() {
     const all = [...models.values()].sort((a, b) =>
-      buildModelKey(String(a.modelName), (a.providerName as string | null | undefined) ?? null).localeCompare(
-        buildModelKey(String(b.modelName), (b.providerName as string | null | undefined) ?? null),
+      buildModelKey(
+        String(a.modelName),
+        (a.providerName as string | null | undefined) ?? null,
+      ).localeCompare(
+        buildModelKey(
+          String(b.modelName),
+          (b.providerName as string | null | undefined) ?? null,
+        ),
       ),
     );
     return all;
@@ -65,8 +80,9 @@ function createInMemoryDb() {
             orderBy: vi.fn(async () => [{ count: models.size }]),
             where: vi.fn(async () => [{ count: models.size }]),
             limit: vi.fn(async () => [{ count: models.size }]),
-            then: vi.fn(async (onfulfilled: (v: [{ count: number }]) => unknown) =>
-              onfulfilled([{ count: models.size }]),
+            then: vi.fn(
+              async (onfulfilled: (v: [{ count: number }]) => unknown) =>
+                onfulfilled([{ count: models.size }]),
             ),
           })),
         };
@@ -95,7 +111,8 @@ function createInMemoryDb() {
           id: `model_${modelId++}`,
           ...data,
           modelName: String(data.modelName),
-          providerName: typeof data.providerName === "string" ? data.providerName : null,
+          providerName:
+            typeof data.providerName === "string" ? data.providerName : null,
           createdAt: now,
           updatedAt: now,
         };
@@ -109,8 +126,13 @@ function createInMemoryDb() {
           const existing = [...models.values()][0];
           if (!existing) return [];
           const updated = { ...existing, ...data, updatedAt: new Date() };
-          models.delete(buildModelKey(existing.modelName, existing.providerName));
-          models.set(buildModelKey(updated.modelName, updated.providerName), updated);
+          models.delete(
+            buildModelKey(existing.modelName, existing.providerName),
+          );
+          models.set(
+            buildModelKey(updated.modelName, updated.providerName),
+            updated,
+          );
           return [updated];
         }),
       })),
@@ -185,7 +207,10 @@ describe("DbModelsRepository", () => {
     expect(helpers.models.size).toBe(1);
     expect(helpers.settings.has(SETTING_KEYS.DEFAULT_PROVIDER)).toBe(true);
     expect(helpers.providers.has("openai-main")).toBe(true);
-    const providerRecord = helpers.providers.get("openai-main") as Record<string, unknown>;
+    const providerRecord = helpers.providers.get("openai-main") as Record<
+      string,
+      unknown
+    >;
     expect(providerRecord?.secretRef).toBe("OPENAI_API_KEY");
   });
 

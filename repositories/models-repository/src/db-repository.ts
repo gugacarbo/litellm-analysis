@@ -1,14 +1,14 @@
+import { type db as drizzleDb, getDb } from "@lite-llm/database/client";
+import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
 import {
   ProvidersRepository,
   SETTING_KEYS,
   SettingsRepository,
 } from "@lite-llm/llm-config-service";
-import { db as drizzleDb, getDb } from "@lite-llm/database/client";
-import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
-import { eq, asc, count } from "drizzle-orm";
 import { normalizeConfig } from "@lite-llm/repository-utils/jsonc";
-import { applyMetadataToModelSpec, metadataFromModelSpec } from "./metadata";
+import { asc, count, eq } from "drizzle-orm";
 import type { IModelsRepository } from "./interfaces";
+import { applyMetadataToModelSpec, metadataFromModelSpec } from "./metadata";
 import {
   type ModelSpec,
   type ModelsConfig,
@@ -21,7 +21,10 @@ export interface DbModelsRepositoryOptions {
   validateOnRead?: boolean;
 }
 
-function buildModelKey(modelName: string, providerName?: string | null): string {
+function buildModelKey(
+  modelName: string,
+  providerName?: string | null,
+): string {
   const trimmedProviderName = providerName?.trim();
   return trimmedProviderName
     ? `${trimmedProviderName}/${modelName}`
@@ -219,9 +222,8 @@ export class DbModelsRepository implements IModelsRepository {
 
     const models: Record<string, ModelSpec> = {};
     for (const row of modelRows) {
-      models[buildModelKey(row.modelName, row.providerName)] = modelSpecFromRow(
-        row,
-      );
+      models[buildModelKey(row.modelName, row.providerName)] =
+        modelSpecFromRow(row);
     }
 
     const config: ModelsConfig = {
