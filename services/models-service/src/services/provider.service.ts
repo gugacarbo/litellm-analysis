@@ -1,7 +1,4 @@
-import type {
-  IModelsRepository,
-  Provider,
-} from "@lite-llm/models-repository";
+import type { IModelsRepository, Provider } from "@lite-llm/models-repository";
 
 export interface ProviderServiceOptions {
   repository: IModelsRepository;

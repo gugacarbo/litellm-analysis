@@ -5,11 +5,7 @@ import {
   type RepositoryOptions,
 } from "@lite-llm/models-repository";
 
-export type {
-  IModelsRepository,
-  RepositoryClientOptions,
-  RepositoryOptions,
-};
+export type { IModelsRepository, RepositoryClientOptions, RepositoryOptions };
 
 export function createRepositoryClient(
   options: RepositoryClientOptions = {},
