@@ -51,32 +51,6 @@ function parseModelKey(modelKey: string): {
   };
 }
 
-function parseApiKeyToSecretRef(apiKey: string | undefined): string | null {
-  if (!apiKey?.trim()) {
-    return null;
-  }
-
-  const trimmed = apiKey.trim();
-  if (trimmed.startsWith("env:")) {
-    return trimmed.slice(4).trim() || null;
-  }
-
-  return null;
-}
-
-function secretRefToApiKey(secretRef: string | null): string | undefined {
-  const trimmed = secretRef?.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(trimmed)) {
-    return `env:${trimmed}`;
-  }
-
-  return undefined;
-}
-
 function resolveProviderField(
   providerKey: string,
   provider: Provider,
@@ -214,9 +188,6 @@ export class DbModelsRepository implements IModelsRepository {
         ...(row.provider && row.provider !== "openai-compatible"
           ? { ownedBy: row.provider }
           : {}),
-        ...(secretRefToApiKey(row.secretRef)
-          ? { apiKey: secretRefToApiKey(row.secretRef) }
-          : {}),
       };
     }
 
@@ -282,21 +253,20 @@ export class DbModelsRepository implements IModelsRepository {
         continue;
       }
 
-      const secretRef = parseApiKeyToSecretRef(providerSpec.apiKey);
       const providerData = {
         name: providerName,
         provider: resolveProviderField(providerKey, providerSpec),
         baseUrl: providerSpec.baseUrl || null,
-        secretRef:
-          secretRef ??
-          `${providerName.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_API_KEY`,
       };
 
       const existing = await this.providers.findByName(providerName);
       if (existing) {
         await this.providers.update(providerName, providerData);
       } else {
-        await this.providers.create(providerData);
+        await this.providers.create({
+          ...providerData,
+          secretRef: null,
+        });
       }
     }
 

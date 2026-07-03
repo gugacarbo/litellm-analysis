@@ -1,4 +1,8 @@
-import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
+import {
+  modelProxyModels,
+  modelProxyProviders,
+  modelProxySettings,
+} from "@lite-llm/database/schema/model-proxy";
 import { SETTING_KEYS } from "@lite-llm/llm-config-service";
 import { describe, expect, it, vi } from "vitest";
 import { createDbRepository } from "./db-repository";
@@ -32,7 +36,7 @@ function createInMemoryDb() {
   const providers = new Map<string, Record<string, unknown>>();
   const settingId = 1;
   let modelId = 1;
-  const providerId = 1;
+  let providerId = 1;
 
   function modelData() {
     const all = [...models.values()].sort((a, b) =>
@@ -59,87 +63,246 @@ function createInMemoryDb() {
     return [...settings.values()];
   }
 
-  function buildSelect(fromData: () => unknown[]) {
-    return {
-      from: vi.fn(() => ({
-        orderBy: vi.fn(async () => fromData()),
-        where: vi.fn(async () => fromData()),
-        limit: vi.fn(async (n: number) => fromData().slice(0, n)),
-      })),
-    };
+  const isModelsTable = (t: unknown) => t === modelProxyModels;
+  const isProvidersTable = (t: unknown) => t === modelProxyProviders;
+  const isSettingsTable = (t: unknown) => t === modelProxySettings;
+
+  function toThenable<T extends object, R>(
+    target: T,
+    run: () => Promise<R>,
+  ): T & PromiseLike<R> {
+    return Object.assign(target, {
+      then<TResult1 = R, TResult2 = never>(
+        onfulfilled?:
+          | ((value: R) => TResult1 | PromiseLike<TResult1>)
+          | null,
+        onrejected?:
+          | ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
+          | null,
+      ) {
+        return run().then(onfulfilled, onrejected);
+      },
+    });
   }
 
-  // Track which table references were passed to help mock implementation
-  const isModelsTable = (t: unknown) => t === modelProxyModels;
+  function queryForRows(rows: () => unknown[]) {
+    const query = toThenable(
+      {
+        orderBy: vi.fn(async () => rows()),
+        where: vi.fn(() => query),
+        limit: vi.fn(async (n: number) => rows().slice(0, n)),
+      },
+      async () => rows(),
+    );
+    return query;
+  }
 
   const db = {
     select: vi.fn((fields?: unknown) => {
       if (fields && typeof fields === "object" && "count" in fields) {
-        return {
-          from: vi.fn(() => ({
+        const countQuery = toThenable(
+          {
             orderBy: vi.fn(async () => [{ count: models.size }]),
-            where: vi.fn(async () => [{ count: models.size }]),
+            where: vi.fn(() => countQuery),
             limit: vi.fn(async () => [{ count: models.size }]),
-            then: vi.fn(
-              async (onfulfilled: (v: [{ count: number }]) => unknown) =>
-                onfulfilled([{ count: models.size }]),
-            ),
-          })),
+          },
+          async () => [{ count: models.size }],
+        );
+        return {
+          from: vi.fn(() => countQuery),
         };
       }
       return {
         from: vi.fn((table: unknown) => {
           if (isModelsTable(table)) {
-            return {
-              orderBy: vi.fn(async () => modelData()),
-              where: vi.fn(async () => modelData()),
-              limit: vi.fn(async (n: number) => modelData().slice(0, n)),
-            };
+            return queryForRows(modelData);
           }
-          return {
-            orderBy: vi.fn(async () => providerData()),
-            where: vi.fn(async () => providerData()),
-            limit: vi.fn(async (n: number) => providerData().slice(0, n)),
-          };
+          if (isSettingsTable(table)) {
+            return queryForRows(settingData);
+          }
+          return queryForRows(providerData);
         }),
       };
     }),
     insert: vi.fn((table: unknown) => ({
-      values: vi.fn(async (data: Record<string, unknown>) => {
+      values: vi.fn((data: Record<string, unknown>) => {
         const now = new Date();
-        const row: InMemoryModelRow = {
-          id: `model_${modelId++}`,
-          ...data,
-          modelName: String(data.modelName),
-          providerName:
-            typeof data.providerName === "string" ? data.providerName : null,
-          createdAt: now,
-          updatedAt: now,
-        };
-        models.set(buildModelKey(row.modelName, row.providerName), row);
-        return [row];
+
+        if (isModelsTable(table)) {
+          const insertRows = async () => {
+            const row: InMemoryModelRow = {
+              id: `model_${modelId++}`,
+              ...data,
+              modelName: String(data.modelName),
+              providerName:
+                typeof data.providerName === "string" ? data.providerName : null,
+              createdAt: now,
+              updatedAt: now,
+            };
+            models.set(buildModelKey(row.modelName, row.providerName), row);
+            return [row];
+          };
+
+          return toThenable(
+            {
+              returning: vi.fn(insertRows),
+            },
+            insertRows,
+          );
+        }
+
+        if (isProvidersTable(table)) {
+          const insertRows = async () => {
+            const row: {
+              id: string;
+              name: string;
+              provider: string | null;
+              baseUrl: string | null;
+              apiKey: string | null;
+              secretRef: string | null;
+              createdAt: Date;
+              updatedAt: Date;
+            } = {
+              id: `provider_${providerId++}`,
+              name: String(data.name),
+              provider:
+                typeof data.provider === "string" ? data.provider : null,
+              baseUrl:
+                typeof data.baseUrl === "string" ? data.baseUrl : null,
+              apiKey: typeof data.apiKey === "string" ? data.apiKey : null,
+              secretRef:
+                typeof data.secretRef === "string" ? data.secretRef : null,
+              createdAt: now,
+              updatedAt: now,
+            };
+            providers.set(row.name, row);
+            return [row];
+          };
+
+          return toThenable(
+            {
+              returning: vi.fn(insertRows),
+            },
+            insertRows,
+          );
+        }
+
+        if (isSettingsTable(table)) {
+          const insertOrUpdate = async (setData?: Record<string, unknown>) => {
+            const existing = settings.get(String(data.key));
+            const row = existing
+              ? {
+                  ...existing,
+                  value: setData?.value ?? data.value,
+                  updatedAt:
+                    setData?.updatedAt instanceof Date
+                      ? setData.updatedAt
+                      : now,
+                }
+              : {
+                  id: `setting_${settingId}`,
+                  key: String(data.key),
+                  value: data.value,
+                  createdAt: now,
+                  updatedAt: now,
+                };
+            settings.set(row.key, row);
+            return [row];
+          };
+
+          return {
+            onConflictDoUpdate: vi.fn(
+              ({ set }: { set: Record<string, unknown> }) => ({
+                returning: vi.fn(() => insertOrUpdate(set)),
+              }),
+            ),
+            returning: vi.fn(() => insertOrUpdate()),
+          };
+        }
+
+        return toThenable(
+          {
+            returning: vi.fn(async () => []),
+          },
+          async () => [],
+        );
       }),
     })),
     update: vi.fn((table: unknown) => ({
       set: vi.fn((data: Record<string, unknown>) => ({
-        where: vi.fn(async () => {
-          const existing = [...models.values()][0];
-          if (!existing) return [];
-          const updated = { ...existing, ...data, updatedAt: new Date() };
-          models.delete(
-            buildModelKey(existing.modelName, existing.providerName),
+        where: vi.fn(() => {
+          const run = async () => {
+            if (isModelsTable(table)) {
+              const existing = [...models.values()][0];
+              if (!existing) return [];
+              const updated = { ...existing, ...data, updatedAt: new Date() };
+              models.delete(
+                buildModelKey(existing.modelName, existing.providerName),
+              );
+              models.set(
+                buildModelKey(updated.modelName, updated.providerName),
+                updated,
+              );
+              return [updated];
+            }
+
+            if (isProvidersTable(table)) {
+              const existing = [...providers.values()][0] as
+                | ({
+                    name: string;
+                  } & Record<string, unknown>)
+                | undefined;
+              if (!existing) return [];
+              const updated = { ...existing, ...data, updatedAt: new Date() };
+              providers.delete(String(existing.name));
+              providers.set(String(updated.name), updated);
+              return [updated];
+            }
+
+            if (isSettingsTable(table)) {
+              const existing = [...settings.values()][0];
+              if (!existing) return [];
+              const updated = { ...existing, ...data, updatedAt: new Date() };
+              settings.set(String(updated.key), updated);
+              return [updated];
+            }
+
+            return [];
+          };
+
+          return toThenable(
+            {
+              returning: vi.fn(run),
+            },
+            run,
           );
-          models.set(
-            buildModelKey(updated.modelName, updated.providerName),
-            updated,
-          );
-          return [updated];
         }),
       })),
     })),
     delete: vi.fn((table: unknown) => ({
-      where: vi.fn(async () => {
-        for (const [key] of models) models.delete(key);
+      where: vi.fn(() => {
+        const run = async () => {
+          if (isModelsTable(table)) {
+            for (const [key] of models) models.delete(key);
+            return [];
+          }
+
+          if (isSettingsTable(table)) {
+            const [existing] = [...settings.values()];
+            if (!existing) return [];
+            settings.delete(existing.key);
+            return [{ id: existing.id }];
+          }
+
+          return [];
+        };
+
+        return toThenable(
+          {
+            returning: vi.fn(run),
+          },
+          run,
+        );
       }),
     })),
   };
@@ -179,7 +342,6 @@ describe("DbModelsRepository", () => {
           adapter: "openai-compatible" as const,
           baseUrl: "https://api.openai.com/v1",
           defaultProvider: "openai-main",
-          apiKey: "env:OPENAI_API_KEY",
         },
       },
       models: {
@@ -211,10 +373,10 @@ describe("DbModelsRepository", () => {
       string,
       unknown
     >;
-    expect(providerRecord?.secretRef).toBe("OPENAI_API_KEY");
+    expect(providerRecord?.secretRef).toBeNull();
   });
 
-  it("does not expose literal provider secrets through provider config reads", async () => {
+  it("does not expose upstream provider credentials through provider config reads", async () => {
     const { db, helpers } = createInMemoryDb();
     const repository = createDbRepository({
       db: db as never,
