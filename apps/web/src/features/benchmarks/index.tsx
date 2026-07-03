@@ -1,4 +1,4 @@
-import { Filter, Scale } from "lucide-react";
+import { Filter, RefreshCw, Scale } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -59,6 +59,11 @@ export function BenchmarksPage() {
     rows,
     isLoading,
     error,
+    isDatasetMissing,
+    syncStatusLabel,
+    syncLastError,
+    isSyncRunning,
+    triggerSync,
     source,
     sourceUrl,
     fetchedAt,
@@ -97,11 +102,35 @@ export function BenchmarksPage() {
     >
       <div className="space-y-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Filters
-            </CardTitle>
+          <CardHeader className="flex flex-col gap-2 pb-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                Filters
+              </CardTitle>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={isSyncRunning ? "secondary" : "outline"}>
+                  {syncStatusLabel}
+                </Badge>
+                {syncLastError && !isSyncRunning ? (
+                  <span className="max-w-xl truncate text-xs text-destructive">
+                    {syncLastError}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={triggerSync}
+              disabled={isSyncRunning}
+              className="w-full sm:w-auto"
+            >
+              <RefreshCw
+                className={isSyncRunning ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+              />
+              {isSyncRunning ? "Syncing" : "Sync benchmarks"}
+            </Button>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
@@ -230,10 +259,31 @@ export function BenchmarksPage() {
           <TabsContent value="all-models">
             <Card>
               <CardContent className="pt-2">
-                {error ? (
+                {isDatasetMissing ? (
+                  <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+                    <EmptyState
+                      title="No benchmark snapshot yet"
+                      description="Start a sync to fetch the latest Artificial Analysis dataset."
+                      className="py-0"
+                    />
+                    <Button
+                      type="button"
+                      onClick={triggerSync}
+                      disabled={isSyncRunning}
+                    >
+                      <RefreshCw
+                        className={
+                          isSyncRunning
+                            ? "h-4 w-4 animate-spin"
+                            : "h-4 w-4"
+                        }
+                      />
+                      {isSyncRunning ? "Syncing" : "Sync benchmarks"}
+                    </Button>
+                  </div>
+                ) : error ? (
                   <div className="py-4 text-sm text-red-500">
-                    {error}. Run <code>pnpm sync:aa-benchmarks</code> and
-                    refresh.
+                    {error}
                   </div>
                 ) : isLoading ? (
                   <div className="space-y-2 py-2">

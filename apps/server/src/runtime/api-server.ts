@@ -1,9 +1,7 @@
-import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { readFile, stat, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
 import type {
   ModelBenchmarkApiResponse,
   ModelBenchmarkListItem,
@@ -13,13 +11,11 @@ import { registerAllRoutes } from "@lite-llm/server/routes";
 import type { RouteOptions } from "@lite-llm/server/types";
 import express, { type Application } from "express";
 import { createHealthCheckApplicationService } from "../application/health-check-application-service";
+import type { BenchmarkSyncApplicationService } from "../application/benchmark-sync-application-service";
 import type { AppContext } from "../contexts";
 import { env } from "../env";
+import { createBenchmarkSyncRouter } from "../routes/benchmark-sync-routes";
 import { createHealthCheckRouter } from "../routes/health-check-routes";
-
-const execFileAsync = promisify(execFile);
-const BENCHMARK_TTL_MS = 15 * 24 * 60 * 60 * 1000;
-let benchmarkSyncInFlight: Promise<void> | null = null;
 
 function findWorkspaceRoot(startDir: string): string {
   let current = startDir;
@@ -126,59 +122,9 @@ function suffixTolerantMatch(
   return matches.length === 1 ? matches[0] : null;
 }
 
-async function isBenchmarkFileFresh(filePath: string): Promise<boolean> {
-  try {
-    const metadata = await stat(filePath);
-    const ageMs = Date.now() - metadata.mtimeMs;
-    return ageMs <= BENCHMARK_TTL_MS;
-  } catch {
-    return false;
-  }
-}
-
-async function runBenchmarksSync(workspaceRoot: string): Promise<void> {
-  const args = ["sync:aa-benchmarks", "--force-refresh"];
-  await execFileAsync("pnpm", args, {
-    cwd: workspaceRoot,
-    maxBuffer: 10 * 1024 * 1024,
-  });
-}
-
-function ensureBenchmarksReady(
-  workspaceRoot: string,
-  benchmarkFilePath: string,
-): Promise<void> {
-  if (benchmarkSyncInFlight) {
-    return benchmarkSyncInFlight;
-  }
-
-  benchmarkSyncInFlight = (async () => {
-    const isFresh = await isBenchmarkFileFresh(benchmarkFilePath);
-    if (isFresh) return;
-    await runBenchmarksSync(workspaceRoot);
-  })().finally(() => {
-    benchmarkSyncInFlight = null;
-  });
-
-  return benchmarkSyncInFlight;
-}
-
 async function loadBenchmarkDataset(
-  workspaceRoot: string,
   benchmarkFilePath: string,
 ): Promise<StoredModelBenchmarkDataset> {
-  const hasLocalData = existsSync(benchmarkFilePath);
-
-  if (!hasLocalData) {
-    await ensureBenchmarksReady(workspaceRoot, benchmarkFilePath);
-  } else {
-    void ensureBenchmarksReady(workspaceRoot, benchmarkFilePath).catch(
-      (error) => {
-        console.error("Failed to refresh benchmark dataset:", error);
-      },
-    );
-  }
-
   const raw = await readFile(benchmarkFilePath, "utf8");
   return JSON.parse(raw) as StoredModelBenchmarkDataset;
 }
@@ -186,6 +132,7 @@ async function loadBenchmarkDataset(
 export function createApiServer(
   opts: RouteOptions,
   ctx: AppContext,
+  services?: { benchmarkSync?: BenchmarkSyncApplicationService },
 ): Application {
   const app = express();
   const jsonParser = express.json();
@@ -222,10 +169,7 @@ export function createApiServer(
         "benchmarks",
         "artificial-analysis-models.json",
       );
-      const dataset = await loadBenchmarkDataset(
-        workspaceRoot,
-        benchmarkFilePath,
-      );
+      const dataset = await loadBenchmarkDataset(benchmarkFilePath);
 
       const configuredModels = await opts.dataSource.getModels();
       // Strip backend suffix (e.g. "glm-5.1:ollama" -> "glm-5.1") for matching
@@ -318,8 +262,8 @@ export function createApiServer(
       const message = String(error);
       if (message.includes("ENOENT")) {
         res.status(404).json({
-          error:
-            "Benchmark data file not found. Automatic sync was attempted but no local dataset is available.",
+          error: "Benchmark data file not found. Trigger a sync from the UI.",
+          code: "BENCHMARK_DATASET_MISSING",
         });
         return;
       }
@@ -375,18 +319,9 @@ export function createApiServer(
     }
   });
 
-  const workspaceRoot = getWorkspaceRoot();
-  const storagePath = resolveStoragePath(workspaceRoot);
-  const benchmarkFilePath = path.join(
-    storagePath,
-    "benchmarks",
-    "artificial-analysis-models.json",
-  );
-  void ensureBenchmarksReady(workspaceRoot, benchmarkFilePath).catch(
-    (error) => {
-      console.error("Failed to warm benchmark dataset:", error);
-    },
-  );
+  if (services?.benchmarkSync) {
+    app.use("/benchmarks", createBenchmarkSyncRouter(services.benchmarkSync));
+  }
 
   registerAllRoutes(app, opts);
 

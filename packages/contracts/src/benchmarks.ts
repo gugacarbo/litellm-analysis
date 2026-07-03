@@ -50,3 +50,20 @@ export interface ModelBenchmarkApiResponse {
   unmatchedConfiguredModels: string[];
   models: ModelBenchmarkListItem[];
 }
+
+export type BenchmarkSyncStatus = "idle" | "running" | "succeeded" | "failed";
+
+export interface BenchmarkSyncStatusResponse {
+  status: BenchmarkSyncStatus;
+  isRunning: boolean;
+  datasetExists: boolean;
+  startedAt: string | null;
+  finishedAt: string | null;
+  lastSuccessAt: string | null;
+  lastError: string | null;
+}
+
+export interface TriggerBenchmarkSyncResponse
+  extends BenchmarkSyncStatusResponse {
+  triggered: boolean;
+}

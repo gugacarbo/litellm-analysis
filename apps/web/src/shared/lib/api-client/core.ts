@@ -1,5 +1,17 @@
 const API_BASE = "/api";
 
+export class ApiError extends Error {
+  readonly status: number;
+  readonly code: string | null;
+
+  constructor(message: string, options: { status: number; code?: string }) {
+    super(message);
+    this.name = "ApiError";
+    this.status = options.status;
+    this.code = options.code ?? null;
+  }
+}
+
 export function withDays(endpoint: string, days?: number): string {
   if (days === undefined) {
     return endpoint;
@@ -50,10 +62,15 @@ export async function fetchApi<T>(
     if (contentType.includes("application/json")) {
       const payload = (await response.json().catch(() => null)) as {
         error?: string;
+        code?: string;
       } | null;
       if (payload?.error) {
         message = payload.error;
       }
+      throw new ApiError(message, {
+        status: response.status,
+        code: payload?.code,
+      });
     } else {
       const text = await response.text().catch(() => "");
       if (text.trim()) {
@@ -61,7 +78,7 @@ export async function fetchApi<T>(
       }
     }
 
-    throw new Error(message);
+    throw new ApiError(message, { status: response.status });
   }
 
   return response.json();

@@ -1,0 +1,34 @@
+import { Router } from "express";
+import {
+  BenchmarkSyncConfigurationError,
+  type BenchmarkSyncApplicationService,
+} from "../application/benchmark-sync-application-service";
+
+export function createBenchmarkSyncRouter(
+  service: BenchmarkSyncApplicationService,
+): Router {
+  const router = Router();
+
+  router.get("/sync-status", (_req, res) => {
+    res.json(service.getStatus());
+  });
+
+  router.post("/sync", (_req, res) => {
+    try {
+      const result = service.start();
+      res.status(result.triggered ? 202 : 200).json(result);
+    } catch (error) {
+      if (error instanceof BenchmarkSyncConfigurationError) {
+        res.status(503).json({
+          error: error.message,
+          code: "ARTIFICIAL_ANALYSIS_API_KEY_MISSING",
+        });
+        return;
+      }
+
+      res.status(500).json({ error: "Failed to trigger benchmark sync" });
+    }
+  });
+
+  return router;
+}

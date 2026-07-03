@@ -16,6 +16,7 @@ import {
 } from "@lite-llm/models-service";
 import { createOrchestrationServices } from "@lite-llm/server/orchestration";
 import { updateRouterAliasesInRegistry } from "@lite-llm/server/orchestration/router-settings";
+import { createBenchmarkSyncApplicationService } from "../application/benchmark-sync-application-service";
 import { createAppContext } from "../contexts";
 import { env } from "../env";
 import {
@@ -100,6 +101,13 @@ function setupAgentPluginsOrchestrator(
   });
 }
 
+function resolveStoragePath(projectRoot: string): string {
+  if (path.isAbsolute(env.STORAGE_PATH)) {
+    return env.STORAGE_PATH;
+  }
+  return path.join(projectRoot, env.STORAGE_PATH);
+}
+
 function registerShutdownHooks(stop: () => void): void {
   process.on("SIGTERM", stop);
   process.on("SIGINT", stop);
@@ -160,6 +168,11 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       settingsService: registry.settingsService,
     },
   );
+  const benchmarkSyncService = createBenchmarkSyncApplicationService({
+    workspaceRoot: projectRoot,
+    storagePath: resolveStoragePath(projectRoot),
+    artificialAnalysisApiKey: env.ARTIFICIAL_ANALYSIS_API_KEY,
+  });
 
   const app = createApiServer(
     {
@@ -178,6 +191,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       },
     },
     ctx,
+    { benchmarkSync: benchmarkSyncService },
   );
 
   const port = env.PORT;

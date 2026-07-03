@@ -1,7 +1,13 @@
 import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { getModelBenchmarks } from "@/shared/lib/api-client/benchmarks";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+import {
+  getBenchmarkSyncStatus,
+  getModelBenchmarks,
+  triggerBenchmarkSync,
+} from "@/shared/lib/api-client/benchmarks";
+import { ApiError } from "@/shared/lib/api-client/core";
 import type {
   BenchmarkSortDirection,
   BenchmarkSortField,
@@ -15,6 +21,11 @@ interface UseBenchmarksStateResult extends BenchmarksDerivedState {
   sourceUrl: string;
   fetchedAt: string;
   totalCount: number;
+  isDatasetMissing: boolean;
+  syncStatusLabel: string;
+  syncLastError: string | null;
+  isSyncRunning: boolean;
+  triggerSync: () => void;
   unmatchedConfiguredModels: string[];
   configuredModelNames: string[];
   allModels: ModelBenchmarkListItem[];
@@ -80,6 +91,7 @@ function sortRows(
 }
 
 export function useBenchmarksState(): UseBenchmarksStateResult {
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [provider, setProvider] = useState("all");
   const [showConfiguredOnly, setShowConfiguredOnly] = useState(true);
@@ -94,9 +106,64 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     queryKey: ["benchmarks", "models"],
     queryFn: getModelBenchmarks,
     refetchInterval: 10 * 60_000,
+    retry: (failureCount, error) =>
+      error instanceof ApiError && error.code === "BENCHMARK_DATASET_MISSING"
+        ? false
+        : failureCount < 3,
   });
 
+  const syncStatusQuery = useQuery({
+    queryKey: ["benchmarks", "sync-status"],
+    queryFn: getBenchmarkSyncStatus,
+    refetchInterval: (query) =>
+      query.state.data?.isRunning ? 2_000 : false,
+  });
+
+  const previousSyncRunningRef = useRef(false);
+  const syncMutation = useMutation({
+    mutationFn: triggerBenchmarkSync,
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["benchmarks", "sync-status"],
+      });
+      if (result.triggered) {
+        toast.success("Benchmark sync started");
+      } else if (result.isRunning) {
+        toast.success("Benchmark sync is already running");
+      }
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to start sync",
+      );
+    },
+  });
+
+  useEffect(() => {
+    const status = syncStatusQuery.data;
+    if (!status) return;
+
+    const wasRunning = previousSyncRunningRef.current;
+    previousSyncRunningRef.current = status.isRunning;
+
+    if (!wasRunning || status.isRunning) return;
+
+    if (status.status === "succeeded") {
+      toast.success("Benchmark sync completed");
+      void queryClient.invalidateQueries({ queryKey: ["benchmarks", "models"] });
+    } else if (status.status === "failed") {
+      toast.error(status.lastError ?? "Benchmark sync failed");
+    }
+  }, [queryClient, syncStatusQuery.data]);
+
   const rows = benchmarksQuery.data?.models ?? [];
+  const benchmarkError =
+    benchmarksQuery.error instanceof Error ? benchmarksQuery.error : null;
+  const isDatasetMissing =
+    benchmarkError instanceof ApiError &&
+    benchmarkError.code === "BENCHMARK_DATASET_MISSING";
+  const syncStatus = syncStatusQuery.data;
+  const isSyncRunning = Boolean(syncStatus?.isRunning || syncMutation.isPending);
   const providers = useMemo(() => {
     const unique = new Set<string>();
     for (const row of rows) {
@@ -163,6 +230,11 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
       benchmarksQuery.data?.sourceUrl ?? "https://artificialanalysis.ai/",
     fetchedAt: benchmarksQuery.data?.fetchedAt ?? "",
     totalCount: benchmarksQuery.data?.models.length ?? 0,
+    isDatasetMissing,
+    syncStatusLabel: getSyncStatusLabel(syncStatus),
+    syncLastError: syncStatus?.lastError ?? null,
+    isSyncRunning,
+    triggerSync: () => syncMutation.mutate(),
     unmatchedConfiguredModels:
       benchmarksQuery.data?.unmatchedConfiguredModels ?? [],
     configuredModelNames: benchmarksQuery.data?.configuredModelNames ?? [],
@@ -181,4 +253,25 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     setSortField,
     setSortDirection,
   };
+}
+
+function getSyncStatusLabel(
+  status: Awaited<ReturnType<typeof getBenchmarkSyncStatus>> | undefined,
+): string {
+  if (!status) {
+    return "Sync status unavailable";
+  }
+  if (status.isRunning) {
+    return "Sync running";
+  }
+  if (status.status === "succeeded" && status.lastSuccessAt) {
+    return `Last sync: ${new Date(status.lastSuccessAt).toLocaleString()}`;
+  }
+  if (status.status === "failed") {
+    return "Last sync failed";
+  }
+  if (status.datasetExists) {
+    return "Local benchmark snapshot ready";
+  }
+  return "No local benchmark snapshot";
 }
