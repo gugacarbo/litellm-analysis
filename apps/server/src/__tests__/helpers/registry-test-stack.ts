@@ -210,7 +210,9 @@ function createInMemoryPrisma() {
             provider?: { connect?: { name: string }; disconnect?: boolean };
           };
         }) => {
-          const existing = [...models.values()].find((row) => row.id === where.id);
+          const existing = [...models.values()].find(
+            (row) => row.id === where.id,
+          );
           if (!existing) {
             const error = new Error("Not found") as Error & { code: string };
             error.code = "P2025";
@@ -282,7 +284,9 @@ function createInMemoryPrisma() {
         },
       ),
       delete: vi.fn(async ({ where }: { where: { id: string } }) => {
-        const existing = [...models.values()].find((row) => row.id === where.id);
+        const existing = [...models.values()].find(
+          (row) => row.id === where.id,
+        );
         if (!existing) {
           const error = new Error("Not found") as Error & { code: string };
           error.code = "P2025";

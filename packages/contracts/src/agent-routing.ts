@@ -1,4 +1,7 @@
-import type { AgentExtraConfig, SystemAgent } from "@lite-llm/agents-repository/schemas";
+import type {
+  AgentExtraConfig,
+  SystemAgent,
+} from "@lite-llm/agents-repository/schemas";
 
 export type { SystemAgent };
 

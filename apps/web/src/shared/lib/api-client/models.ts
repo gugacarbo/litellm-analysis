@@ -46,10 +46,7 @@ export type ModelConfig = {
   };
 };
 
-type ModelSyncPresenceStatus =
-  | "synced"
-  | "config-only"
-  | "registry-only";
+type ModelSyncPresenceStatus = "synced" | "config-only" | "registry-only";
 
 export type ModelWithStatus = ModelConfig & {
   status: ModelSyncPresenceStatus;
@@ -147,9 +144,7 @@ function readInt(value: unknown): number | undefined {
 }
 
 /** Map legacy presence labels to Batch 3 names. */
-function normalizeSyncPresenceStatus(
-  status: string,
-): ModelSyncPresenceStatus {
+function normalizeSyncPresenceStatus(status: string): ModelSyncPresenceStatus {
   if (status === "litellm-only") {
     return "registry-only";
   }
@@ -204,9 +199,7 @@ function normalizeModelRoute(raw: unknown, modelName: string): ModelRoute {
   return { modelName };
 }
 
-function normalizeModelConfig(
-  raw: Record<string, unknown>,
-): ModelConfig {
+function normalizeModelConfig(raw: Record<string, unknown>): ModelConfig {
   const modelName = String(raw.modelName ?? "");
   const modelRoute = isRecord(raw.modelRoute)
     ? normalizeModelRoute(raw.modelRoute, modelName)
