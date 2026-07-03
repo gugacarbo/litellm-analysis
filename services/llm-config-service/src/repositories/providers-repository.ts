@@ -1,4 +1,4 @@
-import { db as drizzleDb } from "@lite-llm/database/client";
+import type { db as drizzleDb } from "@lite-llm/database/client";
 import { modelProxyProviders } from "@lite-llm/database/schema";
 import { asc, eq } from "drizzle-orm";
 import type { ProviderRecord } from "../types/providers.js";
@@ -154,16 +154,14 @@ export class ProvidersRepository {
       return "updated";
     }
 
-    await this.db
-      .insert(modelProxyProviders)
-      .values({
-        name: data.name,
-        provider: data.provider,
-        baseUrl: data.baseUrl,
-        secretRef: data.secretRef,
-        apiKey:
-          options.allowLegacyApiKey && options.apiKey ? options.apiKey : null,
-      });
+    await this.db.insert(modelProxyProviders).values({
+      name: data.name,
+      provider: data.provider,
+      baseUrl: data.baseUrl,
+      secretRef: data.secretRef,
+      apiKey:
+        options.allowLegacyApiKey && options.apiKey ? options.apiKey : null,
+    });
     return "inserted";
   }
 }

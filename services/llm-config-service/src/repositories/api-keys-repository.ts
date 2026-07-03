@@ -1,4 +1,4 @@
-import { db as drizzleDb } from "@lite-llm/database/client";
+import type { db as drizzleDb } from "@lite-llm/database/client";
 import { modelProxyApiKeys } from "@lite-llm/database/schema";
 import { asc, eq } from "drizzle-orm";
 import type { ApiKeyRecord } from "../types/api-keys.js";

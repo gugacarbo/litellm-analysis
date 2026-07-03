@@ -1,4 +1,4 @@
-import { db as drizzleDb } from "@lite-llm/database/client";
+import type { db as drizzleDb } from "@lite-llm/database/client";
 import { modelProxySettings } from "@lite-llm/database/schema";
 import { asc, eq } from "drizzle-orm";
 import type { ModelProxySettingRecord } from "../types/settings.js";
@@ -43,10 +43,7 @@ export class SettingsRepository {
     return rows.map(toRecord);
   }
 
-  async upsert(
-    key: string,
-    value: unknown,
-  ): Promise<ModelProxySettingRecord> {
+  async upsert(key: string, value: unknown): Promise<ModelProxySettingRecord> {
     const [row] = await this.db
       .insert(modelProxySettings)
       .values({ key, value: value as never })

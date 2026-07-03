@@ -1,4 +1,4 @@
-import { db as drizzleDb } from "@lite-llm/database/client";
+import type { db as drizzleDb } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema";
 import { asc, eq } from "drizzle-orm";
 import type {
@@ -81,9 +81,7 @@ export function toModelRoute(record: ModelProxyModelRecord): ModelRoute {
   };
 }
 
-function toModelUpdateData(
-  route: ModelRouteUpdate,
-): Record<string, unknown> {
+function toModelUpdateData(route: ModelRouteUpdate): Record<string, unknown> {
   const data: Record<string, unknown> = {};
 
   if (route.enabled !== undefined) data.enabled = route.enabled;
@@ -167,9 +165,7 @@ export class ModelsRepository {
       .select()
       .from(modelProxyModels)
       .where(
-        options.enabledOnly
-          ? eq(modelProxyModels.enabled, true)
-          : undefined,
+        options.enabledOnly ? eq(modelProxyModels.enabled, true) : undefined,
       )
       .orderBy(asc(modelProxyModels.modelName));
     return rows.map(toModelProxyModelRecord);

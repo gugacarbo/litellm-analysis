@@ -1,4 +1,4 @@
-import { getDb, type DatabaseClient } from "@lite-llm/database/client";
+import { type DatabaseClient, getDb } from "@lite-llm/database/client";
 
 export interface RegistryClientOptions {
   prisma?: DatabaseClient;

@@ -21,12 +21,10 @@ export function looksLikeEnvVarName(value: string): boolean {
 export function parseProviderEncryptionKey(
   env: NodeJS.ProcessEnv = process.env,
 ): Buffer {
-  const trimmed =
-    env.MODEL_PROXY_PROVIDER_ENCRYPTION_KEY?.trim() ||
-    env.APP_ENCRYPTION_KEY?.trim();
+  const trimmed = env.APP_ENCRYPTION_KEY?.trim();
   if (!trimmed) {
     throw new Error(
-      "MODEL_PROXY_PROVIDER_ENCRYPTION_KEY or APP_ENCRYPTION_KEY is required for encrypted provider storage",
+      "APP_ENCRYPTION_KEY is required for encrypted provider storage",
     );
   }
 
