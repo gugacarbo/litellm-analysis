@@ -81,10 +81,7 @@ function normalizeProviderName(
 export function getProviderNameFromParams(
   params: Record<string, unknown>,
 ): string | undefined {
-  return (
-    normalizeProviderName(params.provider_name as string | undefined) ??
-    normalizeProviderName(params.litellm_provider_name as string | undefined)
-  );
+  return normalizeProviderName(params.providerName as string | undefined);
 }
 
 export function resolveModelProvider(
@@ -151,9 +148,6 @@ export function mergeModelRouteFromSpec(
 ): ModelRoute {
   const modelProvider =
     existingRoute.providerName ??
-    getProviderNameFromParams(
-      existingRoute as unknown as Record<string, unknown>,
-    ) ??
     defaultProvider;
   const builtRoute = buildModelRouteFromSpec(modelName, spec, modelProvider);
 

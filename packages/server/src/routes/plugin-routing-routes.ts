@@ -12,135 +12,73 @@ const isWrappedPluginConfig = (value: Record<string, unknown>): boolean =>
   "routing" in value &&
   "config" in value;
 
-const normalizePluginConfigPayload = (
-  value: Record<string, unknown>,
-): Record<string, unknown> => {
-  if (!isWrappedPluginConfig(value)) {
-    return value;
-  }
-
-  const nested = value.config;
-  if (!isRecord(nested)) {
-    return {};
-  }
-
-  return normalizePluginConfigPayload(nested);
+const LEGACY_PLUGIN_CONFIG_KEYS: Record<string, string[]> = {
+  "model-alias": ["aliasPrefix", "includeAgents", "includeCategories"],
+  openagent: ["commitFooter", "includeCoAuthoredBy"],
+  opencode: ["defaultModel"],
+  vscode: [
+    "commitLanguage",
+    "baseUrl",
+    "delay",
+    "readFileLines",
+    "retryEnabled",
+    "maxRetryAttempts",
+    "retryIntervalMs",
+    "retryStatusCodes",
+  ],
+  weave: [
+    "logLevel",
+    "tmuxEnabled",
+    "analyticsEnabled",
+    "analyticsUseFingerprint",
+    "continuationRecoveryCompaction",
+    "continuationIdleEnabled",
+    "continuationIdleWork",
+    "continuationIdleTodoPrompt",
+    "skillDirectories",
+  ],
 };
 
-const asRecord = (value: unknown): Record<string, unknown> =>
-  isRecord(value) ? value : {};
-
-function normalizePluginId(pluginId: string): string {
-  return pluginId;
-}
-
-const normalizePluginConfigById = (
+const findLegacyPluginConfigIssue = (
   pluginId: string,
   value: unknown,
-): Record<string, unknown> => {
-  pluginId = normalizePluginId(pluginId);
-  const config = asRecord(value);
-
-  if (pluginId === "openagent") {
-    const gitMaster = asRecord(config.git_master);
-    return {
-      $schema: config.$schema,
-      git_master: {
-        commit_footer: gitMaster.commit_footer ?? config.commitFooter ?? false,
-        include_co_authored_by:
-          gitMaster.include_co_authored_by ??
-          config.includeCoAuthoredBy ??
-          false,
-      },
-    };
+): string | null => {
+  if (!isRecord(value)) {
+    return null;
   }
 
-  if (pluginId === "opencode") {
-    return {
-      $schema: config.$schema,
-      model: (config.model as string | undefined) ?? config.defaultModel ?? "",
-    };
+  if (isWrappedPluginConfig(value)) {
+    return `Plugin "${pluginId}" config must be sent as the raw current config object`;
   }
 
-  if (pluginId === "vscode") {
-    const retry = asRecord(config["oaicopilot.retry"]);
-    return {
-      "oaicopilot.commitLanguage":
-        config["oaicopilot.commitLanguage"] ?? config.commitLanguage,
-      "oaicopilot.baseUrl":
-        config["oaicopilot.baseUrl"] ?? config.baseUrl ?? "",
-      "oaicopilot.delay": config["oaicopilot.delay"] ?? config.delay ?? 0,
-      "oaicopilot.readFileLines":
-        config["oaicopilot.readFileLines"] ?? config.readFileLines ?? 0,
-      "oaicopilot.retry": {
-        enabled: retry.enabled ?? config.retryEnabled ?? true,
-        max_attempts: retry.max_attempts ?? config.maxRetryAttempts ?? 3,
-        interval_ms: retry.interval_ms ?? config.retryIntervalMs ?? 2000,
-        status_codes: retry.status_codes ?? config.retryStatusCodes ?? [],
-      },
-      "oaicopilot.models": config["oaicopilot.models"] ?? [],
-    };
+  const legacyKeys = LEGACY_PLUGIN_CONFIG_KEYS[pluginId];
+  if (!legacyKeys) {
+    return null;
   }
 
-  if (pluginId === "weave") {
-    const tmux = asRecord(config.tmux);
-    const analytics = asRecord(config.analytics);
-    const continuation = asRecord(config.continuation);
-    const recovery = asRecord(continuation.recovery);
-    const idle = asRecord(continuation.idle);
-    return {
-      $schema: config.$schema,
-      log_level: config.log_level ?? config.logLevel ?? "INFO",
-      tmux: {
-        enabled: tmux.enabled ?? config.tmuxEnabled ?? true,
-      },
-      analytics: {
-        enabled: analytics.enabled ?? config.analyticsEnabled ?? true,
-        use_fingerprint:
-          analytics.use_fingerprint ?? config.analyticsUseFingerprint ?? true,
-      },
-      continuation: {
-        recovery: {
-          compaction:
-            recovery.compaction ??
-            config.continuationRecoveryCompaction ??
-            true,
-        },
-        idle: {
-          enabled: idle.enabled ?? config.continuationIdleEnabled ?? true,
-          work: idle.work ?? config.continuationIdleWork ?? true,
-          workflow: idle.workflow ?? true,
-          todo_prompt:
-            idle.todo_prompt ?? config.continuationIdleTodoPrompt ?? true,
-        },
-      },
-      skill_directories:
-        config.skill_directories ?? config.skillDirectories ?? [],
-    };
+  const foundKey = legacyKeys.find((key) => key in value);
+  if (!foundKey) {
+    return null;
   }
 
-  if (pluginId === "model-alias") {
-    return {
-      $schema: config.$schema,
-      model_group_alias: config.model_group_alias ?? {},
-    };
-  }
-
-  return config;
+  return `Plugin "${pluginId}" no longer accepts legacy config field "${foundKey}"`;
 };
 
-const normalizePluginRoutingMap = (
+const validatePluginRoutingMap = (
   plugins: Record<string, PluginRouting>,
-): Record<string, PluginRoutingInput> => {
-  const normalized: Record<string, PluginRoutingInput> = {};
+): string | null => {
   for (const [pluginId, plugin] of Object.entries(plugins)) {
-    const normalizedPluginId = normalizePluginId(pluginId);
-    normalized[normalizedPluginId] = {
-      ...plugin,
-      config: normalizePluginConfigById(normalizedPluginId, plugin.config),
-    };
+    if (!isRecord(plugin)) {
+      return `Plugin "${pluginId}" entry must be an object`;
+    }
+
+    const issue = findLegacyPluginConfigIssue(pluginId, plugin.config);
+    if (issue) {
+      return issue;
+    }
   }
-  return normalized;
+
+  return null;
 };
 
 interface PluginInfoDTO {
@@ -201,11 +139,16 @@ export function registerPluginRoutingRoutes(
         return;
       }
 
-      const normalizedPlugins = normalizePluginRoutingMap(plugins);
+      const validationIssue = validatePluginRoutingMap(plugins);
+      if (validationIssue) {
+        res.status(400).json({ error: validationIssue });
+        return;
+      }
+
       const config = await manager.repository.read();
-      config.plugins = normalizedPlugins;
+      config.plugins = plugins as Record<string, PluginRoutingInput>;
       await manager.repository.write(config);
-      manager.registry.loadFromConfig(normalizedPlugins);
+      manager.registry.loadFromConfig(config.plugins);
       await manager.registry.exportAll();
       res.json({ success: true });
     } catch (error) {
@@ -221,7 +164,7 @@ export function registerPluginRoutingRoutes(
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
-      const pluginId = normalizePluginId(req.params.pluginId);
+      const pluginId = req.params.pluginId;
       const { agentId } = req.params;
       const newEnabled = await manager.services.routing.toggleAgentPlugin(
         pluginId,
@@ -258,7 +201,7 @@ export function registerPluginRoutingRoutes(
           enabled: pc?.enabled ?? false,
           outputFile: pc?.outputFile ?? p.manifest.output.fileName,
           internalAgents: registry.getInternalAgents(pluginId),
-          configSchema: registry.getConfigSchema(pluginId),
+          configSchema: [],
           agentCount: totalAgentCount,
           enabledAgentCount: mappedAgentCount,
         };
@@ -278,7 +221,7 @@ export function registerPluginRoutingRoutes(
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
-      const pluginId = normalizePluginId(req.params.pluginId);
+      const pluginId = req.params.pluginId;
       const schema = manager.registry.getJsonSchema(pluginId);
 
       if (!schema) {
@@ -305,22 +248,16 @@ export function registerPluginRoutingRoutes(
       const { pluginId } = req.params;
       const { services, registry } = manager;
 
-      const [
-        pluginConfig,
-        agentMappings,
-        categoryMappings,
-        schema,
-        internalAgents,
-      ] = await Promise.all([
-        services.routing.getPluginConfig(pluginId),
-        services.routing.getAgentMappings(pluginId),
-        services.routing.getCategoryMappings(pluginId),
-        Promise.resolve(registry.getConfigSchema(pluginId)),
-        Promise.resolve(registry.getInternalAgents(pluginId)),
-      ]);
+      const [pluginConfig, agentMappings, categoryMappings, internalAgents] =
+        await Promise.all([
+          services.routing.getPluginConfig(pluginId),
+          services.routing.getAgentMappings(pluginId),
+          services.routing.getCategoryMappings(pluginId),
+          Promise.resolve(registry.getInternalAgents(pluginId)),
+        ]);
 
-      const normalizedCurrentConfig = isRecord(pluginConfig?.config)
-        ? normalizePluginConfigPayload(pluginConfig.config)
+      const currentConfig = isRecord(pluginConfig?.config)
+        ? pluginConfig.config
         : {};
 
       // Fetch models context for plugins that need it (e.g. OpenCode)
@@ -346,10 +283,10 @@ export function registerPluginRoutingRoutes(
       }
 
       res.json({
-        config: normalizedCurrentConfig,
+        config: currentConfig,
         agentMappings,
         categoryMappings,
-        schema,
+        schema: [],
         internalAgents,
         allModels,
         modelProxyProvider,
@@ -368,19 +305,22 @@ export function registerPluginRoutingRoutes(
         return;
       }
       const { services } = manager;
-      const pluginId = normalizePluginId(req.params.pluginId);
+      const pluginId = req.params.pluginId;
       const { config, agentMappings, categoryMappings } = req.body as {
-        config?: Record<string, unknown>;
+        config?: unknown;
         agentMappings?: Record<string, string>;
         categoryMappings?: Record<string, boolean>;
       };
-      const normalizedConfig =
-        config !== undefined
-          ? normalizePluginConfigById(
-              pluginId,
-              normalizePluginConfigPayload(config),
-            )
-          : undefined;
+      if (config !== undefined && !isRecord(config)) {
+        res.status(400).json({ error: "Plugin config must be an object" });
+        return;
+      }
+
+      const validationIssue = findLegacyPluginConfigIssue(pluginId, config);
+      if (validationIssue) {
+        res.status(400).json({ error: validationIssue });
+        return;
+      }
 
       const current = await services.routing.getPluginConfig(pluginId);
 
@@ -389,7 +329,7 @@ export function registerPluginRoutingRoutes(
         const updated: PluginRoutingInput = {
           enabled: true,
           outputFile: `${pluginId}.json`,
-          config: normalizedConfig ?? {},
+          config: config ?? {},
           routing: {
             agents: agentMappings ?? {},
             categories: categoryMappings ?? {},
@@ -400,8 +340,7 @@ export function registerPluginRoutingRoutes(
         // Merge changes into existing config
         const updated: PluginRoutingInput = {
           ...current,
-          config:
-            normalizedConfig !== undefined ? normalizedConfig : current.config,
+          config: config !== undefined ? config : current.config,
           routing: {
             agents:
               agentMappings !== undefined
@@ -437,7 +376,7 @@ export function registerPluginRoutingRoutes(
           return;
         }
         const { services } = manager;
-        const pluginId = normalizePluginId(req.params.pluginId);
+        const pluginId = req.params.pluginId;
         const { categoryId } = req.params;
         const enabled = await services.routing.toggleCategoryMapping(
           pluginId,
