@@ -1,83 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SettingsRepository } from "../../repositories/settings-repository.js";
+import { beforeEach, describe, expect, it } from "vitest";
 import { SettingsService } from "../settings.service.js";
-
-type JsonValue = unknown;
-
-type SettingRow = {
-  id: string;
-  key: string;
-  value: JsonValue;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-function createSettingsPrismaMock() {
-  const rows = new Map<string, SettingRow>();
-  let idCounter = 1;
-
-  return {
-    modelProxySetting: {
-      findUnique: vi.fn(async ({ where }: { where: { key: string } }) => {
-        return rows.get(where.key) ?? null;
-      }),
-      findMany: vi.fn(async () =>
-        [...rows.values()].sort((a, b) => a.key.localeCompare(b.key)),
-      ),
-      upsert: vi.fn(
-        async ({
-          where,
-          create,
-          update,
-        }: {
-          where: { key: string };
-          create: { key: string; value: JsonValue };
-          update: { value: JsonValue };
-        }) => {
-          const existing = rows.get(where.key);
-          const now = new Date();
-          if (existing) {
-            const updated: SettingRow = {
-              ...existing,
-              value: update.value,
-              updatedAt: now,
-            };
-            rows.set(where.key, updated);
-            return updated;
-          }
-          const created: SettingRow = {
-            id: `setting_${idCounter++}`,
-            key: create.key,
-            value: create.value,
-            createdAt: now,
-            updatedAt: now,
-          };
-          rows.set(create.key, created);
-          return created;
-        },
-      ),
-      delete: vi.fn(async ({ where }: { where: { key: string } }) => {
-        const existing = rows.get(where.key);
-        if (!existing) {
-          const error = new Error("Not found") as Error & { code: string };
-          error.code = "P2025";
-          throw error;
-        }
-        rows.delete(where.key);
-        return existing;
-      }),
-    },
-  };
-}
+import { createSettingsRepositoryMock } from "./in-memory-repositories.js";
 
 describe("SettingsService", () => {
-  let prisma: ReturnType<typeof createSettingsPrismaMock>;
   let service: SettingsService;
 
   beforeEach(() => {
-    prisma = createSettingsPrismaMock();
+    const repository = createSettingsRepositoryMock();
     service = new SettingsService({
-      repository: new SettingsRepository(prisma as never),
+      repository: repository as never,
     });
   });
 

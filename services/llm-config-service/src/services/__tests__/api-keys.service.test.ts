@@ -1,111 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiKeysRepository } from "../../repositories/api-keys-repository.js";
+import { beforeEach, describe, expect, it } from "vitest";
 import { ApiKeysService } from "../api-keys.service.js";
-
-type ApiKeyRow = {
-  id: string;
-  label: string;
-  keyHash: string;
-  enabled: boolean;
-  lastUsedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-function createApiKeysPrismaMock() {
-  const rowsById = new Map<string, ApiKeyRow>();
-  const rowsByHash = new Map<string, ApiKeyRow>();
-  let idCounter = 1;
-
-  return {
-    modelProxyApiKey: {
-      findUnique: vi.fn(
-        async ({ where }: { where: { id?: string; keyHash?: string } }) => {
-          if (where.id) {
-            return rowsById.get(where.id) ?? null;
-          }
-          if (where.keyHash) {
-            return rowsByHash.get(where.keyHash) ?? null;
-          }
-          return null;
-        },
-      ),
-      findMany: vi.fn(
-        async ({ where }: { where?: { enabled?: boolean } } = {}) => {
-          const all = [...rowsById.values()].sort((a, b) =>
-            a.label.localeCompare(b.label),
-          );
-          if (where?.enabled === undefined) {
-            return all;
-          }
-          return all.filter((row) => row.enabled === where.enabled);
-        },
-      ),
-      create: vi.fn(
-        async (args: {
-          data: { label: string; keyHash: string; enabled: boolean };
-        }) => {
-          const now = new Date();
-          const row: ApiKeyRow = {
-            id: `key_${idCounter++}`,
-            label: args.data.label,
-            keyHash: args.data.keyHash,
-            enabled: args.data.enabled,
-            lastUsedAt: null,
-            createdAt: now,
-            updatedAt: now,
-          };
-          rowsById.set(row.id, row);
-          rowsByHash.set(row.keyHash, row);
-          return row;
-        },
-      ),
-      update: vi.fn(
-        async ({
-          where,
-          data,
-        }: {
-          where: { id: string };
-          data: Partial<{ enabled: boolean; lastUsedAt: Date }>;
-        }) => {
-          const existing = rowsById.get(where.id);
-          if (!existing) {
-            const error = new Error("Not found") as Error & { code: string };
-            error.code = "P2025";
-            throw error;
-          }
-          const updated: ApiKeyRow = {
-            ...existing,
-            ...data,
-            updatedAt: new Date(),
-          };
-          rowsById.set(where.id, updated);
-          rowsByHash.set(updated.keyHash, updated);
-          return updated;
-        },
-      ),
-      delete: vi.fn(async ({ where }: { where: { id: string } }) => {
-        const existing = rowsById.get(where.id);
-        if (!existing) {
-          const error = new Error("Not found") as Error & { code: string };
-          error.code = "P2025";
-          throw error;
-        }
-        rowsById.delete(where.id);
-        rowsByHash.delete(existing.keyHash);
-        return existing;
-      }),
-    },
-  };
-}
+import { createApiKeysRepositoryMock } from "./in-memory-repositories.js";
 
 describe("ApiKeysService", () => {
   let service: ApiKeysService;
 
   beforeEach(() => {
-    const prisma = createApiKeysPrismaMock();
+    const repository = createApiKeysRepositoryMock();
     service = new ApiKeysService({
-      repository: new ApiKeysRepository(prisma as never),
+      repository: repository as never,
       hashKey: async (plain) => `hash:${plain}`,
       verifyKey: async (hash, plain) => hash === `hash:${plain}`,
       generateKey: () => "mp_test_generated_key",
