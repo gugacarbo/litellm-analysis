@@ -1,10 +1,10 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { GatewayHooks } from "@hebo-ai/gateway";
-import type { IOpenAiOAuthService } from "@lite-llm/llm-config-service";
 import { db } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
-import { eq } from "drizzle-orm";
+import type { IOpenAiOAuthService } from "@lite-llm/llm-config-service";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import { eq } from "drizzle-orm";
 import { redactHeaders } from "../logging/payload-redactor";
 import {
   createCancelledError,
@@ -65,7 +65,8 @@ async function resolveTargetForModel(
     return cached;
   }
 
-  const [row] = await db.select()
+  const [row] = await db
+    .select()
     .from(modelProxyModels)
     .where(eq(modelProxyModels.modelName, modelName))
     .limit(1);
@@ -245,7 +246,6 @@ export function createLedgerHooks(options: {
   providerService: IProviderService;
   openAiOAuthService: IOpenAiOAuthService;
 }): GatewayHooks {
-
   return {
     onRequest: async (ctx) => {
       const pathname = readPathname(ctx.request);

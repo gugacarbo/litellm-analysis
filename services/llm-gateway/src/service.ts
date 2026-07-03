@@ -1,7 +1,7 @@
 import { db } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
-import { eq, asc } from "drizzle-orm";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import { asc, eq } from "drizzle-orm";
 import { redactHeaders } from "./logging/payload-redactor";
 import {
   createCancelledError,
@@ -97,7 +97,8 @@ export class ModelProxyService implements IModelProxyService {
   }
 
   async listModels(): Promise<ModelListResponse> {
-    const proxyModels = await db.select()
+    const proxyModels = await db
+      .select()
       .from(modelProxyModels)
       .where(eq(modelProxyModels.enabled, true))
       .orderBy(asc(modelProxyModels.modelName));

@@ -42,10 +42,13 @@ vi.mock("../resolver/upstream-provider", () => ({
   resolveUpstreamTarget: resolveUpstreamTargetMock,
 }));
 
-import { buildHeboGatewayConfig } from "./build-config";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import { buildHeboGatewayConfig } from "./build-config";
 
-function createTarget(modelName: string, overrides: Partial<Record<string, unknown>> = {}) {
+function createTarget(
+  modelName: string,
+  overrides: Partial<Record<string, unknown>> = {},
+) {
   const [, bareModelName = modelName] = modelName.split("/", 2);
 
   return {

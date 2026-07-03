@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
 import type { Provider } from "@lite-llm/models-repository";
+import { describe, expect, it, vi } from "vitest";
 import {
   CHATGPT_SUBSCRIPTION_PROVIDER,
   findUpstreamProvider,

@@ -7,11 +7,11 @@ import {
 } from "@hebo-ai/gateway";
 import { db } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
-import { eq, asc } from "drizzle-orm";
 import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import { asc, eq } from "drizzle-orm";
 import {
-  type ResolvedUpstreamTarget,
   parseProviderModel,
+  type ResolvedUpstreamTarget,
   resolveUpstreamTarget,
 } from "../resolver/upstream-provider";
 
@@ -85,14 +85,18 @@ function providerKey(target: ResolvedUpstreamTarget): string {
 }
 
 async function listProxyCatalogRows(): Promise<ProxyCatalogRow[]> {
-  const rows = await db.select({
-    modelName: modelProxyModels.modelName,
-    providerName: modelProxyModels.providerName,
-    isDefaultProvider: modelProxyModels.isDefaultProvider,
-  })
+  const rows = await db
+    .select({
+      modelName: modelProxyModels.modelName,
+      providerName: modelProxyModels.providerName,
+      isDefaultProvider: modelProxyModels.isDefaultProvider,
+    })
     .from(modelProxyModels)
     .where(eq(modelProxyModels.enabled, true))
-    .orderBy(asc(modelProxyModels.modelName), asc(modelProxyModels.providerName));
+    .orderBy(
+      asc(modelProxyModels.modelName),
+      asc(modelProxyModels.providerName),
+    );
   return rows;
 }
 
@@ -102,9 +106,7 @@ async function listProxyModelNames(
 ): Promise<string[]> {
   if (proxyModels.length > 0) {
     return proxyModels.map((row) =>
-      row.providerName
-        ? `${row.providerName}/${row.modelName}`
-        : row.modelName,
+      row.providerName ? `${row.providerName}/${row.modelName}` : row.modelName,
     );
   }
 
@@ -198,10 +200,7 @@ export async function buildHeboGatewayConfig(options: {
   }
 
   for (const [bareModelName, rows] of rowsByBareModel) {
-    if (
-      rows.length > 1 &&
-      !rows.some((row) => row.isDefaultProvider)
-    ) {
+    if (rows.length > 1 && !rows.some((row) => row.isDefaultProvider)) {
       console.warn(
         `[hebo] Ambiguous model "${bareModelName}" has ${rows.length} providers but no default - use "provider/${bareModelName}" to specify`,
       );

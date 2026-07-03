@@ -1,5 +1,8 @@
 import { db } from "@lite-llm/database/client";
-import { modelProxyRequests, modelProxyMessages } from "@lite-llm/database/schema/model-proxy";
+import {
+  modelProxyMessages,
+  modelProxyRequests,
+} from "@lite-llm/database/schema/model-proxy";
 import { eq } from "drizzle-orm";
 import { extractEndUser, extractLedgerMessages } from "../proxy-payload";
 import type { ChatCompletionsRequest } from "../schemas";
@@ -116,16 +119,19 @@ export class RequestLedger {
     startedAt: Date,
     context: LedgerStartContext = {},
   ): Promise<typeof modelProxyRequests.$inferSelect> {
-    const [row] = await db.insert(modelProxyRequests).values({
-      model: request.model,
-      upstreamModel: target.upstreamModel,
-      upstreamBaseUrl: target.upstreamBaseUrl,
-      status: "started",
-      startedAt,
-      apiKeyAlias: context.apiKeyAlias ?? null,
-      endUser: context.endUser ?? request.user ?? null,
-      requestBody: redactPayload(request.requestBody) as unknown,
-    }).returning();
+    const [row] = await db
+      .insert(modelProxyRequests)
+      .values({
+        model: request.model,
+        upstreamModel: target.upstreamModel,
+        upstreamBaseUrl: target.upstreamBaseUrl,
+        status: "started",
+        startedAt,
+        apiKeyAlias: context.apiKeyAlias ?? null,
+        endUser: context.endUser ?? request.user ?? null,
+        requestBody: redactPayload(request.requestBody) as unknown,
+      })
+      .returning();
 
     if (request.messages.length > 0) {
       await db.insert(modelProxyMessages).values(
@@ -177,7 +183,8 @@ export class RequestLedger {
     target: LedgerTarget,
     params: FinishRequestParams,
   ): Promise<void> {
-    const [existing] = await db.select({ status: modelProxyRequests.status })
+    const [existing] = await db
+      .select({ status: modelProxyRequests.status })
       .from(modelProxyRequests)
       .where(eq(modelProxyRequests.id, requestId))
       .limit(1);
@@ -189,7 +196,8 @@ export class RequestLedger {
     const usage = params.usage ?? {};
     const cost = calculateCost(target.cost, usage);
 
-    await db.update(modelProxyRequests)
+    await db
+      .update(modelProxyRequests)
       .set(this.buildUpdateData(params, cost))
       .where(eq(modelProxyRequests.id, requestId));
 
