@@ -13,6 +13,17 @@ export interface IProviderService {
   delete(key: string): Promise<void>;
 }
 
+function assertCanonicalProviderSpec(
+  key: string,
+  spec: Provider | Partial<Provider>,
+): void {
+  if (key !== "local-proxy" && spec.apiKey !== undefined) {
+    throw new Error(
+      'Upstream provider credentials are managed via llm-config-service secretRef; apiKey is only valid for "local-proxy"',
+    );
+  }
+}
+
 export class ProviderService implements IProviderService {
   private readonly repository: IModelsRepository;
 
@@ -31,6 +42,7 @@ export class ProviderService implements IProviderService {
   }
 
   async create(key: string, spec: Provider): Promise<void> {
+    assertCanonicalProviderSpec(key, spec);
     const config = await this.repository.read();
     if (config.provider[key] !== undefined) {
       throw new Error(`Provider "${key}" already exists`);
@@ -40,6 +52,7 @@ export class ProviderService implements IProviderService {
   }
 
   async update(key: string, spec: Partial<Provider>): Promise<void> {
+    assertCanonicalProviderSpec(key, spec);
     const config = await this.repository.read();
     if (config.provider[key] === undefined) {
       throw new Error(`Provider "${key}" not found`);
@@ -49,6 +62,7 @@ export class ProviderService implements IProviderService {
   }
 
   async upsert(key: string, spec: Provider): Promise<void> {
+    assertCanonicalProviderSpec(key, spec);
     const config = await this.repository.read();
     config.provider[key] = spec;
     await this.repository.write(config);

@@ -62,7 +62,6 @@ describe("ProviderService", () => {
       name: "OpenAI",
       ownedBy: "openai",
       baseUrl: "https://api.openai.com",
-      apiKey: "sk-key",
       defaultProvider: "ATplus Router",
     });
     const provider = await service.get("openai");
@@ -79,6 +78,18 @@ describe("ProviderService", () => {
         defaultProvider: "ATplus Router",
       }),
     ).rejects.toThrow(/already exists/);
+  });
+
+  it("rejects upstream provider apiKey compatibility input", async () => {
+    await expect(
+      service.create("openai", {
+        name: "OpenAI",
+        ownedBy: "openai",
+        baseUrl: "https://api.openai.com",
+        apiKey: "sk-key",
+        defaultProvider: "ATplus Router",
+      }),
+    ).rejects.toThrow(/secretRef/);
   });
 
   it("updates an existing provider", async () => {
