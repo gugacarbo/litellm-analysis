@@ -1,8 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignore": [
-    "**/components/ui/*"
-  ],
+  "ignore": ["**/components/ui/*"],
   "workspaces": {
     ".": {
       "entry": [
@@ -12,8 +10,5 @@
       ]
     }
   },
-  "ignoreDependencies": [
-    "@lite-llm/config",
-    "zod"
-  ]
+  "ignoreDependencies": ["@lite-llm/config", "zod"]
 }

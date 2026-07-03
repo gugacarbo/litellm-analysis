@@ -5,14 +5,14 @@
 
 ## Nomenclatura
 
-| Contexto | Convenção | Exemplo |
-|----------|-----------|---------|
-| API / TypeScript (novo) | `camelCase` | `modelRoute`, `inputCostPerToken` |
-| Colunas PostgreSQL | `snake_case` | `model_name`, `input_cost_per_token` |
-| Tabelas do proxy | prefixo `model_proxy_` | `model_proxy_models`, `model_proxy_settings` |
-| Tipos de modelo | `modelRoute` (NUNCA `litellmParams`) | `ModelRoute`, `model-route.ts` |
-| Estados de sync | `synced`, `config-only`, `registry-only`, `config-to-registry`, `registry-to-config` | — |
-| Providers | nomes neutros (NUNCA `litellm`) | `local-proxy`, `openai-compatible` |
+| Contexto                | Convenção                                                                            | Exemplo                                      |
+| ----------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------- |
+| API / TypeScript (novo) | `camelCase`                                                                          | `modelRoute`, `inputCostPerToken`            |
+| Colunas PostgreSQL      | `snake_case`                                                                         | `model_name`, `input_cost_per_token`         |
+| Tabelas do proxy        | prefixo `model_proxy_`                                                               | `model_proxy_models`, `model_proxy_settings` |
+| Tipos de modelo         | `modelRoute` (NUNCA `litellmParams`)                                                 | `ModelRoute`, `model-route.ts`               |
+| Estados de sync         | `synced`, `config-only`, `registry-only`, `config-to-registry`, `registry-to-config` | —                                            |
+| Providers               | nomes neutros (NUNCA `litellm`)                                                      | `local-proxy`, `openai-compatible`           |
 
 **Proibido:** usar `litellmParams`, `litellm-only`, `config-to-litellm`, `litellm-to-config`, `LiteLLM_*` em código novo ou UI.
 

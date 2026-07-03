@@ -1,6 +1,0 @@
-{
-  "id": "0004-prisma-to-drizzle-migration",
-  "title": "Migrar toda a camada de dados de Prisma para Drizzle",
-  "status": "completed",
-  "tasks": []
-}
