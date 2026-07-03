@@ -87,7 +87,9 @@ async function getDateRange(): Promise<{ min: Date; max: Date }> {
   }
 
   const result = await queryRaw<{ min: Date; max: Date }>(
-    sql.raw(`SELECT MIN("${PROXY_TIME_COLUMN}") as min, MAX("${PROXY_TIME_COLUMN}") as max FROM "${PROXY_REQUESTS_TABLE}"`),
+    sql.raw(
+      `SELECT MIN("${PROXY_TIME_COLUMN}") as min, MAX("${PROXY_TIME_COLUMN}") as max FROM "${PROXY_REQUESTS_TABLE}"`,
+    ),
     [],
   );
 

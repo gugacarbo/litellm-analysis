@@ -1,7 +1,7 @@
-import type { TimeRangeParams } from "../../types/index";
 import { db, queryRaw } from "@lite-llm/database/client";
-import { sql, eq } from "drizzle-orm";
 import { modelProxyRequests } from "@lite-llm/database/schema/model-proxy";
+import { eq, sql } from "drizzle-orm";
+import type { TimeRangeParams } from "../../types/index";
 import {
   buildProxyWhereClause,
   combineProxyConditions,
@@ -64,21 +64,25 @@ export async function getModelStatistics(params: TimeRangeParams = {}) {
 }
 
 export async function mergeModels(sourceModel: string, targetModel: string) {
-  await db.update(modelProxyRequests)
+  await db
+    .update(modelProxyRequests)
     .set({ model: targetModel })
     .where(eq(modelProxyRequests.model, sourceModel));
 }
 
 export async function deleteModelLogs(modelName: string) {
   if (modelName.trim() === "") {
-    await db.execute(sql.raw(`
+    await db.execute(
+      sql.raw(`
       DELETE FROM "${PROXY_REQUESTS_TABLE}"
       WHERE NULLIF(BTRIM("model"), '') IS NULL
-    `));
+    `),
+    );
     return;
   }
 
-  await db.delete(modelProxyRequests)
+  await db
+    .delete(modelProxyRequests)
     .where(eq(modelProxyRequests.model, modelName));
 }
 

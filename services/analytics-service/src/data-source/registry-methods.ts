@@ -1,10 +1,11 @@
-import {
-  fromModelProxyRow,
-  toModelRoute,
-} from "@lite-llm/llm-config-service";
 import { db } from "@lite-llm/database/client";
-import { modelProxyModels, modelProxyProviders, modelProxySettings } from "@lite-llm/database/schema/model-proxy";
-import { eq, asc } from "drizzle-orm";
+import {
+  modelProxyModels,
+  modelProxyProviders,
+  modelProxySettings,
+} from "@lite-llm/database/schema/model-proxy";
+import { fromModelProxyRow, toModelRoute } from "@lite-llm/llm-config-service";
+import { asc, eq } from "drizzle-orm";
 import type { ModelDetail, ModelEntry, RegistryProvider } from "../types/index";
 
 const DEFAULT_PROVIDER_KEY = "default_provider";
@@ -68,7 +69,10 @@ function routeToCreateData(route: ReturnType<typeof prismaModelToRoute>) {
 }
 
 export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
-  const rows = await db.select().from(modelProxyModels).orderBy(asc(modelProxyModels.modelName));
+  const rows = await db
+    .select()
+    .from(modelProxyModels)
+    .orderBy(asc(modelProxyModels.modelName));
   return rows.map((row) => ({
     modelName: row.modelName,
     modelRoute: prismaModelToRoute(row) as unknown as Record<string, unknown>,
@@ -76,7 +80,10 @@ export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
 }
 
 export async function getRegistryModelDetailsImpl(): Promise<ModelDetail[]> {
-  const rows = await db.select().from(modelProxyModels).orderBy(asc(modelProxyModels.modelName));
+  const rows = await db
+    .select()
+    .from(modelProxyModels)
+    .orderBy(asc(modelProxyModels.modelName));
   return rows.map((row) => ({
     model_name: row.modelName,
     input_cost_per_token:
@@ -114,14 +121,22 @@ export async function updateRegistryModelImpl(
     : null;
 
   if (targetName !== modelName) {
-    const [existing] = await db.select().from(modelProxyModels).where(eq(modelProxyModels.modelName, modelName)).limit(1);
+    const [existing] = await db
+      .select()
+      .from(modelProxyModels)
+      .where(eq(modelProxyModels.modelName, modelName))
+      .limit(1);
     if (!existing) {
       throw new Error(`Model "${modelName}" not found`);
     }
     const existingRoute = prismaModelToRoute(existing);
     const mergedRoute = route ?? existingRoute;
-    await db.delete(modelProxyModels).where(eq(modelProxyModels.id, existing.id));
-    await db.insert(modelProxyModels).values(routeToCreateData({ ...mergedRoute, modelName: targetName }));
+    await db
+      .delete(modelProxyModels)
+      .where(eq(modelProxyModels.id, existing.id));
+    await db
+      .insert(modelProxyModels)
+      .values(routeToCreateData({ ...mergedRoute, modelName: targetName }));
     return;
   }
 
@@ -129,17 +144,28 @@ export async function updateRegistryModelImpl(
     return;
   }
 
-  const [existing] = await db.select().from(modelProxyModels).where(eq(modelProxyModels.modelName, modelName)).limit(1);
+  const [existing] = await db
+    .select()
+    .from(modelProxyModels)
+    .where(eq(modelProxyModels.modelName, modelName))
+    .limit(1);
   if (!existing) {
     throw new Error(`Model "${modelName}" not found`);
   }
-  await db.update(modelProxyModels).set(routeToCreateData(route)).where(eq(modelProxyModels.id, existing.id));
+  await db
+    .update(modelProxyModels)
+    .set(routeToCreateData(route))
+    .where(eq(modelProxyModels.id, existing.id));
 }
 
 export async function deleteRegistryModelImpl(
   modelName: string,
 ): Promise<void> {
-  const [existing] = await db.select().from(modelProxyModels).where(eq(modelProxyModels.modelName, modelName)).limit(1);
+  const [existing] = await db
+    .select()
+    .from(modelProxyModels)
+    .where(eq(modelProxyModels.modelName, modelName))
+    .limit(1);
   if (!existing) {
     throw new Error(`Model "${modelName}" not found`);
   }
@@ -147,7 +173,10 @@ export async function deleteRegistryModelImpl(
 }
 
 export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
-  const rows = await db.select().from(modelProxyProviders).orderBy(asc(modelProxyProviders.name));
+  const rows = await db
+    .select()
+    .from(modelProxyProviders)
+    .orderBy(asc(modelProxyProviders.name));
   return rows.map((record) => ({
     providerId: record.id,
     providerName: record.name,
@@ -166,7 +195,11 @@ export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
 }
 
 export async function getRegistryDefaultProviderImpl(): Promise<string | null> {
-  const [row] = await db.select().from(modelProxySettings).where(eq(modelProxySettings.key, DEFAULT_PROVIDER_KEY)).limit(1);
+  const [row] = await db
+    .select()
+    .from(modelProxySettings)
+    .where(eq(modelProxySettings.key, DEFAULT_PROVIDER_KEY))
+    .limit(1);
   if (
     !row?.value ||
     typeof row.value !== "object" ||
@@ -184,22 +217,31 @@ export async function setRegistryDefaultProviderImpl(
   providerAlias: string | null,
 ): Promise<void> {
   if (providerAlias === null || providerAlias.trim() === "") {
-    await db.delete(modelProxySettings).where(eq(modelProxySettings.key, DEFAULT_PROVIDER_KEY));
+    await db
+      .delete(modelProxySettings)
+      .where(eq(modelProxySettings.key, DEFAULT_PROVIDER_KEY));
     return;
   }
-  await db.insert(modelProxySettings).values({
-    key: DEFAULT_PROVIDER_KEY,
-    value: { default_provider: providerAlias.trim() },
-  }).onConflictDoUpdate({
-    target: modelProxySettings.key,
-    set: { value: { default_provider: providerAlias.trim() } },
-  });
+  await db
+    .insert(modelProxySettings)
+    .values({
+      key: DEFAULT_PROVIDER_KEY,
+      value: { default_provider: providerAlias.trim() },
+    })
+    .onConflictDoUpdate({
+      target: modelProxySettings.key,
+      set: { value: { default_provider: providerAlias.trim() } },
+    });
 }
 
 export async function getRegistryHealthCheckPromptImpl(): Promise<
   string | null
 > {
-  const [row] = await db.select().from(modelProxySettings).where(eq(modelProxySettings.key, HEALTH_CHECK_PROMPT_KEY)).limit(1);
+  const [row] = await db
+    .select()
+    .from(modelProxySettings)
+    .where(eq(modelProxySettings.key, HEALTH_CHECK_PROMPT_KEY))
+    .limit(1);
   if (
     !row?.value ||
     typeof row.value !== "object" ||

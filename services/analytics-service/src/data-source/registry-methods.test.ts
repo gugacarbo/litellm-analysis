@@ -29,7 +29,11 @@ vi.mock("@lite-llm/database/client", () => ({
   db: {
     select: () => ({
       from: (table: unknown) => {
-        if (typeof table === "object" && table !== null && "modelName" in table) {
+        if (
+          typeof table === "object" &&
+          table !== null &&
+          "modelName" in table
+        ) {
           return {
             orderBy: vi.fn().mockResolvedValue(mockModelRows),
           };
