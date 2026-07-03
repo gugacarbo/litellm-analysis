@@ -1,4 +1,12 @@
-import { doublePrecision, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  doublePrecision,
+  integer,
+  jsonb,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 export const alerts = pgTable("alerts", {
   id: serial("id").primaryKey(),

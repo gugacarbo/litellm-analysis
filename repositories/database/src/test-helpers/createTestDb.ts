@@ -7,7 +7,8 @@ export async function createTestDb(): Promise<{
   stop: () => Promise<void>;
 }> {
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL ?? "postgresql://localhost:5432/test",
+    connectionString:
+      process.env.DATABASE_URL ?? "postgresql://localhost:5432/test",
     max: 1,
   });
 

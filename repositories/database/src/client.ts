@@ -1,5 +1,5 @@
 import { serverEnv } from "@lite-llm/config/server";
-import { sql } from "drizzle-orm";
+import type { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
@@ -34,7 +34,10 @@ export async function disconnectDb(): Promise<void> {
   }
 }
 
-export async function queryRaw<T>(query: ReturnType<typeof sql>, params: unknown[] = []): Promise<T[]> {
+export async function queryRaw<T>(
+  query: ReturnType<typeof sql>,
+  params: unknown[] = [],
+): Promise<T[]> {
   const result = await getPool().query(query as unknown as string, params);
   return result.rows as T[];
 }
