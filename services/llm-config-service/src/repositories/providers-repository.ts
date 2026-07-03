@@ -29,7 +29,6 @@ export interface ProviderWriteData {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
-  apiKey?: string | null;
   secretRef?: string | null;
 }
 
@@ -73,7 +72,6 @@ export class ProvidersRepository {
         name: data.name,
         provider: data.provider ?? null,
         baseUrl: data.baseUrl ?? null,
-        apiKey: data.apiKey ?? null,
         secretRef: data.secretRef ?? null,
       })
       .returning();
@@ -97,7 +95,6 @@ export class ProvidersRepository {
     if (data.name !== undefined) setData.name = data.name;
     if (data.provider !== undefined) setData.provider = data.provider;
     if (data.baseUrl !== undefined) setData.baseUrl = data.baseUrl;
-    if (data.apiKey !== undefined) setData.apiKey = data.apiKey;
     if (data.secretRef !== undefined) setData.secretRef = data.secretRef;
 
     const [row] = await this.db
@@ -130,7 +127,6 @@ export class ProvidersRepository {
   async upsertLegacyImport(
     data: LegacyProviderImportData,
     force: boolean,
-    options: { allowLegacyApiKey?: boolean; apiKey?: string | null } = {},
   ): Promise<LegacyProviderImportOutcome> {
     const existing = await this.findByName(data.name);
     if (existing && !force) {
@@ -144,9 +140,6 @@ export class ProvidersRepository {
         secretRef: data.secretRef,
         updatedAt: new Date(),
       };
-      if (options.allowLegacyApiKey && options.apiKey !== undefined) {
-        setData.apiKey = options.apiKey;
-      }
       await this.db
         .update(modelProxyProviders)
         .set(setData as never)
@@ -159,8 +152,6 @@ export class ProvidersRepository {
       provider: data.provider,
       baseUrl: data.baseUrl,
       secretRef: data.secretRef,
-      apiKey:
-        options.allowLegacyApiKey && options.apiKey ? options.apiKey : null,
     });
     return "inserted";
   }

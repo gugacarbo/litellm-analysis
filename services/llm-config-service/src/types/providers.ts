@@ -4,7 +4,7 @@ export interface ProviderRecord {
   provider: string | null;
   baseUrl: string | null;
   secretRef: string | null;
-  /** Legacy import only — never written by registry service. */
+  /** Legacy read-only column retained until schema cleanup. */
   apiKey: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -14,7 +14,6 @@ export interface ProviderCreateInput {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
-  apiKey?: string;
   secretRef?: string;
 }
 

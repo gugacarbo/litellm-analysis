@@ -112,7 +112,7 @@ export function hasStoredProviderSecret(input: {
   apiKey?: string | null;
   secretRef?: string | null;
 }): boolean {
-  return Boolean(input.apiKey?.trim() || input.secretRef?.trim());
+  return Boolean(input.secretRef?.trim());
 }
 
 export function resolveProviderSecret(
@@ -123,25 +123,15 @@ export function resolveProviderSecret(
   env: NodeJS.ProcessEnv = process.env,
 ): string | undefined {
   const storedApiKey = input.apiKey?.trim();
-  if (storedApiKey) {
-    if (isEncryptedProviderSecret(storedApiKey)) {
-      return decryptProviderSecret(
-        storedApiKey,
-        parseProviderEncryptionKey(env),
-      );
-    }
-    return storedApiKey;
-  }
-
   const secretRef = input.secretRef?.trim();
   if (!secretRef) {
     return undefined;
   }
 
-  if (looksLikeEnvVarName(secretRef)) {
-    const envValue = env[secretRef];
-    return envValue?.trim() ? envValue.trim() : undefined;
+  if (!looksLikeEnvVarName(secretRef)) {
+    return undefined;
   }
 
-  return secretRef;
+  const envValue = env[secretRef];
+  return envValue?.trim() ? envValue.trim() : undefined;
 }

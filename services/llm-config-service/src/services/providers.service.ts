@@ -1,9 +1,6 @@
 import type { DatabaseClient } from "@lite-llm/database/client";
 import {
-  encryptProviderSecret,
-  isEncryptedProviderSecret,
   looksLikeEnvVarName,
-  parseProviderEncryptionKey,
 } from "../lib/provider-secrets.js";
 import { ProvidersRepository } from "../repositories/providers-repository.js";
 import type {
@@ -20,26 +17,17 @@ export interface ProvidersServiceOptions {
 function normalizeSecretInput(
   input: ProviderCreateInput | ProviderUpdateInput,
   action: string,
-): { apiKey?: string; secretRef?: string } {
-  const apiKey = input.apiKey?.trim() ?? "";
+): { secretRef: string } {
   const secretRef = input.secretRef?.trim() ?? "";
-
-  const normalizedSecretRef =
-    secretRef && looksLikeEnvVarName(secretRef) ? secretRef : "";
-  const normalizedApiKey =
-    apiKey || (secretRef && !looksLikeEnvVarName(secretRef) ? secretRef : "");
-
-  if (!normalizedApiKey && !normalizedSecretRef) {
-    throw new Error(`apiKey or secretRef is required to ${action} a provider`);
+  if (!secretRef) {
+    throw new Error(`secretRef is required to ${action} a provider`);
   }
 
-  if (normalizedApiKey && normalizedSecretRef) {
-    throw new Error("Provide either apiKey or secretRef, not both");
+  if (!looksLikeEnvVarName(secretRef)) {
+    throw new Error("secretRef must be an environment variable name");
   }
 
-  return normalizedApiKey
-    ? { apiKey: normalizedApiKey }
-    : { secretRef: normalizedSecretRef };
+  return { secretRef };
 }
 
 export interface IProvidersService {
@@ -52,7 +40,6 @@ export interface IProvidersService {
 
 export class ProvidersService implements IProvidersService {
   private readonly repository: ProvidersRepository;
-  private encryptionKey: Buffer | null = null;
 
   constructor(options: ProvidersServiceOptions = {}) {
     this.repository =
@@ -65,49 +52,12 @@ export class ProvidersService implements IProvidersService {
       );
   }
 
-  private getEncryptionKey(): Buffer {
-    if (!this.encryptionKey) {
-      this.encryptionKey = parseProviderEncryptionKey();
-    }
-    return this.encryptionKey;
-  }
-
-  private async migrateStoredSecretIfNeeded(
-    record: ProviderRecord,
-  ): Promise<ProviderRecord> {
-    const rawApiKey = record.apiKey?.trim() ?? "";
-    if (rawApiKey && !isEncryptedProviderSecret(rawApiKey)) {
-      const updated = await this.repository.update(record.name, {
-        apiKey: encryptProviderSecret(rawApiKey, this.getEncryptionKey()),
-      });
-      return updated ?? record;
-    }
-
-    const secretRef = record.secretRef?.trim() ?? "";
-    if (secretRef && !looksLikeEnvVarName(secretRef)) {
-      const updated = await this.repository.update(record.name, {
-        apiKey: encryptProviderSecret(secretRef, this.getEncryptionKey()),
-        secretRef: null,
-      });
-      return updated ?? record;
-    }
-
-    return record;
-  }
-
   async get(name: string): Promise<ProviderRecord | null> {
-    const record = await this.repository.findByName(name);
-    if (!record) {
-      return null;
-    }
-    return this.migrateStoredSecretIfNeeded(record);
+    return this.repository.findByName(name);
   }
 
   async list(): Promise<ProviderRecord[]> {
-    const records = await this.repository.list();
-    return Promise.all(
-      records.map((record) => this.migrateStoredSecretIfNeeded(record)),
-    );
+    return this.repository.list();
   }
 
   async create(input: ProviderCreateInput): Promise<ProviderRecord> {
@@ -126,18 +76,7 @@ export class ProvidersService implements IProvidersService {
       name: trimmedName,
       provider: input.provider ?? null,
       baseUrl: input.baseUrl ?? null,
-      ...(secret.apiKey
-        ? {
-            apiKey: encryptProviderSecret(
-              secret.apiKey,
-              this.getEncryptionKey(),
-            ),
-            secretRef: null,
-          }
-        : {
-            apiKey: null,
-            secretRef: secret.secretRef ?? null,
-          }),
+      secretRef: secret.secretRef,
     });
   }
 
@@ -151,27 +90,14 @@ export class ProvidersService implements IProvidersService {
     }
 
     const secretUpdate =
-      input.apiKey !== undefined || input.secretRef !== undefined
+      input.secretRef !== undefined
         ? normalizeSecretInput(input, "update")
         : null;
     const updated = await this.repository.update(name, {
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),
       ...(input.provider !== undefined ? { provider: input.provider } : {}),
       ...(input.baseUrl !== undefined ? { baseUrl: input.baseUrl } : {}),
-      ...(secretUpdate?.apiKey
-        ? {
-            apiKey: encryptProviderSecret(
-              secretUpdate.apiKey,
-              this.getEncryptionKey(),
-            ),
-            secretRef: null,
-          }
-        : secretUpdate?.secretRef
-          ? {
-              apiKey: null,
-              secretRef: secretUpdate.secretRef,
-            }
-          : {}),
+      ...(secretUpdate ? { secretRef: secretUpdate.secretRef } : {}),
     });
 
     if (!updated) {

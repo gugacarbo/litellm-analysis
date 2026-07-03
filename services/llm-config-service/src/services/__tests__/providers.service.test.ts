@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { ProvidersService } from "../providers.service.js";
 import {
   createProvidersRepositoryMock,
@@ -9,23 +9,10 @@ describe("ProvidersService", () => {
   let repository: ReturnType<typeof createProvidersRepositoryMock>;
 
   beforeEach(() => {
-    vi.stubEnv("APP_ENCRYPTION_KEY", "01234567890123456789012345678901");
     repository = createProvidersRepositoryMock();
     service = new ProvidersService({
       repository: repository as never,
     });
-  });
-
-  it("creates provider with encrypted apiKey storage", async () => {
-    const record = await service.create({
-      name: "openai-main",
-      provider: "openai",
-      baseUrl: "https://api.openai.com/v1",
-      apiKey: "sk-secret",
-    });
-    expect(record.secretRef).toBeNull();
-    expect(record.apiKey).toBeTruthy();
-    expect(record.apiKey).not.toBe("sk-secret");
   });
 
   it("creates provider with env-based secretRef", async () => {
@@ -37,30 +24,19 @@ describe("ProvidersService", () => {
     expect(record.apiKey).toBeNull();
   });
 
-  it("treats non-env secretRef input as an encrypted raw api key", async () => {
-    const record = await service.create({
-      name: "iproute",
-      secretRef: "sk-legacy-secret",
-    });
-    expect(record.secretRef).toBeNull();
-    expect(record.apiKey).toBeTruthy();
-    expect(record.apiKey).not.toBe("sk-legacy-secret");
-  });
-
-  it("requires apiKey or secretRef on create", async () => {
+  it("requires secretRef on create", async () => {
     await expect(
       service.create({ name: "openai-main", secretRef: "  " }),
-    ).rejects.toThrow(/apiKey or secretRef is required/);
+    ).rejects.toThrow(/secretRef is required/);
   });
 
-  it("rejects passing both apiKey and secretRef", async () => {
+  it("rejects literal secretRef input", async () => {
     await expect(
       service.create({
         name: "bad",
-        secretRef: "OPENAI_API_KEY",
-        apiKey: "sk-secret",
+        secretRef: "sk-secret",
       }),
-    ).rejects.toThrow(/either apiKey or secretRef, not both/);
+    ).rejects.toThrow(/environment variable name/);
   });
 
   it("throws on duplicate create", async () => {
@@ -83,26 +59,23 @@ describe("ProvidersService", () => {
     });
     const updated = await service.update("openai-main", {
       baseUrl: "https://custom.example/v1",
-      apiKey: "sk-replacement",
+      secretRef: "CUSTOM_OPENAI_API_KEY",
     });
     expect(updated.baseUrl).toBe("https://custom.example/v1");
-    expect(updated.secretRef).toBeNull();
-    expect(updated.apiKey).toBeTruthy();
-    expect(updated.apiKey).not.toBe("sk-replacement");
+    expect(updated.secretRef).toBe("CUSTOM_OPENAI_API_KEY");
   });
 
-  it("migrates legacy literal secretRef values on read", async () => {
+  it("leaves legacy apiKey rows untouched on read", async () => {
     await repository.create({
       name: "legacy",
       provider: "openai",
       baseUrl: "https://example.com/v1",
-      secretRef: "sk-legacy-secret",
+      apiKey: "sk-legacy-secret",
     });
 
     const record = await service.get("legacy");
     expect(record?.secretRef).toBeNull();
-    expect(record?.apiKey).toBeTruthy();
-    expect(record?.apiKey).not.toBe("sk-legacy-secret");
+    expect(record?.apiKey).toBe("sk-legacy-secret");
   });
 
   it("deletes provider", async () => {
