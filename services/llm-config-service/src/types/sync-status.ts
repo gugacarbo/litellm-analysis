@@ -1,7 +1,4 @@
-/**
- * Sync presence and direction types for dashboard config compatibility ↔
- * the `model_proxy_models` registry.
- */
+/** Sync presence and direction types for dashboard config ↔ registry data. */
 
 import type { ModelRoute } from "./model-route.js";
 
@@ -14,7 +11,7 @@ export type ModelSyncPresenceStatus =
 /** Direction for resolving a field mismatch during sync-batch. */
 export type ModelSyncDirection = "config-to-registry" | "registry-to-config";
 
-/** Fields compared between compatibility config payloads and registry routes. */
+/** Fields compared between config payloads and registry routes. */
 export type ModelSyncField =
   | "model_presence"
   | "enabled"
@@ -23,7 +20,7 @@ export type ModelSyncField =
   | "input_cost_per_token"
   | "output_cost_per_token";
 
-/** Reasoning/thinking metadata retained in compatibility config payloads. */
+/** Reasoning/thinking metadata retained in config payloads. */
 export interface ModelConfigReasoning {
   effort?: "low" | "medium" | "high" | "xhigh";
   enableThinking?: boolean;
@@ -31,7 +28,7 @@ export interface ModelConfigReasoning {
   apiMode?: "openai" | "anthropic";
 }
 
-/** Compatibility config slice attached to API responses. */
+/** Config slice attached to API responses. */
 export interface ModelConfigSpec {
   displayName?: string;
   family?: string;
@@ -76,23 +73,25 @@ export interface ModelsWithConfigResponse {
   counts: ModelsWithConfigCounts;
 }
 
-/** Map legacy API status labels to current names. */
 export function normalizeSyncPresenceStatus(
   status: string,
 ): ModelSyncPresenceStatus {
-  if (status === "litellm-only") {
-    return "registry-only";
+  if (
+    status === "synced" ||
+    status === "config-only" ||
+    status === "registry-only"
+  ) {
+    return status;
   }
-  return status as ModelSyncPresenceStatus;
+  throw new Error(`Unsupported model sync presence status: ${status}`);
 }
 
-/** Map legacy sync direction labels to current names. */
 export function normalizeSyncDirection(direction: string): ModelSyncDirection {
-  if (direction === "config-to-litellm") {
-    return "config-to-registry";
+  if (
+    direction === "config-to-registry" ||
+    direction === "registry-to-config"
+  ) {
+    return direction;
   }
-  if (direction === "litellm-to-config") {
-    return "registry-to-config";
-  }
-  return direction as ModelSyncDirection;
+  throw new Error(`Unsupported model sync direction: ${direction}`);
 }

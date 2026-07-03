@@ -63,59 +63,77 @@ export interface ModelProxyModelRecord {
   updatedAt: Date;
 }
 
-/** Snake_case route param object (import / API compatibility). */
+/** Canonical model route payload object used by API helpers. */
 export type RouteParams = Record<string, unknown>;
 
 /**
- * Keys absorbed into dedicated `ModelProxyModel` columns.
- * All other keys → `requestOptions`.
+ * Canonical route payload keys absorbed into dedicated `ModelRoute` fields.
  */
 export const RESERVED_ROUTE_PARAM_KEYS = [
-  "model",
-  "model_name",
+  "modelName",
   "enabled",
-  "input_cost_per_token",
-  "output_cost_per_token",
-  "context_window_size",
-  "max_tokens",
-  "provider_name",
-  "litellm_provider_name",
-  "api_base",
-  "custom_llm_provider",
+  "displayName",
+  "family",
+  "ownedBy",
+  "apiMode",
+  "vision",
+  "contextWindowSize",
+  "maxOutputTokens",
+  "inputCostPerToken",
+  "outputCostPerToken",
+  "upstreamModel",
+  "upstreamBaseUrl",
+  "providerName",
+  "secretRef",
+  "requestOptions",
+  "metadata",
 ] as const;
 
 export type ReservedRouteParamKey = (typeof RESERVED_ROUTE_PARAM_KEYS)[number];
 
-/** snake_case route params → camelCase ModelRoute field */
+/** Canonical route params → `ModelRoute` field */
 export const ROUTE_PARAM_TO_MODEL_ROUTE: Record<
   ReservedRouteParamKey,
   keyof ModelRoute | "modelName"
 > = {
-  model: "modelName",
-  model_name: "modelName",
+  modelName: "modelName",
   enabled: "enabled",
-  input_cost_per_token: "inputCostPerToken",
-  output_cost_per_token: "outputCostPerToken",
-  context_window_size: "contextWindowSize",
-  max_tokens: "maxOutputTokens",
-  provider_name: "providerName",
-  litellm_provider_name: "providerName",
-  api_base: "upstreamBaseUrl",
-  custom_llm_provider: "ownedBy",
+  displayName: "displayName",
+  family: "family",
+  ownedBy: "ownedBy",
+  apiMode: "apiMode",
+  vision: "vision",
+  contextWindowSize: "contextWindowSize",
+  maxOutputTokens: "maxOutputTokens",
+  inputCostPerToken: "inputCostPerToken",
+  outputCostPerToken: "outputCostPerToken",
+  upstreamModel: "upstreamModel",
+  upstreamBaseUrl: "upstreamBaseUrl",
+  providerName: "providerName",
+  secretRef: "secretRef",
+  requestOptions: "requestOptions",
+  metadata: "metadata",
 };
 
-/** camelCase ModelRoute → snake_case route params. */
+/** `ModelRoute` → canonical route params. */
 export const MODEL_ROUTE_TO_SNAKE_PARAM: Partial<
   Record<keyof ModelRoute, string>
 > = {
-  modelName: "model",
+  modelName: "modelName",
   enabled: "enabled",
-  inputCostPerToken: "input_cost_per_token",
-  outputCostPerToken: "output_cost_per_token",
-  contextWindowSize: "context_window_size",
-  maxOutputTokens: "max_tokens",
-  providerName: "provider_name",
-  upstreamBaseUrl: "api_base",
-  ownedBy: "custom_llm_provider",
-  family: "custom_llm_provider",
+  displayName: "displayName",
+  family: "family",
+  ownedBy: "ownedBy",
+  apiMode: "apiMode",
+  vision: "vision",
+  contextWindowSize: "contextWindowSize",
+  maxOutputTokens: "maxOutputTokens",
+  inputCostPerToken: "inputCostPerToken",
+  outputCostPerToken: "outputCostPerToken",
+  upstreamModel: "upstreamModel",
+  upstreamBaseUrl: "upstreamBaseUrl",
+  providerName: "providerName",
+  secretRef: "secretRef",
+  requestOptions: "requestOptions",
+  metadata: "metadata",
 };

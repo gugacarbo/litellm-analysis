@@ -10,9 +10,22 @@ import {
 } from "../types/model-route.js";
 
 const RESERVED_KEY_SET = new Set<string>(RESERVED_ROUTE_PARAM_KEYS);
-const PROXY_PROVIDER_SENTINEL = "litellm_proxy";
 
-const NUMERIC_PARAM_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+const LEGACY_ROUTE_PARAM_KEYS = [
+  "model",
+  "model_name",
+  "input_cost_per_token",
+  "output_cost_per_token",
+  "context_window_size",
+  "max_tokens",
+  "provider_name",
+  "litellm_provider_name",
+  "api_base",
+  "custom_llm_provider",
+  "litellm_params",
+] as const;
+
+const LEGACY_ROUTE_PARAM_KEY_SET = new Set<string>(LEGACY_ROUTE_PARAM_KEYS);
 
 /** Writable database fields for `model_proxy_models` create/update. */
 export type ModelProxyRowWrite = Omit<
@@ -21,45 +34,6 @@ export type ModelProxyRowWrite = Omit<
 > & {
   providerName?: string | null;
 };
-
-function coerceStringParamValue(raw: string): unknown {
-  const trimmed = raw.trim();
-  if (!trimmed) {
-    return trimmed;
-  }
-
-  const lower = trimmed.toLowerCase();
-  if (lower === "true") {
-    return true;
-  }
-  if (lower === "false") {
-    return false;
-  }
-
-  if (NUMERIC_PARAM_PATTERN.test(trimmed)) {
-    const num = Number(trimmed);
-    if (Number.isFinite(num)) {
-      return num;
-    }
-  }
-
-  return trimmed;
-}
-
-function coerceParamValue(value: unknown): unknown {
-  if (typeof value === "string") {
-    return coerceStringParamValue(value);
-  }
-  return value;
-}
-
-function coerceRouteParams(params: RouteParams): RouteParams {
-  const result: RouteParams = {};
-  for (const [key, value] of Object.entries(params)) {
-    result[key] = coerceParamValue(value);
-  }
-  return result;
-}
 
 function readString(value: unknown): string | undefined {
   if (typeof value !== "string") {
@@ -70,301 +44,164 @@ function readString(value: unknown): string | undefined {
 }
 
 function readBoolean(value: unknown): boolean | undefined {
-  if (typeof value === "boolean") {
-    return value;
-  }
-  if (typeof value === "string") {
-    const coerced = coerceStringParamValue(value);
-    return typeof coerced === "boolean" ? coerced : undefined;
-  }
-  return undefined;
+  return typeof value === "boolean" ? value : undefined;
 }
 
 function readNumber(value: unknown): number | undefined {
-  const coerced = coerceParamValue(value);
-  if (typeof coerced === "number" && Number.isFinite(coerced)) {
-    return coerced;
-  }
-  return undefined;
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
-function readInt(value: unknown): number | undefined {
-  const num = readNumber(value);
-  if (num === undefined) {
+function readRecord(value: unknown): Record<string, unknown> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
     return undefined;
   }
-  return Number.isInteger(num) ? num : Math.trunc(num);
+  return value as Record<string, unknown>;
 }
 
-function resolveModelName(params: RouteParams, modelName?: string): string {
-  return (
-    modelName ?? readString(params.model_name) ?? readString(params.model) ?? ""
+function findLegacyRouteParamKeys(raw: RouteParams): string[] {
+  return Object.keys(raw).filter((key) => LEGACY_ROUTE_PARAM_KEY_SET.has(key));
+}
+
+function findUnsupportedRouteParamKeys(raw: RouteParams): string[] {
+  return Object.keys(raw).filter(
+    (key) => !RESERVED_KEY_SET.has(key) && !LEGACY_ROUTE_PARAM_KEY_SET.has(key),
   );
 }
 
-function readOwnedByFromProvider(provider: unknown): string | undefined {
-  const value = readString(provider);
-  if (!value || value === PROXY_PROVIDER_SENTINEL) {
-    return undefined;
-  }
-  return value;
-}
-
-function splitRouteParams(params: RouteParams): {
-  reserved: RouteParams;
-  requestOptions: Record<string, unknown>;
-} {
-  const reserved: RouteParams = {};
-  const requestOptions: Record<string, unknown> = {};
-
-  for (const [key, value] of Object.entries(params)) {
-    if (RESERVED_KEY_SET.has(key)) {
-      reserved[key] = value;
-    } else {
-      requestOptions[key] = value;
-    }
+function assertCanonicalRouteParams(raw: RouteParams): void {
+  const legacyKeys = findLegacyRouteParamKeys(raw);
+  if (legacyKeys.length > 0) {
+    throw new Error(
+      `Legacy model route fields are no longer supported: ${legacyKeys.join(", ")}`,
+    );
   }
 
-  return { reserved, requestOptions };
+  const unsupportedKeys = findUnsupportedRouteParamKeys(raw);
+  if (unsupportedKeys.length > 0) {
+    throw new Error(
+      `Unsupported model route fields: ${unsupportedKeys.join(", ")}`,
+    );
+  }
 }
 
-/**
- * Convert legacy `litellm_params` JSON into a structured `ModelRoute`.
- */
-export function toModelRoute(
-  routeParams: RouteParams,
-  modelName?: string,
+function buildCanonicalModelRoute(
+  raw: RouteParams,
+  fallbackModelName = "",
 ): ModelRoute {
-  const params = coerceRouteParams(routeParams);
-  const { reserved, requestOptions } = splitRouteParams(params);
-  const resolvedName = resolveModelName(reserved, modelName);
+  assertCanonicalRouteParams(raw);
 
-  const route: ModelRoute = {
-    modelName: resolvedName,
-  };
+  const modelName = readString(raw.modelName) ?? fallbackModelName;
+  const route: ModelRoute = { modelName };
 
-  const enabled = readBoolean(reserved.enabled);
+  const enabled = readBoolean(raw.enabled);
   if (enabled !== undefined) {
     route.enabled = enabled;
   }
 
-  const inputCost = readNumber(reserved.input_cost_per_token);
-  if (inputCost !== undefined) {
-    route.inputCostPerToken = inputCost;
+  const displayName = readString(raw.displayName);
+  if (displayName !== undefined) {
+    route.displayName = displayName;
   }
 
-  const outputCost = readNumber(reserved.output_cost_per_token);
-  if (outputCost !== undefined) {
-    route.outputCostPerToken = outputCost;
+  const family = readString(raw.family);
+  if (family !== undefined) {
+    route.family = family;
   }
 
-  const contextWindow = readInt(reserved.context_window_size);
-  if (contextWindow !== undefined) {
-    route.contextWindowSize = contextWindow;
-  }
-
-  const maxOutput = readInt(reserved.max_tokens);
-  if (maxOutput !== undefined) {
-    route.maxOutputTokens = maxOutput;
-  }
-
-  const providerName =
-    readString(reserved.provider_name) ??
-    readString(reserved.litellm_provider_name);
-  if (providerName) {
-    route.providerName = providerName;
-  }
-
-  const upstreamBaseUrl = readString(reserved.api_base);
-  if (upstreamBaseUrl) {
-    route.upstreamBaseUrl = upstreamBaseUrl;
-  }
-
-  const ownedBy = readOwnedByFromProvider(reserved.custom_llm_provider);
-  if (ownedBy) {
+  const ownedBy = readString(raw.ownedBy);
+  if (ownedBy !== undefined) {
     route.ownedBy = ownedBy;
   }
 
-  const modelValue = readString(reserved.model);
-  if (modelValue && modelValue !== resolvedName) {
-    route.upstreamModel = modelValue;
+  if (raw.apiMode === "openai" || raw.apiMode === "anthropic") {
+    route.apiMode = raw.apiMode;
   }
 
-  if (Object.keys(requestOptions).length > 0) {
+  if (typeof raw.vision === "boolean") {
+    route.vision = raw.vision;
+  }
+
+  const contextWindowSize = readNumber(raw.contextWindowSize);
+  if (contextWindowSize !== undefined) {
+    route.contextWindowSize = contextWindowSize;
+  }
+
+  const maxOutputTokens = readNumber(raw.maxOutputTokens);
+  if (maxOutputTokens !== undefined) {
+    route.maxOutputTokens = maxOutputTokens;
+  }
+
+  const inputCostPerToken = readNumber(raw.inputCostPerToken);
+  if (inputCostPerToken !== undefined) {
+    route.inputCostPerToken = inputCostPerToken;
+  }
+
+  const outputCostPerToken = readNumber(raw.outputCostPerToken);
+  if (outputCostPerToken !== undefined) {
+    route.outputCostPerToken = outputCostPerToken;
+  }
+
+  const upstreamModel = readString(raw.upstreamModel);
+  if (upstreamModel !== undefined) {
+    route.upstreamModel = upstreamModel;
+  }
+
+  const upstreamBaseUrl = readString(raw.upstreamBaseUrl);
+  if (upstreamBaseUrl !== undefined) {
+    route.upstreamBaseUrl = upstreamBaseUrl;
+  }
+
+  const providerName = readString(raw.providerName);
+  if (providerName !== undefined) {
+    route.providerName = providerName;
+  }
+
+  const secretRef = readString(raw.secretRef);
+  if (secretRef !== undefined) {
+    route.secretRef = secretRef;
+  }
+
+  const requestOptions = readRecord(raw.requestOptions);
+  if (requestOptions && Object.keys(requestOptions).length > 0) {
     route.requestOptions = requestOptions;
+  }
+
+  const metadata = readRecord(raw.metadata);
+  if (metadata && Object.keys(metadata).length > 0) {
+    route.metadata = metadata;
   }
 
   return route;
 }
 
-function hasSnakeCaseRouteParams(raw: RouteParams): boolean {
-  return RESERVED_ROUTE_PARAM_KEYS.some((key) => key in raw);
+/** Parse a canonical `modelRoute` payload into a structured `ModelRoute`. */
+export function toModelRoute(
+  routeParams: RouteParams,
+  modelName?: string,
+): ModelRoute {
+  return buildCanonicalModelRoute(routeParams, modelName);
 }
 
-const MODEL_ROUTE_API_FIELD_KEYS = [
-  "enabled",
-  "displayName",
-  "family",
-  "ownedBy",
-  "apiMode",
-  "vision",
-  "contextWindowSize",
-  "maxOutputTokens",
-  "inputCostPerToken",
-  "outputCostPerToken",
-  "upstreamModel",
-  "upstreamBaseUrl",
-  "providerName",
-  "secretRef",
-] as const satisfies ReadonlyArray<keyof ModelRoute>;
-
 /**
- * Parse a model route from the HTTP API (`modelRoute` camelCase) or legacy
- * snake_case route params (import compatibility).
+ * Parse a model route from the HTTP API. Legacy route field names are rejected.
  */
 export function parseModelRouteFromApi(
   raw: RouteParams,
   fallbackModelName: string,
 ): ModelRoute {
-  if (hasSnakeCaseRouteParams(raw)) {
-    return toModelRoute(raw, fallbackModelName);
-  }
-
-  const modelName = readString(raw.modelName) ?? fallbackModelName;
-  const route: ModelRoute = { modelName };
-
-  for (const key of MODEL_ROUTE_API_FIELD_KEYS) {
-    const value = raw[key];
-    if (value === undefined) {
-      continue;
-    }
-
-    if (key === "apiMode") {
-      if (value === "openai" || value === "anthropic") {
-        route.apiMode = value;
-      }
-      continue;
-    }
-
-    if (key === "vision" && typeof value === "boolean") {
-      route.vision = value;
-      continue;
-    }
-
-    if (
-      (key === "contextWindowSize" ||
-        key === "maxOutputTokens" ||
-        key === "inputCostPerToken" ||
-        key === "outputCostPerToken") &&
-      typeof value === "number" &&
-      Number.isFinite(value)
-    ) {
-      route[key] = value;
-      continue;
-    }
-
-    if (
-      (key === "enabled" && typeof value === "boolean") ||
-      (key !== "enabled" && typeof value === "string" && value.trim())
-    ) {
-      if (key === "enabled") {
-        route.enabled = value as boolean;
-      } else {
-        const trimmed = String(value).trim();
-        if (!trimmed) {
-          continue;
-        }
-        switch (key) {
-          case "displayName":
-            route.displayName = trimmed;
-            break;
-          case "family":
-            route.family = trimmed;
-            break;
-          case "ownedBy":
-            route.ownedBy = trimmed;
-            break;
-          case "upstreamModel":
-            route.upstreamModel = trimmed;
-            break;
-          case "upstreamBaseUrl":
-            route.upstreamBaseUrl = trimmed;
-            break;
-          case "providerName":
-            route.providerName = trimmed;
-            break;
-          case "secretRef":
-            route.secretRef = trimmed;
-            break;
-          default:
-            break;
-        }
-      }
-    }
-  }
-
-  const requestOptions = raw.requestOptions;
-  if (
-    requestOptions &&
-    typeof requestOptions === "object" &&
-    !Array.isArray(requestOptions)
-  ) {
-    route.requestOptions = requestOptions as Record<string, unknown>;
-  }
-
-  return route;
+  return buildCanonicalModelRoute(raw, fallbackModelName);
 }
 
-/**
- * Convert `ModelRoute` into legacy `litellm_params` (snake_case) for shim exports.
- * Callers writing to LiteLLM DB should run `applyRequiredLiteLLMParams` afterward.
- */
+/** Convert `ModelRoute` into the canonical API payload shape. */
 export function fromModelRoute(route: ModelRoute): RouteParams {
-  const result: RouteParams = {
-    model: route.modelName,
-    model_name: route.modelName,
-  };
+  const result: RouteParams = {};
 
   for (const [routeKey, paramKey] of Object.entries(
     MODEL_ROUTE_TO_SNAKE_PARAM,
   )) {
-    if (routeKey === "modelName" || routeKey === "family") {
-      continue;
-    }
-
     const value = route[routeKey as keyof ModelRoute];
-    if (value === undefined) {
-      continue;
-    }
-
-    if (
-      routeKey === "ownedBy" &&
-      typeof value === "string" &&
-      value === PROXY_PROVIDER_SENTINEL
-    ) {
-      continue;
-    }
-
-    result[paramKey] = value;
-  }
-
-  const provider =
-    route.ownedBy ??
-    (route.family && route.family !== PROXY_PROVIDER_SENTINEL
-      ? route.family
-      : undefined);
-  if (provider) {
-    result.custom_llm_provider = provider;
-  }
-
-  if (route.upstreamModel && route.upstreamModel !== route.modelName) {
-    result.model = route.upstreamModel;
-  }
-
-  const options = route.requestOptions ?? {};
-  for (const [key, value] of Object.entries(options)) {
-    if (!(key in result)) {
-      result[key] = value;
+    if (value !== undefined) {
+      result[paramKey] = value;
     }
   }
 
@@ -376,6 +213,11 @@ export function toModelProxyRow(route: ModelRoute): ModelProxyRowWrite {
   const requestOptions =
     route.requestOptions && Object.keys(route.requestOptions).length > 0
       ? route.requestOptions
+      : undefined;
+
+  const metadata =
+    route.metadata && Object.keys(route.metadata).length > 0
+      ? route.metadata
       : undefined;
 
   return {
@@ -395,6 +237,7 @@ export function toModelProxyRow(route: ModelRoute): ModelProxyRowWrite {
     providerName: route.providerName ?? null,
     secretRef: route.secretRef ?? null,
     ...(requestOptions !== undefined ? { requestOptions } : {}),
+    ...(metadata !== undefined ? { metadata } : {}),
   };
 }
 
@@ -449,6 +292,9 @@ export function fromModelProxyRow(row: ModelProxyModelRecord): ModelRoute {
     Object.keys(row.requestOptions).length > 0
   ) {
     route.requestOptions = row.requestOptions;
+  }
+  if (row.metadata !== null && Object.keys(row.metadata).length > 0) {
+    route.metadata = row.metadata;
   }
 
   return route;
