@@ -1,4 +1,4 @@
-import { db, queryRaw } from "@lite-llm/database/client";
+import { queryRaw } from "@lite-llm/database/client";
 import { sql } from "drizzle-orm";
 import type { TimeRangeParams } from "../../types/index";
 import {

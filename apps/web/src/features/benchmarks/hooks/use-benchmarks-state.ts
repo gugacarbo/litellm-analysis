@@ -115,8 +115,7 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
   const syncStatusQuery = useQuery({
     queryKey: ["benchmarks", "sync-status"],
     queryFn: getBenchmarkSyncStatus,
-    refetchInterval: (query) =>
-      query.state.data?.isRunning ? 2_000 : false,
+    refetchInterval: (query) => (query.state.data?.isRunning ? 2_000 : false),
   });
 
   const previousSyncRunningRef = useRef(false);
@@ -150,7 +149,9 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
 
     if (status.status === "succeeded") {
       toast.success("Benchmark sync completed");
-      void queryClient.invalidateQueries({ queryKey: ["benchmarks", "models"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["benchmarks", "models"],
+      });
     } else if (status.status === "failed") {
       toast.error(status.lastError ?? "Benchmark sync failed");
     }
@@ -163,7 +164,9 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     benchmarkError instanceof ApiError &&
     benchmarkError.code === "BENCHMARK_DATASET_MISSING";
   const syncStatus = syncStatusQuery.data;
-  const isSyncRunning = Boolean(syncStatus?.isRunning || syncMutation.isPending);
+  const isSyncRunning = Boolean(
+    syncStatus?.isRunning || syncMutation.isPending,
+  );
   const providers = useMemo(() => {
     const unique = new Set<string>();
     for (const row of rows) {

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { db, queryRaw } from "./client";
+import { queryRaw } from "./client";
 
 export async function rawQuery<T>(
   queryString: string,

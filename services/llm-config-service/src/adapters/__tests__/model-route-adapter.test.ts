@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { ModelProxyModelRecord, ModelRoute } from "../../types/model-route.js";
+import type {
+  ModelProxyModelRecord,
+  ModelRoute,
+} from "../../types/model-route.js";
 import {
   fromModelProxyRow,
   fromModelRoute,

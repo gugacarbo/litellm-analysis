@@ -330,12 +330,6 @@ export async function getModelsWithConfig(): Promise<ModelsWithConfigResponse> {
   return normalizeModelsWithConfigResponse(data);
 }
 
-async function syncModelsFromConfig(): Promise<{ success: boolean }> {
-  return fetchApi("/models/sync-from-config", {
-    method: "POST",
-  });
-}
-
 export async function exportConsumerConfigs(): Promise<{ success: boolean }> {
   return fetchApi("/models/export-configs", {
     method: "POST",

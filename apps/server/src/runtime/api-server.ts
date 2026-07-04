@@ -10,8 +10,8 @@ import type {
 import { registerAllRoutes } from "@lite-llm/server/routes";
 import type { RouteOptions } from "@lite-llm/server/types";
 import express, { type Application } from "express";
-import { createHealthCheckApplicationService } from "../application/health-check-application-service";
 import type { BenchmarkSyncApplicationService } from "../application/benchmark-sync-application-service";
+import { createHealthCheckApplicationService } from "../application/health-check-application-service";
 import type { AppContext } from "../contexts";
 import { env } from "../env";
 import { createBenchmarkSyncRouter } from "../routes/benchmark-sync-routes";

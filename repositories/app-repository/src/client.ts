@@ -1,4 +1,4 @@
-import { db, getDb } from "@lite-llm/database/client";
+import { getDb } from "@lite-llm/database/client";
 
 export function getAppDb() {
   return getDb();

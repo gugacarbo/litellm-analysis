@@ -8,7 +8,9 @@ const dbUpdateSetWhere = vi.fn();
 vi.mock("@lite-llm/database/client", () => ({
   queryRaw,
   db: {
-    update: vi.fn().mockReturnValue({ set: vi.fn().mockReturnValue({ where: dbUpdateSetWhere }) }),
+    update: vi.fn().mockReturnValue({
+      set: vi.fn().mockReturnValue({ where: dbUpdateSetWhere }),
+    }),
     delete: vi.fn().mockReturnValue({ where: dbDeleteWhere }),
     execute: dbExecute,
   },

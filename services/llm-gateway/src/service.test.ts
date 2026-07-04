@@ -139,7 +139,6 @@ describe("ModelProxyService", () => {
   });
 
   it("forwards custom payload fields without schema validation", async () => {
-    const database = createDatabaseMock();
     const fetchFn = vi.fn().mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -616,7 +615,6 @@ describe("ModelProxyService", () => {
   });
 
   it("notifies listeners when a request finishes", async () => {
-    const database = createDatabaseMock();
     const listener = vi.fn();
     const fetchFn = vi.fn().mockResolvedValue(
       new Response(

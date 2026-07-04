@@ -48,7 +48,9 @@ function readBoolean(value: unknown): boolean | undefined {
 }
 
 function readNumber(value: unknown): number | undefined {
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
 }
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {

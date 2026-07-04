@@ -20,7 +20,7 @@ interface HealthCheckResult {
   checkedAt: number;
 }
 
-interface HealthCheckServiceOptions {
+export interface HealthCheckServiceOptions {
   timeoutMs: number;
   prompt: string;
   maxConcurrency: number;
@@ -31,12 +31,12 @@ interface HealthCheckServiceOptions {
   requestModeByModelName?: Record<string, "chat" | "responses">;
 }
 
-type HealthCheckRequestResult = {
+export type HealthCheckRequestResult = {
   accepted: boolean;
   reason?: string;
 };
 
-const COOLDOWN_MS = 5_000;
+export const COOLDOWN_MS = 5_000;
 
 interface HealthCheckStreamStartedPayload {
   executionId: string;
@@ -57,29 +57,4 @@ interface HealthCheckStreamTerminalPayload {
   modelName: string;
   result: HealthCheckResult;
   timestamp: number;
-}
-
-type HealthCheckServiceEvents = {
-  health_check_update: (data: {
-    results: HealthCheckResult[];
-    timestamp: number;
-  }) => void;
-  health_check_rejected: (data: {
-    modelName: string;
-    reason: string;
-    timestamp: number;
-  }) => void;
-  health_check_stream_started: (data: HealthCheckStreamStartedPayload) => void;
-  health_check_stream_delta: (data: HealthCheckStreamDeltaPayload) => void;
-  health_check_stream_completed: (
-    data: HealthCheckStreamTerminalPayload,
-  ) => void;
-  health_check_stream_failed: (data: HealthCheckStreamTerminalPayload) => void;
-};
-
-interface HealthCheckSummary {
-  healthy: number;
-  unhealthy: number;
-  error: number;
-  total: number;
 }

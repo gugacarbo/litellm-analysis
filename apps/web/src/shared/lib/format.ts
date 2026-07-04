@@ -2,7 +2,7 @@
  * Shared formatting utilities consolidated from across the web app.
  */
 
-import { APP_LOCALE, APP_TIMEZONE } from "@/shared/lib/locale";
+import { APP_LOCALE } from "@/shared/lib/locale";
 
 export function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return "0";
@@ -78,16 +78,4 @@ export function safeDivide(
     return fallback;
   }
   return numerator / denominator;
-}
-
-function formatDateTime(date: string | Date): string {
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleString(APP_LOCALE, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: APP_TIMEZONE,
-  });
 }

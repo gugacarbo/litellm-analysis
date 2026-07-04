@@ -273,18 +273,14 @@ export function BenchmarksPage() {
                     >
                       <RefreshCw
                         className={
-                          isSyncRunning
-                            ? "h-4 w-4 animate-spin"
-                            : "h-4 w-4"
+                          isSyncRunning ? "h-4 w-4 animate-spin" : "h-4 w-4"
                         }
                       />
                       {isSyncRunning ? "Syncing" : "Sync benchmarks"}
                     </Button>
                   </div>
                 ) : error ? (
-                  <div className="py-4 text-sm text-red-500">
-                    {error}
-                  </div>
+                  <div className="py-4 text-sm text-red-500">{error}</div>
                 ) : isLoading ? (
                   <div className="space-y-2 py-2">
                     <Skeleton className="h-8 w-full" />

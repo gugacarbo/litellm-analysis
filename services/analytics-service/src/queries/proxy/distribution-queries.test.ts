@@ -21,9 +21,7 @@ describe("proxy distribution-queries", () => {
   });
 
   it("aggregates spend by model from total_cost", async () => {
-    queryRaw.mockResolvedValueOnce([
-      { model: "gpt-4o", total_spend: 4.2 },
-    ]);
+    queryRaw.mockResolvedValueOnce([{ model: "gpt-4o", total_spend: 4.2 }]);
 
     const result = await getSpendByModel({ days: 30 });
 

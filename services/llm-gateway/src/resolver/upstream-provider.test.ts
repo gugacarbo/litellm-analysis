@@ -147,8 +147,6 @@ describe("upstream-provider", () => {
       inputCostPerToken: 0.0000014,
       outputCostPerToken: 0.0000044,
     });
-    const database = createDatabaseMock({ rows: [row] });
-
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
@@ -188,13 +186,6 @@ describe("upstream-provider", () => {
   });
 
   it("rejects ambiguous bare model names when no default provider exists", async () => {
-    const database = createDatabaseMock({
-      rows: [
-        createModelRow({ providerName: "openai-main" }),
-        createModelRow({ providerName: "deepseek-main", ownedBy: "deepseek" }),
-      ],
-    });
-
     await expect(
       resolveUpstreamTarget({
         modelName: "gpt-test",
@@ -205,20 +196,6 @@ describe("upstream-provider", () => {
   });
 
   it("rejects multiple default providers for the same bare model name", async () => {
-    const database = createDatabaseMock({
-      rows: [
-        createModelRow({
-          providerName: "openai-main",
-          isDefaultProvider: true,
-        }),
-        createModelRow({
-          providerName: "deepseek-main",
-          ownedBy: "deepseek",
-          isDefaultProvider: true,
-        }),
-      ],
-    });
-
     await expect(
       resolveUpstreamTarget({
         modelName: "gpt-test",
@@ -253,8 +230,6 @@ describe("upstream-provider", () => {
   });
 
   it("returns not found for an unknown provider prefix", async () => {
-    const database = createDatabaseMock({ prefixedRow: null });
-
     await expect(
       resolveUpstreamTarget({
         modelName: "unknown/gpt-test",
@@ -289,10 +264,6 @@ describe("upstream-provider", () => {
   });
 
   it("rejects disabled rows selected from the database", async () => {
-    const database = createDatabaseMock({
-      rows: [createModelRow({ enabled: false })],
-    });
-
     await expect(
       resolveUpstreamTarget({
         modelName: "gpt-test",

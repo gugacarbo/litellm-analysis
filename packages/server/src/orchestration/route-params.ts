@@ -146,9 +146,7 @@ export function mergeModelRouteFromSpec(
   existingRoute: ModelRoute,
   defaultProvider?: string | null,
 ): ModelRoute {
-  const modelProvider =
-    existingRoute.providerName ??
-    defaultProvider;
+  const modelProvider = existingRoute.providerName ?? defaultProvider;
   const builtRoute = buildModelRouteFromSpec(modelName, spec, modelProvider);
 
   return normalizeModelRoute(

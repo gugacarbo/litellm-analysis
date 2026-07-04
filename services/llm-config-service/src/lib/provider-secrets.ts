@@ -122,7 +122,6 @@ export function resolveProviderSecret(
   },
   env: NodeJS.ProcessEnv = process.env,
 ): string | undefined {
-  const storedApiKey = input.apiKey?.trim();
   const secretRef = input.secretRef?.trim();
   if (!secretRef) {
     return undefined;

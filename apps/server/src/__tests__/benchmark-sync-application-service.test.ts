@@ -18,7 +18,9 @@ afterEach(async () => {
 });
 
 function createService(
-  runner: ConstructorParameters<typeof BenchmarkSyncApplicationService>[0]["runner"],
+  runner: ConstructorParameters<
+    typeof BenchmarkSyncApplicationService
+  >[0]["runner"],
   apiKey = "aa-key",
 ) {
   const outputDir = path.join(tempRoot, "benchmarks");

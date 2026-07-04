@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-  BenchmarkSyncConfigurationError,
   type BenchmarkSyncApplicationService,
+  BenchmarkSyncConfigurationError,
 } from "../application/benchmark-sync-application-service";
 
 export function createBenchmarkSyncRouter(
