@@ -298,7 +298,7 @@
         "Task-A-0002"
       ],
       "batch": "B",
-      "status": "pending",
+      "status": "in_progress",
       "tryCount": 1,
       "taskDirectory": "docs/tasks/0005-hard-cut-legacy-compat-cleanup/Task-B-0002",
       "reportFile": "docs/tasks/0005-hard-cut-legacy-compat-cleanup/Task-B-0002/report.md",
