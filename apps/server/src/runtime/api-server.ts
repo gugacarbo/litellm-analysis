@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createBenchmarksRepository } from "@lite-llm/benchmarks-repository";
 import type {
   ModelBenchmarkApiResponse,
   ModelBenchmarkListItem,
@@ -164,12 +165,6 @@ export function createApiServer(
       const configuredOnly = parseBooleanQuery(req.query.configuredOnly, false);
       const workspaceRoot = getWorkspaceRoot();
       const storagePath = resolveStoragePath(workspaceRoot);
-      const benchmarkFilePath = path.join(
-        storagePath,
-        "benchmarks",
-        "artificial-analysis-models.json",
-      );
-      const dataset = await loadBenchmarkDataset(benchmarkFilePath);
 
       const configuredModels = await opts.dataSource.getModels();
       // Strip backend suffix (e.g. "glm-5.1:ollama" -> "glm-5.1") for matching
@@ -207,6 +202,86 @@ export function createApiServer(
         configuredCompacts.set(toCompactKey(name), name);
       }
 
+      // Try loading from database first
+      let models: ModelBenchmarkListItem[] = [];
+      let source = "Artificial Analysis";
+      let sourceUrl = "https://artificialanalysis.ai/";
+      let fetchedAt = "";
+      let loadedFromDb = false;
+
+      try {
+        const repo = createBenchmarksRepository();
+        const dbModels = await repo.getAll();
+        if (dbModels.length > 0) {
+          loadedFromDb = true;
+          const matchedConfigs = new Set<string>();
+          models = dbModels.map((model) => {
+            const candidateKeys = [
+              ...toMatchKeys(model.name),
+              ...(model.slug ? toMatchKeys(model.slug) : []),
+            ];
+            const matched = candidateKeys.find((key) => configuredLookup.has(key));
+            let matchedConfiguredModel = matched
+              ? (configuredLookup.get(matched) ?? null)
+              : null;
+
+            // Fallback: suffix-tolerant matching for unmatched models
+            if (!matchedConfiguredModel && model.slug) {
+              const slugCompact = toCompactKey(model.slug);
+              matchedConfiguredModel = suffixTolerantMatch(
+                slugCompact,
+                configuredCompacts,
+              );
+            }
+
+            if (matchedConfiguredModel) {
+              matchedConfigs.add(matchedConfiguredModel);
+            }
+
+            return {
+              ...model,
+              isConfigured: matchedConfiguredModel !== null,
+              matchedConfiguredModel,
+            };
+          });
+
+          // Report configured models that found NO match in the benchmark dataset
+          const unmatchedConfiguredModels = configuredModelNames.filter(
+            (name) => !matchedConfigs.has(name),
+          );
+
+          const filtered = configuredOnly
+            ? models.filter((item) => item.isConfigured)
+            : models;
+
+          const response: ModelBenchmarkApiResponse = {
+            source,
+            sourceUrl,
+            fetchedAt,
+            count: filtered.length,
+            configuredModelNames,
+            unmatchedConfiguredModels,
+            models: filtered,
+          };
+
+          res.json(response);
+          return;
+        }
+      } catch (error) {
+        console.error(
+          "Failed to load benchmarks from database, falling back to JSON:",
+          error,
+        );
+      }
+
+      // Fallback: load from JSON file
+      const benchmarkFilePath = path.join(
+        storagePath,
+        "benchmarks",
+        "artificial-analysis-models.json",
+      );
+      const dataset = await loadBenchmarkDataset(benchmarkFilePath);
+
       const matchedConfigs = new Set<string>();
       const mapped: ModelBenchmarkListItem[] = dataset.models.map((model) => {
         const candidateKeys = [
@@ -243,7 +318,7 @@ export function createApiServer(
         (name) => !matchedConfigs.has(name),
       );
 
-      const models = configuredOnly
+      const filtered = configuredOnly
         ? mapped.filter((item) => item.isConfigured)
         : mapped;
 
@@ -251,10 +326,10 @@ export function createApiServer(
         source: dataset.source,
         sourceUrl: dataset.sourceUrl,
         fetchedAt: dataset.fetchedAt,
-        count: models.length,
+        count: filtered.length,
         configuredModelNames,
         unmatchedConfiguredModels,
-        models,
+        models: filtered,
       };
 
       res.json(response);

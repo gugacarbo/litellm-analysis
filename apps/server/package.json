@@ -16,6 +16,7 @@
     "@lite-llm/agent-plugins": "workspace:*",
     "@lite-llm/agents-manager": "workspace:*",
     "@lite-llm/analytics-service": "workspace:*",
+    "@lite-llm/benchmarks-repository": "workspace:*",
     "@lite-llm/contracts": "workspace:^",
     "@lite-llm/database": "workspace:*",
     "@lite-llm/app-repository": "workspace:*",
@@ -27,7 +28,8 @@
     "drizzle-orm": "catalog:",
     "dotenv": "catalog:",
     "express": "catalog:",
-    "ws": "^8.20.0"
+    "ws": "^8.20.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@lite-llm/models-repository": "workspace:*",

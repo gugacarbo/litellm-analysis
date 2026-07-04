@@ -14,8 +14,6 @@
     "typecheck": "turbo typecheck",
     "lint-staged": "lint-staged",
     "prepare": "husky",
-    "sync:aa-benchmarks": "tsx scripts/src/sync-aa-benchmarks/index.ts",
-    "generate:plugin-configs": "tsx scripts/src/generate-plugin-configs/index.ts",
     "db:up": "sh scripts/db-compose.sh up -d",
     "db:down": "sh scripts/db-compose.sh down",
     "db:logs": "sh scripts/db-compose.sh logs -f postgres",

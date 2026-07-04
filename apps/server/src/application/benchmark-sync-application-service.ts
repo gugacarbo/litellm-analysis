@@ -1,24 +1,20 @@
-import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { promisify } from "node:util";
 import type {
   BenchmarkSyncStatus,
   BenchmarkSyncStatusResponse,
   TriggerBenchmarkSyncResponse,
 } from "@lite-llm/contracts/benchmarks";
+import { fetchAndPersistBenchmarks } from "./benchmark-fetcher";
 
-const execFileAsync = promisify(execFile);
 const MAX_ERROR_LENGTH = 1_000;
 
 type BenchmarkSyncRunner = (options: {
-  workspaceRoot: string;
+  apiKey: string;
   outputDir: string;
-  env: NodeJS.ProcessEnv;
 }) => Promise<void>;
 
 export interface BenchmarkSyncApplicationServiceOptions {
-  workspaceRoot: string;
   outputDir: string;
   datasetFilePath: string;
   artificialAnalysisApiKey?: string;
@@ -36,7 +32,6 @@ interface BenchmarkSyncState {
 export class BenchmarkSyncConfigurationError extends Error {}
 
 export class BenchmarkSyncApplicationService {
-  private readonly workspaceRoot: string;
   private readonly outputDir: string;
   private readonly datasetFilePath: string;
   private readonly artificialAnalysisApiKey?: string;
@@ -51,11 +46,10 @@ export class BenchmarkSyncApplicationService {
   };
 
   constructor(options: BenchmarkSyncApplicationServiceOptions) {
-    this.workspaceRoot = options.workspaceRoot;
     this.outputDir = options.outputDir;
     this.datasetFilePath = options.datasetFilePath;
     this.artificialAnalysisApiKey = options.artificialAnalysisApiKey;
-    this.runner = options.runner ?? runSyncScript;
+    this.runner = options.runner ?? runSyncInProcess;
   }
 
   getStatus(): BenchmarkSyncStatusResponse {
@@ -92,16 +86,9 @@ export class BenchmarkSyncApplicationService {
       lastError: null,
     };
 
-    const env = {
-      ...process.env,
-      ARTIFICIAL_ANALYSIS_API_KEY: apiKey,
-      OUTPUT_DIR: this.outputDir,
-    };
-
     this.inFlight = this.runner({
-      workspaceRoot: this.workspaceRoot,
+      apiKey,
       outputDir: this.outputDir,
-      env,
     })
       .then(() => {
         const finishedAt = new Date().toISOString();
@@ -130,29 +117,19 @@ export class BenchmarkSyncApplicationService {
   }
 }
 
-async function runSyncScript(options: {
-  workspaceRoot: string;
+async function runSyncInProcess(options: {
+  apiKey: string;
   outputDir: string;
-  env: NodeJS.ProcessEnv;
 }): Promise<void> {
-  await execFileAsync("pnpm", ["sync:aa-benchmarks", "--force-refresh"], {
-    cwd: options.workspaceRoot,
-    env: options.env,
-    maxBuffer: 10 * 1024 * 1024,
+  await fetchAndPersistBenchmarks({
+    apiKey: options.apiKey,
+    outputDir: options.outputDir,
   });
 }
 
 function normalizeError(error: unknown): string {
-  const maybeExecError = error as {
-    message?: string;
-    stderr?: string;
-    stdout?: string;
-  };
   const message =
-    maybeExecError.stderr?.trim() ||
-    maybeExecError.stdout?.trim() ||
-    maybeExecError.message ||
-    String(error);
+    error instanceof Error ? error.message : String(error);
 
   return message.length > MAX_ERROR_LENGTH
     ? `${message.slice(0, MAX_ERROR_LENGTH)}...`
@@ -160,14 +137,12 @@ function normalizeError(error: unknown): string {
 }
 
 export function createBenchmarkSyncApplicationService(options: {
-  workspaceRoot: string;
   storagePath: string;
   artificialAnalysisApiKey?: string;
   runner?: BenchmarkSyncRunner;
 }): BenchmarkSyncApplicationService {
   const outputDir = path.join(options.storagePath, "benchmarks");
   return new BenchmarkSyncApplicationService({
-    workspaceRoot: options.workspaceRoot,
     outputDir,
     datasetFilePath: path.join(outputDir, "artificial-analysis-models.json"),
     artificialAnalysisApiKey: options.artificialAnalysisApiKey,

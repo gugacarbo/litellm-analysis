@@ -155,7 +155,6 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     repository: modelsRepository,
   });
   const heboGateway = await createHeboModelProxyGateway({
-    modelsService,
     providerService,
     openAiOAuthService: registry.openAiOAuthService,
   });
@@ -169,7 +168,6 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     },
   );
   const benchmarkSyncService = createBenchmarkSyncApplicationService({
-    workspaceRoot: projectRoot,
     storagePath: resolveStoragePath(projectRoot),
     artificialAnalysisApiKey: env.ARTIFICIAL_ANALYSIS_API_KEY,
   });

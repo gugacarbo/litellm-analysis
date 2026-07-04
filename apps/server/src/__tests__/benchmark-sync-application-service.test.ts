@@ -25,7 +25,6 @@ function createService(
 ) {
   const outputDir = path.join(tempRoot, "benchmarks");
   return new BenchmarkSyncApplicationService({
-    workspaceRoot: tempRoot,
     outputDir,
     datasetFilePath: path.join(outputDir, "artificial-analysis-models.json"),
     artificialAnalysisApiKey: apiKey,
@@ -59,7 +58,7 @@ describe("BenchmarkSyncApplicationService", () => {
     });
   });
 
-  it("passes server env and output dir to the runner", async () => {
+  it("passes api key and output dir to the runner", async () => {
     const runner = vi.fn().mockResolvedValue(undefined);
     const service = createService(runner, "server-aa-key");
 
@@ -70,12 +69,8 @@ describe("BenchmarkSyncApplicationService", () => {
 
     expect(runner).toHaveBeenCalledWith(
       expect.objectContaining({
-        workspaceRoot: tempRoot,
+        apiKey: "server-aa-key",
         outputDir: path.join(tempRoot, "benchmarks"),
-        env: expect.objectContaining({
-          ARTIFICIAL_ANALYSIS_API_KEY: "server-aa-key",
-          OUTPUT_DIR: path.join(tempRoot, "benchmarks"),
-        }),
       }),
     );
   });
