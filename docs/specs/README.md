@@ -8,3 +8,4 @@
 | [SPEC-0002](0002-provider-model-routing-and-db-source-spec.md) | Provider-scoped model routing with default provider resolution and database as single source of truth | draft |
 | [SPEC-0003](0003-db-single-source-of-truth-spec.md) | Database becomes the single source of truth for agents, models, and plugins | implemented |
 | [SPEC-0004](0004-prisma-to-drizzle-migration-spec.md) | Migrar toda a camada de dados de Prisma para Drizzle, unificando PostgreSQL | deprecated |
+| [SPEC-0006](0006-benchmarks-database-storage-spec.md) | Persistir dados de benchmark do Artificial Analysis no banco de dados | draft |

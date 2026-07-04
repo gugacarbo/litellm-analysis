@@ -114,5 +114,15 @@
     "builds-on": [],
     "superseded-by": null,
     "implemented-by": []
+  },
+  {
+    "id": "SPEC-0006",
+    "path": "docs/specs/0006-benchmarks-database-storage-spec.md",
+    "layer": "specs",
+    "title": "Persistir dados de benchmark do Artificial Analysis no banco de dados",
+    "status": "draft",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
   }
 ]

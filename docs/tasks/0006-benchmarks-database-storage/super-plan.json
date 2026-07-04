@@ -1,0 +1,511 @@
+{
+  "$schema": "/home/gustavo/Apps/lite-llm-analytics/.super-planning/super-plan.schema.json",
+  "planId": "0006-benchmarks-database-storage",
+  "featureName": "benchmarks-database-storage",
+  "status": "completed",
+  "source": {
+    "spec": "docs/specs/0006-benchmarks-database-storage-spec.md",
+    "plan": "docs/plans/0006-benchmarks-database-storage.md"
+  },
+  "goal": "Persistir dados de benchmark do Artificial Analysis (540 modelos, 27 m\u00e9tricas) no PostgreSQL via Drizzle ORM, substituindo a leitura de JSON est\u00e1tico por queries ao banco.",
+  "architectureSummary": "Adiciona-se uma tabela model_proxy_benchmarks ao schema Drizzle existente, um novo pacote repositories/benchmarks-repository/ com opera\u00e7\u00f5es CRUD, atualiza-se o sync script para escrever no banco (mantendo JSON como cache), e adapta-se o endpoint /benchmarks/models para ler do banco com JOIN em model_proxy_models.",
+  "techStack": [
+    "TypeScript",
+    "Drizzle ORM",
+    "PostgreSQL",
+    "Zod",
+    "Vitest",
+    "Express"
+  ],
+  "executionMode": "subagent-driven",
+  "reviewCadence": "per_task",
+  "branchStrategy": {
+    "baseBranch": "main",
+    "featureBranch": "0006-benchmarks-database-storage"
+  },
+  "worktree": {
+    "enabled": true,
+    "path": "../0006-benchmarks-database-storage-worktree"
+  },
+  "globalConstraints": [
+    "Drizzle ORM \u00e9 o \u00fanico ORM permitido (ADR-0004, CONVENTIONS.md)",
+    "PostgreSQL \u00e9 a \u00fanica fonte de verdade (ADR-0006: dual-read/single-write)",
+    "Schema Drizzle \u00e9 a fonte de verdade para migrations",
+    "Manter @storage/benchmarks/*.json como cache de fallback (n\u00e3o remover)",
+    "Contracts em packages/contracts/src/benchmarks.ts n\u00e3o devem ser alterados",
+    "Seguir prefixo model_proxy_ para tabelas",
+    "Testes de reposit\u00f3rio usam pg-mem (CONVENTIONS.md)",
+    "pnpm typecheck deve passar ao final de cada task"
+  ],
+  "fileStructure": [
+    {
+      "path": "repositories/database/src/schema/model-proxy.ts",
+      "ownerTask": "Task-A-0001",
+      "notes": "Adicionar defini\u00e7\u00e3o da tabela modelProxyBenchmarks"
+    },
+    {
+      "path": "repositories/database/drizzle/",
+      "ownerTask": "Task-A-0001",
+      "notes": "Migration gerada automaticamente por db:generate"
+    },
+    {
+      "path": "repositories/benchmarks-repository/",
+      "ownerTask": "Task-A-0002",
+      "notes": "Novo pacote: package.json, tsconfig.json, src/"
+    },
+    {
+      "path": "scripts/src/sync-aa-benchmarks/index.ts",
+      "ownerTask": "Task-B-0001",
+      "notes": "Adicionar escrita no banco ap\u00f3s normaliza\u00e7\u00e3o"
+    },
+    {
+      "path": "scripts/package.json",
+      "ownerTask": "Task-B-0001",
+      "notes": "Adicionar depend\u00eancia @lite-llm/benchmarks-repository"
+    },
+    {
+      "path": "apps/server/src/runtime/api-server.ts",
+      "ownerTask": "Task-C-0001",
+      "notes": "Adaptar GET /benchmarks/models para ler do banco"
+    },
+    {
+      "path": "apps/server/src/application/benchmark-sync-application-service.ts",
+      "ownerTask": "Task-C-0001",
+      "notes": "Atualizar datasetExists para verificar banco"
+    },
+    {
+      "path": "apps/server/package.json",
+      "ownerTask": "Task-C-0001",
+      "notes": "Adicionar depend\u00eancia @lite-llm/benchmarks-repository"
+    }
+  ],
+  "requirementsChecklist": [
+    {
+      "id": "REQ-001",
+      "title": "Tabela model_proxy_benchmarks com 27 colunas tipadas + metadados",
+      "source": "spec \u00a7Contract",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Tabela existe no schema Drizzle",
+        "Migration gerada e aplic\u00e1vel",
+        "Colunas correspondem aos campos de NormalizedModelBenchmark"
+      ],
+      "coveredByTasks": [
+        "Task-A-0001"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-002",
+      "title": "Pacote benchmarks-repository com CRUD",
+      "source": "spec \u00a7Contract",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Interface IBenchmarksRepository definida",
+        "Implementa\u00e7\u00e3o DbBenchmarksRepository com upsert/getAll/getByAaModelId/count/clear",
+        "Testes com pg-mem passam"
+      ],
+      "coveredByTasks": [
+        "Task-A-0002"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-003",
+      "title": "Sync script escreve no banco",
+      "source": "spec \u00a7Flow.7-8",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Script chama clear() antes de upsert()",
+        "JSON de fallback continua sendo salvo",
+        "Erro de banco n\u00e3o interrompe salvamento de JSON"
+      ],
+      "coveredByTasks": [
+        "Task-B-0001"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-004",
+      "title": "API l\u00ea benchmarks do banco",
+      "source": "spec \u00a7Flow.9",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "GET /benchmarks/models retorna dados do banco",
+        "isConfigured e matchedConfiguredModel preenchidos via JOIN com model_proxy_models",
+        "Formato de resposta compat\u00edvel com ModelBenchmarkApiResponse"
+      ],
+      "coveredByTasks": [
+        "Task-C-0001"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-005",
+      "title": "Edge cases cobertos",
+      "source": "spec \u00a7Edge cases",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Banco vazio retorna models: []",
+        "Full replace no sync (clear + upsert)",
+        "Modelos removidos entre syncs s\u00e3o limpos",
+        "Banco indispon\u00edvel n\u00e3o quebra JSON fallback"
+      ],
+      "coveredByTasks": [
+        "Task-B-0001",
+        "Task-C-0001"
+      ],
+      "notes": []
+    }
+  ],
+  "taskDirectory": "docs/tasks/0006-benchmarks-database-storage",
+  "rules": [
+    "Nunca editar super-plan.json manualmente; sempre usar super-plan.sh update",
+    "Subagents n\u00e3o devem editar super-plan.json",
+    "Apenas o orchestrator atualiza status de tarefas",
+    "Tarefa s\u00f3 vai para completed ap\u00f3s review limpo"
+  ],
+  "tasks": [
+    {
+      "id": "Task-A-0001",
+      "title": "Adicionar tabela model_proxy_benchmarks ao schema Drizzle",
+      "description": "Adicionar a defini\u00e7\u00e3o da tabela modelProxyBenchmarks em repositories/database/src/schema/model-proxy.ts com 27 colunas tipadas + metadados, exportar os tipos, e gerar a migration.",
+      "status": "ready_for_review",
+      "tryCount": 1,
+      "batch": "A",
+      "phase": "foundation",
+      "reportFile": "docs/tasks/0006-benchmarks-database-storage/Task-A-0001/report.md",
+      "reviewPackage": "docs/tasks/0006-benchmarks-database-storage/Task-A-0001/review-package.diff.md",
+      "progressLog": "docs/tasks/0006-benchmarks-database-storage/Task-A-0001/progress.log",
+      "logTaskScript": "docs/tasks/0006-benchmarks-database-storage/Task-A-0001/log-task.sh",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Tabela modelProxyBenchmarks definida em model-proxy.ts com todas as 27 colunas + fetched_at + source_url",
+        "Tipos ModelProxyBenchmark e NewModelProxyBenchmark exportados",
+        "Tabela exportada no barrel schema/index.ts",
+        "Migration gerada com pnpm --filter @lite-llm/database db:generate",
+        "pnpm typecheck passa"
+      ],
+      "requirements": [
+        "REQ-001"
+      ],
+      "rules": [
+        "Seguir o padr\u00e3o de nomenclatura das tabelas existentes (snake_case no banco, camelCase no Drizzle)",
+        "Usar doublePrecision para campos num\u00e9ricos nullable",
+        "Usar uuid + defaultRandom para PK",
+        "Adicionar unique index em aa_model_id"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Adicionar defini\u00e7\u00e3o da tabela modelProxyBenchmarks",
+          "description": "Adicionar pgTable modelProxyBenchmarks em model-proxy.ts com colunas: id (uuid PK), aa_model_id (text unique NN), name (text NN), slug, creator_id, creator_name (text NN), creator_slug, intelligence_index, coding_index, math_index, mmlu_pro, gpqa, hle, livecodebench, scicode, math_500, aime, aime_25, tau2, ifbench, lcr, terminalbench_hard, price_input_1m_tokens, price_output_1m_tokens, price_blended_1m_tokens, median_output_tokens_per_second, median_ttft_seconds, median_ttft_answer_seconds, source_url (text NN), fetched_at (timestamp NN defaultNow)",
+          "command": null,
+          "expectedResult": "Tabela definida com unique index em aa_model_id",
+          "codeExample": "export const modelProxyBenchmarks = pgTable(\n  \"model_proxy_benchmarks\",\n  {\n    id: uuid(\"id\").defaultRandom().primaryKey(),\n    aaModelId: text(\"aa_model_id\").notNull().unique(),\n    name: text(\"name\").notNull(),\n    slug: text(\"slug\"),\n    creatorId: text(\"creator_id\"),\n    creatorName: text(\"creator_name\").notNull(),\n    creatorSlug: text(\"creator_slug\"),\n    intelligenceIndex: doublePrecision(\"intelligence_index\"),\n    codingIndex: doublePrecision(\"coding_index\"),\n    mathIndex: doublePrecision(\"math_index\"),\n    mmluPro: doublePrecision(\"mmlu_pro\"),\n    gpqa: doublePrecision(\"gpqa\"),\n    hle: doublePrecision(\"hle\"),\n    livecodebench: doublePrecision(\"livecodebench\"),\n    scicode: doublePrecision(\"scicode\"),\n    math500: doublePrecision(\"math_500\"),\n    aime: doublePrecision(\"aime\"),\n    aime25: doublePrecision(\"aime_25\"),\n    tau2: doublePrecision(\"tau2\"),\n    ifbench: doublePrecision(\"ifbench\"),\n    lcr: doublePrecision(\"lcr\"),\n    terminalbenchHard: doublePrecision(\"terminalbench_hard\"),\n    priceInput1mTokens: doublePrecision(\"price_input_1m_tokens\"),\n    priceOutput1mTokens: doublePrecision(\"price_output_1m_tokens\"),\n    priceBlended1mTokens: doublePrecision(\"price_blended_1m_tokens\"),\n    medianOutputTokensPerSecond: doublePrecision(\"median_output_tokens_per_second\"),\n    medianTtftSeconds: doublePrecision(\"median_ttft_seconds\"),\n    medianTtftAnswerSeconds: doublePrecision(\"median_ttft_answer_seconds\"),\n    sourceUrl: text(\"source_url\").notNull(),\n    fetchedAt: timestamp(\"fetched_at\").defaultNow().notNull(),\n  },\n);"
+        },
+        {
+          "order": 2,
+          "title": "Exportar tipos da tabela",
+          "description": "Adicionar type exports: ModelProxyBenchmark e NewModelProxyBenchmark",
+          "command": null,
+          "expectedResult": "Tipos exportados e acess\u00edveis via @lite-llm/database",
+          "codeExample": "export type ModelProxyBenchmark = typeof modelProxyBenchmarks.$inferSelect;\nexport type NewModelProxyBenchmark = typeof modelProxyBenchmarks.$inferInsert;"
+        },
+        {
+          "order": 3,
+          "title": "Gerar migration",
+          "description": "Rodar db:generate para criar a migration file",
+          "command": "pnpm --filter @lite-llm/database db:generate",
+          "expectedResult": "Migration SQL gerada em repositories/database/drizzle/",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Verificar typecheck",
+          "description": "Rodar typecheck para garantir que n\u00e3o h\u00e1 erros",
+          "command": "pnpm typecheck",
+          "expectedResult": "exit 0, sem erros de tipo",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "repositories/database/src/schema/model-proxy.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "repositories/database/src/schema/model-proxy.ts"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-A-0002",
+      "title": "Criar pacote benchmarks-repository",
+      "description": "Criar o pacote @lite-llm/benchmarks-repository em repositories/benchmarks-repository/ com package.json, tsconfig.json, interface IBenchmarksRepository, implementa\u00e7\u00e3o DbBenchmarksRepository, e testes com pg-mem.",
+      "status": "ready_for_review",
+      "tryCount": 1,
+      "batch": "A",
+      "phase": "foundation",
+      "reportFile": "docs/tasks/0006-benchmarks-database-storage/Task-A-0002/report.md",
+      "reviewPackage": "docs/tasks/0006-benchmarks-database-storage/Task-A-0002/review-package.diff.md",
+      "progressLog": "docs/tasks/0006-benchmarks-database-storage/Task-A-0002/progress.log",
+      "logTaskScript": "docs/tasks/0006-benchmarks-database-storage/Task-A-0002/log-task.sh",
+      "dependencies": [
+        "Task-A-0001"
+      ],
+      "acceptanceCriteria": [
+        "Pacote criado com package.json, tsconfig.json",
+        "Interface IBenchmarksRepository com upsert, getAll, getByAaModelId, count, clear",
+        "DbBenchmarksRepository implementa a interface usando Drizzle",
+        "Fun\u00e7\u00e3o createBenchmarksRepository exportada",
+        "Testes com pg-mem passam (upsert, getAll, clear, count)",
+        "pnpm typecheck passa"
+      ],
+      "requirements": [
+        "REQ-002"
+      ],
+      "rules": [
+        "Seguir padr\u00e3o de DbModelsRepository (repositories/models-repository/src/db-repository.ts)",
+        "Usar pg-mem para testes (CONVENTIONS.md)",
+        "Exportar barrel em src/index.ts",
+        "Depend\u00eancia @lite-llm/database para acesso ao db"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Criar estrutura do pacote",
+          "description": "Criar repositories/benchmarks-repository/package.json e tsconfig.json seguindo o padr\u00e3o de repositories/models-repository",
+          "command": null,
+          "expectedResult": "package.json com nome @lite-llm/benchmarks-repository, depend\u00eancias drizzle-orm e @lite-llm/database",
+          "codeExample": "{\n  \"name\": \"@lite-llm/benchmarks-repository\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"exports\": {\n    \".\": {\"import\": \"./src/index.ts\"}\n  },\n  \"scripts\": {\n    \"typecheck\": \"tsc --noEmit\",\n    \"test\": \"vitest run\"\n  },\n  \"dependencies\": {\n    \"@lite-llm/database\": \"workspace:*\",\n    \"drizzle-orm\": \"catalog:\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"catalog:\",\n    \"typescript\": \"catalog:\",\n    \"vitest\": \"catalog:\"\n  }\n}"
+        },
+        {
+          "order": 2,
+          "title": "Criar interface IBenchmarksRepository",
+          "description": "Criar src/interfaces.ts com a interface do reposit\u00f3rio",
+          "command": null,
+          "expectedResult": "Interface com 5 m\u00e9todos: upsert, getAll, getByAaModelId, count, clear",
+          "codeExample": "import type { NormalizedModelBenchmark } from \"@lite-llm/contracts/benchmarks\";\n\nexport interface IBenchmarksRepository {\n  upsert(models: NormalizedModelBenchmark[]): Promise<void>;\n  getAll(): Promise<NormalizedModelBenchmark[]>;\n  getByAaModelId(aaModelId: string): Promise<NormalizedModelBenchmark | null>;\n  count(): Promise<number>;\n  clear(): Promise<void>;\n}"
+        },
+        {
+          "order": 3,
+          "title": "Implementar DbBenchmarksRepository",
+          "description": "Criar src/db-repository.ts com implementa\u00e7\u00e3o usando Drizzle ORM. upsert usa onConflictDoUpdate, clear usa delete, getAll faz select",
+          "command": null,
+          "expectedResult": "Classe DbBenchmarksRepository implementando IBenchmarksRepository",
+          "codeExample": "import { db, modelProxyBenchmarks } from \"@lite-llm/database\";\nimport { eq } from \"drizzle-orm\";\nimport type { IBenchmarksRepository } from \"./interfaces\";\nimport type { NormalizedModelBenchmark } from \"@lite-llm/contracts/benchmarks\";\n\nexport class DbBenchmarksRepository implements IBenchmarksRepository {\n  async upsert(models: NormalizedModelBenchmark[]): Promise<void> {\n    await db.transaction(async (tx) => {\n      for (const m of models) {\n        await tx.insert(modelProxyBenchmarks).values(toRow(m))\n          .onConflictDoUpdate({\n            target: modelProxyBenchmarks.aaModelId,\n            set: toRow(m),\n          });\n      }\n    });\n  }\n\n  async getAll(): Promise<NormalizedModelBenchmark[]> {\n    const rows = await db.select().from(modelProxyBenchmarks);\n    return rows.map(fromRow);\n  }\n\n  async getByAaModelId(aaModelId: string): Promise<NormalizedModelBenchmark | null> {\n    const rows = await db.select().from(modelProxyBenchmarks).where(eq(modelProxyBenchmarks.aaModelId, aaModelId)).limit(1);\n    return rows.length > 0 ? fromRow(rows[0]) : null;\n  }\n\n  async count(): Promise<number> {\n    const rows = await db.select().from(modelProxyBenchmarks);\n    return rows.length;\n  }\n\n  async clear(): Promise<void> {\n    await db.delete(modelProxyBenchmarks);\n  }\n}"
+        },
+        {
+          "order": 4,
+          "title": "Criar barrel exports e factory",
+          "description": "Criar src/index.ts exportando a interface, implementa\u00e7\u00e3o e factory function createBenchmarksRepository",
+          "command": null,
+          "expectedResult": "Barrel com exports limpos",
+          "codeExample": "export { IBenchmarksRepository } from \"./interfaces\";\nexport { DbBenchmarksRepository } from \"./db-repository\";\nexport { createBenchmarksRepository } from \"./db-repository\";"
+        },
+        {
+          "order": 5,
+          "title": "Escrever testes com pg-mem",
+          "description": "Criar src/db-repository.test.ts com testes para upsert, getAll, getByAaModelId, count, clear usando pg-mem",
+          "command": null,
+          "expectedResult": "Testes passam com vitest",
+          "codeExample": "import { describe, it, expect, beforeAll, afterAll } from \"vitest\";\n// usar pg-mem + drizzle para criar schema em mem\u00f3ria"
+        },
+        {
+          "order": 6,
+          "title": "Verificar typecheck e testes",
+          "description": "Rodar typecheck e testes do pacote",
+          "command": "pnpm typecheck && pnpm --filter @lite-llm/benchmarks-repository test",
+          "expectedResult": "exit 0, todos os testes passam",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "repositories/benchmarks-repository/package.json",
+        "repositories/benchmarks-repository/tsconfig.json",
+        "repositories/benchmarks-repository/src/index.ts",
+        "repositories/benchmarks-repository/src/interfaces.ts",
+        "repositories/benchmarks-repository/src/db-repository.ts",
+        "repositories/benchmarks-repository/src/db-repository.test.ts"
+      ],
+      "files": {
+        "created": [
+          "repositories/benchmarks-repository/package.json",
+          "repositories/benchmarks-repository/tsconfig.json",
+          "repositories/benchmarks-repository/src/index.ts",
+          "repositories/benchmarks-repository/src/interfaces.ts",
+          "repositories/benchmarks-repository/src/db-repository.ts",
+          "repositories/benchmarks-repository/src/db-repository.test.ts"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-B-0001",
+      "title": "Atualizar sync script para escrever no banco",
+      "description": "Modificar scripts/src/sync-aa-benchmarks/index.ts para, ap\u00f3s normalizar e salvar JSONs, tamb\u00e9m escrever os dados no banco via IBenchmarksRepository. Adicionar @lite-llm/benchmarks-repository como depend\u00eancia do pacote scripts.",
+      "status": "ready_for_review",
+      "tryCount": 1,
+      "batch": "B",
+      "phase": "core",
+      "reportFile": "docs/tasks/0006-benchmarks-database-storage/Task-B-0001/report.md",
+      "reviewPackage": "docs/tasks/0006-benchmarks-database-storage/Task-B-0001/review-package.diff.md",
+      "progressLog": "docs/tasks/0006-benchmarks-database-storage/Task-B-0001/progress.log",
+      "logTaskScript": "docs/tasks/0006-benchmarks-database-storage/Task-B-0001/log-task.sh",
+      "dependencies": [
+        "Task-A-0002"
+      ],
+      "acceptanceCriteria": [
+        "Sync script chama benchmarksRepository.clear() antes de upsert()",
+        "Dados normalizados s\u00e3o persistidos no banco",
+        "JSON de fallback continua sendo salvo (comportamento preservado)",
+        "Erro de banco n\u00e3o interrompe salvamento de JSON (try/catch)",
+        "pnpm typecheck passa"
+      ],
+      "requirements": [
+        "REQ-003",
+        "REQ-005"
+      ],
+      "rules": [
+        "Manter comportamento existente de salvar JSONs",
+        "Adicionar escrita no banco como passo adicional (n\u00e3o substituto)",
+        "Usar try/catch para que falha de banco n\u00e3o impe\u00e7a salvamento de JSON",
+        "Logar sucesso/falha da opera\u00e7\u00e3o de banco"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Adicionar depend\u00eancia no package.json do scripts",
+          "description": "Adicionar @lite-llm/benchmarks-repository: workspace:* nas depend\u00eancias de scripts/package.json",
+          "command": null,
+          "expectedResult": "Depend\u00eancia adicionada",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Importar e usar benchmarks repository no sync script",
+          "description": "No final da fun\u00e7\u00e3o main(), ap\u00f3s salvar os JSONs, importar createBenchmarksRepository e chamar clear() + upsert() com os modelos normalizados. Envolver em try/catch.",
+          "command": null,
+          "expectedResult": "Dados escritos no banco ap\u00f3s cada sync bem-sucedido",
+          "codeExample": "import { createBenchmarksRepository } from \"@lite-llm/benchmarks-repository\";\n\n// ... ap\u00f3s salvar JSONs ...\ntry {\n  const repo = createBenchmarksRepository();\n  await repo.clear();\n  await repo.upsert(normalizedModels);\n  console.log(`Saved ${normalizedModels.length} models to database`);\n} catch (error) {\n  console.error(\"Failed to save benchmarks to database:\", error);\n}"
+        },
+        {
+          "order": 3,
+          "title": "Verificar typecheck",
+          "description": "Rodar typecheck para garantir que n\u00e3o h\u00e1 erros",
+          "command": "pnpm typecheck",
+          "expectedResult": "exit 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "scripts/package.json",
+        "scripts/src/sync-aa-benchmarks/index.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "scripts/package.json",
+          "scripts/src/sync-aa-benchmarks/index.ts"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-C-0001",
+      "title": "Adaptar API de benchmarks para ler do banco",
+      "description": "Modificar apps/server/src/runtime/api-server.ts para que GET /benchmarks/models leia do banco via IBenchmarksRepository em vez de JSON. Atualizar benchmark-sync-application-service.ts para verificar exist\u00eancia no banco. Adicionar depend\u00eancia no package.json do server.",
+      "status": "ready_for_review",
+      "tryCount": 1,
+      "batch": "C",
+      "phase": "surface",
+      "reportFile": "docs/tasks/0006-benchmarks-database-storage/Task-C-0001/report.md",
+      "reviewPackage": "docs/tasks/0006-benchmarks-database-storage/Task-C-0001/review-package.diff.md",
+      "progressLog": "docs/tasks/0006-benchmarks-database-storage/Task-C-0001/progress.log",
+      "logTaskScript": "docs/tasks/0006-benchmarks-database-storage/Task-C-0001/log-task.sh",
+      "dependencies": [
+        "Task-B-0001"
+      ],
+      "acceptanceCriteria": [
+        "GET /benchmarks/models retorna dados do banco",
+        "isConfigured e matchedConfiguredModel preenchidos via JOIN/merge com model_proxy_models",
+        "Formato de resposta compat\u00edvel com ModelBenchmarkApiResponse",
+        "datasetExists verifica contagem no banco (> 0)",
+        "pnpm typecheck passa"
+      ],
+      "requirements": [
+        "REQ-004",
+        "REQ-005"
+      ],
+      "rules": [
+        "Manter compatibilidade total com ModelBenchmarkApiResponse",
+        "Preservar l\u00f3gica de matching (toMatchKeys, suffixTolerantMatch, aliases)",
+        "Adicionar fallback: se banco vazio, tentar JSON (robustez)",
+        "N\u00e3o alterar contracts em packages/contracts/"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Adicionar depend\u00eancia no package.json do server",
+          "description": "Adicionar @lite-llm/benchmarks-repository: workspace:* nas depend\u00eancias de apps/server/package.json",
+          "command": null,
+          "expectedResult": "Depend\u00eancia adicionada",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Criar helper loadBenchmarksFromDatabase",
+          "description": "Criar fun\u00e7\u00e3o que l\u00ea benchmarks do banco e monta ModelBenchmarkApiResponse. Manter a l\u00f3gica existente de matching (toMatchKeys, suffixTolerantMatch, aliases) mas alimentada com dados do banco.",
+          "command": null,
+          "expectedResult": "Fun\u00e7\u00e3o que retorna ModelBenchmarkApiResponse a partir do banco",
+          "codeExample": "async function loadBenchmarksFromDatabase(\n  configuredModels: { modelName: string }[],\n  aliases: Record<string, string>,\n): Promise<ModelBenchmarkApiResponse> {\n  const repo = createBenchmarksRepository();\n  const models = await repo.getAll();\n  const count = await repo.count();\n  // ... mesma l\u00f3gica de matching ...\n  return { source: \"Artificial Analysis\", sourceUrl: \"...\", fetchedAt: \"...\", count, configuredModelNames, unmatchedConfiguredModels, models };\n}"
+        },
+        {
+          "order": 3,
+          "title": "Atualizar handler GET /benchmarks/models",
+          "description": "Substituir loadBenchmarkDataset (leitura de JSON) por loadBenchmarksFromDatabase (leitura do banco). Manter fallback para JSON se banco retornar vazio.",
+          "command": null,
+          "expectedResult": "Endpoint l\u00ea do banco primariamente, com fallback para JSON",
+          "codeExample": "app.get(\"/benchmarks/models\", async (req, res) => {\n  try {\n    const data = await loadBenchmarksFromDatabase(configuredModels, aliases);\n    if (data.count > 0) return res.json(data);\n  } catch (error) {\n    console.error(\"Failed to load benchmarks from database, falling back to JSON:\", error);\n  }\n  // fallback to JSON...\n});"
+        },
+        {
+          "order": 4,
+          "title": "Atualizar BenchmarkSyncApplicationService.datasetExists",
+          "description": "Modificar getStatus() para verificar datasetExists via benchmarksRepository.count() > 0 em vez de existsSync no arquivo JSON",
+          "command": null,
+          "expectedResult": "datasetExists reflete estado real do banco",
+          "codeExample": "getStatus(): BenchmarkSyncStatusResponse {\n  let datasetExists = false;\n  try {\n    const repo = createBenchmarksRepository();\n    datasetExists = (await repo.count()) > 0;\n  } catch { /* keep false */ }\n  return { ...this.state, isRunning: ..., datasetExists };\n}"
+        },
+        {
+          "order": 5,
+          "title": "Verificar typecheck",
+          "description": "Rodar typecheck para garantir que n\u00e3o h\u00e1 erros",
+          "command": "pnpm typecheck",
+          "expectedResult": "exit 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/server/package.json",
+        "apps/server/src/runtime/api-server.ts",
+        "apps/server/src/application/benchmark-sync-application-service.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/server/package.json",
+          "apps/server/src/runtime/api-server.ts",
+          "apps/server/src/application/benchmark-sync-application-service.ts"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    }
+  ]
+}
