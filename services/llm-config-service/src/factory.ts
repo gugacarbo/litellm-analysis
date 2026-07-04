@@ -21,7 +21,7 @@ import {
 } from "./services/settings.service.js";
 
 export interface RegistryServices {
-  prisma: DatabaseClient;
+  db: DatabaseClient;
   settingsService: ISettingsService;
   registryModelsService: IRegistryModelsService;
   providersService: IProvidersService;
@@ -30,20 +30,20 @@ export interface RegistryServices {
 }
 
 export interface CreateRegistryServicesOptions {
-  prisma?: DatabaseClient;
+  db?: DatabaseClient;
 }
 
 export function createRegistryServices(
   options: CreateRegistryServicesOptions = {},
 ): RegistryServices {
-  const prisma = options.prisma ?? getDb();
+  const db = options.db ?? getDb();
 
   return {
-    prisma,
-    settingsService: new SettingsService({ prisma }),
-    registryModelsService: new RegistryModelsService({ prisma }),
-    providersService: new ProvidersService({ prisma }),
-    apiKeysService: new ApiKeysService({ prisma }),
-    openAiOAuthService: new OpenAiOAuthService({ prisma }),
+    db,
+    settingsService: new SettingsService({ db }),
+    registryModelsService: new RegistryModelsService({ db }),
+    providersService: new ProvidersService({ db }),
+    apiKeysService: new ApiKeysService({ db }),
+    openAiOAuthService: new OpenAiOAuthService({ db }),
   };
 }

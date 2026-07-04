@@ -7,7 +7,7 @@ export type ModelApiMode = "openai" | "anthropic";
 
 /**
  * Canonical routing record for a managed model alias.
- * First-class fields correspond to Prisma `ModelProxyModel` columns.
+ * First-class fields correspond to `ModelProxyModel` columns.
  */
 export interface ModelRoute {
   /** Public alias / route name (unique). */
@@ -37,7 +37,7 @@ export interface ModelRoute {
 export type ModelRouteUpdate = Partial<Omit<ModelRoute, "modelName">>;
 
 /**
- * Registry row shape aligned with Prisma `ModelProxyModel`.
+ * Registry row shape aligned with `ModelProxyModel`.
  * Used by repositories before/after DB round-trip.
  */
 export interface ModelProxyModelRecord {

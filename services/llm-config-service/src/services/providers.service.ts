@@ -10,7 +10,7 @@ import type {
 } from "../types/providers.js";
 
 export interface ProvidersServiceOptions {
-  prisma?: DatabaseClient;
+  db?: DatabaseClient;
   repository?: ProvidersRepository;
 }
 
@@ -45,9 +45,9 @@ export class ProvidersService implements IProvidersService {
     this.repository =
       options.repository ??
       new ProvidersRepository(
-        options.prisma ??
+        options.db ??
           (() => {
-            throw new Error("ProvidersService requires prisma or repository");
+            throw new Error("ProvidersService requires db or repository");
           })(),
       );
   }

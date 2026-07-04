@@ -10,7 +10,7 @@ import {
 } from "../types/settings.js";
 
 export interface SettingsServiceOptions {
-  prisma?: DatabaseClient;
+  db?: DatabaseClient;
   repository?: SettingsRepository;
 }
 
@@ -52,9 +52,9 @@ export class SettingsService implements ISettingsService {
     this.repository =
       options.repository ??
       new SettingsRepository(
-        options.prisma ??
+        options.db ??
           (() => {
-            throw new Error("SettingsService requires prisma or repository");
+            throw new Error("SettingsService requires db or repository");
           })(),
       );
   }

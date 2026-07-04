@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const queryRawUnsafe = vi.fn();
+const queryRaw = vi.fn();
 
-vi.mock("./client", () => ({
-  getModelProxyPrisma: () => ({
-    $queryRawUnsafe: queryRawUnsafe,
-  }),
+vi.mock("@lite-llm/database/client", () => ({
+  queryRaw,
 }));
 
 import {
@@ -16,11 +14,11 @@ import {
 
 describe("proxy analytics-queries", () => {
   beforeEach(() => {
-    queryRawUnsafe.mockReset();
+    queryRaw.mockReset();
   });
 
   it("aggregates metrics summary from total_cost and token columns", async () => {
-    queryRawUnsafe
+    queryRaw
       .mockResolvedValueOnce([
         {
           totalSpend: 12.5,
@@ -45,20 +43,20 @@ describe("proxy analytics-queries", () => {
       cachedTokens: 50,
     });
 
-    expect(queryRawUnsafe).toHaveBeenCalledTimes(2);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain(
+    expect(queryRaw).toHaveBeenCalledTimes(2);
+    expect(queryRaw.mock.calls[0][0]).toContain(
       "model_proxy_usage_adjustments",
     );
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('r."total_cost"');
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('r."input_tokens"');
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('r."cached_tokens"');
-    expect(queryRawUnsafe.mock.calls[1][0]).toContain(
+    expect(queryRaw.mock.calls[0][0]).toContain('r."total_cost"');
+    expect(queryRaw.mock.calls[0][0]).toContain('r."input_tokens"');
+    expect(queryRaw.mock.calls[0][0]).toContain('r."cached_tokens"');
+    expect(queryRaw.mock.calls[1][0]).toContain(
       `r."status" IN ('failed', 'timeout')`,
     );
   });
 
   it("computes performance metrics from latency_ms and output_tokens", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       {
         total_requests: 10,
         avg_duration_ms: 250,
@@ -75,12 +73,12 @@ describe("proxy analytics-queries", () => {
       success_rate: 90,
       avg_tokens_per_second: 42,
     });
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"latency_ms"');
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"output_tokens"');
+    expect(queryRaw.mock.calls[0][0]).toContain('"latency_ms"');
+    expect(queryRaw.mock.calls[0][0]).toContain('"output_tokens"');
   });
 
   it("ranks cost efficiency by total_cost per model", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       {
         model: "gpt-4o",
         total_spend: 5,
@@ -93,11 +91,11 @@ describe("proxy analytics-queries", () => {
     const result = await getCostEfficiency({ days: 30 });
 
     expect(result).toHaveLength(1);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain(
+    expect(queryRaw.mock.calls[0][0]).toContain(
       "model_proxy_usage_adjustments",
     );
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain("SUM(");
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain(
+    expect(queryRaw.mock.calls[0][0]).toContain("SUM(");
+    expect(queryRaw.mock.calls[0][0]).toContain(
       'ORDER BY SUM((COALESCE(r."total_cost", 0)',
     );
   });

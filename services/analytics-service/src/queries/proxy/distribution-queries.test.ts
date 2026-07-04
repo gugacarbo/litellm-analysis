@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const queryRawUnsafe = vi.fn();
+const queryRaw = vi.fn();
 
-vi.mock("./client", () => ({
-  getModelProxyPrisma: () => ({
-    $queryRawUnsafe: queryRawUnsafe,
-  }),
+vi.mock("@lite-llm/database/client", () => ({
+  queryRaw,
 }));
 
 import {
@@ -19,22 +17,22 @@ import {
 
 describe("proxy distribution-queries", () => {
   beforeEach(() => {
-    queryRawUnsafe.mockReset();
+    queryRaw.mockReset();
   });
 
   it("aggregates spend by model from total_cost", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       { model: "gpt-4o", total_spend: 4.2 },
     ]);
 
     const result = await getSpendByModel({ days: 30 });
 
     expect(result).toEqual([{ model: "gpt-4o", total_spend: 4.2 }]);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("total_cost")');
+    expect(queryRaw.mock.calls[0][0]).toContain('SUM("total_cost")');
   });
 
   it("aggregates token distribution from input/output tokens", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       {
         model: "gpt-4o",
         prompt_tokens: 200,
@@ -47,11 +45,11 @@ describe("proxy distribution-queries", () => {
     const result = await getTokenDistribution({ days: 30 });
 
     expect(result[0]?.prompt_tokens).toBe(200);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("input_tokens")');
+    expect(queryRaw.mock.calls[0][0]).toContain('SUM("input_tokens")');
   });
 
   it("computes model distribution percentages", async () => {
-    queryRawUnsafe
+    queryRaw
       .mockResolvedValueOnce([{ count: 10 }])
       .mockResolvedValueOnce([
         { model: "gpt-4o", request_count: 7, percentage: 70 },
@@ -62,11 +60,11 @@ describe("proxy distribution-queries", () => {
     expect(result).toEqual([
       { model: "gpt-4o", request_count: 7, percentage: 70 },
     ]);
-    expect(queryRawUnsafe).toHaveBeenCalledTimes(2);
+    expect(queryRaw).toHaveBeenCalledTimes(2);
   });
 
   it("aggregates spend by user from end_user", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       {
         user: "alice",
         total_spend: 1.5,
@@ -78,22 +76,22 @@ describe("proxy distribution-queries", () => {
     const result = await getSpendByUser({ days: 30 });
 
     expect(result[0]?.user).toBe("alice");
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"end_user"');
+    expect(queryRaw.mock.calls[0][0]).toContain('"end_user"');
   });
 
   it("aggregates spend by api key alias", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       { key: "prod-key", total_spend: 2.1, total_tokens: 500 },
     ]);
 
     const result = await getSpendByKey(30);
 
     expect(result[0]?.key).toBe("prod-key");
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"api_key_alias"');
+    expect(queryRaw.mock.calls[0][0]).toContain('"api_key_alias"');
   });
 
   it("aggregates api key stats from ledger", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       {
         key: "prod-key",
         request_count: 4,
@@ -109,6 +107,6 @@ describe("proxy distribution-queries", () => {
     const result = await getApiKeyStats({ days: 30 });
 
     expect(result[0]?.key).toBe("prod-key");
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"api_key_alias"');
+    expect(queryRaw.mock.calls[0][0]).toContain('"api_key_alias"');
   });
 });

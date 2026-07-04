@@ -6,7 +6,7 @@ export {
   toModelProxyRow,
   toModelRoute,
 } from "./adapters/model-route-adapter.js";
-export { getRegistryPrisma, type RegistryClientOptions } from "./client.js";
+export { getRegistryDb, type RegistryClientOptions } from "./client.js";
 export {
   getModelRoute,
   listRegistryModels,

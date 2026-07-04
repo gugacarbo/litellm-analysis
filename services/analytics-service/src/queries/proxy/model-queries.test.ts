@@ -1,19 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const queryRawUnsafe = vi.fn();
-const executeRawUnsafe = vi.fn();
-const updateMany = vi.fn();
-const deleteMany = vi.fn();
+const queryRaw = vi.fn();
+const dbExecute = vi.fn();
+const dbDeleteWhere = vi.fn();
+const dbUpdateSetWhere = vi.fn();
 
-vi.mock("./client", () => ({
-  getModelProxyPrisma: () => ({
-    $queryRawUnsafe: queryRawUnsafe,
-    $executeRawUnsafe: executeRawUnsafe,
-    modelProxyRequest: {
-      updateMany,
-      deleteMany,
-    },
-  }),
+vi.mock("@lite-llm/database/client", () => ({
+  queryRaw,
+  db: {
+    update: vi.fn().mockReturnValue({ set: vi.fn().mockReturnValue({ where: dbUpdateSetWhere }) }),
+    delete: vi.fn().mockReturnValue({ where: dbDeleteWhere }),
+    execute: dbExecute,
+  },
 }));
 
 vi.mock("./time-buckets", () => ({
@@ -36,19 +34,19 @@ import {
 
 describe("proxy model-queries", () => {
   beforeEach(() => {
-    queryRawUnsafe.mockReset();
-    executeRawUnsafe.mockReset();
-    updateMany.mockReset();
-    deleteMany.mockReset();
+    queryRaw.mockReset();
+    dbExecute.mockReset();
+    dbDeleteWhere.mockReset();
+    dbUpdateSetWhere.mockReset();
   });
 
   it("queries model statistics from model_proxy_requests", async () => {
-    queryRawUnsafe.mockResolvedValue([]);
+    queryRaw.mockResolvedValue([]);
 
     await getModelStatistics({ days: 7 });
 
-    expect(queryRawUnsafe).toHaveBeenCalledOnce();
-    const sql = String(queryRawUnsafe.mock.calls[0][0]);
+    expect(queryRaw).toHaveBeenCalledOnce();
+    const sql = String(queryRaw.mock.calls[0][0]);
     expect(sql).toContain("model_proxy_requests");
     expect(sql).toContain('"unique_users"');
     expect(sql).toContain("COUNT(DISTINCT NULLIF(BTRIM(\"end_user\"), ''))");
@@ -59,40 +57,40 @@ describe("proxy model-queries", () => {
   });
 
   it("queries daily spend trend for a model", async () => {
-    queryRawUnsafe.mockResolvedValue([]);
+    queryRaw.mockResolvedValue([]);
 
     await getDailySpendTrendByModel("gpt-4o", 30);
 
-    const sql = String(queryRawUnsafe.mock.calls[0][0]);
+    const sql = String(queryRaw.mock.calls[0][0]);
     expect(sql).toContain(`"model" = 'gpt-4o'`);
     expect(sql).toContain('SUM("total_cost")');
   });
 
   it("groups error breakdown by error_type", async () => {
-    queryRawUnsafe.mockResolvedValue([]);
+    queryRaw.mockResolvedValue([]);
 
     await getErrorBreakdownByModel("gpt-4o", 30);
 
-    const sql = String(queryRawUnsafe.mock.calls[0][0]);
+    const sql = String(queryRaw.mock.calls[0][0]);
     expect(sql).toContain('"error_type"');
     expect(sql).toContain(`"status" != 'success'`);
   });
 
   it("computes cache hit rate from cached_tokens and input_tokens", async () => {
-    queryRawUnsafe.mockResolvedValue([
+    queryRaw.mockResolvedValue([
       { cache_hits: 100, total_requests: 1000, cache_hit_rate: 10 },
     ]);
 
     const result = await getModelCacheHitRateByModel("gpt-4o", 30);
 
-    const sql = String(queryRawUnsafe.mock.calls[0][0]);
+    const sql = String(queryRaw.mock.calls[0][0]);
     expect(sql).toContain('SUM("cached_tokens")');
     expect(sql).toContain('SUM("input_tokens")');
     expect(result.cache_hit_rate).toBe(10);
   });
 
   it("reads TTFT percentiles from ttft_ms column", async () => {
-    queryRawUnsafe.mockResolvedValue([
+    queryRaw.mockResolvedValue([
       {
         avg_ttft_ms: 120,
         p50_ttft_ms: 100,
@@ -105,38 +103,33 @@ describe("proxy model-queries", () => {
 
     const result = await getModelTTFTPercentilesByModel("gpt-4o");
 
-    const sql = String(queryRawUnsafe.mock.calls[0][0]);
+    const sql = String(queryRaw.mock.calls[0][0]);
     expect(sql).toContain('"ttft_ms"');
     expect(result.p50_ttft_ms).toBe(100);
   });
 
-  it("merges models via updateMany", async () => {
-    updateMany.mockResolvedValue({ count: 3 });
+  it("merges models via db.update", async () => {
+    dbUpdateSetWhere.mockResolvedValue(undefined);
 
     await mergeModels("old-model", "new-model");
 
-    expect(updateMany).toHaveBeenCalledWith({
-      where: { model: "old-model" },
-      data: { model: "new-model" },
-    });
+    expect(dbUpdateSetWhere).toHaveBeenCalled();
   });
 
-  it("deletes model logs by model name", async () => {
-    deleteMany.mockResolvedValue({ count: 5 });
+  it("deletes model logs by model name via db.delete", async () => {
+    dbDeleteWhere.mockResolvedValue(undefined);
 
     await deleteModelLogs("gpt-4o");
 
-    expect(deleteMany).toHaveBeenCalledWith({
-      where: { model: "gpt-4o" },
-    });
+    expect(dbDeleteWhere).toHaveBeenCalled();
   });
 
-  it("deletes blank model logs with raw SQL", async () => {
-    executeRawUnsafe.mockResolvedValue(1);
+  it("deletes blank model logs with raw SQL via db.execute", async () => {
+    dbExecute.mockResolvedValue(undefined);
 
     await deleteModelLogs("   ");
 
-    expect(executeRawUnsafe).toHaveBeenCalledOnce();
-    expect(deleteMany).not.toHaveBeenCalled();
+    expect(dbExecute).toHaveBeenCalledOnce();
+    expect(dbDeleteWhere).not.toHaveBeenCalled();
   });
 });

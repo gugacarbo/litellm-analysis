@@ -39,7 +39,7 @@ ModelProxyDataSource (class, model-proxy.ts)
         └─ routing-methods.ts
                 │
                 ▼
-        queries/proxy/* (raw SQL via Prisma)
+        queries/proxy/* (raw SQL via Drizzle)
 ```
 
 ## PATTERNS
@@ -72,5 +72,5 @@ return { logs: rows.map(...), pagination: { total, ... } };
 
 - Do not add business logic in `proxy-*-methods.ts` — delegate to `queries/proxy/`
 - Do not use `as any` for type assertions
-- Do not skip `Number()` wrapping for DB numerics (Postgres returns string for some numeric types via Prisma)
+- Do not skip `Number()` wrapping for DB numerics (Postgres returns string for some numeric types via Drizzle)
 - Do not split `ModelProxyDataSource` via class inheritance — composition only

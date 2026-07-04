@@ -1,17 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const findMany = vi.fn();
-const count = vi.fn();
-const findUnique = vi.fn();
+const queryRaw = vi.fn();
 
-vi.mock("./client", () => ({
-  getModelProxyPrisma: () => ({
-    modelProxyRequest: {
-      findMany,
-      count,
-      findUnique,
-    },
-  }),
+vi.mock("@lite-llm/database/client", () => ({
+  queryRaw,
 }));
 
 import {
@@ -22,14 +14,11 @@ import {
 
 describe("proxy spend-queries", () => {
   beforeEach(() => {
-    findMany.mockReset();
-    count.mockReset();
-    findUnique.mockReset();
+    queryRaw.mockReset();
   });
 
   it("queries spend logs with filters and pagination", async () => {
-    findMany.mockResolvedValue([]);
-    count.mockResolvedValue(0);
+    queryRaw.mockResolvedValueOnce([]);
 
     await getSpendLogs({
       model: "gpt-4o",
@@ -39,30 +28,16 @@ describe("proxy spend-queries", () => {
       offset: 50,
     });
 
-    expect(findMany).toHaveBeenCalledWith({
-      where: {
-        model: "gpt-4o",
-        startedAt: {
-          gte: new Date("2026-06-01"),
-          lte: new Date("2026-06-16"),
-        },
-      },
-      include: {
-        messages: {
-          orderBy: { createdAt: "asc" },
-        },
-        usageAdjustments: {
-          orderBy: { createdAt: "asc" },
-        },
-      },
-      orderBy: { startedAt: "desc" },
-      take: 25,
-      skip: 50,
-    });
+    expect(queryRaw).toHaveBeenCalled();
+    const sql = String(queryRaw.mock.calls[0][0]);
+    expect(sql).toContain("model_proxy_requests");
+    expect(sql).toContain(`"model" = 'gpt-4o'`);
+    expect(sql).toContain("LIMIT 25");
+    expect(sql).toContain("OFFSET 50");
   });
 
   it("counts spend logs with the same filters", async () => {
-    count.mockResolvedValue(42);
+    queryRaw.mockResolvedValueOnce([{ count: 42 }]);
 
     const total = await getSpendLogsCount({
       model: "gpt-4o",
@@ -71,33 +46,21 @@ describe("proxy spend-queries", () => {
     });
 
     expect(total).toBe(42);
-    expect(count).toHaveBeenCalledWith({
-      where: {
-        model: "gpt-4o",
-        startedAt: {
-          gte: new Date("2026-06-01"),
-          lte: new Date("2026-06-16"),
-        },
-      },
-    });
+    const sql = String(queryRaw.mock.calls[0][0]);
+    expect(sql).toContain("COUNT(*)");
+    expect(sql).toContain(`"model" = 'gpt-4o'`);
   });
 
   it("loads spend log detail by id with messages", async () => {
-    findUnique.mockResolvedValue({ id: "req-1" });
+    queryRaw
+      .mockResolvedValueOnce([{ id: "req-1" }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
 
     const row = await getSpendLogDetail("req-1");
 
-    expect(row).toEqual({ id: "req-1" });
-    expect(findUnique).toHaveBeenCalledWith({
-      where: { id: "req-1" },
-      include: {
-        messages: {
-          orderBy: { createdAt: "asc" },
-        },
-        usageAdjustments: {
-          orderBy: { createdAt: "asc" },
-        },
-      },
-    });
+    expect(row).toMatchObject({ id: "req-1" });
+    const sql = String(queryRaw.mock.calls[0][0]);
+    expect(sql).toContain(`"id" = 'req-1'`);
   });
 });

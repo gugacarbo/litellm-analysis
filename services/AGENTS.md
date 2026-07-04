@@ -11,10 +11,10 @@ Backend service-layer packages — each owns a single business concern (data acc
 
 ```
 services/
-├── analytics-service/              # 46-method AnalyticsDataSource, Prisma raw SQL
+├── analytics-service/              # 46-method AnalyticsDataSource, Drizzle raw SQL
 │   └── src/
 │       ├── data-source/            # ModelProxyDataSource implements AnalyticsDataSource
-│       ├── queries/proxy/          # Prisma $queryRawUnsafe queries
+│       ├── queries/proxy/          # Drizzle queryRaw queries
 │       └── types/                  # Request/response/domain types
 ├── llm-gateway/            # Local OpenAI-compatible proxy
 │   └── src/

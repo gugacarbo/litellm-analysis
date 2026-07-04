@@ -44,7 +44,7 @@ packages/agents-manager/src/
 ```
 model_proxy_settings (PostgreSQL — single source of truth)
         ↓
-agents-repository (via Prisma/Drizzle)
+agents-repository (via Drizzle)
         ↓
 RepositoryClient → Services (agent/category/routing)
         ↓

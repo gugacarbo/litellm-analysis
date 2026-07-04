@@ -11,7 +11,7 @@ import type { ModelDetail, ModelEntry, RegistryProvider } from "../types/index";
 const DEFAULT_PROVIDER_KEY = "default_provider";
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
 
-function prismaModelToRoute(row: typeof modelProxyModels.$inferSelect) {
+function dbModelToRoute(row: typeof modelProxyModels.$inferSelect) {
   return fromModelProxyRow({
     id: row.id,
     modelName: row.modelName,
@@ -40,7 +40,7 @@ function prismaModelToRoute(row: typeof modelProxyModels.$inferSelect) {
   });
 }
 
-function routeToCreateData(route: ReturnType<typeof prismaModelToRoute>) {
+function routeToCreateData(route: ReturnType<typeof dbModelToRoute>) {
   return {
     modelName: route.modelName,
     enabled: route.enabled ?? true,
@@ -75,7 +75,7 @@ export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
     .orderBy(asc(modelProxyModels.modelName));
   return rows.map((row) => ({
     modelName: row.modelName,
-    modelRoute: prismaModelToRoute(row) as unknown as Record<string, unknown>,
+    modelRoute: dbModelToRoute(row) as unknown as Record<string, unknown>,
   }));
 }
 
@@ -97,9 +97,9 @@ export async function createRegistryModelImpl(model: {
   modelName: string;
   modelRoute?: Record<string, unknown>;
 }): Promise<void> {
-  const route: ReturnType<typeof prismaModelToRoute> = model.modelRoute
+  const route: ReturnType<typeof dbModelToRoute> = model.modelRoute
     ? ({ modelName: model.modelName, ...model.modelRoute } as ReturnType<
-        typeof prismaModelToRoute
+        typeof dbModelToRoute
       >)
     : toModelRoute({}, model.modelName);
   await db.insert(modelProxyModels).values(routeToCreateData(route));
@@ -117,7 +117,7 @@ export async function updateRegistryModelImpl(
     ? ({
         modelName: targetName,
         ...updates.modelRoute,
-      } as ReturnType<typeof prismaModelToRoute>)
+      } as ReturnType<typeof dbModelToRoute>)
     : null;
 
   if (targetName !== modelName) {
@@ -129,7 +129,7 @@ export async function updateRegistryModelImpl(
     if (!existing) {
       throw new Error(`Model "${modelName}" not found`);
     }
-    const existingRoute = prismaModelToRoute(existing);
+    const existingRoute = dbModelToRoute(existing);
     const mergedRoute = route ?? existingRoute;
     await db
       .delete(modelProxyModels)

@@ -50,7 +50,7 @@ describe("presentProxyRequestLog", () => {
     ],
   };
 
-  it("maps prisma row and messages to ProxyRequestLog", () => {
+  it("maps db row and messages to ProxyRequestLog", () => {
     const log = presentProxyRequestLog(baseRow);
 
     expect(log).toMatchObject({

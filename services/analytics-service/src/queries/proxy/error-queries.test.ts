@@ -1,27 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const queryRawUnsafe = vi.fn();
+const queryRaw = vi.fn();
 
-vi.mock("./client", () => ({
-  getModelProxyPrisma: () => ({
-    $queryRawUnsafe: queryRawUnsafe,
-  }),
+vi.mock("@lite-llm/database/client", () => ({
+  queryRaw,
 }));
 
 import { getErrorLogs } from "./error-queries";
 
 describe("proxy error-queries", () => {
   beforeEach(() => {
-    queryRawUnsafe.mockReset();
+    queryRaw.mockReset();
   });
 
   it("queries failed and timeout requests without ErrorLogs join", async () => {
-    queryRawUnsafe.mockResolvedValue([]);
+    queryRaw.mockResolvedValue([]);
 
     await getErrorLogs(25, 7);
 
-    expect(queryRawUnsafe).toHaveBeenCalledOnce();
-    const sql = String(queryRawUnsafe.mock.calls[0][0]);
+    expect(queryRaw).toHaveBeenCalledOnce();
+    const sql = String(queryRaw.mock.calls[0][0]);
     expect(sql).toContain("model_proxy_requests");
     expect(sql).toContain(`"status" IN ('failed', 'timeout')`);
     expect(sql).not.toContain("LiteLLM_ErrorLogs");

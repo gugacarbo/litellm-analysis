@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const queryRawUnsafe = vi.fn();
+const queryRaw = vi.fn();
 
-vi.mock("./client", () => ({
-  getModelProxyPrisma: () => ({
-    $queryRawUnsafe: queryRawUnsafe,
-  }),
+vi.mock("@lite-llm/database/client", () => ({
+  queryRaw,
 }));
 
 vi.mock("./time-buckets", () => ({
@@ -25,11 +23,11 @@ import {
 
 describe("proxy trend-queries", () => {
   beforeEach(() => {
-    queryRawUnsafe.mockReset();
+    queryRaw.mockReset();
   });
 
   it("aggregates daily spend trend from total_cost", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       { date: "2026-06-01", spend: 1.5, granularity: "1d" },
     ]);
 
@@ -38,12 +36,12 @@ describe("proxy trend-queries", () => {
     expect(result).toEqual([
       { date: "2026-06-01", spend: 1.5, granularity: "1d" },
     ]);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("total_cost")');
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('"started_at"');
+    expect(queryRaw.mock.calls[0][0]).toContain('SUM("total_cost")');
+    expect(queryRaw.mock.calls[0][0]).toContain('"started_at"');
   });
 
   it("aggregates daily token trend from input/output tokens", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       {
         date: "2026-06-01",
         prompt_tokens: 100,
@@ -57,12 +55,12 @@ describe("proxy trend-queries", () => {
     const result = await getDailyTokenTrend({ days: 7 });
 
     expect(result[0]?.prompt_tokens).toBe(100);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("input_tokens")');
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain('SUM("output_tokens")');
+    expect(queryRaw.mock.calls[0][0]).toContain('SUM("input_tokens")');
+    expect(queryRaw.mock.calls[0][0]).toContain('SUM("output_tokens")');
   });
 
   it("aggregates hourly spend trend", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       {
         timestamp: "2026-06-16 10:00",
         hour: 10,
@@ -75,11 +73,11 @@ describe("proxy trend-queries", () => {
     const result = await getHourlySpendTrend(1);
 
     expect(result[0]?.spend).toBe(2);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain("date_trunc('hour'");
+    expect(queryRaw.mock.calls[0][0]).toContain("date_trunc('hour'");
   });
 
   it("aggregates hourly usage patterns by hour of day", async () => {
-    queryRawUnsafe.mockResolvedValueOnce([
+    queryRaw.mockResolvedValueOnce([
       {
         hour: 14,
         request_count: 5,
@@ -91,7 +89,7 @@ describe("proxy trend-queries", () => {
     const result = await getHourlyUsagePatterns({ days: 30 });
 
     expect(result[0]?.hour).toBe(14);
-    expect(queryRawUnsafe.mock.calls[0][0]).toContain(
+    expect(queryRaw.mock.calls[0][0]).toContain(
       'EXTRACT(HOUR FROM "started_at")',
     );
   });

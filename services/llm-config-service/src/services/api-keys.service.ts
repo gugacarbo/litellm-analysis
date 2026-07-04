@@ -10,7 +10,7 @@ import type {
 } from "../types/api-keys.js";
 
 export interface ApiKeysServiceOptions {
-  prisma?: DatabaseClient;
+  db?: DatabaseClient;
   repository?: ApiKeysRepository;
   hashKey?: (plainKey: string) => Promise<string>;
   verifyKey?: (hash: string, plainKey: string) => Promise<boolean>;
@@ -55,9 +55,9 @@ export class ApiKeysService implements IApiKeysService {
     this.repository =
       options.repository ??
       new ApiKeysRepository(
-        options.prisma ??
+        options.db ??
           (() => {
-            throw new Error("ApiKeysService requires prisma or repository");
+            throw new Error("ApiKeysService requires db or repository");
           })(),
       );
     this.hashKey = options.hashKey ?? defaultHashKey;

@@ -68,7 +68,7 @@ type ProviderRow = {
   updatedAt: Date;
 };
 
-function createInMemoryPrisma() {
+function createInMemoryDb() {
   const settings = new Map<string, SettingRow>();
   const models = new Map<string, ModelRow>();
   const providers = new Map<string, ProviderRow>();
@@ -463,12 +463,12 @@ export interface RegistryTestStack {
 }
 
 export function createRegistryTestStack(): RegistryTestStack {
-  const prisma = createInMemoryPrisma() as never;
-  const settingsService = new SettingsService({ prisma });
-  const registryModelsService = new RegistryModelsService({ prisma });
-  const providersService = new ProvidersService({ prisma });
+  const db = createInMemoryDb() as never;
+  const settingsService = new SettingsService({ db });
+  const registryModelsService = new RegistryModelsService({ db });
+  const providersService = new ProvidersService({ db });
   const apiKeysService = new ApiKeysService({
-    prisma,
+    db,
     hashKey: async (plain) => `hash:${plain}`,
     verifyKey: async (hash, plain) => hash === `hash:${plain}`,
     generateKey: () => "mp_test_generated_key",

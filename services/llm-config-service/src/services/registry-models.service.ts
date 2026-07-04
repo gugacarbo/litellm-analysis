@@ -11,7 +11,7 @@ import type {
 } from "../types/model-route.js";
 
 export interface RegistryModelsServiceOptions {
-  prisma?: DatabaseClient;
+  db?: DatabaseClient;
   repository?: ModelsRepository;
 }
 
@@ -44,10 +44,10 @@ export class RegistryModelsService implements IRegistryModelsService {
     this.repository =
       options.repository ??
       new ModelsRepository(
-        options.prisma ??
+        options.db ??
           (() => {
             throw new Error(
-              "RegistryModelsService requires prisma or repository",
+              "RegistryModelsService requires db or repository",
             );
           })(),
       );

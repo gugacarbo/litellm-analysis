@@ -1,11 +1,11 @@
 import { type DatabaseClient, getDb } from "@lite-llm/database/client";
 
 export interface RegistryClientOptions {
-  prisma?: DatabaseClient;
+  db?: DatabaseClient;
 }
 
-export function getRegistryPrisma(
+export function getRegistryDb(
   options: RegistryClientOptions = {},
 ): DatabaseClient {
-  return options.prisma ?? getDb();
+  return options.db ?? getDb();
 }
