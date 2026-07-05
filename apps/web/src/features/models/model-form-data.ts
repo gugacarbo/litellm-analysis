@@ -11,12 +11,10 @@ export type ModelFormData = {
 };
 
 export const FIXED_KEYS = [
-  "api_base",
   "input_cost_per_token",
   "output_cost_per_token",
   "context_window_size",
   "max_tokens",
-  "provider_name",
   "enabled",
 ];
 

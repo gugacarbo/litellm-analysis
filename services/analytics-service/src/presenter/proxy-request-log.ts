@@ -14,7 +14,7 @@ import {
   sumUsageAdjustments,
 } from "./usage-adjustments";
 
-type RequestWithMessages = ModelProxyRequest & {
+export type RequestWithMessages = ModelProxyRequest & {
   messages: ModelProxyMessage[];
   usageAdjustments?: ModelProxyUsageAdjustment[];
 };

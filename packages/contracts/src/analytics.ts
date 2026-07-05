@@ -52,7 +52,6 @@ export interface SpendLog {
   completion_start_time?: string;
   model_id?: string;
   model_group?: string;
-  custom_llm_provider?: string;
   api_base?: string;
   cache_hit?: string;
   cache_key?: string;

@@ -86,7 +86,7 @@ function readCachedTokens(raw: RawSpendLogRecord): number | null {
   return null;
 }
 
-/** Maps API payload (proxy or legacy LiteLLM) to native ProxyRequestLog. */
+/** Maps API payload to native ProxyRequestLog. */
 export function normalizeProxyRequestLog(
   raw: RawSpendLogRecord,
 ): ProxyRequestLog {
@@ -103,9 +103,9 @@ export function normalizeProxyRequestLog(
     id: readString(raw.id ?? raw.request_id),
     model: readString(raw.model),
     upstream_model: readString(
-      raw.upstream_model ?? raw.litellm_model_name ?? raw.model,
+      raw.upstream_model ?? raw.model,
     ),
-    upstream_base_url: readString(raw.upstream_base_url ?? raw.api_base),
+    upstream_base_url: readString(raw.upstream_base_url),
     status: readString(raw.status),
     started_at: readString(raw.started_at ?? raw.start_time),
     finished_at:

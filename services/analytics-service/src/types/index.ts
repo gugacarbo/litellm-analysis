@@ -28,9 +28,6 @@ export type TimeRangeParams = {
   endDate?: string;
 };
 
-/** @deprecated Use TimeRangeParams instead */
-export type LegacyTimeRangeParams = number | undefined;
-
 export interface AnalyticsDataSource {
   getMetricsSummary(params?: TimeRangeParams): Promise<MetricsSummary>;
   getDailySpendTrend(params?: TimeRangeParams): Promise<DailySpendTrend[]>;

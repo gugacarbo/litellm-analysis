@@ -19,13 +19,13 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
-import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
+import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import { ModelAliasesEditor } from "./model-aliases-editor";
 
 interface ModelConfigFormProps {
   modelName: string;
   formData: ModelConfigFormData;
-  providers: LiteLLMProvider[];
+  providers: RegistryProvider[];
   onFormDataChange: (next: ModelConfigFormData) => void;
   onAddExtraParam: () => void;
   onRemoveExtraParam: (key: string) => void;
@@ -383,7 +383,7 @@ function ReasoningSettingsSection({
 
 interface DatabaseSettingsSectionProps {
   formData: ModelConfigFormData;
-  providers: LiteLLMProvider[];
+  providers: RegistryProvider[];
   onFormDataChange: (next: ModelConfigFormData) => void;
   onAddExtraParam: () => void;
   onRemoveExtraParam: (key: string) => void;

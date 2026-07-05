@@ -35,21 +35,18 @@ export type OpenAiOAuthDeviceCodePollResult =
       connection: OpenAiOAuthConnectionStatus;
     };
 
-/** @deprecated Use RegistryProvider */
-export type LiteLLMProvider = RegistryProvider;
-
 export type ProviderInput = {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
-  apiKey: string;
+  secretRef: string;
 };
 
 export type ProviderUpdateInput = {
   name?: string;
   provider?: string | null;
   baseUrl?: string | null;
-  apiKey?: string;
+  secretRef?: string;
 };
 
 export async function getProvider(

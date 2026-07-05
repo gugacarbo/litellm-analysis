@@ -1,13 +1,13 @@
 import { createContext, useContext } from "react";
 import type { ModelWithStatus } from "@/shared/lib/api-client/models";
-import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
+import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 
 export interface ModelDetailContextValue {
   model: ModelWithStatus | null;
   loading: boolean;
   error: string | null;
   notFound: boolean;
-  providers: LiteLLMProvider[];
+  providers: RegistryProvider[];
 }
 
 export const ModelDetailContext = createContext<ModelDetailContextValue>({

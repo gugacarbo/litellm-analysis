@@ -57,8 +57,6 @@ type ModelsWithConfigCounts = {
   configOnly: number;
   registryOnly: number;
   total: number;
-  /** @deprecated Use `registryOnly`. */
-  litellmOnly?: number;
 };
 
 export type SettingsStorage = "file" | "database";
@@ -70,9 +68,6 @@ export type ModelsWithConfigResponse = {
 };
 
 export type SyncDirection = "config-to-registry" | "registry-to-config";
-
-/** @deprecated Use `config-to-registry` / `registry-to-config`. */
-type LegacySyncDirection = "config-to-litellm" | "litellm-to-config";
 
 export type SyncField =
   | "model_presence"
@@ -88,21 +83,18 @@ export type ModelSyncDiffItem = {
   configValue: unknown;
   registryValue: unknown;
   defaultDirection: SyncDirection;
-  /** @deprecated Use `registryValue`. */
-  litellmValue?: unknown;
 };
 
 export type ModelSyncSelection = {
   modelName: string;
   field: SyncField;
-  direction: SyncDirection | LegacySyncDirection;
+  direction: SyncDirection;
 };
 
 export type ModelProviderConfig = {
   name: string;
   ownedBy: string;
   baseUrl: string;
-  apiKey: string;
   defaultProvider: string;
 };
 
@@ -141,25 +133,6 @@ function readInt(value: unknown): number | undefined {
     return undefined;
   }
   return Number.isInteger(num) ? num : Math.trunc(num);
-}
-
-/** Map legacy presence labels to Batch 3 names. */
-function normalizeSyncPresenceStatus(status: string): ModelSyncPresenceStatus {
-  if (status === "litellm-only") {
-    return "registry-only";
-  }
-  return status as ModelSyncPresenceStatus;
-}
-
-/** Map legacy sync direction labels to Batch 3 names. */
-function normalizeSyncDirection(direction: string): SyncDirection {
-  if (direction === "config-to-litellm") {
-    return "config-to-registry";
-  }
-  if (direction === "litellm-to-config") {
-    return "registry-to-config";
-  }
-  return direction as SyncDirection;
 }
 
 /** Resolve `modelRoute` from a model config. */
@@ -221,22 +194,18 @@ function normalizeModelWithStatus(
   const base = normalizeModelConfig(raw);
   return {
     ...base,
-    status: normalizeSyncPresenceStatus(String(raw.status ?? "synced")),
+    status: String(raw.status ?? "synced") as ModelSyncPresenceStatus,
   };
 }
 
 function normalizeModelsCounts(
   raw: Record<string, unknown>,
 ): ModelsWithConfigCounts {
-  const registryOnly =
-    readInt(raw.registryOnly) ?? readInt(raw.litellmOnly) ?? 0;
-
   return {
     synced: readInt(raw.synced) ?? 0,
     configOnly: readInt(raw.configOnly) ?? 0,
-    registryOnly,
+    registryOnly: readInt(raw.registryOnly) ?? 0,
     total: readInt(raw.total) ?? 0,
-    litellmOnly: registryOnly,
   };
 }
 
@@ -261,18 +230,14 @@ function normalizeModelsWithConfigResponse(
 function normalizeModelSyncDiffItem(
   raw: Record<string, unknown>,
 ): ModelSyncDiffItem {
-  const registryValue =
-    "registryValue" in raw ? raw.registryValue : raw.litellmValue;
-
   return {
     modelName: String(raw.modelName ?? ""),
     field: raw.field as SyncField,
     configValue: raw.configValue,
-    registryValue,
-    litellmValue: registryValue,
-    defaultDirection: normalizeSyncDirection(
-      String(raw.defaultDirection ?? "config-to-registry"),
-    ),
+    registryValue: raw.registryValue,
+    defaultDirection: String(
+      raw.defaultDirection ?? "config-to-registry",
+    ) as SyncDirection,
   };
 }
 
@@ -357,10 +322,7 @@ export async function syncModelsBatch(
   return fetchApi("/models/sync-batch", {
     method: "POST",
     body: JSON.stringify({
-      selections: selections.map((selection) => ({
-        ...selection,
-        direction: normalizeSyncDirection(selection.direction),
-      })),
+      selections,
     }),
   });
 }

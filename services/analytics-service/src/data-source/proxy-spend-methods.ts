@@ -1,3 +1,4 @@
+import type { RequestWithMessages } from "../presenter/proxy-request-log";
 import {
   presentProxyRequestLog,
   presentProxyRequestLogListItem,
@@ -52,7 +53,9 @@ export async function getProxySpendLogsImpl(
     getSpendLogsCountFn(filters),
   ]);
 
-  const logs = rows.map((row) => presentProxyRequestLogListItem(row as any));
+  const logs = rows.map((row) =>
+    presentProxyRequestLogListItem(row as RequestWithMessages),
+  );
 
   return {
     logs,
@@ -73,7 +76,9 @@ export async function getProxySpendLogDetailImpl(
     throw new Error(`Spend log not found: ${requestId}`);
   }
 
-  return presentProxyRequestLog(row as any, { includeDetailFields: true });
+  return presentProxyRequestLog(row as RequestWithMessages, {
+    includeDetailFields: true,
+  });
 }
 
 export async function getProxySpendTotalsImpl(

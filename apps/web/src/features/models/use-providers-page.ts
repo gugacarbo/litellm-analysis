@@ -251,7 +251,7 @@ export function useProvidersPage() {
     name: "",
     provider: null,
     baseUrl: null,
-    apiKey: "",
+    secretRef: "",
   });
   const [providerFormError, setProviderFormError] = useState<string | null>(
     null,
@@ -349,7 +349,7 @@ export function useProvidersPage() {
       name: "",
       provider: null,
       baseUrl: null,
-      apiKey: "",
+      secretRef: "",
     });
     setProviderFormError(null);
     setProviderFormOpen(true);
@@ -361,7 +361,7 @@ export function useProvidersPage() {
       name: provider.providerName,
       provider: provider.provider,
       baseUrl: provider.baseUrl,
-      apiKey: "",
+      secretRef: "",
     });
     setProviderFormError(null);
     setProviderFormOpen(true);
@@ -379,8 +379,8 @@ export function useProvidersPage() {
               : {}),
             provider: providerFormData.provider,
             baseUrl: providerFormData.baseUrl,
-            ...(providerFormData.apiKey
-              ? { apiKey: providerFormData.apiKey }
+            ...(providerFormData.secretRef
+              ? { secretRef: providerFormData.secretRef }
               : {}),
           },
         });

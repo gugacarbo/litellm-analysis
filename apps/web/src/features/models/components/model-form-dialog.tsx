@@ -21,7 +21,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import type { ModelConfig } from "@/shared/lib/api-client/models";
-import type { LiteLLMProvider } from "@/shared/lib/api-client/providers";
+import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 
 type ModelFormDialogProps = {
   open: boolean;
@@ -36,7 +36,7 @@ type ModelFormDialogProps = {
   onRemoveExtraParam: (key: string) => void;
   onUpdateExtraParam: (key: string, value: string) => void;
   onSubmit: () => void;
-  providers: LiteLLMProvider[];
+  providers: RegistryProvider[];
   defaultProvider: string | null;
 };
 

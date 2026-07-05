@@ -182,6 +182,7 @@ export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
     providerName: record.name,
     providerValues: null,
     providerInfo: {
+      // DB-level backward compat: apiKey column still exists alongside secretRef
       hasStoredSecret: Boolean(
         record.apiKey?.trim() || record.secretRef?.trim(),
       ),

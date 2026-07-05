@@ -293,24 +293,24 @@ export function ProvidersPage() {
                 />
               </div>
               <div className="grid gap-1">
-                <Label htmlFor="cred-apikey" className="text-xs font-medium">
-                  API Key
+                <Label htmlFor="cred-secretref" className="text-xs font-medium">
+                  Secret Ref (env var name)
                 </Label>
                 <Input
-                  id="cred-apikey"
+                  id="cred-secretref"
                   type="password"
                   autoComplete="new-password"
-                  value={providerFormData.apiKey}
+                  value={providerFormData.secretRef}
                   onChange={(e) => {
                     setProviderFormData({
                       ...providerFormData,
-                      apiKey: e.target.value,
+                      secretRef: e.target.value,
                     });
                   }}
                   placeholder={
                     editingProvider
                       ? "Leave blank to keep the stored key"
-                      : "Paste provider API key"
+                      : "e.g. OPENAI_API_KEY"
                   }
                   className="h-8 text-sm font-mono"
                 />
@@ -337,7 +337,7 @@ export function ProvidersPage() {
                 disabled={
                   providerFormLoading ||
                   !providerFormData.name ||
-                  (!editingProvider && !providerFormData.apiKey)
+                  (!editingProvider && !providerFormData.secretRef)
                 }
               >
                 {providerFormLoading
