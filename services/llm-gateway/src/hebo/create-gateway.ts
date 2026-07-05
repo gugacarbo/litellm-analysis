@@ -1,6 +1,6 @@
 import { gateway } from "@hebo-ai/gateway";
 import type { IOpenAiOAuthService } from "@lite-llm/llm-config-service";
-import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import type { IProviderService } from "@lite-llm/models-service";
 import { RequestLedger } from "../logging/request-ledger";
 import { buildHeboGatewayConfig } from "./build-config";
 import { createLedgerHooks, HEBO_MAX_BODY_SIZE } from "./ledger-hooks";
@@ -13,7 +13,6 @@ export interface HeboModelProxyGateway {
 }
 
 export interface HeboModelProxyGatewayOptions {
-  modelsService: IModelService;
   providerService: IProviderService;
   openAiOAuthService: IOpenAiOAuthService;
 }
@@ -27,14 +26,12 @@ async function createGatewayInstance(
   ledger: RequestLedger,
 ): Promise<GatewayInstance> {
   const build = await buildHeboGatewayConfig({
-    modelsService: options.modelsService,
     providerService: options.providerService,
   });
 
   const ledgerHooks = createLedgerHooks({
     build,
     ledger,
-    modelsService: options.modelsService,
     providerService: options.providerService,
     openAiOAuthService: options.openAiOAuthService,
   });

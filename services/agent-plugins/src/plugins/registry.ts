@@ -159,7 +159,7 @@ export class PluginRegistry implements IPluginRegistry {
       const modelProxyProvider = modelsConfig.provider?.["local-proxy"];
       context.modelProxyConfig = {
         baseUrl: modelProxyProvider?.baseUrl ?? "",
-        apiKey: modelProxyProvider?.apiKey ?? "",
+        apiKey: "",
       };
     } catch {
       // Keep default empty models/provider context when models config isn't available.

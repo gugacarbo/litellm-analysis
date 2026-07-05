@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { resolveUpstreamTargetMock } = vi.hoisted(() => ({
+const { resolveUpstreamTargetMock, dbSelectMock } = vi.hoisted(() => ({
   resolveUpstreamTargetMock: vi.fn(),
+  dbSelectMock: vi.fn(),
 }));
 
 vi.mock("@ai-sdk/openai-compatible", () => ({
@@ -19,6 +20,12 @@ vi.mock("@hebo-ai/gateway", () => ({
       mapping: options.mapping,
     }),
   ),
+}));
+
+vi.mock("@lite-llm/database/client", () => ({
+  db: {
+    select: dbSelectMock,
+  },
 }));
 
 vi.mock("../resolver/upstream-provider", () => ({
@@ -80,9 +87,32 @@ function createServices() {
 describe("buildHeboGatewayConfig", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    dbSelectMock.mockReturnValue({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          orderBy: vi.fn(() =>
+            Promise.resolve([
+              { modelName: "gpt-4.1", providerName: "openai-main", isDefaultProvider: true },
+              { modelName: "gpt-4.1", providerName: "deepseek-main", isDefaultProvider: false },
+            ]),
+          ),
+        })),
+      })),
+    });
   });
 
   it("registers single-provider models under the bare name only", async () => {
+    dbSelectMock.mockReturnValue({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          orderBy: vi.fn(() =>
+            Promise.resolve([
+              { modelName: "gpt-4.1", providerName: "openai-main", isDefaultProvider: true },
+            ]),
+          ),
+        })),
+      })),
+    });
     resolveUpstreamTargetMock.mockResolvedValue(
       createTarget("openai-main/gpt-4.1"),
     );
@@ -115,9 +145,9 @@ describe("buildHeboGatewayConfig", () => {
     });
 
     expect(Object.keys(result.models)).toEqual([
-      "deepseek-main/gpt-4.1",
       "openai-main/gpt-4.1",
       "gpt-4.1",
+      "deepseek-main/gpt-4.1",
     ]);
     expect(result.targetsByModel.get("gpt-4.1")?.model).toBe(
       "openai-main/gpt-4.1",
@@ -131,6 +161,18 @@ describe("buildHeboGatewayConfig", () => {
   });
 
   it("warns and omits the bare alias when an ambiguous model has no default provider", async () => {
+    dbSelectMock.mockReturnValue({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          orderBy: vi.fn(() =>
+            Promise.resolve([
+              { modelName: "gpt-4.1", providerName: "deepseek-main", isDefaultProvider: false },
+              { modelName: "gpt-4.1", providerName: "openai-main", isDefaultProvider: false },
+            ]),
+          ),
+        })),
+      })),
+    });
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     resolveUpstreamTargetMock.mockImplementation(async ({ modelName }) =>
       createTarget(modelName),

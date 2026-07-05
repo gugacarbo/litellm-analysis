@@ -1,6 +1,76 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelProxyService } from "./service";
 
+const mockDbSelect = vi.fn();
+const mockDbInsert = vi.fn();
+const mockDbUpdate = vi.fn();
+
+vi.mock("@lite-llm/database/client", () => ({
+  db: {
+    select: mockDbSelect,
+    insert: mockDbInsert,
+    update: mockDbUpdate,
+  },
+}));
+
+function setupDbMock(overrides?: {
+  modelRows?: Array<Record<string, unknown>>;
+  providerRow?: Record<string, unknown> | null;
+}) {
+  const modelRows = overrides?.modelRows ?? [
+    {
+      modelName: "gpt-test",
+      enabled: true,
+      upstreamBaseUrl: "https://upstream.example.com/v1",
+      upstreamModel: null,
+      inputCostPerToken: null,
+      outputCostPerToken: null,
+      ownedBy: null,
+      family: null,
+      displayName: null,
+      providerName: "default",
+      secretRef: null,
+      isDefaultProvider: false,
+      updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+    },
+  ];
+  const providerRow = overrides?.providerRow ?? {
+    name: "default",
+    secretRef: "MODEL_PROXY_API_KEY",
+    baseUrl: "https://upstream.example.com/v1",
+  };
+
+  mockDbSelect.mockImplementation((fields?: unknown) => {
+    const chain: Record<string, unknown> = {
+      from: () => chain,
+      where: () => chain,
+      orderBy: () => {
+        if (fields && typeof fields === "object" && "modelName" in (fields as Record<string, unknown>)) {
+          return Promise.resolve(modelRows);
+        }
+        return chain;
+      },
+      limit: () => {
+        if (providerRow) {
+          return Promise.resolve([providerRow]);
+        }
+        return Promise.resolve([]);
+      },
+    };
+    return chain;
+  });
+
+  mockDbInsert.mockImplementation(() => ({
+    values: vi.fn(() => Promise.resolve()),
+  }));
+
+  mockDbUpdate.mockImplementation(() => ({
+    set: vi.fn(() => ({
+      where: vi.fn(() => Promise.resolve()),
+    })),
+  }));
+}
+
 function createProviderServiceMock() {
   return {
     getAll: vi.fn().mockResolvedValue({
@@ -20,92 +90,6 @@ function createProviderServiceMock() {
   };
 }
 
-function createModelServiceMock() {
-  return {
-    getAll: vi.fn().mockResolvedValue({
-      "gpt-test": {
-        enabled: true,
-        displayName: "GPT Test",
-        ownedBy: "openai",
-        family: "gpt",
-        limits: { length: 128000, maxOutput: 4096 },
-        cost: {
-          input: 0.000001,
-          output: 0.000002,
-        },
-      },
-    }),
-  };
-}
-
-function createDatabaseMock() {
-  let requestStatus = "started";
-  return {
-    modelProxyModel: {
-      findMany: vi.fn().mockResolvedValue([
-        {
-          modelName: "gpt-test",
-          enabled: true,
-          upstreamBaseUrl: "https://upstream.example.com/v1",
-          upstreamModel: null,
-          inputCostPerToken: null,
-          outputCostPerToken: null,
-          ownedBy: null,
-          family: null,
-          displayName: null,
-          providerName: "default",
-          secretRef: null,
-          isDefaultProvider: false,
-          updatedAt: new Date("2026-06-16T00:00:00.000Z"),
-        },
-      ]),
-      findFirst: vi.fn().mockResolvedValue(null),
-      findUnique: vi.fn().mockResolvedValue({
-        modelName: "gpt-test",
-        enabled: true,
-        upstreamBaseUrl: "https://upstream.example.com/v1",
-        upstreamModel: null,
-        inputCostPerToken: null,
-        outputCostPerToken: null,
-        ownedBy: null,
-        family: null,
-        displayName: null,
-        providerName: "default",
-        secretRef: null,
-        isDefaultProvider: false,
-        updatedAt: new Date("2026-06-16T00:00:00.000Z"),
-      }),
-    },
-    modelProxyProvider: {
-      findUnique: vi.fn().mockResolvedValue({
-        name: "default",
-        apiKey: "upstream-secret",
-        baseUrl: "https://upstream.example.com/v1",
-        secretRef: null,
-      }),
-    },
-    modelProxyRequest: {
-      create: vi.fn().mockResolvedValue({ id: "req_1" }),
-      findUnique: vi
-        .fn()
-        .mockImplementation(() =>
-          Promise.resolve({ id: "req_1", status: requestStatus }),
-        ),
-      update: vi
-        .fn()
-        .mockImplementation((args: { data: { status?: string } }) => {
-          if (args.data.status) {
-            requestStatus = args.data.status;
-          }
-          return Promise.resolve(undefined);
-        }),
-    },
-    modelProxyMessage: {
-      createMany: vi.fn().mockResolvedValue(undefined),
-    },
-  };
-}
-
 describe("ModelProxyService", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -115,10 +99,10 @@ describe("ModelProxyService", () => {
     vi.useRealTimers();
   });
 
-  it("lists fallback models when proxy registry is empty", async () => {
+  it("lists models from proxy registry", async () => {
+    setupDbMock();
     const service = new ModelProxyService({
       fetchFn: vi.fn() as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => new Date("2026-06-16T00:00:00.000Z"),
     });
@@ -132,7 +116,7 @@ describe("ModelProxyService", () => {
           id: "gpt-test",
           object: "model",
           created: 1781568000,
-          owned_by: "openai",
+          owned_by: "local-proxy",
         },
       ],
     });
@@ -165,7 +149,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: (() => {
         const times = [
@@ -222,7 +205,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: (() => {
         const times = [
@@ -301,7 +283,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: (() => {
         const times = [
@@ -373,7 +354,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => times.shift() ?? new Date("2026-06-16T00:00:00.200Z"),
     });
@@ -414,7 +394,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => new Date("2026-06-16T00:00:00.000Z"),
     });
@@ -449,7 +428,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => new Date("2026-06-16T00:00:00.000Z"),
     });
@@ -489,7 +467,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => new Date("2026-06-16T00:00:00.000Z"),
     });
@@ -535,7 +512,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => new Date("2026-06-16T00:00:00.000Z"),
     });
@@ -592,7 +568,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => new Date("2026-06-16T00:00:00.000Z"),
     });
@@ -631,7 +606,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => new Date("2026-06-16T00:00:00.000Z"),
     });
@@ -684,7 +658,6 @@ describe("ModelProxyService", () => {
 
     const service = new ModelProxyService({
       fetchFn: fetchFn as never,
-      modelsService: createModelServiceMock() as never,
       providerService: createProviderServiceMock() as never,
       now: () => new Date("2026-06-16T00:00:00.000Z"),
     });

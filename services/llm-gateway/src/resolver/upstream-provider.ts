@@ -8,7 +8,7 @@ import {
   OPENAI_CHATGPT_API_BASE,
   resolveProviderSecret,
 } from "@lite-llm/llm-config-service";
-import type { ModelSpec, Provider } from "@lite-llm/models-repository";
+import type { Provider } from "@lite-llm/models-repository";
 import { and, eq } from "drizzle-orm";
 
 export const CHATGPT_SUBSCRIPTION_PROVIDER = "chatgpt-subscription";
@@ -48,31 +48,13 @@ function readSecretRef(secretRef?: string | null): string | undefined {
   return envValue?.trim() ? envValue.trim() : undefined;
 }
 
-function readProviderApiKey(provider?: Provider): string | undefined {
-  const apiKey = provider?.apiKey?.trim();
-  if (!apiKey) {
-    return undefined;
-  }
-
-  if (apiKey.startsWith("env:")) {
-    const envName = apiKey.slice(4).trim();
-    const envValue = process.env[envName];
-    return envValue?.trim() ? envValue.trim() : undefined;
-  }
-
-  return apiKey;
-}
-
 export function findUpstreamProvider(
   providers: Record<string, Provider>,
-  modelSpec?: ModelSpec,
   row?: ModelProxyModel | null,
 ): Provider | undefined {
   const candidateKeys = [
     row?.ownedBy,
     row?.family ?? undefined,
-    modelSpec?.ownedBy,
-    modelSpec?.family,
   ].filter((value): value is string => !!value?.trim());
 
   for (const key of candidateKeys) {
@@ -119,10 +101,9 @@ export function parseProviderModel(rawModel: string): {
 export async function resolveUpstreamTarget(params: {
   modelName: string;
   providers: Record<string, Provider>;
-  fallbackModels: Record<string, ModelSpec>;
   row?: ModelProxyModel | null;
 }): Promise<ResolvedUpstreamTarget> {
-  const { modelName, providers, fallbackModels, row } = params;
+  const { modelName, providers, row } = params;
   const { providerPrefix, bareModelName } = parseProviderModel(modelName);
 
   let resolvedRow: ModelProxyModel | null = row ?? null;
@@ -168,24 +149,18 @@ export async function resolveUpstreamTarget(params: {
     }
   }
 
-  const fallbackSpec = fallbackModels[bareModelName];
-
-  if (!resolvedRow && !fallbackSpec) {
+  if (!resolvedRow) {
     throw new Error(`Model "${modelName}" not found`);
   }
 
-  if (resolvedRow?.enabled === false) {
+  if (resolvedRow.enabled === false) {
     throw new Error(`Model "${modelName}" is disabled`);
   }
 
-  const upstreamProvider = findUpstreamProvider(
-    providers,
-    fallbackSpec,
-    resolvedRow,
-  );
+  const upstreamProvider = findUpstreamProvider(providers, resolvedRow);
 
   const providerName =
-    resolvedRow?.providerName?.trim() ||
+    resolvedRow.providerName?.trim() ||
     upstreamProvider?.defaultProvider?.trim() ||
     undefined;
 
@@ -198,7 +173,7 @@ export async function resolveUpstreamTarget(params: {
     : [null];
 
   const upstreamBaseUrl =
-    resolvedRow?.upstreamBaseUrl?.trim() ||
+    resolvedRow.upstreamBaseUrl?.trim() ||
     upstreamProvider?.baseUrl?.trim() ||
     provider?.baseUrl?.trim();
 
@@ -206,14 +181,13 @@ export async function resolveUpstreamTarget(params: {
     throw new Error(`No upstream base URL configured for model "${modelName}"`);
   }
 
-  const envSecret = readSecretRef(resolvedRow?.secretRef);
+  const envSecret = readSecretRef(resolvedRow.secretRef);
   const isChatGptSubscription =
     upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
 
   const upstreamApiKey =
     envSecret ||
-    (provider ? resolveProviderSecret(provider) : undefined) ||
-    readProviderApiKey(upstreamProvider);
+    (provider ? resolveProviderSecret(provider) : undefined);
 
   if (!isChatGptSubscription && !upstreamApiKey) {
     throw new Error(`No upstream API key configured for model "${modelName}"`);
@@ -222,22 +196,18 @@ export async function resolveUpstreamTarget(params: {
   return {
     authMode: isChatGptSubscription ? "openai-chatgpt-oauth" : "bearer",
     model: modelName,
-    upstreamModel: resolvedRow?.upstreamModel?.trim() || bareModelName,
+    upstreamModel: resolvedRow.upstreamModel?.trim() || bareModelName,
     upstreamBaseUrl: normalizeBaseUrl(upstreamBaseUrl),
     upstreamHeaders: isChatGptSubscription
       ? {}
       : {
           authorization: `Bearer ${upstreamApiKey}`,
         },
-    ownedBy:
-      resolvedRow?.ownedBy ??
-      fallbackSpec?.ownedBy ??
-      fallbackSpec?.family ??
-      "local-proxy",
-    displayName: resolvedRow?.displayName ?? fallbackSpec?.displayName,
+    ownedBy: resolvedRow.ownedBy ?? resolvedRow.family ?? "local-proxy",
+    displayName: resolvedRow.displayName ?? undefined,
     cost: {
-      input: resolvedRow?.inputCostPerToken ?? fallbackSpec?.cost?.input,
-      output: resolvedRow?.outputCostPerToken ?? fallbackSpec?.cost?.output,
+      input: resolvedRow.inputCostPerToken ?? undefined,
+      output: resolvedRow.outputCostPerToken ?? undefined,
     },
   };
 }

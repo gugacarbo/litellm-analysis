@@ -321,7 +321,7 @@ describe("PluginRegistry", () => {
 
       expect(Object.keys(ctx.allModels)).toEqual(["gpt-5"]);
       expect(ctx.modelProxyConfig.baseUrl).toBe("http://localhost:4000/v1");
-      expect(ctx.modelProxyConfig.apiKey).toBe("sk-test");
+      expect(ctx.modelProxyConfig.apiKey).toBe("");
     });
   });
 });

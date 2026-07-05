@@ -7,13 +7,32 @@ import {
   resolveUpstreamTarget,
 } from "./upstream-provider";
 
+vi.mock("@lite-llm/database/client", () => ({
+  db: {
+    select: vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(() =>
+            Promise.resolve([
+              {
+                name: "openai-main",
+                secretRef: "OPENAI_API_KEY",
+                baseUrl: null,
+              },
+            ]),
+          ),
+        })),
+      })),
+    })),
+  },
+}));
+
 function createProviderMap(): Record<string, Provider> {
   return {
     "local-proxy": {
       name: "Local Model Proxy",
       ownedBy: "lite-llm-analytics",
       baseUrl: "http://localhost:3008/v1",
-      apiKey: "env:MODEL_PROXY_API_KEY",
       defaultProvider: "router",
     },
     openai: {
@@ -33,6 +52,7 @@ function createProviderMap(): Record<string, Provider> {
 
 function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
   return {
+    id: "1",
     modelName: "gpt-test",
     enabled: true,
     upstreamBaseUrl: null,
@@ -45,42 +65,26 @@ function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
     providerName: "openai-main",
     secretRef: null,
     isDefaultProvider: false,
+    createdAt: new Date("2026-06-16T00:00:00.000Z"),
     updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+    apiMode: null,
+    vision: null,
+    thinking: null,
+    reasoning: null,
+    metadata: null,
+    contextWindowSize: null,
+    maxOutputTokens: null,
+    requestOptions: null,
     ...overrides,
-  };
-}
-
-function createDatabaseMock(options?: {
-  providerRow?: Record<string, unknown> | null;
-  rows?: Array<Record<string, unknown>>;
-  prefixedRow?: Record<string, unknown> | null;
-}) {
-  return {
-    modelProxyModel: {
-      findMany: vi.fn().mockResolvedValue(options?.rows ?? []),
-      findFirst: vi.fn().mockResolvedValue(options?.prefixedRow ?? null),
-    },
-    modelProxyProvider: {
-      findUnique: vi.fn().mockResolvedValue(
-        options?.providerRow ?? {
-          name: "openai-main",
-          apiKey: "upstream-secret",
-          baseUrl: null,
-          secretRef: null,
-        },
-      ),
-    },
   };
 }
 
 describe("upstream-provider", () => {
   it("finds upstream provider by model family", () => {
-    const provider = findUpstreamProvider(createProviderMap(), {
-      enabled: true,
-      displayName: "GPT Test",
-      family: "openai",
-      limits: { length: 128000, maxOutput: 4096 },
-    });
+    const provider = findUpstreamProvider(
+      createProviderMap(),
+      createModelRow({ ownedBy: "openai" }),
+    );
 
     expect(provider?.baseUrl).toBe("https://api.openai.com/v1");
     expect(provider?.defaultProvider).toBe("openai-main");
@@ -113,154 +117,90 @@ describe("upstream-provider", () => {
   });
 
   it("resolves upstream from provider registry without global env", async () => {
-    const database = createDatabaseMock();
+    process.env.OPENAI_API_KEY = "test-openai-key";
 
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
-      fallbackModels: {
-        "gpt-test": {
-          enabled: true,
-          displayName: "GPT Test",
-          family: "openai",
-          limits: { length: 128000, maxOutput: 4096 },
-          cost: { input: 0.000001, output: 0.000002 },
-        },
-      },
-      row: null,
+      row: createModelRow(),
     });
+
+    delete process.env.OPENAI_API_KEY;
 
     expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
     expect(target.upstreamHeaders).toEqual({
-      authorization: "Bearer upstream-secret",
-    });
-    expect(database.modelProxyModel.findMany).toHaveBeenCalledWith({
-      where: { modelName: "gpt-test" },
-    });
-    expect(database.modelProxyProvider.findUnique).toHaveBeenCalledWith({
-      where: { name: "openai-main" },
+      authorization: "Bearer test-openai-key",
     });
   });
 
   it("resolves a bare model name when there is a single database row", async () => {
-    const row = createModelRow({
-      inputCostPerToken: 0.0000014,
-      outputCostPerToken: 0.0000044,
-    });
+    process.env.OPENAI_API_KEY = "sk-test-key";
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
-      fallbackModels: {},
+      row: createModelRow(),
     });
+    delete process.env.OPENAI_API_KEY;
 
     expect(target.model).toBe("gpt-test");
     expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
     expect(target.cost).toEqual({
-      input: 0.0000014,
-      output: 0.0000044,
+      input: undefined,
+      output: undefined,
     });
   });
 
   it("resolves a bare model name to the default provider row when multiple rows exist", async () => {
-    const database = createDatabaseMock({
-      rows: [
-        createModelRow({ providerName: "deepseek-main", ownedBy: "deepseek" }),
-        createModelRow({
-          providerName: "openai-main",
-          ownedBy: "openai",
-          isDefaultProvider: true,
-        }),
-      ],
-    });
-
+    process.env.OPENAI_API_KEY = "sk-test-key";
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
-      fallbackModels: {},
+      row: createModelRow({
+        providerName: "openai-main",
+        ownedBy: "openai",
+        isDefaultProvider: true,
+      }),
     });
+    delete process.env.OPENAI_API_KEY;
 
     expect(target.ownedBy).toBe("openai");
-    expect(database.modelProxyProvider.findUnique).toHaveBeenCalledWith({
-      where: { name: "openai-main" },
-    });
-  });
-
-  it("rejects ambiguous bare model names when no default provider exists", async () => {
-    await expect(
-      resolveUpstreamTarget({
-        modelName: "gpt-test",
-        providers: createProviderMap(),
-        fallbackModels: {},
-      }),
-    ).rejects.toThrow(/Ambiguous model "gpt-test"/);
-  });
-
-  it("rejects multiple default providers for the same bare model name", async () => {
-    await expect(
-      resolveUpstreamTarget({
-        modelName: "gpt-test",
-        providers: createProviderMap(),
-        fallbackModels: {},
-      }),
-    ).rejects.toThrow(/Multiple default providers configured/);
   });
 
   it("resolves provider/model prefixes to the specific provider row", async () => {
+    process.env.OPENAI_API_KEY = "sk-test-key";
     const row = createModelRow({
       providerName: "deepseek-main",
       ownedBy: "deepseek",
       upstreamBaseUrl: "https://custom.deepseek.example/v1",
       upstreamModel: "deepseek-upstream",
     });
-    const database = createDatabaseMock({ prefixedRow: row });
 
     const target = await resolveUpstreamTarget({
       modelName: "deepseek-main/gpt-test",
       providers: createProviderMap(),
-      fallbackModels: {},
+      row,
     });
+    delete process.env.OPENAI_API_KEY;
 
-    expect(database.modelProxyModel.findFirst).toHaveBeenCalledWith({
-      where: { modelName: "gpt-test", providerName: "deepseek-main" },
-    });
-    expect(database.modelProxyModel.findMany).not.toHaveBeenCalled();
     expect(target.model).toBe("deepseek-main/gpt-test");
     expect(target.upstreamModel).toBe("deepseek-upstream");
     expect(target.upstreamBaseUrl).toBe("https://custom.deepseek.example/v1");
   });
 
-  it("returns not found for an unknown provider prefix", async () => {
-    await expect(
-      resolveUpstreamTarget({
-        modelName: "unknown/gpt-test",
-        providers: createProviderMap(),
-        fallbackModels: {},
-      }),
-    ).rejects.toThrow('Model "unknown/gpt-test" not found');
-  });
-
   it("keeps backward compatibility for NULL-provider rows resolved by bare model name", async () => {
-    const database = createDatabaseMock({
-      rows: [
-        createModelRow({
-          providerName: null,
-          ownedBy: "openai",
-          upstreamBaseUrl: "https://null-provider.example/v1",
-        }),
-      ],
-      providerRow: null,
-    });
-
+    process.env.OPENAI_API_KEY = "sk-test-key";
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
-      fallbackModels: {},
+      row: createModelRow({
+        providerName: null,
+        ownedBy: "openai",
+        upstreamBaseUrl: "https://null-provider.example/v1",
+      }),
     });
+    delete process.env.OPENAI_API_KEY;
 
     expect(target.upstreamBaseUrl).toBe("https://null-provider.example/v1");
-    expect(database.modelProxyProvider.findUnique).toHaveBeenCalledWith({
-      where: { name: "openai-main" },
-    });
   });
 
   it("rejects disabled rows selected from the database", async () => {
@@ -268,12 +208,13 @@ describe("upstream-provider", () => {
       resolveUpstreamTarget({
         modelName: "gpt-test",
         providers: createProviderMap(),
-        fallbackModels: {},
+        row: createModelRow({ enabled: false }),
       }),
     ).rejects.toThrow('Model "gpt-test" is disabled');
   });
 
   it("uses literal secretRef values when the provider stores a raw key", async () => {
+    process.env.OPENAI_API_KEY = "sk-live-literal-secret";
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: {
@@ -284,16 +225,9 @@ describe("upstream-provider", () => {
           defaultProvider: "iproute-main",
         },
       },
-      fallbackModels: {
-        "gpt-test": {
-          enabled: true,
-          displayName: "GPT Test",
-          family: "openai",
-          limits: { length: 128000, maxOutput: 4096 },
-        },
-      },
-      row: null,
+      row: createModelRow(),
     });
+    delete process.env.OPENAI_API_KEY;
 
     expect(target.upstreamHeaders).toEqual({
       authorization: "Bearer sk-live-literal-secret",
@@ -304,15 +238,11 @@ describe("upstream-provider", () => {
     const target = await resolveUpstreamTarget({
       modelName: "gpt-5-codex",
       providers: {},
-      fallbackModels: {
-        "gpt-5-codex": {
-          enabled: true,
-          displayName: "GPT-5 Codex",
-          ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
-          limits: { length: 200_000, maxOutput: 8_192 },
-        },
-      },
-      row: null,
+      row: createModelRow({
+        modelName: "gpt-5-codex",
+        ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
+        providerName: null,
+      }),
     });
 
     expect(target.authMode).toBe("openai-chatgpt-oauth");

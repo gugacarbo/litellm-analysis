@@ -33,19 +33,10 @@ async function authorizeRequest(
     };
   }
 
-  const configured = process.env.MODEL_PROXY_API_KEY?.trim();
-  if (configured && token === configured) {
-    return { authorized: true, apiKeyAlias: "MODEL_PROXY_API_KEY" };
-  }
-
   return { authorized: false };
 }
 
 async function hasConfiguredAuth(opts: RouteOptions): Promise<boolean> {
-  if (process.env.MODEL_PROXY_API_KEY?.trim()) {
-    return true;
-  }
-
   const keys = await opts.registry.apiKeysService.list();
   return keys.some((key) => key.enabled);
 }

@@ -3,7 +3,7 @@ import type { GatewayHooks } from "@hebo-ai/gateway";
 import { db } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
 import type { IOpenAiOAuthService } from "@lite-llm/llm-config-service";
-import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import type { IProviderService } from "@lite-llm/models-service";
 import { eq } from "drizzle-orm";
 import { redactHeaders } from "../logging/payload-redactor";
 import {
@@ -56,7 +56,6 @@ async function resolveTargetForModel(
   modelName: string,
   build: HeboGatewayBuildResult,
   options: {
-    modelsService: IModelService;
     providerService: IProviderService;
   },
 ): Promise<ResolvedUpstreamTarget> {
@@ -71,12 +70,10 @@ async function resolveTargetForModel(
     .where(eq(modelProxyModels.modelName, modelName))
     .limit(1);
   const providers = await options.providerService.getAll();
-  const fallbackModels = await options.modelsService.getAll();
 
   return resolveUpstreamTarget({
     modelName,
     providers,
-    fallbackModels,
     row,
   });
 }
@@ -242,7 +239,6 @@ function wrapStreamForLedger(
 export function createLedgerHooks(options: {
   build: HeboGatewayBuildResult;
   ledger: RequestLedger;
-  modelsService: IModelService;
   providerService: IProviderService;
   openAiOAuthService: IOpenAiOAuthService;
 }): GatewayHooks {
@@ -259,7 +255,6 @@ export function createLedgerHooks(options: {
       }
 
       const target = await resolveTargetForModel(modelName, options.build, {
-        modelsService: options.modelsService,
         providerService: options.providerService,
       });
 
@@ -287,7 +282,6 @@ export function createLedgerHooks(options: {
 
       const startedAt = new Date();
       const target = await resolveTargetForModel(modelName, options.build, {
-        modelsService: options.modelsService,
         providerService: options.providerService,
       });
 
@@ -331,7 +325,6 @@ export function createLedgerHooks(options: {
       }
 
       const target = await resolveTargetForModel(modelName, options.build, {
-        modelsService: options.modelsService,
         providerService: options.providerService,
       });
       if (!isChatGptSubscriptionTarget(target)) {

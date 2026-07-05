@@ -1,6 +1,6 @@
 import { db } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
-import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import type { IProviderService } from "@lite-llm/models-service";
 import { asc, eq } from "drizzle-orm";
 import { redactHeaders } from "./logging/payload-redactor";
 import {
@@ -80,13 +80,11 @@ function toObject(value: unknown): Record<string, unknown> | null {
 export class ModelProxyService implements IModelProxyService {
   private readonly fetchFn: typeof fetch;
   private readonly ledger: RequestLedger;
-  private readonly modelsService: IModelService;
   private readonly now: () => Date;
   private readonly providerService: IProviderService;
 
   constructor(options: ModelProxyServiceOptions) {
     this.fetchFn = options.fetchFn ?? fetch;
-    this.modelsService = options.modelsService;
     this.providerService = options.providerService;
     this.now = options.now ?? (() => new Date());
     this.ledger = new RequestLedger();
@@ -103,14 +101,9 @@ export class ModelProxyService implements IModelProxyService {
       .where(eq(modelProxyModels.enabled, true))
       .orderBy(asc(modelProxyModels.modelName));
 
-    const modelEntries =
-      proxyModels.length > 0
-        ? proxyModels.map((row) => this.toModelListEntry(row))
-        : await this.listFallbackModels();
-
     return {
       object: "list",
-      data: modelEntries,
+      data: proxyModels.map((row) => this.toModelListEntry(row)),
     };
   }
 
@@ -560,21 +553,6 @@ export class ModelProxyService implements IModelProxyService {
     });
   }
 
-  private async listFallbackModels(): Promise<ModelListEntry[]> {
-    const models = await this.modelsService.getAll();
-    const created = Math.floor(this.now().getTime() / 1000);
-
-    return Object.entries(models)
-      .filter(([, spec]) => spec.enabled !== false)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([name, spec]) => ({
-        id: name,
-        object: "model" as const,
-        created,
-        owned_by: spec.ownedBy ?? spec.family ?? "local-proxy",
-      }));
-  }
-
   private toModelListEntry(row: {
     displayName?: string | null;
     family?: string | null;
@@ -593,13 +571,11 @@ export class ModelProxyService implements IModelProxyService {
   private async resolveTarget(
     modelName: string,
   ): Promise<ResolvedUpstreamTarget> {
-    const fallbackModels = await this.modelsService.getAll();
     const providers = await this.providerService.getAll();
 
     return resolveUpstreamTarget({
       modelName,
       providers,
-      fallbackModels,
     });
   }
 

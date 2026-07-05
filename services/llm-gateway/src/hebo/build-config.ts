@@ -7,7 +7,7 @@ import {
 } from "@hebo-ai/gateway";
 import { db } from "@lite-llm/database/client";
 import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
-import type { IModelService, IProviderService } from "@lite-llm/models-service";
+import type { IProviderService } from "@lite-llm/models-service";
 import { asc, eq } from "drizzle-orm";
 import {
   parseProviderModel,
@@ -101,33 +101,19 @@ async function listProxyCatalogRows(): Promise<ProxyCatalogRow[]> {
 }
 
 async function listProxyModelNames(
-  modelsService: IModelService,
   proxyModels: ProxyCatalogRow[],
 ): Promise<string[]> {
-  if (proxyModels.length > 0) {
-    return proxyModels.map((row) =>
-      row.providerName ? `${row.providerName}/${row.modelName}` : row.modelName,
-    );
-  }
-
-  const fallbackModels = await modelsService.getAll();
-  return Object.entries(fallbackModels)
-    .filter(([, spec]) => spec.enabled !== false)
-    .map(([name]) => name)
-    .sort((left, right) => left.localeCompare(right));
+  return proxyModels.map((row) =>
+    row.providerName ? `${row.providerName}/${row.modelName}` : row.modelName,
+  );
 }
 
 export async function buildHeboGatewayConfig(options: {
-  modelsService: IModelService;
   providerService: IProviderService;
 }): Promise<HeboGatewayBuildResult> {
   const providers = await options.providerService.getAll();
-  const fallbackModels = await options.modelsService.getAll();
   const proxyCatalogRows = await listProxyCatalogRows();
-  const modelNames = await listProxyModelNames(
-    options.modelsService,
-    proxyCatalogRows,
-  );
+  const modelNames = await listProxyModelNames(proxyCatalogRows);
 
   const targetsByModel = new Map<string, ResolvedUpstreamTarget>();
   const providerGroups = new Map<string, ProviderGroup>();
@@ -146,7 +132,6 @@ export async function buildHeboGatewayConfig(options: {
       target = await resolveUpstreamTarget({
         modelName,
         providers,
-        fallbackModels,
       });
     } catch {
       continue;

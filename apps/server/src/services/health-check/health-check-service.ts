@@ -127,7 +127,7 @@ export class HealthCheckService {
     event: K,
     listener: HealthCheckServiceEvents[K],
   ): void {
-    this.emitter.on(event, listener as (...args: unknown[]) => void);
+    this.emitter.on(event as string, listener as (...args: unknown[]) => void);
   }
 
   async runCheck(

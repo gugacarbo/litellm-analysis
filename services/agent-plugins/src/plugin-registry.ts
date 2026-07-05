@@ -231,7 +231,7 @@ class PluginRegistryV2Impl implements PluginRegistryV2 {
       const modelProxyProvider = modelsConfig.provider?.["local-proxy"];
       context.modelProxyConfig = {
         baseUrl: modelProxyProvider?.baseUrl ?? "",
-        apiKey: modelProxyProvider?.apiKey ?? "",
+        apiKey: "",
       };
       context.ownedBy = modelProxyProvider?.ownedBy ?? "";
     } catch {
