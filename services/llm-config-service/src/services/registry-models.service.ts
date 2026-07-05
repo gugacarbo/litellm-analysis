@@ -46,9 +46,7 @@ export class RegistryModelsService implements IRegistryModelsService {
       new ModelsRepository(
         options.db ??
           (() => {
-            throw new Error(
-              "RegistryModelsService requires db or repository",
-            );
+            throw new Error("RegistryModelsService requires db or repository");
           })(),
       );
   }

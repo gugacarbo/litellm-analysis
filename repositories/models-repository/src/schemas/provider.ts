@@ -17,10 +17,6 @@ export const providerSchema = z
     baseUrl: z
       .string()
       .meta({ title: "Base URL", description: "Provider API base URL" }),
-    apiKey: z
-      .string()
-      .optional()
-      .meta({ title: "API Key", description: "Provider API key" }),
     defaultProvider: z.string().default("").meta({
       title: "Default Provider",
       description: "Default provider alias used for models in this provider",

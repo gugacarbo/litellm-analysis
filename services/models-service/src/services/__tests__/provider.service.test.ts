@@ -32,7 +32,6 @@ describe("ProviderService", () => {
           name: "Local Model Proxy",
           ownedBy: "lite-llm-analytics",
           baseUrl: "http://localhost:3008/v1",
-          apiKey: "env:MODEL_PROXY_API_KEY",
           defaultProvider: "ATplus Router",
         },
       },
@@ -74,22 +73,9 @@ describe("ProviderService", () => {
         name: "Duplicate",
         ownedBy: "",
         baseUrl: "",
-        apiKey: "",
         defaultProvider: "ATplus Router",
       }),
     ).rejects.toThrow(/already exists/);
-  });
-
-  it("rejects upstream provider apiKey compatibility input", async () => {
-    await expect(
-      service.create("openai", {
-        name: "OpenAI",
-        ownedBy: "openai",
-        baseUrl: "https://api.openai.com",
-        apiKey: "sk-key",
-        defaultProvider: "ATplus Router",
-      }),
-    ).rejects.toThrow(/secretRef/);
   });
 
   it("updates an existing provider", async () => {

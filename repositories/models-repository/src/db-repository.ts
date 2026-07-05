@@ -172,7 +172,6 @@ export class DbModelsRepository implements IModelsRepository {
         name: "Local Model Proxy",
         baseUrl: "http://localhost:3008/v1",
         defaultProvider,
-        apiKey: "env:MODEL_PROXY_API_KEY",
       },
     };
 
@@ -263,10 +262,7 @@ export class DbModelsRepository implements IModelsRepository {
       if (existing) {
         await this.providers.update(providerName, providerData);
       } else {
-        await this.providers.create({
-          ...providerData,
-          secretRef: null,
-        });
+        await this.providers.create(providerData);
       }
     }
 

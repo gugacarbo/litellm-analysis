@@ -72,10 +72,9 @@ function createInMemoryDb() {
     run: () => Promise<R>,
   ): T & PromiseLike<R> {
     return Object.assign(target, {
+      // biome-ignore lint/suspicious/noThenProperty: intentional thenable mock for Drizzle query builder
       then<TResult1 = R, TResult2 = never>(
-        onfulfilled?:
-          | ((value: R) => TResult1 | PromiseLike<TResult1>)
-          | null,
+        onfulfilled?: ((value: R) => TResult1 | PromiseLike<TResult1>) | null,
         onrejected?:
           | ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
           | null,
@@ -135,7 +134,9 @@ function createInMemoryDb() {
               ...data,
               modelName: String(data.modelName),
               providerName:
-                typeof data.providerName === "string" ? data.providerName : null,
+                typeof data.providerName === "string"
+                  ? data.providerName
+                  : null,
               createdAt: now,
               updatedAt: now,
             };
@@ -158,7 +159,6 @@ function createInMemoryDb() {
               name: string;
               provider: string | null;
               baseUrl: string | null;
-              apiKey: string | null;
               secretRef: string | null;
               createdAt: Date;
               updatedAt: Date;
@@ -167,9 +167,7 @@ function createInMemoryDb() {
               name: String(data.name),
               provider:
                 typeof data.provider === "string" ? data.provider : null,
-              baseUrl:
-                typeof data.baseUrl === "string" ? data.baseUrl : null,
-              apiKey: typeof data.apiKey === "string" ? data.apiKey : null,
+              baseUrl: typeof data.baseUrl === "string" ? data.baseUrl : null,
               secretRef:
                 typeof data.secretRef === "string" ? data.secretRef : null,
               createdAt: now,
@@ -335,7 +333,6 @@ describe("DbModelsRepository", () => {
           name: "Local Model Proxy",
           baseUrl: "http://localhost:3008/v1",
           defaultProvider: "router-main",
-          apiKey: "env:MODEL_PROXY_API_KEY",
         },
         openai: {
           name: "OpenAI",
@@ -388,7 +385,6 @@ describe("DbModelsRepository", () => {
       provider: "openai",
       baseUrl: "https://llm.iproute.cloud/",
       secretRef: "sk-live-literal-secret",
-      apiKey: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -401,11 +397,10 @@ describe("DbModelsRepository", () => {
       defaultProvider: "Iproute",
       ownedBy: "openai",
     });
-    expect(readBack.provider.openai?.apiKey).toBeUndefined();
   });
 
   it("preserves provider-scoped model keys on read and write", async () => {
-    const { db, helpers } = createInMemoryDb();
+    const { db } = createInMemoryDb();
     const repository = createDbRepository({
       db: db as never,
       validateOnRead: false,
@@ -418,7 +413,6 @@ describe("DbModelsRepository", () => {
           name: "Local Model Proxy",
           baseUrl: "http://localhost:3008/v1",
           defaultProvider: "router-main",
-          apiKey: "env:MODEL_PROXY_API_KEY",
         },
       },
       models: {

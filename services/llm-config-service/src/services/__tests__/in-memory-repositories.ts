@@ -95,7 +95,6 @@ export function createProvidersRepositoryMock() {
       name: string;
       provider?: string | null;
       baseUrl?: string | null;
-      apiKey?: string | null;
       secretRef?: string | null;
     }): Promise<ProviderRecord> {
       const now = new Date();
@@ -104,7 +103,6 @@ export function createProvidersRepositoryMock() {
         name: data.name,
         provider: data.provider ?? null,
         baseUrl: data.baseUrl ?? null,
-        apiKey: data.apiKey ?? null,
         secretRef: data.secretRef ?? null,
         createdAt: now,
         updatedAt: now,
@@ -119,7 +117,6 @@ export function createProvidersRepositoryMock() {
         name: string;
         provider: string | null;
         baseUrl: string | null;
-        apiKey: string | null;
         secretRef: string | null;
       }>,
     ): Promise<ProviderRecord | null> {

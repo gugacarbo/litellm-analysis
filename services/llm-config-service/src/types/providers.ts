@@ -4,8 +4,6 @@ export interface ProviderRecord {
   provider: string | null;
   baseUrl: string | null;
   secretRef: string | null;
-  /** Legacy read-only column retained until schema cleanup. */
-  apiKey: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

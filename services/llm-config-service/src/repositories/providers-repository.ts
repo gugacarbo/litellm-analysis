@@ -8,7 +8,6 @@ function toRecord(row: {
   name: string;
   provider: string | null;
   baseUrl: string | null;
-  apiKey: string | null;
   secretRef: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -19,7 +18,6 @@ function toRecord(row: {
     provider: row.provider,
     baseUrl: row.baseUrl,
     secretRef: row.secretRef,
-    apiKey: row.apiKey,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -31,15 +29,6 @@ export interface ProviderWriteData {
   baseUrl?: string | null;
   secretRef?: string | null;
 }
-
-export interface LegacyProviderImportData {
-  name: string;
-  provider: string | null;
-  baseUrl: string | null;
-  secretRef: string | null;
-}
-
-export type LegacyProviderImportOutcome = "inserted" | "updated" | "skipped";
 
 export class ProvidersRepository {
   private readonly db: typeof drizzleDb;
@@ -111,48 +100,5 @@ export class ProvidersRepository {
       .where(eq(modelProxyProviders.name, name))
       .returning({ id: modelProxyProviders.id });
     return !!deleted;
-  }
-
-  async previewLegacyImport(
-    data: LegacyProviderImportData,
-    force: boolean,
-  ): Promise<LegacyProviderImportOutcome> {
-    const existing = await this.findByName(data.name);
-    if (existing && !force) {
-      return "skipped";
-    }
-    return existing ? "updated" : "inserted";
-  }
-
-  async upsertLegacyImport(
-    data: LegacyProviderImportData,
-    force: boolean,
-  ): Promise<LegacyProviderImportOutcome> {
-    const existing = await this.findByName(data.name);
-    if (existing && !force) {
-      return "skipped";
-    }
-
-    if (existing) {
-      const setData: Record<string, unknown> = {
-        provider: data.provider,
-        baseUrl: data.baseUrl,
-        secretRef: data.secretRef,
-        updatedAt: new Date(),
-      };
-      await this.db
-        .update(modelProxyProviders)
-        .set(setData as never)
-        .where(eq(modelProxyProviders.name, data.name));
-      return "updated";
-    }
-
-    await this.db.insert(modelProxyProviders).values({
-      name: data.name,
-      provider: data.provider,
-      baseUrl: data.baseUrl,
-      secretRef: data.secretRef,
-    });
-    return "inserted";
   }
 }

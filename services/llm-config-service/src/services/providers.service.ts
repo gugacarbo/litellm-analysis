@@ -1,7 +1,5 @@
 import type { DatabaseClient } from "@lite-llm/database/client";
-import {
-  looksLikeEnvVarName,
-} from "../lib/provider-secrets.js";
+import { looksLikeEnvVarName } from "../lib/provider-secrets.js";
 import { ProvidersRepository } from "../repositories/providers-repository.js";
 import type {
   ProviderCreateInput,

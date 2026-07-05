@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { ProvidersService } from "../providers.service.js";
-import {
-  createProvidersRepositoryMock,
-} from "./in-memory-repositories.js";
+import { createProvidersRepositoryMock } from "./in-memory-repositories.js";
 
 describe("ProvidersService", () => {
   let service: ProvidersService;
@@ -21,7 +19,6 @@ describe("ProvidersService", () => {
       secretRef: "OPENAI_API_KEY",
     });
     expect(record.secretRef).toBe("OPENAI_API_KEY");
-    expect(record.apiKey).toBeNull();
   });
 
   it("requires secretRef on create", async () => {
@@ -63,19 +60,6 @@ describe("ProvidersService", () => {
     });
     expect(updated.baseUrl).toBe("https://custom.example/v1");
     expect(updated.secretRef).toBe("CUSTOM_OPENAI_API_KEY");
-  });
-
-  it("leaves legacy apiKey rows untouched on read", async () => {
-    await repository.create({
-      name: "legacy",
-      provider: "openai",
-      baseUrl: "https://example.com/v1",
-      apiKey: "sk-legacy-secret",
-    });
-
-    const record = await service.get("legacy");
-    expect(record?.secretRef).toBeNull();
-    expect(record?.apiKey).toBe("sk-legacy-secret");
   });
 
   it("deletes provider", async () => {

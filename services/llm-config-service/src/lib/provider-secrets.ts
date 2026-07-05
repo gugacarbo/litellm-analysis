@@ -109,7 +109,6 @@ export function decryptProviderSecret(
 }
 
 export function hasStoredProviderSecret(input: {
-  apiKey?: string | null;
   secretRef?: string | null;
 }): boolean {
   return Boolean(input.secretRef?.trim());
@@ -117,7 +116,6 @@ export function hasStoredProviderSecret(input: {
 
 export function resolveProviderSecret(
   input: {
-    apiKey?: string | null;
     secretRef?: string | null;
   },
   env: NodeJS.ProcessEnv = process.env,
