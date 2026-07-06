@@ -58,6 +58,38 @@ describe("BenchmarkSyncApplicationService", () => {
     });
   });
 
+  it("blocks a new sync for one hour after a successful sync", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-06T18:00:00.000Z"));
+
+    try {
+      const service = createService(vi.fn().mockResolvedValue(undefined));
+
+      service.start();
+      await vi.waitFor(() => {
+        expect(service.getStatus().status).toBe("succeeded");
+      });
+
+      const immediateRetry = service.start();
+      expect(immediateRetry.triggered).toBe(false);
+      expect(immediateRetry.canTrigger).toBe(false);
+      expect(immediateRetry.cooldownUntil).not.toBeNull();
+      expect(Date.parse(immediateRetry.cooldownUntil ?? "")).toBeGreaterThan(
+        Date.parse("2026-07-06T18:59:59.000Z"),
+      );
+      expect(Date.parse(immediateRetry.cooldownUntil ?? "")).toBeLessThan(
+        Date.parse("2026-07-06T19:00:01.000Z"),
+      );
+
+      vi.setSystemTime(new Date("2026-07-06T19:00:01.000Z"));
+
+      const retryAfterCooldown = service.start();
+      expect(retryAfterCooldown.triggered).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("passes api key and output dir to the runner", async () => {
     const runner = vi.fn().mockResolvedValue(undefined);
     const service = createService(runner, "server-aa-key");

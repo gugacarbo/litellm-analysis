@@ -27,8 +27,10 @@ interface UseBenchmarksStateResult extends BenchmarksDerivedState {
   totalCount: number;
   isDatasetMissing: boolean;
   syncStatusLabel: string;
+  syncCooldownLabel: string | null;
   syncLastError: string | null;
   isSyncRunning: boolean;
+  canTriggerSync: boolean;
   triggerSync: () => void;
   unmatchedConfiguredModels: string[];
   configuredModelNames: string[];
@@ -133,6 +135,10 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
         toast.success("Benchmark sync started");
       } else if (result.isRunning) {
         toast.success("Benchmark sync is already running");
+      } else if (!result.canTrigger) {
+        toast.info(
+          getSyncCooldownLabel(result) ?? "Benchmark sync will be available soon",
+        );
       }
     },
     onError: (error) => {
@@ -171,6 +177,7 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
   const isSyncRunning = Boolean(
     syncStatus?.isRunning || syncMutation.isPending,
   );
+  const canTriggerSync = Boolean(syncStatus?.canTrigger ?? true) && !isSyncRunning;
   const providers = useMemo(() => {
     const unique = new Set<string>();
     for (const row of rows) {
@@ -238,9 +245,20 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     totalCount: benchmarksQuery.data?.models.length ?? 0,
     isDatasetMissing,
     syncStatusLabel: getSyncStatusLabel(syncStatus),
+    syncCooldownLabel: getSyncCooldownLabel(syncStatus),
     syncLastError: syncStatus?.lastError ?? null,
     isSyncRunning,
-    triggerSync: () => syncMutation.mutate(),
+    canTriggerSync,
+    triggerSync: () => {
+      if (!canTriggerSync) {
+        toast.info(
+          getSyncCooldownLabel(syncStatus) ?? "Benchmark sync will be available soon",
+        );
+        return;
+      }
+
+      syncMutation.mutate();
+    },
     unmatchedConfiguredModels:
       benchmarksQuery.data?.unmatchedConfiguredModels ?? [],
     configuredModelNames: benchmarksQuery.data?.configuredModelNames ?? [],
@@ -280,4 +298,14 @@ function getSyncStatusLabel(
     return "Local benchmark snapshot ready";
   }
   return "No local benchmark snapshot";
+}
+
+function getSyncCooldownLabel(
+  status: Awaited<ReturnType<typeof getBenchmarkSyncStatus>> | undefined,
+): string | null {
+  if (!status || status.isRunning || status.canTrigger || !status.cooldownUntil) {
+    return null;
+  }
+
+  return `Next sync available at ${new Date(status.cooldownUntil).toLocaleString()}`;
 }

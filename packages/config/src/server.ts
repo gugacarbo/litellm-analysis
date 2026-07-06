@@ -22,6 +22,7 @@ export const serverSchema = {
     .optional(),
   MODEL_PROXY_BASE_URL: z.url().optional(),
   ARTIFICIAL_ANALYSIS_API_KEY: z.string().min(1).optional(),
+  OPENROUTER_API_KEY: z.string().min(1).optional(),
 
   STORAGE_PATH: z.string().default("@storage"),
 };

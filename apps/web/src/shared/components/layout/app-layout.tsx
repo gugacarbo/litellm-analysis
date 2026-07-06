@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { FloatingChatWidget } from "@/features/floating-chat/floating-chat-widget";
 import { DateRangeFilter } from "@/shared/components/ui/date-range-filter";
 import {
@@ -11,6 +11,9 @@ import { FilterProvider } from "@/shared/contexts/filter-context";
 import { AppSidebar } from "./sidebar";
 
 export function AppLayout() {
+  const location = useLocation();
+  const shouldShowDateRangeFilter = location.pathname !== "/benchmarks";
+
   return (
     <TooltipProvider>
       <FilterProvider>
@@ -19,7 +22,11 @@ export function AppLayout() {
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
               <SidebarTrigger />
-              <DateRangeFilter />
+              {shouldShowDateRangeFilter ? (
+                <DateRangeFilter />
+              ) : (
+                <div aria-hidden="true" />
+              )}
             </div>
             <SidebarInset className="min-h-0 min-w-0 overflow-x-hidden">
               <Outlet />

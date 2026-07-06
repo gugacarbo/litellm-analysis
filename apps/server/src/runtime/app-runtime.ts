@@ -17,6 +17,7 @@ import {
 import { createOrchestrationServices } from "@lite-llm/server/orchestration";
 import { updateRouterAliasesInRegistry } from "@lite-llm/server/orchestration/router-settings";
 import { createBenchmarkSyncApplicationService } from "../application/benchmark-sync-application-service";
+import { createOpenRouterBenchmarkSyncApplicationService } from "../application/openrouter-benchmark-sync-application-service";
 import { createAppContext } from "../contexts";
 import { env } from "../env";
 import {
@@ -172,6 +173,12 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     artificialAnalysisApiKey: env.ARTIFICIAL_ANALYSIS_API_KEY,
   });
 
+  const openRouterBenchmarkSyncService =
+    createOpenRouterBenchmarkSyncApplicationService({
+      storagePath: resolveStoragePath(projectRoot),
+      openRouterApiKey: env.OPENROUTER_API_KEY,
+    });
+
   const app = createApiServer(
     {
       dataSource: ctx.analytics.dataSource,
@@ -189,7 +196,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       },
     },
     ctx,
-    { benchmarkSync: benchmarkSyncService },
+    { benchmarkSync: benchmarkSyncService, openRouterBenchmarkSync: openRouterBenchmarkSyncService },
   );
 
   const port = env.PORT;

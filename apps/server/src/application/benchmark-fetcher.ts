@@ -51,6 +51,7 @@ const normalizedModelSchema = z.object({
   creatorId: z.string().nullable(),
   creatorName: z.string(),
   creatorSlug: z.string().nullable(),
+  source: z.literal("artificial-analysis"),
   intelligenceIndex: z.number().nullable(),
   codingIndex: z.number().nullable(),
   mathIndex: z.number().nullable(),
@@ -103,6 +104,7 @@ function normalizeModel(model: z.infer<typeof modelSchema>): NormalizedModel {
     creatorId: model.model_creator.id ?? null,
     creatorName: model.model_creator.name,
     creatorSlug: model.model_creator.slug ?? null,
+    source: "artificial-analysis",
     intelligenceIndex: getNumber(model.evaluations, "intelligence_index"),
     codingIndex: getNumber(model.evaluations, "coding_index"),
     mathIndex: getNumber(model.evaluations, "math_index"),
@@ -164,7 +166,10 @@ export async function fetchAndPersistBenchmarks(
   }
 
   // 2. Save raw response
-  const rawOutputFile = path.join(outputDir, "artificial-analysis-models.raw.json");
+  const rawOutputFile = path.join(
+    outputDir,
+    "artificial-analysis-models.raw.json",
+  );
   await writeFile(rawOutputFile, body, "utf8");
 
   // 3. Parse and normalize
@@ -185,7 +190,11 @@ export async function fetchAndPersistBenchmarks(
     outputDir,
     "artificial-analysis-models.json",
   );
-  await writeFile(normalizedOutputFile, JSON.stringify(dataset, null, 2), "utf8");
+  await writeFile(
+    normalizedOutputFile,
+    JSON.stringify(dataset, null, 2),
+    "utf8",
+  );
 
   // 5. Save JSON schema
   const schemaOutputFile = path.join(
@@ -194,13 +203,19 @@ export async function fetchAndPersistBenchmarks(
   );
   await writeFile(
     schemaOutputFile,
-    JSON.stringify(z.toJSONSchema(z.object({
-      source: z.string(),
-      sourceUrl: z.string(),
-      fetchedAt: z.string(),
-      count: z.number().int().nonnegative(),
-      models: z.array(normalizedModelSchema),
-    })), null, 2),
+    JSON.stringify(
+      z.toJSONSchema(
+        z.object({
+          source: z.string(),
+          sourceUrl: z.string(),
+          fetchedAt: z.string(),
+          count: z.number().int().nonnegative(),
+          models: z.array(normalizedModelSchema),
+        }),
+      ),
+      null,
+      2,
+    ),
     "utf8",
   );
 

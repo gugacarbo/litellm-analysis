@@ -1,6 +1,7 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import {
   ApiKeysService,
+  parseProviderEncryptionKey,
   ProvidersService,
   RegistryModelsService,
   SettingsService,
@@ -466,7 +467,12 @@ export function createRegistryTestStack(): RegistryTestStack {
   const db = createInMemoryDb() as never;
   const settingsService = new SettingsService({ db });
   const registryModelsService = new RegistryModelsService({ db });
-  const providersService = new ProvidersService({ db });
+  const providersService = new ProvidersService({
+    db,
+    encryptionKey: parseProviderEncryptionKey({
+      APP_ENCRYPTION_KEY: "test-encryption-key-32-bytes-long!!",
+    }),
+  });
   const apiKeysService = new ApiKeysService({
     db,
     hashKey: async (plain) => `hash:${plain}`,

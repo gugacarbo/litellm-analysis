@@ -16,6 +16,8 @@ import { createHealthCheckApplicationService } from "../application/health-check
 import type { AppContext } from "../contexts";
 import { env } from "../env";
 import { createBenchmarkSyncRouter } from "../routes/benchmark-sync-routes";
+import { createOpenRouterBenchmarkSyncRouter } from "../routes/openrouter-benchmark-sync-routes";
+import type { OpenRouterBenchmarkSyncApplicationService } from "../application/openrouter-benchmark-sync-application-service";
 import { createHealthCheckRouter } from "../routes/health-check-routes";
 
 function findWorkspaceRoot(startDir: string): string {
@@ -133,7 +135,10 @@ async function loadBenchmarkDataset(
 export function createApiServer(
   opts: RouteOptions,
   ctx: AppContext,
-  services?: { benchmarkSync?: BenchmarkSyncApplicationService },
+  services?: {
+    benchmarkSync?: BenchmarkSyncApplicationService;
+    openRouterBenchmarkSync?: OpenRouterBenchmarkSyncApplicationService;
+  },
 ): Application {
   const app = express();
   const jsonParser = express.json();
@@ -204,9 +209,9 @@ export function createApiServer(
 
       // Try loading from database first
       let models: ModelBenchmarkListItem[] = [];
-      let source = "Artificial Analysis";
-      let sourceUrl = "https://artificialanalysis.ai/";
-      let fetchedAt = "";
+      const source = "Artificial Analysis";
+      const sourceUrl = "https://artificialanalysis.ai/";
+      const fetchedAt = "";
       let loadedFromDb = false;
 
       try {
@@ -220,7 +225,9 @@ export function createApiServer(
               ...toMatchKeys(model.name),
               ...(model.slug ? toMatchKeys(model.slug) : []),
             ];
-            const matched = candidateKeys.find((key) => configuredLookup.has(key));
+            const matched = candidateKeys.find((key) =>
+              configuredLookup.has(key),
+            );
             let matchedConfiguredModel = matched
               ? (configuredLookup.get(matched) ?? null)
               : null;
@@ -396,6 +403,195 @@ export function createApiServer(
 
   if (services?.benchmarkSync) {
     app.use("/benchmarks", createBenchmarkSyncRouter(services.benchmarkSync));
+  }
+
+  if (services?.openRouterBenchmarkSync) {
+    app.use(
+      "/benchmarks/openrouter",
+      createOpenRouterBenchmarkSyncRouter(services.openRouterBenchmarkSync),
+    );
+
+    app.get("/benchmarks/openrouter/models", async (req, res) => {
+      try {
+        const configuredOnly = parseBooleanQuery(req.query.configuredOnly, false);
+        const workspaceRoot = getWorkspaceRoot();
+        const storagePath = resolveStoragePath(workspaceRoot);
+
+        const configuredModels = await opts.dataSource.getModels();
+        const configuredModelNames = configuredModels
+          .map((item) => {
+            const name = item.modelName ?? "";
+            const idx = name.indexOf(":");
+            return idx > 0 ? name.slice(0, idx) : name;
+          })
+          .filter((name): name is string => Boolean(name));
+
+        const configuredLookup = new Map<string, string>();
+        for (const configured of configuredModelNames) {
+          for (const key of toMatchKeys(configured)) {
+            if (!configuredLookup.has(key)) {
+              configuredLookup.set(key, configured);
+            }
+          }
+        }
+
+        const aliases = await loadModelAliases(workspaceRoot);
+        for (const [configuredName, aaReference] of Object.entries(aliases)) {
+          for (const key of toMatchKeys(aaReference)) {
+            if (!configuredLookup.has(key)) {
+              configuredLookup.set(key, configuredName);
+            }
+          }
+        }
+
+        const configuredCompacts = new Map<string, string>();
+        for (const name of configuredModelNames) {
+          configuredCompacts.set(toCompactKey(name), name);
+        }
+
+        let models: ModelBenchmarkListItem[] = [];
+        const source = "OpenRouter";
+        const sourceUrl = "https://openrouter.ai/";
+        const fetchedAt = "";
+
+        try {
+          const repo = createBenchmarksRepository();
+          const allDbModels = await repo.getAll();
+          const dbModels = allDbModels.filter(
+            (m) => m.source === "openrouter",
+          );
+          if (dbModels.length > 0) {
+            const matchedConfigs = new Set<string>();
+            models = dbModels.map((model) => {
+              const candidateKeys = [
+                ...toMatchKeys(model.name),
+                ...(model.slug ? toMatchKeys(model.slug) : []),
+              ];
+              const matched = candidateKeys.find((key) =>
+                configuredLookup.has(key),
+              );
+              let matchedConfiguredModel = matched
+                ? (configuredLookup.get(matched) ?? null)
+                : null;
+
+              if (!matchedConfiguredModel && model.slug) {
+                const slugCompact = toCompactKey(model.slug);
+                matchedConfiguredModel = suffixTolerantMatch(
+                  slugCompact,
+                  configuredCompacts,
+                );
+              }
+
+              if (matchedConfiguredModel) {
+                matchedConfigs.add(matchedConfiguredModel);
+              }
+
+              return {
+                ...model,
+                isConfigured: matchedConfiguredModel !== null,
+                matchedConfiguredModel,
+              };
+            });
+
+            const unmatchedConfiguredModels = configuredModelNames.filter(
+              (name) => !matchedConfigs.has(name),
+            );
+
+            const filtered = configuredOnly
+              ? models.filter((item) => item.isConfigured)
+              : models;
+
+            const response: ModelBenchmarkApiResponse = {
+              source,
+              sourceUrl,
+              fetchedAt,
+              count: filtered.length,
+              configuredModelNames,
+              unmatchedConfiguredModels,
+              models: filtered,
+            };
+
+            res.json(response);
+            return;
+          }
+        } catch (error) {
+          console.error(
+            "Failed to load OpenRouter benchmarks from database, falling back to JSON:",
+            error,
+          );
+        }
+
+        const benchmarkFilePath = path.join(
+          storagePath,
+          "benchmarks",
+          "openrouter-benchmarks.json",
+        );
+        const dataset = await loadBenchmarkDataset(benchmarkFilePath);
+
+        const matchedConfigs = new Set<string>();
+        const mapped: ModelBenchmarkListItem[] = dataset.models.map((model) => {
+          const candidateKeys = [
+            ...toMatchKeys(model.name),
+            ...(model.slug ? toMatchKeys(model.slug) : []),
+          ];
+          const matched = candidateKeys.find((key) =>
+            configuredLookup.has(key),
+          );
+          let matchedConfiguredModel = matched
+            ? (configuredLookup.get(matched) ?? null)
+            : null;
+
+          if (!matchedConfiguredModel && model.slug) {
+            const slugCompact = toCompactKey(model.slug);
+            matchedConfiguredModel = suffixTolerantMatch(
+              slugCompact,
+              configuredCompacts,
+            );
+          }
+
+          if (matchedConfiguredModel) {
+            matchedConfigs.add(matchedConfiguredModel);
+          }
+
+          return {
+            ...model,
+            isConfigured: matchedConfiguredModel !== null,
+            matchedConfiguredModel,
+          };
+        });
+
+        const unmatchedConfiguredModels = configuredModelNames.filter(
+          (name) => !matchedConfigs.has(name),
+        );
+
+        const filtered = configuredOnly
+          ? mapped.filter((item) => item.isConfigured)
+          : mapped;
+
+        const response: ModelBenchmarkApiResponse = {
+          source: dataset.source,
+          sourceUrl: dataset.sourceUrl,
+          fetchedAt: dataset.fetchedAt,
+          count: filtered.length,
+          configuredModelNames,
+          unmatchedConfiguredModels,
+          models: filtered,
+        };
+
+        res.json(response);
+      } catch (error) {
+        const message = String(error);
+        if (message.includes("ENOENT")) {
+          res.status(404).json({
+            error:
+              "OpenRouter benchmark data not found. Trigger a sync from the UI.",
+            code: "OPENROUTER_BENCHMARK_DATASET_MISSING",
+          });
+          return;
+        }
+        res.status(500).json({ error: message });
+      }
+    });
   }
 
   registerAllRoutes(app, opts);

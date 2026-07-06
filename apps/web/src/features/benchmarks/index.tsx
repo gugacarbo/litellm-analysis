@@ -61,8 +61,10 @@ export function BenchmarksPage() {
     error,
     isDatasetMissing,
     syncStatusLabel,
+    syncCooldownLabel,
     syncLastError,
     isSyncRunning,
+    canTriggerSync,
     triggerSync,
     source,
     sourceUrl,
@@ -117,19 +119,28 @@ export function BenchmarksPage() {
                     {syncLastError}
                   </span>
                 ) : null}
+                {syncCooldownLabel ? (
+                  <span className="text-xs text-muted-foreground">
+                    {syncCooldownLabel}
+                  </span>
+                ) : null}
               </div>
             </div>
             <Button
               type="button"
               variant="outline"
               onClick={triggerSync}
-              disabled={isSyncRunning}
+              disabled={!canTriggerSync}
               className="w-full sm:w-auto"
             >
               <RefreshCw
                 className={isSyncRunning ? "h-4 w-4 animate-spin" : "h-4 w-4"}
               />
-              {isSyncRunning ? "Syncing" : "Sync benchmarks"}
+              {isSyncRunning
+                ? "Syncing"
+                : canTriggerSync
+                  ? "Sync benchmarks"
+                  : "Sync locked"}
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">

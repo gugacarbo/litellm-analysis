@@ -5,24 +5,23 @@ import type {
   BenchmarkSyncStatusResponse,
   TriggerBenchmarkSyncResponse,
 } from "@lite-llm/contracts/benchmarks";
-import { fetchAndPersistBenchmarks } from "./benchmark-fetcher";
+import { fetchAndPersistOpenRouterBenchmarks } from "./openrouter-benchmark-fetcher";
 
 const MAX_ERROR_LENGTH = 1_000;
-const SYNC_COOLDOWN_MS = 60 * 60_000;
 
-type BenchmarkSyncRunner = (options: {
+type OpenRouterBenchmarkSyncRunner = (options: {
   apiKey: string;
   outputDir: string;
 }) => Promise<void>;
 
-export interface BenchmarkSyncApplicationServiceOptions {
+export interface OpenRouterBenchmarkSyncApplicationServiceOptions {
   outputDir: string;
   datasetFilePath: string;
-  artificialAnalysisApiKey?: string;
-  runner?: BenchmarkSyncRunner;
+  openRouterApiKey?: string;
+  runner?: OpenRouterBenchmarkSyncRunner;
 }
 
-interface BenchmarkSyncState {
+interface OpenRouterBenchmarkSyncState {
   status: BenchmarkSyncStatus;
   startedAt: string | null;
   finishedAt: string | null;
@@ -30,15 +29,15 @@ interface BenchmarkSyncState {
   lastError: string | null;
 }
 
-export class BenchmarkSyncConfigurationError extends Error {}
+export class OpenRouterBenchmarkSyncConfigurationError extends Error {}
 
-export class BenchmarkSyncApplicationService {
+export class OpenRouterBenchmarkSyncApplicationService {
   private readonly outputDir: string;
   private readonly datasetFilePath: string;
-  private readonly artificialAnalysisApiKey?: string;
-  private readonly runner: BenchmarkSyncRunner;
+  private readonly openRouterApiKey?: string;
+  private readonly runner: OpenRouterBenchmarkSyncRunner;
   private inFlight: Promise<void> | null = null;
-  private state: BenchmarkSyncState = {
+  private state: OpenRouterBenchmarkSyncState = {
     status: "idle",
     startedAt: null,
     finishedAt: null,
@@ -46,45 +45,38 @@ export class BenchmarkSyncApplicationService {
     lastError: null,
   };
 
-  constructor(options: BenchmarkSyncApplicationServiceOptions) {
+  constructor(options: OpenRouterBenchmarkSyncApplicationServiceOptions) {
     this.outputDir = options.outputDir;
     this.datasetFilePath = options.datasetFilePath;
-    this.artificialAnalysisApiKey = options.artificialAnalysisApiKey;
+    this.openRouterApiKey = options.openRouterApiKey;
     this.runner = options.runner ?? runSyncInProcess;
   }
 
   getStatus(): BenchmarkSyncStatusResponse {
-    const cooldownUntil = getCooldownUntil(this.state.lastSuccessAt);
-    const canTrigger =
-      this.state.status !== "running" &&
-      (!cooldownUntil || Date.parse(cooldownUntil) <= Date.now());
-
     return {
       ...this.state,
       isRunning: this.state.status === "running",
-      canTrigger,
       datasetExists: existsSync(this.datasetFilePath),
-      cooldownUntil,
+      canTrigger: !this.inFlight,
+      cooldownUntil: null,
     };
   }
 
   start(): TriggerBenchmarkSyncResponse {
-    const currentStatus = this.getStatus();
-
-    if (this.inFlight || !currentStatus.canTrigger) {
+    if (this.inFlight) {
       return { ...this.getStatus(), triggered: false };
     }
 
-    const apiKey = this.artificialAnalysisApiKey?.trim();
+    const apiKey = this.openRouterApiKey?.trim();
     if (!apiKey) {
-      const message = "ARTIFICIAL_ANALYSIS_API_KEY is not configured";
+      const message = "OPENROUTER_API_KEY is not configured";
       this.state = {
         ...this.state,
         status: "failed",
         finishedAt: new Date().toISOString(),
         lastError: message,
       };
-      throw new BenchmarkSyncConfigurationError(message);
+      throw new OpenRouterBenchmarkSyncConfigurationError(message);
     }
 
     const startedAt = new Date().toISOString();
@@ -127,24 +119,11 @@ export class BenchmarkSyncApplicationService {
   }
 }
 
-function getCooldownUntil(lastSuccessAt: string | null): string | null {
-  if (!lastSuccessAt) {
-    return null;
-  }
-
-  const lastSuccessMs = Date.parse(lastSuccessAt);
-  if (Number.isNaN(lastSuccessMs)) {
-    return null;
-  }
-
-  return new Date(lastSuccessMs + SYNC_COOLDOWN_MS).toISOString();
-}
-
 async function runSyncInProcess(options: {
   apiKey: string;
   outputDir: string;
 }): Promise<void> {
-  await fetchAndPersistBenchmarks({
+  await fetchAndPersistOpenRouterBenchmarks({
     apiKey: options.apiKey,
     outputDir: options.outputDir,
   });
@@ -158,16 +137,16 @@ function normalizeError(error: unknown): string {
     : message;
 }
 
-export function createBenchmarkSyncApplicationService(options: {
+export function createOpenRouterBenchmarkSyncApplicationService(options: {
   storagePath: string;
-  artificialAnalysisApiKey?: string;
-  runner?: BenchmarkSyncRunner;
-}): BenchmarkSyncApplicationService {
+  openRouterApiKey?: string;
+  runner?: OpenRouterBenchmarkSyncRunner;
+}): OpenRouterBenchmarkSyncApplicationService {
   const outputDir = path.join(options.storagePath, "benchmarks");
-  return new BenchmarkSyncApplicationService({
+  return new OpenRouterBenchmarkSyncApplicationService({
     outputDir,
-    datasetFilePath: path.join(outputDir, "artificial-analysis-models.json"),
-    artificialAnalysisApiKey: options.artificialAnalysisApiKey,
+    datasetFilePath: path.join(outputDir, "openrouter-benchmarks.json"),
+    openRouterApiKey: options.openRouterApiKey,
     runner: options.runner,
   });
 }
