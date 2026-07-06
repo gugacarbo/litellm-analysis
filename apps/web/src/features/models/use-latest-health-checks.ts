@@ -18,7 +18,7 @@ export function useLatestHealthChecks() {
   });
 
   const checksByModel = useMemo(() => {
-    const latestData = query.data?.checks ?? [];
+    const latestData = Array.isArray(query.data?.checks) ? query.data.checks : [];
     return mergeLatestHealthChecks(latestData, latestResults);
   }, [query.data, latestResults]);
 

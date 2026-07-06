@@ -45,11 +45,11 @@ export function createHealthCheckApplicationService(
       };
     },
 
-    listLatest() {
+    async listLatest() {
       return storeApi.getLatestHealthChecks();
     },
 
-    getSummary() {
+    async getSummary() {
       return storeApi.getHealthCheckSummary();
     },
   };

@@ -21,18 +21,18 @@ export function createHealthCheckRouter(
     }
   });
 
-  router.get("/latest", (_req, res) => {
+  router.get("/latest", async (_req, res) => {
     try {
-      const checks = service.listLatest();
+      const checks = await service.listLatest();
       res.json({ checks });
     } catch (_err) {
       res.status(500).json({ error: "Failed to fetch latest health checks" });
     }
   });
 
-  router.get("/summary", (_req, res) => {
+  router.get("/summary", async (_req, res) => {
     try {
-      const summary = service.getSummary();
+      const summary = await service.getSummary();
       res.json(summary);
     } catch (_err) {
       res.status(500).json({ error: "Failed to fetch health check summary" });
