@@ -1,6 +1,7 @@
 import { queryRaw } from "@lite-llm/database/client";
 import type {
   ModelProxyMessage,
+  ModelProxyRequest,
   ModelProxyUsageAdjustment,
 } from "@lite-llm/database/schema/model-proxy";
 import { sql } from "drizzle-orm";
@@ -18,6 +19,89 @@ export interface ProxySpendLogsQueryParams {
   endDate?: string;
   limit?: number;
   offset?: number;
+}
+
+type RawProxyRequestRow = Record<string, unknown>;
+type RawProxyMessageRow = Record<string, unknown>;
+type RawProxyUsageAdjustmentRow = Record<string, unknown>;
+
+function asDate(value: unknown): Date | null {
+  if (value instanceof Date) {
+    return value;
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  return null;
+}
+
+function mapRequestRow(row: RawProxyRequestRow): ModelProxyRequest {
+  return {
+    id: String(row.id),
+    upstreamRequestId:
+      typeof row.upstream_request_id === "string"
+        ? row.upstream_request_id
+        : null,
+    model: String(row.model),
+    upstreamModel: String(row.upstream_model),
+    upstreamBaseUrl: String(row.upstream_base_url),
+    status: String(row.status),
+    startedAt: asDate(row.started_at) ?? new Date(0),
+    finishedAt: asDate(row.finished_at),
+    latencyMs: (row.latency_ms as number | null) ?? null,
+    ttftMs: (row.ttft_ms as number | null) ?? null,
+    inputTokens: (row.input_tokens as number | null) ?? null,
+    outputTokens: (row.output_tokens as number | null) ?? null,
+    totalTokens: (row.total_tokens as number | null) ?? null,
+    cachedTokens: (row.cached_tokens as number | null) ?? null,
+    reasoningTokens: (row.reasoning_tokens as number | null) ?? null,
+    usageEstimated: (row.usage_estimated as boolean | null) ?? null,
+    inputCostPerToken: (row.input_cost_per_token as number | null) ?? null,
+    outputCostPerToken: (row.output_cost_per_token as number | null) ?? null,
+    inputCost: (row.input_cost as number | null) ?? null,
+    outputCost: (row.output_cost as number | null) ?? null,
+    totalCost: (row.total_cost as number | null) ?? null,
+    costEstimated: (row.cost_estimated as boolean | null) ?? null,
+    estimatedCostUsd: (row.estimated_cost_usd as number | null) ?? null,
+    errorSummary: (row.error_summary as string | null) ?? null,
+    errorType: (row.error_type as string | null) ?? null,
+    errorMessage: (row.error_message as string | null) ?? null,
+    errorStatusCode: (row.error_status_code as number | null) ?? null,
+    errorDetails: row.error_details ?? null,
+    requestBody: row.request_body ?? null,
+    responseBody: row.response_body ?? null,
+    responseHeaders: row.response_headers ?? null,
+    apiKeyAlias: (row.api_key_alias as string | null) ?? null,
+    endUser: (row.end_user as string | null) ?? null,
+  };
+}
+
+function mapMessageRow(row: RawProxyMessageRow): ModelProxyMessage {
+  return {
+    id: String(row.id),
+    requestId: String(row.request_id),
+    role: String(row.role),
+    content: row.content,
+    createdAt: asDate(row.created_at) ?? new Date(0),
+  };
+}
+
+function mapUsageAdjustmentRow(
+  row: RawProxyUsageAdjustmentRow,
+): ModelProxyUsageAdjustment {
+  return {
+    id: String(row.id),
+    requestId: String(row.request_id),
+    reason: String(row.reason),
+    promptTokensDelta: Number(row.prompt_tokens_delta ?? 0),
+    completionTokensDelta: Number(row.completion_tokens_delta ?? 0),
+    totalCostDelta: Number(row.total_cost_delta ?? 0),
+    note: (row.note as string | null) ?? null,
+    createdAt: asDate(row.created_at) ?? new Date(0),
+  };
 }
 
 function buildWhereConditions(
@@ -47,7 +131,7 @@ export async function getSpendLogs(params: ProxySpendLogsQueryParams) {
   const conditions = buildWhereConditions(params);
   const whereClause = buildProxyWhereClause(conditions);
 
-  const rows = await queryRaw<Record<string, unknown>>(
+  const rawRows = await queryRaw<RawProxyRequestRow>(
     sql.raw(`
       SELECT r.*
       FROM "${PROXY_REQUESTS_TABLE}" r
@@ -58,6 +142,8 @@ export async function getSpendLogs(params: ProxySpendLogsQueryParams) {
     [],
   );
 
+  const rows = rawRows.map(mapRequestRow);
+
   if (rows.length === 0) return [];
 
   const ids = rows.map((r) => r.id as string).filter(Boolean);
@@ -66,13 +152,13 @@ export async function getSpendLogs(params: ProxySpendLogsQueryParams) {
   const idList = buildIdList(ids);
 
   const [messages, adjustments] = await Promise.all([
-    queryRaw<ModelProxyMessage>(
+    queryRaw<RawProxyMessageRow>(
       sql.raw(
         `SELECT * FROM "model_proxy_messages" WHERE "request_id" IN (${idList}) ORDER BY "created_at" ASC`,
       ),
       [],
     ),
-    queryRaw<ModelProxyUsageAdjustment>(
+    queryRaw<RawProxyUsageAdjustmentRow>(
       sql.raw(
         `SELECT * FROM "model_proxy_usage_adjustments" WHERE "request_id" IN (${idList}) ORDER BY "created_at" ASC`,
       ),
@@ -80,8 +166,14 @@ export async function getSpendLogs(params: ProxySpendLogsQueryParams) {
     ),
   ]);
 
-  const messagesByRequest = groupByRequestId(messages, "requestId");
-  const adjustmentsByRequest = groupByRequestId(adjustments, "requestId");
+  const mappedMessages = messages.map(mapMessageRow);
+  const mappedAdjustments = adjustments.map(mapUsageAdjustmentRow);
+
+  const messagesByRequest = groupByRequestId(mappedMessages, "requestId");
+  const adjustmentsByRequest = groupByRequestId(
+    mappedAdjustments,
+    "requestId",
+  );
 
   return rows.map((row) => ({
     ...row,
@@ -109,7 +201,7 @@ export async function getSpendLogsCount(
 }
 
 export async function getSpendLogDetail(requestId: string) {
-  const rows = await queryRaw<Record<string, unknown>>(
+  const rows = await queryRaw<RawProxyRequestRow>(
     sql.raw(`
       SELECT r.*
       FROM "${PROXY_REQUESTS_TABLE}" r
@@ -121,16 +213,16 @@ export async function getSpendLogDetail(requestId: string) {
 
   if (rows.length === 0) return null;
 
-  const row = rows[0];
+  const row = mapRequestRow(rows[0]);
 
   const [messages, adjustments] = await Promise.all([
-    queryRaw<ModelProxyMessage>(
+    queryRaw<RawProxyMessageRow>(
       sql.raw(
         `SELECT * FROM "model_proxy_messages" WHERE "request_id" = '${requestId.replace(/'/g, "''")}' ORDER BY "created_at" ASC`,
       ),
       [],
     ),
-    queryRaw<ModelProxyUsageAdjustment>(
+    queryRaw<RawProxyUsageAdjustmentRow>(
       sql.raw(
         `SELECT * FROM "model_proxy_usage_adjustments" WHERE "request_id" = '${requestId.replace(/'/g, "''")}' ORDER BY "created_at" ASC`,
       ),
@@ -140,8 +232,8 @@ export async function getSpendLogDetail(requestId: string) {
 
   return {
     ...row,
-    messages,
-    usageAdjustments: adjustments,
+    messages: messages.map(mapMessageRow),
+    usageAdjustments: adjustments.map(mapUsageAdjustmentRow),
   };
 }
 
