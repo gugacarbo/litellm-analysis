@@ -18,7 +18,8 @@ export function toPublicProvider(record: ProviderRecord): ProviderListItem {
     providerName: record.name,
     provider: record.provider,
     baseUrl: record.baseUrl,
-    hasStoredSecret: hasStoredProviderSecret(record),
+    hasStoredSecret:
+      hasStoredProviderSecret(record) || Boolean(record.apiKey?.trim()),
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
   };

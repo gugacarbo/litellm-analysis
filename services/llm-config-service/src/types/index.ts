@@ -35,3 +35,8 @@ export {
   normalizeSyncDirection,
   normalizeSyncPresenceStatus,
 } from "./sync-status.js";
+export type {
+  ProviderRecord,
+  ProviderCreateInput,
+  ProviderUpdateInput,
+} from "./providers.js";

@@ -1,5 +1,8 @@
 import type { DatabaseClient } from "@lite-llm/database/client";
-import { looksLikeEnvVarName } from "../lib/provider-secrets.js";
+import {
+  encryptProviderSecretIfPlain,
+  parseProviderEncryptionKey,
+} from "../lib/provider-secrets.js";
 import { ProvidersRepository } from "../repositories/providers-repository.js";
 import type {
   ProviderCreateInput,
@@ -9,23 +12,21 @@ import type {
 
 export interface ProvidersServiceOptions {
   db?: DatabaseClient;
+  encryptionKey?: Buffer;
   repository?: ProvidersRepository;
 }
 
 function normalizeSecretInput(
   input: ProviderCreateInput | ProviderUpdateInput,
   action: string,
+  encryptionKey: Buffer,
 ): { secretRef: string } {
   const secretRef = input.secretRef?.trim() ?? "";
   if (!secretRef) {
     throw new Error(`secretRef is required to ${action} a provider`);
   }
 
-  if (!looksLikeEnvVarName(secretRef)) {
-    throw new Error("secretRef must be an environment variable name");
-  }
-
-  return { secretRef };
+  return { secretRef: encryptProviderSecretIfPlain(secretRef, encryptionKey) };
 }
 
 export interface IProvidersService {
@@ -38,6 +39,7 @@ export interface IProvidersService {
 
 export class ProvidersService implements IProvidersService {
   private readonly repository: ProvidersRepository;
+  private readonly encryptionKey: Buffer;
 
   constructor(options: ProvidersServiceOptions = {}) {
     this.repository =
@@ -48,6 +50,8 @@ export class ProvidersService implements IProvidersService {
             throw new Error("ProvidersService requires db or repository");
           })(),
       );
+    this.encryptionKey =
+      options.encryptionKey ?? parseProviderEncryptionKey();
   }
 
   async get(name: string): Promise<ProviderRecord | null> {
@@ -69,7 +73,7 @@ export class ProvidersService implements IProvidersService {
       throw new Error(`Provider "${trimmedName}" already exists`);
     }
 
-    const secret = normalizeSecretInput(input, "create");
+    const secret = normalizeSecretInput(input, "create", this.encryptionKey);
     return this.repository.create({
       name: trimmedName,
       provider: input.provider ?? null,
@@ -89,7 +93,7 @@ export class ProvidersService implements IProvidersService {
 
     const secretUpdate =
       input.secretRef !== undefined
-        ? normalizeSecretInput(input, "update")
+        ? normalizeSecretInput(input, "update", this.encryptionKey)
         : null;
     const updated = await this.repository.update(name, {
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),

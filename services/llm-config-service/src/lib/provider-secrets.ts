@@ -18,6 +18,16 @@ export function looksLikeEnvVarName(value: string): boolean {
   return /^[A-Za-z_][A-Za-z0-9_]*$/.test(value);
 }
 
+export function encryptProviderSecretIfPlain(
+  secret: string,
+  encryptionKey: Buffer,
+): string {
+  if (isEncryptedProviderSecret(secret)) {
+    return secret;
+  }
+  return encryptProviderSecret(secret, encryptionKey);
+}
+
 export function parseProviderEncryptionKey(
   env: NodeJS.ProcessEnv = process.env,
 ): Buffer {
@@ -131,4 +141,33 @@ export function resolveProviderSecret(
 
   const envValue = env[secretRef];
   return envValue?.trim() ? envValue.trim() : undefined;
+}
+
+export function resolveProviderApiKey(
+  input: {
+    apiKey?: string | null;
+    secretRef?: string | null;
+  },
+  env: NodeJS.ProcessEnv = process.env,
+): string | undefined {
+  const secretRef = input.secretRef?.trim();
+  if (secretRef) {
+    if (looksLikeEnvVarName(secretRef)) {
+      const envValue = env[secretRef];
+      if (envValue?.trim()) {
+        return envValue.trim();
+      }
+    }
+  }
+
+  const storedApiKey = input.apiKey?.trim();
+  if (!storedApiKey) {
+    return undefined;
+  }
+
+  if (!isEncryptedProviderSecret(storedApiKey)) {
+    return storedApiKey;
+  }
+
+  return decryptProviderSecret(storedApiKey, parseProviderEncryptionKey(env));
 }

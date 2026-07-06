@@ -8,6 +8,7 @@ function toRecord(row: {
   name: string;
   provider: string | null;
   baseUrl: string | null;
+  apiKey: string | null;
   secretRef: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -17,6 +18,7 @@ function toRecord(row: {
     name: row.name,
     provider: row.provider,
     baseUrl: row.baseUrl,
+    apiKey: row.apiKey,
     secretRef: row.secretRef,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -27,6 +29,7 @@ export interface ProviderWriteData {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
+  apiKey?: string | null;
   secretRef?: string | null;
 }
 
@@ -61,6 +64,7 @@ export class ProvidersRepository {
         name: data.name,
         provider: data.provider ?? null,
         baseUrl: data.baseUrl ?? null,
+        apiKey: data.apiKey ?? null,
         secretRef: data.secretRef ?? null,
       })
       .returning();
@@ -84,6 +88,7 @@ export class ProvidersRepository {
     if (data.name !== undefined) setData.name = data.name;
     if (data.provider !== undefined) setData.provider = data.provider;
     if (data.baseUrl !== undefined) setData.baseUrl = data.baseUrl;
+    if (data.apiKey !== undefined) setData.apiKey = data.apiKey;
     if (data.secretRef !== undefined) setData.secretRef = data.secretRef;
 
     const [row] = await this.db

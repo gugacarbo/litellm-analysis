@@ -251,6 +251,7 @@ export function useProvidersPage() {
     name: "",
     provider: null,
     baseUrl: null,
+    apiKey: "",
     secretRef: "",
   });
   const [providerFormError, setProviderFormError] = useState<string | null>(

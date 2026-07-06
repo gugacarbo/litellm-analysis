@@ -39,14 +39,16 @@ export type ProviderInput = {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
-  secretRef: string;
+  apiKey: string;
+  secretRef?: string | null;
 };
 
 export type ProviderUpdateInput = {
   name?: string;
   provider?: string | null;
   baseUrl?: string | null;
-  secretRef?: string;
+  apiKey?: string;
+  secretRef?: string | null;
 };
 
 export async function getProvider(

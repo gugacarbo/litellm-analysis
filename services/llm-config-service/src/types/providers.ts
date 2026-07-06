@@ -3,6 +3,7 @@ export interface ProviderRecord {
   name: string;
   provider: string | null;
   baseUrl: string | null;
+  apiKey: string | null;
   secretRef: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -12,6 +13,7 @@ export interface ProviderCreateInput {
   name: string;
   provider?: string | null;
   baseUrl?: string | null;
+  apiKey?: string;
   secretRef?: string;
 }
 

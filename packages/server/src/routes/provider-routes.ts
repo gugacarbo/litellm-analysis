@@ -1,7 +1,7 @@
 import {
   getDefaultProvider,
   listProviders,
-  resolveProviderSecret,
+  resolveProviderApiKey,
   toPublicProvider,
 } from "@lite-llm/llm-config-service";
 import type { Application } from "express";
@@ -106,7 +106,7 @@ async function discoverModelsFromProvider(input: {
     throw new Error("Provider must have a baseUrl to discover models");
   }
 
-  const apiKey = resolveProviderSecret(input);
+  const apiKey = resolveProviderApiKey(input);
   if (!apiKey) {
     throw new Error(
       "Provider secret could not be resolved for model discovery",
@@ -415,7 +415,7 @@ export function registerProviderRoutes(
         return;
       }
 
-      const apiKey = resolveProviderSecret(provider);
+      const apiKey = resolveProviderApiKey(provider);
       if (!apiKey) {
         res.status(400).json({
           error: "Provider secret could not be resolved for test request",
@@ -577,15 +577,22 @@ export function registerProviderRoutes(
   // POST /providers - Create a new provider
   app.post("/providers", async (req, res) => {
     try {
-      const { name, provider, baseUrl, secretRef } = req.body as {
+      const { name, provider, baseUrl, apiKey, secretRef } = req.body as {
         name?: string;
         provider?: string | null;
         baseUrl?: string | null;
+        apiKey?: string;
         secretRef?: string;
       };
 
       if (!name || typeof name !== "string" || !name.trim()) {
         res.status(400).json({ error: "Provider name is required" });
+        return;
+      }
+      if (apiKey !== undefined && typeof apiKey !== "string") {
+        res.status(400).json({
+          error: "apiKey must be a string when provided",
+        });
         return;
       }
       if (secretRef !== undefined && typeof secretRef !== "string") {
@@ -595,9 +602,9 @@ export function registerProviderRoutes(
         return;
       }
 
-      if (!secretRef?.trim()) {
+      if (!apiKey?.trim()) {
         res.status(400).json({
-          error: "secretRef is required",
+          error: "apiKey is required",
         });
         return;
       }
@@ -606,7 +613,8 @@ export function registerProviderRoutes(
         name: name.trim(),
         provider: provider ?? null,
         baseUrl: baseUrl ?? null,
-        secretRef: secretRef.trim(),
+        apiKey: apiKey.trim(),
+        secretRef: secretRef?.trim(),
       });
       res.status(201).json(toPublicProvider(created));
     } catch (error) {
@@ -626,11 +634,13 @@ export function registerProviderRoutes(
         name: newName,
         provider,
         baseUrl,
+        apiKey,
         secretRef,
       } = req.body as {
         name?: string;
         provider?: string | null;
         baseUrl?: string | null;
+        apiKey?: string;
         secretRef?: string;
       };
 
@@ -641,6 +651,12 @@ export function registerProviderRoutes(
         res
           .status(400)
           .json({ error: "Provider name must be a non-empty string" });
+        return;
+      }
+      if (apiKey !== undefined && typeof apiKey !== "string") {
+        res.status(400).json({
+          error: "apiKey must be a string when provided",
+        });
         return;
       }
       if (
@@ -657,6 +673,7 @@ export function registerProviderRoutes(
         ...(newName !== undefined ? { name: newName.trim() } : {}),
         ...(provider !== undefined ? { provider } : {}),
         ...(baseUrl !== undefined ? { baseUrl } : {}),
+        ...(apiKey !== undefined ? { apiKey: apiKey.trim() } : {}),
         ...(secretRef !== undefined ? { secretRef: secretRef.trim() } : {}),
       });
       res.json(toPublicProvider(updated));
