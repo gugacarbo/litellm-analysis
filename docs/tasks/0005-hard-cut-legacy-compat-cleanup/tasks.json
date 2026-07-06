@@ -86,9 +86,7 @@
           "ModelSyncDirection",
           "ModelSyncPresenceStatus"
         ],
-        "produces": [
-          "Contrato único de modelos/sync sem aliases legados"
-        ]
+        "produces": ["Contrato único de modelos/sync sem aliases legados"]
       },
       "notes": [
         "Não deixar qualquer fallback passivo que continue aceitando payload antigo.",
@@ -99,9 +97,7 @@
       "id": "Task-A-0002",
       "title": "Colapsar repositories e credenciais para o contrato atual",
       "description": "Remove bridges de compatibilidade em repositories/services e consolida credenciais upstream e config de providers/modelos em uma forma canônica limpa.",
-      "dependencies": [
-        "Task-A-0001"
-      ],
+      "dependencies": ["Task-A-0001"],
       "batch": "A",
       "status": "completed",
       "tryCount": 1,
@@ -198,10 +194,7 @@
       "id": "Task-B-0001",
       "title": "Fazer hard cut do server, proxy e gateway",
       "description": "Remove caminhos legados das rotas de modelos e do gateway, consolidando runtime e auth do proxy em uma única forma atual.",
-      "dependencies": [
-        "Task-A-0001",
-        "Task-A-0002"
-      ],
+      "dependencies": ["Task-A-0001", "Task-A-0002"],
       "batch": "B",
       "status": "completed",
       "tryCount": 1,
@@ -280,9 +273,7 @@
           "ApiKeysService",
           "ResolvedUpstreamTarget"
         ],
-        "produces": [
-          "Runtime do proxy/gateway sem fallback legado"
-        ]
+        "produces": ["Runtime do proxy/gateway sem fallback legado"]
       },
       "notes": [
         "Se algum endpoint de sync perder sentido após o corte, prefira removê-lo a mantê-lo com semântica diferente.",
@@ -293,10 +284,7 @@
       "id": "Task-B-0002",
       "title": "Eliminar compatibilidade legada na plataforma de plugins",
       "description": "Remove normalização de payloads antigos de plugins, corta suporte a formatos V1/compat e apaga plugins ou nomes que existam só por herança LiteLLM.",
-      "dependencies": [
-        "Task-A-0001",
-        "Task-A-0002"
-      ],
+      "dependencies": ["Task-A-0001", "Task-A-0002"],
       "batch": "B",
       "status": "completed",
       "tryCount": 1,
@@ -368,9 +356,7 @@
           "services/agent-plugins/src/plugins/vscode/",
           "services/agent-plugins/src/plugins/weave/"
         ],
-        "deleted": [
-          "services/agent-plugins/src/plugins/model-alias/"
-        ]
+        "deleted": ["services/agent-plugins/src/plugins/model-alias/"]
       },
       "interfaces": {
         "consumes": [
@@ -378,9 +364,7 @@
           "PluginRegistry",
           "Plugin manifests/schemas"
         ],
-        "produces": [
-          "Plataforma de plugins sem compatibilidade V1/LiteLLM"
-        ]
+        "produces": ["Plataforma de plugins sem compatibilidade V1/LiteLLM"]
       },
       "notes": [
         "Se algum consumo atual do repo ainda depender de `model-alias`, atualize o consumo na mesma tarefa em vez de preservar o plugin.",
@@ -391,10 +375,7 @@
       "id": "Task-C-0001",
       "title": "Alinhar frontend e analytics ao contrato limpo",
       "description": "Remove normalizações de payload LiteLLM e deprecated fields no frontend, ajustando telas e API clients para o contrato atual único.",
-      "dependencies": [
-        "Task-B-0001",
-        "Task-B-0002"
-      ],
+      "dependencies": ["Task-B-0001", "Task-B-0002"],
       "batch": "C",
       "status": "completed",
       "tryCount": 1,
@@ -475,9 +456,7 @@
           "ProxyRequestLog",
           "Plugin config APIs"
         ],
-        "produces": [
-          "Frontend e analytics alinhados ao contrato hard cut"
-        ]
+        "produces": ["Frontend e analytics alinhados ao contrato hard cut"]
       },
       "notes": [
         "Se houver mock/test helper compartilhado em `apps/server` ou `apps/web`, atualize-o na mesma tarefa para evitar drift.",
@@ -552,15 +531,10 @@
           "docs/index.json",
           "docs/tasks/0005-hard-cut-legacy-compat-cleanup/"
         ],
-        "deleted": [
-          "arquivos mortos identificados durante o corte"
-        ]
+        "deleted": ["arquivos mortos identificados durante o corte"]
       },
       "interfaces": {
-        "consumes": [
-          "Resultados das tarefas A/B/C",
-          "scripts/docs-check"
-        ],
+        "consumes": ["Resultados das tarefas A/B/C", "scripts/docs-check"],
         "produces": [
           "Repo limpo, docs atualizadas e validação final do hard cut"
         ]
