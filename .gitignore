@@ -62,3 +62,5 @@ __pycache__
 
 # OpenCode codebase indexer (regenerable)
 .opencode/index/
+
+.super-planning
