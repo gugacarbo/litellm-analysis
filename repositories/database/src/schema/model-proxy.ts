@@ -14,7 +14,7 @@ import {
 export const modelProxyRequests = pgTable(
   "model_proxy_requests",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id").primaryKey(),
     upstreamRequestId: text("upstream_request_id"),
     model: text("model").notNull(),
     upstreamModel: text("upstream_model").notNull(),
@@ -71,7 +71,7 @@ export const modelProxyRequests = pgTable(
 export const modelProxyUsageAdjustments = pgTable(
   "model_proxy_usage_adjustments",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id").primaryKey(),
     requestId: text("request_id")
       .notNull()
       .references(() => modelProxyRequests.id, { onDelete: "cascade" }),
@@ -95,7 +95,7 @@ export const modelProxyUsageAdjustments = pgTable(
 export const modelProxyMessages = pgTable(
   "model_proxy_messages",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id").primaryKey(),
     requestId: text("request_id")
       .notNull()
       .references(() => modelProxyRequests.id, { onDelete: "cascade" }),

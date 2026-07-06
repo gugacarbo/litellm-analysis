@@ -10,7 +10,7 @@ CREATE TABLE "model_proxy_api_keys" (
 );
 --> statement-breakpoint
 CREATE TABLE "model_proxy_messages" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"request_id" text NOT NULL,
 	"role" text NOT NULL,
 	"content" jsonb NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE "model_proxy_providers" (
 );
 --> statement-breakpoint
 CREATE TABLE "model_proxy_requests" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"upstream_request_id" text,
 	"model" text NOT NULL,
 	"upstream_model" text NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE "model_proxy_settings" (
 );
 --> statement-breakpoint
 CREATE TABLE "model_proxy_usage_adjustments" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"request_id" text NOT NULL,
 	"reason" text NOT NULL,
 	"prompt_tokens_delta" integer DEFAULT 0 NOT NULL,
