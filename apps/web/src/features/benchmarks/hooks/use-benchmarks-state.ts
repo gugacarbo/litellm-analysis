@@ -13,6 +13,10 @@ import type {
   BenchmarkSortField,
   BenchmarksDerivedState,
 } from "../types/benchmark-types";
+import {
+  matchesBenchmarkModelSearch,
+  sortBenchmarkModelsBySearch,
+} from "../utils/model-search";
 
 interface UseBenchmarksStateResult extends BenchmarksDerivedState {
   isLoading: boolean;
@@ -183,11 +187,7 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     const base = rows.filter((row) => {
       if (showConfiguredOnly && !row.isConfigured) return false;
       if (provider !== "all" && row.creatorName !== provider) return false;
-      if (
-        searchValue &&
-        !toFilterableText(row.name).includes(searchValue) &&
-        !toFilterableText(row.slug ?? "").includes(searchValue)
-      ) {
+      if (searchValue && !matchesBenchmarkModelSearch(searchValue, row)) {
         return false;
       }
       if (!Number.isNaN(minInt)) {
@@ -201,7 +201,10 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
       return true;
     });
 
-    return sortRows(base, sortField, sortDirection);
+    const sorted = sortRows(base, sortField, sortDirection);
+    return searchValue
+      ? sortBenchmarkModelsBySearch(searchValue, sorted)
+      : sorted;
   }, [
     maxBlendedPrice,
     minIntelligence,
