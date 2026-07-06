@@ -7,6 +7,7 @@ import {
 import { AgentConfigPage } from "@/features/agents";
 import { AgentsPage } from "@/features/agents/list-index";
 import { BenchmarksPage } from "@/features/benchmarks";
+import { OpenRouterBenchmarksPage } from "@/features/openrouter-benchmarks";
 import { DashboardPage } from "@/features/dashboard";
 import { LogsPage } from "@/features/logs";
 import { LogChatSimulationPage } from "@/features/logs/chat-simulation";
@@ -63,6 +64,12 @@ const routes: RouteConfig[] = [
     path: "/benchmarks",
     title: "Benchmarks",
     component: BenchmarksPage,
+    withErrorBoundary: true,
+  },
+  {
+    path: "/benchmarks/openrouter",
+    title: "OpenRouter Benchmarks",
+    component: OpenRouterBenchmarksPage,
     withErrorBoundary: true,
   },
   {
