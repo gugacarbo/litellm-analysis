@@ -4,6 +4,7 @@ export type ModelDisplayCandidate = {
   modelName: string;
   status: ModelDisplayStatus;
   modelRoute: {
+    modelName: string;
     providerName?: string;
   };
   enabled?: boolean;

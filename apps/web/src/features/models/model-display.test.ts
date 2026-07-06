@@ -12,6 +12,7 @@ function createModel(
     status,
     enabled: true,
     modelRoute: {
+      modelName,
       ...(providerName ? { providerName } : {}),
     },
   };
