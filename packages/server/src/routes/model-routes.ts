@@ -3,6 +3,7 @@ import {
   type ModelRoute,
   providerExists as registryProviderExists,
 } from "@lite-llm/llm-config-service";
+import type { ModelSpec } from "@lite-llm/models-repository";
 import type { Application, Response } from "express";
 import {
   listBlockingManualAliases,
@@ -28,12 +29,43 @@ type AliasInventory = {
   managedAliasKeys: Set<string>;
 };
 
+type SyncPresenceStatus = "synced" | "config-only" | "registry-only";
+
 function normalizeAliasValue(value: string): string {
   return value.trim();
 }
 
 function normalizeModelNameParam(value: string): string {
   return value.trim();
+}
+
+function configSliceFromSpec(spec?: ModelSpec): {
+  displayName?: string;
+  family?: string;
+  ownedBy?: string;
+  apiMode?: "openai" | "anthropic";
+  vision?: boolean;
+  thinking?: { levels?: string[] };
+  reasoning?: {
+    effort?: "low" | "medium" | "high" | "xhigh";
+    enableThinking?: boolean;
+    includeReasoningInRequest?: boolean;
+    apiMode?: "openai" | "anthropic";
+  };
+} | undefined {
+  if (!spec) {
+    return undefined;
+  }
+
+  return {
+    ...(spec.displayName ? { displayName: spec.displayName } : {}),
+    ...(spec.family ? { family: spec.family } : {}),
+    ...(spec.ownedBy ? { ownedBy: spec.ownedBy } : {}),
+    ...(spec.apiMode ? { apiMode: spec.apiMode } : {}),
+    ...(typeof spec.vision === "boolean" ? { vision: spec.vision } : {}),
+    ...(spec.thinking ? { thinking: spec.thinking } : {}),
+    ...(spec.reasoning ? { reasoning: spec.reasoning } : {}),
+  };
 }
 
 function readAliasInventory(settings: unknown): AliasInventory {
@@ -124,6 +156,82 @@ export function registerModelRoutes(
 
   async function getAliasInventory(): Promise<AliasInventory> {
     return readAliasInventory(await settingsService.getRouterSettings());
+  }
+
+  async function listModelsWithConfig() {
+    const [configModels, registryRoutes] = await Promise.all([
+      opts.modelsService.getAll(),
+      registryModelsService.listRoutes(),
+    ]);
+
+    const registryByName = new Map(
+      registryRoutes.map((route) => [route.modelName, route]),
+    );
+    const configNames = new Set(Object.keys(configModels));
+    const allNames = Array.from(
+      new Set([...configNames, ...registryByName.keys()]),
+    ).sort((left, right) => left.localeCompare(right));
+
+    const models = allNames.map((modelName) => {
+      const config = configModels[modelName];
+      const registryRoute = registryByName.get(modelName);
+
+      let status: SyncPresenceStatus = "synced";
+      if (config && !registryRoute) {
+        status = "config-only";
+      } else if (!config && registryRoute) {
+        status = "registry-only";
+      }
+
+      return {
+        modelName,
+        modelRoute: registryRoute ?? { modelName },
+        enabled: config?.enabled ?? registryRoute?.enabled ?? true,
+        ...(config ? { config: configSliceFromSpec(config) } : {}),
+        status,
+      };
+    });
+
+    const counts = models.reduce(
+      (acc, model) => {
+        if (model.status === "synced") acc.synced += 1;
+        if (model.status === "config-only") acc.configOnly += 1;
+        if (model.status === "registry-only") acc.registryOnly += 1;
+        acc.total += 1;
+        return acc;
+      },
+      { synced: 0, configOnly: 0, registryOnly: 0, total: 0 },
+    );
+
+    return {
+      models,
+      counts,
+      settingsStorage: "database" as const,
+    };
+  }
+
+  async function getDefaultSettingsDiffPayload() {
+    const [defaultProvider, registryRoutes] = await Promise.all([
+      getResolvedDefaultProvider(),
+      registryModelsService.listRoutes(),
+    ]);
+
+    const normalizedDefaultProvider = defaultProvider?.trim() ?? "";
+    const mismatchedModels = normalizedDefaultProvider
+      ? registryRoutes
+          .filter((route) => {
+            const providerName = route.providerName?.trim();
+            return !!providerName && providerName !== normalizedDefaultProvider;
+          })
+          .map((route) => route.modelName)
+          .sort((left, right) => left.localeCompare(right))
+      : [];
+
+    return {
+      defaultProvider: normalizedDefaultProvider,
+      mismatchedModels,
+      count: mismatchedModels.length,
+    };
   }
 
   async function getAliasTargetValidationError(
@@ -321,6 +429,67 @@ export function registerModelRoutes(
       await opts.providerService.update(providerId, updates);
       const updated = await opts.providerService.get(providerId);
       res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/models/with-config", async (_req, res) => {
+    try {
+      res.json(await listModelsWithConfig());
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.get("/models/default-settings-diff", async (_req, res) => {
+    try {
+      res.json(await getDefaultSettingsDiffPayload());
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.post("/models/sync-default-settings", async (_req, res) => {
+    try {
+      const defaultProvider = (await getResolvedDefaultProvider())?.trim() ?? "";
+      if (!defaultProvider) {
+        res.status(400).json({ error: "Default provider is not configured" });
+        return;
+      }
+
+      const routes = await registryModelsService.listRoutes();
+      const mismatchedRoutes = routes.filter((route) => {
+        const providerName = route.providerName?.trim();
+        return !!providerName && providerName !== defaultProvider;
+      });
+
+      for (const route of mismatchedRoutes) {
+        await updateRegistryModelFromRoute(
+          registryModelsService,
+          route.modelName,
+          { ...route, providerName: defaultProvider },
+          defaultProvider,
+        );
+      }
+
+      res.json({
+        success: true,
+        updated: mismatchedRoutes.length,
+        defaultProvider,
+      });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.post("/models/export-configs", async (_req, res) => {
+    try {
+      await opts.orchestration.syncGeneratedArtifacts();
+      if (opts.agentsManager) {
+        await opts.agentsManager.registry.exportAll();
+      }
+      res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }
