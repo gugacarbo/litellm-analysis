@@ -1,6 +1,9 @@
+import {
+  encryptProviderSecret,
+  parseProviderEncryptionKey,
+} from "@lite-llm/llm-config-service";
 import type { Provider } from "@lite-llm/models-repository";
 import { describe, expect, it, vi } from "vitest";
-import { encryptProviderSecret, parseProviderEncryptionKey } from "@lite-llm/llm-config-service";
 import {
   CHATGPT_SUBSCRIPTION_PROVIDER,
   findUpstreamProvider,
@@ -258,6 +261,55 @@ describe("upstream-provider", () => {
       "https://chatgpt.com/backend-api/codex",
     );
     expect(target.upstreamHeaders).toEqual({});
+  });
+
+  it("decrypts an encrypted apiKey at runtime", async () => {
+    process.env.APP_ENCRYPTION_KEY = "test-app-encryption-key";
+    const encryptedApiKey = encryptProviderSecret(
+      "sk-encrypted-apikey-key",
+      parseProviderEncryptionKey(),
+    );
+
+    dbSelectMock.mockReturnValueOnce({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(() =>
+            Promise.resolve([
+              {
+                name: "openai-main",
+                secretRef: null,
+                apiKey: encryptedApiKey,
+                baseUrl: "https://api.openai.com/v1",
+              },
+            ]),
+          ),
+        })),
+      })),
+    });
+
+    const target = await resolveUpstreamTarget({
+      modelName: "gpt-test",
+      providers: {
+        openai: {
+          name: "OpenAI",
+          adapter: "openai-compatible",
+          baseUrl: "https://api.openai.com/v1",
+          defaultProvider: "openai-main",
+        },
+      },
+      row: createModelRow({
+        ownedBy: null,
+        family: null,
+        providerName: "openai-main",
+      }),
+    });
+
+    delete process.env.APP_ENCRYPTION_KEY;
+
+    expect(target.upstreamHeaders).toEqual({
+      authorization: "Bearer sk-encrypted-apikey-key",
+    });
+    expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
   });
 
   it("falls back to the legacy encrypted apiKey column when secretRef is empty", async () => {

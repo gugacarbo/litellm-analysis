@@ -5,9 +5,9 @@ import {
   modelProxyProviders,
 } from "@lite-llm/database/schema/model-proxy";
 import {
-  OPENAI_CHATGPT_API_BASE,
   decryptProviderSecret,
   isEncryptedProviderSecret,
+  OPENAI_CHATGPT_API_BASE,
   parseProviderEncryptionKey,
   resolveProviderSecret,
 } from "@lite-llm/llm-config-service";
@@ -33,28 +33,16 @@ function normalizeBaseUrl(raw: string): string {
   return raw.replace(/\/+$/, "");
 }
 
-function looksLikeEnvVarName(value: string): boolean {
-  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(value);
-}
-
 function readSecretRef(secretRef?: string | null): string | undefined {
-  const trimmed = secretRef?.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-
-  if (!looksLikeEnvVarName(trimmed)) {
-    return trimmed;
-  }
-
-  const envValue = process.env[trimmed];
-  return envValue?.trim() ? envValue.trim() : undefined;
+  return resolveProviderSecret({ secretRef }, process.env);
 }
 
-function resolveStoredProviderApiKey(provider?: {
-  apiKey?: string | null;
-  secretRef?: string | null;
-} | null): string | undefined {
+function resolveStoredProviderApiKey(
+  provider?: {
+    apiKey?: string | null;
+    secretRef?: string | null;
+  } | null,
+): string | undefined {
   if (!provider) {
     return undefined;
   }
@@ -80,10 +68,9 @@ export function findUpstreamProvider(
   providers: Record<string, Provider>,
   row?: ModelProxyModel | null,
 ): Provider | undefined {
-  const candidateKeys = [
-    row?.ownedBy,
-    row?.family ?? undefined,
-  ].filter((value): value is string => !!value?.trim());
+  const candidateKeys = [row?.ownedBy, row?.family ?? undefined].filter(
+    (value): value is string => !!value?.trim(),
+  );
 
   for (const key of candidateKeys) {
     if (key === CHATGPT_SUBSCRIPTION_PROVIDER) {
@@ -213,9 +200,7 @@ export async function resolveUpstreamTarget(params: {
   const isChatGptSubscription =
     upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
 
-  const upstreamApiKey =
-    envSecret ||
-    resolveStoredProviderApiKey(provider);
+  const upstreamApiKey = envSecret || resolveStoredProviderApiKey(provider);
 
   if (!isChatGptSubscription && !upstreamApiKey) {
     throw new Error(`No upstream API key configured for model "${modelName}"`);

@@ -92,8 +92,16 @@ describe("buildHeboGatewayConfig", () => {
         where: vi.fn(() => ({
           orderBy: vi.fn(() =>
             Promise.resolve([
-              { modelName: "gpt-4.1", providerName: "openai-main", isDefaultProvider: true },
-              { modelName: "gpt-4.1", providerName: "deepseek-main", isDefaultProvider: false },
+              {
+                modelName: "gpt-4.1",
+                providerName: "openai-main",
+                isDefaultProvider: true,
+              },
+              {
+                modelName: "gpt-4.1",
+                providerName: "deepseek-main",
+                isDefaultProvider: false,
+              },
             ]),
           ),
         })),
@@ -107,7 +115,11 @@ describe("buildHeboGatewayConfig", () => {
         where: vi.fn(() => ({
           orderBy: vi.fn(() =>
             Promise.resolve([
-              { modelName: "gpt-4.1", providerName: "openai-main", isDefaultProvider: true },
+              {
+                modelName: "gpt-4.1",
+                providerName: "openai-main",
+                isDefaultProvider: true,
+              },
             ]),
           ),
         })),
@@ -166,8 +178,16 @@ describe("buildHeboGatewayConfig", () => {
         where: vi.fn(() => ({
           orderBy: vi.fn(() =>
             Promise.resolve([
-              { modelName: "gpt-4.1", providerName: "deepseek-main", isDefaultProvider: false },
-              { modelName: "gpt-4.1", providerName: "openai-main", isDefaultProvider: false },
+              {
+                modelName: "gpt-4.1",
+                providerName: "deepseek-main",
+                isDefaultProvider: false,
+              },
+              {
+                modelName: "gpt-4.1",
+                providerName: "openai-main",
+                isDefaultProvider: false,
+              },
             ]),
           ),
         })),
@@ -194,7 +214,7 @@ describe("buildHeboGatewayConfig", () => {
 
   it("throws a detailed error when enabled models exist but none can resolve an upstream provider", async () => {
     resolveUpstreamTargetMock.mockRejectedValue(
-      new Error("No upstream API key configured for model \"gpt-4.1\""),
+      new Error('No upstream API key configured for model "gpt-4.1"'),
     );
 
     await expect(
@@ -209,8 +229,6 @@ describe("buildHeboGatewayConfig", () => {
       buildHeboGatewayConfig({
         ...createServices(),
       }),
-    ).rejects.toThrow(
-      /openai-main\/gpt-4\.1: No upstream API key configured/,
-    );
+    ).rejects.toThrow(/openai-main\/gpt-4\.1: No upstream API key configured/);
   });
 });

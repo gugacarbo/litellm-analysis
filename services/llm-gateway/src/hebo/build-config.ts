@@ -222,7 +222,10 @@ export async function buildHeboGatewayConfig(options: {
     };
   }
 
-  if (proxyCatalogRows.length > 0 && Object.keys(providerRegistry).length === 0) {
+  if (
+    proxyCatalogRows.length > 0 &&
+    Object.keys(providerRegistry).length === 0
+  ) {
     throw new Error(
       [
         "Failed to build Hebo gateway config: no resolvable upstream providers for enabled models.",

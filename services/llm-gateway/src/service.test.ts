@@ -45,7 +45,11 @@ function setupDbMock(overrides?: {
       from: () => chain,
       where: () => chain,
       orderBy: () => {
-        if (fields && typeof fields === "object" && "modelName" in (fields as Record<string, unknown>)) {
+        if (
+          fields &&
+          typeof fields === "object" &&
+          "modelName" in (fields as Record<string, unknown>)
+        ) {
           return Promise.resolve(modelRows);
         }
         return chain;
