@@ -8,7 +8,6 @@ import {
   Database,
   FileOutput,
   Pencil,
-  Plus,
   RefreshCw,
   Trash2,
 } from "lucide-react";
@@ -62,7 +61,6 @@ import {
 import type {
   ModelConfig,
   ModelSyncDiffItem,
-  ModelWithStatus,
   SettingsStorage,
   SyncDirection,
   SyncField,
@@ -94,10 +92,8 @@ type ModelsTableCardProps = {
   healthChecksByModel: Map<string, HealthCheckResultEntry>;
   getHealthCheck: (modelName: string) => HealthCheckResultEntry | undefined;
   healthChecksLoading?: boolean;
-  addToConfigPending: boolean;
   onDeleteModelNameChange: (value: string | null) => void;
   onDelete: () => void;
-  onAddToConfig: (modelName: string) => void;
   onToggleEnabled: (modelName: string, enabled: boolean) => void;
 
   // sync + form + providers
@@ -147,10 +143,8 @@ export function ModelsTableCard({
   healthChecksByModel,
   getHealthCheck,
   healthChecksLoading = false,
-  addToConfigPending,
   onDeleteModelNameChange,
   onDelete,
-  onAddToConfig,
   onToggleEnabled,
   counts,
   settingsStorage,
@@ -577,18 +571,6 @@ export function ModelsTableCard({
                             —
                           </span>
                         )}
-                        {model.status === "registry-only" ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 px-2 text-xs"
-                            disabled={addToConfigPending}
-                            onClick={() => onAddToConfig(model.modelName)}
-                          >
-                            <Plus className="mr-1 h-3 w-3" />
-                            Add to Config
-                          </Button>
-                        ) : null}
                       </div>
                     </TableCell>
                   </TableRow>

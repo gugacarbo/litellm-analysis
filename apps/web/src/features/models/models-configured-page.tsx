@@ -3,7 +3,6 @@ import { useModelsPage } from "./use-models-page";
 
 export function ModelsConfiguredPage() {
   const {
-    addToConfigPending,
     counts,
     deleteModelName,
     setDeleteModelName,
@@ -18,7 +17,6 @@ export function ModelsConfiguredPage() {
     modelsQuery,
     healthChecksQuery,
     mutationError,
-    handleAddToConfig,
     handleDelete,
     handleOpenCreateWithDefaultProvider,
     handleOpenSync,
@@ -57,10 +55,8 @@ export function ModelsConfiguredPage() {
         mutationError || (modelsQuery.error ? String(modelsQuery.error) : null)
       }
       deleteModelName={deleteModelName}
-      addToConfigPending={addToConfigPending}
       onDeleteModelNameChange={setDeleteModelName}
       onDelete={handleDelete}
-      onAddToConfig={handleAddToConfig}
       onToggleEnabled={handleToggleEnabled}
       counts={counts}
       settingsStorage={"database"}
