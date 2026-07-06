@@ -33,6 +33,7 @@
 | `model_proxy_settings` | Configurações operacionais (chave-valor JSON) |
 | `model_proxy_aliases` | Aliases de roteamento |
 | `model_proxy_import_jobs` | Registro de importações de dados legados |
+| `model_proxy_benchmarks` | Benchmarks de modelos (Artificial Analysis, OpenRouter) |
 
 ### Migrations
 - Local: `repositories/database/drizzle/`.
@@ -51,6 +52,7 @@
 ```bash
 DATABASE_URL=postgresql://user:password@localhost:5432/lite_llm_analytics
 MODEL_PROXY_API_KEY=dev-key-123   # bootstrap para dev
+OPENROUTER_API_KEY=sk-or-...      # para sync de benchmarks do OpenRouter
 ```
 
 ### Comandos
