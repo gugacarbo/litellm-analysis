@@ -1,16 +1,17 @@
 import type { NormalizedModelBenchmark } from "@lite-llm/contracts/benchmarks";
 import { getDb } from "@lite-llm/database/client";
 import {
-  modelProxyBenchmarks,
   type ModelProxyBenchmark,
+  modelProxyBenchmarks,
   type NewModelProxyBenchmark,
 } from "@lite-llm/database/schema/model-proxy";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { IBenchmarksRepository } from "./interfaces";
 
 function toRow(model: NormalizedModelBenchmark): NewModelProxyBenchmark {
   return {
     aaModelId: model.id,
+    source: model.source,
     name: model.name,
     slug: model.slug,
     creatorId: model.creatorId,
@@ -37,7 +38,7 @@ function toRow(model: NormalizedModelBenchmark): NewModelProxyBenchmark {
     medianOutputTokensPerSecond: model.medianOutputTokensPerSecond,
     medianTtftSeconds: model.medianTimeToFirstTokenSeconds,
     medianTtftAnswerSeconds: model.medianTimeToFirstAnswerTokenSeconds,
-    sourceUrl: "https://artificialanalysis.ai/",
+    sourceUrl: model.source === "artificial-analysis" ? "https://artificialanalysis.ai/" : "https://openrouter.ai/",
   };
 }
 
@@ -49,6 +50,7 @@ function fromRow(row: ModelProxyBenchmark): NormalizedModelBenchmark {
     creatorId: row.creatorId,
     creatorName: row.creatorName,
     creatorSlug: row.creatorSlug,
+    source: row.source as "artificial-analysis" | "openrouter",
     intelligenceIndex: row.intelligenceIndex,
     codingIndex: row.codingIndex,
     mathIndex: row.mathIndex,
@@ -87,7 +89,7 @@ export class DbBenchmarksRepository implements IBenchmarksRepository {
           .insert(modelProxyBenchmarks)
           .values(toRow(model))
           .onConflictDoUpdate({
-            target: modelProxyBenchmarks.aaModelId,
+            target: [modelProxyBenchmarks.aaModelId, modelProxyBenchmarks.source],
             set: toRow(model),
           });
       }
@@ -101,11 +103,16 @@ export class DbBenchmarksRepository implements IBenchmarksRepository {
 
   async getByAaModelId(
     aaModelId: string,
+    source?: "artificial-analysis" | "openrouter",
   ): Promise<NormalizedModelBenchmark | null> {
+    const conditions = [eq(modelProxyBenchmarks.aaModelId, aaModelId)];
+    if (source) {
+      conditions.push(eq(modelProxyBenchmarks.source, source));
+    }
     const rows = await this.db
       .select()
       .from(modelProxyBenchmarks)
-      .where(eq(modelProxyBenchmarks.aaModelId, aaModelId))
+      .where(and(...conditions))
       .limit(1);
     return rows.length > 0 ? fromRow(rows[0]) : null;
   }

@@ -5,6 +5,7 @@ export interface NormalizedModelBenchmark {
   creatorId: string | null;
   creatorName: string;
   creatorSlug: string | null;
+  source: "artificial-analysis" | "openrouter";
   intelligenceIndex: number | null;
   codingIndex: number | null;
   mathIndex: number | null;
@@ -56,10 +57,12 @@ export type BenchmarkSyncStatus = "idle" | "running" | "succeeded" | "failed";
 export interface BenchmarkSyncStatusResponse {
   status: BenchmarkSyncStatus;
   isRunning: boolean;
+  canTrigger: boolean;
   datasetExists: boolean;
   startedAt: string | null;
   finishedAt: string | null;
   lastSuccessAt: string | null;
+  cooldownUntil: string | null;
   lastError: string | null;
 }
 

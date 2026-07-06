@@ -1,9 +1,11 @@
+import type { NormalizedModelBenchmark } from "@lite-llm/contracts/benchmarks";
 import { createTestDb } from "@lite-llm/database/test-helpers";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createBenchmarksRepository } from "./db-repository";
-import type { NormalizedModelBenchmark } from "@lite-llm/contracts/benchmarks";
 
-function makeModel(overrides: Partial<NormalizedModelBenchmark> = {}): NormalizedModelBenchmark {
+function makeModel(
+  overrides: Partial<NormalizedModelBenchmark> = {},
+): NormalizedModelBenchmark {
   return {
     id: "test-model-1",
     name: "Test Model 1",
@@ -11,6 +13,7 @@ function makeModel(overrides: Partial<NormalizedModelBenchmark> = {}): Normalize
     creatorId: "creator-1",
     creatorName: "Test Creator",
     creatorSlug: "test-creator",
+    source: "artificial-analysis",
     intelligenceIndex: 85.5,
     codingIndex: 90.0,
     mathIndex: 80.0,
@@ -67,7 +70,10 @@ describe("DbBenchmarksRepository", () => {
 
     await repo.upsert([model]);
 
-    const updated = makeModel({ name: "Updated Model", intelligenceIndex: 95.0 });
+    const updated = makeModel({
+      name: "Updated Model",
+      intelligenceIndex: 95.0,
+    });
     await repo.upsert([updated]);
 
     const all = await repo.getAll();
@@ -96,14 +102,20 @@ describe("DbBenchmarksRepository", () => {
 
     expect(await repo.count()).toBe(0);
 
-    await repo.upsert([makeModel(), makeModel({ id: "test-model-2", name: "M2" })]);
+    await repo.upsert([
+      makeModel(),
+      makeModel({ id: "test-model-2", name: "M2" }),
+    ]);
     expect(await repo.count()).toBe(2);
   });
 
   it("clear removes all models", async () => {
     const repo = createBenchmarksRepository();
 
-    await repo.upsert([makeModel(), makeModel({ id: "test-model-2", name: "M2" })]);
+    await repo.upsert([
+      makeModel(),
+      makeModel({ id: "test-model-2", name: "M2" }),
+    ]);
     expect(await repo.count()).toBe(2);
 
     await repo.clear();
