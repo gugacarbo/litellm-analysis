@@ -18,10 +18,7 @@ import {
   resolveModelRouteFromBody,
   updateRegistryModelFromRoute,
 } from "../orchestration/registry-models-bridge";
-import {
-  isRecord,
-  normalizeModelRoute,
-} from "../orchestration/route-params";
+import { isRecord, normalizeModelRoute } from "../orchestration/route-params";
 import type { DbModelSpecLike, RouteOptions } from "../types/index";
 
 type AliasInventory = {
@@ -39,20 +36,22 @@ function normalizeModelNameParam(value: string): string {
   return value.trim();
 }
 
-function configSliceFromSpec(spec?: ModelSpec): {
-  displayName?: string;
-  family?: string;
-  ownedBy?: string;
-  apiMode?: "openai" | "anthropic";
-  vision?: boolean;
-  thinking?: { levels?: string[] };
-  reasoning?: {
-    effort?: "low" | "medium" | "high" | "xhigh";
-    enableThinking?: boolean;
-    includeReasoningInRequest?: boolean;
-    apiMode?: "openai" | "anthropic";
-  };
-} | undefined {
+function configSliceFromSpec(spec?: ModelSpec):
+  | {
+      displayName?: string;
+      family?: string;
+      ownedBy?: string;
+      apiMode?: "openai" | "anthropic";
+      vision?: boolean;
+      thinking?: { levels?: string[] };
+      reasoning?: {
+        effort?: "low" | "medium" | "high" | "xhigh";
+        enableThinking?: boolean;
+        includeReasoningInRequest?: boolean;
+        apiMode?: "openai" | "anthropic";
+      };
+    }
+  | undefined {
   if (!spec) {
     return undefined;
   }
@@ -452,7 +451,8 @@ export function registerModelRoutes(
 
   app.post("/models/sync-default-settings", async (_req, res) => {
     try {
-      const defaultProvider = (await getResolvedDefaultProvider())?.trim() ?? "";
+      const defaultProvider =
+        (await getResolvedDefaultProvider())?.trim() ?? "";
       if (!defaultProvider) {
         res.status(400).json({ error: "Default provider is not configured" });
         return;
