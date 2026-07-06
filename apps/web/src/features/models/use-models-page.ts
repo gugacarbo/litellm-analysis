@@ -31,6 +31,7 @@ import {
   type ProviderUpdateInput,
   updateProvider,
 } from "@/shared/lib/api-client/providers";
+import { mergeRegistryModelsWithConfigAliases } from "./model-display";
 import { validateAndBuildModelRoute } from "./models-form-utils";
 import { useLatestHealthChecks } from "./use-latest-health-checks";
 import { useModelsFormState } from "./use-models-form-state";
@@ -592,7 +593,7 @@ export function useModelsPage() {
         setMutationError(String(e));
       }
     },
-    models: modelsQuery.data?.models ?? [],
+    models: mergeRegistryModelsWithConfigAliases(modelsQuery.data?.models ?? []),
     settingsStorage: "database" as const,
     healthChecksByModel: checksByModel,
     getHealthCheck: getCheck,

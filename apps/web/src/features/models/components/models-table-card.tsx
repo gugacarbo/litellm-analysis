@@ -69,6 +69,7 @@ import type {
 } from "@/shared/lib/api-client/models";
 import { resolveModelRoute } from "@/shared/lib/api-client/models";
 import type { RegistryProvider } from "@/shared/lib/api-client/providers";
+import type { DisplayModelWithAliases } from "../model-display";
 
 const statusBadgeVariant: Record<
   string,
@@ -86,7 +87,7 @@ const statusLabel: Record<string, string> = {
 };
 
 type ModelsTableCardProps = {
-  models: ModelWithStatus[];
+  models: DisplayModelWithAliases[];
   loading: boolean;
   error: string | null;
   deleteModelName: string | null;
@@ -407,12 +408,21 @@ export function ModelsTableCard({
                     }
                   >
                     <TableCell className="font-medium">
-                      <Link
-                        to={`/models/${encodeURIComponent(model.modelName)}`}
-                        className="hover:underline"
-                      >
-                        {model.modelName}
-                      </Link>
+                      <div className="space-y-1">
+                        <Link
+                          to={`/models/${encodeURIComponent(model.modelName)}`}
+                          className="hover:underline"
+                        >
+                          {model.modelName}
+                        </Link>
+                        {model.aliases && model.aliases.length > 0 ? (
+                          <div className="space-y-0.5 text-xs font-normal text-muted-foreground">
+                            {model.aliases.map((alias) => (
+                              <div key={alias}>{alias}</div>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {providerName || "—"}
