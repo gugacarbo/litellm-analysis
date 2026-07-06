@@ -59,7 +59,9 @@ export function mergeRegistryModelsWithConfigAliases(
 
   const registryIndex = new Map<string, DisplayModelWithAliases>();
   for (const model of registryModels) {
-    const providerName = normalizeAliasLookupPart(model.modelRoute.providerName);
+    const providerName = normalizeAliasLookupPart(
+      model.modelRoute.providerName,
+    );
     const modelName = normalizeAliasLookupPart(model.modelName);
     registryIndex.set(`${providerName}::${modelName}`, model);
   }

@@ -170,10 +170,7 @@ export async function getSpendLogs(params: ProxySpendLogsQueryParams) {
   const mappedAdjustments = adjustments.map(mapUsageAdjustmentRow);
 
   const messagesByRequest = groupByRequestId(mappedMessages, "requestId");
-  const adjustmentsByRequest = groupByRequestId(
-    mappedAdjustments,
-    "requestId",
-  );
+  const adjustmentsByRequest = groupByRequestId(mappedAdjustments, "requestId");
 
   return rows.map((row) => ({
     ...row,

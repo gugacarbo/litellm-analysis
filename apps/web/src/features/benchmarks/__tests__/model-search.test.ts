@@ -8,7 +8,8 @@ import {
 } from "../utils/model-search";
 
 function createModel(
-  overrides: Partial<ModelBenchmarkListItem> & Pick<ModelBenchmarkListItem, "id" | "name" | "creatorName">,
+  overrides: Partial<ModelBenchmarkListItem> &
+    Pick<ModelBenchmarkListItem, "id" | "name" | "creatorName">,
 ): ModelBenchmarkListItem {
   return {
     id: overrides.id,

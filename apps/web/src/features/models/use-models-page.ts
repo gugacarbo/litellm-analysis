@@ -593,7 +593,9 @@ export function useModelsPage() {
         setMutationError(String(e));
       }
     },
-    models: mergeRegistryModelsWithConfigAliases(modelsQuery.data?.models ?? []),
+    models: mergeRegistryModelsWithConfigAliases(
+      modelsQuery.data?.models ?? [],
+    ),
     settingsStorage: "database" as const,
     healthChecksByModel: checksByModel,
     getHealthCheck: getCheck,

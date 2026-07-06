@@ -98,7 +98,9 @@ export function matchesBenchmarkModelSearch(
   model: Pick<ModelBenchmarkListItem, "name" | "slug" | "creatorName">,
   opts?: { includeCreatorName?: boolean },
 ): boolean {
-  return getBenchmarkModelSearchScore(query, model, opts) > Number.NEGATIVE_INFINITY;
+  return (
+    getBenchmarkModelSearchScore(query, model, opts) > Number.NEGATIVE_INFINITY
+  );
 }
 
 export function sortBenchmarkModelsBySearch(

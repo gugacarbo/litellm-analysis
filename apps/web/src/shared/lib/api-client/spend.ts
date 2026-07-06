@@ -102,9 +102,7 @@ export function normalizeProxyRequestLog(
   return {
     id: readString(raw.id ?? raw.request_id),
     model: readString(raw.model),
-    upstream_model: readString(
-      raw.upstream_model ?? raw.model,
-    ),
+    upstream_model: readString(raw.upstream_model ?? raw.model),
     upstream_base_url: readString(raw.upstream_base_url),
     status: readString(raw.status),
     started_at: readString(raw.started_at ?? raw.start_time),
