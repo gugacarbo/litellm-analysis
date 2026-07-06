@@ -1,15 +1,26 @@
 import { serverEnv } from "@lite-llm/config/server";
-import type { sql } from "drizzle-orm";
+import type { SQL, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
 let pool: Pool | null = null;
 let dbInstance: ReturnType<typeof drizzle> | null = null;
 
+function readSearchPath(connectionString: string): string | undefined {
+  const schema = new URL(connectionString).searchParams.get("schema")?.trim();
+  if (!schema) {
+    return undefined;
+  }
+
+  return `${schema},public`;
+}
+
 function getPool(): Pool {
   if (!pool) {
+    const searchPath = readSearchPath(serverEnv.DATABASE_URL);
     pool = new Pool({
       connectionString: serverEnv.DATABASE_URL,
+      ...(searchPath ? { options: `-c search_path=${searchPath}` } : {}),
     });
   }
   return pool;
@@ -35,9 +46,9 @@ export async function disconnectDb(): Promise<void> {
 }
 
 export async function queryRaw<T>(
-  query: ReturnType<typeof sql>,
-  params: unknown[] = [],
+  query: ReturnType<typeof sql> | SQL,
+  _params: unknown[] = [],
 ): Promise<T[]> {
-  const result = await getPool().query(query as unknown as string, params);
+  const result = await getDb().execute(query);
   return result.rows as T[];
 }
