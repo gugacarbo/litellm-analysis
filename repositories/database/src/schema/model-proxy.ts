@@ -199,7 +199,8 @@ export const modelProxyBenchmarks = pgTable(
   "model_proxy_benchmarks",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    aaModelId: text("aa_model_id").notNull().unique(),
+    aaModelId: text("aa_model_id").notNull(),
+    source: text("source").notNull(),
     name: text("name").notNull(),
     slug: text("slug"),
     creatorId: text("creator_id"),
@@ -231,6 +232,12 @@ export const modelProxyBenchmarks = pgTable(
     sourceUrl: text("source_url").notNull(),
     fetchedAt: timestamp("fetched_at").defaultNow().notNull(),
   },
+  (table) => [
+    uniqueIndex("uq_model_proxy_benchmarks_aa_model_id_source").on(
+      table.aaModelId,
+      table.source,
+    ),
+  ],
 );
 
 export type ModelProxyRequest = typeof modelProxyRequests.$inferSelect;

@@ -1,6 +1,6 @@
 {
-  "id": "90aace9f-dcd0-437e-bebb-e5877c80c992",
-  "prevId": "3b2ccaf3-b4bd-4419-b81a-232014a0cfc1",
+  "id": "021f3181-8fd2-4ceb-82c7-d56c947a680d",
+  "prevId": "90aace9f-dcd0-437e-bebb-e5877c80c992",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -255,7 +255,9 @@
         "model_proxy_api_keys_key_hash_unique": {
           "name": "model_proxy_api_keys_key_hash_unique",
           "nullsNotDistinct": false,
-          "columns": ["key_hash"]
+          "columns": [
+            "key_hash"
+          ]
         }
       },
       "policies": {},
@@ -278,6 +280,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'artificial-analysis'"
         },
         "name": {
           "name": "name",
@@ -449,16 +458,32 @@
           "default": "now()"
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "model_proxy_benchmarks_aa_model_id_unique": {
-          "name": "model_proxy_benchmarks_aa_model_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["aa_model_id"]
+      "indexes": {
+        "uq_model_proxy_benchmarks_aa_model_id_source": {
+          "name": "uq_model_proxy_benchmarks_aa_model_id_source",
+          "columns": [
+            {
+              "expression": "aa_model_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -527,8 +552,12 @@
           "name": "model_proxy_messages_request_id_model_proxy_requests_id_fk",
           "tableFrom": "model_proxy_messages",
           "tableTo": "model_proxy_requests",
-          "columnsFrom": ["request_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "request_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -724,8 +753,12 @@
           "name": "model_proxy_models_provider_name_model_proxy_providers_name_fk",
           "tableFrom": "model_proxy_models",
           "tableTo": "model_proxy_providers",
-          "columnsFrom": ["provider_name"],
-          "columnsTo": ["name"],
+          "columnsFrom": [
+            "provider_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -799,7 +832,9 @@
         "model_proxy_providers_name_unique": {
           "name": "model_proxy_providers_name_unique",
           "nullsNotDistinct": false,
-          "columns": ["name"]
+          "columns": [
+            "name"
+          ]
         }
       },
       "policies": {},
@@ -1148,7 +1183,9 @@
         "model_proxy_settings_key_unique": {
           "name": "model_proxy_settings_key_unique",
           "nullsNotDistinct": false,
-          "columns": ["key"]
+          "columns": [
+            "key"
+          ]
         }
       },
       "policies": {},
@@ -1240,8 +1277,12 @@
           "name": "model_proxy_usage_adjustments_request_id_model_proxy_requests_id_fk",
           "tableFrom": "model_proxy_usage_adjustments",
           "tableTo": "model_proxy_requests",
-          "columnsFrom": ["request_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "request_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
