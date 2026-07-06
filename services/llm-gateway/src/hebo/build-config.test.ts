@@ -191,4 +191,26 @@ describe("buildHeboGatewayConfig", () => {
       expect.stringContaining('Ambiguous model "gpt-4.1"'),
     );
   });
+
+  it("throws a detailed error when enabled models exist but none can resolve an upstream provider", async () => {
+    resolveUpstreamTargetMock.mockRejectedValue(
+      new Error("No upstream API key configured for model \"gpt-4.1\""),
+    );
+
+    await expect(
+      buildHeboGatewayConfig({
+        ...createServices(),
+      }),
+    ).rejects.toThrow(
+      /Failed to build Hebo gateway config: no resolvable upstream providers/,
+    );
+
+    await expect(
+      buildHeboGatewayConfig({
+        ...createServices(),
+      }),
+    ).rejects.toThrow(
+      /openai-main\/gpt-4\.1: No upstream API key configured/,
+    );
+  });
 });

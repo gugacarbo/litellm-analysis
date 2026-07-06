@@ -118,6 +118,7 @@ export async function buildHeboGatewayConfig(options: {
   const targetsByModel = new Map<string, ResolvedUpstreamTarget>();
   const providerGroups = new Map<string, ProviderGroup>();
   const providerByModel = new Map<string, string>();
+  const resolutionErrors: string[] = [];
 
   const rowsByBareModel = new Map<string, ProxyCatalogRow[]>();
   for (const row of proxyCatalogRows) {
@@ -133,7 +134,10 @@ export async function buildHeboGatewayConfig(options: {
         modelName,
         providers,
       });
-    } catch {
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown resolution error";
+      resolutionErrors.push(`${modelName}: ${message}`);
       continue;
     }
 
@@ -216,6 +220,15 @@ export async function buildHeboGatewayConfig(options: {
         output: [...DEFAULT_OUTPUT_MODALITIES],
       },
     };
+  }
+
+  if (proxyCatalogRows.length > 0 && Object.keys(providerRegistry).length === 0) {
+    throw new Error(
+      [
+        "Failed to build Hebo gateway config: no resolvable upstream providers for enabled models.",
+        ...resolutionErrors.slice(0, 10).map((entry) => `- ${entry}`),
+      ].join("\n"),
+    );
   }
 
   return {

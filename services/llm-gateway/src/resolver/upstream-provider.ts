@@ -6,6 +6,9 @@ import {
 } from "@lite-llm/database/schema/model-proxy";
 import {
   OPENAI_CHATGPT_API_BASE,
+  decryptProviderSecret,
+  isEncryptedProviderSecret,
+  parseProviderEncryptionKey,
   resolveProviderSecret,
 } from "@lite-llm/llm-config-service";
 import type { Provider } from "@lite-llm/models-repository";
@@ -46,6 +49,31 @@ function readSecretRef(secretRef?: string | null): string | undefined {
 
   const envValue = process.env[trimmed];
   return envValue?.trim() ? envValue.trim() : undefined;
+}
+
+function resolveStoredProviderApiKey(provider?: {
+  apiKey?: string | null;
+  secretRef?: string | null;
+} | null): string | undefined {
+  if (!provider) {
+    return undefined;
+  }
+
+  const fromSecretRef = resolveProviderSecret(provider);
+  if (fromSecretRef) {
+    return fromSecretRef;
+  }
+
+  const storedApiKey = provider.apiKey?.trim();
+  if (!storedApiKey) {
+    return undefined;
+  }
+
+  if (!isEncryptedProviderSecret(storedApiKey)) {
+    return storedApiKey;
+  }
+
+  return decryptProviderSecret(storedApiKey, parseProviderEncryptionKey());
 }
 
 export function findUpstreamProvider(
@@ -187,7 +215,7 @@ export async function resolveUpstreamTarget(params: {
 
   const upstreamApiKey =
     envSecret ||
-    (provider ? resolveProviderSecret(provider) : undefined);
+    resolveStoredProviderApiKey(provider);
 
   if (!isChatGptSubscription && !upstreamApiKey) {
     throw new Error(`No upstream API key configured for model "${modelName}"`);

@@ -1,5 +1,6 @@
 import type { Provider } from "@lite-llm/models-repository";
 import { describe, expect, it, vi } from "vitest";
+import { encryptProviderSecret, parseProviderEncryptionKey } from "@lite-llm/llm-config-service";
 import {
   CHATGPT_SUBSCRIPTION_PROVIDER,
   findUpstreamProvider,
@@ -7,23 +8,13 @@ import {
   resolveUpstreamTarget,
 } from "./upstream-provider";
 
+const { dbSelectMock } = vi.hoisted(() => ({
+  dbSelectMock: vi.fn(),
+}));
+
 vi.mock("@lite-llm/database/client", () => ({
   db: {
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(() =>
-            Promise.resolve([
-              {
-                name: "openai-main",
-                secretRef: "OPENAI_API_KEY",
-                baseUrl: null,
-              },
-            ]),
-          ),
-        })),
-      })),
-    })),
+    select: dbSelectMock,
   },
 }));
 
@@ -80,6 +71,23 @@ function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 describe("upstream-provider", () => {
+  dbSelectMock.mockReturnValue({
+    from: vi.fn(() => ({
+      where: vi.fn(() => ({
+        limit: vi.fn(() =>
+          Promise.resolve([
+            {
+              name: "openai-main",
+              secretRef: "OPENAI_API_KEY",
+              apiKey: null,
+              baseUrl: null,
+            },
+          ]),
+        ),
+      })),
+    })),
+  });
+
   it("finds upstream provider by model family", () => {
     const provider = findUpstreamProvider(
       createProviderMap(),
@@ -250,5 +258,54 @@ describe("upstream-provider", () => {
       "https://chatgpt.com/backend-api/codex",
     );
     expect(target.upstreamHeaders).toEqual({});
+  });
+
+  it("falls back to the legacy encrypted apiKey column when secretRef is empty", async () => {
+    process.env.APP_ENCRYPTION_KEY = "test-app-encryption-key";
+    const encryptedApiKey = encryptProviderSecret(
+      "sk-encrypted-legacy-key",
+      parseProviderEncryptionKey(),
+    );
+
+    dbSelectMock.mockReturnValueOnce({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(() =>
+            Promise.resolve([
+              {
+                name: "iproute-main",
+                secretRef: null,
+                apiKey: encryptedApiKey,
+                baseUrl: "https://llm.iproute.cloud/v1",
+              },
+            ]),
+          ),
+        })),
+      })),
+    });
+
+    const target = await resolveUpstreamTarget({
+      modelName: "gpt-test",
+      providers: {
+        openai: {
+          name: "OpenAI",
+          adapter: "openai-compatible",
+          baseUrl: "https://api.openai.com/v1",
+          defaultProvider: "iproute-main",
+        },
+      },
+      row: createModelRow({
+        ownedBy: null,
+        family: null,
+        providerName: "iproute-main",
+      }),
+    });
+
+    delete process.env.APP_ENCRYPTION_KEY;
+
+    expect(target.upstreamHeaders).toEqual({
+      authorization: "Bearer sk-encrypted-legacy-key",
+    });
+    expect(target.upstreamBaseUrl).toBe("https://llm.iproute.cloud/v1");
   });
 });
