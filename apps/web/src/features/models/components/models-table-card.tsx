@@ -11,7 +11,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { StatusBadge } from "@/features/health-check/components/status-badge";
 import type { HealthCheckResultEntry } from "@/features/health-check/types/health-status-types";
@@ -176,15 +176,51 @@ export function ModelsTableCard({
   defaultProvider,
 }: ModelsTableCardProps) {
   const [page, setPage] = useState(1);
+  const [groupByProvider, setGroupByProvider] = useState(true);
 
   const pageSize = models.length || 1;
   const totalPages = Math.ceil(models.length / pageSize) || 1;
   const start = models.length > 0 ? (page - 1) * pageSize + 1 : 0;
   const end = Math.min(page * pageSize, models.length);
-  const pageModels = useMemo(
-    () => models.slice((page - 1) * pageSize, page * pageSize),
-    [models, page, pageSize],
+  const orderedModels = useMemo(
+    () =>
+      [...models].sort((left, right) => {
+        const providerCompare = (left.modelRoute.providerName ?? "").localeCompare(
+          right.modelRoute.providerName ?? "",
+        );
+        if (providerCompare !== 0) {
+          return providerCompare;
+        }
+
+        return left.modelName.localeCompare(right.modelName);
+      }),
+    [models],
   );
+  const pageModels = useMemo(
+    () => orderedModels.slice((page - 1) * pageSize, page * pageSize),
+    [orderedModels, page, pageSize],
+  );
+  const groupedPageModels = useMemo(() => {
+    if (!groupByProvider) {
+      return [{ providerName: "", models: pageModels }];
+    }
+
+    const groups = new Map<string, DisplayModelWithAliases[]>();
+    for (const model of pageModels) {
+      const providerName = model.modelRoute.providerName || "Unknown provider";
+      const existing = groups.get(providerName);
+      if (existing) {
+        existing.push(model);
+      } else {
+        groups.set(providerName, [model]);
+      }
+    }
+
+    return Array.from(groups.entries()).map(([providerName, groupModels]) => ({
+      providerName,
+      models: groupModels,
+    }));
+  }, [groupByProvider, pageModels]);
 
   const total = models.length;
   const enabledCount = models.filter((m) => m.enabled !== false).length;
@@ -275,6 +311,14 @@ export function ModelsTableCard({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
+          <label className="mr-1 flex items-center gap-2 rounded-md border bg-card px-2 py-1 text-xs text-muted-foreground">
+            <Switch
+              checked={groupByProvider}
+              onCheckedChange={setGroupByProvider}
+              className="h-4 w-7"
+            />
+            Group by provider
+          </label>
           {usesDatabaseStorage ? (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -368,9 +412,9 @@ export function ModelsTableCard({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">Enabled</TableHead>
                 <TableHead>Model Name</TableHead>
                 <TableHead>Provider</TableHead>
-                <TableHead>Enabled</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Health</TableHead>
                 <TableHead className="w-42.5">Latency / HTTP</TableHead>
@@ -386,196 +430,215 @@ export function ModelsTableCard({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pageModels.map((model) => {
-                const health = getHealthCheck(model.modelName);
-                const routeParams = resolveModelRoute(model);
-                const inRegistry =
-                  model.status === "synced" || model.status === "registry-only";
-                const inConfig = model.status !== "registry-only";
-                const providerName = model.modelRoute.providerName;
+              {groupedPageModels.map((group) => (
+                <Fragment key={groupByProvider ? group.providerName : "all-models"}>
+                  {groupByProvider ? (
+                    <TableRow className="bg-muted/30">
+                      <TableCell
+                        colSpan={15}
+                        className="py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                      >
+                        {group.providerName}
+                        <span className="ml-2 text-[11px] font-normal normal-case">
+                          {group.models.length} model
+                          {group.models.length === 1 ? "" : "s"}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ) : null}
+                  {group.models.map((model) => {
+                    const health = getHealthCheck(model.modelName);
+                    const routeParams = resolveModelRoute(model);
+                    const inRegistry =
+                      model.status === "synced" || model.status === "registry-only";
+                    const inConfig = model.status !== "registry-only";
+                    const providerName = model.modelRoute.providerName;
 
-                return (
-                  <TableRow
-                    key={model.modelName}
-                    className={
-                      model.enabled === false ? "opacity-50" : undefined
-                    }
-                  >
-                    <TableCell className="font-medium">
-                      <div className="space-y-1">
-                        <Link
-                          to={`/models/${encodeURIComponent(model.modelName)}`}
-                          className="hover:underline"
-                        >
-                          {model.modelName}
-                        </Link>
-                        {model.aliases && model.aliases.length > 0 ? (
-                          <div className="space-y-0.5 text-xs font-normal text-muted-foreground">
-                            {model.aliases.map((alias) => (
-                              <div key={alias}>{alias}</div>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {providerName || "—"}
-                    </TableCell>
-                    <TableCell>
-                      <Switch
-                        checked={model.enabled !== false}
-                        onCheckedChange={(checked) =>
-                          onToggleEnabled(model.modelName, checked)
+                    return (
+                      <TableRow
+                        key={model.modelName}
+                        className={
+                          model.enabled === false ? "opacity-50" : undefined
                         }
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {model.enabled === false ? (
-                        <Badge variant="destructive">Disabled</Badge>
-                      ) : (
-                        <Badge
-                          variant={
-                            statusBadgeVariant[model.status] ?? "outline"
+                      >
+                        <TableCell>
+                          <Switch
+                            checked={model.enabled !== false}
+                            onCheckedChange={(checked) =>
+                              onToggleEnabled(model.modelName, checked)
+                            }
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-4 w-7"
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div className="space-y-1">
+                            <Link
+                              to={`/models/${encodeURIComponent(model.modelName)}`}
+                              className="hover:underline"
+                            >
+                              {model.modelName}
+                            </Link>
+                            {model.aliases && model.aliases.length > 0 ? (
+                              <div className="space-y-0.5 text-xs font-normal text-muted-foreground">
+                                {model.aliases.map((alias) => (
+                                  <div key={alias}>{alias}</div>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {providerName || "—"}
+                        </TableCell>
+                        <TableCell>
+                          {model.enabled === false ? (
+                            <Badge variant="destructive">Disabled</Badge>
+                          ) : (
+                            <Badge
+                              variant={
+                                statusBadgeVariant[model.status] ?? "outline"
+                              }
+                            >
+                              {statusLabel[model.status] ?? model.status}
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {inRegistry ? (
+                            healthChecksLoading &&
+                            !healthChecksByModel.has(model.modelName) ? (
+                              <Skeleton className="h-5 w-24" />
+                            ) : (
+                              <StatusBadge status={health?.status ?? "unknown"} />
+                            )
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {inRegistry ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="font-mono text-xs tabular-nums">
+                                {formatResponseTime(health?.responseTimeMs ?? null)}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground tabular-nums">
+                                {health?.statusCode ?? "—"}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs tabular-nums">
+                          {inRegistry
+                            ? formatResponseTime(health?.ttftMs ?? null)
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs tabular-nums">
+                          {inRegistry
+                            ? formatTokensPerSecond(health?.tokensPerSecond ?? null)
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {health?.source ?? "—"}
+                        </TableCell>
+                        <TableCell
+                          className="text-xs text-muted-foreground"
+                          title={
+                            health?.checkedAt
+                              ? formatTimestamp(health.checkedAt)
+                              : ""
                           }
                         >
-                          {statusLabel[model.status] ?? model.status}
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {inRegistry ? (
-                        healthChecksLoading &&
-                        !healthChecksByModel.has(model.modelName) ? (
-                          <Skeleton className="h-5 w-24" />
-                        ) : (
-                          <StatusBadge status={health?.status ?? "unknown"} />
-                        )
-                      ) : (
-                        <span className="text-muted-foreground text-sm">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {inRegistry ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <span className="font-mono text-xs tabular-nums">
-                            {formatResponseTime(health?.responseTimeMs ?? null)}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground tabular-nums">
-                            {health?.statusCode ?? "—"}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-xs tabular-nums">
-                      {inRegistry
-                        ? formatResponseTime(health?.ttftMs ?? null)
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-xs tabular-nums">
-                      {inRegistry
-                        ? formatTokensPerSecond(health?.tokensPerSecond ?? null)
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {health?.source ?? "—"}
-                    </TableCell>
-                    <TableCell
-                      className="text-xs text-muted-foreground"
-                      title={
-                        health?.checkedAt
-                          ? formatTimestamp(health.checkedAt)
-                          : ""
-                      }
-                    >
-                      {health?.checkedAt
-                        ? formatRelativeTime(health.checkedAt)
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {getContextWindow(routeParams)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {getMaxOutput(routeParams)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {getInputCost(routeParams)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {getOutputCost(routeParams)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        {inRegistry ? (
-                          <>
-                            <Button variant="ghost" size="icon-sm" asChild>
-                              <Link
-                                to={`/models/${encodeURIComponent(model.modelName)}`}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                            {inConfig ? (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    onClick={() =>
-                                      onDeleteModelNameChange(model.modelName)
-                                    }
+                          {health?.checkedAt
+                            ? formatRelativeTime(health.checkedAt)
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {getContextWindow(routeParams)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {getMaxOutput(routeParams)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {getInputCost(routeParams)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {getOutputCost(routeParams)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            {inRegistry ? (
+                              <>
+                                <Button variant="ghost" size="icon-sm" asChild>
+                                  <Link
+                                    to={`/models/${encodeURIComponent(model.modelName)}`}
                                   >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      Remove From Config
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Isso remove{" "}
-                                      <span className="font-semibold">
-                                        {deleteModelName}
-                                      </span>{" "}
-                                      apenas da config local. A remoção no
-                                      registry é feita pelo fluxo de Sync.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel
-                                      onClick={() =>
-                                        onDeleteModelNameChange(null)
-                                      }
-                                    >
-                                      Cancel
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction asChild>
+                                    <Pencil className="h-4 w-4" />
+                                  </Link>
+                                </Button>
+                                {inConfig ? (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
                                       <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={onDelete}
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        onClick={() =>
+                                          onDeleteModelNameChange(model.modelName)
+                                        }
                                       >
-                                        Remover
+                                        <Trash2 className="h-4 w-4" />
                                       </Button>
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            ) : null}
-                          </>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">
-                            —
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                          Remove From Config
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Isso remove{" "}
+                                          <span className="font-semibold">
+                                            {deleteModelName}
+                                          </span>{" "}
+                                          apenas da config local. A remoção no
+                                          registry é feita pelo fluxo de Sync.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel
+                                          onClick={() =>
+                                            onDeleteModelNameChange(null)
+                                          }
+                                        >
+                                          Cancel
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction asChild>
+                                          <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={onDelete}
+                                          >
+                                            Remover
+                                          </Button>
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                ) : null}
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">
+                                —
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </Fragment>
+              ))}
             </TableBody>
           </Table>
         )}
