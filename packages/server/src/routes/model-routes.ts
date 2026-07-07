@@ -850,7 +850,17 @@ export function registerModelRoutes(
       );
       res.status(201).json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: String(error) });
+      const msg = String(error);
+      if (
+        msg.includes("modelRoute is required") ||
+        msg.includes("modelName is required") ||
+        msg.includes("Legacy model route fields are no longer supported") ||
+        msg.includes("Unsupported model route fields")
+      ) {
+        res.status(400).json({ error: msg });
+        return;
+      }
+      res.status(500).json({ error: msg });
     }
   });
 
@@ -1055,6 +1065,15 @@ export function registerModelRoutes(
       res.json({ success: true });
     } catch (error) {
       const msg = String(error);
+      if (
+        msg.includes("modelRoute is required") ||
+        msg.includes("modelName is required") ||
+        msg.includes("Legacy model route fields are no longer supported") ||
+        msg.includes("Unsupported model route fields")
+      ) {
+        res.status(400).json({ error: msg });
+        return;
+      }
       if (msg.includes("not found") || msg.includes("No row")) {
         res.status(404).json({ error: "Model not found" });
         return;

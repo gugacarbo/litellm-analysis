@@ -2,7 +2,7 @@
 
 > **Plan:** `0009-model-route-hard-cut`
 > **Registry:** `docs/tasks/0009-model-route-hard-cut/super-plan.json`
-> **Generated:** 2026-07-07T13:55:42Z
+> **Generated:** 2026-07-07T13:56:35Z
 > **Regenerated on every `super-plan.json` write via the active `render-progress-ledger.sh` helper path**
 
 ## Summary
@@ -12,10 +12,10 @@
 | pending | 5 |
 | in_progress | 0 |
 | ready_for_review | 0 |
-| reviewing | 1 |
+| reviewing | 0 |
 | needs_fix | 0 |
 | blocked | 0 |
-| completed | 0 |
+| completed | 1 |
 | cancelled | 0 |
 | **Total** | **6** |
 
@@ -31,7 +31,7 @@
 
 | Task ID | Title | Profile | Batch | Phase | Status | Dependencies |
 |---------|-------|---------|-------|-------|--------|-------------|
-| Task-A-0009 | Canonicalize shared ModelRoute contract and adapter semantics | general | A | foundation | 🔍 reviewing | — |
+| Task-A-0009 | Canonicalize shared ModelRoute contract and adapter semantics | general | A | foundation | ✅ completed | — |
 | Task-B-0009 | Harden the HTTP/orchestration boundary | general | B | foundation | ⏳ pending | Task-A-0009 |
 | Task-C-0009 | Collapse parallel route and config handling in the server runtime | deep | C | core | ⏳ pending | Task-B-0009 |
 | Task-D-0009 | Refactor the web models surface around typed route and table-row data | deep | D | surface | ⏳ pending | Task-A-0009, Task-C-0009 |
@@ -48,7 +48,7 @@
 
 | Requirement | Status | Covered By |
 |-------------|--------|------------|
-| REQ-1: ModelRoute is the only public model-route contract across shared packages | ⏳ pending | Task-A-0009 |
+| REQ-1: ModelRoute is the only public model-route contract across shared packages | ✅ completed | Task-A-0009 |
 | REQ-2: HTTP boundary accepts only current modelRoute payloads | ⏳ pending | Task-B-0009, Task-E-0009 |
 | REQ-3: Server runtime no longer carries parallel route shapes for the same semantics | ⏳ pending | Task-C-0009 |
 | REQ-4: Web models surface consumes typed route and derived table-row data | ⏳ pending | Task-D-0009, Task-E-0009 |

@@ -79,13 +79,13 @@ function normalizeProviderName(
 }
 
 export function getProviderNameFromParams(
-  params: Record<string, unknown>,
+  params: ModelRoute,
 ): string | undefined {
-  return normalizeProviderName(params.providerName as string | undefined);
+  return normalizeProviderName(params.providerName);
 }
 
 export function resolveModelProvider(
-  params: Record<string, unknown>,
+  params: ModelRoute,
   fallbackProvider?: string | null,
 ): string | undefined {
   return (
@@ -98,10 +98,7 @@ export function normalizeModelRoute(
   route: ModelRoute,
   providerName?: string | null,
 ): ModelRoute {
-  const resolvedProvider = resolveModelProvider(
-    route as unknown as Record<string, unknown>,
-    providerName,
-  );
+  const resolvedProvider = resolveModelProvider(route, providerName);
 
   return {
     ...route,

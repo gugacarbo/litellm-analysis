@@ -498,6 +498,60 @@ describe("registry integration", () => {
       }
     });
 
+    it("rejects legacy litellmParams in model create request", async () => {
+      const { port, server } = await createRegistryHttpServer(
+        undefined,
+        "models",
+      );
+
+      try {
+        const response = await fetch(`http://127.0.0.1:${port}/models`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            modelName: "legacy-litellm-model",
+            modelRoute: {
+              modelName: "legacy-litellm-model",
+              litellmParams: { model: "gpt-4" },
+            },
+          }),
+        });
+        expect(response.status).toBe(400);
+        const body = await response.json();
+        expect(body.error).toMatch(/Unsupported model route fields/);
+      } finally {
+        await closeServer(server);
+      }
+    });
+
+    it("rejects snake_case model_name in model create request", async () => {
+      const { port, server } = await createRegistryHttpServer(
+        undefined,
+        "models",
+      );
+
+      try {
+        const response = await fetch(`http://127.0.0.1:${port}/models`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            modelName: "snake-model",
+            modelRoute: {
+              model_name: "snake-model",
+              input_cost_per_token: 0.000001,
+            },
+          }),
+        });
+        expect(response.status).toBe(400);
+        const body = await response.json();
+        expect(body.error).toContain(
+          "Legacy model route fields are no longer supported",
+        );
+      } finally {
+        await closeServer(server);
+      }
+    });
+
     it("keeps displayName in config and out of registry requestOptions", async () => {
       const stack = createRegistryTestStack();
       await stack.seedConfigModel("display-name-model");

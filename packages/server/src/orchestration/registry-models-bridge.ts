@@ -5,6 +5,7 @@ import {
   type ModelRoute,
   type ModelRouteUpdate,
   parseModelRouteFromApi,
+  type RouteParams,
 } from "@lite-llm/llm-config-service";
 import type { DbModelSpecLike } from "../types/index";
 import {
@@ -99,7 +100,7 @@ export async function updateRegistryModelFromRoute(
 }
 
 export function routeUpdateFromBody(
-  route: Record<string, unknown>,
+  route: RouteParams,
   modelName: string,
 ): ModelRouteUpdate {
   return parseModelRouteFromApi(route, modelName);

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { ModelRoute } from "@lite-llm/llm-config-service";
 import {
   buildModelRouteFromSpec,
   getProviderNameFromParams,
@@ -11,13 +12,14 @@ describe("route-params", () => {
   it("reads the canonical providerName field only", () => {
     expect(
       getProviderNameFromParams({
+        modelName: "test-model",
         providerName: " openai-main ",
       }),
     ).toBe("openai-main");
 
     expect(
       getProviderNameFromParams({
-        litellm_provider_name: "legacy-provider",
+        modelName: "test-model",
       }),
     ).toBeUndefined();
   });
@@ -78,6 +80,7 @@ describe("route-params", () => {
     expect(
       resolveModelProvider(
         {
+          modelName: "test-model",
           providerName: "anthropic-main",
         },
         "openai-main",
@@ -87,7 +90,7 @@ describe("route-params", () => {
     expect(
       resolveModelProvider(
         {
-          litellm_provider_name: "legacy-provider",
+          modelName: "test-model",
         },
         "openai-main",
       ),
