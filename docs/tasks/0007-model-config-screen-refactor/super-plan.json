@@ -2,7 +2,7 @@
   "$schema": "/home/gustavo/Apps/lite-llm-analytics/.super-planning/super-plan.schema.json",
   "planId": "0007-model-config-screen-refactor",
   "featureName": "model-config-screen-refactor",
-  "status": "pending",
+  "status": "completed",
   "source": {
     "spec": "docs/specs/0007-model-config-screen-refactor-spec.md",
     "plan": "docs/plans/0007-model-config-screen-refactor.md"
@@ -290,5 +290,737 @@
     "Never start implementation on main/master without explicit user consent",
     "reviewCadence is per_batch: review subagent launches only when the whole batch reaches ready_for_review"
   ],
-  "tasks": []
+  "tasks": [
+    {
+      "id": "Task-A1-0007",
+      "title": "Extract useModelConfigForm hook",
+      "description": "Create a dedicated hook that owns the pure form state for model configuration. It replaces the form-state portion of use-model-config-page.ts and produces a slimmed ModelConfigFormData type without alias-loading flags.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "A",
+      "phase": "foundation",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-A1-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-A1-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-A1-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-A1-0007/log-task.sh",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "apps/web/src/features/models/hooks/use-model-config-form.ts is created and exports ModelConfigFormData, UseModelConfigFormResult, and useModelConfigForm",
+        "ModelConfigFormData has no aliasLoaded, aliasesLoading, or aliasesLoadError fields",
+        "modelToFormData and buildConfigFromFormData live in this hook and match the current behavior of use-model-config-page.ts",
+        "Extra-param add/remove/update helpers are part of the hook return",
+        "Dirty tracking uses deep equality over a comparable projection",
+        "Form resets automatically when the provided model changes",
+        "Hook is fully typed and has no dependency on aliases logic or TanStack mutations"
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-008",
+        "REQ-010",
+        "REQ-011"
+      ],
+      "rules": [
+        "Do not modify model-config-form.tsx or use-model-config-page.ts in this task",
+        "Keep the hook free of TanStack Query mutation logic",
+        "Preserve all existing field mappings from ModelWithStatus to form data"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Create the hook file and define the slim ModelConfigFormData type",
+          "description": "Create apps/web/src/features/models/hooks/use-model-config-form.ts. Define ModelConfigFormData with exactly: displayName, family, ownedBy, aliases (string[] only, no load flags), apiMode, vision, enabled, thinkingLevels, reasoning (enabled, effort, apiMode, enableThinking, includeReasoningInRequest), apiBase, providerName, inputCostPerToken, outputCostPerToken, extraParams.",
+          "command": null,
+          "expectedResult": "File compiles and type exports are usable",
+          "codeExample": "export interface ModelConfigFormData {\n  displayName: string;\n  family: string;\n  ownedBy: string;\n  aliases: string[];\n  apiMode: \"openai\" | \"anthropic\" | \"\";\n  vision: boolean;\n  enabled: boolean;\n  thinkingLevels: string[];\n  reasoning: {\n    enabled: boolean;\n    effort: \"low\" | \"medium\" | \"high\" | \"xhigh\" | \"\";\n    apiMode: \"openai\" | \"anthropic\" | \"\";\n    enableThinking: boolean;\n    includeReasoningInRequest: boolean;\n  };\n  apiBase: string;\n  providerName: string;\n  inputCostPerToken: string;\n  outputCostPerToken: string;\n  extraParams: Record<string, string>;\n}"
+        },
+        {
+          "order": 2,
+          "title": "Copy modelToFormData from use-model-config-page.ts",
+          "description": "Implement modelToFormData(model: ModelWithStatus): ModelConfigFormData. Read resolveModelRoute(model) and model.config ?? {} exactly as the current hook does. Map all fields. For aliases, default to []. Validate apiMode and reasoning effort values, falling back to empty string for invalid values.",
+          "command": null,
+          "expectedResult": "Conversion produces the same output as today's modelToFormData, minus alias load flags",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Copy buildConfigFromFormData",
+          "description": "Implement buildConfigFromFormData(formData): ModelConfig['config'] that matches current behavior: prune empty strings, include thinking only when levels exist, include reasoning only when reasoning.enabled is true.",
+          "command": null,
+          "expectedResult": "Output matches current buildConfigFromFormData exactly",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Implement form state, dirty tracking, and extra-param helpers",
+          "description": "Use useState for formData and initialFormData. Expose onFormDataChange, onAddExtraParam, onRemoveExtraParam(key), onUpdateExtraParam(key, value). Compute isDirty via a comparable projection and JSON.stringify equality. Implement resetFormForModel(model | null.",
+          "command": null,
+          "expectedResult": "Hook consumers can read formData, isDirty, and form action callbacks",
+          "codeExample": "export interface UseModelConfigFormResult {\n  formData: ModelConfigFormData;\n  initialFormData: ModelConfigFormData;\n  isDirty: boolean;\n  onFormDataChange: (next: ModelConfigFormData) => void;\n  onAddExtraParam: () => void;\n  onRemoveExtraParam: (key: string) => void;\n  onUpdateExtraParam: (key: string, value: string) => void;\n  resetFormForModel: (model: ModelWithStatus | null => void;\n}"
+        },
+        {
+          "order": 5,
+          "title": "Type-check the web app",
+          "description": "Run the web typecheck to ensure the new hook has no TypeScript errors and all imports resolve.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0, no TypeScript errors from the new file",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/hooks/use-model-config-form.ts"
+      ],
+      "files": {
+        "created": [
+          "apps/web/src/features/models/hooks/use-model-config-form.ts"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "This is the first hook to land. No dependencies on A2 or B1."
+      ]
+    },
+    {
+      "id": "Task-A2-0007",
+      "title": "Extract useModelAliases hook",
+      "description": "Create a dedicated hook that owns model alias query state, alias local state, dirty tracking, normalization, and validation. It removes the alias-loading concerns from the form data hook.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "A",
+      "phase": "foundation",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-A2-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-A2-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-A2-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-A2-0007/log-task.sh",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "apps/web/src/features/models/hooks/use-model-aliases.ts is created and exports UseModelAliasesResult and useModelAliases",
+        "The hook queries getModelAliases(modelName) via useQuery and exposes aliases, loaded, loading, error",
+        "Local alias state is hydrated once per model and survives until resetForModel is called or model changes",
+        "isDirty compares current aliases to initial hydrated aliases",
+        "normalizeAliases and getAliasValidationError are moved into this hook and behave identically",
+        "The hook exposes setAliases and resetForModel",
+        "No form-config logic leaks into this hook"
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-004",
+        "REQ-010"
+      ],
+      "rules": [
+        "Do not modify use-model-config-page.ts or model-aliases-editor.tsx in this task",
+        "Keep alias validation behavior exactly the same (case-insensitive uniqueness, no empty aliases)"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Create the hook file and define the result type",
+          "description": "Create apps/web/src/features/models/hooks/use-model-aliases.ts. Define UseModelAliasesResult with aliases, initialAliases, loaded, loading, error, isDirty, setAliases, resetForModel, getValidationError, normalizedAliases.",
+          "command": null,
+          "expectedResult": "File compiles and type exports are usable",
+          "codeExample": "export interface UseModelAliasesResult {\n  aliases: string[];\n  initialAliases: string[];\n  loaded: boolean;\n  loading: boolean;\n  error: string | null\n  isDirty: boolean;\n  setAliases: (next: string[]) => void;\n  resetForModel: (modelName: string) => void;\n  getValidationError: () => string | null\n  normalizedAliases: string[];\n}"
+        },
+        {
+          "order": 2,
+          "title": "Move alias normalization and validation helpers",
+          "description": "Copy normalizeAliases and getAliasValidationError from use-model-config-page.ts into the new hook without changes. Re-export via getValidationError.",
+          "command": null,
+          "expectedResult": "Validation rules remain identical",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Implement query and local alias state",
+          "description": "Use useQuery with queryKey ['model-aliases', modelName] and queryFn getModelAliases(modelName). Maintain local aliases state and a hydrated model ref. When query data arrives and the model is unhydrated and the user has not touched aliases, set both aliases and initialAliases to the fetched list. Track loading and error exactly as today, including the long error message text.",
+          "command": null,
+          "expectedResult": "Alias state hydrates once per model and loading/error states match current behavior",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Implement resetForModel and dirty tracking",
+          "description": "resetForModel(modelName) clears local state and resets the hydration ref so the next query hydration re-populates aliases. isDirty is computed by comparing normalized current aliases to normalized initial aliases.",
+          "command": null,
+          "expectedResult": "Calling resetForModel allows re-hydration; isDirty reflects user edits",
+          "codeExample": null
+        },
+        {
+          "order": 5,
+          "title": "Type-check the web app",
+          "description": "Run the web typecheck to verify the new hook compiles.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/hooks/use-model-aliases.ts"
+      ],
+      "files": {
+        "created": [
+          "apps/web/src/features/models/hooks/use-model-aliases.ts"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "This hook can be built in parallel with A1 because they touch different concerns and files."
+      ]
+    },
+    {
+      "id": "Task-B1-0007",
+      "title": "Extract useModelConfigSave hook",
+      "description": "Create a save-orchestration hook that takes the model, form state, and alias state and performs the same save sequence as today: update model route + config first, then update aliases, with full partial-failure handling.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "B",
+      "phase": "core",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-B1-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-B1-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-B1-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-B1-0007/log-task.sh",
+      "dependencies": [
+        "Task-A1-0007",
+        "Task-A2-0007"
+      ],
+      "acceptanceCriteria": [
+        "apps/web/src/features/models/hooks/use-model-config-save.ts is created and exports useModelConfigSave",
+        "The hook receives model, formData, aliasesState, queryClient, and onSaved callbacks",
+        "It builds the same ModelRouteUpdate payload as current use-model-config-page.ts, including cost parsing and extra-params conversion",
+        "It validates non-negative numeric input/output costs and surfaces toast errors",
+        "It calls updateModel(...) then updateModelAliases(...) in sequence when aliases are loaded",
+        "It preserves all current partial-failure toasts and invalidation behavior",
+        "It exposes saving boolean and save(): Promise<void>"
+      ],
+      "requirements": [
+        "REQ-003",
+        "REQ-008",
+        "REQ-009",
+        "REQ-010",
+        "REQ-011",
+        "REQ-012"
+      ],
+      "rules": [
+        "Use the same updateModel mutation shape as today (updateModel(modelName, modelRoute, undefined, config))",
+        "Use updateModelAliases from @/shared/lib/api-client/model-aliases",
+        "Do not call queryClient.invalidateQueries inside the form hook or aliases hook; save hook owns invalidation",
+        "Do not start implementation on main without user consent"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Create the hook file and define its interface",
+          "description": "Create apps/web/src/features/models/hooks/use-model-config-save.ts. Define UseModelConfigSaveArgs and UseModelConfigSaveResult. Args: model, formData (ModelConfigFormData from A1), aliasesState (UseModelAliasesResult from A2), queryClient, onSaved(). Result: saving boolean, save(): Promise<void>.",
+          "command": null,
+          "expectedResult": "File compiles and imports the two new hooks",
+          "codeExample": "export interface UseModelConfigSaveArgs {\n  model: ModelWithStatus | null\n  formData: ModelConfigFormData;\n  aliasesState: UseModelAliasesResult;\n  queryClient: QueryClient;\n  onSaved: () => void;\n}\n\nexport interface UseModelConfigSaveResult {\n  saving: boolean;\n  save: () => Promise<void>;\n}"
+        },
+        {
+          "order": 2,
+          "title": "Copy route-update payload construction",
+          "description": "Use resolveModelRoute(model) as base, strip displayName/family/ownedBy/apiMode/vision, then set upstreamBaseUrl, providerName, enabled, inputCostPerToken, outputCostPerToken, and requestOptions from formData. Parse inputCostPerToken/outputCostPerToken as numbers. Validate non-negative finite values and toast on error. Convert extraParams entries to parsed requestOptions via parseExtraParamValue from models-form-utils, deleting empty keys.",
+          "command": null,
+          "expectedResult": "Payload matches current handleSave payload construction exactly",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Implement the save sequence and partial-failure handling",
+          "description": "1) Validate aliases using aliasesState.getValidationError() only when aliasesState.loaded. 2) Call updateModel mutation with route + config from buildConfigFromFormData. 3) If aliases not loaded, invalidate queries and toast the same warning as today. 4) If aliases loaded, call updateModelAliases with aliasesState.normalizedAliases, invalidate queries, then call onSaved(). 5) Catch alias mutation errors, invalidate queries, and toast the same error message. 6) Catch general errors with toast.",
+          "command": null,
+          "expectedResult": "All success, warning, and error toast messages match current behavior",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Type-check the web app",
+          "description": "Run the web typecheck to verify the new save hook compiles against A1 and A2.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/hooks/use-model-config-save.ts"
+      ],
+      "files": {
+        "created": [
+          "apps/web/src/features/models/hooks/use-model-config-save.ts"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "Must wait for A1 and A2 to land so the types exist."
+      ]
+    },
+    {
+      "id": "Task-C1-0007",
+      "title": "Create ModelGeneralTab and ReasoningSection components",
+      "description": "Build the General tab UI component and a collapsible ReasoningSection sub-component. The General tab shows essential identity fields and the reasoning settings hidden behind a CollapsibleSection.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "C",
+      "phase": "surface",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-C1-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-C1-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-C1-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-C1-0007/log-task.sh",
+      "dependencies": [
+        "Task-A1-0007"
+      ],
+      "acceptanceCriteria": [
+        "apps/web/src/features/models/components/tabs/model-general-tab.tsx is created",
+        "apps/web/src/features/models/components/tabs/reasoning-section.tsx is created",
+        "ModelGeneralTab renders Model Name (disabled), Display Name, Family, Owned By, API Mode, Vision toggle, Enabled toggle",
+        "ReasoningSection uses the existing CollapsibleSection component and is collapsed by default",
+        "ReasoningSection contains Reasoning Effort select, Reasoning API Mode select, Enable thinking toggle, Include reasoning in request toggle",
+        "Owned By hint uses English copy only (no Portuguese hard-coding)",
+        "Components are pure props-driven and have no internal mutation logic beyond local UI state"
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "rules": [
+        "Only import from shared components and the slim ModelConfigFormData type",
+        "Do not duplicate form mutation helpers; receive onFormDataChange as a prop",
+        "Use CollapsibleSection from @/shared/components/ui/collapsible-section"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Create the tabs directory and ReasoningSection",
+          "description": "Create apps/web/src/features/models/components/tabs/reasoning-section.tsx. Accept formData.reasoning and onFormDataChange (patch object). Render the four reasoning controls inside a CollapsibleSection titled 'Reasoning / Thinking', defaultOpen=false.",
+          "command": null,
+          "expectedResult": "ReasoningSection compiles and matches the reasoning controls from model-config-form.tsx",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Create ModelGeneralTab",
+          "description": "Create apps/web/src/features/models/components/tabs/model-general-tab.tsx. Props: modelName: string, formData: ModelConfigFormData, onFormDataChange. Render the essential fields in a Card. Place ReasoningSection below the essential grid.",
+          "command": null,
+          "expectedResult": "Component compiles and renders all required fields",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Type-check the web app",
+          "description": "Run the web typecheck to verify the new tab components compile.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/components/tabs/model-general-tab.tsx",
+        "apps/web/src/features/models/components/tabs/reasoning-section.tsx"
+      ],
+      "files": {
+        "created": [
+          "apps/web/src/features/models/components/tabs/model-general-tab.tsx",
+          "apps/web/src/features/models/components/tabs/reasoning-section.tsx"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "Can run in parallel with C2 and C3 after B1 lands, but only needs A1 types."
+      ]
+    },
+    {
+      "id": "Task-C2-0007",
+      "title": "Create ModelRoutingTab component",
+      "description": "Build the Routing tab UI component. It is a thin wrapper around the existing ModelAliasesEditor that exposes the right props from the aliases hook.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "C",
+      "phase": "surface",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-C2-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-C2-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-C2-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-C2-0007/log-task.sh",
+      "dependencies": [
+        "Task-A2-0007"
+      ],
+      "acceptanceCriteria": [
+        "apps/web/src/features/models/components/tabs/model-routing-tab.tsx is created",
+        "ModelRoutingTab renders ModelAliasesEditor with aliases, loading, error, disabled, and onChange props",
+        "onChange calls aliasesState.setAliases",
+        "A short explanation text above the editor describes what manual routing aliases do",
+        "Component is pure props-driven"
+      ],
+      "requirements": [
+        "REQ-002",
+        "REQ-004"
+      ],
+      "rules": [
+        "Reuse ModelAliasesEditor from ../model-aliases-editor without modifying it",
+        "Do not duplicate alias mutation or validation logic in this component"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Create ModelRoutingTab",
+          "description": "Create apps/web/src/features/models/components/tabs/model-routing-tab.tsx. Props: aliasesState: UseModelAliasesResult, saving: boolean. Render a Card with title 'Routing Aliases' and description explaining manual aliases. Render ModelAliasesEditor with aliases=aliasesState.aliases, loading=aliasesState.loading, errorMessage=aliasesState.error, disabled=saving, onChange=aliasesState.setAliases.",
+          "command": null,
+          "expectedResult": "Component compiles and delegates to ModelAliasesEditor",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Type-check the web app",
+          "description": "Run the web typecheck to verify the component compiles.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/components/tabs/model-routing-tab.tsx"
+      ],
+      "files": {
+        "created": [
+          "apps/web/src/features/models/components/tabs/model-routing-tab.tsx"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "Can run in parallel with C1 and C3."
+      ]
+    },
+    {
+      "id": "Task-C3-0007",
+      "title": "Create ModelAdvancedTab component",
+      "description": "Build the Advanced tab UI component. It contains database-level settings (API base URL, provider, costs, extra params) that should not be the first thing an operator sees.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "C",
+      "phase": "surface",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-C3-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-C3-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-C3-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-C3-0007/log-task.sh",
+      "dependencies": [
+        "Task-A1-0007"
+      ],
+      "acceptanceCriteria": [
+        "apps/web/src/features/models/components/tabs/model-advanced-tab.tsx is created",
+        "ModelAdvancedTab renders API Base URL, Provider select, Input Cost, Output Cost, and Extra Parameters",
+        "Provider select uses the same option rendering as today (provider name + provider/baseUrl subtitle)",
+        "Extra params support add/remove/update with the same key-rename behavior as today",
+        "Component is pure props-driven"
+      ],
+      "requirements": [
+        "REQ-003",
+        "REQ-008"
+      ],
+      "rules": [
+        "Receive all callbacks as props from the form hook (onFormDataChange, onAddExtraParam, onRemoveExtraParam, onUpdateExtraParam)",
+        "Do not hardcode provider formatting; copy the existing rendering from model-config-form.tsx"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Create ModelAdvancedTab",
+          "description": "Create apps/web/src/features/models/components/tabs/model-advanced-tab.tsx. Props: formData: ModelConfigFormData, providers: RegistryProvider[], onFormDataChange, onAddExtraParam, onRemoveExtraParam, onUpdateExtraParam. Render the database fields in a Card titled 'Database Settings'.",
+          "command": null,
+          "expectedResult": "Component compiles and renders all advanced fields",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Type-check the web app",
+          "description": "Run the web typecheck to verify the component compiles.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/components/tabs/model-advanced-tab.tsx"
+      ],
+      "files": {
+        "created": [
+          "apps/web/src/features/models/components/tabs/model-advanced-tab.tsx"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "Can run in parallel with C1 and C2."
+      ]
+    },
+    {
+      "id": "Task-D1-0007",
+      "title": "Rewrite useModelConfigPage as thin composer",
+      "description": "Rewrite use-model-config-page.ts so it only composes A1, A2, and B1 and exposes a single controller shape consumed by the new form shell.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "D",
+      "phase": "final",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-D1-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-D1-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-D1-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-D1-0007/log-task.sh",
+      "dependencies": [
+        "Task-A1-0007",
+        "Task-A2-0007",
+        "Task-B1-0007"
+      ],
+      "acceptanceCriteria": [
+        "use-model-config-page.ts is rewritten to under 150 lines",
+        "It calls useModelConfigForm, useModelAliases, useModelConfigSave",
+        "It passes formData, aliasesState, queryClient, and an onSaved callback to useModelConfigSave",
+        "It returns a ModelConfigController object with: model, formData, isDirty (combined), saving, providers, aliasesState, formActions, onSave, onBack",
+        "isDirty in the controller is formHook.isDirty || aliasesState.isDirty",
+        "useEffect resets the form and aliases hooks when model changes",
+        "Type exports of useModelConfigPageFromContext are updated to match the new controller"
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-009",
+        "REQ-010",
+        "REQ-011"
+      ],
+      "rules": [
+        "Delete the old monolithic helpers (modelToFormData, buildConfigFromFormData, normalizeAliases, getAliasValidationError, handleSave) from this file",
+        "Do not import internal implementation details of the save hook",
+        "Keep the same public return shape consumed by model-detail-settings-tab.tsx, but now expose aliasesState instead of spreading alias fields into formData"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Define the ModelConfigController interface",
+          "description": "Inside use-model-config-page.ts, define ModelConfigController with the exact fields the form shell needs.",
+          "command": null,
+          "expectedResult": "Interface is consistent with A1/A2/B1 exports",
+          "codeExample": "export interface ModelConfigController {\n  model: ModelWithStatus | null\n  formData: ModelConfigFormData;\n  isDirty: boolean;\n  saving: boolean;\n  providers: RegistryProvider[];\n  aliasesState: UseModelAliasesResult;\n  formActions: Pick<\n    UseModelConfigFormResult,\n    'onFormDataChange' | 'onAddExtraParam' | 'onRemoveExtraParam' | 'onUpdateExtraParam'\n  >;\n  onSave: () => void;\n  onBack: () => void;\n}"
+        },
+        {
+          "order": 2,
+          "title": "Compose the three hooks",
+          "description": "Call useModelConfigForm(), useModelAliases(modelName), and useModelConfigSave({ model, formData, aliasesState, queryClient, onSaved }). Implement onSaved to reset form to current model and call aliasesState.resetForModel(modelName). Compute isDirty = formHook.isDirty || aliasesState.isDirty.",
+          "command": null,
+          "expectedResult": "Controller exposes all required fields",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Add model reset effect",
+          "description": "Add a useEffect that calls formHook.resetFormForModel(model) and aliasesState.resetForModel(modelName) whenever the model changes. This preserves the current auto-reset behavior.",
+          "command": null,
+          "expectedResult": "Changing models resets both form and aliases state",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Type-check the web app",
+          "description": "Run the web typecheck to verify the composer hook compiles and exports the right types.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/use-model-config-page.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/web/src/features/models/use-model-config-page.ts"
+        ],
+        "deleted": []
+      },
+      "notes": [
+        "This task removes 450+ lines from use-model-config-page.ts."
+      ]
+    },
+    {
+      "id": "Task-D2-0007",
+      "title": "Rewrite ModelConfigForm as tab shell",
+      "description": "Rewrite model-config-form.tsx into a small shell that renders a Tabs component with General, Routing, and Advanced tabs, plus a sticky footer with Back/Save and combined dirty state.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "D",
+      "phase": "final",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-D2-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-D2-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-D2-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-D2-0007/log-task.sh",
+      "dependencies": [
+        "Task-C1-0007",
+        "Task-C2-0007",
+        "Task-C3-0007",
+        "Task-D1-0007"
+      ],
+      "acceptanceCriteria": [
+        "model-config-form.tsx is under 120 lines after refactor",
+        "It receives ModelConfigController from useModelConfigPageFromContext (or matching props) and renders Tabs, TabsList, TabsTrigger, TabsContent from shadcn Tabs",
+        "Tab labels are General, Routing, Advanced",
+        "Each tab renders the corresponding C1/C2/C3 component with the right props",
+        "Footer shows 'You have unsaved changes' when controller.isDirty is true, otherwise 'No unsaved changes'",
+        "Save button is disabled when saving, aliases loading, or the form is not dirty",
+        "Back button calls controller.onBack"
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-009"
+      ],
+      "rules": [
+        "Delete GlobalSettingsSection, ReasoningSettingsSection, DatabaseSettingsSection, and their inline event handlers from this file",
+        "Do not reintroduce form-state logic; delegate to the tabs and controller",
+        "Keep the existing import base path pattern"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Replace the component props with ModelConfigController",
+          "description": "Update ModelConfigFormProps to accept ModelConfigController. Delete all old prop fields (modelName, formData, providers, onFormDataChange, onAddExtraParam, onRemoveExtraParam, onUpdateExtraParam, onSave, onBack, saving, isDirty).",
+          "command": null,
+          "expectedResult": "Props interface is simplified",
+          "codeExample": "interface ModelConfigFormProps {\n  controller: ModelConfigController;\n}"
+        },
+        {
+          "order": 2,
+          "title": "Render Tabs with the three tab components",
+          "description": "Import Tabs, TabsList, TabsTrigger, TabsContent from @/shared/components/ui/tabs. Import ModelGeneralTab, ModelRoutingTab, ModelAdvancedTab. Render three tab triggers (General, Routing, Advanced) and three TabsContent panels. Pass the right slices of controller to each tab.",
+          "command": null,
+          "expectedResult": "Tabs render all three panels",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Render footer with combined dirty state",
+          "description": "Keep the footer below the Tabs. Use controller.isDirty for the status text and controller.saving, controller.aliasesState.loading, and controller.isDirty for the Save button disabled state.",
+          "command": null,
+          "expectedResult": "Footer matches current behavior using combined dirty state",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Remove old section components",
+          "description": "Delete GlobalSettingsSection, ReasoningSettingsSection, and DatabaseSettingsSection functions and all imports that were only used by them (Database, Plus, Settings, Trash2, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Label). Keep only imports needed for the shell (Tabs, Button, ModelGeneralTab, ModelRoutingTab, ModelAdvancedTab, ModelConfigController).",
+          "command": null,
+          "expectedResult": "File is reduced to the shell + footer only",
+          "codeExample": null
+        },
+        {
+          "order": 5,
+          "title": "Type-check the web app",
+          "description": "Run the web typecheck to verify the rewritten form shell compiles with the new controller and tabs.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/components/model-config-form.tsx"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/web/src/features/models/components/model-config-form.tsx"
+        ],
+        "deleted": []
+      },
+      "notes": [
+        "This task removes 450+ lines from model-config-form.tsx."
+      ]
+    },
+    {
+      "id": "Task-D3-0007",
+      "title": "Wire settings tab and run full verification",
+      "description": "Update model-detail-settings-tab.tsx if needed to pass the new controller shape into ModelConfigForm, then run the full web verification commands from the spec.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "D",
+      "phase": "final",
+      "reportFile": "docs/tasks/0007-model-config-screen-refactor/Task-D3-0007/report.md",
+      "reviewPackage": "docs/tasks/0007-model-config-screen-refactor/Task-D3-0007/review-package.diff.md",
+      "progressLog": "docs/tasks/0007-model-config-screen-refactor/Task-D3-0007/progress.log",
+      "logTaskScript": "docs/tasks/0007-model-config-screen-refactor/Task-D3-0007/log-task.sh",
+      "dependencies": [
+        "Task-D1-0007",
+        "Task-D2-0007"
+      ],
+      "acceptanceCriteria": [
+        "model-detail-settings-tab.tsx compiles with the new useModelConfigPageFromContext return shape",
+        "pnpm --filter @lite-llm/web typecheck passes",
+        "pnpm --filter @lite-llm/web test passes",
+        "pnpm --filter @lite-llm/web lint passes (or project lint command)",
+        "No runtime regressions: existing model display, aliases, and save flow remain functional"
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-009",
+        "REQ-010",
+        "REQ-011",
+        "REQ-012"
+      ],
+      "rules": [
+        "Make only minimal changes to model-detail-settings-tab.tsx; prefer updating its prop pass-through",
+        "Do not skip the test suite"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Update model-detail-settings-tab.tsx if needed",
+          "description": "Inspect apps/web/src/features/models/detail/model-detail-settings-tab.tsx. If it passes individual props, switch to passing controller. If it already passes a single object, ensure the field names still match.",
+          "command": null,
+          "expectedResult": "Settings tab compiles",
+          "codeExample": "return <ModelConfigForm controller={controller} />;"
+        },
+        {
+          "order": 2,
+          "title": "Run web typecheck",
+          "description": "Run the TypeScript typecheck for the web app.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web typecheck",
+          "expectedResult": "Exit code 0",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Run web tests",
+          "description": "Run the test suite for the web app.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web test",
+          "expectedResult": "All tests pass",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Run web lint",
+          "description": "Run the lint command for the web app. If the project does not define a lint script, note that in the report and skip.",
+          "command": "cd /home/gustavo/Apps/lite-llm-analytics && pnpm --filter @lite-llm/web lint",
+          "expectedResult": "Exit code 0 (or command not found noted in report)",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/detail/model-detail-settings-tab.tsx"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/web/src/features/models/detail/model-detail-settings-tab.tsx"
+        ],
+        "deleted": []
+      },
+      "notes": [
+        "Final verification task. If tests fail due to import paths or hook behavior, fix in this task only."
+      ]
+    }
+  ]
 }
