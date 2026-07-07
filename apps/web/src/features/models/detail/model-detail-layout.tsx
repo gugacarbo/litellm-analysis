@@ -125,37 +125,37 @@ export function ModelDetailLayout() {
   return (
     <ModelDetailContext.Provider value={contextValue}>
       <PageLayout
-        title={model?.modelName ?? modelName}
-        icon={TrendingUp}
         showFilters={false}
-        buttons={
-          <>
+        className="px-0"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <Tabs
+            value={tabValue}
+            onValueChange={(value) => {
+              navigate(`/models/${encodeURIComponent(modelName)}/${value}`, {
+                replace: false,
+              });
+            }}
+          >
+            <TabsList>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="logs">Logs</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="flex items-center gap-2">
+            {loading && (
+              <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+            )}
             <Button variant="ghost" size="sm" asChild>
               <Link to="/models">
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Link>
             </Button>
-            {loading && (
-              <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
-            )}
-          </>
-        }
-      >
-        <Tabs
-          value={tabValue}
-          onValueChange={(value) => {
-            navigate(`/models/${encodeURIComponent(modelName)}/${value}`, {
-              replace: false,
-            });
-          }}
-        >
-          <TabsList>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="logs">Logs</TabsTrigger>
-          </TabsList>
-        </Tabs>
+          </div>
+        </div>
 
         <div className="mt-6">
           <Outlet />

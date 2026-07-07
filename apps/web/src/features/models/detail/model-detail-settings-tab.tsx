@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Scale } from "lucide-react";
+import { Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { BenchmarkComparisonDialog } from "../components/benchmark-comparison-dialog";
@@ -17,7 +17,6 @@ import {
 const MAPPABLE_KEYS = new Set([
   "displayName",
   "family",
-  "ownedBy",
   "apiMode",
   "vision",
   "inputCostPerToken",
@@ -25,6 +24,9 @@ const MAPPABLE_KEYS = new Set([
 ]);
 
 const COST_KEYS = new Set(["inputCostPerToken", "outputCostPerToken"]);
+const IMPORT_KEY_MAP: Record<string, string> = {
+  ownedBy: "family",
+};
 
 export function ModelDetailSettingsTab() {
   const { model, notFound } = useModelDetailContext();
@@ -52,51 +54,54 @@ export function ModelDetailSettingsTab() {
   };
 
   const handleImportField = (key: string, value: unknown, source: string) => {
-    if (!MAPPABLE_KEYS.has(key)) {
+    const targetKey = IMPORT_KEY_MAP[key] ?? key;
+
+    if (!MAPPABLE_KEYS.has(targetKey)) {
       toast.warning(`Campo "${key}" não pode ser importado automaticamente`);
       return;
     }
 
     const coercedValue =
-      COST_KEYS.has(key) && typeof value === "number"
+      COST_KEYS.has(targetKey) && typeof value === "number"
         ? String(value)
         : value;
 
     controller.onFormDataChange({
       ...controller.formData,
-      [key]: coercedValue,
+      [targetKey]: coercedValue,
     });
-    toast.success(`Campo "${key}" importado de ${source}`);
+    toast.success(`Campo "${targetKey}" importado de ${source}`);
   };
 
   return (
     <>
-      <div className="mb-4">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="inline-block">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={buttonDisabled}
-                onClick={handleOpenComparison}
-              >
-                <Scale className="h-4 w-4 mr-2" />
-                Comparar Benchmarks
-              </Button>
-            </span>
-          </TooltipTrigger>
-          {buttonDisabled && (
-            <TooltipContent>
-              {benchmarkLoading
-                ? "Carregando dados de benchmark..."
-                : "Nenhum benchmark encontrado para este modelo"}
-            </TooltipContent>
-          )}
-        </Tooltip>
-      </div>
-
-      <ModelConfigForm controller={controller} />
+      <ModelConfigForm
+        controller={controller}
+        headerAction={
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-block">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={buttonDisabled}
+                  onClick={handleOpenComparison}
+                >
+                  <Settings2 className="mr-2 h-4 w-4" />
+                  Importar configs
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {buttonDisabled && (
+              <TooltipContent>
+                {benchmarkLoading
+                  ? "Carregando dados de benchmark..."
+                  : "Nenhum benchmark encontrado para este modelo"}
+              </TooltipContent>
+            )}
+          </Tooltip>
+        }
+      />
 
       {comparisonOpen && (
         <BenchmarkComparisonDialog

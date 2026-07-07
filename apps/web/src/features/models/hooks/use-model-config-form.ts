@@ -5,10 +5,11 @@ import {
   resolveModelRoute,
 } from "@/shared/lib/api-client/models";
 
+const DEFAULT_THINKING_LEVELS = ["low", "medium", "high", "xhigh"] as const;
+
 export interface ModelConfigFormData {
   displayName: string;
   family: string;
-  ownedBy: string;
   aliases: string[];
   apiMode: "openai" | "anthropic" | "";
   vision: boolean;
@@ -32,12 +33,11 @@ function getEmptyFormData(): ModelConfigFormData {
   return {
     displayName: "",
     family: "",
-    ownedBy: "",
     aliases: [],
     apiMode: "",
     vision: false,
     enabled: true,
-    thinkingLevels: [],
+    thinkingLevels: [...DEFAULT_THINKING_LEVELS],
     reasoning: {
       enabled: false,
       effort: "",
@@ -91,12 +91,12 @@ export function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
   return {
     displayName: (config.displayName as string) ?? route.displayName ?? "",
     family: (config.family as string) ?? route.family ?? "",
-    ownedBy: (config.ownedBy as string) ?? route.ownedBy ?? "",
     aliases: [],
     enabled: model.enabled !== false,
-    thinkingLevels: Array.isArray(config.thinking?.levels)
-      ? config.thinking.levels
-      : [],
+    thinkingLevels:
+      Array.isArray(config.thinking?.levels) && config.thinking.levels.length > 0
+        ? config.thinking.levels
+        : [...DEFAULT_THINKING_LEVELS],
     reasoning: {
       enabled: reasoning !== undefined,
       effort: validEffort,
@@ -120,7 +120,7 @@ export function buildConfigFromFormData(
   const config: ModelConfig["config"] = {
     displayName: formData.displayName || undefined,
     family: formData.family || undefined,
-    ownedBy: formData.ownedBy || undefined,
+    ownedBy: "",
     apiMode: formData.apiMode || undefined,
     vision: formData.vision,
   };
@@ -145,7 +145,6 @@ function getComparableFormData(formData: ModelConfigFormData) {
   return {
     displayName: formData.displayName,
     family: formData.family,
-    ownedBy: formData.ownedBy,
     aliases: formData.aliases,
     apiMode: formData.apiMode,
     vision: formData.vision,
@@ -179,6 +178,7 @@ export interface UseModelConfigFormResult {
   onRemoveExtraParam: (key: string) => void;
   onUpdateExtraParam: (key: string, value: string) => void;
   resetFormForModel: (model: ModelWithStatus | null) => void;
+  commitSavedFormData: (next: ModelConfigFormData) => void;
 }
 
 /**
@@ -230,6 +230,11 @@ export function useModelConfigForm(): UseModelConfigFormResult {
     }));
   }, []);
 
+  const commitSavedFormData = useCallback((next: ModelConfigFormData) => {
+    setFormData(next);
+    setInitialFormData(next);
+  }, []);
+
   return {
     formData,
     initialFormData,
@@ -239,5 +244,6 @@ export function useModelConfigForm(): UseModelConfigFormResult {
     onRemoveExtraParam,
     onUpdateExtraParam,
     resetFormForModel,
+    commitSavedFormData,
   };
 }

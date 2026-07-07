@@ -83,23 +83,19 @@ export function BenchmarkComparisonDialog({
               <TableHeader>
                 <TableRow>
                   <TableHead>Campo</TableHead>
+                  <TableHead>Atual</TableHead>
                   <TableHead>Artificial Analysis</TableHead>
                   <TableHead>OpenRouter</TableHead>
-                  <TableHead>Atual</TableHead>
-                  <TableHead>Ação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.fields.map((field) => (
                   <TableRow key={field.key}>
                     <TableCell className="font-medium">{field.label}</TableCell>
-                    <TableCell>{formatValue(field.aa?.value)}</TableCell>
-                    <TableCell>
-                      {formatValue(field.openrouter?.value)}
-                    </TableCell>
                     <TableCell>{formatValue(field.currentValue)}</TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{formatValue(field.aa?.value)}</span>
                         {field.aa &&
                           shouldShowImport(
                             field.aa.value,
@@ -108,18 +104,23 @@ export function BenchmarkComparisonDialog({
                             <Button
                               variant="outline"
                               size="xs"
-                               onClick={() => {
-                                 onImportField(
-                                   field.key,
-                                   field.aa!.value,
-                                   field.aa!.sourceLabel,
-                                 );
-                               }}
+                              onClick={() => {
+                                onImportField(
+                                  field.key,
+                                  field.aa!.value,
+                                  field.aa!.sourceLabel,
+                                );
+                              }}
                             >
                               <Scale className="mr-1 h-3 w-3" />
                               Importar
                             </Button>
                           )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{formatValue(field.openrouter?.value)}</span>
                         {field.openrouter &&
                           shouldShowImport(
                             field.openrouter.value,
@@ -128,13 +129,13 @@ export function BenchmarkComparisonDialog({
                             <Button
                               variant="outline"
                               size="xs"
-                               onClick={() => {
-                                 onImportField(
-                                   field.key,
-                                   field.openrouter!.value,
-                                   field.openrouter!.sourceLabel,
-                                 );
-                               }}
+                              onClick={() => {
+                                onImportField(
+                                  field.key,
+                                  field.openrouter!.value,
+                                  field.openrouter!.sourceLabel,
+                                );
+                              }}
                             >
                               <Scale className="mr-1 h-3 w-3" />
                               Importar

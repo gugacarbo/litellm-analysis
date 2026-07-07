@@ -41,9 +41,14 @@ export function useModelConfigPage(): ModelConfigController {
   const navigate = useNavigate();
 
   const onSaved = useCallback(() => {
-    formHook.resetFormForModel(model);
-    aliasesState.resetForModel(modelName);
-  }, [model, modelName, formHook.resetFormForModel, aliasesState.resetForModel]);
+    formHook.commitSavedFormData(formHook.formData);
+    aliasesState.commitSavedAliases(aliasesState.normalizedAliases);
+  }, [
+    formHook.commitSavedFormData,
+    formHook.formData,
+    aliasesState.commitSavedAliases,
+    aliasesState.normalizedAliases,
+  ]);
 
   const { saving, save } = useModelConfigSave({
     model,
@@ -59,7 +64,7 @@ export function useModelConfigPage(): ModelConfigController {
   useEffect(() => {
     formHook.resetFormForModel(model);
     aliasesState.resetForModel(modelName);
-  }, [model, modelName, formHook.resetFormForModel, aliasesState.resetForModel]);
+  }, [modelName, formHook.resetFormForModel, aliasesState.resetForModel]);
 
   return {
     model,

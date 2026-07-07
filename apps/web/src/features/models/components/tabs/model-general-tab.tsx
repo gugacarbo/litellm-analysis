@@ -40,14 +40,48 @@ export function ModelGeneralTab({
     [formData, onFormDataChange],
   );
 
+  const updateThinkingLevels = useCallback(
+    (thinkingLevels: string[]) => {
+      const activeEffort = formData.reasoning.effort;
+      const normalizedLevels = new Set(
+        thinkingLevels.map((level) => level.trim().toLowerCase()),
+      );
+      const nextReasoning =
+        activeEffort && !normalizedLevels.has(activeEffort.toLowerCase())
+          ? { ...formData.reasoning, effort: "" }
+          : formData.reasoning;
+
+      onFormDataChange({
+        ...formData,
+        thinkingLevels,
+        reasoning: nextReasoning,
+      });
+    },
+    [formData, onFormDataChange],
+  );
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>General Settings</CardTitle>
-        <CardDescription>
-          Configuration sourced from the models config file. These settings apply
-          to all environments.
-        </CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+        <div className="space-y-1.5">
+          <CardTitle>General Settings</CardTitle>
+          <CardDescription>
+            Configuration sourced from the models config file. These settings
+            apply to all environments.
+          </CardDescription>
+        </div>
+        <div className="flex items-center gap-2 rounded-md border px-3 py-2">
+          <Label htmlFor="enabled" className="cursor-pointer text-sm font-medium">
+            Enabled
+          </Label>
+          <Switch
+            id="enabled"
+            checked={formData.enabled}
+            onCheckedChange={(checked) =>
+              onFormDataChange({ ...formData, enabled: checked })
+            }
+          />
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -88,23 +122,6 @@ export function ModelGeneralTab({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="owned-by" className="text-sm font-medium">
-              Owned By
-            </Label>
-            <Input
-              id="owned-by"
-              value={formData.ownedBy}
-              onChange={(e) =>
-                onFormDataChange({ ...formData, ownedBy: e.target.value })
-              }
-              placeholder="e.g., atplus"
-            />
-            <p className="text-xs text-muted-foreground">
-              Use <span className="font-mono">chatgpt-subscription</span> to
-              route via OpenAI OAuth/Codex plan.
-            </p>
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="api-mode" className="text-sm font-medium">
               API Mode
             </Label>
@@ -130,30 +147,16 @@ export function ModelGeneralTab({
               </SelectContent>
             </Select>
           </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="thinking-levels" className="text-sm font-medium">
-              Thinking Levels
-            </Label>
-            <Input
-              id="thinking-levels"
-              value={formData.thinkingLevels.join(", ")}
-              onChange={(e) => {
-                const levels = e.target.value
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean);
-                onFormDataChange({ ...formData, thinkingLevels: levels });
-              }}
-              placeholder="e.g., low, medium, high"
-            />
-            <p className="text-xs text-muted-foreground">
-              Comma-separated list of available thinking modes
-            </p>
-          </div>
-          <div className="flex items-center space-x-3 rounded-md border p-3">
+          <div className="flex items-center justify-between rounded-md border px-3 py-2 sm:self-end">
+            <div className="space-y-0.5">
+              <Label
+                htmlFor="vision"
+                className="cursor-pointer text-sm font-medium"
+              >
+                Vision
+              </Label>
+              <p className="text-xs text-muted-foreground">Image inputs</p>
+            </div>
             <Switch
               id="vision"
               checked={formData.vision}
@@ -161,43 +164,13 @@ export function ModelGeneralTab({
                 onFormDataChange({ ...formData, vision: checked })
               }
             />
-            <div className="space-y-0.5">
-              <Label
-                htmlFor="vision"
-                className="text-sm font-medium cursor-pointer"
-              >
-                Vision support
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Model accepts image inputs
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-3 rounded-md border p-3">
-          <Switch
-            id="enabled"
-            checked={formData.enabled}
-            onCheckedChange={(checked) =>
-              onFormDataChange({ ...formData, enabled: checked })
-            }
-          />
-          <div className="space-y-0.5">
-            <Label
-              htmlFor="enabled"
-              className="text-sm font-medium cursor-pointer"
-            >
-              Enabled for routing
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              Disable to hide from routing and selection
-            </p>
           </div>
         </div>
 
         <ReasoningSection
+          thinkingLevels={formData.thinkingLevels}
           reasoning={formData.reasoning}
+          onUpdateThinkingLevels={updateThinkingLevels}
           onUpdateReasoning={updateReasoning}
         />
       </CardContent>

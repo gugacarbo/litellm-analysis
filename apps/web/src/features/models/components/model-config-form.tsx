@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Tabs,
@@ -36,9 +37,13 @@ export interface ModelConfigController {
 
 interface ModelConfigFormProps {
   controller: ModelConfigController;
+  headerAction?: ReactNode;
 }
 
-export function ModelConfigForm({ controller }: ModelConfigFormProps) {
+export function ModelConfigForm({
+  controller,
+  headerAction,
+}: ModelConfigFormProps) {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="general" className="w-full">
@@ -47,6 +52,28 @@ export function ModelConfigForm({ controller }: ModelConfigFormProps) {
           <TabsTrigger value="routing">Routing</TabsTrigger>
           <TabsTrigger value="advanced">Advanced</TabsTrigger>
         </TabsList>
+
+        <div className="mt-4 flex items-center justify-between gap-4">
+          <div>{headerAction}</div>
+          <div className="flex items-center gap-3">
+            <p className="text-sm text-muted-foreground">
+              {controller.isDirty
+                ? "You have unsaved changes"
+                : "No unsaved changes"}
+            </p>
+            <Button
+              onClick={controller.onSave}
+              disabled={
+                controller.saving ||
+                controller.aliasesState.loading ||
+                !controller.isDirty
+              }
+            >
+              {controller.saving ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </div>
+
         <TabsContent value="general">
           <ModelGeneralTab
             modelName={controller.model?.modelName ?? ""}
@@ -74,29 +101,6 @@ export function ModelConfigForm({ controller }: ModelConfigFormProps) {
           />
         </TabsContent>
       </Tabs>
-
-      <div className="flex items-center justify-between border-t pt-4">
-        <p className="text-sm text-muted-foreground">
-          {controller.isDirty
-            ? "You have unsaved changes"
-            : "No unsaved changes"}
-        </p>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={controller.onBack}>
-            Back
-          </Button>
-          <Button
-            onClick={controller.onSave}
-            disabled={
-              controller.saving ||
-              controller.aliasesState.loading ||
-              !controller.isDirty
-            }
-          >
-            {controller.saving ? "Saving..." : "Save"}
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }

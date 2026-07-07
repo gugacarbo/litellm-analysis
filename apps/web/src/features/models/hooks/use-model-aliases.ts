@@ -12,6 +12,7 @@ export interface UseModelAliasesResult {
   isDirty: boolean;
   setAliases: (next: string[]) => void;
   resetForModel: (modelName: string) => void;
+  commitSavedAliases: (next?: string[]) => void;
   getValidationError: () => string | null;
   normalizedAliases: string[];
 }
@@ -168,6 +169,18 @@ export function useModelAliases(modelName: string): UseModelAliasesResult {
     }
   }, [queryClient]);
 
+  const commitSavedAliases = useCallback((next?: string[]) => {
+    const savedAliases = normalizeAliases(next ?? aliases);
+    setAliasesState(savedAliases);
+    setInitialAliases(savedAliases);
+    setLoaded(true);
+    setLoading(false);
+    setError(null);
+    hydratedModelRef.current = modelName;
+    aliasErrorToastModelRef.current = null;
+    touchedRef.current = false;
+  }, [aliases, modelName]);
+
   const normalizedAliases = useMemo(
     () => normalizeAliases(aliases),
     [aliases],
@@ -194,6 +207,7 @@ export function useModelAliases(modelName: string): UseModelAliasesResult {
     isDirty,
     setAliases,
     resetForModel,
+    commitSavedAliases,
     getValidationError,
     normalizedAliases,
   };
