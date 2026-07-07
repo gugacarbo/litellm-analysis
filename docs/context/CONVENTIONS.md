@@ -59,8 +59,8 @@
 ## Modelos e providers
 
 - Registry primário: `model_proxy_models` + `model_proxy_providers`.
-- Tipo público: `modelRoute` (API aceita `litellmParams` via shim, normaliza para `modelRoute`).
-- Resposta expõe `modelRoute`; `litellmParams` é alias deprecado.
+- Tipo público: `modelRoute` (API rejeita `litellmParams` com erro 4xx — hard cut, sem shim).
+- Resposta expõe apenas `modelRoute`; `litellmParams` é rejeitado com 4xx.
 - Provider-scoped routing: `providerName/modelName` (SPEC-0002).
 - `is_default_provider` define resolução padrão quando há múltiplos providers para o mesmo modelo.
 

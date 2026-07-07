@@ -1,10 +1,18 @@
 ---
-status: draft
+status: implemented
 date: 2026-07-07
 builds-on:
   - SPEC-0002
   - SPEC-0003
-implemented-by: []
+implemented-by:
+  - packages/contracts/src/analytics.ts
+  - packages/server/src/routes/model-routes.ts
+  - packages/server/src/orchestration/route-params.ts
+  - packages/server/src/orchestration/registry-models-bridge.ts
+  - services/llm-config-service/src/types/model-route.ts
+  - services/llm-config-service/src/adapters/model-route-adapter.ts
+  - apps/web/src/features/models/models-utils.ts
+  - apps/web/src/shared/lib/api-client/models.ts
 ---
 
 # ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters
@@ -132,5 +140,16 @@ Além disso:
 ## Verificação
 
 ```text
-(preencher no fechamento)
+pnpm typecheck  → exit 0 (todos os packages)
+pnpm test       → todos verdes
+
+Evidência por camada:
+  contracts:  api-contracts.test.ts  — valida que ModelRoute é o único contrato público
+  server:     model-routes.ts        — rejeita litellmParams com 4xx (testes em registry-integration.test.ts)
+  server:     route-params.test.ts   — route params colapsados, sem shapes paralelos
+  web:        models-gates.test.tsx  — tabela lê apenas campos canônicos tipados
+  web:        models-utils.ts        — sem fallback para chaves legadas
+  llm-config: model-route-adapter.test.ts — adapter canonicalizado, sem aliases
+
+Commit final: 35ec65b (test: refresh regression coverage for hard cut)
 ```

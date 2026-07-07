@@ -210,7 +210,7 @@
       "id": "REQ-5",
       "title": "Regression coverage locks the hard cut",
       "source": "SPEC-0009 Fluxo 9; Casos de borda 3-7",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "Contracts, server, and web tests use canonical typed route fixtures",
         "Server tests cover explicit rejection of removed payload forms",
@@ -539,7 +539,7 @@
       "id": "Task-E-0009",
       "title": "Refresh regression coverage for the hard cut",
       "description": "Lock the cut with contracts, server, and web tests so the repo cannot silently reintroduce generic or legacy route handling.",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "task_profile": "general",
       "batch": "E",

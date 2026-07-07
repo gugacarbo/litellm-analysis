@@ -164,12 +164,21 @@
     "path": "docs/specs/0009-model-route-hard-cut-spec.md",
     "layer": "specs",
     "title": "ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters",
-    "status": "draft",
+    "status": "implemented",
     "builds-on": [
       "SPEC-0002",
       "SPEC-0003"
     ],
     "superseded-by": null,
-    "implemented-by": []
+    "implemented-by": [
+      "packages/contracts/src/analytics.ts",
+      "packages/server/src/routes/model-routes.ts",
+      "packages/server/src/orchestration/route-params.ts",
+      "packages/server/src/orchestration/registry-models-bridge.ts",
+      "services/llm-config-service/src/types/model-route.ts",
+      "services/llm-config-service/src/adapters/model-route-adapter.ts",
+      "apps/web/src/features/models/models-utils.ts",
+      "apps/web/src/shared/lib/api-client/models.ts"
+    ]
   }
 ]
