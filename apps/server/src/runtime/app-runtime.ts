@@ -43,6 +43,31 @@ interface HealthCheckPromptSource {
   getHealthCheckPrompt(): Promise<string | null>;
 }
 
+function resolveProviderFromModelProviderName(
+  providers: Record<
+    string,
+    {
+      defaultProvider?: string;
+      name: string;
+      ownedBy?: string;
+    }
+  >,
+  providerName?: string | null,
+) {
+  const trimmedProviderName = providerName?.trim();
+  if (!trimmedProviderName) {
+    return undefined;
+  }
+
+  return Object.entries(providers).find(([key, provider]) => {
+    return (
+      key === trimmedProviderName ||
+      provider.defaultProvider?.trim() === trimmedProviderName ||
+      provider.name?.trim() === trimmedProviderName
+    );
+  })?.[1];
+}
+
 async function seedBootstrapApiKey(
   envKey: string | undefined,
   registry: ReturnType<typeof createRegistryServices>,
@@ -226,6 +251,10 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   for (const modelName of enabledModelNames) {
     const route = await registry.registryModelsService.getRoute(modelName);
     const modelSpec = allModels[modelName];
+    const resolvedProvider = resolveProviderFromModelProviderName(
+      allProviders,
+      route?.providerName,
+    );
     const providerKeys = [
       route?.ownedBy,
       route?.family,
@@ -233,13 +262,15 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       modelSpec?.family,
     ].filter((value): value is string => !!value?.trim());
 
-    const usesChatGptSubscription = providerKeys.some((key) => {
-      if (key === CHATGPT_SUBSCRIPTION_PROVIDER) {
-        return true;
-      }
-      const provider = allProviders[key];
-      return provider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
-    });
+    const usesChatGptSubscription =
+      resolvedProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER ||
+      providerKeys.some((key) => {
+        if (key === CHATGPT_SUBSCRIPTION_PROVIDER) {
+          return true;
+        }
+        const provider = allProviders[key];
+        return provider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
+      });
 
     if (usesChatGptSubscription) {
       requestModeByModelName[modelName] = "responses";

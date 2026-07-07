@@ -81,7 +81,7 @@ describe("upstream-provider", () => {
           Promise.resolve([
             {
               name: "openai-main",
-              apiKey: null,
+              apiKey: process.env.OPENAI_API_KEY ?? null,
               baseUrl: null,
             },
           ]),
@@ -98,6 +98,19 @@ describe("upstream-provider", () => {
 
     expect(provider?.baseUrl).toBe("https://api.openai.com/v1");
     expect(provider?.defaultProvider).toBe("openai-main");
+  });
+
+  it("prefers the model provider name over ownedBy when resolving the provider", () => {
+    const provider = findUpstreamProvider(
+      createProviderMap(),
+      createModelRow({
+        providerName: "deepseek-main",
+        ownedBy: "openai",
+      }),
+    );
+
+    expect(provider?.baseUrl).toBe("https://api.deepseek.com/v1");
+    expect(provider?.defaultProvider).toBe("deepseek-main");
   });
 
   it("parses bare model names without a provider prefix", () => {
@@ -270,13 +283,22 @@ describe("upstream-provider", () => {
     });
     expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
   });
+
+  it("routes chatgpt-subscription models through OAuth even when they are identified by providerName", async () => {
     const target = await resolveUpstreamTarget({
       modelName: "gpt-5-codex",
-      providers: {},
+      providers: {
+        "chatgpt-subscription": {
+          name: "OpenAI OAuth",
+          ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
+          baseUrl: "https://chatgpt.com/backend-api/codex",
+          defaultProvider: "codex-plan",
+        },
+      },
       row: createModelRow({
         modelName: "gpt-5-codex",
-        ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
-        providerName: null,
+        ownedBy: null,
+        providerName: "codex-plan",
       }),
     });
 

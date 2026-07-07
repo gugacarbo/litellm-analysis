@@ -26,6 +26,24 @@ export interface ResolvedUpstreamTarget {
   upstreamModel: string;
 }
 
+function resolveProviderByName(
+  providers: Record<string, Provider>,
+  providerName?: string | null,
+): Provider | undefined {
+  const trimmedProviderName = providerName?.trim();
+  if (!trimmedProviderName) {
+    return undefined;
+  }
+
+  return Object.entries(providers).find(([key, provider]) => {
+    return (
+      key === trimmedProviderName ||
+      provider.defaultProvider?.trim() === trimmedProviderName ||
+      provider.name?.trim() === trimmedProviderName
+    );
+  })?.[1];
+}
+
 function normalizeBaseUrl(raw: string): string {
   return raw.replace(/\/+$/, "");
 }
@@ -54,6 +72,11 @@ export function findUpstreamProvider(
   providers: Record<string, Provider>,
   row?: ModelProxyModel | null,
 ): Provider | undefined {
+  const providerFromModel = resolveProviderByName(providers, row?.providerName);
+  if (providerFromModel) {
+    return providerFromModel;
+  }
+
   const candidateKeys = [row?.ownedBy, row?.family ?? undefined].filter(
     (value): value is string => !!value?.trim(),
   );
@@ -175,8 +198,8 @@ export async function resolveUpstreamTarget(params: {
 
   const upstreamBaseUrl =
     resolvedRow.upstreamBaseUrl?.trim() ||
-    upstreamProvider?.baseUrl?.trim() ||
-    provider?.baseUrl?.trim();
+    provider?.baseUrl?.trim() ||
+    upstreamProvider?.baseUrl?.trim();
 
   if (!upstreamBaseUrl) {
     throw new Error(`No upstream base URL configured for model "${modelName}"`);
