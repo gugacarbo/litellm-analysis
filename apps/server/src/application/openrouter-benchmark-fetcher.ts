@@ -14,6 +14,8 @@ const pricingSchema = z
   })
   .passthrough();
 
+const nullablePricing = pricingSchema.nullable().optional();
+
 const artificialAnalysisItemSchema = z
   .object({
     source: z.literal("artificial-analysis"),
@@ -22,7 +24,7 @@ const artificialAnalysisItemSchema = z
     intelligence_index: z.number().nullable().optional(),
     coding_index: z.number().nullable().optional(),
     agentic_index: z.number().nullable().optional(),
-    pricing: pricingSchema.optional(),
+    pricing: nullablePricing,
   })
   .passthrough();
 
@@ -45,7 +47,7 @@ const designArenaItemSchema = z
         total: z.number().nullable().optional(),
       })
       .optional(),
-    pricing: pricingSchema.optional(),
+    pricing: nullablePricing,
   })
   .passthrough();
 
@@ -122,6 +124,28 @@ function parsePrice(priceStr: string | null | undefined): number | null {
   return isNaN(parsed) ? null : parsed * 1_000_000;
 }
 
+function parseProviderName(permaslug: string): {
+  creatorSlug: string | null;
+  modelSlug: string | null;
+  creatorName: string;
+} {
+  const parts = permaslug.split("/");
+  if (parts.length < 2) {
+    return { creatorSlug: null, modelSlug: null, creatorName: "Unknown" };
+  }
+
+  const creatorSlug = parts[0] ?? null;
+  const modelSlug = parts.slice(1).join("/");
+  const creatorName = creatorSlug
+    ? creatorSlug
+        .split(/[-_]/)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(" ")
+    : "Unknown";
+
+  return { creatorSlug, modelSlug, creatorName };
+}
+
 function normalizeModel(item: z.infer<typeof benchmarkItemSchema>): NormalizedModel {
   const pricing = item.pricing ?? {};
   const priceInput = parsePrice(pricing.prompt);
@@ -130,46 +154,15 @@ function normalizeModel(item: z.infer<typeof benchmarkItemSchema>): NormalizedMo
     ? (priceInput * 3 + priceOutput) / 4
     : null;
 
-  if (item.source === "artificial-analysis") {
-    return {
-      id: item.model_permaslug,
-      name: item.display_name,
-      slug: null,
-      creatorId: null,
-      creatorName: "Unknown",
-      creatorSlug: null,
-      source: "openrouter",
-      intelligenceIndex: item.intelligence_index ?? null,
-      codingIndex: item.coding_index ?? null,
-      mathIndex: null,
-      mmluPro: null,
-      gpqa: null,
-      hle: null,
-      livecodebench: null,
-      scicode: null,
-      math500: null,
-      aime: null,
-      aime25: null,
-      tau2: null,
-      ifbench: null,
-      lcr: null,
-      terminalbenchHard: null,
-      priceInput1mTokens: priceInput,
-      priceOutput1mTokens: priceOutput,
-      priceBlended1mTokens: priceBlended,
-      medianOutputTokensPerSecond: null,
-      medianTimeToFirstTokenSeconds: null,
-      medianTimeToFirstAnswerTokenSeconds: null,
-    };
-  }
+  const { creatorSlug, modelSlug, creatorName } = parseProviderName(item.model_permaslug);
 
-  return {
+  const base: NormalizedModel = {
     id: item.model_permaslug,
     name: item.display_name,
-    slug: null,
+    slug: modelSlug,
     creatorId: null,
-    creatorName: "Unknown",
-    creatorSlug: null,
+    creatorName,
+    creatorSlug,
     source: "openrouter",
     intelligenceIndex: null,
     codingIndex: null,
@@ -193,6 +186,16 @@ function normalizeModel(item: z.infer<typeof benchmarkItemSchema>): NormalizedMo
     medianTimeToFirstTokenSeconds: null,
     medianTimeToFirstAnswerTokenSeconds: null,
   };
+
+  if (item.source === "artificial-analysis") {
+    return {
+      ...base,
+      intelligenceIndex: item.intelligence_index ?? null,
+      codingIndex: item.coding_index ?? null,
+    };
+  }
+
+  return base;
 }
 
 function sortByIntelligenceThenName(
