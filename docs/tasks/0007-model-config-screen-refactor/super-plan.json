@@ -1,0 +1,294 @@
+{
+  "$schema": "/home/gustavo/Apps/lite-llm-analytics/.super-planning/super-plan.schema.json",
+  "planId": "0007-model-config-screen-refactor",
+  "featureName": "model-config-screen-refactor",
+  "status": "pending",
+  "source": {
+    "spec": "docs/specs/0007-model-config-screen-refactor-spec.md",
+    "plan": "docs/plans/0007-model-config-screen-refactor.md"
+  },
+  "goal": "Refactor the model detail Settings tab into a tab-based UI (General / Routing / Advanced) with the monolithic 603-line hook split into three focused sub-hooks plus a thin composer.",
+  "architectureSummary": "Three extracted hooks (useModelConfigForm, useModelAliases, useModelConfigSave) compose into a slim useModelConfigPage controller. The rewritten ModelConfigForm renders a shadcn Tabs shell hosting three leaf tab components, with a sticky footer reflecting combined dirty state from the form and aliases hooks.",
+  "techStack": [
+    "React 19",
+    "TanStack React Query",
+    "shadcn/ui (Tabs, CollapsibleSection, Switch, Select, Card, Button, Input, Label)",
+    "React Router",
+    "TypeScript"
+  ],
+  "executionMode": "subagent-driven",
+  "reviewCadence": "per_batch",
+  "branchStrategy": {
+    "baseBranch": "main",
+    "featureBranch": "feat/0007-model-config-refactor"
+  },
+  "worktree": {
+    "enabled": false,
+    "path": "../0007-model-config-screen-refactor-worktree"
+  },
+  "globalConstraints": [
+    "No backend, API, schema, or routing-structure changes \u2014 pure apps/web refactor.",
+    "Save behavior must match current behavior exactly: updateModel(modelName, routeUpdate, undefined, config) first, then updateModelAliases if aliases loaded, with the same partial-failure toasts.",
+    "ModelConfigFormData loses aliasesLoaded, aliasesLoading, aliasesLoadError \u2014 these move into useModelAliases return shape.",
+    "All hint text in English; remove the existing hard-coded Portuguese hint on Owned By.",
+    "Feature isolation: new files live under apps/web/src/features/models/; import only from @/shared/* and sibling feature files.",
+    "No new top-level directories; respect apps/web/AGENTS.md anti-patterns.",
+    "shadcn primitives reused: Tabs, CollapsibleSection (@/shared/components/ui/collapsible-section), Card, Switch, Select, Input, Label, Button.",
+    "Dirty indicator and Save enablement reflect formIsDirty || aliasesIsDirty.",
+    "Reasoning sub-section collapses by default; collapsing never clears values."
+  ],
+  "fileStructure": [
+    {
+      "path": "apps/web/src/features/models/use-model-config-form.ts",
+      "ownerTask": "Task-A1-0007",
+      "notes": "Slimmed ModelConfigFormData type, modelToFormData, buildConfigFromFormData, form state, dirty tracking, extra-param handlers. NEW file."
+    },
+    {
+      "path": "apps/web/src/features/models/use-model-aliases.ts",
+      "ownerTask": "Task-A2-0007",
+      "notes": "Aliases query + mutation state, normalizeAliases, getAliasValidationError, dirty tracking, reset-on-model. NEW file."
+    },
+    {
+      "path": "apps/web/src/features/models/use-model-config-save.ts",
+      "ownerTask": "Task-B1-0007",
+      "notes": "updateModel mutation + updateModelAliases orchestration with partial-failure toasts. NEW file."
+    },
+    {
+      "path": "apps/web/src/features/models/components/model-general-tab.tsx",
+      "ownerTask": "Task-C1-0007",
+      "notes": "General tab leaf component + extracted ReasoningSection using CollapsibleSection. NEW file."
+    },
+    {
+      "path": "apps/web/src/features/models/components/model-routing-tab.tsx",
+      "ownerTask": "Task-C2-0007",
+      "notes": "Routing tab wrapping existing ModelAliasesEditor. NEW file."
+    },
+    {
+      "path": "apps/web/src/features/models/components/model-advanced-tab.tsx",
+      "ownerTask": "Task-C3-0007",
+      "notes": "Advanced tab: API Base, Provider, Costs, Extra Params. NEW file."
+    },
+    {
+      "path": "apps/web/src/features/models/use-model-config-page.ts",
+      "ownerTask": "Task-D1-0007",
+      "notes": "REWRITE as thin composer exposing ModelConfigController."
+    },
+    {
+      "path": "apps/web/src/features/models/components/model-config-form.tsx",
+      "ownerTask": "Task-D2-0007",
+      "notes": "REWRITE as Tabs shell + sticky footer; consumes ModelConfigController."
+    },
+    {
+      "path": "apps/web/src/features/models/detail/model-detail-settings-tab.tsx",
+      "ownerTask": "Task-D3-0007",
+      "notes": "Minimal update to consume the new controller shape; verify typecheck/test/lint."
+    }
+  ],
+  "requirementsChecklist": [
+    {
+      "id": "REQ-001",
+      "title": "Tab-based UI shell (General / Routing / Advanced)",
+      "source": "spec:Flow step 2-5",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Settings tab renders shadcn Tabs with three triggers: General, Routing, Advanced",
+        "General tab opens by default",
+        "Each tab hosts its dedicated leaf component",
+        "Footer is sticky below tab content and shows dirty indicator + Back/Save"
+      ],
+      "coveredByTasks": [
+        "Task-D2-0007"
+      ],
+      "notes": [
+        "General tab content comes from Task-C1, Routing from C2, Advanced from C3"
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "title": "Essential fields always visible in General tab",
+      "source": "spec:Flow step 3",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "General tab shows Model Name, Display Name, Family, Owned By, API Mode, Vision, Enabled",
+        "Model Name is immutable (disabled, bg-muted)",
+        "No hard-coded Portuguese text remains"
+      ],
+      "coveredByTasks": [
+        "Task-C1-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-003",
+      "title": "Reasoning section collapsible, collapsed by default",
+      "source": "spec:Flow step 3; spec:Contract UI surface",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Reasoning sub-section uses CollapsibleSection with defaultOpen=false",
+        "Reasoning Effort, Reasoning API Mode, Enable Thinking, Include Reasoning switches all inside",
+        "Collapsing the section does not clear values"
+      ],
+      "coveredByTasks": [
+        "Task-C1-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-004",
+      "title": "Routing tab isolates aliases editor",
+      "source": "spec:Flow step 4; spec:Contract Hook decomposition",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Routing tab renders ModelAliasesEditor",
+        "Editor reads aliases from dedicated aliases query hook, not from form data",
+        "Routing tab shows loading and error states"
+      ],
+      "coveredByTasks": [
+        "Task-C2-0007",
+        "Task-A2-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-005",
+      "title": "Advanced tab shows DB settings",
+      "source": "spec:Flow step 5",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Advanced tab shows API Base URL, Provider select, Input Cost, Output Cost, Extra Params list",
+        "Add Parameter button works",
+        "Extra Params remove button works",
+        "Empty-key params skipped (existing behavior)"
+      ],
+      "coveredByTasks": [
+        "Task-C3-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-006",
+      "title": "useModelConfigForm hook extracted",
+      "source": "spec:Contract Hook decomposition",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "ModelConfigFormData type excludes aliasesLoaded/Loading/Error",
+        "modelToFormData, buildConfigFromFormData, areFormDataEqual exposed",
+        "Hook exposes resetForModel(model) and commitSaved(saved)",
+        "isDirty reflects form-only dirty state"
+      ],
+      "coveredByTasks": [
+        "Task-A1-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-007",
+      "title": "useModelAliases hook extracted",
+      "source": "spec:Contract Hook decomposition; spec:Flow step 4-5",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Exposes aliases, loaded, loading, error, isDirty, setAliases, resetForModel, getValidationError, normalizedAliases",
+        "Aliasing loading state no longer in ModelConfigFormData",
+        "validateAliases and normalizeAliases exported as named exports",
+        "Toast-once-per-model behavior preserved"
+      ],
+      "coveredByTasks": [
+        "Task-A2-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-008",
+      "title": "useModelConfigSave hook extracted",
+      "source": "spec:Contract Save contract; spec:Flow step 7",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Receives model, formData, aliases, queryClient, onSaved callback",
+        "Calls updateModel then updateModelAliases (when loaded) on save()",
+        "All toast messages byte-identical to today",
+        "Partial-failure handling preserved (route ok / aliases fail)",
+        "Invalidates models-with-config and model-aliases queries on save",
+        "Calls onSaved after successful full save so composer clears dirty state"
+      ],
+      "coveredByTasks": [
+        "Task-B1-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-009",
+      "title": "useModelConfigPage becomes thin composer",
+      "source": "spec:Contract Hook decomposition",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Composes useModelConfigForm + useModelAliases + useModelConfigSave",
+        "Exposes ModelConfigController with combined isDirty = form.isDirty || aliases.isDirty",
+        "Re-exports ModelConfigFormData from use-model-config-form for existing importers",
+        "Settings tab wired via Task-D3-0007"
+      ],
+      "coveredByTasks": [
+        "Task-D1-0007",
+        "Task-D3-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-010",
+      "title": "Dirty state preserved across tab switches",
+      "source": "spec:Edge cases 1, 4",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Switching tabs does not reset form values",
+        "Switching tabs does not clear edited aliases",
+        "Footer shows combined dirty state (form || aliases) at all times"
+      ],
+      "coveredByTasks": [
+        "Task-D2-0007"
+      ],
+      "notes": [
+        "Achieved naturally because tab content shares one state source"
+      ]
+    },
+    {
+      "id": "REQ-011",
+      "title": "Model context change resets form + aliases",
+      "source": "spec:Edge cases 7, 10",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "When the ModelDetailContext provides a new model, form.resetForModel(model) is called",
+        "When modelName changes, aliases.resetForModel(modelName) is triggered",
+        "Previous unsaved edits are discarded on context change"
+      ],
+      "coveredByTasks": [
+        "Task-D1-0007"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-012",
+      "title": "Definition of Done commands green",
+      "source": "spec:Definition of Done",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "pnpm --filter @lite-llm/web typecheck exits 0",
+        "pnpm --filter @lite-llm/web test all green",
+        "pnpm --filter @lite-llm/web lint exits 0"
+      ],
+      "coveredByTasks": [
+        "Task-D3-0007"
+      ],
+      "notes": []
+    }
+  ],
+  "taskDirectory": "docs/tasks/0007-model-config-screen-refactor",
+  "rules": [
+    "Orchestrator-only writes to super-plan.json via super-plan.sh update",
+    "Status lifecycle: pending -> in_progress -> ready_for_review -> needs_fix|blocked|completed|cancelled",
+    "Only orchestrator marks a task completed",
+    "Never re-dispatch a task already marked complete",
+    "Subagents must not edit super-plan.json",
+    "Never start implementation on main/master without explicit user consent",
+    "reviewCadence is per_batch: review subagent launches only when the whole batch reaches ready_for_review"
+  ],
+  "tasks": []
+}

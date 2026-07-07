@@ -56,5 +56,7 @@ npm test                 # tudo verde
 ## Mapa de docs
 - Decisões: `docs/adr/` (ADR-0001 … ADR-0006) · Comportamento: `docs/specs/` (SPEC-0001 … SPEC-0004)
 - Contexto: `docs/context/` (capítulos imperativos e atemporais)
+- Planos: `docs/plans/`
+- Tasks: `docs/tasks/`
 - Templates: `docs/templates/`
 - Validar: `scripts/docs-check` · Regenerar índices: `scripts/docs-check --emit-index`
