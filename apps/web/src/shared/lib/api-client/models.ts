@@ -1,3 +1,4 @@
+import type { BenchmarkComparisonResponse } from "@lite-llm/contracts/benchmarks";
 import { fetchApi } from "./core";
 
 type ModelReasoningConfig = {
@@ -386,4 +387,12 @@ export async function syncDefaultSettings(): Promise<{
   return fetchApi("/models/sync-default-settings", {
     method: "POST",
   });
+}
+
+export async function fetchBenchmarkComparison(
+  modelName: string,
+): Promise<BenchmarkComparisonResponse> {
+  return fetchApi<BenchmarkComparisonResponse>(
+    `/models/${encodeURIComponent(modelName)}/benchmark-comparison`,
+  );
 }
