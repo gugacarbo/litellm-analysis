@@ -565,6 +565,7 @@ describe("registry integration", () => {
         await closeServer(server);
       }
     });
+
   });
 
   describe("providers", () => {

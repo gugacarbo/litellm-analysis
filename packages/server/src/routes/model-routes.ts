@@ -5,7 +5,6 @@ import {
   type ModelRoute,
   providerExists as registryProviderExists,
 } from "@lite-llm/llm-config-service";
-import type { ModelSpec } from "@lite-llm/models-repository";
 import type { Application, Response } from "express";
 import {
   fetchOpenRouterModelData,
@@ -44,6 +43,32 @@ type AliasInventory = {
 
 type SyncPresenceStatus = "synced" | "config-only" | "registry-only";
 
+type PersistedModelConfigSpec = {
+  enabled: boolean;
+  displayName: string;
+  family?: string;
+  ownedBy?: string;
+  apiMode?: "openai" | "anthropic";
+  vision?: boolean;
+  limits: {
+    length: number;
+    maxOutput: number;
+  };
+  cost?: {
+    input?: number;
+    output?: number;
+  };
+  thinking?: {
+    levels: string[];
+  };
+  reasoning?: {
+    effort?: "low" | "medium" | "high" | "xhigh";
+    enableThinking?: boolean;
+    includeReasoningInRequest?: boolean;
+    apiMode?: "openai" | "anthropic";
+  };
+};
+
 function normalizeAliasValue(value: string): string {
   return value.trim();
 }
@@ -52,7 +77,163 @@ function normalizeModelNameParam(value: string): string {
   return value.trim();
 }
 
-function configSliceFromSpec(spec?: ModelSpec):
+function buildConfigModelKey(
+  modelName: string,
+  providerName?: string | null,
+): string {
+  const trimmedProvider = providerName?.trim();
+  return trimmedProvider ? `${trimmedProvider}/${modelName}` : modelName;
+}
+
+function buildConfigModelKeyCandidates(
+  modelName: string,
+  providerNames: Array<string | null | undefined>,
+): string[] {
+  const keys = new Set<string>([modelName]);
+  for (const providerName of providerNames) {
+    const trimmedProvider = providerName?.trim();
+    if (trimmedProvider) {
+      keys.add(buildConfigModelKey(modelName, trimmedProvider));
+    }
+  }
+  return [...keys];
+}
+
+function getConfigForModelEntry(params: {
+  configModels: Record<string, PersistedModelConfigSpec>;
+  modelName: string;
+  route?: Pick<ModelRoute, "providerName">;
+}): PersistedModelConfigSpec | undefined {
+  const { configModels, modelName, route } = params;
+  const candidates = buildConfigModelKeyCandidates(modelName, [
+    route?.providerName,
+  ]);
+
+  for (const candidate of candidates) {
+    const config = configModels[candidate];
+    if (config) {
+      return config;
+    }
+  }
+
+  return undefined;
+}
+
+function buildModelSpecForConfigWrite(params: {
+  modelName: string;
+  route: ModelRoute;
+  existingConfig?: PersistedModelConfigSpec;
+  configUpdate: Partial<DbModelSpecLike>;
+}): PersistedModelConfigSpec {
+  const { modelName, route, existingConfig, configUpdate } = params;
+
+  const next: PersistedModelConfigSpec = {
+    enabled: route.enabled ?? existingConfig?.enabled ?? true,
+    displayName:
+      existingConfig?.displayName ?? route.displayName ?? modelName,
+    limits: {
+      length:
+        existingConfig?.limits?.length ?? route.contextWindowSize ?? 200_000,
+      maxOutput:
+        existingConfig?.limits?.maxOutput ?? route.maxOutputTokens ?? 32_768,
+    },
+  };
+
+  const family = existingConfig?.family ?? route.family;
+  if (family) {
+    next.family = family;
+  }
+
+  const ownedBy = existingConfig?.ownedBy ?? route.ownedBy;
+  if (ownedBy) {
+    next.ownedBy = ownedBy;
+  }
+
+  const apiMode = existingConfig?.apiMode ?? route.apiMode;
+  if (apiMode === "openai" || apiMode === "anthropic") {
+    next.apiMode = apiMode;
+  }
+
+  if (typeof existingConfig?.vision === "boolean") {
+    next.vision = existingConfig.vision;
+  } else if (typeof route.vision === "boolean") {
+    next.vision = route.vision;
+  }
+
+  if (existingConfig?.thinking) {
+    next.thinking = existingConfig.thinking;
+  }
+
+  if (existingConfig?.reasoning) {
+    next.reasoning = existingConfig.reasoning;
+  }
+
+  if (
+    route.inputCostPerToken !== undefined ||
+    route.outputCostPerToken !== undefined ||
+    existingConfig?.cost
+  ) {
+    next.cost = {
+      input: route.inputCostPerToken ?? existingConfig?.cost?.input ?? 0,
+      output: route.outputCostPerToken ?? existingConfig?.cost?.output ?? 0,
+    };
+  }
+
+  if ("displayName" in configUpdate) {
+    next.displayName = configUpdate.displayName || modelName;
+  }
+
+  if ("family" in configUpdate) {
+    if (configUpdate.family) {
+      next.family = configUpdate.family;
+    } else {
+      delete next.family;
+    }
+  }
+
+  if ("ownedBy" in configUpdate) {
+    if (configUpdate.ownedBy) {
+      next.ownedBy = configUpdate.ownedBy;
+    } else {
+      delete next.ownedBy;
+    }
+  }
+
+  if ("apiMode" in configUpdate) {
+    if (
+      configUpdate.apiMode === "openai" ||
+      configUpdate.apiMode === "anthropic"
+    ) {
+      next.apiMode = configUpdate.apiMode;
+    } else {
+      delete next.apiMode;
+    }
+  }
+
+  if ("vision" in configUpdate && typeof configUpdate.vision === "boolean") {
+    next.vision = configUpdate.vision;
+  }
+
+  if ("thinking" in configUpdate) {
+    if (configUpdate.thinking) {
+      next.thinking = configUpdate.thinking;
+    } else {
+      delete next.thinking;
+    }
+  }
+
+  if ("reasoning" in configUpdate) {
+    if (configUpdate.reasoning) {
+      next.reasoning = configUpdate.reasoning;
+    } else {
+      delete next.reasoning;
+    }
+  }
+
+  return next;
+}
+
+function configSliceFromSpec(spec?: PersistedModelConfigSpec):
   | {
       displayName?: string;
       family?: string;
@@ -188,8 +369,12 @@ export function registerModelRoutes(
     ).sort((left, right) => left.localeCompare(right));
 
     const models = allNames.map((modelName) => {
-      const config = configModels[modelName];
       const registryRoute = registryByName.get(modelName);
+      const config = getConfigForModelEntry({
+        configModels,
+        modelName,
+        route: registryRoute,
+      });
 
       let status: SyncPresenceStatus = "synced";
       if (config && !registryRoute) {
@@ -696,8 +881,10 @@ export function registerModelRoutes(
         modelName: name,
       };
       const providerName = await getResolvedDefaultProvider();
+      const allConfigModels = await opts.modelsService.getAll();
       let nextRoute: ModelRoute | undefined;
       let renamedRegistryModel = false;
+      let configUpdate: Partial<DbModelSpecLike> | null = null;
 
       if (modelRoute !== undefined || modelName !== undefined) {
         const incomingRoute = resolveModelRouteFromBody({
@@ -741,7 +928,7 @@ export function registerModelRoutes(
       }
 
       if (isRecord(config)) {
-        const configUpdate: Partial<DbModelSpecLike> = {};
+        configUpdate = {};
         if (typeof config.displayName === "string") {
           configUpdate.displayName = config.displayName || "";
         }
@@ -771,13 +958,60 @@ export function registerModelRoutes(
         } else if ("reasoning" in config) {
           configUpdate.reasoning = undefined;
         }
-        if (Object.keys(configUpdate).length > 0) {
-          try {
-            await opts.modelsService.update(name, configUpdate);
-          } catch (configErr) {
-            if (!String(configErr).includes("not found")) {
-              throw configErr;
-            }
+      }
+
+      const routeForConfigWrite = nextRoute ?? existingRoute;
+      const currentConfigKeyCandidates = buildConfigModelKeyCandidates(name, [
+        existingRoute.providerName,
+        routeForConfigWrite.providerName,
+        providerName,
+      ]);
+      const currentConfigEntry = currentConfigKeyCandidates.find(
+        (candidate) => allConfigModels[candidate] !== undefined,
+      );
+      const currentConfigKey = currentConfigEntry ?? name;
+      const existingConfig =
+        currentConfigEntry !== undefined
+          ? allConfigModels[currentConfigEntry]
+          : undefined;
+      const targetConfigKey = buildConfigModelKey(
+        normalizedNewName,
+        routeForConfigWrite.providerName ?? providerName,
+      );
+      const shouldWriteConfig =
+        typeof routeForConfigWrite.enabled === "boolean" ||
+        normalizedNewName !== name ||
+        (configUpdate !== null && Object.keys(configUpdate).length > 0);
+
+      if (shouldWriteConfig) {
+        if (currentConfigKey === targetConfigKey && existingConfig) {
+          const patch: Partial<PersistedModelConfigSpec> = {};
+
+          if (typeof routeForConfigWrite.enabled === "boolean") {
+            patch.enabled = routeForConfigWrite.enabled;
+          }
+
+          if (configUpdate) {
+            Object.assign(patch, configUpdate);
+          }
+
+          if (Object.keys(patch).length > 0) {
+            await opts.modelsService.update(currentConfigKey, patch);
+          }
+        } else {
+          const nextConfig = buildModelSpecForConfigWrite({
+            modelName: normalizedNewName,
+            route: routeForConfigWrite,
+            existingConfig,
+            configUpdate: configUpdate ?? {},
+          });
+          await opts.modelsService.upsert(targetConfigKey, nextConfig);
+
+          if (
+            currentConfigEntry &&
+            currentConfigEntry !== targetConfigKey
+          ) {
+            await opts.modelsService.delete(currentConfigEntry);
           }
         }
       }
@@ -902,7 +1136,8 @@ export function registerModelRoutes(
     aaModel: NormalizedModelBenchmark | null,
     orModel: NormalizedModelBenchmark | null,
     orModelData: OpenRouterModelData | null,
-    currentConfig: ModelSpec | undefined,
+    currentConfig: PersistedModelConfigSpec | undefined,
+    currentRoute?: ModelRoute,
   ): BenchmarkComparisonField[] {
     const fields: BenchmarkComparisonField[] = [];
 
@@ -954,7 +1189,7 @@ export function registerModelRoutes(
     fields.push({
       key: "vision",
       label: "Visão",
-      currentValue: currentConfig?.vision ?? null,
+      currentValue: currentConfig?.vision ?? currentRoute?.vision ?? null,
       aa: null,
       openrouter: orModelData?.capabilities
         ? { value: orModelData.capabilities.supports_vision, source: orSource, sourceLabel: "OpenRouter" }
@@ -1069,11 +1304,18 @@ export function registerModelRoutes(
       const resolvedName = aliases[modelName] ?? modelName;
       const orModelData = await fetchOpenRouterModelData(resolvedName);
 
-      let currentConfig: ModelSpec | undefined;
+      let currentConfig: PersistedModelConfigSpec | undefined;
       try {
         currentConfig = await opts.modelsService.get(modelName);
       } catch {
         currentConfig = undefined;
+      }
+
+      let currentRoute: ModelRoute | undefined;
+      try {
+        currentRoute = await registry.registryModelsService.getRoute(modelName);
+      } catch {
+        currentRoute = undefined;
       }
 
       const fields = buildComparisonFields(
@@ -1081,6 +1323,7 @@ export function registerModelRoutes(
         orModel,
         orModelData,
         currentConfig,
+        currentRoute,
       );
 
       const response: BenchmarkComparisonResponse = {
