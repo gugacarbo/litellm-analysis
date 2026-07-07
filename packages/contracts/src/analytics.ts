@@ -111,9 +111,29 @@ export interface ModelDetail {
   output_cost_per_token: string;
 }
 
+export interface ModelRoute {
+  modelName: string;
+  enabled?: boolean;
+  displayName?: string;
+  family?: string;
+  ownedBy?: string;
+  apiMode?: "openai" | "anthropic";
+  vision?: boolean;
+  contextWindowSize?: number;
+  maxOutputTokens?: number;
+  inputCostPerToken?: number;
+  outputCostPerToken?: number;
+  upstreamModel?: string;
+  upstreamBaseUrl?: string;
+  providerName?: string;
+  secretRef?: string;
+  requestOptions?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+}
+
 export interface ModelConfig {
   modelName: string;
-  modelRoute: Record<string, unknown>;
+  modelRoute: ModelRoute;
 }
 
 export interface ModelStatistics {

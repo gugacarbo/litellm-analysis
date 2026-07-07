@@ -244,7 +244,7 @@
       "id": "Task-A-0009",
       "title": "Canonicalize shared ModelRoute contract and adapter semantics",
       "description": "Unify route semantics at the source so downstream layers stop inventing their own partial model-route contracts.",
-      "status": "pending",
+      "status": "reviewing",
       "tryCount": 1,
       "task_profile": "general",
       "batch": "A",

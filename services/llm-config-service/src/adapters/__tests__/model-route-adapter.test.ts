@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type {
   ModelProxyModelRecord,
   ModelRoute,
+  RouteParams,
 } from "../../types/model-route.js";
 import {
   fromModelProxyRow,
@@ -77,7 +78,7 @@ describe("model-route-adapter", () => {
           {
             model_name: MODEL_ALIAS,
             max_tokens: 8192,
-          },
+          } as RouteParams,
           MODEL_ALIAS,
         ),
       ).toThrow(/Legacy model route fields are no longer supported/);
@@ -89,7 +90,7 @@ describe("model-route-adapter", () => {
           {
             modelName: MODEL_ALIAS,
             litellm_provider_name: "openai-main",
-          },
+          } as RouteParams,
           MODEL_ALIAS,
         ),
       ).toThrow(/Legacy model route fields are no longer supported/);
@@ -101,7 +102,7 @@ describe("model-route-adapter", () => {
             litellm_params: {
               model: MODEL_ALIAS,
             },
-          },
+          } as RouteParams,
           MODEL_ALIAS,
         ),
       ).toThrow(/Legacy model route fields are no longer supported/);

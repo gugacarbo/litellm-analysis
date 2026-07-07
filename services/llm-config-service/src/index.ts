@@ -64,7 +64,7 @@ export {
 
 export type * from "./types/index.js";
 export {
-  MODEL_ROUTE_TO_SNAKE_PARAM,
+  MODEL_ROUTE_TO_ROUTE_PARAM,
   normalizeSyncDirection,
   normalizeSyncPresenceStatus,
   RESERVED_ROUTE_PARAM_KEYS,

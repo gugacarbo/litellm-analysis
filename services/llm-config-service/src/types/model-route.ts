@@ -63,8 +63,8 @@ export interface ModelProxyModelRecord {
   updatedAt: Date;
 }
 
-/** Canonical model route payload object used by API helpers. */
-export type RouteParams = Record<string, unknown>;
+/** Canonical model route payload — typed subset of ModelRoute fields. */
+export type RouteParams = Partial<Pick<ModelRoute, ReservedRouteParamKey>>;
 
 /**
  * Canonical route payload keys absorbed into dedicated `ModelRoute` fields.
@@ -115,9 +115,9 @@ export const ROUTE_PARAM_TO_MODEL_ROUTE: Record<
   metadata: "metadata",
 };
 
-/** `ModelRoute` → canonical route params. */
-export const MODEL_ROUTE_TO_SNAKE_PARAM: Partial<
-  Record<keyof ModelRoute, string>
+/** `ModelRoute` field → canonical route param key. */
+export const MODEL_ROUTE_TO_ROUTE_PARAM: Partial<
+  Record<keyof ModelRoute, ReservedRouteParamKey>
 > = {
   modelName: "modelName",
   enabled: "enabled",

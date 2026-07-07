@@ -2,17 +2,17 @@
 
 > **Plan:** `0009-model-route-hard-cut`
 > **Registry:** `docs/tasks/0009-model-route-hard-cut/super-plan.json`
-> **Generated:** 2026-07-07T13:43:33Z
+> **Generated:** 2026-07-07T13:55:42Z
 > **Regenerated on every `super-plan.json` write via the active `render-progress-ledger.sh` helper path**
 
 ## Summary
 
 | Status | Count |
 |--------|-------|
-| pending | 6 |
+| pending | 5 |
 | in_progress | 0 |
 | ready_for_review | 0 |
-| reviewing | 0 |
+| reviewing | 1 |
 | needs_fix | 0 |
 | blocked | 0 |
 | completed | 0 |
@@ -23,15 +23,15 @@
 
 | Profile | Model | Agent |
 |---------|-------|-------|
-| general | default | default |
-| deep | default | default |
-| quick | default | default |
+| general | default | general |
+| deep | default | deep |
+| quick | default | quick |
 
 ## Tasks
 
 | Task ID | Title | Profile | Batch | Phase | Status | Dependencies |
 |---------|-------|---------|-------|-------|--------|-------------|
-| Task-A-0009 | Canonicalize shared ModelRoute contract and adapter semantics | general | A | foundation | ⏳ pending | — |
+| Task-A-0009 | Canonicalize shared ModelRoute contract and adapter semantics | general | A | foundation | 🔍 reviewing | — |
 | Task-B-0009 | Harden the HTTP/orchestration boundary | general | B | foundation | ⏳ pending | Task-A-0009 |
 | Task-C-0009 | Collapse parallel route and config handling in the server runtime | deep | C | core | ⏳ pending | Task-B-0009 |
 | Task-D-0009 | Refactor the web models surface around typed route and table-row data | deep | D | surface | ⏳ pending | Task-A-0009, Task-C-0009 |

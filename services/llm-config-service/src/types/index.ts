@@ -7,7 +7,7 @@ export type {
   RouteParams,
 } from "./model-route.js";
 export {
-  MODEL_ROUTE_TO_SNAKE_PARAM,
+  MODEL_ROUTE_TO_ROUTE_PARAM,
   RESERVED_ROUTE_PARAM_KEYS,
   ROUTE_PARAM_TO_MODEL_ROUTE,
 } from "./model-route.js";

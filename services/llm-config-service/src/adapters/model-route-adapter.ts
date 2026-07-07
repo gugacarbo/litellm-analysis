@@ -5,7 +5,7 @@ import type {
   RouteParams,
 } from "../types/model-route.js";
 import {
-  MODEL_ROUTE_TO_SNAKE_PARAM,
+  MODEL_ROUTE_TO_ROUTE_PARAM,
   RESERVED_ROUTE_PARAM_KEYS,
 } from "../types/model-route.js";
 
@@ -196,10 +196,10 @@ export function parseModelRouteFromApi(
 
 /** Convert `ModelRoute` into the canonical API payload shape. */
 export function fromModelRoute(route: ModelRoute): RouteParams {
-  const result: RouteParams = {};
+  const result: Record<string, unknown> = {};
 
   for (const [routeKey, paramKey] of Object.entries(
-    MODEL_ROUTE_TO_SNAKE_PARAM,
+    MODEL_ROUTE_TO_ROUTE_PARAM,
   )) {
     const value = route[routeKey as keyof ModelRoute];
     if (value !== undefined) {
@@ -207,7 +207,7 @@ export function fromModelRoute(route: ModelRoute): RouteParams {
     }
   }
 
-  return result;
+  return result as RouteParams;
 }
 
 /** Map `ModelRoute` to a writable `model_proxy_models` row shape. */
