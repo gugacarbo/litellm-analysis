@@ -163,7 +163,7 @@
       "id": "REQ-2",
       "title": "HTTP boundary accepts only current modelRoute payloads",
       "source": "SPEC-0009 Fluxo 5-7; Casos de borda 1-2",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "API rejects litellmParams and equivalent legacy aliases with explicit 4xx errors",
         "API rejects public snake_case route fields instead of normalizing them",
@@ -315,7 +315,7 @@
       "id": "Task-B-0009",
       "title": "Harden the HTTP/orchestration boundary",
       "description": "Make sure legacy payloads are rejected at the server boundary instead of being normalized deeper in the stack.",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "task_profile": "general",
       "batch": "B",

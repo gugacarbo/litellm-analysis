@@ -385,7 +385,7 @@ export function registerModelRoutes(
 
       return {
         modelName,
-        modelRoute: registryRoute ?? { modelName },
+        modelRoute: registryRoute ?? ({ modelName } as ModelRoute),
         enabled: config?.enabled ?? registryRoute?.enabled ?? true,
         ...(config ? { config: configSliceFromSpec(config) } : {}),
         status,
@@ -887,9 +887,9 @@ export function registerModelRoutes(
       const existingModel = existingModels.find(
         (item) => item.modelName === name,
       );
-      const existingRoute = existingModel?.modelRoute ?? {
+      const existingRoute = existingModel?.modelRoute ?? ({
         modelName: name,
-      };
+      } as ModelRoute);
       const providerName = await getResolvedDefaultProvider();
       const allConfigModels = await opts.modelsService.getAll();
       let nextRoute: ModelRoute | undefined;

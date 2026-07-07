@@ -1,4 +1,5 @@
 // Analytics Data Source Interface
+import type { ModelRoute } from "@lite-llm/llm-config-service";
 import type { ProxyRequestLog } from "./proxy-request-log";
 
 // Granularity identifiers for time-series bucketing
@@ -82,11 +83,11 @@ export interface AnalyticsDataSource {
   getErrorLogs(limit: number, days?: number): Promise<ErrorLogEntry[]>;
   createModel(model: {
     modelName: string;
-    modelRoute?: Record<string, unknown>;
+    modelRoute?: ModelRoute;
   }): Promise<void>;
   updateModel(
     modelName: string,
-    updates: { modelRoute?: Record<string, unknown>; modelName?: string },
+    updates: { modelRoute?: ModelRoute; modelName?: string },
   ): Promise<void>;
   deleteModel(modelName: string): Promise<void>;
   mergeModels(sourceModel: string, targetModel: string): Promise<void>;
@@ -326,7 +327,7 @@ export interface ModelStatistics {
 
 export interface ModelInfo {
   modelName: string;
-  modelRoute: Record<string, unknown>;
+  modelRoute: ModelRoute;
 }
 
 export type ModelEntry = ModelInfo;

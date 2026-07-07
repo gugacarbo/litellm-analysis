@@ -8,6 +8,7 @@ import {
 import { fromModelProxyRow, toModelRoute } from "@lite-llm/llm-config-service";
 import { asc, eq } from "drizzle-orm";
 import type { ModelDetail, ModelEntry, RegistryProvider } from "../types/index";
+import type { ModelRoute } from "@lite-llm/llm-config-service";
 
 const DEFAULT_PROVIDER_KEY = "default_provider";
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
@@ -76,7 +77,7 @@ export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
     .orderBy(asc(modelProxyModels.modelName));
   return rows.map((row) => ({
     modelName: row.modelName,
-    modelRoute: dbModelToRoute(row) as unknown as Record<string, unknown>,
+    modelRoute: dbModelToRoute(row),
   }));
 }
 
@@ -96,30 +97,37 @@ export async function getRegistryModelDetailsImpl(): Promise<ModelDetail[]> {
 
 export async function createRegistryModelImpl(model: {
   modelName: string;
-  modelRoute?: Record<string, unknown>;
+  modelRoute?: ModelRoute;
 }): Promise<void> {
-  const route: ReturnType<typeof dbModelToRoute> = model.modelRoute
-    ? ({ modelName: model.modelName, ...model.modelRoute } as ReturnType<
-        typeof dbModelToRoute
-      >)
-    : toModelRoute({}, model.modelName);
+  let route: ReturnType<typeof dbModelToRoute>;
+  if (model.modelRoute) {
+    const { modelName: _rn, ...rest } = model.modelRoute;
+    route = {
+      ...rest,
+      modelName: model.modelName,
+    } as ReturnType<typeof dbModelToRoute>;
+  } else {
+    route = toModelRoute({}, model.modelName);
+  }
   await db.insert(modelProxyModels).values(routeToCreateData(route));
 }
 
 export async function updateRegistryModelImpl(
   modelName: string,
   updates: {
-    modelRoute?: Record<string, unknown>;
+    modelRoute?: ModelRoute;
     modelName?: string;
   },
 ): Promise<void> {
   const targetName = updates.modelName ?? modelName;
-  const route = updates.modelRoute
-    ? ({
-        modelName: targetName,
-        ...updates.modelRoute,
-      } as ReturnType<typeof dbModelToRoute>)
-    : null;
+  let route: ReturnType<typeof dbModelToRoute> | null = null;
+  if (updates.modelRoute) {
+    const { modelName: _rn, ...rest } = updates.modelRoute;
+    route = {
+      ...rest,
+      modelName: targetName,
+    } as ReturnType<typeof dbModelToRoute>;
+  }
 
   if (targetName !== modelName) {
     const [existing] = await db
@@ -132,12 +140,13 @@ export async function updateRegistryModelImpl(
     }
     const existingRoute = dbModelToRoute(existing);
     const mergedRoute = route ?? existingRoute;
+    const { modelName: _mn, ...mergedRest } = mergedRoute;
     await db
       .delete(modelProxyModels)
       .where(eq(modelProxyModels.id, existing.id));
     await db
       .insert(modelProxyModels)
-      .values(routeToCreateData({ ...mergedRoute, modelName: targetName }));
+      .values(routeToCreateData({ ...mergedRest, modelName: targetName }));
     return;
   }
 
