@@ -9,7 +9,6 @@ function toRecord(row: {
   provider: string | null;
   baseUrl: string | null;
   apiKey: string | null;
-  secretRef: string | null;
   createdAt: Date;
   updatedAt: Date;
 }): ProviderRecord {
@@ -19,7 +18,6 @@ function toRecord(row: {
     provider: row.provider,
     baseUrl: row.baseUrl,
     apiKey: row.apiKey,
-    secretRef: row.secretRef,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -30,7 +28,6 @@ export interface ProviderWriteData {
   provider?: string | null;
   baseUrl?: string | null;
   apiKey?: string | null;
-  secretRef?: string | null;
 }
 
 export class ProvidersRepository {
@@ -65,7 +62,6 @@ export class ProvidersRepository {
         provider: data.provider ?? null,
         baseUrl: data.baseUrl ?? null,
         apiKey: data.apiKey ?? null,
-        secretRef: data.secretRef ?? null,
       })
       .returning();
     return toRecord(row);
@@ -89,7 +85,6 @@ export class ProvidersRepository {
     if (data.provider !== undefined) setData.provider = data.provider;
     if (data.baseUrl !== undefined) setData.baseUrl = data.baseUrl;
     if (data.apiKey !== undefined) setData.apiKey = data.apiKey;
-    if (data.secretRef !== undefined) setData.secretRef = data.secretRef;
 
     const [row] = await this.db
       .update(modelProxyProviders)

@@ -4,7 +4,6 @@ export interface ProviderRecord {
   provider: string | null;
   baseUrl: string | null;
   apiKey: string | null;
-  secretRef: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,7 +13,6 @@ export interface ProviderCreateInput {
   provider?: string | null;
   baseUrl?: string | null;
   apiKey?: string;
-  secretRef?: string;
 }
 
 export type ProviderUpdateInput = Partial<Omit<ProviderCreateInput, "name">> & {

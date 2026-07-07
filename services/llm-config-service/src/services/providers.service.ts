@@ -16,19 +16,6 @@ export interface ProvidersServiceOptions {
   repository?: ProvidersRepository;
 }
 
-function normalizeSecretInput(
-  input: ProviderCreateInput | ProviderUpdateInput,
-  action: string,
-  encryptionKey: Buffer,
-): { secretRef: string } {
-  const secretRef = input.secretRef?.trim() ?? "";
-  if (!secretRef) {
-    throw new Error(`secretRef is required to ${action} a provider`);
-  }
-
-  return { secretRef: encryptProviderSecretIfPlain(secretRef, encryptionKey) };
-}
-
 export interface IProvidersService {
   get(name: string): Promise<ProviderRecord | null>;
   list(): Promise<ProviderRecord[]>;
@@ -73,12 +60,16 @@ export class ProvidersService implements IProvidersService {
       throw new Error(`Provider "${trimmedName}" already exists`);
     }
 
-    const secret = normalizeSecretInput(input, "create", this.encryptionKey);
+    const apiKey = input.apiKey?.trim();
+    if (!apiKey) {
+      throw new Error("apiKey is required to create a provider");
+    }
+
     return this.repository.create({
       name: trimmedName,
       provider: input.provider ?? null,
       baseUrl: input.baseUrl ?? null,
-      secretRef: secret.secretRef,
+      apiKey: encryptProviderSecretIfPlain(apiKey, this.encryptionKey),
     });
   }
 
@@ -91,15 +82,16 @@ export class ProvidersService implements IProvidersService {
       throw new Error(`Provider "${name}" not found`);
     }
 
-    const secretUpdate =
-      input.secretRef !== undefined
-        ? normalizeSecretInput(input, "update", this.encryptionKey)
-        : null;
+    const apiKey =
+      input.apiKey !== undefined
+        ? encryptProviderSecretIfPlain(input.apiKey.trim(), this.encryptionKey)
+        : undefined;
+
     const updated = await this.repository.update(name, {
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),
       ...(input.provider !== undefined ? { provider: input.provider } : {}),
       ...(input.baseUrl !== undefined ? { baseUrl: input.baseUrl } : {}),
-      ...(secretUpdate ? { secretRef: secretUpdate.secretRef } : {}),
+      ...(apiKey !== undefined ? { apiKey } : {}),
     });
 
     if (!updated) {

@@ -252,7 +252,6 @@ export function useProvidersPage() {
     provider: null,
     baseUrl: null,
     apiKey: "",
-    secretRef: "",
   });
   const [providerFormError, setProviderFormError] = useState<string | null>(
     null,
@@ -347,13 +346,13 @@ export function useProvidersPage() {
   function handleOpenCreateProvider() {
     setEditingProvider(null);
     setProviderFormData({
-      name: "",
-      provider: null,
-      baseUrl: null,
-      secretRef: "",
-    });
-    setProviderFormError(null);
-    setProviderFormOpen(true);
+    name: "",
+    provider: null,
+    baseUrl: null,
+    apiKey: "",
+  });
+  setProviderFormError(null);
+  setProviderFormOpen(true);
   }
 
   function handleOpenEditProvider(provider: RegistryProvider) {
@@ -362,7 +361,7 @@ export function useProvidersPage() {
       name: provider.providerName,
       provider: provider.provider,
       baseUrl: provider.baseUrl,
-      secretRef: "",
+      apiKey: "",
     });
     setProviderFormError(null);
     setProviderFormOpen(true);
@@ -380,9 +379,6 @@ export function useProvidersPage() {
               : {}),
             provider: providerFormData.provider,
             baseUrl: providerFormData.baseUrl,
-            ...(providerFormData.secretRef
-              ? { secretRef: providerFormData.secretRef }
-              : {}),
           },
         });
       } else {

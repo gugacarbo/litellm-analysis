@@ -99,7 +99,6 @@ async function discoverModelsFromProvider(input: {
   apiKey: string | null;
   baseUrl: string | null;
   provider: string | null;
-  secretRef: string | null;
 }): Promise<DiscoveredProviderModel[]> {
   const resolvedBaseUrl = readString(input.baseUrl);
   if (!resolvedBaseUrl) {
@@ -483,10 +482,9 @@ export function registerProviderRoutes(
       }
 
       const models = await discoverModelsFromProvider({
-        apiKey: null,
+        apiKey: provider.apiKey,
         baseUrl: provider.baseUrl,
         provider: provider.provider,
-        secretRef: provider.secretRef,
       });
 
       res.json({ models });
@@ -577,12 +575,11 @@ export function registerProviderRoutes(
   // POST /providers - Create a new provider
   app.post("/providers", async (req, res) => {
     try {
-      const { name, provider, baseUrl, apiKey, secretRef } = req.body as {
+      const { name, provider, baseUrl, apiKey } = req.body as {
         name?: string;
         provider?: string | null;
         baseUrl?: string | null;
         apiKey?: string;
-        secretRef?: string;
       };
 
       if (!name || typeof name !== "string" || !name.trim()) {
@@ -592,12 +589,6 @@ export function registerProviderRoutes(
       if (apiKey !== undefined && typeof apiKey !== "string") {
         res.status(400).json({
           error: "apiKey must be a string when provided",
-        });
-        return;
-      }
-      if (secretRef !== undefined && typeof secretRef !== "string") {
-        res.status(400).json({
-          error: "secretRef must be a string when provided",
         });
         return;
       }
@@ -614,7 +605,6 @@ export function registerProviderRoutes(
         provider: provider ?? null,
         baseUrl: baseUrl ?? null,
         apiKey: apiKey.trim(),
-        secretRef: secretRef?.trim(),
       });
       res.status(201).json(toPublicProvider(created));
     } catch (error) {
@@ -635,13 +625,11 @@ export function registerProviderRoutes(
         provider,
         baseUrl,
         apiKey,
-        secretRef,
       } = req.body as {
         name?: string;
         provider?: string | null;
         baseUrl?: string | null;
         apiKey?: string;
-        secretRef?: string;
       };
 
       if (
@@ -659,22 +647,12 @@ export function registerProviderRoutes(
         });
         return;
       }
-      if (
-        secretRef !== undefined &&
-        (typeof secretRef !== "string" || !secretRef.trim())
-      ) {
-        res.status(400).json({
-          error: "secretRef must be a non-empty string",
-        });
-        return;
-      }
 
       const updated = await providersService.update(name, {
         ...(newName !== undefined ? { name: newName.trim() } : {}),
         ...(provider !== undefined ? { provider } : {}),
         ...(baseUrl !== undefined ? { baseUrl } : {}),
         ...(apiKey !== undefined ? { apiKey: apiKey.trim() } : {}),
-        ...(secretRef !== undefined ? { secretRef: secretRef.trim() } : {}),
       });
       res.json(toPublicProvider(updated));
     } catch (error) {

@@ -5,11 +5,8 @@ import {
   modelProxyProviders,
 } from "@lite-llm/database/schema/model-proxy";
 import {
-  decryptProviderSecret,
-  isEncryptedProviderSecret,
   OPENAI_CHATGPT_API_BASE,
-  parseProviderEncryptionKey,
-  resolveProviderSecret,
+  resolveProviderApiKey,
 } from "@lite-llm/llm-config-service";
 import type { Provider } from "@lite-llm/models-repository";
 import { and, eq } from "drizzle-orm";
@@ -34,34 +31,23 @@ function normalizeBaseUrl(raw: string): string {
 }
 
 function readSecretRef(secretRef?: string | null): string | undefined {
-  return resolveProviderSecret({ secretRef }, process.env);
+  if (!secretRef?.trim()) {
+    return undefined;
+  }
+  const val = process.env[secretRef.trim()];
+  return val?.trim() || undefined;
 }
 
 function resolveStoredProviderApiKey(
   provider?: {
     apiKey?: string | null;
-    secretRef?: string | null;
   } | null,
 ): string | undefined {
   if (!provider) {
     return undefined;
   }
 
-  const fromSecretRef = resolveProviderSecret(provider);
-  if (fromSecretRef) {
-    return fromSecretRef;
-  }
-
-  const storedApiKey = provider.apiKey?.trim();
-  if (!storedApiKey) {
-    return undefined;
-  }
-
-  if (!isEncryptedProviderSecret(storedApiKey)) {
-    return storedApiKey;
-  }
-
-  return decryptProviderSecret(storedApiKey, parseProviderEncryptionKey());
+  return resolveProviderApiKey(provider);
 }
 
 export function findUpstreamProvider(

@@ -21,30 +21,30 @@ describe("ProvidersService", () => {
     });
   });
 
-  it("creates provider with encrypted secretRef", async () => {
+  it("creates provider with encrypted apiKey", async () => {
     const record = await service.create({
       name: "openai-main",
-      secretRef: "sk-secret-value",
+      apiKey: "sk-secret-value",
     });
-    expect(record.secretRef).not.toBe("sk-secret-value");
-    expect(record.secretRef).toMatch(/^enc:v1:/);
+    expect(record.apiKey).not.toBe("sk-secret-value");
+    expect(record.apiKey).toMatch(/^enc:v1:/);
   });
 
-  it("requires secretRef on create", async () => {
+  it("requires apiKey on create", async () => {
     await expect(
-      service.create({ name: "openai-main", secretRef: "  " }),
-    ).rejects.toThrow(/secretRef is required/);
+      service.create({ name: "openai-main", apiKey: "  " }),
+    ).rejects.toThrow(/apiKey is required/);
   });
 
   it("throws on duplicate create", async () => {
     await service.create({
       name: "openai-main",
-      secretRef: "sk-secret-value",
+      apiKey: "sk-secret-value",
     });
     await expect(
       service.create({
         name: "openai-main",
-        secretRef: "sk-secret-value",
+        apiKey: "sk-secret-value",
       }),
     ).rejects.toThrow(/already exists/);
   });
@@ -52,37 +52,37 @@ describe("ProvidersService", () => {
   it("updates provider metadata", async () => {
     await service.create({
       name: "openai-main",
-      secretRef: "sk-secret-value",
+      apiKey: "sk-secret-value",
     });
     const updated = await service.update("openai-main", {
       baseUrl: "https://custom.example/v1",
-      secretRef: "sk-updated-value",
+      apiKey: "sk-updated-value",
     });
     expect(updated.baseUrl).toBe("https://custom.example/v1");
-    expect(updated.secretRef).not.toBe("sk-updated-value");
-    expect(updated.secretRef).toMatch(/^enc:v1:/);
+    expect(updated.apiKey).not.toBe("sk-updated-value");
+    expect(updated.apiKey).toMatch(/^enc:v1:/);
   });
 
   it("deletes provider", async () => {
     await service.create({
       name: "openai-main",
-      secretRef: "sk-secret-value",
+      apiKey: "sk-secret-value",
     });
     expect(await service.delete("openai-main")).toBe(true);
     expect(await service.get("openai-main")).toBeNull();
   });
 
-  it("does not double-encrypt an already encrypted secretRef", async () => {
+  it("does not double-encrypt an already encrypted apiKey", async () => {
     const first = await service.create({
       name: "openai-main",
-      secretRef: "sk-secret-value",
+      apiKey: "sk-secret-value",
     });
     const updated = await service.update("openai-main", {
-      secretRef: first.secretRef ?? undefined,
+      apiKey: first.apiKey ?? undefined,
     });
-    expect(updated.secretRef).toBe(first.secretRef);
+    expect(updated.apiKey).toBe(first.apiKey);
     expect(
-      decryptProviderSecret(updated.secretRef ?? "", encryptionKey),
+      decryptProviderSecret(updated.apiKey ?? "", encryptionKey),
     ).toBe("sk-secret-value");
   });
 });

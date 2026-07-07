@@ -36,7 +36,7 @@ function setupDbMock(overrides?: {
   ];
   const providerRow = overrides?.providerRow ?? {
     name: "default",
-    secretRef: "MODEL_PROXY_API_KEY",
+    apiKey: "sk-test-provider-key",
     baseUrl: "https://upstream.example.com/v1",
   };
 

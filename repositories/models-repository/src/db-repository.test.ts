@@ -159,7 +159,7 @@ function createInMemoryDb() {
               name: string;
               provider: string | null;
               baseUrl: string | null;
-              secretRef: string | null;
+              apiKey: string | null;
               createdAt: Date;
               updatedAt: Date;
             } = {
@@ -168,8 +168,8 @@ function createInMemoryDb() {
               provider:
                 typeof data.provider === "string" ? data.provider : null,
               baseUrl: typeof data.baseUrl === "string" ? data.baseUrl : null,
-              secretRef:
-                typeof data.secretRef === "string" ? data.secretRef : null,
+              apiKey:
+                typeof data.apiKey === "string" ? data.apiKey : null,
               createdAt: now,
               updatedAt: now,
             };
@@ -370,7 +370,7 @@ describe("DbModelsRepository", () => {
       string,
       unknown
     >;
-    expect(providerRecord?.secretRef).toBeNull();
+    expect(providerRecord?.apiKey).toBeNull();
   });
 
   it("does not expose upstream provider credentials through provider config reads", async () => {
@@ -384,7 +384,7 @@ describe("DbModelsRepository", () => {
       name: "Iproute",
       provider: "openai",
       baseUrl: "https://llm.iproute.cloud/",
-      secretRef: "sk-live-literal-secret",
+      apiKey: "sk-live-literal-secret",
       createdAt: new Date(),
       updatedAt: new Date(),
     });

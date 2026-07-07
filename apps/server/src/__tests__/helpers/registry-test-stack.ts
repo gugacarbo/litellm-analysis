@@ -63,7 +63,6 @@ type ProviderRow = {
   name: string;
   provider: string | null;
   baseUrl: string | null;
-  secretRef: string | null;
   apiKey: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -310,7 +309,6 @@ function createInMemoryDb() {
             name: string;
             provider?: string | null;
             baseUrl?: string | null;
-            secretRef: string;
             apiKey?: string | null;
           };
         }) => {
@@ -320,7 +318,6 @@ function createInMemoryDb() {
             name: args.data.name,
             provider: args.data.provider ?? null,
             baseUrl: args.data.baseUrl ?? null,
-            secretRef: args.data.secretRef,
             apiKey: args.data.apiKey ?? null,
             createdAt: now,
             updatedAt: now,
@@ -339,7 +336,6 @@ function createInMemoryDb() {
             name: string;
             provider: string | null;
             baseUrl: string | null;
-            secretRef: string;
           }>;
         }) => {
           const existing = providers.get(where.name);

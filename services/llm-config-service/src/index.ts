@@ -30,10 +30,8 @@ export {
   encryptProviderSecret,
   hasStoredProviderSecret,
   isEncryptedProviderSecret,
-  looksLikeEnvVarName,
   parseProviderEncryptionKey,
   resolveProviderApiKey,
-  resolveProviderSecret,
 } from "./lib/provider-secrets.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
 export { ProvidersRepository } from "./repositories/providers-repository.js";

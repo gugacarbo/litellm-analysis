@@ -40,7 +40,6 @@ export type ProviderInput = {
   provider?: string | null;
   baseUrl?: string | null;
   apiKey: string;
-  secretRef?: string | null;
 };
 
 export type ProviderUpdateInput = {
@@ -48,7 +47,6 @@ export type ProviderUpdateInput = {
   provider?: string | null;
   baseUrl?: string | null;
   apiKey?: string;
-  secretRef?: string | null;
 };
 
 export async function getProvider(

@@ -14,18 +14,8 @@ type EncryptedProviderSecret = {
   tag: string;
 };
 
-export function looksLikeEnvVarName(value: string): boolean {
-  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(value);
-}
-
-export function encryptProviderSecretIfPlain(
-  secret: string,
-  encryptionKey: Buffer,
-): string {
-  if (isEncryptedProviderSecret(secret)) {
-    return secret;
-  }
-  return encryptProviderSecret(secret, encryptionKey);
+export function isEncryptedProviderSecret(value: string): boolean {
+  return value.startsWith(PROVIDER_SECRET_PREFIX);
 }
 
 export function parseProviderEncryptionKey(
@@ -55,8 +45,14 @@ export function parseProviderEncryptionKey(
   return createHash("sha256").update(trimmed).digest();
 }
 
-export function isEncryptedProviderSecret(value: string): boolean {
-  return value.startsWith(PROVIDER_SECRET_PREFIX);
+export function encryptProviderSecretIfPlain(
+  secret: string,
+  encryptionKey: Buffer,
+): string {
+  if (isEncryptedProviderSecret(secret)) {
+    return secret;
+  }
+  return encryptProviderSecret(secret, encryptionKey);
 }
 
 export function encryptProviderSecret(
@@ -118,48 +114,12 @@ export function decryptProviderSecret(
   ]).toString("utf8");
 }
 
-export function hasStoredProviderSecret(input: {
-  secretRef?: string | null;
-}): boolean {
-  return Boolean(input.secretRef?.trim());
-}
-
-export function resolveProviderSecret(
-  input: {
-    secretRef?: string | null;
-  },
-  env: NodeJS.ProcessEnv = process.env,
-): string | undefined {
-  const secretRef = input.secretRef?.trim();
-  if (!secretRef) {
-    return undefined;
-  }
-
-  if (!looksLikeEnvVarName(secretRef)) {
-    return undefined;
-  }
-
-  const envValue = env[secretRef];
-  return envValue?.trim() ? envValue.trim() : undefined;
-}
-
 export function resolveProviderApiKey(
   input: {
     apiKey?: string | null;
-    secretRef?: string | null;
   },
   env: NodeJS.ProcessEnv = process.env,
 ): string | undefined {
-  const secretRef = input.secretRef?.trim();
-  if (secretRef) {
-    if (looksLikeEnvVarName(secretRef)) {
-      const envValue = env[secretRef];
-      if (envValue?.trim()) {
-        return envValue.trim();
-      }
-    }
-  }
-
   const storedApiKey = input.apiKey?.trim();
   if (!storedApiKey) {
     return undefined;
@@ -170,4 +130,10 @@ export function resolveProviderApiKey(
   }
 
   return decryptProviderSecret(storedApiKey, parseProviderEncryptionKey(env));
+}
+
+export function hasStoredProviderSecret(input: {
+  apiKey?: string | null;
+}): boolean {
+  return Boolean(input.apiKey?.trim());
 }

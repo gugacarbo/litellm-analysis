@@ -81,7 +81,6 @@ describe("upstream-provider", () => {
           Promise.resolve([
             {
               name: "openai-main",
-              secretRef: "OPENAI_API_KEY",
               apiKey: null,
               baseUrl: null,
             },
@@ -224,8 +223,29 @@ describe("upstream-provider", () => {
     ).rejects.toThrow('Model "gpt-test" is disabled');
   });
 
-  it("uses literal secretRef values when the provider stores a raw key", async () => {
-    process.env.OPENAI_API_KEY = "sk-live-literal-secret";
+  it("decrypts an encrypted apiKey at runtime", async () => {
+    process.env.APP_ENCRYPTION_KEY = "test-app-encryption-key";
+    const encryptedApiKey = encryptProviderSecret(
+      "sk-encrypted-apikey-key",
+      parseProviderEncryptionKey(),
+    );
+
+    dbSelectMock.mockReturnValueOnce({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(() =>
+            Promise.resolve([
+              {
+                name: "openai-main",
+                apiKey: encryptedApiKey,
+                baseUrl: "https://api.openai.com/v1",
+              },
+            ]),
+          ),
+        })),
+      })),
+    });
+
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: {
@@ -233,19 +253,23 @@ describe("upstream-provider", () => {
           name: "OpenAI",
           adapter: "openai-compatible",
           baseUrl: "https://api.openai.com/v1",
-          defaultProvider: "iproute-main",
+          defaultProvider: "openai-main",
         },
       },
-      row: createModelRow(),
+      row: createModelRow({
+        ownedBy: null,
+        family: null,
+        providerName: "openai-main",
+      }),
     });
-    delete process.env.OPENAI_API_KEY;
+
+    delete process.env.APP_ENCRYPTION_KEY;
 
     expect(target.upstreamHeaders).toEqual({
-      authorization: "Bearer sk-live-literal-secret",
+      authorization: "Bearer sk-encrypted-apikey-key",
     });
+    expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
   });
-
-  it("resolves chatgpt subscription models without api key", async () => {
     const target = await resolveUpstreamTarget({
       modelName: "gpt-5-codex",
       providers: {},

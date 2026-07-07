@@ -157,7 +157,6 @@ export const modelProxyProviders = pgTable("model_proxy_providers", {
   provider: text("provider"),
   baseUrl: text("base_url"),
   apiKey: text("api_key"),
-  secretRef: text("secret_ref"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

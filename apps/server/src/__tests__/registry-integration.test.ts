@@ -224,7 +224,7 @@ describe("registry integration", () => {
         name: "groq-main",
         provider: "groq",
         baseUrl: `http://127.0.0.1:${upstreamPort}`,
-        secretRef: "secret-123",
+        apiKey: "secret-123",
       });
 
       const { port, server } = await createRegistryHttpServer(
@@ -259,7 +259,7 @@ describe("registry integration", () => {
         name: "groq-main",
         provider: "groq",
         baseUrl: "https://api.groq.com/openai/v1",
-        secretRef: "GROQ_API_KEY",
+        apiKey: "sk-groq-test-key",
       });
 
       const { port, server } = await createRegistryHttpServer(
@@ -342,7 +342,7 @@ describe("registry integration", () => {
         name: "groq-main",
         provider: "groq",
         baseUrl: `http://127.0.0.1:${upstreamPort}`,
-        secretRef: "secret-123",
+        apiKey: "secret-123",
       });
 
       const { port, server } = await createRegistryHttpServer(
@@ -574,7 +574,7 @@ describe("registry integration", () => {
         name: "openai-main",
         provider: "openai",
         baseUrl: "https://api.openai.com/v1",
-        secretRef: "OPENAI_API_KEY",
+        apiKey: "sk-openai-test-key",
       });
 
       const { port, server } = await createRegistryHttpServer(

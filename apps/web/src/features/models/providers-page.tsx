@@ -315,23 +315,7 @@ export function ProvidersPage() {
                   className="h-8 text-sm font-mono"
                 />
               </div>
-              <div className="grid gap-1">
-                <Label htmlFor="cred-secretref" className="text-xs font-medium">
-                  Secret Ref (env var, optional)
-                </Label>
-                <Input
-                  id="cred-secretref"
-                  value={providerFormData.secretRef}
-                  onChange={(e) => {
-                    setProviderFormData({
-                      ...providerFormData,
-                      secretRef: e.target.value,
-                    });
-                  }}
-                  placeholder="e.g. OPENAI_API_KEY"
-                  className="h-8 text-sm font-mono"
-                />
-              </div>
+
             </div>
             {providerFormError && (
               <p className="text-xs text-destructive">{providerFormError}</p>
@@ -354,7 +338,7 @@ export function ProvidersPage() {
                 disabled={
                   providerFormLoading ||
                   !providerFormData.name ||
-                  (!editingProvider && !providerFormData.secretRef)
+                  !providerFormData.apiKey
                 }
               >
                 {providerFormLoading
