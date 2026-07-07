@@ -42,6 +42,8 @@ export interface ModelBenchmarkListItem extends NormalizedModelBenchmark {
   matchedConfiguredModel: string | null;
 }
 
+import type { PaginationMetadata } from "./analytics";
+
 export interface ModelBenchmarkApiResponse {
   source: string;
   sourceUrl: string;
@@ -50,6 +52,7 @@ export interface ModelBenchmarkApiResponse {
   configuredModelNames: string[];
   unmatchedConfiguredModels: string[];
   models: ModelBenchmarkListItem[];
+  pagination: PaginationMetadata;
 }
 
 export type BenchmarkSyncStatus = "idle" | "running" | "succeeded" | "failed";
