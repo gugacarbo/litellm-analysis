@@ -9,3 +9,4 @@
 | [SPEC-0003](0003-db-single-source-of-truth-spec.md) | Database becomes the single source of truth for agents, models, and plugins | implemented |
 | [SPEC-0004](0004-prisma-to-drizzle-migration-spec.md) | Migrar toda a camada de dados de Prisma para Drizzle, unificando PostgreSQL | deprecated |
 | [SPEC-0006](0006-benchmarks-database-storage-spec.md) | Persistir dados de benchmark do Artificial Analysis no banco de dados | draft |
+| [SPEC-0007](0007-model-config-screen-refactor-spec.md) | The model configuration settings tab is reorganized into General, Routing, and Advanced tabs with extracted sub-hooks | accepted |
