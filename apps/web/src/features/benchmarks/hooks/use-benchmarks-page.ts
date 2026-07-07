@@ -1,4 +1,6 @@
 import { useState } from "react";
+
+import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import type { UseCase } from "../types/benchmark-types";
 import { useBenchmarksActions } from "./use-benchmarks-actions";
 import { useBenchmarksDerived } from "./use-benchmarks-derived";
@@ -7,7 +9,9 @@ import { useBenchmarksState } from "./use-benchmarks-state";
 export interface UseBenchmarksPageResult
   extends ReturnType<typeof useBenchmarksState>,
     ReturnType<typeof useBenchmarksActions>,
-    ReturnType<typeof useBenchmarksDerived> {}
+    ReturnType<typeof useBenchmarksDerived> {
+  allModels: ModelBenchmarkListItem[];
+}
 
 export function useBenchmarksPage(): UseBenchmarksPageResult {
   const state = useBenchmarksState();
@@ -27,5 +31,6 @@ export function useBenchmarksPage(): UseBenchmarksPageResult {
     ...state,
     ...actions,
     ...derived,
+    allModels: state.data?.models ?? [],
   };
 }

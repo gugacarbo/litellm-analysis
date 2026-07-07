@@ -2,7 +2,7 @@ import type { PaginationMetadata } from "@lite-llm/contracts";
 import type { ModelBenchmarkApiResponse } from "@lite-llm/contracts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
-import type { ApiError } from "@/shared/lib/api-client/core";
+import { ApiError } from "@/shared/lib/api-client/core";
 
 export type BenchmarkSortField =
   | "name"
@@ -25,11 +25,11 @@ export interface BenchmarkFilters {
 export interface UseBenchmarksPaginatedOptions {
   queryKeyPrefix: ("benchmarks" | "openrouter-benchmarks")[];
   fetcher: (params: URLSearchParams) => Promise<ModelBenchmarkApiResponse>;
+  datasetMissingCode?: string;
   defaultSortField?: BenchmarkSortField;
   defaultConfiguredOnly?: boolean;
 }
 
-const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const DEFAULT_PAGE_SIZE = 25;
 
 function buildSearchParams(
@@ -71,8 +71,13 @@ function buildSearchParams(
 export function useBenchmarksPaginated(
   options: UseBenchmarksPaginatedOptions,
 ) {
-  const { queryKeyPrefix, fetcher, defaultSortField, defaultConfiguredOnly } =
-    options;
+  const {
+    queryKeyPrefix,
+    fetcher,
+    datasetMissingCode = "BENCHMARK_DATASET_MISSING",
+    defaultSortField,
+    defaultConfiguredOnly,
+  } = options;
   const queryClient = useQueryClient();
 
   const [filters, setFilters] = useState<BenchmarkFilters>({
@@ -165,15 +170,14 @@ export function useBenchmarksPaginated(
   }, []);
 
   const error =
-    query.error instanceof ApiError &&
-    query.error.code === "BENCHMARK_DATASET_MISSING"
+    query.error instanceof ApiError && query.error.code === datasetMissingCode
       ? null
       : query.error instanceof Error
         ? query.error.message
         : null;
   const isDatasetMissing =
     query.error instanceof ApiError &&
-    query.error.code === "BENCHMARK_DATASET_MISSING";
+    query.error.code === datasetMissingCode;
 
   const updateFilter = useCallback(
     <K extends keyof BenchmarkFilters>(key: K, value: BenchmarkFilters[K]) => {
@@ -209,5 +213,3 @@ export function useBenchmarksPaginated(
     }, [queryClient, queryKeyPrefix]),
   };
 }
-
-export { PAGE_SIZE_OPTIONS };

@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Scale } from "lucide-react";
+import { Globe, Scale } from "lucide-react";
 import { PageLayout } from "@/shared/components/ui/page-layout";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 

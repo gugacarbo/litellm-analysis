@@ -1,22 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
-import type {
-  BenchmarkSortDirection,
-  BenchmarkSortField,
-} from "@/features/benchmarks/types/benchmark-types";
 import {
-  type BenchmarkFilters,
-  type UseBenchmarkListState,
-  useBenchmarkServerFilters,
-} from "@/features/benchmarks/hooks/use-benchmark-server-filters";
+  type BenchmarkSortDirection,
+  type BenchmarkSortField,
+  useBenchmarksPaginated,
+} from "@/features/benchmarks/hooks/use-benchmarks-paginated";
 import {
   getOpenRouterBenchmarks,
   getOpenRouterBenchmarkSyncStatus,
   triggerOpenRouterBenchmarkSync,
 } from "@/shared/lib/api-client/openrouter-benchmarks";
 
-interface UseOpenRouterBenchmarksStateResult extends UseBenchmarkListState {
+type PaginatedBase = Omit<
+  ReturnType<typeof useBenchmarksPaginated>,
+  "setSortField" | "setSortDirection"
+>;
+
+interface UseOpenRouterBenchmarksStateResult extends PaginatedBase {
   syncStatusLabel: string;
   syncCooldownLabel: string | null;
   syncLastError: string | null;
@@ -26,30 +27,21 @@ interface UseOpenRouterBenchmarksStateResult extends UseBenchmarkListState {
   configuredCount: number;
   configuredModelNames: string[];
   unmatchedConfiguredModels: string[];
-}
-
-function buildServerFilters(
-  search: string,
-  provider: string,
-  minIntelligence: string,
-  maxBlendedPrice: string,
-  sortField: BenchmarkSortField,
-  sortDirection: BenchmarkSortDirection,
-): BenchmarkFilters {
-  return {
-    search: search.trim() || undefined,
-    provider: provider === "all" ? undefined : provider,
-    minIntelligence:
-      minIntelligence === ""
-        ? undefined
-        : Number.parseFloat(minIntelligence) || undefined,
-    maxPrice:
-      maxBlendedPrice === ""
-        ? undefined
-        : Number.parseFloat(maxBlendedPrice) || undefined,
-    sortField,
-    sortDirection,
-  };
+  search: string;
+  setSearch: (value: string) => void;
+  provider: string;
+  setProvider: (value: string) => void;
+  minIntelligence: string;
+  setMinIntelligence: (value: string) => void;
+  maxBlendedPrice: string;
+  setMaxBlendedPrice: (value: string) => void;
+  sortField: BenchmarkSortField;
+  setSortField: (value: BenchmarkSortField) => void;
+  sortDirection: BenchmarkSortDirection;
+  setSortDirection: (value: BenchmarkSortDirection) => void;
+  source: string;
+  sourceUrl: string;
+  fetchedAt: string;
 }
 
 function getSyncStatusLabel(
@@ -74,40 +66,25 @@ function getSyncCooldownLabel(
 
 export function useOpenRouterBenchmarksState(): UseOpenRouterBenchmarksStateResult {
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState("");
-  const [provider, setProvider] = useState("all");
-  const [minIntelligence, setMinIntelligence] = useState("");
-  const [maxBlendedPrice, setMaxBlendedPrice] = useState("");
-  const [sortField, setSortField] =
-    useState<BenchmarkSortField>("intelligence");
-  const [sortDirection, setSortDirection] =
-    useState<BenchmarkSortDirection>("desc");
-
-  const filters = useMemo(
-    () =>
-      buildServerFilters(
-        search,
-        provider,
-        minIntelligence,
-        maxBlendedPrice,
-        sortField,
-        sortDirection,
-      ),
-    [
-      maxBlendedPrice,
-      minIntelligence,
-      provider,
-      search,
-      sortDirection,
-      sortField,
-    ],
-  );
-
-  const serverState = useBenchmarkServerFilters({
-    queryKey: ["openrouter-benchmarks", "models"],
-    fetchFn: getOpenRouterBenchmarks,
-    filters,
-    datasetMissingCode: "OPENROUTER_BENCHMARK_DATASET_MISSING",
+  const paginated = useBenchmarksPaginated({
+    queryKeyPrefix: ["openrouter-benchmarks"],
+    fetcher: async (params) =>
+      getOpenRouterBenchmarks({
+        page: Number(params.get("page")),
+        pageSize: Number(params.get("page_size")),
+        search: params.get("search") ?? undefined,
+        provider: params.get("provider") ?? undefined,
+        minIntelligence: params.get("min_intelligence")
+          ? Number(params.get("min_intelligence"))
+          : undefined,
+        maxPrice: params.get("max_price")
+          ? Number(params.get("max_price"))
+          : undefined,
+        sortField: params.get("sort_field") as BenchmarkSortField,
+        sortDirection: params.get("sort_direction") as BenchmarkSortDirection,
+      }),
+    defaultSortField: "intelligence",
+    defaultConfiguredOnly: false,
   });
 
   const syncStatusQuery = useQuery({
@@ -147,11 +124,11 @@ export function useOpenRouterBenchmarksState(): UseOpenRouterBenchmarksStateResu
     if (!wasRunning || status.isRunning) return;
     if (status.status === "succeeded") {
       toast.success("OpenRouter sync completed");
-      void serverState.refetch();
+      void paginated.invalidate();
     } else if (status.status === "failed") {
       toast.error(status.lastError ?? "OpenRouter sync failed");
     }
-  }, [serverState, syncStatusQuery.data]);
+  }, [paginated, syncStatusQuery.data]);
 
   const syncStatus = syncStatusQuery.data;
   const isSyncRunning = Boolean(
@@ -162,16 +139,16 @@ export function useOpenRouterBenchmarksState(): UseOpenRouterBenchmarksStateResu
 
   const configuredCount = useMemo(
     () =>
-      serverState.data?.models.filter((item) => item.isConfigured).length ?? 0,
-    [serverState.data?.models],
+      paginated.data?.models.filter((item) => item.isConfigured).length ?? 0,
+    [paginated.data?.models],
   );
 
   return {
-    ...serverState,
+    ...paginated,
     configuredCount,
-    configuredModelNames: serverState.data?.configuredModelNames ?? [],
+    configuredModelNames: paginated.data?.configuredModelNames ?? [],
     unmatchedConfiguredModels:
-      serverState.data?.unmatchedConfiguredModels ?? [],
+      paginated.data?.unmatchedConfiguredModels ?? [],
     syncStatusLabel: getSyncStatusLabel(syncStatus),
     syncCooldownLabel: getSyncCooldownLabel(syncStatus),
     syncLastError: syncStatus?.lastError ?? null,
@@ -186,17 +163,23 @@ export function useOpenRouterBenchmarksState(): UseOpenRouterBenchmarksStateResu
       }
       syncMutation.mutate();
     },
-    search,
-    setSearch,
-    provider,
-    setProvider,
-    minIntelligence,
-    setMinIntelligence,
-    maxBlendedPrice,
-    setMaxBlendedPrice,
-    sortField,
-    setSortField,
-    sortDirection,
-    setSortDirection,
+    search: paginated.filters.search,
+    setSearch: (value) => paginated.setFilter("search", value),
+    provider: paginated.filters.provider,
+    setProvider: (value) => {
+      paginated.setFilter("provider", value);
+      paginated.applyFilters();
+    },
+    minIntelligence: paginated.filters.minIntelligence,
+    setMinIntelligence: (value) => paginated.setFilter("minIntelligence", value),
+    maxBlendedPrice: paginated.filters.maxPrice,
+    setMaxBlendedPrice: (value) => paginated.setFilter("maxPrice", value),
+    sortField: paginated.sortField,
+    setSortField: paginated.setSortField,
+    sortDirection: paginated.sortDirection,
+    setSortDirection: paginated.setSortDirection,
+    source: paginated.data?.source ?? "OpenRouter",
+    sourceUrl: paginated.data?.sourceUrl ?? "https://openrouter.ai",
+    fetchedAt: paginated.data?.fetchedAt ?? "",
   };
 }

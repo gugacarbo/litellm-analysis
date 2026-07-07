@@ -39,6 +39,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { LogsPaginationControls } from "@/features/logs/components/logs-pagination-controls";
+import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { AliasesButton } from "./components/aliases-button";
 import { ComparisonDeck } from "./components/comparison-deck";
 import { UseCaseFilter } from "./components/use-case-filter";
@@ -92,6 +94,12 @@ export function BenchmarksPage() {
     unmatchedConfiguredModels,
     configuredModelNames,
     allModels,
+    pagination,
+    page: currentPage,
+    pageSize,
+    goToPage,
+    changePageSize,
+    applyFilters,
   } = page;
 
   return (
@@ -143,20 +151,26 @@ export function BenchmarksPage() {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
+                onBlur={applyFilters}
                 placeholder="gpt-4.1, claude..."
               />
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Provider</p>
-              <Select value={provider} onValueChange={setProvider}>
+              <Select
+                value={provider}
+                onValueChange={(value) => {
+                  setProvider(value);
+                }}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All providers</SelectItem>
-                  {providers.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {p}
+                  {providers.map((providerName: string) => (
+                    <SelectItem key={providerName} value={providerName}>
+                      {providerName}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -169,6 +183,7 @@ export function BenchmarksPage() {
               <Input
                 value={minIntelligence}
                 onChange={(event) => setMinIntelligence(event.target.value)}
+                onBlur={applyFilters}
                 inputMode="decimal"
                 placeholder="ex: 50"
               />
@@ -180,6 +195,7 @@ export function BenchmarksPage() {
               <Input
                 value={maxBlendedPrice}
                 onChange={(event) => setMaxBlendedPrice(event.target.value)}
+                onBlur={applyFilters}
                 inputMode="decimal"
                 placeholder="ex: 10"
               />
@@ -297,78 +313,87 @@ export function BenchmarksPage() {
                   description="Try disabling configured-only or broadening the filter values."
                 />
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Model</TableHead>
-                      <TableHead>Provider</TableHead>
-                      <TableHead className="text-right">
-                        Intelligence
-                      </TableHead>
-                      <TableHead className="text-right">Coding</TableHead>
-                      <TableHead className="text-right">Math</TableHead>
-                      <TableHead className="text-right">
-                        Price (3:1)
-                      </TableHead>
-                      <TableHead className="text-right">Speed</TableHead>
-                      <TableHead className="text-right">TTFT</TableHead>
-                      <TableHead className="text-right">Compare</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {rows.map((row) => (
-                      <TableRow key={row.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{row.name}</span>
-                            {row.isConfigured && (
-                              <Badge variant="success">Configured</Badge>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {row.slug ?? "no-slug"}
-                          </p>
-                        </TableCell>
-                        <TableCell>{row.creatorName}</TableCell>
-                        <TableCell className="text-right">
-                          {formatNullableNumber(row.intelligenceIndex)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatNullableNumber(row.codingIndex)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatNullableNumber(row.mathIndex)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatBenchmarkPrice(row.priceBlended1mTokens)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatSpeed(row.medianOutputTokensPerSecond)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatLatencySeconds(
-                            row.medianTimeToFirstTokenSeconds,
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant={
-                              selectedIds.includes(row.id)
-                                ? "secondary"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() => toggleModel(row.id)}
-                          >
-                            {selectedIds.includes(row.id)
-                              ? "Added"
-                              : "Compare"}
-                          </Button>
-                        </TableCell>
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Model</TableHead>
+                        <TableHead>Provider</TableHead>
+                        <TableHead className="text-right">
+                          Intelligence
+                        </TableHead>
+                        <TableHead className="text-right">Coding</TableHead>
+                        <TableHead className="text-right">Math</TableHead>
+                        <TableHead className="text-right">
+                          Price (3:1)
+                        </TableHead>
+                        <TableHead className="text-right">Speed</TableHead>
+                        <TableHead className="text-right">TTFT</TableHead>
+                        <TableHead className="text-right">Compare</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {rows.map((row: ModelBenchmarkListItem) => (
+                        <TableRow key={row.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{row.name}</span>
+                              {row.isConfigured && (
+                                <Badge variant="success">Configured</Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {row.slug ?? "no-slug"}
+                            </p>
+                          </TableCell>
+                          <TableCell>{row.creatorName}</TableCell>
+                          <TableCell className="text-right">
+                            {formatNullableNumber(row.intelligenceIndex)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatNullableNumber(row.codingIndex)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatNullableNumber(row.mathIndex)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatBenchmarkPrice(row.priceBlended1mTokens)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatSpeed(row.medianOutputTokensPerSecond)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatLatencySeconds(
+                              row.medianTimeToFirstTokenSeconds,
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant={
+                                selectedIds.includes(row.id)
+                                  ? "secondary"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => toggleModel(row.id)}
+                            >
+                              {selectedIds.includes(row.id)
+                                ? "Added"
+                                : "Compare"}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <LogsPaginationControls
+                    page={currentPage}
+                    pageSize={pageSize}
+                    pagination={pagination}
+                    onPageChange={goToPage}
+                    onPageSizeChange={(value) => changePageSize(Number(value))}
+                  />
+                </>
               )}
             </CardContent>
           </Card>
@@ -385,10 +410,10 @@ export function BenchmarksPage() {
                 onUseCaseChange={setUseCase}
                 onCompareTop3={() =>
                   compareTop3(
-                    rows.map((r) => r.id),
+                    rows.map((row: ModelBenchmarkListItem) => row.id),
                     (id) => {
                       const card = sortedByUseCase.find(
-                        (c) => c.model.id === id,
+                        (cardItem) => cardItem.model.id === id,
                       );
                       return card ? card.useCaseScores[activeUseCase] : 0;
                     },

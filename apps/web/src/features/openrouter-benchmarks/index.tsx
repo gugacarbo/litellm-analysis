@@ -68,8 +68,8 @@ export function OpenRouterBenchmarksPage() {
     pagination,
     page: currentPage,
     pageSize,
-    setPage,
-    setPageSize,
+    goToPage,
+    changePageSize,
   } = page;
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -320,11 +320,8 @@ export function OpenRouterBenchmarksPage() {
                 page={currentPage}
                 pageSize={pageSize}
                 pagination={pagination as PaginationMetadata}
-                onPageChange={setPage}
-                onPageSizeChange={(value) => {
-                  setPageSize(Number(value));
-                  setPage(1);
-                }}
+                onPageChange={goToPage}
+                onPageSizeChange={(value) => changePageSize(Number(value))}
               />
             </>
           )}
