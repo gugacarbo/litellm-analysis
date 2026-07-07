@@ -169,6 +169,7 @@ function normalizeModelRoute(raw: unknown, modelName: string): ModelRoute {
       requestOptions: isRecord(raw.requestOptions)
         ? raw.requestOptions
         : undefined,
+      metadata: isRecord(raw.metadata) ? raw.metadata : undefined,
     };
   }
   return { modelName };
