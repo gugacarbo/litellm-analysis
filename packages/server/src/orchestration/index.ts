@@ -8,6 +8,7 @@ import type {
 import { syncGeneratedArtifacts } from "./artifact-service";
 
 export { syncGeneratedArtifacts } from "./artifact-service";
+export { fetchOpenRouterModelData } from "./openrouter-models";
 export {
   listBlockingManualAliases,
   listManualAliasesForTarget,

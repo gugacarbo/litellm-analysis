@@ -73,3 +73,43 @@ export interface TriggerBenchmarkSyncResponse
   extends BenchmarkSyncStatusResponse {
   triggered: boolean;
 }
+
+export interface OpenRouterModelData {
+  id: string;
+  name: string;
+  context_length: number | null;
+  max_output_tokens: number | null;
+  capabilities: {
+    supports_vision: boolean;
+    supports_tools: boolean;
+  } | null;
+  pricing: {
+    prompt: string;
+    completion: string;
+  } | null;
+  family: string | null;
+  description: string | null;
+}
+
+export interface BenchmarkComparisonField {
+  key: string;
+  label: string;
+  currentValue: string | number | boolean | null;
+  aa: {
+    value: string | number | boolean | null;
+    source: string;
+    sourceLabel: string;
+  } | null;
+  openrouter: {
+    value: string | number | boolean | null;
+    source: string;
+    sourceLabel: string;
+  } | null;
+}
+
+export interface BenchmarkComparisonResponse {
+  modelName: string;
+  matchedAaModel: string | null;
+  matchedOpenRouterModel: string | null;
+  fields: BenchmarkComparisonField[];
+}

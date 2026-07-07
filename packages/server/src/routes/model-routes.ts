@@ -1,3 +1,5 @@
+import path from "node:path";
+import { serverEnv } from "@lite-llm/config/server";
 import {
   getDefaultProvider,
   type ModelRoute,
@@ -6,12 +8,20 @@ import {
 import type { ModelSpec } from "@lite-llm/models-repository";
 import type { Application, Response } from "express";
 import {
+  fetchOpenRouterModelData,
   listBlockingManualAliases,
   listManualAliasesForTarget,
   listManualModelAliases,
   replaceManualAliasesForTarget,
   retargetManualAliases,
 } from "../orchestration";
+import {
+  findBenchmarkModel,
+  getWorkspaceRoot,
+  loadBenchmarkDataset,
+  loadModelAliases,
+  resolveStoragePath,
+} from "../orchestration/benchmark-helpers";
 import {
   createRegistryModelFromRoute,
   listRegistryModels,
@@ -20,6 +30,12 @@ import {
 } from "../orchestration/registry-models-bridge";
 import { isRecord, normalizeModelRoute } from "../orchestration/route-params";
 import type { DbModelSpecLike, RouteOptions } from "../types/index";
+import type {
+  BenchmarkComparisonField,
+  BenchmarkComparisonResponse,
+  NormalizedModelBenchmark,
+  OpenRouterModelData,
+} from "@lite-llm/contracts/benchmarks";
 
 type AliasInventory = {
   aliasMap: Map<string, string>;
@@ -870,6 +886,211 @@ export function registerModelRoutes(
       await registryModelsService.delete(name);
       await manager.registry.exportAll();
       res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  function parsePricingToPerToken(pricingString: string | undefined): number | null {
+    if (!pricingString) return null;
+    const num = Number.parseFloat(pricingString);
+    if (Number.isNaN(num)) return null;
+    return num / 1_000_000;
+  }
+
+  function buildComparisonFields(
+    aaModel: NormalizedModelBenchmark | null,
+    orModel: NormalizedModelBenchmark | null,
+    orModelData: OpenRouterModelData | null,
+    currentConfig: ModelSpec | undefined,
+  ): BenchmarkComparisonField[] {
+    const fields: BenchmarkComparisonField[] = [];
+
+    const aaSource = "artificial-analysis";
+    const orSource = "openrouter";
+
+    fields.push({
+      key: "displayName",
+      label: "Nome de Exibição",
+      currentValue: currentConfig?.displayName ?? null,
+      aa: aaModel
+        ? { value: aaModel.name, source: aaSource, sourceLabel: "Artificial Analysis" }
+        : null,
+      openrouter: orModelData
+        ? { value: orModelData.name, source: orSource, sourceLabel: "OpenRouter" }
+        : null,
+    });
+
+    fields.push({
+      key: "family",
+      label: "Família",
+      currentValue: currentConfig?.family ?? null,
+      aa: null,
+      openrouter: orModelData?.family
+        ? { value: orModelData.family, source: orSource, sourceLabel: "OpenRouter" }
+        : null,
+    });
+
+    fields.push({
+      key: "ownedBy",
+      label: "Desenvolvedor",
+      currentValue: currentConfig?.ownedBy ?? null,
+      aa: aaModel
+        ? { value: aaModel.creatorName, source: aaSource, sourceLabel: "Artificial Analysis" }
+        : null,
+      openrouter: orModel
+        ? { value: orModel.creatorName, source: orSource, sourceLabel: "OpenRouter" }
+        : null,
+    });
+
+    fields.push({
+      key: "apiMode",
+      label: "Modo API",
+      currentValue: currentConfig?.apiMode ?? null,
+      aa: null,
+      openrouter: null,
+    });
+
+    fields.push({
+      key: "vision",
+      label: "Visão",
+      currentValue: currentConfig?.vision ?? null,
+      aa: null,
+      openrouter: orModelData?.capabilities
+        ? { value: orModelData.capabilities.supports_vision, source: orSource, sourceLabel: "OpenRouter" }
+        : null,
+    });
+
+    fields.push({
+      key: "contextWindow",
+      label: "Janela de Contexto",
+      currentValue: currentConfig?.limits?.length ?? null,
+      aa: null,
+      openrouter: orModelData?.context_length
+        ? { value: orModelData.context_length, source: orSource, sourceLabel: "OpenRouter" }
+        : null,
+    });
+
+    fields.push({
+      key: "maxOutputTokens",
+      label: "Tokens Máx. de Saída",
+      currentValue: currentConfig?.limits?.maxOutput ?? null,
+      aa: null,
+      openrouter: orModelData?.max_output_tokens
+        ? { value: orModelData.max_output_tokens, source: orSource, sourceLabel: "OpenRouter" }
+        : null,
+    });
+
+    fields.push({
+      key: "inputCostPerToken",
+      label: "Custo por Token (entrada)",
+      currentValue: currentConfig?.cost?.input ?? null,
+      aa: aaModel?.priceInput1mTokens != null
+        ? { value: aaModel.priceInput1mTokens / 1_000_000, source: aaSource, sourceLabel: "Artificial Analysis" }
+        : null,
+      openrouter: orModelData?.pricing
+        ? (() => {
+            const perToken = parsePricingToPerToken(orModelData.pricing.prompt);
+            return perToken != null
+              ? { value: perToken, source: orSource, sourceLabel: "OpenRouter" }
+              : null;
+          })()
+        : null,
+    });
+
+    fields.push({
+      key: "outputCostPerToken",
+      label: "Custo por Token (saída)",
+      currentValue: currentConfig?.cost?.output ?? null,
+      aa: aaModel?.priceOutput1mTokens != null
+        ? { value: aaModel.priceOutput1mTokens / 1_000_000, source: aaSource, sourceLabel: "Artificial Analysis" }
+        : null,
+      openrouter: orModelData?.pricing
+        ? (() => {
+            const perToken = parsePricingToPerToken(orModelData.pricing.completion);
+            return perToken != null
+              ? { value: perToken, source: orSource, sourceLabel: "OpenRouter" }
+              : null;
+          })()
+        : null,
+    });
+
+    return fields;
+  }
+
+  app.get("/models/:name/benchmark-comparison", async (req, res) => {
+    try {
+      const modelName = normalizeModelNameParam(req.params.name);
+      if (!modelName) {
+        res.status(400).json({ error: "Model name is required." });
+        return;
+      }
+
+      const workspaceRoot = getWorkspaceRoot();
+      const storagePath = resolveStoragePath(
+        workspaceRoot,
+        serverEnv.STORAGE_PATH,
+      );
+
+      const aliases = await loadModelAliases(storagePath);
+
+      let aaModel: NormalizedModelBenchmark | null = null;
+      const aaPath = path.join(
+        storagePath,
+        "benchmarks",
+        "artificial-analysis-models.json",
+      );
+      try {
+        const aaDataset = await loadBenchmarkDataset(aaPath);
+        aaModel = findBenchmarkModel(modelName, aaDataset.models, aliases);
+      } catch (error) {
+        console.error(
+          "Failed to load AA benchmarks for comparison:",
+          error,
+        );
+      }
+
+      let orModel: NormalizedModelBenchmark | null = null;
+      const orPath = path.join(
+        storagePath,
+        "benchmarks",
+        "openrouter-benchmarks.json",
+      );
+      try {
+        const orDataset = await loadBenchmarkDataset(orPath);
+        orModel = findBenchmarkModel(modelName, orDataset.models, aliases);
+      } catch (error) {
+        console.error(
+          "Failed to load OpenRouter benchmarks for comparison:",
+          error,
+        );
+      }
+
+      const resolvedName = aliases[modelName] ?? modelName;
+      const orModelData = await fetchOpenRouterModelData(resolvedName);
+
+      let currentConfig: ModelSpec | undefined;
+      try {
+        currentConfig = await opts.modelsService.get(modelName);
+      } catch {
+        currentConfig = undefined;
+      }
+
+      const fields = buildComparisonFields(
+        aaModel,
+        orModel,
+        orModelData,
+        currentConfig,
+      );
+
+      const response: BenchmarkComparisonResponse = {
+        modelName,
+        matchedAaModel: aaModel?.name ?? null,
+        matchedOpenRouterModel: orModel?.id ?? null,
+        fields,
+      };
+
+      res.json(response);
     } catch (error) {
       res.status(500).json({ error: String(error) });
     }

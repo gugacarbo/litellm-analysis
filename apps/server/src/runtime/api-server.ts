@@ -1,17 +1,22 @@
-import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { createBenchmarksRepository } from "@lite-llm/benchmarks-repository";
 import type {
   ModelBenchmarkApiResponse,
   ModelBenchmarkListItem,
   NormalizedModelBenchmark,
-  StoredModelBenchmarkDataset,
 } from "@lite-llm/contracts/benchmarks";
 import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
 import { registerAllRoutes } from "@lite-llm/server/routes";
 import type { RouteOptions } from "@lite-llm/server/types";
+import {
+  getWorkspaceRoot,
+  loadBenchmarkDataset,
+  loadModelAliases,
+  resolveStoragePath,
+  toCompactKey,
+  toMatchKeys,
+} from "@lite-llm/server/orchestration/benchmark-helpers";
 import express, { type Application } from "express";
 import type { BenchmarkSyncApplicationService } from "../application/benchmark-sync-application-service";
 import { createHealthCheckApplicationService } from "../application/health-check-application-service";
@@ -21,24 +26,6 @@ import { createBenchmarkSyncRouter } from "../routes/benchmark-sync-routes";
 import { createOpenRouterBenchmarkSyncRouter } from "../routes/openrouter-benchmark-sync-routes";
 import type { OpenRouterBenchmarkSyncApplicationService } from "../application/openrouter-benchmark-sync-application-service";
 import { createHealthCheckRouter } from "../routes/health-check-routes";
-
-function findWorkspaceRoot(startDir: string): string {
-  let current = startDir;
-  const root = path.parse(current).root;
-
-  while (current !== root) {
-    const marker = path.join(current, "pnpm-workspace.yaml");
-    if (existsSync(marker)) return current;
-    current = path.dirname(current);
-  }
-
-  return startDir;
-}
-
-function getWorkspaceRoot(): string {
-  const runtimeDir = path.dirname(fileURLToPath(import.meta.url));
-  return findWorkspaceRoot(runtimeDir);
-}
 
 function parseBooleanQuery(value: unknown, fallback: boolean): boolean {
   if (typeof value !== "string") return fallback;
@@ -56,58 +43,6 @@ function parseNumberQuery(value: unknown, fallback: number | null): number | nul
 function parseStringQuery(value: unknown, fallback: string | null): string | null {
   if (typeof value !== "string" || value === "") return fallback;
   return value;
-}
-
-function toMatchKeys(value: string): string[] {
-  const trimmed = value.trim().toLowerCase();
-  if (!trimmed) return [];
-
-  const lastSegment = trimmed.includes("/")
-    ? (trimmed.split("/").at(-1) ?? trimmed)
-    : trimmed;
-  const compact = trimmed.replace(/[^a-z0-9]/g, "");
-  const compactSegment = lastSegment.replace(/[^a-z0-9]/g, "");
-
-  return Array.from(new Set([trimmed, lastSegment, compact, compactSegment]));
-}
-
-/**
- * Extract a pure alphanumeric compact key from a string.
- */
-function toCompactKey(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
-}
-
-interface ModelAliases {
-  aliases: Record<string, string>;
-}
-
-function resolveStoragePath(workspaceRoot: string): string {
-  if (path.isAbsolute(env.STORAGE_PATH)) {
-    return env.STORAGE_PATH;
-  }
-  return path.join(workspaceRoot, env.STORAGE_PATH);
-}
-
-async function loadModelAliases(
-  workspaceRoot: string,
-): Promise<Record<string, string>> {
-  const storagePath = resolveStoragePath(workspaceRoot);
-  const aliasesPath = path.join(
-    storagePath,
-    "benchmarks",
-    "model-aliases.json",
-  );
-  try {
-    const raw = await readFile(aliasesPath, "utf8");
-    const parsed = JSON.parse(raw) as ModelAliases;
-    return parsed.aliases ?? {};
-  } catch {
-    return {};
-  }
 }
 
 /**
@@ -136,13 +71,6 @@ function suffixTolerantMatch(
   }
 
   return matches.length === 1 ? matches[0] : null;
-}
-
-async function loadBenchmarkDataset(
-  benchmarkFilePath: string,
-): Promise<StoredModelBenchmarkDataset> {
-  const raw = await readFile(benchmarkFilePath, "utf8");
-  return JSON.parse(raw) as StoredModelBenchmarkDataset;
 }
 
 interface BenchmarkFilterParams {
@@ -441,7 +369,7 @@ export function createApiServer(
   app.get("/benchmarks/models", async (req, res) => {
     try {
       const workspaceRoot = getWorkspaceRoot();
-      const storagePath = resolveStoragePath(workspaceRoot);
+      const storagePath = resolveStoragePath(workspaceRoot, env.STORAGE_PATH);
 
       const configuredModels = await opts.dataSource.getModels();
       // Strip backend suffix (e.g. "glm-5.1:ollama" -> "glm-5.1") for matching
@@ -453,7 +381,7 @@ export function createApiServer(
         })
         .filter((name): name is string => Boolean(name));
 
-      const aliases = await loadModelAliases(workspaceRoot);
+      const aliases = await loadModelAliases(storagePath);
       const { configuredLookup, configuredCompacts } =
         buildConfiguredModelLookups(configuredModelNames, aliases);
 
@@ -543,7 +471,7 @@ export function createApiServer(
   });
 
   function getAliasesFilePath(workspaceRoot: string): string {
-    const storagePath = resolveStoragePath(workspaceRoot);
+    const storagePath = resolveStoragePath(workspaceRoot, env.STORAGE_PATH);
     return path.join(storagePath, "benchmarks", "model-aliases.json");
   }
 
@@ -551,7 +479,11 @@ export function createApiServer(
   app.get("/benchmarks/aliases", async (_req, res) => {
     try {
       const workspaceRoot = getWorkspaceRoot();
-      const aliases = await loadModelAliases(workspaceRoot);
+      const storagePath = resolveStoragePath(
+        workspaceRoot,
+        env.STORAGE_PATH,
+      );
+      const aliases = await loadModelAliases(storagePath);
       res.json({ aliases });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -603,7 +535,7 @@ export function createApiServer(
     app.get("/benchmarks/openrouter/models", async (req, res) => {
       try {
         const workspaceRoot = getWorkspaceRoot();
-        const storagePath = resolveStoragePath(workspaceRoot);
+        const storagePath = resolveStoragePath(workspaceRoot, env.STORAGE_PATH);
 
         const configuredModels = await opts.dataSource.getModels();
         const configuredModelNames = configuredModels
@@ -614,7 +546,7 @@ export function createApiServer(
           })
           .filter((name): name is string => Boolean(name));
 
-        const aliases = await loadModelAliases(workspaceRoot);
+        const aliases = await loadModelAliases(storagePath);
         const { configuredLookup, configuredCompacts } =
           buildConfiguredModelLookups(configuredModelNames, aliases);
 

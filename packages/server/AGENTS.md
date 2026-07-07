@@ -1,6 +1,6 @@
 # @LITE-LLM/SERVER KNOWLEDGE BASE
 
-**Generated:** 2026-07-01
+**Generated:** 2026-07-07
 **Commit:** 3029bcb
 
 ## OVERVIEW
@@ -13,9 +13,11 @@
 packages/server/
 ├── src/
 │   ├── index.ts                    # Public barrel
-│   ├── orchestration/              # Multi-source coordinators (model alias sync, artifact sync, registry bridge)
+│   ├── orchestration/              # Multi-source coordinators (model alias sync, artifact sync, registry bridge, benchmark helpers)
 │   │   ├── artifact-service.ts
+│   │   ├── benchmark-helpers.ts    # Benchmark dataset loading, model matching, key normalization
 │   │   ├── model-route.ts
+│   │   ├── openrouter-models.ts    # OpenRouter model data fetching for benchmark comparison
 │   │   ├── registry-models-bridge.ts
 │   │   ├── route-params.ts
 │   │   ├── router-settings.ts
@@ -44,6 +46,7 @@ packages/server/
 | Add a shared route                | `src/routes/`                             | Use `RouteOptions` pattern (dataSource + orchestration)|
 | Register all routes               | `src/routes/index.ts`                     | `registerAllRoutes(app, opts)` for one-line wiring    |
 | Change cost normalization         | `src/orchestration/route-params.ts`       | `toCostPerToken()` assumes canonical per-token USD     |
+| Add a benchmark comparison endpoint | `src/routes/model-routes.ts`             | `GET /models/:name/benchmark-comparison`; uses `benchmark-helpers.ts` + `openrouter-models.ts` |
 | Add chat streaming endpoint       | `src/routes/chat-routes.ts`               | Streams completions via `MODEL_PROXY_*`; mounted in apps/server |
 
 ## CONVENTIONS
