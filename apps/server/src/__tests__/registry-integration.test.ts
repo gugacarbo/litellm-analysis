@@ -552,6 +552,34 @@ describe("registry integration", () => {
       }
     });
 
+    it("rejects legacy model field in model create request", async () => {
+      const { port, server } = await createRegistryHttpServer(
+        undefined,
+        "models",
+      );
+
+      try {
+        const response = await fetch(`http://127.0.0.1:${port}/models`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            modelName: "legacy-model-field",
+            modelRoute: {
+              model: "gpt-4",
+              modelName: "legacy-model-field",
+            },
+          }),
+        });
+        expect(response.status).toBe(400);
+        const body = await response.json();
+        expect(body.error).toContain(
+          "Legacy model route fields are no longer supported",
+        );
+      } finally {
+        await closeServer(server);
+      }
+    });
+
     it("keeps displayName in config and out of registry requestOptions", async () => {
       const stack = createRegistryTestStack();
       await stack.seedConfigModel("display-name-model");

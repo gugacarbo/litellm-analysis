@@ -118,4 +118,15 @@ describe("ModelsConfiguredPage", () => {
       .filter((link) => link.querySelector("svg.lucide-pencil"));
     expect(editLinks.length).toBe(2);
   });
+
+  it("renders cost and context values from typed camelCase modelRoute fields", async () => {
+    renderWithQueryClient(<ModelsConfiguredPage />);
+
+    await screen.findAllByText(/gpt-4|claude-3-opus/);
+
+    expect(screen.getByText("$30.00/Mi")).toBeInTheDocument();
+    expect(screen.getByText("$60.00/Mi")).toBeInTheDocument();
+    expect(screen.getByText("$15.00/Mi")).toBeInTheDocument();
+    expect(screen.getByText("$75.00/Mi")).toBeInTheDocument();
+  });
 });

@@ -16,6 +16,7 @@ import type {
   MetricsSummary,
   ModelConfig,
   ModelDetail,
+  ModelRoute,
   ModelDistribution,
   ModelStatistics,
   PaginationMetadata,
@@ -219,6 +220,8 @@ describe("@lite-llm/api-contracts", () => {
       expect(dailySpend.spend).toBe(10);
       expect(modelDetail.model_name).toBe("gpt-4");
       expect(modelConfig.modelName).toBe("gpt-4");
+      const _route: ModelRoute = modelConfig.modelRoute;
+      expect(_route.modelName).toBe("gpt-4");
       expect(modelStats.success_rate).toBe(0.99);
       expect(perf.avg_duration_ms).toBe(150);
       expect(tokenDist.input_output_ratio).toBe(1.5);

@@ -194,7 +194,7 @@
       "id": "REQ-4",
       "title": "Web models surface consumes typed route and derived table-row data",
       "source": "SPEC-0009 Fluxo 3-4; Contrato - Tabela de modelos",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "Web API client exposes typed modelRoute data",
         "Models table renders from a typed derived row shape",
@@ -463,7 +463,7 @@
       "id": "Task-D-0009",
       "title": "Refactor the web models surface around typed route and table-row data",
       "description": "Simplify the frontend so it consumes typed route data and a derived models table row/view-model instead of probing generic payloads.",
-      "status": "reviewing",
+      "status": "completed",
       "tryCount": 1,
       "task_profile": "deep",
       "batch": "D",
