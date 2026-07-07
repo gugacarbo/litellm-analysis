@@ -2,98 +2,59 @@ import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import type {
+  BenchmarkSortDirection,
+  BenchmarkSortField,
+} from "../types/benchmark-types";
+import {
+  type BenchmarkFilters,
+  type BenchmarkPagination,
+  type UseBenchmarkListState,
+  useBenchmarkServerFilters,
+} from "./use-benchmark-server-filters";
 import {
   getBenchmarkSyncStatus,
   getModelBenchmarks,
   triggerBenchmarkSync,
 } from "@/shared/lib/api-client/benchmarks";
 import { ApiError } from "@/shared/lib/api-client/core";
-import type {
-  BenchmarkSortDirection,
-  BenchmarkSortField,
-  BenchmarksDerivedState,
-} from "../types/benchmark-types";
-import {
-  matchesBenchmarkModelSearch,
-  sortBenchmarkModelsBySearch,
-} from "../utils/model-search";
 
-interface UseBenchmarksStateResult extends BenchmarksDerivedState {
-  isLoading: boolean;
-  error: string | null;
-  source: string;
-  sourceUrl: string;
-  fetchedAt: string;
-  totalCount: number;
-  isDatasetMissing: boolean;
+interface UseBenchmarksStateResult extends UseBenchmarkListState {
   syncStatusLabel: string;
   syncCooldownLabel: string | null;
   syncLastError: string | null;
   isSyncRunning: boolean;
   canTriggerSync: boolean;
   triggerSync: () => void;
-  unmatchedConfiguredModels: string[];
+  configuredCount: number;
   configuredModelNames: string[];
-  allModels: ModelBenchmarkListItem[];
-  search: string;
-  provider: string;
-  showConfiguredOnly: boolean;
-  minIntelligence: string;
-  maxBlendedPrice: string;
-  sortField: BenchmarkSortField;
-  sortDirection: BenchmarkSortDirection;
-  setSearch: (value: string) => void;
-  setProvider: (value: string) => void;
-  setShowConfiguredOnly: (value: boolean) => void;
-  setMinIntelligence: (value: string) => void;
-  setMaxBlendedPrice: (value: string) => void;
-  setSortField: (value: BenchmarkSortField) => void;
-  setSortDirection: (value: BenchmarkSortDirection) => void;
+  unmatchedConfiguredModels: string[];
 }
 
-function toFilterableText(value: string): string {
-  return value.trim().toLowerCase();
-}
-
-function sortRows(
-  rows: ModelBenchmarkListItem[],
+function buildServerFilters(
+  search: string,
+  provider: string,
+  showConfiguredOnly: boolean,
+  minIntelligence: string,
+  maxBlendedPrice: string,
   sortField: BenchmarkSortField,
   sortDirection: BenchmarkSortDirection,
-): ModelBenchmarkListItem[] {
-  const dir = sortDirection === "asc" ? 1 : -1;
-
-  const sorted = [...rows].sort((a, b) => {
-    if (sortField === "name") {
-      return dir * a.name.localeCompare(b.name);
-    }
-    if (sortField === "provider") {
-      return dir * a.creatorName.localeCompare(b.creatorName);
-    }
-    if (sortField === "intelligence") {
-      return dir * ((a.intelligenceIndex ?? -1) - (b.intelligenceIndex ?? -1));
-    }
-    if (sortField === "price") {
-      return (
-        dir *
-        ((a.priceBlended1mTokens ?? Infinity) -
-          (b.priceBlended1mTokens ?? Infinity))
-      );
-    }
-    if (sortField === "speed") {
-      return (
-        dir *
-        ((a.medianOutputTokensPerSecond ?? -1) -
-          (b.medianOutputTokensPerSecond ?? -1))
-      );
-    }
-    return (
-      dir *
-      ((a.medianTimeToFirstTokenSeconds ?? Infinity) -
-        (b.medianTimeToFirstTokenSeconds ?? Infinity))
-    );
-  });
-
-  return sorted;
+): BenchmarkFilters {
+  return {
+    search: search.trim() || undefined,
+    provider: provider === "all" ? undefined : provider,
+    configuredOnly: showConfiguredOnly || undefined,
+    minIntelligence:
+      minIntelligence === ""
+        ? undefined
+        : Number.parseFloat(minIntelligence) || undefined,
+    maxPrice:
+      maxBlendedPrice === ""
+        ? undefined
+        : Number.parseFloat(maxBlendedPrice) || undefined,
+    sortField,
+    sortDirection,
+  };
 }
 
 export function useBenchmarksState(): UseBenchmarksStateResult {
@@ -108,14 +69,32 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
   const [sortDirection, setSortDirection] =
     useState<BenchmarkSortDirection>("desc");
 
-  const benchmarksQuery = useQuery({
+  const filters = useMemo(
+    () =>
+      buildServerFilters(
+        search,
+        provider,
+        showConfiguredOnly,
+        minIntelligence,
+        maxBlendedPrice,
+        sortField,
+        sortDirection,
+      ),
+    [
+      maxBlendedPrice,
+      minIntelligence,
+      provider,
+      search,
+      showConfiguredOnly,
+      sortDirection,
+      sortField,
+    ],
+  );
+
+  const serverState = useBenchmarkServerFilters({
     queryKey: ["benchmarks", "models"],
-    queryFn: getModelBenchmarks,
-    refetchInterval: 10 * 60_000,
-    retry: (failureCount, error) =>
-      error instanceof ApiError && error.code === "BENCHMARK_DATASET_MISSING"
-        ? false
-        : failureCount < 3,
+    fetchFn: getModelBenchmarks,
+    filters,
   });
 
   const syncStatusQuery = useQuery({
@@ -137,7 +116,8 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
         toast.success("Benchmark sync is already running");
       } else if (!result.canTrigger) {
         toast.info(
-          getSyncCooldownLabel(result) ?? "Benchmark sync will be available soon",
+          getSyncCooldownLabel(result) ??
+            "Benchmark sync will be available soon",
         );
       }
     },
@@ -159,91 +139,31 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
 
     if (status.status === "succeeded") {
       toast.success("Benchmark sync completed");
-      void queryClient.invalidateQueries({
-        queryKey: ["benchmarks", "models"],
-      });
+      void serverState.refetch();
     } else if (status.status === "failed") {
       toast.error(status.lastError ?? "Benchmark sync failed");
     }
-  }, [queryClient, syncStatusQuery.data]);
+  }, [serverState, syncStatusQuery.data]);
 
-  const rows = benchmarksQuery.data?.models ?? [];
-  const benchmarkError =
-    benchmarksQuery.error instanceof Error ? benchmarksQuery.error : null;
-  const isDatasetMissing =
-    benchmarkError instanceof ApiError &&
-    benchmarkError.code === "BENCHMARK_DATASET_MISSING";
   const syncStatus = syncStatusQuery.data;
   const isSyncRunning = Boolean(
     syncStatus?.isRunning || syncMutation.isPending,
   );
-  const canTriggerSync = Boolean(syncStatus?.canTrigger ?? true) && !isSyncRunning;
-  const providers = useMemo(() => {
-    const unique = new Set<string>();
-    for (const row of rows) {
-      unique.add(row.creatorName);
-    }
-    return Array.from(unique).sort((a, b) => a.localeCompare(b));
-  }, [rows]);
-
-  const filtered = useMemo<ModelBenchmarkListItem[]>(() => {
-    const searchValue = toFilterableText(search);
-    const minInt = Number.parseFloat(minIntelligence);
-    const maxPrice = Number.parseFloat(maxBlendedPrice);
-
-    const base = rows.filter((row) => {
-      if (showConfiguredOnly && !row.isConfigured) return false;
-      if (provider !== "all" && row.creatorName !== provider) return false;
-      if (searchValue && !matchesBenchmarkModelSearch(searchValue, row)) {
-        return false;
-      }
-      if (!Number.isNaN(minInt)) {
-        if (row.intelligenceIndex === null) return false;
-        if (row.intelligenceIndex < minInt) return false;
-      }
-      if (!Number.isNaN(maxPrice)) {
-        if (row.priceBlended1mTokens === null) return false;
-        if (row.priceBlended1mTokens > maxPrice) return false;
-      }
-      return true;
-    });
-
-    const sorted = sortRows(base, sortField, sortDirection);
-    return searchValue
-      ? sortBenchmarkModelsBySearch(searchValue, sorted)
-      : sorted;
-  }, [
-    maxBlendedPrice,
-    minIntelligence,
-    provider,
-    rows,
-    search,
-    showConfiguredOnly,
-    sortDirection,
-    sortField,
-  ]);
+  const canTriggerSync =
+    Boolean(syncStatus?.canTrigger ?? true) && !isSyncRunning;
+  const rows = serverState.rows;
 
   const configuredCount = useMemo(
-    () => rows.filter((item) => item.isConfigured).length,
-    [rows],
+    () => serverState.data?.models.filter((item) => item.isConfigured).length ?? 0,
+    [serverState.data?.models],
   );
 
   return {
-    providers,
-    rows: filtered,
+    ...serverState,
     configuredCount,
-    allModels: rows,
-    isLoading: benchmarksQuery.isPending && !benchmarksQuery.data,
-    error:
-      benchmarksQuery.error instanceof Error
-        ? benchmarksQuery.error.message
-        : null,
-    source: benchmarksQuery.data?.source ?? "Artificial Analysis",
-    sourceUrl:
-      benchmarksQuery.data?.sourceUrl ?? "https://artificialanalysis.ai/",
-    fetchedAt: benchmarksQuery.data?.fetchedAt ?? "",
-    totalCount: benchmarksQuery.data?.models.length ?? 0,
-    isDatasetMissing,
+    configuredModelNames: serverState.data?.configuredModelNames ?? [],
+    unmatchedConfiguredModels:
+      serverState.data?.unmatchedConfiguredModels ?? [],
     syncStatusLabel: getSyncStatusLabel(syncStatus),
     syncCooldownLabel: getSyncCooldownLabel(syncStatus),
     syncLastError: syncStatus?.lastError ?? null,
@@ -252,29 +172,27 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     triggerSync: () => {
       if (!canTriggerSync) {
         toast.info(
-          getSyncCooldownLabel(syncStatus) ?? "Benchmark sync will be available soon",
+          getSyncCooldownLabel(syncStatus) ??
+            "Benchmark sync will be available soon",
         );
         return;
       }
 
       syncMutation.mutate();
     },
-    unmatchedConfiguredModels:
-      benchmarksQuery.data?.unmatchedConfiguredModels ?? [],
-    configuredModelNames: benchmarksQuery.data?.configuredModelNames ?? [],
     search,
-    provider,
-    showConfiguredOnly,
-    minIntelligence,
-    maxBlendedPrice,
-    sortField,
-    sortDirection,
     setSearch,
+    provider,
     setProvider,
+    showConfiguredOnly,
     setShowConfiguredOnly,
+    minIntelligence,
     setMinIntelligence,
+    maxBlendedPrice,
     setMaxBlendedPrice,
+    sortField,
     setSortField,
+    sortDirection,
     setSortDirection,
   };
 }

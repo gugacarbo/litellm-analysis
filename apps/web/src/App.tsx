@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { AgentConfigPage } from "@/features/agents";
 import { AgentsPage } from "@/features/agents/list-index";
+import { BenchmarksLayout } from "@/features/benchmarks/benchmarks-layout";
 import { BenchmarksPage } from "@/features/benchmarks";
 import { OpenRouterBenchmarksPage } from "@/features/openrouter-benchmarks";
 import { DashboardPage } from "@/features/dashboard";
@@ -58,18 +59,6 @@ const routes: RouteConfig[] = [
     path: "/model-stats",
     title: "Model Statistics",
     component: ModelStatsPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/benchmarks",
-    title: "Benchmarks",
-    component: BenchmarksPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/benchmarks/openrouter",
-    title: "OpenRouter Benchmarks",
-    component: OpenRouterBenchmarksPage,
     withErrorBoundary: true,
   },
   {
@@ -200,6 +189,36 @@ function App() {
                   ),
                 },
               ],
+            },
+          ],
+        },
+        {
+          path: "benchmarks",
+          element: (
+            <ErrorBoundary>
+              <BenchmarksLayout />
+            </ErrorBoundary>
+          ),
+          children: [
+            {
+              index: true,
+              element: <Navigate to="aa" replace />,
+            },
+            {
+              path: "aa",
+              element: (
+                <ErrorBoundary>
+                  <BenchmarksPage />
+                </ErrorBoundary>
+              ),
+            },
+            {
+              path: "openrouter",
+              element: (
+                <ErrorBoundary>
+                  <OpenRouterBenchmarksPage />
+                </ErrorBoundary>
+              ),
             },
           ],
         },
