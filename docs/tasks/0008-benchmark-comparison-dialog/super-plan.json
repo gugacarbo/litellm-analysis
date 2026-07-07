@@ -1,0 +1,524 @@
+{
+  "$schema": "/home/gustavo/Apps/lite-llm-analytics/.super-planning/super-plan.schema.json",
+  "planId": "0008-benchmark-comparison-dialog",
+  "featureName": "benchmark-comparison-dialog",
+  "status": "pending",
+  "source": {
+    "spec": "docs/specs/0008-benchmark-comparison-dialog-spec.md",
+    "plan": "docs/plans/0008-benchmark-comparison-dialog.md"
+  },
+  "goal": "Add a \"Comparar Benchmarks\" button on the model settings screen that opens a dialog comparing AA and OpenRouter data with per-field import",
+  "architectureSummary": "New backend endpoint aggregates data from 3 sources (AA benchmarks DB, OpenRouter benchmarks DB, OpenRouter Models API) into a normalized comparison response. Frontend dialog renders a side-by-side table with per-field import buttons that update the local form state.",
+  "techStack": [
+    "Express",
+    "React 19",
+    "shadcn/ui Dialog",
+    "TanStack React Query",
+    "Sonner toast",
+    "Zod",
+    "Drizzle ORM"
+  ],
+  "executionMode": "subagent-driven",
+  "reviewCadence": "per_batch",
+  "branchStrategy": {
+    "baseBranch": "main",
+    "featureBranch": "0008-benchmark-comparison-dialog"
+  },
+  "worktree": {
+    "enabled": true,
+    "path": "../0008-benchmark-comparison-dialog-worktree"
+  },
+  "globalConstraints": [
+    "Feature isolation: new code in apps/web/src/features/models/, never imports from other features",
+    "shadcn/ui primitives from @/shared/components/ui",
+    "API calls through fetchApi from @/shared/lib/api-client/core",
+    "Backend routes follow packages/server/src/routes/ pattern",
+    "No new dependencies without explicit approval",
+    "TypeScript strict mode, Biome linting"
+  ],
+  "fileStructure": [
+    {
+      "path": "packages/contracts/src/benchmarks.ts",
+      "ownerTask": "Task-A-0001",
+      "notes": "Add OpenRouterModelData and BenchmarkComparisonResponse types"
+    },
+    {
+      "path": "packages/server/src/routes/model-routes.ts",
+      "ownerTask": "Task-A-0002",
+      "notes": "Add GET /models/:name/benchmark-comparison route"
+    },
+    {
+      "path": "apps/web/src/shared/lib/api-client/models.ts",
+      "ownerTask": "Task-B-0001",
+      "notes": "Add fetchBenchmarkComparison API function"
+    },
+    {
+      "path": "apps/web/src/features/models/hooks/use-benchmark-comparison.ts",
+      "ownerTask": "Task-B-0001",
+      "notes": "React Query hook for comparison data"
+    },
+    {
+      "path": "apps/web/src/features/models/components/benchmark-comparison-dialog.tsx",
+      "ownerTask": "Task-B-0002",
+      "notes": "Dialog component with comparison table"
+    },
+    {
+      "path": "apps/web/src/features/models/detail/model-detail-settings-tab.tsx",
+      "ownerTask": "Task-B-0003",
+      "notes": "Add button + wire dialog"
+    }
+  ],
+  "requirementsChecklist": [
+    {
+      "id": "REQ-1",
+      "title": "Button on ModelDetailSettingsTab opens comparison dialog",
+      "source": "SPEC-0008 Flow \u00a71",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Button visible on model settings page",
+        "Clicking opens a dialog",
+        "Button disabled when no benchmark match exists"
+      ],
+      "coveredByTasks": [
+        "Task-B-0003"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-2",
+      "title": "Dialog shows side-by-side AA vs OpenRouter comparison table",
+      "source": "SPEC-0008 Flow \u00a73",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Table has columns: Campo, AA, OpenRouter, Atual, A\u00e7\u00e3o",
+        "All 9 fields listed in spec are present",
+        "Missing values show \"\u2014\"",
+        "Loading state shows skeleton/spinner"
+      ],
+      "coveredByTasks": [
+        "Task-B-0002"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-3",
+      "title": "Per-field import buttons update form state immediately",
+      "source": "SPEC-0008 Flow \u00a74",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Import button visible when value differs from current",
+        "Clicking import updates form field",
+        "Toast confirmation shown",
+        "Button disappears after import (value now matches)"
+      ],
+      "coveredByTasks": [
+        "Task-B-0002",
+        "Task-B-0003"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-4",
+      "title": "Backend endpoint aggregates AA + OpenRouter benchmarks + Models API",
+      "source": "SPEC-0008 Contract",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "GET /models/:name/benchmark-comparison returns 200",
+        "Response matches BenchmarkComparisonResponse type",
+        "AA data from model_proxy_benchmarks or JSON fallback",
+        "OpenRouter benchmarks from model_proxy_benchmarks or JSON fallback",
+        "OpenRouter Models API called on-demand"
+      ],
+      "coveredByTasks": [
+        "Task-A-0001",
+        "Task-A-0002"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-5",
+      "title": "Matching uses existing alias system",
+      "source": "SPEC-0008 Contract",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Model aliases from @storage/benchmarks/model-aliases.json are used",
+        "Suffix-tolerant matching works",
+        "matchedAaModel and matchedOpenRouterModel populated correctly"
+      ],
+      "coveredByTasks": [
+        "Task-A-0002"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-6",
+      "title": "Edge cases handled correctly",
+      "source": "SPEC-0008 Edge cases",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "No match: button disabled with tooltip",
+        "Partial match: only available source column shown",
+        "Null values: show \"\u2014\", no import button",
+        "API error: show \"\u2014\", log error",
+        "Multiple matches: prefer creatorName match"
+      ],
+      "coveredByTasks": [
+        "Task-A-0002",
+        "Task-B-0002"
+      ],
+      "notes": []
+    }
+  ],
+  "taskDirectory": "docs/tasks/0008-benchmark-comparison-dialog",
+  "rules": [],
+  "tasks": [
+    {
+      "id": "Task-A-0001",
+      "title": "OpenRouter Models API types + service",
+      "description": "Add OpenRouterModelData type to contracts and create a service that fetches model metadata from OpenRouter /api/v1/models. This provides context window, max tokens, vision, and capabilities data not available in benchmarks.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "A",
+      "phase": "foundation",
+      "reportFile": "docs/tasks/0008-benchmark-comparison-dialog/Task-A-0001/report.md",
+      "reviewPackage": "docs/tasks/0008-benchmark-comparison-dialog/Task-A-0001/review-package.diff.md",
+      "progressLog": "docs/tasks/0008-benchmark-comparison-dialog/Task-A-0001/progress.log",
+      "logTaskScript": "docs/tasks/0008-benchmark-comparison-dialog/Task-A-0001/log-task.sh",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "OpenRouterModelData type defined in contracts package",
+        "Service function fetches from https://openrouter.ai/api/v1/models",
+        "Returns typed model data including context_length, max_output_tokens, capabilities, pricing",
+        "Handles API errors gracefully (returns null on failure)"
+      ],
+      "requirements": [
+        "REQ-4"
+      ],
+      "rules": [
+        "Use fetch (built-in Node 18+) for HTTP calls",
+        "No new npm dependencies",
+        "Types in packages/contracts/src/benchmarks.ts",
+        "Service in packages/server/src/ or a new service file"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Add OpenRouterModelData type",
+          "description": "Add OpenRouterModelData interface to packages/contracts/src/benchmarks.ts with fields: id, name, context_length, max_output_tokens, capabilities (supports_vision, supports_tools), pricing (prompt, completion per 1M tokens), family, description",
+          "command": "Edit packages/contracts/src/benchmarks.ts to add the new type",
+          "expectedResult": "Type exports compile without errors",
+          "codeExample": "export interface OpenRouterModelData { id: string; name: string; context_length: number | null; max_output_tokens: number | null; capabilities: { supports_vision: boolean; supports_tools: boolean } | null; pricing: { prompt: string; completion: string } | null; family: string | null; description: string | null; }"
+        },
+        {
+          "order": 2,
+          "title": "Create OpenRouter models API fetcher",
+          "description": "Create a function that calls GET https://openrouter.ai/api/v1/models, parses the response, and returns typed model data for the requested model",
+          "command": "Create a new service file or add to existing service that exports fetchOpenRouterModelData(modelName: string): Promise<OpenRouterModelData | null>",
+          "expectedResult": "Function returns OpenRouterModelData or null on error",
+          "codeExample": "export async function fetchOpenRouterModelData(modelName: string): Promise<OpenRouterModelData | null> { try { const res = await fetch(https://openrouter.ai/api/v1/models); const json = await res.json(); const model = json.data?.find((m: any) => m.id?.includes(modelName) || m.name?.toLowerCase() === modelName.toLowerCase()); return model ? mapToOpenRouterModelData(model) : null; } catch { return null; } }"
+        },
+        {
+          "order": 3,
+          "title": "Run typecheck",
+          "description": "Verify all types compile correctly",
+          "command": "pnpm typecheck",
+          "expectedResult": "pnpm typecheck exits 0",
+          "codeExample": "pnpm typecheck"
+        }
+      ],
+      "filesTouched": [
+        "packages/contracts/src/benchmarks.ts"
+      ],
+      "files": {
+        "created": [
+          "packages/server/src/orchestration/openrouter-models.ts"
+        ],
+        "modified": [
+          "packages/contracts/src/benchmarks.ts",
+          "packages/server/src/orchestration/index.ts"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-A-0002",
+      "title": "Benchmark comparison endpoint",
+      "description": "Create GET /models/:name/benchmark-comparison endpoint that aggregates AA benchmarks, OpenRouter benchmarks, and OpenRouter Models API data into a normalized comparison response. Uses existing alias system for model matching.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "A",
+      "phase": "core",
+      "reportFile": "docs/tasks/0008-benchmark-comparison-dialog/Task-A-0002/report.md",
+      "reviewPackage": "docs/tasks/0008-benchmark-comparison-dialog/Task-A-0002/review-package.diff.md",
+      "progressLog": "docs/tasks/0008-benchmark-comparison-dialog/Task-A-0002/progress.log",
+      "logTaskScript": "docs/tasks/0008-benchmark-comparison-dialog/Task-A-0002/log-task.sh",
+      "dependencies": [
+        "Task-A-0001"
+      ],
+      "acceptanceCriteria": [
+        "GET /models/:name/benchmark-comparison returns 200 with valid JSON",
+        "Response matches BenchmarkComparisonResponse type",
+        "AA data sourced from model_proxy_benchmarks or JSON fallback",
+        "OpenRouter benchmarks sourced from model_proxy_benchmarks or JSON fallback",
+        "OpenRouter Models API called on-demand via fetchOpenRouterModelData",
+        "Alias matching works correctly",
+        "Edge cases: no match returns empty fields, API errors handled gracefully"
+      ],
+      "requirements": [
+        "REQ-4",
+        "REQ-5",
+        "REQ-6"
+      ],
+      "rules": [
+        "Route registered in packages/server/src/routes/model-routes.ts",
+        "Use existing benchmark repository for DB queries",
+        "Use fetchOpenRouterModelData from Task-A-0001",
+        "Follow existing route pattern (try/catch, res.json/res.status)"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Add BenchmarkComparisonResponse types to contracts",
+          "description": "Add BenchmarkComparisonField and BenchmarkComparisonResponse interfaces to packages/contracts/src/benchmarks.ts",
+          "command": "Edit packages/contracts/src/benchmarks.ts",
+          "expectedResult": "Types compile",
+          "codeExample": "export interface BenchmarkComparisonField { key: string; label: string; currentValue: string | number | boolean | null; aa: { value: string | number | boolean | null; source: string; sourceLabel: string } | null; openrouter: { value: string | number | boolean | null; source: string; sourceLabel: string } | null; } export interface BenchmarkComparisonResponse { modelName: string; matchedAaModel: string | null; matchedOpenRouterModel: string | null; fields: BenchmarkComparisonField[]; }"
+        },
+        {
+          "order": 2,
+          "title": "Register GET /models/:name/benchmark-comparison route",
+          "description": "Add route handler in model-routes.ts that: 1) resolves model name via aliases, 2) queries AA benchmarks, 3) queries OpenRouter benchmarks, 4) calls fetchOpenRouterModelData, 5) builds comparison fields array, 6) returns response",
+          "command": "Edit packages/server/src/routes/model-routes.ts",
+          "expectedResult": "Route returns correct comparison data",
+          "codeExample": "app.get(/models/:name/benchmark-comparison, async (req, res) => { try { const { name } = req.params; const aliases = await loadAliases(); const resolvedName = aliases[name] || name; const aaModel = await findBenchmarkModel(resolvedName, artificial-analysis); const orModel = await findBenchmarkModel(resolvedName, openrouter); const orModelData = await fetchOpenRouterModelData(resolvedName); const fields = buildComparisonFields(aaModel, orModel, orModelData, currentConfig); res.json({ modelName: name, matchedAaModel: aaModel?.name || null, matchedOpenRouterModel: orModel?.id || null, fields }); } catch (error) { res.status(500).json({ error: String(error) }); } });"
+        },
+        {
+          "order": 3,
+          "title": "Run typecheck",
+          "description": "Verify all types compile correctly",
+          "command": "pnpm typecheck",
+          "expectedResult": "pnpm typecheck exits 0",
+          "codeExample": "pnpm typecheck"
+        }
+      ],
+      "filesTouched": [
+        "packages/contracts/src/benchmarks.ts",
+        "packages/server/src/routes/model-routes.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "packages/contracts/src/benchmarks.ts",
+          "packages/server/src/routes/model-routes.ts"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-B-0001",
+      "title": "useBenchmarkComparison hook + API client",
+      "description": "Add fetchBenchmarkComparison to the API client and create a React Query hook that fetches comparison data for a model.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "B",
+      "phase": "surface",
+      "reportFile": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0001/report.md",
+      "reviewPackage": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0001/review-package.diff.md",
+      "progressLog": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0001/progress.log",
+      "logTaskScript": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0001/log-task.sh",
+      "dependencies": [
+        "Task-A-0002"
+      ],
+      "acceptanceCriteria": [
+        "fetchBenchmarkComparison calls GET /models/:name/benchmark-comparison",
+        "useBenchmarkComparison hook uses useQuery with correct key",
+        "Hook returns typed data, loading, and error states",
+        "Query is disabled when modelName is empty"
+      ],
+      "requirements": [
+        "REQ-2"
+      ],
+      "rules": [
+        "API function in apps/web/src/shared/lib/api-client/models.ts",
+        "Hook in apps/web/src/features/models/hooks/use-benchmark-comparison.ts",
+        "Use fetchApi from @/shared/lib/api-client/core",
+        "Use @tanstack/react-query useQuery"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Add fetchBenchmarkComparison to API client",
+          "description": "Add fetchBenchmarkComparison(modelName: string) function to apps/web/src/shared/lib/api-client/models.ts that calls GET /models/:name/benchmark-comparison via fetchApi",
+          "command": "Edit apps/web/src/shared/lib/api-client/models.ts",
+          "expectedResult": "Function compiles and is exported",
+          "codeExample": "export async function fetchBenchmarkComparison(modelName: string): Promise<BenchmarkComparisonResponse> { return fetchApi<BenchmarkComparisonResponse>(`/models/${encodeURIComponent(modelName)}/benchmark-comparison`); }"
+        },
+        {
+          "order": 2,
+          "title": "Create useBenchmarkComparison hook",
+          "description": "Create apps/web/src/features/models/hooks/use-benchmark-comparison.ts with a useQuery hook that calls fetchBenchmarkComparison",
+          "command": "Create new file apps/web/src/features/models/hooks/use-benchmark-comparison.ts",
+          "expectedResult": "Hook compiles and is exported",
+          "codeExample": "export function useBenchmarkComparison(modelName: string) { return useQuery({ queryKey: [benchmark-comparison, modelName], queryFn: () => fetchBenchmarkComparison(modelName), enabled: !!modelName, staleTime: 0, }); }"
+        },
+        {
+          "order": 3,
+          "title": "Run typecheck",
+          "description": "Verify all types compile correctly",
+          "command": "pnpm typecheck",
+          "expectedResult": "pnpm typecheck exits 0",
+          "codeExample": "pnpm typecheck"
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/shared/lib/api-client/models.ts",
+        "apps/web/src/features/models/hooks/use-benchmark-comparison.ts"
+      ],
+      "files": {
+        "created": [
+          "apps/web/src/features/models/hooks/use-benchmark-comparison.ts"
+        ],
+        "modified": [
+          "apps/web/src/shared/lib/api-client/models.ts"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-B-0002",
+      "title": "BenchmarkComparisonDialog component",
+      "description": "Create the BenchmarkComparisonDialog component that renders a side-by-side comparison table with per-field import buttons. Uses shadcn/ui Dialog, Table primitives, and Sonner toast.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "B",
+      "phase": "surface",
+      "reportFile": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0002/report.md",
+      "reviewPackage": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0002/review-package.diff.md",
+      "progressLog": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0002/progress.log",
+      "logTaskScript": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0002/log-task.sh",
+      "dependencies": [
+        "Task-B-0001"
+      ],
+      "acceptanceCriteria": [
+        "Dialog opens/closes via open/onOpenChange props",
+        "Table shows columns: Campo, Artificial Analysis, OpenRouter, Atual, A\u00e7\u00e3o",
+        "All 9 fields from spec are rendered",
+        "Missing values show \"\u2014\"",
+        "Import button only visible when value differs from current and is not null",
+        "Clicking import calls onImportField with key, value, source",
+        "Loading state shows skeleton",
+        "Empty state when no data available"
+      ],
+      "requirements": [
+        "REQ-2",
+        "REQ-3",
+        "REQ-6"
+      ],
+      "rules": [
+        "Component in apps/web/src/features/models/components/benchmark-comparison-dialog.tsx",
+        "Use Dialog from @/shared/components/ui/dialog",
+        "Use Button from @/shared/components/ui/button",
+        "Use toast from sonner",
+        "Use Scale icon from lucide-react",
+        "Follow existing dialog patterns (ModelFormDialog, SyncModelsDialog)"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Create BenchmarkComparisonDialog component",
+          "description": "Create the dialog component with: Dialog wrapper, loading skeleton state, comparison table with 5 columns, per-row import button logic, toast on import",
+          "command": "Create new file apps/web/src/features/models/components/benchmark-comparison-dialog.tsx",
+          "expectedResult": "Component renders correctly with all states",
+          "codeExample": "export function BenchmarkComparisonDialog({ open, onOpenChange, modelName, currentValues, onImportField }: BenchmarkComparisonDialogProps) { const { data, isLoading } = useBenchmarkComparison(modelName); return ( <Dialog open={open} onOpenChange={onOpenChange}> <DialogContent className=\"sm:max-w-3xl\"> <DialogHeader> <DialogTitle>Comparar Benchmarks \u2014 {modelName}</DialogTitle> </DialogHeader> {isLoading ? <Skeleton /> : data ? ( <Table> <TableHeader> <TableRow> <TableHead>Campo</TableHead> <TableHead>Artificial Analysis</TableHead> <TableHead>OpenRouter</TableHead> <TableHead>Atual</TableHead> <TableHead></TableHead> </TableRow> </TableHeader> <TableBody> {data.fields.map(field => ( <TableRow key={field.key}> <TableCell>{field.label}</TableCell> <TableCell>{field.aa?.value ?? \u2014}</TableCell> <TableCell>{field.openrouter?.value ?? \u2014}</TableCell> <TableCell>{field.currentValue ?? \u2014}</TableCell> <TableCell>{/* Import buttons per source */}</TableCell> </TableRow> ))} </TableBody> </Table> ) : <EmptyState />} </DialogContent> </Dialog> ); }"
+        },
+        {
+          "order": 2,
+          "title": "Run typecheck",
+          "description": "Verify all types compile correctly",
+          "command": "pnpm typecheck",
+          "expectedResult": "pnpm typecheck exits 0",
+          "codeExample": "pnpm typecheck"
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/components/benchmark-comparison-dialog.tsx"
+      ],
+      "files": {
+        "created": [
+          "apps/web/src/features/models/components/benchmark-comparison-dialog.tsx"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-B-0003",
+      "title": "Integrate button + dialog into ModelDetailSettingsTab",
+      "description": "Add the \"Comparar Benchmarks\" button and wire the BenchmarkComparisonDialog into the ModelDetailSettingsTab. The button opens the dialog, and imported fields update the local form state.",
+      "status": "completed",
+      "tryCount": 1,
+      "batch": "B",
+      "phase": "surface",
+      "reportFile": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0003/report.md",
+      "reviewPackage": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0003/review-package.diff.md",
+      "progressLog": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0003/progress.log",
+      "logTaskScript": "docs/tasks/0008-benchmark-comparison-dialog/Task-B-0003/log-task.sh",
+      "dependencies": [
+        "Task-B-0002"
+      ],
+      "acceptanceCriteria": [
+        "Button visible on ModelDetailSettingsTab",
+        "Button disabled when no benchmark match (check via useBenchmarkComparison enabled state or data)",
+        "Clicking button opens BenchmarkComparisonDialog",
+        "Importing a field updates the form state via onImportField",
+        "Toast confirmation shown on import",
+        "Dialog closes and reopens with fresh data"
+      ],
+      "requirements": [
+        "REQ-1",
+        "REQ-3"
+      ],
+      "rules": [
+        "Edit apps/web/src/features/models/detail/model-detail-settings-tab.tsx",
+        "Use existing model context and form state",
+        "Use Scale icon from lucide-react",
+        "Use toast from sonner",
+        "Follow existing component patterns in the file"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Add button and dialog to ModelDetailSettingsTab",
+          "description": "Import BenchmarkComparisonDialog, add state for dialog open, add Button with Scale icon, wire onImportField to update form state, add toast on import",
+          "command": "Edit apps/web/src/features/models/detail/model-detail-settings-tab.tsx",
+          "expectedResult": "Button renders, dialog opens, import works",
+          "codeExample": "import { useState } from react; import { Scale } from lucide-react; import { toast } from sonner; import { BenchmarkComparisonDialog } from @/features/models/components/benchmark-comparison-dialog; // Inside component: const [comparisonOpen, setComparisonOpen] = useState(false); // In JSX, before or after ModelConfigForm: <Button variant=\"outline\" size=\"sm\" onClick={() => setComparisonOpen(true)}> <Scale className=\"h-4 w-4 mr-2\" /> Comparar Benchmarks </Button> <BenchmarkComparisonDialog open={comparisonOpen} onOpenChange={setComparisonOpen} modelName={model.modelName} currentValues={formData} onImportField={(key, value, source) => { updateField(key, value); toast.success(`Campo \"${key}\" importado de ${source}`); }} />"
+        },
+        {
+          "order": 2,
+          "title": "Run typecheck",
+          "description": "Verify all types compile correctly",
+          "command": "pnpm typecheck",
+          "expectedResult": "pnpm typecheck exits 0",
+          "codeExample": "pnpm typecheck"
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/detail/model-detail-settings-tab.tsx"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/web/src/features/models/detail/model-detail-settings-tab.tsx",
+          "apps/web/src/features/models/components/benchmark-comparison-dialog.tsx"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    }
+  ]
+}

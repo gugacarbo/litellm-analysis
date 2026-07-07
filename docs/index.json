@@ -136,5 +136,27 @@
     ],
     "superseded-by": null,
     "implemented-by": []
+  },
+  {
+    "id": "SPEC-0008",
+    "path": "docs/specs/0008-benchmark-comparison-dialog-spec.md",
+    "layer": "specs",
+    "title": "Botão na tela de settings do modelo que abre um dialog comparativo entre AA e OpenRouter com importação campo a campo",
+    "status": "implemented",
+    "builds-on": [
+      "SPEC-0006",
+      "SPEC-0007"
+    ],
+    "superseded-by": null,
+    "implemented-by": [
+      "packages/contracts/src/benchmarks.ts",
+      "packages/server/src/orchestration/openrouter-models.ts",
+      "packages/server/src/orchestration/benchmark-helpers.ts",
+      "packages/server/src/routes/model-routes.ts",
+      "apps/web/src/shared/lib/api-client/models.ts",
+      "apps/web/src/features/models/hooks/use-benchmark-comparison.ts",
+      "apps/web/src/features/models/components/benchmark-comparison-dialog.tsx",
+      "apps/web/src/features/models/detail/model-detail-settings-tab.tsx"
+    ]
   }
 ]
