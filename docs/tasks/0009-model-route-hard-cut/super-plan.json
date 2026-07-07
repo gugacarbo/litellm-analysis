@@ -179,7 +179,7 @@
       "id": "REQ-3",
       "title": "Server runtime no longer carries parallel route shapes for the same semantics",
       "source": "SPEC-0009 Fluxo 8; Contrato - Superficies que devem convergir",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "Model route flows in model-routes.ts operate on the canonical route contract where semantics overlap",
         "Any surviving non-route config shape is explicitly isolated and named",
@@ -388,7 +388,7 @@
       "id": "Task-C-0009",
       "title": "Collapse parallel route and config handling in the server runtime",
       "description": "Remove the remaining runtime duplication where the server carries an alternate shape for information already owned by ModelRoute.",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "task_profile": "deep",
       "batch": "C",

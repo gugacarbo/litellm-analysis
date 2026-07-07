@@ -1,3 +1,5 @@
+import type { ModelRoute } from "@/shared/lib/api-client/models";
+
 function formatCost(value: unknown): string {
   if (value === null || value === undefined) return "-";
   const num = Number(value);
@@ -5,12 +7,12 @@ function formatCost(value: unknown): string {
   return `$${(num * 1_000_000).toFixed(2)}/Mi`;
 }
 
-export function getInputCost(params: Record<string, unknown>): string {
-  return formatCost(params?.input_cost_per_token);
+export function getInputCost(route: ModelRoute): string {
+  return formatCost(route.inputCostPerToken);
 }
 
-export function getOutputCost(params: Record<string, unknown>): string {
-  return formatCost(params?.output_cost_per_token);
+export function getOutputCost(route: ModelRoute): string {
+  return formatCost(route.outputCostPerToken);
 }
 
 function formatTokenCount(value: unknown): string {
@@ -26,10 +28,10 @@ function formatTokenCount(value: unknown): string {
   return num.toString();
 }
 
-export function getContextWindow(params: Record<string, unknown>): string {
-  return formatTokenCount(params?.context_window_size);
+export function getContextWindow(route: ModelRoute): string {
+  return formatTokenCount(route.contextWindowSize);
 }
 
-export function getMaxOutput(params: Record<string, unknown>): string {
-  return formatTokenCount(params?.max_tokens);
+export function getMaxOutput(route: ModelRoute): string {
+  return formatTokenCount(route.maxOutputTokens);
 }

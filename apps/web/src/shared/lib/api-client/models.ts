@@ -28,6 +28,7 @@ export type ModelRoute = {
   providerName?: string;
   secretRef?: string;
   requestOptions?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 };
 
 export type ModelRouteUpdate = Partial<Omit<ModelRoute, "modelName">>;
