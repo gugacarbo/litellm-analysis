@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import type { db as drizzleDb } from "@lite-llm/database/client";
 import { modelProxySettings } from "@lite-llm/database/schema";
 import { asc, eq } from "drizzle-orm";
@@ -46,7 +47,7 @@ export class SettingsRepository {
   async upsert(key: string, value: unknown): Promise<ModelProxySettingRecord> {
     const [row] = await this.db
       .insert(modelProxySettings)
-      .values({ key, value: value as never })
+      .values({ id: crypto.randomUUID(), key, value: value as never })
       .onConflictDoUpdate({
         target: modelProxySettings.key,
         set: { value: value as never, updatedAt: new Date() },

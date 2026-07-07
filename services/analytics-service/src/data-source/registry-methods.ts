@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { db } from "@lite-llm/database/client";
 import {
   modelProxyModels,
@@ -226,6 +227,7 @@ export async function setRegistryDefaultProviderImpl(
   await db
     .insert(modelProxySettings)
     .values({
+      id: crypto.randomUUID(),
       key: DEFAULT_PROVIDER_KEY,
       value: { default_provider: providerAlias.trim() },
     })

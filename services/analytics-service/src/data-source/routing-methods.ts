@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { createRepositoryClient } from "@lite-llm/agents-manager";
 import { db } from "@lite-llm/database/client";
 import { modelProxySettings } from "@lite-llm/database/schema/model-proxy";
@@ -114,6 +115,7 @@ export async function updateAgentRoutingConfigImpl(
   await db
     .insert(modelProxySettings)
     .values({
+      id: crypto.randomUUID(),
       key: ROUTER_SETTINGS_KEY,
       value: jsonValue,
     })
