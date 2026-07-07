@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { cn } from "@/shared/lib/utils";
 
 export interface PageLayoutProps {
   title?: string;
@@ -10,6 +11,7 @@ export interface PageLayoutProps {
   buttons?: ReactNode;
   variant?: "default" | "flex";
   children?: ReactNode;
+  className?: string;
 }
 
 export function PageLayout({
@@ -21,13 +23,14 @@ export function PageLayout({
   buttons,
   variant = "default",
   children,
+  className,
 }: PageLayoutProps) {
   const containerClass = variant === "flex" ? "flex flex-col gap-3" : "";
   const hasRightContent = (showFilters && filters) || buttons;
   const hasHeader = Boolean(title) || Boolean(Icon) || hasRightContent;
 
   return (
-    <div className={`min-w-0 px-4 ${containerClass}`}>
+    <div className={cn("min-w-0 px-4", containerClass, className)}>
       {hasHeader && (
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-0">
