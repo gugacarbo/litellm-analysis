@@ -118,7 +118,7 @@ export function buildConfigFromFormData(
   formData: ModelConfigFormData,
 ): ModelConfig["config"] {
   const config: ModelConfig["config"] = {
-    displayName: formData.displayName || undefined,
+    displayName: formData.displayName,
     family: formData.family || undefined,
     ownedBy: "",
     apiMode: formData.apiMode || undefined,

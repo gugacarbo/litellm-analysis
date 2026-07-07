@@ -7,6 +7,7 @@ import { useModelDetailContext } from "./detail/model-detail-context";
 import {
   type ModelConfigFormData,
   type UseModelConfigFormResult,
+  modelToFormData,
   useModelConfigForm,
 } from "./hooks/use-model-config-form";
 import {
@@ -40,14 +41,16 @@ export function useModelConfigPage(): ModelConfigController {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const onSaved = useCallback(() => {
-    formHook.commitSavedFormData(formHook.formData);
+  const onSaved = useCallback((savedModel: ModelWithStatus | null) => {
+    formHook.commitSavedFormData(
+      savedModel ? modelToFormData(savedModel) : formHook.formData,
+    );
     aliasesState.commitSavedAliases(aliasesState.normalizedAliases);
   }, [
     formHook.commitSavedFormData,
     formHook.formData,
-    aliasesState.commitSavedAliases,
     aliasesState.normalizedAliases,
+    aliasesState.commitSavedAliases,
   ]);
 
   const { saving, save } = useModelConfigSave({

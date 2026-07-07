@@ -158,5 +158,18 @@
       "apps/web/src/features/models/components/benchmark-comparison-dialog.tsx",
       "apps/web/src/features/models/detail/model-detail-settings-tab.tsx"
     ]
+  },
+  {
+    "id": "SPEC-0009",
+    "path": "docs/specs/0009-model-route-hard-cut-spec.md",
+    "layer": "specs",
+    "title": "ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters",
+    "status": "draft",
+    "builds-on": [
+      "SPEC-0002",
+      "SPEC-0003"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
   }
 ]

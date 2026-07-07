@@ -84,66 +84,77 @@
       "id": "REQ-001",
       "title": "Tabela model_proxy_benchmarks com 27 colunas tipadas + metadados",
       "source": "spec \u00a7Contract",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "Tabela existe no schema Drizzle",
         "Migration gerada e aplic\u00e1vel",
         "Colunas correspondem aos campos de NormalizedModelBenchmark"
       ],
-      "coveredByTasks": ["Task-A-0001"],
+      "coveredByTasks": [
+        "Task-A-0001"
+      ],
       "notes": []
     },
     {
       "id": "REQ-002",
       "title": "Pacote benchmarks-repository com CRUD",
       "source": "spec \u00a7Contract",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "Interface IBenchmarksRepository definida",
         "Implementa\u00e7\u00e3o DbBenchmarksRepository com upsert/getAll/getByAaModelId/count/clear",
         "Testes com pg-mem passam"
       ],
-      "coveredByTasks": ["Task-A-0002"],
+      "coveredByTasks": [
+        "Task-A-0002"
+      ],
       "notes": []
     },
     {
       "id": "REQ-003",
       "title": "Sync script escreve no banco",
       "source": "spec \u00a7Flow.7-8",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "Script chama clear() antes de upsert()",
         "JSON de fallback continua sendo salvo",
         "Erro de banco n\u00e3o interrompe salvamento de JSON"
       ],
-      "coveredByTasks": ["Task-B-0001"],
+      "coveredByTasks": [
+        "Task-B-0001"
+      ],
       "notes": []
     },
     {
       "id": "REQ-004",
       "title": "API l\u00ea benchmarks do banco",
       "source": "spec \u00a7Flow.9",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "GET /benchmarks/models retorna dados do banco",
         "isConfigured e matchedConfiguredModel preenchidos via JOIN com model_proxy_models",
         "Formato de resposta compat\u00edvel com ModelBenchmarkApiResponse"
       ],
-      "coveredByTasks": ["Task-C-0001"],
+      "coveredByTasks": [
+        "Task-C-0001"
+      ],
       "notes": []
     },
     {
       "id": "REQ-005",
       "title": "Edge cases cobertos",
       "source": "spec \u00a7Edge cases",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "Banco vazio retorna models: []",
         "Full replace no sync (clear + upsert)",
         "Modelos removidos entre syncs s\u00e3o limpos",
         "Banco indispon\u00edvel n\u00e3o quebra JSON fallback"
       ],
-      "coveredByTasks": ["Task-B-0001", "Task-C-0001"],
+      "coveredByTasks": [
+        "Task-B-0001",
+        "Task-C-0001"
+      ],
       "notes": []
     }
   ],
@@ -159,7 +170,7 @@
       "id": "Task-A-0001",
       "title": "Adicionar tabela model_proxy_benchmarks ao schema Drizzle",
       "description": "Adicionar a defini\u00e7\u00e3o da tabela modelProxyBenchmarks em repositories/database/src/schema/model-proxy.ts com 27 colunas tipadas + metadados, exportar os tipos, e gerar a migration.",
-      "status": "ready_for_review",
+      "status": "completed",
       "tryCount": 1,
       "batch": "A",
       "phase": "foundation",
@@ -175,7 +186,9 @@
         "Migration gerada com pnpm --filter @lite-llm/database db:generate",
         "pnpm typecheck passa"
       ],
-      "requirements": ["REQ-001"],
+      "requirements": [
+        "REQ-001"
+      ],
       "rules": [
         "Seguir o padr\u00e3o de nomenclatura das tabelas existentes (snake_case no banco, camelCase no Drizzle)",
         "Usar doublePrecision para campos num\u00e9ricos nullable",
@@ -216,19 +229,24 @@
           "codeExample": null
         }
       ],
-      "filesTouched": ["repositories/database/src/schema/model-proxy.ts"],
+      "filesTouched": [
+        "repositories/database/src/schema/model-proxy.ts"
+      ],
       "files": {
         "created": [],
-        "modified": ["repositories/database/src/schema/model-proxy.ts"],
+        "modified": [
+          "repositories/database/src/schema/model-proxy.ts"
+        ],
         "deleted": []
       },
-      "notes": []
+      "notes": [],
+      "task_profile": "general"
     },
     {
       "id": "Task-A-0002",
       "title": "Criar pacote benchmarks-repository",
       "description": "Criar o pacote @lite-llm/benchmarks-repository em repositories/benchmarks-repository/ com package.json, tsconfig.json, interface IBenchmarksRepository, implementa\u00e7\u00e3o DbBenchmarksRepository, e testes com pg-mem.",
-      "status": "ready_for_review",
+      "status": "completed",
       "tryCount": 1,
       "batch": "A",
       "phase": "foundation",
@@ -236,7 +254,9 @@
       "reviewPackage": "docs/tasks/0006-benchmarks-database-storage/Task-A-0002/review-package.diff.md",
       "progressLog": "docs/tasks/0006-benchmarks-database-storage/Task-A-0002/progress.log",
       "logTaskScript": "docs/tasks/0006-benchmarks-database-storage/Task-A-0002/log-task.sh",
-      "dependencies": ["Task-A-0001"],
+      "dependencies": [
+        "Task-A-0001"
+      ],
       "acceptanceCriteria": [
         "Pacote criado com package.json, tsconfig.json",
         "Interface IBenchmarksRepository com upsert, getAll, getByAaModelId, count, clear",
@@ -245,7 +265,9 @@
         "Testes com pg-mem passam (upsert, getAll, clear, count)",
         "pnpm typecheck passa"
       ],
-      "requirements": ["REQ-002"],
+      "requirements": [
+        "REQ-002"
+      ],
       "rules": [
         "Seguir padr\u00e3o de DbModelsRepository (repositories/models-repository/src/db-repository.ts)",
         "Usar pg-mem para testes (CONVENTIONS.md)",
@@ -322,13 +344,14 @@
         "modified": [],
         "deleted": []
       },
-      "notes": []
+      "notes": [],
+      "task_profile": "general"
     },
     {
       "id": "Task-B-0001",
       "title": "Atualizar sync script para escrever no banco",
       "description": "Modificar scripts/src/sync-aa-benchmarks/index.ts para, ap\u00f3s normalizar e salvar JSONs, tamb\u00e9m escrever os dados no banco via IBenchmarksRepository. Adicionar @lite-llm/benchmarks-repository como depend\u00eancia do pacote scripts.",
-      "status": "ready_for_review",
+      "status": "completed",
       "tryCount": 1,
       "batch": "B",
       "phase": "core",
@@ -336,7 +359,9 @@
       "reviewPackage": "docs/tasks/0006-benchmarks-database-storage/Task-B-0001/review-package.diff.md",
       "progressLog": "docs/tasks/0006-benchmarks-database-storage/Task-B-0001/progress.log",
       "logTaskScript": "docs/tasks/0006-benchmarks-database-storage/Task-B-0001/log-task.sh",
-      "dependencies": ["Task-A-0002"],
+      "dependencies": [
+        "Task-A-0002"
+      ],
       "acceptanceCriteria": [
         "Sync script chama benchmarksRepository.clear() antes de upsert()",
         "Dados normalizados s\u00e3o persistidos no banco",
@@ -344,7 +369,10 @@
         "Erro de banco n\u00e3o interrompe salvamento de JSON (try/catch)",
         "pnpm typecheck passa"
       ],
-      "requirements": ["REQ-003", "REQ-005"],
+      "requirements": [
+        "REQ-003",
+        "REQ-005"
+      ],
       "rules": [
         "Manter comportamento existente de salvar JSONs",
         "Adicionar escrita no banco como passo adicional (n\u00e3o substituto)",
@@ -389,13 +417,14 @@
         ],
         "deleted": []
       },
-      "notes": []
+      "notes": [],
+      "task_profile": "general"
     },
     {
       "id": "Task-C-0001",
       "title": "Adaptar API de benchmarks para ler do banco",
       "description": "Modificar apps/server/src/runtime/api-server.ts para que GET /benchmarks/models leia do banco via IBenchmarksRepository em vez de JSON. Atualizar benchmark-sync-application-service.ts para verificar exist\u00eancia no banco. Adicionar depend\u00eancia no package.json do server.",
-      "status": "ready_for_review",
+      "status": "completed",
       "tryCount": 1,
       "batch": "C",
       "phase": "surface",
@@ -403,7 +432,9 @@
       "reviewPackage": "docs/tasks/0006-benchmarks-database-storage/Task-C-0001/review-package.diff.md",
       "progressLog": "docs/tasks/0006-benchmarks-database-storage/Task-C-0001/progress.log",
       "logTaskScript": "docs/tasks/0006-benchmarks-database-storage/Task-C-0001/log-task.sh",
-      "dependencies": ["Task-B-0001"],
+      "dependencies": [
+        "Task-B-0001"
+      ],
       "acceptanceCriteria": [
         "GET /benchmarks/models retorna dados do banco",
         "isConfigured e matchedConfiguredModel preenchidos via JOIN/merge com model_proxy_models",
@@ -411,7 +442,10 @@
         "datasetExists verifica contagem no banco (> 0)",
         "pnpm typecheck passa"
       ],
-      "requirements": ["REQ-004", "REQ-005"],
+      "requirements": [
+        "REQ-004",
+        "REQ-005"
+      ],
       "rules": [
         "Manter compatibilidade total com ModelBenchmarkApiResponse",
         "Preservar l\u00f3gica de matching (toMatchKeys, suffixTolerantMatch, aliases)",
@@ -474,7 +508,22 @@
         ],
         "deleted": []
       },
-      "notes": []
+      "notes": [],
+      "task_profile": "general"
     }
-  ]
+  ],
+  "agents": {
+    "general": {
+      "model": "",
+      "agent": ""
+    },
+    "deep": {
+      "model": "",
+      "agent": ""
+    },
+    "quick": {
+      "model": "",
+      "agent": ""
+    }
+  }
 }

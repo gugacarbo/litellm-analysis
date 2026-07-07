@@ -120,7 +120,7 @@ function modelRowFromSpec(
     modelName,
     providerName,
     enabled: spec.enabled ?? true,
-    displayName: spec.displayName || modelName,
+    displayName: spec.displayName ?? modelName,
     family: spec.family ?? null,
     ownedBy: spec.ownedBy ?? null,
     apiMode: spec.apiMode ?? null,

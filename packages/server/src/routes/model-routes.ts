@@ -254,7 +254,7 @@ function configSliceFromSpec(spec?: PersistedModelConfigSpec):
   }
 
   return {
-    ...(spec.displayName ? { displayName: spec.displayName } : {}),
+    displayName: spec.displayName,
     ...(spec.family ? { family: spec.family } : {}),
     ...(spec.ownedBy ? { ownedBy: spec.ownedBy } : {}),
     ...(spec.apiMode ? { apiMode: spec.apiMode } : {}),

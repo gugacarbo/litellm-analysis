@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   type ModelConfig,
   type ModelRouteUpdate,
+  type ModelsWithConfigResponse,
   type ModelWithStatus,
   resolveModelRoute,
   updateModel,
@@ -21,7 +22,7 @@ export interface UseModelConfigSaveArgs {
   formData: ModelConfigFormData;
   aliasesState: UseModelAliasesResult;
   queryClient: QueryClient;
-  onSaved: () => void;
+  onSaved: (savedModel: ModelWithStatus | null) => void;
 }
 
 export interface UseModelConfigSaveResult {
@@ -48,6 +49,20 @@ export function useModelConfigSave(
         params.config,
       ),
   });
+
+  const readSavedModelFromCache = useCallback((): ModelWithStatus | null => {
+    if (!model) {
+      return null;
+    }
+
+    const cached = queryClient.getQueryData<ModelsWithConfigResponse>([
+      "models-with-config",
+    ]);
+    return (
+      cached?.models.find((entry) => entry.modelName === model.modelName) ??
+      null
+    );
+  }, [model, queryClient]);
 
   const save = useCallback(async () => {
     if (!model) return;
@@ -143,7 +158,7 @@ export function useModelConfigSave(
           queryKey: ["model-aliases", model.modelName],
         });
 
-        onSaved();
+        onSaved(readSavedModelFromCache());
 
         toast.error(
           "Model settings saved, but routing aliases were not loaded, so " +
@@ -162,7 +177,7 @@ export function useModelConfigSave(
           queryKey: ["model-aliases", model.modelName],
         });
 
-        onSaved();
+        onSaved(readSavedModelFromCache());
 
         toast.success("Model configuration and routing aliases saved");
       } catch (aliasError) {
@@ -183,7 +198,15 @@ export function useModelConfigSave(
     } finally {
       setIsSaving(false);
     }
-  }, [model, formData, aliasesState, queryClient, onSaved, updateMutation]);
+  }, [
+    model,
+    formData,
+    aliasesState,
+    queryClient,
+    onSaved,
+    readSavedModelFromCache,
+    updateMutation,
+  ]);
 
   return {
     saving: isSaving || updateMutation.isPending,
