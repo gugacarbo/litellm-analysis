@@ -5,7 +5,7 @@
       "type": "frame",
       "id": "u74O67",
       "x": 40,
-      "y": 800,
+      "y": 760,
       "name": "Component / Label",
       "theme": {
         "mode": "dark"
@@ -30,7 +30,7 @@
       "type": "frame",
       "id": "IoP4E",
       "x": 40,
-      "y": 960,
+      "y": 1131,
       "name": "Component / Button",
       "theme": {
         "mode": "dark"
@@ -81,7 +81,7 @@
       "type": "frame",
       "id": "wVLV3",
       "x": 40,
-      "y": 880,
+      "y": 928,
       "name": "Component / Badge",
       "theme": {
         "mode": "dark"
@@ -119,7 +119,7 @@
       "type": "frame",
       "id": "v6Zl9L",
       "x": 40,
-      "y": 1040,
+      "y": 1223,
       "name": "Component / Input",
       "width": 200,
       "height": 32,
@@ -138,7 +138,7 @@
       "type": "frame",
       "id": "fB40M",
       "x": 40,
-      "y": 1120,
+      "y": 1727,
       "name": "Component / Textarea",
       "theme": {
         "mode": "dark"
@@ -172,7 +172,7 @@
       "type": "frame",
       "id": "g6QnsK",
       "x": 40,
-      "y": 1200,
+      "y": 2100,
       "name": "Component / Checkbox",
       "theme": {
         "mode": "dark"
@@ -207,7 +207,7 @@
       "type": "frame",
       "id": "fRRGU",
       "x": 40,
-      "y": 1280,
+      "y": 2423,
       "name": "Component / Switch",
       "theme": {
         "mode": "dark"
@@ -245,7 +245,7 @@
       "type": "frame",
       "id": "OEBjI",
       "x": 40,
-      "y": 1360,
+      "y": 2503,
       "name": "Component / Slider",
       "theme": {
         "mode": "dark"
@@ -301,7 +301,7 @@
       "type": "rectangle",
       "id": "m8tkE",
       "x": 40,
-      "y": 1440,
+      "y": 2709,
       "name": "Component / Separator",
       "theme": {
         "mode": "dark"
@@ -315,7 +315,7 @@
       "type": "frame",
       "id": "txMJS",
       "x": 40,
-      "y": 1520,
+      "y": 2964,
       "name": "Component / Skeleton",
       "theme": {
         "mode": "dark"
@@ -331,7 +331,7 @@
       "type": "frame",
       "id": "CQIup",
       "x": 40,
-      "y": 1600,
+      "y": 3158,
       "name": "Component / Card",
       "theme": {
         "mode": "dark"
@@ -491,7 +491,7 @@
       "type": "frame",
       "id": "Zr7zg",
       "x": 40,
-      "y": 1680,
+      "y": 3397,
       "name": "Component / Select",
       "theme": {
         "mode": "dark"
@@ -679,7 +679,7 @@
       "type": "frame",
       "id": "M4Knm",
       "x": 40,
-      "y": 1760,
+      "y": 3956,
       "name": "Component / Tabs",
       "theme": {
         "mode": "dark"
@@ -813,12 +813,13 @@
       "type": "frame",
       "id": "lUgDT",
       "x": 40,
-      "y": 1840,
+      "y": 4089,
       "name": "Component / Tooltip",
       "theme": {
         "mode": "dark"
       },
       "reusable": true,
+      "height": 36,
       "fill": "$foreground",
       "cornerRadius": "$radius-md",
       "layout": "vertical",
@@ -866,7 +867,7 @@
       "type": "frame",
       "id": "V1P4c3",
       "x": 40,
-      "y": 1920,
+      "y": 4235,
       "name": "Component / Table",
       "theme": {
         "mode": "dark"
@@ -1033,7 +1034,7 @@
       "type": "frame",
       "id": "YxO0F",
       "x": 40,
-      "y": 2000,
+      "y": 4388,
       "name": "Component / Dialog",
       "theme": {
         "mode": "dark"
@@ -1125,7 +1126,7 @@
       "type": "frame",
       "id": "n3Qh9S",
       "x": 40,
-      "y": 2080,
+      "y": 4595,
       "name": "Component / Sheet",
       "theme": {
         "mode": "dark"
@@ -1285,7 +1286,7 @@
       "type": "frame",
       "id": "FjE8S",
       "x": 40,
-      "y": 2160,
+      "y": 4895,
       "name": "Component / EmptyState",
       "theme": {
         "mode": "dark"
@@ -1339,7 +1340,7 @@
       "type": "frame",
       "id": "qkrLm",
       "x": 40,
-      "y": 2240,
+      "y": 5081,
       "name": "Component / PageLayout",
       "theme": {
         "mode": "dark"
@@ -1400,7 +1401,7 @@
       "type": "frame",
       "id": "OngwR",
       "x": 40,
-      "y": 2320,
+      "y": 5232,
       "name": "Component / CollapsibleSection",
       "theme": {
         "mode": "dark"
@@ -1457,7 +1458,7 @@
       "type": "frame",
       "id": "T2IxUE",
       "x": 40,
-      "y": 2400,
+      "y": 5333,
       "name": "Component / AlertDialog",
       "theme": {
         "mode": "dark"
@@ -1533,7 +1534,7 @@
       "type": "frame",
       "id": "SbQZr",
       "x": 40,
-      "y": 2480,
+      "y": 5544,
       "name": "Component / Popover",
       "theme": {
         "mode": "dark"
@@ -1576,7 +1577,7 @@
       "type": "frame",
       "id": "J8oURc",
       "x": 40,
-      "y": 2560,
+      "y": 5684,
       "name": "Component / DropdownMenu",
       "theme": {
         "mode": "dark"
@@ -1701,7 +1702,7 @@
       "type": "frame",
       "id": "i02yzf",
       "x": 40,
-      "y": 2640,
+      "y": 5890,
       "name": "Component / Command",
       "theme": {
         "mode": "dark"
@@ -1874,7 +1875,7 @@
       "type": "frame",
       "id": "jhti5",
       "x": 40,
-      "y": 2720,
+      "y": 6135,
       "name": "Component / Calendar",
       "theme": {
         "mode": "dark"
@@ -2825,7 +2826,7 @@
       "type": "frame",
       "id": "ti57r",
       "x": 40,
-      "y": 2800,
+      "y": 6467,
       "name": "Component / Pagination",
       "theme": {
         "mode": "dark"
@@ -2911,7 +2912,7 @@
       "type": "frame",
       "id": "KcVdB",
       "x": 40,
-      "y": 2880,
+      "y": 6567,
       "name": "Component / DetailRow",
       "theme": {
         "mode": "dark"
@@ -3026,7 +3027,7 @@
       "type": "frame",
       "id": "y9iUN",
       "x": 40,
-      "y": 2960,
+      "y": 6743,
       "name": "Component / JSONViewer",
       "theme": {
         "mode": "dark"
@@ -3081,7 +3082,7 @@
       "type": "frame",
       "id": "hByki",
       "x": 40,
-      "y": 3040,
+      "y": 6880,
       "name": "Component / Sidebar",
       "theme": {
         "mode": "dark"
@@ -3240,7 +3241,7 @@
       "type": "frame",
       "id": "IrQAU",
       "x": 40,
-      "y": 3120,
+      "y": 7240,
       "name": "Component / ChartTooltip",
       "theme": {
         "mode": "dark"
@@ -4958,8 +4959,8 @@
     {
       "type": "frame",
       "id": "P6Z60",
-      "x": 480,
-      "y": 800,
+      "x": 280,
+      "y": 760,
       "name": "Label Showcase",
       "theme": {
         "mode": "dark"
@@ -5009,8 +5010,8 @@
     {
       "type": "frame",
       "id": "v8IGw",
-      "x": 480,
-      "y": 1200,
+      "x": 280,
+      "y": 2709,
       "name": "Separator Showcase",
       "theme": {
         "mode": "dark"
@@ -5102,8 +5103,8 @@
     {
       "type": "frame",
       "id": "BKCNK",
-      "x": 480,
-      "y": 880,
+      "x": 280,
+      "y": 928,
       "name": "Badge showcase",
       "theme": {
         "mode": "dark"
@@ -5655,8 +5656,8 @@
     {
       "type": "frame",
       "id": "Vy9G3",
-      "x": 480,
-      "y": 1120,
+      "x": 280,
+      "y": 2100,
       "name": "Checkbox Showcase",
       "theme": {
         "mode": "dark"
@@ -5882,8 +5883,8 @@
     {
       "type": "frame",
       "id": "d6TgD",
-      "x": 880,
-      "y": 960,
+      "x": 280,
+      "y": 2503,
       "name": "Slider Showcase",
       "theme": {
         "mode": "dark"
@@ -5992,8 +5993,8 @@
     {
       "type": "frame",
       "id": "DHsOq",
-      "x": 480,
-      "y": 1040,
+      "x": 280,
+      "y": 1223,
       "name": "Input Showcase",
       "theme": {
         "mode": "dark"
@@ -6242,8 +6243,8 @@
     {
       "type": "frame",
       "id": "T7HKv",
-      "x": 880,
-      "y": 1040,
+      "x": 520,
+      "y": 1223,
       "name": "Input Showcase",
       "clip": true,
       "width": 360,
@@ -6574,8 +6575,8 @@
     {
       "type": "frame",
       "id": "R3Jle",
-      "x": 480,
-      "y": 1280,
+      "x": 280,
+      "y": 2964,
       "name": "Skeleton Showcase",
       "clip": true,
       "width": 360,
@@ -6671,8 +6672,8 @@
     {
       "type": "frame",
       "id": "k4763",
-      "x": 880,
-      "y": 1120,
+      "x": 520,
+      "y": 2100,
       "name": "Checkbox States Showcase",
       "clip": true,
       "width": 360,
@@ -6980,8 +6981,8 @@
     {
       "type": "frame",
       "id": "WRREa",
-      "x": 480,
-      "y": 1360,
+      "x": 280,
+      "y": 1727,
       "name": "Textarea showcase",
       "clip": true,
       "width": 360,
@@ -7218,8 +7219,8 @@
     {
       "type": "frame",
       "id": "SxnOX",
-      "x": 480,
-      "y": 960,
+      "x": 520,
+      "y": 2503,
       "name": "Slider States Showcase",
       "clip": true,
       "width": 360,
@@ -7401,8 +7402,8 @@
     {
       "type": "frame",
       "id": "ANHKT",
-      "x": 480,
-      "y": 1440,
+      "x": 280,
+      "y": 3397,
       "name": "Select Showcase",
       "clip": true,
       "width": 360,
@@ -7582,10 +7583,11 @@
     {
       "type": "frame",
       "id": "tls0W",
-      "x": 480,
-      "y": 1520,
+      "x": 280,
+      "y": 4089,
       "name": "Tooltip showcase",
       "width": 320,
+      "height": 110,
       "fill": "$background",
       "gap": "$spacing-sm",
       "padding": "$spacing-md",
@@ -7607,6 +7609,7 @@
           "type": "ref",
           "ref": "lUgDT",
           "name": "Long tooltip",
+          "height": 60,
           "descendants": {
             "CqFnj": {
               "content": "This tooltip has a much longer explanation",
@@ -7620,6 +7623,7 @@
           "type": "ref",
           "ref": "lUgDT",
           "name": "Icon tooltip",
+          "height": 40,
           "descendants": {
             "CqFnj": {
               "type": "frame",
