@@ -5,4 +5,4 @@ export { modelsConfigSchema } from "./models-config";
 export type { Provider } from "./provider";
 export { providerSchema } from "./provider";
 export type { ReasoningConfig } from "./thinking";
-export { reasoningSchema } from "./thinking";
+export { reasoningSchema, reasoningSchema as thinkingSchema } from "./thinking";

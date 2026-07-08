@@ -1,12 +1,14 @@
 export * from "./model-route.js";
 export * from "./providers.js";
+export * from "./settings.js";
+export * from "./sync-status.js";
 
 export {
   ReasoningSchema,
   EffortSchema,
   type Reasoning,
   type Effort,
-} from "@/schemas/thinking.js";
+} from "../schemas/thinking.js";
 
 export {
   ModelConfigSchema,
@@ -16,4 +18,4 @@ export {
   type SupportedParameters,
   type DefaultParameters,
   type PerRequestLimits,
-} from "@/schemas/model.js";
+} from "../schemas/model.js";

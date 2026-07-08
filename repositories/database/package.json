@@ -8,6 +8,7 @@
     "./client": "./src/client.ts",
     "./schema": "./src/schema/index.ts",
     "./schema/model-proxy": "./src/schema/model-proxy.ts",
+    "./schema/model-proxy-types": "./src/schema/model-proxy-types.ts",
     "./schema/app": "./src/schema/app.ts",
     "./queries": "./src/queries.ts",
     "./test-helpers": "./src/test-helpers/createTestDb.ts"
@@ -23,7 +24,8 @@
   "dependencies": {
     "@lite-llm/config": "workspace:*",
     "drizzle-orm": "catalog:",
-    "pg": "^8.14.0"
+    "pg": "^8.14.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

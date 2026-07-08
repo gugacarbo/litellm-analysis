@@ -1,14 +1,13 @@
 import type { DatabaseClient } from "@lite-llm/database/client";
-import {
-  type ModelsListOptions,
-  ModelsRepository,
-  toModelRoute,
-} from "../repositories/models-repository.js";
+import { ModelsRepository } from "../repositories/models-repository.js";
+import { toModelRoute } from "../adapters/model-route-adapter.js";
 import type {
   ModelProxyModelRecord,
   ModelRoute,
   ModelRouteUpdate,
 } from "../types/model-route.js";
+
+export type ModelsListOptions = Record<string, unknown>;
 
 export interface RegistryModelsServiceOptions {
   db?: DatabaseClient;
@@ -55,9 +54,11 @@ export class RegistryModelsService implements IRegistryModelsService {
     return this.repository.list(options);
   }
 
-  async listRoutes(options?: ModelsListOptions): Promise<ModelRoute[]> {
-    const records = await this.repository.list(options);
-    return records.map(toModelRoute);
+  async listRoutes(_options?: ModelsListOptions): Promise<ModelRoute[]> {
+    const records = await this.repository.list();
+    return records.map((r) =>
+      toModelRoute({ providerName: "", model: r as unknown as import("../schemas/model.js").ModelConfig }),
+    );
   }
 
   async get(modelName: string): Promise<ModelProxyModelRecord | null> {
@@ -66,7 +67,9 @@ export class RegistryModelsService implements IRegistryModelsService {
 
   async getRoute(modelName: string): Promise<ModelRoute | null> {
     const record = await this.repository.findByModelName(modelName);
-    return record ? toModelRoute(record) : null;
+    return record
+      ? toModelRoute({ providerName: "", model: record as unknown as import("../schemas/model.js").ModelConfig })
+      : null;
   }
 
   async create(
@@ -83,14 +86,14 @@ export class RegistryModelsService implements IRegistryModelsService {
       throw new Error(`Model "${trimmed}" already exists`);
     }
 
-    return this.repository.create(trimmed, route);
+    return this.repository.createModel(trimmed, route as Record<string, unknown>);
   }
 
   async update(
     modelName: string,
     route: ModelRouteUpdate,
   ): Promise<ModelProxyModelRecord> {
-    const updated = await this.repository.update(modelName, route);
+    const updated = await this.repository.updateModel(modelName, route as Record<string, unknown>);
     if (!updated) {
       throw new Error(`Model "${modelName}" not found`);
     }
@@ -105,7 +108,7 @@ export class RegistryModelsService implements IRegistryModelsService {
     if (!trimmed) {
       throw new Error("modelName must be a non-empty string");
     }
-    return this.repository.upsert(trimmed, route);
+    return this.repository.upsertModel(trimmed, route as Record<string, unknown>);
   }
 
   async enable(modelName: string): Promise<ModelProxyModelRecord> {
@@ -125,6 +128,8 @@ export class RegistryModelsService implements IRegistryModelsService {
   }
 
   async delete(modelName: string): Promise<boolean> {
-    return this.repository.delete(modelName);
+    const existing = await this.repository.findByModelName(modelName);
+    if (!existing) return false;
+    return this.repository.delete(existing.id);
   }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ModelConfig } from "@/schemas/model.js";
+import type { ModelConfig } from "../../schemas/model.js";
 import { toModelRoute } from "../model-route-adapter.js";
 
 const buildModelConfig = (overrides: Partial<ModelConfig> = {}): ModelConfig => ({

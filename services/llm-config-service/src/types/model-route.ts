@@ -2,6 +2,16 @@
  * Structured model routing config for `model_proxy_models`.
  */
 
+import type {
+  Architecture,
+  DefaultParameters,
+  PerRequestLimits,
+  Pricing,
+  Reasoning,
+  RequestOptions,
+  SupportedParameters,
+} from "@lite-llm/database/schema/model-proxy-types";
+
 export interface ModelRoute {
   modelId: string;
   enabled?: boolean;
@@ -13,19 +23,14 @@ export interface ModelRoute {
   maxCompletionTokens?: number;
   knowledgeCutoff?: string;
   expirationDate?: string;
-  architecture?: Record<string, unknown> | null;
-  reasoning?: {
-    effort?: "low" | "medium" | "high" | "xhigh";
-  } | null;
-  supportedParameters?: Record<string, unknown> | null;
-  defaultParameters?: Record<string, unknown> | null;
-  perRequestLimits?: Record<string, unknown> | null;
-  pricing?: {
-    input?: number;
-    output?: number;
-  } | null;
+  architecture?: Architecture | null;
+  reasoning?: Reasoning | null;
+  supportedParameters?: SupportedParameters | null;
+  defaultParameters?: DefaultParameters | null;
+  perRequestLimits?: PerRequestLimits | null;
+  pricing?: Pricing | null;
   reasoningApiSlug?: string;
-  requestOptions?: Record<string, unknown>;
+  requestOptions?: RequestOptions;
 }
 
 export type ModelRouteUpdate = Partial<Omit<ModelRoute, "modelId">>;
@@ -42,13 +47,13 @@ export interface ModelProxyModelRecord {
   maxCompletionTokens: number | null;
   knowledgeCutoff: string | null;
   expirationDate: string | null;
-  architecture: Record<string, unknown> | null;
-  reasoning: Record<string, unknown> | null;
-  supportedParameters: Record<string, unknown> | null;
-  defaultParameters: Record<string, unknown> | null;
-  perRequestLimits: Record<string, unknown> | null;
-  pricing: Record<string, unknown> | null;
-  requestOptions: Record<string, unknown> | null;
+  architecture: Architecture | null;
+  reasoning: Reasoning | null;
+  supportedParameters: SupportedParameters | null;
+  defaultParameters: DefaultParameters | null;
+  perRequestLimits: PerRequestLimits | null;
+  pricing: Pricing | null;
+  requestOptions: RequestOptions | null;
   providerId: string | null;
   reasoningApiId: string | null;
   createdAt: Date;

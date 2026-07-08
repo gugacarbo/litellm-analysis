@@ -10,6 +10,15 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type {
+  Architecture,
+  DefaultParameters,
+  PerRequestLimits,
+  Pricing,
+  Reasoning,
+  RequestOptions,
+  SupportedParameters,
+} from "./model-proxy-types";
 
 export const modelProxyRequests = pgTable(
   "model_proxy_requests",
@@ -142,13 +151,13 @@ export const modelProxyModels = pgTable(
     maxCompletionTokens: integer("max_completion_tokens"),
     knowledgeCutoff: text("knowledge_cutoff"),
     expirationDate: text("expiration_date"),
-    architecture: jsonb("architecture"),
-    reasoning: jsonb("reasoning"),
-    supportedParameters: jsonb("supported_parameters"),
-    defaultParameters: jsonb("default_parameters"),
-    perRequestLimits: jsonb("per_request_limits"),
-    pricing: jsonb("pricing"),
-    requestOptions: jsonb("request_options"),
+    architecture: jsonb("architecture").$type<Architecture>(),
+    reasoning: jsonb("reasoning").$type<Reasoning>(),
+    supportedParameters: jsonb("supported_parameters").$type<SupportedParameters>(),
+    defaultParameters: jsonb("default_parameters").$type<DefaultParameters>(),
+    perRequestLimits: jsonb("per_request_limits").$type<PerRequestLimits>(),
+    pricing: jsonb("pricing").$type<Pricing>(),
+    requestOptions: jsonb("request_options").$type<RequestOptions>(),
     providerId: uuid("provider_id").references(
       () => modelProxyProviders.id,
       { onDelete: "set null" },

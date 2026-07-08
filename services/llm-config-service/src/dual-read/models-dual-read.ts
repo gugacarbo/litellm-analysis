@@ -17,7 +17,7 @@ export async function listRegistryModels(
 
 export function toRegistryEntry(route: ModelRoute): RegistryModelEntry {
   return {
-    modelName: route.modelName,
+    modelName: route.modelId,
     modelRoute: route,
   };
 }

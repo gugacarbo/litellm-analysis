@@ -5,9 +5,9 @@ import {
   modelProxyProviders,
   modelProxyReasoningApis,
 } from "@lite-llm/database/schema";
-import type { Database } from "@lite-llm/database";
-import { ModelConfigSchema, type ModelConfig } from "@/schemas/model.js";
-import { EffortSchema, type Effort } from "@/schemas/thinking.js";
+import type { DatabaseClient } from "@lite-llm/database";
+import { ModelConfigSchema, type ModelConfig } from "../schemas/model.js";
+import { EffortSchema, type Effort } from "../schemas/thinking.js";
 
 export type ModelProxyModelRecord = typeof modelProxyModels.$inferSelect;
 export type ModelProxyReasoningApiRecord =
@@ -32,7 +32,7 @@ export type UpdateModelInput = Partial<CreateModelInput> & {
 };
 
 export class ModelsRepository {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly db: DatabaseClient) {}
 
   async findByModelIdAndProviderId(
     modelId: string,
@@ -121,8 +121,113 @@ export class ModelsRepository {
     return updated;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.db.delete(modelProxyModels).where(eq(modelProxyModels.id, id));
+  async delete(id: string): Promise<boolean> {
+    const result = await this.db
+      .delete(modelProxyModels)
+      .where(eq(modelProxyModels.id, id))
+      .returning({ id: modelProxyModels.id });
+    return result.length > 0;
+  }
+
+  async list(_options?: Record<string, unknown>): Promise<ModelProxyModelRecord[]> {
+    return this.listAll();
+  }
+
+  async findByModelName(modelName: string): Promise<ModelProxyModelRecord | null> {
+    const rows = await this.db
+      .select()
+      .from(modelProxyModels)
+      .where(eq(modelProxyModels.modelId, modelName))
+      .limit(1);
+    return rows[0] ?? null;
+  }
+
+  async createModel(
+    modelName: string,
+    route: Record<string, unknown>,
+  ): Promise<ModelProxyModelRecord> {
+    const rows = await this.db
+      .insert(modelProxyModels)
+      .values({
+        modelId: modelName,
+        enabled: (route.enabled as boolean) ?? true,
+        displayName: (route.displayName as string) ?? null,
+        family: (route.family as string) ?? null,
+        canonicalSlug: (route.canonicalSlug as string) ?? null,
+        description: (route.description as string) ?? null,
+        contextLength: (route.contextLength as number) ?? null,
+        maxCompletionTokens: (route.maxCompletionTokens as number) ?? null,
+        knowledgeCutoff: (route.knowledgeCutoff as string) ?? null,
+        expirationDate: (route.expirationDate as string) ?? null,
+        architecture: (route.architecture ?? null) as never,
+        reasoning: (route.reasoning ?? null) as never,
+        supportedParameters: (route.supportedParameters ?? null) as never,
+        defaultParameters: (route.defaultParameters ?? null) as never,
+        perRequestLimits: (route.perRequestLimits ?? null) as never,
+        pricing: (route.pricing ?? null) as never,
+        requestOptions: (route.requestOptions ?? null) as never,
+      })
+      .returning();
+    const created = rows[0];
+    if (!created) throw new Error(`Failed to create model: ${modelName}`);
+    return created;
+  }
+
+  async updateModel(
+    modelName: string,
+    route: Record<string, unknown>,
+  ): Promise<ModelProxyModelRecord | null> {
+    const existing = await this.findByModelName(modelName);
+    if (!existing) return null;
+    const rows = await this.db
+      .update(modelProxyModels)
+      .set({
+        enabled: (route.enabled as boolean) ?? undefined,
+        displayName: (route.displayName as string) ?? undefined,
+        family: (route.family as string) ?? undefined,
+        canonicalSlug: (route.canonicalSlug as string) ?? undefined,
+        description: (route.description as string) ?? undefined,
+        contextLength: (route.contextLength as number) ?? undefined,
+        maxCompletionTokens: (route.maxCompletionTokens as number) ?? undefined,
+        knowledgeCutoff: (route.knowledgeCutoff as string) ?? undefined,
+        expirationDate: (route.expirationDate as string) ?? undefined,
+        architecture: (route.architecture ?? undefined) as never,
+        reasoning: (route.reasoning ?? undefined) as never,
+        supportedParameters: (route.supportedParameters ?? undefined) as never,
+        defaultParameters: (route.defaultParameters ?? undefined) as never,
+        perRequestLimits: (route.perRequestLimits ?? undefined) as never,
+        pricing: (route.pricing ?? undefined) as never,
+        requestOptions: (route.requestOptions ?? undefined) as never,
+      })
+      .where(eq(modelProxyModels.id, existing.id))
+      .returning();
+    return rows[0] ?? null;
+  }
+
+  async upsertModel(
+    modelName: string,
+    route: Record<string, unknown>,
+  ): Promise<ModelProxyModelRecord> {
+    const existing = await this.findByModelName(modelName);
+    if (existing) {
+      const updated = await this.updateModel(modelName, route);
+      return updated!;
+    }
+    return this.createModel(modelName, route);
+  }
+
+  async setEnabled(
+    modelName: string,
+    enabled: boolean,
+  ): Promise<ModelProxyModelRecord | null> {
+    const existing = await this.findByModelName(modelName);
+    if (!existing) return null;
+    const rows = await this.db
+      .update(modelProxyModels)
+      .set({ enabled })
+      .where(eq(modelProxyModels.id, existing.id))
+      .returning();
+    return rows[0] ?? null;
   }
 
   async findReasoningApiBySlug(
