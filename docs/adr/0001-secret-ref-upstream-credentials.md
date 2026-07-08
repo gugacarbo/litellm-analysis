@@ -49,5 +49,5 @@ Adotar `secretRef` (coluna `secret_ref`) como campo canônico para credenciais u
 # Nenhum write de apiKey no service layer (exceto adapters legados)
 grep -rn "apiKey" packages/server/src/services/credentials/ | grep -v "legacy\|import\|adapter" && exit 1
 # secret_ref não usa prefixo env:
-grep -rn '"env:' repositories/database/src/schema/ && exit 1
+grep -rn '"env:' database/src/schema/ && exit 1
 ```

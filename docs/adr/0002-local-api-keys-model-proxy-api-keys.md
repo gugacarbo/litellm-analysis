@@ -49,7 +49,7 @@ Persistir chaves locais em `model_proxy_api_keys` com hash **argon2id** (preferi
 
 ```bash
 # keyHash é único no schema
-grep -A5 "keyHash" repositories/database/src/schema/ | grep "unique" || exit 1
+grep -A5 "keyHash" database/src/schema/ | grep "unique" || exit 1
 # Nenhum plaintext sendo logado
 grep -rn "apiKey\|plaintext" packages/server/src/routes/model-proxy-routes.ts | grep -i "log\|console" && exit 1
 ```

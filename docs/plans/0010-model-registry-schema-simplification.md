@@ -23,9 +23,9 @@
 
 | File/Directory | Owner Task | Notes |
 | --- | --- | --- |
-| `repositories/database/src/schema/model-proxy.ts` | `Task-A-0010` | Primary registry schema changes for `model_proxy_models` and new `reasoning_api` relation |
-| `repositories/database/src/schema/index.ts` | `Task-A-0010` | Export new schema entities |
-| `repositories/database/drizzle/` | `Task-A-0010` | Generated migration/snapshot updates for the hard cut |
+| `database/src/schema/model-proxy.ts` | `Task-A-0010` | Primary registry schema changes for `model_proxy_models` and new `reasoning_api` relation |
+| `database/src/schema/index.ts` | `Task-A-0010` | Export new schema entities |
+| `database/drizzle/` | `Task-A-0010` | Generated migration/snapshot updates for the hard cut |
 | `repositories/models-repository/src/schemas/model.ts` | `Task-A-0010` | Canonical model spec schema must reflect renamed/removed fields |
 | `repositories/models-repository/src/schemas/thinking.ts` | `Task-A-0010` | Replace legacy reasoning/thinking config shape with unified reasoning contract |
 | `repositories/models-repository/src/schemas/index.ts` | `Task-A-0010` | Export updated schemas and new reasoning API types if needed |
@@ -102,7 +102,7 @@ Make the database and shared types represent the new model registry shape before
 
 ### Steps
 
-1. Update `repositories/database/src/schema/model-proxy.ts` so `model_proxy_models` drops `owned_by`, `vision`, `context_window_size`, `input_cost_per_token`, `output_cost_per_token`, `upstream_model`, `upstream_base_url`, `provider_name`, and `metadata`; renames `model_name` to `model_id`; adds `canonical_slug`, `description`, `context_length`, `max_completion_tokens`, `knowledge_cutoff`, `expiration_date`, `architecture`, `reasoning`, `supported_parameters`, `default_parameters`, `per_request_limits`, and `pricing`; and enforces `UNIQUE(provider_id, model_id)`.
+1. Update `database/src/schema/model-proxy.ts` so `model_proxy_models` drops `owned_by`, `vision`, `context_window_size`, `input_cost_per_token`, `output_cost_per_token`, `upstream_model`, `upstream_base_url`, `provider_name`, and `metadata`; renames `model_name` to `model_id`; adds `canonical_slug`, `description`, `context_length`, `max_completion_tokens`, `knowledge_cutoff`, `expiration_date`, `architecture`, `reasoning`, `supported_parameters`, `default_parameters`, `per_request_limits`, and `pricing`; and enforces `UNIQUE(provider_id, model_id)`.
 2. Introduce the relational `reasoning_api` schema in the same Drizzle module, including explicit version identity, provider reference, `requestParams`, and `requestShape`, plus the FK path from models to the shared reasoning API record.
 3. Regenerate the Drizzle migration artifacts so the schema hard cut is encoded in migrations/snapshots with no compatibility columns left behind.
 4. Rewrite repository/domain schemas in `repositories/models-repository/src/schemas/model.ts`, `repositories/models-repository/src/schemas/thinking.ts`, `repositories/models-repository/src/interfaces.ts`, `services/llm-config-service/src/types/model-route.ts`, and `packages/contracts/src/analytics.ts` so the canonical model contract uses `modelId`, `contextLength`, `architecture`, unified `reasoning`, OpenRouter-style pricing/capability fields, and no removed legacy keys.

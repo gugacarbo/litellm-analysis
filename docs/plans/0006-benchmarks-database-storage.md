@@ -24,8 +24,8 @@
 
 | File/Directory | Owner Task | Notes |
 | --- | --- | --- |
-| `repositories/database/src/schema/model-proxy.ts` | `Task-A-0001` | Adicionar definição da tabela `modelProxyBenchmarks` |
-| `repositories/database/drizzle/` | `Task-A-0001` | Migration gerada automaticamente por `db:generate` |
+| `database/src/schema/model-proxy.ts` | `Task-A-0001` | Adicionar definição da tabela `modelProxyBenchmarks` |
+| `database/drizzle/` | `Task-A-0001` | Migration gerada automaticamente por `db:generate` |
 | `repositories/benchmarks-repository/` | `Task-A-0002` | Novo pacote: `package.json`, `tsconfig.json`, `src/index.ts`, `src/interfaces.ts`, `src/db-repository.ts`, `src/db-repository.test.ts` |
 | `scripts/src/sync-aa-benchmarks/index.ts` | `Task-B-0001` | Adicionar escrita no banco após normalização |
 | `scripts/package.json` | `Task-B-0001` | Adicionar dependência `@lite-llm/benchmarks-repository` |

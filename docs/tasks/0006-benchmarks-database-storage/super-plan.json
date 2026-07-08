@@ -39,12 +39,12 @@
   ],
   "fileStructure": [
     {
-      "path": "repositories/database/src/schema/model-proxy.ts",
+      "path": "database/src/schema/model-proxy.ts",
       "ownerTask": "Task-A-0001",
       "notes": "Adicionar defini\u00e7\u00e3o da tabela modelProxyBenchmarks"
     },
     {
-      "path": "repositories/database/drizzle/",
+      "path": "database/drizzle/",
       "ownerTask": "Task-A-0001",
       "notes": "Migration gerada automaticamente por db:generate"
     },
@@ -169,7 +169,7 @@
     {
       "id": "Task-A-0001",
       "title": "Adicionar tabela model_proxy_benchmarks ao schema Drizzle",
-      "description": "Adicionar a defini\u00e7\u00e3o da tabela modelProxyBenchmarks em repositories/database/src/schema/model-proxy.ts com 27 colunas tipadas + metadados, exportar os tipos, e gerar a migration.",
+      "description": "Adicionar a defini\u00e7\u00e3o da tabela modelProxyBenchmarks em database/src/schema/model-proxy.ts com 27 colunas tipadas + metadados, exportar os tipos, e gerar a migration.",
       "status": "completed",
       "tryCount": 1,
       "batch": "A",
@@ -217,7 +217,7 @@
           "title": "Gerar migration",
           "description": "Rodar db:generate para criar a migration file",
           "command": "pnpm --filter @lite-llm/database db:generate",
-          "expectedResult": "Migration SQL gerada em repositories/database/drizzle/",
+          "expectedResult": "Migration SQL gerada em database/drizzle/",
           "codeExample": null
         },
         {
@@ -230,12 +230,12 @@
         }
       ],
       "filesTouched": [
-        "repositories/database/src/schema/model-proxy.ts"
+        "database/src/schema/model-proxy.ts"
       ],
       "files": {
         "created": [],
         "modified": [
-          "repositories/database/src/schema/model-proxy.ts"
+          "database/src/schema/model-proxy.ts"
         ],
         "deleted": []
       },

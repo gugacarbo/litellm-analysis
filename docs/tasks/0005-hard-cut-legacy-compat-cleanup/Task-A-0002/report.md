@@ -54,7 +54,7 @@ Removed all legacy compatibility bridges for provider credentials and model/prov
 
 ## Follow-up risks
 
-1. **Database schema**: The `apiKey` column on `model_proxy_providers` still exists in the database schema (`repositories/database/src/schema/model-proxy.ts`). A migration to drop this column should be planned separately (schema cleanup task).
+1. **Database schema**: The `apiKey` column on `model_proxy_providers` still exists in the database schema (`database/src/schema/model-proxy.ts`). A migration to drop this column should be planned separately (schema cleanup task).
 2. **`llm-gateway` tests**: The pre-existing test failures in `llm-gateway` (11 tests) are caused by `resolveUpstreamTarget` using a real database connection instead of a mock. This is a pre-existing issue unrelated to this task.
 3. **`hebo/build-config.ts`**: The `apiKey` field in `ProviderGroup` interface and `buildHeboGatewayConfig` is unrelated to the `Provider` type — it's the resolved bearer token from upstream headers. No change needed.
 4. **`analytics-service`**: The `registry-methods.ts` file references `record.apiKey?.trim()` — this reads from the database column directly (not the `Provider` type). This will be cleaned up when the schema column is dropped.

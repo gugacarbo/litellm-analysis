@@ -31,7 +31,7 @@ sobreviver no repositório e o único ORM do monorepo é Drizzle.
 
 ### Criação do package compartilhado de banco
 
-1. É criado o package `@lite-llm/database` em `repositories/database`.
+1. É criado o package `@lite-llm/database` em `database`.
 2. Esse package concentra:
    - o pool PostgreSQL compartilhado (via `pg` + `drizzle-orm/node-postgres`),
      lendo `DATABASE_URL` de `@lite-llm/config/server`;
@@ -48,7 +48,7 @@ sobreviver no repositório e o único ORM do monorepo é Drizzle.
 ### Schema Drizzle do model-proxy
 
 4. As 9 tabelas `model_proxy_*` atuais são reescritas em Drizzle
-   (`pgTable`) em `repositories/database/src/schema/model-proxy.ts`,
+   (`pgTable`) em `database/src/schema/model-proxy.ts`,
    espelhando exatamente o schema Prisma atual:
    `model_proxy_requests`, `model_proxy_usage_adjustments`,
    `model_proxy_messages`, `model_proxy_models`, `model_proxy_providers`,
@@ -75,7 +75,7 @@ sobreviver no repositório e o único ORM do monorepo é Drizzle.
 
 8. As tabelas hoje em SQLite (`alerts`, `alert_rules`, `model_health_checks`,
    `prompt_eval_runs` e demais tabelas de prompt eval) são reescritas com
-   `pgTable` em `repositories/database/src/schema/app.ts`.
+   `pgTable` em `database/src/schema/app.ts`.
 9. Tipos são convertidos: `integer` (SQLite epoch) → `timestamp` ou
    `integer` (epoch mantida) conforme semântica atual; `text` JSON → `jsonb`
    quando apropriado; `real` → `doublePrecision` ou `real`.
@@ -86,7 +86,7 @@ sobreviver no repositório e o único ORM do monorepo é Drizzle.
 ### Migrations
 
 11. É gerada uma única migration inicial em
-    `repositories/database/drizzle/` que cria **todas** as tabelas
+    `database/drizzle/` que cria **todas** as tabelas
     (`model_proxy_*` e `app_*`) do zero. **Não há `CREATE TABLE IF NOT
     EXISTS`** — o banco é resetado e recriado limpo.
 12. Migrations são descartáveis: podem ser apagadas/editadas/removidas quando

@@ -21,7 +21,7 @@ de existirem apenas como JSON estático em `@storage/benchmarks/`.
 
 ### 1. Migration — criar tabela `model_proxy_benchmarks`
 
-1. Adiciona-se a definição da tabela em `repositories/database/src/schema/model-proxy.ts`.
+1. Adiciona-se a definição da tabela em `database/src/schema/model-proxy.ts`.
 2. Gera-se a migration com `pnpm db:generate`.
 3. A migration é aplicada com `pnpm db:migrate`.
 
@@ -138,8 +138,8 @@ a fonte dos dados: de leitura de JSON para leitura do banco.
 ```bash
 pnpm typecheck                    # exit 0
 pnpm test                         # todos os testes passam
-pnpm --filter @lite-llm/database db:generate   # gera migration sem erros
-pnpm --filter @lite-llm/database db:migrate    # aplica migration sem erros
+pnpm --filter database db:generate   # gera migration sem erros
+pnpm --filter database db:migrate    # aplica migration sem erros
 ```
 
 ## Human review

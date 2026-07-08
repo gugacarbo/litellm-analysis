@@ -36,10 +36,10 @@
 | `model_proxy_benchmarks` | Benchmarks de modelos (Artificial Analysis, OpenRouter) |
 
 ### Migrations
-- Local: `repositories/database/drizzle/`.
+- Local: `database/drizzle/`.
 - Comandos: `db:generate`, `db:migrate`, `db:push`, `db:studio` (via `drizzle-kit`).
 - **Migrations são descartáveis** — o schema Drizzle é a fonte da verdade.
-- Package: `@lite-llm/database` (`pnpm --filter @lite-llm/database db:migrate`).
+- Package: `@lite-llm/database` (`pnpm --filter database db:migrate`).
 
 ## Ambiente local
 
@@ -58,7 +58,7 @@ OPENROUTER_API_KEY=sk-or-...      # para sync de benchmarks do OpenRouter
 ### Comandos
 ```bash
 pnpm install                       # instalar dependências
-pnpm --filter @lite-llm/database db:migrate   # aplicar migrations
+pnpm --filter database db:migrate   # aplicar migrations
 pnpm dev                           # subir server + web + proxy
 pnpm typecheck                     # validar tipos
 pnpm test                          # rodar testes
@@ -84,8 +84,9 @@ pnpm test                          # rodar testes
 ## Estrutura de packages
 
 ```
+database/
+  # @lite-llm/database — schemas Drizzle + client PostgreSQL
 repositories/
-  database/          # @lite-llm/database — schemas Drizzle + client PostgreSQL
   model-proxy-repository/  # re-exporta de database (barrel público)
   app-repository/    # re-exporta de database (barrel público)
   agents-repository/ # agentes (Drizzle)

@@ -28,8 +28,8 @@ DONE — all 7 tasks in the `0010-model-registry-schema-simplification` plan are
 ## Files changed (cumulative, this plan)
 
 Schema + shared contract (Task-A):
-- `repositories/database/src/schema/model-proxy.ts`
-- `repositories/database/drizzle/meta/_journal.json`
+- `database/src/schema/model-proxy.ts`
+- `database/drizzle/meta/_journal.json`
 - `repositories/models-repository/src/schemas/{model,thinking,index}.ts`
 - `services/llm-config-service/src/types/model-route.ts`
 - `packages/contracts/src/analytics.ts`

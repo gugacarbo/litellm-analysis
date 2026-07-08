@@ -54,7 +54,7 @@
   ],
   "fileStructure": [
     {
-      "path": "repositories/database/src/schema/model-proxy.ts",
+      "path": "database/src/schema/model-proxy.ts",
       "ownerTask": "Task-A-0010",
       "notes": "Primary schema hard cut for models and shared reasoning API relation."
     },
@@ -370,9 +370,9 @@
         }
       ],
       "filesTouched": [
-        "repositories/database/src/schema/model-proxy.ts",
-        "repositories/database/src/schema/index.ts",
-        "repositories/database/drizzle/",
+        "database/src/schema/model-proxy.ts",
+        "database/src/schema/index.ts",
+        "database/drizzle/",
         "repositories/models-repository/src/schemas/model.ts",
         "repositories/models-repository/src/schemas/thinking.ts",
         "repositories/models-repository/src/schemas/index.ts",
@@ -382,11 +382,11 @@
       ],
       "files": {
         "created": [
-          "repositories/database/drizzle/"
+          "database/drizzle/"
         ],
         "modified": [
-          "repositories/database/src/schema/model-proxy.ts",
-          "repositories/database/src/schema/index.ts",
+          "database/src/schema/model-proxy.ts",
+          "database/src/schema/index.ts",
           "repositories/models-repository/src/schemas/model.ts",
           "repositories/models-repository/src/schemas/thinking.ts",
           "repositories/models-repository/src/schemas/index.ts",

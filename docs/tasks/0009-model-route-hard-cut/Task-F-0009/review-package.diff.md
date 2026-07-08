@@ -65,9 +65,9 @@ index 3666a4a..44966a8 100644
  
  ### ORM
  - **Drizzle ORM** é o único ORM do monorepo. Prisma e `better-sqlite3` foram removidos.
- - Package central: `@lite-llm/database` em `repositories/database`.
- - Schemas em `repositories/database/src/schema/`.
- - Migrations em `repositories/database/drizzle/` (descartáveis — schema é fonte da verdade).
+ - Package central: `@lite-llm/database` em `database`.
+ - Schemas em `database/src/schema/`.
+ - Migrations em `database/drizzle/` (descartáveis — schema é fonte da verdade).
  
  ### Política de leitura/escrita
  - **Single-write:** todo write operacional vai para tabelas `model_proxy_*`.
