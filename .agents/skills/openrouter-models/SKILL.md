@@ -119,6 +119,7 @@ cd <skill-path>/scripts && npx tsx get-endpoints.ts "openai/gpt-4o" --sort laten
 Sort options: `throughput` (fastest tokens/sec first), `latency` (lowest p50 ms first), `uptime` (most reliable first), `price` (cheapest first)
 
 Returns for each provider:
+
 - **Latency** (p50/p75/p90/p99 in ms) — median to worst-case response times
 - **Throughput** (p50/p75/p90/p99 tokens/sec) — generation speed
 - **Uptime** — percentage over the last 30 minutes
@@ -189,10 +190,19 @@ A subset of the raw API fields — the scripts run `formatModel()` which drops `
       "status": "operational",
       "uptime_30m": "100.00%",
       "latency_30m_ms": { "p50": 800, "p75": 1200, "p90": 2000, "p99": 5000 },
-      "throughput_30m_tokens_per_sec": { "p50": 45, "p75": 55, "p90": 65, "p99": 90 },
+      "throughput_30m_tokens_per_sec": {
+        "p50": 45,
+        "p75": 55,
+        "p90": 65,
+        "p99": 90
+      },
       "context_length": 1000000,
       "max_completion_tokens": 64000,
-      "pricing_per_million_tokens": { "prompt": "$3.00", "completion": "$15.00", "cached_input": "$0.30" },
+      "pricing_per_million_tokens": {
+        "prompt": "$3.00",
+        "completion": "$15.00",
+        "cached_input": "$0.30"
+      },
       "supports_implicit_caching": true,
       "supported_parameters": ["max_tokens", "temperature", "tools", "..."]
     }

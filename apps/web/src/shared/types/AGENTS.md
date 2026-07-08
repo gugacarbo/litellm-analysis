@@ -18,18 +18,18 @@ apps/web/src/shared/types/
 
 ## KEY TYPES
 
-| File                                | Types                                                                     |
-| ----------------------------------- | ------------------------------------------------------------------------- |
-| `connection.ts`                     | WebSocket connection state (`Connected`, `Disconnected`, `Reconnecting`)   |
-| `automatic-interaction-thread.ts`   | assistant-ui thread message/role types                                    |
+| File                              | Types                                                                    |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| `connection.ts`                   | WebSocket connection state (`Connected`, `Disconnected`, `Reconnecting`) |
+| `automatic-interaction-thread.ts` | assistant-ui thread message/role types                                   |
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                  | Notes                                                |
-| --------------------------------- | ----------------------------------------- | ---------------------------------------------------- |
-| Add a UI-side type                | `shared/types/<name>.ts`                  | Mirror from `@lite-llm/agents-repository/schemas`; export via `index.ts` |
-| Add a new feature type            | `features/<feature>/types/`               | Feature owns its types; only cross-feature types go here |
-| Server-side validation            | `@lite-llm/agent-plugins/src/plugin-config-schemas.ts` | Types here are runtime-free for browser bundle size |
+| Task                   | Location                                               | Notes                                                                    |
+| ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| Add a UI-side type     | `shared/types/<name>.ts`                               | Mirror from `@lite-llm/agents-repository/schemas`; export via `index.ts` |
+| Add a new feature type | `features/<feature>/types/`                            | Feature owns its types; only cross-feature types go here                 |
+| Server-side validation | `@lite-llm/agent-plugins/src/plugin-config-schemas.ts` | Types here are runtime-free for browser bundle size                      |
 
 ## CONVENTIONS
 

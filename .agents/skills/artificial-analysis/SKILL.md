@@ -92,6 +92,7 @@ If no `.env` file exists, ask the user to provide their API key.
 ```
 
 This script:
+
 - loads `ARTIFICIAL_ANALYSIS_API_KEY` from `.env` (or env var),
 - enforces configurable local rate limiting,
 - enforces a minimum total response time,
@@ -100,10 +101,12 @@ This script:
 The API returns a JSON object with a `data` array containing all models.
 
 **Defaults:**
+
 - `RATE_LIMIT_QPM=5` (5 requests/minute)
 - `MIN_RESPONSE_SECONDS=1` (minimum total runtime per invocation)
 
 **Examples:**
+
 ```bash
 # default behavior (uses cache if present)
 ./scripts/fetch-models.sh > .cache/models.json
@@ -120,26 +123,31 @@ RATE_LIMIT_QPM=10 MIN_RESPONSE_SECONDS=1.5 ./scripts/fetch-models.sh --force-ref
 Use bash (with `jq`) to filter, sort, and analyze the model data:
 
 **Top N models by intelligence score:**
+
 ```bash
 echo "$data" | jq '[.data[] | select(.evaluations.artificial_analysis_intelligence_index != null)] | sort_by(.evaluations.artificial_analysis_intelligence_index) | reverse[:5] | .[] | {name, creator: .model_creator.name, intelligence: .evaluations.artificial_analysis_intelligence_index, speed: .median_output_tokens_per_second, price_input: .pricing.price_1m_input_tokens, price_output: .pricing.price_1m_output_tokens}'
 ```
 
 **Best value (intelligence / price ratio):**
+
 ```bash
 echo "$data" | jq '[.data[] | select(.evaluations.artificial_analysis_intelligence_index != null and .pricing.price_1m_blended_3_to_1 > 0)] | .[] | {name, creator: .model_creator.name, intelligence: .evaluations.artificial_analysis_intelligence_index, price_blended: .pricing.price_1m_blended_3_to_1, value_ratio: (.evaluations.artificial_analysis_intelligence_index / .pricing.price_1m_blended_3_to_1)} | sort_by(.value_ratio) | reverse[:10]'
 ```
 
 **Filter by model creator/provider:**
+
 ```bash
 echo "$data" | jq '[.data[] | select(.model_creator.name == "OpenAI")] | sort_by(.evaluations.artificial_analysis_intelligence_index) | reverse'
 ```
 
 **Search by model name:**
+
 ```bash
 echo "$data" | jq '[.data[] | select(.name | test("claude"; "i"))]'
 ```
 
 **Fastest models:**
+
 ```bash
 echo "$data" | jq '[.data[] | select(.median_output_tokens_per_second != null)] | sort_by(.median_output_tokens_per_second) | reverse[:10] | .[] | {name, creator: .model_creator.name, speed: .median_output_tokens_per_second}'
 ```

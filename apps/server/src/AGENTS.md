@@ -45,13 +45,13 @@ apps/server/src/
 
 ## WHERE TO LOOK
 
-| Task                                  | Location                                                | Notes                                       |
-| ------------------------------------- | ------------------------------------------------------- | ------------------------------------------- |
-| Add a new runtime concern             | `runtime/<concern>-runtime.ts` + `application/<concern>-application-service.ts` + `routes/<concern>-routes.ts` | All three files; wire in `app-runtime.ts`  |
-| Change DI wiring                      | `contexts/<concern>-context.ts`                         | Returns a context object consumed by runtime |
-| Add a WebSocket channel               | `ws/websocket-server.ts` + a watcher in `ws/`           | Subscribe/unsubscribe per client             |
-| Run integration tests                 | `__tests__/<feature>.test.ts`                           | Use `helpers/registry-test-stack.ts`         |
-| Add a test fixture                    | `__tests__/helpers/`                                    | Reused across tests; not a runtime concern  |
+| Task                      | Location                                                                                                       | Notes                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Add a new runtime concern | `runtime/<concern>-runtime.ts` + `application/<concern>-application-service.ts` + `routes/<concern>-routes.ts` | All three files; wire in `app-runtime.ts`    |
+| Change DI wiring          | `contexts/<concern>-context.ts`                                                                                | Returns a context object consumed by runtime |
+| Add a WebSocket channel   | `ws/websocket-server.ts` + a watcher in `ws/`                                                                  | Subscribe/unsubscribe per client             |
+| Run integration tests     | `__tests__/<feature>.test.ts`                                                                                  | Use `helpers/registry-test-stack.ts`         |
+| Add a test fixture        | `__tests__/helpers/`                                                                                           | Reused across tests; not a runtime concern   |
 
 ## CONVENTIONS
 

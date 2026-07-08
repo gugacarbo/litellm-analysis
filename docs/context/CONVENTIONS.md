@@ -19,6 +19,7 @@
 ## Segurança
 
 ### Credenciais upstream
+
 - **NUNCA** persistir segredo bruto no banco.
 - Campo canônico: `secretRef` (nome de env var, ex. `OPENAI_API_KEY`).
 - `secretRef` **NÃO** usa prefixo `env:` — é o nome exato da variável.
@@ -26,6 +27,7 @@
 - Credenciais upstream **NUNCA** aparecem em artefatos gerados (OpenCode, VS Code, OpenAgent).
 
 ### API keys locais (proxy)
+
 - Hash **argon2id** (preferido) ou **bcrypt** com cost ≥ 10.
 - Plaintext retornado **apenas uma vez** na resposta HTTP de criação.
 - Coluna `keyHash` é `@unique`; nunca armazenar plaintext.
@@ -34,17 +36,20 @@
 ## Acesso a dados
 
 ### ORM
+
 - **Drizzle ORM** é o único ORM do monorepo. Prisma e `better-sqlite3` foram removidos.
 - Package central: `@lite-llm/database` em `database`.
 - Schemas em `database/src/schema/`.
 - Migrations em `database/drizzle/` (descartáveis — schema é fonte da verdade).
 
 ### Política de leitura/escrita
+
 - **Single-write:** todo write operacional vai para tabelas `model_proxy_*`.
 - **Dual-read:** leitura consulta registry primeiro, com fallback para adapters legados.
 - **Proibido:** escrever em tabelas `LiteLLM_*`; dual-write registry + LiteLLM.
 
 ### Fonte da verdade
+
 - **Banco de dados PostgreSQL** é a única fonte de verdade para agentes, modelos, plugins e configurações.
 - Pasta `@settings/` foi removida. Nenhum código depende dela.
 - Scripts `settings:import` e `settings:export` foram removidos.

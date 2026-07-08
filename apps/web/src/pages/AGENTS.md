@@ -17,19 +17,19 @@ apps/web/src/pages/
 
 ## WHAT WENT WHERE
 
-| Old path (migrated out)                    | New path                                          |
-| ------------------------------------------ | ------------------------------------------------- |
-| `pages/dashboard.tsx`                      | `features/dashboard/`                             |
-| `pages/errors.tsx`                         | `features/logs/`                                  |
-| `pages/logs.tsx`                          | `features/logs/`                                  |
-| `pages/model-detail.tsx`                   | `features/models/detail/`                         |
-| `pages/model-stats.tsx`                   | `features/model-stats/`                           |
-| `pages/models.tsx`                        | `features/models/`                                |
-| `pages/agent-routing.tsx`                  | `features/agent-routing/`                         |
-| `pages/dashboard/{types,utils}.ts`         | `features/dashboard/{types,utils}.ts`             |
-| `pages/model-stats/{types,utils}.ts`       | `features/model-stats/{types,utils}.ts`           |
-| `pages/models/{form-data,utils}.ts`         | `features/models/detail/{form-data,utils}.ts`     |
-| `pages/agent-routing/use-*.ts`             | `features/agent-routing/use-*.ts`                 |
+| Old path (migrated out)              | New path                                      |
+| ------------------------------------ | --------------------------------------------- |
+| `pages/dashboard.tsx`                | `features/dashboard/`                         |
+| `pages/errors.tsx`                   | `features/logs/`                              |
+| `pages/logs.tsx`                     | `features/logs/`                              |
+| `pages/model-detail.tsx`             | `features/models/detail/`                     |
+| `pages/model-stats.tsx`              | `features/model-stats/`                       |
+| `pages/models.tsx`                   | `features/models/`                            |
+| `pages/agent-routing.tsx`            | `features/agent-routing/`                     |
+| `pages/dashboard/{types,utils}.ts`   | `features/dashboard/{types,utils}.ts`         |
+| `pages/model-stats/{types,utils}.ts` | `features/model-stats/{types,utils}.ts`       |
+| `pages/models/{form-data,utils}.ts`  | `features/models/detail/{form-data,utils}.ts` |
+| `pages/agent-routing/use-*.ts`       | `features/agent-routing/use-*.ts`             |
 
 ## CONVENTIONS
 

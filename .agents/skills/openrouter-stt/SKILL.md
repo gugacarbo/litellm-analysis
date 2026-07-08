@@ -91,14 +91,14 @@ Models are provider-namespaced — use the full slug (`google/chirp-3`, `openai/
 
 ## Parameters
 
-| Field                | Required | Notes                                                                                                     |
-| -------------------- | -------- | --------------------------------------------------------------------------------------------------------- |
-| `model`              | yes      | Full model slug from `/api/v1/models?output_modalities=transcription`.                                    |
+| Field                | Required | Notes                                                                                                             |
+| -------------------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `model`              | yes      | Full model slug from `/api/v1/models?output_modalities=transcription`.                                            |
 | `input_audio.data`   | yes      | Base64-encoded raw audio bytes. **Not** a data URI — just the base64 payload, no `data:audio/...;base64,` prefix. |
-| `input_audio.format` | yes      | `wav`, `mp3`, `flac`, `m4a`, `ogg`, `webm`, or `aac`. Must match the actual bytes. Support varies by provider. |
-| `language`           | no       | ISO-639-1 code (`en`, `ja`, `fr`). Auto-detected if omitted.                                              |
-| `temperature`        | no       | 0–1. Lower is more deterministic.                                                                         |
-| `provider`           | no       | Provider passthrough — see below.                                                                         |
+| `input_audio.format` | yes      | `wav`, `mp3`, `flac`, `m4a`, `ogg`, `webm`, or `aac`. Must match the actual bytes. Support varies by provider.    |
+| `language`           | no       | ISO-639-1 code (`en`, `ja`, `fr`). Auto-detected if omitted.                                                      |
+| `temperature`        | no       | 0–1. Lower is more deterministic.                                                                                 |
+| `provider`           | no       | Provider passthrough — see below.                                                                                 |
 
 ### Picking an audio format
 

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+# Prefer pnpm, fallback to npm.
+if command -v pnpm >/dev/null 2>&1; then
+  RUNNER="pnpm"
+elif command -v npm >/dev/null 2>&1; then
+  RUNNER="npm"
+else
+  echo "Erro: nem pnpm nem npm encontrados." >&2
+  exit 1
+fi
+
+# Verifica se a documentação do CASA está íntegra.
+echo "==> docs-check"
+"${ROOT}/scripts/docs-check"
+
+echo "==> ${RUNNER} run knip"
+${RUNNER} run knip
+
+echo "==> ${RUNNER} format"
+${RUNNER} lint-staged
+
+echo "==> ${RUNNER} test"
+${RUNNER} test-staged
+
+# Type-check, testes e análise de exports não utilizados.
+echo "==> ${RUNNER} run typecheck"
+${RUNNER} run typecheck
+

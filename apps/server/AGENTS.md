@@ -25,16 +25,16 @@ apps/server/
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                  | Notes                                                |
-| --------------------------------- | ----------------------------------------- | ---------------------------------------------------- |
-| Add a runtime lifecycle step      | `src/runtime/app-runtime.ts`              | Boot order: contexts → runtimes → app listen         |
-| Add a monitor business service    | `src/application/monitor-application-service.ts` | Pure functions; no Express imports                  |
-| Add a health-check endpoint       | `src/routes/health-check-routes.ts`       | Thin Express adapter over `health-check-application-service.ts` |
-| Add a benchmark sync endpoint     | `src/routes/benchmark-sync-routes.ts`     | Thin Express adapter over `benchmark-sync-application-service.ts` |
-| Add a monitor endpoint            | `src/routes/monitor-routes.ts`            | Adapter over `monitor-application-service.ts`        |
-| Add WebSocket channel             | `src/ws/websocket-server.ts`              | Single `WebSocketServer`; broadcasts to subscribed clients |
-| Add a DI context                  | `src/contexts/`                           | One file per concern; re-export via `index.ts`       |
-| Add integration tests             | `src/__tests__/`                          | Use `helpers/` for shared setup                      |
+| Task                           | Location                                         | Notes                                                             |
+| ------------------------------ | ------------------------------------------------ | ----------------------------------------------------------------- |
+| Add a runtime lifecycle step   | `src/runtime/app-runtime.ts`                     | Boot order: contexts → runtimes → app listen                      |
+| Add a monitor business service | `src/application/monitor-application-service.ts` | Pure functions; no Express imports                                |
+| Add a health-check endpoint    | `src/routes/health-check-routes.ts`              | Thin Express adapter over `health-check-application-service.ts`   |
+| Add a benchmark sync endpoint  | `src/routes/benchmark-sync-routes.ts`            | Thin Express adapter over `benchmark-sync-application-service.ts` |
+| Add a monitor endpoint         | `src/routes/monitor-routes.ts`                   | Adapter over `monitor-application-service.ts`                     |
+| Add WebSocket channel          | `src/ws/websocket-server.ts`                     | Single `WebSocketServer`; broadcasts to subscribed clients        |
+| Add a DI context               | `src/contexts/`                                  | One file per concern; re-export via `index.ts`                    |
+| Add integration tests          | `src/__tests__/`                                 | Use `helpers/` for shared setup                                   |
 
 ## CONVENTIONS
 

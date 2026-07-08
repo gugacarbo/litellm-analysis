@@ -24,14 +24,14 @@ apps/
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                  | Notes                                                  |
-| --------------------------------- | ----------------------------------------- | ------------------------------------------------------ |
-| Add a new feature/route (web)     | `apps/web/src/features/<name>/`           | Owns components, hooks, types, utils; mount in App.tsx |
-| Add a shared UI primitive         | `apps/web/src/shared/components/`         | Cross-feature; keep narrow                             |
-| Add a backend route               | `apps/server/src/runtime/`                | See `apps/server/AGENTS.md` for the runtime split      |
-| Change dev port / proxy           | `apps/web/vite.config.ts`                 | `/api` → `localhost:3008`                              |
-| Add a monitor runtime service     | `apps/server/src/application/`            | Business services, no Express knowledge                |
-| Add a monitor route               | `apps/server/src/routes/`                 | Thin Express adapters over application services        |
+| Task                          | Location                          | Notes                                                  |
+| ----------------------------- | --------------------------------- | ------------------------------------------------------ |
+| Add a new feature/route (web) | `apps/web/src/features/<name>/`   | Owns components, hooks, types, utils; mount in App.tsx |
+| Add a shared UI primitive     | `apps/web/src/shared/components/` | Cross-feature; keep narrow                             |
+| Add a backend route           | `apps/server/src/runtime/`        | See `apps/server/AGENTS.md` for the runtime split      |
+| Change dev port / proxy       | `apps/web/vite.config.ts`         | `/api` → `localhost:3008`                              |
+| Add a monitor runtime service | `apps/server/src/application/`    | Business services, no Express knowledge                |
+| Add a monitor route           | `apps/server/src/routes/`         | Thin Express adapters over application services        |
 
 ## CONVENTIONS
 

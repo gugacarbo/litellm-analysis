@@ -12,13 +12,13 @@ Dashboard de analytics para monitoramento de uso, custos e erros de LLMs via **m
 
 ## Stack
 
-| Camada   | Tecnologia                          |
-| -------- | ----------------------------------- |
-| Frontend | React 19, Vite 7, React Router 7    |
-| UI       | shadcn/ui, Tailwind CSS 4           |
-| Backend  | Express.js                          |
-| Database | PostgreSQL (`DATABASE_URL`) |
-| Monorepo | Turborepo, pnpm                     |
+| Camada   | Tecnologia                       |
+| -------- | -------------------------------- |
+| Frontend | React 19, Vite 7, React Router 7 |
+| UI       | shadcn/ui, Tailwind CSS 4        |
+| Backend  | Express.js                       |
+| Database | PostgreSQL (`DATABASE_URL`)      |
+| Monorepo | Turborepo, pnpm                  |
 
 ## Quick start
 
@@ -33,11 +33,12 @@ pnpm dev   # web :5178, API :3008
 
 ## Variáveis de ambiente (runtime)
 
-| Variável | Obrigatória | Descrição |
-|----------|-------------|-----------|
-| `DATABASE_URL` | Sim | PostgreSQL do proxy (`model_proxy_*`) |
-| `MODEL_PROXY_API_KEY` | Sim | Chave do proxy local |
-| `MODEL_PROXY_BASE_URL` | Recomendada | Base URL `/v1` para health-check |
+| Variável               | Obrigatória | Descrição                             |
+| ---------------------- | ----------- | ------------------------------------- |
+| `DATABASE_URL`         | Sim         | PostgreSQL do proxy (`model_proxy_*`) |
+| `MODEL_PROXY_API_KEY`  | Sim         | Chave do proxy local                  |
+| `MODEL_PROXY_BASE_URL` | Recomendada | Base URL `/v1` para health-check      |
+
 ## Database as single source of truth
 
 Agents, plugins e models são lidos e escritos exclusivamente no PostgreSQL (`model_proxy_settings` e `model_proxy_*`). O diretório `@settings/` foi removido — não há mais seed/backup via arquivos JSONC.

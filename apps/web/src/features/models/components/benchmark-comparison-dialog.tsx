@@ -103,8 +103,8 @@ export function BenchmarkComparisonDialog({
                               onClick={() => {
                                 onImportField(
                                   field.key,
-                                  field.aa.value,
-                                  field.aa.sourceLabel,
+                                  field.aa?.value,
+                                  field.aa?.sourceLabel || "",
                                 );
                               }}
                             >
@@ -128,8 +128,8 @@ export function BenchmarkComparisonDialog({
                               onClick={() => {
                                 onImportField(
                                   field.key,
-                                  field.openrouter.value,
-                                  field.openrouter.sourceLabel,
+                                  field.openrouter?.value,
+                                  field.openrouter?.sourceLabel || "",
                                 );
                               }}
                             >

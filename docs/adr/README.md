@@ -1,4 +1,4 @@
-# Specs
+# ADRs
 
 <!-- GERADO por scripts/docs-check — não editar à mão -->
 

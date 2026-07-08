@@ -4,11 +4,11 @@
   "ignore": ["**/components/ui/*", ".agents/**"],
   "tags": ["internal"],
   "workspaces": {
-    ".": {
-      "entry": ["apps/server/src/index.ts"]
-    },
     "apps/web": {
-      "entry": ["src/main.tsx"]
+      "project": "**/*.{ts,tsx}"
+    },
+    "apps/server": {
+      "project": "**/*.ts"
     },
     "packages/*": {
       "project": "**/*.ts"
@@ -21,6 +21,14 @@
     },
     "database": {}
   },
-  "ignoreDependencies": ["@lite-llm/config", "tsx"],
-  "ignoreBinaries": ["prettier", "python3"]
+  "ignoreDependencies": [
+    "@fontsource-variable/inter",
+    "@lite-llm/config",
+    "tw-animate-css",
+    "tailwindcss",
+    "tw-shimmer",
+    "shadcn",
+    "tsx"
+  ],
+  "ignoreBinaries": ["python3"]
 }
