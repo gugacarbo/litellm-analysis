@@ -13,20 +13,20 @@ import {
 } from "@lite-llm/llm-config-service";
 import type { Application, Response } from "express";
 import {
-  fetchOpenRouterModelData,
-  listBlockingManualAliases,
-  listManualAliasesForTarget,
-  listManualModelAliases,
-  replaceManualAliasesForTarget,
-  retargetManualAliases,
-} from "../orchestration";
-import {
   findBenchmarkModel,
   getWorkspaceRoot,
   loadBenchmarkDataset,
   loadModelAliases,
   resolveStoragePath,
 } from "../orchestration/benchmark-helpers";
+import {
+  listBlockingManualAliases,
+  listManualAliasesForTarget,
+  listManualModelAliases,
+  replaceManualAliasesForTarget,
+  retargetManualAliases,
+} from "../orchestration/manual-model-aliases";
+import { fetchOpenRouterModelData } from "../orchestration/openrouter-models";
 import {
   createRegistryModelFromRoute,
   listRegistryModels,

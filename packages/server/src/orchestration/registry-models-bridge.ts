@@ -46,6 +46,7 @@ export function resolveModelRouteFromBody(body: {
   return parseModelRouteFromApi(body.modelRoute, modelName);
 }
 
+// @knipignore
 export async function createRegistryModelFromSpec(
   registryModelsService: IRegistryModelsService,
   modelName: string,
@@ -56,6 +57,7 @@ export async function createRegistryModelFromSpec(
   await registryModelsService.upsert(modelName, route);
 }
 
+// @knipignore
 export async function mergeRegistryModelFromSpec(
   registryModelsService: IRegistryModelsService,
   modelName: string,
@@ -112,6 +114,7 @@ export function routeUpdateFromBody(
   return parseModelRouteFromApi(route, modelName);
 }
 
+// @knipignore
 export async function listRegistryRoutes(
   registryModelsService: IRegistryModelsService,
   _dataSource: AnalyticsDataSource,

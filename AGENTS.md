@@ -2,9 +2,9 @@
 
 ```yaml
 casa-repo-id: lite-llm-analytics   # usado em referências cross-repo (repo:ADR-0001)
-casa-tier: T0                            # T0 (leve) | T1 (padrão) — STANDARD §3
-casa-version: 1.2                        # versão do contrato CASA adotado
-casa-standard-ref: b32639a                 # versão do casa-standard de origem — o casa-init carimba
+casa-tier: T1                            # T0 (leve) | T1 (padrão) — STANDARD §3
+casa-version: 1.8                        # versão do contrato CASA adotado (promessa do repo, ADR-0010)
+casa-standard-ref: 7cdb964                 # versão do casa-standard de origem — o casa-init carimba
 ```
 
 > Padrão: https://github.com/atplus-digital/casa-standard (STANDARD.md)
@@ -42,21 +42,16 @@ npm test                 # tudo verde
 <!-- Conhecimento NÃO-INFERÍVEL que já custou tentativas falhas. Todo gotcha
      descoberto pelo agente DEVE ser registrado aqui. -->
 
--
+- 
 
 ## Mapa de contexto
 <!-- Índice dos capítulos (docs/context/), cada um com QUANDO carregar.
      Capítulo = estado atual, imperativo, atemporal. Decisão datada = ADR. -->
 
 | Capítulo | Quando carregar |
-|----------|-----------------|
-| `docs/context/CONVENTIONS.md` | ao implementar features, code review ou onboarding |
-| `docs/context/INFRA.md` | ao configurar ambiente, deploy ou diagnosticar infra |
+|---|---|
+| (nenhum ainda) | — |
 
 ## Mapa de docs
-- Decisões: `docs/adr/` (ADR-0001 … ADR-0006) · Comportamento: `docs/specs/` (SPEC-0001 … SPEC-0004)
-- Contexto: `docs/context/` (capítulos imperativos e atemporais)
-- Planos: `docs/plans/`
-- Tasks: `docs/tasks/`
-- Templates: `docs/templates/`
+- Decisões: `docs/adr/` · Comportamento: `docs/specs/` (READMEs GERADOS — não editar)
 - Validar: `scripts/docs-check` · Regenerar índices: `scripts/docs-check --emit-index`

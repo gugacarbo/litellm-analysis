@@ -84,16 +84,25 @@ function createInMemoryDb() {
     });
   }
 
-  function queryForRows(rows: () => unknown[]) {
-    const query = toThenable(
-      {
-        orderBy: vi.fn(async () => rows()),
-        where: vi.fn(() => query),
-        limit: vi.fn(async (n: number) => rows().slice(0, n)),
-      },
-      async () => rows(),
-    );
-    return query;
+  function createEqualityFilter(tableType: "model" | "provider" | "settings") {
+    return (condition: unknown) => {
+      const conditionStr = String(condition);
+      const searchKey =
+        tableType === "model"
+          ? "model_id"
+          : tableType === "provider"
+            ? "name"
+            : "key";
+      // eq(modelProxyX.name, "value") appears as "modelProxyX.name = $1"
+      const match = conditionStr.match(new RegExp(`${searchKey}\\s*=\\s*\\$1`));
+      const valueMatch = conditionStr.match(/: ("(?:[^"\\]|\\.)*"|[^,\s}]+)/);
+      if (!match || !valueMatch) return null;
+      try {
+        return JSON.parse(valueMatch[1]);
+      } catch {
+        return valueMatch[1].replace(/^"|"$/g, "");
+      }
+    };
   }
 
   const db = {
@@ -113,13 +122,62 @@ function createInMemoryDb() {
       }
       return {
         from: vi.fn((table: unknown) => {
+          let rowsFn: () => unknown[];
+          let filterFn: ((condition: unknown) => string | null) | undefined;
           if (isModelsTable(table)) {
-            return queryForRows(modelData);
+            rowsFn = modelData;
+            filterFn = createEqualityFilter("model");
+          } else if (isSettingsTable(table)) {
+            rowsFn = settingData;
+            filterFn = createEqualityFilter("settings");
+          } else {
+            rowsFn = providerData;
+            filterFn = createEqualityFilter("provider");
           }
-          if (isSettingsTable(table)) {
-            return queryForRows(settingData);
-          }
-          return queryForRows(providerData);
+
+          let currentFilter:
+            | ((row: Record<string, unknown>) => boolean)
+            | null = null;
+          const query = toThenable(
+            {
+              orderBy: vi.fn(() => query),
+              where: vi.fn((condition: unknown) => {
+                const value = filterFn?.(condition);
+                if (value != null) {
+                  currentFilter = (row) =>
+                    String(
+                      row[
+                        filterFn === createEqualityFilter("model")
+                          ? "modelId"
+                          : filterFn === createEqualityFilter("provider")
+                            ? "name"
+                            : "key"
+                      ],
+                    ) === String(value);
+                }
+                return query;
+              }),
+              limit: vi.fn(async (n: number) => {
+                const rows = rowsFn();
+                const filtered = currentFilter
+                  ? rows.filter((r) =>
+                      currentFilter?.(r as Record<string, unknown>),
+                    )
+                  : rows;
+                return filtered.slice(0, n);
+              }),
+            },
+            async () => {
+              const rows = rowsFn();
+              const filtered = currentFilter
+                ? rows.filter((r) =>
+                    currentFilter?.(r as Record<string, unknown>),
+                  )
+                : rows;
+              return filtered;
+            },
+          );
+          return query;
         }),
       };
     }),
@@ -134,9 +192,7 @@ function createInMemoryDb() {
               ...data,
               modelId: String(data.modelId),
               providerId:
-                typeof data.providerId === "string"
-                  ? data.providerId
-                  : null,
+                typeof data.providerId === "string" ? data.providerId : null,
               createdAt: now,
               updatedAt: now,
             };
@@ -168,8 +224,7 @@ function createInMemoryDb() {
               provider:
                 typeof data.provider === "string" ? data.provider : null,
               baseUrl: typeof data.baseUrl === "string" ? data.baseUrl : null,
-              apiKey:
-                typeof data.apiKey === "string" ? data.apiKey : null,
+              apiKey: typeof data.apiKey === "string" ? data.apiKey : null,
               createdAt: now,
               updatedAt: now,
             };
@@ -415,6 +470,16 @@ describe("DbModelsRepository", () => {
           baseUrl: "http://localhost:3008/v1",
           defaultProvider: "router-main",
         },
+        "provider-a": {
+          name: "provider-a",
+          baseUrl: "http://provider-a.example.com/v1",
+          defaultProvider: "provider-a",
+        },
+        "provider-b": {
+          name: "provider-b",
+          baseUrl: "http://provider-b.example.com/v1",
+          defaultProvider: "provider-b",
+        },
       },
       models: {
         "provider-a/gpt-4": {
@@ -433,7 +498,6 @@ describe("DbModelsRepository", () => {
     });
 
     const readBack = await repository.read();
-
     expect(readBack.models["provider-a/gpt-4"]?.displayName).toBe("GPT-4 A");
     expect(readBack.models["provider-b/gpt-4"]?.displayName).toBe("GPT-4 B");
     expect(readBack.models["gpt-4"]).toBeUndefined();

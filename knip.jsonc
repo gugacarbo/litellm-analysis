@@ -1,15 +1,41 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "includeEntryExports": true,
-  "ignore": ["**/components/ui/*"],
+  "ignore": [
+    "**/components/ui/*",
+    ".agents/**"
+  ],
+  "tags": [
+    "internal"
+  ],
   "workspaces": {
     ".": {
       "entry": [
-        "apps/web/src/main.tsx",
-        "apps/server/src/index.ts",
-        "scripts/src/**/index.ts"
+        "apps/server/src/index.ts"
       ]
-    }
+    },
+    "apps/web": {
+      "entry": [
+        "src/main.tsx"
+      ]
+    },
+    "packages/*": {
+      "project": "**/*.ts"
+    },
+    "services/*": {
+      "project": "**/*.ts"
+    },
+    "repositories/*": {
+      "project": "**/*.ts"
+    },
+    "database": {}
   },
-  "ignoreDependencies": ["@lite-llm/config", "zod"]
+  "ignoreDependencies": [
+    "@lite-llm/config",
+    "tsx"
+  ],
+  "ignoreBinaries": [
+    "prettier",
+    "python3"
+  ]
 }

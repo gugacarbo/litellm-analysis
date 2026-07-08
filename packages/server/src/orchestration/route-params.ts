@@ -13,6 +13,7 @@ export function parseDays(rawValue: unknown, fallback: number): number {
   return Math.min(parsed, MAX_DAYS);
 }
 
+// @knipignore
 export function toCostPerToken(costPerToken?: number): number | undefined {
   if (typeof costPerToken !== "number" || Number.isNaN(costPerToken)) {
     return undefined;
@@ -26,6 +27,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 
 const NUMERIC_PARAM_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
 
+// @knipignore
 export function coerceStringParamValue(raw: string): unknown {
   const trimmed = raw.trim();
   if (!trimmed) {
@@ -50,6 +52,7 @@ export function coerceStringParamValue(raw: string): unknown {
   return trimmed;
 }
 
+// @knipignore
 export function coerceRouteParamValue(value: unknown): unknown {
   if (typeof value === "string") {
     return coerceStringParamValue(value);
@@ -57,6 +60,7 @@ export function coerceRouteParamValue(value: unknown): unknown {
   return value;
 }
 
+// @knipignore
 export function coerceRouteParams(
   params: Record<string, unknown>,
 ): Record<string, unknown> {

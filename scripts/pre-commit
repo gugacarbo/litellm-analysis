@@ -5,5 +5,3 @@
 # Contornar exige ato deliberado (git commit --no-verify) — e é assim que deve ser.
 set -euo pipefail
 exec python3 "$(git rev-parse --show-toplevel)/scripts/docs-check"
-pnpm lint-staged
-# pnpm test-staged

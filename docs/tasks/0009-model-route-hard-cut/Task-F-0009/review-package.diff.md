@@ -29,12 +29,12 @@ index 3666a4a..44966a8 100644
 +++ b/docs/context/CONVENTIONS.md
 @@ -1,86 +1,86 @@
  # Convenções de Projeto
- 
+
  > Estado atual, imperativo e atemporal. Decisões datadas → `docs/adr/`.
  > Carregar ao implementar features, code review ou onboarding.
- 
+
  ## Nomenclatura
- 
+
  | Contexto                | Convenção                                                                            | Exemplo                                      |
  | ----------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------- |
  | API / TypeScript (novo) | `camelCase`                                                                          | `modelRoute`, `inputCostPerToken`            |
@@ -43,51 +43,51 @@ index 3666a4a..44966a8 100644
  | Tipos de modelo         | `modelRoute` (NUNCA `litellmParams`)                                                 | `ModelRoute`, `model-route.ts`               |
  | Estados de sync         | `synced`, `config-only`, `registry-only`, `config-to-registry`, `registry-to-config` | —                                            |
  | Providers               | nomes neutros (NUNCA `litellm`)                                                      | `local-proxy`, `openai-compatible`           |
- 
+
  **Proibido:** usar `litellmParams`, `litellm-only`, `config-to-litellm`, `litellm-to-config`, `LiteLLM_*` em código novo ou UI.
- 
+
  ## Segurança
- 
+
  ### Credenciais upstream
  - **NUNCA** persistir segredo bruto no banco.
  - Campo canônico: `secretRef` (nome de env var, ex. `OPENAI_API_KEY`).
  - `secretRef` **NÃO** usa prefixo `env:` — é o nome exato da variável.
  - Writes no campo `apiKey` são **rejeitados** no service layer.
  - Credenciais upstream **NUNCA** aparecem em artefatos gerados (OpenCode, VS Code, OpenAgent).
- 
+
  ### API keys locais (proxy)
  - Hash **argon2id** (preferido) ou **bcrypt** com cost ≥ 10.
  - Plaintext retornado **apenas uma vez** na resposta HTTP de criação.
  - Coluna `keyHash` é `@unique`; nunca armazenar plaintext.
  - Bootstrap: `MODEL_PROXY_API_KEY` aceita quando tabela `model_proxy_api_keys` está vazia (dev apenas).
- 
+
  ## Acesso a dados
- 
+
  ### ORM
  - **Drizzle ORM** é o único ORM do monorepo. Prisma e `better-sqlite3` foram removidos.
  - Package central: `@lite-llm/database` em `database`.
  - Schemas em `database/src/schema/`.
  - Migrations em `database/drizzle/` (descartáveis — schema é fonte da verdade).
- 
+
  ### Política de leitura/escrita
  - **Single-write:** todo write operacional vai para tabelas `model_proxy_*`.
  - **Dual-read:** leitura consulta registry primeiro, com fallback para adapters legados.
  - **Proibido:** escrever em tabelas `LiteLLM_*`; dual-write registry + LiteLLM.
- 
+
  ### Fonte da verdade
  - **Banco de dados PostgreSQL** é a única fonte de verdade para agentes, modelos, plugins e configurações.
  - Pasta `@settings/` foi removida. Nenhum código depende dela.
  - Scripts `settings:import` e `settings:export` foram removidos.
- 
+
  ## Configuração operacional
- 
+
  - Tabela `model_proxy_settings` (chave-valor JSON).
  - Chaves: `default_credential`, `health_check_prompt`, `router_settings`.
  - Metadados de aliases em `router_settings.value.__lite_llm_analytics.*`.
  - Leitura: `model_proxy_settings` primeiro → fallback `LiteLLM_Config` via adapter.
- 
+
  ## Modelos e providers
- 
+
  - Registry primário: `model_proxy_models` + `model_proxy_providers`.
 -- Tipo público: `modelRoute` (API aceita `litellmParams` via shim, normaliza para `modelRoute`).
 -- Resposta expõe `modelRoute`; `litellmParams` é alias deprecado.
@@ -95,22 +95,22 @@ index 3666a4a..44966a8 100644
 +- Resposta expõe apenas `modelRoute`; `litellmParams` é rejeitado com 4xx.
  - Provider-scoped routing: `providerName/modelName` (SPEC-0002).
  - `is_default_provider` define resolução padrão quando há múltiplos providers para o mesmo modelo.
- 
+
  ## API e erros
- 
+
  - Envelope de erro padrão (definir conforme implementação do server).
  - Autorização via `Authorization: Bearer <key>` validada contra `model_proxy_api_keys`.
  - Ordem de auth: 1) DB (`keyHash` match + `enabled`), 2) fallback `MODEL_PROXY_API_KEY`.
- 
+
  ## Testes
- 
+
  - Comando canônico: `pnpm test` (tudo verde).
  - Typecheck: `pnpm typecheck` (exit 0 em todos os packages).
  - Testes de repositório usam `pg-mem` (Drizzle in-memory) — helper `createTestDb()` do `@lite-llm/database`.
  - Bugfix: teste de regressão ANTES do fix.
- 
+
  ## Docs
- 
+
  - ADRs em `docs/adr/` (template: `docs/templates/adr.template.md`).
  - Specs em `docs/specs/` (template: `docs/templates/spec.template.md`).
  - Contexto em `docs/context/` (capítulos imperativos e atemporais).
@@ -217,7 +217,6 @@ index 99ad6f9..ed634ef 100644
        "packages/config/src/server.ts",
        ".env.example",
        ".env.local",
-       "packages/agents-manager/src/config/defaults.ts",
        "packages/agents-manager/src/index.ts",
        "packages/agents-manager/src/repository/client.ts",
        "apps/server/src/runtime/app-runtime.ts",
@@ -330,13 +329,13 @@ index 001f937..780ec62 100644
 +  - apps/web/src/features/models/models-utils.ts
 +  - apps/web/src/shared/lib/api-client/models.ts
  ---
- 
+
  # ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters
- 
+
  > Convenções compartilhadas (nomenclatura, bordas de persistência, source of
  > truth): `docs/context/CONVENTIONS.md`. Esta spec endurece essas convenções e
  > remove superfícies que ainda as contradizem.
- 
+
  ## Objetivo
 @@ -114,23 +122,34 @@ pnpm test
  Além disso:
@@ -347,18 +346,18 @@ index 001f937..780ec62 100644
    chaves legadas.
  - [x] Não permanecem superfícies operacionais que usem `litellmParams` ou nomes
    públicos legados fora de testes de rejeição.
- 
+
  ## Revisão humana
- 
+
  - Revisar se ainda existe algum consumidor administrativo externo ao repo que
    dependa da aceitação de payload legado na API de modelos.
  - Revisar se a separação entre `ModelRoute` e campos realmente não pertencentes
    ao roteamento permaneceu clara após a limpeza do server.
  - Validar visualmente a tabela de modelos e o fluxo de create/update/edit depois
    do hard cut.
- 
+
  ## Verificação
- 
+
  ```text
 -(preencher no fechamento)
 +pnpm typecheck  → exit 0 (todos os packages)
@@ -380,20 +379,20 @@ index 7cca1e4..e212047 100644
 +++ b/docs/specs/README.md
 @@ -1,14 +1,14 @@
  # Specs
- 
+
  <!-- GERADO por scripts/docs-check — não editar à mão -->
- 
- | id | título | status |
- |---|---|---|
- | [SPEC-0001](0001-manual-model-routing-aliases-spec.md) | Manual model routing aliases can be created from a model detail page and managed from a global aliases view | accepted |
- | [SPEC-0002](0002-provider-model-routing-and-db-source-spec.md) | Provider-scoped model routing with default provider resolution and database as single source of truth | draft |
- | [SPEC-0003](0003-db-single-source-of-truth-spec.md) | Database becomes the single source of truth for agents, models, and plugins | implemented |
- | [SPEC-0004](0004-prisma-to-drizzle-migration-spec.md) | Migrar toda a camada de dados de Prisma para Drizzle, unificando PostgreSQL | deprecated |
- | [SPEC-0006](0006-benchmarks-database-storage-spec.md) | Persistir dados de benchmark do Artificial Analysis no banco de dados | draft |
- | [SPEC-0007](0007-model-config-screen-refactor-spec.md) | The model configuration settings tab is reorganized into General, Routing, and Advanced tabs with extracted sub-hooks | accepted |
- | [SPEC-0008](0008-benchmark-comparison-dialog-spec.md) | Botão na tela de settings do modelo que abre um dialog comparativo entre AA e OpenRouter com importação campo a campo | implemented |
--| [SPEC-0009](0009-model-route-hard-cut-spec.md) | ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters | draft |
-+| [SPEC-0009](0009-model-route-hard-cut-spec.md) | ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters | implemented |
+
+ | id                                                             | título                                                                                                                | status                                                                                                      |
+ | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+ | [SPEC-0001](0001-manual-model-routing-aliases-spec.md)         | Manual model routing aliases can be created from a model detail page and managed from a global aliases view           | accepted                                                                                                    |
+ | [SPEC-0002](0002-provider-model-routing-and-db-source-spec.md) | Provider-scoped model routing with default provider resolution and database as single source of truth                 | draft                                                                                                       |
+ | [SPEC-0003](0003-db-single-source-of-truth-spec.md)            | Database becomes the single source of truth for agents, models, and plugins                                           | implemented                                                                                                 |
+ | [SPEC-0004](0004-prisma-to-drizzle-migration-spec.md)          | Migrar toda a camada de dados de Prisma para Drizzle, unificando PostgreSQL                                           | deprecated                                                                                                  |
+ | [SPEC-0006](0006-benchmarks-database-storage-spec.md)          | Persistir dados de benchmark do Artificial Analysis no banco de dados                                                 | draft                                                                                                       |
+ | [SPEC-0007](0007-model-config-screen-refactor-spec.md)         | The model configuration settings tab is reorganized into General, Routing, and Advanced tabs with extracted sub-hooks | accepted                                                                                                    |
+ | [SPEC-0008](0008-benchmark-comparison-dialog-spec.md)          | Botão na tela de settings do modelo que abre um dialog comparativo entre AA e OpenRouter com importação campo a campo | implemented                                                                                                 |
+ | -                                                              | [SPEC-0009](0009-model-route-hard-cut-spec.md)                                                                        | ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters | draft       |
+ | +                                                              | [SPEC-0009](0009-model-route-hard-cut-spec.md)                                                                        | ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters | implemented |
 diff --git a/docs/tasks/0009-model-route-hard-cut/Task-E-0009/review-package.diff.md b/docs/tasks/0009-model-route-hard-cut/Task-E-0009/review-package.diff.md
 new file mode 100644
 index 0000000..a564fb6
@@ -433,19 +432,19 @@ index 0000000..a564fb6
 +     vi.unstubAllEnvs();
 +     vi.stubEnv("APP_ENCRYPTION_KEY", "01234567890123456789012345678901");
 +   });
-+ 
++
 +   afterEach(() => {
 +     vi.restoreAllMocks();
 +     vi.unstubAllEnvs();
 +   });
-+ 
++
 +   describe("settings roundtrip", () => {
 +     it("persists default provider through provider routes", async () => {
 +       const { port, server } = await createRegistryHttpServer(
 +         undefined,
 +         "providers",
 +       );
-+ 
++
 +       try {
 +         const putResponse = await fetch(
 +           `http://127.0.0.1:${port}/providers/default`,
@@ -457,7 +456,7 @@ index 0000000..a564fb6
 +         );
 +         expect(putResponse.status).toBe(200);
 +         expect(await putResponse.json()).toEqual({ success: true });
-+ 
++
 +         const getResponse = await fetch(
 +           `http://127.0.0.1:${port}/providers/default`,
 +         );
@@ -465,7 +464,7 @@ index 0000000..a564fb6
 +         expect(await getResponse.json()).toEqual({
 +           defaultProvider: "openai-main",
 +         });
-+ 
++
 +         const clearResponse = await fetch(
 +           `http://127.0.0.1:${port}/providers/default`,
 +           {
@@ -475,7 +474,7 @@ index 0000000..a564fb6
 +           },
 +         );
 +         expect(clearResponse.status).toBe(200);
-+ 
++
 +         const clearedGet = await fetch(
 +           `http://127.0.0.1:${port}/providers/default`,
 +         );
@@ -484,13 +483,13 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("stores raw api keys securely and never returns them in provider responses", async () => {
 +       const { port, server } = await createRegistryHttpServer(
 +         undefined,
 +         "providers",
 +       );
-+ 
++
 +       try {
 +         const createResponse = await fetch(
 +           `http://127.0.0.1:${port}/providers`,
@@ -513,7 +512,7 @@ index 0000000..a564fb6
 +             hasStoredSecret: true,
 +           }),
 +         );
-+ 
++
 +         const listResponse = await fetch(`http://127.0.0.1:${port}/providers`);
 +         expect(listResponse.status).toBe(200);
 +         expect(await listResponse.json()).toEqual([
@@ -526,13 +525,13 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("exposes OpenAI OAuth connection status routes", async () => {
 +       const { port, server } = await createRegistryHttpServer(
 +         undefined,
 +         "providers",
 +       );
-+ 
++
 +       try {
 +         const statusResponse = await fetch(
 +           `http://127.0.0.1:${port}/providers/openai-oauth`,
@@ -542,7 +541,7 @@ index 0000000..a564fb6
 +           connected: false,
 +           baseUrl: "https://chatgpt.com/backend-api/codex",
 +         });
-+ 
++
 +         const startResponse = await fetch(
 +           `http://127.0.0.1:${port}/providers/openai-oauth/device/start`,
 +           { method: "POST" },
@@ -551,7 +550,7 @@ index 0000000..a564fb6
 +         expect(await startResponse.json()).toMatchObject({
 +           userCode: "ABCD-1234",
 +         });
-+ 
++
 +         const registerResponse = await fetch(
 +           `http://127.0.0.1:${port}/providers/openai-oauth/register-models`,
 +           {
@@ -572,7 +571,7 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("discovers provider models through saved providers", async () => {
 +       let receivedAuthorization = "";
 +       let receivedPath = "";
@@ -591,12 +590,12 @@ index 0000000..a564fb6
 +           }),
 +         );
 +       });
-+ 
++
 +       upstreamServer.listen(0);
 +       await new Promise<void>((resolve) => {
 +         upstreamServer.once("listening", () => resolve());
 +       });
-+ 
++
 +       const upstreamPort = (upstreamServer.address() as AddressInfo).port;
 +       const stack = createRegistryTestStack();
 +       await stack.registry.providersService.create({
@@ -605,12 +604,12 @@ index 0000000..a564fb6
 +         baseUrl: `http://127.0.0.1:${upstreamPort}`,
 +         apiKey: "secret-123",
 +       });
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(
 +         stack,
 +         "providers",
 +       );
-+ 
++
 +       try {
 +         const response = await fetch(
 +           `http://127.0.0.1:${port}/providers/groq-main/discover-models`,
@@ -631,7 +630,7 @@ index 0000000..a564fb6
 +         await closeServer(upstreamServer);
 +       }
 +     });
-+ 
++
 +     it("registers discovered provider models with provider routing", async () => {
 +       const stack = createRegistryTestStack();
 +       await stack.registry.providersService.create({
@@ -640,12 +639,12 @@ index 0000000..a564fb6
 +         baseUrl: "https://api.groq.com/openai/v1",
 +         apiKey: "sk-groq-test-key",
 +       });
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(
 +         stack,
 +         "providers",
 +       );
-+ 
++
 +       try {
 +         const response = await fetch(
 +           `http://127.0.0.1:${port}/providers/groq-main/register-models`,
@@ -660,14 +659,14 @@ index 0000000..a564fb6
 +             }),
 +           },
 +         );
-+ 
++
 +         expect(response.status).toBe(200);
 +         expect(await response.json()).toEqual({
 +           registered: ["llama-3.3-70b"],
 +           skipped: ["llama-3.3-70b"],
 +           errors: [],
 +         });
-+ 
++
 +         const route =
 +           await stack.registry.registryModelsService.getRoute("llama-3.3-70b");
 +         expect(route).toMatchObject({
@@ -681,7 +680,7 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("tests discovered provider models through saved providers", async () => {
 +       let receivedAuthorization = "";
 +       let receivedPath = "";
@@ -689,7 +688,7 @@ index 0000000..a564fb6
 +       const upstreamServer = createServer((req, res) => {
 +         receivedAuthorization = req.headers.authorization ?? "";
 +         receivedPath = req.url ?? "";
-+ 
++
 +         req.setEncoding("utf8");
 +         req.on("data", (chunk) => {
 +           receivedBody += chunk;
@@ -709,12 +708,12 @@ index 0000000..a564fb6
 +           );
 +         });
 +       });
-+ 
++
 +       upstreamServer.listen(0);
 +       await new Promise<void>((resolve) => {
 +         upstreamServer.once("listening", () => resolve());
 +       });
-+ 
++
 +       const upstreamPort = (upstreamServer.address() as AddressInfo).port;
 +       const stack = createRegistryTestStack();
 +       await stack.registry.providersService.create({
@@ -723,12 +722,12 @@ index 0000000..a564fb6
 +         baseUrl: `http://127.0.0.1:${upstreamPort}`,
 +         apiKey: "secret-123",
 +       });
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(
 +         stack,
 +         "providers",
 +       );
-+ 
++
 +       try {
 +         const response = await fetch(
 +           `http://127.0.0.1:${port}/providers/groq-main/test-chat`,
@@ -741,7 +740,7 @@ index 0000000..a564fb6
 +             }),
 +           },
 +         );
-+ 
++
 +         expect(response.status).toBe(200);
 +         expect(await response.json()).toEqual({ content: "quick ok" });
 +         expect(receivedAuthorization).toBe("Bearer secret-123");
@@ -757,16 +756,16 @@ index 0000000..a564fb6
 +         await closeServer(upstreamServer);
 +       }
 +     });
-+ 
++
 +     it("roundtrips health check prompt and router settings in registry", async () => {
 +       const stack = createRegistryTestStack();
 +       const { settingsService } = stack.registry;
-+ 
++
 +       await settingsService.setHealthCheckPrompt("ping from registry");
 +       expect(await settingsService.getHealthCheckPrompt()).toBe(
 +         "ping from registry",
 +       );
-+ 
++
 +       const routerPayload = {
 +         model_group_alias: { fast: "gpt-fast" },
 +         __lite_llm_analytics: { managedModelGroupAliasKeys: ["fast"] },
@@ -775,14 +774,14 @@ index 0000000..a564fb6
 +       expect(await settingsService.getRouterSettings()).toEqual(routerPayload);
 +     });
 +   });
-+ 
++
 +   describe("registry model CRUD", () => {
 +     it("creates, lists, updates, and deletes models through routes", async () => {
 +       const { port, server, stack } = await createRegistryHttpServer(
 +         undefined,
 +         "models",
 +       );
-+ 
++
 +       try {
 +         const createResponse = await fetch(`http://127.0.0.1:${port}/models`, {
 +           method: "POST",
@@ -797,7 +796,7 @@ index 0000000..a564fb6
 +           }),
 +         });
 +         expect(createResponse.status).toBe(201);
-+ 
++
 +         const listResponse = await fetch(`http://127.0.0.1:${port}/models`);
 +         expect(listResponse.status).toBe(200);
 +         const models = (await listResponse.json()) as Array<{
@@ -814,7 +813,7 @@ index 0000000..a564fb6
 +             maxOutputTokens: 4096,
 +           }),
 +         });
-+ 
++
 +         const updateResponse = await fetch(
 +           `http://127.0.0.1:${port}/models/gpt-integration`,
 +           {
@@ -826,13 +825,13 @@ index 0000000..a564fb6
 +           },
 +         );
 +         expect(updateResponse.status).toBe(200);
-+ 
++
 +         const route =
 +           await stack.registry.registryModelsService.getRoute(
 +             "gpt-integration",
 +           );
 +         expect(route?.maxOutputTokens).toBe(8192);
-+ 
++
 +         const deleteResponse = await fetch(
 +           `http://127.0.0.1:${port}/models/gpt-integration`,
 +           { method: "DELETE" },
@@ -845,13 +844,13 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("creates a model when only modelRoute is provided", async () => {
 +       const { port, server, stack } = await createRegistryHttpServer(
 +         undefined,
 +         "models",
 +       );
-+ 
++
 +       try {
 +         const createResponse = await fetch(`http://127.0.0.1:${port}/models`, {
 +           method: "POST",
@@ -865,7 +864,7 @@ index 0000000..a564fb6
 +           }),
 +         });
 +         expect(createResponse.status).toBe(201);
-+ 
++
 +         const route =
 +           await stack.registry.registryModelsService.getRoute(
 +             "route-only-model",
@@ -876,13 +875,13 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("rejects legacy litellmParams in model create request", async () => {
 +       const { port, server } = await createRegistryHttpServer(
 +         undefined,
 +         "models",
 +       );
-+ 
++
 +       try {
 +         const response = await fetch(`http://127.0.0.1:${port}/models`, {
 +           method: "POST",
@@ -902,13 +901,13 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("rejects snake_case model_name in model create request", async () => {
 +       const { port, server } = await createRegistryHttpServer(
 +         undefined,
 +         "models",
 +       );
-+ 
++
 +       try {
 +         const response = await fetch(`http://127.0.0.1:${port}/models`, {
 +           method: "POST",
@@ -930,7 +929,7 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 ++    it("rejects legacy model field in model create request", async () => {
 ++      const { port, server } = await createRegistryHttpServer(
 ++        undefined,
@@ -963,9 +962,9 @@ index 0000000..a564fb6
 +       const stack = createRegistryTestStack();
 +       await stack.seedConfigModel("display-name-model");
 +       await stack.seedRegistryModel("display-name-model");
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(stack, "models");
-+ 
++
 +       try {
 +         const updateResponse = await fetch(
 +           `http://127.0.0.1:${port}/models/display-name-model`,
@@ -988,14 +987,14 @@ index 0000000..a564fb6
 +           },
 +         );
 +         expect(updateResponse.status).toBe(200);
-+ 
++
 +         const configModel = await stack.modelsService.get("display-name-model");
 +         expect(configModel?.displayName).toBe("GPT Display Name");
 +         expect(configModel?.family).toBe("gpt-family");
 +         expect(configModel?.ownedBy).toBe("openai");
 +         expect(configModel?.apiMode).toBe("openai");
 +         expect(configModel?.vision).toBe(true);
-+ 
++
 +         const route =
 +           await stack.registry.registryModelsService.getRoute(
 +             "display-name-model",
@@ -1007,7 +1006,7 @@ index 0000000..a564fb6
 +         expect(route?.vision).toBeUndefined();
 +         expect(route?.inputCostPerToken).toBe(0.000003);
 +         expect(route?.requestOptions).toBeUndefined();
-+ 
++
 +         const withConfig = await fetch(
 +           `http://127.0.0.1:${port}/models/with-config`,
 +         );
@@ -1026,9 +1025,9 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +   });
-+ 
++
 +   describe("providers", () => {
 +     it("lists providers without exposing stored secrets", async () => {
 +       const stack = createRegistryTestStack();
@@ -1038,16 +1037,16 @@ index 0000000..a564fb6
 +         baseUrl: "https://api.openai.com/v1",
 +         apiKey: "sk-openai-test-key",
 +       });
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(
 +         stack,
 +         "providers",
 +       );
-+ 
++
 +       try {
 +         const response = await fetch(`http://127.0.0.1:${port}/providers`);
 +         expect(response.status).toBe(200);
-+ 
++
 +         const body = (await response.json()) as Array<Record<string, unknown>>;
 +         expect(body).toHaveLength(1);
 +         expect(body[0]).toMatchObject({
@@ -1065,7 +1064,7 @@ index 0000000..a564fb6
 +       }
 +     });
 +   });
-+ 
++
 +   describe("api key auth", () => {
 +     it("authorizes proxy requests with registry API keys", async () => {
 +       vi.stubEnv("MODEL_PROXY_API_KEY", "");
@@ -1074,13 +1073,13 @@ index 0000000..a564fb6
 +         { label: "integration" },
 +         "mp_integration_key",
 +       );
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(stack, "proxy");
-+ 
++
 +       try {
 +         const unauthorized = await fetch(`http://127.0.0.1:${port}/v1/models`);
 +         expect(unauthorized.status).toBe(401);
-+ 
++
 +         const authorized = await fetch(`http://127.0.0.1:${port}/v1/models`, {
 +           headers: { authorization: "Bearer mp_integration_key" },
 +         });
@@ -1090,7 +1089,7 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("rejects disabled registry API keys", async () => {
 +       vi.stubEnv("MODEL_PROXY_API_KEY", "");
 +       const stack = createRegistryTestStack();
@@ -1103,9 +1102,9 @@ index 0000000..a564fb6
 +         "mp_disabled_key",
 +       );
 +       await stack.registry.apiKeysService.disable(created.record.id);
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(stack, "proxy");
-+ 
++
 +       try {
 +         const response = await fetch(`http://127.0.0.1:${port}/v1/models`, {
 +           headers: { authorization: "Bearer mp_disabled_key" },
@@ -1116,7 +1115,7 @@ index 0000000..a564fb6
 +       }
 +     });
 +   });
-+ 
++
 +   describe("sync states", () => {
 +     it("reports synced, config-only, and registry-only models", async () => {
 +       const stack = createRegistryTestStack();
@@ -1128,15 +1127,15 @@ index 0000000..a564fb6
 +       await stack.seedRegistryModel("synced-model", {
 +         displayName: "Synced",
 +       });
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(stack, "models");
-+ 
++
 +       try {
 +         const response = await fetch(
 +           `http://127.0.0.1:${port}/models/with-config`,
 +         );
 +         expect(response.status).toBe(200);
-+ 
++
 +         const body = (await response.json()) as {
 +           models: Array<{ modelName: string; status: string }>;
 +           counts: {
@@ -1147,7 +1146,7 @@ index 0000000..a564fb6
 +           };
 +           settingsStorage: string;
 +         };
-+ 
++
 +         const byName = new Map(
 +           body.models.map((model) => [model.modelName, model.status]),
 +         );
@@ -1160,7 +1159,7 @@ index 0000000..a564fb6
 +           registryOnly: 1,
 +           total: 3,
 +         });
-+ 
++
 +         for (const model of body.models) {
 +           expect(model.status).not.toMatch(/litellm/i);
 +         }
@@ -1168,13 +1167,13 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("normalizes legacy litellm-only status labels in sync-batch", async () => {
 +       const stack = createRegistryTestStack();
 +       await stack.seedRegistryModel("legacy-registry-model");
-+ 
++
 +       const { port, server } = await createRegistryHttpServer(stack, "models");
-+ 
++
 +       try {
 +         const response = await fetch(
 +           `http://127.0.0.1:${port}/models/sync-batch`,
@@ -1198,11 +1197,11 @@ index 0000000..a564fb6
 +         await closeServer(server);
 +       }
 +     });
-+ 
++
 +     it("exports consumer configs via POST /models/export-configs", async () => {
 +       const stack = createRegistryTestStack();
 +       const { port, server } = await createRegistryHttpServer(stack, "models");
-+ 
++
 +       try {
 +         const response = await fetch(
 +           `http://127.0.0.1:${port}/models/export-configs`,
@@ -1226,34 +1225,34 @@ index 0000000..a564fb6
 +   beforeEach(() => {
 +     vi.clearAllMocks();
 +   });
-+ 
++
 +   it("should show create button", async () => {
 +     renderWithQueryClient(<ModelsConfiguredPage />);
-+ 
++
 +     const modelNames = await screen.findAllByText(/gpt-4|claude-3-opus/);
 +     expect(modelNames.length).toBeGreaterThan(0);
-+ 
++
 +     expect(
 +       screen.getByRole("button", { name: /add model/i }),
 +     ).toBeInTheDocument();
 +   });
-+ 
++
 +   it("should show delete buttons", async () => {
 +     renderWithQueryClient(<ModelsConfiguredPage />);
-+ 
++
 +     await screen.findAllByText(/gpt-4|claude-3-opus/);
-+ 
++
 +     const deleteButtons = screen
 +       .getAllByRole("button")
 +       .filter((btn) => btn.querySelector("svg.lucide-trash-2"));
 +     expect(deleteButtons.length).toBeGreaterThanOrEqual(2);
 +   });
-+ 
++
 +   it("should show edit link", async () => {
 +     renderWithQueryClient(<ModelsConfiguredPage />);
-+ 
++
 +     await screen.findAllByText(/gpt-4|claude-3-opus/);
-+ 
++
 +     const editLinks = screen
 +       .getAllByRole("link")
 +       .filter((link) => link.querySelector("svg.lucide-pencil"));
@@ -1323,15 +1322,15 @@ index 0000000..a564fb6
 ++++ b/docs/tasks/0009-model-route-hard-cut/progress-ledger.md
 +@@ -1,56 +1,56 @@
 + # Progress Ledger: model-route-hard-cut
-+ 
++
 + > **Plan:** `0009-model-route-hard-cut`
 + > **Registry:** `docs/tasks/0009-model-route-hard-cut/super-plan.json`
 +-> **Generated:** 2026-07-07T14:09:41Z
 ++> **Generated:** 2026-07-07T14:11:38Z
 + > **Regenerated on every `super-plan.json` write via the active `render-progress-ledger.sh` helper path**
-+ 
++
 + ## Summary
-+ 
++
 + | Status | Count |
 + |--------|-------|
 + | pending | 2 |
@@ -1345,17 +1344,17 @@ index 0000000..a564fb6
 ++| completed | 4 |
 + | cancelled | 0 |
 + | **Total** | **6** |
-+ 
++
 + ## Agent Profiles
-+ 
++
 + | Profile | Model | Agent |
 + |---------|-------|-------|
 + | general | default | general |
 + | deep | default | deep |
 + | quick | default | quick |
-+ 
++
 + ## Tasks
-+ 
++
 + | Task ID | Title | Profile | Batch | Phase | Status | Dependencies |
 + |---------|-------|---------|-------|-------|--------|-------------|
 + | Task-A-0009 | Canonicalize shared ModelRoute contract and adapter semantics | general | A | foundation | ✅ completed | — |
@@ -1365,15 +1364,15 @@ index 0000000..a564fb6
 ++| Task-D-0009 | Refactor the web models surface around typed route and table-row data | deep | D | surface | ✅ completed | Task-A-0009, Task-C-0009 |
 + | Task-E-0009 | Refresh regression coverage for the hard cut | general | E | surface | ⏳ pending | Task-B-0009, Task-C-0009, Task-D-0009 |
 + | Task-F-0009 | Close docs alignment and final verification hooks | quick | F | final | ⏳ pending | Task-E-0009 |
-+ 
++
 + ## Timeline
-+ 
++
 + | Timestamp | Task | Event | Try |
 + |-----------|------|-------|-----|
 + | — | — | no task events logged yet | — |
-+ 
++
 + ## Requirements Coverage
-+ 
++
 + | Requirement | Status | Covered By |
 + |-------------|--------|------------|
 + | REQ-1: ModelRoute is the only public model-route contract across shared packages | ✅ completed | Task-A-0009 |
@@ -2142,7 +2141,7 @@ index 0000000..a564fb6
 +       expect(_detailResp.key).toBe("test");
 +       expect(_detailResp.agent.displayName).toBe("Test");
 +     });
-+ 
++
 +     it("imports analytics types", () => {
 +       const spendByModel: SpendByModel = {
 +         model: "gpt-4",
@@ -2197,14 +2196,14 @@ index 0000000..a564fb6
 +         activeModels: 3,
 +         errorCount: 2,
 +       };
-+ 
++
 +       expect(spendByModel.model).toBe("gpt-4");
 +       expect(pagination.total_pages).toBe(5);
 +       expect(spendLog.request_id).toBe("req-1");
 +       expect(errorLog.error_type).toBe("timeout");
 +       expect(filters.model).toBe("gpt-4");
 +       expect(summary.activeModels).toBe(3);
-+ 
++
 +       const userSpend: UserSpend = {
 +         user: "u1",
 +         total_spend: 50,
@@ -2300,7 +2299,7 @@ index 0000000..a564fb6
 +         total_tokens: 50000,
 +         request_count: 100,
 +       };
-+ 
++
 +       expect(userSpend.total_spend).toBe(50);
 +       expect(keySpend.total_tokens).toBe(10000);
 +       expect(dailySpend.spend).toBe(10);
@@ -2366,66 +2365,66 @@ index 9550d47..3f946e4 100644
 +++ b/docs/tasks/0009-model-route-hard-cut/progress-ledger.md
 @@ -1,56 +1,56 @@
  # Progress Ledger: model-route-hard-cut
- 
+
  > **Plan:** `0009-model-route-hard-cut`
  > **Registry:** `docs/tasks/0009-model-route-hard-cut/super-plan.json`
 -> **Generated:** 2026-07-07T14:11:38Z
 +> **Generated:** 2026-07-07T14:14:37Z
  > **Regenerated on every `super-plan.json` write via the active `render-progress-ledger.sh` helper path**
- 
+
  ## Summary
- 
- | Status | Count |
- |--------|-------|
--| pending | 2 |
-+| pending | 1 |
- | in_progress | 0 |
- | ready_for_review | 0 |
- | reviewing | 0 |
- | needs_fix | 0 |
- | blocked | 0 |
--| completed | 4 |
-+| completed | 5 |
- | cancelled | 0 |
- | **Total** | **6** |
- 
+
+ | Status           | Count     |
+ | ---------------- | --------- |
+ | -                | pending   | 2 |
+ | +                | pending   | 1 |
+ | in_progress      | 0         |
+ | ready_for_review | 0         |
+ | reviewing        | 0         |
+ | needs_fix        | 0         |
+ | blocked          | 0         |
+ | -                | completed | 4 |
+ | +                | completed | 5 |
+ | cancelled        | 0         |
+ | **Total**        | **6**     |
+
  ## Agent Profiles
- 
- | Profile | Model | Agent |
- |---------|-------|-------|
+
+ | Profile | Model   | Agent   |
+ | ------- | ------- | ------- |
  | general | default | general |
- | deep | default | deep |
- | quick | default | quick |
- 
+ | deep    | default | deep    |
+ | quick   | default | quick   |
+
  ## Tasks
- 
- | Task ID | Title | Profile | Batch | Phase | Status | Dependencies |
- |---------|-------|---------|-------|-------|--------|-------------|
- | Task-A-0009 | Canonicalize shared ModelRoute contract and adapter semantics | general | A | foundation | ✅ completed | — |
- | Task-B-0009 | Harden the HTTP/orchestration boundary | general | B | foundation | ✅ completed | Task-A-0009 |
- | Task-C-0009 | Collapse parallel route and config handling in the server runtime | deep | C | core | ✅ completed | Task-B-0009 |
- | Task-D-0009 | Refactor the web models surface around typed route and table-row data | deep | D | surface | ✅ completed | Task-A-0009, Task-C-0009 |
--| Task-E-0009 | Refresh regression coverage for the hard cut | general | E | surface | ⏳ pending | Task-B-0009, Task-C-0009, Task-D-0009 |
-+| Task-E-0009 | Refresh regression coverage for the hard cut | general | E | surface | ✅ completed | Task-B-0009, Task-C-0009, Task-D-0009 |
- | Task-F-0009 | Close docs alignment and final verification hooks | quick | F | final | ⏳ pending | Task-E-0009 |
- 
+
+ | Task ID     | Title                                                                 | Profile                                      | Batch   | Phase      | Status      | Dependencies             |
+ | ----------- | --------------------------------------------------------------------- | -------------------------------------------- | ------- | ---------- | ----------- | ------------------------ |
+ | Task-A-0009 | Canonicalize shared ModelRoute contract and adapter semantics         | general                                      | A       | foundation | ✅ completed | —                        |
+ | Task-B-0009 | Harden the HTTP/orchestration boundary                                | general                                      | B       | foundation | ✅ completed | Task-A-0009              |
+ | Task-C-0009 | Collapse parallel route and config handling in the server runtime     | deep                                         | C       | core       | ✅ completed | Task-B-0009              |
+ | Task-D-0009 | Refactor the web models surface around typed route and table-row data | deep                                         | D       | surface    | ✅ completed | Task-A-0009, Task-C-0009 |
+ | -           | Task-E-0009                                                           | Refresh regression coverage for the hard cut | general | E          | surface     | ⏳ pending                | Task-B-0009, Task-C-0009, Task-D-0009 |
+ | +           | Task-E-0009                                                           | Refresh regression coverage for the hard cut | general | E          | surface     | ✅ completed              | Task-B-0009, Task-C-0009, Task-D-0009 |
+ | Task-F-0009 | Close docs alignment and final verification hooks                     | quick                                        | F       | final      | ⏳ pending   | Task-E-0009              |
+
  ## Timeline
- 
- | Timestamp | Task | Event | Try |
- |-----------|------|-------|-----|
- | — | — | no task events logged yet | — |
- 
+
+ | Timestamp | Task | Event                     | Try |
+ | --------- | ---- | ------------------------- | --- |
+ | —         | —    | no task events logged yet | —   |
+
  ## Requirements Coverage
- 
- | Requirement | Status | Covered By |
- |-------------|--------|------------|
- | REQ-1: ModelRoute is the only public model-route contract across shared packages | ✅ completed | Task-A-0009 |
- | REQ-2: HTTP boundary accepts only current modelRoute payloads | ✅ completed | Task-B-0009, Task-E-0009 |
- | REQ-3: Server runtime no longer carries parallel route shapes for the same semantics | ✅ completed | Task-C-0009 |
- | REQ-4: Web models surface consumes typed route and derived table-row data | ✅ completed | Task-D-0009, Task-E-0009 |
--| REQ-5: Regression coverage locks the hard cut | ⏳ pending | Task-E-0009 |
-+| REQ-5: Regression coverage locks the hard cut | ✅ completed | Task-E-0009 |
- | REQ-6: Docs and conventions reflect the completed hard cut | ⏳ pending | Task-F-0009 |
+
+ | Requirement                                                                          | Status                                        | Covered By               |
+ | ------------------------------------------------------------------------------------ | --------------------------------------------- | ------------------------ |
+ | REQ-1: ModelRoute is the only public model-route contract across shared packages     | ✅ completed                                   | Task-A-0009              |
+ | REQ-2: HTTP boundary accepts only current modelRoute payloads                        | ✅ completed                                   | Task-B-0009, Task-E-0009 |
+ | REQ-3: Server runtime no longer carries parallel route shapes for the same semantics | ✅ completed                                   | Task-C-0009              |
+ | REQ-4: Web models surface consumes typed route and derived table-row data            | ✅ completed                                   | Task-D-0009, Task-E-0009 |
+ | -                                                                                    | REQ-5: Regression coverage locks the hard cut | ⏳ pending                | Task-E-0009 |
+ | +                                                                                    | REQ-5: Regression coverage locks the hard cut | ✅ completed              | Task-E-0009 |
+ | REQ-6: Docs and conventions reflect the completed hard cut                           | ⏳ pending                                     | Task-F-0009              |
 diff --git a/docs/tasks/0009-model-route-hard-cut/super-plan.json b/docs/tasks/0009-model-route-hard-cut/super-plan.json
 index b7a78b4..1e9fb8f 100644
 --- a/docs/tasks/0009-model-route-hard-cut/super-plan.json

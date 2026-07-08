@@ -9,6 +9,8 @@ Uso:
 O que faz:
   1. Valida o router AGENTS.md: metadados CASA, DoD global, ponteiros de contexto e o
      invariante de capítulo RECONHECIDO (TESTS.md declarado exige comando canônico — §4/§8).
+     Sinaliza (AVISO) casa-version incoerente com a toolchain (ADR-0010) e backlog em
+     docs/context/ (ADR-0011).
   2. Lê docs/adr/*.md e docs/specs/*.md.
   3. DERIVA id do filename (docs/adr/0032-x.md → ADR-0032) e title do primeiro
      H1 do corpo (após o frontmatter; comentários HTML não contam).
@@ -45,9 +47,13 @@ STATUS_VOCAB = {
     "specs": {"draft", "accepted", "implemented", "deprecated"},
 }
 REQUIRED = {"status", "date"}
-KNOWN_KEYS = {"status", "date", "builds-on", "superseded-by", "implemented-by", "deciders"}
+KNOWN_KEYS = {"status", "date", "builds-on", "superseded-by", "implemented-by", "deciders",
+              "design-ref"}  # design-ref: referência de design NÃO-normativa (ADR-0014)
 ROUTER_REQUIRED = {"casa-repo-id", "casa-tier", "casa-version", "casa-standard-ref"}
 ROUTER_TIERS = {"T0", "T1"}
+# Versão do contrato CASA que ESTA toolchain implementa (ADR-0010). Deve ser idêntica à
+# CASA_VERSION do casa-init do mesmo snapshot — o test-casa-init guarda a sincronia.
+CONTRACT_VERSION = "1.8"
 # Capítulos de contexto RECONHECIDOS (registry FECHADO — STANDARD §4/§8): declarar o
 # ponteiro no router dispara um invariante de CONTEÚDO que mora aqui, no validador. O
 # gatilho é a DECLARAÇÃO no router, nunca a presença física do arquivo no disco; a regra
@@ -219,6 +225,20 @@ def validate_router(root, errors, warnings):
     version = fm.get("casa-version")
     if version and not re.match(r"^\d+\.\d+(?:\.\d+)?$", str(version)):
         errors.append("AGENTS.md: casa-version deve ser semver simples (ex.: 1.1)")
+    elif version:
+        # Coerência declaração × toolchain (ADR-0010): aviso, nunca erro; (major, minor).
+        decl = tuple(int(p) for p in str(version).split("."))[:2]
+        tool = tuple(int(p) for p in CONTRACT_VERSION.split("."))[:2]
+        if decl < tool:
+            warnings.append(
+                f"AGENTS.md: contrato declarado (casa-version {version}) atrás da toolchain "
+                f"instalada ({CONTRACT_VERSION}) — leia o CHANGELOG do casa-standard e "
+                "atualize a declaração quando o repo cumprir o contrato novo (ADR-0010)")
+        elif decl > tool:
+            warnings.append(
+                f"AGENTS.md: toolchain instalada ({CONTRACT_VERSION}) atrás do contrato "
+                f"declarado (casa-version {version}) — rode scripts/casa-init a partir de "
+                "um snapshot atual do casa-standard (ADR-0010)")
 
     ref = fm.get("casa-standard-ref")
     if ref and ("<" in str(ref) or str(ref).strip() in {"", "unknown"}):
@@ -235,6 +255,21 @@ def validate_router(root, errors, warnings):
             errors.append(f"AGENTS.md: Mapa de contexto aponta para arquivo inexistente '{ref_path}'")
         else:
             validate_recognized_chapter(root, ref_path, errors)
+
+
+def check_backlog_location(root, warnings):
+    """Backlog em docs/context/ é anti-padrão (§5.1; Confirmação do ADR-0002). Aviso via
+    LISTAGEM de diretório com comparação lowercase — determinístico em filesystems
+    case-sensitive (CI) e case-insensitive (dev Windows/macOS). Decisão: ADR-0011."""
+    ctx = root / "docs" / "context"
+    if not ctx.is_dir():
+        return
+    for p in sorted(ctx.iterdir()):
+        if p.is_file() and p.name.lower() == "backlog.md":
+            warnings.append(
+                f"docs/context/{p.name}: backlog é pendência, não estado imperativo "
+                "(STANDARD §5.1) — mova para docs/BACKLOG.md e atualize os ponteiros do "
+                "router (ADR-0011)")
 
 
 def render_readme(label, rows):
@@ -316,6 +351,7 @@ def main():
     errors, warnings, docs = [], [], {}
 
     validate_router(root, errors, warnings)
+    check_backlog_location(root, warnings)
 
     # Coleta, derivação e validação por documento
     for layer, prefix in LAYERS.items():
@@ -368,6 +404,9 @@ def main():
                          "superseded-by": fm.get("superseded-by"),
                          "implemented-by": ib if isinstance(ib, list) else [ib],
                          "_visible": visible}
+            if fm.get("design-ref"):
+                # exportado ao índice: campo conhecido presente no grafo, não fantasma (ADR-0014)
+                docs[did]["design-ref"] = fm.get("design-ref")
 
     # Grafo e regras por camada
     for d in docs.values():

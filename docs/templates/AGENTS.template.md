@@ -3,7 +3,7 @@
 ```yaml
 casa-repo-id: <nome-canonico-do-repo>   # usado em referências cross-repo (repo:ADR-0001)
 casa-tier: T1                            # T0 (leve) | T1 (padrão) — STANDARD §3
-casa-version: 1.2                        # versão do contrato CASA adotado
+casa-version: 1.8                        # versão do contrato CASA adotado (promessa do repo, ADR-0010)
 casa-standard-ref: <sha>                 # versão do casa-standard de origem — o casa-init carimba
 ```
 

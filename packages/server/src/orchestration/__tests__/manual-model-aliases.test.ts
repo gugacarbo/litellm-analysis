@@ -9,7 +9,7 @@ import {
   listManualModelAliases,
   replaceManualAliasesForTarget,
   retargetManualAliases,
-} from "../index";
+} from "../manual-model-aliases";
 
 function createSettingsService(
   initialSettings: RouterSettingsValue | null,

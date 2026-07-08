@@ -94,7 +94,6 @@
       "packages/config/src/server.ts",
       ".env.example",
       ".env.local",
-      "packages/agents-manager/src/config/defaults.ts",
       "packages/agents-manager/src/index.ts",
       "packages/agents-manager/src/repository/client.ts",
       "apps/server/src/runtime/app-runtime.ts",

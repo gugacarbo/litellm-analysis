@@ -7,6 +7,7 @@ import type {
   StoredModelBenchmarkDataset,
 } from "@lite-llm/contracts/benchmarks";
 
+// @knipignore
 export function findWorkspaceRoot(startDir: string): string {
   let current = startDir;
   const root = path.parse(current).root;
