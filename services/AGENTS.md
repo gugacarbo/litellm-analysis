@@ -34,13 +34,13 @@ services/
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                        | Notes                                                  |
-| --------------------------------- | ----------------------------------------------- | ------------------------------------------------------ |
-| Add an analytics query            | `services/analytics-service/src/queries/proxy/` | New method on `AnalyticsDataSource` + impl in `data-source/` |
-| Add a proxy route                 | `services/llm-gateway/src/routes/`      | OpenAI-compatible; forwards to upstream                |
-| Add settings CRUD                 | `services/llm-config-service/src/`             | Direct repository access; no Express                   |
-| Add a provider adapter            | `services/models-service/src/providers/`        | Provider-specific model normalization                 |
-| Add a new consumer plugin         | `services/agent-plugins/src/`                   | Per-consumer config generator                          |
+| Task                      | Location                                        | Notes                                                        |
+| ------------------------- | ----------------------------------------------- | ------------------------------------------------------------ |
+| Add an analytics query    | `services/analytics-service/src/queries/proxy/` | New method on `AnalyticsDataSource` + impl in `data-source/` |
+| Add a proxy route         | `services/llm-gateway/src/routes/`              | OpenAI-compatible; forwards to upstream                      |
+| Add settings CRUD         | `services/llm-config-service/src/`              | Direct repository access; no Express                         |
+| Add a provider adapter    | `services/models-service/src/providers/`        | Provider-specific model normalization                        |
+| Add a new consumer plugin | `services/agent-plugins/src/`                   | Per-consumer config generator                                |
 
 ## CONVENTIONS
 

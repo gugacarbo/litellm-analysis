@@ -12,12 +12,14 @@
 ### Step 2: Analytics-facing registry mapping (`services/analytics-service/`)
 
 **`types/index.ts`:**
+
 - Added `import type { ModelRoute } from "@lite-llm/llm-config-service"`.
 - `ModelInfo.modelRoute`: `Record<string, unknown>` → `ModelRoute`.
 - `AnalyticsDataSource.createModel` param: `modelRoute?: Record<string, unknown>` → `modelRoute?: ModelRoute`.
 - `AnalyticsDataSource.updateModel` param: `modelRoute?: Record<string, unknown>` → `modelRoute?: ModelRoute`.
 
 **`data-source/registry-methods.ts`:**
+
 - Added `import type { ModelRoute } from "@lite-llm/llm-config-service"`.
 - `getRegistryModelsImpl` (line 79): Removed `as unknown as Record<string, unknown>` cast — `dbModelToRoute(row)` now flows directly as `ModelRoute` into `ModelEntry.modelRoute`.
 - `createRegistryModelImpl` param: `modelRoute?: Record<string, unknown>` → `modelRoute?: ModelRoute`. Restructured to destructure `modelName` out before spreading to avoid TS2783 (duplicate property).
@@ -34,16 +36,19 @@
 ```
 pnpm --filter @lite-llm/analytics-service typecheck
 ```
+
 - Only remaining error: `secretRef` property on `modelProxyProviders` row type (line 197) — **pre-existing**, confirmed via `git stash` baseline.
 
 ```
 pnpm --filter server exec vitest run src/__tests__/model-routes-save.test.ts
 ```
+
 - **3/3 passed** (all green).
 
 ```
 pnpm --filter server exec vitest run src/__tests__/model-routes-aliases.test.ts src/__tests__/registry-integration.test.ts
 ```
+
 - 20 failures — **all pre-existing** `this.db.select/insert is not a function` errors (DB mock issues in test environment). Confirmed identical failure count via `git stash` baseline.
 - 3 non-DB tests in `registry-integration.test.ts` pass (legacy rejection + export-configs).
 

@@ -67,7 +67,12 @@ export function useModelConfigPage(): ModelConfigController {
   useEffect(() => {
     formHook.resetFormForModel(model);
     aliasesState.resetForModel(modelName);
-  }, [modelName, formHook.resetFormForModel, aliasesState.resetForModel]);
+  }, [
+    modelName,
+    model,
+    formHook.resetFormForModel,
+    aliasesState.resetForModel,
+  ]);
 
   return {
     model,

@@ -28,6 +28,7 @@ DONE — all 7 tasks in the `0010-model-registry-schema-simplification` plan are
 ## Files changed (cumulative, this plan)
 
 Schema + shared contract (Task-A):
+
 - `database/src/schema/model-proxy.ts`
 - `database/drizzle/meta/_journal.json`
 - `repositories/models-repository/src/schemas/{model,thinking,index}.ts`
@@ -35,12 +36,14 @@ Schema + shared contract (Task-A):
 - `packages/contracts/src/analytics.ts`
 
 Persistence (Task-B):
+
 - `services/llm-config-service/src/types/index.ts`
 - `services/llm-config-service/src/adapters/model-route-adapter.ts`
 - `services/llm-config-service/src/repositories/models-repository.ts`
 - `services/llm-config-service/src/adapters/__tests__/model-route-adapter.test.ts`
 
 Analytics + server (Task-C, pre-existing dirty state):
+
 - `services/analytics-service/src/data-source/registry-methods.ts`
 - `services/analytics-service/src/data-source/registry-methods.test.ts`
 - `packages/server/src/orchestration/route-params.ts`
@@ -48,15 +51,18 @@ Analytics + server (Task-C, pre-existing dirty state):
 - `apps/server/src/__tests__/helpers/registry-test-stack.ts`
 
 Gateway + agent + llm (Task-D, pre-existing dirty state):
+
 - `services/llm-gateway/src/**`
 - `apps/server/src/llm/**`
 - `apps/agent/src/**`
 
 Web (Task-E, pre-existing dirty state):
+
 - `apps/web/src/shared/lib/api-client/{models,providers}.ts`
 - `apps/web/src/features/models/**`
 
 Docs + state (Task-G):
+
 - `docs/tasks/0010-model-registry-schema-simplification/progress-ledger.md`
 - `docs/tasks/0010-model-registry-schema-simplification/{Task-A..G}-0010/report.md`
 - `.super-planning/{super-plan.sh, render-progress-ledger.sh, log-task.sh, super-plan.schema.json}`

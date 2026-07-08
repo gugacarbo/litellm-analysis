@@ -36,20 +36,23 @@ packages/server/src/
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                  | Notes                                            |
-| --------------------------------- | ----------------------------------------- | ------------------------------------------------ |
-| Add an orchestration function     | `orchestration/<name>.ts`                 | Add to factory in `orchestration/index.ts`       |
-| Add a route handler               | `routes/<name>-routes.ts`                 | Register in `routes/index.ts`                    |
-| Change cost normalization         | `orchestration/route-params.ts`           | `toCostPerToken()` assumes per-token USD         |
-| Coerce free-form form input       | `orchestration/route-params.ts`           | `coerceLiteLLMParams()` parses strings→primitives|
-| Wire a new route                  | `routes/index.ts`                         | `registerAllRoutes()` is the single entry point  |
+| Task                          | Location                        | Notes                                             |
+| ----------------------------- | ------------------------------- | ------------------------------------------------- |
+| Add an orchestration function | `orchestration/<name>.ts`       | Add to factory in `orchestration/index.ts`        |
+| Add a route handler           | `routes/<name>-routes.ts`       | Register in `routes/index.ts`                     |
+| Change cost normalization     | `orchestration/route-params.ts` | `toCostPerToken()` assumes per-token USD          |
+| Coerce free-form form input   | `orchestration/route-params.ts` | `coerceLiteLLMParams()` parses strings→primitives |
+| Wire a new route              | `routes/index.ts`               | `registerAllRoutes()` is the single entry point   |
 
 ## CONVENTIONS
 
 - **Route pattern**:
   ```typescript
-  export function registerXxxRoutes(app: Application, opts: RouteOptions): void {
-    app.get('/endpoint', async (req, res) => {
+  export function registerXxxRoutes(
+    app: Application,
+    opts: RouteOptions,
+  ): void {
+    app.get("/endpoint", async (req, res) => {
       try {
         const data = await opts.dataSource.someMethod();
         res.json(data);
@@ -69,7 +72,12 @@ packages/server/src/
   ```
 - **Factory template (4-arg)**:
   ```typescript
-  export function createOrchestrationServices(dataSource, agentsManager, modelsService, registry): OrchestrationServices
+  export function createOrchestrationServices(
+    dataSource,
+    agentsManager,
+    modelsService,
+    registry,
+  ): OrchestrationServices;
   ```
 
 ## ANTI-PATTERNS (THIS PROJECT)

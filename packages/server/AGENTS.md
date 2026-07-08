@@ -40,14 +40,14 @@ packages/server/
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                  | Notes                                                  |
-| --------------------------------- | ----------------------------------------- | ------------------------------------------------------ |
-| Add an orchestration coordinator  | `src/orchestration/`                      | Coordinates across `analytics-service`, `agents-manager`, `agent-plugins` |
-| Add a shared route                | `src/routes/`                             | Use `RouteOptions` pattern (dataSource + orchestration)|
-| Register all routes               | `src/routes/index.ts`                     | `registerAllRoutes(app, opts)` for one-line wiring    |
-| Change cost normalization         | `src/orchestration/route-params.ts`       | `toCostPerToken()` assumes canonical per-token USD     |
-| Add a benchmark comparison endpoint | `src/routes/model-routes.ts`             | `GET /models/:name/benchmark-comparison`; uses `benchmark-helpers.ts` + `openrouter-models.ts` |
-| Add chat streaming endpoint       | `src/routes/chat-routes.ts`               | Streams completions via `MODEL_PROXY_*`; mounted in apps/server |
+| Task                                | Location                            | Notes                                                                                          |
+| ----------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Add an orchestration coordinator    | `src/orchestration/`                | Coordinates across `analytics-service`, `agents-manager`, `agent-plugins`                      |
+| Add a shared route                  | `src/routes/`                       | Use `RouteOptions` pattern (dataSource + orchestration)                                        |
+| Register all routes                 | `src/routes/index.ts`               | `registerAllRoutes(app, opts)` for one-line wiring                                             |
+| Change cost normalization           | `src/orchestration/route-params.ts` | `toCostPerToken()` assumes canonical per-token USD                                             |
+| Add a benchmark comparison endpoint | `src/routes/model-routes.ts`        | `GET /models/:name/benchmark-comparison`; uses `benchmark-helpers.ts` + `openrouter-models.ts` |
+| Add chat streaming endpoint         | `src/routes/chat-routes.ts`         | Streams completions via `MODEL_PROXY_*`; mounted in apps/server                                |
 
 ## CONVENTIONS
 

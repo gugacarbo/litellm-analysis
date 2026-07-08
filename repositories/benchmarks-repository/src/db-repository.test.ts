@@ -91,7 +91,7 @@ describe("DbBenchmarksRepository", () => {
 
     const found = await repo.getByAaModelId("test-model-2");
     expect(found).not.toBeNull();
-    expect(found!.name).toBe("Test Model 2");
+    expect(found?.name).toBe("Test Model 2");
 
     const notFound = await repo.getByAaModelId("nonexistent");
     expect(notFound).toBeNull();

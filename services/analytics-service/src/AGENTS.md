@@ -45,12 +45,12 @@ services/analytics-service/src/
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                                | Notes                                              |
-| --------------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
-| Add a new data source method      | `types/index.ts` (interface) → `data-source/model-proxy.ts` → `data-source/proxy-*-methods.ts` | Three-file concern |
-| Add a raw SQL query               | `queries/proxy/<topic>-queries.ts`                      | `queryRaw<Type>(sql.raw(...))` pattern              |
-| Add a presenter                   | `presenter/<topic>.ts`                                 | Pure functions; no I/O                             |
-| Add a new domain type             | `types/index.ts`                                       | Re-export from public barrel                        |
+| Task                         | Location                                                                                       | Notes                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------- |
+| Add a new data source method | `types/index.ts` (interface) → `data-source/model-proxy.ts` → `data-source/proxy-*-methods.ts` | Three-file concern                     |
+| Add a raw SQL query          | `queries/proxy/<topic>-queries.ts`                                                             | `queryRaw<Type>(sql.raw(...))` pattern |
+| Add a presenter              | `presenter/<topic>.ts`                                                                         | Pure functions; no I/O                 |
+| Add a new domain type        | `types/index.ts`                                                                               | Re-export from public barrel           |
 
 ## CONVENTIONS
 

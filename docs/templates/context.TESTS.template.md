@@ -9,6 +9,7 @@
 # Testes
 
 ## Comandos canônicos
+
 <!-- O(s) comando(s) que rodam a suíte. É o que o docs-check exige existir. -->
 
 ```bash
@@ -16,16 +17,21 @@ npm test                 # substitua pelo comando real do repo (pytest -q, deno 
 ```
 
 ## Tipos de teste usados neste repo
+
 <!-- Quais existem (unit/integração/e2e) e o que cada um cobre. Omita o que não usa. -->
 
 ## Onde criar teste novo
+
 <!-- Diretório e convenção de nome por tipo (ex.: `tests/unit/<modulo>.test.ts`). -->
 
 ## Como testar bugfix
+
 <!-- Regra: bug reproduzido vira teste de regressão ANTES do fix. Onde/como. -->
 
 ## O que conta como regressão
+
 <!-- Quando um teste novo é obrigatório vs. opcional. -->
 
 ## O que NÃO testar
+
 <!-- Fronteiras: o que é caro/frágil demais e fica fora de propósito. -->

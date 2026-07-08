@@ -21,13 +21,13 @@ services/llm-config-service/
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                  | Notes                                            |
-| --------------------------------- | ----------------------------------------- | ------------------------------------------------ |
-| Read or update proxy settings     | `src/settings/`                           | Single-row table; global config                  |
-| Register a new model              | `src/models/`                             | Idempotent on (provider, model_name)             |
-| Manage providers                  | `src/providers/`                          | Encrypted at rest; never log decrypted values    |
-| Composite view (settings+models)  | `src/registry/`                           | Used by proxy at request time                    |
-| Add a new settings field          | `database/src/schema/model-proxy.ts` → migration → extend service | Migration required |
+| Task                             | Location                                                          | Notes                                         |
+| -------------------------------- | ----------------------------------------------------------------- | --------------------------------------------- |
+| Read or update proxy settings    | `src/settings/`                                                   | Single-row table; global config               |
+| Register a new model             | `src/models/`                                                     | Idempotent on (provider, model_name)          |
+| Manage providers                 | `src/providers/`                                                  | Encrypted at rest; never log decrypted values |
+| Composite view (settings+models) | `src/registry/`                                                   | Used by proxy at request time                 |
+| Add a new settings field         | `database/src/schema/model-proxy.ts` → migration → extend service | Migration required                            |
 
 ## CONVENTIONS
 

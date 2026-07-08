@@ -28,15 +28,18 @@ packages/agents-manager/src/
 ## KEY EXPORTS
 
 ### Factory
+
 - `createAgentsManager(options?)` → `{ repository, services }`
 
 ### Services
+
 - `AgentService` — CRUD for agents
 - `CategoryService` — CRUD for categories
 - `RoutingService` — routing config operations
 - `AgentCatalogService` — catalog queries
 
 ### Repository
+
 - `createRepositoryClient({ filePath? })` — wraps `@lite-llm/agents-repository`; reads from the database via `@lite-llm/models-repository`
 
 ## DATA FLOW
@@ -53,12 +56,12 @@ apps/server routes via @lite-llm/server
 
 ## WHERE TO LOOK
 
-| Task                              | Location                              | Notes                              |
-| --------------------------------- | ------------------------------------- | ---------------------------------- |
-| Add agent CRUD logic              | `services/agent.service.ts`           | Uses repository client             |
-| Change DB path resolution         | `repository/client.ts`                | Reads from database via models-repository |
-| Add routing config field          | `services/routing.service.ts`         | RoutingService methods             |
-| Add a new default                 | `config/defaults.ts`                  | DEFAULT_AGENTS_PATH, DEFAULT_AGENTS |
+| Task                      | Location                      | Notes                                     |
+| ------------------------- | ----------------------------- | ----------------------------------------- |
+| Add agent CRUD logic      | `services/agent.service.ts`   | Uses repository client                    |
+| Change DB path resolution | `repository/client.ts`        | Reads from database via models-repository |
+| Add routing config field  | `services/routing.service.ts` | RoutingService methods                    |
+| Add a new default         | `config/defaults.ts`          | DEFAULT_AGENTS_PATH, DEFAULT_AGENTS       |
 
 ## CONVENTIONS
 

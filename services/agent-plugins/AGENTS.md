@@ -35,14 +35,14 @@ services/agent-plugins/
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                                | Notes                                                |
-| --------------------------------- | ------------------------------------------------------- | ---------------------------------------------------- |
-| Add a new consumer plugin         | `src/plugins/<name>/`                                   | Implement `Plugin<Input, Output>` from `sdk.ts`; register in `plugin-registry.ts` |
-| Update plugin metadata            | Database (via `@lite-llm/agents-manager`)              | Plugin manifests are stored in the DB                 |
-| Regenerate Zod schemas            | `pnpm generate:plugin-schemas`                         | Outputs to `src/plugins/<name>/plugin.schema.ts`      |
-| Ensure schemas are current         | `pnpm ensure:plugin-schemas`                           | Idempotent; safe in CI                               |
-| Add a shared helper               | `src/helpers.ts` or `src/sdk.ts`                        | Helpers are pure functions                           |
-| Change error taxonomy             | `src/errors.ts`                                         | Export `PluginError` subtypes                        |
+| Task                       | Location                                  | Notes                                                                             |
+| -------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------- |
+| Add a new consumer plugin  | `src/plugins/<name>/`                     | Implement `Plugin<Input, Output>` from `sdk.ts`; register in `plugin-registry.ts` |
+| Update plugin metadata     | Database (via `@lite-llm/agents-manager`) | Plugin manifests are stored in the DB                                             |
+| Regenerate Zod schemas     | `pnpm generate:plugin-schemas`            | Outputs to `src/plugins/<name>/plugin.schema.ts`                                  |
+| Ensure schemas are current | `pnpm ensure:plugin-schemas`              | Idempotent; safe in CI                                                            |
+| Add a shared helper        | `src/helpers.ts` or `src/sdk.ts`          | Helpers are pure functions                                                        |
+| Change error taxonomy      | `src/errors.ts`                           | Export `PluginError` subtypes                                                     |
 
 ## CONVENTIONS
 

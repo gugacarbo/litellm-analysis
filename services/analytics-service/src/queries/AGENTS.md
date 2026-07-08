@@ -30,14 +30,17 @@ Each `*-queries.ts` has a colocated `*-queries.test.ts` for SQL regression cover
 ## PATTERNS
 
 ### Time Conditions
+
 ```typescript
 const where = buildWhereClause([getTimeFilterWhere(normalizeDays(days, 30))]);
 ```
+
 - `normalizeDays(days, defaultDays)` — handles string/number, NaN, negative → fallback
 - `getTimeFilterWhere(days)` — returns SQL fragment for `start_time >= now() - interval`
 - `buildWhereClause(conditions[])` — joins with `AND`, returns `""` if empty
 
 ### SQL Aggregations
+
 ```sql
 SELECT
   model,
@@ -46,14 +49,17 @@ SELECT
 FROM "model_proxy_spend_logs"
 WHERE ...
 ```
+
 **Always** use `::int` / `::float` casts for numeric types — raw PostgreSQL numerics should be normalized explicitly.
 
 ### Column Mapping
+
 Queries return DB columns directly. Use snake_case aliases (`as "total_spend"`) and let `proxy-*-methods.ts` transform to camelCase domain types.
 
 ## SCHEMA TABLES
 
 All tables prefixed `model_proxy_*` (PostgreSQL). Schema lives in `database/src/schema/model-proxy.ts`. Common tables:
+
 - `model_proxy_spend_logs` — request-level spend records
 - `model_proxy_error_logs` — error records
 - `model_proxy_models` — model registry rows
