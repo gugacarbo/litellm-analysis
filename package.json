@@ -25,7 +25,7 @@
     "backup:list": "ls -lh backups/model_proxy_* backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
     "docs-check": "python3 ./scripts/docs-check",
     "docs-check:update": "python3 ./scripts/docs-check --emit-index",
-    "verify": "python3 ./scripts/verify",
+    "verify": "bash ./scripts/verify",
     "knip": "knip",
     "check:workspace-exports": "node ./scripts/check-workspace-exports.mjs"
   },

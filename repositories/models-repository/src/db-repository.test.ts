@@ -166,9 +166,7 @@ function createInMemoryDb() {
             {
               orderBy: vi.fn(() => query),
               where: vi.fn((condition: unknown) => {
-                console.log("[WHERE] condition", typeof condition, condition, Object.getOwnPropertyNames(condition as object));
                 const value = filterFn?.(condition);
-                console.log("[WHERE] extracted value", value);
                 if (value != null) {
                   currentFilter = (row) =>
                     String(
@@ -254,9 +252,7 @@ function createInMemoryDb() {
               createdAt: now,
               updatedAt: now,
             };
-            console.log("[DEBUG] create provider", row.name, "id", row.id, "set size before", providers.size);
             providers.set(row.name, row);
-            console.log("[DEBUG] set size after", providers.size, "keys", [...providers.keys()]);
             return [row];
           };
 
@@ -484,7 +480,7 @@ describe("DbModelsRepository", () => {
   });
 
   it("preserves provider-scoped model keys on read and write", async () => {
-    const { db, helpers } = createInMemoryDb();
+    const { db } = createInMemoryDb();
     const repository = createDbRepository({
       db: db as never,
       validateOnRead: false,
@@ -525,18 +521,7 @@ describe("DbModelsRepository", () => {
       },
     });
 
-    // DEBUG
-    console.log("after first write providers map keys:", [...helpers.providers.keys()]);
-    for (const [k, v] of helpers.providers) {
-      console.log("provider", k, "id", v.id);
-    }
-    console.log("after first write models map keys:", [...helpers.models.keys()]);
-    for (const [k, v] of helpers.models) {
-      console.log("row", k, "providerId", v.providerId, "modelId", v.modelId, "displayName", v.displayName);
-    }
-
     const readBack = await repository.read();
-    console.log("readBack models keys:", Object.keys(readBack.models));
     expect(readBack.models["provider-a/gpt-4"]?.displayName).toBe("GPT-4 A");
     expect(readBack.models["provider-b/gpt-4"]?.displayName).toBe("GPT-4 B");
     expect(readBack.models["gpt-4"]).toBeUndefined();
