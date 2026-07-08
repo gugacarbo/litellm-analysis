@@ -17,6 +17,7 @@ import {
 const MAPPABLE_KEYS = new Set([
   "displayName",
   "family",
+  "ownedBy",
   "apiMode",
   "vision",
   "inputCostPerToken",
@@ -24,9 +25,6 @@ const MAPPABLE_KEYS = new Set([
 ]);
 
 const COST_KEYS = new Set(["inputCostPerToken", "outputCostPerToken"]);
-const IMPORT_KEY_MAP: Record<string, string> = {
-  ownedBy: "family",
-};
 
 export function ModelDetailSettingsTab() {
   const { model, notFound } = useModelDetailContext();
@@ -54,7 +52,7 @@ export function ModelDetailSettingsTab() {
   };
 
   const handleImportField = (key: string, value: unknown, source: string) => {
-    const targetKey = IMPORT_KEY_MAP[key] ?? key;
+    const targetKey = key;
 
     if (!MAPPABLE_KEYS.has(targetKey)) {
       toast.warning(`Campo "${key}" não pode ser importado automaticamente`);

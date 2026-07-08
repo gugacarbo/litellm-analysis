@@ -10,6 +10,7 @@ const DEFAULT_THINKING_LEVELS = ["low", "medium", "high", "xhigh"] as const;
 export interface ModelConfigFormData {
   displayName: string;
   family: string;
+  ownedBy: string;
   aliases: string[];
   apiMode: "openai" | "anthropic" | "";
   vision: boolean;
@@ -33,6 +34,7 @@ function getEmptyFormData(): ModelConfigFormData {
   return {
     displayName: "",
     family: "",
+    ownedBy: "",
     aliases: [],
     apiMode: "",
     vision: false,
@@ -91,6 +93,7 @@ export function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
   return {
     displayName: (config.displayName as string) ?? route.displayName ?? "",
     family: (config.family as string) ?? route.family ?? "",
+    ownedBy: (config.ownedBy as string) ?? route.ownedBy ?? "",
     aliases: [],
     enabled: model.enabled !== false,
     thinkingLevels:
@@ -120,10 +123,13 @@ export function buildConfigFromFormData(
   const config: ModelConfig["config"] = {
     displayName: formData.displayName,
     family: formData.family || undefined,
-    ownedBy: "",
     apiMode: formData.apiMode || undefined,
     vision: formData.vision,
   };
+
+  if (formData.ownedBy) {
+    config.ownedBy = formData.ownedBy;
+  }
 
   if (formData.thinkingLevels.length > 0) {
     config.thinking = { levels: formData.thinkingLevels };
@@ -145,6 +151,7 @@ function getComparableFormData(formData: ModelConfigFormData) {
   return {
     displayName: formData.displayName,
     family: formData.family,
+    ownedBy: formData.ownedBy,
     aliases: formData.aliases,
     apiMode: formData.apiMode,
     vision: formData.vision,

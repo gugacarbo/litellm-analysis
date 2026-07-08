@@ -3,6 +3,7 @@ import { fetchApi } from "./core";
 export type RegistryProvider = {
   providerId: string;
   providerName: string;
+  isDefault: boolean;
   provider: string | null;
   baseUrl: string | null;
   hasStoredSecret: boolean;
@@ -37,6 +38,7 @@ export type OpenAiOAuthDeviceCodePollResult =
 
 export type ProviderInput = {
   name: string;
+  isDefault?: boolean;
   provider?: string | null;
   baseUrl?: string | null;
   apiKey: string;
@@ -44,6 +46,7 @@ export type ProviderInput = {
 
 export type ProviderUpdateInput = {
   name?: string;
+  isDefault?: boolean;
   provider?: string | null;
   baseUrl?: string | null;
   apiKey?: string;

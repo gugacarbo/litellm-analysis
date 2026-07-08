@@ -122,6 +122,19 @@ export function ModelGeneralTab({
             />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="owned-by" className="text-sm font-medium">
+              Owned By
+            </Label>
+            <Input
+              id="owned-by"
+              value={formData.ownedBy}
+              onChange={(e) =>
+                onFormDataChange({ ...formData, ownedBy: e.target.value })
+              }
+              placeholder="e.g., openai"
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="api-mode" className="text-sm font-medium">
               API Mode
             </Label>
@@ -147,6 +160,9 @@ export function ModelGeneralTab({
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
           <div className="flex items-center justify-between rounded-md border px-3 py-2 sm:self-end">
             <div className="space-y-0.5">
               <Label

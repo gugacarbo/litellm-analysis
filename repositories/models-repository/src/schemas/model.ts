@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { reasoningSchema, thinkingSchema } from "./thinking";
+import { reasoningSchema } from "./thinking";
 
 export const costSchema = z.object({
   input: z
@@ -16,6 +16,13 @@ export const costSchema = z.object({
 
 export type Cost = z.infer<typeof costSchema>;
 
+export const pricingSchema = z.object({
+  input: z.number().optional(),
+  output: z.number().optional(),
+});
+
+export type Pricing = z.infer<typeof pricingSchema>;
+
 export const modelSpecSchema = z
   .object({
     enabled: z.boolean().optional().default(true).meta({
@@ -30,47 +37,75 @@ export const modelSpecSchema = z
       .string()
       .optional()
       .meta({ title: "Family", description: "Model family" }),
-    limits: z
-      .object({
-        length: z
-          .number()
-          .meta({
-            title: "Context Length",
-            description: "Maximum context window size in tokens",
-          })
-          .default(200000),
-        maxOutput: z
-          .number()
-          .meta({ title: "Max Output", description: "Maximum output tokens" })
-          .default(32768),
+    canonicalSlug: z.string().optional().meta({
+      title: "Canonical Slug",
+      description: "Stable identifier for the model across providers",
+    }),
+    description: z.string().optional().meta({
+      title: "Description",
+      description: "Model description",
+    }),
+    contextLength: z
+      .number()
+      .meta({
+        title: "Context Length",
+        description: "Maximum context window size in tokens",
       })
-      .meta({ title: "Limits", description: "Model limits" }),
-    cost: costSchema.optional().meta({
-      title: "Cost",
-      description:
-        "Model pricing in USD per token (matches LiteLLM `input_cost_per_token` / `output_cost_per_token`)",
+      .default(200000),
+    maxCompletionTokens: z
+      .number()
+      .meta({ title: "Max Completion", description: "Maximum completion tokens" })
+      .default(32768),
+    knowledgeCutoff: z.string().optional().meta({
+      title: "Knowledge Cutoff",
+      description: "Training data cutoff date",
     }),
-    thinking: thinkingSchema.default({ levels: [] }).optional().meta({
-      title: "Thinking",
-      description: "Extended thinking configuration for this model",
+    expirationDate: z.string().optional().meta({
+      title: "Expiration Date",
+      description: "Date after which the model is deprecated",
     }),
-    reasoning: reasoningSchema.optional().meta({
+    architecture: z
+      .record(z.string(), z.unknown())
+      .meta({ title: "Architecture", description: "Model architecture details" })
+      .nullable()
+      .optional(),
+    reasoning: reasoningSchema.meta({
       title: "Reasoning",
       description: "Reasoning/thinking runtime configuration for this model",
     }),
-    apiMode: z.enum(["openai", "anthropic"]).optional().meta({
-      title: "API Mode",
+    supportedParameters: z
+      .record(z.string(), z.unknown())
+      .meta({
+        title: "Supported Parameters",
+        description: "Parameters supported by the model",
+      })
+      .nullable()
+      .optional(),
+    defaultParameters: z
+      .record(z.string(), z.unknown())
+      .meta({
+        title: "Default Parameters",
+        description: "Default parameter values for the model",
+      })
+      .nullable()
+      .optional(),
+    perRequestLimits: z
+      .record(z.string(), z.unknown())
+      .meta({
+        title: "Per-Request Limits",
+        description: "Per-request rate limits for the model",
+      })
+      .nullable()
+      .optional(),
+    cost: costSchema.optional().meta({
+      title: "Cost",
       description:
-        "API provider mode used by consumers (e.g. openai, anthropic)",
+        "Model pricing in USD per token (matches LiteLLM `input_cost_per_token` / `output_cost_per_token`) — deprecated in favor of pricing",
     }),
-    vision: z.boolean().optional().meta({
-      title: "Vision",
-      description: "Whether this model supports vision/image inputs",
-    }),
-    ownedBy: z.string().optional().meta({
-      title: "Owned By",
-      description: "Organization or provider that owns this model",
-    }),
+    pricing: pricingSchema.meta({
+      title: "Pricing",
+      description: "Model pricing structure with input/output per-token costs",
+    }).nullable().optional(),
   })
   .strict();
 

@@ -26,7 +26,6 @@ export type ModelRoute = {
   upstreamModel?: string;
   upstreamBaseUrl?: string;
   providerName?: string;
-  secretRef?: string;
   requestOptions?: Record<string, unknown>;
   metadata?: Record<string, unknown>;
 };
@@ -165,7 +164,6 @@ function normalizeModelRoute(raw: unknown, modelName: string): ModelRoute {
       upstreamModel: readString(raw.upstreamModel),
       upstreamBaseUrl: readString(raw.upstreamBaseUrl),
       providerName: readString(raw.providerName),
-      secretRef: readString(raw.secretRef),
       requestOptions: isRecord(raw.requestOptions)
         ? raw.requestOptions
         : undefined,
