@@ -6,18 +6,22 @@ import type { ProviderRecord } from "../types/providers.js";
 function toRecord(row: {
   id: string;
   name: string;
+  isDefault: boolean;
   provider: string | null;
   baseUrl: string | null;
   apiKey: string | null;
+  secretRef: string | null;
   createdAt: Date;
   updatedAt: Date;
 }): ProviderRecord {
   return {
     id: row.id,
     name: row.name,
+    isDefault: row.isDefault,
     provider: row.provider,
     baseUrl: row.baseUrl,
     apiKey: row.apiKey,
+    secretRef: row.secretRef,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -25,9 +29,11 @@ function toRecord(row: {
 
 export interface ProviderWriteData {
   name: string;
+  isDefault?: boolean;
   provider?: string | null;
   baseUrl?: string | null;
   apiKey?: string | null;
+  secretRef?: string | null;
 }
 
 export class ProvidersRepository {
@@ -59,9 +65,11 @@ export class ProvidersRepository {
       .insert(modelProxyProviders)
       .values({
         name: data.name,
+        isDefault: data.isDefault ?? false,
         provider: data.provider ?? null,
         baseUrl: data.baseUrl ?? null,
         apiKey: data.apiKey ?? null,
+        secretRef: data.secretRef ?? null,
       })
       .returning();
     return toRecord(row);
@@ -82,9 +90,11 @@ export class ProvidersRepository {
 
     const setData: Record<string, unknown> = { updatedAt: new Date() };
     if (data.name !== undefined) setData.name = data.name;
+    if (data.isDefault !== undefined) setData.isDefault = data.isDefault;
     if (data.provider !== undefined) setData.provider = data.provider;
     if (data.baseUrl !== undefined) setData.baseUrl = data.baseUrl;
     if (data.apiKey !== undefined) setData.apiKey = data.apiKey;
+    if (data.secretRef !== undefined) setData.secretRef = data.secretRef;
 
     const [row] = await this.db
       .update(modelProxyProviders)

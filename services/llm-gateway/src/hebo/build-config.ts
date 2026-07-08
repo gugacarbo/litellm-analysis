@@ -6,7 +6,10 @@ import {
   withCanonicalIds,
 } from "@hebo-ai/gateway";
 import { db } from "@lite-llm/database/client";
-import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
+import {
+  modelProxyModels,
+  modelProxyProviders,
+} from "@lite-llm/database/schema/model-proxy";
 import type { IProviderService } from "@lite-llm/models-service";
 import { asc, eq } from "drizzle-orm";
 import {
@@ -35,7 +38,7 @@ interface ProviderGroup {
 }
 
 interface ProxyCatalogRow {
-  isDefaultProvider: boolean;
+  isDefault: boolean;
   modelName: string;
   providerName: string | null;
 }
@@ -89,9 +92,13 @@ async function listProxyCatalogRows(): Promise<ProxyCatalogRow[]> {
     .select({
       modelName: modelProxyModels.modelName,
       providerName: modelProxyModels.providerName,
-      isDefaultProvider: modelProxyModels.isDefaultProvider,
+      isDefault: modelProxyProviders.isDefault,
     })
     .from(modelProxyModels)
+    .leftJoin(
+      modelProxyProviders,
+      eq(modelProxyModels.providerName, modelProxyProviders.name),
+    )
     .where(eq(modelProxyModels.enabled, true))
     .orderBy(
       asc(modelProxyModels.modelName),
@@ -144,7 +151,7 @@ export async function buildHeboGatewayConfig(options: {
     const { bareModelName, providerPrefix } = parseProviderModel(modelName);
     const matchingRows = rowsByBareModel.get(bareModelName) ?? [];
     const rowCount = matchingRows.length || 1;
-    const defaultRows = matchingRows.filter((row) => row.isDefaultProvider);
+    const defaultRows = matchingRows.filter((row) => row.isDefault);
 
     const catalogKeys: string[] = [];
 
@@ -189,7 +196,7 @@ export async function buildHeboGatewayConfig(options: {
   }
 
   for (const [bareModelName, rows] of rowsByBareModel) {
-    if (rows.length > 1 && !rows.some((row) => row.isDefaultProvider)) {
+    if (rows.length > 1 && !rows.some((row) => row.isDefault)) {
       console.warn(
         `[hebo] Ambiguous model "${bareModelName}" has ${rows.length} providers but no default - use "provider/${bareModelName}" to specify`,
       );

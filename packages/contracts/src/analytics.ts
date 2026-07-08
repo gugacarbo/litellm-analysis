@@ -106,33 +106,39 @@ export interface DashboardFilters {
 }
 
 export interface ModelDetail {
-  model_name: string;
-  input_cost_per_token: string;
-  output_cost_per_token: string;
+  model_id: string;
+  input_cost_per_token?: string;
+  output_cost_per_token?: string;
 }
 
 export interface ModelRoute {
-  modelName: string;
+  modelId: string;
   enabled?: boolean;
   displayName?: string;
   family?: string;
-  ownedBy?: string;
-  apiMode?: "openai" | "anthropic";
-  vision?: boolean;
-  contextWindowSize?: number;
-  maxOutputTokens?: number;
-  inputCostPerToken?: number;
-  outputCostPerToken?: number;
-  upstreamModel?: string;
-  upstreamBaseUrl?: string;
-  providerName?: string;
-  secretRef?: string;
+  canonicalSlug?: string;
+  description?: string;
+  contextLength?: number;
+  maxCompletionTokens?: number;
+  knowledgeCutoff?: string;
+  expirationDate?: string;
+  architecture?: Record<string, unknown> | null;
+  reasoning?: {
+    effort?: "low" | "medium" | "high" | "xhigh";
+  } | null;
+  supportedParameters?: Record<string, unknown> | null;
+  defaultParameters?: Record<string, unknown> | null;
+  perRequestLimits?: Record<string, unknown> | null;
+  pricing?: {
+    input?: number;
+    output?: number;
+  } | null;
+  reasoningApiSlug?: string;
   requestOptions?: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
 }
 
 export interface ModelConfig {
-  modelName: string;
+  modelId: string;
   modelRoute: ModelRoute;
 }
 

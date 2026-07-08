@@ -41,7 +41,6 @@ type ModelRow = {
   upstreamModel: string | null;
   upstreamBaseUrl: string | null;
   providerName: string | null;
-  secretRef: string | null;
   requestOptions: Record<string, unknown> | null;
   metadata: Record<string, unknown> | null;
   createdAt: Date;
@@ -61,9 +60,11 @@ type ApiKeyRow = {
 type ProviderRow = {
   id: string;
   name: string;
+  isDefault: boolean;
   provider: string | null;
   baseUrl: string | null;
   apiKey: string | null;
+  secretRef: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -189,7 +190,6 @@ function createInMemoryDb() {
             upstreamModel: data.upstreamModel ?? null,
             upstreamBaseUrl: data.upstreamBaseUrl ?? null,
             providerName: resolveProviderName(data),
-            secretRef: data.secretRef ?? null,
             requestOptions:
               (data.requestOptions as Record<string, unknown> | null) ?? null,
             metadata: (data.metadata as Record<string, unknown> | null) ?? null,
@@ -271,7 +271,6 @@ function createInMemoryDb() {
             upstreamModel: create.upstreamModel ?? null,
             upstreamBaseUrl: create.upstreamBaseUrl ?? null,
             providerName: resolveProviderName(create),
-            secretRef: create.secretRef ?? null,
             requestOptions:
               (create.requestOptions as Record<string, unknown> | null) ?? null,
             metadata:
@@ -316,9 +315,11 @@ function createInMemoryDb() {
           const row: ProviderRow = {
             id: `cred_${providerId++}`,
             name: args.data.name,
+            isDefault: false,
             provider: args.data.provider ?? null,
             baseUrl: args.data.baseUrl ?? null,
             apiKey: args.data.apiKey ?? null,
+            secretRef: null,
             createdAt: now,
             updatedAt: now,
           };

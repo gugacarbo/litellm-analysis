@@ -70,7 +70,7 @@ function buildChatCompletionsUrl(baseUrl: string): string {
 
 function toDiscoveredProviderModel(
   value: unknown,
-  fallbackOwnedBy: string,
+  defaultOwnedBy: string,
 ): DiscoveredProviderModel | null {
   if (!isRecord(value)) {
     return null;
@@ -82,7 +82,7 @@ function toDiscoveredProviderModel(
   }
 
   const ownedBy =
-    readString(value.owned_by) ?? readString(value.ownedBy) ?? fallbackOwnedBy;
+    readString(value.owned_by) ?? readString(value.ownedBy) ?? defaultOwnedBy;
 
   return {
     id,

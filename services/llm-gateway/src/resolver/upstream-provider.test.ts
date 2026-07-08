@@ -1,7 +1,4 @@
-import {
-  encryptProviderSecret,
-  parseProviderEncryptionKey,
-} from "@lite-llm/llm-config-service";
+
 import type { Provider } from "@lite-llm/models-repository";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -57,8 +54,6 @@ function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
     family: null,
     displayName: "GPT Test",
     providerName: "openai-main",
-    secretRef: null,
-    isDefaultProvider: false,
     createdAt: new Date("2026-06-16T00:00:00.000Z"),
     updatedAt: new Date("2026-06-16T00:00:00.000Z"),
     apiMode: null,
@@ -81,7 +76,7 @@ describe("upstream-provider", () => {
           Promise.resolve([
             {
               name: "openai-main",
-              apiKey: process.env.OPENAI_API_KEY ?? null,
+              secretRef: process.env.OPENAI_API_KEY ? "OPENAI_API_KEY" : null,
               baseUrl: null,
             },
           ]),
@@ -173,7 +168,7 @@ describe("upstream-provider", () => {
     });
   });
 
-  it("resolves a bare model name to the default provider row when multiple rows exist", async () => {
+  it("resolves a bare model name to the provider-backed default row", async () => {
     process.env.OPENAI_API_KEY = "sk-test-key";
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
@@ -181,7 +176,6 @@ describe("upstream-provider", () => {
       row: createModelRow({
         providerName: "openai-main",
         ownedBy: "openai",
-        isDefaultProvider: true,
       }),
     });
     delete process.env.OPENAI_API_KEY;
@@ -236,13 +230,7 @@ describe("upstream-provider", () => {
     ).rejects.toThrow('Model "gpt-test" is disabled');
   });
 
-  it("decrypts an encrypted apiKey at runtime", async () => {
-    process.env.APP_ENCRYPTION_KEY = "test-app-encryption-key";
-    const encryptedApiKey = encryptProviderSecret(
-      "sk-encrypted-apikey-key",
-      parseProviderEncryptionKey(),
-    );
-
+  it("rejects a provider with no secretRef configured", async () => {
     dbSelectMock.mockReturnValueOnce({
       from: vi.fn(() => ({
         where: vi.fn(() => ({
@@ -250,7 +238,7 @@ describe("upstream-provider", () => {
             Promise.resolve([
               {
                 name: "openai-main",
-                apiKey: encryptedApiKey,
+                secretRef: null,
                 baseUrl: "https://api.openai.com/v1",
               },
             ]),
@@ -259,29 +247,24 @@ describe("upstream-provider", () => {
       })),
     });
 
-    const target = await resolveUpstreamTarget({
-      modelName: "gpt-test",
-      providers: {
-        openai: {
-          name: "OpenAI",
-          adapter: "openai-compatible",
-          baseUrl: "https://api.openai.com/v1",
-          defaultProvider: "openai-main",
+    await expect(
+      resolveUpstreamTarget({
+        modelName: "gpt-test",
+        providers: {
+          openai: {
+            name: "OpenAI",
+            adapter: "openai-compatible",
+            baseUrl: "https://api.openai.com/v1",
+            defaultProvider: "openai-main",
+          },
         },
-      },
-      row: createModelRow({
-        ownedBy: null,
-        family: null,
-        providerName: "openai-main",
+        row: createModelRow({
+          ownedBy: null,
+          family: null,
+          providerName: "openai-main",
+        }),
       }),
-    });
-
-    delete process.env.APP_ENCRYPTION_KEY;
-
-    expect(target.upstreamHeaders).toEqual({
-      authorization: "Bearer sk-encrypted-apikey-key",
-    });
-    expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
+    ).rejects.toThrow('No upstream API key configured for model "gpt-test"');
   });
 
   it("routes chatgpt-subscription models through OAuth even when they are identified by providerName", async () => {
@@ -309,12 +292,8 @@ describe("upstream-provider", () => {
     expect(target.upstreamHeaders).toEqual({});
   });
 
-  it("decrypts an encrypted apiKey at runtime", async () => {
-    process.env.APP_ENCRYPTION_KEY = "test-app-encryption-key";
-    const encryptedApiKey = encryptProviderSecret(
-      "sk-encrypted-apikey-key",
-      parseProviderEncryptionKey(),
-    );
+  it("resolves API key from secretRef on the provider row", async () => {
+    process.env.TEST_OPENAI_API_KEY = "sk-secretref-key";
 
     dbSelectMock.mockReturnValueOnce({
       from: vi.fn(() => ({
@@ -323,8 +302,7 @@ describe("upstream-provider", () => {
             Promise.resolve([
               {
                 name: "openai-main",
-                secretRef: null,
-                apiKey: encryptedApiKey,
+                secretRef: "TEST_OPENAI_API_KEY",
                 baseUrl: "https://api.openai.com/v1",
               },
             ]),
@@ -350,20 +328,16 @@ describe("upstream-provider", () => {
       }),
     });
 
-    delete process.env.APP_ENCRYPTION_KEY;
+    delete process.env.TEST_OPENAI_API_KEY;
 
     expect(target.upstreamHeaders).toEqual({
-      authorization: "Bearer sk-encrypted-apikey-key",
+      authorization: "Bearer sk-secretref-key",
     });
     expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
   });
 
-  it("falls back to the legacy encrypted apiKey column when secretRef is empty", async () => {
-    process.env.APP_ENCRYPTION_KEY = "test-app-encryption-key";
-    const encryptedApiKey = encryptProviderSecret(
-      "sk-encrypted-legacy-key",
-      parseProviderEncryptionKey(),
-    );
+  it("resolves API key from secretRef for a secondary provider", async () => {
+    process.env.TEST_IPROUTE_API_KEY = "sk-secretref-iproute-key";
 
     dbSelectMock.mockReturnValueOnce({
       from: vi.fn(() => ({
@@ -372,8 +346,7 @@ describe("upstream-provider", () => {
             Promise.resolve([
               {
                 name: "iproute-main",
-                secretRef: null,
-                apiKey: encryptedApiKey,
+                secretRef: "TEST_IPROUTE_API_KEY",
                 baseUrl: "https://llm.iproute.cloud/v1",
               },
             ]),
@@ -399,10 +372,10 @@ describe("upstream-provider", () => {
       }),
     });
 
-    delete process.env.APP_ENCRYPTION_KEY;
+    delete process.env.TEST_IPROUTE_API_KEY;
 
     expect(target.upstreamHeaders).toEqual({
-      authorization: "Bearer sk-encrypted-legacy-key",
+      authorization: "Bearer sk-secretref-iproute-key",
     });
     expect(target.upstreamBaseUrl).toBe("https://llm.iproute.cloud/v1");
   });

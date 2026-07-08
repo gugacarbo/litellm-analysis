@@ -30,7 +30,6 @@ function dbModelToRoute(row: typeof modelProxyModels.$inferSelect) {
     upstreamModel: row.upstreamModel,
     upstreamBaseUrl: row.upstreamBaseUrl,
     providerName: row.providerName,
-    secretRef: row.secretRef,
     requestOptions:
       row.requestOptions === null
         ? null
@@ -58,7 +57,6 @@ function routeToCreateData(route: ReturnType<typeof dbModelToRoute>) {
     upstreamModel: route.upstreamModel ?? route.modelName,
     upstreamBaseUrl: route.upstreamBaseUrl ?? "",
     providerName: route.providerName,
-    secretRef: route.secretRef,
     requestOptions:
       route.requestOptions !== undefined
         ? (route.requestOptions as Record<string, unknown>)
@@ -192,10 +190,7 @@ export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
     providerName: record.name,
     providerValues: null,
     providerInfo: {
-      // DB-level backward compat: apiKey column still exists alongside secretRef
-      hasStoredSecret: Boolean(
-        record.apiKey?.trim() || record.secretRef?.trim(),
-      ),
+      hasStoredSecret: Boolean(record.secretRef?.trim()),
       provider: record.provider,
     },
     createdAt: record.createdAt.toISOString(),

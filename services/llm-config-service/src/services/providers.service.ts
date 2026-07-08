@@ -67,9 +67,11 @@ export class ProvidersService implements IProvidersService {
 
     return this.repository.create({
       name: trimmedName,
+      isDefault: input.isDefault ?? false,
       provider: input.provider ?? null,
       baseUrl: input.baseUrl ?? null,
       apiKey: encryptProviderSecretIfPlain(apiKey, this.encryptionKey),
+      secretRef: input.secretRef ?? null,
     });
   }
 
@@ -89,9 +91,11 @@ export class ProvidersService implements IProvidersService {
 
     const updated = await this.repository.update(name, {
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),
+      ...(input.isDefault !== undefined ? { isDefault: input.isDefault } : {}),
       ...(input.provider !== undefined ? { provider: input.provider } : {}),
       ...(input.baseUrl !== undefined ? { baseUrl: input.baseUrl } : {}),
       ...(apiKey !== undefined ? { apiKey } : {}),
+      ...(input.secretRef !== undefined ? { secretRef: input.secretRef } : {}),
     });
 
     if (!updated) {

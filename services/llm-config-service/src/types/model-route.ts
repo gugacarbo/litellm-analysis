@@ -2,138 +2,127 @@
  * Structured model routing config for `model_proxy_models`.
  */
 
-/** API / adapter mode for consumer-facing model metadata. */
-export type ModelApiMode = "openai" | "anthropic";
-
-/**
- * Canonical routing record for a managed model alias.
- * First-class fields correspond to `ModelProxyModel` columns.
- */
 export interface ModelRoute {
-  /** Public alias / route name (unique). */
-  modelName: string;
+  modelId: string;
   enabled?: boolean;
   displayName?: string;
   family?: string;
-  ownedBy?: string;
-  apiMode?: ModelApiMode;
-  vision?: boolean;
-  contextWindowSize?: number;
-  maxOutputTokens?: number;
-  inputCostPerToken?: number;
-  outputCostPerToken?: number;
-  upstreamModel?: string;
-  upstreamBaseUrl?: string;
-  providerName?: string;
-  /** Env var name holding upstream API key for this model (MVP). */
-  secretRef?: string;
-  /** Provider-specific kwargs not mapped to dedicated columns. */
+  canonicalSlug?: string;
+  description?: string;
+  contextLength?: number;
+  maxCompletionTokens?: number;
+  knowledgeCutoff?: string;
+  expirationDate?: string;
+  architecture?: Record<string, unknown> | null;
+  reasoning?: {
+    effort?: "low" | "medium" | "high" | "xhigh";
+  } | null;
+  supportedParameters?: Record<string, unknown> | null;
+  defaultParameters?: Record<string, unknown> | null;
+  perRequestLimits?: Record<string, unknown> | null;
+  pricing?: {
+    input?: number;
+    output?: number;
+  } | null;
+  reasoningApiSlug?: string;
   requestOptions?: Record<string, unknown>;
-  /** Extra dashboard-facing metadata (thinking, reasoning) outside first-class registry columns. */
-  metadata?: Record<string, unknown>;
 }
 
-/** Subset of `ModelRoute` writable on create/update (excludes identity). */
-export type ModelRouteUpdate = Partial<Omit<ModelRoute, "modelName">>;
+export type ModelRouteUpdate = Partial<Omit<ModelRoute, "modelId">>;
 
-/**
- * Registry row shape aligned with `ModelProxyModel`.
- * Used by repositories before/after DB round-trip.
- */
 export interface ModelProxyModelRecord {
   id: string;
-  modelName: string;
+  modelId: string;
   enabled: boolean;
   displayName: string | null;
   family: string | null;
-  ownedBy: string | null;
-  apiMode: string | null;
-  vision: boolean | null;
-  contextWindowSize: number | null;
-  maxOutputTokens: number | null;
-  inputCostPerToken: number | null;
-  outputCostPerToken: number | null;
-  upstreamModel: string | null;
-  upstreamBaseUrl: string | null;
-  providerName: string | null;
-  secretRef: string | null;
+  canonicalSlug: string | null;
+  description: string | null;
+  contextLength: number | null;
+  maxCompletionTokens: number | null;
+  knowledgeCutoff: string | null;
+  expirationDate: string | null;
+  architecture: Record<string, unknown> | null;
+  reasoning: Record<string, unknown> | null;
+  supportedParameters: Record<string, unknown> | null;
+  defaultParameters: Record<string, unknown> | null;
+  perRequestLimits: Record<string, unknown> | null;
+  pricing: Record<string, unknown> | null;
   requestOptions: Record<string, unknown> | null;
-  metadata: Record<string, unknown> | null;
+  providerId: string | null;
+  reasoningApiId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-/** Canonical model route payload — typed subset of ModelRoute fields. */
 export type RouteParams = Partial<Pick<ModelRoute, ReservedRouteParamKey>>;
 
-/**
- * Canonical route payload keys absorbed into dedicated `ModelRoute` fields.
- */
 export const RESERVED_ROUTE_PARAM_KEYS = [
-  "modelName",
+  "modelId",
   "enabled",
   "displayName",
   "family",
-  "ownedBy",
-  "apiMode",
-  "vision",
-  "contextWindowSize",
-  "maxOutputTokens",
-  "inputCostPerToken",
-  "outputCostPerToken",
-  "upstreamModel",
-  "upstreamBaseUrl",
-  "providerName",
-  "secretRef",
+  "canonicalSlug",
+  "description",
+  "contextLength",
+  "maxCompletionTokens",
+  "knowledgeCutoff",
+  "expirationDate",
+  "architecture",
+  "reasoning",
+  "supportedParameters",
+  "defaultParameters",
+  "perRequestLimits",
+  "pricing",
+  "reasoningApiSlug",
   "requestOptions",
-  "metadata",
 ] as const;
 
 export type ReservedRouteParamKey = (typeof RESERVED_ROUTE_PARAM_KEYS)[number];
 
-/** Canonical route params → `ModelRoute` field */
 export const ROUTE_PARAM_TO_MODEL_ROUTE: Record<
   ReservedRouteParamKey,
-  keyof ModelRoute | "modelName"
+  keyof ModelRoute | "modelId"
 > = {
-  modelName: "modelName",
+  modelId: "modelId",
   enabled: "enabled",
   displayName: "displayName",
   family: "family",
-  ownedBy: "ownedBy",
-  apiMode: "apiMode",
-  vision: "vision",
-  contextWindowSize: "contextWindowSize",
-  maxOutputTokens: "maxOutputTokens",
-  inputCostPerToken: "inputCostPerToken",
-  outputCostPerToken: "outputCostPerToken",
-  upstreamModel: "upstreamModel",
-  upstreamBaseUrl: "upstreamBaseUrl",
-  providerName: "providerName",
-  secretRef: "secretRef",
+  canonicalSlug: "canonicalSlug",
+  description: "description",
+  contextLength: "contextLength",
+  maxCompletionTokens: "maxCompletionTokens",
+  knowledgeCutoff: "knowledgeCutoff",
+  expirationDate: "expirationDate",
+  architecture: "architecture",
+  reasoning: "reasoning",
+  supportedParameters: "supportedParameters",
+  defaultParameters: "defaultParameters",
+  perRequestLimits: "perRequestLimits",
+  pricing: "pricing",
+  reasoningApiSlug: "reasoningApiSlug",
   requestOptions: "requestOptions",
-  metadata: "metadata",
 };
 
-/** `ModelRoute` field → canonical route param key. */
 export const MODEL_ROUTE_TO_ROUTE_PARAM: Partial<
   Record<keyof ModelRoute, ReservedRouteParamKey>
 > = {
-  modelName: "modelName",
+  modelId: "modelId",
   enabled: "enabled",
   displayName: "displayName",
   family: "family",
-  ownedBy: "ownedBy",
-  apiMode: "apiMode",
-  vision: "vision",
-  contextWindowSize: "contextWindowSize",
-  maxOutputTokens: "maxOutputTokens",
-  inputCostPerToken: "inputCostPerToken",
-  outputCostPerToken: "outputCostPerToken",
-  upstreamModel: "upstreamModel",
-  upstreamBaseUrl: "upstreamBaseUrl",
-  providerName: "providerName",
-  secretRef: "secretRef",
+  canonicalSlug: "canonicalSlug",
+  description: "description",
+  contextLength: "contextLength",
+  maxCompletionTokens: "maxCompletionTokens",
+  knowledgeCutoff: "knowledgeCutoff",
+  expirationDate: "expirationDate",
+  architecture: "architecture",
+  reasoning: "reasoning",
+  supportedParameters: "supportedParameters",
+  defaultParameters: "defaultParameters",
+  perRequestLimits: "perRequestLimits",
+  pricing: "pricing",
+  reasoningApiSlug: "reasoningApiSlug",
   requestOptions: "requestOptions",
-  metadata: "metadata",
 };

@@ -89,21 +89,23 @@ describe("buildHeboGatewayConfig", () => {
     vi.clearAllMocks();
     dbSelectMock.mockReturnValue({
       from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          orderBy: vi.fn(() =>
-            Promise.resolve([
-              {
-                modelName: "gpt-4.1",
-                providerName: "openai-main",
-                isDefaultProvider: true,
-              },
-              {
-                modelName: "gpt-4.1",
-                providerName: "deepseek-main",
-                isDefaultProvider: false,
-              },
-            ]),
-          ),
+        leftJoin: vi.fn(() => ({
+          where: vi.fn(() => ({
+            orderBy: vi.fn(() =>
+              Promise.resolve([
+                {
+                  modelName: "gpt-4.1",
+                  providerName: "openai-main",
+                  isDefault: true,
+                },
+                {
+                  modelName: "gpt-4.1",
+                  providerName: "deepseek-main",
+                  isDefault: false,
+                },
+              ]),
+            ),
+          })),
         })),
       })),
     });
@@ -112,16 +114,18 @@ describe("buildHeboGatewayConfig", () => {
   it("registers single-provider models under the bare name only", async () => {
     dbSelectMock.mockReturnValue({
       from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          orderBy: vi.fn(() =>
-            Promise.resolve([
-              {
-                modelName: "gpt-4.1",
-                providerName: "openai-main",
-                isDefaultProvider: true,
-              },
-            ]),
-          ),
+        leftJoin: vi.fn(() => ({
+          where: vi.fn(() => ({
+            orderBy: vi.fn(() =>
+              Promise.resolve([
+                {
+                  modelName: "gpt-4.1",
+                  providerName: "openai-main",
+                  isDefault: true,
+                },
+              ]),
+            ),
+          })),
         })),
       })),
     });
@@ -175,21 +179,23 @@ describe("buildHeboGatewayConfig", () => {
   it("warns and omits the bare alias when an ambiguous model has no default provider", async () => {
     dbSelectMock.mockReturnValue({
       from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          orderBy: vi.fn(() =>
-            Promise.resolve([
-              {
-                modelName: "gpt-4.1",
-                providerName: "deepseek-main",
-                isDefaultProvider: false,
-              },
-              {
-                modelName: "gpt-4.1",
-                providerName: "openai-main",
-                isDefaultProvider: false,
-              },
-            ]),
-          ),
+        leftJoin: vi.fn(() => ({
+          where: vi.fn(() => ({
+            orderBy: vi.fn(() =>
+              Promise.resolve([
+                {
+                  modelName: "gpt-4.1",
+                  providerName: "deepseek-main",
+                  isDefault: false,
+                },
+                {
+                  modelName: "gpt-4.1",
+                  providerName: "openai-main",
+                  isDefault: false,
+                },
+              ]),
+            ),
+          })),
         })),
       })),
     });

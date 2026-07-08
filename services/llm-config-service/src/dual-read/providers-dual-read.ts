@@ -5,6 +5,7 @@ import type { ProviderRecord } from "../types/providers.js";
 export interface ProviderListItem {
   providerId: string;
   providerName: string;
+  isDefault: boolean;
   provider: string | null;
   baseUrl: string | null;
   hasStoredSecret: boolean;
@@ -16,6 +17,7 @@ export function toPublicProvider(record: ProviderRecord): ProviderListItem {
   return {
     providerId: record.id,
     providerName: record.name,
+    isDefault: record.isDefault,
     provider: record.provider,
     baseUrl: record.baseUrl,
     hasStoredSecret: hasStoredProviderSecret(record),

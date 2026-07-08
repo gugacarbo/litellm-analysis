@@ -180,5 +180,18 @@
       "apps/web/src/features/models/models-utils.ts",
       "apps/web/src/shared/lib/api-client/models.ts"
     ]
+  },
+  {
+    "id": "SPEC-0010",
+    "path": "docs/specs/0010-model-registry-schema-simplification-spec.md",
+    "layer": "specs",
+    "title": "Model registry adopts an OpenRouter-first schema with explicit reasoning API relations and no legacy compatibility fields",
+    "status": "draft",
+    "builds-on": [
+      "ADR-0004",
+      "ADR-0006"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
   }
 ]

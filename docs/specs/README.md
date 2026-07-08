@@ -12,3 +12,4 @@
 | [SPEC-0007](0007-model-config-screen-refactor-spec.md) | The model configuration settings tab is reorganized into General, Routing, and Advanced tabs with extracted sub-hooks | accepted |
 | [SPEC-0008](0008-benchmark-comparison-dialog-spec.md) | Botão na tela de settings do modelo que abre um dialog comparativo entre AA e OpenRouter com importação campo a campo | implemented |
 | [SPEC-0009](0009-model-route-hard-cut-spec.md) | ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters | implemented |
+| [SPEC-0010](0010-model-registry-schema-simplification-spec.md) | Model registry adopts an OpenRouter-first schema with explicit reasoning API relations and no legacy compatibility fields | draft |

@@ -108,31 +108,55 @@ export const modelProxyMessages = pgTable(
   ],
 );
 
+export const modelProxyReasoningApis = pgTable(
+  "model_proxy_reasoning_apis",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").unique().notNull(),
+    providerId: uuid("provider_id")
+      .notNull()
+      .references(() => modelProxyProviders.id, { onDelete: "cascade" }),
+    version: text("version").notNull(),
+    requestParams: jsonb("request_params"),
+    requestShape: jsonb("request_shape"),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+);
+
 export const modelProxyModels = pgTable(
   "model_proxy_models",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    modelName: text("model_name").notNull(),
-    isDefaultProvider: boolean("is_default_provider").default(false).notNull(),
+    modelId: text("model_id").notNull(),
     enabled: boolean("enabled").default(true).notNull(),
     displayName: text("display_name"),
     family: text("family"),
-    ownedBy: text("owned_by"),
-    apiMode: text("api_mode"),
-    vision: boolean("vision"),
-    contextWindowSize: integer("context_window_size"),
-    maxOutputTokens: integer("max_output_tokens"),
-    inputCostPerToken: doublePrecision("input_cost_per_token"),
-    outputCostPerToken: doublePrecision("output_cost_per_token"),
-    upstreamModel: text("upstream_model"),
-    upstreamBaseUrl: text("upstream_base_url"),
-    providerName: text("provider_name").references(
-      () => modelProxyProviders.name,
+    canonicalSlug: text("canonical_slug"),
+    description: text("description"),
+    contextLength: integer("context_length"),
+    maxCompletionTokens: integer("max_completion_tokens"),
+    knowledgeCutoff: text("knowledge_cutoff"),
+    expirationDate: text("expiration_date"),
+    architecture: jsonb("architecture"),
+    reasoning: jsonb("reasoning"),
+    supportedParameters: jsonb("supported_parameters"),
+    defaultParameters: jsonb("default_parameters"),
+    perRequestLimits: jsonb("per_request_limits"),
+    pricing: jsonb("pricing"),
+    requestOptions: jsonb("request_options"),
+    providerId: uuid("provider_id").references(
+      () => modelProxyProviders.id,
       { onDelete: "set null" },
     ),
-    secretRef: text("secret_ref"),
-    requestOptions: jsonb("request_options"),
-    metadata: jsonb("metadata"),
+    reasoningApiId: uuid("reasoning_api_id").references(
+      () => modelProxyReasoningApis.id,
+      { onDelete: "set null" },
+    ),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -140,13 +164,13 @@ export const modelProxyModels = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    uniqueIndex("uq_model_proxy_models_model_provider").on(
-      table.modelName,
-      table.providerName,
+    uniqueIndex("uq_model_proxy_models_provider_model").on(
+      table.providerId,
+      table.modelId,
     ),
-    index("idx_model_proxy_models_enabled_name").on(
+    index("idx_model_proxy_models_enabled_id").on(
       table.enabled,
-      table.modelName,
+      table.modelId,
     ),
   ],
 );
@@ -154,9 +178,11 @@ export const modelProxyModels = pgTable(
 export const modelProxyProviders = pgTable("model_proxy_providers", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").unique().notNull(),
+  isDefault: boolean("is_default").default(false).notNull(),
   provider: text("provider"),
   baseUrl: text("base_url"),
   apiKey: text("api_key"),
+  secretRef: text("secret_ref"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -247,6 +273,10 @@ export type NewModelProxyUsageAdjustment =
   typeof modelProxyUsageAdjustments.$inferInsert;
 export type ModelProxyMessage = typeof modelProxyMessages.$inferSelect;
 export type NewModelProxyMessage = typeof modelProxyMessages.$inferInsert;
+export type ModelProxyReasoningApi =
+  typeof modelProxyReasoningApis.$inferSelect;
+export type NewModelProxyReasoningApi =
+  typeof modelProxyReasoningApis.$inferInsert;
 export type ModelProxyModel = typeof modelProxyModels.$inferSelect;
 export type NewModelProxyModel = typeof modelProxyModels.$inferInsert;
 export type ModelProxyProvider = typeof modelProxyProviders.$inferSelect;

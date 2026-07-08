@@ -93,17 +93,21 @@ export function createProvidersRepositoryMock() {
 
     async create(data: {
       name: string;
+      isDefault?: boolean;
       provider?: string | null;
       baseUrl?: string | null;
       apiKey?: string | null;
+      secretRef?: string | null;
     }): Promise<ProviderRecord> {
       const now = new Date();
       const row: ProviderRecord = {
         id: `cred_${idCounter++}`,
         name: data.name,
+        isDefault: data.isDefault ?? false,
         provider: data.provider ?? null,
         baseUrl: data.baseUrl ?? null,
         apiKey: data.apiKey ?? null,
+        secretRef: data.secretRef ?? null,
         createdAt: now,
         updatedAt: now,
       };
@@ -115,9 +119,11 @@ export function createProvidersRepositoryMock() {
       name: string,
       data: Partial<{
         name: string;
+        isDefault: boolean;
         provider: string | null;
         baseUrl: string | null;
         apiKey: string | null;
+        secretRef: string | null;
       }>,
     ): Promise<ProviderRecord | null> {
       const existing = rows.get(name);
@@ -207,7 +213,6 @@ export function createModelsRepositoryMock() {
       upstreamModel: route.upstreamModel ?? null,
       upstreamBaseUrl: route.upstreamBaseUrl ?? null,
       providerName: route.providerName ?? null,
-      secretRef: route.secretRef ?? null,
       requestOptions: route.requestOptions ?? null,
       metadata: route.metadata ?? null,
       createdAt: now,

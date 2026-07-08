@@ -15,10 +15,10 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:generate": "node ./scripts/with-db-schema.mjs drizzle-kit generate",
+    "db:migrate": "node ./scripts/with-db-schema.mjs drizzle-kit migrate",
+    "db:push": "node ./scripts/with-db-schema.mjs drizzle-kit push",
+    "db:studio": "node ./scripts/with-db-schema.mjs drizzle-kit studio"
   },
   "dependencies": {
     "@lite-llm/config": "workspace:*",

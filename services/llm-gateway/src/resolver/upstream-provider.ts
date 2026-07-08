@@ -6,7 +6,6 @@ import {
 } from "@lite-llm/database/schema/model-proxy";
 import {
   OPENAI_CHATGPT_API_BASE,
-  resolveProviderApiKey,
 } from "@lite-llm/llm-config-service";
 import type { Provider } from "@lite-llm/models-repository";
 import { and, eq } from "drizzle-orm";
@@ -59,13 +58,14 @@ function readSecretRef(secretRef?: string | null): string | undefined {
 function resolveStoredProviderApiKey(
   provider?: {
     apiKey?: string | null;
+    secretRef?: string | null;
   } | null,
 ): string | undefined {
   if (!provider) {
     return undefined;
   }
 
-  return resolveProviderApiKey(provider);
+  return readSecretRef(provider.secretRef);
 }
 
 export function findUpstreamProvider(
@@ -135,7 +135,9 @@ export async function resolveUpstreamTarget(params: {
   if (!resolvedRow) {
     if (providerPrefix) {
       const [found] = await db
-        .select()
+        .select({
+          row: modelProxyModels,
+        })
         .from(modelProxyModels)
         .where(
           and(
@@ -144,22 +146,29 @@ export async function resolveUpstreamTarget(params: {
           ),
         )
         .limit(1);
-      resolvedRow = found ?? null;
+      resolvedRow = found?.row ?? null;
       if (!resolvedRow) {
         throw new Error(`Model "${modelName}" not found`);
       }
     } else {
       const rows = await db
-        .select()
+        .select({
+          row: modelProxyModels,
+          providerIsDefault: modelProxyProviders.isDefault,
+        })
         .from(modelProxyModels)
+        .leftJoin(
+          modelProxyProviders,
+          eq(modelProxyModels.providerName, modelProxyProviders.name),
+        )
         .where(eq(modelProxyModels.modelName, bareModelName));
 
       if (rows.length === 1) {
-        resolvedRow = rows[0];
+        resolvedRow = rows[0]?.row ?? null;
       } else if (rows.length > 1) {
-        const defaultRows = rows.filter((r) => r.isDefaultProvider);
+        const defaultRows = rows.filter((r) => r.providerIsDefault === true);
         if (defaultRows.length === 1) {
-          resolvedRow = defaultRows[0];
+          resolvedRow = defaultRows[0]?.row ?? null;
         } else if (defaultRows.length === 0) {
           throw new Error(
             `Ambiguous model "${bareModelName}" — multiple providers available. Use "provider/${bareModelName}" to specify.`,
@@ -205,11 +214,10 @@ export async function resolveUpstreamTarget(params: {
     throw new Error(`No upstream base URL configured for model "${modelName}"`);
   }
 
-  const envSecret = readSecretRef(resolvedRow.secretRef);
   const isChatGptSubscription =
     upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
 
-  const upstreamApiKey = envSecret || resolveStoredProviderApiKey(provider);
+  const upstreamApiKey = resolveStoredProviderApiKey(provider);
 
   if (!isChatGptSubscription && !upstreamApiKey) {
     throw new Error(`No upstream API key configured for model "${modelName}"`);

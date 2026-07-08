@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelProxyService } from "./service";
 
-const mockDbSelect = vi.fn();
-const mockDbInsert = vi.fn();
-const mockDbUpdate = vi.fn();
+const { mockDbSelect, mockDbInsert, mockDbUpdate } = vi.hoisted(() => ({
+  mockDbSelect: vi.fn(),
+  mockDbInsert: vi.fn(),
+  mockDbUpdate: vi.fn(),
+}));
 
 vi.mock("@lite-llm/database/client", () => ({
   db: {
@@ -29,8 +31,6 @@ function setupDbMock(overrides?: {
       family: null,
       displayName: null,
       providerName: "default",
-      secretRef: null,
-      isDefaultProvider: false,
       updatedAt: new Date("2026-06-16T00:00:00.000Z"),
     },
   ];
@@ -551,8 +551,6 @@ describe("ModelProxyService", () => {
         family: null,
         displayName: null,
         providerName: "default",
-        secretRef: null,
-        isDefaultProvider: false,
         updatedAt: new Date("2026-06-16T00:00:00.000Z"),
       },
     ]);

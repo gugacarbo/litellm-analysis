@@ -86,19 +86,19 @@ export function getProviderNameFromParams(
 
 export function resolveModelProvider(
   params: ModelRoute,
-  fallbackProvider?: string | null,
+  defaultProvider?: string | null,
 ): string | undefined {
   return (
-    getProviderNameFromParams(params) ?? normalizeProviderName(fallbackProvider)
+    getProviderNameFromParams(params) ?? normalizeProviderName(defaultProvider)
   );
 }
 
 export function normalizeModelRoute(
   modelName: string,
   route: ModelRoute,
-  providerName?: string | null,
+  defaultProvider?: string | null,
 ): ModelRoute {
-  const resolvedProvider = resolveModelProvider(route, providerName);
+  const resolvedProvider = resolveModelProvider(route, defaultProvider);
 
   return {
     ...route,
