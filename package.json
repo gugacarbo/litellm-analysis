@@ -17,9 +17,9 @@
     "db:up": "sh scripts/db-compose.sh up -d",
     "db:down": "sh scripts/db-compose.sh down",
     "db:logs": "sh scripts/db-compose.sh logs -f postgres",
-    "db:migrate": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec pnpm --filter @lite-llm/database db:migrate'",
-    "db:generate": "pnpm --filter @lite-llm/database db:generate",
-    "db:studio": "pnpm --filter @lite-llm/database db:studio",
+    "db:migrate": "sh -c 'set -a; [ -f .env.local ] && . ./.env.local; [ -f .env ] && . ./.env; set +a; exec pnpm --filter database db:migrate'",
+    "db:generate": "pnpm --filter database db:generate",
+    "db:studio": "pnpm --filter database db:studio",
     "backup": "pnpm --filter @lite-llm/scripts backup",
     "backup:list": "ls -lh backups/model_proxy_* backups/*.sql.gz 2>/dev/null || echo 'No backups found'",
     "docs-check": "python3 ./scripts/docs-check"

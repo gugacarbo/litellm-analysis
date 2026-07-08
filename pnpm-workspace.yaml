@@ -5,6 +5,7 @@ packages:
   - "services/agent-plugins"
   - "packages/*"
   - "repositories/*"
+  - "database"
 
 overrides:
   "@assistant-ui/core": "0.2.17"
