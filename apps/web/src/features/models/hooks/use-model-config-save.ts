@@ -1,6 +1,8 @@
+import { type QueryClient, useMutation } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { useMutation, type QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { parseExtraParamValue } from "@/features/models/models-form-utils";
+import { updateModelAliases } from "@/shared/lib/api-client/model-aliases";
 import {
   type ModelConfig,
   type ModelRouteUpdate,
@@ -9,13 +11,11 @@ import {
   resolveModelRoute,
   updateModel,
 } from "@/shared/lib/api-client/models";
-import { updateModelAliases } from "@/shared/lib/api-client/model-aliases";
-import { parseExtraParamValue } from "@/features/models/models-form-utils";
+import type { UseModelAliasesResult } from "./use-model-aliases";
 import {
-  type ModelConfigFormData,
   buildConfigFromFormData,
+  type ModelConfigFormData,
 } from "./use-model-config-form";
-import { type UseModelAliasesResult } from "./use-model-aliases";
 
 export interface UseModelConfigSaveArgs {
   model: ModelWithStatus | null;

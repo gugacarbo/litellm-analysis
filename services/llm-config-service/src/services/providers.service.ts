@@ -37,8 +37,7 @@ export class ProvidersService implements IProvidersService {
             throw new Error("ProvidersService requires db or repository");
           })(),
       );
-    this.encryptionKey =
-      options.encryptionKey ?? parseProviderEncryptionKey();
+    this.encryptionKey = options.encryptionKey ?? parseProviderEncryptionKey();
   }
 
   async get(name: string): Promise<ProviderRecord | null> {

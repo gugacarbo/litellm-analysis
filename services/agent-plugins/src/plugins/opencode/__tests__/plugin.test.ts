@@ -82,7 +82,8 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              contextLength: 128000, maxCompletionTokens: 4096,
+              contextLength: 128000,
+              maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -112,7 +113,8 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              contextLength: 128000, maxCompletionTokens: 4096,
+              contextLength: 128000,
+              maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -150,7 +152,8 @@ describe("createOpenCodePlugin", () => {
             "minimax-m3": {
               displayName: "",
               enabled: true,
-              contextLength: 1000000, maxCompletionTokens: 256000,
+              contextLength: 1000000,
+              maxCompletionTokens: 256000,
             },
           },
           modelProxyConfig: {
@@ -184,7 +187,8 @@ describe("createOpenCodePlugin", () => {
             "gpt-5": {
               displayName: "GPT-5",
               enabled: true,
-              contextLength: 200000, maxCompletionTokens: 8192,
+              contextLength: 200000,
+              maxCompletionTokens: 8192,
               reasoning: {
                 effort: "high",
               },
@@ -222,7 +226,8 @@ describe("createOpenCodePlugin", () => {
             "gpt-5": {
               displayName: "GPT-5",
               enabled: true,
-              contextLength: 200000, maxCompletionTokens: 8192,
+              contextLength: 200000,
+              maxCompletionTokens: 8192,
               reasoning: {
                 effort: "high",
               },
@@ -260,7 +265,8 @@ describe("createOpenCodePlugin", () => {
             "deepseek-r1": {
               displayName: "DeepSeek R1",
               enabled: true,
-              contextLength: 128000, maxCompletionTokens: 8192,
+              contextLength: 128000,
+              maxCompletionTokens: 8192,
               reasoning: {
                 effort: "high",
               },
@@ -328,7 +334,8 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -372,12 +379,14 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
           "gpt-3.5": {
             displayName: "GPT-3.5",
             enabled: true,
-            contextLength: 16000, maxCompletionTokens: 4096,
+            contextLength: 16000,
+            maxCompletionTokens: 4096,
           },
         },
         globalFallbackModel: "gpt-3.5",
@@ -414,7 +423,8 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -448,7 +458,8 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -480,12 +491,14 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
           "claude-3": {
             displayName: "Claude 3",
             enabled: true,
-            contextLength: 200000, maxCompletionTokens: 8192,
+            contextLength: 200000,
+            maxCompletionTokens: 8192,
           },
         },
         modelProxyConfig: {
@@ -518,7 +531,8 @@ describe("createOpenCodePlugin", () => {
           "gpt-5": {
             displayName: "GPT-5",
             enabled: true,
-            contextLength: 200000, maxCompletionTokens: 8192,
+            contextLength: 200000,
+            maxCompletionTokens: 8192,
             pricing: { input: 0.000015, output: 0.00006 },
             reasoning: { effort: "high" },
           },
@@ -555,7 +569,8 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              contextLength: 128000, maxCompletionTokens: 4096,
+              contextLength: 128000,
+              maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -591,17 +606,20 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
           "claude-3": {
             displayName: "Claude 3",
             enabled: true,
-            contextLength: 200000, maxCompletionTokens: 8192,
+            contextLength: 200000,
+            maxCompletionTokens: 8192,
           },
           "gpt-3.5": {
             displayName: "GPT-3.5",
             enabled: true,
-            contextLength: 16000, maxCompletionTokens: 4096,
+            contextLength: 16000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -641,7 +659,8 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -671,7 +690,8 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              contextLength: 128000, maxCompletionTokens: 4096,
+              contextLength: 128000,
+              maxCompletionTokens: 4096,
             },
           },
           globalFallbackModel: "gpt-4",
@@ -721,7 +741,8 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              contextLength: 128000, maxCompletionTokens: 4096,
+              contextLength: 128000,
+              maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -778,7 +799,8 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -822,12 +844,14 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
           "gpt-3.5": {
             displayName: "GPT-3.5",
             enabled: true,
-            contextLength: 16000, maxCompletionTokens: 4096,
+            contextLength: 16000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -879,7 +903,8 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -924,7 +949,8 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            contextLength: 128000, maxCompletionTokens: 4096,
+            contextLength: 128000,
+            maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {

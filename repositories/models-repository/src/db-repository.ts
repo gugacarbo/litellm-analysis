@@ -92,10 +92,15 @@ function modelSpecFromRow(
     base.architecture = row.architecture as Record<string, unknown>;
   }
   if (row.reasoning) {
-    base.reasoning = row.reasoning as { effort?: "low" | "medium" | "high" | "xhigh" };
+    base.reasoning = row.reasoning as {
+      effort?: "low" | "medium" | "high" | "xhigh";
+    };
   }
   if (row.supportedParameters) {
-    base.supportedParameters = row.supportedParameters as unknown as Record<string, unknown>;
+    base.supportedParameters = row.supportedParameters as unknown as Record<
+      string,
+      unknown
+    >;
   }
   if (row.defaultParameters) {
     base.defaultParameters = row.defaultParameters as Record<string, unknown>;
@@ -157,9 +162,7 @@ export class DbModelsRepository implements IModelsRepository {
       .from(modelProxyModels)
       .orderBy(asc(modelProxyModels.modelId));
     const providerRows = await this.providers.list();
-    const providerIdToName = new Map(
-      providerRows.map((p) => [p.id, p.name]),
-    );
+    const providerIdToName = new Map(providerRows.map((p) => [p.id, p.name]));
     const defaultProviderRow = await this.settings.findByKey(
       SETTING_KEYS.DEFAULT_PROVIDER,
     );
@@ -201,10 +204,9 @@ export class DbModelsRepository implements IModelsRepository {
     const models: Record<string, ModelSpec> = {};
     for (const row of modelRows) {
       const providerName = row.providerId
-        ? providerIdToName.get(row.providerId) ?? null
+        ? (providerIdToName.get(row.providerId) ?? null)
         : null;
-      models[buildModelKey(row.modelId, providerName)] =
-        modelSpecFromRow(row);
+      models[buildModelKey(row.modelId, providerName)] = modelSpecFromRow(row);
     }
 
     const config: ModelsConfig = {
@@ -280,17 +282,12 @@ export class DbModelsRepository implements IModelsRepository {
     const desiredNames = new Set(Object.keys(validated.models));
     const existingModels = await this.db.select().from(modelProxyModels);
     const providerRows = await this.providers.list();
-    const providerNameToId = new Map(
-      providerRows.map((p) => [p.name, p.id]),
-    );
+    const providerNameToId = new Map(providerRows.map((p) => [p.name, p.id]));
     for (const existing of existingModels) {
       const providerName = existing.providerId
-        ? providerRows.find((p) => p.id === existing.providerId)?.name ?? null
+        ? (providerRows.find((p) => p.id === existing.providerId)?.name ?? null)
         : null;
-      const existingKey = buildModelKey(
-        existing.modelId,
-        providerName,
-      );
+      const existingKey = buildModelKey(existing.modelId, providerName);
       if (!desiredNames.has(existingKey)) {
         await this.db
           .delete(modelProxyModels)
@@ -301,19 +298,16 @@ export class DbModelsRepository implements IModelsRepository {
     const existingByKey = new Map(
       existingModels.map((row) => {
         const providerName = row.providerId
-          ? providerRows.find((p) => p.id === row.providerId)?.name ?? null
+          ? (providerRows.find((p) => p.id === row.providerId)?.name ?? null)
           : null;
-        return [
-          buildModelKey(row.modelId, providerName),
-          row,
-        ];
+        return [buildModelKey(row.modelId, providerName), row];
       }),
     );
 
     for (const [modelKey, spec] of Object.entries(validated.models)) {
       const { modelName, providerName } = parseModelKey(modelKey);
       const providerId = providerName
-        ? providerNameToId.get(providerName) ?? null
+        ? (providerNameToId.get(providerName) ?? null)
         : null;
       const data = modelRowFromSpec(modelName, providerId, spec);
       const existing = existingByKey.get(modelKey);

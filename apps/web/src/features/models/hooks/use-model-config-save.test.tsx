@@ -1,11 +1,11 @@
-import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { useModelConfigSave } from "./use-model-config-save";
-import type { ModelConfigFormData } from "./use-model-config-form";
-import type { UseModelAliasesResult } from "./use-model-aliases";
+import { useEffect } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ModelWithStatus } from "@/shared/lib/api-client/models";
+import type { UseModelAliasesResult } from "./use-model-aliases";
+import type { ModelConfigFormData } from "./use-model-config-form";
+import { useModelConfigSave } from "./use-model-config-save";
 
 const {
   updateModelMock,

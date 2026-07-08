@@ -4,9 +4,7 @@ import {
   modelProxyModels,
   modelProxyProviders,
 } from "@lite-llm/database/schema/model-proxy";
-import {
-  OPENAI_CHATGPT_API_BASE,
-} from "@lite-llm/llm-config-service";
+import { OPENAI_CHATGPT_API_BASE } from "@lite-llm/llm-config-service";
 import type { Provider } from "@lite-llm/models-repository";
 import { and, eq } from "drizzle-orm";
 
@@ -65,7 +63,9 @@ function resolveStoredProviderApiKey(
     return undefined;
   }
 
-  return readSecretRef(provider.secretRef) ?? (provider.apiKey?.trim() || undefined);
+  return (
+    readSecretRef(provider.secretRef) ?? (provider.apiKey?.trim() || undefined)
+  );
 }
 
 export function findUpstreamProvider(
@@ -226,8 +226,7 @@ export async function resolveUpstreamTarget(params: {
       : null);
 
   const upstreamBaseUrl =
-    effectiveDbProvider?.baseUrl?.trim() ||
-    upstreamProvider?.baseUrl?.trim();
+    effectiveDbProvider?.baseUrl?.trim() || upstreamProvider?.baseUrl?.trim();
 
   if (!upstreamBaseUrl) {
     throw new Error(`No upstream base URL configured for model "${modelName}"`);

@@ -55,10 +55,7 @@
     "layer": "adr",
     "title": "Adotar política dual-read / single-write com registry como fonte primária",
     "status": "accepted",
-    "builds-on": [
-      "ADR-0001",
-      "ADR-0003"
-    ],
+    "builds-on": ["ADR-0001", "ADR-0003"],
     "superseded-by": null,
     "implemented-by": []
   },
@@ -130,9 +127,7 @@
     "layer": "specs",
     "title": "The model configuration settings tab is reorganized into General, Routing, and Advanced tabs with extracted sub-hooks",
     "status": "accepted",
-    "builds-on": [
-      "SPEC-0001"
-    ],
+    "builds-on": ["SPEC-0001"],
     "superseded-by": null,
     "implemented-by": []
   },
@@ -142,10 +137,7 @@
     "layer": "specs",
     "title": "Botão na tela de settings do modelo que abre um dialog comparativo entre AA e OpenRouter com importação campo a campo",
     "status": "implemented",
-    "builds-on": [
-      "SPEC-0006",
-      "SPEC-0007"
-    ],
+    "builds-on": ["SPEC-0006", "SPEC-0007"],
     "superseded-by": null,
     "implemented-by": [
       "packages/contracts/src/benchmarks.ts",
@@ -164,10 +156,7 @@
     "layer": "specs",
     "title": "ModelRoute becomes the only accepted model contract across web, server, contracts, and persistence adapters",
     "status": "implemented",
-    "builds-on": [
-      "SPEC-0002",
-      "SPEC-0003"
-    ],
+    "builds-on": ["SPEC-0002", "SPEC-0003"],
     "superseded-by": null,
     "implemented-by": [
       "packages/contracts/src/analytics.ts",
@@ -186,10 +175,7 @@
     "layer": "specs",
     "title": "Model registry adopts an OpenRouter-first schema with explicit reasoning API relations and no legacy compatibility fields",
     "status": "draft",
-    "builds-on": [
-      "ADR-0004",
-      "ADR-0006"
-    ],
+    "builds-on": ["ADR-0004", "ADR-0006"],
     "superseded-by": null,
     "implemented-by": []
   }

@@ -102,10 +102,7 @@ async function listProxyCatalogRows(): Promise<ProxyCatalogRow[]> {
       eq(modelProxyModels.providerId, modelProxyProviders.id),
     )
     .where(eq(modelProxyModels.enabled, true))
-    .orderBy(
-      asc(modelProxyModels.modelId),
-      asc(modelProxyProviders.name),
-    );
+    .orderBy(asc(modelProxyModels.modelId), asc(modelProxyProviders.name));
   return rows.map((row) => ({
     modelId: row.modelId,
     providerId: row.providerId,

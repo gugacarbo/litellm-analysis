@@ -113,8 +113,7 @@ export function useModelAliases(modelName: string): UseModelAliasesResult {
     }
 
     if (aliasesQuery.isError) {
-      const isNewModelOrUnhydrated =
-        hydratedModelRef.current !== modelName;
+      const isNewModelOrUnhydrated = hydratedModelRef.current !== modelName;
       if (isNewModelOrUnhydrated) {
         hydratedModelRef.current = modelName;
       }
@@ -152,39 +151,42 @@ export function useModelAliases(modelName: string): UseModelAliasesResult {
     });
   }, []);
 
-  const resetForModel = useCallback((nextModelName: string) => {
-    setAliasesState([]);
-    setInitialAliases([]);
-    setLoaded(false);
-    setLoading(false);
-    setError(null);
-    hydratedModelRef.current = null;
-    aliasErrorToastModelRef.current = null;
-    touchedRef.current = false;
+  const resetForModel = useCallback(
+    (nextModelName: string) => {
+      setAliasesState([]);
+      setInitialAliases([]);
+      setLoaded(false);
+      setLoading(false);
+      setError(null);
+      hydratedModelRef.current = null;
+      aliasErrorToastModelRef.current = null;
+      touchedRef.current = false;
 
-    if (nextModelName) {
-      void queryClient.invalidateQueries({
-        queryKey: ["model-aliases", nextModelName],
-      });
-    }
-  }, [queryClient]);
-
-  const commitSavedAliases = useCallback((next?: string[]) => {
-    const savedAliases = normalizeAliases(next ?? aliases);
-    setAliasesState(savedAliases);
-    setInitialAliases(savedAliases);
-    setLoaded(true);
-    setLoading(false);
-    setError(null);
-    hydratedModelRef.current = modelName;
-    aliasErrorToastModelRef.current = null;
-    touchedRef.current = false;
-  }, [aliases, modelName]);
-
-  const normalizedAliases = useMemo(
-    () => normalizeAliases(aliases),
-    [aliases],
+      if (nextModelName) {
+        void queryClient.invalidateQueries({
+          queryKey: ["model-aliases", nextModelName],
+        });
+      }
+    },
+    [queryClient],
   );
+
+  const commitSavedAliases = useCallback(
+    (next?: string[]) => {
+      const savedAliases = normalizeAliases(next ?? aliases);
+      setAliasesState(savedAliases);
+      setInitialAliases(savedAliases);
+      setLoaded(true);
+      setLoading(false);
+      setError(null);
+      hydratedModelRef.current = modelName;
+      aliasErrorToastModelRef.current = null;
+      touchedRef.current = false;
+    },
+    [aliases, modelName],
+  );
+
+  const normalizedAliases = useMemo(() => normalizeAliases(aliases), [aliases]);
 
   const getValidationError = useCallback(
     () => validateAliases(aliases),

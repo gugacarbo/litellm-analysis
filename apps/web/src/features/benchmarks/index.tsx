@@ -1,4 +1,6 @@
+import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { Filter, RefreshCw } from "lucide-react";
+import { LogsPaginationControls } from "@/features/logs/components/logs-pagination-controls";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -39,8 +41,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-import { LogsPaginationControls } from "@/features/logs/components/logs-pagination-controls";
-import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
 import { AliasesButton } from "./components/aliases-button";
 import { ComparisonDeck } from "./components/comparison-deck";
 import { UseCaseFilter } from "./components/use-case-filter";
@@ -177,9 +177,7 @@ export function BenchmarksPage() {
               </Select>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-muted-foreground">
-                Min intelligence
-              </p>
+              <p className="text-xs text-muted-foreground">Min intelligence</p>
               <Input
                 value={minIntelligence}
                 onChange={(event) => setMinIntelligence(event.target.value)}
@@ -438,8 +436,7 @@ export function BenchmarksPage() {
             <span className="font-medium capitalize">
               {activeUseCase.replace(/([A-Z])/g, " $1").trim()}
             </span>
-            . Select models from the "All models" tab to compare specific
-            ones.
+            . Select models from the "All models" tab to compare specific ones.
           </p>
         </TabsContent>
       </Tabs>

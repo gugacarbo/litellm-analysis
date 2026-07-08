@@ -261,7 +261,6 @@ export function useModelsPage() {
               : {}),
             provider: providerFormData.provider,
             baseUrl: providerFormData.baseUrl,
-
           },
         });
       } else {

@@ -97,7 +97,8 @@ export function modelToFormData(model: ModelWithStatus): ModelConfigFormData {
     aliases: [],
     enabled: model.enabled !== false,
     thinkingLevels:
-      Array.isArray(config.thinking?.levels) && config.thinking.levels.length > 0
+      Array.isArray(config.thinking?.levels) &&
+      config.thinking.levels.length > 0
         ? config.thinking.levels
         : [...DEFAULT_THINKING_LEVELS],
     reasoning: {

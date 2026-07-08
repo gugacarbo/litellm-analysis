@@ -7,8 +7,8 @@ import {
   useBenchmarksPaginated,
 } from "@/features/benchmarks/hooks/use-benchmarks-paginated";
 import {
-  getOpenRouterBenchmarks,
   getOpenRouterBenchmarkSyncStatus,
+  getOpenRouterBenchmarks,
   triggerOpenRouterBenchmarkSync,
 } from "@/shared/lib/api-client/openrouter-benchmarks";
 
@@ -45,7 +45,9 @@ interface UseOpenRouterBenchmarksStateResult extends PaginatedBase {
 }
 
 function getSyncStatusLabel(
-  status: Awaited<ReturnType<typeof getOpenRouterBenchmarkSyncStatus>> | undefined,
+  status:
+    | Awaited<ReturnType<typeof getOpenRouterBenchmarkSyncStatus>>
+    | undefined,
 ): string {
   if (!status) return "Sync status unavailable";
   if (status.isRunning) return "Sync running";
@@ -57,7 +59,9 @@ function getSyncStatusLabel(
 }
 
 function getSyncCooldownLabel(
-  status: Awaited<ReturnType<typeof getOpenRouterBenchmarkSyncStatus>> | undefined,
+  status:
+    | Awaited<ReturnType<typeof getOpenRouterBenchmarkSyncStatus>>
+    | undefined,
 ): string | null {
   if (!status || status.isRunning || status.canTrigger || !status.cooldownUntil)
     return null;
@@ -147,8 +151,7 @@ export function useOpenRouterBenchmarksState(): UseOpenRouterBenchmarksStateResu
     ...paginated,
     configuredCount,
     configuredModelNames: paginated.data?.configuredModelNames ?? [],
-    unmatchedConfiguredModels:
-      paginated.data?.unmatchedConfiguredModels ?? [],
+    unmatchedConfiguredModels: paginated.data?.unmatchedConfiguredModels ?? [],
     syncStatusLabel: getSyncStatusLabel(syncStatus),
     syncCooldownLabel: getSyncCooldownLabel(syncStatus),
     syncLastError: syncStatus?.lastError ?? null,
@@ -171,7 +174,8 @@ export function useOpenRouterBenchmarksState(): UseOpenRouterBenchmarksStateResu
       paginated.applyFilters();
     },
     minIntelligence: paginated.filters.minIntelligence,
-    setMinIntelligence: (value) => paginated.setFilter("minIntelligence", value),
+    setMinIntelligence: (value) =>
+      paginated.setFilter("minIntelligence", value),
     maxBlendedPrice: paginated.filters.maxPrice,
     setMaxBlendedPrice: (value) => paginated.setFilter("maxPrice", value),
     sortField: paginated.sortField,

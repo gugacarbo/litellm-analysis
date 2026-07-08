@@ -12,7 +12,13 @@ export interface BenchmarksQueryParams {
   provider?: string;
   min_intelligence?: number;
   max_price?: number;
-  sort_field?: "name" | "provider" | "intelligence" | "price" | "speed" | "latency";
+  sort_field?:
+    | "name"
+    | "provider"
+    | "intelligence"
+    | "price"
+    | "speed"
+    | "latency";
   sort_direction?: "asc" | "desc";
   configuredOnly?: boolean;
 }
@@ -20,7 +26,8 @@ export interface BenchmarksQueryParams {
 function buildBenchmarksQuery(params: BenchmarksQueryParams): string {
   const searchParams = new URLSearchParams();
   if (params.page !== undefined) searchParams.set("page", String(params.page));
-  if (params.page_size !== undefined) searchParams.set("page_size", String(params.page_size));
+  if (params.page_size !== undefined)
+    searchParams.set("page_size", String(params.page_size));
   if (params.search !== undefined && params.search !== "") {
     searchParams.set("search", params.search);
   }
@@ -33,8 +40,10 @@ function buildBenchmarksQuery(params: BenchmarksQueryParams): string {
   if (params.max_price !== undefined) {
     searchParams.set("max_price", String(params.max_price));
   }
-  if (params.sort_field !== undefined) searchParams.set("sort_field", params.sort_field);
-  if (params.sort_direction !== undefined) searchParams.set("sort_direction", params.sort_direction);
+  if (params.sort_field !== undefined)
+    searchParams.set("sort_field", params.sort_field);
+  if (params.sort_direction !== undefined)
+    searchParams.set("sort_direction", params.sort_direction);
   if (params.configuredOnly !== undefined) {
     searchParams.set("configuredOnly", String(params.configuredOnly));
   }

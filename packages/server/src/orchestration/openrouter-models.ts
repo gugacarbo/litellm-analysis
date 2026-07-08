@@ -23,7 +23,8 @@ function mapToOpenRouterModelData(
     max_output_tokens: model.top_provider?.max_completion_tokens ?? null,
     capabilities: {
       supports_vision: model.architecture?.modality?.includes("image") ?? false,
-      supports_tools: model.architecture?.modality?.includes("text+image->text") ?? false,
+      supports_tools:
+        model.architecture?.modality?.includes("text+image->text") ?? false,
     },
     pricing: model.pricing
       ? {
@@ -52,16 +53,12 @@ export async function fetchOpenRouterModelData(
 
     let model = json.data.find(
       (m) =>
-        m.id === modelName ||
-        m.name?.toLowerCase() === modelName.toLowerCase(),
+        m.id === modelName || m.name?.toLowerCase() === modelName.toLowerCase(),
     );
 
     if (!model) {
       model = json.data.find((m) => {
-        const modelKeys = [
-          ...toMatchKeys(m.id),
-          ...toMatchKeys(m.name),
-        ];
+        const modelKeys = [...toMatchKeys(m.id), ...toMatchKeys(m.name)];
         return candidateKeys.some((key) => modelKeys.includes(key));
       });
     }

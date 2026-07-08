@@ -1,19 +1,19 @@
-import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ModelWithStatus } from "@/shared/lib/api-client/models";
 import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import { useModelDetailContext } from "./detail/model-detail-context";
 import {
-  type ModelConfigFormData,
-  type UseModelConfigFormResult,
-  modelToFormData,
-  useModelConfigForm,
-} from "./hooks/use-model-config-form";
-import {
   type UseModelAliasesResult,
   useModelAliases,
 } from "./hooks/use-model-aliases";
+import {
+  type ModelConfigFormData,
+  modelToFormData,
+  type UseModelConfigFormResult,
+  useModelConfigForm,
+} from "./hooks/use-model-config-form";
 import { useModelConfigSave } from "./hooks/use-model-config-save";
 
 export type { ModelConfigFormData };
@@ -27,7 +27,10 @@ export interface ModelConfigController {
   aliasesState: UseModelAliasesResult;
   formActions: Pick<
     UseModelConfigFormResult,
-    "onFormDataChange" | "onAddExtraParam" | "onRemoveExtraParam" | "onUpdateExtraParam"
+    | "onFormDataChange"
+    | "onAddExtraParam"
+    | "onRemoveExtraParam"
+    | "onUpdateExtraParam"
   >;
   onSave: () => void;
   onBack: () => void;
@@ -41,17 +44,20 @@ export function useModelConfigPage(): ModelConfigController {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const onSaved = useCallback((savedModel: ModelWithStatus | null) => {
-    formHook.commitSavedFormData(
-      savedModel ? modelToFormData(savedModel) : formHook.formData,
-    );
-    aliasesState.commitSavedAliases(aliasesState.normalizedAliases);
-  }, [
-    formHook.commitSavedFormData,
-    formHook.formData,
-    aliasesState.normalizedAliases,
-    aliasesState.commitSavedAliases,
-  ]);
+  const onSaved = useCallback(
+    (savedModel: ModelWithStatus | null) => {
+      formHook.commitSavedFormData(
+        savedModel ? modelToFormData(savedModel) : formHook.formData,
+      );
+      aliasesState.commitSavedAliases(aliasesState.normalizedAliases);
+    },
+    [
+      formHook.commitSavedFormData,
+      formHook.formData,
+      aliasesState.normalizedAliases,
+      aliasesState.commitSavedAliases,
+    ],
+  );
 
   const { saving, save } = useModelConfigSave({
     model,
@@ -95,7 +101,10 @@ export function useModelConfigPage(): ModelConfigController {
 export function useModelConfigPageFromContext(): ModelConfigController &
   Pick<
     UseModelConfigFormResult,
-    "onFormDataChange" | "onAddExtraParam" | "onRemoveExtraParam" | "onUpdateExtraParam"
+    | "onFormDataChange"
+    | "onAddExtraParam"
+    | "onRemoveExtraParam"
+    | "onUpdateExtraParam"
   > {
   const controller = useModelConfigPage();
   return {

@@ -1,5 +1,7 @@
-import type { PaginationMetadata } from "@lite-llm/contracts";
-import type { ModelBenchmarkApiResponse } from "@lite-llm/contracts";
+import type {
+  ModelBenchmarkApiResponse,
+  PaginationMetadata,
+} from "@lite-llm/contracts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { ApiError } from "@/shared/lib/api-client/core";
@@ -68,9 +70,7 @@ function buildSearchParams(
   return params;
 }
 
-export function useBenchmarksPaginated(
-  options: UseBenchmarksPaginatedOptions,
-) {
+export function useBenchmarksPaginated(options: UseBenchmarksPaginatedOptions) {
   const {
     queryKeyPrefix,
     fetcher,
@@ -176,8 +176,7 @@ export function useBenchmarksPaginated(
         ? query.error.message
         : null;
   const isDatasetMissing =
-    query.error instanceof ApiError &&
-    query.error.code === datasetMissingCode;
+    query.error instanceof ApiError && query.error.code === datasetMissingCode;
 
   const updateFilter = useCallback(
     <K extends keyof BenchmarkFilters>(key: K, value: BenchmarkFilters[K]) => {

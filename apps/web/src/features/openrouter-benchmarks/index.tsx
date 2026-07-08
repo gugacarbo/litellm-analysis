@@ -1,5 +1,14 @@
-import { useState } from "react";
+import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
 import { RefreshCw } from "lucide-react";
+import { useState } from "react";
+import {
+  formatBenchmarkPrice,
+  formatFetchedAt,
+  formatLatencySeconds,
+  formatNullableNumber,
+  formatSpeed,
+} from "@/features/benchmarks/utils/benchmark-utils";
+import { LogsPaginationControls } from "@/features/logs/components/logs-pagination-controls";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -26,15 +35,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { LogsPaginationControls } from "@/features/logs/components/logs-pagination-controls";
-import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
-import {
-  formatBenchmarkPrice,
-  formatFetchedAt,
-  formatLatencySeconds,
-  formatNullableNumber,
-  formatSpeed,
-} from "@/features/benchmarks/utils/benchmark-utils";
 import { useOpenRouterBenchmarksState } from "./hooks/use-openrouter-benchmarks-state";
 
 export function OpenRouterBenchmarksPage() {
@@ -230,9 +230,7 @@ export function OpenRouterBenchmarksPage() {
                 disabled={isSyncRunning}
               >
                 <RefreshCw
-                  className={
-                    isSyncRunning ? "h-4 w-4 animate-spin" : "h-4 w-4"
-                  }
+                  className={isSyncRunning ? "h-4 w-4 animate-spin" : "h-4 w-4"}
                 />
                 {isSyncRunning ? "Syncing" : "Sync now"}
               </Button>
@@ -297,7 +295,9 @@ export function OpenRouterBenchmarksPage() {
                         {formatSpeed(row.medianOutputTokensPerSecond)}
                       </TableCell>
                       <TableCell className="text-right">
-                        {formatLatencySeconds(row.medianTimeToFirstTokenSeconds)}
+                        {formatLatencySeconds(
+                          row.medianTimeToFirstTokenSeconds,
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button

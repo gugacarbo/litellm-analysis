@@ -27,12 +27,14 @@ describe("createModelAliasPlugin", () => {
     allModels: {
       "gpt-4": {
         displayName: "GPT-4",
-        contextLength: 128000, maxCompletionTokens: 4096,
+        contextLength: 128000,
+        maxCompletionTokens: 4096,
         enabled: true,
       },
       "gpt-3.5": {
         displayName: "GPT-3.5",
-        contextLength: 16000, maxCompletionTokens: 4096,
+        contextLength: 16000,
+        maxCompletionTokens: 4096,
         enabled: true,
       },
     },
@@ -89,7 +91,8 @@ describe("createModelAliasPlugin", () => {
       allModels: {
         "disabled-model": {
           displayName: "Disabled",
-          contextLength: 128000, maxCompletionTokens: 4096,
+          contextLength: 128000,
+          maxCompletionTokens: 4096,
           enabled: false,
         },
       },
@@ -116,7 +119,8 @@ describe("createModelAliasPlugin", () => {
       allModels: {
         "litellm/gpt-4": {
           displayName: "Legacy Named GPT-4",
-          contextLength: 128000, maxCompletionTokens: 4096,
+          contextLength: 128000,
+          maxCompletionTokens: 4096,
           enabled: true,
         },
       },

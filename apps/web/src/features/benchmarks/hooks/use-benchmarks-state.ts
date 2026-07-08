@@ -111,7 +111,8 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     Boolean(syncStatus?.canTrigger ?? true) && !isSyncRunning;
 
   const configuredCount = useMemo(
-    () => paginated.data?.models.filter((item) => item.isConfigured).length ?? 0,
+    () =>
+      paginated.data?.models.filter((item) => item.isConfigured).length ?? 0,
     [paginated.data?.models],
   );
 
@@ -119,8 +120,7 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     ...paginated,
     configuredCount,
     configuredModelNames: paginated.data?.configuredModelNames ?? [],
-    unmatchedConfiguredModels:
-      paginated.data?.unmatchedConfiguredModels ?? [],
+    unmatchedConfiguredModels: paginated.data?.unmatchedConfiguredModels ?? [],
     syncStatusLabel: getSyncStatusLabel(syncStatus),
     syncCooldownLabel: getSyncCooldownLabel(syncStatus),
     syncLastError: syncStatus?.lastError ?? null,
@@ -150,7 +150,8 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
       paginated.applyFilters();
     },
     minIntelligence: paginated.filters.minIntelligence,
-    setMinIntelligence: (value) => paginated.setFilter("minIntelligence", value),
+    setMinIntelligence: (value) =>
+      paginated.setFilter("minIntelligence", value),
     maxBlendedPrice: paginated.filters.maxPrice,
     setMaxBlendedPrice: (value) => paginated.setFilter("maxPrice", value),
     sortField: paginated.sortField,
@@ -187,7 +188,12 @@ function getSyncStatusLabel(
 function getSyncCooldownLabel(
   status: Awaited<ReturnType<typeof getBenchmarkSyncStatus>> | undefined,
 ): string | null {
-  if (!status || status.isRunning || status.canTrigger || !status.cooldownUntil) {
+  if (
+    !status ||
+    status.isRunning ||
+    status.canTrigger ||
+    !status.cooldownUntil
+  ) {
     return null;
   }
 

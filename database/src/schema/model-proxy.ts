@@ -117,25 +117,22 @@ export const modelProxyMessages = pgTable(
   ],
 );
 
-export const modelProxyReasoningApis = pgTable(
-  "model_proxy_reasoning_apis",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    slug: text("slug").unique().notNull(),
-    providerId: uuid("provider_id")
-      .notNull()
-      .references(() => modelProxyProviders.id, { onDelete: "cascade" }),
-    version: text("version").notNull(),
-    requestParams: jsonb("request_params"),
-    requestShape: jsonb("request_shape"),
-    description: text("description"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .notNull()
-      .$onUpdate(() => new Date()),
-  },
-);
+export const modelProxyReasoningApis = pgTable("model_proxy_reasoning_apis", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").unique().notNull(),
+  providerId: uuid("provider_id")
+    .notNull()
+    .references(() => modelProxyProviders.id, { onDelete: "cascade" }),
+  version: text("version").notNull(),
+  requestParams: jsonb("request_params"),
+  requestShape: jsonb("request_shape"),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+});
 
 export const modelProxyModels = pgTable(
   "model_proxy_models",
@@ -153,15 +150,16 @@ export const modelProxyModels = pgTable(
     expirationDate: text("expiration_date"),
     architecture: jsonb("architecture").$type<Architecture>(),
     reasoning: jsonb("reasoning").$type<Reasoning>(),
-    supportedParameters: jsonb("supported_parameters").$type<SupportedParameters>(),
+    supportedParameters: jsonb(
+      "supported_parameters",
+    ).$type<SupportedParameters>(),
     defaultParameters: jsonb("default_parameters").$type<DefaultParameters>(),
     perRequestLimits: jsonb("per_request_limits").$type<PerRequestLimits>(),
     pricing: jsonb("pricing").$type<Pricing>(),
     requestOptions: jsonb("request_options").$type<RequestOptions>(),
-    providerId: uuid("provider_id").references(
-      () => modelProxyProviders.id,
-      { onDelete: "set null" },
-    ),
+    providerId: uuid("provider_id").references(() => modelProxyProviders.id, {
+      onDelete: "set null",
+    }),
     reasoningApiId: uuid("reasoning_api_id").references(
       () => modelProxyReasoningApis.id,
       { onDelete: "set null" },
@@ -177,10 +175,7 @@ export const modelProxyModels = pgTable(
       table.providerId,
       table.modelId,
     ),
-    index("idx_model_proxy_models_enabled_id").on(
-      table.enabled,
-      table.modelId,
-    ),
+    index("idx_model_proxy_models_enabled_id").on(table.enabled, table.modelId),
   ],
 );
 

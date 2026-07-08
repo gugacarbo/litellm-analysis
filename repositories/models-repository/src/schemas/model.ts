@@ -54,7 +54,10 @@ export const modelSpecSchema = z
       .default(200000),
     maxCompletionTokens: z
       .number()
-      .meta({ title: "Max Completion", description: "Maximum completion tokens" })
+      .meta({
+        title: "Max Completion",
+        description: "Maximum completion tokens",
+      })
       .default(32768),
     knowledgeCutoff: z.string().optional().meta({
       title: "Knowledge Cutoff",
@@ -66,7 +69,10 @@ export const modelSpecSchema = z
     }),
     architecture: z
       .record(z.string(), z.unknown())
-      .meta({ title: "Architecture", description: "Model architecture details" })
+      .meta({
+        title: "Architecture",
+        description: "Model architecture details",
+      })
       .nullable()
       .optional(),
     reasoning: reasoningSchema.meta({
@@ -102,10 +108,14 @@ export const modelSpecSchema = z
       description:
         "Model pricing in USD per token (matches LiteLLM `input_cost_per_token` / `output_cost_per_token`) — deprecated in favor of pricing",
     }),
-    pricing: pricingSchema.meta({
-      title: "Pricing",
-      description: "Model pricing structure with input/output per-token costs",
-    }).nullable().optional(),
+    pricing: pricingSchema
+      .meta({
+        title: "Pricing",
+        description:
+          "Model pricing structure with input/output per-token costs",
+      })
+      .nullable()
+      .optional(),
   })
   .strict();
 

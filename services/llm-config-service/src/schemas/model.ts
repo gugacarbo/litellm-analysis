@@ -28,11 +28,20 @@ const CostInputSchema = z.object({
   output: z.number().optional(),
 });
 
-const SupportedParametersSchema = z.record(z.string(), z.unknown()).nullable().optional();
+const SupportedParametersSchema = z
+  .record(z.string(), z.unknown())
+  .nullable()
+  .optional();
 
-const DefaultParametersSchema = z.record(z.string(), z.unknown()).nullable().optional();
+const DefaultParametersSchema = z
+  .record(z.string(), z.unknown())
+  .nullable()
+  .optional();
 
-const PerRequestLimitsSchema = z.record(z.string(), z.unknown()).nullable().optional();
+const PerRequestLimitsSchema = z
+  .record(z.string(), z.unknown())
+  .nullable()
+  .optional();
 
 export type SupportedParameters = z.infer<typeof SupportedParametersSchema>;
 export type DefaultParameters = z.infer<typeof DefaultParametersSchema>;

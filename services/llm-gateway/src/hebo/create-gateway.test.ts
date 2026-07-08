@@ -1,20 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const {
-  buildHeboGatewayConfigMock,
-  gatewayMock,
-  createLedgerHooksMock,
-} = vi.hoisted(() => ({
-  buildHeboGatewayConfigMock: vi.fn(),
-  gatewayMock: vi.fn(),
-  createLedgerHooksMock: vi.fn(() => ({
-    before: vi.fn(),
-    onError: vi.fn(),
-    onRequest: vi.fn(),
-    onResponse: vi.fn(),
-    resolveProvider: vi.fn(),
-  })),
-}));
+const { buildHeboGatewayConfigMock, gatewayMock, createLedgerHooksMock } =
+  vi.hoisted(() => ({
+    buildHeboGatewayConfigMock: vi.fn(),
+    gatewayMock: vi.fn(),
+    createLedgerHooksMock: vi.fn(() => ({
+      before: vi.fn(),
+      onError: vi.fn(),
+      onRequest: vi.fn(),
+      onResponse: vi.fn(),
+      resolveProvider: vi.fn(),
+    })),
+  }));
 
 vi.mock("./build-config", () => ({
   buildHeboGatewayConfig: buildHeboGatewayConfigMock,
@@ -25,9 +22,8 @@ vi.mock("@hebo-ai/gateway", () => ({
 }));
 
 vi.mock("./ledger-hooks", async () => {
-  const actual = await vi.importActual<typeof import("./ledger-hooks")>(
-    "./ledger-hooks",
-  );
+  const actual =
+    await vi.importActual<typeof import("./ledger-hooks")>("./ledger-hooks");
 
   return {
     ...actual,
@@ -71,7 +67,9 @@ describe("createHeboModelProxyGateway", () => {
   });
 
   it("creates the Hebo gateway when providers are available", async () => {
-    const handler = vi.fn(async () => Response.json({ object: "list", data: [] }));
+    const handler = vi.fn(async () =>
+      Response.json({ object: "list", data: [] }),
+    );
     buildHeboGatewayConfigMock.mockResolvedValue({
       providers: { upstream0: { id: "upstream0" } },
       models: { "gpt-4.1": { providers: ["upstream0"] } },

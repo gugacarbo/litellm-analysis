@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { ModelConfigFormData } from "@/features/models/use-model-config-page";
 import { Button } from "@/shared/components/ui/button";
 import {
   Tabs,
@@ -6,9 +7,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import type { ModelConfigFormData } from "@/features/models/use-model-config-page";
-import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import type { ModelWithStatus } from "@/shared/lib/api-client/models";
+import type { RegistryProvider } from "@/shared/lib/api-client/providers";
 import { ModelAdvancedTab } from "./tabs/model-advanced-tab";
 import { ModelGeneralTab } from "./tabs/model-general-tab";
 import { ModelRoutingTab } from "./tabs/model-routing-tab";

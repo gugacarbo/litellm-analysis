@@ -185,9 +185,9 @@ export function ModelsTableCard({
   const orderedModels = useMemo(
     () =>
       [...models].sort((left, right) => {
-        const providerCompare = (left.modelRoute.providerName ?? "").localeCompare(
-          right.modelRoute.providerName ?? "",
-        );
+        const providerCompare = (
+          left.modelRoute.providerName ?? ""
+        ).localeCompare(right.modelRoute.providerName ?? "");
         if (providerCompare !== 0) {
           return providerCompare;
         }
@@ -431,7 +431,9 @@ export function ModelsTableCard({
             </TableHeader>
             <TableBody>
               {groupedPageModels.map((group) => (
-                <Fragment key={groupByProvider ? group.providerName : "all-models"}>
+                <Fragment
+                  key={groupByProvider ? group.providerName : "all-models"}
+                >
                   {groupByProvider ? (
                     <TableRow className="bg-muted/30">
                       <TableCell
@@ -450,7 +452,8 @@ export function ModelsTableCard({
                     const health = getHealthCheck(model.modelName);
                     const routeParams = resolveModelRoute(model);
                     const inRegistry =
-                      model.status === "synced" || model.status === "registry-only";
+                      model.status === "synced" ||
+                      model.status === "registry-only";
                     const inConfig = model.status !== "registry-only";
                     const providerName = model.modelRoute.providerName;
 
@@ -510,24 +513,32 @@ export function ModelsTableCard({
                             !healthChecksByModel.has(model.modelName) ? (
                               <Skeleton className="h-5 w-24" />
                             ) : (
-                              <StatusBadge status={health?.status ?? "unknown"} />
+                              <StatusBadge
+                                status={health?.status ?? "unknown"}
+                              />
                             )
                           ) : (
-                            <span className="text-muted-foreground text-sm">—</span>
+                            <span className="text-muted-foreground text-sm">
+                              —
+                            </span>
                           )}
                         </TableCell>
                         <TableCell>
                           {inRegistry ? (
                             <div className="flex items-center justify-end gap-2">
                               <span className="font-mono text-xs tabular-nums">
-                                {formatResponseTime(health?.responseTimeMs ?? null)}
+                                {formatResponseTime(
+                                  health?.responseTimeMs ?? null,
+                                )}
                               </span>
                               <span className="text-[10px] text-muted-foreground tabular-nums">
                                 {health?.statusCode ?? "—"}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-muted-foreground text-sm">—</span>
+                            <span className="text-muted-foreground text-sm">
+                              —
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="text-right font-mono text-xs tabular-nums">
@@ -537,7 +548,9 @@ export function ModelsTableCard({
                         </TableCell>
                         <TableCell className="text-right font-mono text-xs tabular-nums">
                           {inRegistry
-                            ? formatTokensPerSecond(health?.tokensPerSecond ?? null)
+                            ? formatTokensPerSecond(
+                                health?.tokensPerSecond ?? null,
+                              )
                             : "—"}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">
@@ -585,7 +598,9 @@ export function ModelsTableCard({
                                         variant="ghost"
                                         size="icon-sm"
                                         onClick={() =>
-                                          onDeleteModelNameChange(model.modelName)
+                                          onDeleteModelNameChange(
+                                            model.modelName,
+                                          )
                                         }
                                       >
                                         <Trash2 className="h-4 w-4" />

@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelProxyService } from "./service";
 
-const { mockDbSelect, mockDbInsert, mockDbUpdate, createMock, updateMock, findManyMock } = vi.hoisted(() => ({
+const {
+  mockDbSelect,
+  mockDbInsert,
+  mockDbUpdate,
+  createMock,
+  updateMock,
+  findManyMock,
+} = vi.hoisted(() => ({
   mockDbSelect: vi.fn(),
   mockDbInsert: vi.fn(),
   mockDbUpdate: vi.fn(),
@@ -45,8 +52,9 @@ function setupDbMock(overrides?: {
     baseUrl: "https://upstream.example.com/v1",
   };
 
-  mockDbSelect.mockImplementation((fields?: unknown) => {
+  mockDbSelect.mockImplementation((_fields?: unknown) => {
     const chain: Record<string, unknown> = {
+      // biome-ignore lint/suspicious/noThenProperty: deliberate thenable chain mock for drizzle select
       then: (resolve: (value: unknown) => void) => resolve(joinedModelRows),
       from: () => chain,
       innerJoin: () => chain,
@@ -121,6 +129,7 @@ function createDatabaseMock() {
 
   mockDbSelect.mockImplementation(() => {
     const chain: Record<string, unknown> = {
+      // biome-ignore lint/suspicious/noThenProperty: deliberate thenable chain mock for drizzle select
       then: (resolve: (value: unknown) => void) => resolve(joinedModelRows),
       from: () => chain,
       innerJoin: () => chain,

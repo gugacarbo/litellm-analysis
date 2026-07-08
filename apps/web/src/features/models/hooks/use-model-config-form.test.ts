@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   buildConfigFromFormData,
-  modelToFormData,
   type ModelConfigFormData,
+  modelToFormData,
 } from "./use-model-config-form";
 
 function createFormData(

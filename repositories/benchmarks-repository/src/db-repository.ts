@@ -38,7 +38,10 @@ function toRow(model: NormalizedModelBenchmark): NewModelProxyBenchmark {
     medianOutputTokensPerSecond: model.medianOutputTokensPerSecond,
     medianTtftSeconds: model.medianTimeToFirstTokenSeconds,
     medianTtftAnswerSeconds: model.medianTimeToFirstAnswerTokenSeconds,
-    sourceUrl: model.source === "artificial-analysis" ? "https://artificialanalysis.ai/" : "https://openrouter.ai/",
+    sourceUrl:
+      model.source === "artificial-analysis"
+        ? "https://artificialanalysis.ai/"
+        : "https://openrouter.ai/",
   };
 }
 
@@ -89,7 +92,10 @@ export class DbBenchmarksRepository implements IBenchmarksRepository {
           .insert(modelProxyBenchmarks)
           .values(toRow(model))
           .onConflictDoUpdate({
-            target: [modelProxyBenchmarks.aaModelId, modelProxyBenchmarks.source],
+            target: [
+              modelProxyBenchmarks.aaModelId,
+              modelProxyBenchmarks.source,
+            ],
             set: toRow(model),
           });
       }

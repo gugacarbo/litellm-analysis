@@ -81,8 +81,8 @@ describe("ProvidersService", () => {
       apiKey: first.apiKey ?? undefined,
     });
     expect(updated.apiKey).toBe(first.apiKey);
-    expect(
-      decryptProviderSecret(updated.apiKey ?? "", encryptionKey),
-    ).toBe("sk-secret-value");
+    expect(decryptProviderSecret(updated.apiKey ?? "", encryptionKey)).toBe(
+      "sk-secret-value",
+    );
   });
 });

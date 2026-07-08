@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { Settings2 } from "lucide-react";
-import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { BenchmarkComparisonDialog } from "../components/benchmark-comparison-dialog";
-import { ModelConfigForm } from "../components/model-config-form";
-import { useBenchmarkComparison } from "../hooks/use-benchmark-comparison";
-import { useModelConfigPageFromContext } from "../use-model-config-page";
-import { useModelDetailContext } from "./model-detail-context";
+import { Settings2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { BenchmarkComparisonDialog } from "../components/benchmark-comparison-dialog";
+import { ModelConfigForm } from "../components/model-config-form";
+import { useBenchmarkComparison } from "../hooks/use-benchmark-comparison";
+import { useModelConfigPageFromContext } from "../use-model-config-page";
+import { useModelDetailContext } from "./model-detail-context";
 
 const MAPPABLE_KEYS = new Set([
   "displayName",

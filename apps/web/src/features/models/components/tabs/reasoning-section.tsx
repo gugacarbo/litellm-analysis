@@ -20,9 +20,7 @@ interface ReasoningSectionProps {
   thinkingLevels: string[];
   reasoning: ModelConfigFormData["reasoning"];
   onUpdateThinkingLevels: (thinkingLevels: string[]) => void;
-  onUpdateReasoning: (
-    patch: Partial<ModelConfigFormData["reasoning"]>,
-  ) => void;
+  onUpdateReasoning: (patch: Partial<ModelConfigFormData["reasoning"]>) => void;
 }
 
 export function ReasoningSection({
@@ -153,10 +151,7 @@ export function ReasoningSection({
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="reasoning-api-mode"
-              className="text-sm font-medium"
-            >
+            <Label htmlFor="reasoning-api-mode" className="text-sm font-medium">
               API Mode
             </Label>
             <Select

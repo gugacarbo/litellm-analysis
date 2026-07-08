@@ -65,11 +65,7 @@ export function BenchmarkComparisonDialog({
                 ? error.message
                 : "Erro ao carregar dados de benchmark"}
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-            >
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
               Tentar novamente
             </Button>
           </div>

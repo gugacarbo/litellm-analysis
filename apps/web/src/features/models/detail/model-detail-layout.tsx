@@ -124,10 +124,7 @@ export function ModelDetailLayout() {
 
   return (
     <ModelDetailContext.Provider value={contextValue}>
-      <PageLayout
-        showFilters={false}
-        className="px-0"
-      >
+      <PageLayout showFilters={false} className="px-0">
         <div className="flex items-center justify-between gap-4">
           <Tabs
             value={tabValue}
