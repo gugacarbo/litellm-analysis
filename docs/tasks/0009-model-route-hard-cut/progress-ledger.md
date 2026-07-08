@@ -2,20 +2,20 @@
 
 > **Plan:** `0009-model-route-hard-cut`
 > **Registry:** `docs/tasks/0009-model-route-hard-cut/super-plan.json`
-> **Generated:** 2026-07-07T14:14:37Z
+> **Generated:** 2026-07-07T14:16:47Z
 > **Regenerated on every `super-plan.json` write via the active `render-progress-ledger.sh` helper path**
 
 ## Summary
 
 | Status | Count |
 |--------|-------|
-| pending | 1 |
+| pending | 0 |
 | in_progress | 0 |
 | ready_for_review | 0 |
 | reviewing | 0 |
 | needs_fix | 0 |
 | blocked | 0 |
-| completed | 5 |
+| completed | 6 |
 | cancelled | 0 |
 | **Total** | **6** |
 
@@ -36,7 +36,7 @@
 | Task-C-0009 | Collapse parallel route and config handling in the server runtime | deep | C | core | ✅ completed | Task-B-0009 |
 | Task-D-0009 | Refactor the web models surface around typed route and table-row data | deep | D | surface | ✅ completed | Task-A-0009, Task-C-0009 |
 | Task-E-0009 | Refresh regression coverage for the hard cut | general | E | surface | ✅ completed | Task-B-0009, Task-C-0009, Task-D-0009 |
-| Task-F-0009 | Close docs alignment and final verification hooks | quick | F | final | ⏳ pending | Task-E-0009 |
+| Task-F-0009 | Close docs alignment and final verification hooks | quick | F | final | ✅ completed | Task-E-0009 |
 
 ## Timeline
 
@@ -53,4 +53,4 @@
 | REQ-3: Server runtime no longer carries parallel route shapes for the same semantics | ✅ completed | Task-C-0009 |
 | REQ-4: Web models surface consumes typed route and derived table-row data | ✅ completed | Task-D-0009, Task-E-0009 |
 | REQ-5: Regression coverage locks the hard cut | ✅ completed | Task-E-0009 |
-| REQ-6: Docs and conventions reflect the completed hard cut | ⏳ pending | Task-F-0009 |
+| REQ-6: Docs and conventions reflect the completed hard cut | ✅ completed | Task-F-0009 |

@@ -2,7 +2,7 @@
   "$schema": "/home/gustavo/Apps/lite-llm-analytics/.super-planning/super-plan.schema.json",
   "planId": "0009-model-route-hard-cut",
   "featureName": "model-route-hard-cut",
-  "status": "pending",
+  "status": "completed",
   "source": {
     "spec": "docs/specs/0009-model-route-hard-cut-spec.md",
     "plan": "docs/plans/0009-model-route-hard-cut.md"
@@ -225,7 +225,7 @@
       "id": "REQ-6",
       "title": "Docs and conventions reflect the completed hard cut",
       "source": "SPEC-0009 Revisao humana; Definition of Done",
-      "status": "pending",
+      "status": "completed",
       "acceptanceCriteria": [
         "Conventions/docs do not imply tolerated legacy model payloads",
         "Spec and docs indexes are regenerated after the change",
@@ -618,7 +618,7 @@
       "id": "Task-F-0009",
       "title": "Close docs alignment and final verification hooks",
       "description": "Finish the hard cut with documentation that matches the implemented state and leaves no compatibility ambiguity behind.",
-      "status": "pending",
+      "status": "completed",
       "tryCount": 1,
       "task_profile": "quick",
       "batch": "F",
