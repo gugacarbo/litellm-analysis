@@ -21,7 +21,6 @@ export type {
   ModelSpec,
   Permission,
   PluginsConfig,
-  ThinkingConfig,
 } from "./schemas/index";
 
 export interface RepositoryOptions {

@@ -32,7 +32,8 @@ describe("ModelService", () => {
         "test-model": {
           enabled: true,
           displayName: "Test Model",
-          limits: { length: 1000, maxOutput: 500 },
+          contextLength: 1000,
+          maxCompletionTokens: 500,
         },
       },
     });
@@ -60,7 +61,8 @@ describe("ModelService", () => {
     await service.create("new-model", {
       enabled: false,
       displayName: "New Model",
-      limits: { length: 500, maxOutput: 200 },
+      contextLength: 500,
+      maxCompletionTokens: 200,
     });
     const model = await service.get("new-model");
     expect(model?.displayName).toBe("New Model");
@@ -71,7 +73,8 @@ describe("ModelService", () => {
       service.create("test-model", {
         enabled: true,
         displayName: "Duplicate",
-        limits: { length: 100, maxOutput: 50 },
+        contextLength: 100,
+        maxCompletionTokens: 50,
       }),
     ).rejects.toThrow(/already exists/);
   });
@@ -93,11 +96,12 @@ describe("ModelService", () => {
     await service.upsert("test-model", {
       enabled: false,
       displayName: "Upserted",
-      limits: { length: 999, maxOutput: 111 },
+      contextLength: 999,
+      maxCompletionTokens: 111,
     });
     const model = await service.get("test-model");
     expect(model?.displayName).toBe("Upserted");
-    expect(model?.limits.length).toBe(999);
+    expect(model?.contextLength).toBe(999);
   });
 
   it("deletes a model", async () => {

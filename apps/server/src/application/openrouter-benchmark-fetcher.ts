@@ -64,7 +64,13 @@ const apiResponseSchema = z
         as_of: z.string(),
         citation: z.string().nullable().optional(),
         model_count: z.number().int().nonnegative(),
-        source: z.union([z.literal("artificial-analysis"), z.literal("design-arena"), z.null()]).optional(),
+        source: z
+          .union([
+            z.literal("artificial-analysis"),
+            z.literal("design-arena"),
+            z.null(),
+          ])
+          .optional(),
         source_url: z.string().nullable().optional(),
         task_type: z.string().nullable().optional(),
         version: z.literal("v1"),
@@ -121,7 +127,7 @@ export interface BenchmarkFetchOptions {
 function parsePrice(priceStr: string | null | undefined): number | null {
   if (!priceStr) return null;
   const parsed = parseFloat(priceStr);
-  return isNaN(parsed) ? null : parsed * 1_000_000;
+  return Number.isNaN(parsed) ? null : parsed * 1_000_000;
 }
 
 function parseProviderName(permaslug: string): {
@@ -139,22 +145,29 @@ function parseProviderName(permaslug: string): {
   const creatorName = creatorSlug
     ? creatorSlug
         .split(/[-_]/)
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
         .join(" ")
     : "Unknown";
 
   return { creatorSlug, modelSlug, creatorName };
 }
 
-function normalizeModel(item: z.infer<typeof benchmarkItemSchema>): NormalizedModel {
+function normalizeModel(
+  item: z.infer<typeof benchmarkItemSchema>,
+): NormalizedModel {
   const pricing = item.pricing ?? {};
   const priceInput = parsePrice(pricing.prompt);
   const priceOutput = parsePrice(pricing.completion);
-  const priceBlended = priceInput !== null && priceOutput !== null
-    ? (priceInput * 3 + priceOutput) / 4
-    : null;
+  const priceBlended =
+    priceInput !== null && priceOutput !== null
+      ? (priceInput * 3 + priceOutput) / 4
+      : null;
 
-  const { creatorSlug, modelSlug, creatorName } = parseProviderName(item.model_permaslug);
+  const { creatorSlug, modelSlug, creatorName } = parseProviderName(
+    item.model_permaslug,
+  );
 
   const base: NormalizedModel = {
     id: item.model_permaslug,

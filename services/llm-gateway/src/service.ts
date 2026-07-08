@@ -99,7 +99,7 @@ export class ModelProxyService implements IModelProxyService {
       .select()
       .from(modelProxyModels)
       .where(eq(modelProxyModels.enabled, true))
-      .orderBy(asc(modelProxyModels.modelName));
+      .orderBy(asc(modelProxyModels.modelId));
 
     return {
       object: "list",
@@ -556,15 +556,14 @@ export class ModelProxyService implements IModelProxyService {
   private toModelListEntry(row: {
     displayName?: string | null;
     family?: string | null;
-    modelName: string;
-    ownedBy?: string | null;
+    modelId: string;
     updatedAt: Date;
   }): ModelListEntry {
     return {
-      id: row.modelName,
+      id: row.modelId,
       object: "model",
       created: Math.floor(row.updatedAt.getTime() / 1000),
-      owned_by: row.ownedBy ?? row.family ?? "local-proxy",
+      owned_by: row.family ?? "local-proxy",
     };
   }
 

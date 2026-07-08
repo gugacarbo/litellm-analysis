@@ -1,13 +1,32 @@
 import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
+import type { HealthCheckResult } from "@lite-llm/contracts/ws-events";
 import { cleanupOldHealthChecks, insertHealthCheck } from "./db";
-import type {
-  HealthCheckRequestResult,
-  HealthCheckResult,
-  HealthCheckServiceEvents,
-  HealthCheckServiceOptions,
-} from "./types";
-import { COOLDOWN_MS } from "./types";
+
+export interface HealthCheckServiceOptions {
+  prompt: string;
+  maxConcurrency: number;
+  timeoutMs: number;
+  modelProxyBaseUrl: string;
+  modelProxyApiKey: string;
+  analyticsDataSource: {
+    getModels(): Promise<Array<{ modelName: string }>>;
+  };
+  enabledModelNames?: string[];
+  requestModeByModelName?: Record<string, "chat" | "responses">;
+  ctx?: unknown;
+}
+
+type HealthCheckEventMap = {
+  health_check_update: [HealthCheckResult];
+  health_check_stream_started: [unknown];
+  health_check_stream_delta: [unknown];
+  health_check_stream_completed: [unknown];
+  health_check_stream_failed: [unknown];
+  health_check_rejected: [unknown];
+};
+
+const COOLDOWN_MS = 5_000;
 
 const HEALTH_CHECK_MAX_TOKENS = 200;
 const MAX_CAPTURED_RESPONSE_CHARS = 500;
@@ -123,9 +142,9 @@ export class HealthCheckService {
     return this.running;
   }
 
-  on<K extends keyof HealthCheckServiceEvents>(
+  on<K extends keyof HealthCheckEventMap>(
     event: K,
-    listener: HealthCheckServiceEvents[K],
+    listener: (...args: HealthCheckEventMap[K]) => void,
   ): void {
     this.emitter.on(event as string, listener as (...args: unknown[]) => void);
   }
@@ -314,7 +333,9 @@ export class HealthCheckService {
     return { allowed: true };
   }
 
-  async requestCheck(modelName: string): Promise<HealthCheckRequestResult> {
+  async requestCheck(
+    modelName: string,
+  ): Promise<{ accepted: boolean; reason?: string }> {
     const check = this.isCheckAllowed(modelName);
     if (!check.allowed) {
       this.emitter.emit("health_check_rejected", {
@@ -985,8 +1006,10 @@ export class HealthCheckService {
     const { analyticsDataSource, enabledModelNames } = this.options;
     const models = await analyticsDataSource
       .getModels()
-      .catch(() => [] as { modelName: string }[]);
-    const names = models.map((m) => m.modelName).filter(Boolean);
+      .catch(() => [] as Array<{ modelName: string }>);
+    const names = models
+      .map((m: { modelName: string }) => m.modelName)
+      .filter(Boolean);
 
     if (enabledModelNames?.length) {
       const enabledSet = new Set(enabledModelNames);

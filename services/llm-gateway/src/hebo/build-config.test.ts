@@ -94,12 +94,14 @@ describe("buildHeboGatewayConfig", () => {
             orderBy: vi.fn(() =>
               Promise.resolve([
                 {
-                  modelName: "gpt-4.1",
+                  modelId: "gpt-4.1",
+                  providerId: "00000000-0000-0000-0000-000000000001",
                   providerName: "openai-main",
                   isDefault: true,
                 },
                 {
-                  modelName: "gpt-4.1",
+                  modelId: "gpt-4.1",
+                  providerId: "00000000-0000-0000-0000-000000000002",
                   providerName: "deepseek-main",
                   isDefault: false,
                 },
@@ -119,7 +121,8 @@ describe("buildHeboGatewayConfig", () => {
             orderBy: vi.fn(() =>
               Promise.resolve([
                 {
-                  modelName: "gpt-4.1",
+                  modelId: "gpt-4.1",
+                  providerId: "00000000-0000-0000-0000-000000000001",
                   providerName: "openai-main",
                   isDefault: true,
                 },
@@ -184,12 +187,14 @@ describe("buildHeboGatewayConfig", () => {
             orderBy: vi.fn(() =>
               Promise.resolve([
                 {
-                  modelName: "gpt-4.1",
+                  modelId: "gpt-4.1",
+                  providerId: "00000000-0000-0000-0000-000000000002",
                   providerName: "deepseek-main",
                   isDefault: false,
                 },
                 {
-                  modelName: "gpt-4.1",
+                  modelId: "gpt-4.1",
+                  providerId: "00000000-0000-0000-0000-000000000001",
                   providerName: "openai-main",
                   isDefault: false,
                 },
@@ -218,23 +223,53 @@ describe("buildHeboGatewayConfig", () => {
     );
   });
 
-  it("throws a detailed error when enabled models exist but none can resolve an upstream provider", async () => {
+  it("returns an empty provider registry and warns when enabled models exist but none can resolve an upstream provider", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     resolveUpstreamTargetMock.mockRejectedValue(
       new Error('No upstream API key configured for model "gpt-4.1"'),
     );
 
-    await expect(
-      buildHeboGatewayConfig({
-        ...createServices(),
-      }),
-    ).rejects.toThrow(
-      /Failed to build Hebo gateway config: no resolvable upstream providers/,
-    );
+    const result = await buildHeboGatewayConfig({
+      ...createServices(),
+    });
 
-    await expect(
-      buildHeboGatewayConfig({
-        ...createServices(),
-      }),
-    ).rejects.toThrow(/openai-main\/gpt-4\.1: No upstream API key configured/);
+    expect(result.providers).toEqual({});
+    expect(Object.keys(result.models)).toEqual([]);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "Failed to build Hebo gateway config: no resolvable upstream providers for enabled models.",
+      ),
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'openai-main/gpt-4.1: No upstream API key configured for model "gpt-4.1"',
+      ),
+    );
+  });
+
+  it("warns and skips only the models that fail upstream resolution", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    resolveUpstreamTargetMock.mockImplementation(async ({ modelName }) => {
+      if (modelName === "deepseek-main/gpt-4.1") {
+        throw new Error('No upstream API key configured for model "gpt-4.1"');
+      }
+
+      return createTarget(modelName);
+    });
+
+    const result = await buildHeboGatewayConfig({
+      ...createServices(),
+    });
+
+    expect(Object.keys(result.models)).toEqual([
+      "openai-main/gpt-4.1",
+      "gpt-4.1",
+    ]);
+    expect(result.models["deepseek-main/gpt-4.1"]).toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "Skipped enabled models with unresolved upstream providers while building Hebo gateway config.",
+      ),
+    );
   });
 });

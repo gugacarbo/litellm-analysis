@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import {
   getModelProvider,
   getModelsWithConfig,
+  type ModelWithStatus,
+  resolveModelRoute,
   updateModelProvider,
 } from "@/shared/lib/api-client";
 import {
@@ -35,6 +37,59 @@ type DiscoverModelsSource =
       providerName: string;
       provider: string | null;
     };
+
+export function getDiscoveredProviderModelMatches(
+  models: ModelWithStatus[],
+  discoverModelsSource: DiscoverModelsSource | null,
+  registeredModelIds: string[],
+): Map<string, string> {
+  const matches = new Map<string, string>();
+
+  if (discoverModelsSource?.kind === "provider") {
+    const providerName = discoverModelsSource.providerName;
+    const providerPrefix = `${providerName}/`;
+
+    for (const model of models) {
+      const route = resolveModelRoute(model);
+      if (
+        route.providerName === providerName &&
+        model.modelName &&
+        !matches.has(model.modelName)
+      ) {
+        matches.set(model.modelName, model.modelName);
+      }
+    }
+
+    for (const model of models) {
+      if (!model.modelName.startsWith(providerPrefix)) {
+        continue;
+      }
+      const discoveredModelId = model.modelName.slice(providerPrefix.length);
+      if (discoveredModelId && !matches.has(discoveredModelId)) {
+        matches.set(discoveredModelId, model.modelName);
+      }
+    }
+
+    for (const modelId of registeredModelIds) {
+      matches.set(modelId, modelId);
+    }
+
+    return matches;
+  }
+
+  for (const model of models) {
+    if (!model.modelName) {
+      continue;
+    }
+    matches.set(model.modelName, model.modelName);
+  }
+
+  for (const modelId of registeredModelIds) {
+    matches.set(modelId, modelId);
+  }
+
+  return matches;
+}
 
 export function useProvidersPage() {
   const queryClient = useQueryClient();
@@ -133,12 +188,11 @@ export function useProvidersPage() {
   } | null>(null);
   const [registerError, setRegisterError] = useState<string | null>(null);
 
-  const existingModelIds = new Set(
-    modelsWithConfigQuery.data?.models.map((model) => model.modelName) ?? [],
+  const existingDiscoveredModelMatches = getDiscoveredProviderModelMatches(
+    modelsWithConfigQuery.data?.models ?? [],
+    discoverModelsSource,
+    registeredModelIds,
   );
-  for (const modelId of registeredModelIds) {
-    existingModelIds.add(modelId);
-  }
 
   async function handleRegisterModels(modelIds: string[], closeAfter = false) {
     if (!discoverModelsSource) {
@@ -306,13 +360,13 @@ export function useProvidersPage() {
   async function handleRegisterAllModels() {
     const modelIds = discoverModelsResult
       .map((m) => m.id)
-      .filter((modelId) => !existingModelIds.has(modelId));
+      .filter((modelId) => !existingDiscoveredModelMatches.has(modelId));
     if (modelIds.length === 0) return;
     await handleRegisterModels(modelIds, true);
   }
 
   async function handleRegisterSingleModel(modelId: string) {
-    if (existingModelIds.has(modelId)) {
+    if (existingDiscoveredModelMatches.has(modelId)) {
       return;
     }
 
@@ -346,13 +400,13 @@ export function useProvidersPage() {
   function handleOpenCreateProvider() {
     setEditingProvider(null);
     setProviderFormData({
-    name: "",
-    provider: null,
-    baseUrl: null,
-    apiKey: "",
-  });
-  setProviderFormError(null);
-  setProviderFormOpen(true);
+      name: "",
+      provider: null,
+      baseUrl: null,
+      apiKey: "",
+    });
+    setProviderFormError(null);
+    setProviderFormOpen(true);
   }
 
   function handleOpenEditProvider(provider: RegistryProvider) {
@@ -527,6 +581,6 @@ export function useProvidersPage() {
     registerModelsError: registerError,
     handleRegisterModels: handleRegisterAllModels,
     handleRegisterSingleModel,
-    existingModelIds,
+    existingDiscoveredModelMatches,
   };
 }

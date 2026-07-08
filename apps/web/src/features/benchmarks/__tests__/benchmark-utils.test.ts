@@ -49,6 +49,7 @@ function createMockModel(
     medianTimeToFirstAnswerTokenSeconds: 0.5,
     isConfigured: true,
     matchedConfiguredModel: "test-model",
+    source: "openrouter",
     ...overrides,
   };
 }

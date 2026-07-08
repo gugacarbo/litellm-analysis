@@ -1,8 +1,7 @@
 import type { ModelSpec } from "./schemas/model";
-import type { ReasoningConfig, ThinkingConfig } from "./schemas/thinking";
+import type { ReasoningConfig } from "./schemas/thinking";
 
 export interface ModelMetadata {
-  thinking?: ThinkingConfig;
   reasoning?: ReasoningConfig;
 }
 
@@ -13,9 +12,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export function metadataFromModelSpec(spec: ModelSpec): ModelMetadata | null {
   const metadata: ModelMetadata = {};
 
-  if (spec.thinking !== undefined) {
-    metadata.thinking = spec.thinking;
-  }
   if (spec.reasoning !== undefined) {
     metadata.reasoning = spec.reasoning;
   }
@@ -33,9 +29,6 @@ export function applyMetadataToModelSpec(
 
   const next = { ...spec };
 
-  if (isRecord(metadata.thinking)) {
-    next.thinking = metadata.thinking as ThinkingConfig;
-  }
   if (metadata.reasoning !== undefined && isRecord(metadata.reasoning)) {
     next.reasoning = metadata.reasoning as ReasoningConfig;
   }

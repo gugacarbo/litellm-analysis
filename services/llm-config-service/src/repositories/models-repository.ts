@@ -1,13 +1,13 @@
-import { eq, inArray } from "drizzle-orm";
+import type { DatabaseClient } from "@lite-llm/database";
 
 import {
   modelProxyModels,
   modelProxyProviders,
   modelProxyReasoningApis,
 } from "@lite-llm/database/schema";
-import type { DatabaseClient } from "@lite-llm/database";
-import { ModelConfigSchema, type ModelConfig } from "../schemas/model.js";
-import { EffortSchema, type Effort } from "../schemas/thinking.js";
+import { eq, inArray } from "drizzle-orm";
+import { type ModelConfig, ModelConfigSchema } from "../schemas/model.js";
+import { type Effort, EffortSchema } from "../schemas/thinking.js";
 
 export type ModelProxyModelRecord = typeof modelProxyModels.$inferSelect;
 export type ModelProxyReasoningApiRecord =
@@ -32,7 +32,11 @@ export type UpdateModelInput = Partial<CreateModelInput> & {
 };
 
 export class ModelsRepository {
-  constructor(private readonly db: DatabaseClient) {}
+  private readonly db: DatabaseClient;
+
+  constructor(db: DatabaseClient) {
+    this.db = db;
+  }
 
   async findByModelIdAndProviderId(
     modelId: string,
@@ -58,9 +62,7 @@ export class ModelsRepository {
     return rows[0] ?? null;
   }
 
-  async findByProviderId(
-    providerId: string,
-  ): Promise<ModelProxyModelRecord[]> {
+  async findByProviderId(providerId: string): Promise<ModelProxyModelRecord[]> {
     return this.db
       .select()
       .from(modelProxyModels)
@@ -129,11 +131,15 @@ export class ModelsRepository {
     return result.length > 0;
   }
 
-  async list(_options?: Record<string, unknown>): Promise<ModelProxyModelRecord[]> {
+  async list(
+    _options?: Record<string, unknown>,
+  ): Promise<ModelProxyModelRecord[]> {
     return this.listAll();
   }
 
-  async findByModelName(modelName: string): Promise<ModelProxyModelRecord | null> {
+  async findByModelName(
+    modelName: string,
+  ): Promise<ModelProxyModelRecord | null> {
     const rows = await this.db
       .select()
       .from(modelProxyModels)
@@ -211,7 +217,10 @@ export class ModelsRepository {
     const existing = await this.findByModelName(modelName);
     if (existing) {
       const updated = await this.updateModel(modelName, route);
-      return updated!;
+      if (!updated) {
+        throw new Error(`Model proxy model not found: ${modelName}`);
+      }
+      return updated;
     }
     return this.createModel(modelName, route);
   }
@@ -299,10 +308,7 @@ export class ModelsRepository {
     record: ModelProxyModelRecord,
     providerName: string,
   ): Promise<ModelConfig> {
-    const reasoningApi = record.reasoningApiId
-      ? await this.findReasoningApiById(record.reasoningApiId)
-      : null;
-    return toModelConfig(record, providerName, reasoningApi);
+    return toModelConfig(record, providerName);
   }
 }
 
@@ -314,10 +320,9 @@ const parseEffort = (value: unknown): Effort | undefined => {
   return parsed.success ? parsed.data : undefined;
 };
 
-export const toModelConfig = (
+const toModelConfig = (
   record: ModelProxyModelRecord,
   providerName: string,
-  reasoningApi: ModelProxyReasoningApiRecord | null,
 ): ModelConfig => {
   const effort = parseEffort(record.reasoning);
   return ModelConfigSchema.parse({

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import type { ModelRoute } from "@lite-llm/llm-config-service";
 import {
   buildModelRouteFromSpec,
   getProviderNameFromParams,
@@ -12,6 +11,7 @@ describe("route-params", () => {
   it("reads the canonical providerName field only", () => {
     expect(
       getProviderNameFromParams({
+        modelId: "test-model",
         modelName: "test-model",
         providerName: " openai-main ",
       }),
@@ -19,6 +19,7 @@ describe("route-params", () => {
 
     expect(
       getProviderNameFromParams({
+        modelId: "test-model",
         modelName: "test-model",
       }),
     ).toBeUndefined();
@@ -29,6 +30,7 @@ describe("route-params", () => {
       normalizeModelRoute(
         "gpt-test",
         {
+          modelId: "old-name",
           modelName: "old-name",
         },
         " openai-main ",
@@ -62,6 +64,7 @@ describe("route-params", () => {
         limits: { length: 200_000, maxOutput: 8192 },
       },
       {
+        modelId: "legacy-name",
         modelName: "legacy-name",
         providerName: "anthropic-main",
       },
@@ -80,6 +83,7 @@ describe("route-params", () => {
     expect(
       resolveModelProvider(
         {
+          modelId: "test-model",
           modelName: "test-model",
           providerName: "anthropic-main",
         },
@@ -90,6 +94,7 @@ describe("route-params", () => {
     expect(
       resolveModelProvider(
         {
+          modelId: "test-model",
           modelName: "test-model",
         },
         "openai-main",

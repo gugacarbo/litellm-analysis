@@ -21,6 +21,19 @@ interface GatewayInstance {
   handler: (req: Request, state?: Record<string, unknown>) => Promise<Response>;
 }
 
+function createGatewayUnavailableResponse(): Response {
+  return Response.json(
+    {
+      error: {
+        message:
+          "No upstream providers are configured for the model proxy yet.",
+        type: "service_unavailable",
+      },
+    },
+    { status: 503 },
+  );
+}
+
 async function createGatewayInstance(
   options: HeboModelProxyGatewayOptions,
   ledger: RequestLedger,
@@ -35,6 +48,15 @@ async function createGatewayInstance(
     providerService: options.providerService,
     openAiOAuthService: options.openAiOAuthService,
   });
+
+  if (Object.keys(build.providers).length === 0) {
+    console.warn(
+      "[hebo] No upstream providers configured; returning 503 for /v1 requests until a provider is added.",
+    );
+    return {
+      handler: async () => createGatewayUnavailableResponse(),
+    };
+  }
 
   const gw = gateway({
     basePath: "/v1",

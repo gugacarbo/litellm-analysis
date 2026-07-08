@@ -28,7 +28,7 @@ const imageConfig: Record<string, string> = {};
 if (aspectRatio) imageConfig.aspect_ratio = aspectRatio;
 if (imageSize) imageConfig.image_size = imageSize;
 
-const body: any = {
+const body: Record<string, unknown> = {
   model,
   messages: [{ role: "user", content: prompt }],
   modalities: ["image", "text"],

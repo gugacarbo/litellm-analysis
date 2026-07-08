@@ -1,4 +1,10 @@
-import { fetchApi, formatModel, optionalApiKey, parseArgs } from "./lib.js";
+import {
+  fetchApi,
+  formatModel,
+  type OpenRouterModel,
+  optionalApiKey,
+  parseArgs,
+} from "./lib.js";
 
 const STOP_WORDS = new Set([
   "the",
@@ -94,13 +100,13 @@ function substringScore(
 interface ScoredModel {
   score: number;
   confidence: "high" | "medium" | "low";
-  model: any;
+  model: OpenRouterModel;
 }
 
 function scoreModel(
   queryTokens: string[],
   collapsedQuery: string,
-  model: any,
+  model: OpenRouterModel,
 ): number {
   const modelId = (model.id ?? "").toLowerCase();
   const modelName = (model.name ?? "").toLowerCase();
@@ -145,11 +151,11 @@ if (!rawQuery || rawQuery.trim().length === 0) {
 const query = rawQuery as string;
 
 const json = await fetchApi("/models", apiKey);
-const models: any[] = json.data ?? [];
+const models = (json as { data?: OpenRouterModel[] }).data ?? [];
 
 // Exact ID match short-circuit
 const exactMatch = models.find(
-  (m: any) => (m.id ?? "").toLowerCase() === query.toLowerCase(),
+  (m) => (m.id ?? "").toLowerCase() === query.toLowerCase(),
 );
 if (exactMatch) {
   const result = {
@@ -175,7 +181,7 @@ if (queryTokens.length === 0) {
 const collapsedQuery = collapse(queryTokens.join(" "));
 
 const scored: ScoredModel[] = models
-  .map((m: any) => {
+  .map((m) => {
     const score = scoreModel(queryTokens, collapsedQuery, m);
     return { score, confidence: confidence(score), model: m };
   })

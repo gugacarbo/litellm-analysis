@@ -102,8 +102,15 @@ export function normalizeModelRoute(
 
   return {
     ...route,
+    modelId: modelName,
     modelName,
     providerName: resolvedProvider ?? route.providerName,
+    contextLength: route.contextLength ?? route.contextWindowSize,
+    contextWindowSize: route.contextWindowSize ?? route.contextLength,
+    maxCompletionTokens: route.maxCompletionTokens ?? route.maxOutputTokens,
+    maxOutputTokens: route.maxOutputTokens ?? route.maxCompletionTokens,
+    inputCostPerToken: route.inputCostPerToken,
+    outputCostPerToken: route.outputCostPerToken,
   };
 }
 
@@ -116,8 +123,11 @@ export function buildModelRouteFromSpec(
   providerName?: string | null,
 ): ModelRoute {
   const route: ModelRoute = {
+    modelId: modelName,
     modelName,
+    contextLength: spec.limits.length,
     contextWindowSize: spec.limits.length,
+    maxCompletionTokens: spec.limits.maxOutput,
     maxOutputTokens: spec.limits.maxOutput,
   };
 

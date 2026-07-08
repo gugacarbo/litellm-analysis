@@ -7,7 +7,7 @@ import type {
 
 export interface ModelProxyServiceOptions {
   fetchFn?: typeof fetch;
-  modelsService: IModelService;
+  modelsService?: IModelService;
   providerService: IProviderService;
   now?: () => Date;
 }

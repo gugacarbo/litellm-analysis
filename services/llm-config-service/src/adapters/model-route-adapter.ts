@@ -1,4 +1,4 @@
-import type { ModelConfig, ModelRoute, ModelRouteUpdate } from "../types/index.js";
+import type { ModelConfig, ModelRoute } from "../types/index.js";
 
 export interface ModelProxyRowWrite {
   modelName: string;
@@ -19,7 +19,9 @@ export interface ModelProxyRowWrite {
   metadata?: Record<string, unknown> | null;
 }
 
-export const fromModelProxyRow = (row: Record<string, unknown>): ModelProxyRowWrite => ({
+export const fromModelProxyRow = (
+  row: Record<string, unknown>,
+): ModelProxyRowWrite => ({
   modelName: String(row.modelName ?? row.modelId ?? ""),
   enabled: Boolean(row.enabled ?? true),
   displayName: (row.displayName as string) ?? null,
@@ -38,7 +40,9 @@ export const fromModelProxyRow = (row: Record<string, unknown>): ModelProxyRowWr
   metadata: (row.metadata as Record<string, unknown>) ?? null,
 });
 
-export const toModelProxyRow = (route: ModelProxyRowWrite): Record<string, unknown> => ({
+export const toModelProxyRow = (
+  route: ModelProxyRowWrite,
+): Record<string, unknown> => ({
   modelName: route.modelName,
   enabled: route.enabled,
   displayName: route.displayName,
@@ -71,7 +75,6 @@ export const fromModelRoute = (route: ModelRoute): ModelProxyRowWrite => ({
   outputCostPerToken: null,
   upstreamModel: null,
   upstreamBaseUrl: null,
-  providerName: (route as unknown as Record<string, unknown>).providerName as string ?? null,
   requestOptions: (route.requestOptions as Record<string, unknown>) ?? null,
   metadata: null,
 });
@@ -79,26 +82,25 @@ export const fromModelRoute = (route: ModelRoute): ModelProxyRowWrite => ({
 export const parseModelRouteFromApi = (
   body: Record<string, unknown>,
   modelName: string,
-): ModelRoute => ({
-  ...(body as Partial<ModelRoute>),
-  modelId: modelName,
-} as ModelRoute);
+): ModelRoute =>
+  ({
+    ...(body as Partial<ModelRoute>),
+    modelId: modelName,
+  }) as ModelRoute;
 
-export const toModelRoute = ({
-  providerName,
-  model,
-}: {
-  providerName: string;
-  model: ModelConfig;
-}): ModelRoute => {
+export const toModelRoute = ({ model }: { model: ModelConfig }): ModelRoute => {
   const pricingInput = model.cost?.prompt ?? model.pricing?.input;
   const pricingOutput = model.cost?.completion ?? model.pricing?.output;
 
   const pricing = {
     input: pricingInput != null ? Number(pricingInput) : undefined,
     output: pricingOutput != null ? Number(pricingOutput) : undefined,
-    cacheRead: model.pricing?.input_cache_read != null ? Number(model.pricing.input_cache_read) : undefined,
-    image: model.pricing?.image != null ? Number(model.pricing.image) : undefined,
+    cacheRead:
+      model.pricing?.input_cache_read != null
+        ? Number(model.pricing.input_cache_read)
+        : undefined,
+    image:
+      model.pricing?.image != null ? Number(model.pricing.image) : undefined,
   };
 
   const architecture = {
@@ -129,7 +131,10 @@ export const toModelRoute = ({
     supportedParameters: Array.isArray(model.supportedParameters)
       ? (model.supportedParameters as unknown as ModelRoute["supportedParameters"])
       : null,
-    defaultParameters: model.defaultParameters as Record<string, unknown> | null,
+    defaultParameters: model.defaultParameters as Record<
+      string,
+      unknown
+    > | null,
     perRequestLimits: model.perRequestLimits as Record<string, unknown> | null,
     pricing,
     requestOptions: undefined,

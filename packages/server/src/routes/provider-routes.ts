@@ -32,6 +32,7 @@ function toDiscoveredModelRoute(
   }
 
   return {
+    modelId: discovered.id,
     modelName: discovered.id,
     upstreamModel: discovered.id,
     upstreamBaseUrl: readString(defaults?.upstreamBaseUrl),
@@ -295,7 +296,7 @@ export function registerProviderRoutes(
           errors.push("Encountered a discovered model without an id");
           continue;
         }
-        const modelId = route.modelName;
+        const modelId = route.modelId;
 
         try {
           await createRegistryModelFromRoute(
@@ -525,7 +526,7 @@ export function registerProviderRoutes(
           errors.push("Encountered a discovered model without an id");
           continue;
         }
-        const modelId = route.modelName;
+        const modelId = route.modelId;
 
         try {
           await createRegistryModelFromRoute(

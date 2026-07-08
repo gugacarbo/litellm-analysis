@@ -199,22 +199,25 @@ export function createModelsRepositoryMock() {
     const now = new Date();
     return {
       id: `model_${idCounter++}`,
-      modelName,
+      modelId: modelName,
       enabled: route.enabled ?? true,
       displayName: route.displayName ?? null,
       family: route.family ?? null,
-      ownedBy: route.ownedBy ?? null,
-      apiMode: route.apiMode ?? null,
-      vision: route.vision ?? null,
-      contextWindowSize: route.contextWindowSize ?? null,
-      maxOutputTokens: route.maxOutputTokens ?? null,
-      inputCostPerToken: route.inputCostPerToken ?? null,
-      outputCostPerToken: route.outputCostPerToken ?? null,
-      upstreamModel: route.upstreamModel ?? null,
-      upstreamBaseUrl: route.upstreamBaseUrl ?? null,
-      providerName: route.providerName ?? null,
+      canonicalSlug: route.canonicalSlug ?? null,
+      description: route.description ?? null,
+      contextLength: route.contextLength ?? null,
+      maxCompletionTokens: route.maxCompletionTokens ?? null,
+      knowledgeCutoff: route.knowledgeCutoff ?? null,
+      expirationDate: route.expirationDate ?? null,
+      architecture: route.architecture ?? null,
+      reasoning: route.reasoning ?? null,
+      supportedParameters: route.supportedParameters ?? null,
+      defaultParameters: route.defaultParameters ?? null,
+      perRequestLimits: route.perRequestLimits ?? null,
+      pricing: route.pricing ?? null,
       requestOptions: route.requestOptions ?? null,
-      metadata: route.metadata ?? null,
+      providerId: route.providerId ?? null,
+      reasoningApiId: route.reasoningApiId ?? null,
       createdAt: now,
       updatedAt: now,
     };
@@ -230,7 +233,7 @@ export function createModelsRepositoryMock() {
     async list(options: { enabledOnly?: boolean } = {}) {
       return [...rows.values()]
         .filter((row) => !options.enabledOnly || row.enabled)
-        .sort((a, b) => a.modelName.localeCompare(b.modelName));
+        .sort((a, b) => a.modelId.localeCompare(b.modelId));
     },
 
     async create(

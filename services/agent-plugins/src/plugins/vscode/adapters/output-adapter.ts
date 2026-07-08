@@ -25,34 +25,22 @@ function modelAdapter(
       },
     },
     "model-settings": {
-      "max-tokens": model.limits.maxOutput,
+      "max-tokens": model.maxCompletionTokens,
     },
-    context_length: model.limits.length,
-    max_tokens: model.limits.maxOutput,
+    context_length: model.contextLength,
+    max_tokens: model.maxCompletionTokens,
   };
 
   if (model.displayName) {
     entry.displayName = model.displayName;
   }
-  if (model.ownedBy) {
-    entry.owned_by = model.ownedBy;
-  }
 
-  if (model.apiMode) {
-    entry.apiMode = model.apiMode;
-  }
-  if (model.vision === true) {
-    entry.vision = true;
-  }
   if (model.reasoning?.effort) {
     entry.reasoning_effort = model.reasoning.effort;
   }
-  if (model.reasoning?.enableThinking !== undefined) {
-    entry.enable_thinking = model.reasoning.enableThinking;
-  }
-  if (model.reasoning?.includeReasoningInRequest !== undefined) {
-    entry.include_reasoning_in_request =
-      model.reasoning.includeReasoningInRequest;
+  if (model.reasoning != null) {
+    entry.enable_thinking = true;
+    entry.include_reasoning_in_request = true;
   }
 
   return entry;

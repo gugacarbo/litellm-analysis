@@ -104,7 +104,7 @@ describe("createVsCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -193,12 +193,12 @@ describe("createVsCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
             "claude-3.5": {
               displayName: "Claude 3.5 Sonnet",
               enabled: true,
-              limits: { length: 200000, maxOutput: 8192 },
+              contextLength: 200000, maxCompletionTokens: 8192,
             },
           },
           modelProxyConfig: {
@@ -237,7 +237,7 @@ describe("createVsCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -275,7 +275,7 @@ describe("createVsCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -291,7 +291,7 @@ describe("createVsCodePlugin", () => {
       expect(models).toHaveLength(1);
     });
 
-    it("emite campos de reasoning/thinking e metadados do modelo", () => {
+    it("emite campos de reasoning e metadados do modelo", () => {
       const plugin = createVsCodePlugin();
       const output = buildOutput(
         plugin,
@@ -306,14 +306,9 @@ describe("createVsCodePlugin", () => {
             "claude-opus": {
               enabled: true,
               displayName: "Claude 3 Opus",
-              ownedBy: "anthropic",
-              apiMode: "anthropic",
-              vision: true,
-              limits: { length: 200000, maxOutput: 4096 },
+              contextLength: 200000, maxCompletionTokens: 4096,
               reasoning: {
                 effort: "high",
-                enableThinking: true,
-                includeReasoningInRequest: true,
               },
             },
           },
@@ -330,9 +325,6 @@ describe("createVsCodePlugin", () => {
       expect(models).toHaveLength(1);
       const model = models[0];
       expect(model.displayName).toBe("Claude 3 Opus");
-      expect(model.owned_by).toBe("anthropic");
-      expect(model.apiMode).toBe("anthropic");
-      expect(model.vision).toBe(true);
       expect(model.context_length).toBe(200000);
       expect(model.max_tokens).toBe(4096);
       expect(model.reasoning_effort).toBe("high");

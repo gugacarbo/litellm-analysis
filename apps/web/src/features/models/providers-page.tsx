@@ -88,7 +88,7 @@ export function ProvidersPage() {
     registerModelsError,
     handleRegisterModels,
     handleRegisterSingleModel,
-    existingModelIds,
+    existingDiscoveredModelMatches,
   } = useProvidersPage();
 
   return (
@@ -315,7 +315,6 @@ export function ProvidersPage() {
                   className="h-8 text-sm font-mono"
                 />
               </div>
-
             </div>
             {providerFormError && (
               <p className="text-xs text-destructive">{providerFormError}</p>
@@ -561,14 +560,17 @@ export function ProvidersPage() {
                         >
                           Testar
                         </Button>
-                        {existingModelIds.has(model.id) ? (
+                        {existingDiscoveredModelMatches.has(model.id) ? (
                           <Button
                             variant="outline"
                             size="sm"
                             className="h-7 text-xs"
                             onClick={() => {
+                              const configuredModelName =
+                                existingDiscoveredModelMatches.get(model.id) ??
+                                model.id;
                               window.open(
-                                `/models/${encodeURIComponent(model.id)}`,
+                                `/models/${encodeURIComponent(configuredModelName)}`,
                                 "_blank",
                               );
                             }}
@@ -646,7 +648,7 @@ export function ProvidersPage() {
                 disabled={
                   registerModelsLoading ||
                   discoverModelsResult.every((model) =>
-                    existingModelIds.has(model.id),
+                    existingDiscoveredModelMatches.has(model.id),
                   )
                 }
               >

@@ -1,14 +1,12 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createBenchmarksRepository } from "@lite-llm/benchmarks-repository";
+import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
 import type {
   ModelBenchmarkApiResponse,
   ModelBenchmarkListItem,
   NormalizedModelBenchmark,
 } from "@lite-llm/contracts/benchmarks";
-import type { PaginationMetadata } from "@lite-llm/contracts/analytics";
-import { registerAllRoutes } from "@lite-llm/server/routes";
-import type { RouteOptions } from "@lite-llm/server/types";
 import {
   getWorkspaceRoot,
   loadBenchmarkDataset,
@@ -17,15 +15,17 @@ import {
   toCompactKey,
   toMatchKeys,
 } from "@lite-llm/server/orchestration/benchmark-helpers";
+import { registerAllRoutes } from "@lite-llm/server/routes";
+import type { RouteOptions } from "@lite-llm/server/types";
 import express, { type Application } from "express";
 import type { BenchmarkSyncApplicationService } from "../application/benchmark-sync-application-service";
 import { createHealthCheckApplicationService } from "../application/health-check-application-service";
+import type { OpenRouterBenchmarkSyncApplicationService } from "../application/openrouter-benchmark-sync-application-service";
 import type { AppContext } from "../contexts";
 import { env } from "../env";
 import { createBenchmarkSyncRouter } from "../routes/benchmark-sync-routes";
-import { createOpenRouterBenchmarkSyncRouter } from "../routes/openrouter-benchmark-sync-routes";
-import type { OpenRouterBenchmarkSyncApplicationService } from "../application/openrouter-benchmark-sync-application-service";
 import { createHealthCheckRouter } from "../routes/health-check-routes";
+import { createOpenRouterBenchmarkSyncRouter } from "../routes/openrouter-benchmark-sync-routes";
 
 function parseBooleanQuery(value: unknown, fallback: boolean): boolean {
   if (typeof value !== "string") return fallback;
@@ -34,13 +34,19 @@ function parseBooleanQuery(value: unknown, fallback: boolean): boolean {
   return fallback;
 }
 
-function parseNumberQuery(value: unknown, fallback: number | null): number | null {
+function parseNumberQuery(
+  value: unknown,
+  fallback: number | null,
+): number | null {
   if (typeof value !== "string" || value === "") return fallback;
   const parsed = Number.parseFloat(value);
   return Number.isNaN(parsed) ? fallback : parsed;
 }
 
-function parseStringQuery(value: unknown, fallback: string | null): string | null {
+function parseStringQuery(
+  value: unknown,
+  fallback: string | null,
+): string | null {
   if (typeof value !== "string" || value === "") return fallback;
   return value;
 }
@@ -82,13 +88,20 @@ interface BenchmarkFilterParams {
 }
 
 interface BenchmarkSortParams {
-  sortField: "name" | "provider" | "intelligence" | "price" | "speed" | "latency";
+  sortField:
+    | "name"
+    | "provider"
+    | "intelligence"
+    | "price"
+    | "speed"
+    | "latency";
   sortDirection: "asc" | "desc";
 }
 
-function parseBenchmarkPaginationQuery(
-  req: express.Request,
-): { page: number; pageSize: number } {
+function parseBenchmarkPaginationQuery(req: express.Request): {
+  page: number;
+  pageSize: number;
+} {
   const pageRaw = parseNumberQuery(req.query.page, 1);
   const pageSizeRaw = parseNumberQuery(req.query.page_size, 25);
   const page =
@@ -116,9 +129,7 @@ function parseBenchmarkFilterParams(
   };
 }
 
-function parseBenchmarkSortParams(
-  req: express.Request,
-): BenchmarkSortParams {
+function parseBenchmarkSortParams(req: express.Request): BenchmarkSortParams {
   const validFields: BenchmarkSortParams["sortField"][] = [
     "name",
     "provider",
@@ -129,7 +140,9 @@ function parseBenchmarkSortParams(
   ];
   const sortField =
     typeof req.query.sort_field === "string" &&
-    validFields.includes(req.query.sort_field as BenchmarkSortParams["sortField"])
+    validFields.includes(
+      req.query.sort_field as BenchmarkSortParams["sortField"],
+    )
       ? (req.query.sort_field as BenchmarkSortParams["sortField"])
       : "intelligence";
   const sortDirection =
@@ -221,9 +234,7 @@ function matchesBenchmarkSearch(
     model.creatorName,
     model.creatorSlug,
   ];
-  return targets.some((value) =>
-    value?.toLowerCase().includes(normalized),
-  );
+  return targets.some((value) => value?.toLowerCase().includes(normalized));
 }
 
 function applyBenchmarkFilters(
@@ -479,10 +490,7 @@ export function createApiServer(
   app.get("/benchmarks/aliases", async (_req, res) => {
     try {
       const workspaceRoot = getWorkspaceRoot();
-      const storagePath = resolveStoragePath(
-        workspaceRoot,
-        env.STORAGE_PATH,
-      );
+      const storagePath = resolveStoragePath(workspaceRoot, env.STORAGE_PATH);
       const aliases = await loadModelAliases(storagePath);
       res.json({ aliases });
     } catch (error) {
@@ -559,9 +567,7 @@ export function createApiServer(
         try {
           const repo = createBenchmarksRepository();
           const allDbModels = await repo.getAll();
-          const dbModels = allDbModels.filter(
-            (m) => m.source === "openrouter",
-          );
+          const dbModels = allDbModels.filter((m) => m.source === "openrouter");
           if (dbModels.length > 0) {
             const result = mapConfiguredBenchmarkModels(
               dbModels,

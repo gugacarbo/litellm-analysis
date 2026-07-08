@@ -34,15 +34,19 @@ export function parseArgs(argv: string[]): Map<string, string | true> {
     }
   }
 
-  positional.forEach((v, i) => result.set(`_${i}`, v));
+  for (const [i, v] of positional.entries()) {
+    result.set(`_${i}`, v);
+  }
   result.set("_count", String(positional.length));
   return result;
 }
 
 export async function postChatCompletion(
   apiKey: string,
-  body: any,
-): Promise<any> {
+  body: Record<string, unknown>,
+): Promise<{
+  choices?: Array<{ message?: { content?: string; images?: unknown[] } }>;
+}> {
   const url = "https://openrouter.ai/api/v1/chat/completions";
   const res = await fetch(url, {
     method: "POST",
@@ -70,7 +74,9 @@ export async function postChatCompletion(
     process.exit(1);
   }
 
-  return res.json();
+  return res.json() as Promise<{
+    choices?: Array<{ message?: { content?: string; images?: unknown[] } }>;
+  }>;
 }
 
 const MIME_MAP: Record<string, string> = {

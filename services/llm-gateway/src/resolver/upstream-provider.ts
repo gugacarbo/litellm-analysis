@@ -65,19 +65,22 @@ function resolveStoredProviderApiKey(
     return undefined;
   }
 
-  return readSecretRef(provider.secretRef);
+  return readSecretRef(provider.secretRef) ?? (provider.apiKey?.trim() || undefined);
 }
 
 export function findUpstreamProvider(
   providers: Record<string, Provider>,
   row?: ModelProxyModel | null,
+  providerName?: string,
 ): Provider | undefined {
-  const providerFromModel = resolveProviderByName(providers, row?.providerName);
-  if (providerFromModel) {
-    return providerFromModel;
+  if (providerName) {
+    const providerFromModel = resolveProviderByName(providers, providerName);
+    if (providerFromModel) {
+      return providerFromModel;
+    }
   }
 
-  const candidateKeys = [row?.ownedBy, row?.family ?? undefined].filter(
+  const candidateKeys = [row?.family ?? undefined].filter(
     (value): value is string => !!value?.trim(),
   );
 
@@ -139,10 +142,14 @@ export async function resolveUpstreamTarget(params: {
           row: modelProxyModels,
         })
         .from(modelProxyModels)
+        .innerJoin(
+          modelProxyProviders,
+          eq(modelProxyModels.providerId, modelProxyProviders.id),
+        )
         .where(
           and(
-            eq(modelProxyModels.modelName, bareModelName),
-            eq(modelProxyModels.providerName, providerPrefix),
+            eq(modelProxyModels.modelId, bareModelName),
+            eq(modelProxyProviders.name, providerPrefix),
           ),
         )
         .limit(1);
@@ -159,9 +166,9 @@ export async function resolveUpstreamTarget(params: {
         .from(modelProxyModels)
         .leftJoin(
           modelProxyProviders,
-          eq(modelProxyModels.providerName, modelProxyProviders.name),
+          eq(modelProxyModels.providerId, modelProxyProviders.id),
         )
-        .where(eq(modelProxyModels.modelName, bareModelName));
+        .where(eq(modelProxyModels.modelId, bareModelName));
 
       if (rows.length === 1) {
         resolvedRow = rows[0]?.row ?? null;
@@ -190,24 +197,36 @@ export async function resolveUpstreamTarget(params: {
     throw new Error(`Model "${modelName}" is disabled`);
   }
 
-  const upstreamProvider = findUpstreamProvider(providers, resolvedRow);
-
-  const providerName =
-    resolvedRow.providerName?.trim() ||
-    upstreamProvider?.defaultProvider?.trim() ||
-    undefined;
-
-  const [provider] = providerName
+  const dbProvider = resolvedRow.providerId
     ? await db
         .select()
         .from(modelProxyProviders)
-        .where(eq(modelProxyProviders.name, providerName))
+        .where(eq(modelProxyProviders.id, resolvedRow.providerId))
         .limit(1)
-    : [null];
+        .then((r) => r[0] ?? null)
+    : null;
+
+  const providerName = dbProvider?.name?.trim() || undefined;
+
+  const upstreamProvider = findUpstreamProvider(
+    providers,
+    resolvedRow,
+    providerName,
+  );
+
+  const effectiveDbProvider =
+    dbProvider ??
+    (upstreamProvider?.defaultProvider
+      ? await db
+          .select()
+          .from(modelProxyProviders)
+          .where(eq(modelProxyProviders.name, upstreamProvider.defaultProvider))
+          .limit(1)
+          .then((r) => r[0] ?? null)
+      : null);
 
   const upstreamBaseUrl =
-    resolvedRow.upstreamBaseUrl?.trim() ||
-    provider?.baseUrl?.trim() ||
+    effectiveDbProvider?.baseUrl?.trim() ||
     upstreamProvider?.baseUrl?.trim();
 
   if (!upstreamBaseUrl) {
@@ -217,7 +236,7 @@ export async function resolveUpstreamTarget(params: {
   const isChatGptSubscription =
     upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
 
-  const upstreamApiKey = resolveStoredProviderApiKey(provider);
+  const upstreamApiKey = resolveStoredProviderApiKey(effectiveDbProvider);
 
   if (!isChatGptSubscription && !upstreamApiKey) {
     throw new Error(`No upstream API key configured for model "${modelName}"`);
@@ -226,18 +245,18 @@ export async function resolveUpstreamTarget(params: {
   return {
     authMode: isChatGptSubscription ? "openai-chatgpt-oauth" : "bearer",
     model: modelName,
-    upstreamModel: resolvedRow.upstreamModel?.trim() || bareModelName,
+    upstreamModel: bareModelName,
     upstreamBaseUrl: normalizeBaseUrl(upstreamBaseUrl),
     upstreamHeaders: isChatGptSubscription
       ? {}
       : {
           authorization: `Bearer ${upstreamApiKey}`,
         },
-    ownedBy: resolvedRow.ownedBy ?? resolvedRow.family ?? "local-proxy",
+    ownedBy: resolvedRow.family ?? "local-proxy",
     displayName: resolvedRow.displayName ?? undefined,
     cost: {
-      input: resolvedRow.inputCostPerToken ?? undefined,
-      output: resolvedRow.outputCostPerToken ?? undefined,
+      input: resolvedRow.pricing?.input,
+      output: resolvedRow.pricing?.output,
     },
   };
 }

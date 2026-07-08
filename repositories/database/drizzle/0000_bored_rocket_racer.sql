@@ -170,11 +170,11 @@ CREATE TABLE "prompt_eval_runs" (
 	"finished_at" timestamp
 );
 --> statement-breakpoint
-ALTER TABLE "model_proxy_messages" ADD CONSTRAINT "model_proxy_messages_request_id_model_proxy_requests_id_fk" FOREIGN KEY ("request_id") REFERENCES "public"."model_proxy_requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "model_proxy_models" ADD CONSTRAINT "model_proxy_models_provider_name_model_proxy_providers_name_fk" FOREIGN KEY ("provider_name") REFERENCES "public"."model_proxy_providers"("name") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "model_proxy_usage_adjustments" ADD CONSTRAINT "model_proxy_usage_adjustments_request_id_model_proxy_requests_id_fk" FOREIGN KEY ("request_id") REFERENCES "public"."model_proxy_requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "prompt_eval_run_artifacts" ADD CONSTRAINT "prompt_eval_run_artifacts_run_id_prompt_eval_runs_id_fk" FOREIGN KEY ("run_id") REFERENCES "public"."prompt_eval_runs"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "prompt_eval_run_steps" ADD CONSTRAINT "prompt_eval_run_steps_run_id_prompt_eval_runs_id_fk" FOREIGN KEY ("run_id") REFERENCES "public"."prompt_eval_runs"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_proxy_messages" ADD CONSTRAINT "model_proxy_messages_request_id_model_proxy_requests_id_fk" FOREIGN KEY ("request_id") REFERENCES "model_proxy_requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_proxy_models" ADD CONSTRAINT "model_proxy_models_provider_name_model_proxy_providers_name_fk" FOREIGN KEY ("provider_name") REFERENCES "model_proxy_providers"("name") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_proxy_usage_adjustments" ADD CONSTRAINT "model_proxy_usage_adjustments_request_id_model_proxy_requests_id_fk" FOREIGN KEY ("request_id") REFERENCES "model_proxy_requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "prompt_eval_run_artifacts" ADD CONSTRAINT "prompt_eval_run_artifacts_run_id_prompt_eval_runs_id_fk" FOREIGN KEY ("run_id") REFERENCES "prompt_eval_runs"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "prompt_eval_run_steps" ADD CONSTRAINT "prompt_eval_run_steps_run_id_prompt_eval_runs_id_fk" FOREIGN KEY ("run_id") REFERENCES "prompt_eval_runs"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "idx_api_keys_enabled_label" ON "model_proxy_api_keys" USING btree ("enabled","label");--> statement-breakpoint
 CREATE INDEX "idx_messages_request_created" ON "model_proxy_messages" USING btree ("request_id","created_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "uq_model_proxy_models_model_provider" ON "model_proxy_models" USING btree ("model_name","provider_name");--> statement-breakpoint

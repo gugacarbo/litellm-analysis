@@ -6,9 +6,8 @@ import {
 } from "react-router-dom";
 import { AgentConfigPage } from "@/features/agents";
 import { AgentsPage } from "@/features/agents/list-index";
-import { BenchmarksLayout } from "@/features/benchmarks/benchmarks-layout";
 import { BenchmarksPage } from "@/features/benchmarks";
-import { OpenRouterBenchmarksPage } from "@/features/openrouter-benchmarks";
+import { BenchmarksLayout } from "@/features/benchmarks/benchmarks-layout";
 import { DashboardPage } from "@/features/dashboard";
 import { LogsPage } from "@/features/logs";
 import { LogChatSimulationPage } from "@/features/logs/chat-simulation";
@@ -23,6 +22,7 @@ import { ModelsConfiguredPage } from "@/features/models/models-configured-page";
 import { ModelsHealthCheckPage } from "@/features/models/models-health-check-page";
 import { ModelsLayout } from "@/features/models/models-layout";
 import { ProvidersPage } from "@/features/models/providers-page";
+import { OpenRouterBenchmarksPage } from "@/features/openrouter-benchmarks";
 import { PluginConfigPage } from "@/features/plugins";
 import { PluginsPage } from "@/features/plugins/list-index";
 import { ErrorBoundary } from "@/shared/components/error-boundary";

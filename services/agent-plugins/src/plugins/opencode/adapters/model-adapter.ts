@@ -1,40 +1,5 @@
 import type { ModelSpec } from "@lite-llm/models-repository/schemas";
 
-const OPENCODE_REASONING_EFFORT_LEVELS = new Set([
-  "none",
-  "minimal",
-  "low",
-  "medium",
-  "high",
-  "xhigh",
-]);
-
-function normalizeThinkingLevel(level: string): string | null {
-  const normalized = level
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_-]/g, "");
-  if (!normalized) return null;
-  if (normalized === "off" || normalized === "disabled") return "none";
-  if (OPENCODE_REASONING_EFFORT_LEVELS.has(normalized)) return normalized;
-  return null;
-}
-
-function buildThinkingVariants(
-  model: ModelSpec,
-): Record<string, { reasoningEffort: string }> | undefined {
-  const levels = model.thinking?.levels ?? [];
-  if (levels.length === 0) return undefined;
-
-  const variants: Record<string, { reasoningEffort: string }> = {};
-  for (const level of levels) {
-    const normalizedLevel = normalizeThinkingLevel(level);
-    if (!normalizedLevel) continue;
-    variants[normalizedLevel] = { reasoningEffort: normalizedLevel };
-  }
-  return Object.keys(variants).length > 0 ? variants : undefined;
-}
-
 function resolveModelName(
   displayName: string | undefined,
   fallbackName: string,
@@ -43,10 +8,7 @@ function resolveModelName(
   return trimmedName && trimmedName.length > 0 ? trimmedName : fallbackName;
 }
 
-function buildReasoningConfig(
-  spec: ModelSpec,
-  thinkingVariants?: Record<string, { reasoningEffort: string }>,
-):
+function buildReasoningConfig(spec: ModelSpec):
   | {
       reasoning: boolean;
       interleaved?: true | { field: string };
@@ -54,24 +16,14 @@ function buildReasoningConfig(
     }
   | undefined {
   const reasoning = spec.reasoning;
-  const hasThinkingVariants =
-    thinkingVariants !== undefined && Object.keys(thinkingVariants).length > 0;
-  const reasoningEffort = reasoning?.effort;
-  const hasReasoningEffort = reasoningEffort !== undefined;
-  const shouldEnableReasoning =
-    hasReasoningEffort ||
-    reasoning?.enableThinking === true ||
-    reasoning?.includeReasoningInRequest === true ||
-    hasThinkingVariants;
+  if (!reasoning) return undefined;
 
-  if (!shouldEnableReasoning) return undefined;
+  const reasoningEffort = reasoning.effort;
 
   return {
     reasoning: true,
-    ...(hasReasoningEffort ? { options: { reasoningEffort } } : {}),
-    ...(reasoning?.includeReasoningInRequest === true
-      ? { interleaved: { field: "reasoning_content" as const } }
-      : {}),
+    ...(reasoningEffort ? { options: { reasoningEffort } } : {}),
+    interleaved: { field: "reasoning_content" as const },
   };
 }
 
@@ -85,32 +37,23 @@ export function modelAdapter(
     id: exportedId,
     name: resolveModelName(displayName, modelId),
     limit: {
-      context: spec.limits.length,
-      output: spec.limits.maxOutput,
+      context: spec.contextLength,
+      output: spec.maxCompletionTokens,
     },
   };
 
-  if (spec.cost?.input != null || spec.cost?.output != null) {
-    // The OpenCode plugin schema expects cost in USD per million tokens
-    // (see `opencode.schema.json` → `cost.input` / `cost.output`).
-    // Our canonical `costSchema` stores values in USD per token, so we
-    // convert here at the export boundary.
+  if (spec.pricing?.input != null || spec.pricing?.output != null) {
     entry.cost = {
-      ...(spec.cost?.input != null
-        ? { input: spec.cost.input * 1_000_000 }
+      ...(spec.pricing?.input != null
+        ? { input: spec.pricing.input * 1_000_000 }
         : {}),
-      ...(spec.cost?.output != null
-        ? { output: spec.cost.output * 1_000_000 }
+      ...(spec.pricing?.output != null
+        ? { output: spec.pricing.output * 1_000_000 }
         : {}),
     };
   }
 
-  const thinkingVariants = buildThinkingVariants(spec);
-  if (thinkingVariants) {
-    entry.variants = thinkingVariants;
-  }
-
-  const reasoningConfig = buildReasoningConfig(spec, thinkingVariants);
+  const reasoningConfig = buildReasoningConfig(spec);
   if (reasoningConfig) {
     entry.reasoning = reasoningConfig.reasoning;
     if (reasoningConfig.options) {

@@ -39,7 +39,8 @@ interface ProviderGroup {
 
 interface ProxyCatalogRow {
   isDefault: boolean;
-  modelName: string;
+  modelId: string;
+  providerId: string | null;
   providerName: string | null;
 }
 
@@ -90,28 +91,34 @@ function providerKey(target: ResolvedUpstreamTarget): string {
 async function listProxyCatalogRows(): Promise<ProxyCatalogRow[]> {
   const rows = await db
     .select({
-      modelName: modelProxyModels.modelName,
-      providerName: modelProxyModels.providerName,
+      modelId: modelProxyModels.modelId,
+      providerId: modelProxyModels.providerId,
+      providerName: modelProxyProviders.name,
       isDefault: modelProxyProviders.isDefault,
     })
     .from(modelProxyModels)
     .leftJoin(
       modelProxyProviders,
-      eq(modelProxyModels.providerName, modelProxyProviders.name),
+      eq(modelProxyModels.providerId, modelProxyProviders.id),
     )
     .where(eq(modelProxyModels.enabled, true))
     .orderBy(
-      asc(modelProxyModels.modelName),
-      asc(modelProxyModels.providerName),
+      asc(modelProxyModels.modelId),
+      asc(modelProxyProviders.name),
     );
-  return rows;
+  return rows.map((row) => ({
+    modelId: row.modelId,
+    providerId: row.providerId,
+    providerName: row.providerName,
+    isDefault: row.isDefault ?? false,
+  }));
 }
 
 async function listProxyModelNames(
   proxyModels: ProxyCatalogRow[],
 ): Promise<string[]> {
   return proxyModels.map((row) =>
-    row.providerName ? `${row.providerName}/${row.modelName}` : row.modelName,
+    row.providerName ? `${row.providerName}/${row.modelId}` : row.modelId,
   );
 }
 
@@ -129,9 +136,9 @@ export async function buildHeboGatewayConfig(options: {
 
   const rowsByBareModel = new Map<string, ProxyCatalogRow[]>();
   for (const row of proxyCatalogRows) {
-    const existingRows = rowsByBareModel.get(row.modelName) ?? [];
+    const existingRows = rowsByBareModel.get(row.modelId) ?? [];
     existingRows.push(row);
-    rowsByBareModel.set(row.modelName, existingRows);
+    rowsByBareModel.set(row.modelId, existingRows);
   }
 
   for (const modelName of modelNames) {
@@ -229,13 +236,14 @@ export async function buildHeboGatewayConfig(options: {
     };
   }
 
-  if (
-    proxyCatalogRows.length > 0 &&
-    Object.keys(providerRegistry).length === 0
-  ) {
-    throw new Error(
+  if (resolutionErrors.length > 0) {
+    const summary =
+      proxyCatalogRows.length > 0 && Object.keys(providerRegistry).length === 0
+        ? "Failed to build Hebo gateway config: no resolvable upstream providers for enabled models."
+        : "Skipped enabled models with unresolved upstream providers while building Hebo gateway config.";
+    console.warn(
       [
-        "Failed to build Hebo gateway config: no resolvable upstream providers for enabled models.",
+        summary,
         ...resolutionErrors.slice(0, 10).map((entry) => `- ${entry}`),
       ].join("\n"),
     );

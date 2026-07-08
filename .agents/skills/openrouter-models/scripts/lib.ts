@@ -14,7 +14,10 @@ export function optionalApiKey(): string | undefined {
   return process.env.OPENROUTER_API_KEY;
 }
 
-export async function fetchApi(path: string, apiKey?: string): Promise<any> {
+export async function fetchApi(
+  path: string,
+  apiKey?: string,
+): Promise<unknown> {
   const url = `https://openrouter.ai/api/v1${path}`;
   const headers: Record<string, string> = {};
   if (apiKey) {
@@ -43,10 +46,29 @@ export async function fetchApi(path: string, apiKey?: string): Promise<any> {
     process.exit(1);
   }
 
-  return res.json();
+  return res.json() as Promise<unknown>;
 }
 
-export function formatModel(m: any) {
+export interface OpenRouterModel {
+  id?: string;
+  name?: string;
+  description?: string;
+  created?: number;
+  context_length?: number;
+  pricing?: { prompt?: string; completion?: string; [key: string]: unknown };
+  architecture?: {
+    input_modalities?: string[];
+    output_modalities?: string[];
+    [key: string]: unknown;
+  };
+  top_provider?: { max_completion_tokens?: number; [key: string]: unknown };
+  per_request_limits?: Record<string, unknown>;
+  supported_parameters?: string[];
+  expiration_date?: string;
+  [key: string]: unknown;
+}
+
+export function formatModel(m: OpenRouterModel) {
   return {
     id: m.id,
     name: m.name,
@@ -81,7 +103,9 @@ export function parseArgs(argv: string[]): Map<string, string | true> {
     }
   }
 
-  positional.forEach((v, i) => result.set(`_${i}`, v));
+  for (const [i, v] of positional.entries()) {
+    result.set(`_${i}`, v);
+  }
   result.set("_count", String(positional.length));
   return result;
 }

@@ -20,6 +20,7 @@ export { listRegistryModels };
 export function resolveModelRouteFromBody(body: {
   modelRoute?: unknown;
   modelName?: string;
+  modelId?: string;
 }): ModelRoute {
   if (!isRecord(body.modelRoute) || Object.keys(body.modelRoute).length === 0) {
     throw new Error("modelRoute is required");
@@ -29,9 +30,14 @@ export function resolveModelRouteFromBody(body: {
     typeof body.modelRoute.modelName === "string" &&
     body.modelRoute.modelName.trim()
       ? body.modelRoute.modelName.trim()
-      : typeof body.modelName === "string"
-        ? body.modelName.trim()
-        : "";
+      : typeof body.modelRoute.modelId === "string" &&
+          body.modelRoute.modelId.trim()
+        ? body.modelRoute.modelId.trim()
+        : typeof body.modelName === "string"
+          ? body.modelName.trim()
+          : typeof body.modelId === "string"
+            ? body.modelId.trim()
+            : "";
 
   if (!modelName) {
     throw new Error("modelName is required");

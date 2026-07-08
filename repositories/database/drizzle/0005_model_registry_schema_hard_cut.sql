@@ -15,7 +15,7 @@ ALTER TABLE "model_proxy_reasoning_apis" ADD CONSTRAINT "model_proxy_reasoning_a
 
 ALTER TABLE "model_proxy_reasoning_apis" ADD CONSTRAINT "model_proxy_reasoning_apis_slug_unique" UNIQUE ("slug");--> statement-breakpoint
 
-ALTER TABLE "model_proxy_reasoning_apis" ADD CONSTRAINT "model_proxy_reasoning_apis_provider_id_model_proxy_providers_id_fk" FOREIGN KEY ("provider_id") REFERENCES "public"."model_proxy_providers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_proxy_reasoning_apis" ADD CONSTRAINT "model_proxy_reasoning_apis_provider_id_model_proxy_providers_id_fk" FOREIGN KEY ("provider_id") REFERENCES "model_proxy_providers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 
 -- Drop old unique constraint on model_proxy_models
 DROP INDEX IF EXISTS "uq_model_proxy_models_model_provider";--> statement-breakpoint
@@ -74,9 +74,9 @@ ALTER TABLE "model_proxy_models" ADD COLUMN "provider_id" uuid;--> statement-bre
 
 ALTER TABLE "model_proxy_models" ADD COLUMN "reasoning_api_id" uuid;--> statement-breakpoint
 
-ALTER TABLE "model_proxy_models" ADD CONSTRAINT "model_proxy_models_provider_id_model_proxy_providers_id_fk" FOREIGN KEY ("provider_id") REFERENCES "public"."model_proxy_providers"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_proxy_models" ADD CONSTRAINT "model_proxy_models_provider_id_model_proxy_providers_id_fk" FOREIGN KEY ("provider_id") REFERENCES "model_proxy_providers"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 
-ALTER TABLE "model_proxy_models" ADD CONSTRAINT "model_proxy_models_reasoning_api_id_model_proxy_reasoning_apis_id_fk" FOREIGN KEY ("reasoning_api_id") REFERENCES "public"."model_proxy_reasoning_apis"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_proxy_models" ADD CONSTRAINT "model_proxy_models_reasoning_api_id_model_proxy_reasoning_apis_id_fk" FOREIGN KEY ("reasoning_api_id") REFERENCES "model_proxy_reasoning_apis"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 
 -- Create new unique index on (provider_id, model_id)
 CREATE UNIQUE INDEX "uq_model_proxy_models_provider_model" ON "model_proxy_models" USING btree ("provider_id","model_id");--> statement-breakpoint

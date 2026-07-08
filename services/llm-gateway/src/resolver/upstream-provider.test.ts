@@ -43,27 +43,28 @@ function createProviderMap(): Record<string, Provider> {
 
 function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
   return {
-    id: "1",
-    modelName: "gpt-test",
+    id: "00000000-0000-0000-0000-000000000001",
+    modelId: "gpt-test",
     enabled: true,
-    upstreamBaseUrl: null,
-    upstreamModel: null,
-    inputCostPerToken: null,
-    outputCostPerToken: null,
-    ownedBy: "openai",
-    family: null,
     displayName: "GPT Test",
-    providerName: "openai-main",
+    family: "openai",
+    providerId: null,
+    pricing: null,
+    canonicalSlug: null,
+    description: null,
+    contextLength: null,
+    maxCompletionTokens: null,
+    knowledgeCutoff: null,
+    expirationDate: null,
+    architecture: null,
+    reasoning: null,
+    supportedParameters: null,
+    defaultParameters: null,
+    perRequestLimits: null,
+    requestOptions: null,
+    reasoningApiId: null,
     createdAt: new Date("2026-06-16T00:00:00.000Z"),
     updatedAt: new Date("2026-06-16T00:00:00.000Z"),
-    apiMode: null,
-    vision: null,
-    thinking: null,
-    reasoning: null,
-    metadata: null,
-    contextWindowSize: null,
-    maxOutputTokens: null,
-    requestOptions: null,
     ...overrides,
   };
 }
@@ -88,20 +89,20 @@ describe("upstream-provider", () => {
   it("finds upstream provider by model family", () => {
     const provider = findUpstreamProvider(
       createProviderMap(),
-      createModelRow({ ownedBy: "openai" }),
+      createModelRow({ family: "openai" }),
     );
 
     expect(provider?.baseUrl).toBe("https://api.openai.com/v1");
     expect(provider?.defaultProvider).toBe("openai-main");
   });
 
-  it("prefers the model provider name over ownedBy when resolving the provider", () => {
+  it("prefers the model provider name over family when resolving the provider", () => {
     const provider = findUpstreamProvider(
       createProviderMap(),
       createModelRow({
-        providerName: "deepseek-main",
-        ownedBy: "openai",
+        family: "openai",
       }),
+      "deepseek-main",
     );
 
     expect(provider?.baseUrl).toBe("https://api.deepseek.com/v1");
@@ -174,8 +175,7 @@ describe("upstream-provider", () => {
       modelName: "gpt-test",
       providers: createProviderMap(),
       row: createModelRow({
-        providerName: "openai-main",
-        ownedBy: "openai",
+        family: "openai",
       }),
     });
     delete process.env.OPENAI_API_KEY;
@@ -186,10 +186,7 @@ describe("upstream-provider", () => {
   it("resolves provider/model prefixes to the specific provider row", async () => {
     process.env.OPENAI_API_KEY = "sk-test-key";
     const row = createModelRow({
-      providerName: "deepseek-main",
-      ownedBy: "deepseek",
-      upstreamBaseUrl: "https://custom.deepseek.example/v1",
-      upstreamModel: "deepseek-upstream",
+      family: "deepseek",
     });
 
     const target = await resolveUpstreamTarget({
@@ -200,8 +197,8 @@ describe("upstream-provider", () => {
     delete process.env.OPENAI_API_KEY;
 
     expect(target.model).toBe("deepseek-main/gpt-test");
-    expect(target.upstreamModel).toBe("deepseek-upstream");
-    expect(target.upstreamBaseUrl).toBe("https://custom.deepseek.example/v1");
+    expect(target.upstreamModel).toBe("gpt-test");
+    expect(target.upstreamBaseUrl).toBe("https://api.deepseek.com/v1");
   });
 
   it("keeps backward compatibility for NULL-provider rows resolved by bare model name", async () => {
@@ -210,14 +207,12 @@ describe("upstream-provider", () => {
       modelName: "gpt-test",
       providers: createProviderMap(),
       row: createModelRow({
-        providerName: null,
-        ownedBy: "openai",
-        upstreamBaseUrl: "https://null-provider.example/v1",
+        family: "openai",
       }),
     });
     delete process.env.OPENAI_API_KEY;
 
-    expect(target.upstreamBaseUrl).toBe("https://null-provider.example/v1");
+    expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
   });
 
   it("rejects disabled rows selected from the database", async () => {
@@ -259,9 +254,7 @@ describe("upstream-provider", () => {
           },
         },
         row: createModelRow({
-          ownedBy: null,
-          family: null,
-          providerName: "openai-main",
+          family: "openai",
         }),
       }),
     ).rejects.toThrow('No upstream API key configured for model "gpt-test"');
@@ -279,9 +272,8 @@ describe("upstream-provider", () => {
         },
       },
       row: createModelRow({
-        modelName: "gpt-5-codex",
-        ownedBy: null,
-        providerName: "codex-plan",
+        modelId: "gpt-5-codex",
+        family: "chatgpt-subscription",
       }),
     });
 
@@ -322,9 +314,7 @@ describe("upstream-provider", () => {
         },
       },
       row: createModelRow({
-        ownedBy: null,
-        family: null,
-        providerName: "openai-main",
+        family: "openai",
       }),
     });
 
@@ -366,9 +356,7 @@ describe("upstream-provider", () => {
         },
       },
       row: createModelRow({
-        ownedBy: null,
-        family: null,
-        providerName: "iproute-main",
+        family: "openai",
       }),
     });
 

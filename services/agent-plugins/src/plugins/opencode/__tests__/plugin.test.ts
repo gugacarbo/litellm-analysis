@@ -82,7 +82,7 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -112,7 +112,7 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -150,7 +150,7 @@ describe("createOpenCodePlugin", () => {
             "minimax-m3": {
               displayName: "",
               enabled: true,
-              limits: { length: 1000000, maxOutput: 256000 },
+              contextLength: 1000000, maxCompletionTokens: 256000,
             },
           },
           modelProxyConfig: {
@@ -169,7 +169,7 @@ describe("createOpenCodePlugin", () => {
       expect(minimax.name).toBe("minimax-m3");
     });
 
-    it("mapeia thinking.levels para variants com reasoningEffort", () => {
+    it("mapeia reasoning.effort para options e interleaved", () => {
       const plugin = createOpenCodePlugin();
       const output = buildOutput(
         plugin,
@@ -184,53 +184,7 @@ describe("createOpenCodePlugin", () => {
             "gpt-5": {
               displayName: "GPT-5",
               enabled: true,
-              limits: { length: 200000, maxOutput: 8192 },
-              thinking: {
-                levels: ["low", "medium", "high", "xHigh", "off", "invalid"],
-              },
-            },
-          },
-          modelProxyConfig: {
-            baseUrl: "http://localhost:4000",
-            apiKey: "test-key",
-          },
-        },
-      ) as unknown as Record<string, unknown>;
-
-      const provider = output.provider as Record<string, unknown>;
-      const localProxy = provider["local-proxy"] as Record<string, unknown>;
-      const models = localProxy.models as Record<string, unknown>;
-      const gpt5 = models["gpt-5"] as Record<string, unknown>;
-      const variants = gpt5.variants as Record<string, unknown>;
-
-      expect(Object.keys(variants)).toEqual([
-        "low",
-        "medium",
-        "high",
-        "xhigh",
-        "none",
-      ]);
-      expect(variants.none).toEqual({ reasoningEffort: "none" });
-      expect(variants.xhigh).toEqual({ reasoningEffort: "xhigh" });
-      expect(gpt5.reasoning).toBe(true);
-    });
-
-    it("mapeia reasoning.effort para options.reasoningEffort", () => {
-      const plugin = createOpenCodePlugin();
-      const output = buildOutput(
-        plugin,
-        [],
-        {
-          enabled: true,
-          outputFile: "opencode.json",
-          routing: { agents: {}, categories: {} },
-        },
-        {
-          allModels: {
-            "gpt-5": {
-              displayName: "GPT-5",
-              enabled: true,
-              limits: { length: 200000, maxOutput: 8192 },
+              contextLength: 200000, maxCompletionTokens: 8192,
               reasoning: {
                 effort: "high",
               },
@@ -250,9 +204,48 @@ describe("createOpenCodePlugin", () => {
 
       expect(gpt5.reasoning).toBe(true);
       expect(gpt5.options).toEqual({ reasoningEffort: "high" });
+      expect(gpt5.interleaved).toEqual({ field: "reasoning_content" });
     });
 
-    it("configura interleaved quando o modelo inclui reasoning_content na request", () => {
+    it("mapeia reasoning.effort para options.reasoningEffort", () => {
+      const plugin = createOpenCodePlugin();
+      const output = buildOutput(
+        plugin,
+        [],
+        {
+          enabled: true,
+          outputFile: "opencode.json",
+          routing: { agents: {}, categories: {} },
+        },
+        {
+          allModels: {
+            "gpt-5": {
+              displayName: "GPT-5",
+              enabled: true,
+              contextLength: 200000, maxCompletionTokens: 8192,
+              reasoning: {
+                effort: "high",
+              },
+            },
+          },
+          modelProxyConfig: {
+            baseUrl: "http://localhost:4000",
+            apiKey: "test-key",
+          },
+        },
+      ) as unknown as Record<string, unknown>;
+
+      const provider = output.provider as Record<string, unknown>;
+      const localProxy = provider["local-proxy"] as Record<string, unknown>;
+      const models = localProxy.models as Record<string, unknown>;
+      const gpt5 = models["gpt-5"] as Record<string, unknown>;
+
+      expect(gpt5.reasoning).toBe(true);
+      expect(gpt5.options).toEqual({ reasoningEffort: "high" });
+      expect(gpt5.interleaved).toEqual({ field: "reasoning_content" });
+    });
+
+    it("configura interleaved quando o modelo tem reasoning", () => {
       const plugin = createOpenCodePlugin();
       const output = buildOutput(
         plugin,
@@ -267,9 +260,9 @@ describe("createOpenCodePlugin", () => {
             "deepseek-r1": {
               displayName: "DeepSeek R1",
               enabled: true,
-              limits: { length: 128000, maxOutput: 8192 },
+              contextLength: 128000, maxCompletionTokens: 8192,
               reasoning: {
-                includeReasoningInRequest: true,
+                effort: "high",
               },
             },
           },
@@ -335,7 +328,7 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -379,12 +372,12 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
           "gpt-3.5": {
             displayName: "GPT-3.5",
             enabled: true,
-            limits: { length: 16000, maxOutput: 4096 },
+            contextLength: 16000, maxCompletionTokens: 4096,
           },
         },
         globalFallbackModel: "gpt-3.5",
@@ -421,7 +414,7 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -455,7 +448,7 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -487,12 +480,12 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
           "claude-3": {
             displayName: "Claude 3",
             enabled: true,
-            limits: { length: 200000, maxOutput: 8192 },
+            contextLength: 200000, maxCompletionTokens: 8192,
           },
         },
         modelProxyConfig: {
@@ -509,7 +502,7 @@ describe("createOpenCodePlugin", () => {
       expect(primary.name).toBe("Builder");
     });
 
-    it("inclui cost e variants no modelo do agente quando disponivel", () => {
+    it("inclui cost e options no modelo do agente quando disponivel", () => {
       const plugin = createOpenCodePlugin();
       const agents: SystemAgent[] = [
         makeSystemAgent({ id: "sisyphus", model: "gpt-5" }),
@@ -525,9 +518,9 @@ describe("createOpenCodePlugin", () => {
           "gpt-5": {
             displayName: "GPT-5",
             enabled: true,
-            limits: { length: 200000, maxOutput: 8192 },
-            cost: { input: 0.000015, output: 0.00006 },
-            thinking: { levels: ["high"] },
+            contextLength: 200000, maxCompletionTokens: 8192,
+            pricing: { input: 0.000015, output: 0.00006 },
+            reasoning: { effort: "high" },
           },
         },
         modelProxyConfig: {
@@ -542,9 +535,7 @@ describe("createOpenCodePlugin", () => {
       const primary = models["sisyphus/gpt-5.5"] as Record<string, unknown>;
 
       expect(primary.cost).toEqual({ input: 15, output: 60 });
-      expect(primary.variants).toEqual({
-        high: { reasoningEffort: "high" },
-      });
+      expect(primary.options).toEqual({ reasoningEffort: "high" });
     });
 
     it("ignora agentes sem mapeamento no routing", () => {
@@ -564,7 +555,7 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -600,17 +591,17 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
           "claude-3": {
             displayName: "Claude 3",
             enabled: true,
-            limits: { length: 200000, maxOutput: 8192 },
+            contextLength: 200000, maxCompletionTokens: 8192,
           },
           "gpt-3.5": {
             displayName: "GPT-3.5",
             enabled: true,
-            limits: { length: 16000, maxOutput: 4096 },
+            contextLength: 16000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -650,7 +641,7 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -680,7 +671,7 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
           },
           globalFallbackModel: "gpt-4",
@@ -730,7 +721,7 @@ describe("createOpenCodePlugin", () => {
             "gpt-4": {
               displayName: "GPT-4",
               enabled: true,
-              limits: { length: 128000, maxOutput: 4096 },
+              contextLength: 128000, maxCompletionTokens: 4096,
             },
           },
           modelProxyConfig: {
@@ -787,7 +778,7 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -831,12 +822,12 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
           "gpt-3.5": {
             displayName: "GPT-3.5",
             enabled: true,
-            limits: { length: 16000, maxOutput: 4096 },
+            contextLength: 16000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -888,7 +879,7 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {
@@ -933,7 +924,7 @@ describe("createOpenCodePlugin", () => {
           "gpt-4": {
             displayName: "GPT-4",
             enabled: true,
-            limits: { length: 128000, maxOutput: 4096 },
+            contextLength: 128000, maxCompletionTokens: 4096,
           },
         },
         modelProxyConfig: {

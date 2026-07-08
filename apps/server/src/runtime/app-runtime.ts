@@ -221,7 +221,10 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       },
     },
     ctx,
-    { benchmarkSync: benchmarkSyncService, openRouterBenchmarkSync: openRouterBenchmarkSyncService },
+    {
+      benchmarkSync: benchmarkSyncService,
+      openRouterBenchmarkSync: openRouterBenchmarkSyncService,
+    },
   );
 
   const port = env.PORT;
@@ -258,7 +261,6 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     const providerKeys = [
       route?.ownedBy,
       route?.family,
-      modelSpec?.ownedBy,
       modelSpec?.family,
     ].filter((value): value is string => !!value?.trim());
 

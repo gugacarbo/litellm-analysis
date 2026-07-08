@@ -67,7 +67,7 @@ export const categoryEntrySchema = z.object({
     .meta({ title: "Max Tokens", description: "Maximum tokens to generate" })
     .optional(),
   thinking: thinkingSchema
-    .default({ levels: [] })
+    .default({})
     .meta({ title: "Thinking", description: "Thinking configuration" })
     .optional(),
   reasoning: reasoningSchema

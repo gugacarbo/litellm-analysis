@@ -5,66 +5,55 @@ import {
   modelProxyProviders,
   modelProxySettings,
 } from "@lite-llm/database/schema/model-proxy";
-import { fromModelProxyRow, toModelRoute } from "@lite-llm/llm-config-service";
+import type { ModelConfig, ModelRoute } from "@lite-llm/llm-config-service";
+import { toModelRoute } from "@lite-llm/llm-config-service";
 import { asc, eq } from "drizzle-orm";
 import type { ModelDetail, ModelEntry, RegistryProvider } from "../types/index";
-import type { ModelRoute } from "@lite-llm/llm-config-service";
 
 const DEFAULT_PROVIDER_KEY = "default_provider";
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
 
-function dbModelToRoute(row: typeof modelProxyModels.$inferSelect) {
-  return fromModelProxyRow({
-    id: row.id,
-    modelName: row.modelName,
+function dbModelToRoute(row: typeof modelProxyModels.$inferSelect): ModelRoute {
+  return {
+    modelId: row.modelId,
     enabled: row.enabled,
-    displayName: row.displayName,
-    family: row.family,
-    ownedBy: row.ownedBy,
-    apiMode: row.apiMode,
-    vision: row.vision,
-    contextWindowSize: row.contextWindowSize,
-    maxOutputTokens: row.maxOutputTokens,
-    inputCostPerToken: row.inputCostPerToken,
-    outputCostPerToken: row.outputCostPerToken,
-    upstreamModel: row.upstreamModel,
-    upstreamBaseUrl: row.upstreamBaseUrl,
-    providerName: row.providerName,
-    requestOptions:
-      row.requestOptions === null
-        ? null
-        : (row.requestOptions as Record<string, unknown>),
-    metadata:
-      row.metadata === null ? null : (row.metadata as Record<string, unknown>),
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  });
+    displayName: row.displayName ?? undefined,
+    family: row.family ?? undefined,
+    canonicalSlug: row.canonicalSlug ?? undefined,
+    description: row.description ?? undefined,
+    contextLength: row.contextLength ?? undefined,
+    maxCompletionTokens: row.maxCompletionTokens ?? undefined,
+    knowledgeCutoff: row.knowledgeCutoff ?? undefined,
+    expirationDate: row.expirationDate ?? undefined,
+    architecture: row.architecture,
+    reasoning: row.reasoning,
+    supportedParameters: row.supportedParameters,
+    defaultParameters: row.defaultParameters,
+    perRequestLimits: row.perRequestLimits,
+    pricing: row.pricing,
+    requestOptions: row.requestOptions ?? undefined,
+  };
 }
 
-function routeToCreateData(route: ReturnType<typeof dbModelToRoute>) {
+function routeToCreateData(route: ModelRoute) {
   return {
-    modelName: route.modelName,
+    modelId: route.modelId,
     enabled: route.enabled ?? true,
     displayName: route.displayName,
     family: route.family,
-    ownedBy: route.ownedBy,
-    apiMode: route.apiMode,
-    vision: route.vision,
-    contextWindowSize: route.contextWindowSize,
-    maxOutputTokens: route.maxOutputTokens,
-    inputCostPerToken: route.inputCostPerToken,
-    outputCostPerToken: route.outputCostPerToken,
-    upstreamModel: route.upstreamModel ?? route.modelName,
-    upstreamBaseUrl: route.upstreamBaseUrl ?? "",
-    providerName: route.providerName,
-    requestOptions:
-      route.requestOptions !== undefined
-        ? (route.requestOptions as Record<string, unknown>)
-        : undefined,
-    metadata:
-      route.metadata !== undefined
-        ? (route.metadata as Record<string, unknown>)
-        : undefined,
+    canonicalSlug: route.canonicalSlug,
+    description: route.description,
+    contextLength: route.contextLength,
+    maxCompletionTokens: route.maxCompletionTokens,
+    knowledgeCutoff: route.knowledgeCutoff,
+    expirationDate: route.expirationDate,
+    architecture: route.architecture,
+    reasoning: route.reasoning,
+    supportedParameters: route.supportedParameters,
+    defaultParameters: route.defaultParameters,
+    perRequestLimits: route.perRequestLimits,
+    pricing: route.pricing ?? undefined,
+    requestOptions: route.requestOptions,
   };
 }
 
@@ -72,9 +61,9 @@ export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
   const rows = await db
     .select()
     .from(modelProxyModels)
-    .orderBy(asc(modelProxyModels.modelName));
+    .orderBy(asc(modelProxyModels.modelId));
   return rows.map((row) => ({
-    modelName: row.modelName,
+    modelName: row.modelId,
     modelRoute: dbModelToRoute(row),
   }));
 }
@@ -83,13 +72,13 @@ export async function getRegistryModelDetailsImpl(): Promise<ModelDetail[]> {
   const rows = await db
     .select()
     .from(modelProxyModels)
-    .orderBy(asc(modelProxyModels.modelName));
+    .orderBy(asc(modelProxyModels.modelId));
   return rows.map((row) => ({
-    model_name: row.modelName,
+    model_name: row.modelId,
     input_cost_per_token:
-      row.inputCostPerToken != null ? String(row.inputCostPerToken) : null,
+      row.pricing?.input != null ? String(row.pricing.input) : null,
     output_cost_per_token:
-      row.outputCostPerToken != null ? String(row.outputCostPerToken) : null,
+      row.pricing?.output != null ? String(row.pricing.output) : null,
   }));
 }
 
@@ -99,13 +88,11 @@ export async function createRegistryModelImpl(model: {
 }): Promise<void> {
   let route: ReturnType<typeof dbModelToRoute>;
   if (model.modelRoute) {
-    const { modelName: _rn, ...rest } = model.modelRoute;
-    route = {
-      ...rest,
-      modelName: model.modelName,
-    } as ReturnType<typeof dbModelToRoute>;
+    route = { ...model.modelRoute, modelId: model.modelName };
   } else {
-    route = toModelRoute({}, model.modelName);
+    route = toModelRoute({
+      model: { name: model.modelName } as ModelConfig,
+    });
   }
   await db.insert(modelProxyModels).values(routeToCreateData(route));
 }
@@ -118,33 +105,28 @@ export async function updateRegistryModelImpl(
   },
 ): Promise<void> {
   const targetName = updates.modelName ?? modelName;
-  let route: ReturnType<typeof dbModelToRoute> | null = null;
+  let route: ModelRoute | null = null;
   if (updates.modelRoute) {
-    const { modelName: _rn, ...rest } = updates.modelRoute;
-    route = {
-      ...rest,
-      modelName: targetName,
-    } as ReturnType<typeof dbModelToRoute>;
+    route = { ...updates.modelRoute, modelId: targetName };
   }
 
   if (targetName !== modelName) {
     const [existing] = await db
       .select()
       .from(modelProxyModels)
-      .where(eq(modelProxyModels.modelName, modelName))
+      .where(eq(modelProxyModels.modelId, modelName))
       .limit(1);
     if (!existing) {
       throw new Error(`Model "${modelName}" not found`);
     }
     const existingRoute = dbModelToRoute(existing);
     const mergedRoute = route ?? existingRoute;
-    const { modelName: _mn, ...mergedRest } = mergedRoute;
     await db
       .delete(modelProxyModels)
       .where(eq(modelProxyModels.id, existing.id));
     await db
       .insert(modelProxyModels)
-      .values(routeToCreateData({ ...mergedRest, modelName: targetName }));
+      .values(routeToCreateData({ ...mergedRoute, modelId: targetName }));
     return;
   }
 
@@ -155,7 +137,7 @@ export async function updateRegistryModelImpl(
   const [existing] = await db
     .select()
     .from(modelProxyModels)
-    .where(eq(modelProxyModels.modelName, modelName))
+    .where(eq(modelProxyModels.modelId, modelName))
     .limit(1);
   if (!existing) {
     throw new Error(`Model "${modelName}" not found`);
@@ -172,7 +154,7 @@ export async function deleteRegistryModelImpl(
   const [existing] = await db
     .select()
     .from(modelProxyModels)
-    .where(eq(modelProxyModels.modelName, modelName))
+    .where(eq(modelProxyModels.modelId, modelName))
     .limit(1);
   if (!existing) {
     throw new Error(`Model "${modelName}" not found`);

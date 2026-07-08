@@ -67,7 +67,7 @@ async function resolveTargetForModel(
   const [row] = await db
     .select()
     .from(modelProxyModels)
-    .where(eq(modelProxyModels.modelName, modelName))
+    .where(eq(modelProxyModels.modelId, modelName))
     .limit(1);
   const providers = await options.providerService.getAll();
 

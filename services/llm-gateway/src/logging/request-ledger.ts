@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { db } from "@lite-llm/database/client";
 import {
   modelProxyMessages,
@@ -122,6 +123,7 @@ export class RequestLedger {
     const [row] = await db
       .insert(modelProxyRequests)
       .values({
+        id: randomUUID(),
         model: request.model,
         upstreamModel: target.upstreamModel,
         upstreamBaseUrl: target.upstreamBaseUrl,
@@ -136,6 +138,7 @@ export class RequestLedger {
     if (request.messages.length > 0) {
       await db.insert(modelProxyMessages).values(
         request.messages.map((message) => ({
+          id: randomUUID(),
           requestId: row.id,
           role: message.role,
           content: redactPayload(message.content) as unknown,

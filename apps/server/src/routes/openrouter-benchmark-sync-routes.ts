@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-  OpenRouterBenchmarkSyncConfigurationError,
   type OpenRouterBenchmarkSyncApplicationService,
+  OpenRouterBenchmarkSyncConfigurationError,
 } from "../application/openrouter-benchmark-sync-application-service";
 
 export function createOpenRouterBenchmarkSyncRouter(
@@ -26,7 +26,9 @@ export function createOpenRouterBenchmarkSyncRouter(
         return;
       }
 
-      res.status(500).json({ error: "Failed to trigger OpenRouter benchmark sync" });
+      res
+        .status(500)
+        .json({ error: "Failed to trigger OpenRouter benchmark sync" });
     }
   });
 

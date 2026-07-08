@@ -1,5 +1,11 @@
 import path from "node:path";
 import { serverEnv } from "@lite-llm/config/server";
+import type {
+  BenchmarkComparisonField,
+  BenchmarkComparisonResponse,
+  NormalizedModelBenchmark,
+  OpenRouterModelData,
+} from "@lite-llm/contracts/benchmarks";
 import {
   getDefaultProvider,
   type ModelRoute,
@@ -29,12 +35,6 @@ import {
 } from "../orchestration/registry-models-bridge";
 import { isRecord, normalizeModelRoute } from "../orchestration/route-params";
 import type { DbModelSpecLike, RouteOptions } from "../types/index";
-import type {
-  BenchmarkComparisonField,
-  BenchmarkComparisonResponse,
-  NormalizedModelBenchmark,
-  OpenRouterModelData,
-} from "@lite-llm/contracts/benchmarks";
 
 type AliasInventory = {
   aliasMap: Map<string, string>;
@@ -50,7 +50,9 @@ type PersistedModelConfigSpec = {
   ownedBy?: string;
   apiMode?: "openai" | "anthropic";
   vision?: boolean;
-  limits: {
+  contextLength?: number;
+  maxCompletionTokens?: number;
+  limits?: {
     length: number;
     maxOutput: number;
   };
@@ -129,8 +131,15 @@ function buildModelSpecForConfigWrite(params: {
 
   const next: PersistedModelConfigSpec = {
     enabled: route.enabled ?? existingConfig?.enabled ?? true,
-    displayName:
-      existingConfig?.displayName ?? route.displayName ?? modelName,
+    displayName: existingConfig?.displayName ?? route.displayName ?? modelName,
+    contextLength:
+      existingConfig?.contextLength ??
+      route.contextLength ??
+      route.contextWindowSize,
+    maxCompletionTokens:
+      existingConfig?.maxCompletionTokens ??
+      route.maxCompletionTokens ??
+      route.maxOutputTokens,
     limits: {
       length:
         existingConfig?.limits?.length ?? route.contextWindowSize ?? 200_000,
@@ -366,13 +375,13 @@ export function registerModelRoutes(
     const configNames = new Set(Object.keys(configModels));
     const allNames = Array.from(
       new Set([...configNames, ...registryByName.keys()]),
-    ).sort((left, right) => left.localeCompare(right));
+    ).sort((left, right) => String(left).localeCompare(String(right)));
 
     const models = allNames.map((modelName) => {
       const registryRoute = registryByName.get(modelName);
       const config = getConfigForModelEntry({
         configModels,
-        modelName,
+        modelName: String(modelName),
         route: registryRoute,
       });
 
@@ -385,7 +394,8 @@ export function registerModelRoutes(
 
       return {
         modelName,
-        modelRoute: registryRoute ?? ({ modelName } as ModelRoute),
+        modelRoute:
+          registryRoute ?? ({ modelId: modelName, modelName } as ModelRoute),
         enabled: config?.enabled ?? registryRoute?.enabled ?? true,
         ...(config ? { config: configSliceFromSpec(config) } : {}),
         status,
@@ -424,7 +434,7 @@ export function registerModelRoutes(
             return !!providerName && providerName !== normalizedDefaultProvider;
           })
           .map((route) => route.modelName)
-          .sort((left, right) => left.localeCompare(right))
+          .sort((left, right) => String(left).localeCompare(String(right)))
       : [];
 
     return {
@@ -485,7 +495,7 @@ export function registerModelRoutes(
     )
       .filter(([, count]) => count > 1)
       .map(([alias]) => alias)
-      .sort((left, right) => left.localeCompare(right));
+      .sort((left, right) => String(left).localeCompare(String(right)));
 
     if (duplicates.length > 0) {
       return {
@@ -668,7 +678,7 @@ export function registerModelRoutes(
       for (const route of mismatchedRoutes) {
         await updateRegistryModelFromRoute(
           registryModelsService,
-          route.modelName,
+          route.modelId ?? route.modelName ?? "",
           { ...route, providerName: defaultProvider },
           defaultProvider,
         );
@@ -839,6 +849,7 @@ export function registerModelRoutes(
 
       const route = resolveModelRouteFromBody({
         modelRoute,
+        modelId: normalizedModelName,
         modelName: normalizedModelName,
       });
       const providerName = await getResolvedDefaultProvider();
@@ -887,9 +898,12 @@ export function registerModelRoutes(
       const existingModel = existingModels.find(
         (item) => item.modelName === name,
       );
-      const existingRoute = existingModel?.modelRoute ?? ({
-        modelName: name,
-      } as ModelRoute);
+      const existingRoute =
+        existingModel?.modelRoute ??
+        ({
+          modelId: name,
+          modelName: name,
+        } as ModelRoute);
       const providerName = await getResolvedDefaultProvider();
       const allConfigModels = await opts.modelsService.getAll();
       let nextRoute: ModelRoute | undefined;
@@ -899,6 +913,7 @@ export function registerModelRoutes(
       if (modelRoute !== undefined || modelName !== undefined) {
         const incomingRoute = resolveModelRouteFromBody({
           modelRoute,
+          modelId: normalizedNewName,
           modelName: normalizedNewName,
         });
 
@@ -919,6 +934,7 @@ export function registerModelRoutes(
           {
             ...existingRoute,
             ...strippedIncomingRoute,
+            modelId: normalizedNewName,
             modelName: normalizedNewName,
           },
           providerName,
@@ -1011,16 +1027,13 @@ export function registerModelRoutes(
         } else {
           const nextConfig = buildModelSpecForConfigWrite({
             modelName: normalizedNewName,
-            route: routeForConfigWrite,
+            route: routeForConfigWrite as ModelRoute,
             existingConfig,
             configUpdate: configUpdate ?? {},
           });
-          await opts.modelsService.upsert(targetConfigKey, nextConfig);
+          await opts.modelsService.upsert(targetConfigKey, nextConfig as never);
 
-          if (
-            currentConfigEntry &&
-            currentConfigEntry !== targetConfigKey
-          ) {
+          if (currentConfigEntry && currentConfigEntry !== targetConfigKey) {
             await opts.modelsService.delete(currentConfigEntry);
           }
         }
@@ -1144,7 +1157,9 @@ export function registerModelRoutes(
     }
   });
 
-  function parsePricingToPerToken(pricingString: string | undefined): number | null {
+  function parsePricingToPerToken(
+    pricingString: string | undefined,
+  ): number | null {
     if (!pricingString) return null;
     const num = Number.parseFloat(pricingString);
     if (Number.isNaN(num)) return null;
@@ -1168,10 +1183,18 @@ export function registerModelRoutes(
       label: "Nome de Exibição",
       currentValue: currentConfig?.displayName ?? null,
       aa: aaModel
-        ? { value: aaModel.name, source: aaSource, sourceLabel: "Artificial Analysis" }
+        ? {
+            value: aaModel.name,
+            source: aaSource,
+            sourceLabel: "Artificial Analysis",
+          }
         : null,
       openrouter: orModelData
-        ? { value: orModelData.name, source: orSource, sourceLabel: "OpenRouter" }
+        ? {
+            value: orModelData.name,
+            source: orSource,
+            sourceLabel: "OpenRouter",
+          }
         : null,
     });
 
@@ -1181,7 +1204,11 @@ export function registerModelRoutes(
       currentValue: currentConfig?.family ?? null,
       aa: null,
       openrouter: orModelData?.family
-        ? { value: orModelData.family, source: orSource, sourceLabel: "OpenRouter" }
+        ? {
+            value: orModelData.family,
+            source: orSource,
+            sourceLabel: "OpenRouter",
+          }
         : null,
     });
 
@@ -1190,10 +1217,18 @@ export function registerModelRoutes(
       label: "Desenvolvedor",
       currentValue: currentConfig?.ownedBy ?? null,
       aa: aaModel
-        ? { value: aaModel.creatorName, source: aaSource, sourceLabel: "Artificial Analysis" }
+        ? {
+            value: aaModel.creatorName,
+            source: aaSource,
+            sourceLabel: "Artificial Analysis",
+          }
         : null,
       openrouter: orModel
-        ? { value: orModel.creatorName, source: orSource, sourceLabel: "OpenRouter" }
+        ? {
+            value: orModel.creatorName,
+            source: orSource,
+            sourceLabel: "OpenRouter",
+          }
         : null,
     });
 
@@ -1211,7 +1246,11 @@ export function registerModelRoutes(
       currentValue: currentConfig?.vision ?? currentRoute?.vision ?? null,
       aa: null,
       openrouter: orModelData?.capabilities
-        ? { value: orModelData.capabilities.supports_vision, source: orSource, sourceLabel: "OpenRouter" }
+        ? {
+            value: orModelData.capabilities.supports_vision,
+            source: orSource,
+            sourceLabel: "OpenRouter",
+          }
         : null,
     });
 
@@ -1221,7 +1260,11 @@ export function registerModelRoutes(
       currentValue: currentConfig?.limits?.length ?? null,
       aa: null,
       openrouter: orModelData?.context_length
-        ? { value: orModelData.context_length, source: orSource, sourceLabel: "OpenRouter" }
+        ? {
+            value: orModelData.context_length,
+            source: orSource,
+            sourceLabel: "OpenRouter",
+          }
         : null,
     });
 
@@ -1231,7 +1274,11 @@ export function registerModelRoutes(
       currentValue: currentConfig?.limits?.maxOutput ?? null,
       aa: null,
       openrouter: orModelData?.max_output_tokens
-        ? { value: orModelData.max_output_tokens, source: orSource, sourceLabel: "OpenRouter" }
+        ? {
+            value: orModelData.max_output_tokens,
+            source: orSource,
+            sourceLabel: "OpenRouter",
+          }
         : null,
     });
 
@@ -1239,9 +1286,14 @@ export function registerModelRoutes(
       key: "inputCostPerToken",
       label: "Custo por Token (entrada)",
       currentValue: currentConfig?.cost?.input ?? null,
-      aa: aaModel?.priceInput1mTokens != null
-        ? { value: aaModel.priceInput1mTokens / 1_000_000, source: aaSource, sourceLabel: "Artificial Analysis" }
-        : null,
+      aa:
+        aaModel?.priceInput1mTokens != null
+          ? {
+              value: aaModel.priceInput1mTokens / 1_000_000,
+              source: aaSource,
+              sourceLabel: "Artificial Analysis",
+            }
+          : null,
       openrouter: orModelData?.pricing
         ? (() => {
             const perToken = parsePricingToPerToken(orModelData.pricing.prompt);
@@ -1256,12 +1308,19 @@ export function registerModelRoutes(
       key: "outputCostPerToken",
       label: "Custo por Token (saída)",
       currentValue: currentConfig?.cost?.output ?? null,
-      aa: aaModel?.priceOutput1mTokens != null
-        ? { value: aaModel.priceOutput1mTokens / 1_000_000, source: aaSource, sourceLabel: "Artificial Analysis" }
-        : null,
+      aa:
+        aaModel?.priceOutput1mTokens != null
+          ? {
+              value: aaModel.priceOutput1mTokens / 1_000_000,
+              source: aaSource,
+              sourceLabel: "Artificial Analysis",
+            }
+          : null,
       openrouter: orModelData?.pricing
         ? (() => {
-            const perToken = parsePricingToPerToken(orModelData.pricing.completion);
+            const perToken = parsePricingToPerToken(
+              orModelData.pricing.completion,
+            );
             return perToken != null
               ? { value: perToken, source: orSource, sourceLabel: "OpenRouter" }
               : null;
@@ -1298,10 +1357,7 @@ export function registerModelRoutes(
         const aaDataset = await loadBenchmarkDataset(aaPath);
         aaModel = findBenchmarkModel(modelName, aaDataset.models, aliases);
       } catch (error) {
-        console.error(
-          "Failed to load AA benchmarks for comparison:",
-          error,
-        );
+        console.error("Failed to load AA benchmarks for comparison:", error);
       }
 
       let orModel: NormalizedModelBenchmark | null = null;
@@ -1332,7 +1388,9 @@ export function registerModelRoutes(
 
       let currentRoute: ModelRoute | undefined;
       try {
-        currentRoute = await registry.registryModelsService.getRoute(modelName);
+        currentRoute =
+          (await registry.registryModelsService.getRoute(modelName ?? "")) ??
+          undefined;
       } catch {
         currentRoute = undefined;
       }

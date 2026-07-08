@@ -1,4 +1,9 @@
-import { fetchApi, optionalApiKey, parseArgs } from "./lib.js";
+import {
+  fetchApi,
+  type OpenRouterModel,
+  optionalApiKey,
+  parseArgs,
+} from "./lib.js";
 
 const apiKey = optionalApiKey();
 const args = parseArgs(process.argv.slice(2));
@@ -28,18 +33,18 @@ if (modelIds.length < 2) {
 }
 
 const json = await fetchApi("/models", apiKey);
-const allModels = json.data ?? [];
+const allModels = (json as { data?: OpenRouterModel[] }).data ?? [];
 
 // For each requested ID, prefer exact match, fall back to partial
-const matched: any[] = [];
+const matched: OpenRouterModel[] = [];
 for (const id of modelIds) {
   const lowerId = id.toLowerCase();
-  const exact = allModels.find((m: any) => m.id.toLowerCase() === lowerId);
+  const exact = allModels.find((m) => (m.id ?? "").toLowerCase() === lowerId);
   if (exact) {
     matched.push(exact);
   } else {
-    const partial = allModels.filter((m: any) =>
-      m.id.toLowerCase().includes(lowerId),
+    const partial = allModels.filter((m) =>
+      (m.id ?? "").toLowerCase().includes(lowerId),
     );
     if (partial.length === 0) {
       console.error(`Warning: No model found matching "${id}". Skipping.`);
@@ -50,7 +55,7 @@ for (const id of modelIds) {
         `Warning: "${id}" matched ${partial.length} models. Using closest match: ${partial[0].id}\n` +
           `  Other matches: ${partial
             .slice(1, 4)
-            .map((m: any) => m.id)
+            .map((m) => m.id)
             .join(", ")}${partial.length > 4 ? "..." : ""}`,
       );
       matched.push(partial[0]);
@@ -67,23 +72,21 @@ if (matched.length < 2) {
 
 if (sortBy === "price") {
   matched.sort(
-    (a: any, b: any) =>
+    (a, b) =>
       parseFloat(a.pricing?.prompt ?? "0") -
       parseFloat(b.pricing?.prompt ?? "0"),
   );
 } else if (sortBy === "context") {
-  matched.sort(
-    (a: any, b: any) => (b.context_length ?? 0) - (a.context_length ?? 0),
-  );
+  matched.sort((a, b) => (b.context_length ?? 0) - (a.context_length ?? 0));
 } else if (sortBy === "speed" || sortBy === "throughput") {
   matched.sort(
-    (a: any, b: any) =>
+    (a, b) =>
       (b.top_provider?.max_completion_tokens ?? 0) -
       (a.top_provider?.max_completion_tokens ?? 0),
   );
 }
 
-const comparison = matched.map((m: any) => {
+const comparison = matched.map((m) => {
   const promptCost = parseFloat(m.pricing?.prompt ?? "0") * 1_000_000;
   const completionCost = parseFloat(m.pricing?.completion ?? "0") * 1_000_000;
   const cacheCost = m.pricing?.input_cache_read

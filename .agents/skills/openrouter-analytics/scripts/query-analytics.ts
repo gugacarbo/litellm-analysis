@@ -30,7 +30,7 @@ function parseFilterValue(op: string, raw: string): unknown {
   if (op === "in" || op === "not_in") {
     return parseCommaList(raw);
   }
-  if (COMPARISON_OPS.has(op) && !isNaN(Number(raw))) {
+  if (COMPARISON_OPS.has(op) && !Number.isNaN(Number(raw))) {
     return Number(raw);
   }
   return raw;

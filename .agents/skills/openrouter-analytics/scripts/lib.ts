@@ -154,7 +154,9 @@ export function parseArgs(argv: string[]): Map<string, string> {
     }
   }
 
-  positional.forEach((v, i) => result.set(`_${i}`, v));
+  for (const [i, v] of positional.entries()) {
+    result.set(`_${i}`, v);
+  }
   result.set("_count", String(positional.length));
   return result;
 }

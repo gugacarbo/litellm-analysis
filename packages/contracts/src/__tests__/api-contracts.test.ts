@@ -136,14 +136,14 @@ describe("@lite-llm/api-contracts", () => {
         tokens: 1000,
       };
       const modelDetail: ModelDetail = {
-        model_name: "gpt-4",
+        model_id: "gpt-4",
         input_cost_per_token: "0.000003",
         output_cost_per_token: "0.000012",
       };
       const modelConfig: ModelConfig = {
-        modelName: "gpt-4",
+        modelId: "gpt-4",
         modelRoute: {
-          modelName: "gpt-4",
+          modelId: "gpt-4",
           requestOptions: { temperature: 0.7 },
         },
       };
@@ -218,10 +218,10 @@ describe("@lite-llm/api-contracts", () => {
       expect(userSpend.total_spend).toBe(50);
       expect(keySpend.total_tokens).toBe(10000);
       expect(dailySpend.spend).toBe(10);
-      expect(modelDetail.model_name).toBe("gpt-4");
-      expect(modelConfig.modelName).toBe("gpt-4");
+      expect(modelDetail.model_id).toBe("gpt-4");
+      expect(modelConfig.modelId).toBe("gpt-4");
       const _route: ModelRoute = modelConfig.modelRoute;
-      expect(_route.modelName).toBe("gpt-4");
+      expect(_route.modelId).toBe("gpt-4");
       expect(modelStats.success_rate).toBe(0.99);
       expect(perf.avg_duration_ms).toBe(150);
       expect(tokenDist.input_output_ratio).toBe(1.5);

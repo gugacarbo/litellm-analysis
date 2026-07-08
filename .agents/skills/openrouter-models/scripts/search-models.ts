@@ -1,4 +1,10 @@
-import { fetchApi, formatModel, optionalApiKey, parseArgs } from "./lib.js";
+import {
+  fetchApi,
+  formatModel,
+  type OpenRouterModel,
+  optionalApiKey,
+  parseArgs,
+} from "./lib.js";
 
 const apiKey = optionalApiKey();
 const args = parseArgs(process.argv.slice(2));
@@ -17,11 +23,12 @@ if (!query && !modality) {
 }
 
 const json = await fetchApi("/models", apiKey);
-let models = json.data ?? [];
+let models = ((json as { data?: OpenRouterModel[] }).data ??
+  []) as OpenRouterModel[];
 
 if (query) {
   const lowerQuery = query.toLowerCase();
-  models = models.filter((m: any) => {
+  models = models.filter((m) => {
     const id = (m.id ?? "").toLowerCase();
     const name = (m.name ?? "").toLowerCase();
     return id.includes(lowerQuery) || name.includes(lowerQuery);
@@ -30,7 +37,7 @@ if (query) {
 
 if (modality) {
   const lowerModality = modality.toLowerCase();
-  models = models.filter((m: any) => {
+  models = models.filter((m) => {
     const inputMods: string[] = m.architecture?.input_modalities ?? [];
     const outputMods: string[] = m.architecture?.output_modalities ?? [];
     return [...inputMods, ...outputMods]

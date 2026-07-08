@@ -22,7 +22,6 @@ const buildModelConfig = (overrides: Partial<ModelConfig> = {}): ModelConfig => 
 describe("toModelRoute", () => {
   it("maps a basic model config into the new ModelRoute shape", () => {
     const route = toModelRoute({
-      providerName: "openai",
       model: buildModelConfig(),
     });
 
@@ -64,7 +63,6 @@ describe("toModelRoute", () => {
 
   it("falls back to pricing values when cost is missing", () => {
     const route = toModelRoute({
-      providerName: "openai",
       model: buildModelConfig({
         cost: undefined,
         pricing: {
@@ -94,7 +92,6 @@ describe("toModelRoute", () => {
 
   it("forwards reasoning effort from the model", () => {
     const route = toModelRoute({
-      providerName: "openai",
       model: buildModelConfig({ reasoning: { effort: "high" } }),
     });
 
@@ -103,7 +100,6 @@ describe("toModelRoute", () => {
 
   it("merges architecture overrides with the default shape", () => {
     const route = toModelRoute({
-      providerName: "openai",
       model: buildModelConfig({
         architecture: {
           input_modalities: ["text", "image"],

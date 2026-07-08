@@ -42,7 +42,12 @@ export function ModelGeneralTab({
 
   const updateThinkingLevels = useCallback(
     (thinkingLevels: string[]) => {
-      const activeEffort = formData.reasoning.effort;
+      const activeEffort = formData.reasoning.effort as
+        | ""
+        | "low"
+        | "medium"
+        | "high"
+        | "xhigh";
       const normalizedLevels = new Set(
         thinkingLevels.map((level) => level.trim().toLowerCase()),
       );
@@ -54,7 +59,7 @@ export function ModelGeneralTab({
       onFormDataChange({
         ...formData,
         thinkingLevels,
-        reasoning: nextReasoning,
+        reasoning: nextReasoning as typeof formData.reasoning,
       });
     },
     [formData, onFormDataChange],
@@ -71,7 +76,10 @@ export function ModelGeneralTab({
           </CardDescription>
         </div>
         <div className="flex items-center gap-2 rounded-md border px-3 py-2">
-          <Label htmlFor="enabled" className="cursor-pointer text-sm font-medium">
+          <Label
+            htmlFor="enabled"
+            className="cursor-pointer text-sm font-medium"
+          >
             Enabled
           </Label>
           <Switch

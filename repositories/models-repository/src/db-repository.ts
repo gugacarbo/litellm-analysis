@@ -8,7 +8,6 @@ import {
 import { normalizeConfig } from "@lite-llm/repository-utils/jsonc";
 import { asc, count, eq } from "drizzle-orm";
 import type { IModelsRepository } from "./interfaces";
-import { applyMetadataToModelSpec, metadataFromModelSpec } from "./metadata";
 import {
   type ModelSpec,
   type ModelsConfig,
@@ -64,72 +63,78 @@ function resolveProviderField(
   return providerKey;
 }
 
-function modelSpecFromRow(row: {
-  modelName: string;
-  enabled: boolean;
-  displayName: string | null;
-  family: string | null;
-  ownedBy: string | null;
-  apiMode: string | null;
-  vision: boolean | null;
-  contextWindowSize: number | null;
-  maxOutputTokens: number | null;
-  inputCostPerToken: number | null;
-  outputCostPerToken: number | null;
-  metadata: unknown;
-}): ModelSpec {
+function modelSpecFromRow(
+  row: typeof modelProxyModels.$inferSelect,
+): ModelSpec {
   const base: ModelSpec = {
     enabled: row.enabled,
-    displayName: row.displayName ?? row.modelName,
-    limits: {
-      length: row.contextWindowSize ?? 200000,
-      maxOutput: row.maxOutputTokens ?? 32768,
-    },
+    displayName: row.displayName ?? row.modelId,
+    contextLength: row.contextLength ?? 200000,
+    maxCompletionTokens: row.maxCompletionTokens ?? 32768,
   };
 
   if (row.family) {
     base.family = row.family;
   }
-  if (row.ownedBy) {
-    base.ownedBy = row.ownedBy;
+  if (row.canonicalSlug) {
+    base.canonicalSlug = row.canonicalSlug;
   }
-  if (row.apiMode === "openai" || row.apiMode === "anthropic") {
-    base.apiMode = row.apiMode;
+  if (row.description) {
+    base.description = row.description;
   }
-  if (row.vision !== null && row.vision !== undefined) {
-    base.vision = row.vision;
+  if (row.knowledgeCutoff) {
+    base.knowledgeCutoff = row.knowledgeCutoff;
   }
-  if (row.inputCostPerToken !== null || row.outputCostPerToken !== null) {
-    base.cost = {
-      input: row.inputCostPerToken ?? 0,
-      output: row.outputCostPerToken ?? 0,
-    };
+  if (row.expirationDate) {
+    base.expirationDate = row.expirationDate;
+  }
+  if (row.architecture) {
+    base.architecture = row.architecture as Record<string, unknown>;
+  }
+  if (row.reasoning) {
+    base.reasoning = row.reasoning as { effort?: "low" | "medium" | "high" | "xhigh" };
+  }
+  if (row.supportedParameters) {
+    base.supportedParameters = row.supportedParameters as unknown as Record<string, unknown>;
+  }
+  if (row.defaultParameters) {
+    base.defaultParameters = row.defaultParameters as Record<string, unknown>;
+  }
+  if (row.perRequestLimits) {
+    base.perRequestLimits = row.perRequestLimits as Record<string, unknown>;
+  }
+  if (row.pricing) {
+    base.pricing = row.pricing as { input?: number; output?: number };
   }
 
-  return applyMetadataToModelSpec(base, row.metadata);
+  return base;
 }
 
 function modelRowFromSpec(
   modelName: string,
-  providerName: string | null,
+  providerId: string | null,
   spec: ModelSpec,
 ): typeof modelProxyModels.$inferInsert {
-  const metadata = metadataFromModelSpec(spec);
-
   return {
-    modelName,
-    providerName,
+    modelId: modelName,
+    providerId,
     enabled: spec.enabled ?? true,
     displayName: spec.displayName ?? modelName,
     family: spec.family ?? null,
-    ownedBy: spec.ownedBy ?? null,
-    apiMode: spec.apiMode ?? null,
-    vision: spec.vision ?? null,
-    contextWindowSize: spec.limits.length,
-    maxOutputTokens: spec.limits.maxOutput,
-    inputCostPerToken: spec.cost?.input ?? null,
-    outputCostPerToken: spec.cost?.output ?? null,
-    metadata,
+    canonicalSlug: spec.canonicalSlug ?? null,
+    description: spec.description ?? null,
+    contextLength: spec.contextLength,
+    maxCompletionTokens: spec.maxCompletionTokens,
+    knowledgeCutoff: spec.knowledgeCutoff ?? null,
+    expirationDate: spec.expirationDate ?? null,
+    architecture: (spec.architecture ?? null) as never,
+    reasoning: (spec.reasoning ?? null) as never,
+    supportedParameters: (spec.supportedParameters ?? null) as never,
+    defaultParameters: (spec.defaultParameters ?? null) as never,
+    perRequestLimits: (spec.perRequestLimits ?? null) as never,
+    pricing: (spec.pricing ?? null) as never,
+    requestOptions: null,
+    reasoningApiId: null,
   };
 }
 
@@ -150,8 +155,11 @@ export class DbModelsRepository implements IModelsRepository {
     const modelRows = await this.db
       .select()
       .from(modelProxyModels)
-      .orderBy(asc(modelProxyModels.modelName));
+      .orderBy(asc(modelProxyModels.modelId));
     const providerRows = await this.providers.list();
+    const providerIdToName = new Map(
+      providerRows.map((p) => [p.id, p.name]),
+    );
     const defaultProviderRow = await this.settings.findByKey(
       SETTING_KEYS.DEFAULT_PROVIDER,
     );
@@ -192,7 +200,10 @@ export class DbModelsRepository implements IModelsRepository {
 
     const models: Record<string, ModelSpec> = {};
     for (const row of modelRows) {
-      models[buildModelKey(row.modelName, row.providerName)] =
+      const providerName = row.providerId
+        ? providerIdToName.get(row.providerId) ?? null
+        : null;
+      models[buildModelKey(row.modelId, providerName)] =
         modelSpecFromRow(row);
     }
 
@@ -268,10 +279,17 @@ export class DbModelsRepository implements IModelsRepository {
 
     const desiredNames = new Set(Object.keys(validated.models));
     const existingModels = await this.db.select().from(modelProxyModels);
+    const providerRows = await this.providers.list();
+    const providerNameToId = new Map(
+      providerRows.map((p) => [p.name, p.id]),
+    );
     for (const existing of existingModels) {
+      const providerName = existing.providerId
+        ? providerRows.find((p) => p.id === existing.providerId)?.name ?? null
+        : null;
       const existingKey = buildModelKey(
-        existing.modelName,
-        existing.providerName,
+        existing.modelId,
+        providerName,
       );
       if (!desiredNames.has(existingKey)) {
         await this.db
@@ -281,15 +299,23 @@ export class DbModelsRepository implements IModelsRepository {
     }
 
     const existingByKey = new Map(
-      existingModels.map((row) => [
-        buildModelKey(row.modelName, row.providerName),
-        row,
-      ]),
+      existingModels.map((row) => {
+        const providerName = row.providerId
+          ? providerRows.find((p) => p.id === row.providerId)?.name ?? null
+          : null;
+        return [
+          buildModelKey(row.modelId, providerName),
+          row,
+        ];
+      }),
     );
 
     for (const [modelKey, spec] of Object.entries(validated.models)) {
       const { modelName, providerName } = parseModelKey(modelKey);
-      const data = modelRowFromSpec(modelName, providerName, spec);
+      const providerId = providerName
+        ? providerNameToId.get(providerName) ?? null
+        : null;
+      const data = modelRowFromSpec(modelName, providerId, spec);
       const existing = existingByKey.get(modelKey);
       if (existing) {
         await this.db
@@ -298,14 +324,18 @@ export class DbModelsRepository implements IModelsRepository {
             enabled: data.enabled,
             displayName: data.displayName,
             family: data.family,
-            ownedBy: data.ownedBy,
-            apiMode: data.apiMode,
-            vision: data.vision,
-            contextWindowSize: data.contextWindowSize,
-            maxOutputTokens: data.maxOutputTokens,
-            inputCostPerToken: data.inputCostPerToken,
-            outputCostPerToken: data.outputCostPerToken,
-            metadata: data.metadata,
+            canonicalSlug: data.canonicalSlug,
+            description: data.description,
+            contextLength: data.contextLength,
+            maxCompletionTokens: data.maxCompletionTokens,
+            knowledgeCutoff: data.knowledgeCutoff,
+            expirationDate: data.expirationDate,
+            architecture: data.architecture,
+            reasoning: data.reasoning,
+            supportedParameters: data.supportedParameters,
+            defaultParameters: data.defaultParameters,
+            perRequestLimits: data.perRequestLimits,
+            pricing: data.pricing,
           })
           .where(eq(modelProxyModels.id, existing.id));
       } else {

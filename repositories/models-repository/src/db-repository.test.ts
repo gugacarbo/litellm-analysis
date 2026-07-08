@@ -9,8 +9,8 @@ import { createDbRepository } from "./db-repository";
 
 type InMemoryModelRow = Record<string, unknown> & {
   id: string;
-  modelName: string;
-  providerName?: string | null;
+  modelId: string;
+  providerId?: string | null;
   updatedAt: Date;
 };
 
@@ -41,12 +41,12 @@ function createInMemoryDb() {
   function modelData() {
     const all = [...models.values()].sort((a, b) =>
       buildModelKey(
-        String(a.modelName),
-        (a.providerName as string | null | undefined) ?? null,
+        String(a.modelId),
+        (a.providerId as string | null | undefined) ?? null,
       ).localeCompare(
         buildModelKey(
-          String(b.modelName),
-          (b.providerName as string | null | undefined) ?? null,
+          String(b.modelId),
+          (b.providerId as string | null | undefined) ?? null,
         ),
       ),
     );
@@ -132,15 +132,15 @@ function createInMemoryDb() {
             const row: InMemoryModelRow = {
               id: `model_${modelId++}`,
               ...data,
-              modelName: String(data.modelName),
-              providerName:
-                typeof data.providerName === "string"
-                  ? data.providerName
+              modelId: String(data.modelId),
+              providerId:
+                typeof data.providerId === "string"
+                  ? data.providerId
                   : null,
               createdAt: now,
               updatedAt: now,
             };
-            models.set(buildModelKey(row.modelName, row.providerName), row);
+            models.set(buildModelKey(row.modelId, row.providerId), row);
             return [row];
           };
 
@@ -235,10 +235,10 @@ function createInMemoryDb() {
               if (!existing) return [];
               const updated = { ...existing, ...data, updatedAt: new Date() };
               models.delete(
-                buildModelKey(existing.modelName, existing.providerName),
+                buildModelKey(existing.modelId, existing.providerId),
               );
               models.set(
-                buildModelKey(updated.modelName, updated.providerName),
+                buildModelKey(updated.modelId, updated.providerId),
                 updated,
               );
               return [updated];
@@ -319,7 +319,7 @@ function createInMemoryDb() {
 }
 
 describe("DbModelsRepository", () => {
-  it("round-trips models with thinking metadata", async () => {
+  it("round-trips models with reasoning metadata", async () => {
     const { db, helpers } = createInMemoryDb();
     const repository = createDbRepository({
       db: db as never,
@@ -345,9 +345,10 @@ describe("DbModelsRepository", () => {
         "gpt-4": {
           enabled: true,
           displayName: "GPT-4",
-          limits: { length: 128000, maxOutput: 4096 },
-          cost: { input: 0.00001, output: 0.00003 },
-          thinking: { levels: ["low", "high"] },
+          contextLength: 128000,
+          maxCompletionTokens: 4096,
+          pricing: { input: 0.00001, output: 0.00003 },
+          reasoning: { effort: "high" as const },
         },
       },
     };
@@ -356,8 +357,8 @@ describe("DbModelsRepository", () => {
     const readBack = await repository.read();
 
     expect(readBack.models["gpt-4"]?.displayName).toBe("GPT-4");
-    expect(readBack.models["gpt-4"]?.thinking).toEqual({
-      levels: ["low", "high"],
+    expect(readBack.models["gpt-4"]?.reasoning).toEqual({
+      effort: "high",
     });
     expect(readBack.provider["local-proxy"]?.defaultProvider).toBe(
       "router-main",
@@ -419,12 +420,14 @@ describe("DbModelsRepository", () => {
         "provider-a/gpt-4": {
           enabled: true,
           displayName: "GPT-4 A",
-          limits: { length: 128000, maxOutput: 4096 },
+          contextLength: 128000,
+          maxCompletionTokens: 4096,
         },
         "provider-b/gpt-4": {
           enabled: true,
           displayName: "GPT-4 B",
-          limits: { length: 64000, maxOutput: 2048 },
+          contextLength: 64000,
+          maxCompletionTokens: 2048,
         },
       },
     });

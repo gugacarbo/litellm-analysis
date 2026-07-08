@@ -14,13 +14,16 @@ import type {
 
 export interface ModelRoute {
   modelId: string;
+  modelName?: string;
   enabled?: boolean;
   displayName?: string;
   family?: string;
   canonicalSlug?: string;
   description?: string;
   contextLength?: number;
+  contextWindowSize?: number;
   maxCompletionTokens?: number;
+  maxOutputTokens?: number;
   knowledgeCutoff?: string;
   expirationDate?: string;
   architecture?: Architecture | null;
@@ -31,6 +34,12 @@ export interface ModelRoute {
   pricing?: Pricing | null;
   reasoningApiSlug?: string;
   requestOptions?: RequestOptions;
+  providerName?: string;
+  ownedBy?: string;
+  apiMode?: string;
+  vision?: boolean;
+  inputCostPerToken?: number;
+  outputCostPerToken?: number;
 }
 
 export type ModelRouteUpdate = Partial<Omit<ModelRoute, "modelId">>;

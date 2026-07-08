@@ -36,35 +36,35 @@ export function createHealthCheckRuntime(
     requestModeByModelName: options.requestModeByModelName,
   });
 
-  healthCheckService.on("health_check_update", (data) => {
+  healthCheckService.on("health_check_update", (data: unknown) => {
     options.wsServer.broadcast({
       type: "health_check_update",
       data,
     });
   });
 
-  healthCheckService.on("health_check_stream_started", (data) => {
+  healthCheckService.on("health_check_stream_started", (data: unknown) => {
     options.wsServer.broadcast({
       type: "health_check_stream_started",
       data,
     });
   });
 
-  healthCheckService.on("health_check_stream_delta", (data) => {
+  healthCheckService.on("health_check_stream_delta", (data: unknown) => {
     options.wsServer.broadcast({
       type: "health_check_stream_delta",
       data,
     });
   });
 
-  healthCheckService.on("health_check_stream_completed", (data) => {
+  healthCheckService.on("health_check_stream_completed", (data: unknown) => {
     options.wsServer.broadcast({
       type: "health_check_stream_completed",
       data,
     });
   });
 
-  healthCheckService.on("health_check_stream_failed", (data) => {
+  healthCheckService.on("health_check_stream_failed", (data: unknown) => {
     options.wsServer.broadcast({
       type: "health_check_stream_failed",
       data,

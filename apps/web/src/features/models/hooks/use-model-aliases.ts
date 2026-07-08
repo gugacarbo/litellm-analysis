@@ -17,7 +17,7 @@ export interface UseModelAliasesResult {
   normalizedAliases: string[];
 }
 
-export function normalizeAliases(aliases: string[]): string[] {
+function normalizeAliases(aliases: string[]): string[] {
   return aliases
     .map((alias) => alias.trim())
     .filter(Boolean)
@@ -29,7 +29,7 @@ export function normalizeAliases(aliases: string[]): string[] {
     );
 }
 
-export function validateAliases(aliases: string[]): string | null {
+function validateAliases(aliases: string[]): string | null {
   const normalizedAliases = aliases.map((alias) => alias.trim());
 
   for (const alias of normalizedAliases) {

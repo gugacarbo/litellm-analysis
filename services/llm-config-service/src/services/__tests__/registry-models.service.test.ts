@@ -15,12 +15,11 @@ describe("RegistryModelsService", () => {
   it("creates and gets model route", async () => {
     await service.create("gpt-test", {
       displayName: "GPT Test",
-      inputCostPerToken: 0.000001,
-      providerName: "openai-main",
+      pricing: { input: 0.000001 },
     });
     const route = await service.getRoute("gpt-test");
     expect(route?.displayName).toBe("GPT Test");
-    expect(route?.providerName).toBe("openai-main");
+    expect(route?.pricing?.input).toBe(0.000001);
   });
 
   it("throws on duplicate create", async () => {
@@ -32,10 +31,10 @@ describe("RegistryModelsService", () => {
     await service.create("gpt-test", { enabled: true });
     const updated = await service.update("gpt-test", {
       enabled: false,
-      maxOutputTokens: 4096,
+      maxCompletionTokens: 4096,
     });
     expect(updated.enabled).toBe(false);
-    expect(updated.maxOutputTokens).toBe(4096);
+    expect(updated.maxCompletionTokens).toBe(4096);
   });
 
   it("enables and disables models", async () => {
@@ -50,7 +49,7 @@ describe("RegistryModelsService", () => {
     await service.create("enabled-model", { enabled: true });
     await service.create("disabled-model", { enabled: false });
     const enabledOnly = await service.list({ enabledOnly: true });
-    expect(enabledOnly.map((row) => row.modelName)).toEqual(["enabled-model"]);
+    expect(enabledOnly.map((row) => row.modelId)).toEqual(["enabled-model"]);
   });
 
   it("upserts model route", async () => {

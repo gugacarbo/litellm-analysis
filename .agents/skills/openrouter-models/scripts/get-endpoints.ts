@@ -1,5 +1,26 @@
 import { fetchApi, parseArgs, requireApiKey } from "./lib.js";
 
+type Endpoint = {
+  throughput_last_30m?: { p50?: number };
+  latency_last_30m?: { p50?: number };
+  uptime_last_30m?: number;
+  pricing?: {
+    prompt?: string;
+    completion?: string;
+    input_cache_read?: string;
+    discount?: number;
+  };
+  provider_name?: string;
+  tag?: string;
+  status?: number;
+  context_length?: number;
+  max_completion_tokens?: number;
+  max_prompt_tokens?: number;
+  quantization?: string;
+  supports_implicit_caching?: boolean;
+  supported_parameters?: string[];
+};
+
 const apiKey = requireApiKey();
 const args = parseArgs(process.argv.slice(2));
 const modelId = args.get("_0") as string | undefined;
@@ -34,26 +55,24 @@ if (!data?.endpoints?.length) {
   process.exit(1);
 }
 
-const endpoints = data.endpoints;
+const endpoints = data.endpoints as Endpoint[];
 
 if (sortBy === "throughput") {
   endpoints.sort(
-    (a: any, b: any) =>
+    (a, b) =>
       (b.throughput_last_30m?.p50 ?? 0) - (a.throughput_last_30m?.p50 ?? 0),
   );
 } else if (sortBy === "latency") {
   endpoints.sort(
-    (a: any, b: any) =>
+    (a, b) =>
       (a.latency_last_30m?.p50 ?? Infinity) -
       (b.latency_last_30m?.p50 ?? Infinity),
   );
 } else if (sortBy === "uptime") {
-  endpoints.sort(
-    (a: any, b: any) => (b.uptime_last_30m ?? 0) - (a.uptime_last_30m ?? 0),
-  );
+  endpoints.sort((a, b) => (b.uptime_last_30m ?? 0) - (a.uptime_last_30m ?? 0));
 } else if (sortBy === "price") {
   endpoints.sort(
-    (a: any, b: any) =>
+    (a, b) =>
       parseFloat(a.pricing?.prompt ?? "0") -
       parseFloat(b.pricing?.prompt ?? "0"),
   );
@@ -63,7 +82,7 @@ const output = {
   model_id: data.id,
   model_name: data.name,
   total_providers: endpoints.length,
-  endpoints: endpoints.map((ep: any) => ({
+  endpoints: endpoints.map((ep) => ({
     provider: ep.provider_name,
     tag: ep.tag,
     status: ep.status === 0 ? "operational" : `degraded (${ep.status})`,

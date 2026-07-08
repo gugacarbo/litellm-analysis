@@ -3,7 +3,6 @@
 export type {
   Cost,
   ModelSpec,
-  ThinkingConfig,
 } from "@lite-llm/models-repository/schemas";
 export {
   costSchema,

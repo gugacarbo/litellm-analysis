@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelProxyService } from "./service";
 
-const { mockDbSelect, mockDbInsert, mockDbUpdate } = vi.hoisted(() => ({
+const { mockDbSelect, mockDbInsert, mockDbUpdate, createMock, updateMock, findManyMock } = vi.hoisted(() => ({
   mockDbSelect: vi.fn(),
   mockDbInsert: vi.fn(),
   mockDbUpdate: vi.fn(),
+  createMock: vi.fn(),
+  updateMock: vi.fn(),
+  findManyMock: vi.fn(),
 }));
 
 vi.mock("@lite-llm/database/client", () => ({
@@ -21,39 +24,35 @@ function setupDbMock(overrides?: {
 }) {
   const modelRows = overrides?.modelRows ?? [
     {
-      modelName: "gpt-test",
+      modelId: "gpt-test",
       enabled: true,
-      upstreamBaseUrl: "https://upstream.example.com/v1",
-      upstreamModel: null,
-      inputCostPerToken: null,
-      outputCostPerToken: null,
-      ownedBy: null,
-      family: null,
       displayName: null,
-      providerName: "default",
+      family: "openai",
+      providerId: null,
+      pricing: null,
       updatedAt: new Date("2026-06-16T00:00:00.000Z"),
     },
   ];
+  const joinedModelRows = modelRows.map((row) => ({
+    row,
+    providerIsDefault: true,
+  }));
   const providerRow = overrides?.providerRow ?? {
+    id: "00000000-0000-0000-0000-000000000001",
     name: "default",
     apiKey: "sk-test-provider-key",
+    secretRef: "MOCK_API_KEY",
     baseUrl: "https://upstream.example.com/v1",
   };
 
   mockDbSelect.mockImplementation((fields?: unknown) => {
     const chain: Record<string, unknown> = {
+      then: (resolve: (value: unknown) => void) => resolve(joinedModelRows),
       from: () => chain,
+      innerJoin: () => chain,
+      leftJoin: () => chain,
       where: () => chain,
-      orderBy: () => {
-        if (
-          fields &&
-          typeof fields === "object" &&
-          "modelName" in (fields as Record<string, unknown>)
-        ) {
-          return Promise.resolve(modelRows);
-        }
-        return chain;
-      },
+      orderBy: () => Promise.resolve(modelRows),
       limit: () => {
         if (providerRow) {
           return Promise.resolve([providerRow]);
@@ -65,14 +64,101 @@ function setupDbMock(overrides?: {
   });
 
   mockDbInsert.mockImplementation(() => ({
-    values: vi.fn(() => Promise.resolve()),
+    values: vi.fn((data: Record<string, unknown>) => {
+      createMock([{ data }]);
+      return {
+        returning: vi.fn(() => Promise.resolve([{ id: "req_1", ...data }])),
+      };
+    }),
   }));
 
   mockDbUpdate.mockImplementation(() => ({
-    set: vi.fn(() => ({
-      where: vi.fn(() => Promise.resolve()),
-    })),
+    set: vi.fn((data: Record<string, unknown>) => {
+      updateMock({ data });
+      return {
+        where: vi.fn(() => Promise.resolve()),
+      };
+    }),
   }));
+}
+
+function createDatabaseMock() {
+  const joinedModelRows = [
+    {
+      row: {
+        id: "00000000-0000-0000-0000-000000000001",
+        modelId: "gpt-test",
+        enabled: true,
+        displayName: null,
+        family: "openai",
+        providerId: null,
+        pricing: null,
+        updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+      },
+      providerIsDefault: true,
+    },
+  ];
+
+  const plainModelRows = [
+    {
+      id: "00000000-0000-0000-0000-000000000001",
+      modelId: "gpt-test",
+      enabled: true,
+      displayName: null,
+      family: "openai",
+      providerId: null,
+      pricing: null,
+      updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+    },
+  ];
+
+  const providerRow = {
+    id: "00000000-0000-0000-0000-000000000001",
+    name: "default",
+    apiKey: "sk-test-provider-key",
+    baseUrl: "https://upstream.example.com/v1",
+  };
+
+  mockDbSelect.mockImplementation(() => {
+    const chain: Record<string, unknown> = {
+      then: (resolve: (value: unknown) => void) => resolve(joinedModelRows),
+      from: () => chain,
+      innerJoin: () => chain,
+      leftJoin: () => chain,
+      where: () => chain,
+      orderBy: () => Promise.resolve(plainModelRows),
+      limit: () => Promise.resolve([providerRow]),
+    };
+    return chain;
+  });
+
+  mockDbInsert.mockImplementation(() => ({
+    values: vi.fn((data: Record<string, unknown>) => {
+      createMock([{ data }]);
+      return {
+        returning: vi.fn(() => Promise.resolve([{ id: "req_1", ...data }])),
+      };
+    }),
+  }));
+
+  mockDbUpdate.mockImplementation(() => ({
+    set: vi.fn((data: Record<string, unknown>) => {
+      updateMock({ data });
+      return {
+        where: vi.fn(() => Promise.resolve()),
+      };
+    }),
+  }));
+
+  return {
+    modelProxyRequest: {
+      create: createMock,
+      update: updateMock,
+    },
+    modelProxyModel: {
+      findMany: findManyMock,
+    },
+  };
 }
 
 function createProviderServiceMock() {
@@ -84,6 +170,12 @@ function createProviderServiceMock() {
         baseUrl: "http://localhost:3008/v1",
         apiKey: "env:MODEL_PROXY_API_KEY",
         defaultProvider: "router",
+      },
+      openai: {
+        name: "OpenAI",
+        adapter: "openai-compatible",
+        baseUrl: "https://upstream.example.com/v1",
+        defaultProvider: "default",
       },
     }),
     get: vi.fn(),
@@ -120,13 +212,14 @@ describe("ModelProxyService", () => {
           id: "gpt-test",
           object: "model",
           created: 1781568000,
-          owned_by: "local-proxy",
+          owned_by: "openai",
         },
       ],
     });
   });
 
   it("forwards custom payload fields without schema validation", async () => {
+    setupDbMock();
     const fetchFn = vi.fn().mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -541,16 +634,12 @@ describe("ModelProxyService", () => {
     const database = createDatabaseMock();
     vi.mocked(database.modelProxyModel.findMany).mockResolvedValue([
       {
-        modelName: "gpt-test",
+        modelId: "gpt-test",
         enabled: true,
-        upstreamBaseUrl: "https://upstream.example.com/v1",
-        upstreamModel: null,
-        inputCostPerToken: 0.000001,
-        outputCostPerToken: 0.000002,
-        ownedBy: null,
-        family: null,
         displayName: null,
-        providerName: "default",
+        family: null,
+        providerId: null,
+        pricing: { input: 0.000001, output: 0.000002 },
         updatedAt: new Date("2026-06-16T00:00:00.000Z"),
       },
     ]);
