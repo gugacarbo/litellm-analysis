@@ -11,7 +11,7 @@ dotenv.config({
 });
 
 export const serverSchema = {
-  APP_ENCRYPTION_KEY: z.string().min(1, "APP_ENCRYPTION_KEY cannot be empty"),
+  APP_ENCRYPTION_KEY: z.string().min(1, "APP_ENCRYPTION_KEY cannot be empty!"),
 
   PORT: z.coerce.number().int().positive(),
   DATABASE_URL: z.url().min(1, "DATABASE_URL cannot be empty"),

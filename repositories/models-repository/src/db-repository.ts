@@ -253,6 +253,7 @@ export class DbModelsRepository implements IModelsRepository {
       await this.settings.deleteByKey(SETTING_KEYS.DEFAULT_PROVIDER);
     }
 
+    console.log("[REAL WRITE] providers keys", Object.keys(validated.provider));
     for (const [providerKey, providerSpec] of Object.entries(
       validated.provider,
     )) {
@@ -261,6 +262,7 @@ export class DbModelsRepository implements IModelsRepository {
       }
 
       const providerName = providerSpec.defaultProvider?.trim();
+      console.log("[REAL WRITE] processing", providerKey, "name", providerName);
       if (!providerName) {
         continue;
       }
@@ -272,6 +274,7 @@ export class DbModelsRepository implements IModelsRepository {
       };
 
       const existing = await this.providers.findByName(providerName);
+      console.log("[REAL WRITE] existing for", providerName, !!existing);
       if (existing) {
         await this.providers.update(providerName, providerData);
       } else {

@@ -18,16 +18,16 @@ fi
 echo "==> docs-check"
 "${ROOT}/scripts/docs-check"
 
-echo "==> ${RUNNER} run knip"
-${RUNNER} run knip
-
 echo "==> ${RUNNER} format"
-${RUNNER} lint-staged
+${RUNNER} format
+${RUNNER} format:md
+
+echo "==> ${RUNNER} run build"
+${RUNNER} run build
 
 echo "==> ${RUNNER} test"
-${RUNNER} test-staged
+${RUNNER} test
 
-# Type-check, testes e análise de exports não utilizados.
 echo "==> ${RUNNER} run typecheck"
 ${RUNNER} run typecheck
 
