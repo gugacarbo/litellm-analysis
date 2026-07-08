@@ -53,7 +53,7 @@ Queries return DB columns directly. Use snake_case aliases (`as "total_spend"`) 
 
 ## SCHEMA TABLES
 
-All tables prefixed `model_proxy_*` (PostgreSQL). Schema lives in `repositories/database/src/schema/model-proxy.ts`. Common tables:
+All tables prefixed `model_proxy_*` (PostgreSQL). Schema lives in `database/src/schema/model-proxy.ts`. Common tables:
 - `model_proxy_spend_logs` — request-level spend records
 - `model_proxy_error_logs` — error records
 - `model_proxy_models` — model registry rows

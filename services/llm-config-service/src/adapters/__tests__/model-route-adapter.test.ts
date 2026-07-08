@@ -11,10 +11,8 @@ const buildModelConfig = (overrides: Partial<ModelConfig> = {}): ModelConfig => 
   contextLength: 8192,
   maxCompletionTokens: 4096,
   cost: {
-    request: "0",
-    image: "0",
-    input: "0.00003",
-    output: "0.00006",
+    prompt: "0.00003",
+    completion: "0.00006",
   },
   ...overrides,
 });
@@ -43,21 +41,16 @@ describe("toModelRoute", () => {
         instruct_type: null,
       },
       reasoning: undefined,
-      supportedParameters: undefined,
+      supportedParameters: null,
       defaultParameters: undefined,
       perRequestLimits: undefined,
       pricing: {
-        request: "0",
-        image: "0",
-        input: "0.00003",
-        output: "0.00006",
-        input_cache_read: "0",
-        input_cache_write: "0",
-        web_search: "0",
-        internal_reasoning: "0",
+        input: 0.00003,
+        output: 0.00006,
+        cacheRead: undefined,
+        image: undefined,
       },
       requestOptions: undefined,
-      providerName: "openai",
     });
   });
 
@@ -66,27 +59,17 @@ describe("toModelRoute", () => {
       model: buildModelConfig({
         cost: undefined,
         pricing: {
-          request: "0",
-          image: "0",
           input: "0.0001",
           output: "0.0002",
-          input_cache_read: "0",
-          input_cache_write: "0",
-          web_search: "0",
-          internal_reasoning: "0",
         },
       }),
     });
 
     expect(route.pricing).toEqual({
-      request: "0",
-      image: "0",
-      input: "0.0001",
-      output: "0.0002",
-      input_cache_read: "0",
-      input_cache_write: "0",
-      web_search: "0",
-      internal_reasoning: "0",
+      input: 0.0001,
+      output: 0.0002,
+      cacheRead: undefined,
+      image: undefined,
     });
   });
 

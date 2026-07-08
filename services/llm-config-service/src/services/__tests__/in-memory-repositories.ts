@@ -236,51 +236,6 @@ export function createModelsRepositoryMock() {
         .sort((a, b) => a.modelId.localeCompare(b.modelId));
     },
 
-    async create(
-      modelName: string,
-      route: Partial<ModelProxyModelRecord> = {},
-    ): Promise<ModelProxyModelRecord> {
-      const row = createRow(modelName, route);
-      rows.set(modelName, row);
-      return row;
-    },
-
-    async update(
-      modelName: string,
-      route: Partial<ModelProxyModelRecord>,
-    ): Promise<ModelProxyModelRecord | null> {
-      const existing = rows.get(modelName);
-      if (!existing) {
-        return null;
-      }
-      const updated: ModelProxyModelRecord = {
-        ...existing,
-        ...route,
-        updatedAt: new Date(),
-      };
-      rows.set(modelName, updated);
-      return updated;
-    },
-
-    async upsert(
-      modelName: string,
-      route: Partial<ModelProxyModelRecord> = {},
-    ): Promise<ModelProxyModelRecord> {
-      const existing = rows.get(modelName);
-      if (existing) {
-        const updated: ModelProxyModelRecord = {
-          ...existing,
-          ...route,
-          updatedAt: new Date(),
-        };
-        rows.set(modelName, updated);
-        return updated;
-      }
-      const row = createRow(modelName, route);
-      rows.set(modelName, row);
-      return row;
-    },
-
     async setEnabled(
       modelName: string,
       enabled: boolean,
@@ -298,8 +253,63 @@ export function createModelsRepositoryMock() {
       return updated;
     },
 
-    async delete(modelName: string): Promise<boolean> {
-      return rows.delete(modelName);
+    async delete(idOrModelName: string): Promise<boolean> {
+      for (const [modelName, row] of rows.entries()) {
+        if (row.id === idOrModelName || modelName === idOrModelName) {
+          return rows.delete(modelName);
+        }
+      }
+      return false;
+    },
+
+    // Aliases used by RegistryModelsService
+    createModel: async (
+      modelName: string,
+      route: Partial<ModelProxyModelRecord> = {},
+    ) => {
+      const existing = rows.get(modelName);
+      if (existing) {
+        throw new Error(`Model "${modelName}" already exists`);
+      }
+      const row = createRow(modelName, route);
+      rows.set(modelName, row);
+      return row;
+    },
+
+    updateModel: async (
+      modelName: string,
+      route: Partial<ModelProxyModelRecord>,
+    ) => {
+      const existing = rows.get(modelName);
+      if (!existing) {
+        return null;
+      }
+      const updated: ModelProxyModelRecord = {
+        ...existing,
+        ...route,
+        updatedAt: new Date(),
+      };
+      rows.set(modelName, updated);
+      return updated;
+    },
+
+    upsertModel: async (
+      modelName: string,
+      route: Partial<ModelProxyModelRecord> = {},
+    ) => {
+      const existing = rows.get(modelName);
+      if (existing) {
+        const updated: ModelProxyModelRecord = {
+          ...existing,
+          ...route,
+          updatedAt: new Date(),
+        };
+        rows.set(modelName, updated);
+        return updated;
+      }
+      const row = createRow(modelName, route);
+      rows.set(modelName, row);
+      return row;
     },
   };
 }
