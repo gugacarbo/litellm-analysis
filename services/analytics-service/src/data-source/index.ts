@@ -6,4 +6,3 @@ export function createDataSource(): AnalyticsDataSource {
 }
 
 export type { AnalyticsDataSource } from "../types/index";
-export { ModelProxyDataSource } from "./model-proxy";

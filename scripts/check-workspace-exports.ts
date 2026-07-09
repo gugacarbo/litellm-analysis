@@ -3,6 +3,14 @@ import path from "node:path";
 import chalk from "chalk";
 import ts from "typescript";
 
+const limitArg = process.argv.find((arg) => arg.startsWith("--limit="));
+const limit = limitArg ? Number(limitArg.replace("--limit=", "")) : 2;
+
+if (Number.isNaN(limit) || limit < 0) {
+  console.error(chalk.red(`Invalid --limit value: ${limitArg}`));
+  process.exit(1);
+}
+
 const repoRoot = process.cwd();
 const workspaceRoots = [
   "apps",
@@ -392,32 +400,42 @@ for (const workspace of exportedWorkspaces) {
     };
     findings.push(finding);
 
-    if (findings.length === 1) {
-      console.log(
-        chalk.yellow.bold(
-          "\n⚠️  Workspace export sets with no external consumers:\n",
-        ),
-      );
-    }
+    if (findings.length <= limit) {
+      if (findings.length === 1) {
+        console.log(
+          chalk.yellow.bold(
+            "\n⚠️  Workspace export sets with no external consumers:\n",
+          ),
+        );
+      }
 
-    console.log(chalk.cyan.bold(finding.specifier));
-    console.log(
-      `  ${chalk.gray.bold("workspace:")} ${chalk.yellow.bold(finding.workspace)}`,
-    );
-    console.log(
-      `  ${chalk.gray.bold("files:")} ${chalk.yellow.bold(finding.files.join(", "))}`,
-    );
-    console.log(`  ${chalk.gray.bold("unused exports:")}`);
-    for (const unusedExport of finding.unusedExports) {
-      console.log(`    ${chalk.yellow("-")} ${chalk.magenta(unusedExport)}`);
+      console.log(chalk.cyan.bold(finding.specifier));
+      console.log(
+        `  ${chalk.gray.bold("workspace:")} ${chalk.yellow.bold(finding.workspace)}`,
+      );
+      console.log(
+        `  ${chalk.gray.bold("files:")} ${chalk.yellow.bold(finding.files.join(", "))}`,
+      );
+      console.log(`  ${chalk.gray.bold("unused exports:")}`);
+      for (const unusedExport of finding.unusedExports) {
+        console.log(`    ${chalk.yellow("-")} ${chalk.magenta(unusedExport)}`);
+      }
+      console.log("");
     }
-    console.log("");
   }
 }
 
 if (!findings.length) {
   console.log(chalk.green("✓ No externally-unused workspace exports found."));
   process.exit(0);
+}
+
+if (findings.length > limit) {
+  console.log(
+    chalk.gray(
+      `... ${findings.length - limit} more workspace export set(s) omitted ...\n`,
+    ),
+  );
 }
 
 console.log(
