@@ -1,4 +1,4 @@
-export interface SanitizeHeboRequestBodyOptions {
+interface SanitizeHeboRequestBodyOptions {
   path?: string;
 }
 

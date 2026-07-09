@@ -7,7 +7,6 @@
     ".": {
       "import": "./src/index.ts"
     },
-    "./storage": "./src/storage.ts",
     "./jsonc": "./src/jsonc.ts"
   },
   "scripts": {

@@ -10,7 +10,6 @@
     "./schema/model-proxy": "./src/schema/model-proxy.ts",
     "./schema/model-proxy-types": "./src/schema/model-proxy-types.ts",
     "./schema/app": "./src/schema/app.ts",
-    "./queries": "./src/queries.ts",
     "./test-helpers": "./src/test-helpers/createTestDb.ts"
   },
   "scripts": {

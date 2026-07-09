@@ -11,5 +11,3 @@ export const webEnv = createEnv({
   runtimeEnv: import.meta.env,
   emptyStringAsUndefined: true,
 });
-
-export type WebEnv = typeof webEnv;

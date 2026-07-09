@@ -4,13 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./src/index.ts"
-    },
     "./repository": "./src/repository.ts",
     "./db-repository": "./src/db-repository.ts",
-    "./schemas": "./src/schemas/index.ts",
-    "./storage": "./src/storage.ts"
+    "./schemas": "./src/schemas/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

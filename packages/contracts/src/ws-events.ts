@@ -1,6 +1,6 @@
-export type HealthCheckStatus = "healthy" | "unhealthy" | "error";
+type HealthCheckStatus = "healthy" | "unhealthy" | "error";
 
-export type HealthCheckSource = "scheduled" | "manual";
+type HealthCheckSource = "scheduled" | "manual";
 
 export interface HealthCheckResult {
   id: number;
@@ -46,19 +46,19 @@ export interface SpendLogsChangedPayload {
   timestamp: number;
 }
 
-export type HealthCheckStreamEventType =
+type HealthCheckStreamEventType =
   | "health_check_stream_started"
   | "health_check_stream_delta"
   | "health_check_stream_completed"
   | "health_check_stream_failed";
 
-export type SpendLogsChangedEventType = "spend_logs_changed";
+type SpendLogsChangedEventType = "spend_logs_changed";
 
 export type AutomaticInteractionWsEventType =
   | HealthCheckStreamEventType
   | SpendLogsChangedEventType;
 
-export type AutomaticInteractionWsMessage =
+type AutomaticInteractionWsMessage =
   | {
       type: "health_check_stream_started";
       data: HealthCheckStreamStartedPayload;

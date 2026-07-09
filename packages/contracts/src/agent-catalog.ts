@@ -1,11 +1,3 @@
-import type {
-  PluginRouting,
-  PluginRoutingRule,
-  SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
-
-export type { PluginRouting, PluginRoutingRule, SystemAgent };
-
 export interface InternalAgent {
   id: string;
   displayName: string;
@@ -51,14 +43,14 @@ export interface PluginConfigResponse {
   litellmProvider: { baseUrl: string; name: string };
 }
 
-export type PluginRoutingResponse = Record<string, PluginRouting>;
+type PluginRoutingResponse = Record<string, unknown>;
 
-export interface PluginSchemaResponse {
+type PluginSchemaResponse = {
   schema: Record<string, unknown>;
-}
+};
 
-export interface PluginToggleResponse {
+type PluginToggleResponse = {
   pluginId: string;
   agentId: string;
   enabled: boolean;
-}
+};

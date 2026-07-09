@@ -12,7 +12,7 @@ export interface HeboModelProxyGateway {
   refresh: () => Promise<void>;
 }
 
-export interface HeboModelProxyGatewayOptions {
+interface HeboModelProxyGatewayOptions {
   providerService: IProviderService;
   openAiOAuthService: IOpenAiOAuthService;
 }

@@ -10,7 +10,7 @@ dotenv.config({
   path: [resolve(repoRoot, ".env.local"), resolve(repoRoot, ".env")],
 });
 
-export const serverSchema = {
+const serverSchema = {
   APP_ENCRYPTION_KEY: z.string().min(1, "APP_ENCRYPTION_KEY cannot be empty!"),
 
   PORT: z.coerce.number().int().positive(),
@@ -32,5 +32,3 @@ export const serverEnv = createEnv({
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });
-
-export type ServerEnv = typeof serverEnv;
