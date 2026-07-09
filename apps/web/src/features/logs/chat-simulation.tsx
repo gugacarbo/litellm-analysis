@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { PageLayout } from "@/shared/components/ui/page-layout";
 import { getSpendLogDetail } from "@/shared/lib/api-client/spend";
-import { extractSpendLogMessages } from "@/shared/lib/automatic-interactions";
+import { extractSpendLogMessages } from "@/shared/lib/automatic-interactions/extract-spend-log-messages";
 import { queryKeys } from "@/shared/lib/query-keys";
 import { ChatSimulation } from "./components/chat-simulation";
 

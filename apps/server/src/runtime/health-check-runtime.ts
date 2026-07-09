@@ -1,6 +1,6 @@
 import type { Server as HttpServer } from "node:http";
 import type { AppContext } from "../contexts";
-import { HealthCheckService } from "../services/health-check";
+import { HealthCheckService } from "../services/health-check/health-check-service";
 import type { WebSocketServer } from "../ws/websocket-server";
 
 interface HealthCheckRuntimeOptions {

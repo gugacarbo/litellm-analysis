@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ReadonlyInteractionThread } from "@/shared/components/automatic-interactions";
+import { ReadonlyInteractionThread } from "@/shared/components/automatic-interactions/readonly-interaction-thread";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { CollapsibleSection } from "@/shared/components/ui/collapsible-section";
@@ -28,11 +28,9 @@ import {
 } from "@/shared/components/ui/dialog";
 import { JsonViewer } from "@/shared/components/ui/json-viewer";
 import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
-import {
-  extractSpendLogMessages,
-  normalizeSpendLogThread,
-  resolveSpendLogRawPayload,
-} from "@/shared/lib/automatic-interactions";
+import { extractSpendLogMessages } from "@/shared/lib/automatic-interactions/extract-spend-log-messages";
+import { normalizeSpendLogThread } from "@/shared/lib/automatic-interactions/normalize-spend-log-thread";
+import { resolveSpendLogRawPayload } from "@/shared/lib/automatic-interactions/resolve-spend-log-raw-payload";
 import {
   calculateProxyLogTokensPerSecond,
   formatCurrency,

@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
-import { ReadonlyInteractionThread } from "@/shared/components/automatic-interactions";
+import { ReadonlyInteractionThread } from "@/shared/components/automatic-interactions/readonly-interaction-thread";
 import type { ProxyRequestLog } from "@/shared/lib/api-client/spend";
-import {
-  normalizeSpendLogThread,
-  resolveSpendLogRawPayload,
-} from "@/shared/lib/automatic-interactions";
+import { normalizeSpendLogThread } from "@/shared/lib/automatic-interactions/normalize-spend-log-thread";
+import { resolveSpendLogRawPayload } from "@/shared/lib/automatic-interactions/resolve-spend-log-raw-payload";
 
 type ChatSimulationProps = {
   log: ProxyRequestLog;

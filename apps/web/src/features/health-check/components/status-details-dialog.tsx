@@ -1,9 +1,7 @@
 import { MessageSquareText } from "lucide-react";
 import { useMemo } from "react";
-import {
-  LiveHealthCheckThread,
-  ReadonlyInteractionThread,
-} from "@/shared/components/automatic-interactions";
+import { LiveHealthCheckThread } from "@/shared/components/automatic-interactions/live-health-check-thread";
+import { ReadonlyInteractionThread } from "@/shared/components/automatic-interactions/readonly-interaction-thread";
 import { DetailRow } from "@/shared/components/ui/detail-row";
 import {
   Dialog,
@@ -12,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { normalizeHealthCheckThread } from "@/shared/lib/automatic-interactions";
+import { normalizeHealthCheckThread } from "@/shared/lib/automatic-interactions/normalize-health-check-thread";
 import type { ModelWithStatus } from "../hooks/use-health-status-state";
 import type { RunningHealthCheckExecution } from "../hooks/use-health-status-websocket";
 import type { HealthCheckResultEntry } from "../types/health-status-types";
