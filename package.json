@@ -37,6 +37,7 @@
     "lint-staged": "^16.4.0",
     "prettier": "^3.9.4",
     "test-staged": "^1.1.11",
+    "tsc-files": "^1.1.4",
     "tsx": "catalog:",
     "turbo": "^2.9.6",
     "typescript": "catalog:",
