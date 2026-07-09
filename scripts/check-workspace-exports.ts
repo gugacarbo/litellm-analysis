@@ -59,20 +59,6 @@ type Finding = {
   unusedExports: string[];
 };
 
-function printProgress(label: string, current: number, total: number) {
-  const percentage = Math.round((current / total) * 100);
-  const filled = Math.round(percentage / 5);
-  const empty = 20 - filled;
-  const bar = `[${"█".repeat(filled)}${"░".repeat(empty)}]`;
-  process.stdout.write(
-    chalk.blue(`\r${label} ${bar} ${percentage}% (${current}/${total})`),
-  );
-}
-
-function clearProgress() {
-  process.stdout.write("\r" + " ".repeat(80) + "\r");
-}
-
 function walk(dir: string, visitor: (filePath: string) => void) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (ignoredDirs.has(entry.name)) continue;
@@ -241,17 +227,8 @@ function collectExternalImports(program: ts.Program, workspaces: Workspace[]) {
         !sourceFile.isDeclarationFile &&
         sourceFile.fileName.startsWith(repoRoot),
     );
-  const total = sourceFiles.length;
 
-  for (let index = 0; index < sourceFiles.length; index++) {
-    const sourceFile = sourceFiles[index];
-    if (
-      index % Math.max(1, Math.floor(total / 10)) === 0 ||
-      index === total - 1
-    ) {
-      printProgress("Analyzing imports", index + 1, total);
-    }
-
+  for (const sourceFile of sourceFiles) {
     const importerWorkspace = getWorkspaceForFile(
       sourceFile.fileName,
       workspaces,
@@ -324,7 +301,6 @@ function collectExternalImports(program: ts.Program, workspaces: Workspace[]) {
     visit(sourceFile);
   }
 
-  clearProgress();
   return usageBySpecifier;
 }
 
@@ -341,27 +317,14 @@ const program = ts.createProgram(sourceFiles, {
 });
 const checker = program.getTypeChecker();
 
-console.log(
-  chalk.blue(`Analyzing imports across ${sourceFiles.length} source files...`),
-);
-
 const usageBySpecifier = collectExternalImports(program, workspaces);
 const findings: Finding[] = [];
 const exportedWorkspaces = workspaces.filter(
   (workspace) => workspace.hasExports,
 );
-const exportedTotal = exportedWorkspaces.reduce(
-  (sum, workspace) => sum + workspace.exportEntries.length,
-  0,
-);
-let checkedCount = 0;
-
-console.log(chalk.blue("Checking workspace exports for external consumers..."));
 
 for (const workspace of exportedWorkspaces) {
   for (const entry of workspace.exportEntries) {
-    checkedCount++;
-    printProgress("Checking exports", checkedCount, exportedTotal);
     const exportedNames = [
       ...new Set(
         entry.files.flatMap((filePath) => {
