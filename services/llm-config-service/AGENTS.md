@@ -27,14 +27,15 @@ services/llm-config-service/
 | Register a new model             | `src/models/`                                                     | Idempotent on (provider, model_name)          |
 | Manage providers                 | `src/providers/`                                                  | Encrypted at rest; never log decrypted values |
 | Composite view (settings+models) | `src/registry/`                                                   | Used by proxy at request time                 |
-| Add a new settings field         | `database/src/schema/model-proxy.ts` → migration → extend service | Migration required                            |
+| Add a new settings field         | `database/src/schema/model-proxy/` → migration → extend service | Schema now lives in nested barrel files      |
+| Add a database test helper       | `database/src/test/createTestDb.ts`                        | Shared test DB bootstrap                     |
 
 ## CONVENTIONS
 
 - **No Express** — service functions return values/throw; route adaptation is in `apps/server` or `packages/server`
 - **Encrypted providers** — read path decrypts, write path encrypts; never log decrypted
 - **Idempotent writes** — registry operations are safe to retry; they upsert by natural key
-- **Schema in `database`** — services use the shared Drizzle database client from there
+- **Schema in `database`** — services use the shared Drizzle database client from there; model proxy tables are split under `database/src/schema/model-proxy/` and app tables under `database/src/schema/app/`
 
 ## ANTI-PATTERNS (THIS PROJECT)
 

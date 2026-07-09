@@ -27,6 +27,22 @@ describe("RegistryModelsService", () => {
     await expect(service.create("gpt-test")).rejects.toThrow(/already exists/);
   });
 
+  it("allows the same model id on different providers", async () => {
+    await service.create("gpt-test", { providerName: "openai-main" });
+    await expect(
+      service.create("gpt-test", { providerName: "anthropic-main" }),
+    ).resolves.toMatchObject({
+      modelId: "gpt-test",
+      providerId: expect.any(String),
+    });
+    const routes = await service.listRoutes();
+    expect(routes).toHaveLength(2);
+    expect(routes.map((route) => route.providerName).sort()).toEqual([
+      "anthropic-main",
+      "openai-main",
+    ]);
+  });
+
   it("updates model fields", async () => {
     await service.create("gpt-test", { enabled: true });
     const updated = await service.update("gpt-test", {

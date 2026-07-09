@@ -102,11 +102,6 @@ export class RegistryModelsService implements IRegistryModelsService {
       throw new Error("modelName must be a non-empty string");
     }
 
-    const existing = await this.repository.findByModelName(trimmed);
-    if (existing) {
-      throw new Error(`Model "${trimmed}" already exists`);
-    }
-
     return this.repository.createModel(
       trimmed,
       route as Record<string, unknown>,

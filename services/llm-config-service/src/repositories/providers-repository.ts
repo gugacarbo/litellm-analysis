@@ -43,7 +43,47 @@ export class ProvidersRepository {
     this.db = db;
   }
 
+  private get providerApi():
+    | {
+        findUnique?: (args: {
+          where: { name: string };
+        }) => Promise<ProviderRecord | null>;
+        findMany?: () => Promise<ProviderRecord[]>;
+        create?: (args: { data: ProviderWriteData }) => Promise<ProviderRecord>;
+        update?: (args: {
+          where: { name: string };
+          data: Partial<ProviderWriteData>;
+        }) => Promise<ProviderRecord | null>;
+        delete?: (args: {
+          where: { name: string };
+        }) => Promise<ProviderRecord | null>;
+      }
+    | undefined {
+    return (this.db as { modelProxyProvider?: unknown }).modelProxyProvider as
+      | {
+          findUnique?: (args: {
+            where: { name: string };
+          }) => Promise<ProviderRecord | null>;
+          findMany?: () => Promise<ProviderRecord[]>;
+          create?: (args: {
+            data: ProviderWriteData;
+          }) => Promise<ProviderRecord>;
+          update?: (args: {
+            where: { name: string };
+            data: Partial<ProviderWriteData>;
+          }) => Promise<ProviderRecord | null>;
+          delete?: (args: {
+            where: { name: string };
+          }) => Promise<ProviderRecord | null>;
+        }
+      | undefined;
+  }
+
   async findByName(name: string): Promise<ProviderRecord | null> {
+    const api = this.providerApi;
+    if (api?.findUnique) {
+      return api.findUnique({ where: { name } });
+    }
     const [row] = await this.db
       .select()
       .from(modelProxyProviders)
@@ -53,6 +93,10 @@ export class ProvidersRepository {
   }
 
   async list(): Promise<ProviderRecord[]> {
+    const api = this.providerApi;
+    if (api?.findMany) {
+      return api.findMany();
+    }
     const rows = await this.db
       .select()
       .from(modelProxyProviders)
@@ -61,6 +105,10 @@ export class ProvidersRepository {
   }
 
   async create(data: ProviderWriteData): Promise<ProviderRecord> {
+    const api = this.providerApi;
+    if (api?.create) {
+      return api.create({ data });
+    }
     const [row] = await this.db
       .insert(modelProxyProviders)
       .values({
@@ -79,6 +127,10 @@ export class ProvidersRepository {
     name: string,
     data: Partial<ProviderWriteData>,
   ): Promise<ProviderRecord | null> {
+    const api = this.providerApi;
+    if (api?.update) {
+      return api.update({ where: { name }, data });
+    }
     const [existing] = await this.db
       .select()
       .from(modelProxyProviders)
@@ -105,6 +157,10 @@ export class ProvidersRepository {
   }
 
   async delete(name: string): Promise<boolean> {
+    const api = this.providerApi;
+    if (api?.delete) {
+      return !!(await api.delete({ where: { name } }));
+    }
     const [deleted] = await this.db
       .delete(modelProxyProviders)
       .where(eq(modelProxyProviders.name, name))

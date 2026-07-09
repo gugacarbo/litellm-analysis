@@ -7,9 +7,9 @@
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
     "./schema": "./src/schema/index.ts",
-    "./schema/model-proxy": "./src/schema/model-proxy.ts",
-    "./schema/model-proxy-types": "./src/schema/model-proxy-types.ts",
-    "./schema/app": "./src/schema/app.ts",
+    "./schema/app": "./src/schema/app/index.ts",
+    "./schema/model-proxy": "./src/schema/model-proxy/index.ts",
+    "./schema/model-proxy-types": "./src/schema/model-proxy/types.ts",
     "./test-helpers": "./src/test-helpers/createTestDb.ts"
   },
   "scripts": {

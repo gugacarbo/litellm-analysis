@@ -189,7 +189,7 @@ export function createSettingsRepositoryMock() {
 }
 
 export function createModelsRepositoryMock() {
-  const rows = new Map<string, ModelProxyModelRecord>();
+  const rowsById = new Map<string, ModelProxyModelRecord>();
   let idCounter = 1;
 
   const createRow = (
@@ -223,28 +223,58 @@ export function createModelsRepositoryMock() {
     };
   };
 
+  function findByModelName(modelName: string): ModelProxyModelRecord | null {
+    return (
+      [...rowsById.values()].find((row) => row.modelId === modelName) ?? null
+    );
+  }
+
+  function findByModelAndProvider(
+    modelName: string,
+    providerId: string,
+  ): ModelProxyModelRecord | null {
+    return (
+      [...rowsById.values()].find(
+        (row) => row.modelId === modelName && row.providerId === providerId,
+      ) ?? null
+    );
+  }
+
+  function resolveProviderId(
+    route: Partial<ModelProxyModelRecord>,
+  ): string | undefined {
+    if (typeof route.providerId === "string" && route.providerId.trim()) {
+      return route.providerId;
+    }
+    const providerName = (route as { providerName?: string }).providerName;
+    if (typeof providerName === "string" && providerName.trim()) {
+      return providerName.trim();
+    }
+    return undefined;
+  }
+
   return {
     async findByModelName(
       modelName: string,
     ): Promise<ModelProxyModelRecord | null> {
-      return rows.get(modelName) ?? null;
+      return findByModelName(modelName);
     },
 
     async list(options: { enabledOnly?: boolean } = {}) {
-      return [...rows.values()]
+      return [...rowsById.values()]
         .filter((row) => !options.enabledOnly || row.enabled)
         .sort((a, b) => a.modelId.localeCompare(b.modelId));
     },
 
     async findProviderNameById(_providerId: string): Promise<string | null> {
-      return null;
+      return _providerId;
     },
 
     async setEnabled(
       modelName: string,
       enabled: boolean,
     ): Promise<ModelProxyModelRecord | null> {
-      const existing = rows.get(modelName);
+      const existing = findByModelName(modelName);
       if (!existing) {
         return null;
       }
@@ -253,14 +283,14 @@ export function createModelsRepositoryMock() {
         enabled,
         updatedAt: new Date(),
       };
-      rows.set(modelName, updated);
+      rowsById.set(updated.id, updated);
       return updated;
     },
 
     async delete(idOrModelName: string): Promise<boolean> {
-      for (const [modelName, row] of rows.entries()) {
-        if (row.id === idOrModelName || modelName === idOrModelName) {
-          return rows.delete(modelName);
+      for (const [id, row] of rowsById.entries()) {
+        if (row.id === idOrModelName || row.modelId === idOrModelName) {
+          return rowsById.delete(id);
         }
       }
       return false;
@@ -271,12 +301,18 @@ export function createModelsRepositoryMock() {
       modelName: string,
       route: Partial<ModelProxyModelRecord> = {},
     ) => {
-      const existing = rows.get(modelName);
+      const providerKey = resolveProviderId(route);
+      const existing = providerKey
+        ? findByModelAndProvider(modelName, providerKey)
+        : findByModelName(modelName);
       if (existing) {
         throw new Error(`Model "${modelName}" already exists`);
       }
-      const row = createRow(modelName, route);
-      rows.set(modelName, row);
+      const row = createRow(modelName, {
+        ...route,
+        providerId: providerKey ?? route.providerId ?? null,
+      });
+      rowsById.set(row.id, row);
       return row;
     },
 
@@ -284,7 +320,10 @@ export function createModelsRepositoryMock() {
       modelName: string,
       route: Partial<ModelProxyModelRecord>,
     ) => {
-      const existing = rows.get(modelName);
+      const providerKey = resolveProviderId(route);
+      const existing = providerKey
+        ? findByModelAndProvider(modelName, providerKey)
+        : findByModelName(modelName);
       if (!existing) {
         return null;
       }
@@ -293,7 +332,7 @@ export function createModelsRepositoryMock() {
         ...route,
         updatedAt: new Date(),
       };
-      rows.set(modelName, updated);
+      rowsById.set(updated.id, updated);
       return updated;
     },
 
@@ -301,18 +340,25 @@ export function createModelsRepositoryMock() {
       modelName: string,
       route: Partial<ModelProxyModelRecord> = {},
     ) => {
-      const existing = rows.get(modelName);
+      const providerKey = resolveProviderId(route);
+      const existing = providerKey
+        ? findByModelAndProvider(modelName, providerKey)
+        : findByModelName(modelName);
       if (existing) {
         const updated: ModelProxyModelRecord = {
           ...existing,
           ...route,
+          providerId: providerKey ?? route.providerId ?? existing.providerId,
           updatedAt: new Date(),
         };
-        rows.set(modelName, updated);
+        rowsById.set(updated.id, updated);
         return updated;
       }
-      const row = createRow(modelName, route);
-      rows.set(modelName, row);
+      const row = createRow(modelName, {
+        ...route,
+        providerId: providerKey ?? route.providerId ?? null,
+      });
+      rowsById.set(row.id, row);
       return row;
     },
   };

@@ -5,7 +5,7 @@ import {
   modelProxyProviders,
   modelProxyReasoningApis,
 } from "@lite-llm/database/schema";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { type ModelConfig, ModelConfigSchema } from "../schemas/model.js";
 import { type Effort, EffortSchema } from "../schemas/thinking.js";
 
@@ -38,22 +38,137 @@ export class ModelsRepository {
     this.db = db;
   }
 
+  private get modelApi():
+    | {
+        findFirst?: (args: {
+          where: { modelId?: string; providerId?: string; id?: string };
+        }) => Promise<ModelProxyModelRecord | null>;
+        findUnique?: (args: {
+          where: { modelId?: string; providerId?: string; id?: string };
+        }) => Promise<ModelProxyModelRecord | null>;
+        findMany?: (args?: {
+          where?: { enabled?: boolean; providerId?: string; id?: string };
+        }) => Promise<ModelProxyModelRecord[]>;
+        create?: (args: {
+          data: Partial<ModelProxyModelRecord> & { modelId: string };
+        }) => Promise<ModelProxyModelRecord>;
+        update?: (args: {
+          where: { id: string };
+          data: Partial<ModelProxyModelRecord>;
+        }) => Promise<ModelProxyModelRecord | null>;
+        upsert?: (args: {
+          where: { modelId: string };
+          create: Partial<ModelProxyModelRecord> & { modelId: string };
+          update: Partial<ModelProxyModelRecord>;
+        }) => Promise<ModelProxyModelRecord>;
+        delete?: (args: {
+          where: { id: string };
+        }) => Promise<ModelProxyModelRecord | null>;
+      }
+    | undefined {
+    return (this.db as { modelProxyModel?: unknown }).modelProxyModel as
+      | {
+          findFirst?: (args: {
+            where: { modelId?: string; providerId?: string; id?: string };
+          }) => Promise<ModelProxyModelRecord | null>;
+          findUnique?: (args: {
+            where: { modelId?: string; providerId?: string; id?: string };
+          }) => Promise<ModelProxyModelRecord | null>;
+          findMany?: (args?: {
+            where?: { enabled?: boolean; providerId?: string; id?: string };
+          }) => Promise<ModelProxyModelRecord[]>;
+          create?: (args: {
+            data: Partial<ModelProxyModelRecord> & { modelId: string };
+          }) => Promise<ModelProxyModelRecord>;
+          update?: (args: {
+            where: { id: string };
+            data: Partial<ModelProxyModelRecord>;
+          }) => Promise<ModelProxyModelRecord | null>;
+          upsert?: (args: {
+            where: { modelId: string };
+            create: Partial<ModelProxyModelRecord> & { modelId: string };
+            update: Partial<ModelProxyModelRecord>;
+          }) => Promise<ModelProxyModelRecord>;
+          delete?: (args: {
+            where: { id: string };
+          }) => Promise<ModelProxyModelRecord | null>;
+        }
+      | undefined;
+  }
+
+  private get providerApi():
+    | {
+        findUnique?: (args: { where: { name: string } }) => Promise<{
+          id: string;
+          name: string;
+        } | null>;
+        findMany?: () => Promise<
+          Array<{
+            id: string;
+            name: string;
+          }>
+        >;
+      }
+    | undefined {
+    return (this.db as { modelProxyProvider?: unknown }).modelProxyProvider as
+      | {
+          findUnique?: (args: { where: { name: string } }) => Promise<{
+            id: string;
+            name: string;
+          } | null>;
+          findMany?: () => Promise<
+            Array<{
+              id: string;
+              name: string;
+            }>
+          >;
+        }
+      | undefined;
+  }
+
   async findByModelIdAndProviderId(
     modelId: string,
     providerId: string,
   ): Promise<ModelProxyModelRecord | null> {
+    const api = this.modelApi;
+    if (api?.findFirst) {
+      return api.findFirst({ where: { modelId, providerId } });
+    }
     const rows = await this.db
       .select()
       .from(modelProxyModels)
       .where(
-        eq(modelProxyModels.modelId, modelId) &&
+        and(
+          eq(modelProxyModels.modelId, modelId),
           eq(modelProxyModels.providerId, providerId),
+        ),
       )
       .limit(1);
     return rows[0] ?? null;
   }
 
+  async findByModelNameAndProviderName(
+    modelName: string,
+    providerName: string,
+  ): Promise<ModelProxyModelRecord | null> {
+    const provider = await this.db
+      .select({ id: modelProxyProviders.id })
+      .from(modelProxyProviders)
+      .where(eq(modelProxyProviders.name, providerName))
+      .limit(1);
+    const providerId = provider[0]?.id;
+    if (!providerId) {
+      return null;
+    }
+
+    return this.findByModelIdAndProviderId(modelName, providerId);
+  }
+
   async findById(id: string): Promise<ModelProxyModelRecord | null> {
+    const api = this.modelApi;
+    if (api?.findUnique) {
+      return api.findUnique({ where: { id } });
+    }
     const rows = await this.db
       .select()
       .from(modelProxyModels)
@@ -63,6 +178,11 @@ export class ModelsRepository {
   }
 
   async findByProviderId(providerId: string): Promise<ModelProxyModelRecord[]> {
+    const api = this.modelApi;
+    if (api?.findMany) {
+      const rows = await api.findMany({ where: { providerId } });
+      return rows.filter((row) => row.providerId === providerId);
+    }
     return this.db
       .select()
       .from(modelProxyModels)
@@ -70,6 +190,13 @@ export class ModelsRepository {
   }
 
   async findProviderNameById(providerId: string): Promise<string | null> {
+    const api = this.providerApi;
+    if (api?.findMany) {
+      const provider = (await api.findMany()).find(
+        (row) => row.id === providerId,
+      );
+      return provider?.name ?? null;
+    }
     const [row] = await this.db
       .select({ name: modelProxyProviders.name })
       .from(modelProxyProviders)
@@ -80,6 +207,11 @@ export class ModelsRepository {
 
   async findManyByIds(ids: string[]): Promise<ModelProxyModelRecord[]> {
     if (ids.length === 0) return [];
+    const api = this.modelApi;
+    if (api?.findMany) {
+      const rows = await api.findMany();
+      return rows.filter((row) => ids.includes(row.id));
+    }
     return this.db
       .select()
       .from(modelProxyModels)
@@ -87,6 +219,10 @@ export class ModelsRepository {
   }
 
   async listAll(): Promise<ModelProxyModelRecord[]> {
+    const api = this.modelApi;
+    if (api?.findMany) {
+      return api.findMany();
+    }
     return this.db.select().from(modelProxyModels);
   }
 
@@ -96,6 +232,10 @@ export class ModelsRepository {
     if (reasoningApiSlug) {
       const api = await this.findReasoningApiBySlug(reasoningApiSlug);
       reasoningApiId = api?.id ?? null;
+    }
+    const modelApi = this.modelApi;
+    if (modelApi?.create) {
+      return modelApi.create({ data: { ...rest, reasoningApiId } });
     }
     const rows = await this.db
       .insert(modelProxyModels)
@@ -120,6 +260,14 @@ export class ModelsRepository {
       const api = await this.findReasoningApiBySlug(reasoningApiSlug);
       update.reasoningApiId = api?.id ?? null;
     }
+    const modelApi = this.modelApi;
+    if (modelApi?.update) {
+      const updated = await modelApi.update({ where: { id }, data: update });
+      if (!updated) {
+        throw new Error(`Model proxy model not found: ${id}`);
+      }
+      return updated;
+    }
     const rows = await this.db
       .update(modelProxyModels)
       .set(update)
@@ -133,6 +281,10 @@ export class ModelsRepository {
   }
 
   async delete(id: string): Promise<boolean> {
+    const api = this.modelApi;
+    if (api?.delete) {
+      return !!(await api.delete({ where: { id } }));
+    }
     const result = await this.db
       .delete(modelProxyModels)
       .where(eq(modelProxyModels.id, id))
@@ -149,6 +301,10 @@ export class ModelsRepository {
   async findByModelName(
     modelName: string,
   ): Promise<ModelProxyModelRecord | null> {
+    const api = this.modelApi;
+    if (api?.findFirst) {
+      return api.findFirst({ where: { modelId: modelName } });
+    }
     const rows = await this.db
       .select()
       .from(modelProxyModels)
@@ -162,6 +318,37 @@ export class ModelsRepository {
     route: Record<string, unknown>,
   ): Promise<ModelProxyModelRecord> {
     const providerId = await this.resolveProviderIdFromRoute(route);
+    const existing = providerId
+      ? await this.findByModelIdAndProviderId(modelName, providerId)
+      : await this.findByModelName(modelName);
+    if (existing) {
+      throw new Error(`Model "${modelName}" already exists`);
+    }
+    const api = this.modelApi;
+    if (api?.create) {
+      return api.create({
+        data: {
+          modelId: modelName,
+          providerId: providerId ?? null,
+          enabled: (route.enabled as boolean) ?? true,
+          displayName: (route.displayName as string) ?? null,
+          family: (route.family as string) ?? null,
+          canonicalSlug: (route.canonicalSlug as string) ?? null,
+          description: (route.description as string) ?? null,
+          contextLength: (route.contextLength as number) ?? null,
+          maxCompletionTokens: (route.maxCompletionTokens as number) ?? null,
+          knowledgeCutoff: (route.knowledgeCutoff as string) ?? null,
+          expirationDate: (route.expirationDate as string) ?? null,
+          architecture: (route.architecture ?? null) as never,
+          reasoning: (route.reasoning ?? null) as never,
+          supportedParameters: (route.supportedParameters ?? null) as never,
+          defaultParameters: (route.defaultParameters ?? null) as never,
+          perRequestLimits: (route.perRequestLimits ?? null) as never,
+          pricing: (route.pricing ?? null) as never,
+          requestOptions: (route.requestOptions ?? null) as never,
+        },
+      });
+    }
     const rows = await this.db
       .insert(modelProxyModels)
       .values({
@@ -194,9 +381,39 @@ export class ModelsRepository {
     modelName: string,
     route: Record<string, unknown>,
   ): Promise<ModelProxyModelRecord | null> {
-    const existing = await this.findByModelName(modelName);
-    if (!existing) return null;
     const providerId = await this.resolveProviderIdFromRoute(route);
+    const existing = providerId
+      ? await this.findByModelIdAndProviderId(modelName, providerId)
+      : await this.findByModelName(modelName);
+    if (!existing) return null;
+    const api = this.modelApi;
+    if (api?.update) {
+      const updated = await api.update({
+        where: { id: existing.id },
+        data: {
+          providerId,
+          enabled: (route.enabled as boolean) ?? undefined,
+          displayName: (route.displayName as string) ?? undefined,
+          family: (route.family as string) ?? undefined,
+          canonicalSlug: (route.canonicalSlug as string) ?? undefined,
+          description: (route.description as string) ?? undefined,
+          contextLength: (route.contextLength as number) ?? undefined,
+          maxCompletionTokens:
+            (route.maxCompletionTokens as number) ?? undefined,
+          knowledgeCutoff: (route.knowledgeCutoff as string) ?? undefined,
+          expirationDate: (route.expirationDate as string) ?? undefined,
+          architecture: (route.architecture ?? undefined) as never,
+          reasoning: (route.reasoning ?? undefined) as never,
+          supportedParameters: (route.supportedParameters ??
+            undefined) as never,
+          defaultParameters: (route.defaultParameters ?? undefined) as never,
+          perRequestLimits: (route.perRequestLimits ?? undefined) as never,
+          pricing: (route.pricing ?? undefined) as never,
+          requestOptions: (route.requestOptions ?? undefined) as never,
+        },
+      });
+      return updated ?? null;
+    }
     const rows = await this.db
       .update(modelProxyModels)
       .set({
@@ -227,13 +444,63 @@ export class ModelsRepository {
     modelName: string,
     route: Record<string, unknown>,
   ): Promise<ModelProxyModelRecord> {
-    const existing = await this.findByModelName(modelName);
+    const providerId = await this.resolveProviderIdFromRoute(route);
+    const existing = providerId
+      ? await this.findByModelIdAndProviderId(modelName, providerId)
+      : await this.findByModelName(modelName);
     if (existing) {
       const updated = await this.updateModel(modelName, route);
       if (!updated) {
         throw new Error(`Model proxy model not found: ${modelName}`);
       }
       return updated;
+    }
+    const api = this.modelApi;
+    if (api?.upsert) {
+      return api.upsert({
+        where: { modelId: modelName },
+        create: {
+          modelId: modelName,
+          providerId: providerId ?? null,
+          enabled: (route.enabled as boolean) ?? true,
+          displayName: (route.displayName as string) ?? null,
+          family: (route.family as string) ?? null,
+          canonicalSlug: (route.canonicalSlug as string) ?? null,
+          description: (route.description as string) ?? null,
+          contextLength: (route.contextLength as number) ?? null,
+          maxCompletionTokens: (route.maxCompletionTokens as number) ?? null,
+          knowledgeCutoff: (route.knowledgeCutoff as string) ?? null,
+          expirationDate: (route.expirationDate as string) ?? null,
+          architecture: (route.architecture ?? null) as never,
+          reasoning: (route.reasoning ?? null) as never,
+          supportedParameters: (route.supportedParameters ?? null) as never,
+          defaultParameters: (route.defaultParameters ?? null) as never,
+          perRequestLimits: (route.perRequestLimits ?? null) as never,
+          pricing: (route.pricing ?? null) as never,
+          requestOptions: (route.requestOptions ?? null) as never,
+        },
+        update: {
+          providerId,
+          enabled: (route.enabled as boolean) ?? undefined,
+          displayName: (route.displayName as string) ?? undefined,
+          family: (route.family as string) ?? undefined,
+          canonicalSlug: (route.canonicalSlug as string) ?? undefined,
+          description: (route.description as string) ?? undefined,
+          contextLength: (route.contextLength as number) ?? undefined,
+          maxCompletionTokens:
+            (route.maxCompletionTokens as number) ?? undefined,
+          knowledgeCutoff: (route.knowledgeCutoff as string) ?? undefined,
+          expirationDate: (route.expirationDate as string) ?? undefined,
+          architecture: (route.architecture ?? undefined) as never,
+          reasoning: (route.reasoning ?? undefined) as never,
+          supportedParameters: (route.supportedParameters ??
+            undefined) as never,
+          defaultParameters: (route.defaultParameters ?? undefined) as never,
+          perRequestLimits: (route.perRequestLimits ?? undefined) as never,
+          pricing: (route.pricing ?? undefined) as never,
+          requestOptions: (route.requestOptions ?? undefined) as never,
+        },
+      });
     }
     return this.createModel(modelName, route);
   }
@@ -244,6 +511,14 @@ export class ModelsRepository {
   ): Promise<ModelProxyModelRecord | null> {
     const existing = await this.findByModelName(modelName);
     if (!existing) return null;
+    const api = this.modelApi;
+    if (api?.update) {
+      const updated = await api.update({
+        where: { id: existing.id },
+        data: { enabled },
+      });
+      return updated ?? null;
+    }
     const rows = await this.db
       .update(modelProxyModels)
       .set({ enabled })
@@ -335,6 +610,20 @@ export class ModelsRepository {
       typeof route.providerName === "string" ? route.providerName.trim() : "";
     if (!providerName) {
       return undefined;
+    }
+
+    const providerApi = this.providerApi;
+    if (providerApi?.findUnique) {
+      const provider = await providerApi.findUnique({
+        where: { name: providerName },
+      });
+      return provider?.id;
+    }
+    if (providerApi?.findMany) {
+      const provider = (await providerApi.findMany()).find(
+        (row) => row.name === providerName,
+      );
+      return provider?.id;
     }
 
     const provider = await this.db

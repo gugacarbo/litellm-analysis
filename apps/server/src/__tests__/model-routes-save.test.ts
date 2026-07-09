@@ -221,9 +221,8 @@ function createModelRoutesStack() {
 
 async function createModelsServer() {
   const express = (await import("express")).default;
-  const { registerModelRoutes } = await import(
-    "../../../../packages/server/src/routes/model-routes.ts"
-  );
+  const { registerModelRoutes } =
+    await import("../../../../packages/server/src/routes/model-routes.ts");
 
   const stack = createModelRoutesStack();
   const app = express();
@@ -399,6 +398,7 @@ describe("model routes save", () => {
             modelRoute: {
               modelId: "openai/gpt-shared",
               modelName: "openai/gpt-shared",
+              providerName: "openai",
             },
             enabled: true,
             config: {

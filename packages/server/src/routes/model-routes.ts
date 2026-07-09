@@ -87,6 +87,35 @@ function buildConfigModelKey(
   return trimmedProvider ? `${trimmedProvider}/${modelName}` : modelName;
 }
 
+function parseProviderScopedModelName(modelName: string): {
+  modelName: string;
+  providerName?: string;
+} {
+  const trimmed = modelName.trim();
+  const slashIndex = trimmed.indexOf("/");
+  if (slashIndex <= 0 || slashIndex >= trimmed.length - 1) {
+    return { modelName: trimmed };
+  }
+
+  const providerName = trimmed.slice(0, slashIndex).trim();
+  const bareModelName = trimmed.slice(slashIndex + 1).trim();
+  if (!providerName || !bareModelName) {
+    return { modelName: trimmed };
+  }
+
+  return {
+    modelName: bareModelName,
+    providerName,
+  };
+}
+
+function buildModelEntryKey(
+  modelName: string,
+  providerName?: string | null,
+): string {
+  return `${providerName?.trim() ?? ""}::${modelName.trim()}`;
+}
+
 function buildConfigModelKeyCandidates(
   modelName: string,
   providerNames: Array<string | null | undefined>,
@@ -376,51 +405,89 @@ export function registerModelRoutes(
       return candidate.trim();
     }
 
-    const registryByName = new Map(
-      registryRoutes
-        .map((route) => [resolveModelEntryName(route), route] as const)
-        .filter(([name]) => name.length > 0),
-    );
-    const configNames = new Set(
-      Object.keys(configModels)
-        .map((name) => name.trim())
-        .filter((name) => name.length > 0),
-    );
-    const allNames = Array.from(
-      new Set([...configNames, ...registryByName.keys()]),
-    ).sort((left, right) => String(left).localeCompare(String(right)));
+    const models = new Map<
+      string,
+      {
+        modelName: string;
+        modelRoute: ModelRoute;
+        enabled: boolean;
+        config?: PersistedModelConfigSpec;
+        status: SyncPresenceStatus;
+      }
+    >();
 
-    const models = allNames.map((modelName) => {
-      const registryRoute = registryByName.get(modelName);
+    for (const route of registryRoutes) {
+      const modelName = resolveModelEntryName(route);
+      if (!modelName) {
+        continue;
+      }
+      const providerName = route.providerName?.trim() || undefined;
+      const key = buildModelEntryKey(modelName, providerName);
       const config = getConfigForModelEntry({
         configModels,
-        modelName: String(modelName),
-        route: registryRoute,
+        modelName,
+        route: providerName ? { providerName } : undefined,
       });
 
-      let status: SyncPresenceStatus = "synced";
-      if (config && !registryRoute) {
-        status = "config-only";
-      } else if (!config && registryRoute) {
-        status = "registry-only";
+      models.set(key, {
+        modelName,
+        modelRoute: {
+          ...route,
+          modelId: modelName,
+          modelName,
+          ...(providerName ? { providerName } : {}),
+        },
+        enabled: config?.enabled ?? route.enabled ?? true,
+        ...(config ? { config: configSliceFromSpec(config) } : {}),
+        status: config ? "synced" : "registry-only",
+      });
+    }
+
+    for (const [configKey, config] of Object.entries(configModels)) {
+      const parsed = parseProviderScopedModelName(configKey);
+      const bareModelName = parsed.modelName.trim();
+      if (!bareModelName) {
+        continue;
       }
 
-      return {
-        modelName,
-        modelRoute: registryRoute
-          ? {
-              ...registryRoute,
-              modelId: modelName,
-              modelName,
-            }
-          : ({ modelId: modelName, modelName } as ModelRoute),
-        enabled: config?.enabled ?? registryRoute?.enabled ?? true,
-        ...(config ? { config: configSliceFromSpec(config) } : {}),
-        status,
-      };
+      const providerName = parsed.providerName?.trim();
+      const modelKey = buildModelEntryKey(bareModelName, providerName);
+      if (models.has(modelKey)) {
+        continue;
+      }
+
+      if (!providerName) {
+        const hasRegistryForModel = registryRoutes.some(
+          (route) => resolveModelEntryName(route) === bareModelName,
+        );
+        if (hasRegistryForModel) {
+          continue;
+        }
+      }
+
+      models.set(modelKey, {
+        modelName: bareModelName,
+        modelRoute: {
+          modelId: bareModelName,
+          modelName: bareModelName,
+          ...(providerName ? { providerName } : {}),
+        },
+        enabled: config.enabled,
+        config: configSliceFromModel(config),
+        status: "config-only",
+      });
+    }
+
+    const modelsList = [...models.values()].sort((left, right) => {
+      const leftProvider = left.modelRoute.providerName ?? "";
+      const rightProvider = right.modelRoute.providerName ?? "";
+      return (
+        String(leftProvider).localeCompare(String(rightProvider)) ||
+        String(left.modelName).localeCompare(String(right.modelName))
+      );
     });
 
-    const counts = models.reduce(
+    const counts = modelsList.reduce(
       (acc, model) => {
         if (model.status === "synced") acc.synced += 1;
         if (model.status === "config-only") acc.configOnly += 1;
@@ -432,7 +499,7 @@ export function registerModelRoutes(
     );
 
     return {
-      models,
+      models: modelsList,
       counts,
       settingsStorage: "database" as const,
     };

@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "turbo dev --ui=tui",
+    "pre-dev": "pnpm db:up",
     "test": "turbo test --ui=tui",
     "build": "turbo build --ui=tui",
     "lint": "turbo lint",
-    "format": "biome check --write",
-    "format:all": "turbo format -- --write",
+    "format": "pnpm run format:repo && pnpm run format:md",
+    "format:repo": "biome check --write",
+    "format:packages": "turbo format -- --write",
     "format:md": "pnpm prettier --write \"**/*.{md,mdx}\" --log-level=warn --no-error-on-unmatched-pattern  --cache",
     "typecheck": "turbo typecheck",
     "check-staged": "lint-staged",
@@ -28,6 +30,7 @@
     "verify": "bash ./scripts/verify",
     "knip": "knip",
     "check:workspace-exports": "node --experimental-strip-types ./scripts/check-workspace-exports.ts",
+    "check:barrel-exports": "node --experimental-strip-types ./scripts/check-barrel-exports.ts",
     "tsc-files": "tsc-files --noEmit"
   },
   "devDependencies": {

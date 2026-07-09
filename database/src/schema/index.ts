@@ -1,3 +1,2 @@
-export * from "./app";
-export * from "./model-proxy";
-export * from "./model-proxy-types";
+export * from "./app/index";
+export * from "./model-proxy/index";

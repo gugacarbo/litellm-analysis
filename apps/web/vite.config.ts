@@ -7,9 +7,6 @@ const assistantUiPackages = [
   "@assistant-ui/react",
   "@assistant-ui/react-ai-sdk",
   "@assistant-ui/react-markdown",
-  "@assistant-ui/core",
-  "@assistant-ui/store",
-  "@assistant-ui/tap",
 ] as const;
 
 export default defineConfig({
@@ -27,12 +24,10 @@ export default defineConfig({
       "react/jsx-runtime",
       "react/jsx-dev-runtime",
       ...assistantUiPackages,
-      "ai",
-      "@ai-sdk/react",
     ],
   },
   optimizeDeps: {
-    include: [...assistantUiPackages, "ai", "@ai-sdk/react"],
+    include: [...assistantUiPackages],
   },
   server: {
     port: 5178,

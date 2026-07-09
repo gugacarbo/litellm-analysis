@@ -7,8 +7,6 @@ import type {
 } from "@lite-llm/llm-config-service";
 import {
   ApiKeysService,
-  ProvidersService,
-  parseProviderEncryptionKey,
   RegistryModelsService,
   SettingsService,
 } from "@lite-llm/llm-config-service";
@@ -33,10 +31,9 @@ type ApiKeyRow = {
 
 type JsonValue = unknown;
 
-function createInMemoryDb() {
+function createInMemoryDb(providers: Map<string, ProviderRecord>) {
   const settings = new Map<string, ModelProxySettingRecord>();
   const models = new Map<string, ModelProxyModelRecord>();
-  const providers = new Map<string, ProviderRecord>();
   const apiKeysById = new Map<string, ApiKeyRow>();
   const apiKeysByHash = new Map<string, ApiKeyRow>();
   let settingId = 1;
@@ -96,12 +93,50 @@ function createInMemoryDb() {
       }),
     },
     modelProxyModel: {
-      findFirst: vi.fn(async ({ where }: { where: { modelId: string } }) => {
-        return models.get(where.modelId) ?? null;
-      }),
-      findUnique: vi.fn(async ({ where }: { where: { modelId: string } }) => {
-        return models.get(where.modelId) ?? null;
-      }),
+      findFirst: vi.fn(
+        async ({
+          where,
+        }: {
+          where: { modelId?: string; providerId?: string; id?: string };
+        }) => {
+          return (
+            [...models.values()].find((row) => {
+              if (where.id && row.id !== where.id) {
+                return false;
+              }
+              if (where.modelId && row.modelId !== where.modelId) {
+                return false;
+              }
+              if (where.providerId && row.providerId !== where.providerId) {
+                return false;
+              }
+              return true;
+            }) ?? null
+          );
+        },
+      ),
+      findUnique: vi.fn(
+        async ({
+          where,
+        }: {
+          where: { modelId?: string; providerId?: string; id?: string };
+        }) => {
+          return (
+            [...models.values()].find((row) => {
+              if (where.id && row.id !== where.id) {
+                return false;
+              }
+              if (where.modelId && row.modelId !== where.modelId) {
+                return false;
+              }
+              if (where.providerId && row.providerId !== where.providerId) {
+                return false;
+              }
+              return true;
+            }) ?? null
+          );
+        },
+      ),
       findMany: vi.fn(
         async ({ where }: { where?: { enabled?: boolean } } = {}) => {
           const all = [...models.values()].sort((a, b) =>
@@ -119,6 +154,22 @@ function createInMemoryDb() {
         }: {
           data: Partial<ModelProxyModelRecord> & { modelId: string };
         }) => {
+          const existing = [...models.values()].find((row) => {
+            if (row.modelId !== data.modelId) {
+              return false;
+            }
+            if (data.providerId && row.providerId !== data.providerId) {
+              return false;
+            }
+            return data.providerId ? true : true;
+          });
+          if (existing) {
+            const error = new Error("Already exists") as Error & {
+              code: string;
+            };
+            error.code = "P2002";
+            throw error;
+          }
           const now = new Date();
           const row: ModelProxyModelRecord = {
             id: `model_${modelId++}`,
@@ -144,7 +195,7 @@ function createInMemoryDb() {
             createdAt: now,
             updatedAt: now,
           };
-          models.set(row.modelId, row);
+          models.set(row.id, row);
           return row;
         },
       ),
@@ -156,9 +207,7 @@ function createInMemoryDb() {
           where: { id: string };
           data: Partial<ModelProxyModelRecord>;
         }) => {
-          const existing = [...models.values()].find(
-            (row) => row.id === where.id,
-          );
+          const existing = models.get(where.id);
           if (!existing) {
             const error = new Error("Not found") as Error & { code: string };
             error.code = "P2025";
@@ -169,7 +218,7 @@ function createInMemoryDb() {
             ...data,
             updatedAt: new Date(),
           };
-          models.set(existing.modelId, updated);
+          models.set(existing.id, updated);
           return updated;
         },
       ),
@@ -183,14 +232,18 @@ function createInMemoryDb() {
           create: Partial<ModelProxyModelRecord> & { modelId: string };
           update: Partial<ModelProxyModelRecord>;
         }) => {
-          const existing = models.get(where.modelId);
+          const existing = [...models.values()].find(
+            (row) =>
+              row.modelId === where.modelId &&
+              (create.providerId ? row.providerId === create.providerId : true),
+          );
           if (existing) {
             const updated: ModelProxyModelRecord = {
               ...existing,
               ...update,
               updatedAt: new Date(),
             };
-            models.set(where.modelId, updated);
+            models.set(existing.id, updated);
             return updated;
           }
           const now = new Date();
@@ -218,20 +271,18 @@ function createInMemoryDb() {
             createdAt: now,
             updatedAt: now,
           };
-          models.set(row.modelId, row);
+          models.set(row.id, row);
           return row;
         },
       ),
       delete: vi.fn(async ({ where }: { where: { id: string } }) => {
-        const existing = [...models.values()].find(
-          (row) => row.id === where.id,
-        );
+        const existing = models.get(where.id);
         if (!existing) {
           const error = new Error("Not found") as Error & { code: string };
           error.code = "P2025";
           throw error;
         }
-        models.delete(existing.modelId);
+        models.delete(existing.id);
         return existing;
       }),
     },
@@ -396,15 +447,72 @@ export interface RegistryTestStack {
 }
 
 export function createRegistryTestStack(): RegistryTestStack {
-  const db = createInMemoryDb() as never;
+  const providers = new Map<string, ProviderRecord>();
+  const db = createInMemoryDb(providers) as never;
   const settingsService = new SettingsService({ db });
   const registryModelsService = new RegistryModelsService({ db });
-  const providersService = new ProvidersService({
-    db,
-    encryptionKey: parseProviderEncryptionKey({
-      APP_ENCRYPTION_KEY: "test-encryption-key-32-bytes-long!!",
-    }),
-  });
+  let providerRecordId = 1;
+  const providersService: RouteOptions["registry"]["providersService"] = {
+    async get(name: string) {
+      return providers.get(name) ?? null;
+    },
+    async list() {
+      return [...providers.values()].sort((left, right) =>
+        left.name.localeCompare(right.name),
+      );
+    },
+    async create(input) {
+      const trimmedName = input.name.trim();
+      if (!trimmedName) {
+        throw new Error("Provider name must be a non-empty string");
+      }
+      if (providers.has(trimmedName)) {
+        throw new Error(`Provider "${trimmedName}" already exists`);
+      }
+      const now = new Date();
+      const record: ProviderRecord = {
+        id: `provider_${providerRecordId++}`,
+        name: trimmedName,
+        isDefault: input.isDefault ?? false,
+        provider: input.provider ?? null,
+        baseUrl: input.baseUrl ?? null,
+        apiKey: input.apiKey ?? null,
+        secretRef: input.secretRef ?? null,
+        createdAt: now,
+        updatedAt: now,
+      };
+      providers.set(trimmedName, record);
+      return record;
+    },
+    async update(name, input) {
+      const existing = providers.get(name);
+      if (!existing) {
+        throw new Error(`Provider "${name}" not found`);
+      }
+      const updated: ProviderRecord = {
+        ...existing,
+        ...(input.name !== undefined ? { name: input.name.trim() } : {}),
+        ...(input.isDefault !== undefined
+          ? { isDefault: input.isDefault }
+          : {}),
+        ...(input.provider !== undefined ? { provider: input.provider } : {}),
+        ...(input.baseUrl !== undefined ? { baseUrl: input.baseUrl } : {}),
+        ...(input.apiKey !== undefined ? { apiKey: input.apiKey } : {}),
+        ...(input.secretRef !== undefined
+          ? { secretRef: input.secretRef }
+          : {}),
+        updatedAt: new Date(),
+      };
+      if (updated.name !== name) {
+        providers.delete(name);
+      }
+      providers.set(updated.name, updated);
+      return updated;
+    },
+    async delete(name) {
+      return providers.delete(name);
+    },
+  };
   const apiKeysService = new ApiKeysService({
     db,
     hashKey: async (plain) => `hash:${plain}`,
