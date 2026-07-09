@@ -23,7 +23,8 @@ const sourceExtensions = new Set([
   ".cjs",
 ]);
 
-const ignoredDirs = new Set([
+// Directory entry names that should stop recursion during file walks.
+const ignoredDirEntries = new Set([
   "node_modules",
   "dist",
   "build",
@@ -31,6 +32,8 @@ const ignoredDirs = new Set([
   ".git",
   "coverage",
 ]);
+
+const ignoredPathGlobs = ["database/src/schema/**"];
 
 type ExportMode = "all" | "named";
 
@@ -61,14 +64,42 @@ type Finding = {
 
 function walk(dir: string, visitor: (filePath: string) => void) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (ignoredDirs.has(entry.name)) continue;
+    if (ignoredDirEntries.has(entry.name)) continue;
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      walk(fullPath, visitor);
+      if (!isPathIgnored(fullPath)) {
+        walk(fullPath, visitor);
+      }
       continue;
     }
     visitor(fullPath);
   }
+}
+
+function globToRegex(pattern: string): RegExp {
+  const escaped = pattern
+    .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+    .replace(/\*\*/g, "GLOBSTAR")
+    .replace(/\*/g, "[^/]+")
+    .replace(/GLOBSTAR/g, ".*");
+  return new RegExp(`^(?:${escaped})$`);
+}
+
+function isPathIgnored(filePath: string): boolean {
+  const posixPath = toPosix(path.relative(repoRoot, filePath));
+  if (posixPath === "") return false;
+
+  const parts = posixPath.split("/");
+  if (parts.some((part) => ignoredDirEntries.has(part))) return true;
+
+  const fullPathWithDir = posixPath.endsWith("/")
+    ? posixPath.slice(0, -1)
+    : `${posixPath}/**`;
+
+  return ignoredPathGlobs.some((glob) => {
+    const regex = globToRegex(glob);
+    return regex.test(posixPath) || regex.test(fullPathWithDir);
+  });
 }
 
 function toPosix(filePath: string) {
@@ -147,6 +178,11 @@ function buildWorkspaces(): Workspace[] {
           .filter((target) => fs.existsSync(target));
 
         if (!resolvedTargets.length) continue;
+
+        const filteredTargets = resolvedTargets.filter(
+          (target) => !isPathIgnored(target),
+        );
+        if (!filteredTargets.length) continue;
 
         const name = typeof pkg.name === "string" ? pkg.name : "";
         const specifier =

@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ModelWithStatus } from "@/shared/lib/api-client/models";
 import type { RegistryProvider } from "@/shared/lib/api-client/providers";
@@ -70,7 +70,15 @@ export function useModelConfigPage(): ModelConfigController {
   const isDirty = formHook.isDirty || aliasesState.isDirty;
   const onBack = useCallback(() => navigate(-1), [navigate]);
 
+  const previousModelNameRef = useRef<string | null>(null);
   useEffect(() => {
+    if (
+      previousModelNameRef.current !== null &&
+      previousModelNameRef.current === modelName
+    ) {
+      return;
+    }
+    previousModelNameRef.current = modelName;
     formHook.resetFormForModel(model);
     aliasesState.resetForModel(modelName);
   }, [

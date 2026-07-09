@@ -9,5 +9,18 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": []
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "services/**/*.ts",
+    "services/**/*.tsx",
+    "repositories/**/*.ts",
+    "repositories/**/*.tsx",
+    "database/**/*.ts",
+    "database/**/*.tsx",
+    "scripts/**/*.ts",
+    "scripts/**/*.tsx"
+  ]
 }

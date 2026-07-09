@@ -1,4 +1,10 @@
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
+import type {
+  ModelProxyModelRecord,
+  ModelProxySettingRecord,
+  ModelRouteUpdate,
+  ProviderRecord,
+} from "@lite-llm/llm-config-service";
 import {
   ApiKeysService,
   ProvidersService,
@@ -15,38 +21,6 @@ import type {
 } from "@lite-llm/server";
 import { vi } from "vitest";
 
-type JsonValue = unknown;
-
-type SettingRow = {
-  id: string;
-  key: string;
-  value: JsonValue;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type ModelRow = {
-  id: string;
-  modelName: string;
-  enabled: boolean;
-  displayName: string | null;
-  family: string | null;
-  ownedBy: string | null;
-  apiMode: string | null;
-  vision: boolean | null;
-  contextWindowSize: number | null;
-  maxOutputTokens: number | null;
-  inputCostPerToken: number | null;
-  outputCostPerToken: number | null;
-  upstreamModel: string | null;
-  upstreamBaseUrl: string | null;
-  providerName: string | null;
-  requestOptions: Record<string, unknown> | null;
-  metadata: Record<string, unknown> | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 type ApiKeyRow = {
   id: string;
   label: string;
@@ -57,43 +31,18 @@ type ApiKeyRow = {
   updatedAt: Date;
 };
 
-type ProviderRow = {
-  id: string;
-  name: string;
-  isDefault: boolean;
-  provider: string | null;
-  baseUrl: string | null;
-  apiKey: string | null;
-  secretRef: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
+type JsonValue = unknown;
 
 function createInMemoryDb() {
-  const settings = new Map<string, SettingRow>();
-  const models = new Map<string, ModelRow>();
-  const providers = new Map<string, ProviderRow>();
+  const settings = new Map<string, ModelProxySettingRecord>();
+  const models = new Map<string, ModelProxyModelRecord>();
+  const providers = new Map<string, ProviderRecord>();
   const apiKeysById = new Map<string, ApiKeyRow>();
   const apiKeysByHash = new Map<string, ApiKeyRow>();
   let settingId = 1;
   let modelId = 1;
   let providerId = 1;
   let apiKeyId = 1;
-
-  const resolveProviderName = (
-    data: Partial<ModelRow> & {
-      provider?: { connect?: { name: string }; disconnect?: boolean };
-    },
-    existingProviderName: string | null = null,
-  ) => {
-    if (data.provider?.disconnect) {
-      return null;
-    }
-    if (data.provider?.connect?.name) {
-      return data.provider.connect.name;
-    }
-    return data.providerName ?? existingProviderName;
-  };
 
   return {
     modelProxySetting: {
@@ -116,7 +65,7 @@ function createInMemoryDb() {
           const existing = settings.get(where.key);
           const now = new Date();
           if (existing) {
-            const updated = {
+            const updated: ModelProxySettingRecord = {
               ...existing,
               value: update.value,
               updatedAt: now,
@@ -124,7 +73,7 @@ function createInMemoryDb() {
             settings.set(where.key, updated);
             return updated;
           }
-          const created: SettingRow = {
+          const created: ModelProxySettingRecord = {
             id: `setting_${settingId++}`,
             key: create.key,
             value: create.value,
@@ -147,16 +96,16 @@ function createInMemoryDb() {
       }),
     },
     modelProxyModel: {
-      findFirst: vi.fn(async ({ where }: { where: { modelName: string } }) => {
-        return models.get(where.modelName) ?? null;
+      findFirst: vi.fn(async ({ where }: { where: { modelId: string } }) => {
+        return models.get(where.modelId) ?? null;
       }),
-      findUnique: vi.fn(async ({ where }: { where: { modelName: string } }) => {
-        return models.get(where.modelName) ?? null;
+      findUnique: vi.fn(async ({ where }: { where: { modelId: string } }) => {
+        return models.get(where.modelId) ?? null;
       }),
       findMany: vi.fn(
         async ({ where }: { where?: { enabled?: boolean } } = {}) => {
           const all = [...models.values()].sort((a, b) =>
-            a.modelName.localeCompare(b.modelName),
+            a.modelId.localeCompare(b.modelId),
           );
           if (where?.enabled === undefined) {
             return all;
@@ -168,35 +117,34 @@ function createInMemoryDb() {
         async ({
           data,
         }: {
-          data: Partial<ModelRow> & {
-            modelName: string;
-            provider?: { connect?: { name: string }; disconnect?: boolean };
-          };
+          data: Partial<ModelProxyModelRecord> & { modelId: string };
         }) => {
           const now = new Date();
-          const row: ModelRow = {
+          const row: ModelProxyModelRecord = {
             id: `model_${modelId++}`,
-            modelName: data.modelName,
+            modelId: data.modelId,
             enabled: data.enabled ?? true,
             displayName: data.displayName ?? null,
             family: data.family ?? null,
-            ownedBy: data.ownedBy ?? null,
-            apiMode: data.apiMode ?? null,
-            vision: data.vision ?? null,
-            contextWindowSize: data.contextWindowSize ?? null,
-            maxOutputTokens: data.maxOutputTokens ?? null,
-            inputCostPerToken: data.inputCostPerToken ?? null,
-            outputCostPerToken: data.outputCostPerToken ?? null,
-            upstreamModel: data.upstreamModel ?? null,
-            upstreamBaseUrl: data.upstreamBaseUrl ?? null,
-            providerName: resolveProviderName(data),
-            requestOptions:
-              (data.requestOptions as Record<string, unknown> | null) ?? null,
-            metadata: (data.metadata as Record<string, unknown> | null) ?? null,
+            canonicalSlug: data.canonicalSlug ?? null,
+            description: data.description ?? null,
+            contextLength: data.contextLength ?? null,
+            maxCompletionTokens: data.maxCompletionTokens ?? null,
+            knowledgeCutoff: data.knowledgeCutoff ?? null,
+            expirationDate: data.expirationDate ?? null,
+            architecture: data.architecture ?? null,
+            reasoning: data.reasoning ?? null,
+            supportedParameters: data.supportedParameters ?? null,
+            defaultParameters: data.defaultParameters ?? null,
+            perRequestLimits: data.perRequestLimits ?? null,
+            pricing: data.pricing ?? null,
+            requestOptions: data.requestOptions ?? null,
+            providerId: data.providerId ?? null,
+            reasoningApiId: data.reasoningApiId ?? null,
             createdAt: now,
             updatedAt: now,
           };
-          models.set(row.modelName, row);
+          models.set(row.modelId, row);
           return row;
         },
       ),
@@ -206,9 +154,7 @@ function createInMemoryDb() {
           data,
         }: {
           where: { id: string };
-          data: Partial<ModelRow> & {
-            provider?: { connect?: { name: string }; disconnect?: boolean };
-          };
+          data: Partial<ModelProxyModelRecord>;
         }) => {
           const existing = [...models.values()].find(
             (row) => row.id === where.id,
@@ -218,13 +164,12 @@ function createInMemoryDb() {
             error.code = "P2025";
             throw error;
           }
-          const updated = {
+          const updated: ModelProxyModelRecord = {
             ...existing,
             ...data,
-            providerName: resolveProviderName(data, existing.providerName),
             updatedAt: new Date(),
           };
-          models.set(existing.modelName, updated);
+          models.set(existing.modelId, updated);
           return updated;
         },
       ),
@@ -234,51 +179,46 @@ function createInMemoryDb() {
           create,
           update,
         }: {
-          where: { modelName: string };
-          create: Partial<ModelRow> & {
-            modelName: string;
-            provider?: { connect?: { name: string }; disconnect?: boolean };
-          };
-          update: Partial<ModelRow> & {
-            provider?: { connect?: { name: string }; disconnect?: boolean };
-          };
+          where: { modelId: string };
+          create: Partial<ModelProxyModelRecord> & { modelId: string };
+          update: Partial<ModelProxyModelRecord>;
         }) => {
-          const existing = models.get(where.modelName);
+          const existing = models.get(where.modelId);
           if (existing) {
-            const updated = {
+            const updated: ModelProxyModelRecord = {
               ...existing,
               ...update,
-              providerName: resolveProviderName(update, existing.providerName),
               updatedAt: new Date(),
             };
-            models.set(where.modelName, updated);
+            models.set(where.modelId, updated);
             return updated;
           }
           const now = new Date();
-          const row: ModelRow = {
+          const row: ModelProxyModelRecord = {
             id: `model_${modelId++}`,
-            modelName: create.modelName,
+            modelId: create.modelId,
             enabled: create.enabled ?? true,
             displayName: create.displayName ?? null,
             family: create.family ?? null,
-            ownedBy: create.ownedBy ?? null,
-            apiMode: create.apiMode ?? null,
-            vision: create.vision ?? null,
-            contextWindowSize: create.contextWindowSize ?? null,
-            maxOutputTokens: create.maxOutputTokens ?? null,
-            inputCostPerToken: create.inputCostPerToken ?? null,
-            outputCostPerToken: create.outputCostPerToken ?? null,
-            upstreamModel: create.upstreamModel ?? null,
-            upstreamBaseUrl: create.upstreamBaseUrl ?? null,
-            providerName: resolveProviderName(create),
-            requestOptions:
-              (create.requestOptions as Record<string, unknown> | null) ?? null,
-            metadata:
-              (create.metadata as Record<string, unknown> | null) ?? null,
+            canonicalSlug: create.canonicalSlug ?? null,
+            description: create.description ?? null,
+            contextLength: create.contextLength ?? null,
+            maxCompletionTokens: create.maxCompletionTokens ?? null,
+            knowledgeCutoff: create.knowledgeCutoff ?? null,
+            expirationDate: create.expirationDate ?? null,
+            architecture: create.architecture ?? null,
+            reasoning: create.reasoning ?? null,
+            supportedParameters: create.supportedParameters ?? null,
+            defaultParameters: create.defaultParameters ?? null,
+            perRequestLimits: create.perRequestLimits ?? null,
+            pricing: create.pricing ?? null,
+            requestOptions: create.requestOptions ?? null,
+            providerId: create.providerId ?? null,
+            reasoningApiId: create.reasoningApiId ?? null,
             createdAt: now,
             updatedAt: now,
           };
-          models.set(row.modelName, row);
+          models.set(row.modelId, row);
           return row;
         },
       ),
@@ -291,7 +231,7 @@ function createInMemoryDb() {
           error.code = "P2025";
           throw error;
         }
-        models.delete(existing.modelName);
+        models.delete(existing.modelId);
         return existing;
       }),
     },
@@ -306,20 +246,22 @@ function createInMemoryDb() {
         async (args: {
           data: {
             name: string;
+            isDefault?: boolean;
             provider?: string | null;
             baseUrl?: string | null;
             apiKey?: string | null;
+            secretRef?: string | null;
           };
         }) => {
           const now = new Date();
-          const row: ProviderRow = {
+          const row: ProviderRecord = {
             id: `cred_${providerId++}`,
             name: args.data.name,
-            isDefault: false,
+            isDefault: args.data.isDefault ?? false,
             provider: args.data.provider ?? null,
             baseUrl: args.data.baseUrl ?? null,
             apiKey: args.data.apiKey ?? null,
-            secretRef: null,
+            secretRef: args.data.secretRef ?? null,
             createdAt: now,
             updatedAt: now,
           };
@@ -450,14 +392,7 @@ export interface RegistryTestStack {
   orchestration: OrchestrationServices;
   routeOptions: RouteOptions;
   seedConfigModel: (name: string, spec?: Partial<ModelSpec>) => Promise<void>;
-  seedRegistryModel: (
-    name: string,
-    route?: {
-      displayName?: string;
-      inputCostPerToken?: number;
-      enabled?: boolean;
-    },
-  ) => Promise<void>;
+  seedRegistryModel: (name: string, route?: ModelRouteUpdate) => Promise<void>;
 }
 
 export function createRegistryTestStack(): RegistryTestStack {
@@ -579,6 +514,7 @@ export function createRegistryTestStack(): RegistryTestStack {
         },
         sessionId: "session-test",
       })),
+      discoverModels: vi.fn(async () => []),
     },
   };
 
@@ -598,8 +534,10 @@ export function createRegistryTestStack(): RegistryTestStack {
 
   const defaultSpec = (): ModelSpec => ({
     enabled: true,
-    limits: { length: 128_000, maxOutput: 4096 },
-    cost: { input: 0.000001, output: 0.000002 },
+    displayName: "Test Model",
+    contextLength: 128_000,
+    maxCompletionTokens: 4096,
+    pricing: { input: 0.000001, output: 0.000002 },
   });
 
   return {
@@ -614,11 +552,7 @@ export function createRegistryTestStack(): RegistryTestStack {
       await modelsService.create(name, { ...defaultSpec(), ...spec });
     },
     seedRegistryModel: async (name, route = {}) => {
-      await registryModelsService.create(name, {
-        displayName: route.displayName,
-        inputCostPerToken: route.inputCostPerToken,
-        enabled: route.enabled,
-      });
+      await registryModelsService.create(name, route);
     },
   };
 }
