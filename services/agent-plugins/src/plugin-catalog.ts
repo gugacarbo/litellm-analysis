@@ -1,8 +1,8 @@
-import { createModelAliasPlugin } from "./plugins/model-alias";
-import { createOpenAgentPlugin } from "./plugins/openagent";
-import { createOpenCodePlugin } from "./plugins/opencode";
-import { createVsCodePlugin } from "./plugins/vscode";
-import { createWeavePlugin } from "./plugins/weave";
+import { createModelAliasPlugin } from "./plugins/model-alias/factory/plugin.factory";
+import { createOpenAgentPlugin } from "./plugins/openagent/factory/plugin.factory";
+import { createOpenCodePlugin } from "./plugins/opencode/factory/plugin.factory";
+import { createVsCodePlugin } from "./plugins/vscode/factory/plugin.factory";
+import { createWeavePlugin } from "./plugins/weave/factory/plugin.factory";
 import type { CreatePluginOptions, PluginDefinition } from "./sdk";
 
 export function createPluginCatalog(
