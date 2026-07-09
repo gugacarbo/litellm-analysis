@@ -22,4 +22,4 @@ echo "==> docs-check"
 "${ROOT}/scripts/docs-check"
 
 echo "==> ${RUNNER} run staged files checks"
-${RUNNER} lint-staged
+${RUNNER} check-staged

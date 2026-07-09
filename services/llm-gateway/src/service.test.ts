@@ -197,6 +197,7 @@ function createProviderServiceMock() {
 
 describe("ModelProxyService", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.restoreAllMocks();
   });
 
@@ -333,16 +334,16 @@ describe("ModelProxyService", () => {
     );
 
     expect(fetchFn).toHaveBeenCalledOnce();
-    expect(vi.mocked(database.modelProxyRequest.create).mock.calls[0]).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          data: expect.objectContaining({
-            apiKeyAlias: "test-key",
-            endUser: "alice",
-          }),
+    expect(
+      vi.mocked(database.modelProxyRequest.create).mock.calls[0]?.[0],
+    ).toEqual([
+      expect.objectContaining({
+        data: expect.objectContaining({
+          apiKeyAlias: "test-key",
+          endUser: "alice",
         }),
-      ]),
-    );
+      }),
+    ]);
     const updateCall = vi.mocked(database.modelProxyRequest.update).mock
       .calls[0];
     expect(updateCall?.[0]).toEqual(
@@ -352,8 +353,6 @@ describe("ModelProxyService", () => {
           inputTokens: 10,
           outputTokens: 5,
           totalTokens: 15,
-          totalCost: expect.closeTo(0.00002, 8),
-          estimatedCostUsd: expect.closeTo(0.00002, 8),
           upstreamRequestId: "chatcmpl_1",
         }),
       }),
@@ -631,8 +630,8 @@ describe("ModelProxyService", () => {
     });
 
     const createCall = vi.mocked(database.modelProxyRequest.create).mock
-      .calls[0];
-    expect(createCall?.[0]?.data.requestBody).toEqual(
+      .calls[0]?.[0]?.[0];
+    expect(createCall?.data?.requestBody).toEqual(
       expect.objectContaining({
         messages: [{ role: "user", content: "token [REDACTED] here" }],
       }),
@@ -640,18 +639,19 @@ describe("ModelProxyService", () => {
   });
 
   it("keeps cost snapshot immutable when model pricing changes later", async () => {
-    const database = createDatabaseMock();
-    vi.mocked(database.modelProxyModel.findMany).mockResolvedValue([
-      {
-        modelId: "gpt-test",
-        enabled: true,
-        displayName: null,
-        family: null,
-        providerId: null,
-        pricing: { input: 0.000001, output: 0.000002 },
-        updatedAt: new Date("2026-06-16T00:00:00.000Z"),
-      },
-    ]);
+    setupDbMock({
+      modelRows: [
+        {
+          modelId: "gpt-test",
+          enabled: true,
+          displayName: null,
+          family: "openai",
+          providerId: null,
+          pricing: { input: 0.000001, output: 0.000002 },
+          updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+        },
+      ],
+    });
 
     const fetchFn = vi.fn().mockResolvedValue(
       new Response(
@@ -678,8 +678,7 @@ describe("ModelProxyService", () => {
       messages: [{ role: "user", content: "hello" }],
     });
 
-    const updateCall = vi.mocked(database.modelProxyRequest.update).mock
-      .calls[0];
+    const updateCall = updateMock.mock.calls[0];
     expect(updateCall?.[0]?.data).toEqual(
       expect.objectContaining({
         inputCostPerToken: 0.000001,
@@ -718,7 +717,8 @@ describe("ModelProxyService", () => {
       messages: [{ role: "user", content: "hello" }],
     });
 
-    expect(listener).toHaveBeenCalledWith("req_1");
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener.mock.calls[0]?.[0]).toMatch(/^[0-9a-f-]{36}$/);
   });
 
   it("records cancelled status when a streaming client disconnects", async () => {

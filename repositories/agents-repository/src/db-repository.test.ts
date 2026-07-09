@@ -1,20 +1,56 @@
-import { createTestDb } from "@lite-llm/database/test-helpers";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createDbRepository } from "./db-repository";
 
-describe("DbAgentsRepository", () => {
-  let db: Awaited<ReturnType<typeof createTestDb>>;
+const settingsStore = new Map<string, unknown>();
 
+vi.mock("@lite-llm/llm-config-service", async () => {
+  class SettingsRepository {
+    constructor() {}
+
+    async findByKey(key: string) {
+      return settingsStore.has(key)
+        ? {
+            id: key,
+            key,
+            value: settingsStore.get(key),
+            createdAt: new Date("2026-06-16T00:00:00.000Z"),
+            updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+          }
+        : null;
+    }
+
+    async upsert(key: string, value: unknown) {
+      settingsStore.set(key, value);
+      return {
+        id: key,
+        key,
+        value,
+        createdAt: new Date("2026-06-16T00:00:00.000Z"),
+        updatedAt: new Date("2026-06-16T00:00:00.000Z"),
+      };
+    }
+  }
+
+  return {
+    SettingsRepository,
+    SETTING_KEYS: {
+      DASHBOARD_AGENTS: "dashboard_agents",
+      DASHBOARD_PLUGINS: "dashboard_plugins",
+    },
+  };
+});
+
+describe("DbAgentsRepository", () => {
   beforeEach(async () => {
-    db = await createTestDb();
+    settingsStore.clear();
   });
 
   afterEach(async () => {
-    await db.stop();
+    settingsStore.clear();
   });
 
   async function createRepository() {
-    return createDbRepository({ db: db.db, validateOnRead: false });
+    return createDbRepository({ validateOnRead: false });
   }
 
   it("round-trips agents and plugins through dashboard settings keys", async () => {

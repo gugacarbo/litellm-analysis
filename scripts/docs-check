@@ -28,8 +28,8 @@ O que faz:
   8. Higiene de árvore: ".orig", "conflicted copy" e ".DS_Store" sempre;
      cópia numerada ("x 2.md", "x copy.md", "x (1).md") só quando o original
      existe ao lado. Ignora .git, node_modules, .venv, dist, build e afins.
-  9. Índices frescos: compara os READMEs gerados (e docs/index.json, se
-     existir) com os commitados e FALHA se divergirem.
+  9. Índices frescos: compara os READMEs gerados por conteúdo canônico (e
+     docs/index.json, se existir) com os commitados e FALHA se divergirem.
      --emit-index regenera tudo.
 
 Exit: 1 se houver ERRO (default). --warn-only imprime tudo e sai 0 —
@@ -280,6 +280,80 @@ def render_readme(label, rows):
     return "\n".join(lines) + "\n"
 
 
+def _normalize_readme_table_row(line):
+    """Normaliza uma linha de tabela do README gerado.
+
+    A tabela tem três colunas fixas, mas o título pode conter `|` bruto. Então o parser
+    preserva tudo entre a primeira e a última barra interna como a célula do meio.
+    """
+    stripped = line.strip()
+    if not (stripped.startswith("|") and stripped.endswith("|")):
+        raise ValueError(f"linha de tabela inválida: {line!r}")
+    inner = stripped[1:-1]
+    first = inner.find("|")
+    last = inner.rfind("|")
+    if first == -1 or last == -1 or first == last:
+        raise ValueError(f"linha de tabela inválida: {line!r}")
+    left = inner[:first].strip()
+    middle = inner[first + 1:last].strip()
+    right = inner[last + 1:].strip()
+    return left, middle, right
+
+
+def _normalize_readme_separator(line):
+    stripped = line.strip()
+    if not (stripped.startswith("|") and stripped.endswith("|")):
+        raise ValueError(f"separador de tabela inválido: {line!r}")
+    cells = [cell.strip() for cell in stripped[1:-1].split("|")]
+    if len(cells) != 3:
+        raise ValueError(f"separador de tabela inválido: {line!r}")
+    if not all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
+        raise ValueError(f"separador de tabela inválido: {line!r}")
+    return "|---|---|---|"
+
+
+def normalize_readme_index(text, label):
+    lines = [ln.rstrip() for ln in text.splitlines()]
+    i = 0
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i >= len(lines) or lines[i].strip() != f"# {label}":
+        raise ValueError("H1 ausente ou diferente do índice gerado")
+    i += 1
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i >= len(lines) or lines[i].strip() != "<!-- GERADO por scripts/docs-check — não editar à mão -->":
+        raise ValueError("marcador de arquivo gerado ausente ou diferente")
+    i += 1
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i >= len(lines):
+        raise ValueError("tabela ausente")
+    header = _normalize_readme_table_row(lines[i])
+    if header != ("id", "título", "status"):
+        raise ValueError("cabeçalho da tabela diferente do gerado")
+    i += 1
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i >= len(lines):
+        raise ValueError("separador da tabela ausente")
+    separator = _normalize_readme_separator(lines[i])
+    if separator != "|---|---|---|":
+        raise ValueError("separador da tabela diferente do gerado")
+    i += 1
+    rows = []
+    while i < len(lines):
+        if not lines[i].strip():
+            i += 1
+            continue
+        rows.append(_normalize_readme_table_row(lines[i]))
+        i += 1
+    canonical = [f"# {label}", "", "<!-- GERADO por scripts/docs-check — não editar à mão -->", "",
+                 "| id | título | status |", "|---|---|---|"]
+    canonical += [f"| {left} | {middle} | {right} |" for left, middle, right in rows]
+    return "\n".join(canonical) + "\n"
+
+
 def _git(root, args):
     return subprocess.run(["git", *args], cwd=root, capture_output=True,
                           encoding="utf-8", errors="replace")
@@ -515,8 +589,15 @@ def main():
             if not p.exists():
                 if has_rows:
                     errors.append(f"índices: {rel} ausente — rode scripts/docs-check --emit-index")
-            elif p.read_text(encoding="utf-8") != content:
-                errors.append(f"índices: {rel} divergente do gerado — rode scripts/docs-check --emit-index")
+            else:
+                try:
+                    actual = normalize_readme_index(p.read_text(encoding="utf-8"),
+                                                    "ADRs" if "adr" in rel.parts else "Specs")
+                except ValueError as e:
+                    errors.append(f"índices: {rel} inválido como README gerado ({e})")
+                else:
+                    if actual != content:
+                        errors.append(f"índices: {rel} divergente do gerado — rode scripts/docs-check --emit-index")
         ij = root / "docs" / "index.json"
         if ij.exists() and ij.read_text(encoding="utf-8") != index_text:
             errors.append("índices: docs/index.json divergente — rode scripts/docs-check --emit-index")

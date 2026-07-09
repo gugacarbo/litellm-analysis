@@ -12,7 +12,7 @@
     "format:all": "turbo format -- --write",
     "format:md": "pnpm prettier --write \"**/*.{md,mdx}\" --log-level=warn --no-error-on-unmatched-pattern  --cache",
     "typecheck": "turbo typecheck",
-    "lint-staged": "lint-staged",
+    "check-staged": "lint-staged",
     "test-staged": "npx test-staged",
     "prepare": "husky",
     "db:up": "sh scripts/db-compose.sh up -d",
@@ -33,6 +33,7 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@lite-llm/llm-config-service": "workspace:*",
+    "chalk": "^5.6.2",
     "husky": "^9.1.7",
     "knip": "^6.6.2",
     "lint-staged": "^16.4.0",

@@ -34,19 +34,20 @@ vi.mock("@lite-llm/database/client", () => ({
           "modelName" in table
         ) {
           return {
-            orderBy: vi.fn().mockResolvedValue(mockModelRows),
+            orderBy: () => Promise.resolve(mockModelRows),
           };
         }
 
         return {
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockResolvedValue([
-              {
-                id: "setting-1",
-                key: "router_settings",
-                value: { model_group_alias: { agent: "gpt-4o" } },
-              },
-            ]),
+          where: () => ({
+            limit: () =>
+              Promise.resolve([
+                {
+                  id: "setting-1",
+                  key: "router_settings",
+                  value: { model_group_alias: { agent: "gpt-4o" } },
+                },
+              ]),
           }),
         };
       },

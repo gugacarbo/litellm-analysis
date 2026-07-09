@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import chalk from "chalk";
 import ts from "typescript";
 
 const repoRoot = process.cwd();
@@ -10,6 +11,7 @@ const workspaceRoots = [
   "repositories",
   "database",
 ];
+
 const sourceExtensions = new Set([
   ".ts",
   ".tsx",
@@ -20,6 +22,7 @@ const sourceExtensions = new Set([
   ".mjs",
   ".cjs",
 ]);
+
 const ignoredDirs = new Set([
   "node_modules",
   "dist",
@@ -28,6 +31,20 @@ const ignoredDirs = new Set([
   ".git",
   "coverage",
 ]);
+
+function printProgress(label, current, total) {
+  const percentage = Math.round((current / total) * 100);
+  const filled = Math.round(percentage / 5);
+  const empty = 20 - filled;
+  const bar = `[${"█".repeat(filled)}${"░".repeat(empty)}]`;
+  process.stdout.write(
+    chalk.blue(`\r${label} ${bar} ${percentage}% (${current}/${total})`),
+  );
+}
+
+function clearProgress() {
+  process.stdout.write("\r" + " ".repeat(80) + "\r");
+}
 
 function walk(dir, visitor) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -182,9 +199,23 @@ function collectExternalImports(program, workspaces) {
     .map((workspace) => workspace.name)
     .sort((left, right) => right.length - left.length);
 
-  for (const sourceFile of program.getSourceFiles()) {
-    if (sourceFile.isDeclarationFile) continue;
-    if (!sourceFile.fileName.startsWith(repoRoot)) continue;
+  const sourceFiles = program
+    .getSourceFiles()
+    .filter(
+      (sourceFile) =>
+        !sourceFile.isDeclarationFile &&
+        sourceFile.fileName.startsWith(repoRoot),
+    );
+  const total = sourceFiles.length;
+
+  for (let index = 0; index < sourceFiles.length; index++) {
+    const sourceFile = sourceFiles[index];
+    if (
+      index % Math.max(1, Math.floor(total / 10)) === 0 ||
+      index === total - 1
+    ) {
+      printProgress("Analyzing imports", index + 1, total);
+    }
 
     const importerWorkspace = getWorkspaceForFile(
       sourceFile.fileName,
@@ -252,6 +283,7 @@ function collectExternalImports(program, workspaces) {
     visit(sourceFile);
   }
 
+  clearProgress();
   return usageBySpecifier;
 }
 
@@ -267,14 +299,26 @@ const program = ts.createProgram(sourceFiles, {
   target: ts.ScriptTarget.ES2024,
 });
 const checker = program.getTypeChecker();
+console.log(
+  chalk.blue(`Analyzing imports across ${sourceFiles.length} source files...`),
+);
 const usageBySpecifier = collectExternalImports(program, workspaces);
 
 const findings = [];
+const exportedWorkspaces = workspaces.filter(
+  (workspace) => workspace.hasExports,
+);
+const exportedTotal = exportedWorkspaces.reduce(
+  (sum, workspace) => sum + workspace.exportEntries.length,
+  0,
+);
 
-for (const workspace of workspaces) {
-  if (!workspace.hasExports) continue;
+console.log(chalk.blue("Checking workspace exports for external consumers..."));
 
+for (const workspace of exportedWorkspaces) {
   for (const entry of workspace.exportEntries) {
+    checkedCount++;
+    printProgress("Checking exports", checkedCount, exportedTotal);
     const exportedNames = [
       ...new Set(
         entry.files.flatMap((filePath) => {
@@ -296,29 +340,48 @@ for (const workspace of workspaces) {
 
     if (!unusedExports.length) continue;
 
-    findings.push({
+    const finding = {
       workspace: workspace.name,
       specifier: entry.specifier,
       files: entry.files.map((filePath) =>
         toPosix(path.relative(repoRoot, filePath)),
       ),
       unusedExports,
-    });
+    };
+    findings.push(finding);
+
+    if (findings.length === 1) {
+      console.log(
+        chalk.yellow.bold(
+          "\n⚠️  Workspace export sets with no external consumers:\n",
+        ),
+      );
+    }
+
+    console.log(chalk.cyan.bold(finding.specifier));
+    console.log(
+      `  ${chalk.gray.bold("workspace:")} ${chalk.yellow.bold(finding.workspace)}`,
+    );
+    console.log(
+      `  ${chalk.gray.bold("files:")} ${chalk.yellow.bold(finding.files.join(", "))}`,
+    );
+    console.log(`  ${chalk.gray.bold("unused exports:")}`);
+    for (const unusedExport of finding.unusedExports) {
+      console.log(`    ${chalk.yellow("-")} ${chalk.magenta(unusedExport)}`);
+    }
+    console.log("");
   }
 }
 
 if (!findings.length) {
-  console.log("No externally-unused workspace exports found.");
+  console.log(chalk.green("✓ No externally-unused workspace exports found."));
   process.exit(0);
 }
 
-console.log("Workspace exports with no external consumers:\n");
-for (const finding of findings) {
-  console.log(`${finding.specifier}`);
-  console.log(`  workspace: ${finding.workspace}`);
-  console.log(`  files: ${finding.files.join(", ")}`);
-  console.log(`  unused exports: ${finding.unusedExports.join(", ")}`);
-  console.log("");
-}
+console.log(
+  chalk.yellow.bold(
+    `⚠️  ${findings.length} workspace export set(s) with no external consumers in total.`,
+  ),
+);
 
 process.exitCode = 1;

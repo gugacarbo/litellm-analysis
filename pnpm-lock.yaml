@@ -55,6 +55,9 @@ importers:
       '@lite-llm/llm-config-service':
         specifier: workspace:*
         version: link:services/llm-config-service
+      chalk:
+        specifier: ^5.6.2
+        version: 5.6.2
       husky:
         specifier: ^9.1.7
         version: 9.1.7

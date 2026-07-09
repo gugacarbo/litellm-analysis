@@ -1,4 +1,5 @@
 import type { NormalizedModelBenchmark } from "@lite-llm/contracts/benchmarks";
+import type { DatabaseClient } from "@lite-llm/database/client";
 import { getDb } from "@lite-llm/database/client";
 import {
   type ModelProxyBenchmark,
@@ -79,9 +80,7 @@ function fromRow(row: ModelProxyBenchmark): NormalizedModelBenchmark {
 }
 
 export class DbBenchmarksRepository implements IBenchmarksRepository {
-  private get db() {
-    return getDb();
-  }
+  constructor(private readonly db: DatabaseClient = getDb()) {}
 
   async upsert(models: NormalizedModelBenchmark[]): Promise<void> {
     if (models.length === 0) return;
@@ -135,4 +134,10 @@ export class DbBenchmarksRepository implements IBenchmarksRepository {
 
 export function createBenchmarksRepository(): IBenchmarksRepository {
   return new DbBenchmarksRepository();
+}
+
+export function createBenchmarksRepositoryWithDb(
+  db: DatabaseClient,
+): IBenchmarksRepository {
+  return new DbBenchmarksRepository(db);
 }
