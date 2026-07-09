@@ -23,7 +23,7 @@ export type {
   PluginsConfig,
 } from "./schemas/index";
 
-export interface RepositoryOptions {
+interface RepositoryOptions {
   filePath: string;
   pluginsFilePath?: string;
   storage?: IStorage;
@@ -105,7 +105,7 @@ function splitConfig(config: DbConfig): {
   };
 }
 
-export class AgentsRepository implements IAgentsRepository {
+class AgentsRepository implements IAgentsRepository {
   private readonly filePath: string;
   private readonly pluginsFilePath: string;
   private readonly storage: IStorage;

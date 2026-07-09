@@ -16,12 +16,12 @@ export function parseConfigContent(content: string, filePath: string): unknown {
   }
 }
 
-export function normalizeJsonc(input: string): string {
+function normalizeJsonc(input: string): string {
   const withoutComments = stripJsonComments(input);
   return removeTrailingCommas(withoutComments);
 }
 
-export function stripJsonComments(input: string): string {
+function stripJsonComments(input: string): string {
   let out = "";
   let i = 0;
   let inString = false;
@@ -78,7 +78,7 @@ export function stripJsonComments(input: string): string {
   return out;
 }
 
-export function removeTrailingCommas(input: string): string {
+function removeTrailingCommas(input: string): string {
   let out = "";
   let i = 0;
   let inString = false;
@@ -134,6 +134,6 @@ export function normalizeConfig(config: unknown): unknown {
   return config;
 }
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }

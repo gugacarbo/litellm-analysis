@@ -43,13 +43,21 @@ export interface PluginConfigResponse {
   litellmProvider: { baseUrl: string; name: string };
 }
 
-type PluginRoutingResponse = Record<string, unknown>;
+export interface PluginRouting {
+  enabled?: boolean;
+  outputFile?: string;
+  config?: Record<string, unknown>;
+  routing?: {
+    agents?: Record<string, string | string[]>;
+    categories?: Record<string, boolean>;
+  };
+}
 
-type PluginSchemaResponse = {
+export type PluginSchemaResponse = {
   schema: Record<string, unknown>;
 };
 
-type PluginToggleResponse = {
+export type PluginToggleResponse = {
   pluginId: string;
   agentId: string;
   enabled: boolean;

@@ -58,7 +58,7 @@ export type AutomaticInteractionWsEventType =
   | HealthCheckStreamEventType
   | SpendLogsChangedEventType;
 
-type AutomaticInteractionWsMessage =
+export type AutomaticInteractionWsMessage =
   | {
       type: "health_check_stream_started";
       data: HealthCheckStreamStartedPayload;

@@ -8,10 +8,10 @@ import {
   pluginsConfigSchema,
 } from "./schemas/index";
 
-export const DASHBOARD_AGENTS_KEY = SETTING_KEYS.DASHBOARD_AGENTS;
-export const DASHBOARD_PLUGINS_KEY = SETTING_KEYS.DASHBOARD_PLUGINS;
+const DASHBOARD_AGENTS_KEY = SETTING_KEYS.DASHBOARD_AGENTS;
+const DASHBOARD_PLUGINS_KEY = SETTING_KEYS.DASHBOARD_PLUGINS;
 
-export interface DbAgentsRepositoryOptions {
+interface DbAgentsRepositoryOptions {
   db?: typeof drizzleDb;
   validateOnRead?: boolean;
 }
@@ -71,7 +71,7 @@ function parsePluginsValue(
   return plugins;
 }
 
-export class DbAgentsRepository implements IAgentsRepository {
+class DbAgentsRepository implements IAgentsRepository {
   private readonly settings: SettingsRepository;
   private readonly validateOnRead: boolean;
 

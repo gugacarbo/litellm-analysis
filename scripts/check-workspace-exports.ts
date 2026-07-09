@@ -50,6 +50,11 @@ type SpecifierUsage = {
   names: Set<string>;
 };
 
+type ExportedSymbolInfo = {
+  name: string;
+  key: string;
+};
+
 type Workspace = {
   name: string;
   dir: string;
@@ -235,13 +240,49 @@ function listSourceFiles(): string[] {
   return files;
 }
 
-function getModuleExports(checker: ts.TypeChecker, sourceFile: ts.SourceFile) {
+function resolveAliasedSymbol(
+  checker: ts.TypeChecker,
+  symbol: ts.Symbol,
+): ts.Symbol {
+  if (symbol.flags & ts.SymbolFlags.Alias) {
+    return checker.getAliasedSymbol(symbol);
+  }
+  return symbol;
+}
+
+function getSymbolKey(checker: ts.TypeChecker, symbol: ts.Symbol): string {
+  const resolved = resolveAliasedSymbol(checker, symbol);
+  const declarations = resolved.declarations ?? [];
+
+  if (!declarations.length) {
+    return resolved.escapedName.toString();
+  }
+
+  return declarations
+    .map((declaration) => {
+      const filePath = toPosix(
+        path.relative(repoRoot, declaration.getSourceFile().fileName),
+      );
+      return `${resolved.escapedName.toString()}@${filePath}:${declaration.pos}`;
+    })
+    .sort()
+    .join("|");
+}
+
+function getExportedSymbols(
+  checker: ts.TypeChecker,
+  sourceFile: ts.SourceFile,
+): ExportedSymbolInfo[] {
   const symbol = checker.getSymbolAtLocation(sourceFile);
   if (!symbol) return [];
+
   return checker
     .getExportsOfModule(symbol)
-    .map((exportSymbol) => exportSymbol.escapedName.toString())
-    .filter((name) => name !== "default");
+    .filter((exportSymbol) => exportSymbol.escapedName.toString() !== "default")
+    .map((exportSymbol) => ({
+      name: exportSymbol.escapedName.toString(),
+      key: getSymbolKey(checker, exportSymbol),
+    }));
 }
 
 function ensureUse(
@@ -258,8 +299,9 @@ function ensureUse(
   }
 }
 
-function collectExternalImports(program: ts.Program, workspaces: Workspace[]) {
+function collectImportUsages(program: ts.Program, workspaces: Workspace[]) {
   const usageBySpecifier = new Map<string, SpecifierUsage>();
+  const usedSymbolKeys = new Set<string>();
   const workspaceNames = workspaces
     .map((workspace) => workspace.name)
     .sort((left, right) => right.length - left.length);
@@ -298,6 +340,12 @@ function collectExternalImports(program: ts.Program, workspaces: Workspace[]) {
       ensureUse(usage, mode, importedName);
     };
 
+    const recordNodeSymbolUse = (node: ts.Node) => {
+      const symbol = checker.getSymbolAtLocation(node);
+      if (!symbol) return;
+      usedSymbolKeys.add(getSymbolKey(checker, symbol));
+    };
+
     function visit(node: ts.Node) {
       if (
         (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
@@ -322,6 +370,7 @@ function collectExternalImports(program: ts.Program, workspaces: Workspace[]) {
                     "named",
                     element.propertyName?.text ?? element.name.text,
                   );
+                  recordNodeSymbolUse(element.name);
                 }
               }
             }
@@ -335,6 +384,7 @@ function collectExternalImports(program: ts.Program, workspaces: Workspace[]) {
               "named",
               element.propertyName?.text ?? element.name.text,
             );
+            recordNodeSymbolUse(element.propertyName ?? element.name);
           }
         }
       }
@@ -345,7 +395,7 @@ function collectExternalImports(program: ts.Program, workspaces: Workspace[]) {
     visit(sourceFile);
   }
 
-  return usageBySpecifier;
+  return { usageBySpecifier, usedSymbolKeys };
 }
 
 const workspaces = buildWorkspaces();
@@ -361,7 +411,10 @@ const program = ts.createProgram(sourceFiles, {
 });
 const checker = program.getTypeChecker();
 
-const usageBySpecifier = collectExternalImports(program, workspaces);
+const { usageBySpecifier, usedSymbolKeys } = collectImportUsages(
+  program,
+  workspaces,
+);
 const findings: Finding[] = [];
 const exportedWorkspaces = workspaces.filter(
   (workspace) => workspace.hasExports,
@@ -369,14 +422,21 @@ const exportedWorkspaces = workspaces.filter(
 
 for (const workspace of exportedWorkspaces) {
   for (const entry of workspace.exportEntries) {
-    const exportedNames = [
-      ...new Set(
+    const exportedSymbols = [
+      ...new Map(
         entry.files.flatMap((filePath) => {
           const sourceFile = program.getSourceFile(filePath);
-          return sourceFile ? getModuleExports(checker, sourceFile) : [];
+          return sourceFile
+            ? getExportedSymbols(checker, sourceFile).map((item) => [
+                `${item.name}:${item.key}`,
+                item,
+              ])
+            : [];
         }),
-      ),
-    ].sort();
+      ).values(),
+    ].sort((left, right) => left.name.localeCompare(right.name));
+
+    const exportedNames = exportedSymbols.map((symbol) => symbol.name);
 
     if (!exportedNames.length) continue;
 
@@ -385,8 +445,16 @@ for (const workspace of exportedWorkspaces) {
       !usage || usage.all
         ? usage?.all
           ? []
-          : exportedNames
-        : exportedNames.filter((name) => !usage.names.has(name));
+          : exportedSymbols
+              .filter((symbol) => !usedSymbolKeys.has(symbol.key))
+              .map((symbol) => symbol.name)
+        : exportedSymbols
+            .filter(
+              (symbol) =>
+                !usage.names.has(symbol.name) &&
+                !usedSymbolKeys.has(symbol.key),
+            )
+            .map((symbol) => symbol.name);
 
     if (!unusedExports.length) continue;
 
@@ -403,9 +471,7 @@ for (const workspace of exportedWorkspaces) {
     if (findings.length <= limit) {
       if (findings.length === 1) {
         console.log(
-          chalk.yellow.bold(
-            "\n⚠️  Workspace export sets with no external consumers:\n",
-          ),
+          chalk.yellow.bold("\n⚠️  Workspace export sets with no consumers:\n"),
         );
       }
 
@@ -426,7 +492,7 @@ for (const workspace of exportedWorkspaces) {
 }
 
 if (!findings.length) {
-  console.log(chalk.green("✓ No externally-unused workspace exports found."));
+  console.log(chalk.green("✓ No unused workspace exports found."));
   process.exit(0);
 }
 
@@ -440,7 +506,7 @@ if (findings.length > limit) {
 
 console.log(
   chalk.yellow.bold(
-    `⚠️  ${findings.length} workspace export set(s) with no external consumers in total.`,
+    `⚠️  ${findings.length} workspace export set(s) with no consumers in total.`,
   ),
 );
 

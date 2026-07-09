@@ -61,8 +61,32 @@ export {
   SettingsService,
   type SettingsServiceOptions,
 } from "./services/settings.service.js";
-
-export type * from "./types/index.js";
+export type {
+  Architecture,
+  DefaultParameters,
+  DefaultProviderSetting,
+  Effort,
+  HealthCheckPromptSetting,
+  ModelConfig,
+  ModelProxyModelRecord,
+  ModelProxySettingRecord,
+  ModelRoute,
+  ModelRouteUpdate,
+  ModelSyncDiffItem,
+  ModelSyncSelection,
+  ModelsWithConfigCounts,
+  ModelsWithConfigResponse,
+  PerRequestLimits,
+  Pricing,
+  ProviderCreateInput,
+  ProviderRecord,
+  ProviderUpdateInput,
+  Reasoning,
+  RouteParams,
+  RouterSettingsValue,
+  SettingKey,
+  SupportedParameters,
+} from "./types/index.js";
 export {
   MODEL_ROUTE_TO_ROUTE_PARAM,
   normalizeSyncDirection,
@@ -71,7 +95,14 @@ export {
   ROUTE_PARAM_TO_MODEL_ROUTE,
   SETTING_KEYS,
 } from "./types/index.js";
-export type * from "./types/openai-oauth.js";
+export type {
+  OpenAiOAuthAuthenticatedRequestConfig,
+  OpenAiOAuthConnectionStatus,
+  OpenAiOAuthConnectionTokens,
+  OpenAiOAuthDeviceCodePollResult,
+  OpenAiOAuthDeviceCodeStartResult,
+  OpenAiOAuthEncryptedConnection,
+} from "./types/openai-oauth.js";
 export {
   OPENAI_CHATGPT_API_BASE,
   OPENAI_CHATGPT_AUTH_BASE,

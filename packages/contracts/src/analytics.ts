@@ -19,7 +19,7 @@ export interface ChatToolCall {
   };
 }
 
-export type ChatMessageContentPart = {
+type ChatMessageContentPart = {
   type?: string;
   text?: string;
   image_url?: {
@@ -68,9 +68,6 @@ export interface SpendLog {
   agent_id?: string;
   request_duration_ms?: number;
   messages?: ChatMessage[];
-}
-
-export interface SpendLogWithError extends SpendLog {
   error_type?: string;
   error_message?: string;
   error_status_code?: number;

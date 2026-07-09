@@ -143,7 +143,7 @@ function modelRowFromSpec(
   };
 }
 
-export class DbModelsRepository implements IModelsRepository {
+class DbModelsRepository implements IModelsRepository {
   private readonly db: typeof drizzleDb;
   private readonly settings: SettingsRepository;
   private readonly providers: ProvidersRepository;
