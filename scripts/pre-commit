@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/shared.sh"
+ROOT="$(repo_root)"
 cd "$ROOT"
-
-# Prefer pnpm, fallback to npm.
-if command -v pnpm >/dev/null 2>&1; then
-  RUNNER="pnpm"
-elif command -v npm >/dev/null 2>&1; then
-  RUNNER="npm"
-else
-  echo "Erro: nem pnpm nem npm encontrados." >&2
-  exit 1
-fi
+detect_runner
 
 # Gate local do CASA Standard (STANDARD §3, ADR-0001) para repo sem remote/CI.
 # Instalação, a partir da raiz do repo:
@@ -21,5 +14,5 @@ fi
 echo "==> docs-check"
 "${ROOT}/scripts/docs-check"
 
-echo "==> ${RUNNER} run staged files checks"
-${RUNNER} check-staged
+echo "==> ${NODE_ENV_RUNNER} run staged files checks"
+${NODE_ENV_RUNNER} check-staged

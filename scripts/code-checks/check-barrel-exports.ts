@@ -13,8 +13,8 @@
  *   são proibidos — prefira imports diretos.
  *
  * Uso:
- *   node --experimental-strip-types scripts/check-barrel-exports.ts
- *   node --experimental-strip-types scripts/check-barrel-exports.ts --fix
+ *   node --experimental-strip-types scripts/code-checks/check-barrel-exports.ts
+ *   node --experimental-strip-types scripts/code-checks/check-barrel-exports.ts --fix
  */
 
 import fs from "node:fs";

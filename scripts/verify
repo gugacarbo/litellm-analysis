@@ -5,33 +5,46 @@
 # Contornar exige ato deliberado (git commit --no-verify) — e é assim que deve ser.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/shared.sh"
+ROOT="$(repo_root)"
 cd "$ROOT"
 
-# Prefer pnpm, fallback to npm.
-if command -v pnpm >/dev/null 2>&1; then
-  RUNNER="pnpm"
-elif command -v npm >/dev/null 2>&1; then
-  RUNNER="npm"
-else
-  echo "Erro: nem pnpm nem npm encontrados." >&2
-  exit 1
-fi
+detect_runner
+
+# Flag --check / -c: pula typecheck
+CHECK=false
+for arg in "$@"; do
+	case "$arg" in
+		--check|-c) CHECK=true ;;
+	esac
+done
 
 # Verifica se a documentação do CASA está íntegra.
 echo "==> docs-check"
 "${ROOT}/scripts/docs-check"
 
-echo "==> ${RUNNER} format"
-${RUNNER} format
-${RUNNER} format:md
+echo "==> searching for CASA updates"
+"${ROOT}/scripts/casa-update-check"
 
-echo "==> ${RUNNER} run build"
-${RUNNER} run build
+echo "==> code-checks"
+"${ROOT}/scripts/code-checks/run-checks"
 
-echo "==> ${RUNNER} test"
-${RUNNER} test
+if [ "$CHECK" = false ]; then
+	echo "==> ${NODE_ENV_RUNNER} format"
+	${NODE_ENV_RUNNER} format
+	${NODE_ENV_RUNNER} format:md
 
-echo "==> ${RUNNER} run typecheck"
-${RUNNER} run typecheck
+	echo "==> ${NODE_ENV_RUNNER} format"
+	${NODE_ENV_RUNNER} format
+	${NODE_ENV_RUNNER} format:md
 
+	echo "==> ${NODE_ENV_RUNNER} run build"
+	${NODE_ENV_RUNNER} run build
+
+	echo "==> ${NODE_ENV_RUNNER} test"
+	${NODE_ENV_RUNNER} test
+
+	echo "==> ${NODE_ENV_RUNNER} run typecheck"
+	${NODE_ENV_RUNNER} run typecheck
+fi
