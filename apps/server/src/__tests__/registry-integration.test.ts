@@ -12,20 +12,23 @@ async function createRegistryHttpServer(
   app.use(express.json());
 
   if (routes === "models" || routes === "all") {
-    const { registerModelRoutes } =
-      await import("../../../../packages/server/src/routes/model-routes.ts");
+    const { registerModelRoutes } = await import(
+      "../../../../packages/server/src/routes/model-routes.ts"
+    );
     registerModelRoutes(app, stack.routeOptions);
   }
 
   if (routes === "providers" || routes === "all") {
-    const { registerProviderRoutes } =
-      await import("../../../../packages/server/src/routes/provider-routes.ts");
+    const { registerProviderRoutes } = await import(
+      "../../../../packages/server/src/routes/provider-routes.ts"
+    );
     registerProviderRoutes(app, stack.routeOptions);
   }
 
   if (routes === "proxy" || routes === "all") {
-    const { registerModelProxyRoutes } =
-      await import("../../../../packages/server/src/routes/model-proxy-routes.ts");
+    const { registerModelProxyRoutes } = await import(
+      "../../../../packages/server/src/routes/model-proxy-routes.ts"
+    );
     registerModelProxyRoutes(app, stack.routeOptions);
   }
 
