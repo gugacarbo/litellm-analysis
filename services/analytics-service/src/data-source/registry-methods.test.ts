@@ -27,30 +27,19 @@ const mockModelRows = [
 vi.mock("@lite-llm/database/client", () => ({
   db: {
     select: () => ({
-      from: (table: unknown) => {
-        if (
-          typeof table === "object" &&
-          table !== null &&
-          "modelName" in table
-        ) {
-          return {
-            orderBy: () => Promise.resolve(mockModelRows),
-          };
-        }
-
-        return {
-          where: () => ({
-            limit: () =>
-              Promise.resolve([
-                {
-                  id: "setting-1",
-                  key: "router_settings",
-                  value: { model_group_alias: { agent: "gpt-4o" } },
-                },
-              ]),
-          }),
-        };
-      },
+      from: () => ({
+        orderBy: () => Promise.resolve(mockModelRows),
+        where: () => ({
+          limit: () =>
+            Promise.resolve([
+              {
+                id: "setting-1",
+                key: "router_settings",
+                value: { model_group_alias: { agent: "gpt-4o" } },
+              },
+            ]),
+        }),
+      }),
     }),
   },
 }));
