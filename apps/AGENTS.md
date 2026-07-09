@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Two deployable apps in a pnpm + Turborepo monorepo: a React 19 SPA (`apps/web`) and an Express.js server (`apps/server`). Both depend on `@lite-llm/*` workspace packages and run via `pnpm dev` (parallel via turbo).
+Three deployable apps in a pnpm + Turborepo monorepo: a React 19 SPA (`apps/web`), an Express.js server (`apps/server`), and a TanStack Start app (`apps/ui`). All depend on `@lite-llm/*` workspace packages and run via `pnpm dev` (parallel via turbo).
 
 ## STRUCTURE
 
@@ -18,6 +18,8 @@ apps/
 │       ├── pages/      # Empty: legacy `pages/` migrated to `features/`; kept for back-compat
 │       ├── app.tsx     # Root component
 │       └── main.tsx    # Vite entry
+├── ui/                 # TanStack Start app scaffold
+│   └── src/            # File-based routes, shell, and app styles
 └── server/             # Express.js entry point + monitor runtime + WebSocket
     └── src/            # See apps/server/AGENTS.md
 ```
@@ -28,6 +30,7 @@ apps/
 | ----------------------------- | --------------------------------- | ------------------------------------------------------ |
 | Add a new feature/route (web) | `apps/web/src/features/<name>/`   | Owns components, hooks, types, utils; mount in App.tsx |
 | Add a shared UI primitive     | `apps/web/src/shared/components/` | Cross-feature; keep narrow                             |
+| Add a UI route (ui)           | `apps/ui/src/routes/`             | TanStack Start file-based routes                       |
 | Add a backend route           | `apps/server/src/runtime/`        | See `apps/server/AGENTS.md` for the runtime split      |
 | Change dev port / proxy       | `apps/web/vite.config.ts`         | `/api` → `localhost:3008`                              |
 | Add a monitor runtime service | `apps/server/src/application/`    | Business services, no Express knowledge                |
