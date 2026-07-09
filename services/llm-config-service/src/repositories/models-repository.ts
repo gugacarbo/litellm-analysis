@@ -69,6 +69,15 @@ export class ModelsRepository {
       .where(eq(modelProxyModels.providerId, providerId));
   }
 
+  async findProviderNameById(providerId: string): Promise<string | null> {
+    const [row] = await this.db
+      .select({ name: modelProxyProviders.name })
+      .from(modelProxyProviders)
+      .where(eq(modelProxyProviders.id, providerId))
+      .limit(1);
+    return row?.name ?? null;
+  }
+
   async findManyByIds(ids: string[]): Promise<ModelProxyModelRecord[]> {
     if (ids.length === 0) return [];
     return this.db

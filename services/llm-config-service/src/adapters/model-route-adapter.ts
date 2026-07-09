@@ -117,6 +117,7 @@ export const toModelRoute = ({ model }: { model: ModelConfig }): ModelRoute => {
 
   return {
     modelId: model.name,
+    providerName: model.provider,
     enabled: true,
     displayName: model.displayName,
     family: model.family,

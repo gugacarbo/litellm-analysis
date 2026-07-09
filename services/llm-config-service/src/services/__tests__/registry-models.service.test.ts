@@ -55,6 +55,7 @@ describe("RegistryModelsService", () => {
   it("filters out registry rows without a modelId", async () => {
     const repository = {
       ...createModelsRepositoryMock(),
+      findProviderNameById: async () => null,
       list: async () => [
         {
           id: "model_1",
@@ -113,6 +114,48 @@ describe("RegistryModelsService", () => {
 
     const routes = await filteringService.listRoutes();
     expect(routes.map((route) => route.modelId)).toEqual(["kept-model"]);
+  });
+
+  it("includes the provider name on listed routes", async () => {
+    const repository = {
+      ...createModelsRepositoryMock(),
+      findProviderNameById: async (providerId: string) =>
+        providerId === "provider-1" ? "openai-main" : null,
+      list: async () => [
+        {
+          id: "model_1",
+          modelId: "gpt-4o",
+          enabled: true,
+          displayName: null,
+          family: null,
+          canonicalSlug: null,
+          description: null,
+          contextLength: null,
+          maxCompletionTokens: null,
+          knowledgeCutoff: null,
+          expirationDate: null,
+          architecture: null,
+          reasoning: null,
+          supportedParameters: null,
+          defaultParameters: null,
+          perRequestLimits: null,
+          pricing: null,
+          requestOptions: null,
+          providerId: "provider-1",
+          reasoningApiId: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    };
+
+    const providerService = new RegistryModelsService({
+      repository: repository as never,
+    });
+
+    const routes = await providerService.listRoutes();
+    expect(routes[0]?.providerName).toBe("openai-main");
+    expect(routes[0]?.modelId).toBe("gpt-4o");
   });
 
   it("upserts model route", async () => {

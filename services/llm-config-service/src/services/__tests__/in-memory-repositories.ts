@@ -236,6 +236,10 @@ export function createModelsRepositoryMock() {
         .sort((a, b) => a.modelId.localeCompare(b.modelId));
     },
 
+    async findProviderNameById(_providerId: string): Promise<string | null> {
+      return null;
+    },
+
     async setEnabled(
       modelName: string,
       enabled: boolean,

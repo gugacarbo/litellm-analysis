@@ -27,6 +27,7 @@ describe("toModelRoute", () => {
 
     expect(route).toEqual({
       modelId: "gpt-4",
+      providerName: "openai",
       enabled: true,
       displayName: "GPT-4",
       family: "gpt-4",

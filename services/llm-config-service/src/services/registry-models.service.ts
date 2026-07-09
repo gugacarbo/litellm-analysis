@@ -57,16 +57,23 @@ export class RegistryModelsService implements IRegistryModelsService {
 
   async listRoutes(_options?: ModelsListOptions): Promise<ModelRoute[]> {
     const records = await this.repository.list();
-    return records
-      .filter(
-        (record) =>
-          typeof record.modelId === "string" && record.modelId.trim() !== "",
-      )
-      .map((record) =>
-        toModelRoute({
-          model: toModelConfig(record),
+    return Promise.all(
+      records
+        .filter(
+          (record) =>
+            typeof record.modelId === "string" && record.modelId.trim() !== "",
+        )
+        .map(async (record) => {
+          const providerName = record.providerId
+            ? ((await this.repository.findProviderNameById(
+                record.providerId,
+              )) ?? "")
+            : "";
+          return toModelRoute({
+            model: toModelConfig(record, providerName),
+          });
         }),
-      );
+    );
   }
 
   async get(modelName: string): Promise<ModelProxyModelRecord | null> {
@@ -75,11 +82,15 @@ export class RegistryModelsService implements IRegistryModelsService {
 
   async getRoute(modelName: string): Promise<ModelRoute | null> {
     const record = await this.repository.findByModelName(modelName);
-    return record
-      ? toModelRoute({
-          model: toModelConfig(record),
-        })
-      : null;
+    if (!record) {
+      return null;
+    }
+    const providerName = record.providerId
+      ? ((await this.repository.findProviderNameById(record.providerId)) ?? "")
+      : "";
+    return toModelRoute({
+      model: toModelConfig(record, providerName),
+    });
   }
 
   async create(
@@ -153,10 +164,13 @@ export class RegistryModelsService implements IRegistryModelsService {
   }
 }
 
-function toModelConfig(record: ModelProxyModelRecord): ModelConfig {
+function toModelConfig(
+  record: ModelProxyModelRecord,
+  providerName: string,
+): ModelConfig {
   return {
     name: record.modelId,
-    provider: String(record.providerId ?? ""),
+    provider: providerName,
     displayName: record.displayName ?? undefined,
     family: record.family ?? undefined,
     canonicalSlug: record.canonicalSlug ?? undefined,
