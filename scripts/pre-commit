@@ -29,5 +29,5 @@ ${RUNNER} test-staged
 
 # Type-check, testes e análise de exports não utilizados.
 echo "==> ${RUNNER} run typecheck"
-${RUNNER} run typecheck
+${RUNNER} run tsc-files
 
