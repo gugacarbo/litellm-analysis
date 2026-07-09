@@ -16,7 +16,6 @@
     "validate:plugins": "echo 'Validation is removed; plugins are sourced from the database.'"
   },
   "dependencies": {
-    "@lite-llm/agent-plugins": "workspace:*",
     "@lite-llm/config": "workspace:*",
     "@lite-llm/llm-config-service": "workspace:*",
     "@lite-llm/database": "workspace:*",

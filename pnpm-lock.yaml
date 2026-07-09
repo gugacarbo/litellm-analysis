@@ -91,9 +91,6 @@ importers:
 
   apps/server:
     dependencies:
-      '@lite-llm/agent-plugins':
-        specifier: workspace:*
-        version: link:../../services/agent-plugins
       '@lite-llm/agents-manager':
         specifier: workspace:*
         version: link:../../packages/agents-manager
@@ -415,9 +412,6 @@ importers:
       '@ai-sdk/openai-compatible':
         specifier: ^2.0.50
         version: 2.0.50(zod@4.4.3)
-      '@lite-llm/agent-plugins':
-        specifier: workspace:*
-        version: link:../../services/agent-plugins
       '@lite-llm/agents-manager':
         specifier: workspace:*
         version: link:../agents-manager
@@ -464,9 +458,6 @@ importers:
 
   repositories/agents-repository:
     dependencies:
-      '@lite-llm/agent-plugins':
-        specifier: workspace:*
-        version: link:../../services/agent-plugins
       '@lite-llm/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -573,31 +564,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
-
-  services/agent-plugins:
-    dependencies:
-      '@lite-llm/models-repository':
-        specifier: workspace:*
-        version: link:../../repositories/models-repository
-      '@lite-llm/models-service':
-        specifier: workspace:*
-        version: link:../models-service
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 25.6.2
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
-      zod:
-        specifier: 'catalog:'
-        version: 4.4.3
 
   services/analytics-service:
     dependencies:

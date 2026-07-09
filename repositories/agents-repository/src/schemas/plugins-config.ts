@@ -27,39 +27,18 @@ export const pluginsConfigSchema = z
       .default(2)
       .meta({ title: "Version", description: "Config version" }),
     plugins: z
-      .object({
-        opencode: pluginRoutingWithConfig(openCodePluginConfigSchema)
-          .meta({
-            title: "OpenCode",
-            description: "OpenCode AI SDK plugin configuration",
-          })
-          .optional(),
-        openagent: pluginRoutingWithConfig(openAgentPluginConfigSchema)
-          .meta({
-            title: "OpenAgent",
-            description: "Oh My OpenAgent plugin configuration",
-          })
-          .optional(),
-        vscode: pluginRoutingWithConfig(vsCodePluginConfigSchema)
-          .meta({
-            title: "VSCode",
-            description: "VS Code OAICopilot plugin configuration",
-          })
-          .optional(),
-        "model-alias": pluginRoutingWithConfig(modelAliasPluginConfigSchema)
-          .meta({
-            title: "LiteLLM Alias",
-            description: "LiteLLM Router Aliases plugin configuration",
-          })
-          .optional(),
-        weave: pluginRoutingWithConfig(weavePluginConfigSchema)
-          .meta({
-            title: "Weave",
-            description: "OpenCode Weave plugin configuration",
-          })
-          .optional(),
-      })
-      .partial()
+      .record(
+        z.string(),
+        z
+          .union([
+            pluginRoutingWithConfig(openCodePluginConfigSchema),
+            pluginRoutingWithConfig(openAgentPluginConfigSchema),
+            pluginRoutingWithConfig(vsCodePluginConfigSchema),
+            pluginRoutingWithConfig(modelAliasPluginConfigSchema),
+            pluginRoutingWithConfig(weavePluginConfigSchema),
+          ])
+          .meta({ title: "Plugin", description: "Plugin configuration" }),
+      )
       .default({})
       .meta({ title: "Plugins", description: "Plugin configurations" }),
   })

@@ -61,3 +61,4 @@ export const pluginRoutingSchema = z.object({
 
 export type PluginRoutingRule = z.infer<typeof pluginRoutingRuleSchema>;
 export type PluginRouting = z.infer<typeof pluginRoutingSchema>;
+export type PluginRoutingInput = PluginRouting;

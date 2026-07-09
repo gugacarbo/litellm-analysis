@@ -388,7 +388,7 @@ export interface RegistryTestStack {
   modelsService: IModelService;
   providerService: IProviderService;
   dataSource: AnalyticsDataSource;
-  agentsManager: AgentsManager;
+  agentsManager?: AgentsManager;
   orchestration: OrchestrationServices;
   routeOptions: RouteOptions;
   seedConfigModel: (name: string, spec?: Partial<ModelSpec>) => Promise<void>;
@@ -470,12 +470,6 @@ export function createRegistryTestStack(): RegistryTestStack {
     deleteModelLogs: vi.fn(async () => undefined),
   } as unknown as AnalyticsDataSource;
 
-  const agentsManager = {
-    registry: {
-      exportAll: vi.fn(async () => undefined),
-    },
-  } as unknown as AgentsManager;
-
   const orchestration: OrchestrationServices = {
     dataSource,
     syncGeneratedArtifacts: vi.fn(async () => undefined),
@@ -529,7 +523,7 @@ export function createRegistryTestStack(): RegistryTestStack {
     modelsService,
     providerService,
     registry,
-    agentsManager,
+    agentsManager: undefined,
   };
 
   const defaultSpec = (): ModelSpec => ({
@@ -545,7 +539,7 @@ export function createRegistryTestStack(): RegistryTestStack {
     modelsService,
     providerService,
     dataSource,
-    agentsManager,
+    agentsManager: undefined,
     orchestration,
     routeOptions,
     seedConfigModel: async (name, spec = {}) => {

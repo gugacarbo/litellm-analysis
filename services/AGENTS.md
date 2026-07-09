@@ -28,7 +28,7 @@ services/
 │   └── src/
 │       ├── alias-router/           # Managed alias reconciliation
 │       └── providers/              # Provider-specific adapters
-└── agent-plugins/                  # OpenCode/OpenAgent/VS Code plugin system
+└── legacy-plugin-service/          # (removido) antigo sistema de plugins de agentes
     └── src/                        # Per-consumer config generators
 ```
 
@@ -40,14 +40,14 @@ services/
 | Add a proxy route         | `services/llm-gateway/src/routes/`              | OpenAI-compatible; forwards to upstream                      |
 | Add settings CRUD         | `services/llm-config-service/src/`              | Direct repository access; no Express                         |
 | Add a provider adapter    | `services/models-service/src/providers/`        | Provider-specific model normalization                        |
-| Add a new consumer plugin | `services/agent-plugins/src/`                   | Per-consumer config generator                                |
+| Add a new consumer plugin | legacy only                                     | Removed from the app                                         |
 
 ## CONVENTIONS
 
 - **Service-layer only** — no Express wiring; consumed by `apps/server` and `packages/server`
 - **Direct repository access** — services import from `repositories/*` for schema/client
 - **Pure data shapes** — service functions take/return plain objects; no Express `req`/`res`
-- **Generated Zod schemas live with services** that own the domain concept (e.g. agents schema in `services/agent-plugins/`)
+- **Generated Zod schemas lived with the plugin service** and were folded into `repositories/agents-repository/src/schemas/` during the removal
 - **All services target Node 20+** — no browser code
 - **Cross-service calls** go through orchestration layer in `packages/server/src/orchestration/`, never service-to-service direct
 

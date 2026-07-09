@@ -1,5 +1,8 @@
-import type { PluginRoutingInput } from "@lite-llm/agent-plugins";
-import type { PluginRouting } from "@lite-llm/agents-repository/schemas";
+import {
+  getPluginConfigJsonSchema,
+  type PluginRouting,
+  type PluginRoutingInput,
+} from "@lite-llm/agents-repository/schemas";
 import type { Application } from "express";
 import type { RouteOptions } from "../types/index";
 
@@ -105,6 +108,13 @@ interface PluginInfoDTO {
   enabledAgentCount: number;
 }
 
+function formatPluginName(pluginId: string): string {
+  return pluginId
+    .split(/[-_]/g)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export function registerPluginRoutingRoutes(
   app: Application,
   opts: RouteOptions,
@@ -148,8 +158,6 @@ export function registerPluginRoutingRoutes(
       const config = await manager.repository.read();
       config.plugins = plugins as Record<string, PluginRoutingInput>;
       await manager.repository.write(config);
-      manager.registry.loadFromConfig(config.plugins);
-      await manager.registry.exportAll();
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -170,7 +178,6 @@ export function registerPluginRoutingRoutes(
         pluginId,
         agentId,
       );
-      await manager.registry.exportAll();
       res.json({ enabled: newEnabled });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -185,27 +192,29 @@ export function registerPluginRoutingRoutes(
         res.status(500).json({ error: "AgentsManager not configured" });
         return;
       }
-      const { registry } = manager;
       const config = await manager.repository.read();
 
       const totalAgentCount = Object.keys(config.agents ?? {}).length;
 
-      const plugins: PluginInfoDTO[] = registry.listAll().map((p) => {
-        const pluginId = p.manifest.id;
-        const pc = config.plugins?.[pluginId];
-        const mappedAgentCount = Object.keys(pc?.routing?.agents ?? {}).length;
+      const plugins: PluginInfoDTO[] = Object.entries(config.plugins ?? {}).map(
+        ([pluginId]) => {
+          const pc = config.plugins?.[pluginId];
+          const mappedAgentCount = Object.keys(
+            pc?.routing?.agents ?? {},
+          ).length;
 
-        return {
-          id: pluginId,
-          name: p.manifest.displayName,
-          enabled: pc?.enabled ?? false,
-          outputFile: pc?.outputFile ?? p.manifest.output.fileName,
-          internalAgents: registry.getInternalAgents(pluginId),
-          configSchema: [],
-          agentCount: totalAgentCount,
-          enabledAgentCount: mappedAgentCount,
-        };
-      });
+          return {
+            id: pluginId,
+            name: formatPluginName(pluginId),
+            enabled: pc?.enabled ?? false,
+            outputFile: pc?.outputFile ?? `${pluginId}.json`,
+            internalAgents: [],
+            configSchema: [],
+            agentCount: totalAgentCount,
+            enabledAgentCount: mappedAgentCount,
+          };
+        },
+      );
 
       res.json(plugins);
     } catch (error) {
@@ -222,7 +231,7 @@ export function registerPluginRoutingRoutes(
         return;
       }
       const pluginId = req.params.pluginId;
-      const schema = manager.registry.getJsonSchema(pluginId);
+      const schema = pluginRoutingJsonSchema(pluginId);
 
       if (!schema) {
         res
@@ -246,15 +255,15 @@ export function registerPluginRoutingRoutes(
         return;
       }
       const { pluginId } = req.params;
-      const { services, registry } = manager;
+      const { services } = manager;
 
-      const [pluginConfig, agentMappings, categoryMappings, internalAgents] =
-        await Promise.all([
+      const [pluginConfig, agentMappings, categoryMappings] = await Promise.all(
+        [
           services.routing.getPluginConfig(pluginId),
           services.routing.getAgentMappings(pluginId),
           services.routing.getCategoryMappings(pluginId),
-          Promise.resolve(registry.getInternalAgents(pluginId)),
-        ]);
+        ],
+      );
 
       const currentConfig = isRecord(pluginConfig?.config)
         ? pluginConfig.config
@@ -287,7 +296,7 @@ export function registerPluginRoutingRoutes(
         agentMappings,
         categoryMappings,
         schema: [],
-        internalAgents,
+        internalAgents: [],
         allModels,
         modelProxyProvider,
       });
@@ -354,11 +363,6 @@ export function registerPluginRoutingRoutes(
         };
         await services.routing.savePluginConfig(pluginId, updated);
       }
-
-      const fullConfig = await manager.repository.read();
-      manager.registry.loadFromConfig(fullConfig.plugins ?? {});
-      await manager.registry.exportAll();
-
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -382,11 +386,16 @@ export function registerPluginRoutingRoutes(
           pluginId,
           categoryId,
         );
-        await manager.registry.exportAll();
         res.json({ categoryId, enabled });
       } catch (error) {
         res.status(500).json({ error: String(error) });
       }
     },
   );
+}
+
+function pluginRoutingJsonSchema(
+  pluginId: string,
+): Record<string, unknown> | null {
+  return getPluginConfigJsonSchema(pluginId);
 }

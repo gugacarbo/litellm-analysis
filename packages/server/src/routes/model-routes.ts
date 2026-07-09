@@ -697,9 +697,6 @@ export function registerModelRoutes(
   app.post("/models/export-configs", async (_req, res) => {
     try {
       await opts.orchestration.syncGeneratedArtifacts();
-      if (opts.agentsManager) {
-        await opts.agentsManager.registry.exportAll();
-      }
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -1127,11 +1124,6 @@ export function registerModelRoutes(
   app.delete("/models/:name", async (req, res) => {
     try {
       const { name } = req.params;
-      const manager = opts.agentsManager;
-      if (!manager) {
-        res.status(500).json({ error: "AgentsManager not configured" });
-        return;
-      }
       const blockingAliases = await listBlockingManualAliases(
         settingsService,
         name,
@@ -1150,7 +1142,6 @@ export function registerModelRoutes(
         }
       }
       await registryModelsService.delete(name);
-      await manager.registry.exportAll();
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: String(error) });

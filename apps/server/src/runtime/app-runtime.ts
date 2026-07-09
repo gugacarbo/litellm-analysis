@@ -1,7 +1,6 @@
 import { existsSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createAgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
 import { createAgentsManager } from "@lite-llm/agents-manager";
 import { disconnectDb } from "@lite-llm/database/client";
 import {
@@ -15,7 +14,6 @@ import {
   ProviderService,
 } from "@lite-llm/models-service";
 import { createOrchestrationServices } from "@lite-llm/server/orchestration";
-import { updateRouterAliasesInRegistry } from "@lite-llm/server/orchestration/router-settings";
 import { createBenchmarkSyncApplicationService } from "../application/benchmark-sync-application-service";
 import { createOpenRouterBenchmarkSyncApplicationService } from "../application/openrouter-benchmark-sync-application-service";
 import { createAppContext } from "../contexts";
@@ -108,25 +106,6 @@ function findWorkspaceRoot(startDir: string): string {
   return startDir;
 }
 
-function setupAgentPluginsOrchestrator(
-  projectRoot: string,
-  aliasDbWriter?: {
-    updateAliases(aliases: Record<string, string>): Promise<void>;
-  },
-) {
-  const agentsManager = createAgentsManager();
-
-  const modelsRepository = createModelsRepositoryClient();
-
-  return createAgentPluginsOrchestrator({
-    repository: agentsManager.repository,
-    modelsRepository,
-    services: agentsManager.services,
-    outputDir: path.join(projectRoot, env.STORAGE_PATH, "output"),
-    aliasDbWriter,
-  });
-}
-
 function resolveStoragePath(projectRoot: string): string {
   if (path.isAbsolute(env.STORAGE_PATH)) {
     return env.STORAGE_PATH;
@@ -164,17 +143,8 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   const ctx = createAppContext();
   const registry = createRegistryServices();
   await seedBootstrapApiKey(env.MODEL_PROXY_API_KEY, registry);
+  const agentsManager = createAgentsManager();
 
-  const aliasDbWriter = {
-    updateAliases: async (aliases: Record<string, string>) => {
-      await updateRouterAliasesInRegistry(registry.settingsService, aliases);
-    },
-  };
-
-  const agentPlugins = await setupAgentPluginsOrchestrator(
-    projectRoot,
-    aliasDbWriter,
-  );
   const modelsRepository = createModelsRepositoryClient();
   const modelsService = new ModelService({ repository: modelsRepository });
   const providerService = new ProviderService({
@@ -184,15 +154,10 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     providerService,
     openAiOAuthService: registry.openAiOAuthService,
   });
-  const orchestration = createOrchestrationServices(
-    ctx.analytics.dataSource,
-    agentPlugins,
-    modelsService,
-    {
-      registryModelsService: registry.registryModelsService,
-      settingsService: registry.settingsService,
-    },
-  );
+  const orchestration = createOrchestrationServices(ctx.analytics.dataSource, {
+    registryModelsService: registry.registryModelsService,
+    settingsService: registry.settingsService,
+  });
   const benchmarkSyncService = createBenchmarkSyncApplicationService({
     storagePath: resolveStoragePath(projectRoot),
     artificialAnalysisApiKey: env.ARTIFICIAL_ANALYSIS_API_KEY,
@@ -208,7 +173,7 @@ export async function startAppRuntime(): Promise<AppRuntime> {
     {
       dataSource: ctx.analytics.dataSource,
       orchestration,
-      agentsManager: agentPlugins,
+      agentsManager,
       heboGateway,
       modelsService,
       providerService,

@@ -830,7 +830,6 @@ describe("registry integration", () => {
         );
         expect(response.status).toBe(200);
         expect(await response.json()).toMatchObject({ success: true });
-        expect(stack.agentsManager.registry.exportAll).toHaveBeenCalled();
       } finally {
         await closeServer(server);
       }

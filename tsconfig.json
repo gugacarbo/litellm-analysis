@@ -22,5 +22,6 @@
     "database/**/*.tsx",
     "scripts/**/*.ts",
     "scripts/**/*.tsx"
-  ]
+  ],
+  "exclude": ["services/agent-plugins/**"]
 }

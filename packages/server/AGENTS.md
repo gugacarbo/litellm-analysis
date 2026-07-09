@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-`@lite-llm/server` — shared Express routes and orchestration services consumed by `apps/server` and other consumers. Owns business logic that coordinates `@lite-llm/analytics-service` (data access), `@lite-llm/agents-manager` (config CRUD), and `@lite-llm/agent-plugins` (config file generation). Distinct from `apps/server` (which is the runtime/entry point).
+`@lite-llm/server` — shared Express routes and orchestration services consumed by `apps/server` and other consumers. Owns business logic that coordinates `@lite-llm/analytics-service` (data access) and `@lite-llm/agents-manager` (config CRUD). Distinct from `apps/server` (which is the runtime/entry point).
 
 ## STRUCTURE
 
@@ -42,7 +42,7 @@ packages/server/
 
 | Task                                | Location                            | Notes                                                                                          |
 | ----------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Add an orchestration coordinator    | `src/orchestration/`                | Coordinates across `analytics-service`, `agents-manager`, `agent-plugins`                      |
+| Add an orchestration coordinator    | `src/orchestration/`                | Coordinates across `analytics-service` and `agents-manager`                                    |
 | Add a shared route                  | `src/routes/`                       | Use `RouteOptions` pattern (dataSource + orchestration)                                        |
 | Register all routes                 | `src/routes/index.ts`               | `registerAllRoutes(app, opts)` for one-line wiring                                             |
 | Change cost normalization           | `src/orchestration/route-params.ts` | `toCostPerToken()` assumes canonical per-token USD                                             |
@@ -54,7 +54,7 @@ packages/server/
 - **Route pattern**: `registerXxxRoutes(app: Application, opts: RouteOptions): void` — pure Express adapter
 - **Orchestration pattern**: functions take `AnalyticsDataSource` + collaborators, return domain objects; no Express knowledge
 - **Cost convention**: canonical per-token USD; `* 1_000_000` for display. `toCostPerToken()` normalizes incoming values
-- **Alias generation**: handled by `ModelAliasPlugin` in `services/agent-plugins/`; this package only consumes the output
+- **Alias generation**: handled in `repositories/agents-repository` and the routing services; this package only consumes the stored settings
 - **4-arg factory**: `createOrchestrationServices(dataSource, agentsManager, modelsService, registry)` returns the orchestration bundle
 
 ## ANTI-PATTERNS (THIS PROJECT)

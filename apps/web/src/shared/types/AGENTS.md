@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Browser-safe mirror of domain types from `@lite-llm/agents-repository/schemas`. Avoids runtime repository imports in the web bundle. Types are plain interfaces — no runtime validation (use `@lite-llm/agent-plugins` schemas for validation server-side).
+Browser-safe mirror of domain types from `@lite-llm/agents-repository/schemas`. Avoids runtime repository imports in the web bundle. Types are plain interfaces — no runtime validation (use the server-side schemas in `@lite-llm/agents-repository/schemas`).
 
 ## STRUCTURE
 
@@ -25,11 +25,11 @@ apps/web/src/shared/types/
 
 ## WHERE TO LOOK
 
-| Task                   | Location                                               | Notes                                                                    |
-| ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
-| Add a UI-side type     | `shared/types/<name>.ts`                               | Mirror from `@lite-llm/agents-repository/schemas`; export via `index.ts` |
-| Add a new feature type | `features/<feature>/types/`                            | Feature owns its types; only cross-feature types go here                 |
-| Server-side validation | `@lite-llm/agent-plugins/src/plugin-config-schemas.ts` | Types here are runtime-free for browser bundle size                      |
+| Task                   | Location                                                    | Notes                                                                    |
+| ---------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Add a UI-side type     | `shared/types/<name>.ts`                                    | Mirror from `@lite-llm/agents-repository/schemas`; export via `index.ts` |
+| Add a new feature type | `features/<feature>/types/`                                 | Feature owns its types; only cross-feature types go here                 |
+| Server-side validation | `@lite-llm/agents-repository/src/schemas/plugin-configs.ts` | Types here are runtime-free for browser bundle size                      |
 
 ## CONVENTIONS
 
@@ -41,7 +41,7 @@ apps/web/src/shared/types/
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
-- Do not add Zod schemas here — keep web bundle Zod-free; use `@lite-llm/agent-plugins` server-side
+- Do not add Zod schemas here — keep web bundle Zod-free; use `@lite-llm/agents-repository` server-side
 - Do not duplicate types that belong in `features/<feature>/types/` — only cross-feature shared types go here
 - Do not import from `@lite-llm/agents-repository` or `@lite-llm/agents-repository/schemas` at runtime — keep browser types local
 - Do not add types that exist elsewhere — extend the existing `*.ts` file instead

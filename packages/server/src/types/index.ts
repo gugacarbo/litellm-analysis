@@ -1,4 +1,4 @@
-import type { AgentPluginsOrchestrator } from "@lite-llm/agent-plugins";
+import type { createAgentsManager } from "@lite-llm/agents-manager";
 import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import type {
   IApiKeysService,
@@ -18,7 +18,7 @@ export interface RegistryRouteServices {
   openAiOAuthService: IOpenAiOAuthService;
 }
 
-export type AgentsManager = AgentPluginsOrchestrator;
+export type AgentsManager = ReturnType<typeof createAgentsManager>;
 
 export interface DbModelSpecLike {
   displayName?: string;

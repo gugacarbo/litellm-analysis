@@ -152,10 +152,12 @@ export class ModelsRepository {
     modelName: string,
     route: Record<string, unknown>,
   ): Promise<ModelProxyModelRecord> {
+    const providerId = await this.resolveProviderIdFromRoute(route);
     const rows = await this.db
       .insert(modelProxyModels)
       .values({
         modelId: modelName,
+        providerId,
         enabled: (route.enabled as boolean) ?? true,
         displayName: (route.displayName as string) ?? null,
         family: (route.family as string) ?? null,
@@ -185,9 +187,11 @@ export class ModelsRepository {
   ): Promise<ModelProxyModelRecord | null> {
     const existing = await this.findByModelName(modelName);
     if (!existing) return null;
+    const providerId = await this.resolveProviderIdFromRoute(route);
     const rows = await this.db
       .update(modelProxyModels)
       .set({
+        providerId,
         enabled: (route.enabled as boolean) ?? undefined,
         displayName: (route.displayName as string) ?? undefined,
         family: (route.family as string) ?? undefined,
@@ -309,6 +313,33 @@ export class ModelsRepository {
     providerName: string,
   ): Promise<ModelConfig> {
     return toModelConfig(record, providerName);
+  }
+
+  private async resolveProviderIdFromRoute(
+    route: Record<string, unknown>,
+  ): Promise<string | undefined> {
+    if ("providerId" in route) {
+      return (route.providerId as string | null | undefined) ?? undefined;
+    }
+
+    const providerName =
+      typeof route.providerName === "string" ? route.providerName.trim() : "";
+    if (!providerName) {
+      return undefined;
+    }
+
+    const provider = await this.db
+      .select({ id: modelProxyProviders.id })
+      .from(modelProxyProviders)
+      .where(eq(modelProxyProviders.name, providerName))
+      .limit(1);
+
+    const providerId = provider[0]?.id;
+    if (!providerId) {
+      throw new Error(`Provider not found: ${providerName}`);
+    }
+
+    return providerId;
   }
 }
 

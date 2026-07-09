@@ -37,6 +37,7 @@ export {
 } from "./plugin-configs";
 export type {
   PluginRouting,
+  PluginRoutingInput,
   PluginRoutingRule,
 } from "./plugin-routing";
 export {

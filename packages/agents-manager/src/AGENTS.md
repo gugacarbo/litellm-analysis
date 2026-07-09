@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-`@lite-llm/agents-manager` — agent/category CRUD, repository client wrapper, and routing service. Plugin system moved to `@lite-llm/agent-plugins` (separate package).
+`@lite-llm/agents-manager` — agent/category CRUD, repository client wrapper, and routing service. Plugin config storage now lives in `repositories/agents-repository`.
 
 ## STRUCTURE
 
@@ -74,4 +74,4 @@ apps/server routes via @lite-llm/server
 - Do not import from `apps/server/` — this package is standalone
 - Do not skip `validateOnRead` in repository options
 - Do not put types here — use `@lite-llm/agents-repository/schemas`
-- Do not re-implement plugin logic — it lives in `@lite-llm/agent-plugins`
+- Do not re-implement plugin config storage — use `repositories/agents-repository` schemas and routing services
