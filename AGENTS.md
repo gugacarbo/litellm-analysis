@@ -26,14 +26,21 @@ casa-standard-ref: 7cdb964 # versão do casa-standard de origem — o casa-init 
 ## Como rodar localmente
 
 ```bash
-# comandos exatos, copiáveis
+pnpm dev              # dev server (turbo)
+pnpm db:up            # sobe postgres com docker
+pnpm db:migrate       # roda migrations
+pnpm db:studio        # abre drizzle studio
+pnpm verify           # validação completa (format + build + test + typecheck)
+pnpm verify -c        # validação rápida (só docs-check + code-checks)
 ```
 
 ## Como validar (DoD global do repo)
 
 ```bash
-npm run typecheck        # exit 0
-npm test                 # tudo verde
+pnpm verify            # completo (format + build + test + typecheck)
+pnpm verify -c         # rápido (docs-check + code-checks)
+pnpm typecheck         # só typecheck
+pnpm test              # só testes
 ```
 
 ## Como deployar
