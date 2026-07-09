@@ -43,8 +43,16 @@ describe("mergeRegistryModelsWithConfigAliases", () => {
       createModel("Other/deepseek-v4-flash", "config-only"),
     ]);
 
-    expect(merged).toHaveLength(1);
-    expect(merged[0]?.modelName).toBe("deepseek-v4-flash");
-    expect(merged[0]?.aliases).toEqual([]);
+    expect(merged).toHaveLength(3);
+    expect(merged.map((model) => model.modelName).sort()).toEqual(
+      [
+        "Other/deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "legacy-deepseek",
+      ].sort(),
+    );
+    expect(
+      merged.find((model) => model.modelName === "deepseek-v4-flash")?.aliases,
+    ).toEqual([]);
   });
 });

@@ -56,6 +56,9 @@ export function mergeRegistryModelsWithConfigAliases(
         model.status === "synced" || model.status === "registry-only",
     )
     .map((model) => ({ ...model, aliases: [] as string[] }));
+  const configOnlyModels = models.filter(
+    (model) => model.status === "config-only",
+  );
 
   const registryIndex = new Map<string, DisplayModelWithAliases>();
   for (const model of registryModels) {
@@ -86,10 +89,27 @@ export function mergeRegistryModelsWithConfigAliases(
     registryModel.aliases?.push(model.modelName);
   }
 
-  return registryModels.map((model) => ({
-    ...model,
-    aliases: [...(model.aliases ?? [])].sort((left, right) =>
-      left.localeCompare(right),
-    ),
-  }));
+  const merged = [
+    ...registryModels,
+    ...configOnlyModels
+      .filter((model) => {
+        const parsedAlias = parseProviderScopedAlias(model.modelName);
+        if (!parsedAlias) {
+          return true;
+        }
+        return !registryIndex.has(
+          `${normalizeAliasLookupPart(parsedAlias.providerName)}::${normalizeAliasLookupPart(parsedAlias.targetModelName)}`,
+        );
+      })
+      .map((model) => ({ ...model, aliases: [] as string[] })),
+  ];
+
+  return merged
+    .map((model) => ({
+      ...model,
+      aliases: [...(model.aliases ?? [])].sort((left, right) =>
+        left.localeCompare(right),
+      ),
+    }))
+    .sort((left, right) => left.modelName.localeCompare(right.modelName));
 }

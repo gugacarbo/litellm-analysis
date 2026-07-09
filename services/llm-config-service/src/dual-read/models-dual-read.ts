@@ -12,13 +12,33 @@ export async function listRegistryModels(
   const registryRoutes = await registryModelsService.listRoutes();
   return registryRoutes
     .map((route) => toRegistryEntry(route))
-    .sort((left, right) => left.modelName.localeCompare(right.modelName));
+    .filter((entry): entry is RegistryModelEntry => entry !== null)
+    .sort((left, right) =>
+      String(left.modelName).localeCompare(String(right.modelName)),
+    );
 }
 
-export function toRegistryEntry(route: ModelRoute): RegistryModelEntry {
+function resolveRegistryModelName(route: ModelRoute): string {
+  const candidates = [route.modelId, route.modelName];
+  return (
+    candidates.find(
+      (value): value is string =>
+        typeof value === "string" && value.trim() !== "",
+    ) ?? ""
+  );
+}
+
+export function toRegistryEntry(route: ModelRoute): RegistryModelEntry | null {
+  const modelName = resolveRegistryModelName(route);
+  if (!modelName) {
+    return null;
+  }
   return {
-    modelName: route.modelId,
-    modelRoute: route,
+    modelName,
+    modelRoute: {
+      ...route,
+      modelId: modelName,
+    },
   };
 }
 

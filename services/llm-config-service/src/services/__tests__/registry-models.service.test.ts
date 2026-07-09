@@ -52,6 +52,69 @@ describe("RegistryModelsService", () => {
     expect(enabledOnly.map((row) => row.modelId)).toEqual(["enabled-model"]);
   });
 
+  it("filters out registry rows without a modelId", async () => {
+    const repository = {
+      ...createModelsRepositoryMock(),
+      list: async () => [
+        {
+          id: "model_1",
+          modelId: "",
+          enabled: true,
+          displayName: null,
+          family: null,
+          canonicalSlug: null,
+          description: null,
+          contextLength: null,
+          maxCompletionTokens: null,
+          knowledgeCutoff: null,
+          expirationDate: null,
+          architecture: null,
+          reasoning: null,
+          supportedParameters: null,
+          defaultParameters: null,
+          perRequestLimits: null,
+          pricing: null,
+          requestOptions: null,
+          providerId: null,
+          reasoningApiId: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "model_2",
+          modelId: "kept-model",
+          enabled: true,
+          displayName: null,
+          family: null,
+          canonicalSlug: null,
+          description: null,
+          contextLength: null,
+          maxCompletionTokens: null,
+          knowledgeCutoff: null,
+          expirationDate: null,
+          architecture: null,
+          reasoning: null,
+          supportedParameters: null,
+          defaultParameters: null,
+          perRequestLimits: null,
+          pricing: null,
+          requestOptions: null,
+          providerId: null,
+          reasoningApiId: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    };
+
+    const filteringService = new RegistryModelsService({
+      repository: repository as never,
+    });
+
+    const routes = await filteringService.listRoutes();
+    expect(routes.map((route) => route.modelId)).toEqual(["kept-model"]);
+  });
+
   it("upserts model route", async () => {
     const created = await service.upsert("gpt-test", {
       displayName: "First",

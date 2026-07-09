@@ -369,10 +369,23 @@ export function registerModelRoutes(
       registryModelsService.listRoutes(),
     ]);
 
+    function resolveModelEntryName(
+      route?: Pick<ModelRoute, "modelId" | "modelName"> | null,
+    ): string {
+      const candidate = route?.modelId ?? route?.modelName ?? "";
+      return candidate.trim();
+    }
+
     const registryByName = new Map(
-      registryRoutes.map((route) => [route.modelName, route]),
+      registryRoutes
+        .map((route) => [resolveModelEntryName(route), route] as const)
+        .filter(([name]) => name.length > 0),
     );
-    const configNames = new Set(Object.keys(configModels));
+    const configNames = new Set(
+      Object.keys(configModels)
+        .map((name) => name.trim())
+        .filter((name) => name.length > 0),
+    );
     const allNames = Array.from(
       new Set([...configNames, ...registryByName.keys()]),
     ).sort((left, right) => String(left).localeCompare(String(right)));
@@ -394,8 +407,13 @@ export function registerModelRoutes(
 
       return {
         modelName,
-        modelRoute:
-          registryRoute ?? ({ modelId: modelName, modelName } as ModelRoute),
+        modelRoute: registryRoute
+          ? {
+              ...registryRoute,
+              modelId: modelName,
+              modelName,
+            }
+          : ({ modelId: modelName, modelName } as ModelRoute),
         enabled: config?.enabled ?? registryRoute?.enabled ?? true,
         ...(config ? { config: configSliceFromSpec(config) } : {}),
         status,

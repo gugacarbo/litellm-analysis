@@ -1,6 +1,7 @@
 import type { DatabaseClient } from "@lite-llm/database/client";
 import { toModelRoute } from "../adapters/model-route-adapter.js";
 import { ModelsRepository } from "../repositories/models-repository.js";
+import type { ModelConfig } from "../schemas/model.js";
 import type {
   ModelProxyModelRecord,
   ModelRoute,
@@ -56,11 +57,16 @@ export class RegistryModelsService implements IRegistryModelsService {
 
   async listRoutes(_options?: ModelsListOptions): Promise<ModelRoute[]> {
     const records = await this.repository.list();
-    return records.map((r) =>
-      toModelRoute({
-        model: r as unknown as import("../schemas/model.js").ModelConfig,
-      }),
-    );
+    return records
+      .filter(
+        (record) =>
+          typeof record.modelId === "string" && record.modelId.trim() !== "",
+      )
+      .map((record) =>
+        toModelRoute({
+          model: toModelConfig(record),
+        }),
+      );
   }
 
   async get(modelName: string): Promise<ModelProxyModelRecord | null> {
@@ -71,7 +77,7 @@ export class RegistryModelsService implements IRegistryModelsService {
     const record = await this.repository.findByModelName(modelName);
     return record
       ? toModelRoute({
-          model: record as unknown as import("../schemas/model.js").ModelConfig,
+          model: toModelConfig(record),
         })
       : null;
   }
@@ -145,4 +151,26 @@ export class RegistryModelsService implements IRegistryModelsService {
     if (!existing) return false;
     return this.repository.delete(existing.id);
   }
+}
+
+function toModelConfig(record: ModelProxyModelRecord): ModelConfig {
+  return {
+    name: record.modelId,
+    provider: String(record.providerId ?? ""),
+    displayName: record.displayName ?? undefined,
+    family: record.family ?? undefined,
+    canonicalSlug: record.canonicalSlug ?? undefined,
+    description: record.description ?? undefined,
+    contextLength: record.contextLength ?? undefined,
+    maxCompletionTokens: record.maxCompletionTokens ?? undefined,
+    knowledgeCutoff: record.knowledgeCutoff ?? undefined,
+    expirationDate: record.expirationDate ?? undefined,
+    architecture: record.architecture ?? undefined,
+    reasoning: record.reasoning ?? undefined,
+    supportedParameters: record.supportedParameters ?? undefined,
+    defaultParameters: record.defaultParameters ?? undefined,
+    perRequestLimits: record.perRequestLimits ?? undefined,
+    pricing: record.pricing ?? undefined,
+    requestOptions: record.requestOptions ?? undefined,
+  } as unknown as ModelConfig;
 }

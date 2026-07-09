@@ -359,7 +359,7 @@ describe("model routes save", () => {
       },
     });
     stack.registryRoutes.set("gpt-shared", {
-      modelName: "gpt-shared",
+      modelId: "gpt-shared",
       providerName: "openai",
       maxOutputTokens: 4096,
     });
@@ -382,6 +382,7 @@ describe("model routes save", () => {
           {
             modelName: "gpt-shared",
             modelRoute: {
+              modelId: "gpt-shared",
               modelName: "gpt-shared",
               providerName: "openai",
               maxOutputTokens: 4096,
@@ -396,6 +397,7 @@ describe("model routes save", () => {
           {
             modelName: "openai/gpt-shared",
             modelRoute: {
+              modelId: "openai/gpt-shared",
               modelName: "openai/gpt-shared",
             },
             enabled: true,
