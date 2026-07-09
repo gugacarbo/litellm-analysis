@@ -10,7 +10,7 @@ const workspaceRoots = [
   "packages",
   "repositories",
   "database",
-];
+] as const;
 
 const sourceExtensions = new Set([
   ".ts",
@@ -32,7 +32,34 @@ const ignoredDirs = new Set([
   "coverage",
 ]);
 
-function printProgress(label, current, total) {
+type ExportMode = "all" | "named";
+
+type SpecifierUsage = {
+  all: boolean;
+  names: Set<string>;
+};
+
+type Workspace = {
+  name: string;
+  dir: string;
+  hasExports: boolean;
+  exportEntries: ExportEntry[];
+};
+
+type ExportEntry = {
+  specifier: string;
+  subpath: string;
+  files: string[];
+};
+
+type Finding = {
+  workspace: string;
+  specifier: string;
+  files: string[];
+  unusedExports: string[];
+};
+
+function printProgress(label: string, current: number, total: number) {
   const percentage = Math.round((current / total) * 100);
   const filled = Math.round(percentage / 5);
   const empty = 20 - filled;
@@ -46,7 +73,7 @@ function clearProgress() {
   process.stdout.write("\r" + " ".repeat(80) + "\r");
 }
 
-function walk(dir, visitor) {
+function walk(dir: string, visitor: (filePath: string) => void) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (ignoredDirs.has(entry.name)) continue;
     const fullPath = path.join(dir, entry.name);
@@ -58,16 +85,16 @@ function walk(dir, visitor) {
   }
 }
 
-function toPosix(filePath) {
+function toPosix(filePath: string) {
   return filePath.split(path.sep).join("/");
 }
 
-function readJson(filePath) {
+function readJson(filePath: string): Record<string, unknown> {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-function listWorkspacePackageJsons() {
-  const manifests = [];
+function listWorkspacePackageJsons(): string[] {
+  const manifests: string[] = [];
   for (const root of workspaceRoots) {
     const fullRoot = path.join(repoRoot, root);
     if (!fs.existsSync(fullRoot)) continue;
@@ -79,13 +106,14 @@ function listWorkspacePackageJsons() {
 }
 
 function collectExportTargets(
-  exportsField,
+  exportsField: unknown,
   subpath = ".",
-  collector = new Map(),
-) {
+  collector = new Map<string, string[]>(),
+): Map<string, string[]> {
   if (typeof exportsField === "string") {
-    if (!collector.has(subpath)) collector.set(subpath, []);
-    collector.get(subpath).push(exportsField);
+    const list = collector.get(subpath) ?? [];
+    list.push(exportsField);
+    collector.set(subpath, list);
     return collector;
   }
 
@@ -116,17 +144,17 @@ function collectExportTargets(
   return collector;
 }
 
-function buildWorkspaces() {
+function buildWorkspaces(): Workspace[] {
   return listWorkspacePackageJsons()
     .map((manifestPath) => {
       const pkg = readJson(manifestPath);
       const dir = path.dirname(manifestPath);
       const exportTargets = collectExportTargets(pkg.exports ?? {});
-      const exportEntries = [];
+      const exportEntries: ExportEntry[] = [];
 
       for (const [subpath, targets] of exportTargets) {
         const resolvedTargets = [...new Set(targets)]
-          .filter((target) => typeof target === "string")
+          .filter((target): target is string => typeof target === "string")
           .filter((target) => !target.includes("*"))
           .map((target) => path.resolve(dir, target))
           .filter((target) => sourceExtensions.has(path.extname(target)))
@@ -134,10 +162,9 @@ function buildWorkspaces() {
 
         if (!resolvedTargets.length) continue;
 
+        const name = typeof pkg.name === "string" ? pkg.name : "";
         const specifier =
-          subpath === "."
-            ? pkg.name
-            : `${pkg.name}/${subpath.replace(/^\.\//, "")}`;
+          subpath === "." ? name : `${name}/${subpath.replace(/^\.\//, "")}`;
 
         exportEntries.push({
           specifier,
@@ -146,8 +173,10 @@ function buildWorkspaces() {
         });
       }
 
+      const name = typeof pkg.name === "string" ? pkg.name : "";
+
       return {
-        name: pkg.name,
+        name,
         dir,
         hasExports: exportEntries.length > 0,
         exportEntries,
@@ -156,15 +185,15 @@ function buildWorkspaces() {
     .filter((workspace) => workspace.name);
 }
 
-function getWorkspaceForFile(filePath, workspaces) {
+function getWorkspaceForFile(filePath: string, workspaces: Workspace[]) {
   return workspaces.find((workspace) => {
     const rel = path.relative(workspace.dir, filePath);
     return rel && !rel.startsWith("..") && !path.isAbsolute(rel);
   });
 }
 
-function listSourceFiles() {
-  const files = [];
+function listSourceFiles(): string[] {
+  const files: string[] = [];
   for (const root of workspaceRoots) {
     const fullRoot = path.join(repoRoot, root);
     if (!fs.existsSync(fullRoot)) continue;
@@ -176,7 +205,7 @@ function listSourceFiles() {
   return files;
 }
 
-function getModuleExports(checker, sourceFile) {
+function getModuleExports(checker: ts.TypeChecker, sourceFile: ts.SourceFile) {
   const symbol = checker.getSymbolAtLocation(sourceFile);
   if (!symbol) return [];
   return checker
@@ -185,16 +214,22 @@ function getModuleExports(checker, sourceFile) {
     .filter((name) => name !== "default");
 }
 
-function ensureUse(target, mode, importedName) {
+function ensureUse(
+  target: SpecifierUsage,
+  mode: ExportMode,
+  importedName: string | null,
+) {
   if (mode === "all") {
     target.all = true;
     return;
   }
-  target.names.add(importedName);
+  if (importedName) {
+    target.names.add(importedName);
+  }
 }
 
-function collectExternalImports(program, workspaces) {
-  const usageBySpecifier = new Map();
+function collectExternalImports(program: ts.Program, workspaces: Workspace[]) {
+  const usageBySpecifier = new Map<string, SpecifierUsage>();
   const workspaceNames = workspaces
     .map((workspace) => workspace.name)
     .sort((left, right) => right.length - left.length);
@@ -223,20 +258,26 @@ function collectExternalImports(program, workspaces) {
     );
     if (!importerWorkspace) continue;
 
-    const record = (specifier, mode, importedName = null) => {
+    const record = (
+      specifier: string,
+      mode: ExportMode,
+      importedName: string | null = null,
+    ) => {
       const owner = workspaceNames.find(
         (name) => specifier === name || specifier.startsWith(`${name}/`),
       );
       if (!owner || owner === importerWorkspace.name) return;
 
-      if (!usageBySpecifier.has(specifier)) {
-        usageBySpecifier.set(specifier, { all: false, names: new Set() });
-      }
+      const usage = usageBySpecifier.get(specifier) ?? {
+        all: false,
+        names: new Set<string>(),
+      };
+      usageBySpecifier.set(specifier, usage);
 
-      ensureUse(usageBySpecifier.get(specifier), mode, importedName);
+      ensureUse(usage, mode, importedName);
     };
 
-    function visit(node) {
+    function visit(node: ts.Node) {
       if (
         (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
         node.moduleSpecifier &&
@@ -299,12 +340,13 @@ const program = ts.createProgram(sourceFiles, {
   target: ts.ScriptTarget.ES2024,
 });
 const checker = program.getTypeChecker();
+
 console.log(
   chalk.blue(`Analyzing imports across ${sourceFiles.length} source files...`),
 );
-const usageBySpecifier = collectExternalImports(program, workspaces);
 
-const findings = [];
+const usageBySpecifier = collectExternalImports(program, workspaces);
+const findings: Finding[] = [];
 const exportedWorkspaces = workspaces.filter(
   (workspace) => workspace.hasExports,
 );
@@ -312,6 +354,7 @@ const exportedTotal = exportedWorkspaces.reduce(
   (sum, workspace) => sum + workspace.exportEntries.length,
   0,
 );
+let checkedCount = 0;
 
 console.log(chalk.blue("Checking workspace exports for external consumers..."));
 
@@ -340,7 +383,7 @@ for (const workspace of exportedWorkspaces) {
 
     if (!unusedExports.length) continue;
 
-    const finding = {
+    const finding: Finding = {
       workspace: workspace.name,
       specifier: entry.specifier,
       files: entry.files.map((filePath) =>

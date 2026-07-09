@@ -27,7 +27,7 @@
     "docs-check:update": "python3 ./scripts/docs-check --emit-index",
     "verify": "bash ./scripts/verify",
     "knip": "knip",
-    "check:workspace-exports": "node ./scripts/check-workspace-exports.mjs",
+    "check:workspace-exports": "node --experimental-strip-types ./scripts/check-workspace-exports.ts",
     "tsc-files": "tsc-files --noEmit"
   },
   "devDependencies": {
