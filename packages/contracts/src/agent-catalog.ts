@@ -52,13 +52,3 @@ export interface PluginRouting {
     categories?: Record<string, boolean>;
   };
 }
-
-export type PluginSchemaResponse = {
-  schema: Record<string, unknown>;
-};
-
-export type PluginToggleResponse = {
-  pluginId: string;
-  agentId: string;
-  enabled: boolean;
-};

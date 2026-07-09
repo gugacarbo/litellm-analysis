@@ -57,22 +57,3 @@ type SpendLogsChangedEventType = "spend_logs_changed";
 export type AutomaticInteractionWsEventType =
   | HealthCheckStreamEventType
   | SpendLogsChangedEventType;
-
-export type AutomaticInteractionWsMessage =
-  | {
-      type: "health_check_stream_started";
-      data: HealthCheckStreamStartedPayload;
-    }
-  | {
-      type: "health_check_stream_delta";
-      data: HealthCheckStreamDeltaPayload;
-    }
-  | {
-      type: "health_check_stream_completed";
-      data: HealthCheckStreamTerminalPayload;
-    }
-  | {
-      type: "health_check_stream_failed";
-      data: HealthCheckStreamTerminalPayload;
-    }
-  | { type: "spend_logs_changed"; data: SpendLogsChangedPayload };
