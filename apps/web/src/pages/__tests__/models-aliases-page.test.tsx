@@ -63,14 +63,6 @@ vi.mock("@/features/models/models-health-check-page", () => ({
   ModelsHealthCheckPage: () => <div>Models Health Check Page</div>,
 }));
 
-vi.mock("@/features/plugins", () => ({
-  PluginConfigPage: () => <div>Plugin Config Page</div>,
-}));
-
-vi.mock("@/features/plugins/list-index", () => ({
-  PluginsPage: () => <div>Plugins Page</div>,
-}));
-
 vi.mock("@/features/floating-chat/floating-chat-widget", () => ({
   FloatingChatWidget: () => null,
 }));

@@ -91,12 +91,4 @@ export const queryKeys = {
     all: ["category-catalog"] as const,
     detail: (key: string) => ["category-catalog", key] as const,
   },
-  pluginRouting: {
-    all: ["plugin-routing"] as const,
-    plugins: ["plugin-routing", "plugins"] as const,
-    pluginConfig: (pluginId: string) =>
-      ["plugin-routing", "config", pluginId] as const,
-    pluginSchema: (pluginId: string) =>
-      ["plugin-routing", "schema", pluginId] as const,
-  },
 };

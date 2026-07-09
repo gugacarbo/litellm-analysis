@@ -23,8 +23,6 @@ import { ModelsHealthCheckPage } from "@/features/models/models-health-check-pag
 import { ModelsLayout } from "@/features/models/models-layout";
 import { ProvidersPage } from "@/features/models/providers-page";
 import { OpenRouterBenchmarksPage } from "@/features/openrouter-benchmarks";
-import { PluginConfigPage } from "@/features/plugins";
-import { PluginsPage } from "@/features/plugins/list-index";
 import { ErrorBoundary } from "@/shared/components/error-boundary";
 import { AppLayout } from "@/shared/components/layout/app-layout";
 
@@ -71,18 +69,6 @@ const routes: RouteConfig[] = [
     path: "/agents/:id",
     title: "Agent Configuration",
     component: AgentConfigPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/plugins",
-    title: "Plugins",
-    component: PluginsPage,
-    withErrorBoundary: true,
-  },
-  {
-    path: "/plugins/:pluginId",
-    title: "Plugin Configuration",
-    component: PluginConfigPage,
     withErrorBoundary: true,
   },
 ];

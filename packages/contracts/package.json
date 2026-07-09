@@ -7,7 +7,6 @@
     ".": "./src/index.ts",
     "./analytics": "./src/analytics.ts",
     "./agent-routing": "./src/agent-routing.ts",
-    "./agent-catalog": "./src/agent-catalog.ts",
     "./benchmarks": "./src/benchmarks.ts",
     "./category": "./src/category.ts",
     "./ws-events": "./src/ws-events.ts"

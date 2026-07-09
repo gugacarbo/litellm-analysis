@@ -121,11 +121,11 @@ export function AppSidebar() {
     { id: "logs", to: "/logs", icon: FileText, label: "Logs" },
     {
       id: "agents",
+      to: "/agents",
       icon: Bot,
       label: "Agents",
       children: [
         { id: "agents-config", to: "/agents", label: "Config", icon: Settings },
-        { id: "plugins", to: "/plugins", label: "Plugins", icon: GitBranch },
       ],
     },
     {
