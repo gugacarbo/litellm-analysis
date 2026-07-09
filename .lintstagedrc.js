@@ -9,10 +9,15 @@
  * @type {import('lint-staged').Configuration}
  */
 export default {
-  "*.{js,ts,mjs,cjs,json,jsonc,yml,yaml,toml,html,css}": "pnpm format",
-  "*.{js,ts}": "tsc-files --noEmit",
+  "*": "pnpm format",
   "*.{md,mdx}": (files) => {
     const paths = files.map((file) => `"${file}"`).join(" ");
     return `pnpm prettier --write ${paths} --log-level=warn --no-error-on-unmatched-pattern --cache`;
   },
+  "*.{js,ts,jsx,tsx}": [
+    // Run TypeScript compiler on staged files without emitting output
+    "tsc-files --noEmit",
+    // Run test-staged to execute tests related to staged files
+    "test-staged",
+  ],
 };

@@ -1,6 +1,10 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function createTestDb(): Promise<{
   db: ReturnType<typeof drizzle>;
@@ -14,7 +18,9 @@ export async function createTestDb(): Promise<{
 
   const db = drizzle(pool);
 
-  await migrate(db, { migrationsFolder: "./drizzle" });
+  await migrate(db, {
+    migrationsFolder: path.resolve(__dirname, "../../drizzle"),
+  });
 
   return {
     db,

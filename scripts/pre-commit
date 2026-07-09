@@ -21,13 +21,5 @@ fi
 echo "==> docs-check"
 "${ROOT}/scripts/docs-check"
 
-echo "==> ${RUNNER} format"
+echo "==> ${RUNNER} run staged files checks"
 ${RUNNER} lint-staged
-
-echo "==> ${RUNNER} test"
-${RUNNER} test-staged
-
-# Type-check, testes e análise de exports não utilizados.
-echo "==> ${RUNNER} run typecheck"
-${RUNNER} run tsc-files
-
