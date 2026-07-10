@@ -33,7 +33,10 @@ function LoginPage() {
       });
 
       if (!response.ok) {
-        setError("Invalid credentials");
+        const result = (await response.json().catch(() => null)) as {
+          message?: string;
+        } | null;
+        setError(result?.message ?? "Invalid credentials");
         return;
       }
 

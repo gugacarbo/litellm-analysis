@@ -44,6 +44,9 @@ export function createAuth(params: {
     secret,
     baseURL,
     trustedOrigins: [baseURL],
+    emailAndPassword: {
+      enabled: true,
+    },
     plugins: [admin(), tanstackStartCookies()],
   });
 
