@@ -1,1 +1,105 @@
-[]
+[
+  {
+    "id": "ADR-0001",
+    "path": "docs/adr/0001-tanstack-start-substitui-apps-web.md",
+    "layer": "adr",
+    "title": "TanStack Start substitui o apps/web",
+    "status": "proposed",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "ADR-0002",
+    "path": "docs/adr/0002-server-functions-como-fronteira-de-dados.md",
+    "layer": "adr",
+    "title": "O apps/ui possui sua própria fronteira de dados",
+    "status": "proposed",
+    "builds-on": [
+      "ADR-0001"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "ADR-0003",
+    "path": "docs/adr/0003-ui-e-gateway-hebo-operam-separados.md",
+    "layer": "adr",
+    "title": "UI e gateway Hebo operam como runtimes separados",
+    "status": "proposed",
+    "builds-on": [
+      "ADR-0001",
+      "ADR-0002"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "ADR-0004",
+    "path": "docs/adr/0004-router-query-organiza-dados-da-ui.md",
+    "layer": "adr",
+    "title": "Router e Query organizam os dados da UI",
+    "status": "proposed",
+    "builds-on": [
+      "ADR-0001",
+      "ADR-0002"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "ADR-0005",
+    "path": "docs/adr/0005-better-auth-com-bootstrap-por-convite.md",
+    "layer": "adr",
+    "title": "Better Auth protege a UI com bootstrap por convite",
+    "status": "proposed",
+    "builds-on": [
+      "ADR-0002"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "ADR-0006",
+    "path": "docs/adr/0006-schema-drizzle-e-a-fonte-dos-tipos-do-banco.md",
+    "layer": "adr",
+    "title": "O schema Drizzle é a fonte dos tipos do banco",
+    "status": "proposed",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "SPEC-0001",
+    "path": "docs/specs/0001-recriacao-ui-tanstack-start-spec.md",
+    "layer": "specs",
+    "title": "Recriar a aplicação web em TanStack Start por etapas",
+    "status": "draft",
+    "builds-on": [
+      "ADR-0001",
+      "ADR-0002",
+      "ADR-0003",
+      "ADR-0004",
+      "ADR-0005"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
+    "id": "SPEC-0002",
+    "path": "docs/specs/0002-fundacao-ui-tanstack-start-spec.md",
+    "layer": "specs",
+    "title": "Estabelecer a fundação server-side do apps/ui",
+    "status": "accepted",
+    "builds-on": [
+      "ADR-0001",
+      "ADR-0002",
+      "ADR-0004",
+      "ADR-0005",
+      "ADR-0006",
+      "SPEC-0001"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
+  }
+]

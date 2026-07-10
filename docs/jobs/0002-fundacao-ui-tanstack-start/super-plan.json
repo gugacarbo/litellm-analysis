@@ -1,0 +1,581 @@
+{
+  "$schema": "https://raw.githubusercontent.com/gugacarbo/agents-skills/main/super-planning/interfaces/super-plan.schema.json",
+  "createdAt": "2026-07-10T00:16:49.450508+00:00",
+  "planId": "0002-fundacao-ui-tanstack-start",
+  "featureName": "fundacao-ui-tanstack-start",
+  "status": "in_progress",
+  "source": {
+    "spec": "docs/specs/0002-fundacao-ui-tanstack-start-spec.md",
+    "plan": "docs/plans/0002-fundacao-ui-tanstack-start.md"
+  },
+  "goal": "Preparar o apps/ui para executar uma server function autenticada sobre PostgreSQL/Drizzle com Better Auth e boundary client/server.",
+  "architectureSummary": "O apps/ui usa server functions createServerFn com validacao, rotas REST proprias quando necessarias e Better Auth em rota catch-all propria. A Etapa 1 executa sequencialmente schema, auth, server context, rota protegida e guard de boundary.",
+  "techStack": [
+    "TanStack Start",
+    "TanStack Router",
+    "TanStack Query",
+    "Better Auth",
+    "PostgreSQL",
+    "Drizzle ORM",
+    "Vitest",
+    "React Testing Library",
+    "Biome"
+  ],
+  "executionMode": "sequential",
+  "reviewCadence": "final_only",
+  "agents": {
+    "general": {
+      "model": "gpt-5.4-mini",
+      "agent": "general"
+    },
+    "deep": {
+      "model": "gpt-5.4-mini",
+      "agent": ""
+    },
+    "quick": {
+      "model": "gpt-5.4-mini",
+      "agent": "quick"
+    }
+  },
+  "branchStrategy": {
+    "baseBranch": "main",
+    "featureBranch": "codex/0002-fundacao-ui-tanstack-start"
+  },
+  "worktree": {
+    "enabled": true,
+    "path": "../lite-llm-analytics-worktrees/0002-fundacao-ui-tanstack-start"
+  },
+  "globalConstraints": [
+    "Nao consumir a API administrativa legada do apps/server.",
+    "APIs REST proprias em apps/ui/src/routes/api sao permitidas.",
+    "PostgreSQL e o unico banco suportado.",
+    "Schemas Drizzle e Zod derivados ficam no pacote database.",
+    "Server functions usam createServerFn().validator().handler().",
+    "Testes unitarios usam injecao; integracao usa TEST_DATABASE_URL.",
+    "Cada teste TDD precede sua implementacao."
+  ],
+  "fileStructure": [
+    {
+      "path": "database/src/schema/app/auth.ts",
+      "ownerTask": "Task-A-1",
+      "notes": "Tabelas PostgreSQL de autenticacao e convite."
+    },
+    {
+      "path": "database/src/schema/app/auth.schemas.ts",
+      "ownerTask": "Task-A-1",
+      "notes": "Schemas Zod derivados de select/insert/update."
+    },
+    {
+      "path": "apps/ui/src/server/auth/",
+      "ownerTask": "Task-B-1",
+      "notes": "Better Auth, convites e autorizacao."
+    },
+    {
+      "path": "apps/ui/src/routes/api/auth/$.ts",
+      "ownerTask": "Task-B-1",
+      "notes": "Catch-all GET/POST do Better Auth."
+    },
+    {
+      "path": "apps/ui/src/server/runtime-status.functions.ts",
+      "ownerTask": "Task-C-1",
+      "notes": "Wrapper createServerFn do smoke test."
+    },
+    {
+      "path": "apps/ui/src/routes/_protected.tsx",
+      "ownerTask": "Task-D-1",
+      "notes": "Loader de sessao e redirect."
+    },
+    {
+      "path": "scripts/check-ui-client-boundary.mjs",
+      "ownerTask": "Task-E-1",
+      "notes": "Guard contra API legada e imports server-only."
+    }
+  ],
+  "requirementsChecklist": [
+    {
+      "id": "REQ-001",
+      "title": "Schema PostgreSQL e contratos derivados",
+      "source": "SPEC-0002/ADR-0006",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "Schema e tipos de auth exportados pelo database."
+      ],
+      "coveredByTasks": [
+        "Task-A-1"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-002",
+      "title": "Better Auth e convite",
+      "source": "SPEC-0002/ADR-0005",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "Sessao, convite e autorizacao testados."
+      ],
+      "coveredByTasks": [
+        "Task-B-1"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-003",
+      "title": "Server function protegida",
+      "source": "SPEC-0002/ADR-0002",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "RuntimeStatusResult cobre auth, role, erro e sucesso."
+      ],
+      "coveredByTasks": [
+        "Task-C-1",
+        "Task-D-1"
+      ],
+      "notes": []
+    },
+    {
+      "id": "REQ-004",
+      "title": "Boundary e DoD",
+      "source": "SPEC-0002",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "Guard, testes, typecheck e build verdes."
+      ],
+      "coveredByTasks": [
+        "Task-E-1"
+      ],
+      "notes": []
+    }
+  ],
+  "taskDirectory": "docs/jobs/0002-fundacao-ui-tanstack-start",
+  "rules": [
+    "Executar tarefas em ordem A -> B -> C -> D -> E.",
+    "Nao editar super-plan.json manualmente.",
+    "Nao marcar tarefa completa sem review limpa.",
+    "Nao iniciar implementacao em main/master."
+  ],
+  "tasks": [
+    {
+      "status": "completed",
+      "tryCount": 3,
+      "maxTries": 3,
+      "id": "Task-A-1",
+      "title": "Schema PostgreSQL e contratos Drizzle",
+      "description": "Criar tabelas de autenticacao e convite, tipos e schemas Zod derivados e migracao PostgreSQL.",
+      "task_profile": "deep",
+      "batch": "A",
+      "layer": "foundation",
+      "reportFile": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-A-1/report.md",
+      "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-A-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-A-1/progress.log",
+      "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-A-1/log-task.sh",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Tabelas auth/app_invite com pgTable.",
+        "Tipos select/insert/update e schemas Zod derivados exportados.",
+        "Migracao PostgreSQL validada com banco de teste."
+      ],
+      "requirements": [
+        "ADR-0006",
+        "SPEC-0002 casos 3 e 9"
+      ],
+      "rules": [
+        "Seguir ADRs e SPEC-0002.",
+        "Escrever testes antes da implementacao.",
+        "Nao editar super-plan.json."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes de schema.",
+          "description": "Escrever testes de schema.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Criar auth.ts e auth.schemas.ts.",
+          "description": "Criar auth.ts e auth.schemas.ts.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Exportar e gerar migracao.",
+          "description": "Exportar e gerar migracao.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Executar testes.",
+          "description": "Executar testes.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "database/src/schema/app/auth.ts",
+        "database/src/schema/app/auth.schemas.ts",
+        "database/src/schema/app/index.ts",
+        "database/drizzle/"
+      ],
+      "files": {
+        "created": [
+          "database/src/schema/app/auth.ts",
+          "database/src/schema/app/auth.schemas.ts",
+          "database/src/schema/app/index.ts",
+          "database/drizzle/"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [],
+      "baseCommit": "92b4a922195fd82374b9e70ce3be00541dd125e3"
+    },
+    {
+      "status": "completed",
+      "tryCount": 2,
+      "maxTries": 3,
+      "id": "Task-B-1",
+      "title": "Better Auth, convite e autorizacao",
+      "description": "Integrar Better Auth com Drizzle/PostgreSQL, cookies TanStack, rota auth e roles.",
+      "task_profile": "deep",
+      "batch": "B",
+      "layer": "core",
+      "reportFile": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-B-1/report.md",
+      "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-B-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-B-1/progress.log",
+      "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-B-1/log-task.sh",
+      "dependencies": [
+        "Task-A-1"
+      ],
+      "acceptanceCriteria": [
+        "Adapter provider pg/schema database.",
+        "tanstackStartCookies ultimo plugin.",
+        "Rota auth GET/POST.",
+        "Convites hash/expiracao/uso atomico e roles."
+      ],
+      "requirements": [
+        "ADR-0002",
+        "ADR-0005",
+        "ADR-0006"
+      ],
+      "rules": [
+        "Seguir ADRs e SPEC-0002.",
+        "Escrever testes antes da implementacao.",
+        "Nao editar super-plan.json."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes auth.",
+          "description": "Escrever testes auth.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Instalar e configurar dependencias.",
+          "description": "Instalar e configurar dependencias.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Criar rota catch-all.",
+          "description": "Criar rota catch-all.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Implementar convites e autorizacao.",
+          "description": "Implementar convites e autorizacao.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/package.json",
+        "apps/ui/src/server/auth/",
+        "apps/ui/src/routes/api/auth/$.ts"
+      ],
+      "files": {
+        "created": [
+          "apps/ui/package.json",
+          "apps/ui/src/server/auth/",
+          "apps/ui/src/routes/api/auth/$.ts"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [],
+      "baseCommit": "92b4a922195fd82374b9e70ce3be00541dd125e3"
+    },
+    {
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "id": "Task-C-1",
+      "title": "Server context e getRuntimeStatus",
+      "description": "Criar composicao server-only, logger redacted e server function autenticada.",
+      "task_profile": "general",
+      "batch": "C",
+      "layer": "core",
+      "reportFile": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-C-1/report.md",
+      "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-C-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-C-1/progress.log",
+      "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-C-1/log-task.sh",
+      "dependencies": [
+        "Task-B-1"
+      ],
+      "acceptanceCriteria": [
+        "createServerFn validator/handler.",
+        "Erros UNAUTHENTICATED/FORBIDDEN/INTERNAL e sucesso admin.",
+        "Sem gateway ou services de dominio."
+      ],
+      "requirements": [
+        "ADR-0002",
+        "SPEC-0002 casos 1,2,4,5"
+      ],
+      "rules": [
+        "Seguir ADRs e SPEC-0002.",
+        "Escrever testes antes da implementacao.",
+        "Nao editar super-plan.json."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes RuntimeStatus.",
+          "description": "Escrever testes RuntimeStatus.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Criar context injetavel.",
+          "description": "Criar context injetavel.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Criar functions/server helpers.",
+          "description": "Criar functions/server helpers.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Implementar checks e logger.",
+          "description": "Implementar checks e logger.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/server/context.ts",
+        "apps/ui/src/server/runtime-status.functions.ts",
+        "apps/ui/src/server/runtime-status.server.ts"
+      ],
+      "files": {
+        "created": [
+          "apps/ui/src/server/context.ts",
+          "apps/ui/src/server/runtime-status.functions.ts",
+          "apps/ui/src/server/runtime-status.server.ts"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [],
+      "baseCommit": "92b4a922195fd82374b9e70ce3be00541dd125e3"
+    },
+    {
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "id": "Task-D-1",
+      "title": "Login, rota protegida, loader e Query",
+      "description": "Conectar auth e status a rota protegida com loader server function, Query e estados UI.",
+      "task_profile": "general",
+      "batch": "D",
+      "layer": "surface",
+      "reportFile": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-D-1/report.md",
+      "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-D-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-D-1/progress.log",
+      "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-D-1/log-task.sh",
+      "dependencies": [
+        "Task-C-1"
+      ],
+      "acceptanceCriteria": [
+        "Loader chama getSession server function.",
+        "Query runtime-status chama uma vez.",
+        "UI cobre loading/error/forbidden/sucesso."
+      ],
+      "requirements": [
+        "ADR-0004",
+        "SPEC-0002 casos 1,4,7,10"
+      ],
+      "rules": [
+        "Seguir ADRs e SPEC-0002.",
+        "Escrever testes antes da implementacao.",
+        "Nao editar super-plan.json."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes de rota.",
+          "description": "Escrever testes de rota.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Configurar QueryClientProvider.",
+          "description": "Configurar QueryClientProvider.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Criar login e rota protected.",
+          "description": "Criar login e rota protected.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Criar query e estados.",
+          "description": "Criar query e estados.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 5,
+          "title": "Executar testes/build.",
+          "description": "Executar testes/build.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/routes/login.tsx",
+        "apps/ui/src/routes/_protected.tsx",
+        "apps/ui/src/routes/index.tsx",
+        "apps/ui/src/router.tsx"
+      ],
+      "files": {
+        "created": [
+          "apps/ui/src/routes/login.tsx",
+          "apps/ui/src/routes/_protected.tsx",
+          "apps/ui/src/routes/index.tsx",
+          "apps/ui/src/router.tsx"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [],
+      "baseCommit": "92b4a922195fd82374b9e70ce3be00541dd125e3"
+    },
+    {
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "id": "Task-E-1",
+      "title": "Guard de boundary e fechamento",
+      "description": "Criar guarda contra API legada/imports server-only, executar matriz TDD e registrar evidencia.",
+      "task_profile": "quick",
+      "batch": "E",
+      "layer": "final",
+      "reportFile": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-E-1/report.md",
+      "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-E-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-E-1/progress.log",
+      "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-E-1/log-task.sh",
+      "dependencies": [
+        "Task-D-1"
+      ],
+      "acceptanceCriteria": [
+        "Guarda bloqueia API legada/provider/import server-only.",
+        "Guarda permite routes/api proprias e RPC.",
+        "Matriz, typecheck, test e build verdes."
+      ],
+      "requirements": [
+        "ADR-0002",
+        "SPEC-0002 casos 6,8,9"
+      ],
+      "rules": [
+        "Seguir ADRs e SPEC-0002.",
+        "Escrever testes antes da implementacao.",
+        "Nao editar super-plan.json."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes da guarda.",
+          "description": "Escrever testes da guarda.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Implementar script.",
+          "description": "Implementar script.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Executar DoD.",
+          "description": "Executar DoD.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        },
+        {
+          "order": 4,
+          "title": "Registrar verificacao.",
+          "description": "Registrar verificacao.",
+          "command": null,
+          "expectedResult": "A etapa conclui sem erros e deixa o proximo contrato verificavel.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "scripts/check-ui-client-boundary.mjs",
+        "scripts/check-ui-client-boundary.test.ts",
+        "docs/specs/verification/0002-fundacao-ui-tanstack-start.md"
+      ],
+      "files": {
+        "created": [
+          "scripts/check-ui-client-boundary.mjs",
+          "scripts/check-ui-client-boundary.test.ts",
+          "docs/specs/verification/0002-fundacao-ui-tanstack-start.md"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [],
+      "baseCommit": "92b4a922195fd82374b9e70ce3be00541dd125e3"
+    }
+  ],
+  "updatedAt": "2026-07-10T01:44:51.883961+00:00"
+}
