@@ -9,7 +9,8 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import { getUiPreferences } from "../server/ui-preferences.functions";
+import { getUiPreferences } from "../features/ui-preferences/server/ui-preferences.functions";
+import { TooltipProvider } from "../shared/components/ui/tooltip";
 import appCss from "../styles.css?url";
 
 export const PREPAINT_THEME_SCRIPT = `(()=>{const c=document.cookie.match(/(?:^|;\\s*)ui_theme=([^;]*)/);let t=c?.[1];if(t!=="light"&&t!=="dark"){t=window.matchMedia?.("(prefers-color-scheme: dark)").matches?"dark":"light";document.cookie="ui_theme="+t+"; Path=/; SameSite=Lax; Max-Age=15552000"}document.documentElement.classList.remove("light","dark");document.documentElement.classList.add(t)})();`;
@@ -53,7 +54,7 @@ function NotFoundPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center gap-4">
       <h1 className="text-2xl font-bold">Page not found</h1>
-      <Link to="/" className="text-indigo-600 hover:underline">
+      <Link to="/" className="text-primary hover:underline">
         Go home
       </Link>
     </main>
@@ -71,9 +72,11 @@ function RootDocument() {
         <script dangerouslySetInnerHTML={{ __html: PREPAINT_THEME_SCRIPT }} />
       </head>
       <body>
-        <QueryClientProvider client={queryClient}>
-          <Outlet />
-        </QueryClientProvider>
+        <TooltipProvider>
+          <QueryClientProvider client={queryClient}>
+            <Outlet />
+          </QueryClientProvider>
+        </TooltipProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",

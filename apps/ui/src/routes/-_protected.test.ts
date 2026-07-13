@@ -13,20 +13,23 @@ import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the server functions before any imports
-vi.mock("../server/auth/get-session.functions", async (importOriginal) => ({
-  ...(await importOriginal<
-    typeof import("../server/auth/get-session.functions")
-  >()),
-  getSession: vi.fn(),
-}));
+vi.mock(
+  "../features/auth/server/get-session.functions",
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import("../features/auth/server/get-session.functions")
+    >()),
+    getSession: vi.fn(),
+  }),
+);
 
-vi.mock("../server/ui-preferences.functions", () => ({
+vi.mock("../features/ui-preferences/server/ui-preferences.functions", () => ({
   getUiPreferences: vi.fn(),
   setSidebarPreference: vi.fn(),
   setThemePreference: vi.fn(),
 }));
 
-vi.mock("../lib/auth-client", () => ({
+vi.mock("../shared/lib/auth-client", () => ({
   authClient: { signOut: vi.fn() },
 }));
 
@@ -43,8 +46,8 @@ vi.mock("@tanstack/react-router-devtools", () => ({
 import {
   getSession,
   projectPublicSession,
-} from "../server/auth/get-session.functions";
-import { getUiPreferences } from "../server/ui-preferences.functions";
+} from "../features/auth/server/get-session.functions";
+import { getUiPreferences } from "../features/ui-preferences/server/ui-preferences.functions";
 
 afterEach(() => {
   cleanup();

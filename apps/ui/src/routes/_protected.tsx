@@ -6,18 +6,19 @@ import {
 } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { AccountMenu } from "../components/app-shell/account-menu";
-import { AppShell } from "../components/app-shell/app-shell";
+import { AccountMenu } from "../features/app-shell/components/account-menu";
+import { AppShell } from "../features/app-shell/components/app-shell";
 import {
   getUiPreferences,
   setSidebarPreference,
   setThemePreference,
-} from "../server/ui-preferences.functions";
+} from "../features/ui-preferences/server/ui-preferences.functions";
+import { Card, CardContent } from "../shared/components/ui/card";
 
 export const Route = createFileRoute("/_protected")({
   beforeLoad: async ({ location }) => {
     const [{ getSession }, preferences] = await Promise.all([
-      import("../server/auth/get-session.functions"),
+      import("../features/auth/server/get-session.functions"),
       getUiPreferences({ data: {} }),
     ]);
     const result = await getSession({ data: {} });
@@ -33,19 +34,20 @@ export const Route = createFileRoute("/_protected")({
   },
   errorComponent: ({ error: _error }) => {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md text-center">
-          <h1 className="text-2xl font-bold text-red-600">Access Error</h1>
-          <p className="mt-4 text-gray-600">
-            An error occurred while loading this page.
-          </p>
-          <a
-            href="/login"
-            className="mt-6 inline-block text-indigo-600 hover:underline"
-          >
-            Go to login
-          </a>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
+        <Card className="w-full max-w-md">
+          <CardContent className="space-y-4 text-center">
+            <h1 className="text-2xl font-bold text-destructive">
+              Access Error
+            </h1>
+            <p className="text-muted-foreground">
+              An error occurred while loading this page.
+            </p>
+            <a href="/login" className="text-primary hover:underline">
+              Go to login
+            </a>
+          </CardContent>
+        </Card>
       </div>
     );
   },
@@ -85,14 +87,14 @@ function ProtectedLayout() {
         <AccountMenu
           email={session.user.email}
           name={session.user.name}
+          onThemeChange={handleThemeChange}
           role={session.user.role}
+          theme={preferences.theme}
         />
       }
       onSidebarChange={handleSidebarChange}
-      onThemeChange={handleThemeChange}
       pathname={pathname}
       sidebar={preferences.sidebar}
-      theme={preferences.theme}
     >
       <Outlet />
     </AppShell>

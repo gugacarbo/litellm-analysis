@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { Auth } from "./auth/auth";
+import type { Auth } from "../../auth/server/auth";
 
 export const UI_THEME_COOKIE = "ui_theme";
 export const UI_SIDEBAR_COOKIE = "ui_sidebar";
@@ -111,7 +111,7 @@ async function handleSetPreference(
   name: CookieName,
   value: CookieValue,
 ): Promise<PreferenceMutationError | { ok: true }> {
-  const { requireSession } = await import("./auth/invites");
+  const { requireSession } = await import("../../auth/server/invites");
   const sessionResult = await requireSession({
     auth: deps.auth,
     request: deps.request,
@@ -165,7 +165,7 @@ export const setThemePreference = createServerFn({ method: "POST" })
   .validator(z.object({ theme: z.enum(["light", "dark"]) }))
   .handler(async ({ data }) => {
     const [{ getAuth }, { getRequest, setResponseHeader }] = await Promise.all([
-      import("./auth/auth"),
+      import("../../auth/server/auth"),
       import("@tanstack/react-start/server"),
     ]);
     const request = getRequest();
@@ -191,7 +191,7 @@ export const setSidebarPreference = createServerFn({ method: "POST" })
   .validator(z.object({ sidebar: z.enum(["expanded", "collapsed"]) }))
   .handler(async ({ data }) => {
     const [{ getAuth }, { getRequest, setResponseHeader }] = await Promise.all([
-      import("./auth/auth"),
+      import("../../auth/server/auth"),
       import("@tanstack/react-start/server"),
     ]);
     const request = getRequest();

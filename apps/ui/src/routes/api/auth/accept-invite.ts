@@ -5,8 +5,8 @@ export const Route = createFileRoute("/api/auth/accept-invite")({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         const [{ getAuth }, { acceptInvite }] = await Promise.all([
-          import("../../../server/auth/auth"),
-          import("../../../server/auth/invites"),
+          import("../../../features/auth/server/auth"),
+          import("../../../features/auth/server/invites"),
         ]);
         const auth = getAuth();
         const body = (await request.json()) as {

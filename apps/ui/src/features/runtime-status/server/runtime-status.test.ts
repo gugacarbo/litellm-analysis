@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the auth module
-vi.mock("./auth/auth", () => ({
+vi.mock("../../auth/server/auth", () => ({
   getAuth: vi.fn(),
 }));
 
-vi.mock("./auth/invites", () => ({
+vi.mock("../../auth/server/invites", () => ({
   requireSession: vi.fn(),
   requireRole: vi.fn(),
 }));
 
-import type { Auth } from "./auth/auth";
-import { requireRole, requireSession } from "./auth/invites";
+import type { Auth } from "../../auth/server/auth";
+import { requireRole, requireSession } from "../../auth/server/invites";
 import { handleGetRuntimeStatus } from "./runtime-status.functions";
 
 function mockAuth(): Auth {

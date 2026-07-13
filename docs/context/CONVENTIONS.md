@@ -75,6 +75,14 @@
 - Autorização via `Authorization: Bearer <key>` validada contra `model_proxy_api_keys`.
 - Ordem de auth: 1) DB (`keyHash` match + `enabled`), 2) fallback `MODEL_PROXY_API_KEY`.
 
+## UI
+
+- Usar componentes do **shadcn/ui** sempre que houver um componente adequado no repositório.
+- Quando o componente shadcn/ui necessário ainda não estiver disponível, instalá-lo pela CLI do shadcn no package consumidor antes de criar uma implementação manual.
+- Não sobrescrever componentes shadcn/ui locais que tenham alterações pendentes sem confirmar que a substituição preserva essas alterações.
+- Formulários React devem usar **React Hook Form** com schemas **Zod** via `zodResolver`.
+- Renderizar campos, labels, controles e mensagens de validação com os componentes shadcn/ui (por exemplo, `Field`, `FieldLabel`, `Input` e `FieldError`), em vez de implementar esses elementos manualmente.
+
 ## Testes
 
 - Comando canônico: `pnpm test` (tudo verde).

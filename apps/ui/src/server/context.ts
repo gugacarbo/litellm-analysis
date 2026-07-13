@@ -1,4 +1,4 @@
-import type { Auth } from "./auth/auth";
+import type { Auth } from "../features/auth/server/auth";
 
 export type ServerContext = {
   auth: Auth;
