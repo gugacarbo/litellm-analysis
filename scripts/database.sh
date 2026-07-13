@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 # scripts/database.sh — Utilitários do banco PostgreSQL via Docker.
 # Uso:
-#   ./scripts/database.sh               # Cria um backup
-#   ./scripts/database.sh list           # Lista backups existentes
+#   ./scripts/database.sh up            # Sobe o container PostgreSQL
+#   ./scripts/database.sh down          # Derruba o container
+#   ./scripts/database.sh logs          # Mostra logs do container
+#   ./scripts/database.sh migrate       # Executa migrações do banco
+#   ./scripts/database.sh generate      # Gera migrações
+#   ./scripts/database.sh studio        # Abre Drizzle Studio
+#   ./scripts/database.sh backup        # Cria um backup
+#   ./scripts/database.sh list          # Lista backups existentes
 #   ./scripts/database.sh restore <arquivo>  # Restaura um backup (cuidado!)
-#   ./scripts/database.sh migrate        # Executa migrações do banco
 
 set -euo pipefail
 
@@ -29,6 +34,58 @@ BACKUP_DIR="${ROOT}/backups"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 BACKUP_FILE="${BACKUP_DIR}/${DB_NAME}_${TIMESTAMP}.sql.gz"
 BACKUP_FILE_PLAIN="${BACKUP_DIR}/${DB_NAME}_${TIMESTAMP}.sql"
+
+# ── Detecta provider de compose (Docker ou Podman) ──
+_compose_provider() {
+  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    echo "docker compose"
+  else
+    echo ""
+  fi
+}
+
+# ── Sobe o container PostgreSQL ──
+do_up() {
+  local compose
+  compose=$(_compose_provider)
+  if [ -z "$compose" ]; then
+    echo "Erro: Docker Compose v2 não encontrado." >&2
+    exit 1
+  fi
+
+  echo "==> Subindo PostgreSQL..."
+  $compose -f "$ROOT/docker-compose.yml" up -d
+  echo "==> Aguardando healthcheck..."
+  $compose -f "$ROOT/docker-compose.yml" exec postgres \
+    sh -c 'until pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 1; done' 2>/dev/null
+  echo "==> PostgreSQL pronto!"
+}
+
+# ── Derruba o container PostgreSQL ──
+do_down() {
+  local compose
+  compose=$(_compose_provider)
+  if [ -z "$compose" ]; then
+    echo "Erro: Docker Compose v2 não encontrado." >&2
+    exit 1
+  fi
+
+  echo "==> Derrubando PostgreSQL..."
+  $compose -f "$ROOT/docker-compose.yml" down
+  echo "==> PostgreSQL parado."
+}
+
+# ── Mostra logs do container PostgreSQL ──
+do_logs() {
+  local compose
+  compose=$(_compose_provider)
+  if [ -z "$compose" ]; then
+    echo "Erro: Docker Compose v2 não encontrado." >&2
+    exit 1
+  fi
+
+  $compose -f "$ROOT/docker-compose.yml" logs --tail=50 -f
+}
 
 # ── Garante diretório de backups ──
 ensure_backup_dir() {
@@ -137,6 +194,27 @@ do_migrate() {
 
 # ── Dispatch ──
 case "${1:-}" in
+  up)
+    do_up
+    ;;
+  down)
+    do_down
+    ;;
+  logs)
+    do_logs
+    ;;
+  migrate)
+    do_migrate
+    ;;
+  generate)
+    echo "==> Gerando migrações..."
+    pnpm --filter database db:generate
+    echo "==> Migrações geradas!"
+    ;;
+  studio)
+    echo "==> Abrindo Drizzle Studio..."
+    pnpm --filter database db:studio
+    ;;
   list|ls)
     do_list
     ;;
@@ -147,7 +225,18 @@ case "${1:-}" in
     do_backup
     ;;
   *)
-    echo "Uso: $0 [list|backup|restore <arquivo>]" >&2
+    echo "Uso: $0 <comando>" >&2
+    echo "" >&2
+    echo "Comandos:" >&2
+    echo "  up                  Sobe o container PostgreSQL" >&2
+    echo "  down                Derruba o container" >&2
+    echo "  logs                Mostra logs do container" >&2
+    echo "  migrate             Executa migrações" >&2
+    echo "  generate            Gera migrações" >&2
+    echo "  studio              Abre Drizzle Studio" >&2
+    echo "  backup              Cria um backup (padrão)" >&2
+    echo "  list, ls            Lista backups" >&2
+    echo "  restore <arquivo>   Restaura um backup" >&2
     exit 1
     ;;
 esac

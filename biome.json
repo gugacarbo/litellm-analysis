@@ -11,7 +11,8 @@
       "**",
       "!.agents/skills/skill-*",
       "!**/generated",
-      "!**/.opencode/index"
+      "!**/.opencode/index",
+      "!docs/index.json"
     ]
   },
   "formatter": {
@@ -37,6 +38,31 @@
       }
     }
   },
+  "overrides": [
+    {
+      "includes": [
+        "apps/ui/src/**/*.ts",
+        "apps/ui/src/**/*.tsx",
+        "!apps/ui/src/**/server/**",
+        "!apps/ui/src/**/*.test.ts",
+        "!apps/ui/src/**/*.test.tsx",
+        "!apps/ui/src/routeTree.gen.ts",
+        "!apps/ui/src/shared/components/ui/**"
+      ],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noExcessiveLinesPerFile": {
+              "level": "error",
+              "options": {
+                "maxLines": 250
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double"

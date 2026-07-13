@@ -9,7 +9,7 @@ vi.mock("@/shared/lib/api-client/analytics", () => ({
       request_count: 100,
       total_spend: 50.0,
       total_tokens: 500000,
-      prompt_tokens: 300000,
+      prompt_tokens: 517800,
       completion_tokens: 200000,
       avg_tokens_per_request: 5000,
       avg_latency_ms: 1200,

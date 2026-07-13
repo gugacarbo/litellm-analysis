@@ -16,4 +16,4 @@ This app lives in `apps/ui` and uses TanStack Start with React and Vite.
 ## Scripts contract
 
 - Required scripts here are `dev`, `build`, `preview`, `test`, `lint`, `format`, `typecheck`, and `knip`.
-- Keep `dev` on port `3000` unless the monorepo needs a coordinated change.
+- Keep `dev` on port `5178` unless the monorepo needs a coordinated change.

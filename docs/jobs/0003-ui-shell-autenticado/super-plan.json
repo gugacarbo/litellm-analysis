@@ -1,0 +1,691 @@
+{
+  "$schema": "https://raw.githubusercontent.com/gugacarbo/agents-skills/main/super-planning/interfaces/super-plan.schema.json",
+  "createdAt": "2026-07-13T21:27:27.932940+00:00",
+  "planId": "0003-ui-shell-autenticado",
+  "featureName": "ui-shell-autenticado",
+  "status": "in_progress",
+  "source": {
+    "spec": "docs/specs/0003-ui-shell-autenticado-spec.md",
+    "plan": "docs/plans/0003-ui-shell-autenticado.md"
+  },
+  "goal": "Entregar o shell autenticado, responsivo e SSR-safe do apps/ui, com navega\u00e7\u00e3o funcional m\u00ednima, prefer\u00eancias persistidas em cookie e encerramento de sess\u00e3o oficial.",
+  "architectureSummary": "Prefer\u00eancias tipadas ficam em server functions autenticadas; um script pr\u00e9-paint limitado normaliza somente o tema n\u00e3o sens\u00edvel; componentes Base UI comp\u00f5em o shell e Better Auth executa sign-out; as rotas TanStack Start integram sess\u00e3o e SSR.",
+  "techStack": [
+    "TanStack Start 1.168.27",
+    "TanStack Router",
+    "React",
+    "Better Auth 1.6.23",
+    "@base-ui/react 1.6.0",
+    "Vitest",
+    "React Testing Library",
+    "Tailwind CSS"
+  ],
+  "executionMode": "subagent-driven",
+  "reviewCadence": "per_task",
+  "agents": {
+    "general": {
+      "model": "",
+      "agent": ""
+    },
+    "deep": {
+      "model": "",
+      "agent": ""
+    },
+    "quick": {
+      "model": "",
+      "agent": ""
+    }
+  },
+  "branchStrategy": {
+    "baseBranch": "main",
+    "featureBranch": "codex/0002-fundacao-ui-tanstack-start"
+  },
+  "worktree": {
+    "enabled": false,
+    "path": "../lite-llm-analytics-worktrees/0003-ui-shell-autenticado"
+  },
+  "globalConstraints": [
+    "N\u00e3o alterar schema, migrations, convite, pap\u00e9is ou regras de autentica\u00e7\u00e3o existentes.",
+    "N\u00e3o usar localStorage para tema/sidebar nem links para rotas futuras ou apps/web.",
+    "N\u00e3o importar banco, services, node:*, sess\u00e3o ou API administrativa legada em componentes client-side.",
+    "Drawer mobile \u00e9 transit\u00f3rio e nunca grava ui_sidebar.",
+    "Manter apps/web intacto como refer\u00eancia e preservar altera\u00e7\u00f5es preexistentes do usu\u00e1rio."
+  ],
+  "fileStructure": [
+    {
+      "path": "docs/verification/0002-fundacao-ui-tanstack-start.md",
+      "ownerTask": "Task-A-1",
+      "notes": "Evid\u00eancia hist\u00f3rica fora de docs/specs."
+    },
+    {
+      "path": "apps/ui/src/server/ui-preferences.functions.ts",
+      "ownerTask": "Task-A-2",
+      "notes": "Fronteira autenticada de cookies de prefer\u00eancia."
+    },
+    {
+      "path": "apps/ui/src/components/app-shell/",
+      "ownerTask": "Task-B-1",
+      "notes": "Shell, navega\u00e7\u00e3o, sidebar, drawer e controle de tema."
+    },
+    {
+      "path": "apps/ui/src/lib/auth-client.ts",
+      "ownerTask": "Task-B-2",
+      "notes": "Cliente Better Auth seguro para o browser."
+    },
+    {
+      "path": "apps/ui/src/components/app-shell/account-menu.tsx",
+      "ownerTask": "Task-B-2",
+      "notes": "Menu de dados p\u00fablicos e sign-out."
+    },
+    {
+      "path": "apps/ui/src/routes/__root.tsx",
+      "ownerTask": "Task-C-1",
+      "notes": "Documento, t\u00edtulo e script pr\u00e9-paint."
+    },
+    {
+      "path": "apps/ui/src/routes/_protected.tsx",
+      "ownerTask": "Task-C-1",
+      "notes": "Integra shell com a guarda de sess\u00e3o."
+    },
+    {
+      "path": "apps/ui/src/routes/_protected/index.tsx",
+      "ownerTask": "Task-C-1",
+      "notes": "Dashboard m\u00ednimo dentro do shell."
+    },
+    {
+      "path": "apps/ui/APP_INVENTORY.md",
+      "ownerTask": "Task-D-1",
+      "notes": "Checklist de invent\u00e1rio e evid\u00eancia final."
+    }
+  ],
+  "requirementsChecklist": [
+    {
+      "id": "REQ-001",
+      "title": "Baseline documental verific\u00e1vel",
+      "source": "SPEC-0003 escopo e DoD",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "SPEC-0002 n\u00e3o produz ID duplicado nem implemented-by inexistente.",
+        "pnpm docs-check --emit-index passa."
+      ],
+      "coveredByTasks": ["Task-A-1"],
+      "notes": ["Pr\u00e9-requisito documental da entrega funcional."]
+    },
+    {
+      "id": "REQ-002",
+      "title": "Prefer\u00eancias autenticadas em cookie",
+      "source": "SPEC-0003 Prefer\u00eancias e fronteira server/client",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Valores e cookies can\u00f4nicos s\u00e3o validados.",
+        "Muta\u00e7\u00f5es exigem sess\u00e3o e n\u00e3o emitem cookie quando an\u00f4nimas."
+      ],
+      "coveredByTasks": ["Task-A-2", "Task-C-1"],
+      "notes": ["Cobre casos 2, 3, 4, 7 e 13."]
+    },
+    {
+      "id": "REQ-003",
+      "title": "Shell e navega\u00e7\u00e3o responsivos",
+      "source": "SPEC-0003 Navega\u00e7\u00e3o e sidebar",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Somente Dashboard \u00e9 naveg\u00e1vel.",
+        "Desktop persiste sidebar e mobile usa drawer transit\u00f3rio acess\u00edvel."
+      ],
+      "coveredByTasks": ["Task-B-1", "Task-C-1"],
+      "notes": ["Cobre casos 5, 6 e 8."]
+    },
+    {
+      "id": "REQ-004",
+      "title": "Conta p\u00fablica e sign-out oficial",
+      "source": "SPEC-0003 Sess\u00e3o e conta",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Menu exibe somente nome, e-mail e papel.",
+        "authClient.signOut redireciona somente em sucesso e falha \u00e9 recuper\u00e1vel."
+      ],
+      "coveredByTasks": ["Task-B-2", "Task-C-1"],
+      "notes": ["Cobre casos 9, 10 e 11."]
+    },
+    {
+      "id": "REQ-005",
+      "title": "SSR seguro e guarda preservada",
+      "source": "SPEC-0003 Entrada autenticada",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "Tema expl\u00edcito aplica SSR e primeira visita resolve antes da pintura.",
+        "An\u00f4nimo redireciona antes do shell e 404 permanece do root."
+      ],
+      "coveredByTasks": ["Task-C-1"],
+      "notes": ["Cobre casos 1, 2 e 12."]
+    },
+    {
+      "id": "REQ-006",
+      "title": "Evid\u00eancia e qualidade de entrega",
+      "source": "SPEC-0003 Definition of Done",
+      "status": "pending",
+      "acceptanceCriteria": [
+        "T1 a T9 t\u00eam evid\u00eancia real.",
+        "docs-check, testes focados, typecheck e build passam."
+      ],
+      "coveredByTasks": ["Task-D-1"],
+      "notes": ["Inclui revis\u00e3o humana definida pela spec."]
+    }
+  ],
+  "taskDirectory": "docs/jobs/0003-ui-shell-autenticado",
+  "rules": [
+    "Somente o orquestrador altera super-plan.json pelo helper ativo.",
+    "Tasks de comportamento seguem TDD e o guia docs/context/testing-anti-patterns.md.",
+    "Nenhuma task inicia antes de suas depend\u00eancias estarem conclu\u00eddas e revisadas.",
+    "Revis\u00e3o independente ocorre por task antes de conclu\u00ed-la.",
+    "A execu\u00e7\u00e3o n\u00e3o amplia o escopo al\u00e9m da SPEC-0003.",
+    "Executar os perfis general, deep e quick com gpt-5.6-luna em effort medium, conforme aprova\u00e7\u00e3o do usu\u00e1rio.",
+    "Limita\u00e7\u00e3o de plataforma: spawn_agent n\u00e3o aceita sele\u00e7\u00e3o expl\u00edcita de modelo ou effort; os workers usam o padr\u00e3o da sess\u00e3o."
+  ],
+  "tasks": [
+    {
+      "id": "Task-A-1",
+      "title": "Corrigir baseline documental da SPEC-0002",
+      "description": "Mover a evid\u00eancia de verifica\u00e7\u00e3o para fora de docs/specs e corrigir refer\u00eancias e implemented-by hist\u00f3ricos para destravar o docs-check.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "quick",
+      "batch": "A",
+      "layer": "foundation",
+      "reportFile": "docs/jobs/0003-ui-shell-autenticado/Task-A-1/report.md",
+      "reviewPackage": "docs/jobs/0003-ui-shell-autenticado/Task-A-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0003-ui-shell-autenticado/Task-A-1/progress.log",
+      "logTaskScript": "docs/jobs/0003-ui-shell-autenticado/Task-A-1/log-task.sh",
+      "baseCommit": "fc3d66abbb4d4e4cf6d423377f666f0adbfc97b8",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "A evid\u00eancia 0002 deixa docs/specs sem criar ID duplicado ou arquivo sem frontmatter.",
+        "SPEC-0002 aponta implemented-by para diret\u00f3rios Task-*-1 existentes.",
+        "pnpm docs-check --emit-index encerra com exit 0."
+      ],
+      "requirements": ["SPEC-0003 Definition of Done", "T1"],
+      "rules": [
+        "N\u00e3o alterar comportamento do apps/ui nesta task.",
+        "Preservar o hist\u00f3rico da verifica\u00e7\u00e3o 0002 ao mover o arquivo e atualizar todas as refer\u00eancias.",
+        "N\u00e3o editar super-plan.json manualmente."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Localizar refer\u00eancias hist\u00f3ricas",
+          "description": "Mapear a verifica\u00e7\u00e3o 0002 e os paths implemented-by antes de editar.",
+          "command": "rg -n \"verification/0002|Task-[A-E]-1\" docs",
+          "expectedResult": "Todas as refer\u00eancias afetadas s\u00e3o conhecidas.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Reparar paths documentais",
+          "description": "Mover a evid\u00eancia para docs/verification e atualizar a spec, plano e registry 0002.",
+          "command": null,
+          "expectedResult": "A \u00e1rvore docs/specs cont\u00e9m somente specs com frontmatter v\u00e1lido.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Validar e regenerar \u00edndices",
+          "description": "Executar o verificador documental e manter somente os \u00edndices gerados necess\u00e1rios.",
+          "command": "pnpm docs-check --emit-index",
+          "expectedResult": "Exit 0.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "docs/specs/0002-fundacao-ui-tanstack-start-spec.md",
+        "docs/specs/verification/0002-fundacao-ui-tanstack-start.md",
+        "docs/verification/0002-fundacao-ui-tanstack-start.md",
+        "docs/plans/0002-fundacao-ui-tanstack-start.md",
+        "docs/jobs/0002-fundacao-ui-tanstack-start/super-plan.json",
+        "docs/index.json",
+        "docs/specs/README.md"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "docs/specs/0002-fundacao-ui-tanstack-start-spec.md",
+          "docs/plans/0002-fundacao-ui-tanstack-start.md",
+          "docs/jobs/0002-fundacao-ui-tanstack-start/super-plan.json",
+          "docs/index.json",
+          "docs/specs/README.md"
+        ],
+        "deleted": [
+          "docs/specs/verification/0002-fundacao-ui-tanstack-start.md"
+        ]
+      },
+      "notes": [
+        "A evid\u00eancia movida ser\u00e1 criada em docs/verification durante a execu\u00e7\u00e3o."
+      ]
+    },
+    {
+      "id": "Task-A-2",
+      "title": "Implementar prefer\u00eancias de UI server-side",
+      "description": "Criar parser, serializa\u00e7\u00e3o, leitura e muta\u00e7\u00f5es autenticadas para ui_theme e ui_sidebar, com testes TDD de cookies e sess\u00e3o.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "deep",
+      "batch": "A",
+      "layer": "foundation",
+      "reportFile": "docs/jobs/0003-ui-shell-autenticado/Task-A-2/report.md",
+      "reviewPackage": "docs/jobs/0003-ui-shell-autenticado/Task-A-2/review-package.diff.md",
+      "progressLog": "docs/jobs/0003-ui-shell-autenticado/Task-A-2/progress.log",
+      "logTaskScript": "docs/jobs/0003-ui-shell-autenticado/Task-A-2/log-task.sh",
+      "baseCommit": "fc3d66abbb4d4e4cf6d423377f666f0adbfc97b8",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Parser aceita apenas light/dark e expanded/collapsed e usa os fallbacks especificados.",
+        "Cookies de prefer\u00eancia usam Path=/, SameSite=Lax, Max-Age=15552000 e Secure apenas em produ\u00e7\u00e3o.",
+        "Muta\u00e7\u00f5es sem sess\u00e3o retornam UNAUTHENTICATED e n\u00e3o emitem Set-Cookie.",
+        "Testes RED e GREEN cobrem aus\u00eancia, corrup\u00e7\u00e3o, persist\u00eancia e autoriza\u00e7\u00e3o."
+      ],
+      "requirements": [
+        "SPEC-0003 Prefer\u00eancias",
+        "SPEC-0003 Fronteira server/client",
+        "Casos de borda 2, 3, 4, 7 e 13",
+        "T2",
+        "T3"
+      ],
+      "rules": [
+        "TDD obrigat\u00f3rio para esta altera\u00e7\u00e3o de comportamento.",
+        "Ler docs/context/testing-anti-patterns.md antes de criar mocks, fakes, fixtures ou helpers de teste.",
+        "Reportar comandos e resultados RED e GREEN no report da task.",
+        "Usar createServerFn, getRequest e requireSession conforme o padr\u00e3o existente.",
+        "N\u00e3o usar localStorage e n\u00e3o expor cookies de sess\u00e3o.",
+        "N\u00e3o editar super-plan.json."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes RED de prefer\u00eancias",
+          "description": "Cobrir parser, fallback, serializa\u00e7\u00e3o e chamadas sem sess\u00e3o antes da implementa\u00e7\u00e3o.",
+          "command": "pnpm --dir apps/ui exec vitest run src/server/ui-preferences.functions.test.ts",
+          "expectedResult": "Falha pelos m\u00f3dulos ou comportamentos ainda ausentes.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Implementar fronteira server-side m\u00ednima",
+          "description": "Adicionar tipos, parser, serializador e server functions protegidas sem alterar a sess\u00e3o existente.",
+          "command": null,
+          "expectedResult": "Fun\u00e7\u00f5es retornam apenas prefer\u00eancias can\u00f4nicas e headers de cookie autorizados.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Executar GREEN e regress\u00e3o focada",
+          "description": "Rodar o arquivo novo e as regress\u00f5es de autentica\u00e7\u00e3o n\u00e3o dependentes de banco.",
+          "command": "pnpm --dir apps/ui exec vitest run src/server/ui-preferences.functions.test.ts --exclude **/server/auth/invites.test.ts",
+          "expectedResult": "Exit 0 com os testes de prefer\u00eancia verdes.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/server/ui-preferences.functions.ts",
+        "apps/ui/src/server/ui-preferences.functions.test.ts"
+      ],
+      "files": {
+        "created": [
+          "apps/ui/src/server/ui-preferences.functions.ts",
+          "apps/ui/src/server/ui-preferences.functions.test.ts"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "A leitura SSR usa o cookie j\u00e1 dispon\u00edvel; escritas expl\u00edcitas exigem sess\u00e3o."
+      ]
+    },
+    {
+      "id": "Task-B-1",
+      "title": "Construir shell visual, sidebar e drawer mobile",
+      "description": "Criar a configura\u00e7\u00e3o m\u00ednima de Dashboard, sidebar desktop recolh\u00edvel, drawer Base UI mobile e controle visual de tema com contratos de callback.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "B",
+      "layer": "surface",
+      "reportFile": "docs/jobs/0003-ui-shell-autenticado/Task-B-1/report.md",
+      "reviewPackage": "docs/jobs/0003-ui-shell-autenticado/Task-B-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0003-ui-shell-autenticado/Task-B-1/progress.log",
+      "logTaskScript": "docs/jobs/0003-ui-shell-autenticado/Task-B-1/log-task.sh",
+      "baseCommit": "fc3d66abbb4d4e4cf6d423377f666f0adbfc97b8",
+      "dependencies": ["Task-A-2"],
+      "acceptanceCriteria": [
+        "A navega\u00e7\u00e3o cont\u00e9m exatamente Dashboard para / e comunica o item ativo.",
+        "Desktop alterna expanded/collapsed pelo callback de persist\u00eancia; mobile inicia fechado e n\u00e3o grava ui_sidebar.",
+        "Drawer Base UI controlado fecha por Escape e usa foco do componente da biblioteca.",
+        "Controle oferece apenas light e dark e reporta falhas recuper\u00e1veis.",
+        "Testes RED e GREEN cobrem navega\u00e7\u00e3o, responsividade, Escape, foco e persist\u00eancia."
+      ],
+      "requirements": [
+        "SPEC-0003 Navega\u00e7\u00e3o",
+        "SPEC-0003 Tema e sidebar desktop",
+        "Casos de borda 5, 6, 7 e 8",
+        "T5",
+        "T6"
+      ],
+      "rules": [
+        "TDD obrigat\u00f3rio para esta altera\u00e7\u00e3o de comportamento.",
+        "Ler docs/context/testing-anti-patterns.md antes de criar mocks, fakes, fixtures ou helpers de teste.",
+        "Reportar comandos e resultados RED e GREEN no report da task.",
+        "Usar Drawer controlado de @base-ui/react; n\u00e3o implementar focus trap manual.",
+        "N\u00e3o adicionar links futuros, URLs de apps/web, localStorage ou estado de drawer persistido.",
+        "N\u00e3o editar super-plan.json."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes RED dos contratos visuais",
+          "description": "Cobrir apenas Dashboard, estado ativo, drawer fechado no mobile, Escape e callbacks de prefer\u00eancia.",
+          "command": "pnpm --dir apps/ui exec vitest run src/components/app-shell/app-sidebar.test.tsx src/components/app-shell/theme-control.test.tsx",
+          "expectedResult": "Falha pela aus\u00eancia dos componentes.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Implementar componentes desacoplados de rota",
+          "description": "Criar navigation, theme-control, app-sidebar e app-shell usando tokens existentes e callbacks tipados.",
+          "command": null,
+          "expectedResult": "Desktop e mobile compartilham a configura\u00e7\u00e3o de navega\u00e7\u00e3o sem persist\u00eancia indevida.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Executar GREEN focado",
+          "description": "Rodar testes de componentes e manter a cobertura dos contratos acess\u00edveis.",
+          "command": "pnpm --dir apps/ui exec vitest run src/components/app-shell/app-sidebar.test.tsx src/components/app-shell/theme-control.test.tsx",
+          "expectedResult": "Exit 0.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/components/app-shell/app-shell.tsx",
+        "apps/ui/src/components/app-shell/app-sidebar.tsx",
+        "apps/ui/src/components/app-shell/navigation.ts",
+        "apps/ui/src/components/app-shell/theme-control.tsx",
+        "apps/ui/src/components/app-shell/app-sidebar.test.tsx",
+        "apps/ui/src/components/app-shell/theme-control.test.tsx"
+      ],
+      "files": {
+        "created": [
+          "apps/ui/src/components/app-shell/app-shell.tsx",
+          "apps/ui/src/components/app-shell/app-sidebar.tsx",
+          "apps/ui/src/components/app-shell/navigation.ts",
+          "apps/ui/src/components/app-shell/theme-control.tsx",
+          "apps/ui/src/components/app-shell/app-sidebar.test.tsx",
+          "apps/ui/src/components/app-shell/theme-control.test.tsx"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "A integra\u00e7\u00e3o com rota e escrita de prefer\u00eancias pertence \u00e0 Task-C-1."
+      ]
+    },
+    {
+      "id": "Task-B-2",
+      "title": "Criar cliente Better Auth e menu de conta",
+      "description": "Adicionar cliente React seguro para Better Auth e menu de conta que recebe somente dados p\u00fablicos, trata sign-out e preserva o shell em erro.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "B",
+      "layer": "surface",
+      "reportFile": "docs/jobs/0003-ui-shell-autenticado/Task-B-2/report.md",
+      "reviewPackage": "docs/jobs/0003-ui-shell-autenticado/Task-B-2/review-package.diff.md",
+      "progressLog": "docs/jobs/0003-ui-shell-autenticado/Task-B-2/progress.log",
+      "logTaskScript": "docs/jobs/0003-ui-shell-autenticado/Task-B-2/log-task.sh",
+      "baseCommit": "fc3d66abbb4d4e4cf6d423377f666f0adbfc97b8",
+      "dependencies": ["Task-A-2"],
+      "acceptanceCriteria": [
+        "O menu recebe e mostra somente nome, e-mail e papel p\u00fablicos.",
+        "Sign-out chama authClient.signOut de better-auth/react e redireciona para /login apenas em sucesso.",
+        "Erro de sign-out mant\u00e9m shell e sess\u00e3o vis\u00edveis com mensagem recuper\u00e1vel.",
+        "Testes RED e GREEN usam Better Auth como \u00fanica fronteira mockada, sem mockar a UI interna."
+      ],
+      "requirements": [
+        "SPEC-0003 Sess\u00e3o e conta",
+        "SPEC-0003 Fronteira server/client",
+        "Casos de borda 9, 10 e 11",
+        "T7"
+      ],
+      "rules": [
+        "TDD obrigat\u00f3rio para esta altera\u00e7\u00e3o de comportamento.",
+        "Ler docs/context/testing-anti-patterns.md antes de criar mocks, fakes, fixtures ou helpers de teste.",
+        "Reportar comandos e resultados RED e GREEN no report da task.",
+        "Usar somente authClient.signOut e o endpoint de infraestrutura Better Auth; n\u00e3o chamar API administrativa legada.",
+        "N\u00e3o expor tokens, cookies, headers, segredo Better Auth ou dados extras em props e logs.",
+        "N\u00e3o editar super-plan.json."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever teste RED de menu e logout",
+          "description": "Cobrir dados p\u00fablicos, sucesso com redirect e falha recuper\u00e1vel.",
+          "command": "pnpm --dir apps/ui exec vitest run src/components/app-shell/account-menu.test.tsx",
+          "expectedResult": "Falha pela aus\u00eancia do cliente e componente.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Criar cliente e menu m\u00ednimos",
+          "description": "Configurar createAuthClient de better-auth/react e encapsular a a\u00e7\u00e3o no componente acess\u00edvel.",
+          "command": null,
+          "expectedResult": "Logout usa apenas a fronteira oficial e n\u00e3o desmonta o shell quando falha.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Executar GREEN focado",
+          "description": "Rodar o teste do menu e confirmar a chamada oficial.",
+          "command": "pnpm --dir apps/ui exec vitest run src/components/app-shell/account-menu.test.tsx",
+          "expectedResult": "Exit 0.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/lib/auth-client.ts",
+        "apps/ui/src/components/app-shell/account-menu.tsx",
+        "apps/ui/src/components/app-shell/account-menu.test.tsx"
+      ],
+      "files": {
+        "created": [
+          "apps/ui/src/lib/auth-client.ts",
+          "apps/ui/src/components/app-shell/account-menu.tsx",
+          "apps/ui/src/components/app-shell/account-menu.test.tsx"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": ["Task-C-1 conecta o menu \u00e0 sess\u00e3o da rota protegida."]
+    },
+    {
+      "id": "Task-C-1",
+      "title": "Integrar shell, SSR e rotas protegidas",
+      "description": "Conectar prefer\u00eancias e componentes ao documento e \u00e0s rotas TanStack Start, incluindo script pr\u00e9-paint limitado, proje\u00e7\u00e3o p\u00fablica autenticada de name/email/role, slot de menu no AppShell e regress\u00e3o da guarda.",
+      "status": "completed",
+      "tryCount": 2,
+      "maxTries": 3,
+      "task_profile": "deep",
+      "batch": "C",
+      "layer": "surface",
+      "reportFile": "docs/jobs/0003-ui-shell-autenticado/Task-C-1/report.md",
+      "reviewPackage": "docs/jobs/0003-ui-shell-autenticado/Task-C-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0003-ui-shell-autenticado/Task-C-1/progress.log",
+      "logTaskScript": "docs/jobs/0003-ui-shell-autenticado/Task-C-1/log-task.sh",
+      "baseCommit": "fc3d66abbb4d4e4cf6d423377f666f0adbfc97b8",
+      "dependencies": ["Task-A-2", "Task-B-1", "Task-B-2"],
+      "acceptanceCriteria": [
+        "HTML aplica light/dark SSR quando o cookie \u00e9 v\u00e1lido e o script pr\u00e9-paint resolve e normaliza tema ausente ou inv\u00e1lido antes da hidrata\u00e7\u00e3o.",
+        "A rota protegida monta shell com dados p\u00fablicos sem duplicar a guarda ou expor sess\u00e3o.",
+        "An\u00f4nimo ainda redireciona para login antes de montar shell; 404 do root \u00e9 preservado.",
+        "Integra\u00e7\u00e3o liga callbacks de tema/sidebar \u00e0s server functions e mant\u00e9m o drawer mobile transit\u00f3rio.",
+        "Testes RED e GREEN cobrem documento, primeira visita clara/escura, guarda e fronteira client/server.",
+        "Session projection exposes only the public name, email, and role needed by AccountMenu; AppShell renders it through a typed slot without client session access."
+      ],
+      "requirements": [
+        "SPEC-0003 Entrada autenticada",
+        "SPEC-0003 Contrato de prefer\u00eancias",
+        "Casos de borda 1, 2, 4 e 12",
+        "T4",
+        "T8",
+        "T9"
+      ],
+      "rules": [
+        "TDD obrigat\u00f3rio para esta altera\u00e7\u00e3o de comportamento.",
+        "Ler docs/context/testing-anti-patterns.md antes de criar mocks, fakes, fixtures ou helpers de teste.",
+        "Reportar comandos e resultados RED e GREEN no report da task.",
+        "O script pr\u00e9-paint pode tocar somente ui_theme n\u00e3o sens\u00edvel quando ausente ou inv\u00e1lido.",
+        "N\u00e3o importar m\u00f3dulos server-only, banco, node:* ou API administrativa legada no bundle client-side.",
+        "N\u00e3o editar super-plan.json.",
+        "Escopo aprovado: somente ampliar a proje\u00e7\u00e3o p\u00fablica da sess\u00e3o e o slot do AppShell; n\u00e3o alterar autoriza\u00e7\u00e3o, persist\u00eancia de sess\u00e3o, schema ou dados sens\u00edveis."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes RED de rota e documento",
+          "description": "Cobrir tema SSR, script pr\u00e9-paint, redirect de an\u00f4nimo e montagem autenticada sem detalhes internos.",
+          "command": "pnpm --dir apps/ui exec vitest run src/routes --exclude **/server/auth/invites.test.ts",
+          "expectedResult": "Falha pelos pontos de integra\u00e7\u00e3o ausentes.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Integrar root e layout protegido",
+          "description": "Atualizar __root, _protected e index para aplicar prefer\u00eancias, shell e conte\u00fado Dashboard m\u00ednimo.",
+          "command": null,
+          "expectedResult": "O shell respeita SSR e a guarda preexistente.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Executar verifica\u00e7\u00f5es de integra\u00e7\u00e3o",
+          "description": "Rodar testes de rota, typecheck e build de apps/ui.",
+          "command": "pnpm --dir apps/ui typecheck && pnpm --dir apps/ui build",
+          "expectedResult": "Exit 0 sem viola\u00e7\u00e3o de fronteira client/server.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/server/auth/get-session.functions.ts",
+        "apps/ui/src/components/app-shell/app-shell.tsx",
+        "apps/ui/src/routes/__root.tsx",
+        "apps/ui/src/routes/_protected.tsx",
+        "apps/ui/src/routes/_protected/index.tsx",
+        "apps/ui/src/routes/*shell*.test.tsx",
+        "apps/ui/src/routes/-_protected.test.ts"
+      ],
+      "files": {
+        "created": [
+          "apps/ui/src/routes/*shell*.test.tsx",
+          "apps/ui/src/routes/-_protected.test.ts"
+        ],
+        "modified": [
+          "apps/ui/src/server/auth/get-session.functions.ts",
+          "apps/ui/src/components/app-shell/app-shell.tsx",
+          "apps/ui/src/routes/__root.tsx",
+          "apps/ui/src/routes/_protected.tsx",
+          "apps/ui/src/routes/_protected/index.tsx"
+        ],
+        "deleted": []
+      },
+      "notes": [
+        "O formato final dos arquivos de teste deve seguir a conven\u00e7\u00e3o descoberta no apps/ui; glob \u00e9 planejamento, n\u00e3o caminho literal obrigat\u00f3rio."
+      ]
+    },
+    {
+      "id": "Task-D-1",
+      "title": "Fechar evid\u00eancias, invent\u00e1rio e valida\u00e7\u00e3o integrada",
+      "description": "Executar a matriz de valida\u00e7\u00e3o, corrigir somente regress\u00f5es introduzidas, registrar evid\u00eancia de fechamento, atualizar invent\u00e1rio/checklists e regenerar \u00edndices.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "D",
+      "layer": "final",
+      "reportFile": "docs/jobs/0003-ui-shell-autenticado/Task-D-1/report.md",
+      "reviewPackage": "docs/jobs/0003-ui-shell-autenticado/Task-D-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0003-ui-shell-autenticado/Task-D-1/progress.log",
+      "logTaskScript": "docs/jobs/0003-ui-shell-autenticado/Task-D-1/log-task.sh",
+      "baseCommit": "fc3d66abbb4d4e4cf6d423377f666f0adbfc97b8",
+      "dependencies": [
+        "Task-A-1",
+        "Task-A-2",
+        "Task-B-1",
+        "Task-B-2",
+        "Task-C-1"
+      ],
+      "acceptanceCriteria": [
+        "T1 a T9 possuem evid\u00eancia de comando e resultado real.",
+        "docs-check, su\u00edte UI focada, typecheck e build passam conforme a SPEC-0003.",
+        "APP_INVENTORY e checklist da SPEC registram somente itens efetivamente entregues.",
+        "\u00cdndices de documenta\u00e7\u00e3o s\u00e3o regenerados e nenhuma funcionalidade fora do escopo \u00e9 adicionada."
+      ],
+      "requirements": [
+        "SPEC-0003 Definition of Done",
+        "SPEC-0003 Verifica\u00e7\u00e3o",
+        "T1 a T9"
+      ],
+      "rules": [
+        "N\u00e3o iniciar novas funcionalidades nem refatora\u00e7\u00f5es amplas nesta task.",
+        "Corrigir somente regress\u00f5es comprovadamente introduzidas pelas tasks anteriores.",
+        "Diferenciar falhas preexistentes das regress\u00f5es da entrega.",
+        "N\u00e3o editar super-plan.json manualmente."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Executar matriz de valida\u00e7\u00e3o",
+          "description": "Rodar docs-check, testes UI sem convite de banco, typecheck e build.",
+          "command": "pnpm docs-check --emit-index && pnpm --dir apps/ui exec vitest run --exclude **/server/auth/invites.test.ts && pnpm --dir apps/ui typecheck && pnpm --dir apps/ui build",
+          "expectedResult": "Todos os comandos de DoD encerram com exit 0.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Registrar evid\u00eancias e atualizar checklist",
+          "description": "Anexar resultados reais \u00e0 spec e marcar invent\u00e1rio somente para capacidades entregues.",
+          "command": null,
+          "expectedResult": "Documenta\u00e7\u00e3o descreve a implementa\u00e7\u00e3o e sua verifica\u00e7\u00e3o sem promessas futuras.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Revisar escopo final",
+          "description": "Confirmar que n\u00e3o h\u00e1 links prematuros, localStorage, APIs administrativas ou mudan\u00e7a de schema.",
+          "command": "git diff --check",
+          "expectedResult": "Exit 0.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/APP_INVENTORY.md",
+        "docs/specs/0003-ui-shell-autenticado-spec.md",
+        "docs/index.json",
+        "docs/specs/README.md"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/ui/APP_INVENTORY.md",
+          "docs/specs/0003-ui-shell-autenticado-spec.md",
+          "docs/index.json",
+          "docs/specs/README.md"
+        ],
+        "deleted": []
+      },
+      "notes": [
+        "A revis\u00e3o humana da SPEC permanece exigida ap\u00f3s a evid\u00eancia automatizada."
+      ]
+    }
+  ],
+  "updatedAt": "2026-07-13T22:27:03.892679+00:00"
+}

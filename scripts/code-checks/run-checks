@@ -10,3 +10,4 @@ detect_runner
 
 ${NODE_ENV_RUNNER} exec node --experimental-strip-types ./scripts/code-checks/check-barrel-exports.ts
 ${NODE_ENV_RUNNER} exec node --experimental-strip-types ./scripts/code-checks/check-workspace-exports.ts
+${NODE_ENV_RUNNER} exec node --experimental-strip-types ./scripts/code-checks/check-ui-client-boundary.ts

@@ -1,10 +1,32 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  createRootRoute,
+  HeadContent,
+  Link,
+  Outlet,
+  Scripts,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
+import { getUiPreferences } from "../features/ui-preferences/server/ui-preferences.functions";
+import { TooltipProvider } from "../shared/components/ui/tooltip";
 import appCss from "../styles.css?url";
 
+export const PREPAINT_THEME_SCRIPT = `(()=>{const c=document.cookie.match(/(?:^|;\\s*)ui_theme=([^;]*)/);let t=c?.[1];if(t!=="light"&&t!=="dark"){t=window.matchMedia?.("(prefers-color-scheme: dark)").matches?"dark":"light";document.cookie="ui_theme="+t+"; Path=/; SameSite=Lax; Max-Age=15552000"}document.documentElement.classList.remove("light","dark");document.documentElement.classList.add(t)})();`;
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      retry: 1,
+    },
+  },
+});
+
 export const Route = createRootRoute({
+  loader: () => getUiPreferences({ data: {} }),
+  notFoundComponent: NotFoundPage,
   head: () => ({
     meta: [
       {
@@ -15,7 +37,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "LiteLLM Analytics",
       },
     ],
     links: [
@@ -28,14 +50,33 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function NotFoundPage() {
   return (
-    <html lang="en">
+    <main className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <h1 className="text-2xl font-bold">Page not found</h1>
+      <Link to="/" className="text-primary hover:underline">
+        Go home
+      </Link>
+    </main>
+  );
+}
+
+function RootDocument() {
+  const preferences = Route.useLoaderData();
+
+  return (
+    <html className={preferences.theme} lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: This is a static, source-controlled pre-paint script that contains no user data. */}
+        <script dangerouslySetInnerHTML={{ __html: PREPAINT_THEME_SCRIPT }} />
       </head>
       <body>
-        {children}
+        <TooltipProvider>
+          <QueryClientProvider client={queryClient}>
+            <Outlet />
+          </QueryClientProvider>
+        </TooltipProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",

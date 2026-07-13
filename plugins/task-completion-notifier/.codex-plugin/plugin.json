@@ -1,0 +1,7 @@
+{
+  "name": "task-completion-notifier",
+  "version": "1.0.0",
+  "description": "Notify when a Codex task reaches its Stop hook.",
+  "skills": ["./skills/task-completion-notifier"],
+  "hooks": "./hooks/hooks.json"
+}

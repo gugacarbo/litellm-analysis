@@ -50,11 +50,6 @@ type SpecifierUsage = {
   names: Set<string>;
 };
 
-type ExportedSymbolInfo = {
-  name: string;
-  key: string;
-};
-
 type Workspace = {
   name: string;
   dir: string;
@@ -240,85 +235,208 @@ function listSourceFiles(): string[] {
   return files;
 }
 
-function resolveAliasedSymbol(
-  checker: ts.TypeChecker,
-  symbol: ts.Symbol,
-): ts.Symbol {
-  if (symbol.flags & ts.SymbolFlags.Alias) {
-    return checker.getAliasedSymbol(symbol);
+// ── Syntactic analysis (replaces ts.Program) ─────────────────────────────
+// ts.createSourceFile is a pure parser — no module resolution, no type graph.
+// Orders of magnitude faster than ts.createProgram for large workspaces.
+//
+// To match the old ts.Program behavior, we resolve re-exports transitively:
+// `export { foo } from './bar'` and `export * from './bar'` propagate the
+// exported names of ./bar to the current file. This is done syntactically
+// (resolving relative specifiers to files on disk), without a type checker.
+
+const sourceFileCache = new Map<string, ts.SourceFile | null>();
+
+function parseSourceFile(filePath: string): ts.SourceFile | null {
+  const cached = sourceFileCache.get(filePath);
+  if (cached !== undefined) return cached;
+  try {
+    const content = fs.readFileSync(filePath, "utf-8");
+    const sourceFile = ts.createSourceFile(
+      filePath,
+      content,
+      ts.ScriptTarget.ES2024,
+      true,
+      filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+    sourceFileCache.set(filePath, sourceFile);
+    return sourceFile;
+  } catch {
+    sourceFileCache.set(filePath, null);
+    return null;
   }
-  return symbol;
 }
 
-function getSymbolKey(checker: ts.TypeChecker, symbol: ts.Symbol): string {
-  const resolved = resolveAliasedSymbol(checker, symbol);
-  const declarations = resolved.declarations ?? [];
+const sourceExtensionsForResolution = new Set([
+  ".ts",
+  ".tsx",
+  ".mts",
+  ".cts",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  ".json",
+]);
 
-  if (!declarations.length) {
-    return resolved.escapedName.toString();
+function resolveModuleSpecifier(
+  importerPath: string,
+  specifier: string,
+): string | null {
+  // Only resolve relative specifiers — bare specifiers are node_modules
+  if (!specifier.startsWith(".")) return null;
+
+  const baseDir = path.dirname(importerPath);
+  const target = path.resolve(baseDir, specifier);
+
+  // Exact match
+  if (fs.existsSync(target) && fs.statSync(target).isFile()) return target;
+
+  // Try with extensions
+  for (const ext of sourceExtensionsForResolution) {
+    const withExt = `${target}${ext}`;
+    if (fs.existsSync(withExt)) return withExt;
   }
 
-  return declarations
-    .map((declaration) => {
-      const filePath = toPosix(
-        path.relative(repoRoot, declaration.getSourceFile().fileName),
+  // Try index files
+  for (const ext of sourceExtensionsForResolution) {
+    const indexFile = path.join(target, `index${ext}`);
+    if (fs.existsSync(indexFile)) return indexFile;
+  }
+
+  return null;
+}
+
+type ReExport = {
+  // Named re-exports: export { foo, bar as baz } from './mod'
+  named: Map<string, string>; // exportedName -> localName
+  // Namespace re-exports: export * from './mod'
+  namespace: string[];
+};
+
+function extractReExports(sourceFile: ts.SourceFile): {
+  reExports: ReExport;
+  localExports: string[];
+} {
+  const reExports: ReExport = {
+    named: new Map(),
+    namespace: [],
+  };
+  const localExports: string[] = [];
+
+  for (const statement of sourceFile.statements) {
+    if (ts.isExportDeclaration(statement) && statement.moduleSpecifier) {
+      // Re-export with from clause
+      const moduleSpecifier = statement.moduleSpecifier;
+      if (ts.isStringLiteral(moduleSpecifier)) {
+        const resolved = resolveModuleSpecifier(
+          sourceFile.fileName,
+          moduleSpecifier.text,
+        );
+        if (!resolved) continue;
+
+        if (
+          statement.exportClause &&
+          ts.isNamedExports(statement.exportClause)
+        ) {
+          // export { foo as bar } from './mod' — bar is exported, foo is local
+          for (const element of statement.exportClause.elements) {
+            const localName = element.propertyName?.text ?? element.name.text;
+            reExports.named.set(element.name.text, localName);
+          }
+        } else if (!statement.exportClause) {
+          // export * from './mod'
+          reExports.namespace.push(resolved);
+        }
+      }
+    } else if (
+      ts.isExportDeclaration(statement) &&
+      !statement.moduleSpecifier
+    ) {
+      // export { foo, bar as baz } — local re-export (no from)
+      if (statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+        for (const element of statement.exportClause.elements) {
+          localExports.push(element.name.text);
+        }
+      }
+    } else {
+      // Direct exports: export const/function/class/interface/type/enum
+      const modifiers = ts.canHaveModifiers(statement)
+        ? ts.getModifiers(statement)
+        : undefined;
+      const isExported = modifiers?.some(
+        (m) => m.kind === ts.SyntaxKind.ExportKeyword,
       );
-      return `${resolved.escapedName.toString()}@${filePath}:${declaration.pos}`;
-    })
-    .sort()
-    .join("|");
-}
 
-function getExportedSymbols(
-  checker: ts.TypeChecker,
-  sourceFile: ts.SourceFile,
-): ExportedSymbolInfo[] {
-  const symbol = checker.getSymbolAtLocation(sourceFile);
-  if (!symbol) return [];
-
-  return checker
-    .getExportsOfModule(symbol)
-    .filter((exportSymbol) => exportSymbol.escapedName.toString() !== "default")
-    .map((exportSymbol) => ({
-      name: exportSymbol.escapedName.toString(),
-      key: getSymbolKey(checker, exportSymbol),
-    }));
-}
-
-function ensureUse(
-  target: SpecifierUsage,
-  mode: ExportMode,
-  importedName: string | null,
-) {
-  if (mode === "all") {
-    target.all = true;
-    return;
+      if (isExported) {
+        if (ts.isVariableStatement(statement)) {
+          for (const decl of statement.declarationList.declarations) {
+            if (ts.isIdentifier(decl.name)) localExports.push(decl.name.text);
+          }
+        } else if (
+          ts.isFunctionDeclaration(statement) ||
+          ts.isClassDeclaration(statement) ||
+          ts.isInterfaceDeclaration(statement) ||
+          ts.isTypeAliasDeclaration(statement) ||
+          ts.isEnumDeclaration(statement)
+        ) {
+          if (statement.name) localExports.push(statement.name.text);
+        }
+      }
+    }
   }
-  if (importedName) {
-    target.names.add(importedName);
-  }
+
+  return { reExports, localExports };
 }
 
-function collectImportUsages(program: ts.Program, workspaces: Workspace[]) {
+// Cache: filePath -> Set of all exported names (including transitive re-exports)
+const allExportsCache = new Map<string, Set<string>>();
+
+function getAllExportedNames(filePath: string): Set<string> {
+  const cached = allExportsCache.get(filePath);
+  if (cached) return cached;
+
+  // Guard against cycles
+  allExportsCache.set(filePath, new Set());
+
+  const sourceFile = parseSourceFile(filePath);
+  if (!sourceFile) {
+    return allExportsCache.get(filePath) ?? new Set();
+  }
+
+  const { reExports, localExports } = extractReExports(sourceFile);
+  const result = new Set<string>(localExports);
+
+  // Resolve named re-exports: export { foo } from './bar'
+  // The local name 'foo' in './bar' becomes an export of this file
+  for (const [, localName] of reExports.named) {
+    result.add(localName);
+  }
+
+  // Resolve namespace re-exports: export * from './bar'
+  for (const targetPath of reExports.namespace) {
+    const targetExports = getAllExportedNames(targetPath);
+    for (const name of targetExports) {
+      result.add(name);
+    }
+  }
+
+  allExportsCache.set(filePath, result);
+  return result;
+}
+
+function collectImportUsages(workspaces: Workspace[]) {
   const usageBySpecifier = new Map<string, SpecifierUsage>();
-  const usedSymbolKeys = new Set<string>();
   const workspaceNames = workspaces
     .map((workspace) => workspace.name)
     .sort((left, right) => right.length - left.length);
 
-  const sourceFiles = program
-    .getSourceFiles()
-    .filter(
-      (sourceFile) =>
-        !sourceFile.isDeclarationFile &&
-        sourceFile.fileName.startsWith(repoRoot),
-    );
+  const sourceFiles = listSourceFiles();
 
-  for (const sourceFile of sourceFiles) {
-    const importerWorkspace = getWorkspaceForFile(
-      sourceFile.fileName,
-      workspaces,
-    );
+  for (const filePath of sourceFiles) {
+    const sourceFile = parseSourceFile(filePath);
+    if (!sourceFile) continue;
+
+    const importerWorkspace = getWorkspaceForFile(filePath, workspaces);
     if (!importerWorkspace) continue;
 
     const record = (
@@ -337,13 +455,11 @@ function collectImportUsages(program: ts.Program, workspaces: Workspace[]) {
       };
       usageBySpecifier.set(specifier, usage);
 
-      ensureUse(usage, mode, importedName);
-    };
-
-    const recordNodeSymbolUse = (node: ts.Node) => {
-      const symbol = checker.getSymbolAtLocation(node);
-      if (!symbol) return;
-      usedSymbolKeys.add(getSymbolKey(checker, symbol));
+      if (mode === "all") {
+        usage.all = true;
+      } else if (importedName) {
+        usage.names.add(importedName);
+      }
     };
 
     function visit(node: ts.Node) {
@@ -370,7 +486,6 @@ function collectImportUsages(program: ts.Program, workspaces: Workspace[]) {
                     "named",
                     element.propertyName?.text ?? element.name.text,
                   );
-                  recordNodeSymbolUse(element.name);
                 }
               }
             }
@@ -384,7 +499,6 @@ function collectImportUsages(program: ts.Program, workspaces: Workspace[]) {
               "named",
               element.propertyName?.text ?? element.name.text,
             );
-            recordNodeSymbolUse(element.propertyName ?? element.name);
           }
         }
       }
@@ -395,26 +509,14 @@ function collectImportUsages(program: ts.Program, workspaces: Workspace[]) {
     visit(sourceFile);
   }
 
-  return { usageBySpecifier, usedSymbolKeys };
+  return usageBySpecifier;
 }
 
-const workspaces = buildWorkspaces();
-const sourceFiles = listSourceFiles();
-const program = ts.createProgram(sourceFiles, {
-  allowImportingTsExtensions: true,
-  jsx: ts.JsxEmit.ReactJSX,
-  module: ts.ModuleKind.ESNext,
-  moduleResolution: ts.ModuleResolutionKind.Bundler,
-  noEmit: true,
-  skipLibCheck: true,
-  target: ts.ScriptTarget.ES2024,
-});
-const checker = program.getTypeChecker();
+// ── Main ─────────────────────────────────────────────────────────────────
 
-const { usageBySpecifier, usedSymbolKeys } = collectImportUsages(
-  program,
-  workspaces,
-);
+const workspaces = buildWorkspaces();
+const usageBySpecifier = collectImportUsages(workspaces);
+
 const findings: Finding[] = [];
 const exportedWorkspaces = workspaces.filter(
   (workspace) => workspace.hasExports,
@@ -422,21 +524,11 @@ const exportedWorkspaces = workspaces.filter(
 
 for (const workspace of exportedWorkspaces) {
   for (const entry of workspace.exportEntries) {
-    const exportedSymbols = [
-      ...new Map(
-        entry.files.flatMap((filePath) => {
-          const sourceFile = program.getSourceFile(filePath);
-          return sourceFile
-            ? getExportedSymbols(checker, sourceFile).map((item) => [
-                `${item.name}:${item.key}`,
-                item,
-              ])
-            : [];
-        }),
-      ).values(),
-    ].sort((left, right) => left.name.localeCompare(right.name));
-
-    const exportedNames = exportedSymbols.map((symbol) => symbol.name);
+    const exportedNames = [
+      ...new Set(
+        entry.files.flatMap((filePath) => [...getAllExportedNames(filePath)]),
+      ),
+    ].sort((left, right) => left.localeCompare(right));
 
     if (!exportedNames.length) continue;
 
@@ -445,16 +537,8 @@ for (const workspace of exportedWorkspaces) {
       !usage || usage.all
         ? usage?.all
           ? []
-          : exportedSymbols
-              .filter((symbol) => !usedSymbolKeys.has(symbol.key))
-              .map((symbol) => symbol.name)
-        : exportedSymbols
-            .filter(
-              (symbol) =>
-                !usage.names.has(symbol.name) &&
-                !usedSymbolKeys.has(symbol.key),
-            )
-            .map((symbol) => symbol.name);
+          : exportedNames
+        : exportedNames.filter((name) => !usage.names.has(name));
 
     if (!unusedExports.length) continue;
 
