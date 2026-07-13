@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * check-ui-client-boundary.mjs
+ * check-ui-client-boundary.ts
  *
  * Guarda arquitetural que verifica se módulos client-side do apps/ui
  * importam código server-only ou referenciam a API legada do apps/server.
  *
  * Uso:
- *   node scripts/check-ui-client-boundary.mjs
+ *   node --experimental-strip-types scripts/code-checks/check-ui-client-boundary.ts
  *
  * Exit codes:
  *   0 — nenhuma violação
@@ -15,11 +15,9 @@
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = resolve(__dirname, "..");
+const rootDir = resolve(import.meta.dirname, "..", "..");
 
 // Padrões de imports server-only que NÃO podem aparecer em módulos client-side
 const SERVER_ONLY_IMPORTS = [
@@ -84,7 +82,14 @@ const CLIENT_DIRS = [
   resolve(rootDir, "apps/ui/src/lib"),
 ];
 
-function isAllowed(filePath) {
+interface Violation {
+  file: string;
+  line: number;
+  type: string;
+  detail: string;
+}
+
+function isAllowed(filePath: string): boolean {
   const relative = filePath.replace(rootDir, "");
   // Rotas de API são server-side (infraestrutura própria)
   if (relative.includes("apps/ui/src/routes/api/")) return true;
@@ -96,12 +101,12 @@ function isAllowed(filePath) {
   return false;
 }
 
-function checkFile(filePath) {
+function checkFile(filePath: string): Violation[] {
   if (isAllowed(filePath)) return [];
 
   const content = readFileSync(filePath, "utf-8");
   const lines = content.split("\n");
-  const violations = [];
+  const violations: Violation[] = [];
 
   // Check for server-only imports
   for (const { pattern, label } of SERVER_ONLY_IMPORTS) {
@@ -152,8 +157,8 @@ function checkFile(filePath) {
   return violations;
 }
 
-function collectFiles(dir) {
-  const results = [];
+function collectFiles(dir: string): string[] {
+  const results: string[] = [];
   const list = readdirSync(dir);
   for (const item of list) {
     const fullPath = resolve(dir, item);
@@ -172,8 +177,8 @@ function collectFiles(dir) {
   return results;
 }
 
-function main() {
-  let allViolations = [];
+function main(): void {
+  let allViolations: Violation[] = [];
 
   for (const clientDir of CLIENT_DIRS) {
     if (!existsSync(clientDir)) continue;

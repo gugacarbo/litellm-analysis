@@ -4,14 +4,14 @@ import { describe, expect, it } from "vitest";
 
 const scriptPath = resolve(
   import.meta.dirname,
-  "../scripts/check-ui-client-boundary.mjs",
+  "./check-ui-client-boundary.ts",
 );
 
 function runGuard(): { exitCode: number; stdout: string; stderr: string } {
   try {
-    const stdout = execSync(`node ${scriptPath}`, {
+    const stdout = execSync(`node --experimental-strip-types ${scriptPath}`, {
       encoding: "utf-8",
-      cwd: resolve(import.meta.dirname, ".."),
+      cwd: resolve(import.meta.dirname, "../.."),
     });
     return { exitCode: 0, stdout, stderr: "" };
   } catch (err) {
