@@ -9,7 +9,10 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
+import { getUiPreferences } from "../server/ui-preferences.functions";
 import appCss from "../styles.css?url";
+
+export const PREPAINT_THEME_SCRIPT = `(()=>{const c=document.cookie.match(/(?:^|;\\s*)ui_theme=([^;]*)/);let t=c?.[1];if(t!=="light"&&t!=="dark"){t=window.matchMedia?.("(prefers-color-scheme: dark)").matches?"dark":"light";document.cookie="ui_theme="+t+"; Path=/; SameSite=Lax; Max-Age=15552000"}document.documentElement.classList.remove("light","dark");document.documentElement.classList.add(t)})();`;
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,6 +24,7 @@ const queryClient = new QueryClient({
 });
 
 export const Route = createRootRoute({
+  loader: () => getUiPreferences({ data: {} }),
   notFoundComponent: NotFoundPage,
   head: () => ({
     meta: [
@@ -32,7 +36,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "LiteLLM Analytics",
       },
     ],
     links: [
@@ -57,10 +61,14 @@ function NotFoundPage() {
 }
 
 function RootDocument() {
+  const preferences = Route.useLoaderData();
+
   return (
-    <html lang="en">
+    <html className={preferences.theme} lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: This is a static, source-controlled pre-paint script that contains no user data. */}
+        <script dangerouslySetInnerHTML={{ __html: PREPAINT_THEME_SCRIPT }} />
       </head>
       <body>
         <QueryClientProvider client={queryClient}>

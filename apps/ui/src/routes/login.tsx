@@ -82,11 +82,11 @@ function LoginPage() {
 
   if (mode === "accept-invite") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="max-w-md w-full p-8 bg-card text-card-foreground rounded-lg shadow-md">
           <h1 className="text-2xl font-bold text-center">Accept Invite</h1>
           {error && (
-            <p className="mt-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+            <p className="mt-4 p-3 bg-destructive/10 text-destructive rounded-md text-sm">
               {error}
             </p>
           )}
@@ -94,7 +94,7 @@ function LoginPage() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-foreground"
               >
                 Name
               </label>
@@ -104,13 +104,13 @@ function LoginPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full px-3 py-2 border border-input bg-background text-foreground rounded-md shadow-sm focus:ring-ring focus:border-ring"
               />
             </div>
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-foreground"
               >
                 Email
               </label>
@@ -120,13 +120,13 @@ function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full px-3 py-2 border border-input bg-background text-foreground rounded-md shadow-sm focus:ring-ring focus:border-ring"
               />
             </div>
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-foreground"
               >
                 Password
               </label>
@@ -136,25 +136,25 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full px-3 py-2 border border-input bg-background text-foreground rounded-md shadow-sm focus:ring-ring focus:border-ring"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:ring-2 focus:ring-ring disabled:opacity-50"
             >
               {loading ? "Creating account..." : "Accept Invite & Sign In"}
             </button>
           </form>
-          <p className="mt-4 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm text-muted-foreground">
             <button
               type="button"
               onClick={() => {
                 setMode("sign-in");
                 setError("");
               }}
-              className="text-indigo-600 hover:underline"
+              className="text-primary hover:underline"
             >
               Already have an account? Sign in
             </button>
@@ -165,11 +165,11 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <div className="max-w-md w-full p-8 bg-card text-card-foreground rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center">Sign In</h1>
         {error && (
-          <p className="mt-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+          <p className="mt-4 p-3 bg-destructive/10 text-destructive rounded-md text-sm">
             {error}
           </p>
         )}
@@ -177,7 +177,7 @@ function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Email
             </label>
@@ -187,13 +187,13 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full px-3 py-2 border border-input bg-background text-foreground rounded-md shadow-sm focus:ring-ring focus:border-ring"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Password
             </label>
@@ -203,25 +203,25 @@ function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full px-3 py-2 border border-input bg-background text-foreground rounded-md shadow-sm focus:ring-ring focus:border-ring"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:ring-2 focus:ring-ring disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           <button
             type="button"
             onClick={() => {
               setMode("accept-invite");
               setError("");
             }}
-            className="text-indigo-600 hover:underline"
+            className="text-primary hover:underline"
           >
             Have an invite token? Accept invite
           </button>

@@ -1,8 +1,25 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useRouterState,
+} from "@tanstack/react-router";
+import { useState } from "react";
+
+import { AccountMenu } from "../components/app-shell/account-menu";
+import { AppShell } from "../components/app-shell/app-shell";
+import {
+  getUiPreferences,
+  setSidebarPreference,
+  setThemePreference,
+} from "../server/ui-preferences.functions";
 
 export const Route = createFileRoute("/_protected")({
   beforeLoad: async ({ location }) => {
-    const { getSession } = await import("../server/auth/get-session.functions");
+    const [{ getSession }, preferences] = await Promise.all([
+      import("../server/auth/get-session.functions"),
+      getUiPreferences({ data: {} }),
+    ]);
     const result = await getSession({ data: {} });
 
     if (!result.ok) {
@@ -12,7 +29,7 @@ export const Route = createFileRoute("/_protected")({
       });
     }
 
-    return { session: result.session };
+    return { preferences, session: result.session };
   },
   errorComponent: ({ error: _error }) => {
     return (
@@ -36,5 +53,48 @@ export const Route = createFileRoute("/_protected")({
 });
 
 function ProtectedLayout() {
-  return <Outlet />;
+  const { preferences: initialPreferences, session } = Route.useRouteContext();
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
+  const [preferences, setPreferences] = useState(initialPreferences);
+
+  const handleThemeChange = async (theme: "light" | "dark") => {
+    const result = await setThemePreference({ data: { theme } });
+    if (!result.ok) {
+      throw new Error(result.error.message);
+    }
+
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(result.theme);
+    setPreferences((current) => ({ ...current, theme: result.theme }));
+  };
+
+  const handleSidebarChange = async (sidebar: "expanded" | "collapsed") => {
+    const result = await setSidebarPreference({ data: { sidebar } });
+    if (!result.ok) {
+      throw new Error(result.error.message);
+    }
+
+    setPreferences((current) => ({ ...current, sidebar: result.sidebar }));
+  };
+
+  return (
+    <AppShell
+      accountMenu={
+        <AccountMenu
+          email={session.user.email}
+          name={session.user.name}
+          role={session.user.role}
+        />
+      }
+      onSidebarChange={handleSidebarChange}
+      onThemeChange={handleThemeChange}
+      pathname={pathname}
+      sidebar={preferences.sidebar}
+      theme={preferences.theme}
+    >
+      <Outlet />
+    </AppShell>
+  );
 }

@@ -21,7 +21,10 @@ export async function createTestDb(): Promise<{
   const db = drizzle(pool);
 
   await migrate(db, {
-    migrationsFolder: resolve(authTestDir, "../../../../../../database/drizzle"),
+    migrationsFolder: resolve(
+      authTestDir,
+      "../../../../../../database/drizzle",
+    ),
   });
 
   await db.execute(
