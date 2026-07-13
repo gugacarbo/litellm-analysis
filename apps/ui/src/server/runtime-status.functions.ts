@@ -1,10 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Auth } from "./auth/auth";
-import { getAuth } from "./auth/auth";
-import { requireRole, requireSession } from "./auth/invites";
 import type { ServerContext } from "./context";
-import { createServerContext } from "./context";
 
 export type RuntimeStatus = {
   ok: true;
@@ -42,6 +39,8 @@ export async function handleGetRuntimeStatus(
 ): Promise<RuntimeStatusResult> {
   const startTime = Date.now();
   const requestId = crypto.randomUUID();
+  const [{ requireRole, requireSession }, { createServerContext }] =
+    await Promise.all([import("./auth/invites"), import("./context")]);
   const ctx = deps.ctx ?? createServerContext({ auth: deps.auth });
 
   try {
@@ -117,15 +116,21 @@ export async function handleGetRuntimeStatus(
 
 export const getRuntimeStatus = createServerFn({ method: "GET" })
   .validator(z.object({}))
-  .handler(async ({ context }) => {
+  .handler(async () => {
+    const [{ getAuth }, { getRequest }] = await Promise.all([
+      import("./auth/auth"),
+      import("@tanstack/react-start/server"),
+    ]);
     const auth = getAuth();
-    const request = (context as unknown as { request?: Request } | undefined)
-      ?.request;
+    const request = getRequest();
     if (!request) {
-      const ctx = createServerContext({ auth });
-      ctx.logger.error("runtime_status_no_request", {
-        requestId: crypto.randomUUID(),
-      });
+      console.error(
+        JSON.stringify({
+          level: "error",
+          event: "runtime_status_no_request",
+          requestId: crypto.randomUUID(),
+        }),
+      );
       return {
         ok: false as const,
         error: {

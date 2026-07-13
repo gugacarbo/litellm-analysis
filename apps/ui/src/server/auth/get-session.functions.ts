@@ -1,11 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { getAuth } from "./auth";
-import { requireSession } from "./invites";
 
 export const getSession = createServerFn({ method: "GET" })
   .validator(z.object({}))
   .handler(async () => {
+    const [{ getAuth }, { requireSession }] = await Promise.all([
+      import("./auth"),
+      import("./invites"),
+    ]);
     const auth = getAuth();
     const { getRequest } = await import("@tanstack/react-start/server");
     const request = getRequest();

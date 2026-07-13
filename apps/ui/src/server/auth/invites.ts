@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { appInvites } from "@lite-llm/database/schema/app";
+import { appInvites, user } from "@lite-llm/database/schema/app";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import type { Auth } from "./auth";
 
@@ -153,9 +153,18 @@ export async function acceptInvite(params: {
         .set({ usedAt: null })
         .where(eq(appInvites.id, invite.id));
 
+      const errorBody = (await signUpResponse.json().catch(() => null)) as {
+        message?: unknown;
+      } | null;
+      const message =
+        typeof errorBody?.message === "string" &&
+        errorBody.message.trim().length > 0
+          ? errorBody.message
+          : "Could not create the account. Please try again.";
+
       return {
         ok: false,
-        error: { code: "INTERNAL", message: "Failed to create account" },
+        error: { code: "INTERNAL", message },
       };
     }
 
@@ -164,9 +173,18 @@ export async function acceptInvite(params: {
       token?: string;
     };
 
+    if (!signUpBody.user?.id) {
+      throw new Error("Better Auth did not return the created user ID");
+    }
+
+    await params.auth.db
+      .update(user)
+      .set({ role: invite.role })
+      .where(eq(user.id, signUpBody.user.id));
+
     return {
       ok: true,
-      userId: signUpBody.user?.id ?? "",
+      userId: signUpBody.user.id,
       sessionCreated: true,
     };
   } catch {

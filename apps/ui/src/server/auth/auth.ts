@@ -27,7 +27,11 @@ export function createAuth(params: {
   const baseURL =
     process.env.BETTER_AUTH_URL ??
     process.env.VITE_APP_URL ??
-    "http://localhost:3000";
+    "http://localhost:5178";
+  const trustedOrigins = (process.env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   const instance = betterAuth({
     database: drizzleAdapter(db, {
@@ -43,11 +47,11 @@ export function createAuth(params: {
     databaseType: "postgres",
     secret,
     baseURL,
-    trustedOrigins: [baseURL],
+    trustedOrigins,
     emailAndPassword: {
       enabled: true,
     },
-    plugins: [admin(), tanstackStartCookies()],
+    plugins: [admin({ defaultRole: "viewer" }), tanstackStartCookies()],
   });
 
   return {

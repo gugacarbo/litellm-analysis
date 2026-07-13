@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getAuth } from "../../../server/auth/auth";
-import { acceptInvite } from "../../../server/auth/invites";
 
 export const Route = createFileRoute("/api/auth/accept-invite")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
+        const [{ getAuth }, { acceptInvite }] = await Promise.all([
+          import("../../../server/auth/auth"),
+          import("../../../server/auth/invites"),
+        ]);
         const auth = getAuth();
         const body = (await request.json()) as {
           inviteToken?: string;

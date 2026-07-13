@@ -15,6 +15,13 @@ export const user = pgTable(
     email: text("email").notNull(),
     emailVerified: boolean("email_verified").default(false).notNull(),
     image: text("image"),
+    // Required by Better Auth's admin plugin. Application access uses admin/viewer.
+    role: text("role", { enum: ["admin", "viewer"] })
+      .default("viewer")
+      .notNull(),
+    banned: boolean("banned").default(false).notNull(),
+    banReason: text("ban_reason"),
+    banExpires: timestamp("ban_expires"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

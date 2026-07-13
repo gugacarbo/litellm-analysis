@@ -110,6 +110,7 @@ describe("acceptInvite", () => {
         .where(eq(user.email, "bootstrap@example.com"));
       expect(users).toHaveLength(1);
       expect(users[0].name).toBe("Bootstrap");
+      expect(users[0].role).toBe("admin");
     } finally {
       await ctx.stop();
     }
@@ -352,6 +353,12 @@ describe("createInvite", () => {
         password: "secure-password-123",
       });
       if (!viewerAccept.ok) throw new Error(viewerAccept.error.message);
+
+      const [viewer] = await ctx.auth.db
+        .select()
+        .from(user)
+        .where(eq(user.email, "viewer@example.com"));
+      expect(viewer?.role).toBe("viewer");
 
       const viewerCookie = await getCookieFromSignup(
         ctx.auth,

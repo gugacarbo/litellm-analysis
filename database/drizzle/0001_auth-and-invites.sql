@@ -55,9 +55,9 @@ CREATE TABLE "verification" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "app_invite" ADD CONSTRAINT "app_invite_created_by_user_id_user_id_fk" FOREIGN KEY ("created_by_user_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "app_invite" ADD CONSTRAINT "app_invite_created_by_user_id_user_id_fk" FOREIGN KEY ("created_by_user_id") REFERENCES "user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "account_user_id_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "app_invite_token_hash_idx" ON "app_invite" USING btree ("token_hash");--> statement-breakpoint
 CREATE INDEX "app_invite_email_idx" ON "app_invite" USING btree ("email");--> statement-breakpoint

@@ -15,6 +15,13 @@
       "when": 1783644548925,
       "tag": "0001_auth-and-invites",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783727087377,
+      "tag": "0002_sour_firebrand",
+      "breakpoints": true
     }
   ]
 }
