@@ -37,8 +37,8 @@ export const getSession = createServerFn({ method: "GET" })
   .validator(z.object({}))
   .handler(async () => {
     const [{ getAuth }, { requireSession }] = await Promise.all([
-      import("./auth"),
-      import("./invites"),
+      import("@/features/auth/server/auth"),
+      import("@/features/auth/server/invites"),
     ]);
     const auth = getAuth();
     const { getRequest } = await import("@tanstack/react-start/server");

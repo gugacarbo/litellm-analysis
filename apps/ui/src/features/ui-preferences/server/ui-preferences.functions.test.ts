@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../auth/server/invites", () => ({
+vi.mock("@/features/auth/server/invites", () => ({
   requireSession: vi.fn(),
 }));
 
-import type { Auth } from "../../auth/server/auth";
-import { requireSession } from "../../auth/server/invites";
+import type { Auth } from "@/features/auth/server/auth";
+import { requireSession } from "@/features/auth/server/invites";
 import {
   getUiPreferencesFromCookie,
   handleSetSidebarPreference,
   handleSetThemePreference,
   serializePreferenceCookie,
-} from "./ui-preferences.functions";
+} from "@/features/ui-preferences/server/ui-preferences.functions";
 
 function mockAuth(): Auth {
   return {

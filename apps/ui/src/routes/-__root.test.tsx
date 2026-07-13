@@ -2,12 +2,12 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../features/ui-preferences/server/ui-preferences.functions", () => ({
+vi.mock("@/features/ui-preferences/server/ui-preferences.functions", () => ({
   getUiPreferences: vi.fn(),
 }));
 
-import { getUiPreferences } from "../features/ui-preferences/server/ui-preferences.functions";
-import { PREPAINT_THEME_SCRIPT, Route } from "./__root";
+import { getUiPreferences } from "@/features/ui-preferences/server/ui-preferences.functions";
+import { PREPAINT_THEME_SCRIPT, Route } from "@/routes/__root";
 
 const rootRouteOptions = Route.options as unknown as {
   head: () => { meta: Array<{ title?: string }> };

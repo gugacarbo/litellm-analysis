@@ -2,15 +2,15 @@ import { appInvites, user } from "@lite-llm/database/schema";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 
-import { type Auth, createAuth } from "./auth";
+import { type Auth, createAuth } from "@/features/auth/server/auth";
 import {
   acceptInvite,
   createInvite,
   INVITE_EXPIRY_MS,
   requireRole,
   requireSession,
-} from "./invites";
-import { createTestDb } from "./test-setup";
+} from "@/features/auth/server/invites";
+import { createTestDb } from "@/features/auth/server/test-setup";
 
 type TestContext = {
   auth: Auth;

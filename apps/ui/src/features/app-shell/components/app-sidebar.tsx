@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
-
+import {
+  isNavigationItemActive,
+  navigationItems,
+} from "@/features/app-shell/components/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -11,8 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "../../../shared/components/ui/sidebar";
-import { isNavigationItemActive, navigationItems } from "./navigation";
+} from "@/shared/components/ui/sidebar";
 
 export type AppSidebarProps = {
   accountMenu?: ReactNode;

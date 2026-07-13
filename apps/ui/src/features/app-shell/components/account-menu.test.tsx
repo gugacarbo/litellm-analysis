@@ -20,9 +20,9 @@ vi.mock("better-auth/react", () => ({
   createAuthClient: () => ({ signOut }),
 }));
 
-import { SidebarProvider } from "../../../shared/components/ui/sidebar";
-import { TooltipProvider } from "../../../shared/components/ui/tooltip";
-import { AccountMenu } from "./account-menu";
+import { AccountMenu } from "@/features/app-shell/components/account-menu";
+import { SidebarProvider } from "@/shared/components/ui/sidebar";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
 
 const account = {
   name: "Ada Lovelace",

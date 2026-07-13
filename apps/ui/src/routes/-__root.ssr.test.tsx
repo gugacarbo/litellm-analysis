@@ -9,16 +9,16 @@ import {
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../features/ui-preferences/server/ui-preferences.functions", () => ({
+vi.mock("@/features/ui-preferences/server/ui-preferences.functions", () => ({
   getUiPreferences: vi.fn(),
 }));
 
-vi.mock("../styles.css?url", () => ({
+vi.mock("@/styles.css?url", () => ({
   default: "/styles.css",
 }));
 
-import { getUiPreferences } from "../features/ui-preferences/server/ui-preferences.functions";
-import { Route } from "./__root";
+import { getUiPreferences } from "@/features/ui-preferences/server/ui-preferences.functions";
+import { Route } from "@/routes/__root";
 
 describe("root document SSR", () => {
   beforeEach(() => {

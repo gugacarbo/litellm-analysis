@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { ServerContext } from "../../../server/context";
-import type { Auth } from "../../auth/server/auth";
+import type { Auth } from "@/features/auth/server/auth";
+import type { ServerContext } from "@/server/context";
 
 export type RuntimeStatus = {
   ok: true;
@@ -41,8 +41,8 @@ export async function handleGetRuntimeStatus(
   const requestId = crypto.randomUUID();
   const [{ requireRole, requireSession }, { createServerContext }] =
     await Promise.all([
-      import("../../auth/server/invites"),
-      import("../../../server/context"),
+      import("@/features/auth/server/invites"),
+      import("@/server/context"),
     ]);
   const ctx = deps.ctx ?? createServerContext({ auth: deps.auth });
 
@@ -121,7 +121,7 @@ export const getRuntimeStatus = createServerFn({ method: "GET" })
   .validator(z.object({}))
   .handler(async () => {
     const [{ getAuth }, { getRequest }] = await Promise.all([
-      import("../../auth/server/auth"),
+      import("@/features/auth/server/auth"),
       import("@tanstack/react-start/server"),
     ]);
     const auth = getAuth();

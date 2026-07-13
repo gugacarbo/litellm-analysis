@@ -3,20 +3,16 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Alert, AlertDescription } from "../../../shared/components/ui/alert";
-import { Button } from "../../../shared/components/ui/button";
+import { Alert, AlertDescription } from "@/shared/components/ui/alert";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../shared/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "../../../shared/components/ui/field";
-import { Input } from "../../../shared/components/ui/input";
+} from "@/shared/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 
 const signInSchema = z.object({
   email: z.email("Enter a valid email address."),

@@ -1,7 +1,7 @@
 import { ChevronsUpDown, Moon, Sun } from "lucide-react";
 import { useState } from "react";
-import { Alert, AlertDescription } from "../../../shared/components/ui/alert";
-import { Avatar, AvatarFallback } from "../../../shared/components/ui/avatar";
+import { Alert, AlertDescription } from "@/shared/components/ui/alert";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,13 +10,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../../shared/components/ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "../../../shared/components/ui/sidebar";
-import { authClient } from "../../../shared/lib/auth-client";
+} from "@/shared/components/ui/sidebar";
+import { authClient } from "@/shared/lib/auth-client";
 
 type ThemePreference = "light" | "dark";
 

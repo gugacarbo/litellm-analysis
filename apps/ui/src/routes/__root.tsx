@@ -10,9 +10,9 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import { getUiPreferences } from "../features/ui-preferences/server/ui-preferences.functions";
-import { TooltipProvider } from "../shared/components/ui/tooltip";
-import appCss from "../styles.css?url";
+import { getUiPreferences } from "@/features/ui-preferences/server/ui-preferences.functions";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
+import appCss from "@/styles.css?url";
 
 export const PRE_PAINT_THEME_SCRIPT = `(()=>{const c=document.cookie.match(/(?:^|;\\s*)ui_theme=([^;]*)/);let t=c?.[1];if(t!=="light"&&t!=="dark"){t=window.matchMedia?.("(prefers-color-scheme: dark)").matches?"dark":"light";document.cookie="ui_theme="+t+"; Path=/; SameSite=Lax; Max-Age=15552000"}document.documentElement.classList.remove("light","dark");document.documentElement.classList.add(t)})();`;
 

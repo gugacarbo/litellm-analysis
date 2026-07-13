@@ -14,26 +14,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the server functions before any imports
 vi.mock(
-  "../features/auth/server/get-session.functions",
+  "@/features/auth/server/get-session.functions",
   async (importOriginal) => ({
     ...(await importOriginal<
-      typeof import("../features/auth/server/get-session.functions")
+      typeof import("@/features/auth/server/get-session.functions")
     >()),
     getSession: vi.fn(),
   }),
 );
 
-vi.mock("../features/ui-preferences/server/ui-preferences.functions", () => ({
+vi.mock("@/features/ui-preferences/server/ui-preferences.functions", () => ({
   getUiPreferences: vi.fn(),
   setSidebarPreference: vi.fn(),
   setThemePreference: vi.fn(),
 }));
 
-vi.mock("../shared/lib/auth-client", () => ({
+vi.mock("@/shared/lib/auth-client", () => ({
   authClient: { signOut: vi.fn() },
 }));
 
-vi.mock("../styles.css?url", () => ({ default: "/styles.css" }));
+vi.mock("@/styles.css?url", () => ({ default: "/styles.css" }));
 
 vi.mock("@tanstack/react-devtools", () => ({
   TanStackDevtools: () => null,
@@ -46,8 +46,8 @@ vi.mock("@tanstack/react-router-devtools", () => ({
 import {
   getSession,
   projectPublicSession,
-} from "../features/auth/server/get-session.functions";
-import { getUiPreferences } from "../features/ui-preferences/server/ui-preferences.functions";
+} from "@/features/auth/server/get-session.functions";
+import { getUiPreferences } from "@/features/ui-preferences/server/ui-preferences.functions";
 
 afterEach(() => {
   cleanup();
@@ -69,7 +69,7 @@ describe("_protected route (beforeLoad)", () => {
       error: { code: "UNAUTHENTICATED", message: "No valid session" },
     });
 
-    const { Route } = await import("./_protected");
+    const { Route } = await import("@/routes/_protected");
     const beforeLoad = Route.options.beforeLoad;
 
     if (!beforeLoad) {
@@ -111,7 +111,7 @@ describe("_protected route (beforeLoad)", () => {
       session: mockSession,
     });
 
-    const { Route } = await import("./_protected");
+    const { Route } = await import("@/routes/_protected");
     const beforeLoad = Route.options.beforeLoad;
 
     if (!beforeLoad) {
@@ -126,7 +126,7 @@ describe("_protected route (beforeLoad)", () => {
   });
 
   it("mounts the authenticated account menu through the AppShell slot", async () => {
-    const { Route } = await import("./_protected");
+    const { Route } = await import("@/routes/_protected");
     vi.mocked(getSession).mockResolvedValue({
       ok: true,
       session: {

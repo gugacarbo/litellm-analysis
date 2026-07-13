@@ -6,19 +6,19 @@ import {
 } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { AccountMenu } from "../features/app-shell/components/account-menu";
-import { AppShell } from "../features/app-shell/components/app-shell";
+import { AccountMenu } from "@/features/app-shell/components/account-menu";
+import { AppShell } from "@/features/app-shell/components/app-shell";
 import {
   getUiPreferences,
   setSidebarPreference,
   setThemePreference,
-} from "../features/ui-preferences/server/ui-preferences.functions";
-import { Card, CardContent } from "../shared/components/ui/card";
+} from "@/features/ui-preferences/server/ui-preferences.functions";
+import { Card, CardContent } from "@/shared/components/ui/card";
 
 export const Route = createFileRoute("/_protected")({
   beforeLoad: async ({ location }) => {
     const [{ getSession }, preferences] = await Promise.all([
-      import("../features/auth/server/get-session.functions"),
+      import("@/features/auth/server/get-session.functions"),
       getUiPreferences({ data: {} }),
     ]);
     const result = await getSession({ data: {} });

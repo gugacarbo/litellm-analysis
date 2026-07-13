@@ -1,11 +1,10 @@
 import type { ReactNode } from "react";
-
+import { AppSidebar } from "@/features/app-shell/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "../../../shared/components/ui/sidebar";
-import { AppSidebar } from "./app-sidebar";
+} from "@/shared/components/ui/sidebar";
 
 export type AppShellProps = {
   accountMenu?: ReactNode;

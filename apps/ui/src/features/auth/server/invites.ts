@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { appInvites, user } from "@lite-llm/database/schema/app";
 import { and, eq, gt, isNull } from "drizzle-orm";
-import type { Auth } from "./auth";
+import type { Auth } from "@/features/auth/server/auth";
 
 export const INVITE_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
