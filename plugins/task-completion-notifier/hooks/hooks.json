@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/gustavo/Apps/lite-llm-analytics/.task-completion-notifier/scripts/hook-dispatch.py --agent codex --event Stop --state-dir /home/gustavo/Apps/lite-llm-analytics/.task-completion-notifier/state --notifier /home/gustavo/Apps/lite-llm-analytics/.task-completion-notifier/scripts/notify.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
