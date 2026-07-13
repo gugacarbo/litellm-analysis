@@ -11,7 +11,8 @@
       "**",
       "!.agents/skills/skill-*",
       "!**/generated",
-      "!**/.opencode/index"
+      "!**/.opencode/index",
+      "!docs/index.json"
     ]
   },
   "formatter": {

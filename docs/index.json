@@ -15,7 +15,9 @@
     "layer": "adr",
     "title": "O apps/ui possui sua própria fronteira de dados",
     "status": "proposed",
-    "builds-on": ["ADR-0001"],
+    "builds-on": [
+      "ADR-0001"
+    ],
     "superseded-by": null,
     "implemented-by": []
   },
@@ -25,7 +27,10 @@
     "layer": "adr",
     "title": "UI e gateway Hebo operam como runtimes separados",
     "status": "proposed",
-    "builds-on": ["ADR-0001", "ADR-0002"],
+    "builds-on": [
+      "ADR-0001",
+      "ADR-0002"
+    ],
     "superseded-by": null,
     "implemented-by": []
   },
@@ -35,7 +40,10 @@
     "layer": "adr",
     "title": "Router e Query organizam os dados da UI",
     "status": "proposed",
-    "builds-on": ["ADR-0001", "ADR-0002"],
+    "builds-on": [
+      "ADR-0001",
+      "ADR-0002"
+    ],
     "superseded-by": null,
     "implemented-by": []
   },
@@ -45,7 +53,9 @@
     "layer": "adr",
     "title": "Better Auth protege a UI com bootstrap por convite",
     "status": "proposed",
-    "builds-on": ["ADR-0002"],
+    "builds-on": [
+      "ADR-0002"
+    ],
     "superseded-by": null,
     "implemented-by": []
   },
@@ -65,7 +75,13 @@
     "layer": "specs",
     "title": "Recriar a aplicação web em TanStack Start por etapas",
     "status": "draft",
-    "builds-on": ["ADR-0001", "ADR-0002", "ADR-0003", "ADR-0004", "ADR-0005"],
+    "builds-on": [
+      "ADR-0001",
+      "ADR-0002",
+      "ADR-0003",
+      "ADR-0004",
+      "ADR-0005"
+    ],
     "superseded-by": null,
     "implemented-by": []
   },
