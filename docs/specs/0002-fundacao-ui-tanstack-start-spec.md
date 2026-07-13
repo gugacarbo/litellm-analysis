@@ -2,7 +2,12 @@
 status: implemented
 date: 2026-07-10
 builds-on: [ADR-0001, ADR-0002, ADR-0004, ADR-0005, ADR-0006, SPEC-0001]
-implemented-by: [Task-A-1, Task-B-1, Task-C-1, Task-D-1, Task-E-1]
+implemented-by:
+  - docs/jobs/0002-fundacao-ui-tanstack-start/Task-A-1
+  - docs/jobs/0002-fundacao-ui-tanstack-start/Task-B-1
+  - docs/jobs/0002-fundacao-ui-tanstack-start/Task-C-1
+  - docs/jobs/0002-fundacao-ui-tanstack-start/Task-D-1
+  - docs/jobs/0002-fundacao-ui-tanstack-start/Task-E-1
 ---
 
 # Estabelecer a fundação server-side do apps/ui
@@ -111,10 +116,7 @@ type RuntimeStatus = {
   runtime: "tanstack-start";
 };
 
-type RuntimeStatusErrorCode =
-  | "UNAUTHENTICATED"
-  | "FORBIDDEN"
-  | "INTERNAL";
+type RuntimeStatusErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "INTERNAL";
 
 type RuntimeStatusResult =
   | RuntimeStatus
@@ -237,5 +239,5 @@ Testes obrigatórios:
 
 ```text
 Registrar os comandos e resultados em
-docs/specs/verification/0002-fundacao-ui-tanstack-start.md no fechamento da etapa.
+docs/verification/0002-fundacao-ui-tanstack-start.md no fechamento da etapa.
 ```

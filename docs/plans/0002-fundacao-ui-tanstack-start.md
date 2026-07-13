@@ -25,30 +25,30 @@
 
 ## File Structure
 
-| File/Directory | Owner Task | Notes |
-| --- | --- | --- |
-| `database/src/schema/app/auth.ts` | Task-A-0002 | Tabelas Drizzle de usuário, sessão, account, verification e invite. |
-| `database/src/schema/app/index.ts` | Task-A-0002 | Export público dos schemas de autenticação. |
-| `database/src/schema/app/auth.schemas.ts` | Task-A-0002 | Schemas Zod derivados de select, insert e update. |
-| `database/drizzle/` | Task-A-0002 | Migração PostgreSQL gerada e validada. |
-| `apps/ui/src/server/auth/` | Task-B-0002 | Configuração Better Auth, sessão, convite e autorização. |
-| `apps/ui/src/routes/api/auth/$.ts` | Task-B-0002 | Catch-all próprio do Better Auth para GET/POST e cookies de sessão. |
-| `apps/ui/src/server/context.ts` | Task-C-0002 | Composição server-only mínima e dependências injetáveis. |
-| `apps/ui/src/server/runtime-status.ts` | Task-C-0002 | Contrato e implementação de `getRuntimeStatus`. |
-| `apps/ui/src/routes/login.tsx` | Task-D-0002 | Entrada pública de login/convite. |
-| `apps/ui/src/routes/_protected.tsx` | Task-D-0002 | Loader de sessão e redirecionamento para login. |
-| `apps/ui/src/routes/index.tsx` | Task-D-0002 | Rota protegida que exibe o status. |
-| `apps/ui/src/server/*.test.ts` | Tasks A-C-0002 | Testes TDD de schema, auth, convite e server function. |
-| `apps/ui/src/routes/*.test.tsx` | Task-D-0002 | Testes de loader, query, loading, erro e sucesso. |
-| `scripts/check-ui-client-boundary.mjs` | Task-E-0002 | Guarda versionada para imports e APIs proibidas no client. |
-| `scripts/check-ui-client-boundary.test.ts` | Task-E-0002 | Testes da guarda arquitetural. |
-| `docs/specs/verification/0002-fundacao-ui-tanstack-start.md` | Task-E-0002 | Evidências de fechamento da etapa. |
+| File/Directory                                         | Owner Task     | Notes                                                               |
+| ------------------------------------------------------ | -------------- | ------------------------------------------------------------------- |
+| `database/src/schema/app/auth.ts`                      | Task-A-0002    | Tabelas Drizzle de usuário, sessão, account, verification e invite. |
+| `database/src/schema/app/index.ts`                     | Task-A-0002    | Export público dos schemas de autenticação.                         |
+| `database/src/schema/app/auth.schemas.ts`              | Task-A-0002    | Schemas Zod derivados de select, insert e update.                   |
+| `database/drizzle/`                                    | Task-A-0002    | Migração PostgreSQL gerada e validada.                              |
+| `apps/ui/src/server/auth/`                             | Task-B-0002    | Configuração Better Auth, sessão, convite e autorização.            |
+| `apps/ui/src/routes/api/auth/$.ts`                     | Task-B-0002    | Catch-all próprio do Better Auth para GET/POST e cookies de sessão. |
+| `apps/ui/src/server/context.ts`                        | Task-C-0002    | Composição server-only mínima e dependências injetáveis.            |
+| `apps/ui/src/server/runtime-status.ts`                 | Task-C-0002    | Contrato e implementação de `getRuntimeStatus`.                     |
+| `apps/ui/src/routes/login.tsx`                         | Task-D-0002    | Entrada pública de login/convite.                                   |
+| `apps/ui/src/routes/_protected.tsx`                    | Task-D-0002    | Loader de sessão e redirecionamento para login.                     |
+| `apps/ui/src/routes/index.tsx`                         | Task-D-0002    | Rota protegida que exibe o status.                                  |
+| `apps/ui/src/server/*.test.ts`                         | Tasks A-C-0002 | Testes TDD de schema, auth, convite e server function.              |
+| `apps/ui/src/routes/*.test.tsx`                        | Task-D-0002    | Testes de loader, query, loading, erro e sucesso.                   |
+| `scripts/check-ui-client-boundary.mjs`                 | Task-E-0002    | Guarda versionada para imports e APIs proibidas no client.          |
+| `scripts/check-ui-client-boundary.test.ts`             | Task-E-0002    | Testes da guarda arquitetural.                                      |
+| `docs/verification/0002-fundacao-ui-tanstack-start.md` | Task-E-0002    | Evidências de fechamento da etapa.                                  |
 
 ## Execution Order
 
 ### Task-A-0002 — Schema PostgreSQL e contratos derivados
 
-**Batch:** A  **Layer:** foundation  **Depends on:** none
+**Batch:** A **Layer:** foundation **Depends on:** none
 
 - Escrever testes que confirmem os schemas de autenticação e tipos derivados de leitura, insert e update.
 - Criar as tabelas Better Auth e `app_invite` no schema Drizzle do pacote `database`.
@@ -61,7 +61,7 @@
 
 ### Task-B-0002 — Better Auth, convite e autorização
 
-**Batch:** B  **Layer:** core  **Depends on:** Task-A-0002
+**Batch:** B **Layer:** core **Depends on:** Task-A-0002
 
 - Escrever testes para sessão válida, sessão expirada, convite inválido, convite expirado, convite reutilizado e consumo concorrente.
 - Adicionar `better-auth` e `@better-auth/drizzle-adapter` ao `apps/ui`.
@@ -77,7 +77,7 @@
 
 ### Task-C-0002 — Contexto server-side e `getRuntimeStatus`
 
-**Batch:** C  **Layer:** core  **Depends on:** Task-B-0002
+**Batch:** C **Layer:** core **Depends on:** Task-B-0002
 
 - Escrever testes para `UNAUTHENTICATED`, `FORBIDDEN`, `INTERNAL` e sucesso autenticado.
 - Criar a composição server-only mínima para auth, logger redacted e dependências injetáveis.
@@ -89,7 +89,7 @@
 
 ### Task-D-0002 — Rota protegida, loader e Query
 
-**Batch:** D  **Layer:** surface  **Depends on:** Task-C-0002
+**Batch:** D **Layer:** surface **Depends on:** Task-C-0002
 
 - Escrever testes de redirecionamento para `/login?returnTo=...`, loading, erro, sucesso e chamada única da query.
 - Configurar o provider de TanStack Query no root do `apps/ui`.
@@ -102,13 +102,13 @@
 
 ### Task-E-0002 — Boundary guard e fechamento TDD
 
-**Batch:** E  **Layer:** final  **Depends on:** Task-D-0002
+**Batch:** E **Layer:** final **Depends on:** Task-D-0002
 
 - Escrever testes que detectem referências à API legada do `apps/server`, provider clients e imports server-only no client, sem rejeitar APIs REST próprias em `apps/ui/src/routes/api`.
 - Implementar `scripts/check-ui-client-boundary.mjs` retornando exit code diferente de zero quando detectar violação.
 - Garantir que o transporte gerado pelo TanStack Start não seja classificado como violação.
 - Rodar typecheck, testes da UI, testes Vitest da matriz e build.
-- Registrar comandos e resultados em `docs/specs/verification/0002-fundacao-ui-tanstack-start.md`.
+- Registrar comandos e resultados em `docs/verification/0002-fundacao-ui-tanstack-start.md`.
 - Atualizar a spec com `implemented-by` e status `implemented` somente após revisão limpa.
 
 **Deliverable:** guardas arquiteturais, evidência de DoD e fechamento da Etapa 1.

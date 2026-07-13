@@ -18,14 +18,16 @@ Apenas `apps/ui/src/server/auth/test-setup.ts` existe. Nenhum dos demais deliver
 Em `@tanstack/react-start/server`, use `getRequest()` dentro do handler de `createServerFn` para obter a `Request` atual.
 
 ```ts
-import { createServerFn } from '@tanstack/react-start'
-import { getRequest, getHeaders } from '@tanstack/react-start/server'
+import { createServerFn } from "@tanstack/react-start";
+import { getRequest, getHeaders } from "@tanstack/react-start/server";
 
-export const getSessionFn = createServerFn({ method: 'GET' }).handler(async () => {
-  const request = getRequest() // Request original do VINXI/TanStack Start
-  const session = await auth.api.getSession({ headers: request.headers })
-  return session
-})
+export const getSessionFn = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const request = getRequest(); // Request original do VINXI/TanStack Start
+    const session = await auth.api.getSession({ headers: request.headers });
+    return session;
+  },
+);
 ```
 
 Para passar para `betterAuth.getSession(request)`, use exatamente o objeto `request` acima. Se better-auth exigir apenas headers, `getHeaders()` é suficiente; mas o padrão seguro é `getRequest()`.

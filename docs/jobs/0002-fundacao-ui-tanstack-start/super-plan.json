@@ -100,9 +100,7 @@
       "acceptanceCriteria": [
         "Schema e tipos de auth exportados pelo database."
       ],
-      "coveredByTasks": [
-        "Task-A-1"
-      ],
+      "coveredByTasks": ["Task-A-1"],
       "notes": []
     },
     {
@@ -110,12 +108,8 @@
       "title": "Better Auth e convite",
       "source": "SPEC-0002/ADR-0005",
       "status": "completed",
-      "acceptanceCriteria": [
-        "Sessao, convite e autorizacao testados."
-      ],
-      "coveredByTasks": [
-        "Task-B-1"
-      ],
+      "acceptanceCriteria": ["Sessao, convite e autorizacao testados."],
+      "coveredByTasks": ["Task-B-1"],
       "notes": []
     },
     {
@@ -126,10 +120,7 @@
       "acceptanceCriteria": [
         "RuntimeStatusResult cobre auth, role, erro e sucesso."
       ],
-      "coveredByTasks": [
-        "Task-C-1",
-        "Task-D-1"
-      ],
+      "coveredByTasks": ["Task-C-1", "Task-D-1"],
       "notes": []
     },
     {
@@ -137,12 +128,8 @@
       "title": "Boundary e DoD",
       "source": "SPEC-0002",
       "status": "completed",
-      "acceptanceCriteria": [
-        "Guard, testes, typecheck e build verdes."
-      ],
-      "coveredByTasks": [
-        "Task-E-1"
-      ],
+      "acceptanceCriteria": ["Guard, testes, typecheck e build verdes."],
+      "coveredByTasks": ["Task-E-1"],
       "notes": []
     }
   ],
@@ -174,10 +161,7 @@
         "Tipos select/insert/update e schemas Zod derivados exportados.",
         "Migracao PostgreSQL validada com banco de teste."
       ],
-      "requirements": [
-        "ADR-0006",
-        "SPEC-0002 casos 3 e 9"
-      ],
+      "requirements": ["ADR-0006", "SPEC-0002 casos 3 e 9"],
       "rules": [
         "Seguir ADRs e SPEC-0002.",
         "Escrever testes antes da implementacao.",
@@ -250,20 +234,14 @@
       "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-B-1/review-package.diff.md",
       "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-B-1/progress.log",
       "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-B-1/log-task.sh",
-      "dependencies": [
-        "Task-A-1"
-      ],
+      "dependencies": ["Task-A-1"],
       "acceptanceCriteria": [
         "Adapter provider pg/schema database.",
         "tanstackStartCookies ultimo plugin.",
         "Rota auth GET/POST.",
         "Convites hash/expiracao/uso atomico e roles."
       ],
-      "requirements": [
-        "ADR-0002",
-        "ADR-0005",
-        "ADR-0006"
-      ],
+      "requirements": ["ADR-0002", "ADR-0005", "ADR-0006"],
       "rules": [
         "Seguir ADRs e SPEC-0002.",
         "Escrever testes antes da implementacao.",
@@ -334,18 +312,13 @@
       "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-C-1/review-package.diff.md",
       "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-C-1/progress.log",
       "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-C-1/log-task.sh",
-      "dependencies": [
-        "Task-B-1"
-      ],
+      "dependencies": ["Task-B-1"],
       "acceptanceCriteria": [
         "createServerFn validator/handler.",
         "Erros UNAUTHENTICATED/FORBIDDEN/INTERNAL e sucesso admin.",
         "Sem gateway ou services de dominio."
       ],
-      "requirements": [
-        "ADR-0002",
-        "SPEC-0002 casos 1,2,4,5"
-      ],
+      "requirements": ["ADR-0002", "SPEC-0002 casos 1,2,4,5"],
       "rules": [
         "Seguir ADRs e SPEC-0002.",
         "Escrever testes antes da implementacao.",
@@ -416,18 +389,13 @@
       "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-D-1/review-package.diff.md",
       "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-D-1/progress.log",
       "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-D-1/log-task.sh",
-      "dependencies": [
-        "Task-C-1"
-      ],
+      "dependencies": ["Task-C-1"],
       "acceptanceCriteria": [
         "Loader chama getSession server function.",
         "Query runtime-status chama uma vez.",
         "UI cobre loading/error/forbidden/sucesso."
       ],
-      "requirements": [
-        "ADR-0004",
-        "SPEC-0002 casos 1,4,7,10"
-      ],
+      "requirements": ["ADR-0004", "SPEC-0002 casos 1,4,7,10"],
       "rules": [
         "Seguir ADRs e SPEC-0002.",
         "Escrever testes antes da implementacao.",
@@ -508,18 +476,13 @@
       "reviewPackage": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-E-1/review-package.diff.md",
       "progressLog": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-E-1/progress.log",
       "logTaskScript": "docs/jobs/0002-fundacao-ui-tanstack-start/Task-E-1/log-task.sh",
-      "dependencies": [
-        "Task-D-1"
-      ],
+      "dependencies": ["Task-D-1"],
       "acceptanceCriteria": [
         "Guarda bloqueia API legada/provider/import server-only.",
         "Guarda permite routes/api proprias e RPC.",
         "Matriz, typecheck, test e build verdes."
       ],
-      "requirements": [
-        "ADR-0002",
-        "SPEC-0002 casos 6,8,9"
-      ],
+      "requirements": ["ADR-0002", "SPEC-0002 casos 6,8,9"],
       "rules": [
         "Seguir ADRs e SPEC-0002.",
         "Escrever testes antes da implementacao.",
@@ -562,13 +525,13 @@
       "filesTouched": [
         "scripts/check-ui-client-boundary.mjs",
         "scripts/check-ui-client-boundary.test.ts",
-        "docs/specs/verification/0002-fundacao-ui-tanstack-start.md"
+        "docs/verification/0002-fundacao-ui-tanstack-start.md"
       ],
       "files": {
         "created": [
           "scripts/check-ui-client-boundary.mjs",
           "scripts/check-ui-client-boundary.test.ts",
-          "docs/specs/verification/0002-fundacao-ui-tanstack-start.md"
+          "docs/verification/0002-fundacao-ui-tanstack-start.md"
         ],
         "modified": [],
         "deleted": []

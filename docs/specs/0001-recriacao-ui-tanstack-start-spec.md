@@ -167,18 +167,18 @@ Uma etapa não começa implementação enquanto sua spec derivada não estiver a
 
 ## Casos de borda
 
-| # | QUANDO o evento ocorrer | o sistema DEVE responder |
-| --- | --- | --- |
-| 1 | Uma rota protegida for acessada sem sessão | Interromper a operação server-side e direcionar o usuário para autenticação, sem executar consulta administrativa. |
-| 2 | A sessão expirar durante uma mutação | Rejeitar a mutação, preservar a consistência do banco e exibir estado de sessão expirada. |
-| 3 | O usuário não tiver permissão para a operação | Retornar erro de autorização sem revelar dados protegidos ou detalhes de credenciais. |
-| 4 | Um módulo server-only for importado pela árvore client-side | O build ou a guarda arquitetural DEVE falhar antes do merge. |
-| 5 | Uma query falhar | A tela DEVE exibir erro recuperável e não substituir o último estado válido por dados inventados. |
-| 6 | Uma mutação for concluída | As queries afetadas DEVEM ser invalidadas ou atualizadas de forma determinística. |
-| 7 | `apps/web` e `apps/ui` divergirem durante a migração | A divergência DEVE ser registrada na spec derivada da etapa e resolvida antes do aceite da etapa. |
-| 8 | O gateway Hebo estiver indisponível | A UI DEVE exibir falha operacional delimitada, sem expor segredos ou travar consultas que não dependem do gateway. |
-| 9 | Um stream server-side terminar sem evento final | A operação DEVE ser marcada como incompleta/falha e permitir recuperação explícita. |
-| 10 | Todas as etapas estiverem aprovadas | O cutover DEVE ocorrer somente após auditoria de paridade e inventário das APIs remanescentes. |
+| #   | QUANDO o evento ocorrer                                     | o sistema DEVE responder                                                                                           |
+| --- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 1   | Uma rota protegida for acessada sem sessão                  | Interromper a operação server-side e direcionar o usuário para autenticação, sem executar consulta administrativa. |
+| 2   | A sessão expirar durante uma mutação                        | Rejeitar a mutação, preservar a consistência do banco e exibir estado de sessão expirada.                          |
+| 3   | O usuário não tiver permissão para a operação               | Retornar erro de autorização sem revelar dados protegidos ou detalhes de credenciais.                              |
+| 4   | Um módulo server-only for importado pela árvore client-side | O build ou a guarda arquitetural DEVE falhar antes do merge.                                                       |
+| 5   | Uma query falhar                                            | A tela DEVE exibir erro recuperável e não substituir o último estado válido por dados inventados.                  |
+| 6   | Uma mutação for concluída                                   | As queries afetadas DEVEM ser invalidadas ou atualizadas de forma determinística.                                  |
+| 7   | `apps/web` e `apps/ui` divergirem durante a migração        | A divergência DEVE ser registrada na spec derivada da etapa e resolvida antes do aceite da etapa.                  |
+| 8   | O gateway Hebo estiver indisponível                         | A UI DEVE exibir falha operacional delimitada, sem expor segredos ou travar consultas que não dependem do gateway. |
+| 9   | Um stream server-side terminar sem evento final             | A operação DEVE ser marcada como incompleta/falha e permitir recuperação explícita.                                |
+| 10  | Todas as etapas estiverem aprovadas                         | O cutover DEVE ocorrer somente após auditoria de paridade e inventário das APIs remanescentes.                     |
 
 ## Questões em aberto
 

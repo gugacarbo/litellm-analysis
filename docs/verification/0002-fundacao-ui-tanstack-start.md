@@ -28,8 +28,8 @@ cd apps/ui && TEST_DATABASE_URL=... npx vitest run src/server/auth/invites.test.
 
 ## Resultados
 
-| Verificação                 | Status                     | Comando                                                   |
-| --------------------------- | -------------------------- | --------------------------------------------------------- |
+| Verificação                 | Status                      | Comando                                                   |
+| --------------------------- | --------------------------- | --------------------------------------------------------- |
 | Boundary guard              | ✅                          | `node scripts/check-ui-client-boundary.mjs`               |
 | Typecheck                   | ✅                          | `npx tsc --noEmit`                                        |
 | Testes unitários (10)       | ✅                          | `npx vitest run --exclude '**/invites.test.ts'`           |
@@ -39,12 +39,14 @@ cd apps/ui && TEST_DATABASE_URL=... npx vitest run src/server/auth/invites.test.
 ## Arquivos criados/modificados
 
 ### Task A-1 (Schema)
+
 - `database/src/schema/app/auth.ts` — Tabelas Drizzle
 - `database/src/schema/app/auth.schemas.ts` — Schemas Zod
 - `database/src/schema/app/index.ts` — Exports
 - `database/drizzle/` — Migração PostgreSQL
 
 ### Task B-1 (Auth)
+
 - `apps/ui/src/server/auth/auth.ts` — Better Auth singleton
 - `apps/ui/src/server/auth/invites.ts` — Sessão, convite, autorização
 - `apps/ui/src/server/auth/invites.test.ts` — Testes de integração
@@ -52,11 +54,13 @@ cd apps/ui && TEST_DATABASE_URL=... npx vitest run src/server/auth/invites.test.
 - `apps/ui/src/routes/api/auth/$.ts` — Catch-all Better Auth
 
 ### Task C-1 (Server context)
+
 - `apps/ui/src/server/context.ts` — Server context factory
 - `apps/ui/src/server/runtime-status.functions.ts` — Server function
 - `apps/ui/src/server/runtime-status.test.ts` — Testes unitários
 
 ### Task D-1 (Rotas)
+
 - `apps/ui/src/routes/login.tsx` — Login + fluxo de invite
 - `apps/ui/src/routes/_protected.tsx` — Layout protegido
 - `apps/ui/src/routes/_protected/index.tsx` — Dashboard protegido
@@ -64,5 +68,6 @@ cd apps/ui && TEST_DATABASE_URL=... npx vitest run src/server/auth/invites.test.
 - `apps/ui/src/routes/-_protected.test.ts` — Testes de rota
 
 ### Task E-1 (Boundary)
+
 - `scripts/check-ui-client-boundary.mjs` — Guarda arquitetural
 - `scripts/check-ui-client-boundary.test.ts` — Testes da guarda
