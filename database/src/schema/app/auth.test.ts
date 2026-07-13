@@ -1,12 +1,6 @@
 import { getTableName } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
-import {
-  account,
-  appInvites,
-  session,
-  user,
-  verification,
-} from "./auth";
+import { account, appInvites, session, user, verification } from "./auth";
 import {
   accountInsertSchema,
   accountSelectSchema,
@@ -80,15 +74,21 @@ describe("authentication database schema", () => {
       }),
     ).toMatchObject({ id: "invite-1", role: "admin" });
 
-    expect(() => appInviteInsertSchema.parse({ email: "ada@example.com" })).toThrow();
+    expect(() =>
+      appInviteInsertSchema.parse({ email: "ada@example.com" }),
+    ).toThrow();
   });
 
   it("derives update schemas without requiring the full row", () => {
-    expect(userUpdateSchema.parse({ name: "Grace" })).toEqual({ name: "Grace" });
+    expect(userUpdateSchema.parse({ name: "Grace" })).toEqual({
+      name: "Grace",
+    });
     expect(sessionUpdateSchema.parse({ userAgent: "browser" })).toEqual({
       userAgent: "browser",
     });
-    expect(accountUpdateSchema.parse({ scope: "openid" })).toEqual({ scope: "openid" });
+    expect(accountUpdateSchema.parse({ scope: "openid" })).toEqual({
+      scope: "openid",
+    });
     expect(verificationUpdateSchema.parse({ value: "new-value" })).toEqual({
       value: "new-value",
     });
@@ -98,13 +98,15 @@ describe("authentication database schema", () => {
   });
 
   it("rejects invalid enum values and malformed persisted data", () => {
-    expect(() => appInviteInsertSchema.parse({
-      id: "invite-1",
-      email: "ada@example.com",
-      tokenHash: "hash",
-      role: "owner",
-      expiresAt: new Date(),
-    })).toThrow();
+    expect(() =>
+      appInviteInsertSchema.parse({
+        id: "invite-1",
+        email: "ada@example.com",
+        tokenHash: "hash",
+        role: "owner",
+        expiresAt: new Date(),
+      }),
+    ).toThrow();
 
     expect(() => userSelectSchema.parse({ id: "user-1" })).toThrow();
   });
