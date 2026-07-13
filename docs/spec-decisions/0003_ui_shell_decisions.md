@@ -38,7 +38,7 @@ navegação.
   além do que for necessário para exibir sessão e efetuar sign-out.
 - Não criar uma cópia integral da biblioteca de componentes do `apps/web`.
 - Não redesenhar a identidade visual do produto; usar a identidade textual
-  `LiteLLM Analytics` como padrão provisório.
+  `AgentLens` como identidade do produto.
 
 ## Decisões de arquitetura
 
@@ -102,7 +102,7 @@ navegação.
 
 ## Suposições para a Fase 2
 
-- A identidade textual inicial será `LiteLLM Analytics` até haver branding
+- A identidade textual é `AgentLens`.
   dedicado.
 - A única rota funcional de produto nesta entrega é `/`; portanto ela será o
   único item de navegação inicial.

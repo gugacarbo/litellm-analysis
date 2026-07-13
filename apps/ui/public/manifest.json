@@ -1,7 +1,12 @@
 {
-  "short_name": "TanStack App",
-  "name": "Create TanStack App Sample",
+  "short_name": "AgentLens",
+  "name": "AgentLens",
   "icons": [
+    {
+      "src": "agentlens-mark.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",

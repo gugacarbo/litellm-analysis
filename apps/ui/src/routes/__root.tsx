@@ -5,6 +5,7 @@ import {
   HeadContent,
   Link,
   Outlet,
+  ScriptOnce,
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
@@ -13,7 +14,7 @@ import { getUiPreferences } from "../features/ui-preferences/server/ui-preferenc
 import { TooltipProvider } from "../shared/components/ui/tooltip";
 import appCss from "../styles.css?url";
 
-export const PREPAINT_THEME_SCRIPT = `(()=>{const c=document.cookie.match(/(?:^|;\\s*)ui_theme=([^;]*)/);let t=c?.[1];if(t!=="light"&&t!=="dark"){t=window.matchMedia?.("(prefers-color-scheme: dark)").matches?"dark":"light";document.cookie="ui_theme="+t+"; Path=/; SameSite=Lax; Max-Age=15552000"}document.documentElement.classList.remove("light","dark");document.documentElement.classList.add(t)})();`;
+export const PRE_PAINT_THEME_SCRIPT = `(()=>{const c=document.cookie.match(/(?:^|;\\s*)ui_theme=([^;]*)/);let t=c?.[1];if(t!=="light"&&t!=="dark"){t=window.matchMedia?.("(prefers-color-scheme: dark)").matches?"dark":"light";document.cookie="ui_theme="+t+"; Path=/; SameSite=Lax; Max-Age=15552000"}document.documentElement.classList.remove("light","dark");document.documentElement.classList.add(t)})();`;
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,10 +38,15 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "LiteLLM Analytics",
+        title: "AgentLens",
       },
     ],
     links: [
+      {
+        rel: "icon",
+        type: "image/svg+xml",
+        href: "/agentlens-mark.svg",
+      },
       {
         rel: "stylesheet",
         href: appCss,
@@ -68,9 +74,8 @@ function RootDocument() {
     <html className={preferences.theme} lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: This is a static, source-controlled pre-paint script that contains no user data. */}
-        <script dangerouslySetInnerHTML={{ __html: PREPAINT_THEME_SCRIPT }} />
       </head>
+      <ScriptOnce>{PRE_PAINT_THEME_SCRIPT}</ScriptOnce>
       <body>
         <TooltipProvider>
           <QueryClientProvider client={queryClient}>

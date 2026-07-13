@@ -1,4 +1,4 @@
-# LiteLLM Analytics Dashboard
+# AgentLens
 
 Dashboard de analytics para monitoramento de uso, custos e erros de LLMs via **model proxy local** (`model_proxy_*`).
 

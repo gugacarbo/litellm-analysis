@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-labelledby="title">
+  <title id="title">AgentLens</title>
+  <defs>
+    <linearGradient id="agentlens-gradient" x1="10" y1="8" x2="39" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8" />
+      <stop offset="1" stop-color="#8B5CF6" />
+    </linearGradient>
+  </defs>
+  <circle cx="22" cy="22" r="15" fill="url(#agentlens-gradient)" fill-opacity=".16" />
+  <circle cx="22" cy="22" r="12" stroke="url(#agentlens-gradient)" stroke-width="4" />
+  <path d="m31 31 8 8" stroke="url(#agentlens-gradient)" stroke-linecap="round" stroke-width="4" />
+  <path d="m22 15 1.9 5.1L29 22l-5.1 1.9L22 29l-1.9-5.1L15 22l5.1-1.9L22 15Z" fill="url(#agentlens-gradient)" />
+</svg>

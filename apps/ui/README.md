@@ -1,6 +1,6 @@
 # ui
 
-TanStack Start app for the `lite-llm-analytics` monorepo.
+TanStack Start app for the AgentLens monorepo.
 
 ## Workspace Commands
 
