@@ -21,10 +21,14 @@
 ### Credenciais upstream
 
 - **NUNCA** persistir segredo bruto no banco.
-- Campo canônico: `secretRef` (nome de env var, ex. `OPENAI_API_KEY`).
-- `secretRef` **NÃO** usa prefixo `env:` — é o nome exato da variável.
-- Writes no campo `apiKey` são **rejeitados** no service layer.
-- Credenciais upstream **NUNCA** aparecem em artefatos gerados (OpenCode, VS Code, OpenAgent).
+- Contrato canônico: API keys, access tokens e refresh tokens cifrados no PostgreSQL, conforme ADR-0007.
+- `APP_ENCRYPTION_KEY` permanece fora do banco; o envelope cifrado é versionado e identifica a chave usada.
+- `secretRef` é legado somente para migração: novos writes são rejeitados e o runtime não faz fallback silencioso após o cutover.
+- Create/replace aceitam plaintext apenas em comandos autenticados server-side e cifram antes da persistência; omissão preserva o segredo e remoção exige intenção explícita.
+- Reads retornam somente metadados e indicadores como `hasStoredSecret`; plaintext e ciphertext nunca voltam ao usuário.
+- Descriptografar somente no ponto estrito de uso upstream e pelo menor tempo possível; nunca em DTO geral, loader ou cache.
+- Plaintext, ciphertext, IV, tag, tokens parciais e fingerprints derivados do segredo são proibidos em logs, traces, métricas, erros e artefatos gerados.
+- Rotação mantém temporariamente chaves anteriores, recriptografa para a chave ativa e falha fechado diante de chave ausente, versão desconhecida ou envelope corrompido.
 
 ### API keys locais (proxy)
 

@@ -70,6 +70,20 @@
     "implemented-by": []
   },
   {
+    "id": "ADR-0007",
+    "path": "docs/adr/0007-segredos-de-providers-sao-cifrados-no-postgresql.md",
+    "layer": "adr",
+    "title": "O sistema cifra segredos de providers no PostgreSQL",
+    "status": "accepted",
+    "builds-on": [
+      "ADR-0002",
+      "ADR-0003",
+      "ADR-0006"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
     "id": "SPEC-0001",
     "path": "docs/specs/0001-recriacao-ui-tanstack-start-spec.md",
     "layer": "specs",
@@ -152,5 +166,27 @@
       "apps/ui/src/server/context.ts",
       "apps/ui/src/server/context.test.ts"
     ]
+  },
+  {
+    "id": "SPEC-0005",
+    "path": "docs/specs/0005-modelos-providers-roteamento-spec.md",
+    "layer": "specs",
+    "title": "Administrar modelos, providers e roteamento no apps/ui",
+    "status": "draft",
+    "builds-on": [
+      "ADR-0001",
+      "ADR-0002",
+      "ADR-0003",
+      "ADR-0004",
+      "ADR-0005",
+      "ADR-0006",
+      "ADR-0007",
+      "SPEC-0001",
+      "SPEC-0002",
+      "SPEC-0003"
+    ],
+    "superseded-by": null,
+    "implemented-by": [],
+    "design-ref": "docs/spec-decisions/0005_modelos_providers_roteamento_decisions.md"
   }
 ]
