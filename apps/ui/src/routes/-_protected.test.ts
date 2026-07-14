@@ -2,12 +2,13 @@
 
 import {
   createMemoryHistory,
-  createRootRoute,
+  createRootRouteWithContext,
   createRoute,
   createRouter,
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router";
+import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -138,7 +139,9 @@ describe("_protected route (beforeLoad)", () => {
         },
       },
     });
-    const rootRoute = createRootRoute({
+    const rootRoute = createRootRouteWithContext<{
+      queryClient: QueryClient;
+    }>()({
       loader: () => getUiPreferences({ data: {} }),
       component: () => createElement(Outlet),
     });
@@ -158,6 +161,7 @@ describe("_protected route (beforeLoad)", () => {
         protectedRoute.addChildren([indexRoute]),
       ]),
       history: createMemoryHistory({ initialEntries: ["/"] }),
+      context: { queryClient: new QueryClient() },
     });
 
     render(createElement(RouterProvider, { router }));

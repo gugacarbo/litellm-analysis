@@ -6,6 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router";
+import { QueryClient } from "@tanstack/react-query";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -37,6 +38,7 @@ describe("root document SSR", () => {
     const router = createRouter({
       routeTree: Route.addChildren([indexRoute]),
       history: createMemoryHistory({ initialEntries: ["/"] }),
+      context: { queryClient: new QueryClient() },
     });
 
     await router.load();

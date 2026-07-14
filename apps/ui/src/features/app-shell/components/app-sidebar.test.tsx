@@ -36,7 +36,7 @@ const defaultProps = {
 };
 
 describe("AppShell", () => {
-  it("renders only Dashboard for the active root route", () => {
+  it("renders Models in the protected navigation when its routes are available", () => {
     render(<AppShell {...defaultProps}>Dashboard content</AppShell>);
 
     const dashboardLinks = screen.getAllByRole("link", { name: "Dashboard" });
@@ -44,9 +44,9 @@ describe("AppShell", () => {
     expect(dashboardLinks).toHaveLength(1);
     expect(dashboardLinks[0].getAttribute("href")).toBe("/");
     expect(dashboardLinks[0].getAttribute("aria-current")).toBe("page");
-    expect(
-      screen.queryByRole("link", { name: /logs|models|providers/i }),
-    ).toBeNull();
+    const modelsLink = screen.getByRole("link", { name: "Models" });
+    expect(modelsLink.getAttribute("href")).toBe("/models");
+    expect(modelsLink.getAttribute("aria-current")).toBeNull();
   });
 
   it("persists desktop sidebar changes through its callback", () => {

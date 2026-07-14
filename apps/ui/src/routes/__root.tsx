@@ -1,7 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import {
-  createRootRoute,
+  createRootRouteWithContext,
   HeadContent,
   Link,
   Outlet,
@@ -17,16 +17,9 @@ import appCss from "@/styles.css?url";
 
 export const PRE_PAINT_THEME_SCRIPT = `(()=>{const c=document.cookie.match(/(?:^|;\\s*)ui_theme=([^;]*)/);let t=c?.[1];if(t!=="light"&&t!=="dark"){t=window.matchMedia?.("(prefers-color-scheme: dark)").matches?"dark":"light";document.cookie="ui_theme="+t+"; Path=/; SameSite=Lax; Max-Age=15552000"}document.documentElement.classList.remove("light","dark");document.documentElement.classList.add(t)})();`;
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      retry: 1,
-    },
-  },
-});
-
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+}>()({
   loader: () => getUiPreferences({ data: {} }),
   notFoundComponent: NotFoundPage,
   head: () => ({
@@ -79,9 +72,7 @@ function RootDocument() {
       <ScriptOnce>{PRE_PAINT_THEME_SCRIPT}</ScriptOnce>
       <body>
         <TooltipProvider>
-          <QueryClientProvider client={queryClient}>
-            <Outlet />
-          </QueryClientProvider>
+          <Outlet />
         </TooltipProvider>
         <TanStackDevtools
           config={{
