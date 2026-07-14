@@ -95,13 +95,23 @@ function stagedDiff(): string {
       ],
       { encoding: "utf8" },
     );
-  } catch {
-    return "";
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Unable to inspect staged changes with git diff --cached: ${detail}`,
+    );
   }
 }
 
 function stagedContent(filePath: string): string {
-  return execFileSync("git", ["show", `:${filePath}`], { encoding: "utf8" });
+  try {
+    return execFileSync("git", ["show", `:${filePath}`], {
+      encoding: "utf8",
+    });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`Unable to read staged blob ${filePath}: ${detail}`);
+  }
 }
 
 function scriptKind(filePath: string): ts.ScriptKind {
@@ -120,13 +130,7 @@ function scriptKind(filePath: string): ts.ScriptKind {
 }
 
 function findViolations(file: StagedFile): Violation[] {
-  let content: string;
-  try {
-    content = stagedContent(file.path);
-  } catch {
-    return [];
-  }
-
+  const content = stagedContent(file.path);
   const sourceFile = ts.createSourceFile(
     file.path,
     content,
@@ -168,7 +172,15 @@ export function checkStagedConsoleLogs(diff = stagedDiff()): Violation[] {
 }
 
 function main(): void {
-  const violations = checkStagedConsoleLogs();
+  let violations: Violation[];
+  try {
+    violations = checkStagedConsoleLogs();
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Staged console.log check failed: ${detail}`);
+    process.exitCode = 1;
+    return;
+  }
   if (violations.length > 0) {
     console.error("❌ New console.log calls found in staged additions:\n");
     for (const violation of violations) {

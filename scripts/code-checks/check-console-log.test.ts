@@ -69,6 +69,17 @@ afterEach(() => {
 });
 
 describe("check-console-log", () => {
+  it("falha com diagnóstico quando git não consegue inspecionar o staged", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "check-console-log-not-git-"));
+    temporaryDirectories.push(cwd);
+
+    const result = runGuard(cwd);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("Staged console.log check failed");
+    expect(result.stderr).toContain("git diff --cached");
+  });
+
   it("ignora ausência de arquivos staged relevantes", () => {
     const cwd = createRepo({ "README.md": "texto\n" }, false);
 
