@@ -8,4 +8,4 @@
 | [SPEC-0002](0002-fundacao-ui-tanstack-start-spec.md)   | Estabelecer a fundação server-side do apps/ui                                          | implemented |
 | [SPEC-0003](0003-ui-shell-autenticado-spec.md)         | Fornecer um shell autenticado e SSR-safe ao apps/ui                                    | implemented |
 | [SPEC-0004](0004-shared-logger-spec.md)                | O monorepo oferece um logger compartilhado configurável e bloqueia novos `console.log` | implemented |
-| [SPEC-0005](0005-modelos-providers-roteamento-spec.md) | Administrar modelos, providers e roteamento no apps/ui                                 | draft       |
+| [SPEC-0005](0005-modelos-providers-roteamento-spec.md) | Administrar modelos, providers e roteamento no apps/ui                                 | accepted    |

@@ -172,7 +172,7 @@
     "path": "docs/specs/0005-modelos-providers-roteamento-spec.md",
     "layer": "specs",
     "title": "Administrar modelos, providers e roteamento no apps/ui",
-    "status": "draft",
+    "status": "accepted",
     "builds-on": [
       "ADR-0001",
       "ADR-0002",

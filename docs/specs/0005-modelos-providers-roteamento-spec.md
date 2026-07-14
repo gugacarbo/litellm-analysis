@@ -1,5 +1,5 @@
 ---
-status: draft
+status: accepted
 date: 2026-07-13
 builds-on:
   - ADR-0001
