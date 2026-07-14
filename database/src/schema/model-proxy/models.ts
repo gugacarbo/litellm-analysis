@@ -26,6 +26,7 @@ export const modelProxyModels = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     modelId: text("model_id").notNull(),
+    revision: integer("revision").default(1).notNull(),
     enabled: boolean("enabled").default(true).notNull(),
     displayName: text("display_name"),
     family: text("family"),
@@ -44,9 +45,9 @@ export const modelProxyModels = pgTable(
     perRequestLimits: jsonb("per_request_limits").$type<PerRequestLimits>(),
     pricing: jsonb("pricing").$type<Pricing>(),
     requestOptions: jsonb("request_options").$type<RequestOptions>(),
-    providerId: uuid("provider_id").references(() => modelProxyProviders.id, {
-      onDelete: "set null",
-    }),
+    providerId: uuid("provider_id")
+      .notNull()
+      .references(() => modelProxyProviders.id, { onDelete: "restrict" }),
     reasoningApiId: uuid("reasoning_api_id").references(
       () => modelProxyReasoningApis.id,
       { onDelete: "set null" },

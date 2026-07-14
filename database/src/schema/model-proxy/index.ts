@@ -1,5 +1,7 @@
 export type { ModelProxyApiKey, NewModelProxyApiKey } from "./api-keys";
 export { modelProxyApiKeys } from "./api-keys";
+export type { ModelProxyAlias, NewModelProxyAlias } from "./aliases";
+export { modelProxyAliases } from "./aliases";
 export type { ModelProxyBenchmark, NewModelProxyBenchmark } from "./benchmarks";
 export { modelProxyBenchmarks } from "./benchmarks";
 export type { ModelProxyMessage, NewModelProxyMessage } from "./messages";

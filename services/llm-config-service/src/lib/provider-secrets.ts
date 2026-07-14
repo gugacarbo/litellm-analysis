@@ -114,6 +114,8 @@ export function decryptProviderSecret(
   ]).toString("utf8");
 }
 
+export const decryptProviderSecretForUpstream = decryptProviderSecret;
+
 export function resolveProviderApiKey(
   input: {
     apiKey?: string | null;

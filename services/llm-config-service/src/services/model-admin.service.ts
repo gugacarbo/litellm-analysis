@@ -117,9 +117,15 @@ export class ModelAdminService {
       providers.map((provider) => [provider.id, provider.name]),
     );
     return models
-      .map((model) =>
-        toModelSummary(model, providerNames.get(model.providerId)),
-      )
+      .map((model) => {
+        if (!model.providerId) {
+          throw new ModelAdminError(
+            "INTERNAL",
+            "Model provider is unavailable",
+          );
+        }
+        return toModelSummary(model, providerNames.get(model.providerId));
+      })
       .sort((left, right) =>
         `${left.providerName}/${left.modelId}`.localeCompare(
           `${right.providerName}/${right.modelId}`,
@@ -130,6 +136,9 @@ export class ModelAdminService {
   async getModel(id: string): Promise<ModelDetail | null> {
     const model = await this.repository.getModel(id);
     if (!model) return null;
+    if (!model.providerId) {
+      throw new ModelAdminError("INTERNAL", "Model provider is unavailable");
+    }
     const provider = await this.repository.getProvider(model.providerId);
     if (!provider) {
       throw new ModelAdminError("INTERNAL", "Model provider is unavailable");
@@ -151,6 +160,9 @@ export class ModelAdminService {
       const current = await repository.getModel(input.id);
       if (!current) throw new ModelAdminError("NOT_FOUND", "Model not found");
       assertExpectedRevision(input.expectedRevision, current.revision);
+      if (!current.providerId) {
+        throw new ModelAdminError("INTERNAL", "Model provider is unavailable");
+      }
       const provider = await repository.getProvider(current.providerId);
       if (!provider) {
         throw new ModelAdminError("INTERNAL", "Model provider is unavailable");
@@ -426,6 +438,9 @@ export class ModelAdminService {
       const target = await repository.getModel(input.targetModelId);
       if (!target)
         throw new ModelAdminError("NOT_FOUND", "Alias target model not found");
+      if (!target.providerId) {
+        throw new ModelAdminError("INTERNAL", "Model provider is unavailable");
+      }
       const targetProvider = await repository.getProvider(target.providerId);
       if (!targetProvider)
         throw new ModelAdminError("INTERNAL", "Model provider is unavailable");
@@ -1000,6 +1015,7 @@ async function assertAliasesAvailable(
   const models = await repository.listModels();
   const modelKeys = new Set<string>();
   for (const model of models) {
+    if (!model.providerId) continue;
     const modelProvider = await repository.getProvider(model.providerId);
     if (!modelProvider) continue;
     modelKeys.add(normalizeRouteKey(modelProvider.name, model.modelId));

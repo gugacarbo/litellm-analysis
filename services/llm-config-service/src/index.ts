@@ -61,6 +61,10 @@ export {
   SettingsService,
   type SettingsServiceOptions,
 } from "./services/settings.service.js";
+export {
+  ModelAdminService,
+  type ModelAdminServiceOptions,
+} from "./services/model-admin.service.js";
 export type {
   Architecture,
   DefaultParameters,
@@ -87,6 +91,7 @@ export type {
   SettingKey,
   SupportedParameters,
 } from "./types/index.js";
+export { ModelAdminError } from "./types/model-admin.js";
 export {
   MODEL_ROUTE_TO_ROUTE_PARAM,
   normalizeSyncDirection,

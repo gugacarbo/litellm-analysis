@@ -188,5 +188,19 @@
     "superseded-by": null,
     "implemented-by": [],
     "design-ref": "docs/spec-decisions/0005_modelos_providers_roteamento_decisions.md"
+  },
+  {
+    "id": "SPEC-0006",
+    "path": "docs/specs/0006-application-secrets-spec.md",
+    "layer": "specs",
+    "title": "Armazenar chaves de aplicação cifradas no banco",
+    "status": "draft",
+    "builds-on": [
+      "ADR-0007",
+      "SPEC-0005"
+    ],
+    "superseded-by": null,
+    "implemented-by": [],
+    "design-ref": "docs/spec-decisions/0006_application_secrets_decisions.md"
   }
 ]
