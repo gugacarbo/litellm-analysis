@@ -15,6 +15,7 @@
     "format:packages": "turbo format -- --write",
     "format:md": "pnpm prettier --write \"**/*.{md,mdx}\" --log-level=warn --no-error-on-unmatched-pattern  --cache",
     "check-staged": "lint-staged",
+    "check:console-log": "node --experimental-strip-types scripts/code-checks/check-console-log.ts",
     "test-staged": "npx test-staged",
     "db": "bash scripts/database.sh",
     "db:up": "bash scripts/database.sh up",

@@ -14,5 +14,8 @@ detect_runner
 echo "==> docs-check"
 "${ROOT}/scripts/docs-check"
 
+echo "==> console.log staged guard"
+${NODE_ENV_RUNNER} check:console-log
+
 echo "==> ${NODE_ENV_RUNNER} run staged files checks"
 ${NODE_ENV_RUNNER} check-staged
