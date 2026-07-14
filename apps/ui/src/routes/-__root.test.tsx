@@ -7,7 +7,7 @@ vi.mock("@/features/ui-preferences/server/ui-preferences.functions", () => ({
 }));
 
 import { getUiPreferences } from "@/features/ui-preferences/server/ui-preferences.functions";
-import { PREPAINT_THEME_SCRIPT, Route } from "@/routes/__root";
+import { PRE_PAINT_THEME_SCRIPT, Route } from "@/routes/__root";
 
 const rootRouteOptions = Route.options as unknown as {
   head: () => { meta: Array<{ title?: string }> };
@@ -49,7 +49,7 @@ describe("root document theme contract", () => {
       vi.fn().mockReturnValue({ matches: prefersDark }),
     );
 
-    new Function(PREPAINT_THEME_SCRIPT)();
+    new Function(PRE_PAINT_THEME_SCRIPT)();
 
     expect(document.documentElement.classList.contains(expectedTheme)).toBe(
       true,
@@ -64,7 +64,7 @@ describe("root document theme contract", () => {
     document.cookie = "ui_sidebar=collapsed; Path=/";
     vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
 
-    new Function(PREPAINT_THEME_SCRIPT)();
+    new Function(PRE_PAINT_THEME_SCRIPT)();
 
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(document.cookie).toContain("ui_theme=dark");
@@ -76,7 +76,7 @@ describe("root document theme contract", () => {
     document.cookie = "ui_theme=%E0%A4; Path=/";
     vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: false }));
 
-    expect(() => new Function(PREPAINT_THEME_SCRIPT)()).not.toThrow();
+    expect(() => new Function(PRE_PAINT_THEME_SCRIPT)()).not.toThrow();
     expect(document.documentElement.classList.contains("light")).toBe(true);
     expect(document.cookie).toContain("ui_theme=light");
   });

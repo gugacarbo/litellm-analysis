@@ -9,7 +9,8 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-
+import { CogIcon } from "lucide-react";
+import { Button } from "#/shared/components/ui/button";
 import { getUiPreferences } from "@/features/ui-preferences/server/ui-preferences.functions";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import appCss from "@/styles.css?url";
@@ -84,7 +85,12 @@ function RootDocument() {
         </TooltipProvider>
         <TanStackDevtools
           config={{
-            position: "bottom-right",
+            position: "top-right",
+            customTrigger: (
+              <Button variant="ghost" size="icon-xs">
+                <CogIcon />
+              </Button>
+            ),
           }}
           plugins={[
             {

@@ -94,7 +94,7 @@ export function AccountMenu({
           <DropdownMenuTrigger
             render={
               <SidebarMenuButton
-                className="data-[popup-open]:bg-sidebar-accent data-[popup-open]:text-sidebar-accent-foreground"
+                className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
                 size="lg"
               >
                 <Avatar>
