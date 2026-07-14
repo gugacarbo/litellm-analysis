@@ -132,5 +132,15 @@
       "docs/jobs/0003-ui-shell-autenticado/Task-D-1"
     ],
     "design-ref": "docs/spec-decisions/0003_ui_shell_decisions.md"
+  },
+  {
+    "id": "SPEC-0004",
+    "path": "docs/specs/0004-shared-logger-spec.md",
+    "layer": "specs",
+    "title": "O monorepo oferece um logger compartilhado configurável e bloqueia novos `console.log`",
+    "status": "accepted",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
   }
 ]
