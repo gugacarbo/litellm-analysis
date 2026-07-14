@@ -1,0 +1,421 @@
+{
+  "$schema": "https://raw.githubusercontent.com/gugacarbo/agents-skills/main/skills/super-planning/interfaces/super-plan.schema.json",
+  "createdAt": "2026-07-14T00:17:27.172255+00:00",
+  "planId": "0004-shared-logger",
+  "featureName": "shared-logger",
+  "status": "completed",
+  "source": {
+    "spec": "docs/specs/0004-shared-logger-spec.md",
+    "plan": "docs/plans/0004-shared-logger.md"
+  },
+  "goal": "Implementar e validar o logger compartilhado configur\u00e1vel, a migra\u00e7\u00e3o do apps/ui e o guard staged de console.log conforme SPEC-0004.",
+  "architectureSummary": "Pacote @lite-llm/logger server-side com factory consumer-aware e formatter JSON/pretty; guard AST isolado em scripts/code-checks; wiring m\u00ednimo no ServerContext do apps/ui.",
+  "techStack": [
+    "Node >=20",
+    "TypeScript 6.0.x",
+    "pnpm 11.1.3",
+    "Vitest 4.1.5",
+    "Chalk 5.6.2",
+    "Git staged diff"
+  ],
+  "executionMode": "subagent-driven",
+  "reviewCadence": "final_only",
+  "agents": {
+    "general": {
+      "model": "gpt-5.6-luna",
+      "agent": "worker"
+    },
+    "deep": {
+      "model": "gpt-5.6-luna",
+      "agent": "worker"
+    },
+    "quick": {
+      "model": "gpt-5.6-luna",
+      "agent": "worker"
+    }
+  },
+  "branchStrategy": {
+    "baseBranch": "main",
+    "featureBranch": "codex/0004-shared-logger"
+  },
+  "worktree": {
+    "enabled": false,
+    "path": "../0004-shared-logger-worktree"
+  },
+  "globalConstraints": [
+    "N\u00e3o iniciar implementa\u00e7\u00e3o em main; branch codex/0004-shared-logger.",
+    "TDD obrigat\u00f3rio; ler docs/context/testing-anti-patterns.md antes de fixtures, spies ou helpers.",
+    "Batch A tem ownership disjunto; Task-B-1 depende de Task-A-1.",
+    "N\u00e3o migrar gateway ou console.log legado fora das linhas novas staged.",
+    "Preservar altera\u00e7\u00f5es do usu\u00e1rio fora dos arquivos declarados nas tarefas."
+  ],
+  "fileStructure": [
+    {
+      "path": "packages/logger/package.json",
+      "ownerTask": "Task-A-1",
+      "notes": "Manifest e export p\u00fablico do logger."
+    },
+    {
+      "path": "packages/logger/src/index.ts",
+      "ownerTask": "Task-A-1",
+      "notes": "API, formatter e emiss\u00e3o."
+    },
+    {
+      "path": "packages/logger/src/index.test.ts",
+      "ownerTask": "Task-A-1",
+      "notes": "TDD do contrato e formatos."
+    },
+    {
+      "path": "scripts/code-checks/check-console-log.ts",
+      "ownerTask": "Task-A-2",
+      "notes": "Guard AST staged."
+    },
+    {
+      "path": "scripts/code-checks/check-console-log.test.ts",
+      "ownerTask": "Task-A-2",
+      "notes": "TDD do guard."
+    },
+    {
+      "path": "scripts/pre-commit",
+      "ownerTask": "Task-A-2",
+      "notes": "Integra\u00e7\u00e3o do gate."
+    },
+    {
+      "path": "apps/ui/src/server/context.ts",
+      "ownerTask": "Task-B-1",
+      "notes": "Consumer ui do pacote."
+    },
+    {
+      "path": "apps/ui/src/server/context.test.ts",
+      "ownerTask": "Task-B-1",
+      "notes": "Teste do wiring."
+    }
+  ],
+  "requirementsChecklist": [
+    {
+      "id": "T1",
+      "title": "Consumer e timestamp no JSON",
+      "source": "SPEC-0004 Contract",
+      "status": "completed",
+      "acceptanceCriteria": ["JSON inclui consumer e timestamp ISO-8601."],
+      "coveredByTasks": ["Task-A-1"],
+      "notes": []
+    },
+    {
+      "id": "T2",
+      "title": "Quatro n\u00edveis e destinos",
+      "source": "SPEC-0004 Contract/Edge cases",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "debug/info/warn/error emitem level e destino corretos."
+      ],
+      "coveredByTasks": ["Task-A-1"],
+      "notes": []
+    },
+    {
+      "id": "T3",
+      "title": "Formatos json e pretty",
+      "source": "SPEC-0004 Contract/Edge cases",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "json \u00e9 fallback; pretty usa Chalk e respeita terminal."
+      ],
+      "coveredByTasks": ["Task-A-1"],
+      "notes": []
+    },
+    {
+      "id": "T4",
+      "title": "Migra\u00e7\u00e3o do ServerContext",
+      "source": "SPEC-0004 Flow",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "apps/ui cria logger com consumer ui e mant\u00e9m aliases."
+      ],
+      "coveredByTasks": ["Task-B-1"],
+      "notes": []
+    },
+    {
+      "id": "T5",
+      "title": "Guard aceita casos permitidos",
+      "source": "SPEC-0004 Edge cases",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "Legado, coment\u00e1rios, strings, aus\u00eancia de staged e exce\u00e7\u00f5es passam."
+      ],
+      "coveredByTasks": ["Task-A-2"],
+      "notes": []
+    },
+    {
+      "id": "T6",
+      "title": "Guard rejeita console.log novo",
+      "source": "SPEC-0004 Guard",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "Chamada real adicionada fora de exce\u00e7\u00f5es retorna exit 1 com localiza\u00e7\u00e3o."
+      ],
+      "coveredByTasks": ["Task-A-2"],
+      "notes": []
+    },
+    {
+      "id": "T7",
+      "title": "Pre-commit preserva gates",
+      "source": "SPEC-0004 Guard",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "Hook executa novo check sem remover docs-check/check-staged."
+      ],
+      "coveredByTasks": ["Task-A-2"],
+      "notes": []
+    }
+  ],
+  "taskDirectory": "docs/jobs/0004-shared-logger",
+  "rules": [
+    "Usar subagents gpt-5.6-luna com esfor\u00e7o medium conforme configura\u00e7\u00e3o aprovada.",
+    "N\u00e3o redespachar tarefa terminal; revisar somente na integra\u00e7\u00e3o final por reviewCadence final_only.",
+    "Antes de completar qualquer tarefa, exigir report, review package e evid\u00eancia RED/GREEN.",
+    "Manter mudan\u00e7as dentro do files/filesTouched de cada tarefa."
+  ],
+  "tasks": [
+    {
+      "id": "Task-A-1",
+      "title": "Criar o pacote compartilhado @lite-llm/logger",
+      "description": "Implementar o pacote server-side compartilhado com createLogger({ consumer }), n\u00edveis debug/info/warn/error, formatos json/pretty controlados por LOGGER_FORMAT, Chalk 5 e testes TDD.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "A",
+      "layer": "foundation",
+      "reportFile": "docs/jobs/0004-shared-logger/Task-A-1/report.md",
+      "reviewPackage": "docs/jobs/0004-shared-logger/Task-A-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0004-shared-logger/Task-A-1/progress.log",
+      "logTaskScript": "docs/jobs/0004-shared-logger/Task-A-1/log-task.sh",
+      "baseCommit": "82825cd1bf898aed05c9c92445e813c18ac90383",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "TDD: adicionar testes focados que primeiro falhem para consumer/timestamp, quatro n\u00edveis/destinos e formatos json/pretty.",
+        "O pacote @lite-llm/logger exporta LogMetadata, Logger e createLogger({ consumer }) por entry point p\u00fablico.",
+        "Cada emiss\u00e3o inclui level, event, consumer, timestamp ISO-8601 e metadata; LOGGER_FORMAT ausente ou inv\u00e1lido usa json.",
+        "debug/info/warn/error usam console.debug/console.info/console.warn/console.error respectivamente no formato json.",
+        "pretty usa Chalk 5 com cores determin\u00edsticas nos testes e respeita detec\u00e7\u00e3o de terminal sem ANSI indevido.",
+        "pnpm --filter @lite-llm/logger test e pnpm --filter @lite-llm/logger typecheck passam."
+      ],
+      "requirements": ["T1", "T2", "T3"],
+      "rules": [
+        "TDD obrigat\u00f3rio; ler docs/context/testing-anti-patterns.md antes de criar spies, fixtures ou helpers.",
+        "N\u00e3o importar c\u00f3digo de apps/ui, React, TanStack, Better Auth, banco ou logger do gateway.",
+        "N\u00e3o tocar em arquivos fora do ownership declarado; outros workers est\u00e3o trabalhando em paralelo.",
+        "Preservar altera\u00e7\u00f5es existentes de outros workers e reportar RED/GREEN com comandos e resultados."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Ler padr\u00f5es e guia de testes",
+          "description": "Inspecionar packages/*, package exports, Chalk instalada e docs/context/testing-anti-patterns.md.",
+          "command": "rtk sed -n '1,220p' docs/context/testing-anti-patterns.md && rtk sed -n '1,160p' packages/contracts/package.json",
+          "expectedResult": "Padr\u00f5es de pacote e regras de testes registrados no report.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Escrever testes RED do logger",
+          "description": "Criar testes Vitest para contrato, consumer/timestamp, destinos, fallback json, pretty e n\u00edveis de cor.",
+          "command": "pnpm --filter @lite-llm/logger test",
+          "expectedResult": "Falha RED pela aus\u00eancia da implementa\u00e7\u00e3o.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Implementar pacote e formatter",
+          "description": "Criar package.json, tsconfig e src com API p\u00fablica, adapter de console e Chalk; atualizar lockfile apenas se necess\u00e1rio.",
+          "command": "pnpm --filter @lite-llm/logger test && pnpm --filter @lite-llm/logger typecheck",
+          "expectedResult": "Testes GREEN e typecheck com exit 0.",
+          "codeExample": "createLogger({ consumer: \"ui\" })"
+        },
+        {
+          "order": 4,
+          "title": "Fazer self-review e reportar",
+          "description": "Verificar ownership, exports, formato e evid\u00eancia RED/GREEN; escrever report.md.",
+          "command": "rtk git diff --check",
+          "expectedResult": "Sem whitespace errors e report com arquivos alterados.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "packages/logger/package.json",
+        "packages/logger/tsconfig.json",
+        "packages/logger/src/index.ts",
+        "packages/logger/src/index.test.ts",
+        "pnpm-lock.yaml"
+      ],
+      "files": {
+        "created": [
+          "packages/logger/package.json",
+          "packages/logger/tsconfig.json",
+          "packages/logger/src/index.ts",
+          "packages/logger/src/index.test.ts"
+        ],
+        "modified": ["pnpm-lock.yaml"],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-A-2",
+      "title": "Criar guard staged de console.log e integrar ao pre-commit",
+      "description": "Implementar o code-check independente que analisa chamadas reais de console.log nas linhas adicionadas do diff staged, com exce\u00e7\u00f5es para packages/logger e caminhos scripts, e conectar o comando ao hook existente.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "quick",
+      "batch": "A",
+      "layer": "core",
+      "reportFile": "docs/jobs/0004-shared-logger/Task-A-2/report.md",
+      "reviewPackage": "docs/jobs/0004-shared-logger/Task-A-2/review-package.diff.md",
+      "progressLog": "docs/jobs/0004-shared-logger/Task-A-2/progress.log",
+      "logTaskScript": "docs/jobs/0004-shared-logger/Task-A-2/log-task.sh",
+      "baseCommit": "82825cd1bf898aed05c9c92445e813c18ac90383",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "TDD: testes primeiro cobrem legado n\u00e3o alterado, coment\u00e1rios/strings, multiline calls, exce\u00e7\u00f5es e viola\u00e7\u00e3o real.",
+        "O guard l\u00ea o estado staged sem modificar arquivos, identifica chamadas reais via an\u00e1lise TypeScript e retorna exit 1 com arquivo/linha para viola\u00e7\u00e3o.",
+        "Linhas removidas, coment\u00e1rios, strings, aus\u00eancia de arquivos staged e exce\u00e7\u00f5es packages/logger/** e **/scripts/** n\u00e3o bloqueiam.",
+        "package.json exp\u00f5e check:console-log e scripts/pre-commit executa esse gate preservando docs-check e check-staged.",
+        "pnpm exec vitest run scripts/code-checks/check-console-log.test.ts e pnpm check:console-log passam no estado final."
+      ],
+      "requirements": ["T5", "T6", "T7"],
+      "rules": [
+        "TDD obrigat\u00f3rio; ler docs/context/testing-anti-patterns.md antes de criar fixtures staged ou helpers.",
+        "Ownership exclusivo de scripts/code-checks/check-console-log.ts, scripts/code-checks/check-console-log.test.ts, package.json e scripts/pre-commit.",
+        "N\u00e3o varrer o hist\u00f3rico inteiro nem migrar console.log legado; verificar apenas linhas adicionadas staged.",
+        "N\u00e3o tocar em packages/logger ou apps/ui; outro worker possui esses arquivos."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Ler hook e padr\u00f5es de code-check",
+          "description": "Inspecionar scripts/pre-commit, .lintstagedrc.js, scripts/code-checks/check-ui-client-boundary.ts e guia de testes.",
+          "command": "rtk sed -n '1,180p' scripts/pre-commit && rtk sed -n '1,180p' docs/context/testing-anti-patterns.md",
+          "expectedResult": "Contrato de integra\u00e7\u00e3o e estilo local identificados.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Escrever testes RED do guard",
+          "description": "Criar fixtures/snapshots de diffs staged e testes para todos os casos T5/T6/T7.",
+          "command": "pnpm exec vitest run scripts/code-checks/check-console-log.test.ts",
+          "expectedResult": "Falha RED pela aus\u00eancia do guard ou do comando.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Implementar parser staged e hook",
+          "description": "Adicionar script sem mutar arquivos, comando root e chamada no pre-commit; manter sa\u00eddas e exits claros.",
+          "command": "pnpm exec vitest run scripts/code-checks/check-console-log.test.ts && pnpm check:console-log",
+          "expectedResult": "Testes GREEN e check dedicado com exit 0.",
+          "codeExample": "pnpm check:console-log"
+        },
+        {
+          "order": 4,
+          "title": "Fazer self-review e reportar",
+          "description": "Confirmar diff-only behavior, exce\u00e7\u00f5es e preserva\u00e7\u00e3o dos gates existentes; escrever report.md.",
+          "command": "rtk git diff --check",
+          "expectedResult": "Sem whitespace errors e report com evid\u00eancia RED/GREEN.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "scripts/code-checks/check-console-log.ts",
+        "scripts/code-checks/check-console-log.test.ts",
+        "package.json",
+        "scripts/pre-commit"
+      ],
+      "files": {
+        "created": [
+          "scripts/code-checks/check-console-log.ts",
+          "scripts/code-checks/check-console-log.test.ts"
+        ],
+        "modified": ["package.json", "scripts/pre-commit"],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-B-1",
+      "title": "Migrar o ServerContext do apps/ui para o logger compartilhado",
+      "description": "Adicionar a depend\u00eancia workspace no UI, substituir a implementa\u00e7\u00e3o local por createLogger({ consumer: \"ui\" }) e preservar ServerLogger como alias compat\u00edvel com testes focados.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "B",
+      "layer": "surface",
+      "reportFile": "docs/jobs/0004-shared-logger/Task-B-1/report.md",
+      "reviewPackage": "docs/jobs/0004-shared-logger/Task-B-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0004-shared-logger/Task-B-1/progress.log",
+      "logTaskScript": "docs/jobs/0004-shared-logger/Task-B-1/log-task.sh",
+      "baseCommit": "82825cd1bf898aed05c9c92445e813c18ac90383",
+      "dependencies": ["Task-A-1"],
+      "acceptanceCriteria": [
+        "TDD: teste focado do contexto demonstra que o logger usa consumer ui e n\u00e3o mant\u00e9m factory local duplicada.",
+        "apps/ui/package.json declara @lite-llm/logger como workspace dependency.",
+        "apps/ui/src/server/context.ts importa a API p\u00fablica, mant\u00e9m ServerContext e ServerLogger compat\u00edveis e cria logger com consumer ui.",
+        "O contexto exp\u00f5e os quatro n\u00edveis sem alterar consumidores existentes.",
+        "pnpm --filter ui test -- src/server e pnpm --filter ui typecheck passam."
+      ],
+      "requirements": ["T4"],
+      "rules": [
+        "TDD obrigat\u00f3rio; ler docs/context/testing-anti-patterns.md antes de criar mocks ou spies.",
+        "Depende da API efetivamente entregue por Task-A-1; adaptar somente o wiring, sem redesenhar o pacote.",
+        "Ownership exclusivo de apps/ui/package.json, apps/ui/src/server/context.ts e apps/ui/src/server/context.test.ts.",
+        "Preservar altera\u00e7\u00f5es pr\u00e9vias do usu\u00e1rio no restante de apps/ui e n\u00e3o editar arquivos de outros workers."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Revisar contrato do pacote pronto",
+          "description": "Ler o entry point e testes entregues por Task-A-1 e confirmar a forma de import workspace.",
+          "command": "rtk sed -n '1,220p' packages/logger/src/index.ts",
+          "expectedResult": "API p\u00fablica e comportamento confirmados antes do wiring.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Escrever teste RED do contexto",
+          "description": "Adicionar teste focado que verifica consumer ui e compatibilidade do ServerContext.",
+          "command": "pnpm --filter ui test -- src/server/context.test.ts",
+          "expectedResult": "Falha RED antes da migra\u00e7\u00e3o.",
+          "codeExample": null
+        },
+        {
+          "order": 3,
+          "title": "Migrar contexto e depend\u00eancia",
+          "description": "Adicionar workspace dependency, importar createLogger/Logger e remover implementa\u00e7\u00e3o local duplicada.",
+          "command": "pnpm --filter ui test -- src/server/context.test.ts && pnpm --filter ui typecheck",
+          "expectedResult": "Teste GREEN e typecheck com exit 0.",
+          "codeExample": "logger: createLogger({ consumer: \"ui\" })"
+        },
+        {
+          "order": 4,
+          "title": "Fazer self-review e reportar",
+          "description": "Verificar que consumidores existentes continuam tipados e escrever report.md com RED/GREEN.",
+          "command": "rtk git diff --check",
+          "expectedResult": "Sem whitespace errors e report completo.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/package.json",
+        "apps/ui/src/server/context.ts",
+        "apps/ui/src/server/context.test.ts"
+      ],
+      "files": {
+        "created": ["apps/ui/src/server/context.test.ts"],
+        "modified": ["apps/ui/package.json", "apps/ui/src/server/context.ts"],
+        "deleted": []
+      },
+      "notes": []
+    }
+  ],
+  "updatedAt": "2026-07-14T00:56:54.238106+00:00"
+}

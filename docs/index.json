@@ -138,9 +138,19 @@
     "path": "docs/specs/0004-shared-logger-spec.md",
     "layer": "specs",
     "title": "O monorepo oferece um logger compartilhado configurável e bloqueia novos `console.log`",
-    "status": "accepted",
+    "status": "implemented",
     "builds-on": [],
     "superseded-by": null,
-    "implemented-by": []
+    "implemented-by": [
+      "packages/logger/package.json",
+      "packages/logger/src/index.ts",
+      "packages/logger/src/index.test.ts",
+      "scripts/code-checks/check-console-log.ts",
+      "scripts/code-checks/check-console-log.test.ts",
+      "scripts/pre-commit",
+      "apps/ui/package.json",
+      "apps/ui/src/server/context.ts",
+      "apps/ui/src/server/context.test.ts"
+    ]
   }
 ]

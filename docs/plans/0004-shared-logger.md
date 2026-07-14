@@ -1,10 +1,17 @@
 ---
-status: draft
+status: completed
 date: 2026-07-13
 spec: docs/specs/0004-shared-logger-spec.md
 decisions:
   - docs/spec-decisions/0004_shared-logger_decisions.md
-implemented-by: []
+implemented-by:
+  - packages/logger/src/index.ts
+  - packages/logger/src/index.test.ts
+  - scripts/code-checks/check-console-log.ts
+  - scripts/code-checks/check-console-log.test.ts
+  - scripts/pre-commit
+  - apps/ui/src/server/context.ts
+  - apps/ui/src/server/context.test.ts
 ---
 
 > **Process: super-planning** — este documento foi produzido pela Phase 3 —
@@ -178,6 +185,13 @@ untouched console usage → not blocked; logger/scripts exceptions → allowed.
 
 **Human review:** confirmar legibilidade das cores em terminal real e conferir
 que as exceções do guard não englobam código de domínio.
+
+## Final integration result
+
+Os focused checks e typechecks do logger/UI passaram, o guard staged passou e
+docs-check terminou com 12 documentos, 0 erros e 0 avisos. A suíte global
+continua com falhas externas ao escopo em llm-config-service e no typecheck
+monorepo amplo; os detalhes estão na auditoria final.
 
 ## Risks and Handoff
 

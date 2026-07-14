@@ -35,6 +35,8 @@ const SOURCE_EXTENSIONS = new Set([
   ".cts",
 ]);
 
+const STAGED_DIFF_MAX_BUFFER = 50 * 1024 * 1024;
+
 function isRelevantPath(filePath: string): boolean {
   return SOURCE_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
@@ -93,7 +95,7 @@ function stagedDiff(): string {
         "--diff-filter=ACMRT",
         "--",
       ],
-      { encoding: "utf8" },
+      { encoding: "utf8", maxBuffer: STAGED_DIFF_MAX_BUFFER },
     );
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

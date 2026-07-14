@@ -1,8 +1,17 @@
 ---
-status: accepted
+status: implemented
 date: 2026-07-13
 builds-on: []
-implemented-by: []
+implemented-by:
+  - packages/logger/package.json
+  - packages/logger/src/index.ts
+  - packages/logger/src/index.test.ts
+  - scripts/code-checks/check-console-log.ts
+  - scripts/code-checks/check-console-log.test.ts
+  - scripts/pre-commit
+  - apps/ui/package.json
+  - apps/ui/src/server/context.ts
+  - apps/ui/src/server/context.test.ts
 ---
 
 > **Process: super-planning** — esta especificação foi produzida pela Phase 2 —
@@ -202,9 +211,15 @@ os usos históricos de `console.log`.
 
 ## Verificação
 
-```text
-(preencher no fechamento)
-```
+| Verificação            | Resultado                                                        |
+| ---------------------- | ---------------------------------------------------------------- |
+| logger test            | ✅ 10 testes passaram                                            |
+| logger typecheck       | ✅ sem erros                                                     |
+| UI typecheck           | ✅ sem erros                                                     |
+| guard test             | ✅ 8 testes passaram                                             |
+| pnpm check:console-log | ✅ sem violações                                                 |
+| pnpm docs-check        | ✅ 12 docs, 0 erros, 0 avisos                                    |
+| suíte global           | ⚠️ falhas externas preexistentes documentadas na auditoria final |
 
 # Self-Review
 
