@@ -1,9 +1,9 @@
-import { BoxesIcon, LayoutDashboard } from "lucide-react";
+import { BoxesIcon, LayoutDashboard, PlugIcon } from "lucide-react";
 import type { ComponentType } from "react";
 
 export type NavigationItem = {
   label: string;
-  to: "/" | "/models";
+  to: "/" | "/models" | "/providers";
   icon: ComponentType<{ className?: string }>;
 };
 
@@ -17,6 +17,11 @@ export const navigationItems: readonly NavigationItem[] = [
     label: "Models",
     to: "/models",
     icon: BoxesIcon,
+  },
+  {
+    label: "Providers",
+    to: "/providers",
+    icon: PlugIcon,
   },
 ];
 

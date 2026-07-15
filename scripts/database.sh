@@ -5,6 +5,7 @@
 #   ./scripts/database.sh down          # Derruba o container
 #   ./scripts/database.sh logs          # Mostra logs do container
 #   ./scripts/database.sh migrate       # Executa migrações do banco
+#   ./scripts/database.sh migrate --fresh # Reseta o schema local e aplica a baseline por migration
 #   ./scripts/database.sh generate      # Gera migrações
 #   ./scripts/database.sh studio        # Abre Drizzle Studio
 #   ./scripts/database.sh backup        # Cria um backup
@@ -179,11 +180,36 @@ do_restore() {
 
 # ── Executa migrações do banco ──
 do_migrate() {
+  local fresh="${2:-}"
   CONTAINER="lite-llm-analytics-postgres"
 
   if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
     echo "Erro: container '$CONTAINER' não está rodando." >&2
     echo "Execute 'pnpm db:up' primeiro." >&2
+    exit 1
+  fi
+
+  if [ "$fresh" = "--fresh" ]; then
+    echo "⚠️  ATENÇÃO: isso apagará todo o schema public do banco '${DB_NAME}'."
+    read -rp "Digite 'resetar' para confirmar: " confirm
+    if [ "$confirm" != "resetar" ]; then
+      echo "Reset cancelado."
+      exit 0
+    fi
+
+    echo "==> Recriando schema public..."
+    docker exec -i "$CONTAINER" \
+      psql -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1 \
+      -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO CURRENT_USER; GRANT ALL ON SCHEMA public TO public;'
+
+    echo "==> Aplicando baseline por migration..."
+    pnpm --filter database db:migrate:fresh
+    echo "==> Reset concluído!"
+    return
+  fi
+
+  if [ -n "$fresh" ]; then
+    echo "Opção inválida para migrate: $fresh (use --fresh)" >&2
     exit 1
   fi
 
@@ -204,7 +230,7 @@ case "${1:-}" in
     do_logs
     ;;
   migrate)
-    do_migrate
+    do_migrate "${2:-}"
     ;;
   generate)
     echo "==> Gerando migrações..."
@@ -232,6 +258,7 @@ case "${1:-}" in
     echo "  down                Derruba o container" >&2
     echo "  logs                Mostra logs do container" >&2
     echo "  migrate             Executa migrações" >&2
+    echo "  migrate --fresh     Apaga o schema local e aplica a baseline por migration" >&2
     echo "  generate            Gera migrações" >&2
     echo "  studio              Abre Drizzle Studio" >&2
     echo "  backup              Cria um backup (padrão)" >&2

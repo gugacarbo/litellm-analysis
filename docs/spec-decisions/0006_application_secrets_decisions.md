@@ -13,7 +13,7 @@ com `APP_ENCRYPTION_KEY` e disponibilizando gestão no painel administrativo.
 
 ## Escopo aprovado
 
-- Criar `model_proxy_application_secrets`, com chave lógica única, envelope
+- Criar `application_secrets_store`, com chave lógica única, envelope
   cifrado e timestamps.
 - Suportar exclusivamente `artificial_analysis_api_key` e
   `openrouter_api_key`.

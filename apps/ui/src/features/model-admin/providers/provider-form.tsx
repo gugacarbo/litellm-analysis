@@ -51,6 +51,9 @@ type ProviderFormProps = Readonly<{
   };
   disabled?: boolean;
   busy?: boolean;
+  framed?: boolean;
+  showTitle?: boolean;
+  onCancel?: () => void;
   onSubmit: (input: CreateProviderInput | UpdateProviderInput) => Promise<void>;
 }>;
 
@@ -62,6 +65,9 @@ export function ProviderForm({
   initial,
   disabled = false,
   busy = false,
+  framed = true,
+  showTitle = true,
+  onCancel,
   onSubmit,
 }: ProviderFormProps) {
   const form = useForm<ProviderFormValues>({
@@ -112,14 +118,18 @@ export function ProviderForm({
 
   return (
     <form
-      className="grid gap-4 rounded-lg border border-border p-4"
+      className={
+        framed ? "grid gap-4 rounded-lg border border-border p-4" : "grid gap-4"
+      }
       noValidate
       onSubmit={form.handleSubmit(submit)}
     >
       <div>
-        <h3 className="font-medium">
-          {initial ? "Editar provider" : "Novo provider"}
-        </h3>
+        {showTitle ? (
+          <h3 className="font-medium">
+            {initial ? "Editar provider" : "Novo provider"}
+          </h3>
+        ) : null}
         {initial?.hasStoredSecret ? (
           <p className="text-sm text-muted-foreground">
             Credencial configurada. Ela não pode ser exibida novamente.
@@ -231,9 +241,21 @@ export function ProviderForm({
           )}
         />
       ) : null}
-      <Button disabled={disabled || busy} type="submit">
-        {busy ? "Salvando…" : "Salvar provider"}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button disabled={disabled || busy} type="submit">
+          {busy ? "Salvando…" : "Salvar provider"}
+        </Button>
+        {onCancel ? (
+          <Button
+            disabled={busy}
+            onClick={onCancel}
+            type="button"
+            variant="outline"
+          >
+            Cancelar
+          </Button>
+        ) : null}
+      </div>
     </form>
   );
 }

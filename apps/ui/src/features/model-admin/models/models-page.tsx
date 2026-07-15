@@ -33,12 +33,14 @@ import {
 } from "@/shared/components/ui/alert-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 import {
   Empty,
   EmptyDescription,
@@ -94,6 +96,10 @@ export function ModelsPage({ role }: ModelsPageProps) {
       enabled: true,
     },
   });
+  const closeCreateDialog = () => {
+    form.reset();
+    setShowCreate(false);
+  };
 
   const createMutation = useMutation({
     mutationFn: async (values: CreateModelValues) => {
@@ -107,8 +113,7 @@ export function ModelsPage({ role }: ModelsPageProps) {
         providerId: model.providerId,
         aliasesChanged: true,
       });
-      form.reset();
-      setShowCreate(false);
+      closeCreateDialog();
     },
     onError: (error) =>
       setActionError(
@@ -199,9 +204,7 @@ export function ModelsPage({ role }: ModelsPageProps) {
           </p>
         </div>
         {role === "admin" ? (
-          <Button onClick={() => setShowCreate((current) => !current)}>
-            New model
-          </Button>
+          <Button onClick={() => setShowCreate(true)}>New model</Button>
         ) : null}
       </div>
       {actionError ? (
@@ -209,12 +212,20 @@ export function ModelsPage({ role }: ModelsPageProps) {
           <AlertDescription>{actionError}</AlertDescription>
         </Alert>
       ) : null}
-      {showCreate && role === "admin" ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>New model</CardTitle>
-          </CardHeader>
-          <CardContent>
+      {role === "admin" ? (
+        <Dialog
+          open={showCreate}
+          onOpenChange={(open) => {
+            if (!open) closeCreateDialog();
+          }}
+        >
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>New model</DialogTitle>
+              <DialogDescription>
+                Add a model to a provider-scoped registry.
+              </DialogDescription>
+            </DialogHeader>
             <form
               className="grid gap-4 md:grid-cols-2"
               noValidate
@@ -306,14 +317,14 @@ export function ModelsPage({ role }: ModelsPageProps) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowCreate(false)}
+                  onClick={closeCreateDialog}
                 >
                   Cancel
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </DialogContent>
+        </Dialog>
       ) : null}
       <div className="flex flex-wrap gap-3">
         <Input

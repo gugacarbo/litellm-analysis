@@ -35,6 +35,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 import { DiscoveryPanel } from "./discovery-panel";
 import { ProviderForm } from "./provider-form";
 
@@ -81,6 +88,7 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string>();
   const [activeProviderId, setActiveProviderId] = useState<string>();
+  const [showCreate, setShowCreate] = useState(false);
   const [notice, setNotice] = useState<string>();
   const isAdmin = role === "admin";
   const providersQuery = useQuery(modelAdminQueries.providers());
@@ -93,7 +101,10 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
   const createMutation = useMutation({
     mutationFn: (input: CreateProviderInput) =>
       unwrap(createProvider({ data: input })),
-    onSuccess: async (provider) => invalidateProvider(provider.id),
+    onSuccess: async (provider) => {
+      await invalidateProvider(provider.id);
+      setShowCreate(false);
+    },
   });
   const updateMutation = useMutation({
     mutationFn: (input: UpdateProviderInput) =>
@@ -194,15 +205,22 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
             Configure destinos, credenciais e o catálogo de modelos.
           </p>
         </div>
-        {isAdmin ? (
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
-            Administrador
-          </span>
-        ) : (
-          <span className="rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
-            Somente leitura
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {isAdmin ? (
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
+              Administrador
+            </span>
+          ) : (
+            <span className="rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
+              Somente leitura
+            </span>
+          )}
+          {isAdmin ? (
+            <Button onClick={() => setShowCreate(true)} type="button">
+              Novo provider
+            </Button>
+          ) : null}
+        </div>
       </header>
       {notice ? (
         <Alert>
@@ -216,13 +234,26 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
         </Alert>
       ) : null}
       {isAdmin ? (
-        <ProviderForm
-          busy={createMutation.isPending}
-          onSubmit={async (input) => {
-            if ("id" in input) throw new Error("Criação inválida.");
-            await createMutation.mutateAsync(input);
-          }}
-        />
+        <Dialog open={showCreate} onOpenChange={setShowCreate}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Novo provider</DialogTitle>
+              <DialogDescription>
+                Configure o destino e a credencial de um provider.
+              </DialogDescription>
+            </DialogHeader>
+            <ProviderForm
+              busy={createMutation.isPending}
+              framed={false}
+              showTitle={false}
+              onCancel={() => setShowCreate(false)}
+              onSubmit={async (input) => {
+                if ("id" in input) throw new Error("Criação inválida.");
+                await createMutation.mutateAsync(input);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
       ) : null}
       {providers.length === 0 ? (
         <Card>

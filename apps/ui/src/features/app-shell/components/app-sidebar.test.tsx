@@ -36,7 +36,7 @@ const defaultProps = {
 };
 
 describe("AppShell", () => {
-  it("renders Models in the protected navigation when its routes are available", () => {
+  it("renders Models and Providers in the protected navigation", () => {
     render(<AppShell {...defaultProps}>Dashboard content</AppShell>);
 
     const dashboardLinks = screen.getAllByRole("link", { name: "Dashboard" });
@@ -47,6 +47,9 @@ describe("AppShell", () => {
     const modelsLink = screen.getByRole("link", { name: "Models" });
     expect(modelsLink.getAttribute("href")).toBe("/models");
     expect(modelsLink.getAttribute("aria-current")).toBeNull();
+    const providersLink = screen.getByRole("link", { name: "Providers" });
+    expect(providersLink.getAttribute("href")).toBe("/providers");
+    expect(providersLink.getAttribute("aria-current")).toBeNull();
   });
 
   it("persists desktop sidebar changes through its callback", () => {

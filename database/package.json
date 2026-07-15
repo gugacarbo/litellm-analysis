@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "node ./scripts/with-db-schema.mjs drizzle-kit generate",
     "db:migrate": "node ./scripts/with-db-schema.mjs drizzle-kit migrate",
+    "db:migrate:fresh": "node ./scripts/with-db-schema.mjs drizzle-kit migrate --config drizzle-fresh.config.ts",
     "db:push": "node ./scripts/with-db-schema.mjs drizzle-kit push",
     "db:studio": "node ./scripts/with-db-schema.mjs drizzle-kit studio",
     "db:bootstrap-admin": "node --experimental-strip-types ./scripts/bootstrap-admin.ts"

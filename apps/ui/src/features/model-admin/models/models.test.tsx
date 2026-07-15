@@ -41,7 +41,7 @@ const model = {
   reasoningApiId: null,
 };
 
-function renderPage() {
+function renderPage(role: "admin" | "viewer" = "viewer") {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -49,7 +49,7 @@ function renderPage() {
   queryClient.setQueryData(["model-admin", "providers", "list"], []);
   return render(
     <QueryClientProvider client={queryClient}>
-      <ModelsPage role="viewer" />
+      <ModelsPage role={role} />
     </QueryClientProvider>,
   );
 }
@@ -65,5 +65,14 @@ describe("ModelsPage", () => {
       target: { value: "missing" },
     });
     expect(screen.getByText(/no models match/i)).toBeTruthy();
+  });
+
+  it("abre o formulário de criação em um dialog para admin", () => {
+    renderPage("admin");
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "New model" }));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "New model" })).toBeTruthy();
   });
 });

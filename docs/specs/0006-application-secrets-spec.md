@@ -1,5 +1,5 @@
 ---
-status: draft
+status: accepted
 date: 2026-07-14
 builds-on:
   - ADR-0007
@@ -29,7 +29,7 @@ somente durante uma sincronização que realmente precise deles.
 
 ### Incluído
 
-- Schema Drizzle e migration descartável para `model_proxy_application_secrets`.
+- Schema Drizzle e migration descartável para `application_secrets_store`.
 - Serviço server-side para listar metadados, substituir, remover e resolver os
   dois segredos permitidos.
 - Cifragem AES-256-GCM em envelope versionado usando `APP_ENCRYPTION_KEY`.
@@ -52,7 +52,7 @@ somente durante uma sincronização que realmente precise deles.
 
 ## Modelo de dados e contrato
 
-`model_proxy_application_secrets` terá `id` UUID, `key` texto único,
+`application_secrets_store` terá `id` UUID, `key` texto único,
 `credential_envelope` texto não nulo, `created_at` e `updated_at`. A tabela
 usa as convenções das tabelas `model_proxy_*` existentes.
 
@@ -126,7 +126,7 @@ envelope, IV, tag ou fingerprint.
 | 10 | chave é substituída durante sync | sync em curso usa cópia já resolvida; próximo resolve valor novo |
 | 11 | runner/upstream devolve mensagem contendo a chave | status e resposta retornam somente erro seguro, sem plaintext ou material derivado |
 
-## Open questions
+## Questões em aberto
 
 Nenhuma. Os códigos públicos legados permanecem por compatibilidade, mas as
 variáveis deixam de participar do contrato de ambiente e do runtime.

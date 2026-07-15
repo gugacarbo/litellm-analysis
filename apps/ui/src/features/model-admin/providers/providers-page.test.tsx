@@ -99,9 +99,13 @@ describe("ProvidersPage", () => {
     });
     renderPage();
 
-    const nameInput = screen.getAllByLabelText("Nome")[0] as HTMLInputElement;
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Novo provider" }));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+
+    const nameInput = screen.getByLabelText("Nome") as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "Novo" } });
-    fireEvent.change(screen.getAllByLabelText("Adapter")[0], {
+    fireEvent.change(screen.getByLabelText("Adapter"), {
       target: { value: "openai-compatible" },
     });
     const credentialInput = (await screen.findByLabelText(
@@ -110,9 +114,7 @@ describe("ProvidersPage", () => {
     fireEvent.change(credentialInput, {
       target: { value: "super-secret-value" },
     });
-    fireEvent.click(
-      screen.getAllByRole("button", { name: "Salvar provider" })[0],
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Salvar provider" }));
 
     await waitFor(() =>
       expect(createProvider).toHaveBeenCalledWith({

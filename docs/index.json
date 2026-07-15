@@ -194,7 +194,7 @@
     "path": "docs/specs/0006-application-secrets-spec.md",
     "layer": "specs",
     "title": "Armazenar chaves de aplicação cifradas no banco",
-    "status": "draft",
+    "status": "accepted",
     "builds-on": [
       "ADR-0007",
       "SPEC-0005"

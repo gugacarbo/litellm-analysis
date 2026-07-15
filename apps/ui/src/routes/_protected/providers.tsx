@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ProvidersPage } from "@/features/model-admin/providers/providers-page";
 import { modelAdminQueries } from "@/features/model-admin/query/query-options";
 
-export const Route = createFileRoute("/_protected/models/providers")({
+export const Route = createFileRoute("/_protected/providers")({
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(modelAdminQueries.providers()),
   component: ProvidersRoute,

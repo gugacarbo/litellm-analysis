@@ -48,6 +48,13 @@ pnpm db:up && pnpm db:migrate
 pnpm dev
 ```
 
+Para recriar o banco local via uma baseline migration do schema atual (apaga o
+schema `public`, registra a migration no banco e pede confirmação):
+
+```bash
+pnpm db:migrate --fresh
+```
+
 ## Operação
 
 ```bash
