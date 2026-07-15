@@ -207,7 +207,14 @@
       "SPEC-0005"
     ],
     "superseded-by": null,
-    "implemented-by": [],
+    "implemented-by": [
+      "database/src/schema/application-secrets.ts",
+      "database/drizzle/0003_application-secrets-store.sql",
+      "services/llm-config-service/src/services/application-secrets.service.ts",
+      "apps/server/src/application/benchmark-sync-application-service.ts",
+      "apps/ui/src/features/model-admin/secrets/secrets-page.tsx",
+      "apps/ui/src/routes/_protected/models/secrets.tsx"
+    ],
     "design-ref": "docs/spec-decisions/0006_application_secrets_decisions.md"
   }
 ]

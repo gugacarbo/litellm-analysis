@@ -1,5 +1,6 @@
 import { type QueryClient, queryOptions } from "@tanstack/react-query";
 import type { Result } from "../contracts/model-admin";
+import { listApplicationSecrets } from "../server/application-secrets.functions";
 import {
   discoverModels,
   getModel,
@@ -32,6 +33,10 @@ export const modelAdminQueryKeys = {
   discovery: {
     byProvider: (providerId: string) =>
       [...modelAdminKey, "discovery", providerId] as const,
+  },
+  applicationSecrets: {
+    all: [...modelAdminKey, "application-secrets"] as const,
+    list: [...modelAdminKey, "application-secrets", "list"] as const,
   },
 } as const;
 
@@ -84,6 +89,11 @@ export const modelAdminQueries = {
       queryKey: modelAdminQueryKeys.discovery.byProvider(providerId),
       queryFn: () =>
         unwrapResult(() => discoverModels({ data: { providerId } })),
+    }),
+  applicationSecrets: () =>
+    queryOptions({
+      queryKey: modelAdminQueryKeys.applicationSecrets.list,
+      queryFn: () => unwrapResult(() => listApplicationSecrets({ data: {} })),
     }),
 };
 
@@ -144,5 +154,9 @@ export const invalidateModelAdmin = {
   discovery: (queryClient: QueryClient, providerId: string) =>
     queryClient.invalidateQueries({
       queryKey: modelAdminQueryKeys.discovery.byProvider(providerId),
+    }),
+  applicationSecrets: (queryClient: QueryClient) =>
+    queryClient.invalidateQueries({
+      queryKey: modelAdminQueryKeys.applicationSecrets.list,
     }),
 };

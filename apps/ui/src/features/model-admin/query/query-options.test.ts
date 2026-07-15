@@ -10,6 +10,11 @@ vi.mock("@/features/model-admin/server/model-admin.functions", () => ({
   discoverModels: vi.fn(),
 }));
 
+vi.mock("@/features/model-admin/server/application-secrets.functions", () => ({
+  listApplicationSecrets: vi.fn(),
+}));
+
+import { listApplicationSecrets } from "@/features/model-admin/server/application-secrets.functions";
 import {
   discoverModels,
   listModels,
@@ -87,5 +92,19 @@ describe("model admin query options", () => {
     expect(discoverModels).toHaveBeenCalledWith({
       data: { providerId: "provider-a" },
     });
+  });
+
+  it("consulta e invalida o status de segredos separadamente", async () => {
+    vi.mocked(listApplicationSecrets).mockResolvedValue({ ok: true, data: [] });
+    const queryClient = createModelAdminQueryClient();
+
+    await queryClient.fetchQuery(modelAdminQueries.applicationSecrets());
+    await invalidateModelAdmin.applicationSecrets(queryClient);
+
+    expect(listApplicationSecrets).toHaveBeenCalledWith({ data: {} });
+    expect(
+      queryClient.getQueryState(modelAdminQueryKeys.applicationSecrets.list)
+        ?.isInvalidated,
+    ).toBe(true);
   });
 });

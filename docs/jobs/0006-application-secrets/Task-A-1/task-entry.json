@@ -1,0 +1,91 @@
+{
+  "id": "Task-A-1",
+  "title": "Criar armazenamento e serviço de segredos de aplicação",
+  "description": "Implementar application_secrets_store, migration gerada, repositório Drizzle e ApplicationSecretsService allowlisted com envelope cifrado e DTOs sem segredo.",
+  "status": "ready_for_review",
+  "tryCount": 1,
+  "maxTries": 3,
+  "task_profile": "deep",
+  "batch": "A",
+  "layer": "foundation",
+  "reportFile": "docs/jobs/0006-application-secrets/Task-A-1/report.md",
+  "reviewPackage": "docs/jobs/0006-application-secrets/Task-A-1/review-package.diff.md",
+  "progressLog": "docs/jobs/0006-application-secrets/Task-A-1/progress.log",
+  "logTaskScript": "docs/jobs/0006-application-secrets/Task-A-1/log-task.sh",
+  "baseCommit": "c22e434a3fb31b00a29c961681a23d3575343115",
+  "dependencies": [],
+  "acceptanceCriteria": [
+    "application_secrets_store has a unique key and non-null credential_envelope in its Drizzle contract and generated migration.",
+    "Only artificial_analysis_api_key and openrouter_api_key can be written or resolved.",
+    "Writes persist AES-256-GCM envelopes and public reads expose only key, isConfigured and timestamps.",
+    "Missing or malformed stored values fail closed without returning plaintext or crypto material.",
+    "Focused schema and service tests show RED before implementation and GREEN after it."
+  ],
+  "requirements": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003"
+  ],
+  "rules": [
+    "TDD required for this behavior-changing task.",
+    "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",
+    "Reuse APP_ENCRYPTION_KEY envelope behavior; never log or return plaintext, ciphertext, IV, tag or fingerprints.",
+    "Generate migrations from the Drizzle schema rather than writing SQL by hand.",
+    "Report RED and GREEN commands and results in the task report."
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "title": "Adicionar testes RED de schema e serviço",
+      "description": "Criar os testes de contrato e serviço para allowlist, envelope, metadata-only e fail-closed antes do código.",
+      "command": "pnpm exec vitest run database/src/schema/model-proxy/schema-contract.test.ts",
+      "expectedResult": "Os novos casos falham porque a tabela e o serviço ainda não existem.",
+      "codeExample": null
+    },
+    {
+      "order": 2,
+      "title": "Implementar schema, migration e serviço",
+      "description": "Criar tabela, exports, migration gerada, repositório e ApplicationSecretsService com DTO público e resolvedor interno.",
+      "command": "pnpm --filter @lite-llm/database db:generate",
+      "expectedResult": "Migration é gerada a partir de application_secrets_store.",
+      "codeExample": null
+    },
+    {
+      "order": 3,
+      "title": "Executar testes GREEN focados",
+      "description": "Rodar os testes novos de schema e serviço e confirmar ausência de valores em retornos públicos.",
+      "command": "pnpm --filter @lite-llm/llm-config-service exec vitest run src/services/__tests__/application-secrets.service.test.ts",
+      "expectedResult": "Todos os testes focados passam.",
+      "codeExample": null
+    }
+  ],
+  "filesTouched": [
+    "database/src/schema/application-secrets.ts",
+    "database/src/schema/index.ts",
+    "database/drizzle/",
+    "database/src/schema/model-proxy/schema-contract.test.ts",
+    "services/llm-config-service/src/repositories/application-secrets-repository.ts",
+    "services/llm-config-service/src/services/application-secrets.service.ts",
+    "services/llm-config-service/src/services/__tests__/application-secrets.service.test.ts",
+    "services/llm-config-service/src/index.ts",
+    "services/llm-config-service/src/factory.ts"
+  ],
+  "files": {
+    "created": [
+      "database/src/schema/application-secrets.ts",
+      "services/llm-config-service/src/repositories/application-secrets-repository.ts",
+      "services/llm-config-service/src/services/application-secrets.service.ts",
+      "services/llm-config-service/src/services/__tests__/application-secrets.service.test.ts"
+    ],
+    "modified": [
+      "database/src/schema/index.ts",
+      "database/src/schema/model-proxy/schema-contract.test.ts",
+      "services/llm-config-service/src/index.ts",
+      "services/llm-config-service/src/factory.ts"
+    ],
+    "deleted": []
+  },
+  "notes": [
+    "The physical database table must be named application_secrets_store exactly."
+  ]
+}

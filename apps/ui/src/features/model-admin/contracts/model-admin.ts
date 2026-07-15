@@ -34,6 +34,43 @@ export type Result<T> = { ok: true; data: T } | DomainError;
 
 export const emptyInputSchema = z.object({});
 
+export const applicationSecretKeySchema = z.enum([
+  "artificial_analysis_api_key",
+  "openrouter_api_key",
+]);
+
+export type ApplicationSecretKey = z.infer<typeof applicationSecretKeySchema>;
+
+export const applicationSecretPublicSchema = z
+  .object({
+    key: applicationSecretKeySchema,
+    isConfigured: z.boolean(),
+    createdAt: z.date().nullable(),
+    updatedAt: z.date().nullable(),
+  })
+  .strict();
+
+export type ApplicationSecretPublic = z.infer<
+  typeof applicationSecretPublicSchema
+>;
+
+export const replaceApplicationSecretInputSchema = z.object({
+  key: applicationSecretKeySchema,
+  value: z.string().trim().min(1, "API key is required."),
+});
+
+export const removeApplicationSecretInputSchema = z.object({
+  key: applicationSecretKeySchema,
+});
+
+export type ReplaceApplicationSecretInput = z.infer<
+  typeof replaceApplicationSecretInputSchema
+>;
+
+export type RemoveApplicationSecretInput = z.infer<
+  typeof removeApplicationSecretInputSchema
+>;
+
 const uuidSchema = z.uuid();
 const revisionSchema = z.number().int().positive();
 const nullableText = z.string().nullable().optional();

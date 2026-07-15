@@ -13,9 +13,9 @@ export function createBenchmarkSyncRouter(
     res.json(service.getStatus());
   });
 
-  router.post("/sync", (_req, res) => {
+  router.post("/sync", async (_req, res) => {
     try {
-      const result = service.start();
+      const result = await service.start();
       res.status(result.triggered ? 202 : 200).json(result);
     } catch (error) {
       if (error instanceof BenchmarkSyncConfigurationError) {

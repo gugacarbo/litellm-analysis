@@ -4,6 +4,10 @@ import {
   type IApiKeysService,
 } from "./services/api-keys.service.js";
 import {
+  ApplicationSecretsService,
+  type IApplicationSecretsService,
+} from "./services/application-secrets.service.js";
+import {
   type IOpenAiOAuthService,
   OpenAiOAuthService,
 } from "./services/openai-oauth.service.js";
@@ -21,6 +25,7 @@ export interface RegistryServices {
   settingsService: ISettingsService;
   registryModelsService: IRegistryModelsService;
   apiKeysService: IApiKeysService;
+  applicationSecretsService: IApplicationSecretsService;
   openAiOAuthService: IOpenAiOAuthService;
 }
 
@@ -38,6 +43,7 @@ export function createRegistryServices(
     settingsService: new SettingsService({ db }),
     registryModelsService: new RegistryModelsService({ db }),
     apiKeysService: new ApiKeysService({ db }),
+    applicationSecretsService: new ApplicationSecretsService({ db }),
     openAiOAuthService: new OpenAiOAuthService({ db }),
   };
 }
