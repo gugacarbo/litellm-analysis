@@ -1,6 +1,8 @@
 {
   "name": "server",
   "version": "0.0.1",
+  "deprecated": true,
+  "description": "Deprecated legacy server application; use apps/ui and packages/server.",
   "type": "module",
   "private": true,
   "scripts": {

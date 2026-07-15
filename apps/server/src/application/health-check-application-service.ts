@@ -1,3 +1,4 @@
+import type { HealthCheckSummaryResult } from "@lite-llm/app-repository/queries";
 import {
   getHealthCheckSummary,
   getHealthChecks,
@@ -49,7 +50,7 @@ export function createHealthCheckApplicationService(
       return storeApi.getLatestHealthChecks();
     },
 
-    async getSummary() {
+    async getSummary(): Promise<HealthCheckSummaryResult> {
       return storeApi.getHealthCheckSummary();
     },
   };

@@ -1,3 +1,5 @@
+export type { HealthCheckSummaryResult } from "./queries";
+
 export {
   cleanupOldHealthChecks,
   getHealthCheckSummary,

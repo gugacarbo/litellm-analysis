@@ -53,12 +53,22 @@ const ignoredDirEntries = new Set([
   "coverage",
 ]);
 
+const ignoredPathPrefixes = [path.join(repoRoot, "apps", "server")];
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function walk(dir: string, visitor: (filePath: string) => void) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (ignoredDirEntries.has(entry.name)) continue;
     const fullPath = path.join(dir, entry.name);
+    if (
+      ignoredPathPrefixes.some(
+        (prefix) =>
+          fullPath === prefix || fullPath.startsWith(`${prefix}${path.sep}`),
+      )
+    ) {
+      continue;
+    }
     if (entry.isDirectory()) {
       walk(fullPath, visitor);
       continue;

@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
+  - "!apps/server"
   - "services/*-service"
   - "services/llm-gateway"
   - "packages/*"
