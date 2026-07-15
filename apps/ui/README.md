@@ -1,6 +1,6 @@
 # ui
 
-TanStack Start app for the Agent Lens monorepo.
+TanStack Start app for the LlmToolbox monorepo.
 
 ## Workspace Commands
 

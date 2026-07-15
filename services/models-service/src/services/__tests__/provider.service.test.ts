@@ -30,7 +30,7 @@ describe("ProviderService", () => {
       provider: {
         "local-proxy": {
           name: "Local Model Proxy",
-          ownedBy: "agent-lens",
+          ownedBy: "llm-toolbox",
           baseUrl: "http://localhost:3008/v1",
         },
       },

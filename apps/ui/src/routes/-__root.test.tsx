@@ -36,7 +36,7 @@ describe("root document theme contract", () => {
     });
 
     expect(rootRouteOptions.head().meta).toContainEqual({
-      title: "Agent Lens",
+      title: "LlmToolbox",
     });
   });
 

@@ -32,14 +32,14 @@ export const Route = createRootRouteWithContext<{
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "Agent Lens",
+        title: "LlmToolbox",
       },
     ],
     links: [
       {
         rel: "icon",
         type: "image/svg+xml",
-        href: "/agentlens-mark.svg",
+        href: "/llmtoolbox-mark.svg",
       },
       {
         rel: "stylesheet",

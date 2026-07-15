@@ -69,7 +69,7 @@ body {
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* Agent Lens palette: deep indigo primary and deeper violet secondary. */
+  /* LlmToolbox palette: deep indigo primary and deeper violet secondary. */
   --primary: #4338ca;
   --primary-foreground: #ffffff;
   --secondary: #6d28d9;
@@ -87,7 +87,7 @@ body {
   --chart-3: #4f46e5;
   --chart-4: #7c3aed;
   --chart-5: #312e81;
-  --radius: 0.625rem;
+  --radius: 0.375rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: #4338ca;

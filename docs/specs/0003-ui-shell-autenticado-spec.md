@@ -52,7 +52,7 @@ exibir áreas que ainda não foram migradas do `apps/web`.
   checks, benchmarks, agentes ou chat.
 - Filtro global de datas e chat flutuante do `apps/web`.
 - Itens de navegação inativos, ocultos como promessa futura ou rotas vazias.
-- Redesenho de marca; o nome do produto é `AgentLens`.
+- Redesenho de marca; o nome do produto é `LlmToolbox`.
 - Alteração de schema, fluxo de convite, contratos de papéis ou persistência da
   sessão Better Auth.
 
@@ -210,7 +210,7 @@ type ShellSessionUser = {
 
 ## Questões em aberto
 
-Nenhuma. O nome `AgentLens` é uma decisão não bloqueante e
+Nenhuma. O nome `LlmToolbox` é uma decisão não bloqueante e
 pode ser alterado por uma spec de identidade visual posterior.
 
 ## Estratégia de testes

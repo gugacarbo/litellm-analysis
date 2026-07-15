@@ -1,9 +1,9 @@
 {
-  "short_name": "Agent Lens",
-  "name": "Agent Lens",
+  "short_name": "LlmToolbox",
+  "name": "LlmToolbox",
   "icons": [
     {
-      "src": "agentlens-mark.svg",
+      "src": "llmtoolbox-mark.svg",
       "type": "image/svg+xml",
       "sizes": "any"
     },

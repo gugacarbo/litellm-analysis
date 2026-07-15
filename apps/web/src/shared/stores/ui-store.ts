@@ -1,6 +1,6 @@
 import { Store } from "@tanstack/react-store";
 
-const UI_STORAGE_KEY = "agent-lens:ui-state";
+const UI_STORAGE_KEY = "llm-toolbox:ui-state";
 const LEGACY_UI_STORAGE_KEY = "lite-llm-analytics:ui-state";
 
 export interface UiState {
