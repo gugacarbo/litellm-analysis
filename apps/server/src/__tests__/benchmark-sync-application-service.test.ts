@@ -21,13 +21,13 @@ function createService(
   runner: ConstructorParameters<
     typeof BenchmarkSyncApplicationService
   >[0]["runner"],
-  apiKey = "aa-key",
+  resolveApiKey = vi.fn().mockResolvedValue("aa-key"),
 ) {
   const outputDir = path.join(tempRoot, "benchmarks");
   return new BenchmarkSyncApplicationService({
     outputDir,
     datasetFilePath: path.join(outputDir, "artificial-analysis-models.json"),
-    artificialAnalysisApiKey: apiKey,
+    resolveApiKey,
     runner,
   });
 }
@@ -46,10 +46,14 @@ describe("BenchmarkSyncApplicationService", () => {
     const started = service.start();
     const duplicate = service.start();
 
-    expect(started.triggered).toBe(true);
-    expect(started.status).toBe("running");
-    expect(duplicate.triggered).toBe(false);
-    expect(duplicate.status).toBe("running");
+    await expect(started).resolves.toMatchObject({
+      triggered: true,
+      status: "running",
+    });
+    await expect(duplicate).resolves.toMatchObject({
+      triggered: false,
+      status: "running",
+    });
     expect(runner).toHaveBeenCalledOnce();
 
     resolveRun();
@@ -65,12 +69,12 @@ describe("BenchmarkSyncApplicationService", () => {
     try {
       const service = createService(vi.fn().mockResolvedValue(undefined));
 
-      service.start();
+      await service.start();
       await vi.waitFor(() => {
         expect(service.getStatus().status).toBe("succeeded");
       });
 
-      const immediateRetry = service.start();
+      const immediateRetry = await service.start();
       expect(immediateRetry.triggered).toBe(false);
       expect(immediateRetry.canTrigger).toBe(false);
       expect(immediateRetry.cooldownUntil).not.toBeNull();
@@ -83,7 +87,7 @@ describe("BenchmarkSyncApplicationService", () => {
 
       vi.setSystemTime(new Date("2026-07-06T19:00:01.000Z"));
 
-      const retryAfterCooldown = service.start();
+      const retryAfterCooldown = await service.start();
       expect(retryAfterCooldown.triggered).toBe(true);
     } finally {
       vi.useRealTimers();
@@ -92,9 +96,12 @@ describe("BenchmarkSyncApplicationService", () => {
 
   it("passes api key and output dir to the runner", async () => {
     const runner = vi.fn().mockResolvedValue(undefined);
-    const service = createService(runner, "server-aa-key");
+    const service = createService(
+      runner,
+      vi.fn().mockResolvedValue("server-aa-key"),
+    );
 
-    service.start();
+    await service.start();
     await vi.waitFor(() => {
       expect(service.getStatus().status).toBe("succeeded");
     });
@@ -112,7 +119,7 @@ describe("BenchmarkSyncApplicationService", () => {
       vi.fn().mockRejectedValue(new Error("AA unavailable")),
     );
 
-    service.start();
+    await service.start();
 
     await vi.waitFor(() => {
       const status = service.getStatus();
@@ -121,14 +128,82 @@ describe("BenchmarkSyncApplicationService", () => {
     });
   });
 
-  it("throws a configuration error when the AA api key is missing", () => {
-    const service = createService(vi.fn(), "");
+  it("throws a configuration error when the AA api key is missing", async () => {
+    const service = createService(vi.fn(), vi.fn().mockResolvedValue(null));
 
-    expect(() => service.start()).toThrow(BenchmarkSyncConfigurationError);
+    await expect(service.start()).rejects.toThrow(
+      BenchmarkSyncConfigurationError,
+    );
     expect(service.getStatus()).toMatchObject({
       status: "failed",
       lastError: "ARTIFICIAL_ANALYSIS_API_KEY is not configured",
     });
+  });
+
+  it("resolves the key for each trigger instead of retaining a startup value", async () => {
+    const resolveApiKey = vi
+      .fn<() => Promise<string | null>>()
+      .mockResolvedValueOnce("first-aa-key")
+      .mockResolvedValueOnce("second-aa-key");
+    const runner = vi.fn().mockResolvedValue(undefined);
+    const service = createService(runner, resolveApiKey);
+
+    await service.start();
+    await vi.waitFor(() => {
+      expect(service.getStatus().status).toBe("succeeded");
+    });
+    await new Promise<void>((resolve) => setImmediate(resolve));
+
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(
+        Date.parse(service.getStatus().lastSuccessAt ?? "") + 60 * 60_000 + 1,
+      );
+      await service.start();
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(resolveApiKey).toHaveBeenCalledTimes(2);
+    expect(runner).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ apiKey: "first-aa-key" }),
+    );
+    expect(runner).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ apiKey: "second-aa-key" }),
+    );
+  });
+
+  it("treats an unreadable stored value as missing and never calls the runner", async () => {
+    const runner = vi.fn();
+    const service = createService(
+      runner,
+      vi.fn().mockRejectedValue(new Error("invalid envelope")),
+    );
+
+    await expect(service.start()).rejects.toThrow(
+      BenchmarkSyncConfigurationError,
+    );
+    expect(runner).not.toHaveBeenCalled();
+    expect(service.getStatus().lastError).toBe(
+      "ARTIFICIAL_ANALYSIS_API_KEY is not configured",
+    );
+  });
+
+  it("redacts a resolved key echoed by the runner", async () => {
+    const secret = "aa-secret-that-must-not-leak";
+    const service = createService(
+      vi.fn().mockRejectedValue(new Error(`upstream rejected ${secret}`)),
+      vi.fn().mockResolvedValue(secret),
+    );
+
+    await service.start();
+    await vi.waitFor(() => {
+      expect(service.getStatus().status).toBe("failed");
+    });
+
+    expect(service.getStatus().lastError).not.toContain(secret);
   });
 
   it("reports whether the local dataset exists", async () => {

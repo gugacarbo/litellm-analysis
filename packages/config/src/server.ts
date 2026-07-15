@@ -11,7 +11,10 @@ dotenv.config({
 });
 
 const serverSchema = {
-  APP_ENCRYPTION_KEY: z.string().min(1, "APP_ENCRYPTION_KEY cannot be empty!"),
+  APP_ENCRYPTION_KEY: z
+    .string()
+    .min(1, "APP_ENCRYPTION_KEY cannot be empty!")
+    .optional(),
 
   PORT: z.coerce.number().int().positive(),
   DATABASE_URL: z.url().min(1, "DATABASE_URL cannot be empty"),
@@ -21,9 +24,6 @@ const serverSchema = {
     .min(1, "MODEL_PROXY_API_KEY cannot be empty")
     .optional(),
   MODEL_PROXY_BASE_URL: z.url().optional(),
-  ARTIFICIAL_ANALYSIS_API_KEY: z.string().min(1).optional(),
-  OPENROUTER_API_KEY: z.string().min(1).optional(),
-
   STORAGE_PATH: z.string().default("@storage"),
 };
 

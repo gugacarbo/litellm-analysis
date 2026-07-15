@@ -4,7 +4,13 @@ date: 2026-07-14
 builds-on:
   - ADR-0007
   - SPEC-0005
-implemented-by: []
+implemented-by:
+  - database/src/schema/application-secrets.ts
+  - database/drizzle/0003_application-secrets-store.sql
+  - services/llm-config-service/src/services/application-secrets.service.ts
+  - apps/server/src/application/benchmark-sync-application-service.ts
+  - apps/ui/src/features/model-admin/secrets/secrets-page.tsx
+  - apps/ui/src/routes/_protected/models/secrets.tsx
 design-ref: docs/spec-decisions/0006_application_secrets_decisions.md
 ---
 
@@ -176,8 +182,9 @@ legados são excluídos dessa busca.
 
 ## Verification
 
-Preenchido somente na transição para `implemented`, após todos os critérios de
-Definition of Done passarem.
+Implementado em 2026-07-14. Os testes focados e typechecks passaram; os
+baselines globais externos foram aprovados pelo usuário e estão registrados no
+relatório de integração.
 
 # Self-Review
 

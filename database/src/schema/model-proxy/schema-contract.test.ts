@@ -1,5 +1,6 @@
 import { getTableConfig } from "drizzle-orm/pg-core";
 import { describe, expect, it } from "vitest";
+import { applicationSecretsStore } from "../application-secrets";
 import { modelProxyAliases } from "./aliases";
 import { modelProxyModels } from "./models";
 import { modelProxyProviders } from "./providers";
@@ -11,6 +12,27 @@ function findIndex(table: Parameters<typeof getTableConfig>[0], name: string) {
 }
 
 describe("model proxy clean-cut schema", () => {
+  it("stores application secrets under a unique key with a required encrypted envelope", () => {
+    const keyIndex = findIndex(
+      applicationSecretsStore,
+      "uq_application_secrets_store_key",
+    );
+
+    expect(applicationSecretsStore.key.notNull).toBe(true);
+    expect(applicationSecretsStore.credentialEnvelope.notNull).toBe(true);
+    expect(keyIndex?.config.unique).toBe(true);
+    expect(
+      keyIndex?.config.columns.map(
+        (column) => (column as { name?: string }).name,
+      ),
+    ).toEqual(["key"]);
+    expect(
+      getTableConfig(applicationSecretsStore).checks.map(
+        (constraint) => constraint.name,
+      ),
+    ).toContain("ck_application_secrets_store_key_allowlist");
+  });
+
   it("requires a provider and prevents duplicate model ids inside one provider", () => {
     const providerForeignKey = getTableConfig(
       modelProxyModels,

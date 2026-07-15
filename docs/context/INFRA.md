@@ -57,8 +57,11 @@
 ```bash
 DATABASE_URL=postgresql://user:password@localhost:5432/lite_llm_analytics
 MODEL_PROXY_API_KEY=dev-key-123   # bootstrap para dev
-OPENROUTER_API_KEY=sk-or-...      # para sync de benchmarks do OpenRouter
 ```
+
+As chaves do Artificial Analysis e do OpenRouter para sincronizacao de
+benchmarks sao configuradas por um administrador no armazenamento de segredos
+da aplicacao; nao fazem parte do contrato de variaveis de ambiente.
 
 ### Comandos
 

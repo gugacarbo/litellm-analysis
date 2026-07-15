@@ -157,13 +157,15 @@ export async function startAppRuntime(): Promise<AppRuntime> {
   });
   const benchmarkSyncService = createBenchmarkSyncApplicationService({
     storagePath: resolveStoragePath(projectRoot),
-    artificialAnalysisApiKey: env.ARTIFICIAL_ANALYSIS_API_KEY,
+    resolveApiKey: () =>
+      registry.applicationSecretsService.resolve("artificial_analysis_api_key"),
   });
 
   const openRouterBenchmarkSyncService =
     createOpenRouterBenchmarkSyncApplicationService({
       storagePath: resolveStoragePath(projectRoot),
-      openRouterApiKey: env.OPENROUTER_API_KEY,
+      resolveApiKey: () =>
+        registry.applicationSecretsService.resolve("openrouter_api_key"),
     });
 
   const app = createApiServer(

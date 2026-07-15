@@ -23,6 +23,13 @@ export {
   parseProviderEncryptionKey,
   resolveProviderCredential,
 } from "./lib/provider-secrets.js";
+export {
+  APPLICATION_SECRET_KEYS,
+  type ApplicationSecretKey,
+  type ApplicationSecretRecord,
+  ApplicationSecretsRepository,
+  type ApplicationSecretsRepositoryPort,
+} from "./repositories/application-secrets-repository.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
 export { SettingsRepository } from "./repositories/settings-repository.js";
 export {
@@ -30,6 +37,12 @@ export {
   type ApiKeysServiceOptions,
   type IApiKeysService,
 } from "./services/api-keys.service.js";
+export {
+  type ApplicationSecretPublic,
+  ApplicationSecretsService,
+  type ApplicationSecretsServiceOptions,
+  type IApplicationSecretsService,
+} from "./services/application-secrets.service.js";
 export {
   ModelAdminService,
   type ModelAdminServiceOptions,
