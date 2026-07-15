@@ -6,10 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./orchestration": "./src/orchestration/index.ts",
-    "./orchestration/benchmark-helpers": "./src/orchestration/benchmark-helpers.ts",
-    "./orchestration/router-settings": "./src/orchestration/router-settings.ts",
     "./routes": "./src/routes/index.ts",
-    "./types": "./src/types/index.ts"
+    "./types": "./src/types/public.ts"
   },
   "scripts": {
     "build": "tsc",

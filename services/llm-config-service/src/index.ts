@@ -29,6 +29,8 @@ export {
   type ApplicationSecretRecord,
   ApplicationSecretsRepository,
   type ApplicationSecretsRepositoryPort,
+  type ProviderSecretRecord,
+  providerSecretKey,
 } from "./repositories/application-secrets-repository.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
 export { SettingsRepository } from "./repositories/settings-repository.js";

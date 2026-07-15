@@ -17,7 +17,6 @@ export const modelProxyProviders = pgTable(
     isDefault: boolean("is_default").default(false).notNull(),
     provider: text("provider"),
     baseUrl: text("base_url"),
-    credentialEnvelope: text("credential_envelope"),
     revision: integer("revision").default(1).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

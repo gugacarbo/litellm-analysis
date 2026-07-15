@@ -71,12 +71,12 @@ Legacy web: GET-only; mutation requests are not registered
 
 ## References and Constraints
 
-| Source | Section | What it governs | Plan consequence |
-| --- | --- | --- | --- |
-| `docs/specs/0005-modelos-providers-roteamento-spec.md` | Persistencia e invariantes | clean cut, no fallback | delete legacy readers/writers rather than bridge them |
-| `docs/specs/0005-modelos-providers-roteamento-spec.md` | Providers e credenciais | secret redaction and lifecycle | only server-side runtime code decrypts envelopes |
-| `docs/adr/0007-segredos-de-providers-sao-cifrados-no-postgresql.md` | Consequencias | no `secretRef` fallback after cutover | remove environment lookup and plaintext provider storage |
-| User direction, 2026-07-14 | `apps/web` | deprecated read-only surface | remove/disable all app-web writes without deleting its reads |
+| Source                                                              | Section                    | What it governs                       | Plan consequence                                             |
+| ------------------------------------------------------------------- | -------------------------- | ------------------------------------- | ------------------------------------------------------------ |
+| `docs/specs/0005-modelos-providers-roteamento-spec.md`              | Persistencia e invariantes | clean cut, no fallback                | delete legacy readers/writers rather than bridge them        |
+| `docs/specs/0005-modelos-providers-roteamento-spec.md`              | Providers e credenciais    | secret redaction and lifecycle        | only server-side runtime code decrypts envelopes             |
+| `docs/adr/0007-segredos-de-providers-sao-cifrados-no-postgresql.md` | Consequencias              | no `secretRef` fallback after cutover | remove environment lookup and plaintext provider storage     |
+| User direction, 2026-07-14                                          | `apps/web`                 | deprecated read-only surface          | remove/disable all app-web writes without deleting its reads |
 
 **Unresolved decisions:** None. “ready-only” is implemented as “read-only”.
 
@@ -92,13 +92,13 @@ Legacy web: GET-only; mutation requests are not registered
 
 ## Files and Tasks
 
-| File / directory | Change | Owner | Depends on | Notes |
-| --- | --- | --- | --- | --- |
-| `services/llm-config-service/src/{factory,index,types,repositories,services,dual-read}` | delete legacy provider stack; expose new runtime adapter | Task-A-1 | none | source-of-truth package |
-| `services/llm-gateway/src/resolver/upstream-provider.ts` | decrypt envelope at upstream boundary | Task-B-1 | Task-A-1 | no environment fallback |
-| `apps/server`, `packages/server`, `services/analytics-service` | replace legacy registry services/routes with read-only/new contract consumers | Task-B-2 | Task-A-1 | remove writes |
-| `apps/web/src/features/**`, `apps/web/src/shared/lib/api-client/**` | remove every mutation UI/client path; keep unrelated reads and deprecation handoff | Task-C-1 | Task-B-2 | deprecated application is read-only globally |
-| package manifests, exports, affected tests | remove unused dependencies/exports and verify cutover | Task-D-1 | Task-B-1, Task-B-2, Task-C-1 | final sweep |
+| File / directory                                                                        | Change                                                                             | Owner    | Depends on                   | Notes                                        |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------- | ---------------------------- | -------------------------------------------- |
+| `services/llm-config-service/src/{factory,index,types,repositories,services,dual-read}` | delete legacy provider stack; expose new runtime adapter                           | Task-A-1 | none                         | source-of-truth package                      |
+| `services/llm-gateway/src/resolver/upstream-provider.ts`                                | decrypt envelope at upstream boundary                                              | Task-B-1 | Task-A-1                     | no environment fallback                      |
+| `apps/server`, `packages/server`, `services/analytics-service`                          | replace legacy registry services/routes with read-only/new contract consumers      | Task-B-2 | Task-A-1                     | remove writes                                |
+| `apps/web/src/features/**`, `apps/web/src/shared/lib/api-client/**`                     | remove every mutation UI/client path; keep unrelated reads and deprecation handoff | Task-C-1 | Task-B-2                     | deprecated application is read-only globally |
+| package manifests, exports, affected tests                                              | remove unused dependencies/exports and verify cutover                              | Task-D-1 | Task-B-1, Task-B-2, Task-C-1 | final sweep                                  |
 
 ### Implementation sequence
 
@@ -113,11 +113,11 @@ Legacy web: GET-only; mutation requests are not registered
 
 ## Documentation Verification
 
-| Technology / version | Focused question | Method | Authoritative source | Finding applied to |
-| --- | --- | --- | --- | --- |
-| Drizzle ORM 0.38.4 | registry schema and query boundary | repository-pattern | `database/src/schema/model-proxy/*.ts` | Task-A-1, Task-B-1 |
-| TanStack Start 1.168.27 | existing admin write boundary | repository-pattern | `apps/ui/src/features/model-admin/server/*.ts` | Task-A-1, Task-C-1 |
-| Express routes | current legacy HTTP consumer boundary | repository-pattern | `packages/server/src/routes/provider-routes.ts` | Task-B-2 |
+| Technology / version    | Focused question                      | Method             | Authoritative source                            | Finding applied to |
+| ----------------------- | ------------------------------------- | ------------------ | ----------------------------------------------- | ------------------ |
+| Drizzle ORM 0.38.4      | registry schema and query boundary    | repository-pattern | `database/src/schema/model-proxy/*.ts`          | Task-A-1, Task-B-1 |
+| TanStack Start 1.168.27 | existing admin write boundary         | repository-pattern | `apps/ui/src/features/model-admin/server/*.ts`  | Task-A-1, Task-C-1 |
+| Express routes          | current legacy HTTP consumer boundary | repository-pattern | `packages/server/src/routes/provider-routes.ts` | Task-B-2           |
 
 No external lookup is needed: this is a repository-local contract cutover and
 the installed APIs are fully demonstrated by the source paths above.
@@ -140,12 +140,12 @@ pnpm --filter web typecheck
 rg -n "secretRef|ProvidersService|ProvidersRepository|providers-dual-read" services apps packages
 ```
 
-| ID | Scenario | Level | Owner | Evidence |
-| --- | --- | --- | --- | --- |
-| T1 | encrypted provider credentials resolve only at upstream runtime | unit/integration | Task-B-1 | missing/corrupt envelopes fail closed |
-| T2 | no legacy provider writer is exported or routed | static/integration | Task-A-1, Task-B-2 | deletion scan and route tests |
-| T3 | `apps/web` reads but cannot mutate provider/model state | component/integration | Task-C-1 | absent writer controls and rejected/absent routes |
-| T4 | all affected packages compile | typecheck | Task-D-1 | focused workspace checks pass |
+| ID  | Scenario                                                        | Level                 | Owner              | Evidence                                          |
+| --- | --------------------------------------------------------------- | --------------------- | ------------------ | ------------------------------------------------- |
+| T1  | encrypted provider credentials resolve only at upstream runtime | unit/integration      | Task-B-1           | missing/corrupt envelopes fail closed             |
+| T2  | no legacy provider writer is exported or routed                 | static/integration    | Task-A-1, Task-B-2 | deletion scan and route tests                     |
+| T3  | `apps/web` reads but cannot mutate provider/model state         | component/integration | Task-C-1           | absent writer controls and rejected/absent routes |
+| T4  | all affected packages compile                                   | typecheck             | Task-D-1           | focused workspace checks pass                     |
 
 **Human review:** open `apps/web` as admin and viewer; confirm data remains
 visible, no create/edit/delete/sync action is actionable, and the UI directs
@@ -153,11 +153,11 @@ administration to `apps/ui`.
 
 ## Risks and Handoff
 
-| Risk | Detection | Mitigation | Rollback / recovery |
-| --- | --- | --- | --- |
-| hidden legacy caller | deletion scan/typecheck | migrate every compile-time consumer before deleting exports | revert the cutover commit |
-| missing credential at gateway | gateway tests and controlled probe | fail closed with sanitized error | re-register the encrypted credential in `apps/ui` |
-| web loses read data | app-web read tests | preserve GET adapters until UI retirement | restore read adapter only, not writers |
+| Risk                          | Detection                          | Mitigation                                                  | Rollback / recovery                               |
+| ----------------------------- | ---------------------------------- | ----------------------------------------------------------- | ------------------------------------------------- |
+| hidden legacy caller          | deletion scan/typecheck            | migrate every compile-time consumer before deleting exports | revert the cutover commit                         |
+| missing credential at gateway | gateway tests and controlled probe | fail closed with sanitized error                            | re-register the encrypted credential in `apps/ui` |
+| web loses read data           | app-web read tests                 | preserve GET adapters until UI retirement                   | restore read adapter only, not writers            |
 
 **Rollout / observability:** deploy the new packages together; no schema
 migration is needed because the live schema already contains the clean-cut

@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./repository": "./src/repository.ts",
+    "./repository": "./src/repository-public.ts",
     "./db-repository": "./src/db-repository.ts",
-    "./schemas": "./src/schemas/index.ts"
+    "./schemas": "./src/schemas/public.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

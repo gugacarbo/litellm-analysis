@@ -1,4 +1,9 @@
-import { BoxesIcon, KeyRoundIcon, LayoutDashboard, PlugIcon } from "lucide-react";
+import {
+  BoxesIcon,
+  KeyRoundIcon,
+  LayoutDashboard,
+  PlugIcon,
+} from "lucide-react";
 import type { ComponentType } from "react";
 
 export type NavigationItem = {

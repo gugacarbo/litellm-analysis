@@ -1,5 +1,5 @@
-import type { Provider } from "@lite-llm/models-repository";
 import { encryptProviderSecret } from "@lite-llm/llm-config-service";
+import type { Provider } from "@lite-llm/models-repository";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CHATGPT_SUBSCRIPTION_PROVIDER,
@@ -76,6 +76,22 @@ function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
 describe("upstream-provider", () => {
   beforeEach(() => {
     process.env.APP_ENCRYPTION_KEY = TEST_ENCRYPTION_KEY;
+    dbSelectMock.mockReset();
+    dbSelectMock.mockReturnValue({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(() =>
+            Promise.resolve([
+              {
+                name: "openai-main",
+                credentialEnvelope: encryptedCredential(),
+                baseUrl: null,
+              },
+            ]),
+          ),
+        })),
+      })),
+    });
   });
 
   afterEach(() => {
@@ -83,22 +99,6 @@ describe("upstream-provider", () => {
     delete process.env.OPENAI_API_KEY;
     delete process.env.TEST_OPENAI_API_KEY;
     delete process.env.TEST_IPROUTE_API_KEY;
-  });
-
-  dbSelectMock.mockReturnValue({
-    from: vi.fn(() => ({
-      where: vi.fn(() => ({
-        limit: vi.fn(() =>
-          Promise.resolve([
-            {
-              name: "openai-main",
-              credentialEnvelope: encryptedCredential(),
-              baseUrl: null,
-            },
-          ]),
-        ),
-      })),
-    })),
   });
 
   it("finds upstream provider by model family", () => {
@@ -239,21 +239,28 @@ describe("upstream-provider", () => {
   });
 
   it("fails closed when a provider has no credential envelope", async () => {
-    dbSelectMock.mockReturnValueOnce({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(() =>
-            Promise.resolve([
-              {
-                name: "openai-main",
-                credentialEnvelope: null,
-                baseUrl: "https://api.openai.com/v1",
-              },
-            ]),
-          ),
+    dbSelectMock
+      .mockReturnValueOnce({
+        from: vi.fn(() => ({
+          where: vi.fn(() => ({
+            limit: vi.fn(() =>
+              Promise.resolve([
+                {
+                  name: "openai-main",
+                  baseUrl: "https://api.openai.com/v1",
+                },
+              ]),
+            ),
+          })),
         })),
-      })),
-    });
+      })
+      .mockReturnValueOnce({
+        from: vi.fn(() => ({
+          where: vi.fn(() => ({
+            limit: vi.fn(() => Promise.resolve([])),
+          })),
+        })),
+      });
 
     await expect(
       resolveUpstreamTarget({
@@ -296,22 +303,30 @@ describe("upstream-provider", () => {
   });
 
   it("fails closed when the credential envelope is corrupt", async () => {
-
-    dbSelectMock.mockReturnValueOnce({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(() =>
-            Promise.resolve([
-              {
-                name: "openai-main",
-                credentialEnvelope: "enc:v1:not-json",
-                baseUrl: "https://api.openai.com/v1",
-              },
-            ]),
-          ),
+    dbSelectMock
+      .mockReturnValueOnce({
+        from: vi.fn(() => ({
+          where: vi.fn(() => ({
+            limit: vi.fn(() =>
+              Promise.resolve([
+                {
+                  name: "openai-main",
+                  baseUrl: "https://api.openai.com/v1",
+                },
+              ]),
+            ),
+          })),
         })),
-      })),
-    });
+      })
+      .mockReturnValueOnce({
+        from: vi.fn(() => ({
+          where: vi.fn(() => ({
+            limit: vi.fn(() =>
+              Promise.resolve([{ credentialEnvelope: "enc:v1:not-json" }]),
+            ),
+          })),
+        })),
+      });
 
     await expect(
       resolveUpstreamTarget({
@@ -325,21 +340,28 @@ describe("upstream-provider", () => {
   it("does not fall back to environment variables when an envelope is missing", async () => {
     process.env.OPENAI_API_KEY = "environment-secret";
 
-    dbSelectMock.mockReturnValueOnce({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(() =>
-            Promise.resolve([
-              {
-                name: "openai-main",
-                credentialEnvelope: null,
-                baseUrl: "https://api.openai.com/v1",
-              },
-            ]),
-          ),
+    dbSelectMock
+      .mockReturnValueOnce({
+        from: vi.fn(() => ({
+          where: vi.fn(() => ({
+            limit: vi.fn(() =>
+              Promise.resolve([
+                {
+                  name: "openai-main",
+                  baseUrl: "https://api.openai.com/v1",
+                },
+              ]),
+            ),
+          })),
         })),
-      })),
-    });
+      })
+      .mockReturnValueOnce({
+        from: vi.fn(() => ({
+          where: vi.fn(() => ({
+            limit: vi.fn(() => Promise.resolve([])),
+          })),
+        })),
+      });
 
     await expect(
       resolveUpstreamTarget({

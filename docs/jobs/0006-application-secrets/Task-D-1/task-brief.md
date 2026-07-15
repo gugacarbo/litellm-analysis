@@ -2,15 +2,15 @@
 
 # Task Brief: Task-D-1: Integrar, validar e fechar a entrega de segredos
 
-| Field | Value |
-|-------|-------|
-| ID | `Task-D-1` |
-| Status | ⏳ pending |
-| Profile | general → generalExecutor |
-| Layer | final |
-| Batch | D |
-| Try Count | 1 |
-| Dependencies | `Task-B-1`, `Task-C-1` |
+| Field        | Value                     |
+| ------------ | ------------------------- |
+| ID           | `Task-D-1`                |
+| Status       | ⏳ pending                |
+| Profile      | general → generalExecutor |
+| Layer        | final                     |
+| Batch        | D                         |
+| Try Count    | 1                         |
+| Dependencies | `Task-B-1`, `Task-C-1`    |
 
 Executar os gates focados e globais, conferir documentação/artefatos gerados, validar a remoção de env e preparar evidência de encerramento sem alterar contratos fora de escopo.
 
@@ -82,4 +82,3 @@ scripts/docs-check --emit-index
 - Human review with real credentials is a release gate, not an automated test.
 
 ---
-

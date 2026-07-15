@@ -10,8 +10,6 @@ import { registerPluginRoutingRoutes } from "./plugin-routing-routes";
 import { registerProviderRoutes } from "./provider-routes";
 import { registerSpendRoutes } from "./spend-routes";
 
-export type { RouteOptions };
-
 export function registerAllRoutes(app: Application, opts: RouteOptions): void {
   registerAgentCatalogRoutes(app, opts);
   registerCategoryCatalogRoutes(app, opts);

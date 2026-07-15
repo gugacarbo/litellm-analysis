@@ -40,6 +40,11 @@ const providerFormSchema = z
 
 type ProviderFormValues = z.infer<typeof providerFormSchema>;
 
+const adapterOptions = [
+  { value: "openai-compatible", label: "OpenAI-compatible" },
+  { value: "ollama", label: "Ollama (sem credencial)" },
+] as const;
+
 type ProviderFormProps = Readonly<{
   initial?: {
     id: string;
@@ -158,13 +163,35 @@ export function ProviderForm({
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor={field.name}>Adapter</FieldLabel>
-            <Input
-              {...field}
-              aria-invalid={fieldState.invalid}
+            <Select
               disabled={disabled || busy}
-              id={field.name}
-              placeholder="openai-compatible"
-            />
+              value={field.value || null}
+              onValueChange={(value) => field.onChange(value ?? "")}
+            >
+              <SelectTrigger
+                id={field.name}
+                aria-invalid={fieldState.invalid}
+                aria-label="Adapter"
+                className="w-full"
+              >
+                <SelectValue placeholder="Selecione um adapter" />
+              </SelectTrigger>
+              <SelectContent>
+                {initial?.provider &&
+                !adapterOptions.some(
+                  (option) => option.value === initial.provider,
+                ) ? (
+                  <SelectItem value={initial.provider}>
+                    {initial.provider} (atual)
+                  </SelectItem>
+                ) : null}
+                {adapterOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError errors={[fieldState.error]} />
           </Field>
         )}

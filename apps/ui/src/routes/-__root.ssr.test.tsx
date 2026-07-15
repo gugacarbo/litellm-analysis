@@ -1,12 +1,12 @@
 /** @vitest-environment node */
 
+import { QueryClient } from "@tanstack/react-query";
 import {
   createMemoryHistory,
   createRoute,
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router";
-import { QueryClient } from "@tanstack/react-query";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

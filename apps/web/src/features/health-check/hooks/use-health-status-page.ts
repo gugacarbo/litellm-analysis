@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { queryKeys } from "@/shared/lib/query-keys";
 import { useHealthStatusDerived } from "./use-health-status-derived";
 import { useHealthStatusState } from "./use-health-status-state";
@@ -18,12 +18,15 @@ export function useHealthStatusPage() {
     wsStatus: status,
     wsResults: latestResults,
   });
-  const actions = {
-    isGlobalRunning: false,
-    isModelRunning: (_modelName: string) => false,
-    clearRunningModel: (_modelName: string) => undefined,
-    triggerSingleRun: (_modelName: string) => undefined,
-  };
+  const actions = useMemo(
+    () => ({
+      isGlobalRunning: false,
+      isModelRunning: (_modelName: string) => false,
+      clearRunningModel: (_modelName: string) => undefined,
+      triggerSingleRun: (_modelName: string) => undefined,
+    }),
+    [],
+  );
   const derived = useHealthStatusDerived(state.allModelsWithStatus);
   const lastWsRefreshAtRef = useRef(0);
 

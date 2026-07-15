@@ -10,78 +10,78 @@
 
 ## Summary
 
-| Status | Count |
-|--------|-------|
-| pending | 0 |
-| in_progress | 0 |
-| ready_for_review | 0 |
-| reviewing | 0 |
-| needs_fix | 0 |
-| blocked | 0 |
-| completed | 6 |
-| cancelled | 0 |
-| **Total** | **6** |
+| Status           | Count |
+| ---------------- | ----- |
+| pending          | 0     |
+| in_progress      | 0     |
+| ready_for_review | 0     |
+| reviewing        | 0     |
+| needs_fix        | 0     |
+| blocked          | 0     |
+| completed        | 6     |
+| cancelled        | 0     |
+| **Total**        | **6** |
 
 ## Agent Profiles
 
-| Profile | Model | Agent | Effort |
-|---------|-------|--------|--------|
+| Profile | Model   | Agent   | Effort  |
+| ------- | ------- | ------- | ------- |
 | general | default | default | default |
-| deep | default | default | default |
-| quick | default | default | default |
+| deep    | default | default | default |
+| quick   | default | default | default |
 
 ## Tasks
 
-| Task ID | Title | Profile | Batch | Layer | Status | Dependencies |
-|---------|-------|---------|-------|-------|--------|-------------|
-| Task-A-1 | Remove the legacy provider contract from llm-config-service | deep | A | foundation | [DONE] completed | — |
-| Task-B-1 | Migrate gateway provider resolution to encrypted envelopes | deep | B | core | [DONE] completed | Task-A-1 |
-| Task-B-2 | Remove legacy server and analytics provider writers | deep | B | core | [DONE] completed | Task-A-1 |
-| Task-C-1 | Deprecate apps/web as a read-only provider and model surface | general | C | surface | [DONE] completed | Task-B-2 |
-| Task-D-1 | Remove unused packages and verify the legacy cutover | general | D | final | [DONE] completed | Task-B-1, Task-B-2, Task-C-1 |
-| Task-F-1 | Remove final-audit legacy writers and default fallbacks | general | F | final | [DONE] completed | Task-D-1 |
+| Task ID  | Title                                                        | Profile | Batch | Layer      | Status           | Dependencies                 |
+| -------- | ------------------------------------------------------------ | ------- | ----- | ---------- | ---------------- | ---------------------------- |
+| Task-A-1 | Remove the legacy provider contract from llm-config-service  | deep    | A     | foundation | [DONE] completed | —                            |
+| Task-B-1 | Migrate gateway provider resolution to encrypted envelopes   | deep    | B     | core       | [DONE] completed | Task-A-1                     |
+| Task-B-2 | Remove legacy server and analytics provider writers          | deep    | B     | core       | [DONE] completed | Task-A-1                     |
+| Task-C-1 | Deprecate apps/web as a read-only provider and model surface | general | C     | surface    | [DONE] completed | Task-B-2                     |
+| Task-D-1 | Remove unused packages and verify the legacy cutover         | general | D     | final      | [DONE] completed | Task-B-1, Task-B-2, Task-C-1 |
+| Task-F-1 | Remove final-audit legacy writers and default fallbacks      | general | F     | final      | [DONE] completed | Task-D-1                     |
 
 ## Timeline
 
-| Timestamp | Task | Event | Try | Message |
-|-----------|------|-------|-----|---------|
-| 2026-07-14T23:07:51Z | Task-A-1 | started | None | Writing RED tests for strict encrypted runtime credential resolution |
-| 2026-07-14T23:10:00Z | Task-A-1 | completed | 1 | Orchestrator: batch review clean; de03ad162c83b70e208ca80a713277c8da256be9..working-tree |
-| 2026-07-14T23:10:33Z | Task-A-1 | ready_for_review | None | Task-A-1 ready: legacy provider stack deleted; strict credentialEnvelope resolver tested RED to GREEN; report.md contains pre-existing package test/typecheck blockers. |
-| 2026-07-14T23:13:37Z | Task-B-2 | started | None | Task-B-2 implementation started; inspecting retained read boundaries and legacy provider consumers. |
-| 2026-07-14T23:15:07Z | Task-B-1 | info | 1 | RED: focused upstream-provider tests failed 5 valid encrypted-envelope cases because resolver still used legacy credential lookup. |
-| 2026-07-14T23:15:07Z | Task-B-1 | started | 1 | Started Task-B-1; reviewed testing anti-pattern guidance and migrated tests from legacy provider credentials to encrypted envelopes. |
-| 2026-07-14T23:17:07Z | Task-B-1 | info | 1 | GREEN: upstream-provider focused Vitest passes 15/15; resolver scan has no secretRef or apiKey matches; git diff check passes. |
-| 2026-07-14T23:17:07Z | Task-B-1 | info | 1 | Concern: gateway typecheck is blocked by concurrent cross-package legacy cleanup (models-repository ProvidersRepository import, llm-config-service model repository errors, ledger-hooks removed export); no upstream-provider type errors remain. |
-| 2026-07-14T23:17:07Z | Task-B-1 | ready_for_review | 1 | Task-B-1 implementation and report are ready for batch review. |
-| 2026-07-14T23:18:48Z | Task-B-2 | ready_for_review | None | Task-B-2 ready for batch review. Focused server and analytics tests are green; package typechecks remain blocked by pre-existing/in-flight Task-A contract migration errors recorded in report. |
-| 2026-07-14T23:19:37Z | Task-B-2 | ready_for_review | None | Task-B-2 final state: legacy server provider writers removed, only GET /providers/default retained, analytics reads credentialEnvelope state without secretRef; report includes RED/GREEN and typecheck blockers. |
-| 2026-07-14T23:21:08Z | Task-B-2 | ready_for_review | None | Task-B-2 finalized after removing remaining legacy provider integration coverage; focused GREEN evidence and blockers are in report.md. |
-| 2026-07-14T23:22:00Z | Task-B-1 | completed | 1 | Orchestrator: Batch B review clean; de03ad162c83b70e208ca80a713277c8da256be9..working-tree. |
-| 2026-07-14T23:22:00Z | Task-B-2 | completed | 1 | Orchestrator: Batch B review clean; de03ad162c83b70e208ca80a713277c8da256be9..working-tree. |
-| 2026-07-14T23:29:00Z | Task-C-1 | ready_for_review | None | Implemented read-only apps/web provider and model views; focused tests pass; web typecheck passes. |
-| 2026-07-14T23:30:52Z | Task-C-1 | ready_for_review | None | Task-C-1 complete: deprecated web model/provider routes are read-only with apps/ui handoff; focused tests, typecheck, and build passed. |
-| 2026-07-14T23:30:56Z | Task-C-1 | ready_for_review | None | Task-C-1 complete: deprecated web model/provider routes are read-only with apps/ui handoff; focused tests, typecheck, and build passed. |
-| 2026-07-14T23:43:27Z | Task-C-1 | ready_for_review | None | P1 follow-up complete: health and benchmarks routes are read-only with apps/ui handoffs; legacy model writer modules and API methods removed; 5 focused tests, web typecheck, and build passed. |
-| 2026-07-14T23:45:46Z | Task-C-1 | ready_for_review | None | P1 fixes verified: health and benchmark route writers removed with apps/ui handoffs; legacy model writer modules/API methods and model-stat log deletion removed; focused 6 tests, web typecheck, and build passed. |
-| 2026-07-14T23:49:11Z | Task-C-1 | info | None | Re-review: original three P1 findings fixed and 5 focused tests pass, but active /benchmarks/openrouter still exposes Sync and Sync now via triggerOpenRouterBenchmarkSync; Batch C remains changes requested. Health and AA sync writers are residual/unexposed; agents remain outside Task-C-1 scope but violate a whole-app read-only interpretation. |
-| 2026-07-14T23:56:18Z | Task-C-1 | info | None | Final whole-app read-only review: no useMutation or POST/PUT/PATCH/DELETE client operation remains in apps/web; agents, health, AA benchmarks, and OpenRouter writers are removed; 6 focused tests and apps/web typecheck pass. Batch remains changes requested because /benchmarks/openrouter now redirects to AA and no longer preserves the distinct OpenRouter benchmark read. |
-| 2026-07-14T23:58:00Z | Task-C-1 | completed | None | Orchestrator accepted final batch-C review: apps/web is globally read-only; OpenRouter benchmark reads are preserved without writers; focused tests, typecheck, build, and writer scans passed. |
-| 2026-07-15T00:06:22Z | Task-D-1 | ready_for_review | 1 | Task-D-1 ready for review: providerId-null fallout removed; five focused typechecks and 37 focused tests pass; legacy scan and diff check are clean. pnpm verify -c retains documented unrelated unused-export baseline. |
-| 2026-07-15T00:12:54Z | Task-D-1 | ready_for_review | 1 | Reviewer fix complete: default-provider source is exclusively model_proxy_providers.is_default; settings and local-proxy fallback contracts removed. Five focused typechecks and 13 focused tests pass; default_provider scan and diff check are clean. |
-| 2026-07-15T00:15:00Z | Task-D-1 | completed | 1 | Orchestrator accepted batch-D re-review: default selection is exclusively is_default; legacy provider contracts and settings fallback are absent; focused typechecks/tests and scans passed. |
-| 2026-07-15T00:22:30Z | Task-F-1 | ready_for_review | 1 | Task-F-1 ready: legacy runtime configuration writers are unregistered while GET routes remain; defaultProvider fallbacks removed in repository/gateway/runtime. Focused typechecks, 19 tests, scans, and diff check pass. |
-| 2026-07-15T00:25:33Z | Task-F-1 | ready_for_review | 1 | Reviewer fix complete: guard uses Express 4 app._router.stack without touching throwing app.router getter; real Express regression test and apps/server typecheck pass. |
-| 2026-07-15T00:27:00Z | Task-F-1 | completed | 1 | Orchestrator accepted Task-F-1: real Express runtime preserves reads/chat and removes legacy mutations; default selection has no defaultProvider fallback. |
+| Timestamp            | Task     | Event            | Try  | Message                                                                                                                                                                                                                                                                                                                                                                            |
+| -------------------- | -------- | ---------------- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-14T23:07:51Z | Task-A-1 | started          | None | Writing RED tests for strict encrypted runtime credential resolution                                                                                                                                                                                                                                                                                                               |
+| 2026-07-14T23:10:00Z | Task-A-1 | completed        | 1    | Orchestrator: batch review clean; de03ad162c83b70e208ca80a713277c8da256be9..working-tree                                                                                                                                                                                                                                                                                           |
+| 2026-07-14T23:10:33Z | Task-A-1 | ready_for_review | None | Task-A-1 ready: legacy provider stack deleted; strict credentialEnvelope resolver tested RED to GREEN; report.md contains pre-existing package test/typecheck blockers.                                                                                                                                                                                                            |
+| 2026-07-14T23:13:37Z | Task-B-2 | started          | None | Task-B-2 implementation started; inspecting retained read boundaries and legacy provider consumers.                                                                                                                                                                                                                                                                                |
+| 2026-07-14T23:15:07Z | Task-B-1 | info             | 1    | RED: focused upstream-provider tests failed 5 valid encrypted-envelope cases because resolver still used legacy credential lookup.                                                                                                                                                                                                                                                 |
+| 2026-07-14T23:15:07Z | Task-B-1 | started          | 1    | Started Task-B-1; reviewed testing anti-pattern guidance and migrated tests from legacy provider credentials to encrypted envelopes.                                                                                                                                                                                                                                               |
+| 2026-07-14T23:17:07Z | Task-B-1 | info             | 1    | GREEN: upstream-provider focused Vitest passes 15/15; resolver scan has no secretRef or apiKey matches; git diff check passes.                                                                                                                                                                                                                                                     |
+| 2026-07-14T23:17:07Z | Task-B-1 | info             | 1    | Concern: gateway typecheck is blocked by concurrent cross-package legacy cleanup (models-repository ProvidersRepository import, llm-config-service model repository errors, ledger-hooks removed export); no upstream-provider type errors remain.                                                                                                                                 |
+| 2026-07-14T23:17:07Z | Task-B-1 | ready_for_review | 1    | Task-B-1 implementation and report are ready for batch review.                                                                                                                                                                                                                                                                                                                     |
+| 2026-07-14T23:18:48Z | Task-B-2 | ready_for_review | None | Task-B-2 ready for batch review. Focused server and analytics tests are green; package typechecks remain blocked by pre-existing/in-flight Task-A contract migration errors recorded in report.                                                                                                                                                                                    |
+| 2026-07-14T23:19:37Z | Task-B-2 | ready_for_review | None | Task-B-2 final state: legacy server provider writers removed, only GET /providers/default retained, analytics reads credentialEnvelope state without secretRef; report includes RED/GREEN and typecheck blockers.                                                                                                                                                                  |
+| 2026-07-14T23:21:08Z | Task-B-2 | ready_for_review | None | Task-B-2 finalized after removing remaining legacy provider integration coverage; focused GREEN evidence and blockers are in report.md.                                                                                                                                                                                                                                            |
+| 2026-07-14T23:22:00Z | Task-B-1 | completed        | 1    | Orchestrator: Batch B review clean; de03ad162c83b70e208ca80a713277c8da256be9..working-tree.                                                                                                                                                                                                                                                                                        |
+| 2026-07-14T23:22:00Z | Task-B-2 | completed        | 1    | Orchestrator: Batch B review clean; de03ad162c83b70e208ca80a713277c8da256be9..working-tree.                                                                                                                                                                                                                                                                                        |
+| 2026-07-14T23:29:00Z | Task-C-1 | ready_for_review | None | Implemented read-only apps/web provider and model views; focused tests pass; web typecheck passes.                                                                                                                                                                                                                                                                                 |
+| 2026-07-14T23:30:52Z | Task-C-1 | ready_for_review | None | Task-C-1 complete: deprecated web model/provider routes are read-only with apps/ui handoff; focused tests, typecheck, and build passed.                                                                                                                                                                                                                                            |
+| 2026-07-14T23:30:56Z | Task-C-1 | ready_for_review | None | Task-C-1 complete: deprecated web model/provider routes are read-only with apps/ui handoff; focused tests, typecheck, and build passed.                                                                                                                                                                                                                                            |
+| 2026-07-14T23:43:27Z | Task-C-1 | ready_for_review | None | P1 follow-up complete: health and benchmarks routes are read-only with apps/ui handoffs; legacy model writer modules and API methods removed; 5 focused tests, web typecheck, and build passed.                                                                                                                                                                                    |
+| 2026-07-14T23:45:46Z | Task-C-1 | ready_for_review | None | P1 fixes verified: health and benchmark route writers removed with apps/ui handoffs; legacy model writer modules/API methods and model-stat log deletion removed; focused 6 tests, web typecheck, and build passed.                                                                                                                                                                |
+| 2026-07-14T23:49:11Z | Task-C-1 | info             | None | Re-review: original three P1 findings fixed and 5 focused tests pass, but active /benchmarks/openrouter still exposes Sync and Sync now via triggerOpenRouterBenchmarkSync; Batch C remains changes requested. Health and AA sync writers are residual/unexposed; agents remain outside Task-C-1 scope but violate a whole-app read-only interpretation.                           |
+| 2026-07-14T23:56:18Z | Task-C-1 | info             | None | Final whole-app read-only review: no useMutation or POST/PUT/PATCH/DELETE client operation remains in apps/web; agents, health, AA benchmarks, and OpenRouter writers are removed; 6 focused tests and apps/web typecheck pass. Batch remains changes requested because /benchmarks/openrouter now redirects to AA and no longer preserves the distinct OpenRouter benchmark read. |
+| 2026-07-14T23:58:00Z | Task-C-1 | completed        | None | Orchestrator accepted final batch-C review: apps/web is globally read-only; OpenRouter benchmark reads are preserved without writers; focused tests, typecheck, build, and writer scans passed.                                                                                                                                                                                    |
+| 2026-07-15T00:06:22Z | Task-D-1 | ready_for_review | 1    | Task-D-1 ready for review: providerId-null fallout removed; five focused typechecks and 37 focused tests pass; legacy scan and diff check are clean. pnpm verify -c retains documented unrelated unused-export baseline.                                                                                                                                                           |
+| 2026-07-15T00:12:54Z | Task-D-1 | ready_for_review | 1    | Reviewer fix complete: default-provider source is exclusively model_proxy_providers.is_default; settings and local-proxy fallback contracts removed. Five focused typechecks and 13 focused tests pass; default_provider scan and diff check are clean.                                                                                                                            |
+| 2026-07-15T00:15:00Z | Task-D-1 | completed        | 1    | Orchestrator accepted batch-D re-review: default selection is exclusively is_default; legacy provider contracts and settings fallback are absent; focused typechecks/tests and scans passed.                                                                                                                                                                                       |
+| 2026-07-15T00:22:30Z | Task-F-1 | ready_for_review | 1    | Task-F-1 ready: legacy runtime configuration writers are unregistered while GET routes remain; defaultProvider fallbacks removed in repository/gateway/runtime. Focused typechecks, 19 tests, scans, and diff check pass.                                                                                                                                                          |
+| 2026-07-15T00:25:33Z | Task-F-1 | ready_for_review | 1    | Reviewer fix complete: guard uses Express 4 app._router.stack without touching throwing app.router getter; real Express regression test and apps/server typecheck pass.                                                                                                                                                                                                            |
+| 2026-07-15T00:27:00Z | Task-F-1 | completed        | 1    | Orchestrator accepted Task-F-1: real Express runtime preserves reads/chat and removes legacy mutations; default selection has no defaultProvider fallback.                                                                                                                                                                                                                         |
 
 ## Requirements Coverage
 
-| Requirement | Status | Covered By |
-|-------------|--------|------------|
-| REQ-001: Remove legacy provider code | [DONE] completed | Task-A-1, Task-B-2 |
+| Requirement                                            | Status           | Covered By         |
+| ------------------------------------------------------ | ---------------- | ------------------ |
+| REQ-001: Remove legacy provider code                   | [DONE] completed | Task-A-1, Task-B-2 |
 | REQ-002: Use encrypted provider credentials at runtime | [DONE] completed | Task-A-1, Task-B-1 |
-| REQ-003: Deprecate web as read-only | [DONE] completed | Task-B-2, Task-C-1 |
-| REQ-004: Adjust package surface | [DONE] completed | Task-D-1 |
+| REQ-003: Deprecate web as read-only                    | [DONE] completed | Task-B-2, Task-C-1 |
+| REQ-004: Adjust package surface                        | [DONE] completed | Task-D-1           |
 
 ## Registry Parameters
 
@@ -90,7 +90,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
 <details>
 <summary>Complete <code>super-plan.json</code></summary>
 
-````json
+```json
 {
   "$schema": "https://raw.githubusercontent.com/gugacarbo/agents-skills/main/skills/super-planning/interfaces/super-plan.schema.json",
   "createdAt": "2026-07-14T23:01:58.727125+00:00",
@@ -179,13 +179,8 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "acceptanceCriteria": [
         "No operational ProvidersService, ProvidersRepository or providers dual-read remains."
       ],
-      "coveredByTasks": [
-        "Task-A-1",
-        "Task-B-2"
-      ],
-      "notes": [
-        "No compatibility layer."
-      ]
+      "coveredByTasks": ["Task-A-1", "Task-B-2"],
+      "notes": ["No compatibility layer."]
     },
     {
       "id": "REQ-002",
@@ -195,13 +190,8 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "acceptanceCriteria": [
         "Gateway only decrypts credentialEnvelope at the upstream boundary and fails closed."
       ],
-      "coveredByTasks": [
-        "Task-A-1",
-        "Task-B-1"
-      ],
-      "notes": [
-        "No secretRef environment fallback."
-      ]
+      "coveredByTasks": ["Task-A-1", "Task-B-1"],
+      "notes": ["No secretRef environment fallback."]
     },
     {
       "id": "REQ-003",
@@ -211,13 +201,8 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "acceptanceCriteria": [
         "apps/web has retained reads and no provider/model writers."
       ],
-      "coveredByTasks": [
-        "Task-B-2",
-        "Task-C-1"
-      ],
-      "notes": [
-        "apps/ui remains the writer surface."
-      ]
+      "coveredByTasks": ["Task-B-2", "Task-C-1"],
+      "notes": ["apps/ui remains the writer surface."]
     },
     {
       "id": "REQ-004",
@@ -227,9 +212,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "acceptanceCriteria": [
         "Unused legacy exports and dependencies are removed after migration."
       ],
-      "coveredByTasks": [
-        "Task-D-1"
-      ],
+      "coveredByTasks": ["Task-D-1"],
       "notes": []
     }
   ],
@@ -263,10 +246,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "The encrypted envelope resolver is server-only and fails closed.",
         "Focused service tests report RED then GREEN."
       ],
-      "requirements": [
-        "REQ-001",
-        "REQ-002"
-      ],
+      "requirements": ["REQ-001", "REQ-002"],
       "rules": [
         "TDD required.",
         "Read docs/context/testing-anti-patterns.md before test doubles.",
@@ -319,9 +299,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
           "services/llm-config-service/src/dual-read/providers-dual-read.ts"
         ]
       },
-      "notes": [
-        "New ModelAdminService is the provider aggregate."
-      ]
+      "notes": ["New ModelAdminService is the provider aggregate."]
     },
     {
       "id": "Task-B-1",
@@ -338,17 +316,13 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-1/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-1/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-A-1"
-      ],
+      "dependencies": ["Task-A-1"],
       "acceptanceCriteria": [
         "Gateway resolves a valid encrypted provider credential only at the upstream boundary.",
         "Missing or corrupt envelopes fail closed without environment fallback.",
         "Focused gateway tests and typecheck pass."
       ],
-      "requirements": [
-        "REQ-002"
-      ],
+      "requirements": ["REQ-002"],
       "rules": [
         "TDD required.",
         "Read docs/context/testing-anti-patterns.md before test doubles.",
@@ -409,18 +383,13 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-2/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-2/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-A-1"
-      ],
+      "dependencies": ["Task-A-1"],
       "acceptanceCriteria": [
         "No server route accepts a legacy provider secret write.",
         "Analytics reads the provider registry without secretRef.",
         "Focused server and analytics tests pass."
       ],
-      "requirements": [
-        "REQ-001",
-        "REQ-003"
-      ],
+      "requirements": ["REQ-001", "REQ-003"],
       "rules": [
         "TDD required.",
         "Read docs/context/testing-anti-patterns.md before test doubles.",
@@ -485,17 +454,13 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-C-1/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-C-1/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-B-2"
-      ],
+      "dependencies": ["Task-B-2"],
       "acceptanceCriteria": [
         "apps/web exposes no actionable create, update, delete, sync or provider-credential control.",
         "Read data remains renderable for admin and viewer.",
         "The deprecated surface directs admin changes to apps/ui and focused web tests pass."
       ],
-      "requirements": [
-        "REQ-003"
-      ],
+      "requirements": ["REQ-003"],
       "rules": [
         "TDD required.",
         "Read docs/context/testing-anti-patterns.md before test doubles.",
@@ -543,9 +508,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         ],
         "deleted": []
       },
-      "notes": [
-        "apps/web remains deployed but deprecated."
-      ]
+      "notes": ["apps/web remains deployed but deprecated."]
     },
     {
       "id": "Task-D-1",
@@ -562,19 +525,13 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-D-1/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-D-1/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-B-1",
-        "Task-B-2",
-        "Task-C-1"
-      ],
+      "dependencies": ["Task-B-1", "Task-B-2", "Task-C-1"],
       "acceptanceCriteria": [
         "Package manifests and exports contain no unused legacy provider package surface.",
         "Focused package typechecks/tests pass.",
         "The final scan has no operational provider secretRef/apiKey/legacy provider service references."
       ],
-      "requirements": [
-        "REQ-004"
-      ],
+      "requirements": ["REQ-004"],
       "rules": [
         "Do not erase API-key concepts that are unrelated to upstream provider credentials.",
         "Preserve generated and user-owned files unless the task owns them."
@@ -638,18 +595,13 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-F-1/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-F-1/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-D-1"
-      ],
+      "dependencies": ["Task-D-1"],
       "acceptanceCriteria": [
         "No legacy Express model/provider writer is registered outside apps/ui.",
         "Default provider resolution uses only model_proxy_providers.is_default.",
         "Focused route/gateway/repository tests and typechecks pass."
       ],
-      "requirements": [
-        "REQ-002",
-        "REQ-004"
-      ],
+      "requirements": ["REQ-002", "REQ-004"],
       "rules": [
         "Preserve apps/ui as the sole admin writer.",
         "Do not remove unrelated API-key concepts."
@@ -683,13 +635,11 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "modified": [],
         "deleted": []
       },
-      "notes": [
-        "Created from final whole-branch audit findings."
-      ]
+      "notes": ["Created from final whole-branch audit findings."]
     }
   ],
   "updatedAt": "2026-07-15T00:29:04.728006+00:00"
 }
-````
+```
 
 </details>

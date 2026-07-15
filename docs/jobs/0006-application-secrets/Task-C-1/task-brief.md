@@ -2,15 +2,15 @@
 
 # Task Brief: Task-C-1: Adicionar administração segura de segredos no painel
 
-| Field | Value |
-|-------|-------|
-| ID | `Task-C-1` |
-| Status | ⏳ pending |
-| Profile | general → generalExecutor |
-| Layer | surface |
-| Batch | B |
-| Try Count | 1 |
-| Dependencies | `Task-A-1` |
+| Field        | Value                     |
+| ------------ | ------------------------- |
+| ID           | `Task-C-1`                |
+| Status       | ⏳ pending                |
+| Profile      | general → generalExecutor |
+| Layer        | surface                   |
+| Batch        | B                         |
+| Try Count    | 1                         |
+| Dependencies | `Task-A-1`                |
 
 Criar rota /models/secrets, server functions, handlers, contracts, query options e UI para admins listar status, salvar/substituir e remover as duas chaves sem expor valores.
 
@@ -89,4 +89,3 @@ pnpm --filter ui exec vitest run src/features/model-admin/secrets/secrets-page.t
 - This task consumes ApplicationSecretsService but must not alter Task-A files.
 
 ---
-

@@ -30,6 +30,7 @@ Process: `super-planning` — Task-B-1 runtime integration.
   FAIL ... OpenRouterBenchmarkSyncApplicationService > resolves the key at every trigger
   Error: OPENROUTER_API_KEY is not configured
   ```
+
 - GREEN:
   `APP_ENCRYPTION_KEY=<test-key> PORT=3000 DATABASE_URL=<test-url> pnpm --filter server exec vitest run src/__tests__/benchmark-sync-application-service.test.ts src/__tests__/openrouter-benchmark-sync-application-service.test.ts`
   passed: 3 files, 14 tests, including route regressions that verify both

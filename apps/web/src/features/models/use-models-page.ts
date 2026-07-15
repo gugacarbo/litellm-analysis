@@ -19,7 +19,9 @@ export function useModelsPage() {
   } = useLatestHealthChecks();
 
   return {
-    models: mergeRegistryModelsWithConfigAliases(modelsQuery.data?.models ?? []),
+    models: mergeRegistryModelsWithConfigAliases(
+      modelsQuery.data?.models ?? [],
+    ),
     counts: modelsQuery.data?.counts ?? {
       synced: 0,
       configOnly: 0,

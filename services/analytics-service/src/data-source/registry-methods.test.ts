@@ -26,23 +26,34 @@ let mockRows: Record<string, unknown>[] = [
     updatedAt: new Date("2026-07-02T00:00:00.000Z"),
   },
 ];
+let mockCredentialProviderIds: string[] = [];
 
 vi.mock("@lite-llm/database/client", () => ({
   db: {
-    select: () => ({
-      from: () => ({
-        orderBy: () => Promise.resolve(mockRows),
-        where: () => ({
-          limit: () =>
-            Promise.resolve([
-              {
-                id: "setting-1",
-                key: "router_settings",
-                value: { model_group_alias: { agent: "gpt-4o" } },
-              },
-            ]),
-        }),
-      }),
+    select: (selection?: Record<string, unknown>) => ({
+      from: () =>
+        selection
+          ? {
+              where: () =>
+                Promise.resolve(
+                  mockCredentialProviderIds.map((id) => ({
+                    key: `provider:${id}`,
+                  })),
+                ),
+            }
+          : {
+              orderBy: () => Promise.resolve(mockRows),
+              where: () => ({
+                limit: () =>
+                  Promise.resolve([
+                    {
+                      id: "setting-1",
+                      key: "router_settings",
+                      value: { model_group_alias: { agent: "gpt-4o" } },
+                    },
+                  ]),
+              }),
+            },
     }),
   },
 }));
@@ -74,11 +85,11 @@ describe("registry delegate", () => {
         id: "provider-1",
         name: "openai",
         provider: "openai-compatible",
-        credentialEnvelope: "enc:v1:encrypted",
         createdAt: new Date("2026-07-02T00:00:00.000Z"),
         updatedAt: new Date("2026-07-02T00:00:00.000Z"),
       },
     ];
+    mockCredentialProviderIds = ["provider-1"];
     const { getRegistryProvidersImpl } = await import("./registry-methods");
 
     await expect(getRegistryProvidersImpl()).resolves.toEqual([

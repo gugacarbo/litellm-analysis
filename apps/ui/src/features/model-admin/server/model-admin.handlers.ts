@@ -119,7 +119,12 @@ function validationError(
   const fieldErrors: Record<string, string[]> = {};
   for (const issue of issues) {
     const key = typeof issue.path[0] === "string" ? issue.path[0] : "form";
-    (fieldErrors[key] ??= []).push(issue.message);
+    const messages = fieldErrors[key];
+    if (messages) {
+      messages.push(issue.message);
+    } else {
+      fieldErrors[key] = [issue.message];
+    }
   }
   return {
     ok: false,

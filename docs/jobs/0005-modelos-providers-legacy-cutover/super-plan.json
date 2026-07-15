@@ -86,13 +86,8 @@
       "acceptanceCriteria": [
         "No operational ProvidersService, ProvidersRepository or providers dual-read remains."
       ],
-      "coveredByTasks": [
-        "Task-A-1",
-        "Task-B-2"
-      ],
-      "notes": [
-        "No compatibility layer."
-      ]
+      "coveredByTasks": ["Task-A-1", "Task-B-2"],
+      "notes": ["No compatibility layer."]
     },
     {
       "id": "REQ-002",
@@ -102,13 +97,8 @@
       "acceptanceCriteria": [
         "Gateway only decrypts credentialEnvelope at the upstream boundary and fails closed."
       ],
-      "coveredByTasks": [
-        "Task-A-1",
-        "Task-B-1"
-      ],
-      "notes": [
-        "No secretRef environment fallback."
-      ]
+      "coveredByTasks": ["Task-A-1", "Task-B-1"],
+      "notes": ["No secretRef environment fallback."]
     },
     {
       "id": "REQ-003",
@@ -118,13 +108,8 @@
       "acceptanceCriteria": [
         "apps/web has retained reads and no provider/model writers."
       ],
-      "coveredByTasks": [
-        "Task-B-2",
-        "Task-C-1"
-      ],
-      "notes": [
-        "apps/ui remains the writer surface."
-      ]
+      "coveredByTasks": ["Task-B-2", "Task-C-1"],
+      "notes": ["apps/ui remains the writer surface."]
     },
     {
       "id": "REQ-004",
@@ -134,9 +119,7 @@
       "acceptanceCriteria": [
         "Unused legacy exports and dependencies are removed after migration."
       ],
-      "coveredByTasks": [
-        "Task-D-1"
-      ],
+      "coveredByTasks": ["Task-D-1"],
       "notes": []
     }
   ],
@@ -170,10 +153,7 @@
         "The encrypted envelope resolver is server-only and fails closed.",
         "Focused service tests report RED then GREEN."
       ],
-      "requirements": [
-        "REQ-001",
-        "REQ-002"
-      ],
+      "requirements": ["REQ-001", "REQ-002"],
       "rules": [
         "TDD required.",
         "Read docs/context/testing-anti-patterns.md before test doubles.",
@@ -226,9 +206,7 @@
           "services/llm-config-service/src/dual-read/providers-dual-read.ts"
         ]
       },
-      "notes": [
-        "New ModelAdminService is the provider aggregate."
-      ]
+      "notes": ["New ModelAdminService is the provider aggregate."]
     },
     {
       "id": "Task-B-1",
@@ -245,17 +223,13 @@
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-1/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-1/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-A-1"
-      ],
+      "dependencies": ["Task-A-1"],
       "acceptanceCriteria": [
         "Gateway resolves a valid encrypted provider credential only at the upstream boundary.",
         "Missing or corrupt envelopes fail closed without environment fallback.",
         "Focused gateway tests and typecheck pass."
       ],
-      "requirements": [
-        "REQ-002"
-      ],
+      "requirements": ["REQ-002"],
       "rules": [
         "TDD required.",
         "Read docs/context/testing-anti-patterns.md before test doubles.",
@@ -316,18 +290,13 @@
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-2/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-2/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-A-1"
-      ],
+      "dependencies": ["Task-A-1"],
       "acceptanceCriteria": [
         "No server route accepts a legacy provider secret write.",
         "Analytics reads the provider registry without secretRef.",
         "Focused server and analytics tests pass."
       ],
-      "requirements": [
-        "REQ-001",
-        "REQ-003"
-      ],
+      "requirements": ["REQ-001", "REQ-003"],
       "rules": [
         "TDD required.",
         "Read docs/context/testing-anti-patterns.md before test doubles.",
@@ -392,17 +361,13 @@
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-C-1/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-C-1/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-B-2"
-      ],
+      "dependencies": ["Task-B-2"],
       "acceptanceCriteria": [
         "apps/web exposes no actionable create, update, delete, sync or provider-credential control.",
         "Read data remains renderable for admin and viewer.",
         "The deprecated surface directs admin changes to apps/ui and focused web tests pass."
       ],
-      "requirements": [
-        "REQ-003"
-      ],
+      "requirements": ["REQ-003"],
       "rules": [
         "TDD required.",
         "Read docs/context/testing-anti-patterns.md before test doubles.",
@@ -450,9 +415,7 @@
         ],
         "deleted": []
       },
-      "notes": [
-        "apps/web remains deployed but deprecated."
-      ]
+      "notes": ["apps/web remains deployed but deprecated."]
     },
     {
       "id": "Task-D-1",
@@ -469,19 +432,13 @@
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-D-1/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-D-1/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-B-1",
-        "Task-B-2",
-        "Task-C-1"
-      ],
+      "dependencies": ["Task-B-1", "Task-B-2", "Task-C-1"],
       "acceptanceCriteria": [
         "Package manifests and exports contain no unused legacy provider package surface.",
         "Focused package typechecks/tests pass.",
         "The final scan has no operational provider secretRef/apiKey/legacy provider service references."
       ],
-      "requirements": [
-        "REQ-004"
-      ],
+      "requirements": ["REQ-004"],
       "rules": [
         "Do not erase API-key concepts that are unrelated to upstream provider credentials.",
         "Preserve generated and user-owned files unless the task owns them."
@@ -545,18 +502,13 @@
       "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-F-1/progress.log",
       "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-F-1/log-task.sh",
       "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
-      "dependencies": [
-        "Task-D-1"
-      ],
+      "dependencies": ["Task-D-1"],
       "acceptanceCriteria": [
         "No legacy Express model/provider writer is registered outside apps/ui.",
         "Default provider resolution uses only model_proxy_providers.is_default.",
         "Focused route/gateway/repository tests and typechecks pass."
       ],
-      "requirements": [
-        "REQ-002",
-        "REQ-004"
-      ],
+      "requirements": ["REQ-002", "REQ-004"],
       "rules": [
         "Preserve apps/ui as the sole admin writer.",
         "Do not remove unrelated API-key concepts."
@@ -590,9 +542,7 @@
         "modified": [],
         "deleted": []
       },
-      "notes": [
-        "Created from final whole-branch audit findings."
-      ]
+      "notes": ["Created from final whole-branch audit findings."]
     }
   ],
   "updatedAt": "2026-07-15T00:29:04.728006+00:00"

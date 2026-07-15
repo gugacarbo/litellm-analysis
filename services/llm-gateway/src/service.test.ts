@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   encryptProviderSecret,
   parseProviderEncryptionKey,
 } from "@lite-llm/llm-config-service";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelProxyService } from "./service";
 
 const {
@@ -39,7 +39,7 @@ function setupDbMock(overrides?: {
       enabled: true,
       displayName: null,
       family: "openai",
-      providerId: null,
+      providerId: "00000000-0000-0000-0000-000000000001",
       pricing: null,
       updatedAt: new Date("2026-06-16T00:00:00.000Z"),
     },
@@ -58,7 +58,7 @@ function setupDbMock(overrides?: {
     baseUrl: "https://upstream.example.com/v1",
   };
 
-  mockDbSelect.mockImplementation((_fields?: unknown) => {
+  mockDbSelect.mockImplementation(() => {
     const chain: Record<string, unknown> = {
       // biome-ignore lint/suspicious/noThenProperty: deliberate thenable chain mock for drizzle select
       then: (resolve: (value: unknown) => void) => resolve(joinedModelRows),
@@ -105,7 +105,7 @@ function createDatabaseMock() {
         enabled: true,
         displayName: null,
         family: "openai",
-        providerId: null,
+        providerId: "00000000-0000-0000-0000-000000000001",
         pricing: null,
         updatedAt: new Date("2026-06-16T00:00:00.000Z"),
       },
@@ -120,7 +120,7 @@ function createDatabaseMock() {
       enabled: true,
       displayName: null,
       family: "openai",
-      providerId: null,
+      providerId: "00000000-0000-0000-0000-000000000001",
       pricing: null,
       updatedAt: new Date("2026-06-16T00:00:00.000Z"),
     },
@@ -654,7 +654,7 @@ describe("ModelProxyService", () => {
           enabled: true,
           displayName: null,
           family: "openai",
-          providerId: null,
+          providerId: "00000000-0000-0000-0000-000000000001",
           pricing: { input: 0.000001, output: 0.000002 },
           updatedAt: new Date("2026-06-16T00:00:00.000Z"),
         },

@@ -13,9 +13,20 @@ describe("unregisterLegacyMutationRoutes", () => {
 
     unregisterLegacyMutationRoutes(app);
 
-    const stack = (app as unknown as { _router?: { stack?: Array<{ route?: { path?: string; methods?: Record<string, boolean> } }> } })._router?.stack ?? [];
+    const stack =
+      (
+        app as unknown as {
+          _router?: {
+            stack?: Array<{
+              route?: { path?: string; methods?: Record<string, boolean> };
+            }>;
+          };
+        }
+      )._router?.stack ?? [];
     const routes = stack.flatMap((layer) =>
-      layer.route ? [{ path: layer.route.path, methods: layer.route.methods }] : [],
+      layer.route
+        ? [{ path: layer.route.path, methods: layer.route.methods }]
+        : [],
     );
     expect(routes).toEqual([
       { path: "/models", methods: expect.objectContaining({ get: true }) },

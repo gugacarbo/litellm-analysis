@@ -27,6 +27,7 @@ import { Input } from "@/shared/components/ui/input";
 import type {
   ApplicationSecretKey,
   ApplicationSecretPublic,
+  ProviderPublic,
   ReplaceApplicationSecretInput,
 } from "../contracts/model-admin";
 import { replaceApplicationSecretInputSchema } from "../contracts/model-admin";
@@ -64,6 +65,7 @@ function requireSuccess<T>(
 export function SecretsPage() {
   const queryClient = useQueryClient();
   const secretsQuery = useQuery(modelAdminQueries.applicationSecrets());
+  const providersQuery = useQuery(modelAdminQueries.providers());
   const [editing, setEditing] = useState<ApplicationSecretKey | null>(null);
   const [removeCandidate, setRemoveCandidate] =
     useState<ApplicationSecretKey | null>(null);
@@ -137,23 +139,21 @@ export function SecretsPage() {
 
           return (
             <Card key={definition.key}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between gap-3">
-                  {definition.name}
-                  <Badge variant={secret.isConfigured ? "default" : "outline"}>
-                    {secret.isConfigured ? "Configured" : "Not configured"}
-                  </Badge>
-                </CardTitle>
-                <CardDescription>
-                  {secret.updatedAt
-                    ? `Last updated ${secret.updatedAt.toLocaleString()}`
-                    : "No key has been stored."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="flex flex-wrap items-center gap-3 py-3">
+                <div className="flex min-w-44 flex-1 items-center gap-2">
+                  <CardTitle className="text-base">{definition.name}</CardTitle>
+                  <span className="truncate text-muted-foreground text-xs">
+                    {secret.updatedAt
+                      ? `Updated ${secret.updatedAt.toLocaleString()}`
+                      : "No key has been stored."}
+                  </span>
+                </div>
+                <Badge variant={secret.isConfigured ? "default" : "outline"}>
+                  {secret.isConfigured ? "Configured" : "Not configured"}
+                </Badge>
                 {isEditing ? (
                   <form
-                    className="space-y-3"
+                    className="flex min-w-full flex-wrap items-start gap-2"
                     noValidate
                     onSubmit={form.handleSubmit((input) => {
                       setFeedback(null);
@@ -164,6 +164,7 @@ export function SecretsPage() {
                       aria-label={`API key for ${definition.name}`}
                       autoComplete="off"
                       aria-invalid={Boolean(form.formState.errors.value)}
+                      className="min-w-48 flex-1"
                       type="password"
                       {...form.register("value")}
                     />
@@ -192,7 +193,7 @@ export function SecretsPage() {
                     </div>
                   </form>
                 ) : (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex shrink-0 flex-wrap gap-2">
                     <Button
                       onClick={() => {
                         setFeedback(null);
@@ -220,6 +221,86 @@ export function SecretsPage() {
           );
         })}
       </div>
+      <section
+        aria-labelledby="provider-credentials-heading"
+        className="space-y-4"
+      >
+        <div>
+          <h2
+            className="font-heading font-semibold text-xl"
+            id="provider-credentials-heading"
+          >
+            Provider credentials
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Configured provider credentials are listed here without exposing
+            their values.
+          </p>
+        </div>
+        {providersQuery.isLoading ? (
+          <Card>
+            <CardContent className="pt-6 text-muted-foreground text-sm">
+              Loading provider credentials…
+            </CardContent>
+          </Card>
+        ) : providersQuery.isError ? (
+          <Alert variant="destructive">
+            <AlertDescription>
+              Could not load provider credentials:{" "}
+              {providersQuery.error.message}
+            </AlertDescription>
+          </Alert>
+        ) : ((providersQuery.data as ProviderPublic[]) ?? []).length === 0 ? (
+          <Card>
+            <CardContent className="pt-6 text-muted-foreground text-sm">
+              No providers configured yet.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4">
+            {(providersQuery.data as ProviderPublic[]).map((provider) => (
+              <Card key={provider.id}>
+                <CardHeader>
+                  <CardTitle className="flex flex-wrap items-center justify-between gap-3">
+                    {provider.name}
+                    <Badge
+                      variant={
+                        provider.credentialStatus === "configured"
+                          ? "default"
+                          : "outline"
+                      }
+                    >
+                      {provider.credentialStatus === "configured"
+                        ? "Configured"
+                        : "No credential"}
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription>
+                    {provider.provider ?? "Adapter not informed"} ·{" "}
+                    {provider.baseUrl ?? "No base URL"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <dl className="grid gap-1 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt className="text-muted-foreground">Credential</dt>
+                      <dd>
+                        {provider.credentialStatus === "configured"
+                          ? "Stored securely"
+                          : "Not configured"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Last updated</dt>
+                      <dd>{provider.updatedAt.toLocaleString()}</dd>
+                    </div>
+                  </dl>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
       <AlertDialog
         open={removeCandidate !== null}
         onOpenChange={(open) => {

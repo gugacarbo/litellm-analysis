@@ -2,15 +2,15 @@
 
 # Task Brief: Task-A-1: Criar armazenamento e serviço de segredos de aplicação
 
-| Field | Value |
-|-------|-------|
-| ID | `Task-A-1` |
-| Status | ⏳ pending |
-| Profile | deep → deepExecutor |
-| Layer | foundation |
-| Batch | A |
-| Try Count | 1 |
-| Dependencies | _None_ |
+| Field        | Value               |
+| ------------ | ------------------- |
+| ID           | `Task-A-1`          |
+| Status       | ⏳ pending          |
+| Profile      | deep → deepExecutor |
+| Layer        | foundation          |
+| Batch        | A                   |
+| Try Count    | 1                   |
+| Dependencies | _None_              |
 
 Implementar application_secrets_store, migration gerada, repositório Drizzle e ApplicationSecretsService allowlisted com envelope cifrado e DTOs sem segredo.
 
@@ -89,4 +89,3 @@ pnpm --filter @lite-llm/llm-config-service exec vitest run src/services/__tests_
 - The physical database table must be named application_secrets_store exactly.
 
 ---
-

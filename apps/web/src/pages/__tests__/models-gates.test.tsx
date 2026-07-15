@@ -101,6 +101,8 @@ describe("ModelsConfiguredPage", () => {
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    expect(screen.queryByRole("button", { name: /add|edit|delete|save|sync/i })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /add|edit|delete|save|sync/i }),
+    ).toBeNull();
   });
 });

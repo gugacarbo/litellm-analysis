@@ -29,11 +29,11 @@ on the OpenRouter benchmark route.
 - Legacy model form/detail/alias modules, model writer client methods, and
   health/benchmark/OpenRouter mutation clients are deleted.
 - Fresh focused suite passes: `pnpm --filter web exec vitest run
-  src/features/models/providers-page.read-only.test.tsx
-  src/features/models/models-health-check-page.read-only.test.tsx
-  src/features/benchmarks/benchmarks-page.read-only.test.tsx
-  src/pages/__tests__/models-gates.test.tsx
-  src/pages/__tests__/model-stats-gates.test.tsx` (6 tests).
+src/features/models/providers-page.read-only.test.tsx
+src/features/models/models-health-check-page.read-only.test.tsx
+src/features/benchmarks/benchmarks-page.read-only.test.tsx
+src/pages/__tests__/models-gates.test.tsx
+src/pages/__tests__/model-stats-gates.test.tsx` (6 tests).
 - `pnpm --dir apps/web typecheck` and `git diff --check -- apps/web` pass.
 
 ## Required follow-up verification

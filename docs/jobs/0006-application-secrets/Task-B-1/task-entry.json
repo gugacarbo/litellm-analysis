@@ -13,9 +13,7 @@
   "progressLog": "docs/jobs/0006-application-secrets/Task-B-1/progress.log",
   "logTaskScript": "docs/jobs/0006-application-secrets/Task-B-1/log-task.sh",
   "baseCommit": "c22e434a3fb31b00a29c961681a23d3575343115",
-  "dependencies": [
-    "Task-A-1"
-  ],
+  "dependencies": ["Task-A-1"],
   "acceptanceCriteria": [
     "ARTIFICIAL_ANALYSIS_API_KEY and OPENROUTER_API_KEY are absent from config schema, app runtime and .env.example.",
     "Both sync services resolve their allowlisted secret at each trigger and do not retain a startup value.",
@@ -23,11 +21,7 @@
     "Runner errors cannot include the resolved secret in status or route responses.",
     "Focused RED/GREEN tests cover both syncs, missing secret and runner echo."
   ],
-  "requirements": [
-    "REQ-003",
-    "REQ-004",
-    "REQ-005"
-  ],
+  "requirements": ["REQ-003", "REQ-004", "REQ-005"],
   "rules": [
     "TDD required for this behavior-changing task.",
     "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",

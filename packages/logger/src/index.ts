@@ -1,6 +1,6 @@
 import { Chalk } from "chalk";
 
-export type LogMetadata = Record<string, unknown>;
+type LogMetadata = Record<string, unknown>;
 
 export type Logger = {
   debug: (event: string, meta?: LogMetadata) => void;

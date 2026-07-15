@@ -20,7 +20,6 @@ export async function getSystemAgent(
   return fetchApi(`/agent-catalog/${id}`);
 }
 
-
 export async function getCategoryCatalog(): Promise<
   Record<string, CategoryEntry>
 > {

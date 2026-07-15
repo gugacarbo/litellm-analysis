@@ -14,7 +14,7 @@ services/llm-config-service/
 ├── src/
 │   ├── settings/        # model_proxy_settings CRUD (global proxy config)
 │   ├── models/          # model_proxy_models CRUD (per-model overrides)
-│   ├── providers/       # model_proxy_providers CRUD (encrypted secret storage)
+│   ├── providers/       # model_proxy_providers CRUD (credentials live in application_secrets_store)
 │   ├── registry/        # Composite views over settings + models + providers
 │   └── index.ts         # Public service exports
 ```

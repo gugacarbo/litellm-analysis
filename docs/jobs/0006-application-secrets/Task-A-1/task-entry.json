@@ -21,11 +21,7 @@
     "Missing or malformed stored values fail closed without returning plaintext or crypto material.",
     "Focused schema and service tests show RED before implementation and GREEN after it."
   ],
-  "requirements": [
-    "REQ-001",
-    "REQ-002",
-    "REQ-003"
-  ],
+  "requirements": ["REQ-001", "REQ-002", "REQ-003"],
   "rules": [
     "TDD required for this behavior-changing task.",
     "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",

@@ -18,7 +18,7 @@ export const applicationSecretsStore = modelProxyTable(
     uniqueIndex("uq_application_secrets_store_key").on(table.key),
     check(
       "ck_application_secrets_store_key_allowlist",
-      sql`${table.key} IN ('artificial_analysis_api_key', 'openrouter_api_key')`,
+      sql`${table.key} IN ('artificial_analysis_api_key', 'openrouter_api_key') OR ${table.key} ~ '^provider:[0-9a-fA-F-]{36}$'`,
     ),
   ],
 );

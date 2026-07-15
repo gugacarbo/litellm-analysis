@@ -62,10 +62,10 @@ somente durante uma sincronização que realmente precise deles.
 `credential_envelope` texto não nulo, `created_at` e `updated_at`. A tabela
 usa as convenções das tabelas `model_proxy_*` existentes.
 
-| Chave | Consumidor |
-| --- | --- |
+| Chave                         | Consumidor                                      |
+| ----------------------------- | ----------------------------------------------- |
 | `artificial_analysis_api_key` | Sincronização de benchmarks Artificial Analysis |
-| `openrouter_api_key` | Sincronização de benchmarks OpenRouter |
+| `openrouter_api_key`          | Sincronização de benchmarks OpenRouter          |
 
 O transporte recebe somente:
 
@@ -118,19 +118,19 @@ envelope, IV, tag ou fingerprint.
 
 ## Edge cases
 
-| # | WHEN ⟨trigger⟩ | the system MUST ⟨response⟩ |
-| --- | --- | --- |
-| 1 | usuário sem sessão acessa função de segredos | retornar `UNAUTHENTICATED` antes de resolver DB ou serviço |
-| 2 | usuário `viewer` lista ou altera segredos | retornar `FORBIDDEN` sem consultar ou decifrar valor |
-| 3 | administrador salva whitespace ou plaintext vazio | retornar validação e não criar/alterar registro |
-| 4 | administrador substitui chave existente | cifrar novo valor, substituir atomicamente o envelope e nunca retornar valores |
-| 5 | administrador remove chave inexistente | retornar estado idempotente `isConfigured: false` |
-| 6 | sync é acionado sem registro | falhar com código público legado `*_API_KEY_MISSING` sem chamar runner |
-| 7 | envelope corrompido ou `APP_ENCRYPTION_KEY` ausente | falhar fechado; não retornar detalhe de cifra, envelope ou chave |
-| 8 | dois admins salvam chaves diferentes | persistir ambas isoladamente por `key` |
-| 9 | dois admins salvam a mesma chave | último upsert completo vence; nunca persistir plaintext |
-| 10 | chave é substituída durante sync | sync em curso usa cópia já resolvida; próximo resolve valor novo |
-| 11 | runner/upstream devolve mensagem contendo a chave | status e resposta retornam somente erro seguro, sem plaintext ou material derivado |
+| #   | WHEN ⟨trigger⟩                                      | the system MUST ⟨response⟩                                                         |
+| --- | --------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | usuário sem sessão acessa função de segredos        | retornar `UNAUTHENTICATED` antes de resolver DB ou serviço                         |
+| 2   | usuário `viewer` lista ou altera segredos           | retornar `FORBIDDEN` sem consultar ou decifrar valor                               |
+| 3   | administrador salva whitespace ou plaintext vazio   | retornar validação e não criar/alterar registro                                    |
+| 4   | administrador substitui chave existente             | cifrar novo valor, substituir atomicamente o envelope e nunca retornar valores     |
+| 5   | administrador remove chave inexistente              | retornar estado idempotente `isConfigured: false`                                  |
+| 6   | sync é acionado sem registro                        | falhar com código público legado `*_API_KEY_MISSING` sem chamar runner             |
+| 7   | envelope corrompido ou `APP_ENCRYPTION_KEY` ausente | falhar fechado; não retornar detalhe de cifra, envelope ou chave                   |
+| 8   | dois admins salvam chaves diferentes                | persistir ambas isoladamente por `key`                                             |
+| 9   | dois admins salvam a mesma chave                    | último upsert completo vence; nunca persistir plaintext                            |
+| 10  | chave é substituída durante sync                    | sync em curso usa cópia já resolvida; próximo resolve valor novo                   |
+| 11  | runner/upstream devolve mensagem contendo a chave   | status e resposta retornam somente erro seguro, sem plaintext ou material derivado |
 
 ## Questões em aberto
 
@@ -162,16 +162,16 @@ legados são excluídos dessa busca.
 - **RED/GREEN:** antes de cada vertical, criar teste observável que falha,
   implementar o mínimo e registrar execução verde na tarefa correspondente.
 
-| ID | Comportamento | Nível | Evidência esperada |
-| --- | --- | --- | --- |
-| T1 | tabela exporta chave única e envelope não nulo | schema/unit | RED sem tabela; GREEN com contrato Drizzle |
-| T2 | serviço cifra, faz upsert e retorna somente metadados | unit com fake | RED/GREEN sem plaintext no resultado |
-| T3 | registro ausente ou envelope inválido falha fechado | unit | RED/GREEN e runner não chamado |
-| T4 | handlers bloqueiam não autenticado e `viewer` antes do serviço | unit | RED/GREEN por ordem de chamadas |
-| T5 | UI salva/remove e não exibe valor salvo | component | RED/GREEN com server functions mockadas |
-| T6 | ambos os syncs resolvem chave no disparo | application/unit | RED/GREEN com runner recebendo valor resolvido |
-| T7 | runner que ecoa chave não a expõe em status/rota | application/unit | RED/GREEN com mensagem segura |
-| T8 | variáveis removidas não participam do runtime | config/runtime | busca limitada e bootstrap verdes |
+| ID  | Comportamento                                                  | Nível            | Evidência esperada                             |
+| --- | -------------------------------------------------------------- | ---------------- | ---------------------------------------------- |
+| T1  | tabela exporta chave única e envelope não nulo                 | schema/unit      | RED sem tabela; GREEN com contrato Drizzle     |
+| T2  | serviço cifra, faz upsert e retorna somente metadados          | unit com fake    | RED/GREEN sem plaintext no resultado           |
+| T3  | registro ausente ou envelope inválido falha fechado            | unit             | RED/GREEN e runner não chamado                 |
+| T4  | handlers bloqueiam não autenticado e `viewer` antes do serviço | unit             | RED/GREEN por ordem de chamadas                |
+| T5  | UI salva/remove e não exibe valor salvo                        | component        | RED/GREEN com server functions mockadas        |
+| T6  | ambos os syncs resolvem chave no disparo                       | application/unit | RED/GREEN com runner recebendo valor resolvido |
+| T7  | runner que ecoa chave não a expõe em status/rota               | application/unit | RED/GREEN com mensagem segura                  |
+| T8  | variáveis removidas não participam do runtime                  | config/runtime   | busca limitada e bootstrap verdes              |
 
 ## Human review
 

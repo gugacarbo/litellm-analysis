@@ -128,7 +128,7 @@ describeWithTestDatabase("model proxy schema physical constraints", () => {
     ).rejects.toThrow();
   });
 
-  it("uses the reset schema rather than legacy provider columns", async () => {
+  it("uses the reset schema rather than storing provider credentials on the provider row", async () => {
     const { db } = testDatabase;
 
     await expect(
@@ -136,6 +136,11 @@ describeWithTestDatabase("model proxy schema physical constraints", () => {
     ).rejects.toThrow();
     await expect(
       db.execute(sql`SELECT secret_ref FROM model_proxy_providers LIMIT 1`),
+    ).rejects.toThrow();
+    await expect(
+      db.execute(
+        sql`SELECT credential_envelope FROM model_proxy_providers LIMIT 1`,
+      ),
     ).rejects.toThrow();
   });
 });

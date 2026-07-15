@@ -70,7 +70,7 @@ rg -n "ProvidersService|ProvidersRepository|secretRef|resolveProviderApiKey|hasS
 
 - The package-wide Vitest command is blocked by an unrelated, unchanged failure
   in `src/repositories/models-repository.test.ts`: `Model "llama-3.3-70b"
-  already exists`.
+already exists`.
 - `pnpm --filter @lite-llm/llm-config-service typecheck` is blocked by four
   existing errors in unchanged `src/repositories/models-repository.ts` (lines
   332, 354, and 464), involving nullable `providerId` and the Drizzle insert

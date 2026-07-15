@@ -18,5 +18,5 @@ boundary in `ModelAdminService`.
   `ProvidersService`, `ProvidersRepository`, `secretRef`, provider-table
   `apiKey`, or old resolver references.
 - `pnpm --filter @lite-llm/llm-config-service exec vitest run
-  src/lib/provider-secrets.test.ts src/services/__tests__/model-admin.service.test.ts`
+src/lib/provider-secrets.test.ts src/services/__tests__/model-admin.service.test.ts`
   passed: 2 files, 20 tests.

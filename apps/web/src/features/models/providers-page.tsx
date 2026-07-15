@@ -23,7 +23,9 @@ export function ProvidersPage() {
       </div>
 
       {error ? (
-        <p className="text-sm text-destructive">Unable to load providers: {String(error)}</p>
+        <p className="text-sm text-destructive">
+          Unable to load providers: {String(error)}
+        </p>
       ) : isLoading ? (
         <p className="text-sm text-muted-foreground">Loading providers…</p>
       ) : providers.length === 0 ? (
@@ -47,13 +49,26 @@ export function ProvidersPage() {
                   <TableCell className="font-mono text-xs">
                     {provider.providerName}
                     {defaultProvider === provider.providerName ? (
-                      <Badge variant="success" className="ml-2 text-[10px] px-1.5 py-0">default</Badge>
+                      <Badge
+                        variant="success"
+                        className="ml-2 text-[10px] px-1.5 py-0"
+                      >
+                        default
+                      </Badge>
                     ) : null}
                   </TableCell>
-                  <TableCell className="text-xs">{provider.provider ?? "—"}</TableCell>
-                  <TableCell className="text-xs">{provider.baseUrl ?? "—"}</TableCell>
                   <TableCell className="text-xs">
-                    {provider.hasStoredSecret ? <Badge variant="outline">Stored securely</Badge> : "—"}
+                    {provider.provider ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {provider.baseUrl ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {provider.hasStoredSecret ? (
+                      <Badge variant="outline">Stored securely</Badge>
+                    ) : (
+                      "—"
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

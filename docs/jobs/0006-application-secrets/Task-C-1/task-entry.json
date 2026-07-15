@@ -13,9 +13,7 @@
   "progressLog": "docs/jobs/0006-application-secrets/Task-C-1/progress.log",
   "logTaskScript": "docs/jobs/0006-application-secrets/Task-C-1/log-task.sh",
   "baseCommit": "c22e434a3fb31b00a29c961681a23d3575343115",
-  "dependencies": [
-    "Task-A-1"
-  ],
+  "dependencies": ["Task-A-1"],
   "acceptanceCriteria": [
     "The protected /models/secrets route preloads only metadata and renders the two fixed secret statuses.",
     "Unauthenticated and viewer requests fail before the service is created; admin requests can list, save and remove.",
@@ -23,10 +21,7 @@
     "Save and removal invalidate the secrets query and the UI never repopulates a saved value.",
     "Focused handler, query and component tests demonstrate RED then GREEN."
   ],
-  "requirements": [
-    "REQ-002",
-    "REQ-005"
-  ],
+  "requirements": ["REQ-002", "REQ-005"],
   "rules": [
     "TDD required for this behavior-changing task.",
     "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",

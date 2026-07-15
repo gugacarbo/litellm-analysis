@@ -6,7 +6,7 @@
 
 ## Full diff
 
-```diff
+````diff
 diff --git a/.env.example b/.env.example
 index e9ad8ed1..adf191ed 100644
 --- a/.env.example
@@ -41,7 +41,7 @@ index bd9a1374..2aea1ad8 100644
 @@ -46,10 +46,14 @@ describe("BenchmarkSyncApplicationService", () => {
      const started = service.start();
      const duplicate = service.start();
- 
+
 -    expect(started.triggered).toBe(true);
 -    expect(started.status).toBe("running");
 -    expect(duplicate.triggered).toBe(false);
@@ -55,34 +55,34 @@ index bd9a1374..2aea1ad8 100644
 +      status: "running",
 +    });
      expect(runner).toHaveBeenCalledOnce();
- 
+
      resolveRun();
 @@ -65,12 +69,12 @@ describe("BenchmarkSyncApplicationService", () => {
      try {
        const service = createService(vi.fn().mockResolvedValue(undefined));
- 
+
 -      service.start();
 +      await service.start();
        await vi.waitFor(() => {
          expect(service.getStatus().status).toBe("succeeded");
        });
- 
+
 -      const immediateRetry = service.start();
 +      const immediateRetry = await service.start();
        expect(immediateRetry.triggered).toBe(false);
        expect(immediateRetry.canTrigger).toBe(false);
        expect(immediateRetry.cooldownUntil).not.toBeNull();
 @@ -83,7 +87,7 @@ describe("BenchmarkSyncApplicationService", () => {
- 
+
        vi.setSystemTime(new Date("2026-07-06T19:00:01.000Z"));
- 
+
 -      const retryAfterCooldown = service.start();
 +      const retryAfterCooldown = await service.start();
        expect(retryAfterCooldown.triggered).toBe(true);
      } finally {
        vi.useRealTimers();
 @@ -92,9 +96,12 @@ describe("BenchmarkSyncApplicationService", () => {
- 
+
    it("passes api key and output dir to the runner", async () => {
      const runner = vi.fn().mockResolvedValue(undefined);
 -    const service = createService(runner, "server-aa-key");
@@ -90,7 +90,7 @@ index bd9a1374..2aea1ad8 100644
 +      runner,
 +      vi.fn().mockResolvedValue("server-aa-key"),
 +    );
- 
+
 -    service.start();
 +    await service.start();
      await vi.waitFor(() => {
@@ -99,21 +99,21 @@ index bd9a1374..2aea1ad8 100644
 @@ -112,7 +119,7 @@ describe("BenchmarkSyncApplicationService", () => {
        vi.fn().mockRejectedValue(new Error("AA unavailable")),
      );
- 
+
 -    service.start();
 +    await service.start();
- 
+
      await vi.waitFor(() => {
        const status = service.getStatus();
 @@ -121,16 +128,84 @@ describe("BenchmarkSyncApplicationService", () => {
      });
    });
- 
+
 -  it("throws a configuration error when the AA api key is missing", () => {
 -    const service = createService(vi.fn(), "");
 +  it("throws a configuration error when the AA api key is missing", async () => {
 +    const service = createService(vi.fn(), vi.fn().mockResolvedValue(null));
- 
+
 -    expect(() => service.start()).toThrow(BenchmarkSyncConfigurationError);
 +    await expect(service.start()).rejects.toThrow(
 +      BenchmarkSyncConfigurationError,
@@ -123,7 +123,7 @@ index bd9a1374..2aea1ad8 100644
        lastError: "ARTIFICIAL_ANALYSIS_API_KEY is not configured",
      });
    });
- 
+
 +  it("resolves the key for each trigger instead of retaining a startup value", async () => {
 +    const resolveApiKey = vi
 +      .fn<() => Promise<string | null>>()
@@ -200,7 +200,7 @@ index 5bce78cd..84e399d0 100644
 @@ -15,10 +15,12 @@ type BenchmarkSyncRunner = (options: {
    outputDir: string;
  }) => Promise<void>;
- 
+
 +type BenchmarkSyncApiKeyResolver = () => Promise<string | null>;
 +
  export interface BenchmarkSyncApplicationServiceOptions {
@@ -210,7 +210,7 @@ index 5bce78cd..84e399d0 100644
 +  resolveApiKey: BenchmarkSyncApiKeyResolver;
    runner?: BenchmarkSyncRunner;
  }
- 
+
 @@ -35,9 +37,10 @@ export class BenchmarkSyncConfigurationError extends Error {}
  export class BenchmarkSyncApplicationService {
    private readonly outputDir: string;
@@ -231,27 +231,27 @@ index 5bce78cd..84e399d0 100644
 +    this.resolveApiKey = options.resolveApiKey;
      this.runner = options.runner ?? runSyncInProcess;
    }
- 
+
    getStatus(): BenchmarkSyncStatusResponse {
      const cooldownUntil = getCooldownUntil(this.state.lastSuccessAt);
      const canTrigger =
 +      !this.isResolvingApiKey &&
        this.state.status !== "running" &&
        (!cooldownUntil || Date.parse(cooldownUntil) <= Date.now());
- 
+
 @@ -68,25 +72,14 @@ export class BenchmarkSyncApplicationService {
      };
    }
- 
+
 -  start(): TriggerBenchmarkSyncResponse {
 +  async start(): Promise<TriggerBenchmarkSyncResponse> {
      const currentStatus = this.getStatus();
- 
+
 -    if (this.inFlight || !currentStatus.canTrigger) {
 +    if (this.inFlight || this.isResolvingApiKey || !currentStatus.canTrigger) {
        return { ...this.getStatus(), triggered: false };
      }
- 
+
 -    const apiKey = this.artificialAnalysisApiKey?.trim();
 -    if (!apiKey) {
 -      const message = "ARTIFICIAL_ANALYSIS_API_KEY is not configured";
@@ -271,7 +271,7 @@ index 5bce78cd..84e399d0 100644
 @@ -96,34 +89,52 @@ export class BenchmarkSyncApplicationService {
        lastError: null,
      };
- 
+
 -    this.inFlight = this.runner({
 -      apiKey,
 -      outputDir: this.outputDir,
@@ -303,7 +303,7 @@ index 5bce78cd..84e399d0 100644
 +      if (!apiKey?.trim()) {
 +        throw new Error("Application secret is unavailable");
 +      }
- 
+
 -    return { ...this.getStatus(), triggered: true };
 +      this.inFlight = this.runner({
 +        apiKey,
@@ -347,16 +347,16 @@ index 5bce78cd..84e399d0 100644
 +    }
    }
  }
- 
+
 @@ -150,24 +161,25 @@ async function runSyncInProcess(options: {
    });
  }
- 
+
 -function normalizeError(error: unknown): string {
 +function normalizeError(error: unknown, apiKey: string): string {
    const message = error instanceof Error ? error.message : String(error);
 +  const redacted = message.split(apiKey).join("[REDACTED]");
- 
+
 -  return message.length > MAX_ERROR_LENGTH
 -    ? `${message.slice(0, MAX_ERROR_LENGTH)}...`
 -    : message;
@@ -364,7 +364,7 @@ index 5bce78cd..84e399d0 100644
 +    ? `${redacted.slice(0, MAX_ERROR_LENGTH)}...`
 +    : redacted;
  }
- 
+
  export function createBenchmarkSyncApplicationService(options: {
    storagePath: string;
 -  artificialAnalysisApiKey?: string;
@@ -387,7 +387,7 @@ index 2921729b..ac7cfa92 100644
 @@ -14,10 +14,12 @@ type OpenRouterBenchmarkSyncRunner = (options: {
    outputDir: string;
  }) => Promise<void>;
- 
+
 +type OpenRouterBenchmarkSyncApiKeyResolver = () => Promise<string | null>;
 +
  export interface OpenRouterBenchmarkSyncApplicationServiceOptions {
@@ -397,7 +397,7 @@ index 2921729b..ac7cfa92 100644
 +  resolveApiKey: OpenRouterBenchmarkSyncApiKeyResolver;
    runner?: OpenRouterBenchmarkSyncRunner;
  }
- 
+
 @@ -34,9 +36,10 @@ export class OpenRouterBenchmarkSyncConfigurationError extends Error {}
  export class OpenRouterBenchmarkSyncApplicationService {
    private readonly outputDir: string;
@@ -418,7 +418,7 @@ index 2921729b..ac7cfa92 100644
 +    this.resolveApiKey = options.resolveApiKey;
      this.runner = options.runner ?? runSyncInProcess;
    }
- 
+
 @@ -57,28 +60,17 @@ export class OpenRouterBenchmarkSyncApplicationService {
        ...this.state,
        isRunning: this.state.status === "running",
@@ -428,14 +428,14 @@ index 2921729b..ac7cfa92 100644
        cooldownUntil: null,
      };
    }
- 
+
 -  start(): TriggerBenchmarkSyncResponse {
 -    if (this.inFlight) {
 +  async start(): Promise<TriggerBenchmarkSyncResponse> {
 +    if (this.inFlight || this.isResolvingApiKey) {
        return { ...this.getStatus(), triggered: false };
      }
- 
+
 -    const apiKey = this.openRouterApiKey?.trim();
 -    if (!apiKey) {
 -      const message = "OPENROUTER_API_KEY is not configured";
@@ -455,7 +455,7 @@ index 2921729b..ac7cfa92 100644
 @@ -88,34 +80,52 @@ export class OpenRouterBenchmarkSyncApplicationService {
        lastError: null,
      };
- 
+
 -    this.inFlight = this.runner({
 -      apiKey,
 -      outputDir: this.outputDir,
@@ -487,7 +487,7 @@ index 2921729b..ac7cfa92 100644
 +      if (!apiKey?.trim()) {
 +        throw new Error("Application secret is unavailable");
 +      }
- 
+
 -    return { ...this.getStatus(), triggered: true };
 +      this.inFlight = this.runner({
 +        apiKey,
@@ -531,16 +531,16 @@ index 2921729b..ac7cfa92 100644
 +    }
    }
  }
- 
+
 @@ -129,24 +139,25 @@ async function runSyncInProcess(options: {
    });
  }
- 
+
 -function normalizeError(error: unknown): string {
 +function normalizeError(error: unknown, apiKey: string): string {
    const message = error instanceof Error ? error.message : String(error);
 +  const redacted = message.split(apiKey).join("[REDACTED]");
- 
+
 -  return message.length > MAX_ERROR_LENGTH
 -    ? `${message.slice(0, MAX_ERROR_LENGTH)}...`
 -    : message;
@@ -548,7 +548,7 @@ index 2921729b..ac7cfa92 100644
 +    ? `${redacted.slice(0, MAX_ERROR_LENGTH)}...`
 +    : redacted;
  }
- 
+
  export function createOpenRouterBenchmarkSyncApplicationService(options: {
    storagePath: string;
 -  openRouterApiKey?: string;
@@ -571,7 +571,7 @@ index 3dcbf1ff..45bddace 100644
 @@ -13,9 +13,9 @@ export function createBenchmarkSyncRouter(
      res.json(service.getStatus());
    });
- 
+
 -  router.post("/sync", (_req, res) => {
 +  router.post("/sync", async (_req, res) => {
      try {
@@ -587,7 +587,7 @@ index d0ac4268..66a210c6 100644
 @@ -13,9 +13,9 @@ export function createOpenRouterBenchmarkSyncRouter(
      res.json(service.getStatus());
    });
- 
+
 -  router.post("/sync", (_req, res) => {
 +  router.post("/sync", async (_req, res) => {
      try {
@@ -608,7 +608,7 @@ index af8999f9..0c4f11b5 100644
 +    resolveApiKey: () =>
 +      registry.applicationSecretsService.resolve("artificial_analysis_api_key"),
    });
- 
+
    const openRouterBenchmarkSyncService =
      createOpenRouterBenchmarkSyncApplicationService({
        storagePath: resolveStoragePath(projectRoot),
@@ -616,16 +616,16 @@ index af8999f9..0c4f11b5 100644
 +      resolveApiKey: () =>
 +        registry.applicationSecretsService.resolve("openrouter_api_key"),
      });
- 
+
    const app = createApiServer(
 diff --git a/apps/ui/src/features/model-admin/contracts/model-admin.ts b/apps/ui/src/features/model-admin/contracts/model-admin.ts
 index 858fef3c..0bdc7099 100644
 --- a/apps/ui/src/features/model-admin/contracts/model-admin.ts
 +++ b/apps/ui/src/features/model-admin/contracts/model-admin.ts
 @@ -34,6 +34,43 @@ export type Result<T> = { ok: true; data: T } | DomainError;
- 
+
  export const emptyInputSchema = z.object({});
- 
+
 +export const applicationSecretKeySchema = z.enum([
 +  "artificial_analysis_api_key",
 +  "openrouter_api_key",
@@ -673,7 +673,7 @@ index 6b8e7327..61decf3f 100644
 @@ -10,6 +10,11 @@ vi.mock("@/features/model-admin/server/model-admin.functions", () => ({
    discoverModels: vi.fn(),
  }));
- 
+
 +vi.mock("@/features/model-admin/server/application-secrets.functions", () => ({
 +  listApplicationSecrets: vi.fn(),
 +}));
@@ -721,7 +721,7 @@ index d0a9caf7..fc4b3c53 100644
 +    list: [...modelAdminKey, "application-secrets", "list"] as const,
 +  },
  } as const;
- 
+
  class ModelAdminQueryError extends Error {
 @@ -85,6 +90,11 @@ export const modelAdminQueries = {
        queryFn: () =>
@@ -733,7 +733,7 @@ index d0a9caf7..fc4b3c53 100644
 +      queryFn: () => unwrapResult(() => listApplicationSecrets({ data: {} })),
 +    }),
  };
- 
+
  export const invalidateModelAdmin = {
 @@ -145,4 +155,8 @@ export const invalidateModelAdmin = {
      queryClient.invalidateQueries({
@@ -755,7 +755,7 @@ index a234af95..8fc2f323 100644
 +import { Route as ProtectedModelsSecretsRouteImport } from './routes/_protected/models/secrets'
  import { Route as ProtectedModelsAliasesRouteImport } from './routes/_protected/models/aliases'
  import { Route as ProtectedModelsModelIdSettingsRouteImport } from './routes/_protected/models/$modelId/settings'
- 
+
 @@ -59,6 +60,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
    path: '/api/auth/$',
    getParentRoute: () => rootRouteImport,
@@ -831,14 +831,14 @@ index a234af95..8fc2f323 100644
        id: '/_protected/models/aliases'
        path: '/aliases'
 @@ -225,12 +244,14 @@ declare module '@tanstack/react-router' {
- 
+
  interface ProtectedModelsRouteChildren {
    ProtectedModelsAliasesRoute: typeof ProtectedModelsAliasesRoute
 +  ProtectedModelsSecretsRoute: typeof ProtectedModelsSecretsRoute
    ProtectedModelsIndexRoute: typeof ProtectedModelsIndexRoute
    ProtectedModelsModelIdSettingsRoute: typeof ProtectedModelsModelIdSettingsRoute
  }
- 
+
  const ProtectedModelsRouteChildren: ProtectedModelsRouteChildren = {
    ProtectedModelsAliasesRoute: ProtectedModelsAliasesRoute,
 +  ProtectedModelsSecretsRoute: ProtectedModelsSecretsRoute,
@@ -890,7 +890,7 @@ index 27260bdb..548558cc 100644
  import { modelProxyProviders } from "./providers";
 @@ -11,6 +12,27 @@ function findIndex(table: Parameters<typeof getTableConfig>[0], name: string) {
  }
- 
+
  describe("model proxy clean-cut schema", () => {
 +  it("stores application secrets under a unique key with a required encrypted envelope", () => {
 +    const keyIndex = findIndex(
@@ -925,68 +925,68 @@ index f977b63e..3d896a91 100644
  DATABASE_URL=postgresql://user:password@localhost:5432/lite_llm_analytics
  MODEL_PROXY_API_KEY=dev-key-123   # bootstrap para dev
 -OPENROUTER_API_KEY=sk-or-...      # para sync de benchmarks do OpenRouter
- ```
- 
+````
+
 +As chaves do Artificial Analysis e do OpenRouter para sincronizacao de
 +benchmarks sao configuradas por um administrador no armazenamento de segredos
-+da aplicacao; nao fazem parte do contrato de variaveis de ambiente.
-+
- ### Comandos
- 
- ```bash
++da aplicacao; nao fazem parte do contrato de variaveis de ambiente. +
+
+### Comandos
+
+```bash
 diff --git a/packages/config/src/server.ts b/packages/config/src/server.ts
 index ce7c9c54..e046197c 100644
 --- a/packages/config/src/server.ts
 +++ b/packages/config/src/server.ts
 @@ -21,9 +21,6 @@ const serverSchema = {
-     .min(1, "MODEL_PROXY_API_KEY cannot be empty")
-     .optional(),
-   MODEL_PROXY_BASE_URL: z.url().optional(),
+    .min(1, "MODEL_PROXY_API_KEY cannot be empty")
+    .optional(),
+  MODEL_PROXY_BASE_URL: z.url().optional(),
 -  ARTIFICIAL_ANALYSIS_API_KEY: z.string().min(1).optional(),
 -  OPENROUTER_API_KEY: z.string().min(1).optional(),
 -
-   STORAGE_PATH: z.string().default("@storage"),
- };
- 
+  STORAGE_PATH: z.string().default("@storage"),
+};
+
 diff --git a/services/llm-config-service/src/factory.ts b/services/llm-config-service/src/factory.ts
 index 0c6e8a3b..8db5f76b 100644
 --- a/services/llm-config-service/src/factory.ts
 +++ b/services/llm-config-service/src/factory.ts
 @@ -3,6 +3,10 @@ import {
-   ApiKeysService,
-   type IApiKeysService,
- } from "./services/api-keys.service.js";
+  ApiKeysService,
+  type IApiKeysService,
+} from "./services/api-keys.service.js";
 +import {
 +  ApplicationSecretsService,
 +  type IApplicationSecretsService,
 +} from "./services/application-secrets.service.js";
- import {
-   type IOpenAiOAuthService,
-   OpenAiOAuthService,
+import {
+  type IOpenAiOAuthService,
+  OpenAiOAuthService,
 @@ -21,6 +25,7 @@ export interface RegistryServices {
-   settingsService: ISettingsService;
-   registryModelsService: IRegistryModelsService;
-   apiKeysService: IApiKeysService;
+  settingsService: ISettingsService;
+  registryModelsService: IRegistryModelsService;
+  apiKeysService: IApiKeysService;
 +  applicationSecretsService: IApplicationSecretsService;
-   openAiOAuthService: IOpenAiOAuthService;
- }
- 
+  openAiOAuthService: IOpenAiOAuthService;
+}
+
 @@ -38,6 +43,7 @@ export function createRegistryServices(
-     settingsService: new SettingsService({ db }),
-     registryModelsService: new RegistryModelsService({ db }),
-     apiKeysService: new ApiKeysService({ db }),
+    settingsService: new SettingsService({ db }),
+    registryModelsService: new RegistryModelsService({ db }),
+    apiKeysService: new ApiKeysService({ db }),
 +    applicationSecretsService: new ApplicationSecretsService({ db }),
-     openAiOAuthService: new OpenAiOAuthService({ db }),
-   };
- }
+    openAiOAuthService: new OpenAiOAuthService({ db }),
+  };
+}
 diff --git a/services/llm-config-service/src/index.ts b/services/llm-config-service/src/index.ts
 index 4ce96b4b..ae65e723 100644
 --- a/services/llm-config-service/src/index.ts
 +++ b/services/llm-config-service/src/index.ts
 @@ -23,6 +23,13 @@ export {
-   parseProviderEncryptionKey,
-   resolveProviderCredential,
- } from "./lib/provider-secrets.js";
+  parseProviderEncryptionKey,
+  resolveProviderCredential,
+} from "./lib/provider-secrets.js";
 +export {
 +  APPLICATION_SECRET_KEYS,
 +  type ApplicationSecretKey,
@@ -994,22 +994,22 @@ index 4ce96b4b..ae65e723 100644
 +  ApplicationSecretsRepository,
 +  type ApplicationSecretsRepositoryPort,
 +} from "./repositories/application-secrets-repository.js";
- export { ModelsRepository } from "./repositories/models-repository.js";
- export { SettingsRepository } from "./repositories/settings-repository.js";
- export {
+export { ModelsRepository } from "./repositories/models-repository.js";
+export { SettingsRepository } from "./repositories/settings-repository.js";
+export {
 @@ -30,6 +37,12 @@ export {
-   type ApiKeysServiceOptions,
-   type IApiKeysService,
- } from "./services/api-keys.service.js";
+  type ApiKeysServiceOptions,
+  type IApiKeysService,
+} from "./services/api-keys.service.js";
 +export {
 +  type ApplicationSecretPublic,
 +  ApplicationSecretsService,
 +  type ApplicationSecretsServiceOptions,
 +  type IApplicationSecretsService,
 +} from "./services/application-secrets.service.js";
- export {
-   ModelAdminService,
-   type ModelAdminServiceOptions,
+export {
+  ModelAdminService,
+  type ModelAdminServiceOptions,
 
 diff --git a/apps/server/src/__tests__/benchmark-sync-routes.test.ts b/apps/server/src/__tests__/benchmark-sync-routes.test.ts
 new file mode 100644
@@ -4546,4 +4546,3 @@ index 00000000..dce123a3
 +});
 
 ```
-

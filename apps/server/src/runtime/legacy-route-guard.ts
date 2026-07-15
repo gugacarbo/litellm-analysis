@@ -24,7 +24,10 @@ export function unregisterLegacyMutationRoutes(app: Application): void {
   router.stack = stack.filter((layer) => {
     const route = layer.route;
     const path = route?.path;
-    if (!path || !LEGACY_MUTATION_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+    if (
+      !path ||
+      !LEGACY_MUTATION_PREFIXES.some((prefix) => path.startsWith(prefix))
+    ) {
       return true;
     }
     return !Object.entries(route.methods ?? {}).some(

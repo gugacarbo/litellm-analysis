@@ -621,7 +621,9 @@ export class ModelsRepository {
       if (defaultProvider) {
         return defaultProvider.id;
       }
-      throw new Error("Model route requires providerName or a default provider");
+      throw new Error(
+        "Model route requires providerName or a default provider",
+      );
     }
 
     const providerApi = this.providerApi;

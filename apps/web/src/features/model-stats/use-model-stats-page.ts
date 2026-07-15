@@ -12,14 +12,13 @@ export function useModelStatsPageState() {
     state.sortDirection,
   );
 
-  const { handleSort, toggleColumn } =
-    useModelStatsActions(
-      state.sortField,
-      state.setSortField,
-      state.sortDirection,
-      state.setSortDirection,
-      state.setVisibleColumns,
-    );
+  const { handleSort, toggleColumn } = useModelStatsActions(
+    state.sortField,
+    state.setSortField,
+    state.sortDirection,
+    state.setSortDirection,
+    state.setVisibleColumns,
+  );
 
   return {
     ...state,

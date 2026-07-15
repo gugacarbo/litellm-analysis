@@ -1,6 +1,6 @@
 {
-  "id": "c4207070-1228-4a3d-8b92-d9e951c6a393",
-  "prevId": "50c9ad7e-73f4-461c-a295-abc6ca8b4968",
+  "id": "ec6ba181-8b1d-4390-9a2d-cca6fdd1c6ab",
+  "prevId": "c4207070-1228-4a3d-8b92-d9e951c6a393",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -66,7 +66,7 @@
       "checkConstraints": {
         "ck_application_secrets_store_key_allowlist": {
           "name": "ck_application_secrets_store_key_allowlist",
-          "value": "\"application_secrets_store\".\"key\" IN ('artificial_analysis_api_key', 'openrouter_api_key')"
+          "value": "\"application_secrets_store\".\"key\" IN ('artificial_analysis_api_key', 'openrouter_api_key') OR \"application_secrets_store\".\"key\" ~ '^provider:[0-9a-fA-F-]{36}$'"
         }
       },
       "isRLSEnabled": false
@@ -1457,12 +1457,6 @@
         },
         "base_url": {
           "name": "base_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "credential_envelope": {
-          "name": "credential_envelope",
           "type": "text",
           "primaryKey": false,
           "notNull": false

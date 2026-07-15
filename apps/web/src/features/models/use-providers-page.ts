@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllProviders, getDefaultProvider } from "@/shared/lib/api-client/providers";
+import {
+  getAllProviders,
+  getDefaultProvider,
+} from "@/shared/lib/api-client/providers";
 
 /** Deprecated web surface: provider data is available for inspection only. */
 export function useProvidersPage() {

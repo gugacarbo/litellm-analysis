@@ -8,6 +8,12 @@ export const APPLICATION_SECRET_KEYS = [
   "openrouter_api_key",
 ] as const;
 
+const PROVIDER_SECRET_KEY_PREFIX = "provider:";
+
+export function providerSecretKey(providerId: string): string {
+  return `${PROVIDER_SECRET_KEY_PREFIX}${providerId}`;
+}
+
 export type ApplicationSecretKey = (typeof APPLICATION_SECRET_KEYS)[number];
 
 export function isApplicationSecretKey(
@@ -26,6 +32,13 @@ function assertApplicationSecretKey(
 
 export interface ApplicationSecretRecord {
   key: ApplicationSecretKey;
+  credentialEnvelope: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProviderSecretRecord {
+  providerId: string;
   credentialEnvelope: string;
   createdAt: Date;
   updatedAt: Date;
@@ -102,6 +115,59 @@ export class ApplicationSecretsRepository
     const [deleted] = await this.db
       .delete(applicationSecretsStore)
       .where(eq(applicationSecretsStore.key, key))
+      .returning({ id: applicationSecretsStore.id });
+    return !!deleted;
+  }
+
+  async findProviderCredential(
+    providerId: string,
+  ): Promise<ProviderSecretRecord | null> {
+    const [row] = await this.db
+      .select()
+      .from(applicationSecretsStore)
+      .where(eq(applicationSecretsStore.key, providerSecretKey(providerId)))
+      .limit(1);
+    return row
+      ? {
+          providerId,
+          credentialEnvelope: row.credentialEnvelope,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt,
+        }
+      : null;
+  }
+
+  async upsertProviderCredential(
+    providerId: string,
+    credentialEnvelope: string,
+  ): Promise<ProviderSecretRecord> {
+    const [row] = await this.db
+      .insert(applicationSecretsStore)
+      .values({
+        id: crypto.randomUUID(),
+        key: providerSecretKey(providerId),
+        credentialEnvelope,
+      })
+      .onConflictDoUpdate({
+        target: applicationSecretsStore.key,
+        set: {
+          credentialEnvelope,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return {
+      providerId,
+      credentialEnvelope: row.credentialEnvelope,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }
+
+  async deleteProviderCredential(providerId: string): Promise<boolean> {
+    const [deleted] = await this.db
+      .delete(applicationSecretsStore)
+      .where(eq(applicationSecretsStore.key, providerSecretKey(providerId)))
       .returning({ id: applicationSecretsStore.id });
     return !!deleted;
   }

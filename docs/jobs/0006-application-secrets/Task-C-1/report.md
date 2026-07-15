@@ -17,7 +17,7 @@ Process: `super-planning` — Task-C-1 admin surface.
 - RED: in an isolated detached worktree at `c22e434a`, the new page test
   failed before any tests could run because `./secrets-page` did not exist.
   Command: `pnpm --filter ui exec vitest run
-  src/features/model-admin/secrets/secrets-page.test.tsx`.
+src/features/model-admin/secrets/secrets-page.test.tsx`.
 
   Captured RED output:
 
@@ -28,6 +28,7 @@ Process: `super-planning` — Task-C-1 admin surface.
   Error: Failed to resolve import "./secrets-page" from
   "src/features/model-admin/secrets/secrets-page.test.tsx". Does the file exist?
   ```
+
 - GREEN:
   `pnpm --filter ui exec vitest run src/features/model-admin/secrets/secrets-page.test.tsx src/features/model-admin/server/application-secrets.handlers.test.ts src/features/model-admin/query/query-options.test.ts`
   passed: 3 files, 12 tests.

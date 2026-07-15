@@ -105,9 +105,10 @@ describe("ProvidersPage", () => {
 
     const nameInput = screen.getByLabelText("Nome") as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "Novo" } });
-    fireEvent.change(screen.getByLabelText("Adapter"), {
-      target: { value: "openai-compatible" },
-    });
+    fireEvent.click(screen.getByRole("combobox", { name: "Adapter" }));
+    fireEvent.click(
+      await screen.findByRole("option", { name: "OpenAI-compatible" }),
+    );
     const credentialInput = (await screen.findByLabelText(
       "Nova credencial",
     )) as HTMLInputElement;

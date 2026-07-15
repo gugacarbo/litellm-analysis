@@ -58,7 +58,8 @@ function resolveProviderFromModelProviderName(
 
   return Object.entries(providers).find(([key, provider]) => {
     return (
-      key === trimmedProviderName || provider.name?.trim() === trimmedProviderName
+      key === trimmedProviderName ||
+      provider.name?.trim() === trimmedProviderName
     );
   })?.[1];
 }

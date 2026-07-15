@@ -5,9 +5,9 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./src/index.ts"
+      "import": "./src/public.ts"
     },
-    "./schemas": "./src/schemas/index.ts"
+    "./schemas": "./src/schemas/public.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

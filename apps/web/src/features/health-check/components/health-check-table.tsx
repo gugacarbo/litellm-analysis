@@ -92,7 +92,9 @@ export function HealthCheckTable({
             <TableHead className="w-22.5">HTTP</TableHead>
             <TableHead className="w-25">Source</TableHead>
             <TableHead className="w-30">When</TableHead>
-            {onTest ? <TableHead className="w-20 text-center">Test</TableHead> : null}
+            {onTest ? (
+              <TableHead className="w-20 text-center">Test</TableHead>
+            ) : null}
           </TableRow>
         </TableHeader>
         <TableBody>

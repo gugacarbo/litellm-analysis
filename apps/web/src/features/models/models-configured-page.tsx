@@ -23,11 +23,15 @@ export function ModelsConfiguredPage() {
       </div>
 
       {modelsQuery.error ? (
-        <p className="text-sm text-destructive">Unable to load models: {String(modelsQuery.error)}</p>
+        <p className="text-sm text-destructive">
+          Unable to load models: {String(modelsQuery.error)}
+        </p>
       ) : modelsQuery.isPending ? (
         <p className="text-sm text-muted-foreground">Loading models…</p>
       ) : models.length === 0 ? (
-        <div className="rounded-md border p-6 text-center text-sm text-muted-foreground">No models configured.</div>
+        <div className="rounded-md border p-6 text-center text-sm text-muted-foreground">
+          No models configured.
+        </div>
       ) : (
         <div className="rounded-md border">
           <Table>
@@ -42,10 +46,18 @@ export function ModelsConfiguredPage() {
             <TableBody>
               {models.map((model) => (
                 <TableRow key={model.modelName}>
-                  <TableCell className="font-mono text-xs">{model.modelName}</TableCell>
-                  <TableCell className="text-xs">{model.modelRoute.providerName ?? "—"}</TableCell>
-                  <TableCell><Badge variant="outline">{model.status}</Badge></TableCell>
-                  <TableCell>{model.enabled === false ? "No" : "Yes"}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {model.modelName}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {model.modelRoute.providerName ?? "—"}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{model.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {model.enabled === false ? "No" : "Yes"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

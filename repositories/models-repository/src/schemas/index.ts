@@ -1,3 +1,6 @@
+// Internal aggregation module; the package schema entrypoint exposes the narrower public surface.
+void 0;
+
 export type { Cost, ModelSpec, Pricing } from "./model";
 export { costSchema, modelSpecSchema, pricingSchema } from "./model";
 export type { ModelsConfig } from "./models-config";

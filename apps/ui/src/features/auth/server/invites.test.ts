@@ -423,7 +423,7 @@ describe("createInvite", () => {
         ok: false,
         error: {
           code: "INVALID_INVITE",
-          message: expect.stringMatching(/duplicate|duplicat|existent|já/i),
+          message: expect.stringMatching(/duplicate|duplicat|exist|já/i),
         },
       });
     } finally {

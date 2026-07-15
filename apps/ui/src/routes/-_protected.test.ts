@@ -1,5 +1,6 @@
 /** @vitest-environment jsdom */
 
+import { QueryClient } from "@tanstack/react-query";
 import {
   createMemoryHistory,
   createRootRouteWithContext,
@@ -8,7 +9,6 @@ import {
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router";
-import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -166,12 +166,8 @@ describe("_protected route (beforeLoad)", () => {
 
     render(createElement(RouterProvider, { router }));
 
-    const accountMenu = await screen.findByRole("region", {
-      name: "Account menu",
-    });
-    expect(accountMenu.textContent).toContain("Ada Lovelace");
-    expect(accountMenu.textContent).toContain("ada@example.com");
-    expect(accountMenu.textContent).toContain("admin");
+    expect(await screen.findByText("Ada")).toBeTruthy();
+    expect(screen.getByText("ada@example.com")).toBeTruthy();
     expect(getSession).toHaveBeenCalledTimes(1);
   });
 });

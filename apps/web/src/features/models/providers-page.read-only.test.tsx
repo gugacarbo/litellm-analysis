@@ -30,6 +30,8 @@ describe("ProvidersPage", () => {
     expect(screen.getByText("openai-production")).toBeInTheDocument();
     expect(screen.getByText(/read-only/i)).toBeInTheDocument();
     expect(screen.getByText(/apps\/ui/i)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /add|edit|delete|save/i })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /add|edit|delete|save/i }),
+    ).toBeNull();
   });
 });

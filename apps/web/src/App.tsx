@@ -59,7 +59,12 @@ const routes: RouteConfig[] = [
     component: AgentsPage,
     withErrorBoundary: true,
   },
-  { path: "/agents/:id", title: "Agents", component: AgentsPage, withErrorBoundary: true },
+  {
+    path: "/agents/:id",
+    title: "Agents",
+    component: AgentsPage,
+    withErrorBoundary: true,
+  },
 ];
 
 function renderRoute(config: RouteConfig) {
@@ -141,7 +146,14 @@ function App() {
                 </ErrorBoundary>
               ),
             },
-            { path: "openrouter", element: <ErrorBoundary><OpenRouterBenchmarksPage /></ErrorBoundary> },
+            {
+              path: "openrouter",
+              element: (
+                <ErrorBoundary>
+                  <OpenRouterBenchmarksPage />
+                </ErrorBoundary>
+              ),
+            },
           ],
         },
         {

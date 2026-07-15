@@ -53,12 +53,12 @@ com `APP_ENCRYPTION_KEY` e disponibilizando gestão no painel administrativo.
 
 ## Alternativas rejeitadas
 
-| Alternativa | Motivo |
-| --- | --- |
-| Fallback permanente para `.env` | Mantém duas fontes de verdade e divergência silenciosa. |
-| Bootstrap único por ambiente | Não foi a direção escolhida e mantém segredo fora do fluxo administrativo. |
-| Reutilizar `model_proxy_providers` | Mistura credenciais upstream de modelos e sincronizadores internos. |
-| Retornar valor uma vez após salvar | Amplia superfície de vazamento sem necessidade operacional. |
+| Alternativa                        | Motivo                                                                     |
+| ---------------------------------- | -------------------------------------------------------------------------- |
+| Fallback permanente para `.env`    | Mantém duas fontes de verdade e divergência silenciosa.                    |
+| Bootstrap único por ambiente       | Não foi a direção escolhida e mantém segredo fora do fluxo administrativo. |
+| Reutilizar `model_proxy_providers` | Mistura credenciais upstream de modelos e sincronizadores internos.        |
+| Retornar valor uma vez após salvar | Amplia superfície de vazamento sem necessidade operacional.                |
 
 ## Riscos assumidos
 

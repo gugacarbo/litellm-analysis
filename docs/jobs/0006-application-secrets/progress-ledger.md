@@ -10,80 +10,80 @@
 
 ## Summary
 
-| Status | Count |
-|--------|-------|
-| pending | 0 |
-| in_progress | 0 |
-| ready_for_review | 0 |
-| reviewing | 0 |
-| needs_fix | 0 |
-| blocked | 0 |
-| completed | 4 |
-| cancelled | 0 |
-| **Total** | **4** |
+| Status           | Count |
+| ---------------- | ----- |
+| pending          | 0     |
+| in_progress      | 0     |
+| ready_for_review | 0     |
+| reviewing        | 0     |
+| needs_fix        | 0     |
+| blocked          | 0     |
+| completed        | 4     |
+| cancelled        | 0     |
+| **Total**        | **4** |
 
 ## Agent Profiles
 
-| Profile | Model | Agent | Effort |
-|---------|-------|--------|--------|
-| generalExecutor | gpt-5.6-luna | general-executor | medium |
-| deepExecutor | gpt-5.6-luna | deep-executor | medium |
-| taskReviewer | gpt-5.6-luna | code-reviewer | medium |
-| investigator | gpt-5.6-luna | investigator | medium |
-| specReviewer | gpt-5.6-luna | spec-document-reviewer | medium |
-| finalAuditor | gpt-5.6-luna | spec-compliance-auditor | medium |
+| Profile         | Model        | Agent                   | Effort |
+| --------------- | ------------ | ----------------------- | ------ |
+| generalExecutor | gpt-5.6-luna | general-executor        | medium |
+| deepExecutor    | gpt-5.6-luna | deep-executor           | medium |
+| taskReviewer    | gpt-5.6-luna | code-reviewer           | medium |
+| investigator    | gpt-5.6-luna | investigator            | medium |
+| specReviewer    | gpt-5.6-luna | spec-document-reviewer  | medium |
+| finalAuditor    | gpt-5.6-luna | spec-compliance-auditor | medium |
 
 ## Tasks
 
-| Task ID | Title | Profile | Batch | Layer | Status | Dependencies |
-|---------|-------|---------|-------|-------|--------|-------------|
-| Task-A-1 | Criar armazenamento e serviço de segredos de aplicação | deep → deepExecutor | A | foundation | [DONE] completed | — |
-| Task-B-1 | Resolver segredos no disparo dos sincronizadores | deep → deepExecutor | B | core | [DONE] completed | Task-A-1 |
-| Task-C-1 | Adicionar administração segura de segredos no painel | general → generalExecutor | B | surface | [DONE] completed | Task-A-1 |
-| Task-D-1 | Integrar, validar e fechar a entrega de segredos | general → generalExecutor | D | final | [DONE] completed | Task-B-1, Task-C-1 |
+| Task ID  | Title                                                  | Profile                   | Batch | Layer      | Status           | Dependencies       |
+| -------- | ------------------------------------------------------ | ------------------------- | ----- | ---------- | ---------------- | ------------------ |
+| Task-A-1 | Criar armazenamento e serviço de segredos de aplicação | deep → deepExecutor       | A     | foundation | [DONE] completed | —                  |
+| Task-B-1 | Resolver segredos no disparo dos sincronizadores       | deep → deepExecutor       | B     | core       | [DONE] completed | Task-A-1           |
+| Task-C-1 | Adicionar administração segura de segredos no painel   | general → generalExecutor | B     | surface    | [DONE] completed | Task-A-1           |
+| Task-D-1 | Integrar, validar e fechar a entrega de segredos       | general → generalExecutor | D     | final      | [DONE] completed | Task-B-1, Task-C-1 |
 
 ## Timeline
 
-| Timestamp | Task | Event | Try | Message |
-|-----------|------|-------|-----|---------|
-| 2026-07-15T00:41:51Z | Task-A-1 | started | None | Task dispatched after rebase to c22e434a. |
-| 2026-07-15T00:42:26Z | Task-A-1 | started | 1 | Iniciada leitura de contrato, arquitetura e testes. |
-| 2026-07-15T00:45:17Z | Task-A-1 | info | 1 | Testes RED confirmaram imports ausentes; schema, repositorio e servico agora implementados com testes focados verdes. |
-| 2026-07-15T00:48:38Z | Task-A-1 | ready_for_review | 1 | Fundacao concluida: schema, migration gerada, repositorio, servico e testes TDD verdes; relatorio preenchido. |
-| 2026-07-15T00:51:36Z | Task-A-1 | info | None | Batch A review found P1 unsafe mixed migration drift and P2 missing runtime/database allowlist enforcement; returning task for one consolidated fix. |
-| 2026-07-15T00:52:13Z | Task-A-1 | started | None | Task-A-1 remediation: migration isolation and allowlist constraints |
-| 2026-07-15T00:57:46Z | Task-A-1 | info | None | Remediation complete: generated migration now contains only application_secrets_store, allowlist CHECK, and unique index; repository write guard and wrong-key fail-closed test added. |
-| 2026-07-15T00:57:46Z | Task-A-1 | ready_for_review | None | Task-A-1 remediation verified; ready for re-review. |
-| 2026-07-15T01:00:22Z | Task-A-1 | completed | None | c22e434a3fb31b00a29c961681a23d3575343115..HEAD review clean; focused schema 4/4 and service 6/6 passed; APP_ENCRYPTION_KEY helper compatibility verified. |
-| 2026-07-15T01:01:01Z | Task-B-1 | started | None | Batch B runtime integration dispatched after reviewed Task-A foundation. |
-| 2026-07-15T01:01:04Z | Task-C-1 | started | None | Batch B admin surface dispatched after reviewed Task-A foundation. |
-| 2026-07-15T01:01:31Z | Task-B-1 | started | 1 | Iniciada a migracao de resolucao de segredos por disparo. |
-| 2026-07-15T01:01:44Z | Task-C-1 | started | None | Started Task-C-1 admin secrets UI/API |
-| 2026-07-15T01:09:26Z | Task-B-1 | info | None | Original worker exceeded platform usage; orchestrator completed scope, green focused sync suite 12/12 and server typecheck. |
-| 2026-07-15T01:09:29Z | Task-B-1 | ready_for_review | None | Runtime/config integration complete; focused suite 12/12 and server typecheck passed. |
-| 2026-07-15T01:16:43Z | Task-C-1 | info | None | Original worker ended without handoff; orchestrator completed UI/API, green focused UI suite 12/12 and UI typecheck. |
-| 2026-07-15T01:16:47Z | Task-C-1 | ready_for_review | None | Admin secrets UI/API complete; focused UI suite 12/12 and UI typecheck passed. |
-| 2026-07-15T01:27:27Z | Task-B-1 | info | None | Batch B review found missing route compatibility regression and RED transcript; both remediated with real isolated-base RED and new route tests. |
-| 2026-07-15T01:27:32Z | Task-C-1 | info | None | Batch B review found missing React Hook Form/Zod use and RED transcript; both remediated with form refactor and real isolated-base RED. |
-| 2026-07-15T01:27:59Z | Task-B-1 | ready_for_review | None | Remediation complete: route compatibility regressions and isolated-base RED transcript added; green 14/14 and server typecheck. |
-| 2026-07-15T01:28:04Z | Task-C-1 | ready_for_review | None | Remediation complete: React Hook Form/Zod and isolated-base RED transcript added; green UI 12/12 and UI typecheck. |
-| 2026-07-15T01:30:26Z | Task-B-1 | info | None | Second review requested captured RED output; actual isolated worktree transcript added to report. |
-| 2026-07-15T01:30:31Z | Task-C-1 | info | None | Second review requested captured RED output; actual isolated worktree transcript added to report. |
-| 2026-07-15T01:32:42Z | Task-B-1 | completed | None | c22e434a3fb31b00a29c961681a23d3575343115..HEAD batch B review clean; dynamic resolver, route compatibility, TDD transcripts, focused 14/14 and server typecheck passed. |
-| 2026-07-15T01:32:47Z | Task-C-1 | completed | None | c22e434a3fb31b00a29c961681a23d3575343115..HEAD batch B review clean; admin-only UI/API, RHF/Zod, TDD transcript, focused UI 12/12 and UI typecheck passed. |
-| 2026-07-15T01:33:34Z | Task-D-1 | started | None | Final integration and verification started after reviewed batches A and B. |
-| 2026-07-15T01:49:37Z | Task-D-1 | ready_for_review | None | Final integration complete; user-approved external baselines documented and final remediation audit approved. |
-| 2026-07-15T01:50:06Z | Task-D-1 | completed | None | c22e434a3fb31b00a29c961681a23d3575343115..HEAD final audit clean; focused tests/typechecks/docs passed and user-approved external baselines documented. |
+| Timestamp            | Task     | Event            | Try  | Message                                                                                                                                                                                |
+| -------------------- | -------- | ---------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-15T00:41:51Z | Task-A-1 | started          | None | Task dispatched after rebase to c22e434a.                                                                                                                                              |
+| 2026-07-15T00:42:26Z | Task-A-1 | started          | 1    | Iniciada leitura de contrato, arquitetura e testes.                                                                                                                                    |
+| 2026-07-15T00:45:17Z | Task-A-1 | info             | 1    | Testes RED confirmaram imports ausentes; schema, repositorio e servico agora implementados com testes focados verdes.                                                                  |
+| 2026-07-15T00:48:38Z | Task-A-1 | ready_for_review | 1    | Fundacao concluida: schema, migration gerada, repositorio, servico e testes TDD verdes; relatorio preenchido.                                                                          |
+| 2026-07-15T00:51:36Z | Task-A-1 | info             | None | Batch A review found P1 unsafe mixed migration drift and P2 missing runtime/database allowlist enforcement; returning task for one consolidated fix.                                   |
+| 2026-07-15T00:52:13Z | Task-A-1 | started          | None | Task-A-1 remediation: migration isolation and allowlist constraints                                                                                                                    |
+| 2026-07-15T00:57:46Z | Task-A-1 | info             | None | Remediation complete: generated migration now contains only application_secrets_store, allowlist CHECK, and unique index; repository write guard and wrong-key fail-closed test added. |
+| 2026-07-15T00:57:46Z | Task-A-1 | ready_for_review | None | Task-A-1 remediation verified; ready for re-review.                                                                                                                                    |
+| 2026-07-15T01:00:22Z | Task-A-1 | completed        | None | c22e434a3fb31b00a29c961681a23d3575343115..HEAD review clean; focused schema 4/4 and service 6/6 passed; APP_ENCRYPTION_KEY helper compatibility verified.                              |
+| 2026-07-15T01:01:01Z | Task-B-1 | started          | None | Batch B runtime integration dispatched after reviewed Task-A foundation.                                                                                                               |
+| 2026-07-15T01:01:04Z | Task-C-1 | started          | None | Batch B admin surface dispatched after reviewed Task-A foundation.                                                                                                                     |
+| 2026-07-15T01:01:31Z | Task-B-1 | started          | 1    | Iniciada a migracao de resolucao de segredos por disparo.                                                                                                                              |
+| 2026-07-15T01:01:44Z | Task-C-1 | started          | None | Started Task-C-1 admin secrets UI/API                                                                                                                                                  |
+| 2026-07-15T01:09:26Z | Task-B-1 | info             | None | Original worker exceeded platform usage; orchestrator completed scope, green focused sync suite 12/12 and server typecheck.                                                            |
+| 2026-07-15T01:09:29Z | Task-B-1 | ready_for_review | None | Runtime/config integration complete; focused suite 12/12 and server typecheck passed.                                                                                                  |
+| 2026-07-15T01:16:43Z | Task-C-1 | info             | None | Original worker ended without handoff; orchestrator completed UI/API, green focused UI suite 12/12 and UI typecheck.                                                                   |
+| 2026-07-15T01:16:47Z | Task-C-1 | ready_for_review | None | Admin secrets UI/API complete; focused UI suite 12/12 and UI typecheck passed.                                                                                                         |
+| 2026-07-15T01:27:27Z | Task-B-1 | info             | None | Batch B review found missing route compatibility regression and RED transcript; both remediated with real isolated-base RED and new route tests.                                       |
+| 2026-07-15T01:27:32Z | Task-C-1 | info             | None | Batch B review found missing React Hook Form/Zod use and RED transcript; both remediated with form refactor and real isolated-base RED.                                                |
+| 2026-07-15T01:27:59Z | Task-B-1 | ready_for_review | None | Remediation complete: route compatibility regressions and isolated-base RED transcript added; green 14/14 and server typecheck.                                                        |
+| 2026-07-15T01:28:04Z | Task-C-1 | ready_for_review | None | Remediation complete: React Hook Form/Zod and isolated-base RED transcript added; green UI 12/12 and UI typecheck.                                                                     |
+| 2026-07-15T01:30:26Z | Task-B-1 | info             | None | Second review requested captured RED output; actual isolated worktree transcript added to report.                                                                                      |
+| 2026-07-15T01:30:31Z | Task-C-1 | info             | None | Second review requested captured RED output; actual isolated worktree transcript added to report.                                                                                      |
+| 2026-07-15T01:32:42Z | Task-B-1 | completed        | None | c22e434a3fb31b00a29c961681a23d3575343115..HEAD batch B review clean; dynamic resolver, route compatibility, TDD transcripts, focused 14/14 and server typecheck passed.                |
+| 2026-07-15T01:32:47Z | Task-C-1 | completed        | None | c22e434a3fb31b00a29c961681a23d3575343115..HEAD batch B review clean; admin-only UI/API, RHF/Zod, TDD transcript, focused UI 12/12 and UI typecheck passed.                             |
+| 2026-07-15T01:33:34Z | Task-D-1 | started          | None | Final integration and verification started after reviewed batches A and B.                                                                                                             |
+| 2026-07-15T01:49:37Z | Task-D-1 | ready_for_review | None | Final integration complete; user-approved external baselines documented and final remediation audit approved.                                                                          |
+| 2026-07-15T01:50:06Z | Task-D-1 | completed        | None | c22e434a3fb31b00a29c961681a23d3575343115..HEAD final audit clean; focused tests/typechecks/docs passed and user-approved external baselines documented.                                |
 
 ## Requirements Coverage
 
-| Requirement | Status | Covered By |
-|-------------|--------|------------|
-| REQ-001: Persistência cifrada | [DONE] completed | Task-A-1, Task-D-1 |
-| REQ-002: Gestão administrativa restrita | [DONE] completed | Task-A-1, Task-C-1, Task-D-1 |
+| Requirement                                   | Status           | Covered By                   |
+| --------------------------------------------- | ---------------- | ---------------------------- |
+| REQ-001: Persistência cifrada                 | [DONE] completed | Task-A-1, Task-D-1           |
+| REQ-002: Gestão administrativa restrita       | [DONE] completed | Task-A-1, Task-C-1, Task-D-1 |
 | REQ-003: Contrato criptográfico e fail-closed | [DONE] completed | Task-A-1, Task-B-1, Task-D-1 |
-| REQ-004: Resolução dinâmica no sync | [DONE] completed | Task-B-1, Task-D-1 |
-| REQ-005: Remoção do contrato de ambiente | [DONE] completed | Task-B-1, Task-C-1, Task-D-1 |
+| REQ-004: Resolução dinâmica no sync           | [DONE] completed | Task-B-1, Task-D-1           |
+| REQ-005: Remoção do contrato de ambiente      | [DONE] completed | Task-B-1, Task-C-1, Task-D-1 |
 
 ## Registry Parameters
 
@@ -92,7 +92,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
 <details>
 <summary>Complete <code>super-plan.json</code></summary>
 
-````json
+```json
 {
   "$schema": "https://raw.githubusercontent.com/gugacarbo/agents-skills/main/skills/super-planning/interfaces/super-plan.schema.json",
   "createdAt": "2026-07-14T23:05:59.996481+00:00",
@@ -200,13 +200,8 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "Tabela application_secrets_store tem key única e envelope não nulo.",
         "Plaintext nunca é persistido."
       ],
-      "coveredByTasks": [
-        "Task-A-1",
-        "Task-D-1"
-      ],
-      "notes": [
-        "Migration é gerada do schema Drizzle."
-      ]
+      "coveredByTasks": ["Task-A-1", "Task-D-1"],
+      "notes": ["Migration é gerada do schema Drizzle."]
     },
     {
       "id": "REQ-002",
@@ -217,14 +212,8 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "Somente admin lista status, salva ou remove.",
         "Viewer e anônimo são rejeitados antes de criar serviço."
       ],
-      "coveredByTasks": [
-        "Task-A-1",
-        "Task-C-1",
-        "Task-D-1"
-      ],
-      "notes": [
-        "Status também não é visível para viewer."
-      ]
+      "coveredByTasks": ["Task-A-1", "Task-C-1", "Task-D-1"],
+      "notes": ["Status também não é visível para viewer."]
     },
     {
       "id": "REQ-003",
@@ -235,14 +224,8 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "APP_ENCRYPTION_KEY cifra e decifra somente no limite interno.",
         "Envelope ausente ou inválido impede o runner."
       ],
-      "coveredByTasks": [
-        "Task-A-1",
-        "Task-B-1",
-        "Task-D-1"
-      ],
-      "notes": [
-        "Reutilizar envelope AES-256-GCM existente."
-      ]
+      "coveredByTasks": ["Task-A-1", "Task-B-1", "Task-D-1"],
+      "notes": ["Reutilizar envelope AES-256-GCM existente."]
     },
     {
       "id": "REQ-004",
@@ -253,13 +236,8 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "Cada trigger resolve a chave no banco.",
         "Erro do runner não vaza segredo em status ou rota."
       ],
-      "coveredByTasks": [
-        "Task-B-1",
-        "Task-D-1"
-      ],
-      "notes": [
-        "Códigos públicos legados permanecem estáveis."
-      ]
+      "coveredByTasks": ["Task-B-1", "Task-D-1"],
+      "notes": ["Códigos públicos legados permanecem estáveis."]
     },
     {
       "id": "REQ-005",
@@ -270,11 +248,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "As duas variáveis não existem no schema/config/runtime/example.",
         "Não há bootstrap nem fallback."
       ],
-      "coveredByTasks": [
-        "Task-B-1",
-        "Task-C-1",
-        "Task-D-1"
-      ],
+      "coveredByTasks": ["Task-B-1", "Task-C-1", "Task-D-1"],
       "notes": [
         "Os nomes podem existir nos códigos públicos de compatibilidade."
       ]
@@ -312,11 +286,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "Missing or malformed stored values fail closed without returning plaintext or crypto material.",
         "Focused schema and service tests show RED before implementation and GREEN after it."
       ],
-      "requirements": [
-        "REQ-001",
-        "REQ-002",
-        "REQ-003"
-      ],
+      "requirements": ["REQ-001", "REQ-002", "REQ-003"],
       "rules": [
         "TDD required for this behavior-changing task.",
         "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",
@@ -395,9 +365,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "progressLog": "docs/jobs/0006-application-secrets/Task-B-1/progress.log",
       "logTaskScript": "docs/jobs/0006-application-secrets/Task-B-1/log-task.sh",
       "baseCommit": "c22e434a3fb31b00a29c961681a23d3575343115",
-      "dependencies": [
-        "Task-A-1"
-      ],
+      "dependencies": ["Task-A-1"],
       "acceptanceCriteria": [
         "ARTIFICIAL_ANALYSIS_API_KEY and OPENROUTER_API_KEY are absent from config schema, app runtime and .env.example.",
         "Both sync services resolve their allowlisted secret at each trigger and do not retain a startup value.",
@@ -405,11 +373,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "Runner errors cannot include the resolved secret in status or route responses.",
         "Focused RED/GREEN tests cover both syncs, missing secret and runner echo."
       ],
-      "requirements": [
-        "REQ-003",
-        "REQ-004",
-        "REQ-005"
-      ],
+      "requirements": ["REQ-003", "REQ-004", "REQ-005"],
       "rules": [
         "TDD required for this behavior-changing task.",
         "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",
@@ -485,9 +449,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "progressLog": "docs/jobs/0006-application-secrets/Task-C-1/progress.log",
       "logTaskScript": "docs/jobs/0006-application-secrets/Task-C-1/log-task.sh",
       "baseCommit": "c22e434a3fb31b00a29c961681a23d3575343115",
-      "dependencies": [
-        "Task-A-1"
-      ],
+      "dependencies": ["Task-A-1"],
       "acceptanceCriteria": [
         "The protected /models/secrets route preloads only metadata and renders the two fixed secret statuses.",
         "Unauthenticated and viewer requests fail before the service is created; admin requests can list, save and remove.",
@@ -495,10 +457,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "Save and removal invalidate the secrets query and the UI never repopulates a saved value.",
         "Focused handler, query and component tests demonstrate RED then GREEN."
       ],
-      "requirements": [
-        "REQ-002",
-        "REQ-005"
-      ],
+      "requirements": ["REQ-002", "REQ-005"],
       "rules": [
         "TDD required for this behavior-changing task.",
         "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",
@@ -576,10 +535,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
       "progressLog": "docs/jobs/0006-application-secrets/Task-D-1/progress.log",
       "logTaskScript": "docs/jobs/0006-application-secrets/Task-D-1/log-task.sh",
       "baseCommit": "c22e434a3fb31b00a29c961681a23d3575343115",
-      "dependencies": [
-        "Task-B-1",
-        "Task-C-1"
-      ],
+      "dependencies": ["Task-B-1", "Task-C-1"],
       "acceptanceCriteria": [
         "All focused schema, service, UI and sync tests pass together.",
         "pnpm typecheck and pnpm verify -c pass or any pre-existing failure is documented with unrelated evidence.",
@@ -587,13 +543,7 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
         "The scoped environment-variable search is empty while legacy public codes remain covered by route tests.",
         "The task report records commands, results, migration path and controlled-environment human review required before closure."
       ],
-      "requirements": [
-        "REQ-001",
-        "REQ-002",
-        "REQ-003",
-        "REQ-004",
-        "REQ-005"
-      ],
+      "requirements": ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005"],
       "rules": [
         "Do not mark implementation tasks completed; that is orchestrator-owned after batch review.",
         "Do not broaden scope to key rotation, fallback or provider credential migration.",
@@ -648,6 +598,6 @@ Every parameter from `super-plan.json` is preserved below. This section is gener
   ],
   "updatedAt": "2026-07-15T01:50:24.801676+00:00"
 }
-````
+```
 
 </details>

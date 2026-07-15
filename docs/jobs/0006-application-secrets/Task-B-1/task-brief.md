@@ -2,15 +2,15 @@
 
 # Task Brief: Task-B-1: Resolver segredos no disparo dos sincronizadores
 
-| Field | Value |
-|-------|-------|
-| ID | `Task-B-1` |
-| Status | ⏳ pending |
-| Profile | deep → deepExecutor |
-| Layer | core |
-| Batch | B |
-| Try Count | 1 |
-| Dependencies | `Task-A-1` |
+| Field        | Value               |
+| ------------ | ------------------- |
+| ID           | `Task-B-1`          |
+| Status       | ⏳ pending          |
+| Profile      | deep → deepExecutor |
+| Layer        | core                |
+| Batch        | B                   |
+| Try Count    | 1                   |
+| Dependencies | `Task-A-1`          |
 
 Remover as duas chaves do contrato de ambiente e alterar os syncs de Artificial Analysis e OpenRouter para resolver o valor do banco por disparo, preservando códigos públicos e redigindo falhas do runner.
 
@@ -88,4 +88,3 @@ pnpm --filter server exec vitest run src/__tests__/benchmark-sync-application-se
 - This task may start only after Task-A-1 exports the resolver contract.
 
 ---
-

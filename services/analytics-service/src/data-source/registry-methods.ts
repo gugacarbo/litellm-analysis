@@ -1,13 +1,13 @@
-import crypto from "node:crypto";
 import { db } from "@lite-llm/database/client";
+import { applicationSecretsStore } from "@lite-llm/database/schema";
 import {
   modelProxyModels,
   modelProxyProviders,
   modelProxySettings,
 } from "@lite-llm/database/schema/model-proxy";
 import type { ModelConfig, ModelRoute } from "@lite-llm/llm-config-service";
-import { toModelRoute } from "@lite-llm/llm-config-service";
-import { asc, eq } from "drizzle-orm";
+import { providerSecretKey, toModelRoute } from "@lite-llm/llm-config-service";
+import { asc, eq, inArray } from "drizzle-orm";
 import type { ModelDetail, ModelEntry, RegistryProvider } from "../types/index";
 
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
@@ -199,12 +199,30 @@ export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
     .select()
     .from(modelProxyProviders)
     .orderBy(asc(modelProxyProviders.name));
+  const credentialRows = rows.length
+    ? await db
+        .select({
+          key: applicationSecretsStore.key,
+        })
+        .from(applicationSecretsStore)
+        .where(
+          inArray(
+            applicationSecretsStore.key,
+            rows.map((record) => providerSecretKey(record.id)),
+          ),
+        )
+    : [];
+  const configuredCredentials = new Set(
+    credentialRows.map((record) => record.key),
+  );
   return rows.map((record) => ({
     providerId: record.id,
     providerName: record.name,
     providerValues: null,
     providerInfo: {
-      credentialStatus: record.credentialEnvelope ? "configured" : "missing",
+      credentialStatus: configuredCredentials.has(providerSecretKey(record.id))
+        ? "configured"
+        : "missing",
       provider: record.provider,
     },
     createdAt: record.createdAt.toISOString(),

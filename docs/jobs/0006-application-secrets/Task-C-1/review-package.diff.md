@@ -13,9 +13,9 @@ index 858fef3c..0bdc7099 100644
 --- a/apps/ui/src/features/model-admin/contracts/model-admin.ts
 +++ b/apps/ui/src/features/model-admin/contracts/model-admin.ts
 @@ -34,6 +34,43 @@ export type Result<T> = { ok: true; data: T } | DomainError;
- 
+
  export const emptyInputSchema = z.object({});
- 
+
 +export const applicationSecretKeySchema = z.enum([
 +  "artificial_analysis_api_key",
 +  "openrouter_api_key",
@@ -63,7 +63,7 @@ index 6b8e7327..61decf3f 100644
 @@ -10,6 +10,11 @@ vi.mock("@/features/model-admin/server/model-admin.functions", () => ({
    discoverModels: vi.fn(),
  }));
- 
+
 +vi.mock("@/features/model-admin/server/application-secrets.functions", () => ({
 +  listApplicationSecrets: vi.fn(),
 +}));
@@ -111,7 +111,7 @@ index d0a9caf7..fc4b3c53 100644
 +    list: [...modelAdminKey, "application-secrets", "list"] as const,
 +  },
  } as const;
- 
+
  class ModelAdminQueryError extends Error {
 @@ -85,6 +90,11 @@ export const modelAdminQueries = {
        queryFn: () =>
@@ -123,7 +123,7 @@ index d0a9caf7..fc4b3c53 100644
 +      queryFn: () => unwrapResult(() => listApplicationSecrets({ data: {} })),
 +    }),
  };
- 
+
  export const invalidateModelAdmin = {
 @@ -145,4 +155,8 @@ export const invalidateModelAdmin = {
      queryClient.invalidateQueries({
@@ -145,7 +145,7 @@ index a234af95..8fc2f323 100644
 +import { Route as ProtectedModelsSecretsRouteImport } from './routes/_protected/models/secrets'
  import { Route as ProtectedModelsAliasesRouteImport } from './routes/_protected/models/aliases'
  import { Route as ProtectedModelsModelIdSettingsRouteImport } from './routes/_protected/models/$modelId/settings'
- 
+
 @@ -59,6 +60,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
    path: '/api/auth/$',
    getParentRoute: () => rootRouteImport,
@@ -221,14 +221,14 @@ index a234af95..8fc2f323 100644
        id: '/_protected/models/aliases'
        path: '/aliases'
 @@ -225,12 +244,14 @@ declare module '@tanstack/react-router' {
- 
+
  interface ProtectedModelsRouteChildren {
    ProtectedModelsAliasesRoute: typeof ProtectedModelsAliasesRoute
 +  ProtectedModelsSecretsRoute: typeof ProtectedModelsSecretsRoute
    ProtectedModelsIndexRoute: typeof ProtectedModelsIndexRoute
    ProtectedModelsModelIdSettingsRoute: typeof ProtectedModelsModelIdSettingsRoute
  }
- 
+
  const ProtectedModelsRouteChildren: ProtectedModelsRouteChildren = {
    ProtectedModelsAliasesRoute: ProtectedModelsAliasesRoute,
 +  ProtectedModelsSecretsRoute: ProtectedModelsSecretsRoute,
@@ -965,4 +965,3 @@ index 00000000..76d3fca1
 +});
 
 ```
-

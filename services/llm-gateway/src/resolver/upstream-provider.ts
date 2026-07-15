@@ -1,4 +1,5 @@
 import { db } from "@lite-llm/database/client";
+import { applicationSecretsStore } from "@lite-llm/database/schema";
 import {
   type ModelProxyModel,
   modelProxyModels,
@@ -7,6 +8,7 @@ import {
 import {
   OPENAI_CHATGPT_API_BASE,
   parseProviderEncryptionKey,
+  providerSecretKey,
   resolveProviderCredential,
 } from "@lite-llm/llm-config-service";
 import type { Provider } from "@lite-llm/models-repository";
@@ -38,7 +40,8 @@ function resolveProviderByName(
 
   return Object.entries(providers).find(([key, provider]) => {
     return (
-      key === trimmedProviderName || provider.name?.trim() === trimmedProviderName
+      key === trimmedProviderName ||
+      provider.name?.trim() === trimmedProviderName
     );
   })?.[1];
 }
@@ -204,10 +207,26 @@ export async function resolveUpstreamTarget(params: {
   const isChatGptSubscription =
     upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
 
+  const storedCredential = effectiveDbProvider
+    ? await db
+        .select({
+          credentialEnvelope: applicationSecretsStore.credentialEnvelope,
+        })
+        .from(applicationSecretsStore)
+        .where(
+          eq(
+            applicationSecretsStore.key,
+            providerSecretKey(effectiveDbProvider.id),
+          ),
+        )
+        .limit(1)
+        .then((rows) => rows[0] ?? null)
+    : null;
+
   const upstreamCredential = isChatGptSubscription
     ? undefined
     : resolveProviderCredential(
-        effectiveDbProvider ?? { credentialEnvelope: null },
+        { credentialEnvelope: storedCredential?.credentialEnvelope ?? null },
         parseProviderEncryptionKey(),
       );
 

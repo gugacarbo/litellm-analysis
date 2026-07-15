@@ -80,6 +80,15 @@ CREATE TABLE "user" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 
+CREATE TABLE "application_secrets_store" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"key" text NOT NULL,
+	"credential_envelope" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "ck_application_secrets_store_key_allowlist" CHECK ("application_secrets_store"."key" IN ('artificial_analysis_api_key', 'openrouter_api_key') OR "application_secrets_store"."key" ~ '^provider:[0-9a-fA-F-]{36}$')
+);
+
 CREATE TABLE "verification" (
 	"id" text PRIMARY KEY NOT NULL,
 	"identifier" text NOT NULL,
@@ -184,7 +193,6 @@ CREATE TABLE "model_proxy_providers" (
 	"is_default" boolean DEFAULT false NOT NULL,
 	"provider" text,
 	"base_url" text,
-	"credential_envelope" text,
 	"revision" integer DEFAULT 1 NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -275,6 +283,7 @@ CREATE INDEX "app_invite_email_idx" ON "app_invite" USING btree ("email");
 CREATE UNIQUE INDEX "session_token_idx" ON "session" USING btree ("token");
 CREATE INDEX "session_user_id_idx" ON "session" USING btree ("user_id");
 CREATE UNIQUE INDEX "user_email_idx" ON "user" USING btree ("email");
+CREATE UNIQUE INDEX "uq_application_secrets_store_key" ON "application_secrets_store" USING btree ("key");
 CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");
 CREATE UNIQUE INDEX "uq_model_proxy_aliases_normalized" ON "model_proxy_aliases" USING btree ("alias_normalized");
 CREATE INDEX "idx_api_keys_enabled_label" ON "model_proxy_api_keys" USING btree ("enabled","label");

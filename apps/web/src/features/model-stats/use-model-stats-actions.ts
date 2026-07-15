@@ -13,7 +13,6 @@ export function useModelStatsActions(
     fn: ColumnKey[] | ((prev: ColumnKey[]) => ColumnKey[]),
   ) => void,
 ) {
-
   const handleSort = useCallback(
     (field: SortField) => {
       if (sortField === field) {

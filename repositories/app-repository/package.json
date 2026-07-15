@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./queries": "./src/queries.ts"
+    "./queries": "./src/queries-public.ts"
   },
   "scripts": {
     "build": "tsc",

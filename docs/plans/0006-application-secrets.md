@@ -62,8 +62,7 @@ arquivos. Revisão por tarefa.
 
 ```ts
 type ApplicationSecretKey =
-  | "artificial_analysis_api_key"
-  | "openrouter_api_key";
+  "artificial_analysis_api_key" | "openrouter_api_key";
 
 type ApplicationSecretPublic = {
   key: ApplicationSecretKey;
@@ -72,8 +71,9 @@ type ApplicationSecretPublic = {
   updatedAt: Date | null;
 };
 
-type ApplicationSecretsResolver =
-  (key: ApplicationSecretKey) => Promise<string | null>;
+type ApplicationSecretsResolver = (
+  key: ApplicationSecretKey,
+) => Promise<string | null>;
 ```
 
 Resolver plaintext is internal to sync execution. Public operations never
@@ -81,12 +81,12 @@ return the value, envelope, IV, tag, fingerprint or derived material.
 
 ## References and Constraints
 
-| Source | Governs | Consequence |
-| --- | --- | --- |
-| `docs/specs/0006-application-secrets-spec.md` | contract, access, runtime and errors | Implement exactly two allowlisted keys and no fallback. |
+| Source                                                      | Governs                                  | Consequence                                                   |
+| ----------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------- |
+| `docs/specs/0006-application-secrets-spec.md`               | contract, access, runtime and errors     | Implement exactly two allowlisted keys and no fallback.       |
 | `docs/spec-decisions/0006_application_secrets_decisions.md` | table name and separation from providers | Use dedicated `application_secrets_store` service/repository. |
-| `docs/context/CONVENTIONS.md` | crypto, Drizzle and UI rules | Reuse envelope; no secret output; use shadcn/RHF/Zod. |
-| `docs/context/testing-anti-patterns.md` | test substitutes | Use repository fakes/runner stubs only at real boundaries. |
+| `docs/context/CONVENTIONS.md`                               | crypto, Drizzle and UI rules             | Reuse envelope; no secret output; use shadcn/RHF/Zod.         |
+| `docs/context/testing-anti-patterns.md`                     | test substitutes                         | Use repository fakes/runner stubs only at real boundaries.    |
 
 **Unresolved decisions:** None.
 
@@ -103,18 +103,18 @@ return the value, envelope, IV, tag, fingerprint or derived material.
 
 ## Files and Tasks
 
-| File / directory | Change | Owner | Depends on | Contract |
-| --- | --- | --- | --- | --- |
-| `database/src/schema/application-secrets.ts` | create table/type | `Task-A-1` | none | Name is exactly `application_secrets_store`; unique key, non-null envelope. |
-| `database/src/schema/index.ts`, `database/drizzle/`, contract test | modify/generate | `Task-A-1` | none | Export schema and generated migration. |
-| `services/llm-config-service/src/repositories/application-secrets-repository.ts` | create | `Task-A-1` | none | Drizzle find/upsert/delete seam. |
-| `services/llm-config-service/src/services/application-secrets.service.ts`, tests, exports/factory | create/modify | `Task-A-1` | none | Allowlist, crypto, metadata DTO and internal resolver. |
-| `packages/config/src/server.ts`, `.env.example` | modify | `Task-B-1` | `Task-A-1` | Remove two runtime environment contracts. |
-| `apps/server/src/application/*benchmark-sync*`, tests, `runtime/app-runtime.ts` | modify/create | `Task-B-1` | `Task-A-1` | Resolve at trigger time; safe runner errors. |
-| `apps/ui/src/features/model-admin/secrets/` | create | `Task-C-1` | `Task-A-1` | Admin-only UI and tests. |
-| `apps/ui/src/features/model-admin/contracts/model-admin.ts`, server functions/handlers, queries | modify/create | `Task-C-1` | `Task-A-1` | Auth-first Zod contracts and invalidation. |
-| `apps/ui/src/routes/_protected/models/secrets.tsx`, route tree | create/modify | `Task-C-1` | `Task-A-1` | Protected preloaded route. |
-| SPEC/docs indexes | modify | `Task-D-1` | `Task-B-1`, `Task-C-1` | Close only after evidence and review. |
+| File / directory                                                                                  | Change            | Owner      | Depends on             | Contract                                                                    |
+| ------------------------------------------------------------------------------------------------- | ----------------- | ---------- | ---------------------- | --------------------------------------------------------------------------- |
+| `database/src/schema/application-secrets.ts`                                                      | create table/type | `Task-A-1` | none                   | Name is exactly `application_secrets_store`; unique key, non-null envelope. |
+| `database/src/schema/index.ts`, `database/drizzle/`, contract test                                | modify/generate   | `Task-A-1` | none                   | Export schema and generated migration.                                      |
+| `services/llm-config-service/src/repositories/application-secrets-repository.ts`                  | create            | `Task-A-1` | none                   | Drizzle find/upsert/delete seam.                                            |
+| `services/llm-config-service/src/services/application-secrets.service.ts`, tests, exports/factory | create/modify     | `Task-A-1` | none                   | Allowlist, crypto, metadata DTO and internal resolver.                      |
+| `packages/config/src/server.ts`, `.env.example`                                                   | modify            | `Task-B-1` | `Task-A-1`             | Remove two runtime environment contracts.                                   |
+| `apps/server/src/application/*benchmark-sync*`, tests, `runtime/app-runtime.ts`                   | modify/create     | `Task-B-1` | `Task-A-1`             | Resolve at trigger time; safe runner errors.                                |
+| `apps/ui/src/features/model-admin/secrets/`                                                       | create            | `Task-C-1` | `Task-A-1`             | Admin-only UI and tests.                                                    |
+| `apps/ui/src/features/model-admin/contracts/model-admin.ts`, server functions/handlers, queries   | modify/create     | `Task-C-1` | `Task-A-1`             | Auth-first Zod contracts and invalidation.                                  |
+| `apps/ui/src/routes/_protected/models/secrets.tsx`, route tree                                    | create/modify     | `Task-C-1` | `Task-A-1`             | Protected preloaded route.                                                  |
+| SPEC/docs indexes                                                                                 | modify            | `Task-D-1` | `Task-B-1`, `Task-C-1` | Close only after evidence and review.                                       |
 
 ### Implementation sequence
 
@@ -127,13 +127,13 @@ return the value, envelope, IV, tag, fingerprint or derived material.
 
 ## Documentation Verification
 
-| Technology | Focused question | Method | Source | Applied to |
-| --- | --- | --- | --- | --- |
-| Drizzle ORM | table/export/migration pattern | repository-pattern | `database/src/schema/model-proxy/table.ts`, `database/package.json` | A uses shared schema/export and `db:generate`. |
-| Node crypto | envelope/key parsing behavior | repository-pattern | `services/llm-config-service/src/lib/provider-secrets.ts` | A reuses AES-GCM/fail-closed path. |
-| TanStack Start | auth-first server function pattern | repository-pattern | `apps/ui/src/features/model-admin/server/model-admin.functions.ts` | C keeps DB lazy until admin auth. |
-| React Query/UI | prefetch/query/invalidation pattern | repository-pattern | `apps/ui/src/features/model-admin/query/query-options.ts` | C adds isolated keys/loader. |
-| Vitest | focused package command pattern | repository-pattern | package scripts and `apps/server/vitest.config.ts` | Task commands use package `exec vitest run`. |
+| Technology     | Focused question                    | Method             | Source                                                              | Applied to                                     |
+| -------------- | ----------------------------------- | ------------------ | ------------------------------------------------------------------- | ---------------------------------------------- |
+| Drizzle ORM    | table/export/migration pattern      | repository-pattern | `database/src/schema/model-proxy/table.ts`, `database/package.json` | A uses shared schema/export and `db:generate`. |
+| Node crypto    | envelope/key parsing behavior       | repository-pattern | `services/llm-config-service/src/lib/provider-secrets.ts`           | A reuses AES-GCM/fail-closed path.             |
+| TanStack Start | auth-first server function pattern  | repository-pattern | `apps/ui/src/features/model-admin/server/model-admin.functions.ts`  | C keeps DB lazy until admin auth.              |
+| React Query/UI | prefetch/query/invalidation pattern | repository-pattern | `apps/ui/src/features/model-admin/query/query-options.ts`           | C adds isolated keys/loader.                   |
+| Vitest         | focused package command pattern     | repository-pattern | package scripts and `apps/server/vitest.config.ts`                  | Task commands use package `exec vitest run`.   |
 
 No external lookup is needed: all material APIs have current, directly
 applicable repository patterns and this plan introduces no ambiguous new API.
@@ -154,28 +154,28 @@ pnpm typecheck
 pnpm verify -c
 ```
 
-| ID | Scenario | Level | Owner | Evidence |
-| --- | --- | --- | --- | --- |
-| T1 | unique key/non-null envelope | schema | `Task-A-1` | RED/GREEN contract test |
-| T2 | encrypt/upsert/list metadata only | service | `Task-A-1` | fake repository, no secret result |
-| T3 | missing/corrupt record fails closed | service | `Task-A-1` | resolver failure, no runner call |
-| T4 | unauthenticated/viewer never constructs service | handler | `Task-C-1` | call order test |
-| T5 | admin save/remove does not show value | component | `Task-C-1` | mutation/invalidation test |
-| T6 | sync resolves at trigger time | application | `Task-B-1` | runner receives resolved value |
-| T7 | runner echo cannot reach status/route | application/route | `Task-B-1` | safe fixed error test |
-| T8 | deleted env vars absent from contract | config/runtime | `Task-B-1` | scoped search/bootstrap test |
+| ID  | Scenario                                        | Level             | Owner      | Evidence                          |
+| --- | ----------------------------------------------- | ----------------- | ---------- | --------------------------------- |
+| T1  | unique key/non-null envelope                    | schema            | `Task-A-1` | RED/GREEN contract test           |
+| T2  | encrypt/upsert/list metadata only               | service           | `Task-A-1` | fake repository, no secret result |
+| T3  | missing/corrupt record fails closed             | service           | `Task-A-1` | resolver failure, no runner call  |
+| T4  | unauthenticated/viewer never constructs service | handler           | `Task-C-1` | call order test                   |
+| T5  | admin save/remove does not show value           | component         | `Task-C-1` | mutation/invalidation test        |
+| T6  | sync resolves at trigger time                   | application       | `Task-B-1` | runner receives resolved value    |
+| T7  | runner echo cannot reach status/route           | application/route | `Task-B-1` | safe fixed error test             |
+| T8  | deleted env vars absent from contract           | config/runtime    | `Task-B-1` | scoped search/bootstrap test      |
 
 **Human review:** Save real keys in a controlled environment, trigger both
 syncs, inspect UI/logs, and verify deploy removes only the two upstream vars.
 
 ## Risks and Handoff
 
-| Risk | Detection | Mitigation | Recovery |
-| --- | --- | --- | --- |
-| Missing DB secret | 503 configuration response | Admin saves value | Resave value from controlled source. |
-| Runner echoes token | status/route regression test | Normalize failures | Revert runtime change and rotate key. |
-| Migration drift | generated migration/schema test | Generate from schema | Revert before deploy. |
-| UI auth bypass | handler order test | Separate admin-only handlers | Remove route/function. |
+| Risk                | Detection                       | Mitigation                   | Recovery                              |
+| ------------------- | ------------------------------- | ---------------------------- | ------------------------------------- |
+| Missing DB secret   | 503 configuration response      | Admin saves value            | Resave value from controlled source.  |
+| Runner echoes token | status/route regression test    | Normalize failures           | Revert runtime change and rotate key. |
+| Migration drift     | generated migration/schema test | Generate from schema         | Revert before deploy.                 |
+| UI auth bypass      | handler order test              | Separate admin-only handlers | Remove route/function.                |
 
 **Rollout:** Apply migration before server/UI code; configure both values before
 sync. No feature flag or compatibility window exists.

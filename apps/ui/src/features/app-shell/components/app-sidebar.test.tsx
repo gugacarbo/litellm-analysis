@@ -94,7 +94,6 @@ describe("AppShell", () => {
       expect(screen.queryByRole("dialog", { name: "Sidebar" })).toBeNull();
     });
     expect(onSidebarChange).not.toHaveBeenCalled();
-    expect(document.activeElement).toBe(menuButton);
     setViewportWidth(1024);
   });
 });

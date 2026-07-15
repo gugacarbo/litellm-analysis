@@ -53,7 +53,7 @@ index 27260bdb..548558cc 100644
  import { modelProxyProviders } from "./providers";
 @@ -11,6 +12,27 @@ function findIndex(table: Parameters<typeof getTableConfig>[0], name: string) {
  }
- 
+
  describe("model proxy clean-cut schema", () => {
 +  it("stores application secrets under a unique key with a required encrypted envelope", () => {
 +    const keyIndex = findIndex(
@@ -101,7 +101,7 @@ index 0c6e8a3b..8db5f76b 100644
 +  applicationSecretsService: IApplicationSecretsService;
    openAiOAuthService: IOpenAiOAuthService;
  }
- 
+
 @@ -38,6 +43,7 @@ export function createRegistryServices(
      settingsService: new SettingsService({ db }),
      registryModelsService: new RegistryModelsService({ db }),
@@ -2757,4 +2757,3 @@ index 00000000..dce123a3
 +});
 
 ```
-

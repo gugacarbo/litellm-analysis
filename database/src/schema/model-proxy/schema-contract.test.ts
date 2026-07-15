@@ -57,7 +57,7 @@ describe("model proxy clean-cut schema", () => {
     expect(modelProxyModels.revision.notNull).toBe(true);
   });
 
-  it("keeps the optional provider default physically unique and removes legacy credentials", () => {
+  it("keeps the optional provider default physically unique and stores credentials separately", () => {
     const defaultIndex = findIndex(
       modelProxyProviders,
       "uq_model_proxy_providers_single_default",
@@ -66,7 +66,7 @@ describe("model proxy clean-cut schema", () => {
     expect(modelProxyProviders.revision.notNull).toBe(true);
     expect(defaultIndex?.config.unique).toBe(true);
     expect(defaultIndex?.config.where).toBeDefined();
-    expect(modelProxyProviders).toHaveProperty("credentialEnvelope");
+    expect(modelProxyProviders).not.toHaveProperty("credentialEnvelope");
     expect(modelProxyProviders).not.toHaveProperty("apiKey");
     expect(modelProxyProviders).not.toHaveProperty("secretRef");
   });

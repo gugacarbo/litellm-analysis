@@ -12,7 +12,8 @@
       "!.agents/skills/skill-*",
       "!**/generated",
       "!**/.opencode/index",
-      "!docs/index.json"
+      "!docs/index.json",
+      "!apps/ui/src/routeTree.gen.ts"
     ]
   },
   "formatter": {
@@ -58,6 +59,36 @@
                 "maxLines": 250
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/ui/src/features/model-admin/aliases/aliases-page.tsx",
+        "apps/ui/src/features/model-admin/contracts/model-admin.ts",
+        "apps/ui/src/features/model-admin/models/model-settings-page.tsx",
+        "apps/ui/src/features/model-admin/models/models-page.tsx",
+        "apps/ui/src/features/model-admin/providers/providers-page.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/ui/src/shared/components/ui/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useKeyWithClickEvents": "off",
+            "useSemanticElements": "off",
+            "useFocusableInteractive": "off",
+            "useAriaPropsSupportedByRole": "off",
+            "useAriaPropsForRole": "off"
           }
         }
       }

@@ -13,6 +13,7 @@ import {
   parseProviderEncryptionKey,
   resolveProviderCredential,
 } from "../lib/provider-secrets.js";
+import { ApplicationSecretsRepository } from "../repositories/application-secrets-repository.js";
 import type {
   AliasPublic,
   AliasRow,
@@ -1477,7 +1478,11 @@ class NodeHttpsOpenAiCompatibleTransport implements OpenAiCompatibleTransport {
 }
 
 class DrizzleModelAdminRepository implements ModelAdminRepository {
-  constructor(private readonly db: DatabaseClient) {}
+  private readonly applicationSecrets: ApplicationSecretsRepository;
+
+  constructor(private readonly db: DatabaseClient) {
+    this.applicationSecrets = new ApplicationSecretsRepository(db);
+  }
 
   async transaction<T>(
     operation: (repository: ModelAdminRepository) => Promise<T>,
@@ -1497,7 +1502,7 @@ class DrizzleModelAdminRepository implements ModelAdminRepository {
       .from(modelProxyProviders)
       .where(eq(modelProxyProviders.id, id))
       .limit(1);
-    return row ?? null;
+    return row ? this.withCredential(row) : null;
   }
 
   async getProviderByName(name: string): Promise<ProviderRow | null> {
@@ -1506,26 +1511,34 @@ class DrizzleModelAdminRepository implements ModelAdminRepository {
       .from(modelProxyProviders)
       .where(eq(modelProxyProviders.name, name))
       .limit(1);
-    return row ?? null;
+    return row ? this.withCredential(row) : null;
   }
 
   async listProviders(): Promise<ProviderRow[]> {
-    return this.db
+    const rows = await this.db
       .select()
       .from(modelProxyProviders)
       .orderBy(asc(modelProxyProviders.name));
+    return Promise.all(rows.map((row) => this.withCredential(row)));
   }
 
   async insertProvider(
     input: Omit<ProviderRow, "id" | "revision" | "createdAt" | "updatedAt">,
   ): Promise<ProviderRow> {
+    const { credentialEnvelope, ...providerInput } = input;
     const [row] = await this.db
       .insert(modelProxyProviders)
-      .values(input)
+      .values(providerInput)
       .returning();
     if (!row)
       throw new ModelAdminError("INTERNAL", "Provider could not be saved");
-    return row;
+    if (credentialEnvelope) {
+      await this.applicationSecrets.upsertProviderCredential(
+        row.id,
+        credentialEnvelope,
+      );
+    }
+    return { ...row, credentialEnvelope: credentialEnvelope ?? null };
   }
 
   async updateProviderIfRevision(
@@ -1535,9 +1548,14 @@ class DrizzleModelAdminRepository implements ModelAdminRepository {
       Omit<ProviderRow, "id" | "revision" | "createdAt" | "updatedAt">
     >,
   ): Promise<ProviderRow | null> {
+    const { credentialEnvelope, ...providerInput } = input;
     const [row] = await this.db
       .update(modelProxyProviders)
-      .set({ ...input, revision: expectedRevision + 1, updatedAt: new Date() })
+      .set({
+        ...providerInput,
+        revision: expectedRevision + 1,
+        updatedAt: new Date(),
+      })
       .where(
         and(
           eq(modelProxyProviders.id, id),
@@ -1545,7 +1563,16 @@ class DrizzleModelAdminRepository implements ModelAdminRepository {
         ),
       )
       .returning();
-    return row ?? null;
+    if (!row) return null;
+    if (credentialEnvelope === null) {
+      await this.applicationSecrets.deleteProviderCredential(row.id);
+    } else if (credentialEnvelope !== undefined) {
+      await this.applicationSecrets.upsertProviderCredential(
+        row.id,
+        credentialEnvelope,
+      );
+    }
+    return this.withCredential(row);
   }
 
   async clearDefaultProviders(exceptId?: string): Promise<void> {
@@ -1575,14 +1602,20 @@ class DrizzleModelAdminRepository implements ModelAdminRepository {
   }
 
   async deleteProvider(id: string): Promise<boolean> {
-    return (
-      (
-        await this.db
-          .delete(modelProxyProviders)
-          .where(eq(modelProxyProviders.id, id))
-          .returning({ id: modelProxyProviders.id })
-      ).length > 0
-    );
+    const deleted = await this.db
+      .delete(modelProxyProviders)
+      .where(eq(modelProxyProviders.id, id))
+      .returning({ id: modelProxyProviders.id });
+    if (deleted.length === 0) return false;
+    await this.applicationSecrets.deleteProviderCredential(id);
+    return true;
+  }
+
+  private async withCredential(
+    row: Omit<ProviderRow, "credentialEnvelope">,
+  ): Promise<ProviderRow> {
+    const secret = await this.applicationSecrets.findProviderCredential(row.id);
+    return { ...row, credentialEnvelope: secret?.credentialEnvelope ?? null };
   }
 
   async getModel(id: string): Promise<ModelRow | null> {

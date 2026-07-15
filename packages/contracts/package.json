@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./analytics": "./src/analytics.ts",
+    "./analytics": "./src/analytics-public.ts",
     "./agent-routing": "./src/agent-routing.ts",
     "./benchmarks": "./src/benchmarks.ts",
     "./category": "./src/category.ts",
