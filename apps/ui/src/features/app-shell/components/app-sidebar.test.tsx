@@ -50,7 +50,7 @@ describe("AppShell", () => {
     expect(modelsLink.getAttribute("href")).toBe("/models");
     expect(modelsLink.getAttribute("aria-current")).toBeNull();
     const secretsLink = screen.getByRole("link", { name: "Secrets" });
-    expect(secretsLink.getAttribute("href")).toBe("/models/secrets");
+    expect(secretsLink.getAttribute("href")).toBe("/secrets");
     expect(secretsLink.getAttribute("aria-current")).toBeNull();
     const providersLink = screen.getByRole("link", { name: "Providers" });
     expect(providersLink.getAttribute("href")).toBe("/providers");

@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 
 export type NavigationItem = {
   label: string;
-  to: "/" | "/models" | "/models/secrets" | "/providers";
+  to: "/" | "/models" | "/providers" | "/secrets";
   icon: ComponentType<{ className?: string }>;
 };
 
@@ -20,7 +20,7 @@ export const navigationItems: readonly NavigationItem[] = [
   },
   {
     label: "Secrets",
-    to: "/models/secrets",
+    to: "/secrets",
     icon: KeyRoundIcon,
   },
   {

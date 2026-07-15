@@ -80,6 +80,9 @@ describe("SecretsPage", () => {
   it("renders the two fixed metadata-only statuses", () => {
     renderPage();
 
+    expect(
+      screen.getByRole("heading", { name: "Application secrets" }),
+    ).toBeTruthy();
     expect(screen.getByText("Artificial Analysis")).toBeTruthy();
     expect(screen.getByText("OpenRouter")).toBeTruthy();
     expect(screen.getByText("Configured")).toBeTruthy();

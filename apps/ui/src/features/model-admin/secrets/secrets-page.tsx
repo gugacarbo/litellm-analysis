@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { PageHeader } from "@/features/app-shell/components/page-header";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import {
   AlertDialog,
@@ -112,13 +113,11 @@ export function SecretsPage() {
   );
 
   return (
-    <section className="space-y-6 p-6 md:p-8">
-      <header>
-        <h1 className="text-3xl font-bold">Application secrets</h1>
-        <p className="mt-2 text-muted-foreground">
-          Configure provider keys without exposing their values after save.
-        </p>
-      </header>
+    <section className="space-y-6">
+      <PageHeader
+        title="Application secrets"
+        subtitle="Configure provider keys without exposing their values after save."
+      />
 
       {feedback ? (
         <Alert>
@@ -126,7 +125,7 @@ export function SecretsPage() {
         </Alert>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4">
         {secretDefinitions.map((definition) => {
           const secret: ApplicationSecretPublic = byKey.get(definition.key) ?? {
             key: definition.key,

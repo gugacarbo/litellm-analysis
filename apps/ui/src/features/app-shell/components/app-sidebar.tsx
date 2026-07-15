@@ -23,7 +23,7 @@ export type AppSidebarProps = {
 
 function NavigationMenu({ pathname }: Pick<AppSidebarProps, "pathname">) {
   return (
-    <SidebarMenu>
+    <SidebarMenu className="gap-1">
       {navigationItems.map((item) => {
         const Icon = item.icon;
         const isActive = isNavigationItemActive(item, pathname);
