@@ -2,7 +2,6 @@
 
 export * from "./api-client/agent-catalog";
 export * from "./api-client/analytics";
-export * from "./api-client/benchmark-aliases";
 export * from "./api-client/benchmarks";
 export * from "./api-client/core";
 export * from "./api-client/health-check";

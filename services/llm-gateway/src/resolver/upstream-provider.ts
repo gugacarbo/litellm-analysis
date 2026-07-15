@@ -4,7 +4,11 @@ import {
   modelProxyModels,
   modelProxyProviders,
 } from "@lite-llm/database/schema/model-proxy";
-import { OPENAI_CHATGPT_API_BASE } from "@lite-llm/llm-config-service";
+import {
+  OPENAI_CHATGPT_API_BASE,
+  parseProviderEncryptionKey,
+  resolveProviderCredential,
+} from "@lite-llm/llm-config-service";
 import type { Provider } from "@lite-llm/models-repository";
 import { and, eq } from "drizzle-orm";
 
@@ -34,38 +38,13 @@ function resolveProviderByName(
 
   return Object.entries(providers).find(([key, provider]) => {
     return (
-      key === trimmedProviderName ||
-      provider.defaultProvider?.trim() === trimmedProviderName ||
-      provider.name?.trim() === trimmedProviderName
+      key === trimmedProviderName || provider.name?.trim() === trimmedProviderName
     );
   })?.[1];
 }
 
 function normalizeBaseUrl(raw: string): string {
   return raw.replace(/\/+$/, "");
-}
-
-function readSecretRef(secretRef?: string | null): string | undefined {
-  if (!secretRef?.trim()) {
-    return undefined;
-  }
-  const val = process.env[secretRef.trim()];
-  return val?.trim() || undefined;
-}
-
-function resolveStoredProviderApiKey(
-  provider?: {
-    apiKey?: string | null;
-    secretRef?: string | null;
-  } | null,
-): string | undefined {
-  if (!provider) {
-    return undefined;
-  }
-
-  return (
-    readSecretRef(provider.secretRef) ?? (provider.apiKey?.trim() || undefined)
-  );
 }
 
 export function findUpstreamProvider(
@@ -91,7 +70,6 @@ export function findUpstreamProvider(
         adapter: "openai-compatible",
         ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
         baseUrl: OPENAI_CHATGPT_API_BASE,
-        defaultProvider: "",
       };
     }
 
@@ -214,16 +192,7 @@ export async function resolveUpstreamTarget(params: {
     providerName,
   );
 
-  const effectiveDbProvider =
-    dbProvider ??
-    (upstreamProvider?.defaultProvider
-      ? await db
-          .select()
-          .from(modelProxyProviders)
-          .where(eq(modelProxyProviders.name, upstreamProvider.defaultProvider))
-          .limit(1)
-          .then((r) => r[0] ?? null)
-      : null);
+  const effectiveDbProvider = dbProvider;
 
   const upstreamBaseUrl =
     effectiveDbProvider?.baseUrl?.trim() || upstreamProvider?.baseUrl?.trim();
@@ -235,11 +204,12 @@ export async function resolveUpstreamTarget(params: {
   const isChatGptSubscription =
     upstreamProvider?.ownedBy === CHATGPT_SUBSCRIPTION_PROVIDER;
 
-  const upstreamApiKey = resolveStoredProviderApiKey(effectiveDbProvider);
-
-  if (!isChatGptSubscription && !upstreamApiKey) {
-    throw new Error(`No upstream API key configured for model "${modelName}"`);
-  }
+  const upstreamCredential = isChatGptSubscription
+    ? undefined
+    : resolveProviderCredential(
+        effectiveDbProvider ?? { credentialEnvelope: null },
+        parseProviderEncryptionKey(),
+      );
 
   return {
     authMode: isChatGptSubscription ? "openai-chatgpt-oauth" : "bearer",
@@ -249,7 +219,7 @@ export async function resolveUpstreamTarget(params: {
     upstreamHeaders: isChatGptSubscription
       ? {}
       : {
-          authorization: `Bearer ${upstreamApiKey}`,
+          authorization: `Bearer ${upstreamCredential}`,
         },
     ownedBy: resolvedRow.family ?? "local-proxy",
     displayName: resolvedRow.displayName ?? undefined,

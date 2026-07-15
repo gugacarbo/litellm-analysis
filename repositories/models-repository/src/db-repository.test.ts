@@ -3,7 +3,6 @@ import {
   modelProxyProviders,
   modelProxySettings,
 } from "@lite-llm/database/schema/model-proxy";
-import { SETTING_KEYS } from "@lite-llm/llm-config-service";
 import { describe, expect, it, vi } from "vitest";
 import { createDbRepository } from "./db-repository";
 
@@ -239,7 +238,7 @@ function createInMemoryDb() {
               name: string;
               provider: string | null;
               baseUrl: string | null;
-              apiKey: string | null;
+              credentialEnvelope: string | null;
               createdAt: Date;
               updatedAt: Date;
             } = {
@@ -248,7 +247,10 @@ function createInMemoryDb() {
               provider:
                 typeof data.provider === "string" ? data.provider : null,
               baseUrl: typeof data.baseUrl === "string" ? data.baseUrl : null,
-              apiKey: typeof data.apiKey === "string" ? data.apiKey : null,
+              credentialEnvelope:
+                typeof data.credentialEnvelope === "string"
+                  ? data.credentialEnvelope
+                  : null,
               createdAt: now,
               updatedAt: now,
             };
@@ -408,20 +410,14 @@ describe("DbModelsRepository", () => {
     const config = {
       version: 1,
       provider: {
-        "local-proxy": {
-          name: "Local Model Proxy",
-          baseUrl: "http://localhost:3008/v1",
-          defaultProvider: "router-main",
-        },
         openai: {
           name: "OpenAI",
           adapter: "openai-compatible" as const,
           baseUrl: "https://api.openai.com/v1",
-          defaultProvider: "openai-main",
         },
       },
       models: {
-        "gpt-4": {
+        "openai/gpt-4": {
           enabled: true,
           displayName: "GPT-4",
           contextLength: 128000,
@@ -435,22 +431,17 @@ describe("DbModelsRepository", () => {
     await repository.write(config);
     const readBack = await repository.read();
 
-    expect(readBack.models["gpt-4"]?.displayName).toBe("GPT-4");
-    expect(readBack.models["gpt-4"]?.reasoning).toEqual({
+    expect(readBack.models["openai/gpt-4"]?.displayName).toBe("GPT-4");
+    expect(readBack.models["openai/gpt-4"]?.reasoning).toEqual({
       effort: "high",
     });
-    expect(readBack.provider["local-proxy"]?.defaultProvider).toBe(
-      "router-main",
-    );
-
     expect(helpers.models.size).toBe(1);
-    expect(helpers.settings.has(SETTING_KEYS.DEFAULT_PROVIDER)).toBe(true);
-    expect(helpers.providers.has("openai-main")).toBe(true);
-    const providerRecord = helpers.providers.get("openai-main") as Record<
+    expect(helpers.providers.has("openai")).toBe(true);
+    const providerRecord = helpers.providers.get("openai") as Record<
       string,
       unknown
     >;
-    expect(providerRecord?.apiKey).toBeNull();
+    expect(providerRecord?.credentialEnvelope).toBeNull();
   });
 
   it("does not expose upstream provider credentials through provider config reads", async () => {
@@ -464,7 +455,7 @@ describe("DbModelsRepository", () => {
       name: "Iproute",
       provider: "openai",
       baseUrl: "https://llm.iproute.cloud/",
-      apiKey: "sk-live-literal-secret",
+      credentialEnvelope: "enc:v1:encrypted",
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -474,7 +465,6 @@ describe("DbModelsRepository", () => {
     expect(readBack.provider.openai).toMatchObject({
       name: "Iproute",
       baseUrl: "https://llm.iproute.cloud/",
-      defaultProvider: "Iproute",
       ownedBy: "openai",
     });
   });
@@ -489,20 +479,13 @@ describe("DbModelsRepository", () => {
     await repository.write({
       version: 1,
       provider: {
-        "local-proxy": {
-          name: "Local Model Proxy",
-          baseUrl: "http://localhost:3008/v1",
-          defaultProvider: "router-main",
-        },
         "provider-a": {
           name: "provider-a",
           baseUrl: "http://provider-a.example.com/v1",
-          defaultProvider: "provider-a",
         },
         "provider-b": {
           name: "provider-b",
           baseUrl: "http://provider-b.example.com/v1",
-          defaultProvider: "provider-b",
         },
       },
       models: {

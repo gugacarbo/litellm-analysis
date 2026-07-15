@@ -1,15 +1,11 @@
 import {
-  Activity,
   AlertCircle,
   CheckCircle2,
-  Loader2,
   type LucideIcon,
   PercentCircle,
   XCircle,
 } from "lucide-react";
-import type { ReactNode } from "react";
 import { useState } from "react";
-import { Button } from "@/shared/components/ui/button";
 import { useHealthStatusPage } from "../hooks/use-health-status-page";
 import type { ModelWithStatus } from "../hooks/use-health-status-state";
 import type { HealthCheckResultEntry } from "../types/health-status-types";
@@ -43,7 +39,7 @@ function SmallStat({
 
 interface HealthStatusContentProps {
   embedded?: boolean;
-  runButton?: ReactNode;
+  readOnly?: boolean;
 }
 
 function modelWithStatusToEntry(
@@ -70,6 +66,7 @@ function modelWithStatusToEntry(
 
 export function HealthStatusContent({
   embedded = false,
+  readOnly = false,
 }: HealthStatusContentProps) {
   const { state, actions, derived, runningExecutions, partialMessages } =
     useHealthStatusPage();
@@ -140,24 +137,11 @@ export function HealthStatusContent({
             color={STATUS_COLORS.healthy}
           />
         </div>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => actions.triggerRun()}
-          disabled={actions.isGlobalRunning}
-        >
-          {actions.isGlobalRunning ? (
-            <>
-              <Loader2 className="size-3.5 animate-spin" />
-              Running...
-            </>
-          ) : (
-            <>
-              <Activity className="size-3.5" />
-              Run health check
-            </>
-          )}
-        </Button>
+        {readOnly ? (
+          <p className="text-sm text-muted-foreground">
+            This deprecated surface is read-only. Run health checks in apps/ui.
+          </p>
+        ) : null}
       </div>
 
       <HealthCheckTable
@@ -173,7 +157,11 @@ export function HealthStatusContent({
         start={start}
         end={end}
         onSelect={setSelectedStatus}
-        onTest={(modelName) => void actions.triggerSingleRun(modelName)}
+        onTest={
+          readOnly
+            ? undefined
+            : (modelName) => void actions.triggerSingleRun(modelName)
+        }
         onPrevPage={() =>
           state.setResultsPage(Math.max(0, state.resultsPage - 1))
         }

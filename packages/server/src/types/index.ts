@@ -3,7 +3,6 @@ import type { AnalyticsDataSource } from "@lite-llm/analytics-service/types";
 import type {
   IApiKeysService,
   IOpenAiOAuthService,
-  IProvidersService,
   IRegistryModelsService,
   ISettingsService,
 } from "@lite-llm/llm-config-service";
@@ -13,7 +12,6 @@ import type { IModelService, IProviderService } from "@lite-llm/models-service";
 export interface RegistryRouteServices {
   settingsService: ISettingsService;
   registryModelsService: IRegistryModelsService;
-  providersService: IProvidersService;
   apiKeysService: IApiKeysService;
   openAiOAuthService: IOpenAiOAuthService;
 }

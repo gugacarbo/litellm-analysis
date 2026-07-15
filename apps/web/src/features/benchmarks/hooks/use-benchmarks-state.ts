@@ -1,10 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef } from "react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import {
   getBenchmarkSyncStatus,
   getModelBenchmarks,
-  triggerBenchmarkSync,
 } from "@/shared/lib/api-client/benchmarks";
 import {
   type BenchmarkSortDirection,
@@ -47,7 +45,6 @@ interface UseBenchmarksStateResult extends PaginatedBase {
 }
 
 export function useBenchmarksState(): UseBenchmarksStateResult {
-  const queryClient = useQueryClient();
   const paginated = useBenchmarksPaginated({
     queryKeyPrefix: ["benchmarks"],
     fetcher: async (params) => getModelBenchmarks(Object.fromEntries(params)),
@@ -61,52 +58,8 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     refetchInterval: (query) => (query.state.data?.isRunning ? 2_000 : false),
   });
 
-  const previousSyncRunningRef = useRef(false);
-  const syncMutation = useMutation({
-    mutationFn: triggerBenchmarkSync,
-    onSuccess: async (result) => {
-      await queryClient.invalidateQueries({
-        queryKey: ["benchmarks", "sync-status"],
-      });
-      if (result.triggered) {
-        toast.success("Benchmark sync started");
-      } else if (result.isRunning) {
-        toast.success("Benchmark sync is already running");
-      } else if (!result.canTrigger) {
-        toast.info(
-          getSyncCooldownLabel(result) ??
-            "Benchmark sync will be available soon",
-        );
-      }
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to start sync",
-      );
-    },
-  });
-
-  useEffect(() => {
-    const status = syncStatusQuery.data;
-    if (!status) return;
-
-    const wasRunning = previousSyncRunningRef.current;
-    previousSyncRunningRef.current = status.isRunning;
-
-    if (!wasRunning || status.isRunning) return;
-
-    if (status.status === "succeeded") {
-      toast.success("Benchmark sync completed");
-      void paginated.invalidate();
-    } else if (status.status === "failed") {
-      toast.error(status.lastError ?? "Benchmark sync failed");
-    }
-  }, [paginated, syncStatusQuery.data]);
-
   const syncStatus = syncStatusQuery.data;
-  const isSyncRunning = Boolean(
-    syncStatus?.isRunning || syncMutation.isPending,
-  );
+  const isSyncRunning = Boolean(syncStatus?.isRunning);
   const canTriggerSync =
     Boolean(syncStatus?.canTrigger ?? true) && !isSyncRunning;
 
@@ -126,17 +79,7 @@ export function useBenchmarksState(): UseBenchmarksStateResult {
     syncLastError: syncStatus?.lastError ?? null,
     isSyncRunning,
     canTriggerSync,
-    triggerSync: () => {
-      if (!canTriggerSync) {
-        toast.info(
-          getSyncCooldownLabel(syncStatus) ??
-            "Benchmark sync will be available soon",
-        );
-        return;
-      }
-
-      syncMutation.mutate();
-    },
+    triggerSync: () => undefined,
     search: paginated.filters.search,
     setSearch: (value) => paginated.setFilter("search", value),
     provider: paginated.filters.provider,

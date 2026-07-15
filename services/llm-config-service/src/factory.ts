@@ -8,10 +8,6 @@ import {
   OpenAiOAuthService,
 } from "./services/openai-oauth.service.js";
 import {
-  type IProvidersService,
-  ProvidersService,
-} from "./services/providers.service.js";
-import {
   type IRegistryModelsService,
   RegistryModelsService,
 } from "./services/registry-models.service.js";
@@ -24,7 +20,6 @@ export interface RegistryServices {
   db: DatabaseClient;
   settingsService: ISettingsService;
   registryModelsService: IRegistryModelsService;
-  providersService: IProvidersService;
   apiKeysService: IApiKeysService;
   openAiOAuthService: IOpenAiOAuthService;
 }
@@ -42,7 +37,6 @@ export function createRegistryServices(
     db,
     settingsService: new SettingsService({ db }),
     registryModelsService: new RegistryModelsService({ db }),
-    providersService: new ProvidersService({ db }),
     apiKeysService: new ApiKeysService({ db }),
     openAiOAuthService: new OpenAiOAuthService({ db }),
   };

@@ -39,9 +39,7 @@ type ModelStatsDataTableProps = {
   sortField: SortField;
   sortDirection: SortDirection;
   totalSpend: number;
-  deleting: string | null;
   onSort: (field: SortField) => void;
-  onDeleteClick: (modelName: string) => void;
 };
 
 function SpendBar({ value, total }: { value: number; total: number }) {
@@ -104,9 +102,7 @@ export function ModelStatsDataTable({
   sortField,
   sortDirection,
   totalSpend,
-  deleting,
   onSort,
-  onDeleteClick,
 }: ModelStatsDataTableProps) {
   // Build column definitions
   const columns: ColumnDef<ModelStats>[] = [
@@ -389,26 +385,6 @@ export function ModelStatsDataTable({
       enableSorting: false,
       enableHiding: true,
     },
-    {
-      id: "actions",
-      enableHiding: false,
-      header: () => "",
-      cell: ({ row }) => {
-        const modelName = row.original.model ?? "";
-        const modelLabel = modelName.trim() ? modelName : "(no model)";
-        return (
-          <button
-            type="button"
-            className="inline-flex items-center justify-center h-6 w-6 rounded-md text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-            disabled={deleting === modelName}
-            onClick={() => onDeleteClick(modelName)}
-            aria-label={`Delete ${modelLabel}`}
-          >
-            {deleting === modelName ? "⋯" : "✕"}
-          </button>
-        );
-      },
-    },
   ];
 
   // Map visible columns to VisibilityState
@@ -422,7 +398,7 @@ export function ModelStatsDataTable({
   // Column alignment mapping
   const align: Record<string, "left" | "right" | "center"> = {};
   for (const col of columnConfig) {
-    if (col.key && col.key !== "model" && col.key !== "actions") {
+    if (col.key && col.key !== "model") {
       align[col.key] = "right";
     }
   }

@@ -12,7 +12,7 @@ function createQueryBuilder<T>(result: T) {
         where() {
           return {
             limit() {
-              if (table === modelProxyProviders || table === modelProxyModels) {
+              if (table === modelProxyProviders) {
                 return Promise.resolve(result);
               }
               return Promise.resolve([]);

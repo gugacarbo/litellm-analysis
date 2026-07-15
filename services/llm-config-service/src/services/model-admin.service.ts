@@ -9,9 +9,9 @@ import {
 } from "@lite-llm/database/schema";
 import { and, asc, eq, ne, sql } from "drizzle-orm";
 import {
-  decryptProviderSecretForUpstream,
   encryptProviderSecret,
   parseProviderEncryptionKey,
+  resolveProviderCredential,
 } from "../lib/provider-secrets.js";
 import type {
   AliasPublic,
@@ -678,10 +678,7 @@ export class ModelAdminService {
     const provider = await this.repository.getProvider(providerId);
     if (!provider) throw new ModelAdminError("NOT_FOUND", "Provider not found");
     const credential = provider.credentialEnvelope
-      ? decryptProviderSecretForUpstream(
-          provider.credentialEnvelope,
-          this.getEncryptionKey(),
-        )
+      ? resolveProviderCredential(provider, this.getEncryptionKey())
       : undefined;
     return operation(credential);
   }

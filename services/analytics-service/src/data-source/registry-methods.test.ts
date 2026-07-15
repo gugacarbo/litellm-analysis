@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-const mockModelRows = [
+let mockRows: Record<string, unknown>[] = [
   {
     id: "model-1",
     modelId: "gpt-4o",
@@ -31,7 +31,7 @@ vi.mock("@lite-llm/database/client", () => ({
   db: {
     select: () => ({
       from: () => ({
-        orderBy: () => Promise.resolve(mockModelRows),
+        orderBy: () => Promise.resolve(mockRows),
         where: () => ({
           limit: () =>
             Promise.resolve([
@@ -66,5 +66,29 @@ describe("registry delegate", () => {
     const { getAgentRoutingConfigImpl } = await import("./routing-methods");
     const config = await getAgentRoutingConfigImpl();
     expect(config?.model_group_alias).toBeDefined();
+  });
+
+  it("reports provider credential state without exposing legacy secret references", async () => {
+    mockRows = [
+      {
+        id: "provider-1",
+        name: "openai",
+        provider: "openai-compatible",
+        credentialEnvelope: "enc:v1:encrypted",
+        createdAt: new Date("2026-07-02T00:00:00.000Z"),
+        updatedAt: new Date("2026-07-02T00:00:00.000Z"),
+      },
+    ];
+    const { getRegistryProvidersImpl } = await import("./registry-methods");
+
+    await expect(getRegistryProvidersImpl()).resolves.toEqual([
+      expect.objectContaining({
+        providerName: "openai",
+        providerInfo: {
+          credentialStatus: "configured",
+          provider: "openai-compatible",
+        },
+      }),
+    ]);
   });
 });

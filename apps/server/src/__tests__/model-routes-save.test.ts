@@ -102,9 +102,6 @@ function createModelRoutesStack() {
           throw new Error("not implemented");
         },
         deleteByKey: async () => false,
-        getDefaultProvider: async () => null,
-        setDefaultProvider: async () => undefined,
-        deleteDefaultProvider: async () => false,
         getHealthCheckPrompt: async () => null,
         setHealthCheckPrompt: async () => undefined,
         getRouterSettings: async () => null,
@@ -165,20 +162,6 @@ function createModelRoutesStack() {
           return updated as never;
         },
         delete: async (modelName) => registryRoutes.delete(modelName),
-      },
-      providersService: {
-        list: async () => [],
-        get: async () => null,
-        create: async () => {
-          throw new Error("not implemented");
-        },
-        update: async () => {
-          throw new Error("not implemented");
-        },
-        upsert: async () => {
-          throw new Error("not implemented");
-        },
-        delete: async () => false,
       },
       apiKeysService: {
         list: async () => [],

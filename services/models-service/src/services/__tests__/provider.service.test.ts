@@ -32,7 +32,6 @@ describe("ProviderService", () => {
           name: "Local Model Proxy",
           ownedBy: "lite-llm-analytics",
           baseUrl: "http://localhost:3008/v1",
-          defaultProvider: "ATplus Router",
         },
       },
       models: {},
@@ -61,7 +60,6 @@ describe("ProviderService", () => {
       name: "OpenAI",
       ownedBy: "openai",
       baseUrl: "https://api.openai.com",
-      defaultProvider: "ATplus Router",
     });
     const provider = await service.get("openai");
     expect(provider?.name).toBe("OpenAI");
@@ -73,7 +71,6 @@ describe("ProviderService", () => {
         name: "Duplicate",
         ownedBy: "",
         baseUrl: "",
-        defaultProvider: "ATplus Router",
       }),
     ).rejects.toThrow(/already exists/);
   });

@@ -1,5 +1,6 @@
 import type { Provider } from "@lite-llm/models-repository";
-import { describe, expect, it, vi } from "vitest";
+import { encryptProviderSecret } from "@lite-llm/llm-config-service";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CHATGPT_SUBSCRIPTION_PROVIDER,
   findUpstreamProvider,
@@ -10,6 +11,12 @@ import {
 const { dbSelectMock } = vi.hoisted(() => ({
   dbSelectMock: vi.fn(),
 }));
+
+const TEST_ENCRYPTION_KEY = "12345678901234567890123456789012";
+
+function encryptedCredential(secret = "test-openai-key"): string {
+  return encryptProviderSecret(secret, Buffer.from(TEST_ENCRYPTION_KEY));
+}
 
 vi.mock("@lite-llm/database/client", () => ({
   db: {
@@ -23,19 +30,16 @@ function createProviderMap(): Record<string, Provider> {
       name: "Local Model Proxy",
       ownedBy: "lite-llm-analytics",
       baseUrl: "http://localhost:3008/v1",
-      defaultProvider: "router",
     },
     openai: {
       name: "OpenAI",
       adapter: "openai-compatible",
       baseUrl: "https://api.openai.com/v1",
-      defaultProvider: "openai-main",
     },
     deepseek: {
       name: "DeepSeek",
       adapter: "openai-compatible",
       baseUrl: "https://api.deepseek.com/v1",
-      defaultProvider: "deepseek-main",
     },
   };
 }
@@ -47,7 +51,7 @@ function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
     enabled: true,
     displayName: "GPT Test",
     family: "openai",
-    providerId: null,
+    providerId: "00000000-0000-0000-0000-000000000002",
     pricing: null,
     canonicalSlug: null,
     description: null,
@@ -62,6 +66,7 @@ function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
     perRequestLimits: null,
     requestOptions: null,
     reasoningApiId: null,
+    revision: 1,
     createdAt: new Date("2026-06-16T00:00:00.000Z"),
     updatedAt: new Date("2026-06-16T00:00:00.000Z"),
     ...overrides,
@@ -69,6 +74,17 @@ function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 describe("upstream-provider", () => {
+  beforeEach(() => {
+    process.env.APP_ENCRYPTION_KEY = TEST_ENCRYPTION_KEY;
+  });
+
+  afterEach(() => {
+    delete process.env.APP_ENCRYPTION_KEY;
+    delete process.env.OPENAI_API_KEY;
+    delete process.env.TEST_OPENAI_API_KEY;
+    delete process.env.TEST_IPROUTE_API_KEY;
+  });
+
   dbSelectMock.mockReturnValue({
     from: vi.fn(() => ({
       where: vi.fn(() => ({
@@ -76,7 +92,7 @@ describe("upstream-provider", () => {
           Promise.resolve([
             {
               name: "openai-main",
-              secretRef: process.env.OPENAI_API_KEY ? "OPENAI_API_KEY" : null,
+              credentialEnvelope: encryptedCredential(),
               baseUrl: null,
             },
           ]),
@@ -92,7 +108,6 @@ describe("upstream-provider", () => {
     );
 
     expect(provider?.baseUrl).toBe("https://api.openai.com/v1");
-    expect(provider?.defaultProvider).toBe("openai-main");
   });
 
   it("prefers the model provider name over family when resolving the provider", () => {
@@ -101,11 +116,10 @@ describe("upstream-provider", () => {
       createModelRow({
         family: "openai",
       }),
-      "deepseek-main",
+      "deepseek",
     );
 
     expect(provider?.baseUrl).toBe("https://api.deepseek.com/v1");
-    expect(provider?.defaultProvider).toBe("deepseek-main");
   });
 
   it("parses bare model names without a provider prefix", () => {
@@ -134,16 +148,12 @@ describe("upstream-provider", () => {
     });
   });
 
-  it("resolves upstream from provider registry without global env", async () => {
-    process.env.OPENAI_API_KEY = "test-openai-key";
-
+  it("resolves upstream from the encrypted provider envelope", async () => {
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
       row: createModelRow(),
     });
-
-    delete process.env.OPENAI_API_KEY;
 
     expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
     expect(target.upstreamHeaders).toEqual({
@@ -152,14 +162,11 @@ describe("upstream-provider", () => {
   });
 
   it("resolves a bare model name when there is a single database row", async () => {
-    process.env.OPENAI_API_KEY = "sk-test-key";
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
       row: createModelRow(),
     });
-    delete process.env.OPENAI_API_KEY;
-
     expect(target.model).toBe("gpt-test");
     expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
     expect(target.cost).toEqual({
@@ -169,7 +176,6 @@ describe("upstream-provider", () => {
   });
 
   it("resolves a bare model name to the provider-backed default row", async () => {
-    process.env.OPENAI_API_KEY = "sk-test-key";
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
@@ -177,13 +183,26 @@ describe("upstream-provider", () => {
         family: "openai",
       }),
     });
-    delete process.env.OPENAI_API_KEY;
-
     expect(target.ownedBy).toBe("openai");
   });
 
   it("resolves provider/model prefixes to the specific provider row", async () => {
-    process.env.OPENAI_API_KEY = "sk-test-key";
+    dbSelectMock.mockReturnValueOnce({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(() =>
+            Promise.resolve([
+              {
+                name: "deepseek-main",
+                credentialEnvelope: encryptedCredential(),
+                baseUrl: "https://api.deepseek.com/v1",
+              },
+            ]),
+          ),
+        })),
+      })),
+    });
+
     const row = createModelRow({
       family: "deepseek",
     });
@@ -193,15 +212,12 @@ describe("upstream-provider", () => {
       providers: createProviderMap(),
       row,
     });
-    delete process.env.OPENAI_API_KEY;
-
     expect(target.model).toBe("deepseek-main/gpt-test");
     expect(target.upstreamModel).toBe("gpt-test");
     expect(target.upstreamBaseUrl).toBe("https://api.deepseek.com/v1");
   });
 
-  it("keeps backward compatibility for NULL-provider rows resolved by bare model name", async () => {
-    process.env.OPENAI_API_KEY = "sk-test-key";
+  it("resolves a provider-backed row by bare model name", async () => {
     const target = await resolveUpstreamTarget({
       modelName: "gpt-test",
       providers: createProviderMap(),
@@ -209,8 +225,6 @@ describe("upstream-provider", () => {
         family: "openai",
       }),
     });
-    delete process.env.OPENAI_API_KEY;
-
     expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
   });
 
@@ -224,7 +238,7 @@ describe("upstream-provider", () => {
     ).rejects.toThrow('Model "gpt-test" is disabled');
   });
 
-  it("rejects a provider with no secretRef configured", async () => {
+  it("fails closed when a provider has no credential envelope", async () => {
     dbSelectMock.mockReturnValueOnce({
       from: vi.fn(() => ({
         where: vi.fn(() => ({
@@ -232,7 +246,7 @@ describe("upstream-provider", () => {
             Promise.resolve([
               {
                 name: "openai-main",
-                secretRef: null,
+                credentialEnvelope: null,
                 baseUrl: "https://api.openai.com/v1",
               },
             ]),
@@ -249,14 +263,13 @@ describe("upstream-provider", () => {
             name: "OpenAI",
             adapter: "openai-compatible",
             baseUrl: "https://api.openai.com/v1",
-            defaultProvider: "openai-main",
           },
         },
         row: createModelRow({
           family: "openai",
         }),
       }),
-    ).rejects.toThrow('No upstream API key configured for model "gpt-test"');
+    ).rejects.toThrow("Stored provider credential cannot be decrypted");
   });
 
   it("routes chatgpt-subscription models through OAuth even when they are identified by providerName", async () => {
@@ -267,7 +280,6 @@ describe("upstream-provider", () => {
           name: "OpenAI OAuth",
           ownedBy: CHATGPT_SUBSCRIPTION_PROVIDER,
           baseUrl: "https://chatgpt.com/backend-api/codex",
-          defaultProvider: "codex-plan",
         },
       },
       row: createModelRow({
@@ -283,8 +295,7 @@ describe("upstream-provider", () => {
     expect(target.upstreamHeaders).toEqual({});
   });
 
-  it("resolves API key from secretRef on the provider row", async () => {
-    process.env.TEST_OPENAI_API_KEY = "sk-secretref-key";
+  it("fails closed when the credential envelope is corrupt", async () => {
 
     dbSelectMock.mockReturnValueOnce({
       from: vi.fn(() => ({
@@ -293,7 +304,7 @@ describe("upstream-provider", () => {
             Promise.resolve([
               {
                 name: "openai-main",
-                secretRef: "TEST_OPENAI_API_KEY",
+                credentialEnvelope: "enc:v1:not-json",
                 baseUrl: "https://api.openai.com/v1",
               },
             ]),
@@ -302,31 +313,17 @@ describe("upstream-provider", () => {
       })),
     });
 
-    const target = await resolveUpstreamTarget({
-      modelName: "gpt-test",
-      providers: {
-        openai: {
-          name: "OpenAI",
-          adapter: "openai-compatible",
-          baseUrl: "https://api.openai.com/v1",
-          defaultProvider: "openai-main",
-        },
-      },
-      row: createModelRow({
-        family: "openai",
+    await expect(
+      resolveUpstreamTarget({
+        modelName: "gpt-test",
+        providers: createProviderMap(),
+        row: createModelRow(),
       }),
-    });
-
-    delete process.env.TEST_OPENAI_API_KEY;
-
-    expect(target.upstreamHeaders).toEqual({
-      authorization: "Bearer sk-secretref-key",
-    });
-    expect(target.upstreamBaseUrl).toBe("https://api.openai.com/v1");
+    ).rejects.toThrow("Stored provider credential cannot be decrypted");
   });
 
-  it("resolves API key from secretRef for a secondary provider", async () => {
-    process.env.TEST_IPROUTE_API_KEY = "sk-secretref-iproute-key";
+  it("does not fall back to environment variables when an envelope is missing", async () => {
+    process.env.OPENAI_API_KEY = "environment-secret";
 
     dbSelectMock.mockReturnValueOnce({
       from: vi.fn(() => ({
@@ -334,9 +331,9 @@ describe("upstream-provider", () => {
           limit: vi.fn(() =>
             Promise.resolve([
               {
-                name: "iproute-main",
-                secretRef: "TEST_IPROUTE_API_KEY",
-                baseUrl: "https://llm.iproute.cloud/v1",
+                name: "openai-main",
+                credentialEnvelope: null,
+                baseUrl: "https://api.openai.com/v1",
               },
             ]),
           ),
@@ -344,26 +341,12 @@ describe("upstream-provider", () => {
       })),
     });
 
-    const target = await resolveUpstreamTarget({
-      modelName: "gpt-test",
-      providers: {
-        openai: {
-          name: "OpenAI",
-          adapter: "openai-compatible",
-          baseUrl: "https://api.openai.com/v1",
-          defaultProvider: "iproute-main",
-        },
-      },
-      row: createModelRow({
-        family: "openai",
+    await expect(
+      resolveUpstreamTarget({
+        modelName: "gpt-test",
+        providers: createProviderMap(),
+        row: createModelRow(),
       }),
-    });
-
-    delete process.env.TEST_IPROUTE_API_KEY;
-
-    expect(target.upstreamHeaders).toEqual({
-      authorization: "Bearer sk-secretref-iproute-key",
-    });
-    expect(target.upstreamBaseUrl).toBe("https://llm.iproute.cloud/v1");
+    ).rejects.toThrow("Stored provider credential cannot be decrypted");
   });
 });

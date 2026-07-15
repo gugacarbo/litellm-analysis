@@ -14,7 +14,7 @@ type EncryptedProviderSecret = {
   tag: string;
 };
 
-export function isEncryptedProviderSecret(value: string): boolean {
+function isEncryptedProviderSecret(value: string): boolean {
   return value.startsWith(PROVIDER_SECRET_PREFIX);
 }
 
@@ -45,16 +45,6 @@ export function parseProviderEncryptionKey(
   return createHash("sha256").update(trimmed).digest();
 }
 
-export function encryptProviderSecretIfPlain(
-  secret: string,
-  encryptionKey: Buffer,
-): string {
-  if (isEncryptedProviderSecret(secret)) {
-    return secret;
-  }
-  return encryptProviderSecret(secret, encryptionKey);
-}
-
 export function encryptProviderSecret(
   secret: string,
   encryptionKey: Buffer,
@@ -80,7 +70,7 @@ export function encryptProviderSecret(
   ).toString("base64url")}`;
 }
 
-export function decryptProviderSecret(
+function decryptProviderSecret(
   storedSecret: string,
   encryptionKey: Buffer,
 ): string {
@@ -114,28 +104,25 @@ export function decryptProviderSecret(
   ]).toString("utf8");
 }
 
-export const decryptProviderSecretForUpstream = decryptProviderSecret;
-
-export function resolveProviderApiKey(
-  input: {
-    apiKey?: string | null;
-  },
-  env: NodeJS.ProcessEnv = process.env,
-): string | undefined {
-  const storedApiKey = input.apiKey?.trim();
-  if (!storedApiKey) {
-    return undefined;
+/**
+ * Resolves a credential only from the encrypted provider aggregate field.
+ *
+ * This module uses Node's crypto implementation and is intentionally a
+ * server-side boundary. Callers must invoke it immediately before their
+ * upstream operation; there is no plaintext or environment fallback.
+ */
+export function resolveProviderCredential(
+  input: { credentialEnvelope: string | null | undefined },
+  encryptionKey: Buffer,
+): string {
+  const envelope = input.credentialEnvelope?.trim();
+  if (!envelope || !isEncryptedProviderSecret(envelope)) {
+    throw new Error("Stored provider credential cannot be decrypted");
   }
 
-  if (!isEncryptedProviderSecret(storedApiKey)) {
-    return storedApiKey;
+  try {
+    return decryptProviderSecret(envelope, encryptionKey);
+  } catch {
+    throw new Error("Stored provider credential cannot be decrypted");
   }
-
-  return decryptProviderSecret(storedApiKey, parseProviderEncryptionKey(env));
-}
-
-export function hasStoredProviderSecret(input: {
-  apiKey?: string | null;
-}): boolean {
-  return Boolean(input.apiKey?.trim());
 }

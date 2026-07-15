@@ -25,12 +25,6 @@ export {
   ROUTE_PARAM_TO_MODEL_ROUTE,
 } from "./model-route.js";
 export type {
-  ProviderCreateInput,
-  ProviderRecord,
-  ProviderUpdateInput,
-} from "./providers.js";
-export type {
-  DefaultProviderSetting,
   HealthCheckPromptSetting,
   ModelProxySettingRecord,
   RouterSettingsValue,

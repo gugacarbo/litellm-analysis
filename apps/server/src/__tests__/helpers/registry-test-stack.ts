@@ -3,7 +3,6 @@ import type {
   ModelProxyModelRecord,
   ModelProxySettingRecord,
   ModelRouteUpdate,
-  ProviderRecord,
 } from "@lite-llm/llm-config-service";
 import {
   ApiKeysService,
@@ -31,14 +30,13 @@ type ApiKeyRow = {
 
 type JsonValue = unknown;
 
-function createInMemoryDb(providers: Map<string, ProviderRecord>) {
+function createInMemoryDb() {
   const settings = new Map<string, ModelProxySettingRecord>();
   const models = new Map<string, ModelProxyModelRecord>();
   const apiKeysById = new Map<string, ApiKeyRow>();
   const apiKeysByHash = new Map<string, ApiKeyRow>();
   let settingId = 1;
   let modelId = 1;
-  let providerId = 1;
   let apiKeyId = 1;
 
   return {
@@ -161,7 +159,7 @@ function createInMemoryDb(providers: Map<string, ProviderRecord>) {
             if (data.providerId && row.providerId !== data.providerId) {
               return false;
             }
-            return data.providerId ? true : true;
+            return true;
           });
           if (existing) {
             const error = new Error("Already exists") as Error & {
@@ -286,77 +284,6 @@ function createInMemoryDb(providers: Map<string, ProviderRecord>) {
         return existing;
       }),
     },
-    modelProxyProvider: {
-      findUnique: vi.fn(async ({ where }: { where: { name: string } }) => {
-        return providers.get(where.name) ?? null;
-      }),
-      findMany: vi.fn(async () =>
-        [...providers.values()].sort((a, b) => a.name.localeCompare(b.name)),
-      ),
-      create: vi.fn(
-        async (args: {
-          data: {
-            name: string;
-            isDefault?: boolean;
-            provider?: string | null;
-            baseUrl?: string | null;
-            apiKey?: string | null;
-            secretRef?: string | null;
-          };
-        }) => {
-          const now = new Date();
-          const row: ProviderRecord = {
-            id: `cred_${providerId++}`,
-            name: args.data.name,
-            isDefault: args.data.isDefault ?? false,
-            provider: args.data.provider ?? null,
-            baseUrl: args.data.baseUrl ?? null,
-            apiKey: args.data.apiKey ?? null,
-            secretRef: args.data.secretRef ?? null,
-            createdAt: now,
-            updatedAt: now,
-          };
-          providers.set(row.name, row);
-          return row;
-        },
-      ),
-      update: vi.fn(
-        async ({
-          where,
-          data,
-        }: {
-          where: { name: string };
-          data: Partial<{
-            name: string;
-            provider: string | null;
-            baseUrl: string | null;
-          }>;
-        }) => {
-          const existing = providers.get(where.name);
-          if (!existing) {
-            const error = new Error("Not found") as Error & { code: string };
-            error.code = "P2025";
-            throw error;
-          }
-          const updated = { ...existing, ...data, updatedAt: new Date() };
-          if (data.name && data.name !== where.name) {
-            providers.delete(where.name);
-          }
-          providers.set(updated.name, updated);
-          return updated;
-        },
-      ),
-      delete: vi.fn(async ({ where }: { where: { name: string } }) => {
-        const existing = providers.get(where.name);
-        if (!existing) {
-          const error = new Error("Not found") as Error & { code: string };
-          error.code = "P2025";
-          throw error;
-        }
-        providers.delete(where.name);
-        return existing;
-      }),
-    },
     modelProxyApiKey: {
       findUnique: vi.fn(
         async ({ where }: { where: { id?: string; keyHash?: string } }) => {
@@ -447,72 +374,9 @@ export interface RegistryTestStack {
 }
 
 export function createRegistryTestStack(): RegistryTestStack {
-  const providers = new Map<string, ProviderRecord>();
-  const db = createInMemoryDb(providers) as never;
+  const db = createInMemoryDb() as never;
   const settingsService = new SettingsService({ db });
   const registryModelsService = new RegistryModelsService({ db });
-  let providerRecordId = 1;
-  const providersService: RouteOptions["registry"]["providersService"] = {
-    async get(name: string) {
-      return providers.get(name) ?? null;
-    },
-    async list() {
-      return [...providers.values()].sort((left, right) =>
-        left.name.localeCompare(right.name),
-      );
-    },
-    async create(input) {
-      const trimmedName = input.name.trim();
-      if (!trimmedName) {
-        throw new Error("Provider name must be a non-empty string");
-      }
-      if (providers.has(trimmedName)) {
-        throw new Error(`Provider "${trimmedName}" already exists`);
-      }
-      const now = new Date();
-      const record: ProviderRecord = {
-        id: `provider_${providerRecordId++}`,
-        name: trimmedName,
-        isDefault: input.isDefault ?? false,
-        provider: input.provider ?? null,
-        baseUrl: input.baseUrl ?? null,
-        apiKey: input.apiKey ?? null,
-        secretRef: input.secretRef ?? null,
-        createdAt: now,
-        updatedAt: now,
-      };
-      providers.set(trimmedName, record);
-      return record;
-    },
-    async update(name, input) {
-      const existing = providers.get(name);
-      if (!existing) {
-        throw new Error(`Provider "${name}" not found`);
-      }
-      const updated: ProviderRecord = {
-        ...existing,
-        ...(input.name !== undefined ? { name: input.name.trim() } : {}),
-        ...(input.isDefault !== undefined
-          ? { isDefault: input.isDefault }
-          : {}),
-        ...(input.provider !== undefined ? { provider: input.provider } : {}),
-        ...(input.baseUrl !== undefined ? { baseUrl: input.baseUrl } : {}),
-        ...(input.apiKey !== undefined ? { apiKey: input.apiKey } : {}),
-        ...(input.secretRef !== undefined
-          ? { secretRef: input.secretRef }
-          : {}),
-        updatedAt: new Date(),
-      };
-      if (updated.name !== name) {
-        providers.delete(name);
-      }
-      providers.set(updated.name, updated);
-      return updated;
-    },
-    async delete(name) {
-      return providers.delete(name);
-    },
-  };
   const apiKeysService = new ApiKeysService({
     db,
     hashKey: async (plain) => `hash:${plain}`,
@@ -586,7 +450,6 @@ export function createRegistryTestStack(): RegistryTestStack {
   const registry: RouteOptions["registry"] = {
     settingsService,
     registryModelsService,
-    providersService,
     apiKeysService,
     openAiOAuthService: {
       getConnectionStatus: vi.fn(async () => ({

@@ -329,7 +329,7 @@ export class ModelsRepository {
       return api.create({
         data: {
           modelId: modelName,
-          providerId: providerId ?? null,
+          providerId,
           enabled: (route.enabled as boolean) ?? true,
           displayName: (route.displayName as string) ?? null,
           family: (route.family as string) ?? null,
@@ -461,7 +461,7 @@ export class ModelsRepository {
         where: { modelId: modelName },
         create: {
           modelId: modelName,
-          providerId: providerId ?? null,
+          providerId,
           enabled: (route.enabled as boolean) ?? true,
           displayName: (route.displayName as string) ?? null,
           family: (route.family as string) ?? null,
@@ -601,15 +601,27 @@ export class ModelsRepository {
 
   private async resolveProviderIdFromRoute(
     route: Record<string, unknown>,
-  ): Promise<string | undefined> {
+  ): Promise<string> {
     if ("providerId" in route) {
-      return (route.providerId as string | null | undefined) ?? undefined;
+      const providerId = route.providerId;
+      if (typeof providerId === "string" && providerId.trim()) {
+        return providerId;
+      }
+      throw new Error("Model route requires a non-empty providerId");
     }
 
     const providerName =
       typeof route.providerName === "string" ? route.providerName.trim() : "";
     if (!providerName) {
-      return undefined;
+      const [defaultProvider] = await this.db
+        .select({ id: modelProxyProviders.id })
+        .from(modelProxyProviders)
+        .where(eq(modelProxyProviders.isDefault, true))
+        .limit(1);
+      if (defaultProvider) {
+        return defaultProvider.id;
+      }
+      throw new Error("Model route requires providerName or a default provider");
     }
 
     const providerApi = this.providerApi;
@@ -617,13 +629,19 @@ export class ModelsRepository {
       const provider = await providerApi.findUnique({
         where: { name: providerName },
       });
-      return provider?.id;
+      if (provider) {
+        return provider.id;
+      }
+      throw new Error(`Provider not found: ${providerName}`);
     }
     if (providerApi?.findMany) {
       const provider = (await providerApi.findMany()).find(
         (row) => row.name === providerName,
       );
-      return provider?.id;
+      if (provider) {
+        return provider.id;
+      }
+      throw new Error(`Provider not found: ${providerName}`);
     }
 
     const provider = await this.db

@@ -86,47 +86,21 @@ describe("ModelsConfiguredPage", () => {
     vi.clearAllMocks();
   });
 
-  it("should show create button", async () => {
+  it("renders models with a read-only apps/ui handoff", async () => {
     renderWithQueryClient(<ModelsConfiguredPage />);
 
     const modelNames = await screen.findAllByText(/gpt-4|claude-3-opus/);
     expect(modelNames.length).toBeGreaterThan(0);
 
-    expect(
-      screen.getByRole("button", { name: /add model/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/read-only/i)).toBeInTheDocument();
+    expect(screen.getByText(/apps\/ui/i)).toBeInTheDocument();
   });
 
-  it("should show delete buttons", async () => {
+  it("does not expose create, update, delete, or sync controls", async () => {
     renderWithQueryClient(<ModelsConfiguredPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
 
-    const deleteButtons = screen
-      .getAllByRole("button")
-      .filter((btn) => btn.querySelector("svg.lucide-trash-2"));
-    expect(deleteButtons.length).toBeGreaterThanOrEqual(2);
-  });
-
-  it("should show edit link", async () => {
-    renderWithQueryClient(<ModelsConfiguredPage />);
-
-    await screen.findAllByText(/gpt-4|claude-3-opus/);
-
-    const editLinks = screen
-      .getAllByRole("link")
-      .filter((link) => link.querySelector("svg.lucide-pencil"));
-    expect(editLinks.length).toBe(2);
-  });
-
-  it("renders cost and context values from typed camelCase modelRoute fields", async () => {
-    renderWithQueryClient(<ModelsConfiguredPage />);
-
-    await screen.findAllByText(/gpt-4|claude-3-opus/);
-
-    expect(screen.getByText("$30.00/Mi")).toBeInTheDocument();
-    expect(screen.getByText("$60.00/Mi")).toBeInTheDocument();
-    expect(screen.getByText("$15.00/Mi")).toBeInTheDocument();
-    expect(screen.getByText("$75.00/Mi")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /add|edit|delete|save|sync/i })).toBeNull();
   });
 });

@@ -1,7 +1,6 @@
 import type { DatabaseClient } from "@lite-llm/database/client";
 import { SettingsRepository } from "../repositories/settings-repository.js";
 import {
-  type DefaultProviderSetting,
   type HealthCheckPromptSetting,
   type ModelProxySettingRecord,
   type RouterSettingsValue,
@@ -36,9 +35,6 @@ export interface ISettingsService {
     value: unknown,
   ): Promise<ModelProxySettingRecord>;
   deleteByKey(key: SettingKey): Promise<boolean>;
-  getDefaultProvider(): Promise<string | null>;
-  setDefaultProvider(providerName: string): Promise<void>;
-  deleteDefaultProvider(): Promise<boolean>;
   getHealthCheckPrompt(): Promise<string | null>;
   setHealthCheckPrompt(prompt: string): Promise<void>;
   getRouterSettings(): Promise<RouterSettingsValue | null>;
@@ -76,32 +72,6 @@ export class SettingsService implements ISettingsService {
 
   async deleteByKey(key: SettingKey): Promise<boolean> {
     return this.repository.deleteByKey(key);
-  }
-
-  async getDefaultProvider(): Promise<string | null> {
-    const row = await this.repository.findByKey(SETTING_KEYS.DEFAULT_PROVIDER);
-    if (!row) {
-      return null;
-    }
-    return readStringField(row.value, "default_provider") ?? null;
-  }
-
-  async setDefaultProvider(providerName: string): Promise<void> {
-    const trimmed = providerName.trim();
-    if (!trimmed) {
-      throw new Error("default_provider must be a non-empty string");
-    }
-    const value: DefaultProviderSetting = {
-      default_provider: trimmed,
-    };
-    await this.repository.upsert(
-      SETTING_KEYS.DEFAULT_PROVIDER,
-      value as JsonValue,
-    );
-  }
-
-  async deleteDefaultProvider(): Promise<boolean> {
-    return this.repository.deleteByKey(SETTING_KEYS.DEFAULT_PROVIDER);
   }
 
   async getHealthCheckPrompt(): Promise<string | null> {

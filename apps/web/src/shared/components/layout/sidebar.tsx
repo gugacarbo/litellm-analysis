@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Cpu,
   FileText,
-  GitBranch,
   HeartPulse,
   PanelLeftIcon,
   Scale,
@@ -135,12 +134,6 @@ export function AppSidebar() {
       label: "Models",
       children: [
         { id: "models-list", to: "/models", icon: Cpu, label: "Models" },
-        {
-          id: "models-aliases",
-          to: "/models/aliases",
-          icon: GitBranch,
-          label: "Aliases",
-        },
         {
           id: "models-providers",
           to: "/models/providers",

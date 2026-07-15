@@ -45,7 +45,6 @@ function resolveProviderFromModelProviderName(
   providers: Record<
     string,
     {
-      defaultProvider?: string;
       name: string;
       ownedBy?: string;
     }
@@ -59,9 +58,7 @@ function resolveProviderFromModelProviderName(
 
   return Object.entries(providers).find(([key, provider]) => {
     return (
-      key === trimmedProviderName ||
-      provider.defaultProvider?.trim() === trimmedProviderName ||
-      provider.name?.trim() === trimmedProviderName
+      key === trimmedProviderName || provider.name?.trim() === trimmedProviderName
     );
   })?.[1];
 }
@@ -180,7 +177,6 @@ export async function startAppRuntime(): Promise<AppRuntime> {
       registry: {
         settingsService: registry.settingsService,
         registryModelsService: registry.registryModelsService,
-        providersService: registry.providersService,
         apiKeysService: registry.apiKeysService,
         openAiOAuthService: registry.openAiOAuthService,
       },

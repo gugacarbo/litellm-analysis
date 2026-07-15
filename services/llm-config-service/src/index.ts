@@ -14,27 +14,16 @@ export {
   toRegistryEntry,
 } from "./dual-read/models-dual-read.js";
 export {
-  listProviders,
-  type ProviderListItem,
-  providerExists,
-  toPublicProvider,
-} from "./dual-read/providers-dual-read.js";
-export {
-  getDefaultProvider,
   getHealthCheckPrompt,
   getRouterSettings,
 } from "./dual-read/settings-dual-read.js";
 export { createRegistryServices, type RegistryServices } from "./factory.js";
 export {
-  decryptProviderSecret,
   encryptProviderSecret,
-  hasStoredProviderSecret,
-  isEncryptedProviderSecret,
   parseProviderEncryptionKey,
-  resolveProviderApiKey,
+  resolveProviderCredential,
 } from "./lib/provider-secrets.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
-export { ProvidersRepository } from "./repositories/providers-repository.js";
 export { SettingsRepository } from "./repositories/settings-repository.js";
 export {
   ApiKeysService,
@@ -42,15 +31,14 @@ export {
   type IApiKeysService,
 } from "./services/api-keys.service.js";
 export {
+  ModelAdminService,
+  type ModelAdminServiceOptions,
+} from "./services/model-admin.service.js";
+export {
   type IOpenAiOAuthService,
   OpenAiOAuthService,
   type OpenAiOAuthServiceOptions,
 } from "./services/openai-oauth.service.js";
-export {
-  type IProvidersService,
-  ProvidersService,
-  type ProvidersServiceOptions,
-} from "./services/providers.service.js";
 export {
   type IRegistryModelsService,
   RegistryModelsService,
@@ -61,14 +49,9 @@ export {
   SettingsService,
   type SettingsServiceOptions,
 } from "./services/settings.service.js";
-export {
-  ModelAdminService,
-  type ModelAdminServiceOptions,
-} from "./services/model-admin.service.js";
 export type {
   Architecture,
   DefaultParameters,
-  DefaultProviderSetting,
   Effort,
   HealthCheckPromptSetting,
   ModelConfig,
@@ -82,16 +65,12 @@ export type {
   ModelsWithConfigResponse,
   PerRequestLimits,
   Pricing,
-  ProviderCreateInput,
-  ProviderRecord,
-  ProviderUpdateInput,
   Reasoning,
   RouteParams,
   RouterSettingsValue,
   SettingKey,
   SupportedParameters,
 } from "./types/index.js";
-export { ModelAdminError } from "./types/model-admin.js";
 export {
   MODEL_ROUTE_TO_ROUTE_PARAM,
   normalizeSyncDirection,
@@ -100,6 +79,7 @@ export {
   ROUTE_PARAM_TO_MODEL_ROUTE,
   SETTING_KEYS,
 } from "./types/index.js";
+export { ModelAdminError } from "./types/model-admin.js";
 export type {
   OpenAiOAuthAuthenticatedRequestConfig,
   OpenAiOAuthConnectionStatus,

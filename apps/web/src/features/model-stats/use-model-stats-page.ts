@@ -12,16 +12,12 @@ export function useModelStatsPageState() {
     state.sortDirection,
   );
 
-  const { handleSort, toggleColumn, openDeleteDialog, handleDelete } =
+  const { handleSort, toggleColumn } =
     useModelStatsActions(
-      state.rangeDays,
       state.sortField,
       state.setSortField,
       state.sortDirection,
       state.setSortDirection,
-      state.deleting,
-      state.setDeleting,
-      state.setDeleteDialogOpen,
       state.setVisibleColumns,
     );
 
@@ -30,7 +26,5 @@ export function useModelStatsPageState() {
     ...derived,
     handleSort,
     toggleColumn,
-    openDeleteDialog,
-    handleDelete,
   };
 }
