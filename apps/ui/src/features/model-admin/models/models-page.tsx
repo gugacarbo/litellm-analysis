@@ -3,9 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod";
+import { PageHeader } from "@/features/app-shell/components/page-header";
 import {
-  saveModelInputSchema,
   type ProviderPublic,
+  saveModelInputSchema,
 } from "@/features/model-admin/contracts/model-admin";
 import {
   invalidateModelAdmin,
@@ -166,14 +167,10 @@ export function ModelsPage({ role }: ModelsPageProps) {
   });
 
   if (modelsQuery.isPending)
-    return (
-      <section className="p-8" aria-busy="true">
-        Loading models…
-      </section>
-    );
+    return <section aria-busy="true">Loading models…</section>;
   if (modelsQuery.isError) {
     return (
-      <section className="space-y-4 p-8">
+      <section className="space-y-4">
         <PublicError message={modelsQuery.error.message} />
         <Button onClick={() => void modelsQuery.refetch()}>Try again</Button>
       </section>
@@ -195,18 +192,16 @@ export function ModelsPage({ role }: ModelsPageProps) {
   );
 
   return (
-    <section className="space-y-6 p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">Models</h1>
-          <p className="text-muted-foreground">
-            Provider-scoped registry models.
-          </p>
-        </div>
-        {role === "admin" ? (
-          <Button onClick={() => setShowCreate(true)}>New model</Button>
-        ) : null}
-      </div>
+    <section className="space-y-6">
+      <PageHeader
+        title="Models"
+        subtitle="Provider-scoped registry models."
+        actions={
+          role === "admin" ? (
+            <Button onClick={() => setShowCreate(true)}>New model</Button>
+          ) : null
+        }
+      />
       {actionError ? (
         <Alert variant="destructive">
           <AlertDescription>{actionError}</AlertDescription>

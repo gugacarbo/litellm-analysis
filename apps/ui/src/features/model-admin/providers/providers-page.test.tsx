@@ -149,7 +149,6 @@ describe("ProvidersPage", () => {
   });
 
   it("explica a dependência que bloqueia a exclusão", async () => {
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     vi.mocked(deleteProvider).mockResolvedValue({
       ok: false,
       error: {
@@ -162,6 +161,12 @@ describe("ProvidersPage", () => {
     renderPage();
 
     fireEvent.click(screen.getByRole("button", { name: "Remover" }));
+    expect(
+      screen.getByText(
+        "Remover o provider OpenAI? Esta ação não pode ser desfeita.",
+      ),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Remover provider" }));
 
     expect(
       await screen.findByText(/Há 2 modelo\(s\) dependente\(s\)/),

@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: lite-llm-analytics-postgres
+    container_name: agent-lens-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-llmproxy}

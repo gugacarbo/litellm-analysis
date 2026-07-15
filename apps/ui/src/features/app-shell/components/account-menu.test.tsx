@@ -65,8 +65,9 @@ describe("AccountMenu", () => {
   it("shows only the supplied public account data", () => {
     const { container } = renderAccountMenu();
 
+    expect(screen.getByText("Ada")).toBeTruthy();
     fireEvent.click(getAccountMenuTrigger(container));
-    expect(screen.getAllByText(account.name)).toHaveLength(2);
+    expect(screen.getAllByText(account.name)).toHaveLength(1);
     expect(screen.getAllByText(account.email)).toHaveLength(2);
     expect(screen.getByText(account.role)).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "Switch to dark theme" }));
@@ -96,7 +97,7 @@ describe("AccountMenu", () => {
     expect(
       await screen.findByRole("alert", { name: "Account menu error" }),
     ).toBeTruthy();
-    expect(screen.getAllByText(account.name)).toHaveLength(2);
+    expect(screen.getAllByText(account.name)).toHaveLength(1);
     expect(screen.getAllByText(account.email)).toHaveLength(2);
     expect(screen.getByText(account.role)).toBeTruthy();
     expect(assign).not.toHaveBeenCalled();

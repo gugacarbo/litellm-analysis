@@ -7,6 +7,7 @@ import type {
   ApplyDiscoverySelectionInput,
   ProbeModelInput,
 } from "@/features/model-admin/contracts/model-admin";
+import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -135,9 +136,9 @@ export function DiscoveryPanel({
         </Button>
       </div>
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
       {discovery ? (
         discovery.models.length === 0 ? (
@@ -191,7 +192,7 @@ export function DiscoveryPanel({
         )
       ) : null}
       {syncResults?.length ? (
-        <div
+        <section
           aria-label="Resultado da sincronização"
           className="space-y-1 text-sm"
         >
@@ -204,7 +205,7 @@ export function DiscoveryPanel({
                 : ""}
             </p>
           ))}
-        </div>
+        </section>
       ) : null}
       <form
         className="grid gap-3 border-t border-border pt-4"

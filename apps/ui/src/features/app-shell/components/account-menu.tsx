@@ -38,6 +38,10 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
+function getFirstName(name: string) {
+  return name.trim().split(/\s+/)[0] || name;
+}
+
 export function AccountMenu({
   name,
   email,
@@ -101,14 +105,16 @@ export function AccountMenu({
                   <AvatarFallback>{getInitials(name)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{name}</span>
+                  <span className="truncate font-medium">
+                    {getFirstName(name)}
+                  </span>
                   <span className="truncate text-xs">{email}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
             }
           />
-          <DropdownMenuContent align="end" className="w-64" side="right">
+          <DropdownMenuContent align="end" className="w-52" side="top">
             <DropdownMenuGroup>
               <DropdownMenuLabel className="space-y-1">
                 <div className="truncate text-foreground">{name}</div>

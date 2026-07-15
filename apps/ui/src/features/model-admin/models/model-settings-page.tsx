@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod";
+import { PageHeader } from "@/features/app-shell/components/page-header";
 import { saveModelInputSchema } from "@/features/model-admin/contracts/model-admin";
 import {
   invalidateModelAdmin,
@@ -144,14 +145,10 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
     },
   });
   if (modelQuery.isPending)
-    return (
-      <section className="p-8" aria-busy="true">
-        Loading model settings…
-      </section>
-    );
+    return <section aria-busy="true">Loading model settings…</section>;
   if (modelQuery.isError)
     return (
-      <section className="space-y-4 p-8">
+      <section className="space-y-4">
         <Alert variant="destructive">
           <AlertTitle>
             {(modelQuery.error as { code?: string }).code === "NOT_FOUND"
@@ -169,7 +166,7 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
   const model = modelQuery.data;
   if (!model)
     return (
-      <section className="space-y-4 p-8">
+      <section className="space-y-4">
         <Alert variant="destructive">
           <AlertTitle>Model not found</AlertTitle>
           <AlertDescription>
@@ -182,7 +179,7 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
       </section>
     );
   return (
-    <section className="space-y-6 p-8">
+    <section className="space-y-6">
       <div className="space-y-3">
         <Breadcrumb>
           <BreadcrumbList>
@@ -195,12 +192,10 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <h1 className="mt-2 text-3xl font-bold">
-          {model.providerName}/{model.modelId}
-        </h1>
-        <p className="text-muted-foreground">
-          UUID {model.id} · revision {model.revision}
-        </p>
+        <PageHeader
+          title={`${model.providerName}/${model.modelId}`}
+          subtitle={`UUID ${model.id} · revision ${model.revision}`}
+        />
       </div>
       {error ? (
         <Alert variant="destructive">

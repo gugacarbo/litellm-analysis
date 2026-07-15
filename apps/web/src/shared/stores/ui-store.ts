@@ -1,6 +1,7 @@
 import { Store } from "@tanstack/react-store";
 
-const UI_STORAGE_KEY = "lite-llm-analytics:ui-state";
+const UI_STORAGE_KEY = "agent-lens:ui-state";
+const LEGACY_UI_STORAGE_KEY = "lite-llm-analytics:ui-state";
 
 export interface UiState {
   sidebarOpen: boolean;
@@ -12,15 +13,22 @@ const defaultUiState: UiState = {
 
 function readInitialState(): UiState {
   try {
-    const raw = window.localStorage.getItem(UI_STORAGE_KEY);
+    const raw =
+      window.localStorage.getItem(UI_STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_UI_STORAGE_KEY);
     if (!raw) return defaultUiState;
     const parsed = JSON.parse(raw) as Partial<UiState>;
-    return {
+    const state = {
       sidebarOpen:
         typeof parsed.sidebarOpen === "boolean"
           ? parsed.sidebarOpen
           : defaultUiState.sidebarOpen,
     };
+    if (!window.localStorage.getItem(UI_STORAGE_KEY)) {
+      window.localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(state));
+      window.localStorage.removeItem(LEGACY_UI_STORAGE_KEY);
+    }
+    return state;
   } catch {
     return defaultUiState;
   }

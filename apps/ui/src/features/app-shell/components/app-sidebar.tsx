@@ -59,7 +59,7 @@ export function AppSidebar({ accountMenu, pathname }: AppSidebarProps) {
             src="/agentlens-mark.svg"
           />
           <span className="whitespace-nowrap font-semibold opacity-100 transition-opacity delay-100 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:delay-0">
-            AgentLens
+            Agent Lens
           </span>
         </div>
       </SidebarHeader>

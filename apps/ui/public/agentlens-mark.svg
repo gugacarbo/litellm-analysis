@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-labelledby="title">
-  <title id="title">AgentLens</title>
+  <title id="title">Agent Lens</title>
   <defs>
     <linearGradient id="agentlens-gradient" x1="10" y1="8" x2="39" y2="40" gradientUnits="userSpaceOnUse">
       <stop stop-color="#38BDF8" />

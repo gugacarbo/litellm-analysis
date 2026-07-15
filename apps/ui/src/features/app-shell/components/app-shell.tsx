@@ -34,7 +34,7 @@ export function AppShell({
           <SidebarTrigger />
           <span className="font-semibold">Dashboard</span>
         </header>
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col p-4">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

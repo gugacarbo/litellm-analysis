@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { PageHeader } from "@/features/app-shell/components/page-header";
 import type {
   ApplyDiscoverySelectionInput,
   CreateProviderInput,
@@ -27,6 +28,17 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/shared/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -42,6 +54,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { Spinner } from "@/shared/components/ui/spinner";
 import { DiscoveryPanel } from "./discovery-panel";
 import { ProviderForm } from "./provider-form";
 
@@ -88,6 +101,7 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string>();
   const [activeProviderId, setActiveProviderId] = useState<string>();
+  const [deleteCandidate, setDeleteCandidate] = useState<ProviderPublic>();
   const [showCreate, setShowCreate] = useState(false);
   const [notice, setNotice] = useState<string>();
   const isAdmin = role === "admin";
@@ -118,10 +132,12 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
   });
   const deleteMutation = useMutation({
     mutationFn: (id: string) => unwrap(deleteProvider({ data: { id } })),
-    onSuccess: async () => {
+    onSuccess: async (_, id) => {
       await queryClient.invalidateQueries({
         queryKey: ["model-admin", "providers"],
       });
+      if (activeProviderId === id) setActiveProviderId(undefined);
+      setDeleteCandidate(undefined);
       setNotice("Provider removido.");
     },
   });
@@ -143,15 +159,18 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
 
   if (providersQuery.isPending) {
     return (
-      <main className="p-6">
-        <p role="status">Carregando providers…</p>
+      <main>
+        <div className="flex items-center gap-2">
+          <Spinner aria-label="Carregando providers" />
+          <span>Carregando providers…</span>
+        </div>
       </main>
     );
   }
 
   if (providersQuery.isError) {
     return (
-      <main className="p-6">
+      <main>
         <Alert variant="destructive">
           <AlertTitle>Não foi possível carregar providers</AlertTitle>
           <AlertDescription>
@@ -182,46 +201,26 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
     syncMutation.error ??
     probeMutation.error;
 
-  const removeProvider = (id: string, name: string) => {
-    if (
-      !window.confirm(
-        `Remover o provider ${name}? Esta ação não pode ser desfeita.`,
-      )
-    )
-      return;
-    deleteMutation.mutate(id, {
-      onSuccess: () => {
-        if (activeProviderId === id) setActiveProviderId(undefined);
-      },
-    });
-  };
-
   return (
-    <main className="space-y-6 p-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Providers</h1>
-          <p className="text-muted-foreground">
-            Configure destinos, credenciais e o catálogo de modelos.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {isAdmin ? (
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
-              Administrador
-            </span>
-          ) : (
-            <span className="rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
-              Somente leitura
-            </span>
-          )}
-          {isAdmin ? (
-            <Button onClick={() => setShowCreate(true)} type="button">
-              Novo provider
-            </Button>
-          ) : null}
-        </div>
-      </header>
+    <main className="space-y-6">
+      <PageHeader
+        title="Providers"
+        subtitle="Configure destinos, credenciais e o catálogo de modelos."
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            {isAdmin ? (
+              <Badge>Administrador</Badge>
+            ) : (
+              <Badge variant="secondary">Somente leitura</Badge>
+            )}
+            {isAdmin ? (
+              <Button onClick={() => setShowCreate(true)} type="button">
+                Novo provider
+              </Button>
+            ) : null}
+          </div>
+        }
+      />
       {notice ? (
         <Alert>
           <AlertDescription>{notice}</AlertDescription>
@@ -275,11 +274,7 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
                 <CardHeader>
                   <CardTitle className="flex flex-wrap items-center gap-2">
                     {provider.name}
-                    {provider.isDefault ? (
-                      <span className="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">
-                        Padrão
-                      </span>
-                    ) : null}
+                    {provider.isDefault ? <Badge>Padrão</Badge> : null}
                   </CardTitle>
                   <CardDescription>
                     {provider.provider ?? "Adapter não informado"} ·{" "}
@@ -341,9 +336,7 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
                         ) : null}
                         <Button
                           disabled={deleteMutation.isPending}
-                          onClick={() =>
-                            removeProvider(provider.id, provider.name)
-                          }
+                          onClick={() => setDeleteCandidate(provider)}
                           type="button"
                           variant="destructive"
                         >
@@ -408,6 +401,37 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
           }
         />
       ) : null}
+      <AlertDialog
+        open={Boolean(deleteCandidate)}
+        onOpenChange={(open) => {
+          if (!open && !deleteMutation.isPending) setDeleteCandidate(undefined);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover provider?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteCandidate
+                ? `Remover o provider ${deleteCandidate.name}? Esta ação não pode ser desfeita.`
+                : "Esta ação não pode ser desfeita."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={!deleteCandidate || deleteMutation.isPending}
+              onClick={() => {
+                if (deleteCandidate) deleteMutation.mutate(deleteCandidate.id);
+              }}
+              variant="destructive"
+            >
+              {deleteMutation.isPending ? "Removendo…" : "Remover provider"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }

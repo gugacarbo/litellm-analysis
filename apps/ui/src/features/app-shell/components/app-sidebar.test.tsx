@@ -39,6 +39,8 @@ describe("AppShell", () => {
   it("renders Models and Providers in the protected navigation", () => {
     render(<AppShell {...defaultProps}>Dashboard content</AppShell>);
 
+    expect(screen.getByText("Agent Lens")).toBeTruthy();
+    expect(screen.getByText("Dashboard content").className).toContain("p-4");
     const dashboardLinks = screen.getAllByRole("link", { name: "Dashboard" });
 
     expect(dashboardLinks).toHaveLength(1);

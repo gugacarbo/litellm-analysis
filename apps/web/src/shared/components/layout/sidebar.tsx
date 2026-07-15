@@ -162,7 +162,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-2 px-2 py-1">
           <PanelLeftIcon className="h-5 w-5" />
           <span className="font-semibold text-sm group-data-[collapsible=icon]:hidden">
-            LiteLLM Stats
+            AgentLens
           </span>
         </div>
       </SidebarHeader>

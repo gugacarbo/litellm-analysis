@@ -97,7 +97,7 @@ ensure_backup_dir() {
 do_backup() {
   ensure_backup_dir
 
-  CONTAINER="lite-llm-analytics-postgres"
+  CONTAINER="agent-lens-postgres"
 
   # Verifica se o container está rodando
   if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
@@ -151,7 +151,7 @@ do_restore() {
     exit 1
   fi
 
-  CONTAINER="lite-llm-analytics-postgres"
+  CONTAINER="agent-lens-postgres"
   if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
     echo "Erro: container '$CONTAINER' não está rodando." >&2
     exit 1
@@ -181,7 +181,7 @@ do_restore() {
 # ── Executa migrações do banco ──
 do_migrate() {
   local fresh="${2:-}"
-  CONTAINER="lite-llm-analytics-postgres"
+  CONTAINER="agent-lens-postgres"
 
   if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
     echo "Erro: container '$CONTAINER' não está rodando." >&2

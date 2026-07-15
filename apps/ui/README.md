@@ -1,6 +1,6 @@
 # ui
 
-TanStack Start app for the AgentLens monorepo.
+TanStack Start app for the Agent Lens monorepo.
 
 ## Workspace Commands
 

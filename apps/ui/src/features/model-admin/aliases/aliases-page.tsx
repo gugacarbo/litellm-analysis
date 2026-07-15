@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { PageHeader } from "@/features/app-shell/components/page-header";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import {
   AlertDialog,
@@ -156,13 +157,11 @@ export function AliasesPage({ role }: Readonly<{ role: Role }>) {
   }
 
   return (
-    <section className="space-y-6 p-6 md:p-8">
-      <header>
-        <h1 className="text-3xl font-bold">Aliases</h1>
-        <p className="mt-2 text-muted-foreground">
-          Review each routing alias and its provider-scoped target model.
-        </p>
-      </header>
+    <section className="space-y-6">
+      <PageHeader
+        title="Aliases"
+        subtitle="Review each routing alias and its provider-scoped target model."
+      />
 
       {feedback ? (
         <Alert variant="destructive">
