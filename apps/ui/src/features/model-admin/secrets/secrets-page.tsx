@@ -20,7 +20,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
@@ -39,6 +38,7 @@ import {
   removeApplicationSecret,
   replaceApplicationSecret,
 } from "../server/application-secrets.functions";
+import { updateProvider } from "../server/model-admin.functions";
 
 const secretDefinitions: ReadonlyArray<{
   key: ApplicationSecretKey;
@@ -69,6 +69,10 @@ export function SecretsPage() {
   const [editing, setEditing] = useState<ApplicationSecretKey | null>(null);
   const [removeCandidate, setRemoveCandidate] =
     useState<ApplicationSecretKey | null>(null);
+  const [editingProviderId, setEditingProviderId] = useState<string | null>(
+    null,
+  );
+  const [providerCredentialValue, setProviderCredentialValue] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const form = useForm<ReplaceApplicationSecretInput>({
     resolver: zodResolver(replaceApplicationSecretInputSchema),
@@ -94,6 +98,28 @@ export function SecretsPage() {
       setFeedback("Secret removed.");
     },
     onError: (error) => setFeedback(toErrorMessage(error)),
+  });
+  const updateProviderMutation = useMutation({
+    mutationFn: async (input: { provider: ProviderPublic; value: string }) =>
+      requireSuccess(
+        await updateProvider({
+          data: {
+            id: input.provider.id,
+            expectedRevision: input.provider.revision,
+            credential: { kind: "replace", value: input.value },
+          },
+        }),
+      ),
+    onSuccess: async (_, input) => {
+      await invalidateModelAdmin.provider(queryClient, input.provider.id);
+      setEditingProviderId(null);
+      setProviderCredentialValue("");
+      setFeedback("Provider key updated.");
+    },
+    onError: (error) => {
+      setProviderCredentialValue("");
+      setFeedback(toErrorMessage(error));
+    },
   });
 
   if (secretsQuery.isLoading) {
@@ -140,20 +166,9 @@ export function SecretsPage() {
           return (
             <Card key={definition.key}>
               <CardContent className="flex flex-wrap items-center gap-3 py-3">
-                <div className="flex min-w-44 flex-1 items-center gap-2">
-                  <CardTitle className="text-base">{definition.name}</CardTitle>
-                  <span className="truncate text-muted-foreground text-xs">
-                    {secret.updatedAt
-                      ? `Updated ${secret.updatedAt.toLocaleString()}`
-                      : "No key has been stored."}
-                  </span>
-                </div>
-                <Badge variant={secret.isConfigured ? "default" : "outline"}>
-                  {secret.isConfigured ? "Configured" : "Not configured"}
-                </Badge>
                 {isEditing ? (
                   <form
-                    className="flex min-w-full flex-wrap items-start gap-2"
+                    className="flex w-full flex-wrap items-center gap-2"
                     noValidate
                     onSubmit={form.handleSubmit((input) => {
                       setFeedback(null);
@@ -169,7 +184,7 @@ export function SecretsPage() {
                       {...form.register("value")}
                     />
                     {form.formState.errors.value?.message ? (
-                      <p className="text-destructive text-sm">
+                      <p className="w-full text-destructive text-sm">
                         {form.formState.errors.value.message}
                       </p>
                     ) : null}
@@ -193,28 +208,49 @@ export function SecretsPage() {
                     </div>
                   </form>
                 ) : (
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    <Button
-                      onClick={() => {
-                        setFeedback(null);
-                        form.reset({ key: definition.key, value: "" });
-                        setEditing(definition.key);
-                      }}
-                      type="button"
-                    >
-                      {secret.isConfigured ? "Replace key" : "Set key"}
-                    </Button>
-                    {secret.isConfigured ? (
+                  <>
+                    <div className="min-w-44 flex-1">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-base">
+                          {definition.name}
+                        </CardTitle>
+                        <Badge
+                          variant={secret.isConfigured ? "default" : "outline"}
+                        >
+                          {secret.isConfigured
+                            ? "Configured"
+                            : "Not configured"}
+                        </Badge>
+                      </div>
+                      <span className="text-muted-foreground text-xs">
+                        {secret.updatedAt
+                          ? `Updated ${secret.updatedAt.toLocaleString()}`
+                          : "No key has been stored."}
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap gap-2">
                       <Button
-                        disabled={removeMutation.isPending}
-                        onClick={() => setRemoveCandidate(definition.key)}
+                        onClick={() => {
+                          setFeedback(null);
+                          form.reset({ key: definition.key, value: "" });
+                          setEditing(definition.key);
+                        }}
                         type="button"
-                        variant="destructive"
                       >
-                        Remove key
+                        {secret.isConfigured ? "Replace key" : "Set key"}
                       </Button>
-                    ) : null}
-                  </div>
+                      {secret.isConfigured ? (
+                        <Button
+                          disabled={removeMutation.isPending}
+                          onClick={() => setRemoveCandidate(definition.key)}
+                          type="button"
+                          variant="destructive"
+                        >
+                          Remove key
+                        </Button>
+                      ) : null}
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -258,46 +294,89 @@ export function SecretsPage() {
           </Card>
         ) : (
           <div className="grid gap-4">
-            {(providersQuery.data as ProviderPublic[]).map((provider) => (
-              <Card key={provider.id}>
-                <CardHeader>
-                  <CardTitle className="flex flex-wrap items-center justify-between gap-3">
-                    {provider.name}
-                    <Badge
-                      variant={
-                        provider.credentialStatus === "configured"
-                          ? "default"
-                          : "outline"
-                      }
-                    >
-                      {provider.credentialStatus === "configured"
-                        ? "Configured"
-                        : "No credential"}
-                    </Badge>
-                  </CardTitle>
-                  <CardDescription>
-                    {provider.provider ?? "Adapter not informed"} ·{" "}
-                    {provider.baseUrl ?? "No base URL"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <dl className="grid gap-1 text-sm sm:grid-cols-2">
-                    <div>
-                      <dt className="text-muted-foreground">Credential</dt>
-                      <dd>
-                        {provider.credentialStatus === "configured"
-                          ? "Stored securely"
-                          : "Not configured"}
-                      </dd>
+            {(providersQuery.data as ProviderPublic[]).map((provider) => {
+              const isEditingProvider = editingProviderId === provider.id;
+              const hasCredential = provider.credentialStatus === "configured";
+
+              return (
+                <Card key={provider.id}>
+                  <CardContent className="flex flex-wrap items-center gap-3 py-3">
+                    <div className="min-w-52 flex-1">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-base">
+                          {provider.name}
+                        </CardTitle>
+                        <Badge variant={hasCredential ? "default" : "outline"}>
+                          {hasCredential ? "Configured" : "No credential"}
+                        </Badge>
+                      </div>
+                      <CardDescription className="truncate text-xs">
+                        {provider.baseUrl ?? "No base URL"}
+                      </CardDescription>
+                      <span className="text-muted-foreground text-xs">
+                        Updated {provider.updatedAt.toLocaleString()}
+                      </span>
                     </div>
-                    <div>
-                      <dt className="text-muted-foreground">Last updated</dt>
-                      <dd>{provider.updatedAt.toLocaleString()}</dd>
-                    </div>
-                  </dl>
-                </CardContent>
-              </Card>
-            ))}
+                    {isEditingProvider ? (
+                      <form
+                        className="flex min-w-full flex-wrap items-center gap-2"
+                        noValidate
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          const value = providerCredentialValue.trim();
+                          if (!value) {
+                            setFeedback("Enter a provider key.");
+                            return;
+                          }
+                          setFeedback(null);
+                          updateProviderMutation.mutate({ provider, value });
+                        }}
+                      >
+                        <Input
+                          aria-label={`API key for ${provider.name}`}
+                          autoComplete="new-password"
+                          className="min-w-52 flex-1"
+                          onChange={(event) =>
+                            setProviderCredentialValue(event.target.value)
+                          }
+                          type="password"
+                          value={providerCredentialValue}
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            disabled={updateProviderMutation.isPending}
+                            type="submit"
+                          >
+                            Save key
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setEditingProviderId(null);
+                              setProviderCredentialValue("");
+                            }}
+                            type="button"
+                            variant="outline"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </form>
+                    ) : (
+                      <Button
+                        onClick={() => {
+                          setFeedback(null);
+                          setProviderCredentialValue("");
+                          setEditingProviderId(provider.id);
+                        }}
+                        type="button"
+                      >
+                        {hasCredential ? "Update key" : "Add key"}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </section>

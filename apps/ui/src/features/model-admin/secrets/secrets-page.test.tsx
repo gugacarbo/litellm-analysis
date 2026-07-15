@@ -16,7 +16,7 @@ import {
   removeApplicationSecret,
   replaceApplicationSecret,
 } from "../server/application-secrets.functions";
-import { listProviders } from "../server/model-admin.functions";
+import { listProviders, updateProvider } from "../server/model-admin.functions";
 import { SecretsPage } from "./secrets-page";
 
 vi.mock("@/features/model-admin/server/application-secrets.functions", () => ({
@@ -27,6 +27,7 @@ vi.mock("@/features/model-admin/server/application-secrets.functions", () => ({
 
 vi.mock("@/features/model-admin/server/model-admin.functions", () => ({
   listProviders: vi.fn(),
+  updateProvider: vi.fn(),
 }));
 
 function renderPage() {
@@ -148,6 +149,7 @@ describe("SecretsPage", () => {
     renderPage();
 
     fireEvent.click(screen.getByRole("button", { name: "Replace key" }));
+    expect(screen.queryByText("Artificial Analysis")).toBeNull();
     const field = screen.getByLabelText("API key for Artificial Analysis");
     fireEvent.change(field, { target: { value: "never-render-this-secret" } });
     fireEvent.click(screen.getByRole("button", { name: "Save key" }));
@@ -163,6 +165,49 @@ describe("SecretsPage", () => {
         screen.queryByLabelText("API key for Artificial Analysis"),
       ).toBeNull();
       expect(screen.queryByDisplayValue("never-render-this-secret")).toBeNull();
+    });
+  });
+
+  it("updates a provider key without rendering it", async () => {
+    vi.mocked(updateProvider).mockResolvedValueOnce({
+      ok: true,
+      data: {
+        id: "00000000-0000-0000-0000-000000000001",
+        name: "OpenAI production",
+        provider: "openai-compatible",
+        baseUrl: "https://api.openai.com/v1",
+        isDefault: true,
+        hasStoredSecret: true,
+        credentialStatus: "configured",
+        modelCount: 2,
+        revision: 2,
+        createdAt: new Date("2026-07-14T00:00:00.000Z"),
+        updatedAt: new Date("2026-07-15T00:00:00.000Z"),
+      },
+    });
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: "Update key" }));
+    const field = screen.getByLabelText("API key for OpenAI production");
+    fireEvent.change(field, {
+      target: { value: "never-render-this-provider-secret" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save key" }));
+
+    await waitFor(() => {
+      expect(updateProvider).toHaveBeenCalledWith({
+        data: {
+          id: "00000000-0000-0000-0000-000000000001",
+          expectedRevision: 1,
+          credential: {
+            kind: "replace",
+            value: "never-render-this-provider-secret",
+          },
+        },
+      });
+      expect(
+        screen.queryByDisplayValue("never-render-this-provider-secret"),
+      ).toBeNull();
     });
   });
 
