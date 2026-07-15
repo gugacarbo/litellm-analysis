@@ -1,4 +1,3 @@
-import type { BenchmarkComparisonResponse } from "@lite-llm/contracts/benchmarks";
 import { fetchApi } from "./core";
 
 type ModelReasoningConfig = {
@@ -29,8 +28,6 @@ export type ModelRoute = {
   requestOptions?: Record<string, unknown>;
   metadata?: Record<string, unknown>;
 };
-
-export type ModelRouteUpdate = Partial<Omit<ModelRoute, "modelName">>;
 
 export type ModelConfig = {
   modelName: string;
@@ -68,42 +65,6 @@ export type ModelsWithConfigResponse = {
   settingsStorage: SettingsStorage;
 };
 
-export type SyncDirection = "config-to-registry" | "registry-to-config";
-
-export type SyncField =
-  | "model_presence"
-  | "enabled"
-  | "context_window_size"
-  | "max_tokens"
-  | "input_cost_per_token"
-  | "output_cost_per_token";
-
-export type ModelSyncDiffItem = {
-  modelName: string;
-  field: SyncField;
-  configValue: unknown;
-  registryValue: unknown;
-  defaultDirection: SyncDirection;
-};
-
-export type ModelSyncSelection = {
-  modelName: string;
-  field: SyncField;
-  direction: SyncDirection;
-};
-
-export type ModelProviderConfig = {
-  name: string;
-  ownedBy: string;
-  baseUrl: string;
-  defaultProvider: string;
-};
-
-export type DefaultSettingsDiffResponse = {
-  defaultProvider: string;
-  mismatchedModels: string[];
-  count: number;
-};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -228,171 +189,12 @@ function normalizeModelsWithConfigResponse(
   };
 }
 
-function normalizeModelSyncDiffItem(
-  raw: Record<string, unknown>,
-): ModelSyncDiffItem {
-  return {
-    modelName: String(raw.modelName ?? ""),
-    field: raw.field as SyncField,
-    configValue: raw.configValue,
-    registryValue: raw.registryValue,
-    defaultDirection: String(
-      raw.defaultDirection ?? "config-to-registry",
-    ) as SyncDirection,
-  };
-}
-
-export async function updateModel(
-  modelName: string,
-  routeUpdate: ModelRouteUpdate,
-  newName?: string,
-  config?: ModelConfig["config"],
-): Promise<{ success: boolean }> {
-  return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
-    method: "PUT",
-    body: JSON.stringify({
-      modelRoute: routeUpdate,
-      ...(newName ? { modelName: newName } : {}),
-      ...(config ? { config } : {}),
-    }),
-  });
-}
-
 export async function getAllModels(): Promise<ModelConfig[]> {
   const data = await fetchApi<Record<string, unknown>[]>("/models");
   return data.map((model) => normalizeModelConfig(model));
 }
 
-export async function createModel(
-  model: ModelConfig,
-): Promise<{ success: boolean }> {
-  return fetchApi("/models", {
-    method: "POST",
-    body: JSON.stringify({
-      modelName: model.modelName,
-      modelRoute: model.modelRoute,
-    }),
-  });
-}
-
-export async function deleteModel(
-  modelName: string,
-): Promise<{ success: boolean }> {
-  return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
-    method: "DELETE",
-  });
-}
-
-export async function deleteModelLogs(
-  modelName: string,
-): Promise<{ success: boolean }> {
-  return fetchApi(`/models/logs/${encodeURIComponent(modelName)}`, {
-    method: "DELETE",
-  });
-}
-
 export async function getModelsWithConfig(): Promise<ModelsWithConfigResponse> {
   const data = await fetchApi<Record<string, unknown>>("/models/with-config");
   return normalizeModelsWithConfigResponse(data);
-}
-
-export async function exportConsumerConfigs(): Promise<{ success: boolean }> {
-  return fetchApi("/models/export-configs", {
-    method: "POST",
-  });
-}
-
-export async function getModelsSyncDiff(): Promise<{
-  items: ModelSyncDiffItem[];
-}> {
-  const data = await fetchApi<{ items?: Record<string, unknown>[] }>(
-    "/models/sync-diff",
-  );
-  const items = Array.isArray(data.items)
-    ? data.items.filter(isRecord).map(normalizeModelSyncDiffItem)
-    : [];
-  return { items };
-}
-
-export async function syncModelsBatch(
-  selections: ModelSyncSelection[],
-): Promise<{
-  success: boolean;
-  applied: number;
-}> {
-  return fetchApi("/models/sync-batch", {
-    method: "POST",
-    body: JSON.stringify({
-      selections,
-    }),
-  });
-}
-
-export async function addModelToConfig(
-  modelName: string,
-): Promise<{ success: boolean }> {
-  return fetchApi("/models/add-to-config", {
-    method: "POST",
-    body: JSON.stringify({ modelName }),
-  });
-}
-
-export async function toggleModelEnabled(
-  modelName: string,
-  enabled: boolean,
-): Promise<{ success: boolean }> {
-  return fetchApi(`/models/${encodeURIComponent(modelName)}`, {
-    method: "PUT",
-    body: JSON.stringify({
-      modelRoute: { enabled },
-    }),
-  });
-}
-
-export async function mergeModels(
-  sourceModel: string,
-  targetModel: string,
-): Promise<{ success: boolean }> {
-  return fetchApi("/models/merge", {
-    method: "POST",
-    body: JSON.stringify({ sourceModel, targetModel }),
-  });
-}
-
-export async function getModelProvider(
-  providerId: string,
-): Promise<ModelProviderConfig> {
-  return fetchApi(`/models/providers/${encodeURIComponent(providerId)}`);
-}
-
-export async function updateModelProvider(
-  providerId: string,
-  updates: Partial<ModelProviderConfig>,
-): Promise<ModelProviderConfig> {
-  return fetchApi(`/models/providers/${encodeURIComponent(providerId)}`, {
-    method: "PUT",
-    body: JSON.stringify(updates),
-  });
-}
-
-export async function getDefaultSettingsDiff(): Promise<DefaultSettingsDiffResponse> {
-  return fetchApi("/models/default-settings-diff");
-}
-
-export async function syncDefaultSettings(): Promise<{
-  success: boolean;
-  updated: number;
-  defaultProvider: string;
-}> {
-  return fetchApi("/models/sync-default-settings", {
-    method: "POST",
-  });
-}
-
-export async function fetchBenchmarkComparison(
-  modelName: string,
-): Promise<BenchmarkComparisonResponse> {
-  return fetchApi<BenchmarkComparisonResponse>(
-    `/models/${encodeURIComponent(modelName)}/benchmark-comparison`,
-  );
 }

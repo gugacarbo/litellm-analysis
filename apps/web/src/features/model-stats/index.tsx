@@ -1,5 +1,4 @@
 import { BarChart3 } from "lucide-react";
-import { DeleteModelLogsDialog } from "@/features/model-stats/components/delete-model-logs-dialog";
 import { ModelStatsDataTable } from "@/features/model-stats/components/model-stats-data-table";
 import { ModelStatsHeader } from "@/features/model-stats/components/model-stats-header";
 import { ModelStatsMiniCharts } from "@/features/model-stats/components/model-stats-mini-charts";
@@ -40,14 +39,6 @@ export function ModelStatsPage() {
     >
       <Toaster position="bottom-right" />
 
-      <DeleteModelLogsDialog
-        open={state.deleteDialogOpen}
-        deleting={state.deleting}
-        onOpenChange={state.setDeleteDialogOpen}
-        onCancel={() => state.setDeleting(null)}
-        onConfirm={state.handleDelete}
-      />
-
       <div className="mt-6">
         <ModelStatsSummaryCards
           loading={state.loading}
@@ -76,9 +67,7 @@ export function ModelStatsPage() {
           sortField={state.sortField}
           sortDirection={state.sortDirection}
           totalSpend={state.totalSpend}
-          deleting={state.deleting}
           onSort={state.handleSort}
-          onDeleteClick={state.openDeleteDialog}
         />
       </div>
 

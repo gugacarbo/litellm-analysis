@@ -30,7 +30,7 @@ interface HealthCheckTableProps {
   start: number;
   end: number;
   onSelect: (entry: HealthCheckResultEntry) => void;
-  onTest: (modelName: string) => void;
+  onTest?: (modelName: string) => void;
   onPrevPage: () => void;
   onNextPage: () => void;
 }
@@ -92,7 +92,7 @@ export function HealthCheckTable({
             <TableHead className="w-22.5">HTTP</TableHead>
             <TableHead className="w-25">Source</TableHead>
             <TableHead className="w-30">When</TableHead>
-            <TableHead className="w-20 text-center">Test</TableHead>
+            {onTest ? <TableHead className="w-20 text-center">Test</TableHead> : null}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -148,24 +148,26 @@ export function HealthCheckTable({
                     ? formatRelativeTime(entry.checkedAt)
                     : "—"}
                 </TableCell>
-                <TableCell className="text-center">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 px-2 text-xs"
-                    onClick={() => onTest(entry.modelName)}
-                    disabled={modelIsRunning}
-                  >
-                    {modelIsRunning ? (
-                      <>
-                        <Loader2 className="size-3 animate-spin" />
-                        ...
-                      </>
-                    ) : (
-                      "Test"
-                    )}
-                  </Button>
-                </TableCell>
+                {onTest ? (
+                  <TableCell className="text-center">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => onTest(entry.modelName)}
+                      disabled={modelIsRunning}
+                    >
+                      {modelIsRunning ? (
+                        <>
+                          <Loader2 className="size-3 animate-spin" />
+                          ...
+                        </>
+                      ) : (
+                        "Test"
+                      )}
+                    </Button>
+                  </TableCell>
+                ) : null}
               </TableRow>
             );
           })}

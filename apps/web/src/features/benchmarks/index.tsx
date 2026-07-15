@@ -1,5 +1,5 @@
 import type { ModelBenchmarkListItem } from "@lite-llm/contracts";
-import { Filter, RefreshCw } from "lucide-react";
+import { Filter } from "lucide-react";
 import { LogsPaginationControls } from "@/features/logs/components/logs-pagination-controls";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -41,7 +41,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-import { AliasesButton } from "./components/aliases-button";
 import { ComparisonDeck } from "./components/comparison-deck";
 import { UseCaseFilter } from "./components/use-case-filter";
 import { useBenchmarksPage } from "./hooks/use-benchmarks-page";
@@ -65,8 +64,6 @@ export function BenchmarksPage() {
     syncCooldownLabel,
     syncLastError,
     isSyncRunning,
-    canTriggerSync,
-    triggerSync,
     source,
     sourceUrl,
     fetchedAt,
@@ -91,9 +88,6 @@ export function BenchmarksPage() {
     setMaxBlendedPrice,
     setSortField,
     setSortDirection,
-    unmatchedConfiguredModels,
-    configuredModelNames,
-    allModels,
     pagination,
     page: currentPage,
     pageSize,
@@ -127,22 +121,10 @@ export function BenchmarksPage() {
               ) : null}
             </div>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={triggerSync}
-            disabled={!canTriggerSync}
-            className="w-full sm:w-auto"
-          >
-            <RefreshCw
-              className={isSyncRunning ? "h-4 w-4 animate-spin" : "h-4 w-4"}
-            />
-            {isSyncRunning
-              ? "Syncing"
-              : canTriggerSync
-                ? "Sync benchmarks"
-                : "Sync locked"}
-          </Button>
+          <p className="text-sm text-muted-foreground">
+            This deprecated surface is read-only. Sync benchmarks and manage
+            aliases in apps/ui.
+          </p>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
@@ -258,11 +240,9 @@ export function BenchmarksPage() {
                   <TooltipContent>Show configured models only</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <AliasesButton
-                configuredModels={configuredModelNames}
-                unmatchedModels={unmatchedConfiguredModels}
-                allModels={allModels}
-              />
+              <span className="text-sm text-muted-foreground">
+                This deprecated surface is read-only. Manage aliases in apps/ui.
+              </span>
             </div>
           </div>
         </CardContent>
@@ -284,18 +264,9 @@ export function BenchmarksPage() {
                     description="Start a sync to fetch the latest Artificial Analysis dataset."
                     className="py-0"
                   />
-                  <Button
-                    type="button"
-                    onClick={triggerSync}
-                    disabled={isSyncRunning}
-                  >
-                    <RefreshCw
-                      className={
-                        isSyncRunning ? "h-4 w-4 animate-spin" : "h-4 w-4"
-                      }
-                    />
-                    {isSyncRunning ? "Syncing" : "Sync benchmarks"}
-                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    Start a sync from apps/ui.
+                  </p>
                 </div>
               ) : error ? (
                 <div className="py-4 text-sm text-red-500">{error}</div>

@@ -1,0 +1,599 @@
+{
+  "$schema": "https://raw.githubusercontent.com/gugacarbo/agents-skills/main/skills/super-planning/interfaces/super-plan.schema.json",
+  "createdAt": "2026-07-14T23:01:58.727125+00:00",
+  "planId": "0005-modelos-providers-legacy-cutover",
+  "featureName": "modelos-providers-legacy-cutover",
+  "status": "completed",
+  "source": {
+    "spec": "docs/specs/0005-modelos-providers-roteamento-spec.md",
+    "plan": "docs/plans/0005-modelos-providers-legacy-cutover.md"
+  },
+  "goal": "Deprecate apps/web as read-only and remove all legacy provider contracts from the packages.",
+  "architectureSummary": "ModelAdminService and the revisioned registry are the only provider aggregate; credentialEnvelope is decrypted only at the upstream boundary.",
+  "techStack": [
+    "TypeScript 6",
+    "Drizzle ORM 0.38.4",
+    "TanStack Start 1.168.27",
+    "Express",
+    "Vitest 4.1.5"
+  ],
+  "executionMode": "sequential",
+  "reviewCadence": "per_batch",
+  "agents": {
+    "general": {
+      "model": "",
+      "agent": "",
+      "effort": ""
+    },
+    "deep": {
+      "model": "",
+      "agent": "",
+      "effort": ""
+    },
+    "quick": {
+      "model": "",
+      "agent": "",
+      "effort": ""
+    }
+  },
+  "branchStrategy": {
+    "baseBranch": "main",
+    "featureBranch": "codex/modelos-providers-legacy-cutover"
+  },
+  "worktree": {
+    "enabled": true,
+    "path": ".worktrees/codex-modelos-providers-legacy-cutover"
+  },
+  "globalConstraints": [
+    "No secretRef or provider-table apiKey fallback",
+    "No legacy provider writers",
+    "apps/web is read-only",
+    "TDD behavior changes"
+  ],
+  "fileStructure": [
+    {
+      "path": "services/llm-config-service/src",
+      "ownerTask": "Task-A-1",
+      "notes": "Remove legacy provider stack and provide encrypted runtime boundary."
+    },
+    {
+      "path": "services/llm-gateway/src/resolver/upstream-provider.ts",
+      "ownerTask": "Task-B-1",
+      "notes": "Gateway upstream credential consumer."
+    },
+    {
+      "path": "packages/server/src/routes/provider-routes.ts",
+      "ownerTask": "Task-B-2",
+      "notes": "Remove legacy provider writers."
+    },
+    {
+      "path": "apps/web/src/features/models",
+      "ownerTask": "Task-C-1",
+      "notes": "Deprecated read-only UI."
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "ownerTask": "Task-D-1",
+      "notes": "Package cleanup only after consumers move."
+    }
+  ],
+  "requirementsChecklist": [
+    {
+      "id": "REQ-001",
+      "title": "Remove legacy provider code",
+      "source": "SPEC-0005 clean cut and user request",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "No operational ProvidersService, ProvidersRepository or providers dual-read remains."
+      ],
+      "coveredByTasks": [
+        "Task-A-1",
+        "Task-B-2"
+      ],
+      "notes": [
+        "No compatibility layer."
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "title": "Use encrypted provider credentials at runtime",
+      "source": "ADR-0007",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "Gateway only decrypts credentialEnvelope at the upstream boundary and fails closed."
+      ],
+      "coveredByTasks": [
+        "Task-A-1",
+        "Task-B-1"
+      ],
+      "notes": [
+        "No secretRef environment fallback."
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "title": "Deprecate web as read-only",
+      "source": "User request 2026-07-14",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "apps/web has retained reads and no provider/model writers."
+      ],
+      "coveredByTasks": [
+        "Task-B-2",
+        "Task-C-1"
+      ],
+      "notes": [
+        "apps/ui remains the writer surface."
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "title": "Adjust package surface",
+      "source": "User request 2026-07-14",
+      "status": "completed",
+      "acceptanceCriteria": [
+        "Unused legacy exports and dependencies are removed after migration."
+      ],
+      "coveredByTasks": [
+        "Task-D-1"
+      ],
+      "notes": []
+    }
+  ],
+  "taskDirectory": "docs/jobs/0005-modelos-providers-legacy-cutover",
+  "rules": [
+    "Preserve unrelated user changes",
+    "Use the approved worktree",
+    "Do not remove unrelated API-key concepts",
+    "Baseline pnpm verify -c fails before implementation because code-checks reports unrelated unused workspace exports",
+    "The current subagent dispatcher has no model or effort selector; executor profiles fall back to the session default"
+  ],
+  "tasks": [
+    {
+      "id": "Task-A-1",
+      "title": "Remove the legacy provider contract from llm-config-service",
+      "description": "Delete the legacy provider repository, service, types, dual-read adapter and exports; provide a narrow encrypted credential resolver for runtime consumers.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "deep",
+      "batch": "A",
+      "layer": "foundation",
+      "reportFile": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-A-1/report.md",
+      "reviewPackage": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-A-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-A-1/progress.log",
+      "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-A-1/log-task.sh",
+      "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "No provider persistence type or export contains secretRef or a provider-table apiKey.",
+        "The encrypted envelope resolver is server-only and fails closed.",
+        "Focused service tests report RED then GREEN."
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-002"
+      ],
+      "rules": [
+        "TDD required.",
+        "Read docs/context/testing-anti-patterns.md before test doubles.",
+        "Do not add compatibility fallbacks."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Write regression tests",
+          "description": "Add focused tests for the encrypted runtime resolver and absence of legacy provider behavior.",
+          "command": "pnpm --filter @lite-llm/llm-config-service exec vitest run",
+          "expectedResult": "New tests fail before implementation.",
+          "codeExample": "expect(resolveProviderCredential(...)).rejects.toThrow()"
+        },
+        {
+          "order": 2,
+          "title": "Replace the legacy contract",
+          "description": "Delete legacy provider files and wire the smallest new runtime-only adapter.",
+          "command": "rg -n 'ProvidersService|secretRef' services/llm-config-service",
+          "expectedResult": "Only intentional migration references remain during implementation.",
+          "codeExample": "export async function resolveProviderCredential(...)"
+        },
+        {
+          "order": 3,
+          "title": "Verify the package",
+          "description": "Run focused Vitest, typecheck and legacy-symbol scans.",
+          "command": "pnpm --filter @lite-llm/llm-config-service typecheck",
+          "expectedResult": "Exit 0.",
+          "codeExample": "rg -n 'ProvidersService|ProvidersRepository' services/llm-config-service"
+        }
+      ],
+      "filesTouched": [
+        "services/llm-config-service/src/factory.ts",
+        "services/llm-config-service/src/index.ts",
+        "services/llm-config-service/src/repositories/providers-repository.ts",
+        "services/llm-config-service/src/services/providers.service.ts",
+        "services/llm-config-service/src/types/providers.ts",
+        "services/llm-config-service/src/dual-read/providers-dual-read.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "services/llm-config-service/src/factory.ts",
+          "services/llm-config-service/src/index.ts"
+        ],
+        "deleted": [
+          "services/llm-config-service/src/repositories/providers-repository.ts",
+          "services/llm-config-service/src/services/providers.service.ts",
+          "services/llm-config-service/src/types/providers.ts",
+          "services/llm-config-service/src/dual-read/providers-dual-read.ts"
+        ]
+      },
+      "notes": [
+        "New ModelAdminService is the provider aggregate."
+      ]
+    },
+    {
+      "id": "Task-B-1",
+      "title": "Migrate gateway provider resolution to encrypted envelopes",
+      "description": "Remove secretRef and plaintext apiKey resolution from the gateway and use the Task-A runtime credential boundary.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "deep",
+      "batch": "B",
+      "layer": "core",
+      "reportFile": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-1/report.md",
+      "reviewPackage": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-1/progress.log",
+      "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-1/log-task.sh",
+      "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
+      "dependencies": [
+        "Task-A-1"
+      ],
+      "acceptanceCriteria": [
+        "Gateway resolves a valid encrypted provider credential only at the upstream boundary.",
+        "Missing or corrupt envelopes fail closed without environment fallback.",
+        "Focused gateway tests and typecheck pass."
+      ],
+      "requirements": [
+        "REQ-002"
+      ],
+      "rules": [
+        "TDD required.",
+        "Read docs/context/testing-anti-patterns.md before test doubles.",
+        "Never expose a decrypted credential."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Make tests fail",
+          "description": "Replace secretRef fixtures with encrypted envelope cases and assert failure modes.",
+          "command": "pnpm --filter @lite-llm/llm-gateway exec vitest run src/resolver/upstream-provider.test.ts",
+          "expectedResult": "New envelope tests fail before implementation.",
+          "codeExample": "credentialEnvelope: encryptedValue"
+        },
+        {
+          "order": 2,
+          "title": "Migrate the resolver",
+          "description": "Use the server-only envelope resolver and remove secretRef/apiKey lookup.",
+          "command": "rg -n 'secretRef|apiKey' services/llm-gateway/src/resolver",
+          "expectedResult": "No upstream provider secret fallback remains.",
+          "codeExample": "await resolveProviderCredential(provider)"
+        },
+        {
+          "order": 3,
+          "title": "Verify gateway",
+          "description": "Run focused tests, typecheck and symbol scan.",
+          "command": "pnpm --filter @lite-llm/llm-gateway typecheck",
+          "expectedResult": "Exit 0.",
+          "codeExample": "pnpm --filter @lite-llm/llm-gateway test"
+        }
+      ],
+      "filesTouched": [
+        "services/llm-gateway/src/resolver/upstream-provider.ts",
+        "services/llm-gateway/src/resolver/upstream-provider.test.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "services/llm-gateway/src/resolver/upstream-provider.ts",
+          "services/llm-gateway/src/resolver/upstream-provider.test.ts"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-B-2",
+      "title": "Remove legacy server and analytics provider writers",
+      "description": "Replace RegistryServices provider dependencies and delete Express writer routes/consumers that target the removed provider service.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "deep",
+      "batch": "B",
+      "layer": "core",
+      "reportFile": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-2/report.md",
+      "reviewPackage": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-2/review-package.diff.md",
+      "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-2/progress.log",
+      "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-B-2/log-task.sh",
+      "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
+      "dependencies": [
+        "Task-A-1"
+      ],
+      "acceptanceCriteria": [
+        "No server route accepts a legacy provider secret write.",
+        "Analytics reads the provider registry without secretRef.",
+        "Focused server and analytics tests pass."
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-003"
+      ],
+      "rules": [
+        "TDD required.",
+        "Read docs/context/testing-anti-patterns.md before test doubles.",
+        "Retain only explicitly read-only legacy routes."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Identify public read boundary",
+          "description": "Write regression coverage for retained read endpoints and removed writer endpoints.",
+          "command": "pnpm --filter server exec vitest run",
+          "expectedResult": "Legacy writer expectations fail before removal.",
+          "codeExample": "expect(response.status).toBe(404)"
+        },
+        {
+          "order": 2,
+          "title": "Remove legacy consumer wiring",
+          "description": "Update route options, factory consumers and analytics readers to the new contract.",
+          "command": "rg -n 'providersService|secretRef' apps/server packages/server services/analytics-service",
+          "expectedResult": "Legacy provider wiring is removed.",
+          "codeExample": "ModelAdminService"
+        },
+        {
+          "order": 3,
+          "title": "Verify package consumers",
+          "description": "Run focused tests, typechecks and deletion scans.",
+          "command": "pnpm --filter server typecheck",
+          "expectedResult": "Exit 0.",
+          "codeExample": "pnpm --filter @lite-llm/analytics-service typecheck"
+        }
+      ],
+      "filesTouched": [
+        "packages/server/src/routes/provider-routes.ts",
+        "packages/server/src/types/index.ts",
+        "apps/server/src/runtime/app-runtime.ts",
+        "services/analytics-service/src/data-source/registry-methods.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "packages/server/src/routes/provider-routes.ts",
+          "packages/server/src/types/index.ts",
+          "apps/server/src/runtime/app-runtime.ts",
+          "services/analytics-service/src/data-source/registry-methods.ts"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-C-1",
+      "title": "Deprecate apps/web as a read-only provider and model surface",
+      "description": "Remove mutating controls, mutations and HTTP client methods from apps/web while preserving its supported reads and showing the admin handoff.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "C",
+      "layer": "surface",
+      "reportFile": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-C-1/report.md",
+      "reviewPackage": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-C-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-C-1/progress.log",
+      "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-C-1/log-task.sh",
+      "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
+      "dependencies": [
+        "Task-B-2"
+      ],
+      "acceptanceCriteria": [
+        "apps/web exposes no actionable create, update, delete, sync or provider-credential control.",
+        "Read data remains renderable for admin and viewer.",
+        "The deprecated surface directs admin changes to apps/ui and focused web tests pass."
+      ],
+      "requirements": [
+        "REQ-003"
+      ],
+      "rules": [
+        "TDD required.",
+        "Read docs/context/testing-anti-patterns.md before test doubles.",
+        "Do not delete read-only model/dashboard behavior outside scope."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Add read-only UI tests",
+          "description": "Cover retained read rendering, absence of writer controls and the deprecation handoff.",
+          "command": "pnpm --filter web exec vitest run",
+          "expectedResult": "Read-only assertions fail before implementation.",
+          "codeExample": "expect(screen.queryByRole('button', { name: /save/i })).toBeNull()"
+        },
+        {
+          "order": 2,
+          "title": "Remove mutations",
+          "description": "Delete mutation hooks, API client writers and mutation UI from provider/model pages.",
+          "command": "rg -n 'useMutation|createProvider|updateProvider|deleteProvider' apps/web/src/features/models",
+          "expectedResult": "No provider/model writer remains in apps/web.",
+          "codeExample": "Deprecated: manage models in apps/ui"
+        },
+        {
+          "order": 3,
+          "title": "Verify web",
+          "description": "Run focused web tests, typecheck and build checks.",
+          "command": "pnpm --filter web typecheck",
+          "expectedResult": "Exit 0.",
+          "codeExample": "pnpm --filter web build"
+        }
+      ],
+      "filesTouched": [
+        "apps/web/src/features/models/use-models-page.ts",
+        "apps/web/src/features/models/use-providers-page.ts",
+        "apps/web/src/features/models/providers-page.tsx",
+        "apps/web/src/shared/lib/api-client/providers.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/web/src/features/models/use-models-page.ts",
+          "apps/web/src/features/models/use-providers-page.ts",
+          "apps/web/src/features/models/providers-page.tsx",
+          "apps/web/src/shared/lib/api-client/providers.ts"
+        ],
+        "deleted": []
+      },
+      "notes": [
+        "apps/web remains deployed but deprecated."
+      ]
+    },
+    {
+      "id": "Task-D-1",
+      "title": "Remove unused packages and verify the legacy cutover",
+      "description": "Clean workspace exports, package dependencies and obsolete tests after all consumers are migrated, then execute the full focused verification matrix.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "D",
+      "layer": "final",
+      "reportFile": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-D-1/report.md",
+      "reviewPackage": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-D-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-D-1/progress.log",
+      "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-D-1/log-task.sh",
+      "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
+      "dependencies": [
+        "Task-B-1",
+        "Task-B-2",
+        "Task-C-1"
+      ],
+      "acceptanceCriteria": [
+        "Package manifests and exports contain no unused legacy provider package surface.",
+        "Focused package typechecks/tests pass.",
+        "The final scan has no operational provider secretRef/apiKey/legacy provider service references."
+      ],
+      "requirements": [
+        "REQ-004"
+      ],
+      "rules": [
+        "Do not erase API-key concepts that are unrelated to upstream provider credentials.",
+        "Preserve generated and user-owned files unless the task owns them."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Scan remaining symbols",
+          "description": "Classify every remaining legacy provider reference before removal.",
+          "command": "rg -n 'ProvidersService|ProvidersRepository|secretRef' services apps packages",
+          "expectedResult": "Every hit is classified as unrelated or removed.",
+          "codeExample": "rg -n 'secretRef' services apps packages"
+        },
+        {
+          "order": 2,
+          "title": "Clean exports and packages",
+          "description": "Remove obsolete dependencies, exports and tests only after consumer migration.",
+          "command": "pnpm install --lockfile-only",
+          "expectedResult": "Lockfile reflects only remaining dependencies.",
+          "codeExample": "pnpm --filter @lite-llm/llm-config-service typecheck"
+        },
+        {
+          "order": 3,
+          "title": "Run final verification",
+          "description": "Run focused tests, typechecks, lint and deletion scans.",
+          "command": "pnpm verify -c",
+          "expectedResult": "Exit 0 or documented unrelated baseline issue.",
+          "codeExample": "git diff --check"
+        }
+      ],
+      "filesTouched": [
+        "services/llm-config-service/package.json",
+        "packages/server/package.json",
+        "apps/web/package.json",
+        "pnpm-lock.yaml"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "services/llm-config-service/package.json",
+          "packages/server/package.json",
+          "apps/web/package.json",
+          "pnpm-lock.yaml"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-F-1",
+      "title": "Remove final-audit legacy writers and default fallbacks",
+      "description": "Address every Critical and Important finding from the whole-branch audit before closure.",
+      "status": "completed",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "F",
+      "layer": "final",
+      "reportFile": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-F-1/report.md",
+      "reviewPackage": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-F-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-F-1/progress.log",
+      "logTaskScript": "docs/jobs/0005-modelos-providers-legacy-cutover/Task-F-1/log-task.sh",
+      "baseCommit": "de03ad162c83b70e208ca80a713277c8da256be9",
+      "dependencies": [
+        "Task-D-1"
+      ],
+      "acceptanceCriteria": [
+        "No legacy Express model/provider writer is registered outside apps/ui.",
+        "Default provider resolution uses only model_proxy_providers.is_default.",
+        "Focused route/gateway/repository tests and typechecks pass."
+      ],
+      "requirements": [
+        "REQ-002",
+        "REQ-004"
+      ],
+      "rules": [
+        "Preserve apps/ui as the sole admin writer.",
+        "Do not remove unrelated API-key concepts."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Remove registered legacy writers",
+          "description": "Unregister/remove Express model and provider mutations outside apps/ui.",
+          "command": "rg -n app\\.(post|put|delete|patch) packages/server apps/server",
+          "expectedResult": "No legacy registered writers remain.",
+          "codeExample": "rg -n app\\.put packages/server/src/routes"
+        },
+        {
+          "order": 2,
+          "title": "Remove default fallbacks",
+          "description": "Resolve default only from is_default.",
+          "command": "rg -n defaultProvider services repositories packages apps",
+          "expectedResult": "No runtime selection fallback remains.",
+          "codeExample": "rg -n defaultProvider services/llm-gateway"
+        }
+      ],
+      "filesTouched": [
+        "packages/server/src/routes/index.ts",
+        "packages/server/src/routes/model-routes.ts",
+        "services/llm-gateway/src/resolver/upstream-provider.ts",
+        "repositories/models-repository/src/db-repository.ts"
+      ],
+      "files": {
+        "created": [],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": [
+        "Created from final whole-branch audit findings."
+      ]
+    }
+  ],
+  "updatedAt": "2026-07-15T00:29:04.728006+00:00"
+}

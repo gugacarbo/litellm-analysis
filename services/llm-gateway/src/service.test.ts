@@ -1,4 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  encryptProviderSecret,
+  parseProviderEncryptionKey,
+} from "@lite-llm/llm-config-service";
 import { ModelProxyService } from "./service";
 
 const {
@@ -47,8 +51,10 @@ function setupDbMock(overrides?: {
   const providerRow = overrides?.providerRow ?? {
     id: "00000000-0000-0000-0000-000000000001",
     name: "default",
-    apiKey: "sk-test-provider-key",
-    secretRef: "MOCK_API_KEY",
+    credentialEnvelope: encryptProviderSecret(
+      "sk-test-provider-key",
+      parseProviderEncryptionKey(),
+    ),
     baseUrl: "https://upstream.example.com/v1",
   };
 
@@ -123,7 +129,10 @@ function createDatabaseMock() {
   const providerRow = {
     id: "00000000-0000-0000-0000-000000000001",
     name: "default",
-    apiKey: "sk-test-provider-key",
+    credentialEnvelope: encryptProviderSecret(
+      "sk-test-provider-key",
+      parseProviderEncryptionKey(),
+    ),
     baseUrl: "https://upstream.example.com/v1",
   };
 
@@ -178,13 +187,11 @@ function createProviderServiceMock() {
         ownedBy: "lite-llm-analytics",
         baseUrl: "http://localhost:3008/v1",
         apiKey: "env:MODEL_PROXY_API_KEY",
-        defaultProvider: "router",
       },
       openai: {
         name: "OpenAI",
         adapter: "openai-compatible",
         baseUrl: "https://upstream.example.com/v1",
-        defaultProvider: "default",
       },
     }),
     get: vi.fn(),
@@ -197,6 +204,7 @@ function createProviderServiceMock() {
 
 describe("ModelProxyService", () => {
   beforeEach(() => {
+    process.env.APP_ENCRYPTION_KEY = "0123456789abcdef0123456789abcdef";
     vi.clearAllMocks();
     vi.restoreAllMocks();
   });

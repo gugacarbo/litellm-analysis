@@ -6,11 +6,7 @@ import type {
   NormalizedModelBenchmark,
   OpenRouterModelData,
 } from "@lite-llm/contracts/benchmarks";
-import {
-  getDefaultProvider,
-  type ModelRoute,
-  providerExists as registryProviderExists,
-} from "@lite-llm/llm-config-service";
+import type { ModelRoute } from "@lite-llm/llm-config-service";
 import type { Application, Response } from "express";
 import {
   findBenchmarkModel,
@@ -368,19 +364,14 @@ export function registerModelRoutes(
   opts: RouteOptions,
 ): void {
   const { dataSource, registry } = opts;
-  const { settingsService, registryModelsService, providersService } = registry;
+  const { settingsService, registryModelsService } = registry;
 
   async function listMergedRegistryModels() {
     return listRegistryModels(registryModelsService);
   }
 
   async function getResolvedDefaultProvider(): Promise<string | null> {
-    const preferredProvider = await opts.providerService.get("local-proxy");
-    const providerDefault = preferredProvider?.defaultProvider?.trim();
-    if (providerDefault) {
-      return providerDefault;
-    }
-    return getDefaultProvider(settingsService);
+    return opts.dataSource.getDefaultProvider();
   }
 
   async function listCanonicalModelNames(): Promise<Set<string>> {
@@ -411,7 +402,7 @@ export function registerModelRoutes(
         modelName: string;
         modelRoute: ModelRoute;
         enabled: boolean;
-        config?: PersistedModelConfigSpec;
+        config?: NonNullable<ReturnType<typeof configSliceFromSpec>>;
         status: SyncPresenceStatus;
       }
     >();
@@ -473,7 +464,7 @@ export function registerModelRoutes(
           ...(providerName ? { providerName } : {}),
         },
         enabled: config.enabled,
-        config: configSliceFromModel(config),
+        config: configSliceFromSpec(config),
         status: "config-only",
       });
     }
@@ -706,18 +697,6 @@ export function registerModelRoutes(
 
       if (typeof updates.defaultProvider === "string") {
         const normalizedDefaultProvider = updates.defaultProvider.trim();
-        if (normalizedDefaultProvider.length > 0) {
-          const hasProvider = await registryProviderExists(
-            providersService,
-            normalizedDefaultProvider,
-          );
-          if (!hasProvider) {
-            res.status(400).json({
-              error: `Provider "${normalizedDefaultProvider}" not found`,
-            });
-            return;
-          }
-        }
         updates.defaultProvider = normalizedDefaultProvider;
       }
 

@@ -1,10 +1,8 @@
 import { type db as drizzleDb, getDb } from "@lite-llm/database/client";
-import { modelProxyModels } from "@lite-llm/database/schema/model-proxy";
 import {
-  ProvidersRepository,
-  SETTING_KEYS,
-  SettingsRepository,
-} from "@lite-llm/llm-config-service";
+  modelProxyModels,
+  modelProxyProviders,
+} from "@lite-llm/database/schema/model-proxy";
 import { normalizeConfig } from "@lite-llm/repository-utils/jsonc";
 import { asc, count, eq } from "drizzle-orm";
 import type { IModelsRepository } from "./interfaces";
@@ -117,7 +115,7 @@ function modelSpecFromRow(
 
 function modelRowFromSpec(
   modelName: string,
-  providerId: string | null,
+  providerId: string,
   spec: ModelSpec,
 ): typeof modelProxyModels.$inferInsert {
   return {
@@ -145,14 +143,10 @@ function modelRowFromSpec(
 
 class DbModelsRepository implements IModelsRepository {
   private readonly db: typeof drizzleDb;
-  private readonly settings: SettingsRepository;
-  private readonly providers: ProvidersRepository;
   private readonly validateOnRead: boolean;
 
   constructor(options: DbModelsRepositoryOptions = {}) {
     this.db = options.db ?? getDb();
-    this.settings = new SettingsRepository(this.db);
-    this.providers = new ProvidersRepository(this.db);
     this.validateOnRead = options.validateOnRead ?? true;
   }
 
@@ -161,37 +155,18 @@ class DbModelsRepository implements IModelsRepository {
       .select()
       .from(modelProxyModels)
       .orderBy(asc(modelProxyModels.modelId));
-    const providerRows = await this.providers.list();
+    const providerRows = await this.db
+      .select()
+      .from(modelProxyProviders)
+      .orderBy(asc(modelProxyProviders.name));
     const providerIdToName = new Map(providerRows.map((p) => [p.id, p.name]));
-    const defaultProviderRow = await this.settings.findByKey(
-      SETTING_KEYS.DEFAULT_PROVIDER,
-    );
-
-    const defaultProvider =
-      defaultProviderRow &&
-      typeof defaultProviderRow.value === "object" &&
-      defaultProviderRow.value !== null &&
-      "default_provider" in defaultProviderRow.value &&
-      typeof (defaultProviderRow.value as { default_provider?: unknown })
-        .default_provider === "string"
-        ? (defaultProviderRow.value as { default_provider: string })
-            .default_provider
-        : "";
-
-    const provider: Record<string, Provider> = {
-      "local-proxy": {
-        name: "Local Model Proxy",
-        baseUrl: "http://localhost:3008/v1",
-        defaultProvider,
-      },
-    };
+    const provider: Record<string, Provider> = {};
 
     for (const row of providerRows) {
       const providerKey = row.provider ?? row.name;
       provider[providerKey] = {
         name: row.name,
         baseUrl: row.baseUrl ?? "",
-        defaultProvider: row.name,
         ...(row.provider === "openai-compatible"
           ? { adapter: "openai-compatible" as const }
           : {}),
@@ -242,26 +217,11 @@ class DbModelsRepository implements IModelsRepository {
     }
 
     const validated = result.data;
-    const localProxy = validated.provider["local-proxy"];
-    const defaultProviderName = localProxy?.defaultProvider?.trim() ?? "";
-
-    if (defaultProviderName) {
-      await this.settings.upsert(SETTING_KEYS.DEFAULT_PROVIDER, {
-        default_provider: defaultProviderName,
-      });
-    } else {
-      await this.settings.deleteByKey(SETTING_KEYS.DEFAULT_PROVIDER);
-    }
-
     console.log("[REAL WRITE] providers keys", Object.keys(validated.provider));
     for (const [providerKey, providerSpec] of Object.entries(
       validated.provider,
     )) {
-      if (providerKey === "local-proxy") {
-        continue;
-      }
-
-      const providerName = providerSpec.defaultProvider?.trim();
+      const providerName = providerKey.trim();
       console.log("[REAL WRITE] processing", providerKey, "name", providerName);
       if (!providerName) {
         continue;
@@ -273,19 +233,27 @@ class DbModelsRepository implements IModelsRepository {
         baseUrl: providerSpec.baseUrl || null,
       };
 
-      const existing = await this.providers.findByName(providerName);
+      const [existing] = await this.db
+        .select({ id: modelProxyProviders.id })
+        .from(modelProxyProviders)
+        .where(eq(modelProxyProviders.name, providerName))
+        .limit(1);
       console.log("[REAL WRITE] existing for", providerName, !!existing);
       if (existing) {
-        await this.providers.update(providerName, providerData);
+        await this.db
+          .update(modelProxyProviders)
+          .set(providerData)
+          .where(eq(modelProxyProviders.id, existing.id));
       } else {
-        await this.providers.create(providerData);
+        await this.db.insert(modelProxyProviders).values(providerData);
       }
     }
 
     const desiredNames = new Set(Object.keys(validated.models));
     const existingModels = await this.db.select().from(modelProxyModels);
-    const providerRows = await this.providers.list();
+    const providerRows = await this.db.select().from(modelProxyProviders);
     const providerNameToId = new Map(providerRows.map((p) => [p.name, p.id]));
+    const defaultProviderId = providerRows.find((p) => p.isDefault)?.id;
     for (const existing of existingModels) {
       const providerName = existing.providerId
         ? (providerRows.find((p) => p.id === existing.providerId)?.name ?? null)
@@ -310,8 +278,13 @@ class DbModelsRepository implements IModelsRepository {
     for (const [modelKey, spec] of Object.entries(validated.models)) {
       const { modelName, providerName } = parseModelKey(modelKey);
       const providerId = providerName
-        ? (providerNameToId.get(providerName) ?? null)
-        : null;
+        ? providerNameToId.get(providerName)
+        : defaultProviderId;
+      if (!providerId) {
+        throw new Error(
+          `Model "${modelKey}" requires an existing provider; set a provider-scoped key or configure a valid default provider`,
+        );
+      }
       const data = modelRowFromSpec(modelName, providerId, spec);
       const existing = existingByKey.get(modelKey);
       if (existing) {

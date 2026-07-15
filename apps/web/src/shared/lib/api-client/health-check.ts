@@ -62,13 +62,3 @@ export async function getLatestHealthChecks(): Promise<GetLatestHealthChecksResp
 export async function getHealthCheckSummary(): Promise<HealthCheckSummary> {
   return fetchApi("/health-check/summary");
 }
-
-export async function runHealthCheck(
-  models?: string[],
-): Promise<RunHealthCheckResponse> {
-  return fetchApi("/health-check/run", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ models }),
-  });
-}

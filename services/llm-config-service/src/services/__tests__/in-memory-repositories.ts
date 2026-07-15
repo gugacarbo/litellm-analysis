@@ -1,6 +1,5 @@
 import type { ApiKeyRecord } from "../../types/api-keys.js";
 import type { ModelProxyModelRecord } from "../../types/model-route.js";
-import type { ProviderRecord } from "../../types/providers.js";
 import type { ModelProxySettingRecord } from "../../types/settings.js";
 
 export function createApiKeysRepositoryMock() {
@@ -74,78 +73,6 @@ export function createApiKeysRepositoryMock() {
 
     async delete(id: string): Promise<boolean> {
       return rowsById.delete(id);
-    },
-  };
-}
-
-export function createProvidersRepositoryMock() {
-  const rows = new Map<string, ProviderRecord>();
-  let idCounter = 1;
-
-  return {
-    async findByName(name: string): Promise<ProviderRecord | null> {
-      return rows.get(name) ?? null;
-    },
-
-    async list(): Promise<ProviderRecord[]> {
-      return [...rows.values()].sort((a, b) => a.name.localeCompare(b.name));
-    },
-
-    async create(data: {
-      name: string;
-      isDefault?: boolean;
-      provider?: string | null;
-      baseUrl?: string | null;
-      apiKey?: string | null;
-      secretRef?: string | null;
-    }): Promise<ProviderRecord> {
-      const now = new Date();
-      const row: ProviderRecord = {
-        id: `cred_${idCounter++}`,
-        name: data.name,
-        isDefault: data.isDefault ?? false,
-        provider: data.provider ?? null,
-        baseUrl: data.baseUrl ?? null,
-        apiKey: data.apiKey ?? null,
-        secretRef: data.secretRef ?? null,
-        createdAt: now,
-        updatedAt: now,
-      };
-      rows.set(row.name, row);
-      return row;
-    },
-
-    async update(
-      name: string,
-      data: Partial<{
-        name: string;
-        isDefault: boolean;
-        provider: string | null;
-        baseUrl: string | null;
-        apiKey: string | null;
-        secretRef: string | null;
-      }>,
-    ): Promise<ProviderRecord | null> {
-      const existing = rows.get(name);
-      if (!existing) {
-        return null;
-      }
-
-      const updated: ProviderRecord = {
-        ...existing,
-        ...data,
-        name: data.name ?? existing.name,
-        updatedAt: new Date(),
-      };
-      if (updated.name !== name) {
-        rows.delete(name);
-      }
-      rows.set(updated.name, updated);
-      return updated;
-    },
-
-    async delete(name: string): Promise<boolean> {
-      return rows.delete(name);
     },
   };
 }

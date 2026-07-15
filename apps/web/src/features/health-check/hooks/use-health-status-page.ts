@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { queryKeys } from "@/shared/lib/query-keys";
-import { useHealthStatusActions } from "./use-health-status-actions";
 import { useHealthStatusDerived } from "./use-health-status-derived";
 import { useHealthStatusState } from "./use-health-status-state";
 import { useHealthStatusWebSocket } from "./use-health-status-websocket";
@@ -14,13 +13,17 @@ export function useHealthStatusPage() {
     rejectedMap,
     runningExecutions,
     partialMessages,
-    send,
   } = useHealthStatusWebSocket();
   const state = useHealthStatusState({
     wsStatus: status,
     wsResults: latestResults,
   });
-  const actions = useHealthStatusActions({ send });
+  const actions = {
+    isGlobalRunning: false,
+    isModelRunning: (_modelName: string) => false,
+    clearRunningModel: (_modelName: string) => undefined,
+    triggerSingleRun: (_modelName: string) => undefined,
+  };
   const derived = useHealthStatusDerived(state.allModelsWithStatus);
   const lastWsRefreshAtRef = useRef(0);
 

@@ -26,6 +26,7 @@ import { env } from "../env";
 import { createBenchmarkSyncRouter } from "../routes/benchmark-sync-routes";
 import { createHealthCheckRouter } from "../routes/health-check-routes";
 import { createOpenRouterBenchmarkSyncRouter } from "../routes/openrouter-benchmark-sync-routes";
+import { unregisterLegacyMutationRoutes } from "./legacy-route-guard";
 
 function parseBooleanQuery(value: unknown, fallback: boolean): boolean {
   if (typeof value !== "string") return fallback;
@@ -652,6 +653,7 @@ export function createApiServer(
   }
 
   registerAllRoutes(app, opts);
+  unregisterLegacyMutationRoutes(app);
 
   const healthCheckService = createHealthCheckApplicationService();
   app.use("/health-check", createHealthCheckRouter(healthCheckService));

@@ -69,7 +69,7 @@ describe("ModelStatsPage", () => {
     vi.clearAllMocks();
   });
 
-  it("should show delete logs buttons", async () => {
+  it("does not expose delete-log controls", async () => {
     renderWithProviders(<ModelStatsPage />);
 
     await screen.findAllByText(/gpt-4|claude-3-opus/);
@@ -77,9 +77,6 @@ describe("ModelStatsPage", () => {
     const deleteButtons = screen.queryAllByRole("button", {
       name: /Delete/,
     });
-    expect(deleteButtons.length).toBe(2);
-    for (const btn of deleteButtons) {
-      expect(btn).not.toBeDisabled();
-    }
+    expect(deleteButtons).toHaveLength(0);
   });
 });

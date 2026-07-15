@@ -12,7 +12,13 @@ builds-on:
   - SPEC-0001
   - SPEC-0002
   - SPEC-0003
-implemented-by: []
+implemented-by:
+  - services/llm-config-service/src/lib/provider-secrets.ts
+  - services/llm-gateway/src/resolver/upstream-provider.ts
+  - packages/server/src/routes/provider-routes.ts
+  - apps/server/src/runtime/legacy-route-guard.ts
+  - apps/web/src/features/models/providers-page.tsx
+  - repositories/models-repository/src/db-repository.ts
 design-ref: docs/spec-decisions/0005_modelos_providers_roteamento_decisions.md
 ---
 

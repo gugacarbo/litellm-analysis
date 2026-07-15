@@ -26,8 +26,6 @@ export function useModelStatsState() {
   const [visibleColumns, setVisibleColumns] = useState<ColumnKey[]>(() =>
     MODEL_STATS_COLUMNS.filter((c) => c.default).map((c) => c.key),
   );
-  const [deleting, setDeleting] = useState<string | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const modelStatsQuery = useQuery({
     queryKey: queryKeys.modelStatistics(rangeDays),
@@ -66,10 +64,6 @@ export function useModelStatsState() {
     setSearchQuery,
     visibleColumns,
     setVisibleColumns,
-    deleting,
-    setDeleting,
-    deleteDialogOpen,
-    setDeleteDialogOpen,
     data: modelStatsQuery.data ?? [],
     loading: modelStatsQuery.isPending && !modelStatsQuery.data,
     error:

@@ -12,9 +12,6 @@ function createSettingsService(
       throw new Error("not implemented");
     },
     deleteByKey: async () => false,
-    getDefaultProvider: async () => null,
-    setDefaultProvider: async () => undefined,
-    deleteDefaultProvider: async () => false,
     getHealthCheckPrompt: async () => null,
     setHealthCheckPrompt: async () => undefined,
     getRouterSettings: async () => null,

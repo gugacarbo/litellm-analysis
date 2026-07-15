@@ -10,7 +10,6 @@ import { toModelRoute } from "@lite-llm/llm-config-service";
 import { asc, eq } from "drizzle-orm";
 import type { ModelDetail, ModelEntry, RegistryProvider } from "../types/index";
 
-const DEFAULT_PROVIDER_KEY = "default_provider";
 const HEALTH_CHECK_PROMPT_KEY = "health_check_prompt";
 
 function dbModelToRoute(row: typeof modelProxyModels.$inferSelect): ModelRoute {
@@ -35,7 +34,7 @@ function dbModelToRoute(row: typeof modelProxyModels.$inferSelect): ModelRoute {
   };
 }
 
-function routeToCreateData(route: ModelRoute) {
+function routeToUpdateData(route: ModelRoute) {
   return {
     modelId: route.modelId,
     enabled: route.enabled ?? true,
@@ -55,6 +54,34 @@ function routeToCreateData(route: ModelRoute) {
     pricing: route.pricing ?? undefined,
     requestOptions: route.requestOptions,
   };
+}
+
+async function routeToCreateData(
+  route: ModelRoute,
+  fallbackProviderId?: string,
+) {
+  const providerName =
+    route.providerName?.trim() || (await getRegistryDefaultProviderImpl());
+  if (!providerName && !fallbackProviderId) {
+    throw new Error(
+      `Model "${route.modelId}" requires providerName or a configured default provider`,
+    );
+  }
+
+  let providerId = fallbackProviderId;
+  if (providerName) {
+    const [provider] = await db
+      .select({ id: modelProxyProviders.id })
+      .from(modelProxyProviders)
+      .where(eq(modelProxyProviders.name, providerName))
+      .limit(1);
+    if (!provider) {
+      throw new Error(`Provider not found: ${providerName}`);
+    }
+    providerId = provider.id;
+  }
+
+  return { ...routeToUpdateData(route), providerId: providerId! };
 }
 
 export async function getRegistryModelsImpl(): Promise<ModelEntry[]> {
@@ -94,7 +121,7 @@ export async function createRegistryModelImpl(model: {
       model: { name: model.modelName } as ModelConfig,
     });
   }
-  await db.insert(modelProxyModels).values(routeToCreateData(route));
+  await db.insert(modelProxyModels).values(await routeToCreateData(route));
 }
 
 export async function updateRegistryModelImpl(
@@ -126,7 +153,12 @@ export async function updateRegistryModelImpl(
       .where(eq(modelProxyModels.id, existing.id));
     await db
       .insert(modelProxyModels)
-      .values(routeToCreateData({ ...mergedRoute, modelId: targetName }));
+      .values(
+        await routeToCreateData(
+          { ...mergedRoute, modelId: targetName },
+          existing.providerId,
+        ),
+      );
     return;
   }
 
@@ -144,7 +176,7 @@ export async function updateRegistryModelImpl(
   }
   await db
     .update(modelProxyModels)
-    .set(routeToCreateData(route))
+    .set(routeToUpdateData(route))
     .where(eq(modelProxyModels.id, existing.id));
 }
 
@@ -172,7 +204,7 @@ export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
     providerName: record.name,
     providerValues: null,
     providerInfo: {
-      hasStoredSecret: Boolean(record.secretRef?.trim()),
+      credentialStatus: record.credentialEnvelope ? "configured" : "missing",
       provider: record.provider,
     },
     createdAt: record.createdAt.toISOString(),
@@ -185,20 +217,10 @@ export async function getRegistryProvidersImpl(): Promise<RegistryProvider[]> {
 export async function getRegistryDefaultProviderImpl(): Promise<string | null> {
   const [row] = await db
     .select()
-    .from(modelProxySettings)
-    .where(eq(modelProxySettings.key, DEFAULT_PROVIDER_KEY))
+    .from(modelProxyProviders)
+    .where(eq(modelProxyProviders.isDefault, true))
     .limit(1);
-  if (
-    !row?.value ||
-    typeof row.value !== "object" ||
-    Array.isArray(row.value)
-  ) {
-    return null;
-  }
-  const value = row.value as Record<string, unknown>;
-  return typeof value.default_provider === "string"
-    ? value.default_provider
-    : null;
+  return row?.name ?? null;
 }
 
 export async function setRegistryDefaultProviderImpl(
@@ -206,21 +228,29 @@ export async function setRegistryDefaultProviderImpl(
 ): Promise<void> {
   if (providerAlias === null || providerAlias.trim() === "") {
     await db
-      .delete(modelProxySettings)
-      .where(eq(modelProxySettings.key, DEFAULT_PROVIDER_KEY));
+      .update(modelProxyProviders)
+      .set({ isDefault: false })
+      .where(eq(modelProxyProviders.isDefault, true));
     return;
   }
+
+  const [provider] = await db
+    .select({ id: modelProxyProviders.id })
+    .from(modelProxyProviders)
+    .where(eq(modelProxyProviders.name, providerAlias.trim()))
+    .limit(1);
+  if (!provider) {
+    throw new Error(`Provider not found: ${providerAlias.trim()}`);
+  }
+
   await db
-    .insert(modelProxySettings)
-    .values({
-      id: crypto.randomUUID(),
-      key: DEFAULT_PROVIDER_KEY,
-      value: { default_provider: providerAlias.trim() },
-    })
-    .onConflictDoUpdate({
-      target: modelProxySettings.key,
-      set: { value: { default_provider: providerAlias.trim() } },
-    });
+    .update(modelProxyProviders)
+    .set({ isDefault: false })
+    .where(eq(modelProxyProviders.isDefault, true));
+  await db
+    .update(modelProxyProviders)
+    .set({ isDefault: true })
+    .where(eq(modelProxyProviders.id, provider.id));
 }
 
 export async function getRegistryHealthCheckPromptImpl(): Promise<

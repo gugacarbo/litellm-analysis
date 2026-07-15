@@ -55,8 +55,7 @@ export type ColumnKey =
   | "errorRate"
   | "first"
   | "last"
-  | "costPer1k"
-  | "actions";
+  | "costPer1k";
 
 export interface Column {
   key: ColumnKey;
@@ -127,5 +126,4 @@ export const MODEL_STATS_COLUMNS: Column[] = [
   { key: "costPer1k", label: "$/1K tok", align: "right", default: false },
   { key: "first", label: "First Used", align: "right", default: false },
   { key: "last", label: "Last Used", align: "right", default: false },
-  { key: "actions", label: "", align: "right", default: true },
 ];

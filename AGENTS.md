@@ -57,6 +57,8 @@ pnpm test              # só testes
      descoberto pelo agente DEVE ser registrado aqui. -->
 
 -
+- Express 4.22 registra camadas em `app._router.stack`; não acessar o getter
+  depreciado `app.router`, pois ele lança em runtime.
 
 ## Mapa de contexto
 
