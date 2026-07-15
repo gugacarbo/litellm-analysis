@@ -627,6 +627,23 @@ export class ModelAdminService {
     return { models };
   }
 
+  async testProvider(providerId: string): Promise<{ message: string }> {
+    const provider = await this.requireOpenAiCompatibleProvider(providerId);
+    const destination = await this.prepareDestination(provider, "models");
+    const response = await this.withProviderCredential(
+      provider,
+      async (credential) =>
+        this.upstreamTransport.request({
+          method: "GET",
+          url: destination.url,
+          address: destination.address,
+          headers: authorizationHeaders(credential),
+        }),
+    );
+    assertUpstreamSuccess(response);
+    return { message: "Connection successful." };
+  }
+
   async probeModel(input: ProbeModelInput): Promise<ProbeModelResult> {
     const providerId = requireIdentifier(input.providerId, "providerId");
     const modelId = requireText(input.modelId, "modelId");
@@ -1428,8 +1445,14 @@ class NodeHttpsOpenAiCompatibleTransport implements OpenAiCompatibleTransport {
         method: input.method,
         headers: input.headers,
         agent: false,
-        lookup: (_hostname, _options, callback) =>
-          callback(null, input.address, isIP(input.address)),
+        lookup: (_hostname, options, callback) => {
+          const family = isIP(input.address);
+          if (options.all) {
+            callback(null, [{ address: input.address, family }]);
+            return;
+          }
+          callback(null, input.address, family);
+        },
       });
       const connectTimer = setTimeout(() => {
         if (!connected) {

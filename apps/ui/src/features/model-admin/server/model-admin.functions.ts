@@ -29,6 +29,7 @@ import {
   handleProbeModel,
   handleSaveModel,
   handleSetDefaultProvider,
+  handleTestProvider,
   handleToggleModel,
   handleUpdateAlias,
   handleUpdateProvider,
@@ -154,6 +155,12 @@ export const discoverModels = createServerFn({ method: "POST" })
   .validator(discoverModelsInputSchema)
   .handler(({ data }) =>
     withRuntime((deps) => handleDiscoverModels(deps, data.providerId)),
+  );
+
+export const testProvider = createServerFn({ method: "POST" })
+  .validator(idInputSchema)
+  .handler(({ data }) =>
+    withRuntime((deps) => handleTestProvider(deps, data.id)),
   );
 
 export const applyDiscoverySelection = createServerFn({ method: "POST" })

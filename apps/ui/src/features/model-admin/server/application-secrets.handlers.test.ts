@@ -4,6 +4,7 @@ import {
   handleListApplicationSecrets,
   handleRemoveApplicationSecret,
   handleReplaceApplicationSecret,
+  handleTestApplicationSecret,
 } from "./application-secrets.handlers";
 
 const configuredAt = new Date("2026-07-14T00:00:00.000Z");
@@ -36,6 +37,7 @@ function createDeps(overrides: Partial<ApplicationSecretsHandlerDeps> = {}) {
       createdAt: null,
       updatedAt: null,
     }),
+    resolve: vi.fn().mockResolvedValue("private-api-key"),
   };
   return {
     service,
@@ -146,5 +148,31 @@ describe("application secrets handlers", () => {
       error: { code: "VALIDATION", retryable: false },
     });
     expect(deps.getService).not.toHaveBeenCalled();
+  });
+
+  it("tests an Artificial Analysis key server-side without returning it", async () => {
+    const { deps, service } = createDeps();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await handleTestApplicationSecret(deps, {
+      key: "artificial_analysis_api_key",
+    });
+    expect(result).toEqual({
+      ok: true,
+      data: { message: "Connection successful." },
+    });
+    expect(JSON.stringify(result)).not.toContain("private-api-key");
+
+    expect(service.resolve).toHaveBeenCalledWith("artificial_analysis_api_key");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://artificialanalysis.ai/api/v2/data/llms/models",
+      expect.objectContaining({
+        headers: { "x-api-key": "private-api-key" },
+      }),
+    );
+    vi.unstubAllGlobals();
   });
 });

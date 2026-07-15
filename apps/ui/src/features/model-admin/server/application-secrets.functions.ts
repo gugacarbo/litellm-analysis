@@ -4,12 +4,14 @@ import {
   emptyInputSchema,
   removeApplicationSecretInputSchema,
   replaceApplicationSecretInputSchema,
+  testApplicationSecretInputSchema,
 } from "../contracts/model-admin";
 import {
   type ApplicationSecretsHandlerDeps,
   handleListApplicationSecrets,
   handleRemoveApplicationSecret,
   handleReplaceApplicationSecret,
+  handleTestApplicationSecret,
 } from "./application-secrets.handlers";
 
 async function runtimeDeps(): Promise<
@@ -69,4 +71,10 @@ export const removeApplicationSecret = createServerFn({ method: "POST" })
   .validator(removeApplicationSecretInputSchema)
   .handler(({ data }) =>
     withRuntime((deps) => handleRemoveApplicationSecret(deps, data)),
+  );
+
+export const testApplicationSecret = createServerFn({ method: "POST" })
+  .validator(testApplicationSecretInputSchema)
+  .handler(({ data }) =>
+    withRuntime((deps) => handleTestApplicationSecret(deps, data)),
   );

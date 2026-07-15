@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PageHeader } from "@/features/app-shell/components/page-header";
@@ -22,6 +23,20 @@ import {
   CardDescription,
   CardTitle,
 } from "@/shared/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 import { Input } from "@/shared/components/ui/input";
 import type {
   ApplicationSecretKey,
@@ -37,15 +52,25 @@ import {
 import {
   removeApplicationSecret,
   replaceApplicationSecret,
+  testApplicationSecret,
 } from "../server/application-secrets.functions";
-import { updateProvider } from "../server/model-admin.functions";
+import { testProvider, updateProvider } from "../server/model-admin.functions";
 
 const secretDefinitions: ReadonlyArray<{
+  apiUrl: string;
   key: ApplicationSecretKey;
   name: string;
 }> = [
-  { key: "artificial_analysis_api_key", name: "Artificial Analysis" },
-  { key: "openrouter_api_key", name: "OpenRouter" },
+  {
+    apiUrl: "https://artificialanalysis.ai/api/v2",
+    key: "artificial_analysis_api_key",
+    name: "Artificial Analysis",
+  },
+  {
+    apiUrl: "https://openrouter.ai/api/v1",
+    key: "openrouter_api_key",
+    name: "OpenRouter",
+  },
 ];
 
 function toErrorMessage(error: unknown): string {
@@ -62,6 +87,12 @@ function requireSuccess<T>(
   throw result.error;
 }
 
+type TestDialogState = {
+  status: "running" | "success" | "error";
+  title: string;
+  message: string;
+};
+
 export function SecretsPage() {
   const queryClient = useQueryClient();
   const secretsQuery = useQuery(modelAdminQueries.applicationSecrets());
@@ -73,6 +104,7 @@ export function SecretsPage() {
     null,
   );
   const [providerCredentialValue, setProviderCredentialValue] = useState("");
+  const [testDialog, setTestDialog] = useState<TestDialogState | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const form = useForm<ReplaceApplicationSecretInput>({
     resolver: zodResolver(replaceApplicationSecretInputSchema),
@@ -98,6 +130,50 @@ export function SecretsPage() {
       setFeedback("Secret removed.");
     },
     onError: (error) => setFeedback(toErrorMessage(error)),
+  });
+  const testApplicationSecretMutation = useMutation({
+    mutationFn: async (key: ApplicationSecretKey) =>
+      requireSuccess(await testApplicationSecret({ data: { key } })),
+    onSuccess: () => {
+      setTestDialog((current) =>
+        current
+          ? {
+              ...current,
+              message: "Connection successful.",
+              status: "success",
+            }
+          : null,
+      );
+    },
+    onError: (error) => {
+      setTestDialog((current) =>
+        current
+          ? { ...current, message: toErrorMessage(error), status: "error" }
+          : null,
+      );
+    },
+  });
+  const testProviderMutation = useMutation({
+    mutationFn: async (provider: ProviderPublic) =>
+      requireSuccess(await testProvider({ data: { id: provider.id } })),
+    onSuccess: () => {
+      setTestDialog((current) =>
+        current
+          ? {
+              ...current,
+              message: "Connection successful.",
+              status: "success",
+            }
+          : null,
+      );
+    },
+    onError: (error) => {
+      setTestDialog((current) =>
+        current
+          ? { ...current, message: toErrorMessage(error), status: "error" }
+          : null,
+      );
+    },
   });
   const updateProviderMutation = useMutation({
     mutationFn: async (input: { provider: ProviderPublic; value: string }) =>
@@ -164,8 +240,11 @@ export function SecretsPage() {
           const isEditing = editing === definition.key;
 
           return (
-            <Card key={definition.key}>
-              <CardContent className="flex flex-wrap items-center gap-3 py-3">
+            <Card
+              className="[--card-spacing:--spacing(3)]"
+              key={definition.key}
+            >
+              <CardContent className="flex flex-wrap items-center gap-3">
                 {isEditing ? (
                   <form
                     className="flex w-full flex-wrap items-center gap-2"
@@ -180,6 +259,7 @@ export function SecretsPage() {
                       autoComplete="off"
                       aria-invalid={Boolean(form.formState.errors.value)}
                       className="min-w-48 flex-1"
+                      placeholder="Enter API key"
                       type="password"
                       {...form.register("value")}
                     />
@@ -222,34 +302,65 @@ export function SecretsPage() {
                             : "Not configured"}
                         </Badge>
                       </div>
-                      <span className="text-muted-foreground text-xs">
+                      <span className="block truncate text-muted-foreground text-xs">
+                        {definition.apiUrl}
+                      </span>
+                      <span className="block text-muted-foreground text-xs">
                         {secret.updatedAt
                           ? `Updated ${secret.updatedAt.toLocaleString()}`
                           : "No key has been stored."}
                       </span>
                     </div>
-                    <div className="flex shrink-0 flex-wrap gap-2">
-                      <Button
-                        onClick={() => {
-                          setFeedback(null);
-                          form.reset({ key: definition.key, value: "" });
-                          setEditing(definition.key);
-                        }}
-                        type="button"
-                      >
-                        {secret.isConfigured ? "Replace key" : "Set key"}
-                      </Button>
-                      {secret.isConfigured ? (
-                        <Button
-                          disabled={removeMutation.isPending}
-                          onClick={() => setRemoveCandidate(definition.key)}
-                          type="button"
-                          variant="destructive"
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            aria-label={`Actions for ${definition.name}`}
+                            size="icon"
+                            type="button"
+                            variant="outline"
+                          >
+                            <MoreHorizontal />
+                          </Button>
+                        }
+                      />
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          disabled={testApplicationSecretMutation.isPending}
+                          onClick={() => {
+                            setFeedback(null);
+                            setTestDialog({
+                              message: "Testing connection…",
+                              status: "running",
+                              title: definition.name,
+                            });
+                            testApplicationSecretMutation.mutate(
+                              definition.key,
+                            );
+                          }}
                         >
-                          Remove key
-                        </Button>
-                      ) : null}
-                    </div>
+                          Test
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setFeedback(null);
+                            form.reset({ key: definition.key, value: "" });
+                            setEditing(definition.key);
+                          }}
+                        >
+                          {secret.isConfigured ? "Replace key" : "Set key"}
+                        </DropdownMenuItem>
+                        {secret.isConfigured ? (
+                          <DropdownMenuItem
+                            disabled={removeMutation.isPending}
+                            onClick={() => setRemoveCandidate(definition.key)}
+                            variant="destructive"
+                          >
+                            Remove key
+                          </DropdownMenuItem>
+                        ) : null}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </>
                 )}
               </CardContent>
@@ -299,8 +410,11 @@ export function SecretsPage() {
               const hasCredential = provider.credentialStatus === "configured";
 
               return (
-                <Card key={provider.id}>
-                  <CardContent className="flex flex-wrap items-center gap-3 py-3">
+                <Card
+                  className="[--card-spacing:--spacing(3)]"
+                  key={provider.id}
+                >
+                  <CardContent className="flex flex-wrap items-center gap-3">
                     <div className="min-w-52 flex-1">
                       <div className="flex items-center gap-2">
                         <CardTitle className="text-base">
@@ -339,6 +453,7 @@ export function SecretsPage() {
                           onChange={(event) =>
                             setProviderCredentialValue(event.target.value)
                           }
+                          placeholder="Enter API key"
                           type="password"
                           value={providerCredentialValue}
                         />
@@ -362,16 +477,45 @@ export function SecretsPage() {
                         </div>
                       </form>
                     ) : (
-                      <Button
-                        onClick={() => {
-                          setFeedback(null);
-                          setProviderCredentialValue("");
-                          setEditingProviderId(provider.id);
-                        }}
-                        type="button"
-                      >
-                        {hasCredential ? "Update key" : "Add key"}
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button
+                              aria-label={`Actions for ${provider.name}`}
+                              size="icon"
+                              type="button"
+                              variant="outline"
+                            >
+                              <MoreHorizontal />
+                            </Button>
+                          }
+                        />
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            disabled={testProviderMutation.isPending}
+                            onClick={() => {
+                              setFeedback(null);
+                              setTestDialog({
+                                message: "Testing connection…",
+                                status: "running",
+                                title: provider.name,
+                              });
+                              testProviderMutation.mutate(provider);
+                            }}
+                          >
+                            Test
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setFeedback(null);
+                              setProviderCredentialValue("");
+                              setEditingProviderId(provider.id);
+                            }}
+                          >
+                            {hasCredential ? "Update key" : "Add key"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     )}
                   </CardContent>
                 </Card>
@@ -380,6 +524,46 @@ export function SecretsPage() {
           </div>
         )}
       </section>
+      <Dialog
+        open={testDialog !== null}
+        onOpenChange={(open) => {
+          if (
+            !open &&
+            !testApplicationSecretMutation.isPending &&
+            !testProviderMutation.isPending
+          ) {
+            setTestDialog(null);
+          }
+        }}
+      >
+        <DialogContent
+          showCloseButton={
+            !testApplicationSecretMutation.isPending &&
+            !testProviderMutation.isPending
+          }
+        >
+          <DialogHeader>
+            <DialogTitle>Test {testDialog?.title}</DialogTitle>
+            <DialogDescription>
+              The credential is tested securely on the server.
+            </DialogDescription>
+          </DialogHeader>
+          <div
+            aria-live="polite"
+            className={
+              testDialog?.status === "error"
+                ? "text-destructive"
+                : "text-muted-foreground"
+            }
+            role="status"
+          >
+            {testDialog?.message}
+          </div>
+          {testDialog?.status !== "running" ? (
+            <DialogFooter showCloseButton />
+          ) : null}
+        </DialogContent>
+      </Dialog>
       <AlertDialog
         open={removeCandidate !== null}
         onOpenChange={(open) => {

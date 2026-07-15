@@ -21,6 +21,7 @@ import {
   modelSummarySchema,
   mutationSuccessSchema,
   probeModelResultSchema,
+  testProviderResultSchema,
   toProviderPublicDto,
   updateProviderInputSchema,
 } from "../contracts/model-admin";
@@ -42,6 +43,7 @@ type ModelAdminApi = Pick<
   | "updateAlias"
   | "deleteAlias"
   | "discoverModels"
+  | "testProvider"
   | "applyDiscoverySelection"
   | "probeModel"
 >;
@@ -255,6 +257,14 @@ export const handleDiscoverModels = (
 ) =>
   withWrite(deps, async (service) =>
     discoveryResultSchema.parse(await service.discoverModels(providerId)),
+  );
+
+export const handleTestProvider = (
+  deps: ModelAdminHandlerDeps,
+  providerId: string,
+) =>
+  withWrite(deps, async (service) =>
+    testProviderResultSchema.parse(await service.testProvider(providerId)),
   );
 
 export const handleApplyDiscoverySelection = (

@@ -63,12 +63,24 @@ export const removeApplicationSecretInputSchema = z.object({
   key: applicationSecretKeySchema,
 });
 
+export const testApplicationSecretInputSchema = z.object({
+  key: applicationSecretKeySchema,
+});
+
+export const testApplicationSecretResultSchema = z.object({
+  message: z.string(),
+});
+
 export type ReplaceApplicationSecretInput = z.infer<
   typeof replaceApplicationSecretInputSchema
 >;
 
 export type RemoveApplicationSecretInput = z.infer<
   typeof removeApplicationSecretInputSchema
+>;
+
+export type TestApplicationSecretInput = z.infer<
+  typeof testApplicationSecretInputSchema
 >;
 
 const uuidSchema = z.uuid();
@@ -250,6 +262,10 @@ export const updateAliasInputSchema = z.object({
 });
 
 export const discoverModelsInputSchema = z.object({ providerId: uuidSchema });
+
+export const testProviderResultSchema = z.object({
+  message: z.string(),
+});
 
 export const applyDiscoverySelectionInputSchema = z.object({
   providerId: uuidSchema,

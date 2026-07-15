@@ -15,18 +15,25 @@ import {
   listApplicationSecrets,
   removeApplicationSecret,
   replaceApplicationSecret,
+  testApplicationSecret,
 } from "../server/application-secrets.functions";
-import { listProviders, updateProvider } from "../server/model-admin.functions";
+import {
+  listProviders,
+  testProvider,
+  updateProvider,
+} from "../server/model-admin.functions";
 import { SecretsPage } from "./secrets-page";
 
 vi.mock("@/features/model-admin/server/application-secrets.functions", () => ({
   listApplicationSecrets: vi.fn(),
   replaceApplicationSecret: vi.fn(),
   removeApplicationSecret: vi.fn(),
+  testApplicationSecret: vi.fn(),
 }));
 
 vi.mock("@/features/model-admin/server/model-admin.functions", () => ({
   listProviders: vi.fn(),
+  testProvider: vi.fn(),
   updateProvider: vi.fn(),
 }));
 
@@ -128,6 +135,10 @@ describe("SecretsPage", () => {
     expect(screen.getByText("Artificial Analysis")).toBeTruthy();
     expect(screen.getByText("OpenRouter")).toBeTruthy();
     expect(
+      screen.getByText("https://artificialanalysis.ai/api/v2"),
+    ).toBeTruthy();
+    expect(screen.getByText("https://openrouter.ai/api/v1")).toBeTruthy();
+    expect(
       screen.getByRole("heading", { name: "Provider credentials" }),
     ).toBeTruthy();
     expect(screen.getByText("OpenAI production")).toBeTruthy();
@@ -148,7 +159,10 @@ describe("SecretsPage", () => {
     });
     renderPage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Replace key" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Actions for Artificial Analysis" }),
+    );
+    fireEvent.click(screen.getByRole("menuitem", { name: "Replace key" }));
     expect(screen.queryByText("Artificial Analysis")).toBeNull();
     const field = screen.getByLabelText("API key for Artificial Analysis");
     fireEvent.change(field, { target: { value: "never-render-this-secret" } });
@@ -165,6 +179,45 @@ describe("SecretsPage", () => {
         screen.queryByLabelText("API key for Artificial Analysis"),
       ).toBeNull();
       expect(screen.queryByDisplayValue("never-render-this-secret")).toBeNull();
+    });
+  });
+
+  it("shows live application secret test status in a dialog", async () => {
+    vi.mocked(testApplicationSecret).mockResolvedValueOnce({
+      ok: true,
+      data: { message: "Connection successful." },
+    });
+    renderPage();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Actions for Artificial Analysis" }),
+    );
+    fireEvent.click(screen.getByRole("menuitem", { name: "Test" }));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(screen.getByText("Testing connection…")).toBeTruthy();
+
+    await waitFor(() => {
+      expect(screen.getByText("Connection successful.")).toBeTruthy();
+    });
+  });
+
+  it("tests a provider connection without requiring discovery data", async () => {
+    vi.mocked(testProvider).mockResolvedValueOnce({
+      ok: true,
+      data: { message: "Connection successful." },
+    });
+    renderPage();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Actions for OpenAI production" }),
+    );
+    fireEvent.click(screen.getByRole("menuitem", { name: "Test" }));
+
+    await waitFor(() => {
+      expect(testProvider).toHaveBeenCalledWith({
+        data: { id: "00000000-0000-0000-0000-000000000001" },
+      });
+      expect(screen.getByText("Connection successful.")).toBeTruthy();
     });
   });
 
@@ -187,7 +240,10 @@ describe("SecretsPage", () => {
     });
     renderPage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Update key" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Actions for OpenAI production" }),
+    );
+    fireEvent.click(screen.getByRole("menuitem", { name: "Update key" }));
     const field = screen.getByLabelText("API key for OpenAI production");
     fireEvent.change(field, {
       target: { value: "never-render-this-provider-secret" },
@@ -223,7 +279,10 @@ describe("SecretsPage", () => {
     });
     renderPage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Remove key" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Actions for Artificial Analysis" }),
+    );
+    fireEvent.click(screen.getByRole("menuitem", { name: "Remove key" }));
     expect(removeApplicationSecret).not.toHaveBeenCalled();
 
     const dialog = await screen.findByRole("alertdialog");

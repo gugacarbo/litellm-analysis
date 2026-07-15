@@ -5,17 +5,31 @@ import type {
   RemoveApplicationSecretInput,
   ReplaceApplicationSecretInput,
   Result,
+  TestApplicationSecretInput,
 } from "../contracts/model-admin";
 import {
   applicationSecretPublicSchema,
   removeApplicationSecretInputSchema,
   replaceApplicationSecretInputSchema,
+  testApplicationSecretInputSchema,
+  testApplicationSecretResultSchema,
 } from "../contracts/model-admin";
 
 type ApplicationSecretsApi = Pick<
   IApplicationSecretsService,
-  "list" | "replace" | "remove"
+  "list" | "replace" | "remove" | "resolve"
 >;
+
+const applicationSecretTestEndpoints = {
+  artificial_analysis_api_key: {
+    url: "https://artificialanalysis.ai/api/v2/data/llms/models",
+    headers: (key: string) => ({ "x-api-key": key }),
+  },
+  openrouter_api_key: {
+    url: "https://openrouter.ai/api/v1/benchmarks",
+    headers: (key: string) => ({ Authorization: `Bearer ${key}` }),
+  },
+} as const;
 
 type AuthorizedSession = Extract<SessionResult, { ok: true }>["session"];
 
@@ -117,4 +131,56 @@ export async function handleRemoveApplicationSecret(
   return withAdmin(deps, async (service) =>
     applicationSecretPublicSchema.parse(await service.remove(parsed.data.key)),
   );
+}
+
+export async function handleTestApplicationSecret(
+  deps: ApplicationSecretsHandlerDeps,
+  input: TestApplicationSecretInput,
+) {
+  const parsed = testApplicationSecretInputSchema.safeParse(input);
+  if (!parsed.success) return validationError(parsed.error.issues);
+
+  return withAdmin(deps, async (service) => {
+    const secret = await service.resolve(parsed.data.key);
+    if (!secret) {
+      const { ModelAdminError } = await import("@lite-llm/llm-config-service");
+      throw new ModelAdminError(
+        "VALIDATION",
+        "Configure this secret before testing it.",
+      );
+    }
+
+    const endpoint = applicationSecretTestEndpoints[parsed.data.key];
+    let response: Response;
+    try {
+      response = await fetch(endpoint.url, {
+        headers: endpoint.headers(secret),
+        signal: AbortSignal.timeout(10_000),
+      });
+    } catch {
+      const { ModelAdminError } = await import("@lite-llm/llm-config-service");
+      throw new ModelAdminError(
+        "UPSTREAM_UNAVAILABLE",
+        "Could not reach the API.",
+        { retryable: true },
+      );
+    }
+
+    if (!response.ok) {
+      const { ModelAdminError } = await import("@lite-llm/llm-config-service");
+      const code =
+        response.status === 429 ? "RATE_LIMITED" : "UPSTREAM_UNAVAILABLE";
+      throw new ModelAdminError(
+        code,
+        response.status === 401 || response.status === 403
+          ? "The API rejected this key."
+          : `The API returned HTTP ${response.status}.`,
+        { retryable: response.status >= 500 || response.status === 429 },
+      );
+    }
+
+    return testApplicationSecretResultSchema.parse({
+      message: "Connection successful.",
+    });
+  });
 }
