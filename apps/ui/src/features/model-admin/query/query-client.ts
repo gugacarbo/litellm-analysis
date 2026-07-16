@@ -5,7 +5,12 @@ export function createModelAdminQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 30_000,
+        // Keep route data stable while navigating or returning focus to the app.
+        // Mutations explicitly invalidate the affected queries when a refresh is
+        // actually required.
+        staleTime: 5 * 60_000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         retry: 1,
       },
     },

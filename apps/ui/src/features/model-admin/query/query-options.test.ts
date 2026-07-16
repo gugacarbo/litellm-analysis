@@ -29,6 +29,15 @@ import {
 afterEach(() => vi.clearAllMocks());
 
 describe("model admin query options", () => {
+  it("mantem os dados em cache sem refetch automatico ao recuperar foco", () => {
+    const queries = createModelAdminQueryClient().getDefaultOptions().queries;
+    if (!queries) throw new Error("Query defaults are not configured");
+
+    expect(queries.staleTime).toBe(5 * 60_000);
+    expect(queries.refetchOnWindowFocus).toBe(false);
+    expect(queries.refetchOnReconnect).toBe(false);
+  });
+
   it("reutiliza o prefetch da mesma query sem uma segunda chamada", async () => {
     vi.mocked(listModels).mockResolvedValue({ ok: true, data: [] });
     const queryClient = createModelAdminQueryClient();
