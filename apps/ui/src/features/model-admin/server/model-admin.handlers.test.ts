@@ -5,6 +5,7 @@ import {
   handleListModels,
   handleListProviders,
   handleSaveModel,
+  handleTestProviderConnection,
   handleUpdateProvider,
   type ModelAdminHandlerDeps,
 } from "./model-admin.handlers";
@@ -18,6 +19,9 @@ function createDeps(overrides: Partial<ModelAdminHandlerDeps> = {}) {
     saveModel: vi.fn().mockResolvedValue({ id: modelId }),
     listProviders: vi.fn().mockResolvedValue([]),
     getProvider: vi.fn().mockResolvedValue(null),
+    testProviderConnection: vi.fn().mockResolvedValue({
+      message: "Connection successful.",
+    }),
   };
   return {
     service,
@@ -146,6 +150,21 @@ describe("model-admin handlers", () => {
         retryable: false,
       },
     });
+  });
+
+  it("tests an unsaved provider connection without invoking persistence", async () => {
+    const { deps, service } = createDeps();
+    const input = {
+      provider: "openai-compatible" as const,
+      baseUrl: "https://api.example.test/v1",
+      credential: "test-secret-value",
+    };
+
+    await expect(handleTestProviderConnection(deps, input)).resolves.toEqual({
+      ok: true,
+      data: { message: "Connection successful." },
+    });
+    expect(service.testProviderConnection).toHaveBeenCalledWith(input);
   });
 
   it.each([

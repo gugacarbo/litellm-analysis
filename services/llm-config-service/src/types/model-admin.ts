@@ -175,6 +175,18 @@ export interface CreateProviderInput {
   credential?: Exclude<CredentialCommand, { kind: "preserve" }>;
 }
 
+export type ProviderConnectionTestInput =
+  | {
+      provider: "openai-compatible";
+      baseUrl: string;
+      credential: string;
+    }
+  | {
+      provider: "ollama";
+      baseUrl: string;
+      credential?: string;
+    };
+
 export interface UpdateProviderInput {
   id: string;
   expectedRevision: number;

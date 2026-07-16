@@ -20,6 +20,7 @@ vi.mock("@/features/model-admin/server/model-admin.functions", () => ({
   listProviders: vi.fn(),
   probeModel: vi.fn(),
   setDefaultProvider: vi.fn(),
+  testProviderConnection: vi.fn(),
   updateProvider: vi.fn(),
 }));
 
@@ -28,6 +29,7 @@ import {
   deleteProvider,
   discoverModels,
   listProviders,
+  testProviderConnection,
 } from "@/features/model-admin/server/model-admin.functions";
 import { ProvidersPage } from "./providers-page";
 
@@ -128,6 +130,41 @@ describe("ProvidersPage", () => {
       }),
     );
     await waitFor(() => expect(credentialInput.value).toBe(""));
+  });
+
+  it("testa a conexão de um novo provider sem salvá-lo", async () => {
+    vi.mocked(testProviderConnection).mockResolvedValue({
+      ok: true,
+      data: { message: "Connection successful." },
+    });
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: "Novo provider" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "Adapter" }));
+    fireEvent.click(
+      await screen.findByRole("option", { name: "OpenAI-compatible" }),
+    );
+    fireEvent.change(screen.getByLabelText("Base URL"), {
+      target: { value: "https://api.example.test/v1" },
+    });
+    fireEvent.change(await screen.findByLabelText("Nova credencial"), {
+      target: { value: "connection-secret" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Testar conexão" }));
+
+    await waitFor(() =>
+      expect(testProviderConnection).toHaveBeenCalledWith({
+        data: {
+          provider: "openai-compatible",
+          baseUrl: "https://api.example.test/v1",
+          credential: "connection-secret",
+        },
+      }),
+    );
+    expect(createProvider).not.toHaveBeenCalled();
+    expect((await screen.findByRole("status")).textContent).toContain(
+      "Connection successful.",
+    );
   });
 
   it("mostra discovery vazia como estado válido", async () => {

@@ -365,6 +365,35 @@ describe("ModelAdminService", () => {
     ]);
   });
 
+  it("tests an unsaved provider connection without persisting its credential", async () => {
+    const repository = createRepository();
+    const request = vi.fn().mockResolvedValue({ status: 200, body: "{}" });
+    const service = new ModelAdminService({
+      repository,
+      destinationResolver: async () => ["8.8.8.8"],
+      upstreamTransport: { request },
+    });
+
+    await expect(
+      service.testProviderConnection({
+        provider: "openai-compatible",
+        baseUrl: "https://api.example.test/v1",
+        credential: "test-secret-value",
+      }),
+    ).resolves.toEqual({ message: "Connection successful." });
+
+    expect(request).toHaveBeenCalledWith({
+      method: "GET",
+      url: new URL("https://api.example.test/v1/models"),
+      address: "8.8.8.8",
+      headers: {
+        accept: "application/json",
+        authorization: "Bearer test-secret-value",
+      },
+    });
+    expect(await repository.listProviders()).toEqual([]);
+  });
+
   it("computes discovery new, changed, unchanged, and alias-conflict rows from supported metadata", async () => {
     const repository = createRepository();
     const service = new ModelAdminService({

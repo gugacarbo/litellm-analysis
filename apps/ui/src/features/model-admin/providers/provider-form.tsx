@@ -1,11 +1,15 @@
+// biome-ignore lint/nursery/noExcessiveLinesPerFile: The provider form keeps its validation, credential lifecycle, and fields together to prevent plaintext from crossing component boundaries.
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import type {
   CreateProviderInput,
+  TestProviderConnectionInput,
   UpdateProviderInput,
 } from "@/features/model-admin/contracts/model-admin";
+import { testProviderConnectionInputSchema } from "@/features/model-admin/contracts/model-admin";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
@@ -56,9 +60,11 @@ type ProviderFormProps = Readonly<{
   };
   disabled?: boolean;
   busy?: boolean;
+  testing?: boolean;
   framed?: boolean;
   showTitle?: boolean;
   onCancel?: () => void;
+  onTest?: (input: TestProviderConnectionInput) => Promise<{ message: string }>;
   onSubmit: (input: CreateProviderInput | UpdateProviderInput) => Promise<void>;
 }>;
 
@@ -70,11 +76,16 @@ export function ProviderForm({
   initial,
   disabled = false,
   busy = false,
+  testing = false,
   framed = true,
   showTitle = true,
   onCancel,
+  onTest,
   onSubmit,
 }: ProviderFormProps) {
+  const [testFeedback, setTestFeedback] = useState<
+    { message: string; variant: "error" | "success" } | undefined
+  >();
   const form = useForm<ProviderFormValues>({
     resolver: zodResolver(providerFormSchema),
     defaultValues: {
@@ -88,6 +99,48 @@ export function ProviderForm({
     },
   });
   const action = form.watch("credentialAction");
+  const isDisabled = disabled || busy || testing;
+
+  const testConnection = async () => {
+    if (!onTest) return;
+    const values = form.getValues();
+    const parsed = testProviderConnectionInputSchema.safeParse({
+      provider: values.provider.trim(),
+      baseUrl: values.baseUrl.trim(),
+      ...(values.credentialAction === "replace"
+        ? { credential: values.credentialValue.trim() }
+        : {}),
+    });
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      if (issue?.path[0] === "provider") {
+        form.setError("provider", { message: issue.message });
+      } else if (issue?.path[0] === "baseUrl") {
+        form.setError("baseUrl", { message: issue.message });
+      } else if (issue?.path[0] === "credential") {
+        form.setError("credentialValue", { message: issue.message });
+      }
+      setTestFeedback({
+        variant: "error",
+        message: "Preencha os dados necessários para testar a conexão.",
+      });
+      return;
+    }
+
+    setTestFeedback(undefined);
+    try {
+      const result = await onTest(parsed.data);
+      setTestFeedback({ variant: "success", message: result.message });
+    } catch (error) {
+      setTestFeedback({
+        variant: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível testar a conexão.",
+      });
+    }
+  };
 
   const submit = async (values: ProviderFormValues) => {
     const credential =
@@ -150,7 +203,7 @@ export function ProviderForm({
             <Input
               {...field}
               aria-invalid={fieldState.invalid}
-              disabled={disabled || busy}
+              disabled={isDisabled}
               id={field.name}
             />
             <FieldError errors={[fieldState.error]} />
@@ -164,7 +217,7 @@ export function ProviderForm({
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor={field.name}>Adapter</FieldLabel>
             <Select
-              disabled={disabled || busy}
+              disabled={isDisabled}
               value={field.value || null}
               onValueChange={(value) => field.onChange(value ?? "")}
             >
@@ -205,7 +258,7 @@ export function ProviderForm({
             <Input
               {...field}
               aria-invalid={fieldState.invalid}
-              disabled={disabled || busy}
+              disabled={isDisabled}
               id={field.name}
               placeholder="https://api.example.com/v1"
               type="url"
@@ -221,7 +274,7 @@ export function ProviderForm({
           <Field>
             <FieldLabel htmlFor={field.name}>Credencial</FieldLabel>
             <Select
-              disabled={disabled || busy}
+              disabled={isDisabled}
               value={field.value}
               onValueChange={(value) => {
                 if (value) field.onChange(value);
@@ -259,7 +312,7 @@ export function ProviderForm({
                 {...field}
                 aria-invalid={fieldState.invalid}
                 autoComplete="new-password"
-                disabled={disabled || busy}
+                disabled={isDisabled}
                 id={field.name}
                 type="password"
               />
@@ -268,13 +321,35 @@ export function ProviderForm({
           )}
         />
       ) : null}
+      {testFeedback ? (
+        <p
+          className={
+            testFeedback.variant === "success"
+              ? "text-sm text-emerald-600 dark:text-emerald-400"
+              : "text-destructive text-sm"
+          }
+          role="status"
+        >
+          {testFeedback.message}
+        </p>
+      ) : null}
       <div className="flex flex-wrap gap-2">
-        <Button disabled={disabled || busy} type="submit">
+        {onTest ? (
+          <Button
+            disabled={disabled || busy || testing}
+            onClick={() => void testConnection()}
+            type="button"
+            variant="outline"
+          >
+            {testing ? "Testando conexão…" : "Testar conexão"}
+          </Button>
+        ) : null}
+        <Button disabled={isDisabled} type="submit">
           {busy ? "Salvando…" : "Salvar provider"}
         </Button>
         {onCancel ? (
           <Button
-            disabled={busy}
+            disabled={busy || testing}
             onClick={onCancel}
             type="button"
             variant="outline"

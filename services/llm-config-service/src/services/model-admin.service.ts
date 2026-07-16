@@ -30,6 +30,7 @@ import type {
   OpenAiCompatibleTransport,
   ProbeModelInput,
   ProbeModelResult,
+  ProviderConnectionTestInput,
   ProviderDestinationResolver,
   ProviderPublic,
   ProviderRow,
@@ -644,6 +645,26 @@ export class ModelAdminService {
     return { message: "Connection successful." };
   }
 
+  async testProviderConnection(
+    input: ProviderConnectionTestInput,
+  ): Promise<{ message: string }> {
+    const destination = await this.prepareBaseUrlDestination(
+      input.baseUrl,
+      input.provider === "ollama" ? "api/tags" : "models",
+    );
+    const response = await this.requestConnection({
+      method: "GET",
+      url: destination.url,
+      address: destination.address,
+      headers:
+        input.provider === OPENAI_COMPATIBLE_ADAPTER
+          ? authorizationHeaders(input.credential)
+          : {},
+    });
+    assertUpstreamSuccess(response);
+    return { message: "Connection successful." };
+  }
+
   async probeModel(input: ProbeModelInput): Promise<ProbeModelResult> {
     const providerId = requireIdentifier(input.providerId, "providerId");
     const modelId = requireText(input.modelId, "modelId");
@@ -727,12 +748,19 @@ export class ModelAdminService {
     provider: ProviderRow,
     endpoint: string,
   ): Promise<{ url: URL; address: string }> {
-    if (!provider.baseUrl) {
+    return this.prepareBaseUrlDestination(provider.baseUrl, endpoint);
+  }
+
+  private async prepareBaseUrlDestination(
+    baseUrlValue: string | null,
+    endpoint: string,
+  ): Promise<{ url: URL; address: string }> {
+    if (!baseUrlValue) {
       throw new ModelAdminError("VALIDATION", "Provider base URL is required");
     }
     let baseUrl: URL;
     try {
-      baseUrl = new URL(provider.baseUrl);
+      baseUrl = new URL(baseUrlValue);
     } catch {
       throw new ModelAdminError("VALIDATION", "Provider base URL is invalid");
     }
@@ -769,6 +797,25 @@ export class ModelAdminService {
       ? baseUrl
       : new URL(`${baseUrl.toString()}/`);
     return { url: new URL(endpoint, normalizedBase), address };
+  }
+
+  private async requestConnection(
+    request: Parameters<OpenAiCompatibleTransport["request"]>[0],
+  ) {
+    try {
+      return await this.upstreamTransport.request(request);
+    } catch (error) {
+      if (isTimeoutError(error)) {
+        throw new ModelAdminError("TIMEOUT", "Provider request timed out", {
+          retryable: true,
+        });
+      }
+      throw new ModelAdminError(
+        "UPSTREAM_UNAVAILABLE",
+        "Provider request could not be completed",
+        { retryable: true },
+      );
+    }
   }
 
   private async withProviderCredential<T>(

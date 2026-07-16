@@ -8,6 +8,7 @@ import type {
   ProbeModelInput,
   ProviderPublic,
   Result,
+  TestProviderConnectionInput,
   UpdateProviderInput,
 } from "@/features/model-admin/contracts/model-admin";
 import {
@@ -21,6 +22,7 @@ import {
   discoverModels,
   probeModel,
   setDefaultProvider,
+  testProviderConnection,
   updateProvider,
 } from "@/features/model-admin/server/model-admin.functions";
 import {
@@ -119,6 +121,10 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
       await invalidateProvider(provider.id);
       setShowCreate(false);
     },
+  });
+  const testConnectionMutation = useMutation({
+    mutationFn: (input: TestProviderConnectionInput) =>
+      unwrap(testProviderConnection({ data: input })),
   });
   const updateMutation = useMutation({
     mutationFn: (input: UpdateProviderInput) =>
@@ -245,7 +251,9 @@ export function ProvidersPage({ role }: ProvidersPageProps) {
               busy={createMutation.isPending}
               framed={false}
               showTitle={false}
+              testing={testConnectionMutation.isPending}
               onCancel={() => setShowCreate(false)}
+              onTest={(input) => testConnectionMutation.mutateAsync(input)}
               onSubmit={async (input) => {
                 if ("id" in input) throw new Error("Criação inválida.");
                 await createMutation.mutateAsync(input);

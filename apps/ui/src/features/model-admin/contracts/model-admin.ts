@@ -267,6 +267,22 @@ export const testProviderResultSchema = z.object({
   message: z.string(),
 });
 
+export const testProviderConnectionInputSchema = z.discriminatedUnion(
+  "provider",
+  [
+    z.object({
+      provider: z.literal("openai-compatible"),
+      baseUrl: providerBaseUrlSchema,
+      credential: z.string().trim().min(1),
+    }),
+    z.object({
+      provider: z.literal("ollama"),
+      baseUrl: providerBaseUrlSchema,
+      credential: z.string().trim().optional(),
+    }),
+  ],
+);
+
 export const applyDiscoverySelectionInputSchema = z.object({
   providerId: uuidSchema,
   items: z.array(
@@ -388,6 +404,9 @@ export type SaveModelInput = z.infer<typeof saveModelInputSchema>;
 export type ToggleModelInput = z.infer<typeof toggleModelInputSchema>;
 export type DeleteByRevisionInput = z.infer<typeof deleteByRevisionInputSchema>;
 export type CreateProviderInput = z.infer<typeof createProviderInputSchema>;
+export type TestProviderConnectionInput = z.infer<
+  typeof testProviderConnectionInputSchema
+>;
 export type UpdateProviderInput = z.infer<typeof updateProviderInputSchema>;
 export type UpdateAliasInput = z.infer<typeof updateAliasInputSchema>;
 export type ApplyDiscoverySelectionInput = z.infer<

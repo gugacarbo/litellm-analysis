@@ -8,6 +8,7 @@ import type {
   ProbeModelInput,
   Result,
   SaveModelInput,
+  TestProviderConnectionInput,
   ToggleModelInput,
   UpdateAliasInput,
   UpdateProviderInput,
@@ -21,6 +22,7 @@ import {
   modelSummarySchema,
   mutationSuccessSchema,
   probeModelResultSchema,
+  testProviderConnectionInputSchema,
   testProviderResultSchema,
   toProviderPublicDto,
   updateProviderInputSchema,
@@ -44,6 +46,7 @@ type ModelAdminApi = Pick<
   | "deleteAlias"
   | "discoverModels"
   | "testProvider"
+  | "testProviderConnection"
   | "applyDiscoverySelection"
   | "probeModel"
 >;
@@ -266,6 +269,19 @@ export const handleTestProvider = (
   withWrite(deps, async (service) =>
     testProviderResultSchema.parse(await service.testProvider(providerId)),
   );
+
+export const handleTestProviderConnection = async (
+  deps: ModelAdminHandlerDeps,
+  input: TestProviderConnectionInput,
+) => {
+  const parsed = testProviderConnectionInputSchema.safeParse(input);
+  if (!parsed.success) return validationError(parsed.error.issues);
+  return await withWrite(deps, async (service) =>
+    testProviderResultSchema.parse(
+      await service.testProviderConnection(parsed.data),
+    ),
+  );
+};
 
 export const handleApplyDiscoverySelection = (
   deps: ModelAdminHandlerDeps,

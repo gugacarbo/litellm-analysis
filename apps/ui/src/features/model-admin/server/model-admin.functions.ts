@@ -10,6 +10,7 @@ import {
   probeModelInputSchema,
   saveModelInputSchema,
   setDefaultProviderInputSchema,
+  testProviderConnectionInputSchema,
   toggleModelInputSchema,
   updateAliasInputSchema,
   updateProviderInputSchema,
@@ -30,6 +31,7 @@ import {
   handleSaveModel,
   handleSetDefaultProvider,
   handleTestProvider,
+  handleTestProviderConnection,
   handleToggleModel,
   handleUpdateAlias,
   handleUpdateProvider,
@@ -161,6 +163,12 @@ export const testProvider = createServerFn({ method: "POST" })
   .validator(idInputSchema)
   .handler(({ data }) =>
     withRuntime((deps) => handleTestProvider(deps, data.id)),
+  );
+
+export const testProviderConnection = createServerFn({ method: "POST" })
+  .validator(testProviderConnectionInputSchema)
+  .handler(({ data }) =>
+    withRuntime((deps) => handleTestProviderConnection(deps, data)),
   );
 
 export const applyDiscoverySelection = createServerFn({ method: "POST" })
