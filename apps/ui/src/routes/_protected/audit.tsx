@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { AuditPage } from "@/features/audit/audit-page";
 import { auditListInputSchema } from "@/features/audit/contracts/audit";
 import { auditQueries } from "@/features/audit/query/query-options";
 
@@ -12,7 +13,5 @@ export const Route = createFileRoute("/_protected/audit")({
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) =>
     context.queryClient.ensureQueryData(auditQueries.list(deps)),
-  // Task D owns the read-only page component. Keeping the route outlet-only
-  // lets its UI attach without duplicating a page surface in this task.
-  component: Outlet,
+  component: AuditPage,
 });
