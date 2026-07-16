@@ -27,13 +27,16 @@ export type {
   AuditEventRecord,
   AuditJson,
   AuditOutcome,
+  AuditProvenance,
   AuditSource,
   NormalizedAuditEventListInput,
   SanitizedAuditEventInsert,
+  TrustedAuditContext,
 } from "./audit-events.js";
 export {
   AuditEventError,
   createSanitizedAuditEventInsert,
+  createTrustedAuditContext,
   isSanitizedAuditEventInsert,
 } from "./audit-events.js";
 export type {

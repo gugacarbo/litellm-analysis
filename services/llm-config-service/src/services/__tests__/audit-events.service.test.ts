@@ -3,6 +3,7 @@ import type { AuditEventsRepositoryPort } from "../../repositories/audit-events-
 import {
   AuditEventError,
   type AuditEventRecord,
+  createTrustedAuditContext,
   type SanitizedAuditEventInsert,
 } from "../../types/audit-events.js";
 import { AuditEventsService } from "../audit-events.service.js";
@@ -66,16 +67,22 @@ function decodeCursor(value: string): { occurredAt: string; id: string } {
   };
 }
 
+function trustedContext() {
+  return createTrustedAuditContext({
+    actorType: "user",
+    actorId: "trusted-admin-1",
+    actorRole: "admin",
+    source: "ui",
+    requestId: "trusted-request-1",
+  });
+}
+
 describe("AuditEventsService", () => {
   it("redacts snapshots before append and never exposes them in list DTOs", async () => {
     const { repository, appended } = repositoryDouble();
     const service = new AuditEventsService({ repository });
     const list = await service.append({
-      actorType: "user",
-      actorId: "actor-1",
-      actorRole: "admin",
-      source: "ui",
-      requestId: "request-1",
+      context: trustedContext(),
       action: "model.update",
       resourceType: "model",
       outcome: "success",
@@ -105,9 +112,7 @@ describe("AuditEventsService", () => {
     const service = new AuditEventsService({ repository });
     await expect(
       service.append({
-        actorType: "user",
-        source: "ui",
-        requestId: "request-1",
+        context: trustedContext(),
         action: "model.update",
         resourceType: "model",
         outcome: "success",
@@ -118,6 +123,70 @@ describe("AuditEventsService", () => {
       message: "Invalid audit event input",
     });
     expect(appended).toEqual([]);
+  });
+
+  it("uses only opaque trusted provenance and ignores forged payload fields", async () => {
+    const { repository, appended } = repositoryDouble();
+    const service = new AuditEventsService({ repository });
+    const context = trustedContext();
+
+    expect(() =>
+      Object.assign(context as object, {
+        actorType: "api_key",
+        actorId: "forged-actor-should-not-persist",
+        actorRole: "viewer",
+        source: "legacy_api",
+        requestId: "forged-request-should-not-persist",
+      }),
+    ).toThrow();
+
+    await service.append({
+      context,
+      action: "model.update",
+      resourceType: "model",
+      outcome: "success",
+      ...{
+        actorType: "api_key",
+        actorId: "forged-actor-should-not-persist",
+        actorRole: "viewer",
+        source: "legacy_api",
+        requestId: "forged-request-should-not-persist",
+      },
+    } as unknown as Parameters<typeof service.append>[0]);
+
+    expect(appended).toHaveLength(1);
+    expect(appended[0]).toMatchObject({
+      actorType: "user",
+      actorId: "trusted-admin-1",
+      actorRole: "admin",
+      source: "ui",
+      requestId: "trusted-request-1",
+    });
+    expect(JSON.stringify(appended)).not.toContain(
+      "forged-actor-should-not-persist",
+    );
+    expect(JSON.stringify(appended)).not.toContain(
+      "forged-request-should-not-persist",
+    );
+
+    await expect(
+      service.append({
+        context: {
+          actorType: "api_key",
+          actorId: "forged-actor-should-not-persist",
+          actorRole: "viewer",
+          source: "legacy_api",
+          requestId: "forged-request-should-not-persist",
+        } as unknown as ReturnType<typeof trustedContext>,
+        action: "model.update",
+        resourceType: "model",
+        outcome: "success",
+      }),
+    ).rejects.toMatchObject({
+      code: "VALIDATION",
+      message: "Invalid audit event input",
+    });
+    expect(appended).toHaveLength(1);
   });
 
   it("validates filters and cursor before calling the repository", async () => {

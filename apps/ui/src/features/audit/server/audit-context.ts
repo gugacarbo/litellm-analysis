@@ -1,14 +1,12 @@
+import {
+  createTrustedAuditContext,
+  type TrustedAuditContext,
+} from "@lite-llm/llm-config-service/audit-context";
 import type { RoleResult, SessionResult } from "@/features/auth/server/invites";
 
 type AuthorizedSession = Extract<SessionResult, { ok: true }>["session"];
 
-export type AuditContext = {
-  actorType: "user";
-  actorId: string;
-  actorRole: "admin";
-  source: "ui";
-  requestId: string;
-};
+export type AuditContext = TrustedAuditContext;
 
 export type AuditContextResult =
   | { ok: true; context: AuditContext }
@@ -48,12 +46,12 @@ export async function createAuditContext(
 
   return {
     ok: true,
-    context: {
+    context: createTrustedAuditContext({
       actorType: "user",
       actorId: session.session.user.id,
       actorRole: "admin",
       source: "ui",
       requestId: (deps.createRequestId ?? crypto.randomUUID)(),
-    },
+    }),
   };
 }

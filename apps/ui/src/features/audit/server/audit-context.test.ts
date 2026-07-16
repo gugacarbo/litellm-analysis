@@ -19,16 +19,12 @@ describe("createAuditContext", () => {
     });
 
     expect(requireAdmin).toHaveBeenCalledWith(adminSession.session);
-    expect(result).toEqual({
-      ok: true,
-      context: {
-        actorType: "user",
-        actorId: "admin-1",
-        actorRole: "admin",
-        source: "ui",
-        requestId: "request-1",
-      },
-    });
+    expect(result).toMatchObject({ ok: true });
+    if (result.ok) {
+      expect(result.context).toEqual({});
+      expect(Object.isFrozen(result.context)).toBe(true);
+      expect(Object.keys(result.context)).toEqual([]);
+    }
     expect(JSON.stringify(result)).not.toContain("session-should-not-leak");
   });
 

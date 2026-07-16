@@ -37,6 +37,88 @@ export type AuditEventInsertCandidate = Omit<
   metadata: unknown;
 };
 
+/**
+ * Provenance is intentionally held outside an append payload. The actual
+ * values live in a module-private WeakMap, so a structurally similar object
+ * (or a value cast in TypeScript) cannot become a trusted context.
+ */
+export interface AuditProvenance {
+  actorType: NonNullable<AuditActorType>;
+  actorId?: string | null;
+  actorRole?: AuditActorRole;
+  source: NonNullable<AuditSource>;
+  requestId: string;
+}
+
+declare const trustedAuditContext: unique symbol;
+
+export type TrustedAuditContext = {
+  readonly [trustedAuditContext]: never;
+};
+
+const trustedAuditContexts = new WeakMap<object, Required<AuditProvenance>>();
+const provenanceTextLimit = 256;
+
+function invalidAuditEventInput(): never {
+  throw new AuditEventError("VALIDATION", "Invalid audit event input");
+}
+
+function validProvenanceText(
+  value: unknown,
+  nullable = false,
+): value is string | null {
+  if (nullable && value === null) return true;
+  return (
+    typeof value === "string" &&
+    value.length >= 1 &&
+    value.length <= provenanceTextLimit
+  );
+}
+
+/**
+ * Mints a capability after an adapter has established the caller identity.
+ * Consumers can pass the returned value to append, but cannot read, forge, or
+ * mutate the provenance used by the writer.
+ */
+export function createTrustedAuditContext(
+  provenance: AuditProvenance,
+): TrustedAuditContext {
+  if (
+    !validProvenanceText(provenance.actorId ?? null, true) ||
+    !validProvenanceText(provenance.requestId) ||
+    !["user", "api_key", "system"].includes(provenance.actorType) ||
+    !["ui", "legacy_api", "proxy", "system"].includes(provenance.source) ||
+    (provenance.actorRole !== null &&
+      provenance.actorRole !== undefined &&
+      provenance.actorRole !== "admin" &&
+      provenance.actorRole !== "viewer")
+  ) {
+    return invalidAuditEventInput();
+  }
+
+  const context = Object.freeze({});
+  trustedAuditContexts.set(context, {
+    actorType: provenance.actorType,
+    actorId: provenance.actorId ?? null,
+    actorRole: provenance.actorRole ?? null,
+    source: provenance.source,
+    requestId: provenance.requestId,
+  });
+  return context as TrustedAuditContext;
+}
+
+/** Internal writer boundary; deliberately not exported from the package API. */
+export function resolveTrustedAuditContext(
+  context: unknown,
+): Required<AuditProvenance> {
+  if (typeof context !== "object" || context === null) {
+    return invalidAuditEventInput();
+  }
+  const provenance = trustedAuditContexts.get(context);
+  if (!provenance) return invalidAuditEventInput();
+  return provenance;
+}
+
 const sanitizedAuditEventInserts = new WeakSet<object>();
 
 export function createSanitizedAuditEventInsert(
@@ -68,11 +150,7 @@ function redactAuditSnapshot(value: unknown): AuditJson | null {
 }
 
 export interface AppendAuditEventInput {
-  actorType: NonNullable<AuditActorType>;
-  actorId?: string | null;
-  actorRole?: AuditActorRole;
-  source: NonNullable<AuditSource>;
-  requestId: string;
+  context: TrustedAuditContext;
   action: string;
   resourceType: string;
   resourceId?: string | null;

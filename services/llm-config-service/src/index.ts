@@ -93,6 +93,7 @@ export type {
   AuditEventRecord,
   AuditJson,
   AuditOutcome,
+  AuditProvenance,
   AuditSource,
   DefaultParameters,
   Effort,
@@ -115,6 +116,7 @@ export type {
   SanitizedAuditEventInsert,
   SettingKey,
   SupportedParameters,
+  TrustedAuditContext,
 } from "./types/index.js";
 export {
   AuditEventError,

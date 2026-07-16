@@ -19,6 +19,7 @@ import type {
 import {
   AuditEventError,
   createSanitizedAuditEventInsert,
+  resolveTrustedAuditContext,
 } from "../types/audit-events.js";
 
 const uuidPattern =
@@ -205,29 +206,22 @@ function validatedSnapshot(
 }
 
 function toInsert(input: AppendAuditEventInput): SanitizedAuditEventInsert {
+  const provenance = resolveTrustedAuditContext(input.context);
   if (
-    !validText(input.requestId) ||
     !validText(input.action) ||
     !validText(input.resourceType) ||
-    !validText(input.actorId ?? null, true) ||
     !validText(input.resourceId ?? null, true) ||
-    !["user", "api_key", "system"].includes(input.actorType) ||
-    !["ui", "legacy_api", "proxy", "system"].includes(input.source) ||
-    !["success", "failure", "denied"].includes(input.outcome) ||
-    (input.actorRole !== null &&
-      input.actorRole !== undefined &&
-      input.actorRole !== "admin" &&
-      input.actorRole !== "viewer")
+    !["success", "failure", "denied"].includes(input.outcome)
   ) {
     return validationError();
   }
 
   return createSanitizedAuditEventInsert({
-    actorType: input.actorType,
-    actorId: input.actorId ?? null,
-    actorRole: input.actorRole ?? null,
-    source: input.source,
-    requestId: input.requestId,
+    actorType: provenance.actorType,
+    actorId: provenance.actorId,
+    actorRole: provenance.actorRole,
+    source: provenance.source,
+    requestId: provenance.requestId,
     action: input.action,
     resourceType: input.resourceType,
     resourceId: input.resourceId ?? null,
