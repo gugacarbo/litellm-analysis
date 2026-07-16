@@ -1,5 +1,7 @@
 export type { Alert, NewAlert } from "./alerts";
 export { alerts } from "./alerts";
+export type { AppAuditEvent, NewAppAuditEvent } from "./audit-events";
+export { appAuditEvents } from "./audit-events";
 export type {
   Account,
   AppInvite,
