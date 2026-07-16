@@ -1,0 +1,1 @@
+ALTER TABLE "model_proxy_models" DROP COLUMN "canonical_slug";

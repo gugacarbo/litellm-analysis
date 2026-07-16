@@ -81,7 +81,6 @@ export type ModelSettings = Pick<
   ModelProxyModel,
   | "displayName"
   | "family"
-  | "canonicalSlug"
   | "description"
   | "contextLength"
   | "maxCompletionTokens"

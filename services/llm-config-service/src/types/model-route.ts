@@ -18,7 +18,6 @@ export interface ModelRoute {
   enabled?: boolean;
   displayName?: string;
   family?: string;
-  canonicalSlug?: string;
   description?: string;
   contextLength?: number;
   contextWindowSize?: number;
@@ -50,7 +49,6 @@ export interface ModelProxyModelRecord {
   enabled: boolean;
   displayName: string | null;
   family: string | null;
-  canonicalSlug: string | null;
   description: string | null;
   contextLength: number | null;
   maxCompletionTokens: number | null;
@@ -76,7 +74,6 @@ export const RESERVED_ROUTE_PARAM_KEYS = [
   "enabled",
   "displayName",
   "family",
-  "canonicalSlug",
   "description",
   "contextLength",
   "maxCompletionTokens",
@@ -102,7 +99,6 @@ export const ROUTE_PARAM_TO_MODEL_ROUTE: Record<
   enabled: "enabled",
   displayName: "displayName",
   family: "family",
-  canonicalSlug: "canonicalSlug",
   description: "description",
   contextLength: "contextLength",
   maxCompletionTokens: "maxCompletionTokens",
@@ -125,7 +121,6 @@ export const MODEL_ROUTE_TO_ROUTE_PARAM: Partial<
   enabled: "enabled",
   displayName: "displayName",
   family: "family",
-  canonicalSlug: "canonicalSlug",
   description: "description",
   contextLength: "contextLength",
   maxCompletionTokens: "maxCompletionTokens",

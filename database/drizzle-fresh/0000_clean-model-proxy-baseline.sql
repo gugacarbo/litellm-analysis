@@ -168,7 +168,6 @@ CREATE TABLE "model_proxy_models" (
 	"enabled" boolean DEFAULT true NOT NULL,
 	"display_name" text,
 	"family" text,
-	"canonical_slug" text,
 	"description" text,
 	"context_length" integer,
 	"max_completion_tokens" integer,

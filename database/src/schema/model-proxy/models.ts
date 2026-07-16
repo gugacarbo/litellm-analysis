@@ -30,7 +30,6 @@ export const modelProxyModels = pgTable(
     enabled: boolean("enabled").default(true).notNull(),
     displayName: text("display_name"),
     family: text("family"),
-    canonicalSlug: text("canonical_slug"),
     description: text("description"),
     contextLength: integer("context_length"),
     maxCompletionTokens: integer("max_completion_tokens"),

@@ -53,7 +53,6 @@ function createModelRow(overrides: Partial<Record<string, unknown>> = {}) {
     family: "openai",
     providerId: "00000000-0000-0000-0000-000000000002",
     pricing: null,
-    canonicalSlug: null,
     description: null,
     contextLength: null,
     maxCompletionTokens: null,

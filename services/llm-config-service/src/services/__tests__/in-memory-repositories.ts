@@ -130,7 +130,6 @@ export function createModelsRepositoryMock() {
       enabled: route.enabled ?? true,
       displayName: route.displayName ?? null,
       family: route.family ?? null,
-      canonicalSlug: route.canonicalSlug ?? null,
       description: route.description ?? null,
       contextLength: route.contextLength ?? null,
       maxCompletionTokens: route.maxCompletionTokens ?? null,

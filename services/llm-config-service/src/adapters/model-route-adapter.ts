@@ -121,7 +121,6 @@ export const toModelRoute = ({ model }: { model: ModelConfig }): ModelRoute => {
     enabled: true,
     displayName: model.displayName,
     family: model.family,
-    canonicalSlug: model.canonicalSlug,
     description: model.description,
     contextLength: model.contextLength,
     maxCompletionTokens: model.maxCompletionTokens,

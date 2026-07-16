@@ -168,7 +168,6 @@ function toModelConfig(
     provider: providerName,
     displayName: record.displayName ?? undefined,
     family: record.family ?? undefined,
-    canonicalSlug: record.canonicalSlug ?? undefined,
     description: record.description ?? undefined,
     contextLength: record.contextLength ?? undefined,
     maxCompletionTokens: record.maxCompletionTokens ?? undefined,

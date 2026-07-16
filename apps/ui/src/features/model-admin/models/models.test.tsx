@@ -25,7 +25,6 @@ const model = {
   createdAt: new Date(),
   updatedAt: new Date(),
   family: null,
-  canonicalSlug: null,
   description: null,
   contextLength: null,
   maxCompletionTokens: null,
@@ -74,9 +73,11 @@ describe("ModelsPage", () => {
     expect(screen.getByText("OpenAI")).toBeTruthy();
     expect(screen.getByRole("table")).toBeTruthy();
     expect(screen.getByRole("columnheader", { name: "Model" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Provider" })).toBeTruthy();
     expect(
       screen.getByRole("columnheader", { name: "Display name" }),
     ).toBeTruthy();
+    expect(screen.queryByRole("columnheader", { name: "Revision" })).toBeNull();
     expect(screen.queryByRole("columnheader", { name: "Actions" })).toBeNull();
     expect(screen.queryByRole("button", { name: /new model/i })).toBeNull();
 

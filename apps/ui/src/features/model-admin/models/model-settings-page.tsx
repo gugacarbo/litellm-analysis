@@ -96,7 +96,6 @@ const settingsSchema = saveModelInputSchema.pick({
   expectedRevision: true,
   displayName: true,
   family: true,
-  canonicalSlug: true,
   description: true,
   contextLength: true,
   maxCompletionTokens: true,
@@ -107,7 +106,7 @@ type SettingsValues = z.infer<typeof settingsSchema>;
 export const modelSettingsTabs = [
   "essential",
   "capabilities",
-  "execution",
+  "aliases",
 ] as const;
 export type ModelSettingsTab = (typeof modelSettingsTabs)[number];
 type ModelSettingsPageProps = Readonly<{
@@ -170,14 +169,7 @@ const instructTypeOptions = [
 
 type HeaderEntry = { key: string; value: string };
 type ModelDetail = z.infer<typeof modelDetailSchema>;
-type AdvancedSection =
-  | "architecture"
-  | "reasoning"
-  | "parameters"
-  | "limits"
-  | "pricing"
-  | "request-options"
-  | "reasoning-api-id";
+type AdvancedSection = "architecture" | "reasoning" | "parameters" | "limits";
 type AdvancedSettings = {
   architecture: {
     inputModalities: string[];
@@ -189,7 +181,6 @@ type AdvancedSettings = {
     effort: string;
     maxTokens: string;
     supportsToolUse?: boolean;
-    supportsVision?: boolean;
     supportsComputerUse?: boolean;
   };
   supportedParameters: string[];
@@ -321,7 +312,6 @@ function getAdvancedSettings(model: ModelDetail) {
       effort: model.reasoning?.effort ?? "",
       maxTokens: toInputNumber(model.reasoning?.maxTokens),
       supportsToolUse: model.reasoning?.supportsToolUse,
-      supportsVision: model.reasoning?.supportsVision,
       supportsComputerUse: model.reasoning?.supportsComputerUse,
     },
     supportedParameters: model.supportedParameters ?? [],
@@ -394,7 +384,6 @@ function getAdvancedPayload(settings: AdvancedSettings) {
       effort: settings.reasoning.effort || undefined,
       maxTokens: optionalNumber(settings.reasoning.maxTokens),
       supportsToolUse: settings.reasoning.supportsToolUse,
-      supportsVision: settings.reasoning.supportsVision,
       supportsComputerUse: settings.reasoning.supportsComputerUse,
     }),
     supportedParameters: settings.supportedParameters.length
@@ -461,7 +450,6 @@ function getSettingsValues(model: ModelDetail): SettingsValues {
     expectedRevision: model.revision,
     displayName: model.displayName,
     family: model.family,
-    canonicalSlug: model.canonicalSlug,
     description: model.description,
     contextLength: model.contextLength,
     maxCompletionTokens: model.maxCompletionTokens,
@@ -527,7 +515,7 @@ export function ModelSettingsPage({
       const conflict = reason as { message?: string; currentRevision?: number };
       setError(
         conflict.currentRevision
-          ? `${conflict.message ?? "Conflict"} Reload to use revision ${conflict.currentRevision}.`
+          ? `${conflict.message ?? "Conflict"} Reload to use the latest changes.`
           : (conflict.message ?? "Could not save model"),
       );
     },
@@ -664,11 +652,28 @@ export function ModelSettingsPage({
       ) : null}
       <Card size="sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Settings
-            <span className="font-normal text-muted-foreground text-sm">
-              Revision {model.revision}
-            </span>
+          <CardTitle className="flex flex-col items-start gap-1.5">
+            <span>Settings</span>
+            {role === "admin" ? (
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={model.enabled}
+                  disabled={toggleMutation.isPending}
+                  id="model-enabled"
+                  onCheckedChange={(enabled) =>
+                    toggleMutation.mutate({
+                      id: model.id,
+                      providerId: model.providerId,
+                      revision: model.revision,
+                      enabled,
+                    })
+                  }
+                />
+                <FieldLabel htmlFor="model-enabled" className="font-normal">
+                  Model enabled
+                </FieldLabel>
+              </div>
+            ) : null}
           </CardTitle>
           {role === "admin" ? (
             <CardAction className="flex flex-wrap justify-end gap-2">
@@ -682,25 +687,6 @@ export function ModelSettingsPage({
                 type="submit"
               >
                 {saveMutation.isPending ? "Saving…" : "Save settings"}
-              </Button>
-              <Button
-                disabled={toggleMutation.isPending}
-                onClick={() =>
-                  toggleMutation.mutate({
-                    id: model.id,
-                    providerId: model.providerId,
-                    revision: model.revision,
-                    enabled: !model.enabled,
-                  })
-                }
-                type="button"
-                variant="outline"
-              >
-                {toggleMutation.isPending
-                  ? "Updating…"
-                  : model.enabled
-                    ? "Disable model"
-                    : "Enable model"}
               </Button>
               <Button
                 disabled={deleteMutation.isPending}
@@ -751,8 +737,8 @@ export function ModelSettingsPage({
                 >
                   Capacidades
                 </TabsTrigger>
-                <TabsTrigger className="shrink-0 flex-none" value="execution">
-                  Execução e preço
+                <TabsTrigger className="shrink-0 flex-none" value="aliases">
+                  Aliases
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="essential" className="pt-3">
@@ -865,18 +851,6 @@ export function ModelSettingsPage({
                   />
                   <Controller
                     control={form.control}
-                    name="canonicalSlug"
-                    render={({ field, fieldState }) => (
-                      <TextField
-                        field={field}
-                        state={fieldState}
-                        label="Canonical slug"
-                        disabled={role !== "admin"}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={form.control}
                     name="contextLength"
                     render={({ field, fieldState }) => (
                       <NumberField
@@ -898,6 +872,16 @@ export function ModelSettingsPage({
                         state={fieldState}
                       />
                     )}
+                  />
+                  <PricingFields
+                    disabled={role !== "admin"}
+                    pricing={advancedSettings.pricing}
+                    onChange={(pricing) =>
+                      setAdvancedSettings((settings) => ({
+                        ...settings,
+                        pricing,
+                      }))
+                    }
                   />
                   <Controller
                     control={form.control}
@@ -923,89 +907,6 @@ export function ModelSettingsPage({
                       />
                     )}
                   />
-                  <Field className="md:col-span-2">
-                    <FieldLabel>Aliases</FieldLabel>
-                    <FieldDescription>
-                      Names alternativos aceitos no roteamento para este modelo.
-                    </FieldDescription>
-                    {aliases.length ? (
-                      <div className="space-y-2">
-                        {aliases.map((alias, index) => (
-                          <div
-                            className="flex flex-col gap-2 sm:flex-row"
-                            key={`${alias}-${index}`}
-                          >
-                            <Input
-                              aria-label={`Alias ${index + 1}`}
-                              disabled={role !== "admin"}
-                              onChange={(event) =>
-                                setAliases((current) =>
-                                  current.map((value, itemIndex) =>
-                                    itemIndex === index
-                                      ? event.target.value
-                                      : value,
-                                  ),
-                                )
-                              }
-                              value={alias}
-                            />
-                            {role === "admin" ? (
-                              <Button
-                                onClick={() =>
-                                  setAliases((current) =>
-                                    current.filter(
-                                      (_, itemIndex) => itemIndex !== index,
-                                    ),
-                                  )
-                                }
-                                type="button"
-                                variant="outline"
-                              >
-                                Remove
-                              </Button>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground text-sm">
-                        Nenhum alias configurado.
-                      </p>
-                    )}
-                    {role === "admin" ? (
-                      <div className="flex flex-col gap-2 sm:flex-row">
-                        <Input
-                          aria-label="New alias"
-                          onChange={(event) =>
-                            setAliasDraft(event.target.value)
-                          }
-                          onKeyDown={(event) => {
-                            if (event.key !== "Enter") return;
-                            event.preventDefault();
-                            const alias = aliasDraft.trim();
-                            if (!alias) return;
-                            setAliases((current) => [...current, alias]);
-                            setAliasDraft("");
-                          }}
-                          placeholder="Add an alias"
-                          value={aliasDraft}
-                        />
-                        <Button
-                          disabled={!aliasDraft.trim()}
-                          onClick={() => {
-                            const alias = aliasDraft.trim();
-                            if (!alias) return;
-                            setAliases((current) => [...current, alias]);
-                            setAliasDraft("");
-                          }}
-                          type="button"
-                          variant="secondary"
-                        >
-                          Add alias
-                        </Button>
-                      </div>
-                    ) : null}
-                  </Field>
                   <Controller
                     control={form.control}
                     name="description"
@@ -1036,20 +937,95 @@ export function ModelSettingsPage({
                   sections={[
                     "architecture",
                     "reasoning",
-                    "parameters",
                     "limits",
+                    "parameters",
                   ]}
                   settings={advancedSettings}
                   onChange={setAdvancedSettings}
                 />
               </TabsContent>
-              <TabsContent value="execution" className="pt-3">
-                <AdvancedSettingsFields
-                  disabled={role !== "admin"}
-                  sections={["pricing", "request-options", "reasoning-api-id"]}
-                  settings={advancedSettings}
-                  onChange={setAdvancedSettings}
-                />
+              <TabsContent value="aliases" className="pt-3">
+                <Field>
+                  <FieldLabel>Aliases</FieldLabel>
+                  <FieldDescription>
+                    Names alternativos aceitos no roteamento para este modelo.
+                  </FieldDescription>
+                  {aliases.length ? (
+                    <div className="space-y-2">
+                      {aliases.map((alias, index) => (
+                        <div
+                          className="flex flex-col gap-2 sm:flex-row"
+                          key={`${alias}-${index}`}
+                        >
+                          <Input
+                            aria-label={`Alias ${index + 1}`}
+                            disabled={role !== "admin"}
+                            onChange={(event) =>
+                              setAliases((current) =>
+                                current.map((value, itemIndex) =>
+                                  itemIndex === index
+                                    ? event.target.value
+                                    : value,
+                                ),
+                              )
+                            }
+                            value={alias}
+                          />
+                          {role === "admin" ? (
+                            <Button
+                              onClick={() =>
+                                setAliases((current) =>
+                                  current.filter(
+                                    (_, itemIndex) => itemIndex !== index,
+                                  ),
+                                )
+                              }
+                              type="button"
+                              variant="outline"
+                            >
+                              Remove
+                            </Button>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">
+                      Nenhum alias configurado.
+                    </p>
+                  )}
+                  {role === "admin" ? (
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Input
+                        aria-label="New alias"
+                        onChange={(event) => setAliasDraft(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key !== "Enter") return;
+                          event.preventDefault();
+                          const alias = aliasDraft.trim();
+                          if (!alias) return;
+                          setAliases((current) => [...current, alias]);
+                          setAliasDraft("");
+                        }}
+                        placeholder="Add an alias"
+                        value={aliasDraft}
+                      />
+                      <Button
+                        disabled={!aliasDraft.trim()}
+                        onClick={() => {
+                          const alias = aliasDraft.trim();
+                          if (!alias) return;
+                          setAliases((current) => [...current, alias]);
+                          setAliasDraft("");
+                        }}
+                        type="button"
+                        variant="secondary"
+                      >
+                        Add alias
+                      </Button>
+                    </div>
+                  ) : null}
+                </Field>
               </TabsContent>
             </Tabs>
           </form>
@@ -1250,6 +1226,56 @@ function parseDateValue(value: string | null | undefined) {
   return isValid(date) ? date : undefined;
 }
 
+function PricingFields({
+  disabled,
+  onChange,
+  pricing,
+}: {
+  disabled: boolean;
+  onChange: (pricing: AdvancedSettings["pricing"]) => void;
+  pricing: AdvancedSettings["pricing"];
+}) {
+  const updatePrice = (key: keyof AdvancedSettings["pricing"], value: string) =>
+    onChange({ ...pricing, [key]: value });
+
+  return (
+    <>
+      <InputField
+        disabled={disabled}
+        id="pricing-input"
+        label="Input price"
+        type="number"
+        value={pricing.input}
+        onChange={(input) => updatePrice("input", input)}
+      />
+      <InputField
+        disabled={disabled}
+        id="pricing-output"
+        label="Output price"
+        type="number"
+        value={pricing.output}
+        onChange={(output) => updatePrice("output", output)}
+      />
+      <InputField
+        disabled={disabled}
+        id="pricing-cache-read"
+        label="Cache read price"
+        type="number"
+        value={pricing.cacheRead}
+        onChange={(cacheRead) => updatePrice("cacheRead", cacheRead)}
+      />
+      <InputField
+        disabled={disabled}
+        id="pricing-image"
+        label="Image price"
+        type="number"
+        value={pricing.image}
+        onChange={(image) => updatePrice("image", image)}
+      />
+    </>
+  );
+}
+
 function AdvancedSettingsFields({
   disabled,
   onChange,
@@ -1286,10 +1312,6 @@ function AdvancedSettingsFields({
     value: string,
   ) =>
     update("perRequestLimits", { ...settings.perRequestLimits, [key]: value });
-  const updatePricing = (
-    key: keyof AdvancedSettings["pricing"],
-    value: string,
-  ) => update("pricing", { ...settings.pricing, [key]: value });
   const updateRequestOptions = (
     key: "timeoutMs" | "maxRetries",
     value: string,
@@ -1300,8 +1322,10 @@ function AdvancedSettingsFields({
     <Accordion className="-mt-2" defaultValue={sections} multiple>
       {hasSection("architecture") ? (
         <AccordionItem value="architecture">
-          <AccordionTrigger>Architecture</AccordionTrigger>
-          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
+          <AccordionTrigger className="py-3 text-base">
+            Architecture
+          </AccordionTrigger>
+          <AccordionContent className="grid gap-4 pb-1 pt-2 md:grid-cols-2">
             <OptionChecklist
               control="switch"
               disabled={disabled}
@@ -1320,6 +1344,24 @@ function AdvancedSettingsFields({
               selected={settings.architecture.outputModalities}
               onChange={(outputModalities) =>
                 updateArchitecture("outputModalities", outputModalities)
+              }
+            />
+            <BooleanSelect
+              disabled={disabled}
+              id="reasoning-tool-use"
+              label="Supports tool use"
+              value={settings.reasoning.supportsToolUse}
+              onChange={(supportsToolUse) =>
+                updateReasoning("supportsToolUse", supportsToolUse)
+              }
+            />
+            <BooleanSelect
+              disabled={disabled}
+              id="reasoning-computer-use"
+              label="Supports computer use"
+              value={settings.reasoning.supportsComputerUse}
+              onChange={(supportsComputerUse) =>
+                updateReasoning("supportsComputerUse", supportsComputerUse)
               }
             />
             <ArchitectureSelect
@@ -1342,269 +1384,6 @@ function AdvancedSettingsFields({
                 updateArchitecture("instructType", instructType)
               }
             />
-          </AccordionContent>
-        </AccordionItem>
-      ) : null}
-      {hasSection("reasoning") ? (
-        <AccordionItem value="reasoning">
-          <AccordionTrigger>Reasoning</AccordionTrigger>
-          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-            <Field>
-              <FieldLabel htmlFor="reasoning-effort">Effort</FieldLabel>
-              <Select
-                items={{
-                  unset: "Not specified",
-                  ...Object.fromEntries(
-                    reasoningEffortOptions.map((effort) => [effort, effort]),
-                  ),
-                }}
-                value={settings.reasoning.effort || "unset"}
-                onValueChange={(value) =>
-                  updateReasoning(
-                    "effort",
-                    value === "unset" ? "" : (value ?? ""),
-                  )
-                }
-                disabled={disabled}
-              >
-                <SelectTrigger id="reasoning-effort" className="w-full">
-                  <SelectValue placeholder="Not specified" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unset">Not specified</SelectItem>
-                  {reasoningEffortOptions.map((effort) => (
-                    <SelectItem key={effort} value={effort}>
-                      {effort}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <InputField
-              disabled={disabled}
-              id="reasoning-max-tokens"
-              label="Max reasoning tokens"
-              type="number"
-              value={settings.reasoning.maxTokens}
-              onChange={(maxTokens) => updateReasoning("maxTokens", maxTokens)}
-            />
-            <BooleanSelect
-              disabled={disabled}
-              id="reasoning-tool-use"
-              label="Supports tool use"
-              value={settings.reasoning.supportsToolUse}
-              onChange={(supportsToolUse) =>
-                updateReasoning("supportsToolUse", supportsToolUse)
-              }
-            />
-            <BooleanSelect
-              disabled={disabled}
-              id="reasoning-vision"
-              label="Supports vision"
-              value={settings.reasoning.supportsVision}
-              onChange={(supportsVision) =>
-                updateReasoning("supportsVision", supportsVision)
-              }
-            />
-            <BooleanSelect
-              disabled={disabled}
-              id="reasoning-computer-use"
-              label="Supports computer use"
-              value={settings.reasoning.supportsComputerUse}
-              onChange={(supportsComputerUse) =>
-                updateReasoning("supportsComputerUse", supportsComputerUse)
-              }
-            />
-          </AccordionContent>
-        </AccordionItem>
-      ) : null}
-      {hasSection("parameters") ? (
-        <AccordionItem value="parameters">
-          <AccordionTrigger>Parameters</AccordionTrigger>
-          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-            <OptionChecklist
-              className="md:col-span-2"
-              disabled={disabled}
-              label="Supported parameters"
-              options={supportedParameterOptions}
-              selected={settings.supportedParameters}
-              onChange={(supportedParameters) =>
-                update("supportedParameters", supportedParameters)
-              }
-            />
-            <InputField
-              disabled={disabled}
-              id="default-temperature"
-              label="Default temperature"
-              type="number"
-              value={settings.defaultParameters.temperature}
-              onChange={(temperature) =>
-                updateDefaults("temperature", temperature)
-              }
-            />
-            <InputField
-              disabled={disabled}
-              id="default-top-p"
-              label="Default top P"
-              type="number"
-              value={settings.defaultParameters.topP}
-              onChange={(topP) => updateDefaults("topP", topP)}
-            />
-            <InputField
-              disabled={disabled}
-              id="default-top-k"
-              label="Default top K"
-              type="number"
-              value={settings.defaultParameters.topK}
-              onChange={(topK) => updateDefaults("topK", topK)}
-            />
-            <InputField
-              disabled={disabled}
-              id="default-max-tokens"
-              label="Default max tokens"
-              type="number"
-              value={settings.defaultParameters.maxTokens}
-              onChange={(maxTokens) => updateDefaults("maxTokens", maxTokens)}
-            />
-            <InputField
-              disabled={disabled}
-              id="default-frequency-penalty"
-              label="Default frequency penalty"
-              type="number"
-              value={settings.defaultParameters.frequencyPenalty}
-              onChange={(frequencyPenalty) =>
-                updateDefaults("frequencyPenalty", frequencyPenalty)
-              }
-            />
-            <InputField
-              disabled={disabled}
-              id="default-presence-penalty"
-              label="Default presence penalty"
-              type="number"
-              value={settings.defaultParameters.presencePenalty}
-              onChange={(presencePenalty) =>
-                updateDefaults("presencePenalty", presencePenalty)
-              }
-            />
-            <InputField
-              disabled={disabled}
-              id="default-repetition-penalty"
-              label="Default repetition penalty"
-              type="number"
-              value={settings.defaultParameters.repetitionPenalty}
-              onChange={(repetitionPenalty) =>
-                updateDefaults("repetitionPenalty", repetitionPenalty)
-              }
-            />
-            <InputField
-              disabled={disabled}
-              id="default-seed"
-              label="Default seed"
-              type="number"
-              value={settings.defaultParameters.seed}
-              onChange={(seed) => updateDefaults("seed", seed)}
-            />
-            <Field className="md:col-span-2">
-              <FieldLabel htmlFor="default-stop">
-                Stop sequences (one per line)
-              </FieldLabel>
-              <Textarea
-                id="default-stop"
-                className="min-h-24"
-                disabled={disabled}
-                value={settings.defaultParameters.stop}
-                onChange={(event) => updateDefaults("stop", event.target.value)}
-              />
-            </Field>
-          </AccordionContent>
-        </AccordionItem>
-      ) : null}
-      {hasSection("limits") ? (
-        <AccordionItem value="limits">
-          <AccordionTrigger>Per-request limits</AccordionTrigger>
-          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-            <InputField
-              disabled={disabled}
-              id="limit-max-input-tokens"
-              label="Max input tokens"
-              type="number"
-              value={settings.perRequestLimits.maxInputTokens}
-              onChange={(maxInputTokens) =>
-                updateLimits("maxInputTokens", maxInputTokens)
-              }
-            />
-            <InputField
-              disabled={disabled}
-              id="limit-max-output-tokens"
-              label="Max output tokens"
-              type="number"
-              value={settings.perRequestLimits.maxOutputTokens}
-              onChange={(maxOutputTokens) =>
-                updateLimits("maxOutputTokens", maxOutputTokens)
-              }
-            />
-            <InputField
-              disabled={disabled}
-              id="limit-rpm"
-              label="Requests per minute"
-              type="number"
-              value={settings.perRequestLimits.rpm}
-              onChange={(rpm) => updateLimits("rpm", rpm)}
-            />
-            <InputField
-              disabled={disabled}
-              id="limit-tpm"
-              label="Tokens per minute"
-              type="number"
-              value={settings.perRequestLimits.tpm}
-              onChange={(tpm) => updateLimits("tpm", tpm)}
-            />
-          </AccordionContent>
-        </AccordionItem>
-      ) : null}
-      {hasSection("pricing") ? (
-        <AccordionItem value="pricing">
-          <AccordionTrigger>Pricing</AccordionTrigger>
-          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-            <InputField
-              disabled={disabled}
-              id="pricing-input"
-              label="Input price"
-              type="number"
-              value={settings.pricing.input}
-              onChange={(input) => updatePricing("input", input)}
-            />
-            <InputField
-              disabled={disabled}
-              id="pricing-output"
-              label="Output price"
-              type="number"
-              value={settings.pricing.output}
-              onChange={(output) => updatePricing("output", output)}
-            />
-            <InputField
-              disabled={disabled}
-              id="pricing-cache-read"
-              label="Cache read price"
-              type="number"
-              value={settings.pricing.cacheRead}
-              onChange={(cacheRead) => updatePricing("cacheRead", cacheRead)}
-            />
-            <InputField
-              disabled={disabled}
-              id="pricing-image"
-              label="Image price"
-              type="number"
-              value={settings.pricing.image}
-              onChange={(image) => updatePricing("image", image)}
-            />
-          </AccordionContent>
-        </AccordionItem>
-      ) : null}
-      {hasSection("request-options") ? (
-        <AccordionItem value="request-options">
-          <AccordionTrigger>Request options</AccordionTrigger>
-          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
             <InputField
               disabled={disabled}
               id="request-timeout"
@@ -1699,10 +1478,51 @@ function AdvancedSettingsFields({
           </AccordionContent>
         </AccordionItem>
       ) : null}
-      {hasSection("reasoning-api-id") ? (
-        <AccordionItem value="reasoning-api-id">
-          <AccordionTrigger>Reasoning API model ID</AccordionTrigger>
-          <AccordionContent className="pt-1">
+      {hasSection("reasoning") ? (
+        <AccordionItem value="reasoning">
+          <AccordionTrigger className="py-3 text-base">
+            Reasoning
+          </AccordionTrigger>
+          <AccordionContent className="grid gap-4 pb-1 pt-2 md:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="reasoning-effort">Effort</FieldLabel>
+              <Select
+                items={{
+                  unset: "Not specified",
+                  ...Object.fromEntries(
+                    reasoningEffortOptions.map((effort) => [effort, effort]),
+                  ),
+                }}
+                value={settings.reasoning.effort || "unset"}
+                onValueChange={(value) =>
+                  updateReasoning(
+                    "effort",
+                    value === "unset" ? "" : (value ?? ""),
+                  )
+                }
+                disabled={disabled}
+              >
+                <SelectTrigger id="reasoning-effort" className="w-full">
+                  <SelectValue placeholder="Not specified" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unset">Not specified</SelectItem>
+                  {reasoningEffortOptions.map((effort) => (
+                    <SelectItem key={effort} value={effort}>
+                      {effort}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <InputField
+              disabled={disabled}
+              id="reasoning-max-tokens"
+              label="Max reasoning tokens"
+              type="number"
+              value={settings.reasoning.maxTokens}
+              onChange={(maxTokens) => updateReasoning("maxTokens", maxTokens)}
+            />
             <InputField
               disabled={disabled}
               id="reasoning-api-id"
@@ -1712,6 +1532,154 @@ function AdvancedSettingsFields({
                 update("reasoningApiId", reasoningApiId)
               }
             />
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
+      {hasSection("limits") ? (
+        <AccordionItem value="limits">
+          <AccordionTrigger className="py-3 text-base">
+            Per-request limits
+          </AccordionTrigger>
+          <AccordionContent className="grid gap-4 pb-1 pt-2 md:grid-cols-2">
+            <InputField
+              disabled={disabled}
+              id="limit-max-input-tokens"
+              label="Max input tokens"
+              type="number"
+              value={settings.perRequestLimits.maxInputTokens}
+              onChange={(maxInputTokens) =>
+                updateLimits("maxInputTokens", maxInputTokens)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="limit-max-output-tokens"
+              label="Max output tokens"
+              type="number"
+              value={settings.perRequestLimits.maxOutputTokens}
+              onChange={(maxOutputTokens) =>
+                updateLimits("maxOutputTokens", maxOutputTokens)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="limit-rpm"
+              label="Requests per minute"
+              type="number"
+              value={settings.perRequestLimits.rpm}
+              onChange={(rpm) => updateLimits("rpm", rpm)}
+            />
+            <InputField
+              disabled={disabled}
+              id="limit-tpm"
+              label="Tokens per minute"
+              type="number"
+              value={settings.perRequestLimits.tpm}
+              onChange={(tpm) => updateLimits("tpm", tpm)}
+            />
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
+      {hasSection("parameters") ? (
+        <AccordionItem value="parameters">
+          <AccordionTrigger className="py-3 text-base">
+            Parameters
+          </AccordionTrigger>
+          <AccordionContent className="grid gap-4 pb-1 pt-2 md:grid-cols-2">
+            <OptionChecklist
+              className="md:col-span-2"
+              disabled={disabled}
+              label="Supported parameters"
+              options={supportedParameterOptions}
+              selected={settings.supportedParameters}
+              onChange={(supportedParameters) =>
+                update("supportedParameters", supportedParameters)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-temperature"
+              label="Default temperature"
+              type="number"
+              value={settings.defaultParameters.temperature}
+              onChange={(temperature) =>
+                updateDefaults("temperature", temperature)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-top-p"
+              label="Default top P"
+              type="number"
+              value={settings.defaultParameters.topP}
+              onChange={(topP) => updateDefaults("topP", topP)}
+            />
+            <InputField
+              disabled={disabled}
+              id="default-top-k"
+              label="Default top K"
+              type="number"
+              value={settings.defaultParameters.topK}
+              onChange={(topK) => updateDefaults("topK", topK)}
+            />
+            <InputField
+              disabled={disabled}
+              id="default-max-tokens"
+              label="Default max tokens"
+              type="number"
+              value={settings.defaultParameters.maxTokens}
+              onChange={(maxTokens) => updateDefaults("maxTokens", maxTokens)}
+            />
+            <InputField
+              disabled={disabled}
+              id="default-frequency-penalty"
+              label="Default frequency penalty"
+              type="number"
+              value={settings.defaultParameters.frequencyPenalty}
+              onChange={(frequencyPenalty) =>
+                updateDefaults("frequencyPenalty", frequencyPenalty)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-presence-penalty"
+              label="Default presence penalty"
+              type="number"
+              value={settings.defaultParameters.presencePenalty}
+              onChange={(presencePenalty) =>
+                updateDefaults("presencePenalty", presencePenalty)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-repetition-penalty"
+              label="Default repetition penalty"
+              type="number"
+              value={settings.defaultParameters.repetitionPenalty}
+              onChange={(repetitionPenalty) =>
+                updateDefaults("repetitionPenalty", repetitionPenalty)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-seed"
+              label="Default seed"
+              type="number"
+              value={settings.defaultParameters.seed}
+              onChange={(seed) => updateDefaults("seed", seed)}
+            />
+            <Field className="md:col-span-2">
+              <FieldLabel htmlFor="default-stop">
+                Stop sequences (one per line)
+              </FieldLabel>
+              <Textarea
+                id="default-stop"
+                className="min-h-24"
+                disabled={disabled}
+                value={settings.defaultParameters.stop}
+                onChange={(event) => updateDefaults("stop", event.target.value)}
+              />
+            </Field>
           </AccordionContent>
         </AccordionItem>
       ) : null}

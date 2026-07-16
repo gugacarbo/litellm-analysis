@@ -74,9 +74,6 @@ function modelSpecFromRow(
   if (row.family) {
     base.family = row.family;
   }
-  if (row.canonicalSlug) {
-    base.canonicalSlug = row.canonicalSlug;
-  }
   if (row.description) {
     base.description = row.description;
   }
@@ -124,7 +121,6 @@ function modelRowFromSpec(
     enabled: spec.enabled ?? true,
     displayName: spec.displayName ?? modelName,
     family: spec.family ?? null,
-    canonicalSlug: spec.canonicalSlug ?? null,
     description: spec.description ?? null,
     contextLength: spec.contextLength,
     maxCompletionTokens: spec.maxCompletionTokens,
@@ -294,7 +290,6 @@ class DbModelsRepository implements IModelsRepository {
             enabled: data.enabled,
             displayName: data.displayName,
             family: data.family,
-            canonicalSlug: data.canonicalSlug,
             description: data.description,
             contextLength: data.contextLength,
             maxCompletionTokens: data.maxCompletionTokens,

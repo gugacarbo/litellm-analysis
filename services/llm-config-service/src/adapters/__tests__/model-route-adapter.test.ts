@@ -31,7 +31,6 @@ describe("toModelRoute", () => {
       enabled: true,
       displayName: "GPT-4",
       family: "gpt-4",
-      canonicalSlug: undefined,
       description: undefined,
       contextLength: 8192,
       maxCompletionTokens: 4096,

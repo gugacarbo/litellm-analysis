@@ -109,7 +109,6 @@ describe("model-admin handlers", () => {
         revision: 1,
         displayName: null,
         family: null,
-        canonicalSlug: null,
         description: null,
         contextLength: null,
         maxCompletionTokens: null,

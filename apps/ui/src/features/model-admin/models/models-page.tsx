@@ -142,10 +142,16 @@ export function ModelsPage({ role }: ModelsPageProps) {
           href={`/models/${row.original.id}/settings/essential`}
         >
           <span className="font-medium">{row.original.modelId}</span>
-          <span className="block text-xs text-muted-foreground">
-            {row.original.providerName}
-          </span>
         </a>
+      ),
+    },
+    {
+      accessorKey: "providerName",
+      header: "Provider",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">
+          {row.original.providerName}
+        </span>
       ),
     },
     {
@@ -164,13 +170,6 @@ export function ModelsPage({ role }: ModelsPageProps) {
         <Badge variant={row.original.enabled ? "secondary" : "outline"}>
           {row.original.enabled ? "Enabled" : "Disabled"}
         </Badge>
-      ),
-    },
-    {
-      accessorKey: "revision",
-      header: "Revision",
-      cell: ({ row }) => (
-        <span className="text-muted-foreground">{row.original.revision}</span>
       ),
     },
   ];

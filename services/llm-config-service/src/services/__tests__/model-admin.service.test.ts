@@ -53,7 +53,6 @@ describe("ModelAdminService", () => {
       modelId: "llama-3",
       displayName: "Llama 3",
       family: "llama",
-      canonicalSlug: "meta/llama-3",
       description: "local model",
       contextLength: 8192,
       maxCompletionTokens: 2048,

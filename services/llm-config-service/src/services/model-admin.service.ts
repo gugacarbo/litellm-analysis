@@ -53,7 +53,6 @@ const MAX_PROBE_RESPONSE_BYTES = 8 * 1024;
 const MODEL_SETTING_KEYS = [
   "displayName",
   "family",
-  "canonicalSlug",
   "description",
   "contextLength",
   "maxCompletionTokens",
@@ -967,7 +966,6 @@ function toModelWrite(
   const defaults: ModelSettings = {
     displayName: null,
     family: null,
-    canonicalSlug: null,
     description: null,
     contextLength: null,
     maxCompletionTokens: null,
@@ -994,7 +992,6 @@ function toModelWrite(
     enabled: input.enabled ?? current?.enabled ?? true,
     displayName: value("displayName"),
     family: value("family"),
-    canonicalSlug: value("canonicalSlug"),
     description: value("description"),
     contextLength: value("contextLength"),
     maxCompletionTokens: value("maxCompletionTokens"),
@@ -1187,7 +1184,6 @@ function toModelSummary(
     modelId: model.modelId,
     displayName: model.displayName,
     family: model.family,
-    canonicalSlug: model.canonicalSlug,
     description: model.description,
     contextLength: model.contextLength,
     maxCompletionTokens: model.maxCompletionTokens,

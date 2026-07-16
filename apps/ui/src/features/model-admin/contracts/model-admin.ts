@@ -102,7 +102,6 @@ const reasoningSchema = z
     effort: z.enum(["low", "medium", "high", "xhigh"]).optional(),
     maxTokens: z.number().int().positive().optional(),
     supportsToolUse: z.boolean().optional(),
-    supportsVision: z.boolean().optional(),
     supportsComputerUse: z.boolean().optional(),
   })
   .nullable()
@@ -174,7 +173,6 @@ const requestOptionsSchema = z
 export const modelSettingsInputSchema = z.object({
   displayName: nullableText,
   family: nullableText,
-  canonicalSlug: nullableText,
   description: nullableText,
   contextLength: z.number().int().nonnegative().nullable().optional(),
   maxCompletionTokens: z.number().int().nonnegative().nullable().optional(),

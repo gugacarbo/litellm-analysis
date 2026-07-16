@@ -36,6 +36,20 @@
       "when": 1784083239387,
       "tag": "0004_black_obadiah_stane",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784207340210,
+      "tag": "0005_wet_gideon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784207781155,
+      "tag": "0006_remove-reasoning-supports-vision",
+      "breakpoints": true
     }
   ]
 }

@@ -304,7 +304,7 @@ export function ProviderDetailPage({
           ) : null}
         </CardHeader>
         <CardContent>
-          <dl className="grid gap-3 text-sm sm:grid-cols-3">
+          <dl className="grid gap-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-muted-foreground">Credencial</dt>
               <dd>
@@ -316,10 +316,6 @@ export function ProviderDetailPage({
             <div>
               <dt className="text-muted-foreground">Modelos</dt>
               <dd>{provider.modelCount}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Revisão</dt>
-              <dd>{provider.revision}</dd>
             </div>
           </dl>
         </CardContent>

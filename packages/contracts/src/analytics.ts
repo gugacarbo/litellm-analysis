@@ -113,7 +113,6 @@ export interface ModelRoute {
   enabled?: boolean;
   displayName?: string;
   family?: string;
-  canonicalSlug?: string;
   description?: string;
   contextLength?: number;
   maxCompletionTokens?: number;

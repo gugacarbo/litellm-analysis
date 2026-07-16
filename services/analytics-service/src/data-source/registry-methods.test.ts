@@ -7,7 +7,6 @@ let mockRows: Record<string, unknown>[] = [
     enabled: true,
     displayName: null,
     family: null,
-    canonicalSlug: null,
     description: null,
     contextLength: 128000,
     maxCompletionTokens: 4096,

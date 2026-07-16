@@ -37,10 +37,6 @@ export const modelSpecSchema = z
       .string()
       .optional()
       .meta({ title: "Family", description: "Model family" }),
-    canonicalSlug: z.string().optional().meta({
-      title: "Canonical Slug",
-      description: "Stable identifier for the model across providers",
-    }),
     description: z.string().optional().meta({
       title: "Description",
       description: "Model description",

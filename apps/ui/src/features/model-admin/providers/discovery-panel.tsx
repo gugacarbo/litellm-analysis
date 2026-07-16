@@ -200,8 +200,8 @@ export function DiscoveryPanel({
           {syncResults.map((item) => (
             <p key={item.modelId}>
               {item.modelId}: {item.status}
-              {item.status === "conflict" && item.currentRevision
-                ? ` (revisão atual ${item.currentRevision})`
+              {item.status === "conflict"
+                ? " (atualize para tentar novamente)"
                 : ""}
             </p>
           ))}

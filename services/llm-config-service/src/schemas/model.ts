@@ -54,7 +54,6 @@ export const ModelConfigSchema = z
     provider: z.string(),
     displayName: z.string().optional(),
     family: z.string().optional(),
-    canonicalSlug: z.string().optional(),
     description: z.string().optional(),
     contextLength: z.number().optional(),
     maxCompletionTokens: z.number().optional(),
