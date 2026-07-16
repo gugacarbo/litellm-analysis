@@ -1,8 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod";
+import { PageContent } from "@/features/app-shell/components/page-content";
 import { PageHeader } from "@/features/app-shell/components/page-header";
 import {
   type ProviderPublic,
@@ -12,29 +14,15 @@ import {
   invalidateModelAdmin,
   modelAdminQueries,
 } from "@/features/model-admin/query/query-options";
-import {
-  deleteModel,
-  saveModel,
-  toggleModel,
-} from "@/features/model-admin/server/model-admin.functions";
+import { saveModel } from "@/features/model-admin/server/model-admin.functions";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
 } from "@/shared/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Dialog,
   DialogContent,
@@ -87,7 +75,6 @@ export function ModelsPage({ role }: ModelsPageProps) {
   >("all");
   const [showCreate, setShowCreate] = useState(false);
   const [actionError, setActionError] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const form = useForm<CreateModelValues>({
     resolver: zodResolver(createModelSchema),
     defaultValues: {
@@ -121,50 +108,6 @@ export function ModelsPage({ role }: ModelsPageProps) {
         error instanceof Error ? error.message : "Could not save model",
       ),
   });
-  const toggleMutation = useMutation({
-    mutationFn: async (input: {
-      id: string;
-      providerId: string;
-      enabled: boolean;
-      revision: number;
-    }) => {
-      const result = await toggleModel({
-        data: {
-          id: input.id,
-          enabled: input.enabled,
-          expectedRevision: input.revision,
-        },
-      });
-      if (!result.ok) throw result.error;
-      return input;
-    },
-    onSuccess: (input) => invalidateModelAdmin.model(queryClient, input),
-    onError: (error) =>
-      setActionError(
-        error instanceof Error ? error.message : "Could not update model",
-      ),
-  });
-  const deleteMutation = useMutation({
-    mutationFn: async (input: {
-      id: string;
-      providerId: string;
-      revision: number;
-    }) => {
-      const result = await deleteModel({
-        data: { id: input.id, expectedRevision: input.revision },
-      });
-      if (!result.ok) throw result.error;
-      return input;
-    },
-    onSuccess: async (input) => {
-      await invalidateModelAdmin.model(queryClient, input);
-      setConfirmDelete(null);
-    },
-    onError: (error) =>
-      setActionError(
-        error instanceof Error ? error.message : "Could not delete model",
-      ),
-  });
 
   if (modelsQuery.isPending)
     return <section aria-busy="true">Loading models…</section>;
@@ -187,12 +130,53 @@ export function ModelsPage({ role }: ModelsPageProps) {
       (enabledFilter === "enabled" ? model.enabled : !model.enabled);
     return matchesSearch && matchesState;
   });
-  const confirmingModel = modelsQuery.data.find(
-    (model) => model.id === confirmDelete,
-  );
+  type Model = (typeof visibleModels)[number];
+  const columns: ColumnDef<Model>[] = [
+    {
+      id: "model",
+      accessorFn: (model) => model.modelId,
+      header: "Model",
+      cell: ({ row }) => (
+        <a
+          className="block hover:underline"
+          href={`/models/${row.original.id}/settings`}
+        >
+          <span className="font-medium">{row.original.modelId}</span>
+          <span className="block text-xs text-muted-foreground">
+            {row.original.providerName}
+          </span>
+        </a>
+      ),
+    },
+    {
+      accessorKey: "displayName",
+      header: "Display name",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">
+          {row.original.displayName ?? "No display name"}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "enabled",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge variant={row.original.enabled ? "secondary" : "outline"}>
+          {row.original.enabled ? "Enabled" : "Disabled"}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: "revision",
+      header: "Revision",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.revision}</span>
+      ),
+    },
+  ];
 
   return (
-    <section className="space-y-6">
+    <PageContent>
       <PageHeader
         title="Models"
         subtitle="Provider-scoped registry models."
@@ -372,92 +356,13 @@ export function ModelsPage({ role }: ModelsPageProps) {
           </EmptyHeader>
         </Empty>
       ) : null}
-      <div className="grid gap-3">
-        {visibleModels.map((model) => (
-          <Card key={model.id}>
-            <CardContent className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <a
-                  className="font-medium hover:underline"
-                  href={`/models/${model.id}/settings`}
-                >
-                  {model.providerName}/{model.modelId}
-                </a>
-                <p className="text-sm text-muted-foreground">
-                  {model.displayName ?? "No display name"} · revision{" "}
-                  {model.revision}
-                </p>
-                <Badge variant={model.enabled ? "secondary" : "outline"}>
-                  {model.enabled ? "Enabled" : "Disabled"}
-                </Badge>
-              </div>
-              {role === "admin" ? (
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={toggleMutation.isPending}
-                    onClick={() =>
-                      toggleMutation.mutate({
-                        id: model.id,
-                        providerId: model.providerId,
-                        revision: model.revision,
-                        enabled: !model.enabled,
-                      })
-                    }
-                  >
-                    {model.enabled ? "Disable" : "Enable"}
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setConfirmDelete(model.id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              ) : null}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <AlertDialog
-        open={Boolean(confirmDelete)}
-        onOpenChange={(open) => {
-          if (!open && !deleteMutation.isPending) setConfirmDelete(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete model?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmingModel
-                ? `This will permanently delete ${confirmingModel.providerName}/${confirmingModel.modelId}.`
-                : "This action cannot be undone."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              disabled={!confirmingModel || deleteMutation.isPending}
-              onClick={() => {
-                if (confirmingModel) {
-                  deleteMutation.mutate({
-                    id: confirmingModel.id,
-                    providerId: confirmingModel.providerId,
-                    revision: confirmingModel.revision,
-                  });
-                }
-              }}
-            >
-              {deleteMutation.isPending ? "Deleting…" : "Delete model"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </section>
+      {visibleModels.length > 0 ? (
+        <DataTable
+          columns={columns}
+          data={visibleModels}
+          getRowId={(model) => model.id}
+        />
+      ) : null}
+    </PageContent>
   );
 }

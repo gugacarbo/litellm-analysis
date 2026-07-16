@@ -51,11 +51,11 @@ export function AppSidebar({ accountMenu, pathname }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex h-10 min-w-0 items-center gap-2 overflow-hidden px-2">
+        <div className="flex h-12 min-w-0 items-center gap-2 overflow-hidden px-0">
           <img
             alt=""
             aria-hidden="true"
-            className="size-8 shrink-0"
+            className="size-10 shrink-0"
             src="/llmtoolbox-mark.svg"
           />
           <span className="whitespace-nowrap font-semibold opacity-100 transition-opacity delay-100 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:delay-0">

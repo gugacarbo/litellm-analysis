@@ -8,7 +8,7 @@ type PageHeaderProps = Readonly<{
 
 export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
   return (
-    <header className="flex flex-wrap items-start justify-between gap-3">
+    <header className="flex flex-wrap items-start justify-between gap-2">
       <div>
         <h1 className="text-3xl font-bold">{title}</h1>
         {subtitle ? <p className="text-muted-foreground">{subtitle}</p> : null}
