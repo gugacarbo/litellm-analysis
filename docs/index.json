@@ -216,5 +216,18 @@
       "apps/ui/src/routes/_protected/models/secrets.tsx"
     ],
     "design-ref": "docs/spec-decisions/0006_application_secrets_decisions.md"
+  },
+  {
+    "id": "SPEC-0007",
+    "path": "docs/specs/0007-providers-detail-discovery-spec.md",
+    "layer": "specs",
+    "title": "Detalhe de provider e discovery persistente",
+    "status": "accepted",
+    "builds-on": [
+      "SPEC-0005"
+    ],
+    "superseded-by": null,
+    "implemented-by": [],
+    "design-ref": "docs/spec-decisions/0007_providers_detail_discovery_decisions.md"
   }
 ]

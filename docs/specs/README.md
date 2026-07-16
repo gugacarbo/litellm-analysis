@@ -10,3 +10,4 @@
 | [SPEC-0004](0004-shared-logger-spec.md)                | O monorepo oferece um logger compartilhado configurável e bloqueia novos `console.log` | implemented |
 | [SPEC-0005](0005-modelos-providers-roteamento-spec.md) | Administrar modelos, providers e roteamento no apps/ui                                 | accepted    |
 | [SPEC-0006](0006-application-secrets-spec.md)          | Armazenar chaves de aplicação cifradas no banco                                        | accepted    |
+| [SPEC-0007](0007-providers-detail-discovery-spec.md)   | Detalhe de provider e discovery persistente                                            | accepted    |

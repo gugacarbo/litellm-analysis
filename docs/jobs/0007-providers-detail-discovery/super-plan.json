@@ -1,0 +1,336 @@
+{
+  "$schema": "https://raw.githubusercontent.com/gugacarbo/agents-skills/main/skills/super-planning/interfaces/super-plan.schema.json",
+  "createdAt": "2026-07-15T04:13:11.117748+00:00",
+  "planId": "0007-providers-detail-discovery",
+  "featureName": "providers-detail-discovery",
+  "status": "pending",
+  "source": {
+    "spec": "docs/specs/0007-providers-detail-discovery-spec.md",
+    "plan": "docs/plans/0007-providers-detail-discovery.md"
+  },
+  "goal": "Transformar providers em lista naveg\u00e1vel e concentrar configura\u00e7\u00e3o e Discovery persistente no detalhe.",
+  "architectureSummary": "Rota protegida por providerId carrega ProviderSettingsPage; a p\u00e1gina comp\u00f5e configura\u00e7\u00e3o e um aside Discovery responsivo, preservando contratos existentes.",
+  "techStack": [
+    "TanStack Start",
+    "TanStack Query",
+    "React",
+    "Tailwind CSS",
+    "Vitest"
+  ],
+  "executionMode": "sequential",
+  "reviewCadence": "final_only",
+  "agents": {
+    "generalExecutor": {
+      "model": "gpt-5.6-luna",
+      "agent": "general-executor",
+      "effort": "medium"
+    },
+    "deepExecutor": {
+      "model": "gpt-5.6-luna",
+      "agent": "deep-executor",
+      "effort": "medium"
+    },
+    "taskReviewer": {
+      "model": "gpt-5.6-luna",
+      "agent": "code-reviewer",
+      "effort": "medium"
+    },
+    "investigator": {
+      "model": "gpt-5.6-luna",
+      "agent": "investigator",
+      "effort": "medium"
+    },
+    "specReviewer": {
+      "model": "gpt-5.6-luna",
+      "agent": "spec-document-reviewer",
+      "effort": "medium"
+    },
+    "finalAuditor": {
+      "model": "gpt-5.6-luna",
+      "agent": "spec-compliance-auditor",
+      "effort": "medium"
+    }
+  },
+  "branchStrategy": {
+    "baseBranch": "main",
+    "featureBranch": "main"
+  },
+  "worktree": {
+    "enabled": false,
+    "path": ""
+  },
+  "globalConstraints": [
+    "Implementa\u00e7\u00e3o autorizada diretamente na branch main pelo usu\u00e1rio.",
+    "Sem worktree; preservar altera\u00e7\u00f5es locais n\u00e3o relacionadas.",
+    "Manter autoriza\u00e7\u00e3o server-side e nunca expor credenciais.",
+    "Discovery usa aside persistente, nunca Sheet modal/overlay.",
+    "TDD obrigat\u00f3rio; ler docs/context/testing-anti-patterns.md antes de mocks."
+  ],
+  "fileStructure": [],
+  "requirementsChecklist": [],
+  "taskDirectory": "docs/jobs/0007-providers-detail-discovery",
+  "rules": [
+    "Nunca sobrescrever mudan\u00e7as locais n\u00e3o relacionadas.",
+    "Somente o orquestrador altera super-plan.json por meio deste helper.",
+    "Execu\u00e7\u00e3o sequencial direta; n\u00e3o despachar subagentes sem autoriza\u00e7\u00e3o expl\u00edcita.",
+    "Revis\u00e3o final \u00fanica com GPT-5.6 Luna medium."
+  ],
+  "continuation": {
+    "enabled": false,
+    "provider": "codex",
+    "watchdogProfile": "default",
+    "status": "disabled"
+  },
+  "tasks": [
+    {
+      "id": "Task-A-1",
+      "title": "Criar rota e p\u00e1gina de detalhe do provider",
+      "description": "Criar a rota protegida /providers/$providerId e ProviderSettingsPage com recupera\u00e7\u00e3o, pap\u00e9is e a\u00e7\u00f5es administrativas existentes.",
+      "status": "pending",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "deep",
+      "batch": "A",
+      "layer": "foundation",
+      "reportFile": "docs/jobs/0007-providers-detail-discovery/Task-A-1/report.md",
+      "reviewPackage": "docs/jobs/0007-providers-detail-discovery/Task-A-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0007-providers-detail-discovery/Task-A-1/progress.log",
+      "logTaskScript": "docs/jobs/0007-providers-detail-discovery/Task-A-1/log-task.sh",
+      "baseCommit": "9d2ae191d96d034fbba8d62222a5f0ddb53f3542",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "A rota pr\u00e9-carrega provider por id e trata provider ausente.",
+        "Admin pode editar, testar persistido, tornar padr\u00e3o e remover; viewer \u00e9 somente leitura.",
+        "A remo\u00e7\u00e3o bem-sucedida retorna \u00e0 lista.",
+        "Testes focados mostram RED antes e GREEN depois."
+      ],
+      "requirements": ["REQ-002", "REQ-003", "REQ-005"],
+      "rules": [
+        "TDD required for this behavior-changing task.",
+        "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",
+        "Preserve server-side authorization and never surface credentials.",
+        "Report RED and GREEN commands and results in the task report."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes RED do detalhe",
+          "description": "Cobrir rota, estados de papel, teste, remo\u00e7\u00e3o e recupera\u00e7\u00e3o antes da implementa\u00e7\u00e3o.",
+          "command": "pnpm --dir apps/ui exec vitest run src/features/model-admin/providers/provider-settings-page.test.tsx",
+          "expectedResult": "Os cen\u00e1rios novos falham porque detalhe e rota ainda n\u00e3o existem.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Implementar rota e p\u00e1gina",
+          "description": "Criar loader/rota e compor formul\u00e1rio e a\u00e7\u00f5es persistidas com queries existentes.",
+          "command": "pnpm --dir apps/ui exec vitest run src/features/model-admin/providers/provider-settings-page.test.tsx",
+          "expectedResult": "Os cen\u00e1rios do detalhe passam.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/routes/_protected/providers/$providerId.tsx",
+        "apps/ui/src/features/model-admin/providers/provider-settings-page.tsx",
+        "apps/ui/src/features/model-admin/providers/provider-settings-page.test.tsx"
+      ],
+      "files": {
+        "created": [
+          "apps/ui/src/routes/_protected/providers/$providerId.tsx",
+          "apps/ui/src/features/model-admin/providers/provider-settings-page.tsx",
+          "apps/ui/src/features/model-admin/providers/provider-settings-page.test.tsx"
+        ],
+        "modified": [],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-B-1",
+      "title": "Simplificar lista de providers para navega\u00e7\u00e3o",
+      "description": "Remover a\u00e7\u00f5es diretas dos cards e converter cada provider em item compacto que navega ao detalhe, preservando cria\u00e7\u00e3o.",
+      "status": "pending",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "B",
+      "layer": "surface",
+      "reportFile": "docs/jobs/0007-providers-detail-discovery/Task-B-1/report.md",
+      "reviewPackage": "docs/jobs/0007-providers-detail-discovery/Task-B-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0007-providers-detail-discovery/Task-B-1/progress.log",
+      "logTaskScript": "docs/jobs/0007-providers-detail-discovery/Task-B-1/log-task.sh",
+      "baseCommit": "9d2ae191d96d034fbba8d62222a5f0ddb53f3542",
+      "dependencies": ["Task-A-1"],
+      "acceptanceCriteria": [
+        "Cada item navega ao provider correspondente.",
+        "A lista n\u00e3o cont\u00e9m bot\u00f5es de discovery, editar, padr\u00e3o ou remover.",
+        "A cria\u00e7\u00e3o de provider permanece dispon\u00edvel.",
+        "Teste focado registra RED e GREEN."
+      ],
+      "requirements": ["REQ-001"],
+      "rules": [
+        "TDD required for this behavior-changing task.",
+        "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",
+        "Do not move administrative mutations back into the list.",
+        "Report RED and GREEN commands and results in the task report."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever teste RED da lista",
+          "description": "Esperar links compactos e aus\u00eancia de a\u00e7\u00f5es diretas.",
+          "command": "pnpm --dir apps/ui exec vitest run src/features/model-admin/providers/providers-page.test.tsx",
+          "expectedResult": "Os cen\u00e1rios novos falham na implementa\u00e7\u00e3o atual.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Implementar lista naveg\u00e1vel",
+          "description": "Trocar cards de a\u00e7\u00e3o por links sem\u00e2nticos e preservar cria\u00e7\u00e3o.",
+          "command": "pnpm --dir apps/ui exec vitest run src/features/model-admin/providers/providers-page.test.tsx",
+          "expectedResult": "Os cen\u00e1rios da lista passam.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/features/model-admin/providers/providers-page.tsx",
+        "apps/ui/src/features/model-admin/providers/providers-page.test.tsx"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/ui/src/features/model-admin/providers/providers-page.tsx",
+          "apps/ui/src/features/model-admin/providers/providers-page.test.tsx"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-B-2",
+      "title": "Tornar Discovery um painel persistente",
+      "description": "Adaptar DiscoveryPanel e a p\u00e1gina de detalhe para usar aside responsivo, manter estados e resetar pelo provider ativo.",
+      "status": "pending",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "general",
+      "batch": "B",
+      "layer": "surface",
+      "reportFile": "docs/jobs/0007-providers-detail-discovery/Task-B-2/report.md",
+      "reviewPackage": "docs/jobs/0007-providers-detail-discovery/Task-B-2/review-package.diff.md",
+      "progressLog": "docs/jobs/0007-providers-detail-discovery/Task-B-2/progress.log",
+      "logTaskScript": "docs/jobs/0007-providers-detail-discovery/Task-B-2/log-task.sh",
+      "baseCommit": "9d2ae191d96d034fbba8d62222a5f0ddb53f3542",
+      "dependencies": ["Task-A-1"],
+      "acceptanceCriteria": [
+        "Discovery \u00e9 acionado explicitamente e permanece no fluxo do layout.",
+        "Desktop mostra aside sem overlay; mobile empilha a regi\u00e3o.",
+        "Loading, vazio, sucesso, erro, sync e probe preservam comportamento existente.",
+        "Troca de provider n\u00e3o apresenta estado anterior como atual.",
+        "Teste focado registra RED e GREEN."
+      ],
+      "requirements": ["REQ-004", "REQ-005"],
+      "rules": [
+        "TDD required for this behavior-changing task.",
+        "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",
+        "Do not use the modal Sheet primitive or alter discovery server contracts.",
+        "Report RED and GREEN commands and results in the task report."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Escrever testes RED do painel",
+          "description": "Cobrir regi\u00e3o persistente, estados e reset por provider.",
+          "command": "pnpm --dir apps/ui exec vitest run src/features/model-admin/providers/provider-settings-page.test.tsx",
+          "expectedResult": "Os cen\u00e1rios de painel falham antes da composi\u00e7\u00e3o responsiva.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Implementar aside Discovery",
+          "description": "Compor painel lateral no detalhe, ajustar classes responsivas e estado por provider.",
+          "command": "pnpm --dir apps/ui exec vitest run src/features/model-admin/providers/provider-settings-page.test.tsx",
+          "expectedResult": "Os cen\u00e1rios de painel passam.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/features/model-admin/providers/discovery-panel.tsx",
+        "apps/ui/src/features/model-admin/providers/provider-settings-page.tsx",
+        "apps/ui/src/features/model-admin/providers/provider-settings-page.test.tsx"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/ui/src/features/model-admin/providers/discovery-panel.tsx",
+          "apps/ui/src/features/model-admin/providers/provider-settings-page.tsx",
+          "apps/ui/src/features/model-admin/providers/provider-settings-page.test.tsx"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    },
+    {
+      "id": "Task-C-1",
+      "title": "Integrar rota, verificar e encerrar documenta\u00e7\u00e3o",
+      "description": "Gerar \u00e1rvore de rotas, executar verifica\u00e7\u00f5es focadas e r\u00e1pidas, revisar o diff e registrar evid\u00eancias do plano.",
+      "status": "pending",
+      "tryCount": 1,
+      "maxTries": 3,
+      "task_profile": "deep",
+      "batch": "C",
+      "layer": "final",
+      "reportFile": "docs/jobs/0007-providers-detail-discovery/Task-C-1/report.md",
+      "reviewPackage": "docs/jobs/0007-providers-detail-discovery/Task-C-1/review-package.diff.md",
+      "progressLog": "docs/jobs/0007-providers-detail-discovery/Task-C-1/progress.log",
+      "logTaskScript": "docs/jobs/0007-providers-detail-discovery/Task-C-1/log-task.sh",
+      "baseCommit": "9d2ae191d96d034fbba8d62222a5f0ddb53f3542",
+      "dependencies": ["Task-A-1", "Task-B-1", "Task-B-2"],
+      "acceptanceCriteria": [
+        "routeTree.gen.ts inclui a rota de detalhe.",
+        "Testes focados, typecheck e verify -c passam ou possuem baseline registrado.",
+        "Revis\u00e3o final confirma ader\u00eancia \u00e0 SPEC-0007 e aus\u00eancia de credenciais expostas.",
+        "Documenta\u00e7\u00e3o de execu\u00e7\u00e3o cont\u00e9m evid\u00eancias."
+      ],
+      "requirements": ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005"],
+      "rules": [
+        "Read docs/context/testing-anti-patterns.md before adding mocks, fakes, fixtures, or test-only helpers.",
+        "Do not rewrite unrelated dirty worktree changes.",
+        "Record every verification command and its result in the task report."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "Gerar e validar rota",
+          "description": "Atualizar route tree e executar testes/typecheck focados.",
+          "command": "pnpm generate-routes && pnpm --dir apps/ui exec vitest run src/features/model-admin/providers/providers-page.test.tsx src/features/model-admin/providers/provider-settings-page.test.tsx && pnpm --dir apps/ui typecheck",
+          "expectedResult": "Rota e verifica\u00e7\u00f5es focadas passam.",
+          "codeExample": null
+        },
+        {
+          "order": 2,
+          "title": "Revisar integra\u00e7\u00e3o",
+          "description": "Executar verifica\u00e7\u00e3o r\u00e1pida, revisar diff e registrar evid\u00eancias/documenta\u00e7\u00e3o.",
+          "command": "pnpm verify -c",
+          "expectedResult": "Verifica\u00e7\u00e3o r\u00e1pida passa.",
+          "codeExample": null
+        }
+      ],
+      "filesTouched": [
+        "apps/ui/src/routeTree.gen.ts",
+        "docs/jobs/0007-providers-detail-discovery/",
+        "docs/specs/0007-providers-detail-discovery-spec.md"
+      ],
+      "files": {
+        "created": [],
+        "modified": [
+          "apps/ui/src/routeTree.gen.ts",
+          "docs/specs/0007-providers-detail-discovery-spec.md"
+        ],
+        "deleted": []
+      },
+      "notes": []
+    }
+  ],
+  "updatedAt": "2026-07-15T04:13:11.351889+00:00"
+}
