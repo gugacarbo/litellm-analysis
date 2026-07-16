@@ -88,7 +88,7 @@
     "path": "docs/adr/0008-auditoria-administrativa-append-only.md",
     "layer": "adr",
     "title": "A auditoria administrativa usa eventos append-only separados dos agregados",
-    "status": "proposed",
+    "status": "accepted",
     "builds-on": [],
     "superseded-by": null,
     "implemented-by": []
@@ -261,7 +261,7 @@
     "path": "docs/specs/0009-fundacao-auditoria-administrativa-spec.md",
     "layer": "specs",
     "title": "Estabelecer a fundação server-side da auditoria administrativa",
-    "status": "draft",
+    "status": "accepted",
     "builds-on": [
       "ADR-0008",
       "ADR-0007",

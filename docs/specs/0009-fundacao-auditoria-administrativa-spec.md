@@ -1,5 +1,5 @@
 ---
-status: draft
+status: accepted
 date: 2026-07-16
 builds-on:
   - ADR-0008
@@ -164,16 +164,13 @@ oculta Audit para `viewer`; ocultar o link não substitui essas verificações.
 
 ## Questões em aberto
 
-- [ ] Qual é a retenção, arquivamento e expurgo dos eventos, inclusive backups?
-- [ ] A garantia append-only precisa de trigger/permissões no PostgreSQL contra
-      `UPDATE`/`DELETE` por credenciais operacionais, ou o contrato de
-      aplicação é suficiente para a primeira release?
-- [ ] IP e user-agent devem ser coletados? Se sim, qual base legal, janela de
-      retenção e quem pode consultá-los?
-- [ ] Quando o primeiro comando instrumentado não conseguir gravar o evento,
-      a mutação deve falhar junto (audit obrigatório) ou ter reconciliação?
-- [ ] A leitura de `/audit` e de um detalhe deve gerar evento `audit.read`? Se
-      sim, qual mecanismo evita recursão e ruído na própria trilha?
+Nenhuma para esta entrega. Retenção, arquivamento e expurgo; garantia contra
+adulteração por credenciais operacionais do banco; coleta de IP/user-agent;
+comportamento quando uma mutação instrumentada não puder gravar auditoria; e o
+eventual evento `audit.read` são decisões explicitamente adiadas. Cada uma será
+fonte obrigatória da filha que introduzir o respectivo comportamento; esta
+entrega não cria esses dados, não instrumenta mutações e não registra a própria
+leitura da auditoria.
 
 ## Definition of Done
 
@@ -189,8 +186,8 @@ pnpm verify -c # exit 0
 
 - Validar que o detalhe do evento continua útil para investigação sem expor
   valores confidenciais, em viewport desktop e estreita.
-- Aprovar as cinco questões abertas antes de instrumentar uma mutação de
-  produção.
+- Revisar as decisões explicitamente adiadas antes de instrumentar mutações,
+  alterar retenção ou incluir dados de rede.
 
 ## Verificação
 

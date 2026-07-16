@@ -11,4 +11,4 @@
 | [ADR-0005](0005-better-auth-com-bootstrap-por-convite.md)            | Better Auth protege a UI com bootstrap por convite                         | proposed |
 | [ADR-0006](0006-schema-drizzle-e-a-fonte-dos-tipos-do-banco.md)      | O schema Drizzle é a fonte dos tipos do banco                              | proposed |
 | [ADR-0007](0007-segredos-de-providers-sao-cifrados-no-postgresql.md) | O sistema cifra segredos de providers no PostgreSQL                        | accepted |
-| [ADR-0008](0008-auditoria-administrativa-append-only.md)             | A auditoria administrativa usa eventos append-only separados dos agregados | proposed |
+| [ADR-0008](0008-auditoria-administrativa-append-only.md)             | A auditoria administrativa usa eventos append-only separados dos agregados | accepted |
