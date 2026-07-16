@@ -160,7 +160,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1">
-          <PanelLeftIcon className="h-5 w-5" />
+          <PanelLeftIcon className="h-4 w-4" />
           <span className="font-semibold text-sm group-data-[collapsible=icon]:hidden">
             LlmToolbox
           </span>
