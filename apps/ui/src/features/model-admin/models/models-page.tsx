@@ -139,7 +139,7 @@ export function ModelsPage({ role }: ModelsPageProps) {
       cell: ({ row }) => (
         <a
           className="block hover:underline"
-          href={`/models/${row.original.id}/settings`}
+          href={`/models/${row.original.id}/settings/essential`}
         >
           <span className="font-medium">{row.original.modelId}</span>
           <span className="block text-xs text-muted-foreground">

@@ -177,7 +177,7 @@ describe("ModelSettingsPage", () => {
     expect(
       await screen.findByRole("heading", { name: "Platon 2/MiniMax M3" }),
     ).toBeTruthy();
-    expect(screen.getByText("platon-2/minimax-m3")).toBeTruthy();
+    expect(screen.getAllByText("platon-2/minimax-m3")).toHaveLength(2);
     expect(
       screen.getByRole("button", { name: "Copy usable model ID" }),
     ).toBeTruthy();
@@ -262,7 +262,12 @@ describe("ModelSettingsPage", () => {
     const displayName = (await screen.findByRole("textbox", {
       name: "Display name",
     })) as HTMLInputElement;
+    const saveSettings = screen.getByRole("button", {
+      name: "Save settings",
+    }) as HTMLButtonElement;
+    expect(saveSettings.disabled).toBe(true);
     fireEvent.change(displayName, { target: { value: "MiniMax M3 updated" } });
+    expect(saveSettings.disabled).toBe(false);
     fireEvent.click(screen.getByRole("tab", { name: "Capacidades" }));
     fireEvent.click(screen.getByRole("tab", { name: "Essencial" }));
 
@@ -271,7 +276,7 @@ describe("ModelSettingsPage", () => {
         await screen.findByRole("textbox", { name: "Display name" })
       ).getAttribute("value"),
     ).toBe("MiniMax M3 updated");
-    fireEvent.click(screen.getByRole("button", { name: "Save settings" }));
+    fireEvent.click(saveSettings);
 
     await waitFor(() =>
       expect(saveModel).toHaveBeenCalledWith({

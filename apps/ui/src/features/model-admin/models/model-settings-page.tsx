@@ -4,7 +4,7 @@ import { format, isValid, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, CopyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import type { z } from "zod";
 import { PageHeader } from "@/features/app-shell/components/page-header";
 import {
@@ -104,9 +104,17 @@ const settingsSchema = saveModelInputSchema.pick({
   expirationDate: true,
 });
 type SettingsValues = z.infer<typeof settingsSchema>;
+export const modelSettingsTabs = [
+  "essential",
+  "capabilities",
+  "execution",
+] as const;
+export type ModelSettingsTab = (typeof modelSettingsTabs)[number];
 type ModelSettingsPageProps = Readonly<{
   modelId: string;
   role: "admin" | "viewer";
+  activeTab?: ModelSettingsTab;
+  onTabChange?: (tab: ModelSettingsTab) => void;
 }>;
 
 const supportedParameterOptions = [
@@ -432,6 +440,18 @@ function getAdvancedPayload(settings: AdvancedSettings) {
   };
 }
 
+function getSavePayload(
+  values: SettingsValues,
+  aliases: string[],
+  advancedSettings: AdvancedSettings,
+) {
+  return saveModelInputSchema.safeParse({
+    ...values,
+    aliases: aliases.map((value) => value.trim()).filter(Boolean),
+    ...getAdvancedPayload(advancedSettings),
+  });
+}
+
 function getSettingsValues(model: ModelDetail): SettingsValues {
   return {
     id: model.id,
@@ -450,7 +470,12 @@ function getSettingsValues(model: ModelDetail): SettingsValues {
   };
 }
 
-export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
+export function ModelSettingsPage({
+  activeTab,
+  modelId,
+  onTabChange,
+  role,
+}: ModelSettingsPageProps) {
   const queryClient = useQueryClient();
   const modelQuery = useQuery(modelAdminQueries.model(modelId));
   const providersQuery = useQuery(modelAdminQueries.providers());
@@ -459,6 +484,9 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
   const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>(
     emptyAdvancedSettings,
   );
+  const [localActiveTab, setLocalActiveTab] =
+    useState<ModelSettingsTab>("essential");
+  const [isSettingsHydrated, setIsSettingsHydrated] = useState(false);
   const [error, setError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const form = useForm<SettingsValues>({
@@ -467,20 +495,21 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
       ? getSettingsValues(modelQuery.data)
       : undefined,
   });
+  const watchedValues = useWatch({ control: form.control }) as SettingsValues;
   useEffect(() => {
-    if (!modelQuery.data) return;
+    if (!modelQuery.data) {
+      setIsSettingsHydrated(false);
+      return;
+    }
     const model = modelQuery.data;
     form.reset(getSettingsValues(model));
     setAliases(model.aliases.map((alias) => alias.alias));
     setAdvancedSettings(getAdvancedSettings(model));
+    setIsSettingsHydrated(true);
   }, [form, modelQuery.data]);
   const saveMutation = useMutation({
     mutationFn: async (values: SettingsValues) => {
-      const payload = saveModelInputSchema.safeParse({
-        ...values,
-        aliases: aliases.map((value) => value.trim()).filter(Boolean),
-        ...getAdvancedPayload(advancedSettings),
-      });
+      const payload = getSavePayload(values, aliases, advancedSettings);
       if (!payload.success) throw new Error(payload.error.issues[0]?.message);
       const result = await saveModel({ data: payload.data });
       if (!result.ok) throw result.error;
@@ -584,6 +613,21 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
         </a>
       </section>
     );
+  const selectedTab = activeTab ?? localActiveTab;
+  const currentPayload = getSavePayload(
+    watchedValues,
+    aliases,
+    advancedSettings,
+  );
+  const initialPayload = getSavePayload(
+    getSettingsValues(model),
+    model.aliases.map((alias) => alias.alias),
+    getAdvancedSettings(model),
+  );
+  const hasModelSchemaChanges =
+    currentPayload.success &&
+    initialPayload.success &&
+    JSON.stringify(currentPayload.data) !== JSON.stringify(initialPayload.data);
   return (
     <section className="space-y-4">
       <div className="space-y-3">
@@ -594,7 +638,9 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{model.modelId}</BreadcrumbPage>
+              <BreadcrumbPage>
+                {toUsableModelId(model.providerName, model.modelId)}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -627,7 +673,11 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
           {role === "admin" ? (
             <CardAction className="flex flex-wrap justify-end gap-2">
               <Button
-                disabled={saveMutation.isPending}
+                disabled={
+                  saveMutation.isPending ||
+                  !isSettingsHydrated ||
+                  !hasModelSchemaChanges
+                }
                 form="model-settings-form"
                 type="submit"
               >
@@ -672,7 +722,22 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
             )}
             className="pb-4"
           >
-            <Tabs className="gap-1" defaultValue="essential">
+            <Tabs
+              className="gap-1"
+              value={selectedTab}
+              onValueChange={(value) => {
+                if (!modelSettingsTabs.includes(value as ModelSettingsTab)) {
+                  return;
+                }
+
+                const nextTab = value as ModelSettingsTab;
+                if (onTabChange) {
+                  onTabChange(nextTab);
+                  return;
+                }
+                setLocalActiveTab(nextTab);
+              }}
+            >
               <TabsList
                 className="w-full max-w-full justify-start overflow-x-auto overflow-y-hidden"
                 variant="line"

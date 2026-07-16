@@ -1,3 +1,4 @@
+// biome-ignore lint/nursery/noExcessiveLinesPerFile: The provider detail keeps its coordinated mutations and recovery states together.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
@@ -38,14 +39,30 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { Badge } from "@/shared/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/shared/components/ui/breadcrumb";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DiscoveryPanel } from "./discovery-panel";
 import { ProviderForm } from "./provider-form";
@@ -59,12 +76,23 @@ type ProviderDetailPageProps = Readonly<{
   role: "admin" | "viewer";
 }>;
 
+function toProviderSlug(name: string) {
+  return name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 export function ProviderDetailPage({
   providerId,
   role,
 }: ProviderDetailPageProps) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
+  const [discoveryOpen, setDiscoveryOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [notice, setNotice] = useState<string>();
@@ -182,15 +210,19 @@ export function ProviderDetailPage({
     probeMutation.error;
 
   return (
-    <main className="space-y-6">
+    <main className="space-y-4">
       <div className="space-y-3">
-        <Link
-          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-          to="/providers"
-        >
-          <ArrowLeft aria-hidden="true" className="size-4" />
-          Providers
-        </Link>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/providers">Providers</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{toProviderSlug(provider.name)}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <PageHeader
           title={
             <span className="flex flex-wrap items-center gap-2">
@@ -198,7 +230,7 @@ export function ProviderDetailPage({
               {provider.isDefault ? <Badge>Padrão</Badge> : null}
             </span>
           }
-          subtitle={`${provider.provider ?? "Adapter não informado"} · ${provider.baseUrl ?? "Sem Base URL"}`}
+          subtitle={`${toProviderSlug(provider.name)} / ${provider.baseUrl ?? "Sem Base URL"}`}
           actions={
             <Badge variant={isAdmin ? "default" : "secondary"}>
               {isAdmin ? "Administrador" : "Somente leitura"}
@@ -225,8 +257,53 @@ export function ProviderDetailPage({
           <CardDescription>
             Gerencie a conexão, os modelos e a configuração deste destino.
           </CardDescription>
+          {isAdmin ? (
+            <CardAction className="flex flex-wrap justify-end gap-1.5">
+              <Button
+                onClick={() => setDiscoveryOpen(true)}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Discovery e probe
+              </Button>
+              <Button
+                onClick={() => setEditing((current) => !current)}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                {editing ? "Fechar edição" : "Editar configuração"}
+              </Button>
+              {!provider.isDefault ? (
+                <Button
+                  disabled={defaultMutation.isPending}
+                  onClick={() =>
+                    void defaultMutation.mutateAsync({
+                      id: provider.id,
+                      expectedRevision: provider.revision,
+                    })
+                  }
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  Tornar padrão
+                </Button>
+              ) : null}
+              <Button
+                disabled={deleteMutation.isPending}
+                onClick={() => setDeleteOpen(true)}
+                size="sm"
+                type="button"
+                variant="destructive"
+              >
+                Remover
+              </Button>
+            </CardAction>
+          ) : null}
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <dl className="grid gap-3 text-sm sm:grid-cols-3">
             <div>
               <dt className="text-muted-foreground">Credencial</dt>
@@ -245,40 +322,6 @@ export function ProviderDetailPage({
               <dd>{provider.revision}</dd>
             </div>
           </dl>
-          {isAdmin ? (
-            <div className="flex flex-wrap gap-2 border-t pt-4">
-              <Button
-                onClick={() => setEditing((current) => !current)}
-                type="button"
-                variant="outline"
-              >
-                {editing ? "Fechar edição" : "Editar configuração"}
-              </Button>
-              {!provider.isDefault ? (
-                <Button
-                  disabled={defaultMutation.isPending}
-                  onClick={() =>
-                    void defaultMutation.mutateAsync({
-                      id: provider.id,
-                      expectedRevision: provider.revision,
-                    })
-                  }
-                  type="button"
-                  variant="outline"
-                >
-                  Tornar padrão
-                </Button>
-              ) : null}
-              <Button
-                disabled={deleteMutation.isPending}
-                onClick={() => setDeleteOpen(true)}
-                type="button"
-                variant="destructive"
-              >
-                Remover
-              </Button>
-            </div>
-          ) : null}
         </CardContent>
       </Card>
       {editing && isAdmin ? (
@@ -295,30 +338,40 @@ export function ProviderDetailPage({
         />
       ) : null}
       {isAdmin ? (
-        <DiscoveryPanel
-          applying={syncMutation.isPending}
-          disabled={false}
-          discovering={discoveryMutation.isPending}
-          discovery={discoveryMutation.data}
-          error={
-            discoveryMutation.error
-              ? toProviderErrorMessage(discoveryMutation.error)
-              : undefined
-          }
-          onApply={async (input) => {
-            await syncMutation.mutateAsync(input);
-          }}
-          onDiscover={async () => {
-            await discoveryMutation.mutateAsync();
-          }}
-          onProbe={async (input) => {
-            const result = await probeMutation.mutateAsync(input);
-            return { content: result.content, truncated: result.truncated };
-          }}
-          probing={probeMutation.isPending}
-          providerId={provider.id}
-          syncResults={syncMutation.data}
-        />
+        <Dialog open={discoveryOpen} onOpenChange={setDiscoveryOpen}>
+          <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Discovery e probe</DialogTitle>
+              <DialogDescription>
+                Descubra modelos disponíveis e teste a resposta deste provider.
+              </DialogDescription>
+            </DialogHeader>
+            <DiscoveryPanel
+              applying={syncMutation.isPending}
+              disabled={false}
+              discovering={discoveryMutation.isPending}
+              discovery={discoveryMutation.data}
+              error={
+                discoveryMutation.error
+                  ? toProviderErrorMessage(discoveryMutation.error)
+                  : undefined
+              }
+              onApply={async (input) => {
+                await syncMutation.mutateAsync(input);
+              }}
+              onDiscover={async () => {
+                await discoveryMutation.mutateAsync();
+              }}
+              onProbe={async (input) => {
+                const result = await probeMutation.mutateAsync(input);
+                return { content: result.content, truncated: result.truncated };
+              }}
+              probing={probeMutation.isPending}
+              providerId={provider.id}
+              syncResults={syncMutation.data}
+            />
+          </DialogContent>
+        </Dialog>
       ) : null}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>

@@ -26,8 +26,6 @@ vi.mock("@/features/model-admin/server/model-admin.functions", () => ({
 
 import {
   createProvider,
-  deleteProvider,
-  discoverModels,
   listProviders,
   testProviderConnection,
 } from "@/features/model-admin/server/model-admin.functions";
@@ -77,6 +75,11 @@ describe("ProvidersPage", () => {
     expect(screen.getByText("OpenAI")).toBeTruthy();
     expect(screen.getByText("Configurada")).toBeTruthy();
     expect(screen.getByText("2")).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "Abrir provider OpenAI" })
+        .getAttribute("href"),
+    ).toBe(`/providers/${id}`);
     expect(container.textContent).not.toContain("super-secret-value");
     expect(container.textContent).not.toContain("ciphertext");
   });
@@ -90,8 +93,8 @@ describe("ProvidersPage", () => {
     ).toBeNull();
     expect(screen.queryByRole("button", { name: "Remover" })).toBeNull();
     expect(
-      screen.queryByRole("button", { name: "Discovery e probe" }),
-    ).toBeNull();
+      screen.getByRole("link", { name: "Abrir provider OpenAI" }),
+    ).toBeTruthy();
   });
 
   it("envia replace explicitamente e limpa o campo após salvar", async () => {
@@ -165,49 +168,5 @@ describe("ProvidersPage", () => {
     expect((await screen.findByRole("status")).textContent).toContain(
       "Connection successful.",
     );
-  });
-
-  it("mostra discovery vazia como estado válido", async () => {
-    vi.mocked(discoverModels).mockResolvedValue({
-      ok: true,
-      data: { models: [] },
-    });
-    renderPage();
-
-    fireEvent.click(screen.getByRole("button", { name: "Discovery e probe" }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "Descobrir modelos" }),
-    );
-
-    expect(
-      await screen.findByText(
-        "Nenhum modelo foi encontrado para este provider.",
-      ),
-    ).toBeTruthy();
-  });
-
-  it("explica a dependência que bloqueia a exclusão", async () => {
-    vi.mocked(deleteProvider).mockResolvedValue({
-      ok: false,
-      error: {
-        code: "CONFLICT",
-        message: "Provider has dependent models",
-        retryable: false,
-        dependentModelCount: 2,
-      },
-    });
-    renderPage();
-
-    fireEvent.click(screen.getByRole("button", { name: "Remover" }));
-    expect(
-      screen.getByText(
-        "Remover o provider OpenAI? Esta ação não pode ser desfeita.",
-      ),
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Remover provider" }));
-
-    expect(
-      await screen.findByText(/Há 2 modelo\(s\) dependente\(s\)/),
-    ).toBeTruthy();
   });
 });

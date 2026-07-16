@@ -15,12 +15,14 @@ import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ProtectedSecretsRouteImport } from './routes/_protected/secrets'
 import { Route as ProtectedProvidersRouteImport } from './routes/_protected/providers'
 import { Route as ProtectedModelsRouteImport } from './routes/_protected/models'
+import { Route as ProtectedProvidersIndexRouteImport } from './routes/_protected/providers/index'
 import { Route as ProtectedModelsIndexRouteImport } from './routes/_protected/models/index'
 import { Route as ApiAuthAcceptInviteRouteImport } from './routes/api/auth/accept-invite'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ProtectedProvidersProviderIdRouteImport } from './routes/_protected/providers/$providerId'
 import { Route as ProtectedModelsAliasesRouteImport } from './routes/_protected/models/aliases'
 import { Route as ProtectedModelsModelIdSettingsRouteImport } from './routes/_protected/models/$modelId/settings'
+import { Route as ProtectedModelsModelIdSettingsTabRouteImport } from './routes/_protected/models/$modelId/settings/$tab'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -50,6 +52,11 @@ const ProtectedModelsRoute = ProtectedModelsRouteImport.update({
   id: '/models',
   path: '/models',
   getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedProvidersIndexRoute = ProtectedProvidersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedProvidersRoute,
 } as any)
 const ProtectedModelsIndexRoute = ProtectedModelsIndexRouteImport.update({
   id: '/',
@@ -83,6 +90,12 @@ const ProtectedModelsModelIdSettingsRoute =
     path: '/$modelId/settings',
     getParentRoute: () => ProtectedModelsRoute,
   } as any)
+const ProtectedModelsModelIdSettingsTabRoute =
+  ProtectedModelsModelIdSettingsTabRouteImport.update({
+    id: '/$tab',
+    path: '/$tab',
+    getParentRoute: () => ProtectedModelsModelIdSettingsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
@@ -95,11 +108,12 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/accept-invite': typeof ApiAuthAcceptInviteRoute
   '/models/': typeof ProtectedModelsIndexRoute
-  '/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRoute
+  '/providers/': typeof ProtectedProvidersIndexRoute
+  '/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRouteWithChildren
+  '/models/$modelId/settings/$tab': typeof ProtectedModelsModelIdSettingsTabRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/providers': typeof ProtectedProvidersRouteWithChildren
   '/secrets': typeof ProtectedSecretsRoute
   '/': typeof ProtectedIndexRoute
   '/models/aliases': typeof ProtectedModelsAliasesRoute
@@ -107,7 +121,9 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/accept-invite': typeof ApiAuthAcceptInviteRoute
   '/models': typeof ProtectedModelsIndexRoute
-  '/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRoute
+  '/providers': typeof ProtectedProvidersIndexRoute
+  '/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRouteWithChildren
+  '/models/$modelId/settings/$tab': typeof ProtectedModelsModelIdSettingsTabRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,7 +138,9 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/accept-invite': typeof ApiAuthAcceptInviteRoute
   '/_protected/models/': typeof ProtectedModelsIndexRoute
-  '/_protected/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRoute
+  '/_protected/providers/': typeof ProtectedProvidersIndexRoute
+  '/_protected/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRouteWithChildren
+  '/_protected/models/$modelId/settings/$tab': typeof ProtectedModelsModelIdSettingsTabRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -137,11 +155,12 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/accept-invite'
     | '/models/'
+    | '/providers/'
     | '/models/$modelId/settings'
+    | '/models/$modelId/settings/$tab'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/providers'
     | '/secrets'
     | '/'
     | '/models/aliases'
@@ -149,7 +168,9 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/accept-invite'
     | '/models'
+    | '/providers'
     | '/models/$modelId/settings'
+    | '/models/$modelId/settings/$tab'
   id:
     | '__root__'
     | '/_protected'
@@ -163,7 +184,9 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/accept-invite'
     | '/_protected/models/'
+    | '/_protected/providers/'
     | '/_protected/models/$modelId/settings'
+    | '/_protected/models/$modelId/settings/$tab'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -217,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedModelsRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/providers/': {
+      id: '/_protected/providers/'
+      path: '/'
+      fullPath: '/providers/'
+      preLoaderRoute: typeof ProtectedProvidersIndexRouteImport
+      parentRoute: typeof ProtectedProvidersRoute
+    }
     '/_protected/models/': {
       id: '/_protected/models/'
       path: '/'
@@ -259,19 +289,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedModelsModelIdSettingsRouteImport
       parentRoute: typeof ProtectedModelsRoute
     }
+    '/_protected/models/$modelId/settings/$tab': {
+      id: '/_protected/models/$modelId/settings/$tab'
+      path: '/$tab'
+      fullPath: '/models/$modelId/settings/$tab'
+      preLoaderRoute: typeof ProtectedModelsModelIdSettingsTabRouteImport
+      parentRoute: typeof ProtectedModelsModelIdSettingsRoute
+    }
   }
 }
+
+interface ProtectedModelsModelIdSettingsRouteChildren {
+  ProtectedModelsModelIdSettingsTabRoute: typeof ProtectedModelsModelIdSettingsTabRoute
+}
+
+const ProtectedModelsModelIdSettingsRouteChildren: ProtectedModelsModelIdSettingsRouteChildren =
+  {
+    ProtectedModelsModelIdSettingsTabRoute:
+      ProtectedModelsModelIdSettingsTabRoute,
+  }
+
+const ProtectedModelsModelIdSettingsRouteWithChildren =
+  ProtectedModelsModelIdSettingsRoute._addFileChildren(
+    ProtectedModelsModelIdSettingsRouteChildren,
+  )
 
 interface ProtectedModelsRouteChildren {
   ProtectedModelsAliasesRoute: typeof ProtectedModelsAliasesRoute
   ProtectedModelsIndexRoute: typeof ProtectedModelsIndexRoute
-  ProtectedModelsModelIdSettingsRoute: typeof ProtectedModelsModelIdSettingsRoute
+  ProtectedModelsModelIdSettingsRoute: typeof ProtectedModelsModelIdSettingsRouteWithChildren
 }
 
 const ProtectedModelsRouteChildren: ProtectedModelsRouteChildren = {
   ProtectedModelsAliasesRoute: ProtectedModelsAliasesRoute,
   ProtectedModelsIndexRoute: ProtectedModelsIndexRoute,
-  ProtectedModelsModelIdSettingsRoute: ProtectedModelsModelIdSettingsRoute,
+  ProtectedModelsModelIdSettingsRoute:
+    ProtectedModelsModelIdSettingsRouteWithChildren,
 }
 
 const ProtectedModelsRouteWithChildren = ProtectedModelsRoute._addFileChildren(
@@ -280,10 +333,12 @@ const ProtectedModelsRouteWithChildren = ProtectedModelsRoute._addFileChildren(
 
 interface ProtectedProvidersRouteChildren {
   ProtectedProvidersProviderIdRoute: typeof ProtectedProvidersProviderIdRoute
+  ProtectedProvidersIndexRoute: typeof ProtectedProvidersIndexRoute
 }
 
 const ProtectedProvidersRouteChildren: ProtectedProvidersRouteChildren = {
   ProtectedProvidersProviderIdRoute: ProtectedProvidersProviderIdRoute,
+  ProtectedProvidersIndexRoute: ProtectedProvidersIndexRoute,
 }
 
 const ProtectedProvidersRouteWithChildren =
