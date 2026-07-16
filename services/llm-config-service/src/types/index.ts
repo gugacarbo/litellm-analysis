@@ -27,10 +27,14 @@ export type {
   AuditJson,
   AuditOutcome,
   AuditSource,
-  NewAuditEventRecord,
   NormalizedAuditEventListInput,
+  SanitizedAuditEventInsert,
 } from "./audit-events.js";
-export { AuditEventError } from "./audit-events.js";
+export {
+  AuditEventError,
+  createSanitizedAuditEventInsert,
+  isSanitizedAuditEventInsert,
+} from "./audit-events.js";
 export type {
   ModelProxyModelRecord,
   ModelRoute,

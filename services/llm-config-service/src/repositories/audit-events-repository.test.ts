@@ -1,5 +1,6 @@
 import { appAuditEvents } from "@lite-llm/database/schema";
 import { describe, expect, it } from "vitest";
+import type { SanitizedAuditEventInsert } from "../types/audit-events.js";
 import { AuditEventsRepository } from "./audit-events-repository.js";
 
 const records = [
@@ -38,6 +39,49 @@ const records = [
 ];
 
 describe("AuditEventsRepository", () => {
+  it("rejects a direct raw snapshot before insert and preserves the type boundary", async () => {
+    let inserted = false;
+    const db = {
+      insert() {
+        inserted = true;
+        throw new Error("audit-secret-should-not-persist");
+      },
+    };
+    const repository = new AuditEventsRepository(db as never);
+    const rawInsert = {
+      actorType: "user" as const,
+      actorId: "actor-1",
+      actorRole: "admin" as const,
+      source: "ui" as const,
+      requestId: "request-1",
+      action: "model.update",
+      resourceType: "model",
+      resourceId: "model-1",
+      outcome: "success" as const,
+      before: null,
+      after: null,
+      metadata: new Date(),
+    };
+    // @ts-expect-error Date is not a sanitized AuditJson snapshot.
+    await expect(repository.append(rawInsert)).rejects.toMatchObject({
+      code: "VALIDATION",
+      message: "Invalid audit event input",
+    });
+    await expect(
+      repository.append({
+        ...rawInsert,
+        metadata: { authorization: "Bearer audit-token-should-not-persist" },
+      } as SanitizedAuditEventInsert),
+    ).rejects.toMatchObject({
+      code: "VALIDATION",
+      message: "Invalid audit event input",
+    });
+    expect(inserted).toBe(false);
+    expect(
+      (rawInsert as unknown as SanitizedAuditEventInsert).metadata,
+    ).toBeInstanceOf(Date);
+  });
+
   it("uses pageSize plus one and probes both directions under the same filters", async () => {
     const limits: number[] = [];
     let selectCalls = 0;

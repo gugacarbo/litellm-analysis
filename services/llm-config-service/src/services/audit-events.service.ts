@@ -13,10 +13,13 @@ import type {
   AuditEventListResult,
   AuditEventRecord,
   AuditJson,
-  NewAuditEventRecord,
   NormalizedAuditEventListInput,
+  SanitizedAuditEventInsert,
 } from "../types/audit-events.js";
-import { AuditEventError } from "../types/audit-events.js";
+import {
+  AuditEventError,
+  createSanitizedAuditEventInsert,
+} from "../types/audit-events.js";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
@@ -174,7 +177,7 @@ function validatedSnapshot(
   return redactAuditJson(input[key]);
 }
 
-function toInsert(input: AppendAuditEventInput): NewAuditEventRecord {
+function toInsert(input: AppendAuditEventInput): SanitizedAuditEventInsert {
   if (
     !validText(input.requestId) ||
     !validText(input.action) ||
@@ -192,7 +195,7 @@ function toInsert(input: AppendAuditEventInput): NewAuditEventRecord {
     return validationError();
   }
 
-  return {
+  return createSanitizedAuditEventInsert({
     actorType: input.actorType,
     actorId: input.actorId ?? null,
     actorRole: input.actorRole ?? null,
@@ -205,7 +208,7 @@ function toInsert(input: AppendAuditEventInput): NewAuditEventRecord {
     before: validatedSnapshot(input, "before"),
     after: validatedSnapshot(input, "after"),
     metadata: validatedSnapshot(input, "metadata"),
-  };
+  });
 }
 
 export class AuditEventsService implements IAuditEventsService {
@@ -237,9 +240,9 @@ export class AuditEventsService implements IAuditEventsService {
     const first = result.records[0];
     const last = result.records.at(-1);
     return {
-      items: result.records.map(listItem),
-      nextCursor: last && result.hasOlder ? encodeCursor(last) : null,
-      previousCursor: first && result.hasNewer ? encodeCursor(first) : null,
+      events: result.records.map(listItem),
+      olderCursor: last && result.hasOlder ? encodeCursor(last) : null,
+      newerCursor: first && result.hasNewer ? encodeCursor(first) : null,
     };
   }
 

@@ -20,6 +20,7 @@ describe("redactAuditJson", () => {
       IV: "secret",
       tag: "secret",
       nested: [{ safe: "value", opaque: "Bearer sk-audit-should-not-persist" }],
+      partialPrefixes: ["sk-a", "pk_a", "xoxb-a", "AIzaabc"],
       unicode: { "X API KEY": "secret" },
     };
 
@@ -48,6 +49,12 @@ describe("redactAuditJson", () => {
     expect((output.unicode as Record<string, string>)["X API KEY"]).toBe(
       REDACTED_AUDIT_VALUE,
     );
+    expect(output.partialPrefixes).toEqual([
+      REDACTED_AUDIT_VALUE,
+      REDACTED_AUDIT_VALUE,
+      REDACTED_AUDIT_VALUE,
+      REDACTED_AUDIT_VALUE,
+    ]);
     expect(input.authorization).toBe("Bearer audit-token-should-not-persist");
   });
 
@@ -74,6 +81,7 @@ describe("redactAuditJson", () => {
       Buffer.from("audit-secret-should-not-persist"),
       new Uint8Array([1]),
       new CustomValue(),
+      new (class extends Array {})(),
       nullPrototype,
       cyclic,
     ];
@@ -99,5 +107,45 @@ describe("redactAuditJson", () => {
 
     expect(Object.getPrototypeOf(output)).toBe(Object.prototype);
     expect(output.__proto__).toEqual({ safe: "value" });
+  });
+
+  it("rejects accessors and inspection failures without invoking getters", () => {
+    let getterCalled = false;
+    const getterAccessor: Record<string, unknown> = {};
+    Object.defineProperty(getterAccessor, "secret", {
+      enumerable: true,
+      get() {
+        getterCalled = true;
+        return "audit-secret-should-not-persist";
+      },
+    });
+    const setterAccessor: Record<string, unknown> = {};
+    Object.defineProperty(setterAccessor, "token", {
+      enumerable: true,
+      set() {
+        getterCalled = true;
+      },
+    });
+    const inspectionFailure = new Proxy(
+      {},
+      {
+        ownKeys() {
+          return ["secret"];
+        },
+        getOwnPropertyDescriptor() {
+          throw new Error("audit-secret-should-not-persist");
+        },
+      },
+    );
+
+    for (const value of [getterAccessor, setterAccessor, inspectionFailure]) {
+      expect(() => redactAuditJson(value)).toThrow(AuditEventError);
+      try {
+        redactAuditJson(value);
+      } catch (error) {
+        expect(String(error)).not.toContain("audit-secret-should-not-persist");
+      }
+    }
+    expect(getterCalled).toBe(false);
   });
 });

@@ -3,8 +3,12 @@ import { appAuditEvents } from "@lite-llm/database/schema";
 import { and, asc, desc, eq, gt, gte, lt, lte, or } from "drizzle-orm";
 import type {
   AuditEventRecord,
-  NewAuditEventRecord,
   NormalizedAuditEventListInput,
+  SanitizedAuditEventInsert,
+} from "../types/audit-events.js";
+import {
+  AuditEventError,
+  isSanitizedAuditEventInsert,
 } from "../types/audit-events.js";
 
 export interface AuditEventsRepositoryListResult {
@@ -14,7 +18,7 @@ export interface AuditEventsRepositoryListResult {
 }
 
 export interface AuditEventsRepositoryPort {
-  append(input: NewAuditEventRecord): Promise<AuditEventRecord>;
+  append(input: SanitizedAuditEventInsert): Promise<AuditEventRecord>;
   list(
     input: NormalizedAuditEventListInput,
   ): Promise<AuditEventsRepositoryListResult>;
@@ -55,7 +59,10 @@ export class AuditEventsRepository implements AuditEventsRepositoryPort {
     this.db = db;
   }
 
-  async append(input: NewAuditEventRecord): Promise<AuditEventRecord> {
+  async append(input: SanitizedAuditEventInsert): Promise<AuditEventRecord> {
+    if (!isSanitizedAuditEventInsert(input)) {
+      throw new AuditEventError("VALIDATION", "Invalid audit event input");
+    }
     const [record] = await this.db
       .insert(appAuditEvents)
       .values(input)

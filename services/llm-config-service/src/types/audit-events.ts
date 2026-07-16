@@ -18,7 +18,33 @@ export type AuditActorRole = AppAuditEvent["actorRole"];
 export type AuditSource = AppAuditEvent["source"];
 export type AuditOutcome = AppAuditEvent["outcome"];
 export type AuditEventRecord = AppAuditEvent;
-export type NewAuditEventRecord = NewAppAuditEvent;
+export type SanitizedAuditEventInsert = Omit<
+  NewAppAuditEvent,
+  "before" | "after" | "metadata"
+> & {
+  before: AuditJson | null;
+  after: AuditJson | null;
+  metadata: AuditJson | null;
+};
+
+const sanitizedAuditEventInserts = new WeakSet<object>();
+
+export function createSanitizedAuditEventInsert(
+  input: SanitizedAuditEventInsert,
+): SanitizedAuditEventInsert {
+  sanitizedAuditEventInserts.add(input);
+  return input;
+}
+
+export function isSanitizedAuditEventInsert(
+  input: unknown,
+): input is SanitizedAuditEventInsert {
+  return (
+    typeof input === "object" &&
+    input !== null &&
+    sanitizedAuditEventInserts.has(input)
+  );
+}
 
 export interface AppendAuditEventInput {
   actorType: NonNullable<AuditActorType>;
@@ -88,9 +114,9 @@ export interface AuditEventDetail extends AuditEventListItem {
 }
 
 export interface AuditEventListResult {
-  items: AuditEventListItem[];
-  nextCursor: string | null;
-  previousCursor: string | null;
+  events: AuditEventListItem[];
+  olderCursor: string | null;
+  newerCursor: string | null;
 }
 
 export class AuditEventError extends Error {

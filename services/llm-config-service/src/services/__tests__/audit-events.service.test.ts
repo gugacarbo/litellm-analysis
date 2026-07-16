@@ -3,7 +3,7 @@ import type { AuditEventsRepositoryPort } from "../../repositories/audit-events-
 import {
   AuditEventError,
   type AuditEventRecord,
-  type NewAuditEventRecord,
+  type SanitizedAuditEventInsert,
 } from "../../types/audit-events.js";
 import { AuditEventsService } from "../audit-events.service.js";
 
@@ -35,10 +35,10 @@ function record(overrides: Partial<AuditEventRecord> = {}): AuditEventRecord {
 
 function repositoryDouble(): {
   repository: AuditEventsRepositoryPort;
-  appended: NewAuditEventRecord[];
+  appended: SanitizedAuditEventInsert[];
   listInputs: unknown[];
 } {
-  const appended: NewAuditEventRecord[] = [];
+  const appended: SanitizedAuditEventInsert[] = [];
   const listInputs: unknown[] = [];
   return {
     appended,
@@ -179,28 +179,28 @@ describe("AuditEventsService", () => {
     };
     const service = new AuditEventsService({ repository });
     const initial = await service.list({ pageSize: 2 });
-    expect(initial.items.map((item) => item.id)).toEqual([
+    expect(initial.events.map((item) => item.id)).toEqual([
       ids.newest,
       ids.middle,
     ]);
-    expect(initial.previousCursor).toBeNull();
-    expect(decodeCursor(initial.nextCursor ?? "").id).toBe(ids.middle);
+    expect(initial.newerCursor).toBeNull();
+    expect(decodeCursor(initial.olderCursor ?? "").id).toBe(ids.middle);
 
     const older = await service.list({
-      cursor: initial.nextCursor ?? "",
+      cursor: initial.olderCursor ?? "",
       direction: "older",
       pageSize: 2,
     });
-    expect(older.items.map((item) => item.id)).toEqual([ids.oldest]);
-    expect(older.nextCursor).toBeNull();
-    expect(decodeCursor(older.previousCursor ?? "").id).toBe(ids.oldest);
+    expect(older.events.map((item) => item.id)).toEqual([ids.oldest]);
+    expect(older.olderCursor).toBeNull();
+    expect(decodeCursor(older.newerCursor ?? "").id).toBe(ids.oldest);
 
     const newer = await service.list({
-      cursor: older.previousCursor ?? "",
+      cursor: older.newerCursor ?? "",
       direction: "newer",
       pageSize: 2,
     });
-    expect(newer.items.map((item) => item.id)).toEqual([
+    expect(newer.events.map((item) => item.id)).toEqual([
       ids.newest,
       ids.middle,
     ]);

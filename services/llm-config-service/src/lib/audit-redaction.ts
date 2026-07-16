@@ -22,14 +22,122 @@ const sensitiveKeyParts = new Set([
 ]);
 
 const credentialValuePattern =
-  /\bbearer\s+[^\s,;]+|(?:^|[\s"'=,:])(?:sk|pk|rk|mp)_[A-Za-z0-9_-]{6,}|(?:^|[\s"'=,:])sk-[A-Za-z0-9_-]{6,}|AIza[A-Za-z0-9_-]{10,}|xox[baprs]-[A-Za-z0-9-]{8,}/iu;
+  /\bbearer(?:\s+[^\s,;]*)?|(?:^|[\s"'=,:])(?:sk|pk|rk|mp)[_-][A-Za-z0-9_-]*|AIza[A-Za-z0-9_-]*|xox[baprs]-[A-Za-z0-9-]*/iu;
 
 function invalidAuditJson(): never {
   throw new AuditEventError("VALIDATION", "Invalid audit event input");
 }
 
-function isPlainObject(value: object): value is Record<string, unknown> {
-  return Object.getPrototypeOf(value) === Object.prototype;
+function isArrayIndex(key: string, length: number): boolean {
+  const index = Number(key);
+  return (
+    Number.isInteger(index) &&
+    index >= 0 &&
+    index < length &&
+    String(index) === key
+  );
+}
+
+function descriptorsOf(
+  value: object,
+): Record<PropertyKey, PropertyDescriptor | undefined> {
+  return Object.getOwnPropertyDescriptors(value) as Record<
+    PropertyKey,
+    PropertyDescriptor | undefined
+  >;
+}
+
+function cloneAuditJson(value: unknown): AuditJson {
+  const visiting = new Set<object>();
+
+  const visit = (candidate: unknown): AuditJson => {
+    if (
+      candidate === null ||
+      typeof candidate === "boolean" ||
+      typeof candidate === "string"
+    ) {
+      return candidate;
+    }
+    if (typeof candidate === "number") {
+      if (Number.isFinite(candidate)) return candidate;
+      return invalidAuditJson();
+    }
+    if (typeof candidate !== "object" || candidate === null) {
+      return invalidAuditJson();
+    }
+
+    if (visiting.has(candidate)) return invalidAuditJson();
+    visiting.add(candidate);
+    try {
+      if (Array.isArray(candidate)) {
+        if (Object.getPrototypeOf(candidate) !== Array.prototype) {
+          return invalidAuditJson();
+        }
+        const descriptors = descriptorsOf(candidate);
+        const keys = Reflect.ownKeys(descriptors);
+        const lengthDescriptor = descriptors["length"];
+        if (!lengthDescriptor || !("value" in lengthDescriptor)) {
+          return invalidAuditJson();
+        }
+        const length = lengthDescriptor.value;
+        if (
+          typeof length !== "number" ||
+          !Number.isSafeInteger(length) ||
+          length < 0
+        )
+          return invalidAuditJson();
+        for (const key of keys) {
+          if (typeof key !== "string") return invalidAuditJson();
+          if (key === "length") continue;
+          const descriptor = descriptors[key];
+          if (
+            !descriptor?.enumerable ||
+            !("value" in descriptor) ||
+            !isArrayIndex(key, length)
+          ) {
+            return invalidAuditJson();
+          }
+        }
+        const output: AuditJson[] = [];
+        for (let index = 0; index < length; index += 1) {
+          const descriptor = descriptors[String(index)];
+          if (!descriptor || !("value" in descriptor))
+            return invalidAuditJson();
+          output.push(visit(descriptor.value));
+        }
+        return output;
+      }
+
+      if (Object.getPrototypeOf(candidate) !== Object.prototype) {
+        return invalidAuditJson();
+      }
+      const descriptors = descriptorsOf(candidate);
+      const output: Record<string, AuditJson> = {};
+      for (const key of Reflect.ownKeys(descriptors)) {
+        if (typeof key !== "string") return invalidAuditJson();
+        const descriptor = descriptors[key];
+        if (!descriptor?.enumerable || !("value" in descriptor)) {
+          return invalidAuditJson();
+        }
+        Object.defineProperty(output, key, {
+          configurable: true,
+          enumerable: true,
+          value: visit(descriptor.value),
+          writable: true,
+        });
+      }
+      return output;
+    } finally {
+      visiting.delete(candidate);
+    }
+  };
+
+  try {
+    return visit(value);
+  } catch (error) {
+    if (error instanceof AuditEventError) throw error;
+    return invalidAuditJson();
+  }
 }
 
 /**
@@ -37,38 +145,7 @@ function isPlainObject(value: object): value is Record<string, unknown> {
  * object tree, so later redaction never mutates an application-owned input.
  */
 export function assertAuditJson(value: unknown): asserts value is AuditJson {
-  const visiting = new Set<object>();
-
-  const visit = (candidate: unknown): void => {
-    if (
-      candidate === null ||
-      typeof candidate === "boolean" ||
-      typeof candidate === "string"
-    ) {
-      return;
-    }
-    if (typeof candidate === "number") {
-      if (Number.isFinite(candidate)) return;
-      invalidAuditJson();
-    }
-    if (typeof candidate !== "object" || candidate === null) {
-      invalidAuditJson();
-    }
-
-    if (!Array.isArray(candidate) && !isPlainObject(candidate)) {
-      invalidAuditJson();
-    }
-    if (visiting.has(candidate)) invalidAuditJson();
-    visiting.add(candidate);
-    for (const nested of Array.isArray(candidate)
-      ? candidate
-      : Object.values(candidate)) {
-      visit(nested);
-    }
-    visiting.delete(candidate);
-  };
-
-  visit(value);
+  cloneAuditJson(value);
 }
 
 export function normalizeAuditKey(key: string): string {
@@ -110,6 +187,5 @@ function redact(value: AuditJson): AuditJson {
 }
 
 export function redactAuditJson(value: unknown): AuditJson {
-  assertAuditJson(value);
-  return redact(value);
+  return redact(cloneAuditJson(value));
 }
