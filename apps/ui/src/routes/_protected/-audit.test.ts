@@ -1,3 +1,4 @@
+import { Outlet } from "@tanstack/react-router";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/features/audit/query/query-options", () => ({
@@ -8,6 +9,11 @@ import { auditQueries } from "@/features/audit/query/query-options";
 import { Route } from "./audit";
 
 describe("audit protected route", () => {
+  it("terminates at the read-only audit page", () => {
+    expect(Route.options.component).not.toBe(Outlet);
+    expect(Route.options.component?.name).toBe("Lazy");
+  });
+
   it("redirects viewers before loader prefetch", async () => {
     const beforeLoad = Route.options.beforeLoad;
     const loader = Route.options.loader;

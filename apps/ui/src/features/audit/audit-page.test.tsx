@@ -60,13 +60,16 @@ type ListResult = {
   newerCursor: string | null;
 };
 
-function renderPage(data: ListResult = result) {
+function renderPage(data: ListResult = result, detail?: unknown) {
   requests.list.mockResolvedValue(data);
   const client = new QueryClient({
     defaultOptions: {
       queries: { retry: false, staleTime: Number.POSITIVE_INFINITY },
     },
   });
+  if (detail !== undefined) {
+    client.setQueryData(["audit", "detail", id], detail);
+  }
   return {
     client,
     ...render(
@@ -86,9 +89,9 @@ afterEach(() => {
 });
 
 describe("AuditPage", () => {
-  it("preserva filtros na URL e navega apenas pelos cursores opacos retornados", async () => {
+  it("preserva filtros na URL, sincroniza os controles e usa apenas cursores opacos", async () => {
     search = { pageSize: 50, actorId: "admin-1", action: "model.update" };
-    renderPage();
+    const page = renderPage();
     await screen.findByText("model.update");
 
     fireEvent.change(screen.getByLabelText("Tipo de recurso"), {
@@ -101,6 +104,28 @@ describe("AuditPage", () => {
       actorId: "admin-1",
       action: "model.update",
       resourceType: "model",
+      cursor: undefined,
+      direction: undefined,
+    });
+
+    search = { pageSize: 50, action: "provider.create" };
+    page.rerender(
+      <QueryClientProvider client={page.client}>
+        <AuditPage />
+      </QueryClientProvider>,
+    );
+    expect((screen.getByLabelText("Ação") as HTMLInputElement).value).toBe(
+      "provider.create",
+    );
+    expect(
+      (screen.getByLabelText("Tipo de recurso") as HTMLInputElement).value,
+    ).toBe("");
+    expect(await screen.findByText("model.update")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Limpar filtros" }));
+    const clearCall = navigate.mock.calls.at(-1)?.[0];
+    expect(clearCall.search(search)).toMatchObject({
+      action: undefined,
       cursor: undefined,
       direction: undefined,
     });
@@ -156,7 +181,7 @@ describe("AuditPage", () => {
     expect(await screen.findByText("model.update")).toBeTruthy();
   });
 
-  it("busca detalhes somente após seleção, mantém leitura e redige sentinelas", async () => {
+  it("renderiza detalhe redigido somente após seleção e sem sentinelas no DOM", async () => {
     const detail = {
       ok: true,
       data: {
@@ -172,21 +197,54 @@ describe("AuditPage", () => {
         },
       },
     };
-    requests.detail.mockReturnValue(detail.data);
+    requests.detail.mockResolvedValue(detail.data);
     const unsafeList = { ...event, before: "audit-secret-should-not-persist" };
-    renderPage({ events: [unsafeList], olderCursor: null, newerCursor: null });
+    renderPage(
+      { events: [unsafeList], olderCursor: null, newerCursor: null },
+      detail.data,
+    );
     await screen.findByText("model.update");
     expect(requests.detail).not.toHaveBeenCalled();
     expect(document.body.textContent).not.toContain(
       "audit-secret-should-not-persist",
     );
     fireEvent.click(screen.getByRole("button", { name: /model.update/i }));
-    await waitFor(() => expect(requests.detail).toHaveBeenCalledWith({ id }));
-    expect(detail.data.before.authorization).toContain("Bearer");
-    expect(detail.data.metadata.cookie).toContain("audit-cookie");
+    expect(screen.getByText("Detalhe redigido")).toBeTruthy();
+    expect(screen.getByLabelText("Metadados")).toBeTruthy();
+    expect(document.body.textContent).not.toContain("ada@example.test");
+    expect(document.body.textContent).not.toContain(
+      "audit-token-should-not-persist",
+    );
+    expect(document.body.textContent).not.toContain(
+      "audit-cookie-should-not-persist",
+    );
     expect(
       screen.queryByRole("button", { name: /editar|remover|exportar/i }),
     ).toBeNull();
+  });
+
+  it("permite tentar novamente o detalhe sem expor o erro bruto", async () => {
+    requests.detail
+      .mockRejectedValueOnce(
+        new Error("Bearer detail-token-should-not-persist"),
+      )
+      .mockResolvedValueOnce({
+        ...event,
+        before: null,
+        after: null,
+        metadata: null,
+      });
+    renderPage({ events: [event], olderCursor: null, newerCursor: null });
+    await screen.findByText("model.update");
+    fireEvent.click(screen.getByRole("button", { name: /model.update/i }));
+    expect(
+      await screen.findByText("Não foi possível carregar o detalhe"),
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toContain(
+      "detail-token-should-not-persist",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
+    await waitFor(() => expect(requests.detail).toHaveBeenCalledTimes(2));
   });
 
   it("mantém layout responsivo sem tabelas fixas", async () => {

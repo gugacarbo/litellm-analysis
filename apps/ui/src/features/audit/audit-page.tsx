@@ -115,6 +115,9 @@ export function AuditPage() {
   };
 
   const hasFilters = filterKeys.some((key) => search[key] !== undefined);
+  const filterStateKey = filterKeys
+    .map((key) => search[key] ?? "")
+    .join("\u0001");
 
   return (
     <PageContent className="space-y-6">
@@ -127,6 +130,7 @@ export function AuditPage() {
         <CardContent className="pt-6">
           <form
             className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+            key={filterStateKey}
             onSubmit={(event) => {
               event.preventDefault();
               applyFilters(event.currentTarget);
@@ -292,12 +296,21 @@ export function AuditPage() {
                 <p aria-busy="true">Carregando detalhe…</p>
               ) : null}
               {selectedId && detailQuery.isError ? (
-                <Alert variant="destructive">
-                  <AlertTitle>Não foi possível carregar o detalhe</AlertTitle>
-                  <AlertDescription>
-                    Tente selecionar o evento novamente.
-                  </AlertDescription>
-                </Alert>
+                <div className="space-y-3">
+                  <Alert variant="destructive">
+                    <AlertTitle>Não foi possível carregar o detalhe</AlertTitle>
+                    <AlertDescription>
+                      Tente novamente. Seus filtros foram preservados.
+                    </AlertDescription>
+                  </Alert>
+                  <Button
+                    onClick={() => void detailQuery.refetch()}
+                    type="button"
+                    variant="outline"
+                  >
+                    Tentar novamente
+                  </Button>
+                </div>
               ) : null}
               {detailQuery.data ? (
                 <div className="space-y-4">
