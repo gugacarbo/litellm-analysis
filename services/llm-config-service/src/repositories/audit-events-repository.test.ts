@@ -1,6 +1,9 @@
 import { appAuditEvents } from "@lite-llm/database/schema";
 import { describe, expect, it } from "vitest";
-import type { SanitizedAuditEventInsert } from "../types/audit-events.js";
+import {
+  createSanitizedAuditEventInsert,
+  type SanitizedAuditEventInsert,
+} from "../types/audit-events.js";
 import { AuditEventsRepository } from "./audit-events-repository.js";
 
 const records = [
@@ -80,6 +83,69 @@ describe("AuditEventsRepository", () => {
     expect(
       (rawInsert as unknown as SanitizedAuditEventInsert).metadata,
     ).toBeInstanceOf(Date);
+  });
+
+  it("rejects raw snapshots through the exported constructor before the DB double", async () => {
+    let inserted = false;
+    const repository = new AuditEventsRepository({
+      insert() {
+        inserted = true;
+        throw new Error("audit-secret-should-not-persist");
+      },
+    } as never);
+    const candidate = {
+      actorType: "user" as const,
+      actorId: "actor-1",
+      actorRole: "admin" as const,
+      source: "ui" as const,
+      requestId: "request-1",
+      action: "model.update",
+      resourceType: "model",
+      resourceId: "model-1",
+      outcome: "success" as const,
+      before: null,
+      after: null,
+      metadata: new Date(),
+    };
+    await expect(
+      (async () =>
+        repository.append(createSanitizedAuditEventInsert(candidate)))(),
+    ).rejects.toMatchObject({
+      code: "VALIDATION",
+      message: "Invalid audit event input",
+    });
+    expect(inserted).toBe(false);
+  });
+
+  it("revalidates a mutated branded insert before it can reach the DB", async () => {
+    let inserted = false;
+    const repository = new AuditEventsRepository({
+      insert() {
+        inserted = true;
+        throw new Error("audit-secret-should-not-persist");
+      },
+    } as never);
+    const sanitized = createSanitizedAuditEventInsert({
+      actorType: "user",
+      actorId: "actor-1",
+      actorRole: "admin",
+      source: "ui",
+      requestId: "request-1",
+      action: "model.update",
+      resourceType: "model",
+      resourceId: "model-1",
+      outcome: "success",
+      before: null,
+      after: null,
+      metadata: { safe: "value" },
+    });
+    (sanitized.metadata as Record<string, unknown>).safe = new Date();
+
+    await expect(repository.append(sanitized)).rejects.toMatchObject({
+      code: "VALIDATION",
+      message: "Invalid audit event input",
+    });
+    expect(inserted).toBe(false);
   });
 
   it("uses pageSize plus one and probes both directions under the same filters", async () => {

@@ -133,6 +133,25 @@ describe("AuditEventsService", () => {
     await expect(
       service.list({ cursor: "audit-secret-should-not-persist" }),
     ).rejects.toBeInstanceOf(AuditEventError);
+    for (const input of [
+      { start: "2026-02-31T00:00:00.000Z" },
+      { end: "2026-02-31T00:00:00.000Z" },
+      {
+        cursor: Buffer.from(
+          JSON.stringify({
+            v: 1,
+            occurredAt: "2026-02-31T00:00:00.000Z",
+            id: ids.middle,
+          }),
+        ).toString("base64url"),
+        direction: "older" as const,
+      },
+    ]) {
+      await expect(service.list(input)).rejects.toMatchObject({
+        code: "VALIDATION",
+        message: "Invalid audit event input",
+      });
+    }
     expect(listInputs).toEqual([]);
     await service.list({
       start: "2026-07-16T00:00:00.000Z",

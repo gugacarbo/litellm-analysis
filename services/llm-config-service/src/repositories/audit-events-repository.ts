@@ -8,6 +8,7 @@ import type {
 } from "../types/audit-events.js";
 import {
   AuditEventError,
+  createSanitizedAuditEventInsert,
   isSanitizedAuditEventInsert,
 } from "../types/audit-events.js";
 
@@ -63,9 +64,10 @@ export class AuditEventsRepository implements AuditEventsRepositoryPort {
     if (!isSanitizedAuditEventInsert(input)) {
       throw new AuditEventError("VALIDATION", "Invalid audit event input");
     }
+    const sanitized = createSanitizedAuditEventInsert(input);
     const [record] = await this.db
       .insert(appAuditEvents)
-      .values(input)
+      .values(sanitized)
       .returning();
     return record;
   }

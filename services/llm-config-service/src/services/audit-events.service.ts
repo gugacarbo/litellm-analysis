@@ -23,6 +23,8 @@ import {
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
+const isoDatePattern =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/u;
 const textLimit = 256;
 
 export interface AuditEventsServiceOptions {
@@ -48,7 +50,32 @@ function validText(value: unknown, nullable = false): value is string | null {
 }
 
 function asIsoDate(value: unknown): Date {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T/iu.test(value)) {
+  if (typeof value !== "string") {
+    return validationError();
+  }
+  const match = isoDatePattern.exec(value);
+  if (!match) return validationError();
+  const [, year, month, day, hour, minute, second, offset] = match;
+  const yearNumber = Number(year);
+  const monthNumber = Number(month);
+  const dayNumber = Number(day);
+  const hourNumber = Number(hour);
+  const minuteNumber = Number(minute);
+  const secondNumber = Number(second);
+  const daysInMonth = new Date(
+    Date.UTC(yearNumber, monthNumber, 0),
+  ).getUTCDate();
+  if (
+    monthNumber < 1 ||
+    monthNumber > 12 ||
+    dayNumber < 1 ||
+    dayNumber > daysInMonth ||
+    hourNumber > 23 ||
+    minuteNumber > 59 ||
+    secondNumber > 59 ||
+    (offset !== "Z" &&
+      (Number(offset.slice(1, 3)) > 23 || Number(offset.slice(4, 6)) > 59))
+  ) {
     return validationError();
   }
   const date = new Date(value);

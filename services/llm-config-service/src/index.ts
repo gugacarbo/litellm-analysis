@@ -85,6 +85,7 @@ export type {
   AuditActorType,
   AuditEventCursor,
   AuditEventDetail,
+  AuditEventInsertCandidate,
   AuditEventListDirection,
   AuditEventListInput,
   AuditEventListItem,

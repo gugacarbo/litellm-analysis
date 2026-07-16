@@ -2,6 +2,7 @@ import type {
   AppAuditEvent,
   NewAppAuditEvent,
 } from "@lite-llm/database/schema";
+import { redactAuditJson } from "../lib/audit-redaction.js";
 
 /** JSON accepted for audit snapshots. It deliberately excludes Date and other
  * runtime values that would otherwise be coerced by JSON.stringify. */
@@ -27,13 +28,28 @@ export type SanitizedAuditEventInsert = Omit<
   metadata: AuditJson | null;
 };
 
+export type AuditEventInsertCandidate = Omit<
+  NewAppAuditEvent,
+  "before" | "after" | "metadata"
+> & {
+  before: unknown;
+  after: unknown;
+  metadata: unknown;
+};
+
 const sanitizedAuditEventInserts = new WeakSet<object>();
 
 export function createSanitizedAuditEventInsert(
-  input: SanitizedAuditEventInsert,
+  input: AuditEventInsertCandidate,
 ): SanitizedAuditEventInsert {
-  sanitizedAuditEventInserts.add(input);
-  return input;
+  const sanitized: SanitizedAuditEventInsert = {
+    ...input,
+    before: redactAuditSnapshot(input.before),
+    after: redactAuditSnapshot(input.after),
+    metadata: redactAuditSnapshot(input.metadata),
+  };
+  sanitizedAuditEventInserts.add(sanitized);
+  return sanitized;
 }
 
 export function isSanitizedAuditEventInsert(
@@ -44,6 +60,11 @@ export function isSanitizedAuditEventInsert(
     input !== null &&
     sanitizedAuditEventInserts.has(input)
   );
+}
+
+function redactAuditSnapshot(value: unknown): AuditJson | null {
+  if (value === null) return null;
+  return redactAuditJson(value);
 }
 
 export interface AppendAuditEventInput {
