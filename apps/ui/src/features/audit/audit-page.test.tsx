@@ -62,6 +62,10 @@ type ListResult = {
 
 function renderPage(data: ListResult = result, detail?: unknown) {
   requests.list.mockResolvedValue(data);
+  return renderWithClient(detail);
+}
+
+function renderWithClient(detail?: unknown) {
   const client = new QueryClient({
     defaultOptions: {
       queries: { retry: false, staleTime: Number.POSITIVE_INFINITY },
@@ -89,91 +93,128 @@ afterEach(() => {
 });
 
 describe("AuditPage", () => {
-  it("preserva filtros na URL, sincroniza os controles e usa apenas cursores opacos", async () => {
-    search = { pageSize: 50, actorId: "admin-1", action: "model.update" };
-    const page = renderPage();
-    await screen.findByText("model.update");
-
-    fireEvent.change(screen.getByLabelText("Tipo de recurso"), {
-      target: { value: "model" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Aplicar filtros" }));
-    const filterCall = navigate.mock.calls.at(-1)?.[0];
-    expect(filterCall.search(search)).toEqual({
+  it("refaz a listagem para URL limpa e histórico, refletindo cursores retornados", async () => {
+    const initialSearch: AuditListInput = {
       pageSize: 50,
       actorId: "admin-1",
       action: "model.update",
-      resourceType: "model",
-      cursor: undefined,
-      direction: undefined,
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: "Mais antigos" }));
-    const olderCall = navigate.mock.calls.at(-1)?.[0];
-    expect(olderCall.search(search)).toEqual({
-      ...search,
-      cursor: "opaque-older",
+    };
+    const cleanSearch: AuditListInput = { pageSize: 50 };
+    const historySearch: AuditListInput = {
+      pageSize: 50,
+      action: "provider.create",
+      cursor: "opaque-history-cursor",
       direction: "older",
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Mais recentes" }));
-    const newerCall = navigate.mock.calls.at(-1)?.[0];
-    expect(newerCall.search(search)).toEqual({
-      ...search,
-      cursor: "opaque-newer",
-      direction: "newer",
+    };
+    const initialResult: ListResult = {
+      events: [event],
+      olderCursor: "opaque-initial-older",
+      newerCursor: "opaque-initial-newer",
+    };
+    const historyResult: ListResult = {
+      events: [{ ...event, action: "provider.create" }],
+      olderCursor: "opaque-response-older",
+      newerCursor: "opaque-response-newer",
+    };
+    requests.list.mockImplementation((input: AuditListInput) => {
+      if (input === initialSearch) return Promise.resolve(initialResult);
+      if (input === cleanSearch) {
+        return Promise.resolve({
+          events: [],
+          olderCursor: null,
+          newerCursor: null,
+        });
+      }
+      if (input === historySearch) return Promise.resolve(historyResult);
+      throw new Error("Unexpected audit search input");
     });
 
-    search = { pageSize: 50, action: "provider.create" };
-    page.rerender(
-      <QueryClientProvider client={page.client}>
-        <AuditPage />
-      </QueryClientProvider>,
-    );
-    expect((screen.getByLabelText("Ação") as HTMLInputElement).value).toBe(
-      "provider.create",
-    );
-    expect(
-      (screen.getByLabelText("Tipo de recurso") as HTMLInputElement).value,
-    ).toBe("");
+    search = initialSearch;
+    const page = renderWithClient();
     expect(await screen.findByText("model.update")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Limpar filtros" }));
     const clearCall = navigate.mock.calls.at(-1)?.[0];
-    expect(clearCall.search(search)).toMatchObject({
+    expect(clearCall.search(initialSearch)).toMatchObject({
+      actorId: undefined,
       action: undefined,
       cursor: undefined,
       direction: undefined,
     });
 
-    search = { pageSize: 50 };
+    search = cleanSearch;
     page.rerender(
       <QueryClientProvider client={page.client}>
         <AuditPage />
       </QueryClientProvider>,
     );
+    await waitFor(() =>
+      expect(requests.list).toHaveBeenLastCalledWith(cleanSearch),
+    );
+    expect(
+      await screen.findByText("Ainda não há eventos de auditoria."),
+    ).toBeTruthy();
     expect((screen.getByLabelText("Ação") as HTMLInputElement).value).toBe("");
     expect(
       (screen.getByLabelText("ID do ator") as HTMLInputElement).value,
     ).toBe("");
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Mais antigos",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Mais recentes",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
 
-    search = {
-      pageSize: 50,
-      actorId: "admin-2",
-      action: "model.delete",
-      cursor: "opaque-history-cursor",
-      direction: "older",
-    };
+    search = historySearch;
     page.rerender(
       <QueryClientProvider client={page.client}>
         <AuditPage />
       </QueryClientProvider>,
     );
+    await waitFor(() =>
+      expect(requests.list).toHaveBeenLastCalledWith(historySearch),
+    );
+    expect(await screen.findByText("provider.create")).toBeTruthy();
     expect((screen.getByLabelText("Ação") as HTMLInputElement).value).toBe(
-      "model.delete",
+      "provider.create",
     );
     expect(
-      (screen.getByLabelText("ID do ator") as HTMLInputElement).value,
-    ).toBe("admin-2");
+      (
+        screen.getByRole("button", {
+          name: "Mais antigos",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false);
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Mais recentes",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Mais antigos" }));
+    const olderCall = navigate.mock.calls.at(-1)?.[0];
+    expect(olderCall.search(historySearch)).toEqual({
+      ...historySearch,
+      cursor: "opaque-response-older",
+      direction: "older",
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Mais recentes" }));
+    const newerCall = navigate.mock.calls.at(-1)?.[0];
+    expect(newerCall.search(historySearch)).toEqual({
+      ...historySearch,
+      cursor: "opaque-response-newer",
+      direction: "newer",
+    });
   });
 
   it("distingue auditoria vazia de filtros sem resultados", async () => {
