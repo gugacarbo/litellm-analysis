@@ -1,4 +1,6 @@
+import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   jsonb,
   pgTable,
@@ -41,6 +43,22 @@ export const appAuditEvents = pgTable(
       table.resourceType,
       table.resourceId,
       table.occurredAt,
+    ),
+    check(
+      "ck_app_audit_events_actor_type",
+      sql`${table.actorType} IN ('user', 'api_key', 'system')`,
+    ),
+    check(
+      "ck_app_audit_events_actor_role",
+      sql`${table.actorRole} IN ('admin', 'viewer')`,
+    ),
+    check(
+      "ck_app_audit_events_source",
+      sql`${table.source} IN ('ui', 'legacy_api', 'proxy', 'system')`,
+    ),
+    check(
+      "ck_app_audit_events_outcome",
+      sql`${table.outcome} IN ('success', 'failure', 'denied')`,
     ),
   ],
 );

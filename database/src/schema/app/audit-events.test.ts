@@ -50,7 +50,11 @@ describe("app audit events schema", () => {
     expect(appAuditEvents.metadata.notNull).toBe(false);
   });
 
-  it("limits actor, source, and outcome to the approved domains", () => {
+  it("persists actor, source, and outcome as PostgreSQL check domains", () => {
+    const checkNames = getTableConfig(appAuditEvents).checks.map(
+      (constraint) => constraint.name,
+    );
+
     expect(appAuditEvents.actorType.enumValues).toEqual([
       "user",
       "api_key",
@@ -68,6 +72,15 @@ describe("app audit events schema", () => {
       "failure",
       "denied",
     ]);
+
+    expect(checkNames).toEqual(
+      expect.arrayContaining([
+        "ck_app_audit_events_actor_type",
+        "ck_app_audit_events_actor_role",
+        "ck_app_audit_events_source",
+        "ck_app_audit_events_outcome",
+      ]),
+    );
   });
 
   it("supports the audit list traversal indexes", () => {
