@@ -1,5 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format, isValid, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon, CopyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -48,15 +51,27 @@ import {
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
 import { Button } from "@/shared/components/ui/button";
+import { Calendar } from "@/shared/components/ui/calendar";
 import {
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/shared/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -64,6 +79,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { Switch } from "@/shared/components/ui/switch";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
 
 const settingsSchema = saveModelInputSchema.pick({
@@ -108,9 +130,46 @@ const supportedParameterOptions = [
 const inputModalityOptions = ["text", "image", "audio", "file"] as const;
 const outputModalityOptions = ["text", "image", "audio"] as const;
 const reasoningEffortOptions = ["low", "medium", "high", "xhigh"] as const;
+const tokenizerOptions = [
+  "GPT",
+  "Claude",
+  "Cohere",
+  "DeepSeek",
+  "Gemini",
+  "Gemma",
+  "Grok",
+  "Llama2",
+  "Llama3",
+  "Llama4",
+  "Mistral",
+  "Nova",
+  "Other",
+  "Qwen",
+  "Qwen3",
+  "Router",
+] as const;
+const instructTypeOptions = [
+  "alpaca",
+  "chatml",
+  "deepseek-r1",
+  "deepseek-v3.1",
+  "gemma",
+  "llama3",
+  "mistral",
+  "qwen3",
+  "vicuna",
+] as const;
 
 type HeaderEntry = { key: string; value: string };
 type ModelDetail = z.infer<typeof modelDetailSchema>;
+type AdvancedSection =
+  | "architecture"
+  | "reasoning"
+  | "parameters"
+  | "limits"
+  | "pricing"
+  | "request-options"
+  | "reasoning-api-id";
 type AdvancedSettings = {
   architecture: {
     inputModalities: string[];
@@ -151,6 +210,58 @@ type AdvancedSettings = {
   };
   reasoningApiId: string;
 };
+
+function toUsableModelId(providerName: string, modelId: string) {
+  const providerSlug = providerName
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  return `${providerSlug}/${modelId}`;
+}
+
+async function copyToClipboard(value: string) {
+  if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return;
+    } catch {
+      // Fall back for browsers that deny Clipboard API access.
+    }
+  }
+
+  const textArea = document.createElement("textarea");
+  textArea.value = value;
+  textArea.style.position = "fixed";
+  textArea.style.opacity = "0";
+  document.body.append(textArea);
+  textArea.select();
+  document.execCommand("copy");
+  textArea.remove();
+}
+
+function CopyableIdentifier({
+  value,
+  label,
+}: Readonly<{ value: string; label: string }>) {
+  return (
+    <span className="flex items-center gap-1 font-mono text-sm">
+      <span>{value}</span>
+      <Button
+        aria-label={`Copy ${label}`}
+        onClick={() => void copyToClipboard(value)}
+        size="icon-xs"
+        type="button"
+        variant="ghost"
+      >
+        <CopyIcon aria-hidden="true" className="size-3" />
+      </Button>
+    </span>
+  );
+}
 const emptyAdvancedSettings: AdvancedSettings = {
   architecture: {
     inputModalities: [],
@@ -321,11 +432,30 @@ function getAdvancedPayload(settings: AdvancedSettings) {
   };
 }
 
+function getSettingsValues(model: ModelDetail): SettingsValues {
+  return {
+    id: model.id,
+    providerId: model.providerId,
+    modelId: model.modelId,
+    enabled: model.enabled,
+    expectedRevision: model.revision,
+    displayName: model.displayName,
+    family: model.family,
+    canonicalSlug: model.canonicalSlug,
+    description: model.description,
+    contextLength: model.contextLength,
+    maxCompletionTokens: model.maxCompletionTokens,
+    knowledgeCutoff: model.knowledgeCutoff,
+    expirationDate: model.expirationDate,
+  };
+}
+
 export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
   const queryClient = useQueryClient();
   const modelQuery = useQuery(modelAdminQueries.model(modelId));
   const providersQuery = useQuery(modelAdminQueries.providers());
-  const [aliases, setAliases] = useState("");
+  const [aliases, setAliases] = useState<string[]>([]);
+  const [aliasDraft, setAliasDraft] = useState("");
   const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>(
     emptyAdvancedSettings,
   );
@@ -333,36 +463,22 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const form = useForm<SettingsValues>({
     resolver: zodResolver(settingsSchema),
+    defaultValues: modelQuery.data
+      ? getSettingsValues(modelQuery.data)
+      : undefined,
   });
   useEffect(() => {
     if (!modelQuery.data) return;
     const model = modelQuery.data;
-    form.reset({
-      id: model.id,
-      providerId: model.providerId,
-      modelId: model.modelId,
-      enabled: model.enabled,
-      expectedRevision: model.revision,
-      displayName: model.displayName,
-      family: model.family,
-      canonicalSlug: model.canonicalSlug,
-      description: model.description,
-      contextLength: model.contextLength,
-      maxCompletionTokens: model.maxCompletionTokens,
-      knowledgeCutoff: model.knowledgeCutoff,
-      expirationDate: model.expirationDate,
-    });
-    setAliases(model.aliases.map((alias) => alias.alias).join("\n"));
+    form.reset(getSettingsValues(model));
+    setAliases(model.aliases.map((alias) => alias.alias));
     setAdvancedSettings(getAdvancedSettings(model));
   }, [form, modelQuery.data]);
   const saveMutation = useMutation({
     mutationFn: async (values: SettingsValues) => {
       const payload = saveModelInputSchema.safeParse({
         ...values,
-        aliases: aliases
-          .split("\n")
-          .map((value) => value.trim())
-          .filter(Boolean),
+        aliases: aliases.map((value) => value.trim()).filter(Boolean),
         ...getAdvancedPayload(advancedSettings),
       });
       if (!payload.success) throw new Error(payload.error.issues[0]?.message);
@@ -469,7 +585,7 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
       </section>
     );
   return (
-    <section className="space-y-6">
+    <section className="space-y-4">
       <div className="space-y-3">
         <Breadcrumb>
           <BreadcrumbList>
@@ -483,8 +599,16 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
           </BreadcrumbList>
         </Breadcrumb>
         <PageHeader
-          title={`${model.providerName}/${model.modelId}`}
-          subtitle={`UUID ${model.id} · revision ${model.revision}`}
+          title={`${model.providerName}/${model.displayName?.trim() || model.modelId}`}
+          subtitle={
+            <span className="mt-1 flex flex-col items-start gap-1">
+              <CopyableIdentifier
+                label="usable model ID"
+                value={toUsableModelId(model.providerName, model.modelId)}
+              />
+              <CopyableIdentifier label="model UUID" value={model.id} />
+            </span>
+          }
         />
       </div>
       {error ? (
@@ -492,265 +616,24 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
-      <Card>
+      <Card size="sm">
         <CardHeader>
-          <CardTitle>Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            noValidate
-            onSubmit={form.handleSubmit((values) =>
-              saveMutation.mutate(values),
-            )}
-            className="grid gap-4 md:grid-cols-2"
-          >
-            {role === "admin" ? (
-              <Controller
-                control={form.control}
-                name="providerId"
-                render={({ field, fieldState }) => {
-                  const providers =
-                    (providersQuery.data as ProviderPublic[] | undefined) ?? [];
-                  return (
-                    <Field>
-                      <FieldLabel htmlFor={field.name}>Provider</FieldLabel>
-                      <Select
-                        items={Object.fromEntries(
-                          providers.map((provider) => [
-                            provider.id,
-                            provider.name,
-                          ]),
-                        )}
-                        value={field.value || null}
-                        onValueChange={(value) => field.onChange(value ?? "")}
-                        disabled={
-                          providersQuery.isPending || providersQuery.isError
-                        }
-                      >
-                        <SelectTrigger
-                          id={field.name}
-                          className="w-full"
-                          aria-invalid={fieldState.invalid}
-                        >
-                          <SelectValue placeholder="Choose a provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {providers.map((provider) => (
-                            <SelectItem key={provider.id} value={provider.id}>
-                              {provider.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FieldError errors={[fieldState.error]} />
-                    </Field>
-                  );
-                }}
-              />
-            ) : (
-              <ReadonlyInput
-                id="providerId"
-                label="Provider"
-                value={model.providerName}
-              />
-            )}
-            <Controller
-              control={form.control}
-              name="modelId"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor={field.name}>Model ID</FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    disabled={role !== "admin"}
-                    aria-invalid={fieldState.invalid}
-                  />
-                  <FieldError errors={[fieldState.error]} />
-                </Field>
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="displayName"
-              render={({ field, fieldState }) => (
-                <TextField
-                  field={field}
-                  state={fieldState}
-                  label="Display name"
-                  disabled={role !== "admin"}
-                />
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="family"
-              render={({ field, fieldState }) => (
-                <TextField
-                  field={field}
-                  state={fieldState}
-                  label="Family"
-                  disabled={role !== "admin"}
-                />
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="canonicalSlug"
-              render={({ field, fieldState }) => (
-                <TextField
-                  field={field}
-                  state={fieldState}
-                  label="Canonical slug"
-                  disabled={role !== "admin"}
-                />
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="contextLength"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor={field.name}>Context length</FieldLabel>
-                  <Input
-                    id={field.name}
-                    type="number"
-                    value={field.value ?? ""}
-                    disabled={role !== "admin"}
-                    onChange={(event) =>
-                      field.onChange(
-                        event.target.value === ""
-                          ? null
-                          : Number(event.target.value),
-                      )
-                    }
-                    aria-invalid={fieldState.invalid}
-                  />
-                  <FieldError errors={[fieldState.error]} />
-                </Field>
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="maxCompletionTokens"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor={field.name}>
-                    Max completion tokens
-                  </FieldLabel>
-                  <Input
-                    id={field.name}
-                    type="number"
-                    value={field.value ?? ""}
-                    disabled={role !== "admin"}
-                    onChange={(event) =>
-                      field.onChange(
-                        event.target.value === ""
-                          ? null
-                          : Number(event.target.value),
-                      )
-                    }
-                    aria-invalid={fieldState.invalid}
-                  />
-                  <FieldError errors={[fieldState.error]} />
-                </Field>
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="knowledgeCutoff"
-              render={({ field, fieldState }) => (
-                <TextField
-                  field={field}
-                  state={fieldState}
-                  label="Knowledge cutoff"
-                  disabled={role !== "admin"}
-                />
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="expirationDate"
-              render={({ field, fieldState }) => (
-                <TextField
-                  field={field}
-                  state={fieldState}
-                  label="Expiration date"
-                  disabled={role !== "admin"}
-                />
-              )}
-            />
-            <Field className="md:col-span-2">
-              <FieldLabel htmlFor="aliases">Aliases (one per line)</FieldLabel>
-              <Textarea
-                id="aliases"
-                value={aliases}
-                onChange={(event) => setAliases(event.target.value)}
-                disabled={role !== "admin"}
-                className="min-h-28"
-              />
-            </Field>
-            <Accordion
-              className="md:col-span-2"
-              defaultValue={["advanced-configuration"]}
-            >
-              <AccordionItem value="advanced-configuration">
-                <AccordionTrigger>
-                  Capabilities, routing and request options
-                </AccordionTrigger>
-                <AccordionContent>
-                  <AdvancedSettingsFields
-                    disabled={role !== "admin"}
-                    settings={advancedSettings}
-                    onChange={setAdvancedSettings}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            <Controller
-              control={form.control}
-              name="description"
-              render={({ field, fieldState }) => (
-                <Field className="md:col-span-2">
-                  <FieldLabel htmlFor={field.name}>Description</FieldLabel>
-                  <Textarea
-                    id={field.name}
-                    value={field.value ?? ""}
-                    onChange={(event) =>
-                      field.onChange(event.target.value || null)
-                    }
-                    disabled={role !== "admin"}
-                    className="min-h-28"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  <FieldError errors={[fieldState.error]} />
-                </Field>
-              )}
-            />
-            {role === "admin" ? (
-              <div className="md:col-span-2">
-                <Button type="submit" disabled={saveMutation.isPending}>
-                  {saveMutation.isPending ? "Saving…" : "Save settings"}
-                </Button>
-              </div>
-            ) : null}
-          </form>
-        </CardContent>
-      </Card>
-      {role === "admin" ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Model management</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground">
-              {model.enabled
-                ? "This model is available for routing."
-                : "This model is disabled and excluded from routing."}
-            </p>
-            <div className="flex gap-2">
+          <CardTitle className="flex items-center gap-2">
+            Settings
+            <span className="font-normal text-muted-foreground text-sm">
+              Revision {model.revision}
+            </span>
+          </CardTitle>
+          {role === "admin" ? (
+            <CardAction className="flex flex-wrap justify-end gap-2">
               <Button
-                variant="outline"
+                disabled={saveMutation.isPending}
+                form="model-settings-form"
+                type="submit"
+              >
+                {saveMutation.isPending ? "Saving…" : "Save settings"}
+              </Button>
+              <Button
                 disabled={toggleMutation.isPending}
                 onClick={() =>
                   toggleMutation.mutate({
@@ -760,6 +643,8 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
                     enabled: !model.enabled,
                   })
                 }
+                type="button"
+                variant="outline"
               >
                 {toggleMutation.isPending
                   ? "Updating…"
@@ -768,16 +653,343 @@ export function ModelSettingsPage({ modelId, role }: ModelSettingsPageProps) {
                     : "Enable model"}
               </Button>
               <Button
-                variant="destructive"
                 disabled={deleteMutation.isPending}
                 onClick={() => setConfirmDelete(true)}
+                type="button"
+                variant="destructive"
               >
                 Delete model
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : null}
+            </CardAction>
+          ) : null}
+        </CardHeader>
+        <CardContent>
+          <form
+            id="model-settings-form"
+            noValidate
+            onSubmit={form.handleSubmit((values) =>
+              saveMutation.mutate(values),
+            )}
+            className="pb-4"
+          >
+            <Tabs className="gap-1" defaultValue="essential">
+              <TabsList
+                className="w-full max-w-full justify-start overflow-x-auto overflow-y-hidden"
+                variant="line"
+              >
+                <TabsTrigger className="shrink-0 flex-none" value="essential">
+                  Essencial
+                </TabsTrigger>
+                <TabsTrigger
+                  className="shrink-0 flex-none"
+                  value="capabilities"
+                >
+                  Capacidades
+                </TabsTrigger>
+                <TabsTrigger className="shrink-0 flex-none" value="execution">
+                  Execução e preço
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="essential" className="pt-3">
+                <div className="grid gap-4 md:grid-cols-2">
+                  {role === "admin" ? (
+                    <Controller
+                      control={form.control}
+                      name="providerId"
+                      render={({ field, fieldState }) => {
+                        const providers =
+                          (providersQuery.data as
+                            | ProviderPublic[]
+                            | undefined) ?? [];
+                        return (
+                          <Field>
+                            <FieldLabel htmlFor={field.name}>
+                              Provider
+                            </FieldLabel>
+                            <Select
+                              items={Object.fromEntries([
+                                ["none", "Choose a provider"],
+                                ...providers.map((provider) => [
+                                  provider.id,
+                                  provider.name,
+                                ]),
+                              ])}
+                              value={field.value || "none"}
+                              onValueChange={(value) =>
+                                field.onChange(
+                                  value === "none" ? "" : (value ?? ""),
+                                )
+                              }
+                              disabled={
+                                providersQuery.isPending ||
+                                providersQuery.isError
+                              }
+                            >
+                              <SelectTrigger
+                                id={field.name}
+                                className="w-full"
+                                aria-invalid={fieldState.invalid}
+                              >
+                                <SelectValue placeholder="Choose a provider" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">
+                                  Choose a provider
+                                </SelectItem>
+                                {providers.map((provider) => (
+                                  <SelectItem
+                                    key={provider.id}
+                                    value={provider.id}
+                                  >
+                                    {provider.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        );
+                      }}
+                    />
+                  ) : (
+                    <ReadonlyInput
+                      id="providerId"
+                      label="Provider"
+                      value={model.providerName}
+                    />
+                  )}
+                  <Controller
+                    control={form.control}
+                    name="modelId"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel htmlFor={field.name}>Model ID</FieldLabel>
+                        <Input
+                          {...field}
+                          id={field.name}
+                          disabled={role !== "admin"}
+                          aria-invalid={fieldState.invalid}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+                  <Controller
+                    control={form.control}
+                    name="displayName"
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        field={field}
+                        state={fieldState}
+                        label="Display name"
+                        disabled={role !== "admin"}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={form.control}
+                    name="family"
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        field={field}
+                        state={fieldState}
+                        label="Family"
+                        disabled={role !== "admin"}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={form.control}
+                    name="canonicalSlug"
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        field={field}
+                        state={fieldState}
+                        label="Canonical slug"
+                        disabled={role !== "admin"}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={form.control}
+                    name="contextLength"
+                    render={({ field, fieldState }) => (
+                      <NumberField
+                        field={field}
+                        label="Context length"
+                        disabled={role !== "admin"}
+                        state={fieldState}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={form.control}
+                    name="maxCompletionTokens"
+                    render={({ field, fieldState }) => (
+                      <NumberField
+                        field={field}
+                        label="Max completion tokens"
+                        disabled={role !== "admin"}
+                        state={fieldState}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={form.control}
+                    name="knowledgeCutoff"
+                    render={({ field, fieldState }) => (
+                      <DateField
+                        field={field}
+                        state={fieldState}
+                        label="Knowledge cutoff"
+                        disabled={role !== "admin"}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={form.control}
+                    name="expirationDate"
+                    render={({ field, fieldState }) => (
+                      <DateField
+                        field={field}
+                        state={fieldState}
+                        label="Expiration date"
+                        disabled={role !== "admin"}
+                      />
+                    )}
+                  />
+                  <Field className="md:col-span-2">
+                    <FieldLabel>Aliases</FieldLabel>
+                    <FieldDescription>
+                      Names alternativos aceitos no roteamento para este modelo.
+                    </FieldDescription>
+                    {aliases.length ? (
+                      <div className="space-y-2">
+                        {aliases.map((alias, index) => (
+                          <div
+                            className="flex flex-col gap-2 sm:flex-row"
+                            key={`${alias}-${index}`}
+                          >
+                            <Input
+                              aria-label={`Alias ${index + 1}`}
+                              disabled={role !== "admin"}
+                              onChange={(event) =>
+                                setAliases((current) =>
+                                  current.map((value, itemIndex) =>
+                                    itemIndex === index
+                                      ? event.target.value
+                                      : value,
+                                  ),
+                                )
+                              }
+                              value={alias}
+                            />
+                            {role === "admin" ? (
+                              <Button
+                                onClick={() =>
+                                  setAliases((current) =>
+                                    current.filter(
+                                      (_, itemIndex) => itemIndex !== index,
+                                    ),
+                                  )
+                                }
+                                type="button"
+                                variant="outline"
+                              >
+                                Remove
+                              </Button>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-sm">
+                        Nenhum alias configurado.
+                      </p>
+                    )}
+                    {role === "admin" ? (
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <Input
+                          aria-label="New alias"
+                          onChange={(event) =>
+                            setAliasDraft(event.target.value)
+                          }
+                          onKeyDown={(event) => {
+                            if (event.key !== "Enter") return;
+                            event.preventDefault();
+                            const alias = aliasDraft.trim();
+                            if (!alias) return;
+                            setAliases((current) => [...current, alias]);
+                            setAliasDraft("");
+                          }}
+                          placeholder="Add an alias"
+                          value={aliasDraft}
+                        />
+                        <Button
+                          disabled={!aliasDraft.trim()}
+                          onClick={() => {
+                            const alias = aliasDraft.trim();
+                            if (!alias) return;
+                            setAliases((current) => [...current, alias]);
+                            setAliasDraft("");
+                          }}
+                          type="button"
+                          variant="secondary"
+                        >
+                          Add alias
+                        </Button>
+                      </div>
+                    ) : null}
+                  </Field>
+                  <Controller
+                    control={form.control}
+                    name="description"
+                    render={({ field, fieldState }) => (
+                      <Field className="md:col-span-2">
+                        <FieldLabel htmlFor={field.name}>
+                          Description
+                        </FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          value={field.value ?? ""}
+                          onChange={(event) =>
+                            field.onChange(event.target.value || null)
+                          }
+                          disabled={role !== "admin"}
+                          className="min-h-28"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="capabilities" className="pt-3">
+                <AdvancedSettingsFields
+                  disabled={role !== "admin"}
+                  sections={[
+                    "architecture",
+                    "reasoning",
+                    "parameters",
+                    "limits",
+                  ]}
+                  settings={advancedSettings}
+                  onChange={setAdvancedSettings}
+                />
+              </TabsContent>
+              <TabsContent value="execution" className="pt-3">
+                <AdvancedSettingsFields
+                  disabled={role !== "admin"}
+                  sections={["pricing", "request-options", "reasoning-api-id"]}
+                  settings={advancedSettings}
+                  onChange={setAdvancedSettings}
+                />
+              </TabsContent>
+            </Tabs>
+          </form>
+        </CardContent>
+      </Card>
       <AlertDialog
         open={confirmDelete}
         onOpenChange={(open) => {
@@ -861,13 +1073,127 @@ function TextField({
   );
 }
 
+function NumberField({
+  disabled,
+  field,
+  label,
+  state,
+}: {
+  disabled: boolean;
+  field: {
+    name: string;
+    value?: number | null;
+    onChange: (value: number | null) => void;
+  };
+  label: string;
+  state: { invalid: boolean; error?: { message?: string } };
+}) {
+  return (
+    <Field>
+      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+      <Input
+        id={field.name}
+        type="number"
+        value={field.value ?? ""}
+        disabled={disabled}
+        onChange={(event) =>
+          field.onChange(
+            event.target.value === "" ? null : Number(event.target.value),
+          )
+        }
+        aria-invalid={state.invalid}
+      />
+      <FieldError errors={[state.error]} />
+    </Field>
+  );
+}
+
+function DateField({
+  disabled,
+  field,
+  label,
+  state,
+}: {
+  disabled: boolean;
+  field: {
+    name: string;
+    value?: string | null;
+    onChange: (value: string | null) => void;
+  };
+  label: string;
+  state: { invalid: boolean; error?: { message?: string } };
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedDate = parseDateValue(field.value);
+
+  return (
+    <Field>
+      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+      <Popover onOpenChange={setOpen} open={open}>
+        <PopoverTrigger
+          aria-label={label}
+          aria-invalid={state.invalid}
+          disabled={disabled}
+          render={
+            <Button
+              className="w-full justify-start font-normal"
+              id={field.name}
+              type="button"
+              variant="outline"
+            />
+          }
+        >
+          <CalendarIcon className="size-4 text-muted-foreground" />
+          {selectedDate ? format(selectedDate, "dd/MM/yyyy") : "Select date"}
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-auto p-0">
+          <Calendar
+            locale={ptBR}
+            mode="single"
+            onSelect={(date) => {
+              field.onChange(date ? format(date, "yyyy-MM-dd") : null);
+              setOpen(false);
+            }}
+            selected={selectedDate}
+          />
+          {selectedDate ? (
+            <div className="border-t p-2">
+              <Button
+                className="w-full"
+                onClick={() => {
+                  field.onChange(null);
+                  setOpen(false);
+                }}
+                size="sm"
+                type="button"
+                variant="ghost"
+              >
+                Clear date
+              </Button>
+            </div>
+          ) : null}
+        </PopoverContent>
+      </Popover>
+      <FieldError errors={[state.error]} />
+    </Field>
+  );
+}
+
+function parseDateValue(value: string | null | undefined) {
+  if (!value) return undefined;
+  const date = parseISO(value);
+  return isValid(date) ? date : undefined;
+}
+
 function AdvancedSettingsFields({
   disabled,
   onChange,
+  sections,
   settings,
 }: {
   disabled: boolean;
   onChange: (settings: AdvancedSettings) => void;
+  sections: AdvancedSection[];
   settings: AdvancedSettings;
 }) {
   const update = <K extends keyof AdvancedSettings>(
@@ -903,403 +1229,427 @@ function AdvancedSettingsFields({
     key: "timeoutMs" | "maxRetries",
     value: string,
   ) => update("requestOptions", { ...settings.requestOptions, [key]: value });
+  const hasSection = (section: AdvancedSection) => sections.includes(section);
 
   return (
-    <Accordion className="mt-2" defaultValue={["architecture", "reasoning"]}>
-      <AccordionItem value="architecture">
-        <AccordionTrigger>Architecture</AccordionTrigger>
-        <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-          <OptionChecklist
-            disabled={disabled}
-            label="Input modalities"
-            options={inputModalityOptions}
-            selected={settings.architecture.inputModalities}
-            onChange={(inputModalities) =>
-              updateArchitecture("inputModalities", inputModalities)
-            }
-          />
-          <OptionChecklist
-            disabled={disabled}
-            label="Output modalities"
-            options={outputModalityOptions}
-            selected={settings.architecture.outputModalities}
-            onChange={(outputModalities) =>
-              updateArchitecture("outputModalities", outputModalities)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="architecture-tokenizer"
-            label="Tokenizer"
-            value={settings.architecture.tokenizer}
-            onChange={(tokenizer) => updateArchitecture("tokenizer", tokenizer)}
-          />
-          <InputField
-            disabled={disabled}
-            id="architecture-instruct-type"
-            label="Instruct type"
-            value={settings.architecture.instructType}
-            onChange={(instructType) =>
-              updateArchitecture("instructType", instructType)
-            }
-          />
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="reasoning">
-        <AccordionTrigger>Reasoning</AccordionTrigger>
-        <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-          <Field>
-            <FieldLabel htmlFor="reasoning-effort">Effort</FieldLabel>
-            <Select
-              items={{
-                unset: "Not specified",
-                ...Object.fromEntries(
-                  reasoningEffortOptions.map((effort) => [effort, effort]),
-                ),
-              }}
-              value={settings.reasoning.effort || "unset"}
-              onValueChange={(value) =>
-                updateReasoning(
-                  "effort",
-                  value === "unset" ? "" : (value ?? ""),
-                )
+    <Accordion className="-mt-2" defaultValue={sections} multiple>
+      {hasSection("architecture") ? (
+        <AccordionItem value="architecture">
+          <AccordionTrigger>Architecture</AccordionTrigger>
+          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
+            <OptionChecklist
+              control="switch"
+              disabled={disabled}
+              label="Input modalities"
+              options={inputModalityOptions}
+              selected={settings.architecture.inputModalities}
+              onChange={(inputModalities) =>
+                updateArchitecture("inputModalities", inputModalities)
               }
-              disabled={disabled}
-            >
-              <SelectTrigger id="reasoning-effort" className="w-full">
-                <SelectValue placeholder="Not specified" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="unset">Not specified</SelectItem>
-                {reasoningEffortOptions.map((effort) => (
-                  <SelectItem key={effort} value={effort}>
-                    {effort}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <InputField
-            disabled={disabled}
-            id="reasoning-max-tokens"
-            label="Max reasoning tokens"
-            type="number"
-            value={settings.reasoning.maxTokens}
-            onChange={(maxTokens) => updateReasoning("maxTokens", maxTokens)}
-          />
-          <BooleanSelect
-            disabled={disabled}
-            id="reasoning-tool-use"
-            label="Supports tool use"
-            value={settings.reasoning.supportsToolUse}
-            onChange={(supportsToolUse) =>
-              updateReasoning("supportsToolUse", supportsToolUse)
-            }
-          />
-          <BooleanSelect
-            disabled={disabled}
-            id="reasoning-vision"
-            label="Supports vision"
-            value={settings.reasoning.supportsVision}
-            onChange={(supportsVision) =>
-              updateReasoning("supportsVision", supportsVision)
-            }
-          />
-          <BooleanSelect
-            disabled={disabled}
-            id="reasoning-computer-use"
-            label="Supports computer use"
-            value={settings.reasoning.supportsComputerUse}
-            onChange={(supportsComputerUse) =>
-              updateReasoning("supportsComputerUse", supportsComputerUse)
-            }
-          />
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="parameters">
-        <AccordionTrigger>Parameters</AccordionTrigger>
-        <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-          <OptionChecklist
-            className="md:col-span-2"
-            disabled={disabled}
-            label="Supported parameters"
-            options={supportedParameterOptions}
-            selected={settings.supportedParameters}
-            onChange={(supportedParameters) =>
-              update("supportedParameters", supportedParameters)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="default-temperature"
-            label="Default temperature"
-            type="number"
-            value={settings.defaultParameters.temperature}
-            onChange={(temperature) =>
-              updateDefaults("temperature", temperature)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="default-top-p"
-            label="Default top P"
-            type="number"
-            value={settings.defaultParameters.topP}
-            onChange={(topP) => updateDefaults("topP", topP)}
-          />
-          <InputField
-            disabled={disabled}
-            id="default-top-k"
-            label="Default top K"
-            type="number"
-            value={settings.defaultParameters.topK}
-            onChange={(topK) => updateDefaults("topK", topK)}
-          />
-          <InputField
-            disabled={disabled}
-            id="default-max-tokens"
-            label="Default max tokens"
-            type="number"
-            value={settings.defaultParameters.maxTokens}
-            onChange={(maxTokens) => updateDefaults("maxTokens", maxTokens)}
-          />
-          <InputField
-            disabled={disabled}
-            id="default-frequency-penalty"
-            label="Default frequency penalty"
-            type="number"
-            value={settings.defaultParameters.frequencyPenalty}
-            onChange={(frequencyPenalty) =>
-              updateDefaults("frequencyPenalty", frequencyPenalty)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="default-presence-penalty"
-            label="Default presence penalty"
-            type="number"
-            value={settings.defaultParameters.presencePenalty}
-            onChange={(presencePenalty) =>
-              updateDefaults("presencePenalty", presencePenalty)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="default-repetition-penalty"
-            label="Default repetition penalty"
-            type="number"
-            value={settings.defaultParameters.repetitionPenalty}
-            onChange={(repetitionPenalty) =>
-              updateDefaults("repetitionPenalty", repetitionPenalty)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="default-seed"
-            label="Default seed"
-            type="number"
-            value={settings.defaultParameters.seed}
-            onChange={(seed) => updateDefaults("seed", seed)}
-          />
-          <Field className="md:col-span-2">
-            <FieldLabel htmlFor="default-stop">
-              Stop sequences (one per line)
-            </FieldLabel>
-            <Textarea
-              id="default-stop"
-              className="min-h-24"
-              disabled={disabled}
-              value={settings.defaultParameters.stop}
-              onChange={(event) => updateDefaults("stop", event.target.value)}
             />
-          </Field>
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="limits">
-        <AccordionTrigger>Per-request limits</AccordionTrigger>
-        <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-          <InputField
-            disabled={disabled}
-            id="limit-max-input-tokens"
-            label="Max input tokens"
-            type="number"
-            value={settings.perRequestLimits.maxInputTokens}
-            onChange={(maxInputTokens) =>
-              updateLimits("maxInputTokens", maxInputTokens)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="limit-max-output-tokens"
-            label="Max output tokens"
-            type="number"
-            value={settings.perRequestLimits.maxOutputTokens}
-            onChange={(maxOutputTokens) =>
-              updateLimits("maxOutputTokens", maxOutputTokens)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="limit-rpm"
-            label="Requests per minute"
-            type="number"
-            value={settings.perRequestLimits.rpm}
-            onChange={(rpm) => updateLimits("rpm", rpm)}
-          />
-          <InputField
-            disabled={disabled}
-            id="limit-tpm"
-            label="Tokens per minute"
-            type="number"
-            value={settings.perRequestLimits.tpm}
-            onChange={(tpm) => updateLimits("tpm", tpm)}
-          />
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="pricing">
-        <AccordionTrigger>Pricing</AccordionTrigger>
-        <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-          <InputField
-            disabled={disabled}
-            id="pricing-input"
-            label="Input price"
-            type="number"
-            value={settings.pricing.input}
-            onChange={(input) => updatePricing("input", input)}
-          />
-          <InputField
-            disabled={disabled}
-            id="pricing-output"
-            label="Output price"
-            type="number"
-            value={settings.pricing.output}
-            onChange={(output) => updatePricing("output", output)}
-          />
-          <InputField
-            disabled={disabled}
-            id="pricing-cache-read"
-            label="Cache read price"
-            type="number"
-            value={settings.pricing.cacheRead}
-            onChange={(cacheRead) => updatePricing("cacheRead", cacheRead)}
-          />
-          <InputField
-            disabled={disabled}
-            id="pricing-image"
-            label="Image price"
-            type="number"
-            value={settings.pricing.image}
-            onChange={(image) => updatePricing("image", image)}
-          />
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="request-options">
-        <AccordionTrigger>Request options</AccordionTrigger>
-        <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
-          <InputField
-            disabled={disabled}
-            id="request-timeout"
-            label="Timeout (ms)"
-            type="number"
-            value={settings.requestOptions.timeoutMs}
-            onChange={(timeoutMs) =>
-              updateRequestOptions("timeoutMs", timeoutMs)
-            }
-          />
-          <InputField
-            disabled={disabled}
-            id="request-retries"
-            label="Max retries"
-            type="number"
-            value={settings.requestOptions.maxRetries}
-            onChange={(maxRetries) =>
-              updateRequestOptions("maxRetries", maxRetries)
-            }
-          />
-          <Field className="md:col-span-2">
-            <FieldLabel>Request headers</FieldLabel>
-            <div className="space-y-2">
-              {settings.requestOptions.headers.map((header, index) => (
-                <div className="flex gap-2" key={`${header.key}-${index}`}>
-                  <Input
-                    aria-label={`Header ${index + 1} name`}
-                    disabled={disabled}
-                    placeholder="Header name"
-                    value={header.key}
-                    onChange={(event) => {
-                      const headers = [...settings.requestOptions.headers];
-                      headers[index] = { ...header, key: event.target.value };
-                      update("requestOptions", {
-                        ...settings.requestOptions,
-                        headers,
-                      });
-                    }}
-                  />
-                  <Input
-                    aria-label={`Header ${index + 1} value`}
-                    disabled={disabled}
-                    placeholder="Value"
-                    value={header.value}
-                    onChange={(event) => {
-                      const headers = [...settings.requestOptions.headers];
-                      headers[index] = { ...header, value: event.target.value };
-                      update("requestOptions", {
-                        ...settings.requestOptions,
-                        headers,
-                      });
-                    }}
-                  />
-                  <Button
-                    disabled={disabled}
-                    onClick={() =>
-                      update("requestOptions", {
-                        ...settings.requestOptions,
-                        headers: settings.requestOptions.headers.filter(
-                          (_, headerIndex) => headerIndex !== index,
-                        ),
-                      })
-                    }
-                    type="button"
-                    variant="outline"
-                  >
-                    Remove
-                  </Button>
-                </div>
-              ))}
-              <Button
-                disabled={disabled}
-                onClick={() =>
-                  update("requestOptions", {
-                    ...settings.requestOptions,
-                    headers: [
-                      ...settings.requestOptions.headers,
-                      { key: "", value: "" },
-                    ],
-                  })
+            <OptionChecklist
+              control="switch"
+              disabled={disabled}
+              label="Output modalities"
+              options={outputModalityOptions}
+              selected={settings.architecture.outputModalities}
+              onChange={(outputModalities) =>
+                updateArchitecture("outputModalities", outputModalities)
+              }
+            />
+            <ArchitectureSelect
+              disabled={disabled}
+              id="architecture-tokenizer"
+              label="Tokenizer"
+              options={tokenizerOptions}
+              value={settings.architecture.tokenizer}
+              onChange={(tokenizer) =>
+                updateArchitecture("tokenizer", tokenizer)
+              }
+            />
+            <ArchitectureSelect
+              disabled={disabled}
+              id="architecture-instruct-type"
+              label="Instruct type"
+              options={instructTypeOptions}
+              value={settings.architecture.instructType}
+              onChange={(instructType) =>
+                updateArchitecture("instructType", instructType)
+              }
+            />
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
+      {hasSection("reasoning") ? (
+        <AccordionItem value="reasoning">
+          <AccordionTrigger>Reasoning</AccordionTrigger>
+          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="reasoning-effort">Effort</FieldLabel>
+              <Select
+                items={{
+                  unset: "Not specified",
+                  ...Object.fromEntries(
+                    reasoningEffortOptions.map((effort) => [effort, effort]),
+                  ),
+                }}
+                value={settings.reasoning.effort || "unset"}
+                onValueChange={(value) =>
+                  updateReasoning(
+                    "effort",
+                    value === "unset" ? "" : (value ?? ""),
+                  )
                 }
-                type="button"
-                variant="outline"
+                disabled={disabled}
               >
-                Add header
-              </Button>
-            </div>
-          </Field>
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="reasoning-api-id">
-        <AccordionTrigger>Reasoning API model ID</AccordionTrigger>
-        <AccordionContent className="pt-1">
-          <InputField
-            disabled={disabled}
-            id="reasoning-api-id"
-            label="Reasoning API model ID"
-            value={settings.reasoningApiId}
-            onChange={(reasoningApiId) =>
-              update("reasoningApiId", reasoningApiId)
-            }
-          />
-        </AccordionContent>
-      </AccordionItem>
+                <SelectTrigger id="reasoning-effort" className="w-full">
+                  <SelectValue placeholder="Not specified" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unset">Not specified</SelectItem>
+                  {reasoningEffortOptions.map((effort) => (
+                    <SelectItem key={effort} value={effort}>
+                      {effort}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <InputField
+              disabled={disabled}
+              id="reasoning-max-tokens"
+              label="Max reasoning tokens"
+              type="number"
+              value={settings.reasoning.maxTokens}
+              onChange={(maxTokens) => updateReasoning("maxTokens", maxTokens)}
+            />
+            <BooleanSelect
+              disabled={disabled}
+              id="reasoning-tool-use"
+              label="Supports tool use"
+              value={settings.reasoning.supportsToolUse}
+              onChange={(supportsToolUse) =>
+                updateReasoning("supportsToolUse", supportsToolUse)
+              }
+            />
+            <BooleanSelect
+              disabled={disabled}
+              id="reasoning-vision"
+              label="Supports vision"
+              value={settings.reasoning.supportsVision}
+              onChange={(supportsVision) =>
+                updateReasoning("supportsVision", supportsVision)
+              }
+            />
+            <BooleanSelect
+              disabled={disabled}
+              id="reasoning-computer-use"
+              label="Supports computer use"
+              value={settings.reasoning.supportsComputerUse}
+              onChange={(supportsComputerUse) =>
+                updateReasoning("supportsComputerUse", supportsComputerUse)
+              }
+            />
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
+      {hasSection("parameters") ? (
+        <AccordionItem value="parameters">
+          <AccordionTrigger>Parameters</AccordionTrigger>
+          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
+            <OptionChecklist
+              className="md:col-span-2"
+              disabled={disabled}
+              label="Supported parameters"
+              options={supportedParameterOptions}
+              selected={settings.supportedParameters}
+              onChange={(supportedParameters) =>
+                update("supportedParameters", supportedParameters)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-temperature"
+              label="Default temperature"
+              type="number"
+              value={settings.defaultParameters.temperature}
+              onChange={(temperature) =>
+                updateDefaults("temperature", temperature)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-top-p"
+              label="Default top P"
+              type="number"
+              value={settings.defaultParameters.topP}
+              onChange={(topP) => updateDefaults("topP", topP)}
+            />
+            <InputField
+              disabled={disabled}
+              id="default-top-k"
+              label="Default top K"
+              type="number"
+              value={settings.defaultParameters.topK}
+              onChange={(topK) => updateDefaults("topK", topK)}
+            />
+            <InputField
+              disabled={disabled}
+              id="default-max-tokens"
+              label="Default max tokens"
+              type="number"
+              value={settings.defaultParameters.maxTokens}
+              onChange={(maxTokens) => updateDefaults("maxTokens", maxTokens)}
+            />
+            <InputField
+              disabled={disabled}
+              id="default-frequency-penalty"
+              label="Default frequency penalty"
+              type="number"
+              value={settings.defaultParameters.frequencyPenalty}
+              onChange={(frequencyPenalty) =>
+                updateDefaults("frequencyPenalty", frequencyPenalty)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-presence-penalty"
+              label="Default presence penalty"
+              type="number"
+              value={settings.defaultParameters.presencePenalty}
+              onChange={(presencePenalty) =>
+                updateDefaults("presencePenalty", presencePenalty)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-repetition-penalty"
+              label="Default repetition penalty"
+              type="number"
+              value={settings.defaultParameters.repetitionPenalty}
+              onChange={(repetitionPenalty) =>
+                updateDefaults("repetitionPenalty", repetitionPenalty)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="default-seed"
+              label="Default seed"
+              type="number"
+              value={settings.defaultParameters.seed}
+              onChange={(seed) => updateDefaults("seed", seed)}
+            />
+            <Field className="md:col-span-2">
+              <FieldLabel htmlFor="default-stop">
+                Stop sequences (one per line)
+              </FieldLabel>
+              <Textarea
+                id="default-stop"
+                className="min-h-24"
+                disabled={disabled}
+                value={settings.defaultParameters.stop}
+                onChange={(event) => updateDefaults("stop", event.target.value)}
+              />
+            </Field>
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
+      {hasSection("limits") ? (
+        <AccordionItem value="limits">
+          <AccordionTrigger>Per-request limits</AccordionTrigger>
+          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
+            <InputField
+              disabled={disabled}
+              id="limit-max-input-tokens"
+              label="Max input tokens"
+              type="number"
+              value={settings.perRequestLimits.maxInputTokens}
+              onChange={(maxInputTokens) =>
+                updateLimits("maxInputTokens", maxInputTokens)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="limit-max-output-tokens"
+              label="Max output tokens"
+              type="number"
+              value={settings.perRequestLimits.maxOutputTokens}
+              onChange={(maxOutputTokens) =>
+                updateLimits("maxOutputTokens", maxOutputTokens)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="limit-rpm"
+              label="Requests per minute"
+              type="number"
+              value={settings.perRequestLimits.rpm}
+              onChange={(rpm) => updateLimits("rpm", rpm)}
+            />
+            <InputField
+              disabled={disabled}
+              id="limit-tpm"
+              label="Tokens per minute"
+              type="number"
+              value={settings.perRequestLimits.tpm}
+              onChange={(tpm) => updateLimits("tpm", tpm)}
+            />
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
+      {hasSection("pricing") ? (
+        <AccordionItem value="pricing">
+          <AccordionTrigger>Pricing</AccordionTrigger>
+          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
+            <InputField
+              disabled={disabled}
+              id="pricing-input"
+              label="Input price"
+              type="number"
+              value={settings.pricing.input}
+              onChange={(input) => updatePricing("input", input)}
+            />
+            <InputField
+              disabled={disabled}
+              id="pricing-output"
+              label="Output price"
+              type="number"
+              value={settings.pricing.output}
+              onChange={(output) => updatePricing("output", output)}
+            />
+            <InputField
+              disabled={disabled}
+              id="pricing-cache-read"
+              label="Cache read price"
+              type="number"
+              value={settings.pricing.cacheRead}
+              onChange={(cacheRead) => updatePricing("cacheRead", cacheRead)}
+            />
+            <InputField
+              disabled={disabled}
+              id="pricing-image"
+              label="Image price"
+              type="number"
+              value={settings.pricing.image}
+              onChange={(image) => updatePricing("image", image)}
+            />
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
+      {hasSection("request-options") ? (
+        <AccordionItem value="request-options">
+          <AccordionTrigger>Request options</AccordionTrigger>
+          <AccordionContent className="grid gap-4 pt-1 md:grid-cols-2">
+            <InputField
+              disabled={disabled}
+              id="request-timeout"
+              label="Timeout (ms)"
+              type="number"
+              value={settings.requestOptions.timeoutMs}
+              onChange={(timeoutMs) =>
+                updateRequestOptions("timeoutMs", timeoutMs)
+              }
+            />
+            <InputField
+              disabled={disabled}
+              id="request-retries"
+              label="Max retries"
+              type="number"
+              value={settings.requestOptions.maxRetries}
+              onChange={(maxRetries) =>
+                updateRequestOptions("maxRetries", maxRetries)
+              }
+            />
+            <Field className="md:col-span-2">
+              <FieldLabel>Request headers</FieldLabel>
+              <div className="space-y-2">
+                {settings.requestOptions.headers.map((header, index) => (
+                  <div className="flex gap-2" key={`${header.key}-${index}`}>
+                    <Input
+                      aria-label={`Header ${index + 1} name`}
+                      disabled={disabled}
+                      placeholder="Header name"
+                      value={header.key}
+                      onChange={(event) => {
+                        const headers = [...settings.requestOptions.headers];
+                        headers[index] = { ...header, key: event.target.value };
+                        update("requestOptions", {
+                          ...settings.requestOptions,
+                          headers,
+                        });
+                      }}
+                    />
+                    <Input
+                      aria-label={`Header ${index + 1} value`}
+                      disabled={disabled}
+                      placeholder="Value"
+                      value={header.value}
+                      onChange={(event) => {
+                        const headers = [...settings.requestOptions.headers];
+                        headers[index] = {
+                          ...header,
+                          value: event.target.value,
+                        };
+                        update("requestOptions", {
+                          ...settings.requestOptions,
+                          headers,
+                        });
+                      }}
+                    />
+                    <Button
+                      disabled={disabled}
+                      onClick={() =>
+                        update("requestOptions", {
+                          ...settings.requestOptions,
+                          headers: settings.requestOptions.headers.filter(
+                            (_, headerIndex) => headerIndex !== index,
+                          ),
+                        })
+                      }
+                      type="button"
+                      variant="outline"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  disabled={disabled}
+                  onClick={() =>
+                    update("requestOptions", {
+                      ...settings.requestOptions,
+                      headers: [
+                        ...settings.requestOptions.headers,
+                        { key: "", value: "" },
+                      ],
+                    })
+                  }
+                  type="button"
+                  variant="outline"
+                >
+                  Add header
+                </Button>
+              </div>
+            </Field>
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
+      {hasSection("reasoning-api-id") ? (
+        <AccordionItem value="reasoning-api-id">
+          <AccordionTrigger>Reasoning API model ID</AccordionTrigger>
+          <AccordionContent className="pt-1">
+            <InputField
+              disabled={disabled}
+              id="reasoning-api-id"
+              label="Reasoning API model ID"
+              value={settings.reasoningApiId}
+              onChange={(reasoningApiId) =>
+                update("reasoningApiId", reasoningApiId)
+              }
+            />
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
     </Accordion>
   );
 }
@@ -1333,8 +1683,57 @@ function InputField({
   );
 }
 
+function ArchitectureSelect({
+  disabled,
+  id,
+  label,
+  onChange,
+  options,
+  value,
+}: {
+  disabled: boolean;
+  id: string;
+  label: string;
+  onChange: (value: string) => void;
+  options: readonly string[];
+  value: string;
+}) {
+  const values =
+    value && !options.includes(value) ? [value, ...options] : options;
+
+  return (
+    <Field>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Select
+        disabled={disabled}
+        items={{
+          unset: "Not specified",
+          ...Object.fromEntries(values.map((option) => [option, option])),
+        }}
+        value={value || "unset"}
+        onValueChange={(nextValue) =>
+          onChange(nextValue === "unset" ? "" : (nextValue ?? ""))
+        }
+      >
+        <SelectTrigger id={id} className="w-full">
+          <SelectValue placeholder="Not specified" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="unset">Not specified</SelectItem>
+          {values.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
+  );
+}
+
 function OptionChecklist({
   className,
+  control = "checkbox",
   disabled,
   label,
   onChange,
@@ -1342,6 +1741,7 @@ function OptionChecklist({
   selected,
 }: {
   className?: string;
+  control?: "checkbox" | "switch";
   disabled: boolean;
   label: string;
   onChange: (selected: string[]) => void;
@@ -1357,18 +1757,34 @@ function OptionChecklist({
           const checked = selected.includes(option);
           return (
             <div className="flex items-center gap-2" key={option}>
-              <Checkbox
-                checked={checked}
-                disabled={disabled}
-                id={id}
-                onCheckedChange={(nextChecked) =>
-                  onChange(
-                    nextChecked
-                      ? [...selected, option]
-                      : selected.filter((value) => value !== option),
-                  )
-                }
-              />
+              {control === "switch" ? (
+                <Switch
+                  checked={checked}
+                  disabled={disabled}
+                  id={id}
+                  size="sm"
+                  onCheckedChange={(nextChecked) =>
+                    onChange(
+                      nextChecked
+                        ? [...selected, option]
+                        : selected.filter((value) => value !== option),
+                    )
+                  }
+                />
+              ) : (
+                <Checkbox
+                  checked={checked}
+                  disabled={disabled}
+                  id={id}
+                  onCheckedChange={(nextChecked) =>
+                    onChange(
+                      nextChecked
+                        ? [...selected, option]
+                        : selected.filter((value) => value !== option),
+                    )
+                  }
+                />
+              )}
               <FieldLabel htmlFor={id} className="font-normal">
                 {option}
               </FieldLabel>

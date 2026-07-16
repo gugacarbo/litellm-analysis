@@ -133,7 +133,13 @@ describe("ModelSettingsPage", () => {
       name: "Provider",
     });
     expect((provider as HTMLButtonElement).disabled).toBe(false);
-    await screen.findByDisplayValue("minimax-m3");
+    await screen.findByRole("textbox", { name: "Model ID" });
+    expect(
+      screen
+        .getByRole("button", { name: "Save settings" })
+        .getAttribute("form"),
+    ).toBe("model-settings-form");
+    expect(screen.queryByText("Model management")).toBeNull();
 
     fireEvent.click(provider);
     const alternateProvider = await screen.findByRole("option", {
@@ -160,31 +166,147 @@ describe("ModelSettingsPage", () => {
     const provider = await screen.findByLabelText("Provider");
     expect((provider as HTMLInputElement).disabled).toBe(true);
     expect(screen.queryByRole("button", { name: "Save settings" })).toBeNull();
+    expect(screen.queryByText("Model management")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Disable model" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Delete model" })).toBeNull();
   });
 
-  it("expõe a configuração avançada em campos organizados, sem JSON bruto", async () => {
-    const { container } = renderPage();
+  it("mostra três abas com Essencial ativa por padrão", async () => {
+    renderPage();
 
     expect(
-      await screen.findByRole("button", {
-        name: "Capabilities, routing and request options",
-      }),
+      await screen.findByRole("heading", { name: "Platon 2/MiniMax M3" }),
     ).toBeTruthy();
+    expect(screen.getByText("platon-2/minimax-m3")).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Copy usable model ID" }),
+    ).toBeTruthy();
+    expect(screen.getByText(modelId)).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Copy model UUID" }),
+    ).toBeTruthy();
+    expect(screen.getByText("Revision 1")).toBeTruthy();
+    expect(
+      (await screen.findByRole("tab", { name: "Essencial" })).getAttribute(
+        "aria-selected",
+      ),
+    ).toBe("true");
+    expect(
+      screen
+        .getByRole("tab", { name: "Capacidades" })
+        .getAttribute("aria-selected"),
+    ).toBe("false");
+    expect(
+      screen
+        .getByRole("tab", { name: "Execução e preço" })
+        .getAttribute("aria-selected"),
+    ).toBe("false");
+    expect(
+      (
+        await screen.findByRole("textbox", {
+          name: "Model ID",
+        })
+      ).getAttribute("value"),
+    ).toBe("minimax-m3");
+  });
+
+  it("abre as seções avançadas por padrão e permite várias abertas", async () => {
+    const { container } = renderPage();
+
+    fireEvent.click(await screen.findByRole("tab", { name: "Capacidades" }));
     for (const section of [
       "Architecture",
       "Reasoning",
       "Parameters",
       "Per-request limits",
+    ]) {
+      expect(screen.getByRole("button", { name: section })).toBeTruthy();
+    }
+    expect(
+      await screen.findByRole("combobox", { name: "Tokenizer" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("combobox", { name: "Instruct type" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("spinbutton", { name: "Max reasoning tokens" }),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Architecture" }));
+    expect(screen.queryByRole("combobox", { name: "Tokenizer" })).toBeNull();
+    expect(
+      screen.getByRole("spinbutton", { name: "Max reasoning tokens" }),
+    ).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Execução e preço" }));
+    for (const section of [
       "Pricing",
       "Request options",
       "Reasoning API model ID",
     ]) {
       expect(screen.getByRole("button", { name: section })).toBeTruthy();
     }
-
-    expect(await screen.findByText("Input modalities")).toBeTruthy();
-    expect(screen.getByText("Output modalities")).toBeTruthy();
-    expect(screen.getByLabelText("Tokenizer")).toBeTruthy();
+    expect(
+      await screen.findByRole("spinbutton", { name: "Input price" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("spinbutton", { name: "Timeout (ms)" }),
+    ).toBeTruthy();
+    expect(screen.queryByRole("combobox", { name: "Tokenizer" })).toBeNull();
     expect(container.querySelector("#advanced-configuration")).toBeNull();
+  });
+
+  it("preserva uma edição essencial ao navegar entre abas e salvar", async () => {
+    vi.mocked(saveModel).mockResolvedValue({ ok: true, data: model });
+    renderPage();
+
+    const displayName = (await screen.findByRole("textbox", {
+      name: "Display name",
+    })) as HTMLInputElement;
+    fireEvent.change(displayName, { target: { value: "MiniMax M3 updated" } });
+    fireEvent.click(screen.getByRole("tab", { name: "Capacidades" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Essencial" }));
+
+    expect(
+      (
+        await screen.findByRole("textbox", { name: "Display name" })
+      ).getAttribute("value"),
+    ).toBe("MiniMax M3 updated");
+    fireEvent.click(screen.getByRole("button", { name: "Save settings" }));
+
+    await waitFor(() =>
+      expect(saveModel).toHaveBeenCalledWith({
+        data: expect.objectContaining({ displayName: "MiniMax M3 updated" }),
+      }),
+    );
+  });
+
+  it("edita aliases individualmente e preserva o payload do modelo", async () => {
+    vi.mocked(saveModel).mockResolvedValue({ ok: true, data: model });
+    renderPage();
+
+    const draft = await screen.findByRole("textbox", { name: "New alias" });
+    fireEvent.change(draft, { target: { value: "minimax-primary" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add alias" }));
+
+    const alias = screen.getByRole("textbox", { name: "Alias 1" });
+    expect((alias as HTMLInputElement).value).toBe("minimax-primary");
+    fireEvent.change(alias, { target: { value: "minimax-production" } });
+    fireEvent.click(screen.getByRole("tab", { name: "Capacidades" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Essencial" }));
+
+    expect(
+      (
+        (await screen.findByRole("textbox", {
+          name: "Alias 1",
+        })) as HTMLInputElement
+      ).value,
+    ).toBe("minimax-production");
+    fireEvent.click(screen.getByRole("button", { name: "Save settings" }));
+
+    await waitFor(() =>
+      expect(saveModel).toHaveBeenCalledWith({
+        data: expect.objectContaining({ aliases: ["minimax-production"] }),
+      }),
+    );
   });
 });

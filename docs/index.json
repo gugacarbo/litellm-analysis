@@ -229,5 +229,21 @@
     "superseded-by": null,
     "implemented-by": [],
     "design-ref": "docs/spec-decisions/0007_providers_detail_discovery_decisions.md"
+  },
+  {
+    "id": "SPEC-0008",
+    "path": "docs/specs/0008-model-settings-tabs-spec.md",
+    "layer": "specs",
+    "title": "Configuração de modelo por abas",
+    "status": "implemented",
+    "builds-on": [
+      "SPEC-0005"
+    ],
+    "superseded-by": null,
+    "implemented-by": [
+      "apps/ui/src/features/model-admin/models/model-settings-page.tsx",
+      "apps/ui/src/features/model-admin/models/model-settings-page.test.tsx"
+    ],
+    "design-ref": "docs/spec-decisions/0008_model_settings_tabs_decisions.md"
   }
 ]
