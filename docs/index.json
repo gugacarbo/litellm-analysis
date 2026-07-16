@@ -84,6 +84,16 @@
     "implemented-by": []
   },
   {
+    "id": "ADR-0008",
+    "path": "docs/adr/0008-auditoria-administrativa-append-only.md",
+    "layer": "adr",
+    "title": "A auditoria administrativa usa eventos append-only separados dos agregados",
+    "status": "accepted",
+    "builds-on": [],
+    "superseded-by": null,
+    "implemented-by": []
+  },
+  {
     "id": "SPEC-0001",
     "path": "docs/specs/0001-recriacao-ui-tanstack-start-spec.md",
     "layer": "specs",
@@ -245,5 +255,19 @@
       "apps/ui/src/features/model-admin/models/model-settings-page.test.tsx"
     ],
     "design-ref": "docs/spec-decisions/0008_model_settings_tabs_decisions.md"
+  },
+  {
+    "id": "SPEC-0009",
+    "path": "docs/specs/0009-fundacao-auditoria-administrativa-spec.md",
+    "layer": "specs",
+    "title": "Estabelecer a fundação server-side da auditoria administrativa",
+    "status": "accepted",
+    "builds-on": [
+      "ADR-0008",
+      "ADR-0007",
+      "SPEC-0005"
+    ],
+    "superseded-by": null,
+    "implemented-by": []
   }
 ]

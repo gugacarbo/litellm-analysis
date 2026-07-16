@@ -57,6 +57,24 @@ describe("AppShell", () => {
     expect(providersLink.getAttribute("aria-current")).toBeNull();
   });
 
+  it("shows Audit only to administrators", () => {
+    const { rerender } = render(
+      <AppShell {...defaultProps} userRole="admin">
+        Dashboard content
+      </AppShell>,
+    );
+    expect(
+      screen.getByRole("link", { name: "Audit" }).getAttribute("href"),
+    ).toBe("/audit");
+
+    rerender(
+      <AppShell {...defaultProps} userRole="viewer">
+        Dashboard content
+      </AppShell>,
+    );
+    expect(screen.queryByRole("link", { name: "Audit" })).toBeNull();
+  });
+
   it("persists desktop sidebar changes through its callback", () => {
     const onSidebarChange = vi.fn();
 

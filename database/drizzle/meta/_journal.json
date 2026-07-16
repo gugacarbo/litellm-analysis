@@ -50,6 +50,20 @@
       "when": 1784207781155,
       "tag": "0006_remove-reasoning-supports-vision",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784214747561,
+      "tag": "0007_loud_colossus",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784215167087,
+      "tag": "0008_normal_sue_storm",
+      "breakpoints": true
     }
   ]
 }

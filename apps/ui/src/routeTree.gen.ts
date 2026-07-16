@@ -15,6 +15,7 @@ import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ProtectedSecretsRouteImport } from './routes/_protected/secrets'
 import { Route as ProtectedProvidersRouteImport } from './routes/_protected/providers'
 import { Route as ProtectedModelsRouteImport } from './routes/_protected/models'
+import { Route as ProtectedAuditRouteImport } from './routes/_protected/audit'
 import { Route as ProtectedProvidersIndexRouteImport } from './routes/_protected/providers/index'
 import { Route as ProtectedModelsIndexRouteImport } from './routes/_protected/models/index'
 import { Route as ApiAuthAcceptInviteRouteImport } from './routes/api/auth/accept-invite'
@@ -51,6 +52,11 @@ const ProtectedProvidersRoute = ProtectedProvidersRouteImport.update({
 const ProtectedModelsRoute = ProtectedModelsRouteImport.update({
   id: '/models',
   path: '/models',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedAuditRoute = ProtectedAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedProvidersIndexRoute = ProtectedProvidersIndexRouteImport.update({
@@ -100,6 +106,7 @@ const ProtectedModelsModelIdSettingsTabRoute =
 export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
   '/login': typeof LoginRoute
+  '/audit': typeof ProtectedAuditRoute
   '/models': typeof ProtectedModelsRouteWithChildren
   '/providers': typeof ProtectedProvidersRouteWithChildren
   '/secrets': typeof ProtectedSecretsRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/audit': typeof ProtectedAuditRoute
   '/secrets': typeof ProtectedSecretsRoute
   '/': typeof ProtectedIndexRoute
   '/models/aliases': typeof ProtectedModelsAliasesRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_protected': typeof ProtectedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_protected/audit': typeof ProtectedAuditRoute
   '/_protected/models': typeof ProtectedModelsRouteWithChildren
   '/_protected/providers': typeof ProtectedProvidersRouteWithChildren
   '/_protected/secrets': typeof ProtectedSecretsRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/audit'
     | '/models'
     | '/providers'
     | '/secrets'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/audit'
     | '/secrets'
     | '/'
     | '/models/aliases'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_protected'
     | '/login'
+    | '/_protected/audit'
     | '/_protected/models'
     | '/_protected/providers'
     | '/_protected/secrets'
@@ -238,6 +250,13 @@ declare module '@tanstack/react-router' {
       path: '/models'
       fullPath: '/models'
       preLoaderRoute: typeof ProtectedModelsRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/audit': {
+      id: '/_protected/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof ProtectedAuditRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/providers/': {
@@ -345,6 +364,7 @@ const ProtectedProvidersRouteWithChildren =
   ProtectedProvidersRoute._addFileChildren(ProtectedProvidersRouteChildren)
 
 interface ProtectedRouteChildren {
+  ProtectedAuditRoute: typeof ProtectedAuditRoute
   ProtectedModelsRoute: typeof ProtectedModelsRouteWithChildren
   ProtectedProvidersRoute: typeof ProtectedProvidersRouteWithChildren
   ProtectedSecretsRoute: typeof ProtectedSecretsRoute
@@ -352,6 +372,7 @@ interface ProtectedRouteChildren {
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedAuditRoute: ProtectedAuditRoute,
   ProtectedModelsRoute: ProtectedModelsRouteWithChildren,
   ProtectedProvidersRoute: ProtectedProvidersRouteWithChildren,
   ProtectedSecretsRoute: ProtectedSecretsRoute,

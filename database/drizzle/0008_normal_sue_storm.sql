@@ -1,0 +1,4 @@
+ALTER TABLE "app_audit_events" ADD CONSTRAINT "ck_app_audit_events_actor_type" CHECK ("app_audit_events"."actor_type" IN ('user', 'api_key', 'system'));--> statement-breakpoint
+ALTER TABLE "app_audit_events" ADD CONSTRAINT "ck_app_audit_events_actor_role" CHECK ("app_audit_events"."actor_role" IN ('admin', 'viewer'));--> statement-breakpoint
+ALTER TABLE "app_audit_events" ADD CONSTRAINT "ck_app_audit_events_source" CHECK ("app_audit_events"."source" IN ('ui', 'legacy_api', 'proxy', 'system'));--> statement-breakpoint
+ALTER TABLE "app_audit_events" ADD CONSTRAINT "ck_app_audit_events_outcome" CHECK ("app_audit_events"."outcome" IN ('success', 'failure', 'denied'));

@@ -8,6 +8,10 @@ import {
   type IApplicationSecretsService,
 } from "./services/application-secrets.service.js";
 import {
+  AuditEventsService,
+  type IAuditEventsService,
+} from "./services/audit-events.service.js";
+import {
   type IOpenAiOAuthService,
   OpenAiOAuthService,
 } from "./services/openai-oauth.service.js";
@@ -27,6 +31,7 @@ export interface RegistryServices {
   apiKeysService: IApiKeysService;
   applicationSecretsService: IApplicationSecretsService;
   openAiOAuthService: IOpenAiOAuthService;
+  auditEventsService: IAuditEventsService;
 }
 
 export interface CreateRegistryServicesOptions {
@@ -45,5 +50,6 @@ export function createRegistryServices(
     apiKeysService: new ApiKeysService({ db }),
     applicationSecretsService: new ApplicationSecretsService({ db }),
     openAiOAuthService: new OpenAiOAuthService({ db }),
+    auditEventsService: new AuditEventsService({ db }),
   };
 }
