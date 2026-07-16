@@ -108,6 +108,21 @@ describe("AuditPage", () => {
       direction: undefined,
     });
 
+    fireEvent.click(screen.getByRole("button", { name: "Mais antigos" }));
+    const olderCall = navigate.mock.calls.at(-1)?.[0];
+    expect(olderCall.search(search)).toEqual({
+      ...search,
+      cursor: "opaque-older",
+      direction: "older",
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Mais recentes" }));
+    const newerCall = navigate.mock.calls.at(-1)?.[0];
+    expect(newerCall.search(search)).toEqual({
+      ...search,
+      cursor: "opaque-newer",
+      direction: "newer",
+    });
+
     search = { pageSize: 50, action: "provider.create" };
     page.rerender(
       <QueryClientProvider client={page.client}>
@@ -130,20 +145,35 @@ describe("AuditPage", () => {
       direction: undefined,
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Mais antigos" }));
-    const olderCall = navigate.mock.calls.at(-1)?.[0];
-    expect(olderCall.search(search)).toEqual({
-      ...search,
-      cursor: "opaque-older",
+    search = { pageSize: 50 };
+    page.rerender(
+      <QueryClientProvider client={page.client}>
+        <AuditPage />
+      </QueryClientProvider>,
+    );
+    expect((screen.getByLabelText("Ação") as HTMLInputElement).value).toBe("");
+    expect(
+      (screen.getByLabelText("ID do ator") as HTMLInputElement).value,
+    ).toBe("");
+
+    search = {
+      pageSize: 50,
+      actorId: "admin-2",
+      action: "model.delete",
+      cursor: "opaque-history-cursor",
       direction: "older",
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Mais recentes" }));
-    const newerCall = navigate.mock.calls.at(-1)?.[0];
-    expect(newerCall.search(search)).toEqual({
-      ...search,
-      cursor: "opaque-newer",
-      direction: "newer",
-    });
+    };
+    page.rerender(
+      <QueryClientProvider client={page.client}>
+        <AuditPage />
+      </QueryClientProvider>,
+    );
+    expect((screen.getByLabelText("Ação") as HTMLInputElement).value).toBe(
+      "model.delete",
+    );
+    expect(
+      (screen.getByLabelText("ID do ator") as HTMLInputElement).value,
+    ).toBe("admin-2");
   });
 
   it("distingue auditoria vazia de filtros sem resultados", async () => {
@@ -245,6 +275,12 @@ describe("AuditPage", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
     await waitFor(() => expect(requests.detail).toHaveBeenCalledTimes(2));
+    expect(requests.detail).toHaveBeenNthCalledWith(1, { id });
+    expect(requests.detail).toHaveBeenNthCalledWith(2, { id });
+    expect(await screen.findByLabelText("Metadados")).toBeTruthy();
+    expect(document.body.textContent).not.toContain(
+      "detail-token-should-not-persist",
+    );
   });
 
   it("mantém layout responsivo sem tabelas fixas", async () => {
