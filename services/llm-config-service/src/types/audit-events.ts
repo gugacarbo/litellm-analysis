@@ -3,16 +3,9 @@ import type {
   NewAppAuditEvent,
 } from "@lite-llm/database/schema";
 import { redactAuditJson } from "../lib/audit-redaction.js";
+import { AuditEventError, type AuditJson } from "./audit-core.js";
 
-/** JSON accepted for audit snapshots. It deliberately excludes Date and other
- * runtime values that would otherwise be coerced by JSON.stringify. */
-export type AuditJson =
-  | null
-  | boolean
-  | number
-  | string
-  | AuditJson[]
-  | { [key: string]: AuditJson };
+export { AuditEventError, type AuditJson } from "./audit-core.js";
 
 export type AuditActorType = AppAuditEvent["actorType"];
 export type AuditActorRole = AppAuditEvent["actorRole"];
@@ -216,14 +209,4 @@ export interface AuditEventListResult {
   events: AuditEventListItem[];
   olderCursor: string | null;
   newerCursor: string | null;
-}
-
-export class AuditEventError extends Error {
-  constructor(
-    readonly code: "VALIDATION" | "NOT_FOUND",
-    message: "Invalid audit event input" | "Audit event not found",
-  ) {
-    super(message);
-    this.name = "AuditEventError";
-  }
 }

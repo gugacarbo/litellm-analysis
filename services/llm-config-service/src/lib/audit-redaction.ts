@@ -1,4 +1,4 @@
-import { AuditEventError, type AuditJson } from "../types/audit-events.js";
+import { AuditEventError, type AuditJson } from "../types/audit-core.js";
 
 export const REDACTED_AUDIT_VALUE = "[REDACTED]";
 

@@ -36,11 +36,6 @@ export {
   type ProviderSecretRecord,
   providerSecretKey,
 } from "./repositories/application-secrets-repository.js";
-export {
-  AuditEventsRepository,
-  type AuditEventsRepositoryListResult,
-  type AuditEventsRepositoryPort,
-} from "./repositories/audit-events-repository.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
 export { SettingsRepository } from "./repositories/settings-repository.js";
 export {
@@ -85,7 +80,6 @@ export type {
   AuditActorType,
   AuditEventCursor,
   AuditEventDetail,
-  AuditEventInsertCandidate,
   AuditEventListDirection,
   AuditEventListInput,
   AuditEventListItem,
@@ -93,7 +87,6 @@ export type {
   AuditEventRecord,
   AuditJson,
   AuditOutcome,
-  AuditProvenance,
   AuditSource,
   DefaultParameters,
   Effort,
@@ -113,7 +106,6 @@ export type {
   Reasoning,
   RouteParams,
   RouterSettingsValue,
-  SanitizedAuditEventInsert,
   SettingKey,
   SupportedParameters,
   TrustedAuditContext,

@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import type { AuditEventsRepositoryPort } from "../../repositories/audit-events-repository.js";
 import {
@@ -78,6 +79,22 @@ function trustedContext() {
 }
 
 describe("AuditEventsService", () => {
+  it("keeps append infrastructure and context minting off the public package root", async () => {
+    const publicEntry = await readFile(
+      new URL("../../index.ts", import.meta.url),
+      "utf8",
+    );
+
+    for (const internalExport of [
+      "AuditEventsRepository",
+      "createSanitizedAuditEventInsert",
+      "isSanitizedAuditEventInsert",
+      "createTrustedAuditContext",
+    ]) {
+      expect(publicEntry).not.toContain(internalExport);
+    }
+  });
+
   it("redacts snapshots before append and never exposes them in list DTOs", async () => {
     const { repository, appended } = repositoryDouble();
     const service = new AuditEventsService({ repository });
