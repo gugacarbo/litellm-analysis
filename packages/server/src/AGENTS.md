@@ -84,5 +84,5 @@ packages/server/src/
 
 - Do not add Express imports to orchestration files
 - Do not bypass `RouteOptions.dataSource` — every route goes through the interface
-- Do not import from `apps/server/` — this package is standalone
+- Do not import from an application entry point — this package is standalone
 - Do not duplicate `coerceLiteLLMParams` logic — extract helpers to `route-params.ts`

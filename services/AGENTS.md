@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Backend service-layer packages — each owns a single business concern (data access, proxy, registry, model CRUD, plugins) and is consumed by `apps/server` and `packages/server`. All depend on `repositories/*` for schema/types.
+Backend service-layer packages — each owns a single business concern (data access, proxy, registry, model CRUD, plugins) and is consumed by the UI server boundary and `packages/server`. All depend on `repositories/*` for schema/types.
 
 ## STRUCTURE
 
@@ -44,7 +44,7 @@ services/
 
 ## CONVENTIONS
 
-- **Service-layer only** — no Express wiring; consumed by `apps/server` and `packages/server`
+- **Service-layer only** — no Express wiring; consumed by server-side application code and `packages/server`
 - **Direct repository access** — services import from `repositories/*` for schema/client
 - **Pure data shapes** — service functions take/return plain objects; no Express `req`/`res`
 - **Generated Zod schemas lived with the plugin service** and were folded into `repositories/agents-repository/src/schemas/` during the removal

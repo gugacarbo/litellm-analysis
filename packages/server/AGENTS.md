@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-`@lite-llm/server` — shared Express routes and orchestration services consumed by `apps/server` and other consumers. Owns business logic that coordinates `@lite-llm/analytics-service` (data access) and `@lite-llm/agents-manager` (config CRUD). Distinct from `apps/server` (which is the runtime/entry point).
+`@lite-llm/server` — shared Express routes and orchestration services for compatible runtime hosts. Owns business logic that coordinates `@lite-llm/analytics-service` (data access) and `@lite-llm/agents-manager` (config CRUD).
 
 ## STRUCTURE
 
@@ -47,7 +47,7 @@ packages/server/
 | Register all routes                 | `src/routes/index.ts`               | `registerAllRoutes(app, opts)` for one-line wiring                                             |
 | Change cost normalization           | `src/orchestration/route-params.ts` | `toCostPerToken()` assumes canonical per-token USD                                             |
 | Add a benchmark comparison endpoint | `src/routes/model-routes.ts`        | `GET /models/:name/benchmark-comparison`; uses `benchmark-helpers.ts` + `openrouter-models.ts` |
-| Add chat streaming endpoint         | `src/routes/chat-routes.ts`         | Streams completions via `MODEL_PROXY_*`; mounted in apps/server                                |
+| Add chat streaming endpoint         | `src/routes/chat-routes.ts`         | Streams completions via `MODEL_PROXY_*`; mount from a compatible Express host                  |
 
 ## CONVENTIONS
 
@@ -61,6 +61,6 @@ packages/server/
 
 - Do not add Express-specific logic to orchestration functions
 - Do not bypass the `AnalyticsDataSource` interface — always go through it
-- Do not import from `apps/server/` — this package is standalone and consumed by external tools
+- Do not import from application entry points — this package is standalone and consumed by external tools
 - Do not add new dependencies without updating `package.json` `exports` field
 - Do not duplicate cost normalization logic — use `route-params.ts` helpers

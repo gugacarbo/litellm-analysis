@@ -4,7 +4,7 @@
  * check-ui-client-boundary.ts
  *
  * Guarda arquitetural que verifica se módulos client-side do apps/ui
- * importam código server-only ou referenciam a API legada do apps/server.
+ * importam código server-only ou o pacote de rotas Express legado.
  *
  * Uso:
  *   node --experimental-strip-types scripts/code-checks/check-ui-client-boundary.ts
@@ -59,12 +59,11 @@ const SERVER_ONLY_IMPORTS = [
   },
 ];
 
-// Padrões de referência à API legada do apps/server
+// Padrões de referência à API Express legada
 // Nota: imports de server functions (*.functions.ts) são o transporte
 // gerado pelo TanStack Start e são permitidos.
 const LEGACY_API_REFERENCES = [
   { pattern: /from\s+["']@lite-llm\/server["']/, label: "@lite-llm/server" },
-  { pattern: /apps\/server\//, label: "apps/server" },
 ];
 
 // Módulos server-only do próprio apps/ui que NÃO podem ser importados do client

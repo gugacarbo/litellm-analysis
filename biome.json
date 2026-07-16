@@ -13,8 +13,7 @@
       "!**/generated",
       "!**/.opencode/index",
       "!docs/index.json",
-      "!apps/ui/src/routeTree.gen.ts",
-      "!apps/server"
+      "!apps/ui/src/routeTree.gen.ts"
     ]
   },
   "formatter": {

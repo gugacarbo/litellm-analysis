@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Manages the `model_proxy_*` settings, model registry, and providers tables. Exposes a service-layer API (no Express) consumed by `apps/server` and `packages/server/src/orchestration/`. Owns the read/write paths for runtime proxy configuration.
+Manages the `model_proxy_*` settings, model registry, and providers tables. Exposes a service-layer API (no Express) consumed by the UI server boundary and `packages/server/src/orchestration/`. Owns the read/write paths for runtime proxy configuration.
 
 ## STRUCTURE
 
@@ -32,7 +32,7 @@ services/llm-config-service/
 
 ## CONVENTIONS
 
-- **No Express** — service functions return values/throw; route adaptation is in `apps/server` or `packages/server`
+- **No Express** — service functions return values/throw; route adaptation is in the application boundary or `packages/server`
 - **Encrypted providers** — read path decrypts, write path encrypts; never log decrypted
 - **Idempotent writes** — registry operations are safe to retry; they upsert by natural key
 - **Schema in `database`** — services use the shared Drizzle database client from there; model proxy tables are split under `database/src/schema/model-proxy/` and app tables under `database/src/schema/app/`

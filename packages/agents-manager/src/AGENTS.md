@@ -51,7 +51,7 @@ agents-repository (via Drizzle)
         ↓
 RepositoryClient → Services (agent/category/routing)
         ↓
-apps/server routes via @lite-llm/server
+Express routes via @lite-llm/server
 ```
 
 ## WHERE TO LOOK
@@ -71,7 +71,7 @@ apps/server routes via @lite-llm/server
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
-- Do not import from `apps/server/` — this package is standalone
+- Do not import from an application entry point — this package is standalone
 - Do not skip `validateOnRead` in repository options
 - Do not put types here — use `@lite-llm/agents-repository/schemas`
 - Do not re-implement plugin config storage — use `repositories/agents-repository` schemas and routing services

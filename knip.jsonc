@@ -4,12 +4,6 @@
   "ignore": ["**/components/ui/*", ".agents/**"],
   "tags": ["internal"],
   "workspaces": {
-    "apps/web": {
-      "project": "**/*.{ts,tsx}"
-    },
-    "apps/server": {
-      "project": "**/*.ts"
-    },
     "packages/*": {
       "project": "**/*.ts"
     },

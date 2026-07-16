@@ -1,7 +1,7 @@
-# Inventário e backlog de migração: `apps/web` → `apps/ui`
+# Inventário de migração arquivado: `.old/web` → `apps/ui`
 
-> Foto feita em 12 de julho de 2026. O `apps/web` é a referência funcional do
-> produto antigo; o `apps/ui` é o novo app TanStack Start. Os checkboxes deste
+> Foto feita em 12 de julho de 2026, antes do arquivamento. O antigo cliente está
+> em `.old/web`; `apps/ui` é o app TanStack Start ativo. Os checkboxes deste
 > documento são o controle de decisão e migração — não significam que algo do
 > `web` já esteja presente no `ui`.
 
@@ -9,7 +9,7 @@
 
 | Aplicação  | Papel                                                   | Estado                                           |
 | ---------- | ------------------------------------------------------- | ------------------------------------------------ |
-| `apps/web` | SPA administrativa legada, React + Vite + React Router. | Referência funcional atual.                      |
+| `.old/web` | SPA administrativa legada, React + Vite + React Router. | Arquivada; somente referência histórica.         |
 | `apps/ui`  | Novo app SSR, TanStack Start + React + Vite.            | Fundação, autenticação e shell protegido mínimo. |
 
 O `web` recebe dados e executa ações no backend por `/api/*` e recebe eventos
@@ -28,7 +28,7 @@ integrações de produto.
 - [x] Navegação inicial contém somente Dashboard (`/`), sem links para áreas ainda não migradas.
 - [x] Menu de conta mostra somente nome, e-mail e papel; o sign-out usa o cliente oficial do Better Auth e mantém erro recuperável.
 - [ ] Substituir o dashboard-placeholder pelo primeiro domínio escolhido abaixo.
-- [ ] Definir a estratégia para o `ui` acessar o backend: server functions/BFF do TanStack Start, proxy HTTP para `apps/server`, ou ambos.
+- [ ] Consolidar o acesso do `ui` por server functions/BFF do TanStack Start.
 - [ ] Aplicar autenticação/autorização a todas as rotas migradas; o `web` não possui guarda de rota no cliente.
 
 ## Navegação e rotas do `web`
