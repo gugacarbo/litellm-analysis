@@ -94,6 +94,7 @@ function ProtectedLayout() {
       }
       onSidebarChange={handleSidebarChange}
       pathname={pathname}
+      userRole={session.user.role}
       sidebar={preferences.sidebar}
     >
       <Outlet />

@@ -1,5 +1,6 @@
 import {
   BoxesIcon,
+  ClipboardListIcon,
   KeyRoundIcon,
   LayoutDashboard,
   PlugIcon,
@@ -8,8 +9,9 @@ import type { ComponentType } from "react";
 
 export type NavigationItem = {
   label: string;
-  to: "/" | "/models" | "/providers" | "/secrets";
+  to: "/" | "/models" | "/providers" | "/secrets" | "/audit";
   icon: ComponentType<{ className?: string }>;
+  adminOnly?: boolean;
 };
 
 export const navigationItems: readonly NavigationItem[] = [
@@ -33,7 +35,19 @@ export const navigationItems: readonly NavigationItem[] = [
     to: "/providers",
     icon: PlugIcon,
   },
+  {
+    label: "Audit",
+    to: "/audit",
+    icon: ClipboardListIcon,
+    adminOnly: true,
+  },
 ];
+
+export function navigationItemsForRole(
+  role?: string,
+): readonly NavigationItem[] {
+  return navigationItems.filter((item) => !item.adminOnly || role === "admin");
+}
 
 export function isNavigationItemActive(
   item: NavigationItem,

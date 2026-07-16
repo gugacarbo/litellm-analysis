@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import {
   isNavigationItemActive,
-  navigationItems,
+  navigationItemsForRole,
 } from "@/features/app-shell/components/navigation";
 import {
   Sidebar,
@@ -19,12 +19,16 @@ import {
 export type AppSidebarProps = {
   accountMenu?: ReactNode;
   pathname: string;
+  userRole?: string;
 };
 
-function NavigationMenu({ pathname }: Pick<AppSidebarProps, "pathname">) {
+function NavigationMenu({
+  pathname,
+  userRole,
+}: Pick<AppSidebarProps, "pathname" | "userRole">) {
   return (
     <SidebarMenu className="gap-1">
-      {navigationItems.map((item) => {
+      {navigationItemsForRole(userRole).map((item) => {
         const Icon = item.icon;
         const isActive = isNavigationItemActive(item, pathname);
 
@@ -47,7 +51,11 @@ function NavigationMenu({ pathname }: Pick<AppSidebarProps, "pathname">) {
   );
 }
 
-export function AppSidebar({ accountMenu, pathname }: AppSidebarProps) {
+export function AppSidebar({
+  accountMenu,
+  pathname,
+  userRole,
+}: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -66,7 +74,7 @@ export function AppSidebar({ accountMenu, pathname }: AppSidebarProps) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <NavigationMenu pathname={pathname} />
+            <NavigationMenu pathname={pathname} userRole={userRole} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

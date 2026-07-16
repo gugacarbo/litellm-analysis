@@ -10,6 +10,7 @@ export type AppShellProps = {
   accountMenu?: ReactNode;
   children?: ReactNode;
   pathname: string;
+  userRole?: string;
   sidebar: "expanded" | "collapsed";
   onSidebarChange: (sidebar: "expanded" | "collapsed") => Promise<void> | void;
 };
@@ -18,6 +19,7 @@ export function AppShell({
   accountMenu,
   children,
   pathname,
+  userRole,
   sidebar,
   onSidebarChange,
 }: AppShellProps) {
@@ -28,7 +30,11 @@ export function AppShell({
       }
       open={sidebar === "expanded"}
     >
-      <AppSidebar accountMenu={accountMenu} pathname={pathname} />
+      <AppSidebar
+        accountMenu={accountMenu}
+        pathname={pathname}
+        userRole={userRole}
+      />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-4">
           <SidebarTrigger />
