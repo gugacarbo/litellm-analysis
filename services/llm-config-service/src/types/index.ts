@@ -14,6 +14,24 @@ export {
   ReasoningSchema,
 } from "../schemas/thinking.js";
 export type {
+  AppendAuditEventInput,
+  AuditActorRole,
+  AuditActorType,
+  AuditEventCursor,
+  AuditEventDetail,
+  AuditEventListDirection,
+  AuditEventListInput,
+  AuditEventListItem,
+  AuditEventListResult,
+  AuditEventRecord,
+  AuditJson,
+  AuditOutcome,
+  AuditSource,
+  NewAuditEventRecord,
+  NormalizedAuditEventListInput,
+} from "./audit-events.js";
+export { AuditEventError } from "./audit-events.js";
+export type {
   ModelProxyModelRecord,
   ModelRoute,
   ModelRouteUpdate,

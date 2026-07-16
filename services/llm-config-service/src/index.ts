@@ -19,6 +19,10 @@ export {
 } from "./dual-read/settings-dual-read.js";
 export { createRegistryServices, type RegistryServices } from "./factory.js";
 export {
+  REDACTED_AUDIT_VALUE,
+  redactAuditJson,
+} from "./lib/audit-redaction.js";
+export {
   encryptProviderSecret,
   parseProviderEncryptionKey,
   resolveProviderCredential,
@@ -32,6 +36,11 @@ export {
   type ProviderSecretRecord,
   providerSecretKey,
 } from "./repositories/application-secrets-repository.js";
+export {
+  AuditEventsRepository,
+  type AuditEventsRepositoryListResult,
+  type AuditEventsRepositoryPort,
+} from "./repositories/audit-events-repository.js";
 export { ModelsRepository } from "./repositories/models-repository.js";
 export { SettingsRepository } from "./repositories/settings-repository.js";
 export {
@@ -45,6 +54,11 @@ export {
   type ApplicationSecretsServiceOptions,
   type IApplicationSecretsService,
 } from "./services/application-secrets.service.js";
+export {
+  AuditEventsService,
+  type AuditEventsServiceOptions,
+  type IAuditEventsService,
+} from "./services/audit-events.service.js";
 export {
   ModelAdminService,
   type ModelAdminServiceOptions,
@@ -65,7 +79,20 @@ export {
   type SettingsServiceOptions,
 } from "./services/settings.service.js";
 export type {
+  AppendAuditEventInput,
   Architecture,
+  AuditActorRole,
+  AuditActorType,
+  AuditEventCursor,
+  AuditEventDetail,
+  AuditEventListDirection,
+  AuditEventListInput,
+  AuditEventListItem,
+  AuditEventListResult,
+  AuditEventRecord,
+  AuditJson,
+  AuditOutcome,
+  AuditSource,
   DefaultParameters,
   Effort,
   HealthCheckPromptSetting,
@@ -78,6 +105,8 @@ export type {
   ModelSyncSelection,
   ModelsWithConfigCounts,
   ModelsWithConfigResponse,
+  NewAuditEventRecord,
+  NormalizedAuditEventListInput,
   PerRequestLimits,
   Pricing,
   Reasoning,
@@ -87,6 +116,7 @@ export type {
   SupportedParameters,
 } from "./types/index.js";
 export {
+  AuditEventError,
   MODEL_ROUTE_TO_ROUTE_PARAM,
   normalizeSyncDirection,
   normalizeSyncPresenceStatus,
