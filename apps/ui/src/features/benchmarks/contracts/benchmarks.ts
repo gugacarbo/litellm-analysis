@@ -41,8 +41,7 @@ export type BenchmarkPublicErrorCode =
   | "SNAPSHOT_NOT_FOUND"
   | "CREDENTIAL_NOT_CONFIGURED"
   | "UPSTREAM_UNAVAILABLE"
-  | "UPSTREAM_RATE_LIMIT"
-  | "INTERNAL";
+  | "UPSTREAM_RATE_LIMIT";
 
 export type BenchmarkResult<T> =
   | { ok: true; data: T }

@@ -121,7 +121,9 @@ export class BenchmarksService {
           false,
         );
       const body = await this.fetchJson(AA_URL, { "x-api-key": key });
-      const snapshot = normalizeArtificialAnalysis(body);
+      const snapshot = this.normalizeUpstream(() =>
+        normalizeArtificialAnalysis(body),
+      );
       await this.repository.replaceSnapshot(snapshot);
       return {
         count: snapshot.items.length,
@@ -141,8 +143,10 @@ export class BenchmarksService {
       this.fetchJson(`${OPENROUTER_URL}?source=artificial-analysis`, headers),
       this.fetchJson(`${OPENROUTER_URL}?source=design-arena`, headers),
     ]);
-    const aaSnapshot = normalizeOpenRouter(aa, "artificial-analysis");
-    const arenaSnapshot = normalizeOpenRouter(arena, "design-arena");
+    const [aaSnapshot, arenaSnapshot] = this.normalizeUpstream(() => [
+      normalizeOpenRouter(aa, "artificial-analysis"),
+      normalizeOpenRouter(arena, "design-arena"),
+    ]);
     const snapshot = {
       metadata: {
         catalog: "openrouter" as const,
@@ -197,6 +201,18 @@ export class BenchmarksService {
       throw new BenchmarkServiceError(
         "UPSTREAM_UNAVAILABLE",
         "Benchmark provider returned an invalid response",
+        true,
+      );
+    }
+  }
+
+  private normalizeUpstream<T>(normalizer: () => T): T {
+    try {
+      return normalizer();
+    } catch {
+      throw new BenchmarkServiceError(
+        "UPSTREAM_UNAVAILABLE",
+        "Benchmark provider returned invalid data",
         true,
       );
     }

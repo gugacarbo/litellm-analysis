@@ -40,9 +40,9 @@ function publicError(errorValue: unknown): BenchmarkResult<never> {
   return {
     ok: false,
     error: {
-      code: "INTERNAL",
-      message: "Internal server error",
-      retryable: false,
+      code: "UPSTREAM_UNAVAILABLE",
+      message: "Benchmark provider is unavailable",
+      retryable: true,
     },
   };
 }
