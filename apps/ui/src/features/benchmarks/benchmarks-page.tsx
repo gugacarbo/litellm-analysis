@@ -136,7 +136,7 @@ function BenchmarkContent({
         <Alert variant="destructive">
           <AlertTitle>Falha ao sincronizar</AlertTitle>
           <AlertDescription>
-            {sync.error?.message ?? "Não foi possível sincronizar o catálogo."}
+            Não foi possível sincronizar o catálogo. Tente novamente.
           </AlertDescription>
         </Alert>
       ) : null}
@@ -150,7 +150,9 @@ function BenchmarkContent({
       ) : query.isError ? (
         <Alert variant="destructive">
           <AlertTitle>Não foi possível carregar benchmarks</AlertTitle>
-          <AlertDescription>{query.error.message}</AlertDescription>
+          <AlertDescription>
+            Não foi possível consultar este catálogo. Tente novamente.
+          </AlertDescription>
           <Button
             className="mt-3"
             onClick={() => void query.refetch()}

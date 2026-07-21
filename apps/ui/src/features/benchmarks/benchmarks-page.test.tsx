@@ -117,10 +117,9 @@ function renderPage(role: "admin" | "viewer") {
 function renderQueryError(
   role: "admin" | "viewer",
   code: "SNAPSHOT_NOT_FOUND" | "UPSTREAM_UNAVAILABLE",
+  message = "Public benchmark error",
 ) {
-  requests.aa.mockRejectedValue(
-    Object.assign(new Error("Public benchmark error"), { code }),
-  );
+  requests.aa.mockRejectedValue(Object.assign(new Error(message), { code }));
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -187,11 +186,23 @@ describe("BenchmarksPage", () => {
   });
 
   it("keeps generic upstream failures destructive and retryable", async () => {
-    renderQueryError("viewer", "UPSTREAM_UNAVAILABLE");
+    renderQueryError(
+      "viewer",
+      "UPSTREAM_UNAVAILABLE",
+      "Bearer read-secret-should-not-render",
+    );
 
     expect(
       await screen.findByText("Não foi possível carregar benchmarks"),
     ).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Não foi possível consultar este catálogo. Tente novamente.",
+      ),
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toContain(
+      "read-secret-should-not-render",
+    );
     fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
     expect(requests.aa).toHaveBeenCalledTimes(2);
   });
@@ -219,6 +230,30 @@ describe("BenchmarksPage", () => {
     ).toBe("/secrets");
     expect(document.body.textContent).not.toContain(
       "internal credential diagnostic",
+    );
+  });
+
+  it("redacts arbitrary generic synchronization errors", async () => {
+    mutations.syncBenchmarks.mockResolvedValue({
+      ok: false,
+      error: {
+        code: "UPSTREAM_UNAVAILABLE",
+        message: "Bearer sync-secret-should-not-render",
+        retryable: true,
+      },
+    });
+    renderPage("admin");
+
+    fireEvent.click(screen.getByRole("button", { name: "Sincronizar" }));
+
+    expect(await screen.findByText("Falha ao sincronizar")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Não foi possível sincronizar o catálogo. Tente novamente.",
+      ),
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toContain(
+      "sync-secret-should-not-render",
     );
   });
 });
