@@ -31,7 +31,7 @@ CREATE TABLE "benchmark_snapshots" (
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "benchmark_snapshot_entries" ADD CONSTRAINT "benchmark_snapshot_entries_snapshot_id_benchmark_snapshots_id_fk" FOREIGN KEY ("snapshot_id") REFERENCES "public"."benchmark_snapshots"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "benchmark_snapshot_entries" ADD CONSTRAINT "benchmark_snapshot_entries_snapshot_id_benchmark_snapshots_id_fk" FOREIGN KEY ("snapshot_id") REFERENCES "benchmark_snapshots"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "uq_benchmark_snapshot_entries_snapshot_external" ON "benchmark_snapshot_entries" USING btree ("snapshot_id","external_id");--> statement-breakpoint
 CREATE INDEX "idx_benchmark_snapshot_entries_subsource" ON "benchmark_snapshot_entries" USING btree ("subsource");--> statement-breakpoint
 CREATE INDEX "idx_benchmark_snapshot_entries_provider" ON "benchmark_snapshot_entries" USING btree ("provider");--> statement-breakpoint

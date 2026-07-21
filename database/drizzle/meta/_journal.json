@@ -71,6 +71,13 @@
       "when": 1784599081925,
       "tag": "0009_dusty_jigsaw",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1784676785862,
+      "tag": "0010_benchmark_snapshot_schema_repair",
+      "breakpoints": true
     }
   ]
 }
