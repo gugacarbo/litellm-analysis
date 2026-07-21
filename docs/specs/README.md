@@ -13,3 +13,4 @@
 | [SPEC-0007](0007-providers-detail-discovery-spec.md)        | Detalhe de provider e discovery persistente                                            | accepted    |
 | [SPEC-0008](0008-model-settings-tabs-spec.md)               | Configuração de modelo por abas                                                        | implemented |
 | [SPEC-0009](0009-fundacao-auditoria-administrativa-spec.md) | Estabelecer a fundação server-side da auditoria administrativa                         | accepted    |
+| [SPEC-0010](0010-benchmarks-aa-openrouter-spec.md)          | Visualizar snapshots de benchmarks AA e OpenRouter na UI                               | implemented |

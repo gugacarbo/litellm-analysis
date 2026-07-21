@@ -41,6 +41,7 @@ pnpm verify            # completo (format + build + test + typecheck)
 pnpm verify -c         # rápido (docs-check + code-checks)
 pnpm typecheck         # só typecheck
 pnpm test              # só testes
+TEST_DATABASE_URL='postgresql://…/app-test?schema=benchmark_migration' pnpm --filter @lite-llm/database test:migrations # prova forward/down/fresh dos snapshots
 ```
 
 ## Como deployar
@@ -59,6 +60,8 @@ pnpm test              # só testes
 -
 - Express 4.22 registra camadas em `app._router.stack`; não acessar o getter
   depreciado `app.router`, pois ele lança em runtime.
+- O runner `test:migrations` exige um banco com marcador `test` e schema
+  explícito não-`public`; ele falha antes de DDL fora desse alvo isolado.
 
 ## Mapa de contexto
 

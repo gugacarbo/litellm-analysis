@@ -1,4 +1,19 @@
-import type { NormalizedModelBenchmark } from "@lite-llm/contracts/benchmarks";
+import type {
+  ArtificialAnalysisBenchmarkItem,
+  BenchmarkCatalog,
+  BenchmarkSnapshotMetadata,
+  NormalizedModelBenchmark,
+  OpenRouterBenchmarkItem,
+} from "@lite-llm/contracts/benchmarks";
+
+export type SnapshotItems =
+  | ArtificialAnalysisBenchmarkItem[]
+  | OpenRouterBenchmarkItem[];
+
+export interface StoredBenchmarkSnapshot {
+  metadata: BenchmarkSnapshotMetadata;
+  items: SnapshotItems;
+}
 
 export interface IBenchmarksRepository {
   upsert(models: NormalizedModelBenchmark[]): Promise<void>;
@@ -9,4 +24,8 @@ export interface IBenchmarksRepository {
   ): Promise<NormalizedModelBenchmark | null>;
   count(): Promise<number>;
   clear(): Promise<void>;
+  replaceSnapshot(snapshot: StoredBenchmarkSnapshot): Promise<void>;
+  getSnapshot(
+    catalog: BenchmarkCatalog,
+  ): Promise<StoredBenchmarkSnapshot | null>;
 }

@@ -269,5 +269,26 @@
     ],
     "superseded-by": null,
     "implemented-by": []
+  },
+  {
+    "id": "SPEC-0010",
+    "path": "docs/specs/0010-benchmarks-aa-openrouter-spec.md",
+    "layer": "specs",
+    "title": "Visualizar snapshots de benchmarks AA e OpenRouter na UI",
+    "status": "implemented",
+    "builds-on": [
+      "ADR-0002",
+      "ADR-0004",
+      "ADR-0006",
+      "ADR-0007",
+      "SPEC-0006"
+    ],
+    "superseded-by": null,
+    "implemented-by": [
+      "apps/ui/src/features/benchmarks",
+      "apps/ui/src/routes/_protected/benchmarks",
+      "database/src/schema/model-proxy/benchmarks.ts",
+      "repositories/benchmarks-repository/src"
+    ]
   }
 ]

@@ -103,6 +103,12 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.4.0(react-hook-form@7.81.0(react@19.2.6))
+      '@lite-llm/benchmarks-repository':
+        specifier: workspace:*
+        version: link:../../repositories/benchmarks-repository
+      '@lite-llm/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@lite-llm/database':
         specifier: workspace:*
         version: link:../../database

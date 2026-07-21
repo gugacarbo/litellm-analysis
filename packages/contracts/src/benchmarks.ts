@@ -113,3 +113,66 @@ export interface BenchmarkComparisonResponse {
   matchedOpenRouterModel: string | null;
   fields: BenchmarkComparisonField[];
 }
+
+/** A persisted catalog is intentionally separate from the legacy normalized rows. */
+export type BenchmarkCatalog = "artificial-analysis" | "openrouter";
+export type OpenRouterBenchmarkSubsource =
+  | "artificial-analysis"
+  | "design-arena";
+
+export interface BenchmarkAttribution {
+  label: string;
+  url: string;
+  citation: string | null;
+}
+
+export interface BenchmarkSnapshotMetadata {
+  catalog: BenchmarkCatalog;
+  fetchedAt: string;
+  count: number;
+  attribution: BenchmarkAttribution;
+}
+
+export interface ArtificialAnalysisBenchmarkItem
+  extends NormalizedModelBenchmark {
+  source: "artificial-analysis";
+}
+
+/**
+ * Keeps OpenRouter's source-native information rather than coercing Design
+ * Arena ELO/win rate into Artificial Analysis' intelligence index.
+ */
+export interface OpenRouterBenchmarkItem {
+  id: string;
+  subsource: OpenRouterBenchmarkSubsource;
+  modelPermaslug: string | null;
+  name: string;
+  provider: string | null;
+  arena: string | null;
+  category: string | null;
+  elo: number | null;
+  winRate: number | null;
+  averageTimeSeconds: number | null;
+  intelligenceIndex: number | null;
+  priceInput1mTokens: number | null;
+  priceOutput1mTokens: number | null;
+  attribution: BenchmarkAttribution;
+  native: Record<string, BenchmarkNativeValue>;
+}
+
+export type BenchmarkNativeValue =
+  | null
+  | boolean
+  | number
+  | string
+  | BenchmarkNativeValue[]
+  | { [key: string]: BenchmarkNativeValue };
+
+export interface BenchmarkPage<T> {
+  metadata: BenchmarkSnapshotMetadata;
+  items: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+  pageCount: number;
+}

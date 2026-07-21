@@ -1,12 +1,16 @@
-import type { NormalizedModelBenchmark } from "@lite-llm/contracts/benchmarks";
+import type {
+  ArtificialAnalysisBenchmarkItem,
+  BenchmarkSnapshotMetadata,
+  OpenRouterBenchmarkItem,
+} from "@lite-llm/contracts/benchmarks";
 import { createTestDb } from "@lite-llm/database/test-helpers";
 import { sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createBenchmarksRepositoryWithDb } from "./db-repository";
 
 function makeModel(
-  overrides: Partial<NormalizedModelBenchmark> = {},
-): NormalizedModelBenchmark {
+  overrides: Partial<ArtificialAnalysisBenchmarkItem> = {},
+): ArtificialAnalysisBenchmarkItem {
   return {
     id: "test-model-1",
     name: "Test Model 1",
@@ -39,6 +43,39 @@ function makeModel(
     ...overrides,
   };
 }
+
+const aaMetadata: BenchmarkSnapshotMetadata = {
+  catalog: "artificial-analysis",
+  fetchedAt: "2026-07-21T12:00:00.000Z",
+  count: 1,
+  attribution: {
+    label: "Artificial Analysis",
+    url: "https://artificialanalysis.ai/",
+    citation: null,
+  },
+};
+
+const openRouterItem: OpenRouterBenchmarkItem = {
+  id: "design-arena:provider/model",
+  subsource: "design-arena",
+  modelPermaslug: "provider/model",
+  name: "Arena Model",
+  provider: "provider",
+  arena: "chatbot",
+  category: "coding",
+  elo: 1200,
+  winRate: 55,
+  averageTimeSeconds: 2,
+  intelligenceIndex: null,
+  priceInput1mTokens: null,
+  priceOutput1mTokens: null,
+  attribution: {
+    label: "OpenRouter Benchmarks — design-arena",
+    url: "https://openrouter.ai/api/v1/benchmarks?source=design-arena",
+    citation: null,
+  },
+  native: { source: "design-arena", preserved: true },
+};
 
 describe("DbBenchmarksRepository", () => {
   let testDb: Awaited<ReturnType<typeof createTestDb>>;
@@ -81,8 +118,44 @@ describe("DbBenchmarksRepository", () => {
       );
       CREATE UNIQUE INDEX IF NOT EXISTS uq_model_proxy_benchmarks_aa_model_id_source
         ON model_proxy_benchmarks (aa_model_id, source);
+      CREATE TABLE IF NOT EXISTS benchmark_snapshots (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+        catalog text NOT NULL UNIQUE,
+        source_label text NOT NULL,
+        source_url text NOT NULL,
+        citation text,
+        fetched_at timestamp NOT NULL,
+        count integer NOT NULL,
+        created_at timestamp DEFAULT now() NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS benchmark_snapshot_entries (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+        snapshot_id uuid NOT NULL REFERENCES benchmark_snapshots(id) ON DELETE CASCADE,
+        external_id text NOT NULL,
+        subsource text,
+        name text NOT NULL,
+        provider text,
+        model_permaslug text,
+        arena text,
+        category text,
+        intelligence_index double precision,
+        elo double precision,
+        win_rate double precision,
+        average_time_seconds double precision,
+        price_input_1m_tokens double precision,
+        price_output_1m_tokens double precision,
+        attribution_label text NOT NULL,
+        attribution_url text NOT NULL,
+        attribution_citation text,
+        native jsonb NOT NULL,
+        UNIQUE(snapshot_id, external_id)
+      );
     `);
-    await testDb.db.execute(sql`DELETE FROM model_proxy_benchmarks`);
+    await testDb.db.execute(sql`
+      DELETE FROM benchmark_snapshot_entries;
+      DELETE FROM benchmark_snapshots;
+      DELETE FROM model_proxy_benchmarks;
+    `);
   });
 
   afterEach(async () => {
@@ -184,5 +257,63 @@ describe("DbBenchmarksRepository", () => {
     expect(all[0].intelligenceIndex).toBeNull();
     expect(all[0].codingIndex).toBeNull();
     expect(all[0].aime25).toBeNull();
+  });
+
+  it("replaces only the targeted snapshot and preserves OpenRouter attribution", async () => {
+    const repo = createBenchmarksRepositoryWithDb(testDb.db);
+    await repo.replaceSnapshot({ metadata: aaMetadata, items: [makeModel()] });
+    await repo.replaceSnapshot({
+      metadata: {
+        catalog: "openrouter",
+        fetchedAt: "2026-07-21T12:05:00.000Z",
+        count: 1,
+        attribution: {
+          label: "OpenRouter Benchmarks",
+          url: "https://openrouter.ai/api/v1/benchmarks",
+          citation: null,
+        },
+      },
+      items: [openRouterItem],
+    });
+    await repo.replaceSnapshot({
+      metadata: { ...aaMetadata, fetchedAt: "2026-07-21T12:10:00.000Z" },
+      items: [makeModel({ id: "replacement", name: "Replacement" })],
+    });
+
+    await expect(
+      repo.getSnapshot("artificial-analysis"),
+    ).resolves.toMatchObject({
+      items: [{ id: "replacement", name: "Replacement" }],
+    });
+    await expect(repo.getSnapshot("openrouter")).resolves.toMatchObject({
+      items: [
+        {
+          id: openRouterItem.id,
+          subsource: "design-arena",
+          elo: 1200,
+          attribution: openRouterItem.attribution,
+          native: openRouterItem.native,
+        },
+      ],
+    });
+  });
+
+  it("rolls back a failed replacement and retains the previous valid snapshot", async () => {
+    const repo = createBenchmarksRepositoryWithDb(testDb.db);
+    await repo.replaceSnapshot({ metadata: aaMetadata, items: [makeModel()] });
+
+    await expect(
+      repo.replaceSnapshot({
+        metadata: { ...aaMetadata, fetchedAt: "2026-07-21T12:10:00.000Z" },
+        items: [makeModel(), makeModel()],
+      }),
+    ).rejects.toThrow();
+
+    await expect(
+      repo.getSnapshot("artificial-analysis"),
+    ).resolves.toMatchObject({
+      metadata: { fetchedAt: aaMetadata.fetchedAt },
+      items: [{ id: "test-model-1", name: "Test Model 1" }],
+    });
   });
 });
