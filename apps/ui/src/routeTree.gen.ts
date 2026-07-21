@@ -16,13 +16,17 @@ import { Route as ProtectedSecretsRouteImport } from './routes/_protected/secret
 import { Route as ProtectedProvidersRouteImport } from './routes/_protected/providers'
 import { Route as ProtectedModelsRouteImport } from './routes/_protected/models'
 import { Route as ProtectedCodingAgentsRouteImport } from './routes/_protected/coding-agents'
+import { Route as ProtectedBenchmarksRouteImport } from './routes/_protected/benchmarks'
 import { Route as ProtectedAuditRouteImport } from './routes/_protected/audit'
 import { Route as ProtectedProvidersIndexRouteImport } from './routes/_protected/providers/index'
 import { Route as ProtectedModelsIndexRouteImport } from './routes/_protected/models/index'
+import { Route as ProtectedBenchmarksIndexRouteImport } from './routes/_protected/benchmarks/index'
 import { Route as ApiAuthAcceptInviteRouteImport } from './routes/api/auth/accept-invite'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ProtectedProvidersProviderIdRouteImport } from './routes/_protected/providers/$providerId'
 import { Route as ProtectedModelsAliasesRouteImport } from './routes/_protected/models/aliases'
+import { Route as ProtectedBenchmarksOpenrouterRouteImport } from './routes/_protected/benchmarks/openrouter'
+import { Route as ProtectedBenchmarksAaRouteImport } from './routes/_protected/benchmarks/aa'
 import { Route as ProtectedModelsModelIdSettingsRouteImport } from './routes/_protected/models/$modelId/settings'
 import { Route as ProtectedModelsModelIdSettingsTabRouteImport } from './routes/_protected/models/$modelId/settings/$tab'
 
@@ -60,6 +64,11 @@ const ProtectedCodingAgentsRoute = ProtectedCodingAgentsRouteImport.update({
   path: '/coding-agents',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedBenchmarksRoute = ProtectedBenchmarksRouteImport.update({
+  id: '/benchmarks',
+  path: '/benchmarks',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedAuditRoute = ProtectedAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -75,6 +84,12 @@ const ProtectedModelsIndexRoute = ProtectedModelsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProtectedModelsRoute,
 } as any)
+const ProtectedBenchmarksIndexRoute =
+  ProtectedBenchmarksIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ProtectedBenchmarksRoute,
+  } as any)
 const ApiAuthAcceptInviteRoute = ApiAuthAcceptInviteRouteImport.update({
   id: '/api/auth/accept-invite',
   path: '/api/auth/accept-invite',
@@ -96,6 +111,17 @@ const ProtectedModelsAliasesRoute = ProtectedModelsAliasesRouteImport.update({
   path: '/aliases',
   getParentRoute: () => ProtectedModelsRoute,
 } as any)
+const ProtectedBenchmarksOpenrouterRoute =
+  ProtectedBenchmarksOpenrouterRouteImport.update({
+    id: '/openrouter',
+    path: '/openrouter',
+    getParentRoute: () => ProtectedBenchmarksRoute,
+  } as any)
+const ProtectedBenchmarksAaRoute = ProtectedBenchmarksAaRouteImport.update({
+  id: '/aa',
+  path: '/aa',
+  getParentRoute: () => ProtectedBenchmarksRoute,
+} as any)
 const ProtectedModelsModelIdSettingsRoute =
   ProtectedModelsModelIdSettingsRouteImport.update({
     id: '/$modelId/settings',
@@ -113,14 +139,18 @@ export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
   '/login': typeof LoginRoute
   '/audit': typeof ProtectedAuditRoute
+  '/benchmarks': typeof ProtectedBenchmarksRouteWithChildren
   '/coding-agents': typeof ProtectedCodingAgentsRoute
   '/models': typeof ProtectedModelsRouteWithChildren
   '/providers': typeof ProtectedProvidersRouteWithChildren
   '/secrets': typeof ProtectedSecretsRoute
+  '/benchmarks/aa': typeof ProtectedBenchmarksAaRoute
+  '/benchmarks/openrouter': typeof ProtectedBenchmarksOpenrouterRoute
   '/models/aliases': typeof ProtectedModelsAliasesRoute
   '/providers/$providerId': typeof ProtectedProvidersProviderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/accept-invite': typeof ApiAuthAcceptInviteRoute
+  '/benchmarks/': typeof ProtectedBenchmarksIndexRoute
   '/models/': typeof ProtectedModelsIndexRoute
   '/providers/': typeof ProtectedProvidersIndexRoute
   '/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRouteWithChildren
@@ -132,10 +162,13 @@ export interface FileRoutesByTo {
   '/coding-agents': typeof ProtectedCodingAgentsRoute
   '/secrets': typeof ProtectedSecretsRoute
   '/': typeof ProtectedIndexRoute
+  '/benchmarks/aa': typeof ProtectedBenchmarksAaRoute
+  '/benchmarks/openrouter': typeof ProtectedBenchmarksOpenrouterRoute
   '/models/aliases': typeof ProtectedModelsAliasesRoute
   '/providers/$providerId': typeof ProtectedProvidersProviderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/accept-invite': typeof ApiAuthAcceptInviteRoute
+  '/benchmarks': typeof ProtectedBenchmarksIndexRoute
   '/models': typeof ProtectedModelsIndexRoute
   '/providers': typeof ProtectedProvidersIndexRoute
   '/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRouteWithChildren
@@ -146,15 +179,19 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/login': typeof LoginRoute
   '/_protected/audit': typeof ProtectedAuditRoute
+  '/_protected/benchmarks': typeof ProtectedBenchmarksRouteWithChildren
   '/_protected/coding-agents': typeof ProtectedCodingAgentsRoute
   '/_protected/models': typeof ProtectedModelsRouteWithChildren
   '/_protected/providers': typeof ProtectedProvidersRouteWithChildren
   '/_protected/secrets': typeof ProtectedSecretsRoute
   '/_protected/': typeof ProtectedIndexRoute
+  '/_protected/benchmarks/aa': typeof ProtectedBenchmarksAaRoute
+  '/_protected/benchmarks/openrouter': typeof ProtectedBenchmarksOpenrouterRoute
   '/_protected/models/aliases': typeof ProtectedModelsAliasesRoute
   '/_protected/providers/$providerId': typeof ProtectedProvidersProviderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/accept-invite': typeof ApiAuthAcceptInviteRoute
+  '/_protected/benchmarks/': typeof ProtectedBenchmarksIndexRoute
   '/_protected/models/': typeof ProtectedModelsIndexRoute
   '/_protected/providers/': typeof ProtectedProvidersIndexRoute
   '/_protected/models/$modelId/settings': typeof ProtectedModelsModelIdSettingsRouteWithChildren
@@ -166,14 +203,18 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/audit'
+    | '/benchmarks'
     | '/coding-agents'
     | '/models'
     | '/providers'
     | '/secrets'
+    | '/benchmarks/aa'
+    | '/benchmarks/openrouter'
     | '/models/aliases'
     | '/providers/$providerId'
     | '/api/auth/$'
     | '/api/auth/accept-invite'
+    | '/benchmarks/'
     | '/models/'
     | '/providers/'
     | '/models/$modelId/settings'
@@ -185,10 +226,13 @@ export interface FileRouteTypes {
     | '/coding-agents'
     | '/secrets'
     | '/'
+    | '/benchmarks/aa'
+    | '/benchmarks/openrouter'
     | '/models/aliases'
     | '/providers/$providerId'
     | '/api/auth/$'
     | '/api/auth/accept-invite'
+    | '/benchmarks'
     | '/models'
     | '/providers'
     | '/models/$modelId/settings'
@@ -198,15 +242,19 @@ export interface FileRouteTypes {
     | '/_protected'
     | '/login'
     | '/_protected/audit'
+    | '/_protected/benchmarks'
     | '/_protected/coding-agents'
     | '/_protected/models'
     | '/_protected/providers'
     | '/_protected/secrets'
     | '/_protected/'
+    | '/_protected/benchmarks/aa'
+    | '/_protected/benchmarks/openrouter'
     | '/_protected/models/aliases'
     | '/_protected/providers/$providerId'
     | '/api/auth/$'
     | '/api/auth/accept-invite'
+    | '/_protected/benchmarks/'
     | '/_protected/models/'
     | '/_protected/providers/'
     | '/_protected/models/$modelId/settings'
@@ -271,6 +319,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedCodingAgentsRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/benchmarks': {
+      id: '/_protected/benchmarks'
+      path: '/benchmarks'
+      fullPath: '/benchmarks'
+      preLoaderRoute: typeof ProtectedBenchmarksRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/audit': {
       id: '/_protected/audit'
       path: '/audit'
@@ -291,6 +346,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/models/'
       preLoaderRoute: typeof ProtectedModelsIndexRouteImport
       parentRoute: typeof ProtectedModelsRoute
+    }
+    '/_protected/benchmarks/': {
+      id: '/_protected/benchmarks/'
+      path: '/'
+      fullPath: '/benchmarks/'
+      preLoaderRoute: typeof ProtectedBenchmarksIndexRouteImport
+      parentRoute: typeof ProtectedBenchmarksRoute
     }
     '/api/auth/accept-invite': {
       id: '/api/auth/accept-invite'
@@ -320,6 +382,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedModelsAliasesRouteImport
       parentRoute: typeof ProtectedModelsRoute
     }
+    '/_protected/benchmarks/openrouter': {
+      id: '/_protected/benchmarks/openrouter'
+      path: '/openrouter'
+      fullPath: '/benchmarks/openrouter'
+      preLoaderRoute: typeof ProtectedBenchmarksOpenrouterRouteImport
+      parentRoute: typeof ProtectedBenchmarksRoute
+    }
+    '/_protected/benchmarks/aa': {
+      id: '/_protected/benchmarks/aa'
+      path: '/aa'
+      fullPath: '/benchmarks/aa'
+      preLoaderRoute: typeof ProtectedBenchmarksAaRouteImport
+      parentRoute: typeof ProtectedBenchmarksRoute
+    }
     '/_protected/models/$modelId/settings': {
       id: '/_protected/models/$modelId/settings'
       path: '/$modelId/settings'
@@ -336,6 +412,21 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ProtectedBenchmarksRouteChildren {
+  ProtectedBenchmarksAaRoute: typeof ProtectedBenchmarksAaRoute
+  ProtectedBenchmarksOpenrouterRoute: typeof ProtectedBenchmarksOpenrouterRoute
+  ProtectedBenchmarksIndexRoute: typeof ProtectedBenchmarksIndexRoute
+}
+
+const ProtectedBenchmarksRouteChildren: ProtectedBenchmarksRouteChildren = {
+  ProtectedBenchmarksAaRoute: ProtectedBenchmarksAaRoute,
+  ProtectedBenchmarksOpenrouterRoute: ProtectedBenchmarksOpenrouterRoute,
+  ProtectedBenchmarksIndexRoute: ProtectedBenchmarksIndexRoute,
+}
+
+const ProtectedBenchmarksRouteWithChildren =
+  ProtectedBenchmarksRoute._addFileChildren(ProtectedBenchmarksRouteChildren)
 
 interface ProtectedModelsModelIdSettingsRouteChildren {
   ProtectedModelsModelIdSettingsTabRoute: typeof ProtectedModelsModelIdSettingsTabRoute
@@ -384,6 +475,7 @@ const ProtectedProvidersRouteWithChildren =
 
 interface ProtectedRouteChildren {
   ProtectedAuditRoute: typeof ProtectedAuditRoute
+  ProtectedBenchmarksRoute: typeof ProtectedBenchmarksRouteWithChildren
   ProtectedCodingAgentsRoute: typeof ProtectedCodingAgentsRoute
   ProtectedModelsRoute: typeof ProtectedModelsRouteWithChildren
   ProtectedProvidersRoute: typeof ProtectedProvidersRouteWithChildren
@@ -393,6 +485,7 @@ interface ProtectedRouteChildren {
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedAuditRoute: ProtectedAuditRoute,
+  ProtectedBenchmarksRoute: ProtectedBenchmarksRouteWithChildren,
   ProtectedCodingAgentsRoute: ProtectedCodingAgentsRoute,
   ProtectedModelsRoute: ProtectedModelsRouteWithChildren,
   ProtectedProvidersRoute: ProtectedProvidersRouteWithChildren,

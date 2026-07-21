@@ -1,5 +1,6 @@
 import {
   BoxesIcon,
+  ChartNoAxesCombinedIcon,
   ClipboardListIcon,
   CodeXmlIcon,
   KeyRoundIcon,
@@ -10,7 +11,14 @@ import type { ComponentType } from "react";
 
 export type NavigationItem = {
   label: string;
-  to: "/" | "/models" | "/providers" | "/secrets" | "/coding-agents" | "/audit";
+  to:
+    | "/"
+    | "/models"
+    | "/providers"
+    | "/secrets"
+    | "/benchmarks"
+    | "/coding-agents"
+    | "/audit";
   icon: ComponentType<{ className?: string }>;
   adminOnly?: boolean;
 };
@@ -35,6 +43,11 @@ export const navigationItems: readonly NavigationItem[] = [
     label: "Providers",
     to: "/providers",
     icon: PlugIcon,
+  },
+  {
+    label: "Benchmarks",
+    to: "/benchmarks",
+    icon: ChartNoAxesCombinedIcon,
   },
   {
     label: "Coding Agents",

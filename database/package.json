@@ -20,7 +20,8 @@
     "db:migrate:fresh": "node ./scripts/with-db-schema.mjs drizzle-kit migrate --config drizzle-fresh.config.ts",
     "db:push": "node ./scripts/with-db-schema.mjs drizzle-kit push",
     "db:studio": "node ./scripts/with-db-schema.mjs drizzle-kit studio",
-    "db:bootstrap-admin": "node --experimental-strip-types ./scripts/bootstrap-admin.ts"
+    "db:bootstrap-admin": "node --experimental-strip-types ./scripts/bootstrap-admin.ts",
+    "test:migrations": "node ./scripts/test-benchmark-snapshot-migrations.mjs"
   },
   "dependencies": {
     "@lite-llm/config": "workspace:*",

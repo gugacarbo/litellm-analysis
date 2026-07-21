@@ -2,8 +2,19 @@ export type { ModelProxyAlias, NewModelProxyAlias } from "./aliases";
 export { modelProxyAliases } from "./aliases";
 export type { ModelProxyApiKey, NewModelProxyApiKey } from "./api-keys";
 export { modelProxyApiKeys } from "./api-keys";
-export type { ModelProxyBenchmark, NewModelProxyBenchmark } from "./benchmarks";
-export { modelProxyBenchmarks } from "./benchmarks";
+export type {
+  BenchmarkSnapshot,
+  BenchmarkSnapshotEntry,
+  ModelProxyBenchmark,
+  NewBenchmarkSnapshot,
+  NewBenchmarkSnapshotEntry,
+  NewModelProxyBenchmark,
+} from "./benchmarks";
+export {
+  benchmarkSnapshotEntries,
+  benchmarkSnapshots,
+  modelProxyBenchmarks,
+} from "./benchmarks";
 export type { ModelProxyMessage, NewModelProxyMessage } from "./messages";
 export { modelProxyMessages } from "./messages";
 export type { ModelProxyModel, NewModelProxyModel } from "./models";

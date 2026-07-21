@@ -23,6 +23,8 @@
     "@fontsource-variable/geist": "^5.2.9",
     "@hookform/resolvers": "^5.4.0",
     "@lite-llm/database": "workspace:*",
+    "@lite-llm/benchmarks-repository": "workspace:*",
+    "@lite-llm/contracts": "workspace:*",
     "@lite-llm/llm-config-service": "workspace:*",
     "@lite-llm/logger": "workspace:*",
     "@shadcn/react": "^0.2.1",

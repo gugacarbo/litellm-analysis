@@ -153,6 +153,39 @@ CREATE TABLE "model_proxy_benchmarks" (
 	"fetched_at" timestamp DEFAULT now() NOT NULL
 );
 
+CREATE TABLE "benchmark_snapshots" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"catalog" text NOT NULL,
+	"source_label" text NOT NULL,
+	"source_url" text NOT NULL,
+	"citation" text,
+	"fetched_at" timestamp NOT NULL,
+	"count" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "benchmark_snapshot_entries" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"snapshot_id" uuid NOT NULL,
+	"external_id" text NOT NULL,
+	"subsource" text,
+	"name" text NOT NULL,
+	"provider" text,
+	"model_permaslug" text,
+	"arena" text,
+	"category" text,
+	"intelligence_index" double precision,
+	"elo" double precision,
+	"win_rate" double precision,
+	"average_time_seconds" double precision,
+	"price_input_1m_tokens" double precision,
+	"price_output_1m_tokens" double precision,
+	"attribution_label" text NOT NULL,
+	"attribution_url" text NOT NULL,
+	"attribution_citation" text,
+	"native" jsonb NOT NULL
+);
+
 CREATE TABLE "model_proxy_messages" (
 	"id" text PRIMARY KEY NOT NULL,
 	"request_id" text NOT NULL,
@@ -270,6 +303,7 @@ CREATE TABLE "model_proxy_usage_adjustments" (
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "app_invite" ADD CONSTRAINT "app_invite_created_by_user_id_user_id_fk" FOREIGN KEY ("created_by_user_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "benchmark_snapshot_entries" ADD CONSTRAINT "benchmark_snapshot_entries_snapshot_id_benchmark_snapshots_id_fk" FOREIGN KEY ("snapshot_id") REFERENCES "public"."benchmark_snapshots"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "model_proxy_aliases" ADD CONSTRAINT "model_proxy_aliases_target_model_id_model_proxy_models_id_fk" FOREIGN KEY ("target_model_id") REFERENCES "public"."model_proxy_models"("id") ON DELETE restrict ON UPDATE no action;
 ALTER TABLE "model_proxy_messages" ADD CONSTRAINT "model_proxy_messages_request_id_model_proxy_requests_id_fk" FOREIGN KEY ("request_id") REFERENCES "public"."model_proxy_requests"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "model_proxy_models" ADD CONSTRAINT "model_proxy_models_provider_id_model_proxy_providers_id_fk" FOREIGN KEY ("provider_id") REFERENCES "public"."model_proxy_providers"("id") ON DELETE restrict ON UPDATE no action;
@@ -287,6 +321,10 @@ CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("ident
 CREATE UNIQUE INDEX "uq_model_proxy_aliases_normalized" ON "model_proxy_aliases" USING btree ("alias_normalized");
 CREATE INDEX "idx_api_keys_enabled_label" ON "model_proxy_api_keys" USING btree ("enabled","label");
 CREATE UNIQUE INDEX "uq_model_proxy_benchmarks_aa_model_id_source" ON "model_proxy_benchmarks" USING btree ("aa_model_id","source");
+CREATE UNIQUE INDEX "uq_benchmark_snapshots_catalog" ON "benchmark_snapshots" USING btree ("catalog");
+CREATE UNIQUE INDEX "uq_benchmark_snapshot_entries_snapshot_external" ON "benchmark_snapshot_entries" USING btree ("snapshot_id","external_id");
+CREATE INDEX "idx_benchmark_snapshot_entries_subsource" ON "benchmark_snapshot_entries" USING btree ("subsource");
+CREATE INDEX "idx_benchmark_snapshot_entries_provider" ON "benchmark_snapshot_entries" USING btree ("provider");
 CREATE INDEX "idx_messages_request_created" ON "model_proxy_messages" USING btree ("request_id","created_at");
 CREATE UNIQUE INDEX "uq_model_proxy_models_provider_model" ON "model_proxy_models" USING btree ("provider_id","model_id");
 CREATE INDEX "idx_model_proxy_models_enabled_id" ON "model_proxy_models" USING btree ("enabled","model_id");
