@@ -1,0 +1,2 @@
+-- 0010 only repairs tables created by 0009. Its objects are removed by the
+-- 0009 down migration when the pair is rolled back in reverse order.

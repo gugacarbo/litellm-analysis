@@ -144,6 +144,46 @@ async function assertSnapshotTables(client, schema, expected) {
   }
 }
 
+async function assertSnapshotForeignKeySchema(client, schema) {
+  const result = await client.query(
+    `SELECT constraint_table.nspname AS source_schema, referenced_table.nspname AS target_schema
+     FROM pg_constraint
+     INNER JOIN pg_class AS constraint_relation ON constraint_relation.oid = pg_constraint.conrelid
+     INNER JOIN pg_namespace AS constraint_table ON constraint_table.oid = constraint_relation.relnamespace
+     INNER JOIN pg_class AS referenced_relation ON referenced_relation.oid = pg_constraint.confrelid
+     INNER JOIN pg_namespace AS referenced_table ON referenced_table.oid = referenced_relation.relnamespace
+     WHERE pg_constraint.conname = 'benchmark_snapshot_entries_snapshot_id_benchmark_snapshots_id_fk'
+       AND constraint_table.nspname = $1`,
+    [schema],
+  );
+  if (
+    result.rowCount !== 1 ||
+    result.rows[0]?.source_schema !== schema ||
+    result.rows[0]?.target_schema !== schema
+  ) {
+    throw new Error(
+      "Snapshot foreign key does not stay in the application schema",
+    );
+  }
+}
+
+async function assertNoPublicSnapshotForeignKey() {
+  for (const relativePath of [
+    "0009_dusty_jigsaw.sql",
+    "../drizzle-fresh/0000_clean-model-proxy-baseline.sql",
+  ]) {
+    const contents = await readFile(
+      join(migrationsFolder, relativePath),
+      "utf8",
+    );
+    if (contents.includes('REFERENCES "public"."benchmark_snapshots"')) {
+      throw new Error(
+        `${relativePath} hard-codes the benchmark snapshot FK to public`,
+      );
+    }
+  }
+}
+
 async function prove0006(client, pair, prefix, withRevision) {
   const protectedBefore = await protectedLedgers(client);
   await resetPair(client, pair, prefix);
@@ -216,6 +256,7 @@ const pairs = {
 await client.connect();
 const temporaryFolders = [];
 try {
+  await assertNoPublicSnapshotForeignKey();
   await prove0006(client, pairs.noRevision, prefix, false);
   await prove0006(client, pairs.withRevision, prefix, true);
 
@@ -232,8 +273,9 @@ try {
     incrementalFolder,
     seenMigrationsSchemas,
   );
-  await assertLedgerCount(client, pairs.incremental.migrationsSchema, 10);
+  await assertLedgerCount(client, pairs.incremental.migrationsSchema, 11);
   await assertSnapshotTables(client, pairs.incremental.appSchema, true);
+  await assertSnapshotForeignKeySchema(client, pairs.incremental.appSchema);
   await client.query(
     "INSERT INTO benchmark_snapshots (catalog, source_label, source_url, fetched_at, count) VALUES ('sentinel', 'test', 'https://example.test', now(), 0)",
   );
@@ -264,8 +306,9 @@ try {
     incrementalFolder,
     seenMigrationsSchemas,
   );
-  await assertLedgerCount(client, pairs.incremental.migrationsSchema, 10);
+  await assertLedgerCount(client, pairs.incremental.migrationsSchema, 11);
   await assertSnapshotTables(client, pairs.incremental.appSchema, true);
+  await assertSnapshotForeignKeySchema(client, pairs.incremental.appSchema);
   await assertProtectedLedgers(client, incrementalBefore);
 
   const freshFolder = await isolatedMigrationsFolder(

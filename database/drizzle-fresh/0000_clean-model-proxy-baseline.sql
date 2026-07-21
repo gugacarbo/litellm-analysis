@@ -303,7 +303,7 @@ CREATE TABLE "model_proxy_usage_adjustments" (
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "app_invite" ADD CONSTRAINT "app_invite_created_by_user_id_user_id_fk" FOREIGN KEY ("created_by_user_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
-ALTER TABLE "benchmark_snapshot_entries" ADD CONSTRAINT "benchmark_snapshot_entries_snapshot_id_benchmark_snapshots_id_fk" FOREIGN KEY ("snapshot_id") REFERENCES "public"."benchmark_snapshots"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "benchmark_snapshot_entries" ADD CONSTRAINT "benchmark_snapshot_entries_snapshot_id_benchmark_snapshots_id_fk" FOREIGN KEY ("snapshot_id") REFERENCES "benchmark_snapshots"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "model_proxy_aliases" ADD CONSTRAINT "model_proxy_aliases_target_model_id_model_proxy_models_id_fk" FOREIGN KEY ("target_model_id") REFERENCES "public"."model_proxy_models"("id") ON DELETE restrict ON UPDATE no action;
 ALTER TABLE "model_proxy_messages" ADD CONSTRAINT "model_proxy_messages_request_id_model_proxy_requests_id_fk" FOREIGN KEY ("request_id") REFERENCES "public"."model_proxy_requests"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "model_proxy_models" ADD CONSTRAINT "model_proxy_models_provider_id_model_proxy_providers_id_fk" FOREIGN KEY ("provider_id") REFERENCES "public"."model_proxy_providers"("id") ON DELETE restrict ON UPDATE no action;
