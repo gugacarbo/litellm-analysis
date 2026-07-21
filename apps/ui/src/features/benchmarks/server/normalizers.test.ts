@@ -26,7 +26,7 @@ describe("benchmark normalizers", () => {
     });
   });
 
-  it("preserves mixed OpenRouter items with independent fallback attribution", () => {
+  it("preserves mixed OpenRouter items with independent fallback attribution when meta is null", () => {
     const snapshot = normalizeOpenRouter({
       data: [
         {
@@ -47,12 +47,7 @@ describe("benchmark normalizers", () => {
           avg_generation_time_ms: 2000,
         },
       ],
-      meta: {
-        as_of: "2026-01-01T00:00:00Z",
-        source: null,
-        citation: null,
-        source_url: null,
-      },
+      meta: null,
     });
     expect(snapshot.items.map((item) => item.subsource)).toEqual([
       "artificial-analysis",
@@ -68,6 +63,11 @@ describe("benchmark normalizers", () => {
       elo: 1200,
       winRate: 55,
       averageTimeSeconds: 2,
+    });
+    expect(snapshot.metadata.attribution).toEqual({
+      label: "OpenRouter Benchmarks",
+      url: "https://openrouter.ai/api/v1/benchmarks",
+      citation: null,
     });
   });
 

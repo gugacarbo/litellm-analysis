@@ -69,7 +69,9 @@ const openRouterResponseSchema = z.object({
         .optional(),
       source_url: z.string().nullable().optional(),
     })
-    .passthrough(),
+    .passthrough()
+    .nullable()
+    .optional(),
 });
 
 const AA_ATTRIBUTION: BenchmarkAttribution = {
@@ -155,15 +157,16 @@ export function normalizeOpenRouter(
   expectedSource?: OpenRouterBenchmarkSubsource,
 ): { metadata: BenchmarkSnapshotMetadata; items: OpenRouterBenchmarkItem[] } {
   const parsed = openRouterResponseSchema.parse(input);
+  const meta = parsed.meta ?? null;
   const items = parsed.data.map((item) => {
     if (expectedSource && item.source !== expectedSource) {
       throw new Error("OpenRouter benchmark source does not match request");
     }
     const fallback = openRouterFallbackAttribution(item.source);
     const attribution: BenchmarkAttribution = {
-      label: parsed.meta.source ?? fallback.label,
-      url: parsed.meta.source_url ?? fallback.url,
-      citation: parsed.meta.citation ?? null,
+      label: meta?.source ?? fallback.label,
+      url: meta?.source_url ?? fallback.url,
+      citation: meta?.citation ?? null,
     };
     return {
       id: `${item.source}:${item.model_permaslug}:${item.arena ?? ""}:${item.category ?? ""}`,
@@ -197,12 +200,12 @@ export function normalizeOpenRouter(
   return {
     metadata: {
       catalog: "openrouter",
-      fetchedAt: parsed.meta.as_of ?? new Date().toISOString(),
+      fetchedAt: meta?.as_of ?? new Date().toISOString(),
       count: items.length,
       attribution: {
-        label: parsed.meta.source ?? fallback.label,
-        url: parsed.meta.source_url ?? fallback.url,
-        citation: parsed.meta.citation ?? null,
+        label: meta?.source ?? fallback.label,
+        url: meta?.source_url ?? fallback.url,
+        citation: meta?.citation ?? null,
       },
     },
     items,

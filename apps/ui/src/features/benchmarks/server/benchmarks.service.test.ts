@@ -5,6 +5,7 @@ import type {
 import type {
   ArtificialAnalysisBenchmarkItem,
   BenchmarkSnapshotMetadata,
+  OpenRouterBenchmarkItem,
 } from "@lite-llm/contracts/benchmarks";
 import { describe, expect, it, vi } from "vitest";
 import type { BenchmarkHandlerDeps } from "./benchmarks.handlers";
@@ -13,6 +14,7 @@ import {
   type BenchmarkServiceError,
   BenchmarksService,
 } from "./benchmarks.service";
+import { openRouterFallbackAttribution } from "./normalizers";
 
 vi.mock("@lite-llm/benchmarks-repository", () => ({
   createBenchmarksRepository: vi.fn(),
@@ -106,6 +108,53 @@ function handlerDeps(service: BenchmarksService): BenchmarkHandlerDeps {
 }
 
 describe("BenchmarksService upstream validation", () => {
+  it("syncs OpenRouter snapshots with null metadata and keeps item-level source attribution", async () => {
+    const repo = repository();
+    const benchmarks = service(repo.api, [
+      {
+        data: [
+          {
+            source: "artificial-analysis",
+            model_permaslug: "provider/aa-model",
+            display_name: "AA model",
+            intelligence_index: 42,
+          },
+        ],
+        meta: null,
+      },
+      {
+        data: [
+          {
+            source: "design-arena",
+            model_permaslug: "provider/arena-model",
+            display_name: "Arena model",
+            elo: 1200,
+            win_rate: 55,
+          },
+        ],
+        meta: null,
+      },
+    ]);
+
+    await expect(benchmarks.sync("openrouter")).resolves.toMatchObject({
+      count: 2,
+    });
+    expect(repo.replaceSnapshot).toHaveBeenCalledTimes(1);
+    expect(repo.prior().metadata).toMatchObject({
+      catalog: "openrouter",
+      count: 2,
+    });
+    const items = repo.prior().items as OpenRouterBenchmarkItem[];
+    expect(items.map((item) => item.subsource)).toEqual([
+      "artificial-analysis",
+      "design-arena",
+    ]);
+    expect(items.map((item) => item.attribution)).toEqual([
+      openRouterFallbackAttribution("artificial-analysis"),
+      openRouterFallbackAttribution("design-arena"),
+    ]);
+  });
+
   it("maps invalid Artificial Analysis data to a retryable public error without replacing the prior snapshot", async () => {
     const repo = repository();
     const benchmarks = service(repo.api, [
