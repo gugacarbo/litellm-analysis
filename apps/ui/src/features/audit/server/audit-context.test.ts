@@ -10,6 +10,15 @@ const adminSession = {
 };
 
 describe("createAuditContext", () => {
+  it("uses the Web Crypto default with its receiver preserved", async () => {
+    const result = await createAuditContext({
+      getSession: vi.fn().mockResolvedValue(adminSession),
+      requireAdmin: vi.fn().mockResolvedValue({ ok: true }),
+    });
+
+    expect(result).toMatchObject({ ok: true });
+  });
+
   it("builds trusted UI provenance only after session and role checks", async () => {
     const requireAdmin = vi.fn().mockResolvedValue({ ok: true });
     const result = await createAuditContext({

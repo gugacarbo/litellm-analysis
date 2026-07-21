@@ -51,7 +51,7 @@ export async function createAuditContext(
       actorId: session.session.user.id,
       actorRole: "admin",
       source: "ui",
-      requestId: (deps.createRequestId ?? crypto.randomUUID)(),
+      requestId: deps.createRequestId?.() ?? crypto.randomUUID(),
     }),
   };
 }

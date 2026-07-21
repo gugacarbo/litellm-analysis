@@ -55,6 +55,10 @@ export {
   type IAuditEventsService,
 } from "./services/audit-events.service.js";
 export {
+  CodingAgentsService,
+  type CodingAgentsServiceOptions,
+} from "./services/coding-agents.service.js";
+export {
   ModelAdminService,
   type ModelAdminServiceOptions,
 } from "./services/model-admin.service.js";
@@ -73,6 +77,12 @@ export {
   SettingsService,
   type SettingsServiceOptions,
 } from "./services/settings.service.js";
+export type {
+  CodingAgentArtifact,
+  CodingAgentConnectionMode,
+  CodingAgentProviderOption,
+  CodingAgentsOverview,
+} from "./types/coding-agents.js";
 export type {
   AppendAuditEventInput,
   Architecture,

@@ -15,6 +15,7 @@ import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ProtectedSecretsRouteImport } from './routes/_protected/secrets'
 import { Route as ProtectedProvidersRouteImport } from './routes/_protected/providers'
 import { Route as ProtectedModelsRouteImport } from './routes/_protected/models'
+import { Route as ProtectedCodingAgentsRouteImport } from './routes/_protected/coding-agents'
 import { Route as ProtectedAuditRouteImport } from './routes/_protected/audit'
 import { Route as ProtectedProvidersIndexRouteImport } from './routes/_protected/providers/index'
 import { Route as ProtectedModelsIndexRouteImport } from './routes/_protected/models/index'
@@ -52,6 +53,11 @@ const ProtectedProvidersRoute = ProtectedProvidersRouteImport.update({
 const ProtectedModelsRoute = ProtectedModelsRouteImport.update({
   id: '/models',
   path: '/models',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedCodingAgentsRoute = ProtectedCodingAgentsRouteImport.update({
+  id: '/coding-agents',
+  path: '/coding-agents',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedAuditRoute = ProtectedAuditRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
   '/login': typeof LoginRoute
   '/audit': typeof ProtectedAuditRoute
+  '/coding-agents': typeof ProtectedCodingAgentsRoute
   '/models': typeof ProtectedModelsRouteWithChildren
   '/providers': typeof ProtectedProvidersRouteWithChildren
   '/secrets': typeof ProtectedSecretsRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/audit': typeof ProtectedAuditRoute
+  '/coding-agents': typeof ProtectedCodingAgentsRoute
   '/secrets': typeof ProtectedSecretsRoute
   '/': typeof ProtectedIndexRoute
   '/models/aliases': typeof ProtectedModelsAliasesRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/login': typeof LoginRoute
   '/_protected/audit': typeof ProtectedAuditRoute
+  '/_protected/coding-agents': typeof ProtectedCodingAgentsRoute
   '/_protected/models': typeof ProtectedModelsRouteWithChildren
   '/_protected/providers': typeof ProtectedProvidersRouteWithChildren
   '/_protected/secrets': typeof ProtectedSecretsRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/audit'
+    | '/coding-agents'
     | '/models'
     | '/providers'
     | '/secrets'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/audit'
+    | '/coding-agents'
     | '/secrets'
     | '/'
     | '/models/aliases'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/_protected'
     | '/login'
     | '/_protected/audit'
+    | '/_protected/coding-agents'
     | '/_protected/models'
     | '/_protected/providers'
     | '/_protected/secrets'
@@ -250,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/models'
       fullPath: '/models'
       preLoaderRoute: typeof ProtectedModelsRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/coding-agents': {
+      id: '/_protected/coding-agents'
+      path: '/coding-agents'
+      fullPath: '/coding-agents'
+      preLoaderRoute: typeof ProtectedCodingAgentsRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/audit': {
@@ -365,6 +384,7 @@ const ProtectedProvidersRouteWithChildren =
 
 interface ProtectedRouteChildren {
   ProtectedAuditRoute: typeof ProtectedAuditRoute
+  ProtectedCodingAgentsRoute: typeof ProtectedCodingAgentsRoute
   ProtectedModelsRoute: typeof ProtectedModelsRouteWithChildren
   ProtectedProvidersRoute: typeof ProtectedProvidersRouteWithChildren
   ProtectedSecretsRoute: typeof ProtectedSecretsRoute
@@ -373,6 +393,7 @@ interface ProtectedRouteChildren {
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedAuditRoute: ProtectedAuditRoute,
+  ProtectedCodingAgentsRoute: ProtectedCodingAgentsRoute,
   ProtectedModelsRoute: ProtectedModelsRouteWithChildren,
   ProtectedProvidersRoute: ProtectedProvidersRouteWithChildren,
   ProtectedSecretsRoute: ProtectedSecretsRoute,

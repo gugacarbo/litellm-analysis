@@ -57,7 +57,7 @@ describe("AppShell", () => {
     expect(providersLink.getAttribute("aria-current")).toBeNull();
   });
 
-  it("shows Audit only to administrators", () => {
+  it("shows Coding Agents and Audit only to administrators", () => {
     const { rerender } = render(
       <AppShell {...defaultProps} userRole="admin">
         Dashboard content
@@ -66,6 +66,9 @@ describe("AppShell", () => {
     expect(
       screen.getByRole("link", { name: "Audit" }).getAttribute("href"),
     ).toBe("/audit");
+    expect(
+      screen.getByRole("link", { name: "Coding Agents" }).getAttribute("href"),
+    ).toBe("/coding-agents");
 
     rerender(
       <AppShell {...defaultProps} userRole="viewer">
@@ -73,6 +76,7 @@ describe("AppShell", () => {
       </AppShell>,
     );
     expect(screen.queryByRole("link", { name: "Audit" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Coding Agents" })).toBeNull();
   });
 
   it("persists desktop sidebar changes through its callback", () => {

@@ -107,7 +107,6 @@ services/
   model-proxy/       # proxy LLM TypeScript
   llm-config-service/          # CRUD de registry
   analytics-service/ # queries de analytics (raw SQL via Drizzle)
-  agent-plugins/     # plugins de agentes
   llm-gateway/       # gateway/resolver upstream
 packages/
   config/            # @lite-llm/config — configuração centralizada

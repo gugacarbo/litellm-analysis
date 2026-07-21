@@ -24,6 +24,7 @@ const serverSchema = {
     .min(1, "MODEL_PROXY_API_KEY cannot be empty")
     .optional(),
   MODEL_PROXY_BASE_URL: z.url().optional(),
+  MODEL_PROXY_PUBLIC_BASE_URL: z.url().optional(),
   STORAGE_PATH: z.string().default("@storage"),
 };
 
