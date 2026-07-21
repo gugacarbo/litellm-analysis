@@ -1,17 +1,18 @@
 /** @vitest-environment jsdom */
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BenchmarkListInput } from "./contracts/benchmarks";
 
 const navigate = vi.fn();
 const requests = vi.hoisted(() => ({ aa: vi.fn(), openrouter: vi.fn() }));
+const mutations = vi.hoisted(() => ({ syncBenchmarks: vi.fn() }));
 
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({ children }: { children: ReactNode }) => (
-    <a href="#benchmarks">{children}</a>
+  Link: ({ children, to }: { children: ReactNode; to: string }) => (
+    <a href={to}>{children}</a>
   ),
   useNavigate: () => navigate,
 }));
@@ -30,7 +31,7 @@ vi.mock("./query/query-options", () => ({
 }));
 
 vi.mock("./server/benchmarks.functions", () => ({
-  syncBenchmarks: vi.fn(),
+  syncBenchmarks: mutations.syncBenchmarks,
 }));
 
 import { BenchmarksPage } from "./benchmarks-page";
@@ -113,9 +114,32 @@ function renderPage(role: "admin" | "viewer") {
   );
 }
 
+function renderQueryError(
+  role: "admin" | "viewer",
+  code: "SNAPSHOT_NOT_FOUND" | "UPSTREAM_UNAVAILABLE",
+) {
+  requests.aa.mockRejectedValue(
+    Object.assign(new Error("Public benchmark error"), { code }),
+  );
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={client}>
+      <BenchmarksPage role={role} search={search} source="aa" />
+    </QueryClientProvider>,
+  );
+}
+
+const renderMissingSnapshot = (role: "admin" | "viewer") =>
+  renderQueryError(role, "SNAPSHOT_NOT_FOUND");
+
 afterEach(() => {
   cleanup();
   navigate.mockClear();
+  requests.aa.mockReset();
+  requests.openrouter.mockReset();
+  mutations.syncBenchmarks.mockReset();
 });
 
 describe("BenchmarksPage", () => {
@@ -133,5 +157,68 @@ describe("BenchmarksPage", () => {
     renderPage("admin");
 
     expect(screen.getByRole("button", { name: "Sincronizar" })).toBeTruthy();
+  });
+
+  it("shows a non-destructive unconfigured catalog state to viewers", async () => {
+    renderMissingSnapshot("viewer");
+
+    expect(
+      await screen.findByText("Catálogo ainda não sincronizado"),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Este catálogo ainda não está disponível. Peça a um administrador para sincronizá-lo.",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "Sincronizar catálogo" }),
+    ).toBeNull();
+    expect(
+      screen.queryByText("Não foi possível carregar benchmarks"),
+    ).toBeNull();
+  });
+
+  it("gives administrators a sync CTA when the snapshot is missing", async () => {
+    renderMissingSnapshot("admin");
+
+    expect(
+      await screen.findByRole("button", { name: "Sincronizar catálogo" }),
+    ).toBeTruthy();
+  });
+
+  it("keeps generic upstream failures destructive and retryable", async () => {
+    renderQueryError("viewer", "UPSTREAM_UNAVAILABLE");
+
+    expect(
+      await screen.findByText("Não foi possível carregar benchmarks"),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
+    expect(requests.aa).toHaveBeenCalledTimes(2);
+  });
+
+  it("maps a missing sync credential to a public configuration CTA", async () => {
+    mutations.syncBenchmarks.mockResolvedValue({
+      ok: false,
+      error: {
+        code: "CREDENTIAL_NOT_CONFIGURED",
+        message: "internal credential diagnostic",
+        retryable: false,
+      },
+    });
+    renderPage("admin");
+
+    fireEvent.click(screen.getByRole("button", { name: "Sincronizar" }));
+
+    expect(
+      await screen.findByText("Credencial do catálogo não configurada"),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "Configurar credencial" })
+        .getAttribute("href"),
+    ).toBe("/secrets");
+    expect(document.body.textContent).not.toContain(
+      "internal credential diagnostic",
+    );
   });
 });

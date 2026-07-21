@@ -36,6 +36,15 @@ type SyncControl = {
   error: Error | null;
   mutate: () => void;
 };
+type PublicBenchmarkError = Error & { code?: string };
+
+function hasErrorCode(error: unknown, code: string): boolean {
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    (error as PublicBenchmarkError).code === code
+  );
+}
 
 export function BenchmarksPage({ role, source, search }: Props) {
   const queryClient = useQueryClient();
@@ -46,7 +55,11 @@ export function BenchmarksPage({ role, source, search }: Props) {
           catalog: source === "aa" ? "artificial-analysis" : "openrouter",
         },
       });
-      if (!result.ok) throw new Error(result.error.message);
+      if (!result.ok) {
+        throw Object.assign(new Error(result.error.message), {
+          code: result.error.code,
+        });
+      }
       return result.data;
     },
     onSuccess: () =>
@@ -83,6 +96,11 @@ function BenchmarkContent({
   const data = query.data;
   const title =
     source === "aa" ? "Artificial Analysis" : "OpenRouter Benchmarks";
+  const snapshotMissing = hasErrorCode(query.error, "SNAPSHOT_NOT_FOUND");
+  const credentialMissing = hasErrorCode(
+    sync.error,
+    "CREDENTIAL_NOT_CONFIGURED",
+  );
   return (
     <PageContent>
       <PageHeader
@@ -112,7 +130,9 @@ function BenchmarkContent({
           <BenchmarkFilters search={search} source={source} />
         </CardContent>
       </Card>
-      {sync.isError ? (
+      {credentialMissing ? (
+        <CatalogSetupState role={role} sync={sync} type="credential" />
+      ) : sync.isError ? (
         <Alert variant="destructive">
           <AlertTitle>Falha ao sincronizar</AlertTitle>
           <AlertDescription>
@@ -125,10 +145,19 @@ function BenchmarkContent({
           <Spinner /> Carregando snapshot…
         </section>
       ) : null}
-      {query.isError ? (
+      {snapshotMissing ? (
+        <CatalogSetupState role={role} sync={sync} type="snapshot" />
+      ) : query.isError ? (
         <Alert variant="destructive">
           <AlertTitle>Não foi possível carregar benchmarks</AlertTitle>
           <AlertDescription>{query.error.message}</AlertDescription>
+          <Button
+            className="mt-3"
+            onClick={() => void query.refetch()}
+            variant="outline"
+          >
+            Tentar novamente
+          </Button>
         </Alert>
       ) : null}
       {data ? (
@@ -177,5 +206,47 @@ function BenchmarkContent({
         </section>
       ) : null}
     </PageContent>
+  );
+}
+
+function CatalogSetupState({
+  role,
+  sync,
+  type,
+}: {
+  role: string;
+  sync: SyncControl;
+  type: "credential" | "snapshot";
+}) {
+  const credential = type === "credential";
+  const title = credential
+    ? "Credencial do catálogo não configurada"
+    : "Catálogo ainda não sincronizado";
+  const description = credential
+    ? role === "admin"
+      ? "Configure a credencial antes de sincronizar este catálogo."
+      : "A credencial deste catálogo ainda não foi configurada. Peça a um administrador para configurá-la."
+    : role === "admin"
+      ? "Sincronize o catálogo para disponibilizá-lo aos usuários autenticados."
+      : "Este catálogo ainda não está disponível. Peça a um administrador para sincronizá-lo.";
+
+  return (
+    <Card role="status">
+      <CardContent className="space-y-3 pt-6">
+        <h2 className="font-semibold">{title}</h2>
+        <p className="text-muted-foreground text-sm">{description}</p>
+        {role === "admin" ? (
+          credential ? (
+            <Link className="text-sm underline" to="/secrets">
+              Configurar credencial
+            </Link>
+          ) : (
+            <Button disabled={sync.isPending} onClick={() => sync.mutate()}>
+              {sync.isPending ? "Sincronizando…" : "Sincronizar catálogo"}
+            </Button>
+          )
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }
