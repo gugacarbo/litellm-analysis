@@ -158,10 +158,19 @@ export function normalizeOpenRouter(
 ): { metadata: BenchmarkSnapshotMetadata; items: OpenRouterBenchmarkItem[] } {
   const parsed = openRouterResponseSchema.parse(input);
   const meta = parsed.meta ?? null;
-  const items = parsed.data.map((item) => {
+  const baseIds = parsed.data.map((item) => openRouterEntryIdBase(item));
+  const baseIdCounts = new Map<string, number>();
+  for (const id of baseIds) {
+    baseIdCounts.set(id, (baseIdCounts.get(id) ?? 0) + 1);
+  }
+  const seenBaseIds = new Map<string, number>();
+  const items = parsed.data.map((item, index) => {
     if (expectedSource && item.source !== expectedSource) {
       throw new Error("OpenRouter benchmark source does not match request");
     }
+    const baseId = baseIds[index];
+    const occurrence = seenBaseIds.get(baseId) ?? 0;
+    seenBaseIds.set(baseId, occurrence + 1);
     const fallback = openRouterFallbackAttribution(item.source);
     const attribution: BenchmarkAttribution = {
       label: meta?.source ?? fallback.label,
@@ -169,7 +178,11 @@ export function normalizeOpenRouter(
       citation: meta?.citation ?? null,
     };
     return {
-      id: `${item.source}:${item.model_permaslug}:${item.arena ?? ""}:${item.category ?? ""}`,
+      // Design Arena may publish more than one result for the same model,
+      // arena, and category. Keep each source-native row instead of making
+      // the snapshot's unique external_id constraint reject the whole sync.
+      id:
+        baseIdCounts.get(baseId) === 1 ? baseId : `${baseId}:${occurrence + 1}`,
       subsource: item.source,
       modelPermaslug: item.model_permaslug,
       name: item.display_name,
@@ -210,4 +223,8 @@ export function normalizeOpenRouter(
     },
     items,
   };
+}
+
+function openRouterEntryIdBase(item: z.infer<typeof openRouterItemSchema>) {
+  return `${item.source}:${item.model_permaslug}:${item.arena ?? ""}:${item.category ?? ""}`;
 }

@@ -5,6 +5,7 @@ import type {
 } from "@lite-llm/contracts/benchmarks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { PageContent } from "@/features/app-shell/components/page-content";
 import { PageHeader } from "@/features/app-shell/components/page-header";
 import {
@@ -20,7 +21,7 @@ import {
   BenchmarkPagination,
   SnapshotInfo,
 } from "./benchmark-filters";
-import { AaTable, OpenRouterSection } from "./benchmark-tables";
+import { AaSection, OpenRouterSection } from "./benchmark-tables";
 import type { BenchmarkListInput } from "./contracts/benchmarks";
 import { benchmarkQueries } from "./query/query-options";
 import { syncBenchmarks } from "./server/benchmarks.functions";
@@ -86,6 +87,11 @@ function BenchmarkContent({
   search,
   sync,
 }: Props & { sync: SyncControl }) {
+  const [groupVariants, setGroupVariants] = useState({
+    aa: false,
+    openrouterAa: false,
+    openrouterArena: false,
+  });
   const query = useQuery<
     BenchmarkPage<ArtificialAnalysisBenchmarkItem | OpenRouterBenchmarkItem>
   >(
@@ -176,25 +182,39 @@ function BenchmarkContent({
               </CardContent>
             </Card>
           ) : source === "aa" ? (
-            <Card>
-              <CardContent className="pt-6">
-                <AaTable
-                  items={data.items as ArtificialAnalysisBenchmarkItem[]}
-                />
-              </CardContent>
-            </Card>
+            <AaSection
+              groupVariants={groupVariants.aa}
+              items={data.items as ArtificialAnalysisBenchmarkItem[]}
+              onGroupVariantsChange={(checked) =>
+                setGroupVariants((current) => ({ ...current, aa: checked }))
+              }
+            />
           ) : (
             <div className="space-y-4">
               <OpenRouterSection
+                groupVariants={groupVariants.openrouterAa}
                 items={(data.items as OpenRouterBenchmarkItem[]).filter(
                   (item) => item.subsource === "artificial-analysis",
                 )}
+                onGroupVariantsChange={(checked) =>
+                  setGroupVariants((current) => ({
+                    ...current,
+                    openrouterAa: checked,
+                  }))
+                }
                 title="Artificial Analysis via OpenRouter"
               />
               <OpenRouterSection
+                groupVariants={groupVariants.openrouterArena}
                 items={(data.items as OpenRouterBenchmarkItem[]).filter(
                   (item) => item.subsource === "design-arena",
                 )}
+                onGroupVariantsChange={(checked) =>
+                  setGroupVariants((current) => ({
+                    ...current,
+                    openrouterArena: checked,
+                  }))
+                }
                 title="Design Arena"
               />
             </div>

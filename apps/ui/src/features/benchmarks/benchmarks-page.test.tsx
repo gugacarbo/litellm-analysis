@@ -142,6 +142,93 @@ afterEach(() => {
 });
 
 describe("BenchmarksPage", () => {
+  it("preserves variant grouping while paginating", () => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, staleTime: Number.POSITIVE_INFINITY },
+      },
+    });
+    const aaItem = {
+      id: "claude-sonnet-5-reasoning",
+      name: "Claude Sonnet 5 (Reasoning)",
+      slug: "claude-sonnet-5-reasoning",
+      creatorId: "anthropic",
+      creatorName: "Anthropic",
+      creatorSlug: "anthropic",
+      source: "artificial-analysis" as const,
+      intelligenceIndex: 50,
+      codingIndex: null,
+      mathIndex: null,
+      mmluPro: null,
+      gpqa: null,
+      hle: null,
+      livecodebench: null,
+      scicode: null,
+      math500: null,
+      aime: null,
+      aime25: null,
+      tau2: null,
+      ifbench: null,
+      lcr: null,
+      terminalbenchHard: null,
+      priceInput1mTokens: 2,
+      priceOutput1mTokens: 10,
+      priceBlended1mTokens: null,
+      medianOutputTokensPerSecond: null,
+      medianTimeToFirstTokenSeconds: null,
+      medianTimeToFirstAnswerTokenSeconds: null,
+    };
+    const page2Search = { ...search, page: 2 };
+    const aaMetadata = {
+      ...metadata,
+      catalog: "artificial-analysis" as const,
+      attribution: {
+        label: "Artificial Analysis",
+        url: "https://artificialanalysis.ai",
+        citation: null,
+      },
+    };
+    for (const pageSearch of [search, page2Search]) {
+      client.setQueryData(["benchmarks", "aa", pageSearch], {
+        metadata: aaMetadata,
+        items: [
+          aaItem,
+          {
+            ...aaItem,
+            id: `${aaItem.id}-2`,
+            name: "Claude Sonnet 5 (Non-reasoning)",
+          },
+        ],
+        page: pageSearch.page,
+        pageSize: 25,
+        total: 50,
+        pageCount: 2,
+      });
+    }
+    const viewerRole = "viewer";
+    const view = render(
+      <QueryClientProvider client={client}>
+        <BenchmarksPage role={viewerRole} search={search} source="aa" />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(
+      screen.getByRole("switch", { name: "Agrupar variantes em Modelos" }),
+    );
+
+    view.rerender(
+      <QueryClientProvider client={client}>
+        <BenchmarksPage role={viewerRole} search={page2Search} source="aa" />
+      </QueryClientProvider>,
+    );
+
+    expect(
+      screen
+        .getByRole("switch", { name: "Agrupar variantes em Modelos" })
+        .getAttribute("aria-checked"),
+    ).toBe("true");
+    expect(screen.getByText("Claude Sonnet 5")).toBeTruthy();
+  });
+
   it("keeps Artificial Analysis and Design Arena in distinct sections for a viewer", () => {
     renderPage("viewer");
 

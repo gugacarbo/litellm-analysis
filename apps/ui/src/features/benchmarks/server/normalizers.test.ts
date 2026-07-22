@@ -92,4 +92,36 @@ describe("benchmark normalizers", () => {
       ),
     ).toThrow("does not match request");
   });
+
+  it("keeps distinct Design Arena rows that share model, arena, and category", () => {
+    const snapshot = normalizeOpenRouter({
+      data: [
+        {
+          source: "design-arena",
+          model_permaslug: "z-ai/glm-5.1-20260406",
+          display_name: "GLM-5.1",
+          arena: "models",
+          category: "dataviz",
+          elo: 1366,
+          win_rate: 67,
+        },
+        {
+          source: "design-arena",
+          model_permaslug: "z-ai/glm-5.1-20260406",
+          display_name: "GLM-5.1",
+          arena: "models",
+          category: "dataviz",
+          elo: 1318,
+          win_rate: 61.1,
+        },
+      ],
+      meta: { source: "design-arena" },
+    });
+
+    expect(snapshot.items).toHaveLength(2);
+    expect(snapshot.items.map((item) => item.id)).toEqual([
+      "design-arena:z-ai/glm-5.1-20260406:models:dataviz:1",
+      "design-arena:z-ai/glm-5.1-20260406:models:dataviz:2",
+    ]);
+  });
 });
