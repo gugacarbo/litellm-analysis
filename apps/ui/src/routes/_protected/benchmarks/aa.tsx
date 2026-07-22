@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_protected/benchmarks/aa")({
   validateSearch: benchmarkListInputSchema,
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) =>
-    context.queryClient.ensureQueryData(benchmarkQueries.aa(deps)),
+    context.queryClient.prefetchQuery(benchmarkQueries.aa(deps)),
   component: AaRoute,
 });
 

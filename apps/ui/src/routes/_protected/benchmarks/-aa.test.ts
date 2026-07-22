@@ -13,22 +13,22 @@ import { Route } from "./aa";
 afterEach(() => vi.clearAllMocks());
 
 describe("/benchmarks/aa route", () => {
-  it("validates search and preloads the authenticated snapshot query", async () => {
+  it("validates search and prefetches the authenticated snapshot query", async () => {
     expect(Route.options.validateSearch).toBe(benchmarkListInputSchema);
     const search = { page: 2, pageSize: 10, search: "gpt" };
     expect(Route.options.loaderDeps?.({ search } as never)).toBe(search);
 
-    const ensureQueryData = vi.fn().mockResolvedValue(undefined);
+    const prefetchQuery = vi.fn().mockResolvedValue(undefined);
     const loader = Route.options.loader;
     if (typeof loader !== "function") throw new Error("AA loader is required");
 
     await loader({
-      context: { queryClient: { ensureQueryData } },
+      context: { queryClient: { prefetchQuery } },
       deps: search,
     } as never);
 
     expect(benchmarkQueries.aa).toHaveBeenCalledWith(search);
-    expect(ensureQueryData).toHaveBeenCalledWith({
+    expect(prefetchQuery).toHaveBeenCalledWith({
       queryKey: ["benchmarks", "aa", search],
     });
   });
