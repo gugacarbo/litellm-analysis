@@ -9,8 +9,10 @@ export function getRouter() {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
-    defaultPreload: "intent",
-    defaultPreloadStaleTime: 0,
+    // Route-intent preloading can race while its ephemeral match cache is
+    // being reconciled. Query data remains cached by TanStack Query after a
+    // normal navigation, so do not put every Link through that extra path.
+    defaultPreload: false,
   });
 
   setupRouterSsrQueryIntegration({ router, queryClient });
