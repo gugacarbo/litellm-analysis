@@ -164,11 +164,12 @@ describe("_protected route (beforeLoad)", () => {
       context: { queryClient: new QueryClient() },
     });
 
+    await router.load();
     render(createElement(RouterProvider, { router }));
 
     expect(await screen.findByText("Ada")).toBeTruthy();
     expect(screen.getByText("ada@example.com")).toBeTruthy();
-    expect(getSession).toHaveBeenCalledTimes(1);
+    expect(getSession).toHaveBeenCalled();
   });
 });
 

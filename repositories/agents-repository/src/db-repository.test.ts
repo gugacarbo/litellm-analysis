@@ -1,4 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@lite-llm/database/client", () => ({
+  getDb: vi.fn(),
+}));
+
 import { createDbRepository } from "./db-repository";
 
 const settingsStore = new Map<string, unknown>();

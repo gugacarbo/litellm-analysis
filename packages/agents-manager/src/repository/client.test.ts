@@ -1,4 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@lite-llm/agents-repository/db-repository", () => ({
+  createDbRepository: vi.fn(() => ({ read: vi.fn() })),
+}));
+
 import { createRepositoryClient } from "./client";
 
 describe("createRepositoryClient", () => {

@@ -37,14 +37,6 @@ export type DatabaseClient = ReturnType<typeof getDb>;
 
 export const db = getDb();
 
-export async function disconnectDb(): Promise<void> {
-  if (dbInstance) {
-    await getPool().end();
-    pool = null;
-    dbInstance = null;
-  }
-}
-
 export async function queryRaw<T>(
   query: ReturnType<typeof sql> | SQL,
   _params: unknown[] = [],

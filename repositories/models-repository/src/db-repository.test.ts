@@ -4,6 +4,11 @@ import {
   modelProxySettings,
 } from "@lite-llm/database/schema/model-proxy";
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@lite-llm/database/client", () => ({
+  getDb: vi.fn(),
+}));
+
 import { createDbRepository } from "./db-repository";
 
 type InMemoryModelRow = Record<string, unknown> & {

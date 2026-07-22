@@ -1,4 +1,20 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@lite-llm/llm-config-service", () => ({
+  ModelAdminError: class ModelAdminError extends Error {
+    toPublic() {
+      return {
+        ok: false,
+        error: {
+          code: "INTERNAL",
+          message: "Internal server error",
+          retryable: false,
+        },
+      };
+    }
+  },
+}));
+
 import {
   handleCreateProvider,
   handleGetProvider,

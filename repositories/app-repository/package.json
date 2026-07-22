@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "exports": {
-    "./queries": "./src/queries-public.ts"
-  },
+  "exports": {},
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit"

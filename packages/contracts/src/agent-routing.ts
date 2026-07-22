@@ -1,9 +1,4 @@
-import type {
-  AgentExtraConfig,
-  SystemAgent,
-} from "@lite-llm/agents-repository/schemas";
-
-export type { SystemAgent };
+import type { AgentExtraConfig } from "@lite-llm/agents-repository/schemas";
 
 // Agent entry with catalog key for API responses
 export interface AgentCatalogEntry {
@@ -14,13 +9,4 @@ export interface AgentCatalogEntry {
   limits: { context: number; output: number };
   model: string;
   config: AgentExtraConfig;
-}
-
-export interface AgentCatalogResponse {
-  agents: AgentCatalogEntry[];
-}
-
-export interface AgentCatalogDetailResponse {
-  key: string;
-  agent: SystemAgent;
 }

@@ -21,15 +21,18 @@ vi.mock("@hebo-ai/gateway", () => ({
   gateway: gatewayMock,
 }));
 
-vi.mock("./ledger-hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("./ledger-hooks")>("./ledger-hooks");
+vi.mock("./ledger-hooks", () => ({
+  HEBO_MAX_BODY_SIZE: 10 * 1024 * 1024,
+  createLedgerHooks: createLedgerHooksMock,
+}));
 
-  return {
-    ...actual,
-    createLedgerHooks: createLedgerHooksMock,
-  };
-});
+vi.mock("../logging/request-ledger", () => ({
+  RequestLedger: class {
+    onRequestFinished() {
+      return () => {};
+    }
+  },
+}));
 
 import { createHeboModelProxyGateway } from "./create-gateway";
 

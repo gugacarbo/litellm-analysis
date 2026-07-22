@@ -2,6 +2,10 @@
 
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@lite-llm/database/client", () => ({
+  getDb: vi.fn(),
+}));
+
 vi.mock("@/features/ui-preferences/server/ui-preferences.functions", () => ({
   getUiPreferences: vi.fn(),
 }));
