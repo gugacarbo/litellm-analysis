@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type {
-  AgentCatalogDetailResponse,
-  AgentCatalogEntry,
-  AgentCatalogResponse,
-} from "../agent-routing";
+import type { AgentCatalogEntry } from "../agent-routing";
 import type {
   CostEfficiency,
   DailySpend,
@@ -39,22 +35,7 @@ describe("@lite-llm/api-contracts", () => {
         model: "gpt-4",
         config: {},
       };
-      const _catalogResp: AgentCatalogResponse = { agents: [_agentEntry] };
-      const _detailResp: AgentCatalogDetailResponse = {
-        key: "test",
-        agent: {
-          displayName: "Test",
-          icon: "T",
-          description: "A test agent",
-          limits: { context: 200000, output: 32768 },
-          model: "gpt-4",
-          config: {},
-        },
-      };
       expect(_agentEntry.displayName).toBe("Test");
-      expect(_catalogResp.agents).toHaveLength(1);
-      expect(_detailResp.key).toBe("test");
-      expect(_detailResp.agent.displayName).toBe("Test");
     });
 
     it("imports analytics types", () => {

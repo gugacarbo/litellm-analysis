@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./hebo": "./src/hebo/create-gateway.ts",
+    "./hebo": "./src/hebo/public.ts",
     "./hebo/sanitize-request-body": "./src/hebo/sanitize-request-body.ts"
   },
   "scripts": {

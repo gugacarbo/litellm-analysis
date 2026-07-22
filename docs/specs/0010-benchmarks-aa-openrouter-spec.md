@@ -40,6 +40,10 @@ resolve um segredo nem consulta um fornecedor externo.
   preserva subfonte/atribuição por item. Quando `meta` é nulo, usa o endpoint
   público específico da subfonte como atribuição; ELO e índices AA não formam
   um ranking único.
+- Setups de teste que aplicam as migrations de snapshots usam schema de
+  aplicação e ledger de migrations próprios, ambos não-`public`. Execuções
+  repetidas ou paralelas não compartilham DDL, ledger ou dados fora desses
+  schemas efêmeros.
 
 ## Casos de borda
 
@@ -60,6 +64,10 @@ Nenhuma.
 pnpm --filter ui exec vitest run src/features/benchmarks/server/normalizers.test.ts src/features/benchmarks/server/benchmarks.handlers.test.ts # exit 0; casos 1 e 3
 pnpm --filter ui typecheck # exit 0
 pnpm --filter @lite-llm/database test:migrations # exit 0 com TEST_DATABASE_URL guardada; caso 4
+pnpm verify -c # exit 0; exports públicos sem consumidores continuam falhando o check
+pnpm test # exit 0; setup de auth repete migrations sem colisões
+pnpm typecheck # exit 0
+pnpm verify # exit 0
 ```
 
 ## Revisão humana

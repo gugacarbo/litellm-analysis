@@ -1,8 +1,4 @@
-export {
-  createBenchmarksRepository,
-  createBenchmarksRepositoryWithDb,
-  DbBenchmarksRepository,
-} from "./db-repository";
+export { createBenchmarksRepository } from "./db-repository";
 export type {
   IBenchmarksRepository,
   StoredBenchmarkSnapshot,

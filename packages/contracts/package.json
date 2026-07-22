@@ -4,12 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./analytics": "./src/analytics-public.ts",
     "./agent-routing": "./src/agent-routing.ts",
-    "./benchmarks": "./src/benchmarks.ts",
-    "./category": "./src/category.ts",
-    "./ws-events": "./src/ws-events.ts"
+    "./benchmarks": "./src/benchmarks.ts"
   },
   "scripts": {
     "build": "tsc",

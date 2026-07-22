@@ -37,43 +37,6 @@ export interface StoredModelBenchmarkDataset {
   models: NormalizedModelBenchmark[];
 }
 
-export interface ModelBenchmarkListItem extends NormalizedModelBenchmark {
-  isConfigured: boolean;
-  matchedConfiguredModel: string | null;
-}
-
-import type { PaginationMetadata } from "./analytics";
-
-export interface ModelBenchmarkApiResponse {
-  source: string;
-  sourceUrl: string;
-  fetchedAt: string;
-  count: number;
-  configuredModelNames: string[];
-  unmatchedConfiguredModels: string[];
-  models: ModelBenchmarkListItem[];
-  pagination: PaginationMetadata;
-}
-
-export type BenchmarkSyncStatus = "idle" | "running" | "succeeded" | "failed";
-
-export interface BenchmarkSyncStatusResponse {
-  status: BenchmarkSyncStatus;
-  isRunning: boolean;
-  canTrigger: boolean;
-  datasetExists: boolean;
-  startedAt: string | null;
-  finishedAt: string | null;
-  lastSuccessAt: string | null;
-  cooldownUntil: string | null;
-  lastError: string | null;
-}
-
-export interface TriggerBenchmarkSyncResponse
-  extends BenchmarkSyncStatusResponse {
-  triggered: boolean;
-}
-
 export interface OpenRouterModelData {
   id: string;
   name: string;

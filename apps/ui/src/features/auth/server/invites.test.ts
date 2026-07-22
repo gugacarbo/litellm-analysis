@@ -1,6 +1,10 @@
 import { appInvites, user } from "@lite-llm/database/schema";
 import { eq } from "drizzle-orm";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@lite-llm/database/client", () => ({
+  getDb: vi.fn(),
+}));
 
 import { type Auth, createAuth } from "@/features/auth/server/auth";
 import {
@@ -11,6 +15,10 @@ import {
   requireSession,
 } from "@/features/auth/server/invites";
 import { createTestDb } from "@/features/auth/server/test-setup";
+
+const describeWithTestDatabase = process.env.TEST_DATABASE_URL
+  ? describe
+  : describe.skip;
 
 type TestContext = {
   auth: Auth;
@@ -23,7 +31,7 @@ async function setup(): Promise<TestContext> {
   return { auth, stop };
 }
 
-describe("requireSession", () => {
+describeWithTestDatabase("requireSession", () => {
   it("rejeita requisicao sem sessao com UNAUTHENTICATED", async () => {
     const ctx = await setup();
     try {
@@ -87,7 +95,7 @@ describe("requireSession", () => {
   });
 });
 
-describe("acceptInvite", () => {
+describeWithTestDatabase("acceptInvite", () => {
   it("cria usuario e sessao com convite de bootstrap valido", async () => {
     const ctx = await setup();
     try {
@@ -297,7 +305,7 @@ describe("acceptInvite", () => {
   });
 });
 
-describe("createInvite", () => {
+describeWithTestDatabase("createInvite", () => {
   it("exige sessao valida (UNAUTHENTICATED) para criar convite", async () => {
     const ctx = await setup();
     try {
@@ -468,7 +476,7 @@ describe("createInvite", () => {
   });
 });
 
-describe("requireRole", () => {
+describeWithTestDatabase("requireRole", () => {
   it("permite admin e rejeita viewer", async () => {
     const ctx = await setup();
     try {

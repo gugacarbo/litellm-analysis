@@ -6,9 +6,6 @@ export type {
   BenchmarkNativeValue,
   BenchmarkPage,
   BenchmarkSnapshotMetadata,
-  BenchmarkSyncStatusResponse,
-  ModelBenchmarkApiResponse,
-  ModelBenchmarkListItem,
   OpenRouterBenchmarkItem,
   OpenRouterBenchmarkSubsource,
 } from "./benchmarks";

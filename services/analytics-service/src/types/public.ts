@@ -1,1 +1,1 @@
-export type { AnalyticsDataSource, ProxyRequestLog } from "./index";
+export type { AnalyticsDataSource } from "./index";

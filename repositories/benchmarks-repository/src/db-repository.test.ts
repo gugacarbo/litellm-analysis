@@ -5,8 +5,17 @@ import type {
 } from "@lite-llm/contracts/benchmarks";
 import { createTestDb } from "@lite-llm/database/test-helpers";
 import { sql } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@lite-llm/database/client", () => ({
+  getDb: vi.fn(),
+}));
+
 import { createBenchmarksRepositoryWithDb } from "./db-repository";
+
+const describeWithTestDatabase = process.env.TEST_DATABASE_URL
+  ? describe
+  : describe.skip;
 
 function makeModel(
   overrides: Partial<ArtificialAnalysisBenchmarkItem> = {},
@@ -77,7 +86,7 @@ const openRouterItem: OpenRouterBenchmarkItem = {
   native: { source: "design-arena", preserved: true },
 };
 
-describe("DbBenchmarksRepository", () => {
+describeWithTestDatabase("DbBenchmarksRepository", () => {
   let testDb: Awaited<ReturnType<typeof createTestDb>>;
 
   beforeEach(async () => {
