@@ -15,7 +15,7 @@ import { Route } from "./openrouter";
 afterEach(() => vi.clearAllMocks());
 
 describe("/benchmarks/openrouter route", () => {
-  it("preloads only the OpenRouter snapshot query", async () => {
+  it("prefetches only the OpenRouter snapshot query", async () => {
     expect(Route.options.validateSearch).toBe(benchmarkListInputSchema);
     const search = {
       page: 1,
@@ -23,19 +23,19 @@ describe("/benchmarks/openrouter route", () => {
       subsource: "design-arena",
       sort: "elo",
     };
-    const ensureQueryData = vi.fn().mockResolvedValue(undefined);
+    const prefetchQuery = vi.fn().mockResolvedValue(undefined);
     const loader = Route.options.loader;
     if (typeof loader !== "function") {
       throw new Error("OpenRouter loader is required");
     }
 
     await loader({
-      context: { queryClient: { ensureQueryData } },
+      context: { queryClient: { prefetchQuery } },
       deps: search,
     } as never);
 
     expect(benchmarkQueries.openrouter).toHaveBeenCalledWith(search);
-    expect(ensureQueryData).toHaveBeenCalledWith({
+    expect(prefetchQuery).toHaveBeenCalledWith({
       queryKey: ["benchmarks", "openrouter", search],
     });
   });

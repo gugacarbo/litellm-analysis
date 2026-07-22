@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_protected/benchmarks/openrouter")({
   validateSearch: benchmarkListInputSchema,
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) =>
-    context.queryClient.ensureQueryData(benchmarkQueries.openrouter(deps)),
+    context.queryClient.prefetchQuery(benchmarkQueries.openrouter(deps)),
   component: OpenRouterRoute,
 });
 
