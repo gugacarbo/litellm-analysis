@@ -206,6 +206,9 @@ export function BenchmarkSection({
   title: string;
 }) {
   if (items.length === 0) return null;
+  const displayedItemCount = groupVariants
+    ? groupModelVariants(items).length
+    : items.length;
 
   return (
     <Card>
@@ -213,7 +216,7 @@ export function BenchmarkSection({
         <div className="space-y-1.5">
           <CardTitle className="flex flex-wrap items-center gap-2">
             {title}
-            <Badge variant="outline">{items.length}</Badge>
+            <Badge variant="outline">{displayedItemCount}</Badge>
           </CardTitle>
           {attribution ? (
             <a

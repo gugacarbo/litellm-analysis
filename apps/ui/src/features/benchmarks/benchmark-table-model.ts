@@ -77,11 +77,18 @@ function withoutTrailingVariant(name: string): string {
   return name;
 }
 
+function modelFamilyName(name: string): string {
+  return withoutTrailingVariant(name).replace(
+    /\s+(?:distill\b.*|(?:0[1-9]|1[0-2])\d{2}\b.*)$/i,
+    "",
+  );
+}
+
 export function groupModelVariants(items: BenchmarkTableItem[]): ModelGroup[] {
   const groupedItems = new Map<string, Omit<ModelGroup, "representative">>();
 
   for (const item of items) {
-    const name = withoutTrailingVariant(item.name);
+    const name = modelFamilyName(item.name);
     const key = `${item.providerId ?? item.providerName}:${name.toLocaleLowerCase()}`;
     const group = groupedItems.get(key);
     if (group) group.items.push(item);

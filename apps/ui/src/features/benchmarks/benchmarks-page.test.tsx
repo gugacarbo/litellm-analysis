@@ -211,9 +211,11 @@ describe("BenchmarksPage", () => {
         <BenchmarksPage role={viewerRole} search={search} source="aa" />
       </QueryClientProvider>,
     );
-    fireEvent.click(
-      screen.getByRole("switch", { name: "Agrupar variantes em Modelos" }),
-    );
+    expect(
+      screen
+        .getByRole("switch", { name: "Agrupar variantes em Modelos" })
+        .getAttribute("aria-checked"),
+    ).toBe("true");
 
     view.rerender(
       <QueryClientProvider client={client}>

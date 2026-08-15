@@ -64,6 +64,28 @@ describe("AA model variant grouping", () => {
     );
   });
 
+  it("groups dated builds and distill derivatives into their model family", () => {
+    const deepSeekItems = [
+      item("r1-date", "DeepSeek R1 (Jan '25)"),
+      item("r1-build", "DeepSeek R1 0528 (May '25)"),
+      item("r1-qwen3", "DeepSeek R1 0528 Qwen3 8B"),
+      item("r1-llama", "DeepSeek R1 Distill Llama 70B"),
+      item("r1-qwen", "DeepSeek R1 Distill Qwen 14B"),
+      item("v3-date", "DeepSeek V3 (Dec '24)"),
+      item("v3-build", "DeepSeek V3 0324"),
+    ];
+
+    const groups = groupModelVariants(toAaTableItems(deepSeekItems));
+
+    expect(
+      groups.map(({ name, items: variants }) => [name, variants.length]),
+    ).toEqual([
+      ["DeepSeek R1", 5],
+      ["DeepSeek V3", 2],
+    ]);
+    expect(groups[0]?.representative.name).toBe("DeepSeek R1 (Jan '25)");
+  });
+
   it("lets the viewer enable grouping from the card header", () => {
     function ControlledSection() {
       const [groupVariants, setGroupVariants] = useState(false);
@@ -83,6 +105,7 @@ describe("AA model variant grouping", () => {
     );
 
     expect(screen.getAllByText("2 variantes")).toHaveLength(2);
+    expect(screen.getByText("3")).toBeTruthy();
     expect(screen.getByText("Claude 3.5 Sonnet")).toBeTruthy();
     expect(screen.getByText("Claude 3.7 Sonnet")).toBeTruthy();
     expect(screen.queryByText("Claude 3.7 Sonnet (Reasoning)")).toBeNull();

@@ -88,9 +88,9 @@ function BenchmarkContent({
   sync,
 }: Props & { sync: SyncControl }) {
   const [groupVariants, setGroupVariants] = useState({
-    aa: false,
-    openrouterAa: false,
-    openrouterArena: false,
+    aa: true,
+    openrouterAa: true,
+    openrouterArena: true,
   });
   const query = useQuery<
     BenchmarkPage<ArtificialAnalysisBenchmarkItem | OpenRouterBenchmarkItem>
